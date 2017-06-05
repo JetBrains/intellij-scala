@@ -6,7 +6,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
-import com.intellij.psi.impl.source.tree.PsiErrorElementImpl
 import com.intellij.util.Base64
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -23,6 +22,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinter.QueuedPsi
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -80,15 +80,16 @@ object WorksheetSourceProcessor {
   
   
   def processIncrementalInner(srcFile: ScalaFile, ifEditor: Option[Editor]): Either[(String, String), PsiErrorElement] = {
-    val allExprs = mutable.ListBuffer[String]()
+    val exprsPsi = mutable.ListBuffer[QueuedPsi]()
     val lastProcessed = ifEditor.flatMap(
       e => WorksheetCache.getInstance(srcFile.getProject).getLastProcessedIncremental(e))
-    if (lastProcessed.isEmpty) allExprs += ":reset"
 
+    val glue = new WorksheetPsiGlue(exprsPsi)
     new WorksheetInterpretExprsIterator(srcFile, ifEditor, lastProcessed).collectAll(
-      psi => allExprs += psi.getText, Some(e => return Right(e)))
+      glue.processPsi, Some(e => return Right(e)))
     
-    if (allExprs.isEmpty) return Right(new PsiErrorElementImpl("No available expressions"))
+    val texts = exprsPsi.map(_.getText)
+    val allExprs = if (lastProcessed.isEmpty) ":reset" +: texts else texts
     
     Left((Base64.encode((allExprs mkString REPL_DELIMITER).getBytes), ""))
   }

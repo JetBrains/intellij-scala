@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContribut
 import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionUtil, ScalaCompletionUtil, ScalaSmartCompletionContributor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
   * Created by Kate Ustyuzhanina on 12/2/16.
@@ -33,7 +34,32 @@ object ScalaCompletionSorting {
       sorter = sorter.weighAfter("scalaKindWeigher", new ScalaByExpectedTypeWeigher(expectedTypes, position))
     }
 
-    result.withRelevanceSorter(sorter)
-  }
+    class BacktickedsPrefixMatcher(other: PrefixMatcher) extends PrefixMatcher(other.getPrefix) {
+      private val matcherWithoutBackticks = other.cloneWithPrefix(cleanHelper(myPrefix))
 
+      override def prefixMatches(name: String): Boolean =
+        if (myPrefix == "`") other.prefixMatches(name)
+        else matcherWithoutBackticks.prefixMatches(ScalaNamesUtil.clean(name))
+
+      override def cloneWithPrefix(prefix: String): PrefixMatcher = matcherWithoutBackticks.cloneWithPrefix(prefix)
+
+      override def isStartMatch(name: String): Boolean =
+        if (myPrefix == "`") other.isStartMatch(name)
+        else matcherWithoutBackticks.isStartMatch(ScalaNamesUtil.clean(name))
+
+      private def cleanHelper(prefix: String): String = {
+        if (prefix == null || prefix.isEmpty || prefix == "`") prefix
+        else prefix match {
+          case ScalaNamesUtil.isBacktickedName(s) => s
+          case p if p.head == '`' => p.substring(1)
+          case p if p.last == '`' => prefix.substring(0, prefix.length - 1)
+          case _ => prefix
+        }
+      }
+    }
+
+    result
+      .withRelevanceSorter(sorter)
+      .withPrefixMatcher(new BacktickedsPrefixMatcher(result.getPrefixMatcher))
+  }
 }

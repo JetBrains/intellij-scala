@@ -861,8 +861,9 @@ object ScalaPositionManager {
   def isDelayedInit(cl: PsiClass): Boolean = cl match {
     case obj: ScObject =>
       val manager: ScalaPsiManager = ScalaPsiManager.instance(obj.getProject)
-      val clazz: PsiClass = manager.getCachedClass(obj.getResolveScope, "scala.DelayedInit").orNull
-      clazz != null && manager.cachedDeepIsInheritor(obj, clazz)
+      val clazz: PsiClass =
+        manager.getCachedClass(obj.getResolveScope, "scala.DelayedInit").orNull
+      clazz != null && obj.isInheritor(clazz, deep = true)
     case _ => false
   }
 

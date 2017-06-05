@@ -181,8 +181,7 @@ object ScalaMacroDebuggingUtil {
                 |()
               """.stripMargin
 
-            implicit val manager = PsiManager.getInstance(project)
-            val expansion = createBlockExpressionWithoutBracesFromText(s"{$macroExpansion}")
+            val expansion = createBlockExpressionWithoutBracesFromText(s"{$macroExpansion}")(project)
             var statement = macroCall.getParent.addAfter(expansion, macroCall)
             macroCall.delete()
             statement = CodeStyleManager.getInstance(project).reformat(statement)

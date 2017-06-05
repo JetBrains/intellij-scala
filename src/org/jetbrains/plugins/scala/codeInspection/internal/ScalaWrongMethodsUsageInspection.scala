@@ -4,6 +4,7 @@ import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
@@ -52,7 +53,7 @@ class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
                     val instance = ScalaPsiManager.instance(holder.getProject)
                     val cachedClass = instance.getCachedClass(m.getResolveScope, clazz).orNull
                     if (cachedClass != null && containingClass != null) {
-                      if (cachedClass == containingClass || instance.cachedDeepIsInheritor(cachedClass, containingClass)) {
+                      if (cachedClass == containingClass || isInheritorDeep(cachedClass, containingClass)) {
                         true
                       } else false
                     } else false

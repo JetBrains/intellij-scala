@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -77,7 +77,7 @@ class ScalaTestGenerator extends TestGenerator {
 
     val file = createTestFileFromTemplate(d, project)
     if (file == null) return file
-    val typeDefinition = file.depthFirst().filterByType(classOf[ScTypeDefinition]).next()
+    val typeDefinition = file.depthFirst().filterByType[ScTypeDefinition].next()
     val fqName = d.getSuperClassName
     if (fqName != null) {
       val psiClass = ElementScope(project).getCachedClass(fqName)
@@ -102,7 +102,7 @@ class ScalaTestGenerator extends TestGenerator {
     psiClass match {
       case Some(cls) =>
         val classParents = addExtendsRef(cls.name)
-        classParents.depthFirst().filterByType(classOf[ScStableCodeReferenceElement]).next().bindToElement(cls)
+        classParents.depthFirst().filterByType[ScStableCodeReferenceElement].next().bindToElement(cls)
       case None =>
         addExtendsRef(fqName)
     }
@@ -112,13 +112,11 @@ class ScalaTestGenerator extends TestGenerator {
                              generateBefore: Boolean, generateAfter: Boolean, className: String): Unit = {
     val templateBody = typeDef.extendsBlock.templateBody
     import TestConfigurationUtil.isInheritor
+    import typeDef.projectContext
 
     import collection.JavaConversions._
 
-    val project = editor.getProject
-    implicit val manager = PsiManager.getInstance(project)
-    implicit val elementScope = ElementScope(project)
-    implicit val normalIndent = FormatterUtil.getNormalIndentString(project)
+    implicit val normalIndent = FormatterUtil.getNormalIndentString(projectContext)
 
     import ScalaTestGenerator._
     templateBody match {
@@ -186,9 +184,9 @@ object ScalaTestGenerator {
     }
 
   private def generateScalaTestBeforeAndAfter(generateBefore: Boolean, generateAfter: Boolean,
-                                              typeDef: ScTypeDefinition)
-                                             (implicit manager: PsiManager,
-                                              elementScope: ElementScope): Unit = {
+                                              typeDef: ScTypeDefinition): Unit = {
+    import typeDef.{elementScope, projectContext}
+
     if (!(generateBefore || generateAfter)) return
     typeDef.extendsBlock.templateBody.foreach { body =>
       withAnnotation("org.scalatest.BeforeAndAfterEach", typeDef, body) { closingBrace =>
@@ -202,9 +200,9 @@ object ScalaTestGenerator {
     }
   }
 
-  private def generateSpecs2BeforeAndAfter(generateBefore: Boolean, generateAfter: Boolean, typeDef: ScTypeDefinition)
-                                          (implicit manager: PsiManager,
-                                           elementScope: ElementScope): Unit = {
+  private def generateSpecs2BeforeAndAfter(generateBefore: Boolean, generateAfter: Boolean, typeDef: ScTypeDefinition): Unit = {
+    import typeDef.{elementScope, projectContext}
+
     if (!(generateBefore || generateAfter)) return
     typeDef.extendsBlock.templateBody.foreach { body =>
       if (generateBefore) {
@@ -220,8 +218,9 @@ object ScalaTestGenerator {
     }
   }
 
-  private def addScalaTestFeatureSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody)
-                                            (implicit manager: PsiManager): Unit = {
+  private def addScalaTestFeatureSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody): Unit = {
+    import templateBody.projectContext
+
     if (methods.nonEmpty) {
       templateBody.addBefore(createExpressionFromText(
         methods.map("scenario (\"" + _.getMember.getName + "\"){\n\n}\n").
@@ -230,8 +229,9 @@ object ScalaTestGenerator {
     }
   }
 
-  private def addScalaTestFlatSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String)
-                                         (implicit manager: PsiManager): Unit = {
+  private def addScalaTestFlatSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String): Unit = {
+    import templateBody.projectContext
+
     if (methods.nonEmpty) {
       val closingBrace = templateBody.getLastChild
       templateBody.addBefore(createExpressionFromText("behavior of \"" + className + "\""), closingBrace)
@@ -245,16 +245,18 @@ object ScalaTestGenerator {
     }
   }
 
-  private def addScalaTestFreeSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody)
-                                         (implicit manager: PsiManager): Unit = {
+  private def addScalaTestFreeSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody): Unit = {
+    import templateBody.projectContext
+
     if (methods.nonEmpty) {
       templateBody.addBefore(createExpressionFromText(
         methods.map("\"" + _.getMember.getName + "\" in {\n\n}\n").fold("\"Methods tests\" - {")(_ + "\n" + _) + "\n}"), templateBody.getLastChild)
     }
   }
 
-  private def addScalaTestFunSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String)
-                                        (implicit manager: PsiManager): Unit = {
+  private def addScalaTestFunSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String): Unit = {
+    import templateBody.projectContext
+
     if (methods.nonEmpty) {
       templateBody.addBefore(createExpressionFromText(
         methods.map("it(\"should " + _.getMember.getName + "\") {\n\n}\n").
@@ -263,8 +265,9 @@ object ScalaTestGenerator {
     }
   }
 
-  private def addScalaTestFunSuiteMethods(methods: List[MemberInfo], templateBody: ScTemplateBody)
-                                         (implicit manager: PsiManager): Unit = {
+  private def addScalaTestFunSuiteMethods(methods: List[MemberInfo], templateBody: ScTemplateBody): Unit = {
+    import templateBody.projectContext
+
     if (methods.nonEmpty) {
       val closingBrace = templateBody.getLastChild
       methods.map("test(\"test" + _.getMember.getName.capitalize + "\") {\n\n}").
@@ -276,8 +279,9 @@ object ScalaTestGenerator {
     }
   }
 
-  private def addScalaTestPropSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody)
-                                         (implicit manager: PsiManager): Unit = {
+  private def addScalaTestPropSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody): Unit = {
+    import templateBody.projectContext
+
     if (methods.nonEmpty) {
       val closingBrace = templateBody.getLastChild
       methods.map("property(\"" + _.getMember.getName + " property\"){\n\n}").
@@ -289,8 +293,9 @@ object ScalaTestGenerator {
     }
   }
 
-  private def addScalaTestWordSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String)
-                                         (implicit manager: PsiManager): Unit = {
+  private def addScalaTestWordSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String): Unit = {
+    import templateBody.projectContext
+
     if (methods.nonEmpty) {
       templateBody.addBefore(createExpressionFromText(
         methods.map("\"" + _.getMember.getName + "\" in {\n\n}\n").
@@ -300,8 +305,9 @@ object ScalaTestGenerator {
   }
 
   private def addSpecs2SpecificationMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String)
-                                           (implicit manager: PsiManager,
-                                            normalIndent: String): Unit = {
+                                           (implicit normalIndent: String): Unit = {
+    import templateBody.projectContext
+
     val testNames = methods.map("test" + _.getMember.getName.capitalize)
     val doubleIndent = normalIndent + normalIndent
 
@@ -316,9 +322,9 @@ object ScalaTestGenerator {
   }
 
   private def generateSpecs2ScriptSpecificationMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String, typeDef: ScTypeDefinition)
-                                                      (implicit manager: PsiManager,
-                                                       elementScope: ElementScope,
-                                                       normalIndent: String): Unit = {
+                                                      (implicit normalIndent: String): Unit = {
+    import templateBody.{elementScope, projectContext}
+
     withAnnotation("org.specs2.specification.Groups", typeDef, templateBody) { closingBrace =>
       val testNames = methods.map("test" + _.getMember.getName.capitalize)
       val doubleIndent = normalIndent + normalIndent
@@ -334,8 +340,9 @@ object ScalaTestGenerator {
     }
   }
 
-  private def generateSpecs2MutableSpecificationMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String)
-                                                       (implicit manager: PsiManager): Unit = {
+  private def generateSpecs2MutableSpecificationMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String): Unit = {
+    import templateBody.projectContext
+
     if (methods.nonEmpty) {
       templateBody.addBefore(createExpressionFromText(methods.
         map("\"" + _.getMember.getName + "\" in {\nok\n}\n").
@@ -344,8 +351,9 @@ object ScalaTestGenerator {
   }
 
   private def generateUTestMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String)
-                                  (implicit manager: PsiManager,
-                                   normalIndent: String): Unit = {
+                                  (implicit normalIndent: String): Unit = {
+    import templateBody.projectContext
+
     templateBody.addBefore(createElement("val tests = TestSuite{}", Def.parse),
       templateBody.getLastChild)
     if (methods.nonEmpty) {

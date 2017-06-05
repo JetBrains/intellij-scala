@@ -4,7 +4,7 @@ package lang.refactoring.rename.inplace
 import java.util
 
 import com.intellij.codeInsight.TargetElementUtil
-import com.intellij.lang.Language
+import com.intellij.lang.{Language, LanguageNamesValidation}
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.util.Key
@@ -129,7 +129,8 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
 
   }
 
-  override def isIdentifier(newName: String, language: Language): Boolean = ScalaNamesUtil.isIdentifier(newName)
+  override def isIdentifier(newName: String, language: Language): Boolean =
+    LanguageNamesValidation.INSTANCE.forLanguage(language).isIdentifier(newName, myProject)
 
   override def createInplaceRenamerToRestart(variable: PsiNamedElement, editor: Editor, initialName: String): VariableInplaceRenamer =
     new ScalaMemberInplaceRenamer(variable, getSubstituted, editor, initialName, oldName)

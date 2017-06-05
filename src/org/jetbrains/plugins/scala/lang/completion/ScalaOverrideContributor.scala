@@ -3,15 +3,18 @@ package org.jetbrains.plugins.scala.lang.completion
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.util.Iconable._
-import com.intellij.patterns.PlatformPatterns
+import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi._
 import com.intellij.psi.filters._
 import com.intellij.psi.filters.position.{FilterPattern, LeftNeighbour, PositionElementFilter}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -26,10 +29,12 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
   * contribute override/implement elements. May be called on override keyword (ove<caret>)
   * or after override/implement element definition (override def <caret>)
   * or on method/field/type name (without override) -> this will add override keyword if there is appropriate setting
+  * or inside class parameters [case] class X(ove<caret>, override val/var na<caret>) extends Y
   */
+// TODO: support kind of sorter
 class ScalaOverrideContributor extends ScalaCompletionContributor {
   private def registerOverrideCompletion(filter: ElementFilter): Unit = {
-    extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
+    extend(CompletionType.BASIC, psiElement(ScalaTokenTypes.tIDENTIFIER).
       and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter("override"))),
         new AndFilter(new NotFilter(new LeftNeighbour(new TextFilter("."))), filter)))),
       new CompletionProvider[CompletionParameters] {
@@ -39,6 +44,24 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       })
   }
 
+  // completion inside class parameters
+  extend(CompletionType.BASIC, psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(classOf[ScClassParameter]),
+    new CompletionProvider[CompletionParameters]() {
+      override def addCompletions(completionParameters: CompletionParameters,
+                                  processingContext: ProcessingContext,
+                                  completionResultSet: CompletionResultSet): Unit = {
+        val position = positionFromParameters(completionParameters)
+        Option(getParentOfType(position, classOf[ScTemplateDefinition])).foreach { clazz =>
+          val members = getMembers(clazz).collect { case member@(_: ScValueMember | _: ScVariableMember) => member } 
+          
+          val hasOverride = position.getParent.asOptionOf[ScClassParameter].exists(_.hasModifierProperty("override"))
+          handleMembers(members, clazz, (classMember, _) => createText(classMember, clazz, full = !hasOverride, withBody = false), completionResultSet) { _ =>
+            new MyInsertHandler(hasOverride)
+          }
+        }
+      }
+    })
+
   def afterDotFilter: PositionElementFilter = new LeftNeighbour(new TextContainFilter("."))
 
   def afterColumnFilter: PositionElementFilter = new LeftNeighbour(new TextContainFilter(":"))
@@ -46,7 +69,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   /**
     * handle only declarations here
     */
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
+  extend(CompletionType.BASIC, psiElement(ScalaTokenTypes.tIDENTIFIER).
     and(new FilterPattern(new AndFilter(new NotFilter(new OrFilter(afterDotFilter, afterColumnFilter))))), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet) {
       val position = positionFromParameters(parameters)
@@ -152,8 +175,9 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     }
   }
 
-  private def createText(classMember: ClassMember, td: ScTemplateDefinition, full: Boolean = false): String = {
-    implicit val manager = classMember.getElement.getManager
+  private def createText(classMember: ClassMember, td: ScTemplateDefinition, full: Boolean = false, withBody: Boolean = true): String = {
+    import td.projectContext
+
     val text: String = classMember match {
       case mm: ScMethodMember =>
         val mBody = if (mm.isOverride) ScalaGenerationInfo.getMethodBody(mm, td, isImplement = false) else "???"
@@ -168,11 +192,11 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       case tm: ScAliasMember =>
         getOverrideImplementTypeSign(tm.getElement, tm.substitutor, needsOverride = false)
       case member: ScValueMember =>
-        val variable = createOverrideImplementVariable(member.element, member.substitutor, needsOverrideModifier = false, isVal = false)
+        val variable = createOverrideImplementVariable(member.element, member.substitutor, needsOverrideModifier = false, isVal = true, withBody = withBody)
         TypeAnnotationUtil.removeTypeAnnotationIfNeeded(variable)
         variable.getText
       case member: ScVariableMember =>
-        val variable = createOverrideImplementVariable(member.element, member.substitutor, needsOverrideModifier = false, isVal = false)
+        val variable = createOverrideImplementVariable(member.element, member.substitutor, needsOverrideModifier = false, isVal = false, withBody = withBody)
         TypeAnnotationUtil.removeTypeAnnotationIfNeeded(variable)
         variable.getText
       case _ => " "

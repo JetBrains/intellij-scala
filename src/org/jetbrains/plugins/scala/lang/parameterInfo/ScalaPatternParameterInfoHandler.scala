@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -70,6 +71,8 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: ScPatternArgumentList =>
+        implicit val ctx: ProjectContext = args
+
         val color: Color = context.getDefaultParameterColor
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
@@ -78,7 +81,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
           case (sign: PhysicalSignature, _: Int) =>
             //i  can be -1 (it's update method)
             val methodName = sign.method.name
-            implicit val typeSystem = sign.typeSystem
 
             val subst = sign.substitutor
             val returnType = sign.method match {
@@ -98,7 +100,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                 case (param, o) =>
                   val buffer: StringBuilder = new StringBuilder("")
                   buffer.append(param.presentableText)
-                  val isSeq = methodName == "unapplySeq" && (param.extractClass(sign.method.getProject) match {
+                  val isSeq = methodName == "unapplySeq" && (param.extractClass match {
                     case Some(clazz) => clazz.qualifiedName == "scala.Seq"
                     case _ => false
                   })
@@ -203,7 +205,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     val element = file.findElementAt(offset)
     if (element == null) return null
 
-    implicit val typeSystem = element.typeSystem
+    implicit val project = file.projectContext
     val args: ScPatternArgumentList = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
     if (args != null) {
       context match {

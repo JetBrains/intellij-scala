@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPolymorphicElement, 
 trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiTypeParameter with ScAnnotationsHolder {
   import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam._
 
+  val typeParamId: Long
+
   def isCovariant: Boolean
 
   def isContravariant: Boolean

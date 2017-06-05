@@ -25,10 +25,11 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
+import org.jetbrains.sbt.settings.SbtSystemSettings;
 import scala.Option;
 
 import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -156,7 +157,7 @@ public class TestRunConfigurationForm {
     regexpLabel = new JLabel();
     regexpLabel.setText("Regular expressions:");
     panel1.add(regexpLabel, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    panel1.add(regexpPanel, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel1.add(regexpPanel, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     final JLabel label5 = new JLabel();
     label5.setText("Use classpath and SDK of module:");
     myPanel.add(label5, new GridConstraints(9, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -175,10 +176,10 @@ public class TestRunConfigurationForm {
     environmentVariables = new EnvironmentVariablesComponent();
     myPanel.add(environmentVariables, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     useSbtCheckBox = new JCheckBox();
-    useSbtCheckBox.setText("Use sbt");
+    useSbtCheckBox.setText("Use SBT");
     myPanel.add(useSbtCheckBox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
     useUiWithSbt = new JCheckBox();
-    useUiWithSbt.setText("Use UI with sbt");
+    useUiWithSbt.setText("Use UI with SBT");
     myPanel.add(useUiWithSbt, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
   }
 
@@ -300,7 +301,9 @@ public class TestRunConfigurationForm {
         useUiWithSbt.setEnabled(useSbtCheckBox.isSelected());
       }
     });
-    setSbtUiVisible(configuration.allowsSbtUiRun());
+    boolean hasSbt = hasSbt(configuration.getProject());
+    setSbtVisible(hasSbt);
+    setSbtUiVisible(hasSbt && configuration.allowsSbtUiRun());
     useUiWithSbt.setEnabled(useSbtCheckBox.isSelected());
 
     kindComboBox.addItemListener(new ItemListener() {
@@ -339,6 +342,10 @@ public class TestRunConfigurationForm {
         moduleComboBox.setEnabled(true);
         break;
     }
+  }
+
+  private void setSbtVisible(boolean visible) {
+    useSbtCheckBox.setVisible(visible);
   }
 
   private void setSbtUiVisible(boolean visible) {
@@ -420,7 +427,9 @@ public class TestRunConfigurationForm {
       case REGEXP:
         setRegexpEnabled();
     }
-    setSbtUiVisible(configuration.allowsSbtUiRun());
+    boolean hasSbt = hasSbt(configuration.getProject());
+    setSbtVisible(hasSbt);
+    setSbtUiVisible(hasSbt && configuration.allowsSbtUiRun());
     setUseSbt(configuration.useSbt());
     setUseUiWithSbt(configuration.useUiWithSbt());
     setWorkingDirectory(configuration.getWorkingDirectory());
@@ -429,6 +438,11 @@ public class TestRunConfigurationForm {
     setTestName(configuration.getTestName());
     environmentVariables.setEnvs(configuration.getEnvVariables());
     setShowProgressMessages(configuration.getShowProgressMessages());
+  }
+
+  protected boolean hasSbt(Project project) {
+    SbtSystemSettings sbtSettings = SbtSystemSettings.getInstance(project);
+    return sbtSettings != null && !sbtSettings.getLinkedProjectsSettings().isEmpty();
   }
 
   public TestKind getSelectedKind() {
@@ -562,7 +576,7 @@ public class TestRunConfigurationForm {
             for (String suitePath : suitePaths) {
               PsiClass[] classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(), suitePath);
               for (PsiClass psiClass : classes) {
-                if (ScalaPsiUtil.cachedDeepIsInheritor(aClass, psiClass)) return true;
+                if (ScalaPsiUtil.isInheritorDeep(aClass, psiClass)) return true;
               }
             }
             return false;

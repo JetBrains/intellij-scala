@@ -13,13 +13,14 @@ import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
 /**
  * Nikolay.Tropin
@@ -105,7 +106,7 @@ public class ScalaExtractTraitDialog extends DialogWrapper {
   }
 
   private void updateOkStatus() {
-    setOKActionEnabled(ScalaNamesUtil.isIdentifier(getTraitName()));
+    setOKActionEnabled(MODULE$.isIdentifier(getTraitName()));
   }
 
   @Override

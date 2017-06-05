@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 /**
@@ -10,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
  */
 
 class CollectMethodsProcessor(place: PsiElement, name: String)
-                             (implicit override val typeSystem: TypeSystem)
         extends ResolveProcessor(StdKinds.methodsOnly, place, name) {
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]

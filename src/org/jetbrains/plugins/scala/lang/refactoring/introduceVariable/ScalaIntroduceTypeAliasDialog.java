@@ -32,7 +32,9 @@ import java.awt.event.*;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
 public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements NamedDialog {
     private JPanel contentPane;
@@ -72,7 +74,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         this.editor = editor;
         this.inheritanceDataMap = new HashMap<ScopeItem, Tuple2<ScTypeElement[], ScalaTypeValidator[]>>();
 
-        setUpNameComboBox(currentScope.getAvailableNames());
+        setUpNameComboBox(currentScope.availableNames());
         setUpScopeComboBox(possibleScopes, mainScope);
 
         setModal(true);
@@ -94,7 +96,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         ScalaValidator validator = null;
         if (currentScope instanceof PackageScopeItem) {
             PackageScopeItem packageScopeItem = (PackageScopeItem) currentScope;
-            currentScope = ScopeSuggester.handleOnePackage(myTypeElement, packageScopeItem.getName(),
+            currentScope = ScopeSuggester.handleOnePackage(myTypeElement, packageScopeItem.name(),
                     (PsiDirectory) packageScopeItem.fileEncloser(), conflictsReporter, myTypeElement.getProject(), editor,
                     isReplaceAllOccurrences(), getEnteredName());
 
@@ -103,9 +105,11 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             validator = ((SimpleScopeItem) currentScope).typeValidator();
         }
 
-        if ((validator != null) && (!validator.isOK(this))) {
-            currentScope = newScope;
-            return;
+        if (validator != null) {
+            if (isConflictReported(validator)) {
+                currentScope = newScope;
+                return;
+            }
         }
 
         super.doOKAction();
@@ -115,7 +119,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         return myNameComboBox;
     }
 
-    private void setUpNameComboBox(String[] possibleNames) {
+    private void setUpNameComboBox(Set<String> possibleNames) {
 
         final EditorComboBoxEditor comboEditor = new StringComboboxEditor(project, ScalaFileType.INSTANCE, myNameComboBox);
 
@@ -155,7 +159,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         }
     }
 
-    private void updateNameComboBox(String[] possibleNames) {
+    private void updateNameComboBox(Set<String> possibleNames) {
         myNameComboBox.removeAllItems();
         for (String possibleName : possibleNames) {
             myNameComboBox.addItem(possibleName);
@@ -272,7 +276,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
                 ScopeItem item = (ScopeItem) event.getItem();
                 currentScope = item;
                 setUpOccurrences(item);
-                updateNameComboBox(item.getAvailableNames());
+                updateNameComboBox(item.availableNames());
             }
         }
     }
@@ -286,7 +290,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
     private void updateOkStatus() {
         String text = getEnteredName();
-        setOKActionEnabled(ScalaNamesUtil.isIdentifier(text));
+        setOKActionEnabled(MODULE$.isIdentifier(text));
     }
 
     private void fireNameDataChanged() {
@@ -387,7 +391,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             simpleScopeItem.setInheretedOccurrences(inheritors._1());
 
             for (ScalaTypeValidator validator : inheritors._2()) {
-                if (!validator.isOK(this)) {
+                if (isConflictReported(validator)) {
                     return false;
                 }
             }
@@ -395,5 +399,10 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             return true;
         }
         return true;
+    }
+
+    private boolean isConflictReported(ScalaValidator validator) {
+        ValidationReporter reporter = new ValidationReporter(project, conflictsReporter, validator);
+        return !reporter.isOK(this);
     }
 }

@@ -1,24 +1,23 @@
 package org.jetbrains.sbt.shell
 
-import java.net.URI
 import java.util
 
+import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.openapi.compiler.ex.CompilerPathsEx
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
-import com.intellij.openapi.externalSystem.model.project.ModuleData
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
-import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil => ES}
-import com.intellij.openapi.module.ModuleType
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.task._
-import com.intellij.util.BooleanFunction
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
@@ -66,12 +65,14 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
     val callbackOpt = Option(callback)
 
+    val validTasks = tasks.asScala.collect {
+      case task: ModuleBuildTask => task
+    }
+
     // the "build" button in IDEA always runs the build for all individual modules,
     // and may work differently than just calling the products task from the main module in sbt
-    val moduleCommands = tasks.asScala.flatMap {
-      case task: ModuleBuildTask => buildCommands(task)
-      case _ => Seq.empty[String]
-    }
+    val moduleCommands = validTasks.flatMap(buildCommands)
+    val modules = validTasks.map(_.getModule)
 
     // don't run anything if there's no module to run a build for
     // TODO user feedback
@@ -79,47 +80,21 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
       val command =
         if (moduleCommands.size == 1) moduleCommands.head
-        else moduleCommands.mkString("; ", "; ", "")
+        else moduleCommands.mkString("all ", " ", "")
+
+      FileDocumentManager.getInstance().saveAllDocuments()
 
       // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
-      val task = new CommandTask(project, command, callbackOpt)
+      val task = new CommandTask(project, modules, command, callbackOpt)
       ProgressManager.getInstance().run(task)
     }
   }
 
   private def buildCommands(task: ModuleBuildTask): Seq[String] = {
-    val module = task.getModule
-    val project = module.getProject
-    val moduleId = ES.getExternalProjectId(module) // nullable, but that's okay for use in predicate
-
-    // seems hacky. but it seems there isn't yet any better way to get the data for selected module?
-    val predicate = new BooleanFunction[DataNode[ModuleData]] {
-      override def fun(s: DataNode[ModuleData]): Boolean = s.getData.getId == moduleId
-    }
-
-    val emptyURI = new URI("")
-    val dataManager = ProjectDataManager.getInstance()
-
-    // TODO instead of silently not running a task, collect failures, report to user
-    val projectScope = for {
-      projectInfo <- Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
-      projectStructure <- Option(projectInfo.getExternalProjectStructure)
-      moduleDataNode <- Option(ES.find(projectStructure, ProjectKeys.MODULE, predicate))
-      moduleSbtDataNode <- Option(ES.find(moduleDataNode, SbtModuleData.Key))
-      data = {
-        dataManager.ensureTheDataIsReadyToUse(moduleSbtDataNode)
-        moduleSbtDataNode.getData
-      }
-      // buildURI should never be empty for true sbt projects, but filtering here handles synthetic projects
-      // created from AAR files. Should implement a more elegant solution for AARs.
-      uri <- Option(data.buildURI) if uri != emptyURI
-    } yield {
-      val id = data.id
-      s"{$uri}$id"
-    }
-
     // TODO sensible way to find out what scopes to run it for besides compile and test?
-    projectScope.toSeq.flatMap { scope =>
+    // TODO make tasks should be user-configurable
+    SbtUtil.getSbtModuleData(task.getModule).toSeq.flatMap { sbtModuleData =>
+      val scope = SbtUtil.makeSbtProjectId(sbtModuleData)
       // `products` task is a little more general than just `compile`
       Seq(s"$scope/products", s"$scope/test:products")
     }
@@ -142,7 +117,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
 }
 
-private class CommandTask(project: Project, command: String, callbackOpt: Option[ProjectTaskNotification]) extends
+private class CommandTask(project: Project, modules: Traversable[Module], command: String, callbackOpt: Option[ProjectTaskNotification]) extends
   Task.Backgroundable(project, "sbt build", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
   import CommandTask._
@@ -157,12 +132,14 @@ private class CommandTask(project: Project, command: String, callbackOpt: Option
     val resultAggregator: (TaskResultData,ShellEvent) => TaskResultData = { (data,event) =>
       event match {
         case TaskStart =>
+          // TODO looks like this isn't called?
           indicator.setIndeterminate(true)
           indicator.setFraction(0.1)
           indicator.setText("building ...")
         case Output(text) =>
           indicator.setText2(text)
         case TaskComplete =>
+          indicator.setText("")
       }
 
       taskResultAggregator(data,event)
@@ -195,6 +172,12 @@ private class CommandTask(project: Project, command: String, callbackOpt: Option
 
     // block thread to make indicator available :(
     Await.ready(commandFuture, Duration.Inf)
+
+    // remove this if/when external system handles this refresh on its own
+    indicator.setText("Synchronizing output directories...")
+    val roots = CompilerPathsEx.getOutputPaths(modules.toArray)
+    CompilerUtil.refreshOutputRoots(ContainerUtil.newArrayList(roots: _*))
+    indicator.setText("")
   }
 }
 

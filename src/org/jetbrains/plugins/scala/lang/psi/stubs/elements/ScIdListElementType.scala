@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScIdListStubImpl
   * User: Alexander Podkhalyuzin
   * Date: 19.07.2009
   */
-class ScIdListElementType[Func <: ScIdList]
+class ScIdListElementType
   extends ScStubElementType[ScIdListStub, ScIdList]("id list") {
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScIdListStub =
     new ScIdListStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)

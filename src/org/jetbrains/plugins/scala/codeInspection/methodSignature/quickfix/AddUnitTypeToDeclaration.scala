@@ -15,7 +15,7 @@ class AddUnitTypeToDeclaration(functionDecl: ScFunctionDeclaration)
 
   def doApplyFix(project: Project) {
     val funDef = getElement
-    implicit val manager = funDef.getManager
+    implicit val projectContext = funDef.projectContext
     funDef.getNode.addChild(createColon.getNode)
     funDef.getNode.addChild(createWhitespace.getNode)
     funDef.getNode.addChild(createTypeElementFromText("Unit").getNode)

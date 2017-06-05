@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createIdentifier, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -81,13 +81,12 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   def isSoft: Boolean = false
 
   def handleElementRename(newElementName: String): PsiElement = {
-    val needBackticks = patternNeedBackticks(newElementName) || ScalaNamesUtil.isKeyword(newElementName)
+    val needBackticks = patternNeedBackticks(newElementName) || isKeyword(newElementName)
     val newName = if (needBackticks) "`" + newElementName + "`" else newElementName
-    if (!ScalaNamesUtil.isIdentifier(newName)) return this
+    if (!isIdentifier(newName)) return this
     val id = nameId.getNode
     val parent = id.getTreeParent
     parent.replaceChild(id, createIdentifier(newName))
-    resolve()
     this
   }
 
@@ -172,7 +171,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   }
 
   private def sameOrInheritor(c: PsiClass, base: PsiClass): Boolean = {
-    ScEquivalenceUtil.areClassesEquivalent(base, c) || ScalaPsiUtil.cachedDeepIsInheritor(c, base)
+    ScEquivalenceUtil.areClassesEquivalent(base, c) || c.isInheritor(base, true)
   }
 
 

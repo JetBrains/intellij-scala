@@ -11,6 +11,24 @@ import org.junit.Test
   */
 class VersionTest {
   @Test
+  def parsing(): Unit = {
+    assertEquals("", Version("").toString)
+
+    assertEquals("1", Version("1").toString)
+    assertEquals("1.2", Version("1.2").toString)
+    assertEquals("1.2.3", Version("1.2.3").toString)
+
+    assertEquals("1-2", Version("1-2").toString)
+    assertEquals("1-2-3", Version("1-2-3").toString)
+
+    assertEquals("1.2.3-4.5.6", Version("1.2.3-4.5.6").toString)
+
+    assertEquals("1.2", Version("1M2").toString)
+
+    assertEquals("20100817020148", Version("20100817020148").toString)
+  }
+
+  @Test
   def comparison(): Unit = {
     assertEquals(0, Version("1").compareTo(Version("1")))
     assertEquals(0, Version("1.1").compareTo(Version("1.1")))
@@ -74,6 +92,16 @@ class VersionTest {
 
     assertFalse(Version("1") ~= Version("1-1"))
     assertTrue(Version("1-1") ~= Version("1"))
+  }
+
+  @Test
+  def majorVersions() = {
+    assertTrue(Version("1.2.3").major(0) == Version(""))
+    assertTrue(Version("1.2.3").major(1) == Version("1"))
+    assertTrue(Version("1.2.3").major(10) == Version("1.2.3"))
+    assertTrue(Version("1.2.3.4-RC2").major(2) == Version("1.2"))
+    assertTrue(Version("1").major(2) == Version("1"))
+    assertTrue(Version("").major(2) == Version(""))
   }
 
   @Test

@@ -4,6 +4,7 @@ import java.io.File
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.IconLoader
+import org.jetbrains.plugins.scala.icons.Icons
 
 /**
  * @author Pavel Fatin
@@ -48,9 +49,9 @@ object Sbt {
 
   val LatestVersion = "0.13.13"
 
-  lazy val Icon = IconLoader.getIcon("/sbt.png")
+  lazy val Icon = Icons.SBT
 
-  lazy val FileIcon = IconLoader.getIcon("/sbt-file.png")
+  lazy val FileIcon = Icons.SBT_FILE
 
   def isProjectDefinitionFile(project: Project, file: File): Boolean = {
     val baseDir = new File(project.getBasePath)

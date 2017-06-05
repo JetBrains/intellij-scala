@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.psi.stubs.{IndexSink, StubIndexKey, StubOutputStream}
 import com.intellij.util.io.StringRef
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueOrVariable, ScVariableDeclaration, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueOrVariableStub
 
 /**
@@ -28,31 +28,29 @@ abstract class ScValueOrVariableElementType[S <: ScValueOrVariableStub[V], V <: 
     valueOrVariable.isInstanceOf[ScVariableDeclaration]
 
   protected def typeText(valueOrVariable: ScValueOrVariable): Option[StringRef] =
-    valueOrVariable.typeElement.map {
-      _.getText
-    }.asReference
+    valueOrVariable.typeElement.map(_.getText).asReference
 
   protected def names(valueOrVariable: ScValueOrVariable): Array[StringRef] =
-    valueOrVariable.declaredElements.map {
-      _.name
-    }.toArray.asReferences
+    valueOrVariable.declaredElements.map(_.name).toArray.asReferences
 
-  protected def bodyText(valueOrVariable: ScValueOrVariable): Option[StringRef] =
-    Option(valueOrVariable).collect {
-      case definition: ScVariableDefinition => definition
-    }.flatMap {
-      _.expr
-    }.map {
-      _.getText
-    }.asReference
+  protected def bodyText(valueOrVariable: ScValueOrVariable): Option[StringRef] = {
+    valueOrVariable match {
+      case definition: ScVariableDefinition => definition.expr.map(_.getText).asReference
+      case definition: ScPatternDefinition => definition.expr.map(_.getText).asReference
+      case _ => None
+    }
+  }
 
-  protected def containerText(valueOrVariable: ScValueOrVariable): Option[StringRef] =
+  protected def containerText(valueOrVariable: ScValueOrVariable): Option[StringRef] = {
     Option(valueOrVariable).collect {
       case declaration: ScVariableDeclaration => declaration.getIdList
+      case declaration: ScValueDeclaration => declaration.getIdList
       case definition: ScVariableDefinition => definition.pList
+      case definition: ScPatternDefinition => definition.pList
     }.map {
       _.getText
     }.asReference
+  }
 
   protected def isLocal(valueOrVariable: ScValueOrVariable): Boolean =
     valueOrVariable.containingClass == null

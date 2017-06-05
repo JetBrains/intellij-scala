@@ -33,11 +33,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPanel
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.JavaConverters._
@@ -60,6 +60,9 @@ class ScalaChangeSignatureDialog(val project: Project,
     ScalaMethodDescriptor,
     ScalaParameterTableModelItem,
     ScalaParameterTableModel](project, method, false, method.fun) {
+
+  implicit val projectContext: ProjectContext = project
+
   override def getFileType: LanguageFileType = ScalaFileType.INSTANCE
 
   override def createCallerChooser(title: String, treeToReuse: Tree, callback: Consumer[util.Set[ScFunction]]): CallerChooserBase[ScFunction] = null
@@ -270,7 +273,7 @@ class ScalaChangeSignatureDialog(val project: Project,
     val paramNames = paramItems.map(_.parameter.name)
     val names = if (myNameField.isEnabled) getMethodName +: paramNames else paramNames
     problems ++= names.collect {
-      case name if !ScalaNamesUtil.isIdentifier(name) => s"$name is not a valid scala identifier"
+      case name if !isIdentifier(name) => s"$name is not a valid scala identifier"
     }
 
     val namesWithIndices = paramNames.zipWithIndex
@@ -354,7 +357,7 @@ class ScalaChangeSignatureDialog(val project: Project,
   protected def returnType: ScType =
     Option(myReturnTypeCodeFragment).flatMap { fragment =>
       createTypeFromText(fragment.getText, fragment.getContext, fragment)
-    }.getOrElse(Any)
+    }.getOrElse(api.Any)
 
   protected def splittedItems: Seq[Seq[ScalaParameterTableModelItem]] = {
     def inner(items: Seq[ScalaParameterTableModelItem]): Seq[Seq[ScalaParameterTableModelItem]] = {
@@ -535,12 +538,13 @@ class ScalaChangeSignatureDialog(val project: Project,
   
   private def setUpHyperLink(): HyperlinkLabel = {
     val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
-    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"))
-    
+
     link.addHyperlinkListener(new HyperlinkListener() {
       def hyperlinkUpdate(e: HyperlinkEvent) {
-        mySpecifyTypeChb.setSelected(needTypeAnnotation(method.getMethod, getVisibility))
-        updateSignatureAlarmFired()
+        extensions.invokeLater {
+          mySpecifyTypeChb.setSelected(needTypeAnnotation(method.getMethod, getVisibility))
+          updateSignatureAlarmFired()
+        }
       }
     })
     

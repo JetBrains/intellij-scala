@@ -25,6 +25,26 @@ object CachedMacroUtil {
     q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
   }
 
+  def timestampedFQN(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped"
+  }
+
+  def timestampedTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    tq"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped"
+  }
+
+  def defaultValue(c: whitebox.Context)(tp: c.universe.Tree): c.universe.Tree = {
+    import c.universe.Quasiquote
+    tp match {
+      case tq"Boolean" => q"false"
+      case tq"Int" => q"0"
+      case tq"Long" => q"0L"
+      case _ => q"null"
+    }
+  }
+
   def cachedValueTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     tq"_root_.com.intellij.psi.util.CachedValue"
@@ -146,6 +166,8 @@ object CachedMacroUtil {
           case Some(ModCount.getModificationCount) => q"$psiModificationTrackerFQN.MODIFICATION_COUNT"
           case Some(ModCount.getJavaStructureModificationCount) =>
             q"$psiModificationTrackerFQN.JAVA_STRUCTURE_MODIFICATION_COUNT"
+          case Some(ModCount.`anyScalaPsiModificationCount`) =>
+            q"$scalaPsiManagerFQN.AnyScalaPsiModificationTracker"
           case _ => tree
         }
     }
@@ -241,8 +263,8 @@ object CachedMacroUtil {
 
     import c.universe.Quasiquote
 
-    if (hasParams) q"$cachesUtilFQN.getOrCreateKey[$cachesUtilFQN.MappedKey[$dataType, $resultType]]($keyId)"
-    else q"$cachesUtilFQN.getOrCreateKey[$cachesUtilFQN.RefKey[$resultType]]($keyId)"
+    if (hasParams) q"$cachesUtilFQN.getOrCreateKey[$cachesUtilFQN.CachedMap[$dataType, $resultType]]($keyId)"
+    else q"$cachesUtilFQN.getOrCreateKey[$cachesUtilFQN.CachedRef[$resultType]]($keyId)"
   }
 
 }
@@ -253,4 +275,11 @@ object ModCount extends Enumeration {
   val getOutOfCodeBlockModificationCount = Value("getOutOfCodeBlockModificationCount")
   val getJavaStructureModificationCount = Value("getJavaStructureModificationCount")
   val getBlockModificationCount = Value("getBlockModificationCount")
+
+  //Use for hot methods: it has minimal overhead, but updates on each change
+  //
+  // PsiModificationTracker is not an option, because it
+  // - requires calling getProject first
+  // - doesn't work for non-physical elements
+  val anyScalaPsiModificationCount = Value("anyScalaPsiModificationCount")
 }

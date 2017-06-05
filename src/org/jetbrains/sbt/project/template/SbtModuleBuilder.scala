@@ -16,7 +16,8 @@ import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSetti
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
-import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
+import com.intellij.openapi.options.ConfigurationException
+import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil._
@@ -37,7 +38,9 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
   private var scalaPlatform = Platform.Default
 
-  private var scalaVersion = Versions.DefaultScalaVersion
+  private var selectedScalaVersion: String = _
+
+  private def scalaVersion = Option(selectedScalaVersion).getOrElse(Versions.DefaultScalaVersion)
 
   def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
 
@@ -64,23 +67,35 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     val scalaPlatformComboBox         = new SComboBox()
     val scalaVersionComboBox          = new SComboBox()
 
-    val sbtVersions = withProgressSynchronously("Fetching SBT versions")(_ => Versions.loadSbtVersions)
+    val sbtVersions = withProgressSynchronously("Fetching SBT versions")(_ => Versions.loadSbtVersions.filterNot(_.startsWith("0.12")))
 
     sbtVersionComboBox.setItems(sbtVersions)
     scalaPlatformComboBox.setItems(Platform.Values)
 
     scalaVersionComboBox.setTextRenderer(Version.abbreviate)
 
-    def loadScalaVersions(): Array[String] = {
-      def platform = scalaPlatformComboBox.getSelectedItem.asInstanceOf[Platform]
-      withProgressSynchronously(s"Fetching ${platform.name} versions")(_ => Versions.loadScalaVersions(platform))
+    scalaVersionComboBox.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent): Unit = selectedScalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
+    })
+
+    def setupScalaVersionItems(): Unit = {
+      def loadScalaVersions(): Array[String] = {
+        def platform = scalaPlatformComboBox.getSelectedItem.asInstanceOf[Platform]
+        withProgressSynchronously(s"Fetching ${platform.name} versions")(_ => Versions.loadScalaVersions(platform))
+      }
+
+      val loadedVersions = loadScalaVersions()
+      scalaVersionComboBox.setItems(loadedVersions)
+      for (v <- Option(selectedScalaVersion) if loadedVersions.contains(v)) {
+        scalaVersionComboBox.setSelectedItem(v)
+      }
     }
 
-    scalaVersionComboBox.setItems(loadScalaVersions())
+    setupScalaVersionItems()
 
     scalaPlatformComboBox.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        scalaVersionComboBox.setItems(loadScalaVersions())
+        setupScalaVersionItems()
       }
     })
 
@@ -98,7 +113,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
       override def updateDataModel() {
         sbtVersion = sbtVersionComboBox.getSelectedItem.asInstanceOf[String]
         scalaPlatform = scalaPlatformComboBox.getSelectedItem.asInstanceOf[Platform]
-        scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
 
         settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
 
@@ -107,6 +121,25 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
         getExternalProjectSettings.setResolveSbtClassifiers(resolveSbtClassifiersCheckBox.isSelected)
         getExternalProjectSettings.setUseAutoImport(false)
         getExternalProjectSettings.setCreateEmptyContentRootDirectories(false)
+      }
+
+      override def validate(): Boolean = {
+        if (!super.validate()) return false
+
+        val selectedSdk = myJdkComboBox.getSelectedJdk
+        def isJava8 = JavaSdk.getInstance().getVersion(selectedSdk).isAtLeast(JavaSdkVersion.JDK_1_8)
+
+        val scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
+        if (scalaVersion == null || selectedSdk == null) true
+        else {
+          val selectedVersion = Version(scalaVersion)
+          val needJdk8 = selectedVersion >= Version("2.12") && !isJava8
+
+          if (needJdk8) {
+            throw new ConfigurationException("Scala 2.12 requires JDK 1.8", "Wrong JDK version")
+          }
+          else true
+        }
       }
     }
 
@@ -214,6 +247,8 @@ private object SbtModuleBuilder {
         |scalaOrganization := "ch.epfl.lamp"
         |
         |scalaBinaryVersion := "2.11"
+        |
+        |scalaOrganization in updateSbtClassifiers := (scalaOrganization in Global).value
         |
         |ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
         |

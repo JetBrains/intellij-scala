@@ -1,15 +1,18 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import org.jetbrains.plugins.scala.project.ProjectContext
+
 /**
   * @author adkozlov
   */
-object ScalaTypeSystem extends api.TypeSystem {
+final class ScalaTypeSystem(implicit val projectContext: ProjectContext) extends api.TypeSystem
+  with ScalaEquivalence
+  with ScalaConformance
+  with ScalaBounds
+  with ScalaPsiTypeBridge
+  with ScalaTypePresentation {
+
   override val name = "Scala"
-  override lazy val equivalence = Equivalence
-  override lazy val conformance = Conformance
-  override lazy val bounds = Bounds
-  override lazy val bridge = ScTypePsiTypeBridge
-  protected override lazy val presentation = ScTypePresentation
 
   override def andType(types: Seq[ScType]) = ScCompoundType(types)
 

@@ -26,8 +26,8 @@ import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Computable, Getter, JDOMExternalizer}
 import com.intellij.psi._
-import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopesCore}
 import com.intellij.psi.search.searches.AllClassesSearch
+import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopesCore}
 import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -39,12 +39,13 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.maven.ScalaTestDefaultWorkingDirectoryProvider
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, SettingMap}
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, SettingEntry, SettingMap}
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtProcessHandlerWrapper, SbtTestEventHandler}
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType
 import org.jetbrains.plugins.scala.util.ScalaUtil
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
 
 import scala.annotation.tailrec
@@ -262,29 +263,42 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   def testNameKey: String = "-testName"
   protected def sbtClassKey = " "
   protected def sbtTestNameKey = " "
-  protected def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[Option[SettingMap]] =
-    Future(Some(Map.empty))
-  protected def initialize(comm:SbtShellCommunication): Unit = {
+  protected def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] =
+    Future(Map.empty)
+  protected def initialize(comm:SbtShellCommunication): Unit =
     comm.command("initialize", showShell = false)
-  }
+
   protected def modifySetting(settings: SettingMap,
-                              setting: String,
-                              taskName: String,
-                              value: String,
-                              comm: SbtShellCommunication,
-                              modificationCondition: String => Boolean,
-                              shouldSet: Boolean = false): Future[Option[SettingMap]] = {
-    val handler = SettingQueryHandler(setting, taskName, comm)
-    for {
-      opts <- handler.getSettingValue()
-      optsSet <- if (modificationCondition(opts))
-        if (shouldSet) handler.setSettingValue(value) else handler.addToSettingValue(value)
-      else Future(true)
-    } yield if (optsSet) Some(settings + ((setting, taskName) -> opts)) else None
+                             setting: String,
+                             showTaskName: String,
+                             setTaskName: String,
+                             value: String,
+                             comm: SbtShellCommunication,
+                             modificationCondition: String => Boolean,
+                             shouldSet: Boolean = false,
+                             shouldRevert: Boolean = true): Future[SettingMap] = {
+    val (projectUri, projectId) = getSbtProjectUriAndId
+    val showHandler = SettingQueryHandler(setting, Some(showTaskName), projectUri, projectId, comm)
+    val setHandler = if (showTaskName == setTaskName) showHandler else
+      SettingQueryHandler(setting, Some(setTaskName), projectUri, projectId, comm)
+    showHandler.getSettingValue().flatMap {
+      opts =>
+        (if (modificationCondition(opts))
+          if (shouldSet) setHandler.setSettingValue(value) else setHandler.addToSettingValue(value)
+        else Future(true)).flatMap { success =>
+          //TODO check 'opts.nonEmpty()' is required so that we don't try to mess up settings if nothing was read
+          if (success && shouldRevert && opts.nonEmpty && modificationCondition(opts))
+            Future(settings + (SettingEntry(setting, Some(setTaskName), projectUri, projectId) -> opts))
+          else if (success) Future(settings)
+          else Future.failed[SettingMap](new RuntimeException("Failed to modify sbt project settings"))
+          //TODO: meaningful report if settings were not set correctly
+        }
+    }
   }
+
   protected def resetSbtSettingsForUi(comm: SbtShellCommunication, oldSettings: SettingMap): Future[Boolean] = {
-    Future.sequence(for (((setting, taskName), value) <- oldSettings) yield {
-      SettingQueryHandler(setting, taskName, comm).setSettingValue(value)
+    Future.sequence(for ((settingEntry, value) <- oldSettings) yield {
+      SettingQueryHandler(settingEntry, comm).setSettingValue(value)
     }) map { _.forall(identity)}
   }
 
@@ -325,9 +339,6 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   }
 
   override def checkConfiguration() {
-    super.checkConfiguration()
-
-
     def checkModule() = if (getModule == null) throw new RuntimeConfigurationException("Module is not specified")
 
     testKind match {
@@ -347,7 +358,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         }
         val clazz = getClassPathClazz
         if (clazz == null || isInvalidSuite(clazz)) {
-          if (clazz != null && !ScalaPsiUtil.cachedDeepIsInheritor(clazz, getSuiteClass)) {
+          if (clazz != null && !ScalaPsiUtil.isInheritorDeep(clazz, getSuiteClass)) {
             throw new RuntimeConfigurationException("Class %s is not inheritor of Suite trait".format(getTestClassPath))
           } else {
             throw new RuntimeConfigurationException("No Suite Class is found for Class %s in module %s".
@@ -417,7 +428,6 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     suiteClasses.map {
       case aSuite: ScTypeDefinition =>
         val tests = getTestNames(List(aSuite))
-        println(aSuite.qualifiedName + " -> " + tests)
         classToTests += (aSuite.qualifiedName -> tests.filter(testCondition))
       case _ => None
     }
@@ -466,11 +476,14 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   }
 
   protected def escapeTestName(test: String): String = if (test.contains(" ")) "\"" + test + "\"" else test
+  protected def escapeClassAndTest(input: String): String = input
+
+  def getReporterParams: String = ""
 
   def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
     (for ((aClass, tests) <- classToTests) yield {
       if (tests.isEmpty) Seq(s"$sbtClassKey$aClass")
-      else for (test <- tests) yield s"$sbtClassKey$aClass$sbtTestNameKey${escapeTestName(test)}"
+      else for (test <- tests) yield sbtClassKey + escapeClassAndTest(aClass + sbtTestNameKey + escapeTestName(test))
     }).flatten.toSeq
   }
 
@@ -520,7 +533,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     testKind match {
       case TestKind.CLASS | TestKind.TEST_NAME =>
         //requires explicitly state class
-        if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) classes += clazz else throw new ExecutionException("Not found suite class.")
+        if (ScalaPsiUtil.isInheritorDeep(clazz, suiteClass)) classes += clazz else throw new ExecutionException("Not found suite class.")
       case TestKind.ALL_IN_PACKAGE =>
         val scope = getScope(withDependencies = false)
         def getClasses(pack: ScPackage): Seq[PsiClass] = {
@@ -689,26 +702,27 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           case _ =>
         }
         if (useSbt) {
-          val commands = buildSbtParams(getTestMap(getClasses, getFailedTests)).map("testOnly" + _)
+          val commands = buildSbtParams(getTestMap(getClasses, getFailedTests)).
+            map(SettingQueryHandler.getProjectIdPrefix(SbtUtil.getSbtProjectIdSeparated(getModule)) + "testOnly" + _)
           val comm = SbtShellCommunication.forProject(project)
           val handler = new SbtTestEventHandler(processHandler)
           (if (useUiWithSbt) {
             initialize(comm)
             modifySbtSettingsForUi(comm)
-          } else Future(Some(SettingMap()))) flatMap {
-            //TODO: meaningful report if settings were not set correctly
-            case None => Future() //do nothing, the environment is not ready
-            case Some(oldSettings) => Future.sequence(commands.map(comm.command(_, {},
+          } else Future(SettingMap())) flatMap {
+            oldSettings => Future.sequence(commands.map(comm.command(_, {},
               SbtShellCommunication.listenerAggregator(handler), showShell = false))) flatMap {
               _ => resetSbtSettingsForUi(comm, oldSettings)
             }
-          }  onComplete {_ => handler.closeRoot()}
+          } onComplete {_ => handler.closeRoot()}
         }
         res
       }
     }
     state
   }
+
+  protected def getSbtProjectUriAndId: (Option[String], Option[String]) = SbtUtil.getSbtProjectIdSeparated(getModule)
 
   protected def getClassFileNames(classes: mutable.HashSet[PsiClass]): Seq[String] = classes.map(_.qualifiedName).toSeq
 
@@ -774,7 +788,7 @@ trait SuiteValidityChecker {
     isInvalidClass(clazz) || {
       val list: PsiModifierList = clazz.getModifierList
       list != null && list.hasModifierProperty(PsiModifier.ABSTRACT) || lackSuitableConstructor(clazz)
-    } || !ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)
+    } || !ScalaPsiUtil.isInheritorDeep(clazz, suiteClass)
   }
 
   protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean
@@ -784,8 +798,9 @@ trait SuiteValidityChecker {
 
 object AbstractTestRunConfiguration extends SuiteValidityChecker {
 
-  type SettingMap = Map[(String, String), String]
-  def SettingMap(): SettingMap = Map[(String, String), String]()
+  case class SettingEntry(settingName: String, task: Option[String], sbtProjectUri: Option[String], sbtProjectId: Option[String])
+  type SettingMap = Map[SettingEntry, String]
+  def SettingMap(): SettingMap = Map[SettingEntry, String]()
 
   private[test] trait TestCommandLinePatcher {
     private var failedTests: Seq[(String, String)] = _

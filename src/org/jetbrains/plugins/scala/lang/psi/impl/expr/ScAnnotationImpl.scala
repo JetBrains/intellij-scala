@@ -8,8 +8,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Comparing
 import com.intellij.psi._
 import com.intellij.psi.meta.PsiMetaData
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.ANNOTATION
@@ -24,39 +22,34 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
   * @author Alexander Podkhalyuzin
   *         Date: 07.03.2008
   */
-class ScAnnotationImpl private(stub: StubElement[ScAnnotation], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScAnnotation with PsiAnnotationParameterList {
-  def this(node: ASTNode) = this(null, null, node)
+class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ANNOTATION, node) with ScAnnotation with PsiAnnotationParameterList {
 
-  def this(stub: ScAnnotationStub) = this(stub, ANNOTATION, null)
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScAnnotationStub) = this(stub, null)
 
   override def toString: String = "Annotation"
 
   def getMetaData: PsiMetaData = null
 
   def getAttributes: Array[PsiNameValuePair] =
-    annotationExpr.getAttributes map {
+    annotationExpr.getAttributes.map {
       _.asInstanceOf[PsiNameValuePair]
-    } toArray
+    }.toArray
 
   def getParameterList: PsiAnnotationParameterList = this
 
   private def getClazz: Option[PsiClass] =
-    typeElement.getType().getOrAny.extractClass(getProject)
+    typeElement.getType().getOrAny.extractClass
 
   def getQualifiedName: String = getClazz.map {
     _.qualifiedName
   }.orNull
 
-  def typeElement: ScTypeElement = {
-    Option(getStub).collect {
-      case stub: ScAnnotationStub => stub
-    }.flatMap {
-      _.typeElement
-    }.getOrElse {
-      annotationExpr.constr.typeElement
-    }
-  }
+  def typeElement: ScTypeElement =
+    byPsiOrStub(Option(annotationExpr.constr.typeElement))(_.typeElement).orNull
+
 
   def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
     constructor.args match {

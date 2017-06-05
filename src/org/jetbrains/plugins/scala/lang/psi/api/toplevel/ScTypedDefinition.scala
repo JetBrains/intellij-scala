@@ -5,7 +5,7 @@ package api
 package toplevel
 
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
+import com.intellij.psi.{PsiClass, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 /**
  * Member definitions, classes, named patterns which have types
@@ -31,7 +31,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
     case (tpe, index) => Parameter(tpe, isRepeated = false, index = index)
   }.toArray
 
-  @Cached(synchronized = false, modificationCount = ModCount.getBlockModificationCount, this)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def getUnderEqualsMethod: PsiMethod = {
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
@@ -41,7 +41,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
     new FakePsiMethod(this, name + "_=", typeArr2paramArr(Array[ScType](tType)), Unit, hasModifierProperty)
   }
 
-  @Cached(synchronized = false, modificationCount = ModCount.getBlockModificationCount, this)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def getGetBeanMethod: PsiMethod = {
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
@@ -51,7 +51,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
       this.getType(TypingContext.empty).getOrAny, hasModifierProperty)
   }
 
-  @Cached(synchronized = false, modificationCount = ModCount.getBlockModificationCount, this)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def getSetBeanMethod: PsiMethod = {
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
@@ -61,7 +61,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
     new FakePsiMethod(this, "set" + name.capitalize, typeArr2paramArr(Array[ScType](tType)), api.Unit, hasModifierProperty)
   }
 
-  @Cached(synchronized = false, modificationCount = ModCount.getBlockModificationCount, this)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def getIsBeanMethod: PsiMethod = {
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
@@ -71,33 +71,24 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
       this.getType(TypingContext.empty).getOrAny, hasModifierProperty)
   }
 
-  @Cached(synchronized = false, modificationCount = ModCount.getBlockModificationCount, this)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def getBeanMethods: Seq[PsiMethod] = {
-    def valueSeq(v: ScAnnotationsHolder with ScModifierListOwner): Seq[PsiMethod] = {
-      val beanProperty = ScalaPsiUtil.isBeanProperty(v)
-      val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(v)
-      if (beanProperty || booleanBeanProperty) {
-        Seq(if (beanProperty) getGetBeanMethod else getIsBeanMethod)
-      } else Seq.empty
+    val (member, needSetter) = nameContext match {
+      case v: ScValue => (v, false)
+      case v: ScVariable => (v, true)
+      case cp: ScClassParameter if cp.isEffectiveVal => (cp, cp.isVar)
+      case _ => return Nil
     }
-    def variableSeq(v: ScAnnotationsHolder with ScModifierListOwner): Seq[PsiMethod] = {
-      val beanProperty = ScalaPsiUtil.isBeanProperty(v)
-      val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(v)
-      if (beanProperty || booleanBeanProperty) {
-        Seq(if (beanProperty) getGetBeanMethod else getIsBeanMethod, getSetBeanMethod)
-      } else Seq.empty
-    }
-    ScalaPsiUtil.nameContext(this) match {
-      case v: ScValue =>
-        valueSeq(v)
-      case v: ScVariable =>
-        variableSeq(v)
-      case v: ScClassParameter if v.isVal =>
-        valueSeq(v)
-      case v: ScClassParameter if v.isVar =>
-        variableSeq(v)
-      case _ => Seq.empty
-    }
+    val beanProperty = ScalaPsiUtil.isBeanProperty(member)
+    val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(member)
+    val getter =
+      if (beanProperty) List(getGetBeanMethod)
+      else if (booleanBeanProperty) List(getIsBeanMethod)
+      else Nil
+    val setter =
+      if ((beanProperty || booleanBeanProperty) && needSetter) List(getSetBeanMethod)
+      else Nil
+    getter ::: setter
   }
 
   import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
@@ -113,11 +104,10 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
     new StaticPsiTypedDefinitionWrapper(this, role, cClass)
   }
 
-  def nameContext: PsiElement = ScalaPsiUtil.nameContext(this)
   def isVar: Boolean = false
   def isVal: Boolean = false
 
-  def isAbstractMember: Boolean = ScalaPsiUtil.nameContext(this) match {
+  def isAbstractMember: Boolean = nameContext match {
     case _: ScFunctionDefinition | _: ScPatternDefinition | _: ScVariableDefinition => false
     case _: ScClassParameter => false
     case _ => true

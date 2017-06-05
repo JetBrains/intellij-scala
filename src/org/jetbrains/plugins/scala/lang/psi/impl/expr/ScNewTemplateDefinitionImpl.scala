@@ -7,19 +7,17 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -35,16 +33,52 @@ import scala.collection.mutable.ArrayBuffer
 * Date: 06.03.2008
 */
 
-class ScNewTemplateDefinitionImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScNewTemplateDefinition with PsiClassFake {
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScTemplateDefinitionStub) = {this(stub, ScalaElementTypes.NEW_TEMPLATE, null)}
+class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.NEW_TEMPLATE, node) with ScNewTemplateDefinition with PsiClassFake {
+
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScTemplateDefinitionStub) = this(stub, null)
 
   override def toString: String = "NewTemplateDefinition"
 
   override def getIcon(flags: Int) = Icons.CLASS
 
-  protected override def innerType(ctx: TypingContext) = {
+  override def constructor: Option[ScConstructor] =
+    Option(extendsBlock).flatMap(_.templateParents).collect {
+      case parents: ScClassParents if parents.typeElements.length == 1 => parents
+    }.flatMap(_.constructor)
+
+  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    constructor match {
+      case Some(constructor) =>
+        constructor.reference match {
+          case Some(reference) =>
+            val len = reference.resolve() match {
+              case prim: ScPrimaryConstructor => prim.effectiveParameterClauses.length
+              case f: ScFunction if f.isConstructor => f.effectiveParameterClauses.length
+              case m: PsiMethod if m.isConstructor => 1
+              case _ => -1
+            }
+            val argLen = constructor.arguments.length
+            if (len >= 0 && len < argLen) {
+              //It's very rare case, when we need to desugar apply first.
+              //So let's create new PSI and call innerType once again.
+              def calcOffset(num: Int, element: PsiElement, res: Int = 0): Int = {
+                if (num <= 0) return res
+                calcOffset(num - 1, element.getParent, res + element.getStartOffsetInParent)
+              }
+
+              val text = "(" + getText.substring(0, calcOffset(4, constructor.arguments(len))) + ")" +
+                constructor.arguments.takeRight(argLen - len).map(_.getText).mkString
+              val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
+              return newExpr.getNonValueType(ctx, fromUnderscore = true)
+            }
+          case _ =>
+        }
+      case _ =>
+    }
+
     val earlyHolders: Seq[ScDeclaredElementsHolder] = extendsBlock.earlyDefinitions match {
       case Some(e: ScEarlyDefinitions) => e.members.flatMap {
         case holder: ScDeclaredElementsHolder => Seq(holder)

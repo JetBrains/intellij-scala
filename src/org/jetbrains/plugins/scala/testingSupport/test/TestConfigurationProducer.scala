@@ -29,7 +29,7 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
   protected def isObjectInheritor(clazz: ScTypeDefinition, fqn: String): Boolean =
     clazz.elementScope.getCachedObject(fqn)
       .exists {
-        ScalaPsiUtil.cachedDeepIsInheritor(clazz, _)
+        ScalaPsiUtil.isInheritorDeep(clazz, _)
       }
 
   def getLocationClassAndTest(location: Location[_ <: PsiElement]): (ScTypeDefinition, String)

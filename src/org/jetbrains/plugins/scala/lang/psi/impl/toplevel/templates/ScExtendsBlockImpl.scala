@@ -7,11 +7,11 @@ package templates
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTemplateParentsFactory
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.TokenSets.TEMPLATE_PARENTS
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
@@ -22,9 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, api, _}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, _}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 import scala.annotation.tailrec
@@ -35,26 +34,27 @@ import scala.collection.mutable.ListBuffer
   * @author AlexanderPodkhalyuzin
   *         Date: 20.02.2008
   */
-class ScExtendsBlockImpl private(stub: StubElement[ScExtendsBlock], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScExtendsBlock {
+class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, EXTENDS_BLOCK, node) with ScExtendsBlock {
 
-  def this(node: ASTNode) =
-    this(null, null, node)
+  def this(node: ASTNode) = this(null, node)
 
-  def this(stub: ScExtendsBlockStub) = this(stub, ScalaElementTypes.EXTENDS_BLOCK, null)
+  def this(stub: ScExtendsBlockStub) = this(stub, null)
 
   override def toString: String = "ExtendsBlock"
 
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def templateBody: Option[ScTemplateBody] = {
-    Option(getStub).flatMap { stub =>
-      Option(stub.findChildStubByType(ScalaElementTypes.TEMPLATE_BODY)).map {
-        _.getPsi
-      }
-    }.orElse {
-      Option(getLastChild).collect {
-        case templateBody: ScTemplateBody => templateBody
-      }
+    def childStubTemplate(stub: ScExtendsBlockStub) =
+      Option(stub.findChildStubByType(TEMPLATE_BODY))
+        .map(_.getPsi)
+
+    def lastChildTemplateBody = getLastChild match {
+      case tb: ScTemplateBody => Some(tb)
+      case _ => None
     }
+
+    byPsiOrStub(lastChildTemplateBody)(childStubTemplate)
   }
 
   def empty: Boolean = getNode.getFirstChildNode == null
@@ -69,6 +69,9 @@ class ScExtendsBlockImpl private(stub: StubElement[ScExtendsBlock], nodeType: IE
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def superTypes: List[ScType] = {
     val buffer = new ListBuffer[ScType]
+
+    val stdTypes = projectContext.stdTypes
+    import stdTypes._
 
     def addType(t: ScType) {
       t match {
@@ -95,7 +98,7 @@ class ScExtendsBlockImpl private(stub: StubElement[ScExtendsBlock], nodeType: IE
     }
 
     def extract(scType: ScType): Boolean = {
-      scType.extractClass(getProject) match {
+      scType.extractClass match {
         case Some(_: ScObject) => true
         case Some(_: ScTrait) => false
         case Some(_: ScClass) => true
@@ -105,12 +108,12 @@ class ScExtendsBlockImpl private(stub: StubElement[ScExtendsBlock], nodeType: IE
     }
 
     val findResult = buffer.find {
-      case AnyVal | api.AnyRef | Any => true
+      case AnyVal | AnyRef | Any => true
       case t => extract(t)
     }
     findResult match {
       case Some(AnyVal) => //do nothing
-      case res@(Some(api.AnyRef) | Some(Any)) =>
+      case res@(Some(AnyRef) | Some(Any)) =>
         buffer -= res.get
         if (javaObject != null)
           buffer += javaObject
@@ -187,7 +190,7 @@ class ScExtendsBlockImpl private(stub: StubElement[ScExtendsBlock], nodeType: IE
 
     templateParents match {
       case Some(parents: ScTemplateParents) => parents.supers foreach { t => addClass(t) }
-      case _ => ScTemplateParents.extractSupers(syntheticTypeElements, getProject) foreach { t => addClass(t) }
+      case _ => ScTemplateParents.extractSupers(syntheticTypeElements) foreach { t => addClass(t) }
     }
     if (isUnderCaseClass) {
       val prod = scalaProductClass
@@ -207,9 +210,8 @@ class ScExtendsBlockImpl private(stub: StubElement[ScExtendsBlock], nodeType: IE
       case c: PsiClass if !c.isInterface => true
       case _ => false
     } match {
-      case Some(s: ScSyntheticClass) if AnyVal.asClass(getProject).contains(s) => //do nothing
-      case Some(s: ScSyntheticClass) if api.AnyRef.asClass(getProject).contains(s) ||
-        Any.asClass(getProject).contains(s) =>
+      case Some(s: ScSyntheticClass) if s.stdType.isAnyVal => //do nothing
+      case Some(s: ScSyntheticClass) if s.stdType.isAnyRef || s.stdType.isAny =>
         buffer -= s
         if (javaObjectClass != null)
           buffer += javaObjectClass
@@ -293,22 +295,11 @@ class ScExtendsBlockImpl private(stub: StubElement[ScExtendsBlock], nodeType: IE
       _.selfTypeElement
     }
 
-  def templateParents: Option[ScTemplateParents] = {
-    val stub = getStub
-    if (stub != null) {
-      val array = stub.getChildrenByType(TokenSets.TEMPLATE_PARENTS, JavaArrayFactoryUtil.ScTemplateParentsFactory)
-      array.headOption
-    } else findChild(classOf[ScTemplateParents])
-  }
+  def templateParents: Option[ScTemplateParents] =
+    getStubOrPsiChildren(TEMPLATE_PARENTS, ScTemplateParentsFactory).headOption
 
-  def earlyDefinitions: Option[ScEarlyDefinitions] = {
-    val stub = getStub
-    if (stub != null) {
-      val array = stub.getChildrenByType(ScalaElementTypes.EARLY_DEFINITIONS,
-        JavaArrayFactoryUtil.ScEarlyDefinitionsFactory)
-      array.headOption
-    } else findChild(classOf[ScEarlyDefinitions])
-  }
+  def earlyDefinitions: Option[ScEarlyDefinitions] =
+    this.stubOrPsiChild(EARLY_DEFINITIONS)
 
   override def addEarlyDefinitions(): ScEarlyDefinitions = {
     earlyDefinitions.getOrElse {

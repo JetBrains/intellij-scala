@@ -14,12 +14,11 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightField
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -27,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiClassWrapper}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScObjectDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -39,13 +37,12 @@ import scala.collection.mutable.ArrayBuffer
  * @author Alexander Podkhalyuzin
  * Date: 20.02.2008
  */
-class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, nodeType, node) with ScObject with ScTemplateDefinition {
-  def this(node: ASTNode) =
-    this(null, null, node)
+class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
+  extends ScTypeDefinitionImpl(stub, ScalaElementTypes.OBJECT_DEFINITION, node) with ScObject with ScTemplateDefinition {
 
-  def this(stub: ScTemplateDefinitionStub, definition: ScObjectDefinitionElementType) =
-    this(stub, definition, null)
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScTemplateDefinitionStub) = this(stub, null)
 
   override def additionalJavaNames: Array[String] = {
     fakeCompanionClass match {
@@ -92,12 +89,10 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
 
   override def isObject : Boolean = true
 
-  override def isPackageObject: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScTemplateDefinitionStub].isPackageObject
-    } else findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE) != null || name == "`package`"
+  override def isPackageObject: Boolean = byStubOrPsi(_.isPackageObject) {
+    findChildByType(ScalaTokenTypes.kPACKAGE) != null || name == "`package`"
   }
+
 
   def hasPackageKeyword: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE) != null
 

@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.UIFreezingGuard
 
@@ -38,8 +38,10 @@ import scala.annotation.tailrec
  * @since 22.03.12
  */
 class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingClass0: Option[PsiClass] = None) extends {
-  val name: String = if (ScalaNamesUtil.isKeyword(_name) && _name != "this") "`" + _name + "`" else _name
+  val name: String = if (_name != "this") escapeKeyword(_name) else _name
 } with LookupItem[PsiNamedElement](element, name) {
+
+  private implicit val project = element.projectContext
 
   var isClassName: Boolean = false
   var isRenamed: Option[String] = None
@@ -253,7 +255,6 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
             }))
             ref = ref.getParent.asInstanceOf[ScReferenceElement]
 
-          implicit val manager = ref.getManager
           val newRef = ref match {
             case ref: ScReferenceExpression if prefixCompletion =>
               val parts = cl.qualifiedName.split('.')

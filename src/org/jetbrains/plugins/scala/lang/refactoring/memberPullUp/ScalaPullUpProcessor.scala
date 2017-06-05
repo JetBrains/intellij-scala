@@ -43,7 +43,7 @@ class ScalaPullUpProcessor(project: Project,
    * Should be invoked in write action
    * */
   def moveMembersToBase() {
-    implicit val manager = targetClass.getManager
+    implicit val projectContext = targetClass.projectContext
     val extendsBlock = targetClass.extendsBlock
     val templateBody = extendsBlock.templateBody match {
       case Some(tb) => tb

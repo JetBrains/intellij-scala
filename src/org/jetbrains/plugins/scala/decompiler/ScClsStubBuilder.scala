@@ -5,7 +5,6 @@ import java.io.IOException
 
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiManager
 import com.intellij.psi.compiled.ClsStubBuilder
 import com.intellij.psi.stubs.{PsiFileStub, PsiFileStubImpl}
 import com.intellij.util.indexing.FileContent
@@ -14,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StubVersion
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 
 import scala.annotation.tailrec
 import scala.reflect.NameTransformer
@@ -93,8 +92,7 @@ class ScClsStubBuilder extends ClsStubBuilder {
     content.getFile match {
       case file if isInnerClass(file) => null
       case file =>
-        implicit val manager = PsiManager.getInstance(content.getProject)
-        val scalaFile = createScalaFile(file, content.getContent)
+        val scalaFile = createScalaFile(file, content.getContent)(content.getProject)
         createFileStub(scalaFile)
     }
 
@@ -112,7 +110,7 @@ class ScClsStubBuilder extends ClsStubBuilder {
   }
 
   private def createScalaFile(virtualFile: VirtualFile, bytes: Array[Byte])
-                             (implicit manager: PsiManager): ScalaFile = {
+                             (implicit ctx: ProjectContext): ScalaFile = {
     val decompiled = decompile(virtualFile, bytes)
     val result = createScalaFileFromText(decompiled.sourceText.replace("\r", ""))
 

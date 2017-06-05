@@ -20,7 +20,7 @@ class InsertReturnTypeAndEquals(functionDef: ScFunctionDefinition)
     funDef.removeAssignment()
     funDef.removeExplicitType()
 
-    implicit val manager = funDef.getManager
+    implicit val projectContext = funDef.projectContext
     val fakeDecl = createDeclaration("x", "Unit", isVariable = false, null)
     val colon = fakeDecl.findFirstChildByType(ScalaTokenTypes.tCOLON)
     val assign = fakeDecl.findFirstChildByType(ScalaTokenTypes.tASSIGN)

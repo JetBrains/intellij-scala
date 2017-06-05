@@ -10,7 +10,7 @@ import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.ui._
 import com.intellij.util.IconUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import scala.annotation.tailrec
@@ -25,8 +25,9 @@ object ScalaProjectSettingsUtil {
     if (packageName.trim.startsWith(".") || packageName.trim.endsWith(".")) return false
     val parts = packageName.split(".")
     for (i <- 0 until parts.length) {
-      if (!ScalaNamesUtil.isIdentifier(parts(i)) || parts(i).isEmpty) {
-        if (!checkPlaceholder || i != parts.length - 1 || parts(i) != "_") return false
+      val part = parts(i)
+      if (!isIdentifier(part)) {
+        if (!checkPlaceholder || i != parts.length - 1 || part != "_") return false
       }
     }
     true

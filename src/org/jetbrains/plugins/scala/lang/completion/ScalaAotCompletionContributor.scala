@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypedDeclaration, ScValueDeclaration, ScVariableDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
@@ -73,7 +73,7 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
     result0.runRemainingContributors(parameters0, new MyConsumer(prefix, typed, result0), true)
   }
 
-  private def isSuitableIdentifier(s: String) = ScalaNamesUtil.isIdentifier(s) && s.forall(_.isLetterOrDigit)
+  private def isSuitableIdentifier(s: String) = isIdentifier(s) && s.forall(_.isLetterOrDigit)
 }
 
 private object ScalaAotCompletionContributor {

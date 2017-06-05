@@ -8,27 +8,27 @@ package params
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClausesStub
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
 
-class ScParametersImpl private (stub: StubElement[ScParameters], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScParameters {
+class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.PARAM_CLAUSES, node) with ScParameters {
 
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScParamClausesStub) = {this(stub, ScalaElementTypes.PARAM_CLAUSES, null)}
+  def this(node: ASTNode) = this(null, node)
+  def this(stub: ScParamClausesStub) = this(stub, null)
 
   override def toString: String = "Parameters"
 
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def clauses: Seq[ScParameterClause] = {
     getStubOrPsiChildren(ScalaElementTypes.PARAM_CLAUSE, JavaArrayFactoryUtil.ScParameterClauseFactory).toSeq
   }

@@ -1,41 +1,30 @@
 package org.jetbrains.sbt
 
 import java.io.{BufferedInputStream, File, FileInputStream}
+import java.net.URI
 import java.util.Properties
 import java.util.jar.JarFile
+
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
+import com.intellij.openapi.externalSystem.model.project.ModuleData
+import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.util.BooleanFunction
+import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.data.SbtModuleData
 
 /**
   * Created by jast on 2017-02-20.
   */
 object SbtUtil {
 
-  /**
-    * Compare two version strings.
-    * From http://stackoverflow.com/questions/6701948/efficient-way-to-compare-version-strings-in-java
-    * @return 0 if equal, <0 if v1 is a lower version than v2, >0 if v1 is a higher version than v2
-    */
-  def versionCompare(str1: String, str2: String): Int = {
-    val vals1 = str1.split("\\.")
-    val vals2 = str2.split("\\.")
-    var i = 0
-    // set index to first non-equal ordinal or length of shortest version string
-    while ( {
-      i < vals1.length && i < vals2.length && vals1(i) == vals2(i)
-    }) i += 1
-    // compare first non-equal ordinal number
-    if (i < vals1.length && i < vals2.length) {
-      val diff = Integer.valueOf(vals1(i)).compareTo(Integer.valueOf(vals2(i)))
-      return Integer.signum(diff)
-    }
-    // the strings are equal or one string is a substring of the other
-    // e.g. "1.2.3" = "1.2.3" or "1.2.3" < "1.2.3.4"
-    Integer.signum(vals1.length - vals2.length)
-  }
-
   /** Directory for global sbt plugins given sbt version */
-  def globalPluginsDirectory(sbtVersion: String): File =
+  def globalPluginsDirectory(sbtVersion: Version): File =
     getFileProperty(globalPluginsProperty).getOrElse {
-      val base = globalBase(sbtVersion)
+      val base = globalBase(sbtVersion.presentation)
       new File(base, "plugins")
     }
 
@@ -53,7 +42,7 @@ object SbtUtil {
   private def defaultGlobalBase = fileProperty("user.home") / ".sbt"
   private def defaultVersionedGlobalBase(sbtVersion: String): File = defaultGlobalBase / sbtVersion
 
-  def majorVersion(sbtVersion: String): String = numbersOf(sbtVersion).take(2).mkString(".")
+  def majorVersion(sbtVersion: Version): Version = sbtVersion.major(2)
 
   def detectSbtVersion(directory: File, sbtLauncher: => File): String =
     sbtVersionIn(directory)
@@ -128,4 +117,49 @@ object SbtUtil {
     }
   }
 
+  def getSbtModuleData(module: Module): Option[SbtModuleData] = {
+    val project = module.getProject
+    val moduleId = ExternalSystemApiUtil.getExternalProjectId(module) // nullable, but that's okay for use in predicate
+    getSbtModuleData(project, moduleId)
+  }
+
+  def getSbtModuleData(project: Project, moduleId: String): Option[SbtModuleData] = {
+
+    // seems hacky. but it seems there isn't yet any better way to get the data for selected module?
+    val predicate = new BooleanFunction[DataNode[ModuleData]] {
+      override def fun(s: DataNode[ModuleData]): Boolean = s.getData.getId == moduleId
+    }
+
+    val emptyURI = new URI("")
+    val dataManager = ProjectDataManager.getInstance()
+
+    // TODO instead of silently not running a task, collect failures, report to user
+    for {
+      projectInfo <- Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
+      projectStructure <- Option(projectInfo.getExternalProjectStructure)
+      moduleDataNode <- Option(ExternalSystemApiUtil.find(projectStructure, ProjectKeys.MODULE, predicate))
+      moduleSbtDataNode <- Option(ExternalSystemApiUtil.find(moduleDataNode, SbtModuleData.Key))
+      data = {
+        dataManager.ensureTheDataIsReadyToUse(moduleSbtDataNode)
+        moduleSbtDataNode.getData
+      }
+      // buildURI should never be empty for true sbt projects, but filtering here handles synthetic projects
+      // created from AAR files. Should implement a more elegant solution for AARs.
+      if data.buildURI != emptyURI
+    } yield {
+      data
+    }
+  }
+
+  def getSbtProjectIdSeparated(module: Module): (Option[String], Option[String]) =
+    getSbtModuleData(module) match {
+      case Some(data) => (Some(data.buildURI.toString), Some(data.id))
+      case _ => (None, None)
+    }
+
+  def makeSbtProjectId(data: SbtModuleData): String = {
+    val uri = data.buildURI
+    val id = data.id
+    s"{$uri}$id"
+  }
 }

@@ -104,7 +104,7 @@ class ScalaInlineHandler extends InlineHandler {
           case _ => None
         }
         replacementOpt.foreach { replacement =>
-          implicit val manager = replacement.getManager
+          implicit val projectContext = replacement.projectContext
           val newValue = replacement match {
             case expression: ScExpression =>
               val oldValue = expression match {
@@ -196,7 +196,8 @@ class ScalaInlineHandler extends InlineHandler {
 
     UsageTrigger.trigger(ScalaBundle.message("inline.id"))
 
-    implicit val typeSystem = element.typeSystem
+    implicit val project = element.projectContext
+
     element match {
       case typedDef: ScTypedDefinition if FunctionType.unapply(typedDef.getType().getOrAny).exists(_._2.nonEmpty) =>
         val message = typedDef match {

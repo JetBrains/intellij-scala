@@ -40,10 +40,12 @@ object VariableNullInitializerInspection {
   val inspectionName = InspectionBundle.message("convert.null.initializer.to.underscore")
   val inspectionId = "ScalaConvertNullInitializerToUnderscore"
 
-  private def isApplicable(`type`: ScType): Boolean = `type` match {
-    case Unit => true
-    case _: ValType => false
-    case _ => true
+  private def isApplicable(`type`: ScType): Boolean = {
+    `type` match {
+      case t if t.isUnit => true
+      case _: ValType => false
+      case _ => true
+    }
   }
 
   def isNull(expr: ScExpression): Boolean =

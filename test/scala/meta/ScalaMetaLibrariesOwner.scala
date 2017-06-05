@@ -2,11 +2,11 @@ package scala.meta
 
 import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyLibraryLoaderAdapter, ThirdPartyLibraryLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_11_8}
+import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_11_11}
 
 trait ScalaMetaLibrariesOwner extends ScalaSdkOwner {
 
-  override implicit val version: ScalaVersion = Scala_2_11_8
+  override implicit val version: ScalaVersion = Scala_2_11_11
 
   import ScalaMetaLibrariesOwner._
 
@@ -29,11 +29,11 @@ trait ScalaMetaLibrariesOwner extends ScalaSdkOwner {
 object ScalaMetaLibrariesOwner {
 
   abstract class MetaBaseLoader(implicit module: Module) extends IvyLibraryLoaderAdapter {
-    override protected val version: String = "1.6.0"
+    override protected val version: String = "1.7.0"
     override protected val vendor: String = "org.scalameta"
 
     override protected def path(implicit version: ScalaVersion): String =
-      super.path(Scala_2_11_8)
+      super.path(version)
   }
 
   private case class MetaCommonLoader(implicit val module: Module) extends MetaBaseLoader {

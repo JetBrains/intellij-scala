@@ -10,11 +10,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 
 /**
@@ -45,9 +45,9 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
       }
 
       val project = file.getProject
-      implicit val typeSystem = project.typeSystem
+      implicit val ctx: ProjectContext = project
 
-      def hintForExpression(implicit typeSystem: TypeSystem): Option[String] = {
+      def hintForExpression(): Option[String] = {
         val exprWithTypes: Option[(ScExpression, Array[ScType])] =
           ScalaRefactoringUtil.getExpression(project, editor, file, getSelectionStart, getSelectionEnd)
 

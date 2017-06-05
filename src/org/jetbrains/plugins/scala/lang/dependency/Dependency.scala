@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
@@ -36,7 +35,7 @@ case class Dependency(kind: DependencyKind, target: PsiElement, path: Path) {
 object Dependency {
   def dependenciesIn(scope: PsiElement): Seq[Dependency] = {
     scope.depthFirst()
-            .filterByType(classOf[ScReferenceElement])
+            .filterByType[ScReferenceElement]
             .toList
             .flatMap(reference => dependencyFor(reference).toList)
   }
@@ -55,7 +54,7 @@ object Dependency {
       case _ =>
     }
 
-    implicit val ts = ref.typeSystem
+    implicit val ts = ref.projectContext
 
     val processor =
       new CompletionProcessor(ref.getKinds(incomplete = false), ref, collectImplicits = false, Some(ref.refName), isIncomplete = false) {
@@ -89,8 +88,7 @@ object Dependency {
     }
   }
 
-  private def dependencyFor(reference: ScReferenceElement, target: PsiElement, fromType: Option[ScType])
-                           (implicit typeSystem: TypeSystem = reference.typeSystem): Option[Dependency] = {
+  private def dependencyFor(reference: ScReferenceElement, target: PsiElement, fromType: Option[ScType]): Option[Dependency] = {
 
     def pathFor(entity: PsiNamedElement, member: Option[String] = None): Option[Path] = {
       if (!ScalaPsiUtil.hasStablePath(entity)) return None
@@ -149,7 +147,7 @@ object Dependency {
             if method.getModifierList.hasModifierProperty("static") =>
             create(e, Some(method.getName))
           case (member: PsiMember) && ContainingClass(e: PsiClass) =>
-            fromType.flatMap(_.extractClass(e.getProject)) match {
+            fromType.flatMap(_.extractClass) match {
               case Some(entity: ScObject) =>
                 val memberName = member match {
                   case named: ScNamedElement => named.name

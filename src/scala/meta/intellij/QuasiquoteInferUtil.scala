@@ -69,6 +69,8 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
 
   def getMetaQQExprType(pat: ScInterpolatedStringLiteral): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
+    implicit val project = pat.projectContext
+
     val patternText = escapeQQ(pat)
     val qqdialect = if (pat.isMultiLineString)
       scala.meta.dialects.QuasiquoteTerm(m.Dialect.standards("Scala211"), multiline = true)

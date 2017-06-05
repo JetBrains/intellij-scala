@@ -21,8 +21,7 @@ class ScValueOrVariableStubImpl[V <: ScValueOrVariable](parent: StubElement[_ <:
                                                         protected[impl] val bodyTextRef: Option[StringRef],
                                                         private val containerTextRef: Option[StringRef],
                                                         val isLocal: Boolean)
-  extends StubBase[V](parent, elementType) with ScValueOrVariableStub[V]
-    with ScTypeElementOwnerStub[V] with ScExpressionOwnerStub[V] {
+  extends StubBase[V](parent, elementType) with ScValueOrVariableStub[V] {
 
   private var idsContainerReference: SofterReference[Option[ScIdList]] = null
   private var patternsContainerReference: SofterReference[Option[ScPatternList]] = null
@@ -34,24 +33,22 @@ class ScValueOrVariableStubImpl[V <: ScValueOrVariable](parent: StubElement[_ <:
   def patternsContainer: Option[ScPatternList] = {
     if (isDeclaration) return None
 
-    patternsContainerReference = updateOptionalReference(patternsContainerReference) {
+    getFromOptionalReference(patternsContainerReference) {
       case (context, child) =>
         bindingsContainerText.map {
           createPatterListFromText(_, context, child)
         }
-    }
-    patternsContainerReference.get
+    } (patternsContainerReference = _)
   }
 
   def idsContainer: Option[ScIdList] = {
     if (!isDeclaration) return None
 
-    idsContainerReference = updateOptionalReference(idsContainerReference) {
+    getFromOptionalReference(idsContainerReference) {
       case (context, child) =>
         bindingsContainerText.map {
           createIdsListFromText(_, context, child)
         }
-    }
-    idsContainerReference.get
+    } (idsContainerReference = _)
   }
 }

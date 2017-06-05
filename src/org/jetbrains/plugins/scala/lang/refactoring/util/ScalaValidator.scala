@@ -1,67 +1,63 @@
-package org.jetbrains.plugins.scala.lang.refactoring.util
-
+package org.jetbrains.plugins.scala
+package lang
+package refactoring
+package util
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiNamedElement, PsiElement}
-import com.intellij.util.containers.MultiMap
+import com.intellij.psi.{PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 
 /**
- * Created by Kate Ustyuzhanina on 8/5/15.
- */
-abstract class ScalaValidator(conflictsReporter: ConflictsReporter,
-                              myProject: Project,
-                              selectedElement: PsiElement,
-                              noOccurrences: Boolean,
-                              enclosingContainerAll: PsiElement,
-                              enclosingOne: PsiElement) extends NameValidator {
+  * @author Kate Ustyuzhanina
+  */
+class ValidationReporter(project: Project, conflictsReporter: ConflictsReporter)
+                        (implicit validator: ScalaValidator) {
+  def isOK(dialog: NamedDialog): Boolean =
+    isOK(dialog.getEnteredName, dialog.isReplaceAllOccurrences)
 
-
-  def getProject(): Project =
-    myProject
-
-  def enclosingContainer(allOcc: Boolean): PsiElement =
-    if (allOcc) enclosingContainerAll else enclosingOne
-
-  def isOK(dialog: NamedDialog): Boolean = isOK(dialog.getEnteredName, dialog.isReplaceAllOccurrences)
-
-  def isOK(newName: String, isReplaceAllOcc: Boolean): Boolean = {
-    if (noOccurrences) return true
-    val conflicts = isOKImpl(newName, isReplaceAllOcc)
-    conflicts.isEmpty || conflictsReporter.reportConflicts(myProject, conflicts)
-  }
-
-  def isOKImpl(name: String, allOcc: Boolean): MultiMap[PsiElement, String] = {
-    val result = MultiMap.createSet[PsiElement, String]()
-    for {
-      (namedElem, message) <- findConflicts(name, allOcc)
-      if namedElem != selectedElement
-    } {
-      result.putValue(namedElem, message)
+  def isOK(newName: String, replaceAllOccurrences: Boolean): Boolean = {
+    if (validator.noOccurrences) return true
+    validator.findConflicts(newName, replaceAllOccurrences) match {
+      case Seq() => true
+      case conflicts => conflictsReporter.reportConflicts(project, conflicts)
     }
-    result
   }
+}
 
-  def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)]
+abstract class ScalaValidator(selectedElement: PsiElement,
+                              val noOccurrences: Boolean,
+                              enclosingContainerAll: PsiElement,
+                              enclosingOne: PsiElement) {
 
-  def validateName(name: String, increaseNumber: Boolean): String = {
+  def enclosingContainer(allOccurrences: Boolean): PsiElement =
+    if (allOccurrences) enclosingContainerAll else enclosingOne
+
+  final def findConflicts(name: String, allOccurrences: Boolean): Seq[(PsiNamedElement, String)] =
+    findConflictsImpl(name, allOccurrences).filter {
+      case (namedElement, _) => namedElement != selectedElement
+    }
+
+  protected def findConflictsImpl(name: String, allOccurrences: Boolean): Seq[(PsiNamedElement, String)]
+
+  def validateName(name: String): String = {
     if (noOccurrences) return name
-    var res = name
-    if (isOKImpl(res, allOcc = false).isEmpty) return res
-    if (!increaseNumber) return ""
+    var result = name
+    if (findConflicts(result, allOccurrences = false).isEmpty) return result
+
     var i = 1
-    res = name + i
-    if (!ScalaNamesUtil.isIdentifier(res)) {
-      res = name + name.last
-      while (!isOKImpl(res, allOcc = true).isEmpty) {
-        res = name + name.last
+    result = name + i
+    if (!isIdentifier(result)) {
+      result = name + name.last
+      while (findConflicts(result, allOccurrences = true).nonEmpty) {
+        result = name + name.last
       }
     } else {
-      while (!isOKImpl(res, allOcc = true).isEmpty) {
+      while (findConflicts(result, allOccurrences = true).nonEmpty) {
         i = i + 1
-        res = name + i
+        result = name + i
       }
     }
-    res
+    result
   }
 
 }

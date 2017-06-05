@@ -7,8 +7,6 @@ package types
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -22,13 +20,12 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * @author Alexander Podkhalyuzin
   */
-class ScSelfTypeElementImpl private(stub: StubElement[ScSelfTypeElement], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScSelfTypeElement {
-  def this(node: ASTNode) =
-    this(null, null, node)
+class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.SELF_TYPE, node) with ScSelfTypeElement {
 
-  def this(stub: ScSelfTypeElementStub) =
-    this(stub, ScalaElementTypes.SELF_TYPE, null)
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScSelfTypeElementStub) = this(stub, null)
 
   override def toString: String = "SelfType: " + name
 
@@ -48,19 +45,9 @@ class ScSelfTypeElementImpl private(stub: StubElement[ScSelfTypeElement], nodeTy
     }
   }
 
-  def typeElement: Option[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScSelfTypeElementStub].typeElement
-    }
-    findChild(classOf[ScTypeElement])
-  }
+  def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def classNames: Array[String] = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScSelfTypeElementStub].classNames
-    }
+  def classNames: Array[String] = byStubOrPsi(_.classNames) {
     val names = new ArrayBuffer[String]()
 
     def fillNames(typeElement: ScTypeElement) {

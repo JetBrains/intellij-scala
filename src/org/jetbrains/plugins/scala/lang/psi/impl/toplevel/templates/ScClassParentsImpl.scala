@@ -6,8 +6,6 @@ package toplevel
 package templates
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
@@ -19,22 +17,19 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * @author Alexander Podkhalyuzin
   */
-class ScClassParentsImpl private(stub: StubElement[ScClassParents], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScClassParents {
-  def this(node: ASTNode) =
-    this(null, null, node)
+class ScClassParentsImpl private(stub: ScTemplateParentsStub[ScClassParents], node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.CLASS_PARENTS, node) with ScClassParents {
 
-  def this(stub: ScTemplateParentsStub[ScClassParents]) =
-    this(stub, ScalaElementTypes.CLASS_PARENTS, null)
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScTemplateParentsStub[ScClassParents]) = this(stub, null)
 
   override def toString: String = "ClassParents"
 
   def superTypes: Seq[ScType] = {
-    val stub = getStub
-    val elements = if (stub != null) {
-      stub.asInstanceOf[ScTemplateParentsStub[ScClassParents]].parentTypeElements ++ syntheticTypeElements
-    } else allTypeElements
+    val elements = byStubOrPsi(_.parentTypeElements ++ syntheticTypeElements)(allTypeElements)
 
+    //for reduced stacksize
     val iterator = elements.iterator
     val buffer = ArrayBuffer[ScType]()
     while (iterator.hasNext) {
@@ -43,13 +38,9 @@ class ScClassParentsImpl private(stub: StubElement[ScClassParents], nodeType: IE
     buffer
   }
 
-  def typeElements: Seq[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTemplateParentsStub[ScClassParents]].parentTypeElements
-    }
-    constructor.toSeq.map {
-      _.typeElement
-    } ++ findChildrenByClassScala(classOf[ScTypeElement])
+  def typeElements: Seq[ScTypeElement] = byPsiOrStub {
+    constructor.toSeq.map(_.typeElement) ++ findChildrenByClassScala(classOf[ScTypeElement])
+  } {
+    _.parentTypeElements
   }
 }

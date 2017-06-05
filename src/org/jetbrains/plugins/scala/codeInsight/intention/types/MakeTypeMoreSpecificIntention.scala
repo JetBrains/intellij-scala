@@ -12,9 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypeText, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypeText
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -23,7 +22,6 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
   */
 class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    implicit val typeSystem = project.typeSystem
     ToggleTypeAnnotation.complete(new MakeTypeMoreSpecificStrategy(Option(editor)), element)
   }
 
@@ -35,7 +33,6 @@ class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
         setText(s)
         isAvailable = true
       }
-      implicit val typeSystem = project.typeSystem
       val desc = new StrategyAdapter {
         override def variableWithType(variable: ScVariableDefinition): Unit = {
           for {
@@ -73,8 +70,7 @@ class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("make.type.more.specific")
 }
 
-class MakeTypeMoreSpecificStrategy(editor: Option[Editor])
-                                  (implicit typeSystem: TypeSystem) extends Strategy {
+class MakeTypeMoreSpecificStrategy(editor: Option[Editor]) extends Strategy {
   import MakeTypeMoreSpecificStrategy._
 
   def doTemplate(te: ScTypeElement, declaredType: ScType, dynamicType: ScType, context: PsiElement, editor: Editor): Unit = {
@@ -138,8 +134,7 @@ class MakeTypeMoreSpecificStrategy(editor: Option[Editor])
 }
 
 object MakeTypeMoreSpecificStrategy {
-  def computeBaseTypes(declaredType: ScType, dynamicType: ScType)
-                      (implicit typeSystem: TypeSystem) : Seq[ScType] = {
+  def computeBaseTypes(declaredType: ScType, dynamicType: ScType) : Seq[ScType] = {
     val baseTypes = dynamicType +: BaseTypes.get(dynamicType)
     baseTypes.filter(t => t.conforms(declaredType) && !t.equiv(declaredType))
   }

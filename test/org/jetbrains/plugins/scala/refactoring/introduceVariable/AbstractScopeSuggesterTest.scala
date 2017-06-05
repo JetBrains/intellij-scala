@@ -53,6 +53,6 @@ abstract class AbstractScopeSuggesterTest extends ScalaLightPlatformCodeInsightT
     assert(element.isInstanceOf[ScTypeElement], "Selected element should be ScTypeElement")
 
     val scopes: Array[ScopeItem] = ScopeSuggester.suggestScopes(new EmptyConflictsReporter {}, element.getProject, editor, element.getContainingFile, element.asInstanceOf[ScTypeElement])
-    Assert.assertEquals(scopes.map(_.getName).sorted.mkString(", "), suggestedScopesNames.sorted.mkString(", "))
+    Assert.assertEquals(scopes.map(_.name).sorted.mkString(", "), suggestedScopesNames.sorted.mkString(", "))
   }
 }

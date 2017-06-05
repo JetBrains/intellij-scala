@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelect
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
@@ -84,7 +85,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     (leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
       case (ScalaElementTypes.INTERPOLATED_STRING_LITERAL, _) => 0
       case (_, ScalaElementTypes.INTERPOLATED_STRING_LITERAL) => 0
-      case _ => if (ScalaNamesUtil.isIdentifier(concatString) || ScalaNamesUtil.isKeyword(concatString)) 1 else 0
+      case _ => if (isIdentifier(concatString) || isKeyword(concatString)) 1 else 0
     }
   }
 
@@ -158,7 +159,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     //ScalaDocs
-    def docCommentOf(node: ASTNode) = node.getPsi.parentsInFile.findByType(classOf[ScDocComment]).getOrElse {
+    def docCommentOf(node: ASTNode) = node.getPsi.parentsInFile.findByType[ScDocComment].getOrElse {
       throw new RuntimeException("Unable to find parent doc comment")
     }
 
@@ -823,7 +824,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           return if (tp.nameId.getNode eq left) WITHOUT_SPACING else WITH_SPACING
       }
       return if (left.getElementType == ScalaTokenTypes.tIDENTIFIER &&
-        ScalaNamesUtil.isIdentifier(getText(left, fileText) + ":")) WITH_SPACING else WITHOUT_SPACING
+        isIdentifier(getText(left, fileText) + ":")) WITH_SPACING else WITHOUT_SPACING
     }
     if (rightString.length > 0 && rightString(0) == ';') {
       if (settings.SPACE_BEFORE_SEMICOLON && !rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile] &&

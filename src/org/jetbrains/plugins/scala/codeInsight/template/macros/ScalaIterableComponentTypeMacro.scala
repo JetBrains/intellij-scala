@@ -6,22 +6,20 @@ import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextTyp
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 
 /**
  * @author Roman.Shein
  * @since 25.09.2015.
  */
 class ScalaIterableComponentTypeMacro extends ScalaMacro {
-  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext)
-                                   (implicit typeSystem: TypeSystem): Result = {
+  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     if (params.length != 1) return null
     Option(params(0).calculateResult(context)).flatMap(MacroUtil.resultToScExpr(_, context)).flatMap(_.getType().
             toOption.flatMap{ exprType =>
               MacroUtil.getComponentFromArrayType(exprType) match {
                 case Some(arrComponentType) => Some(arrComponentType)
                 case None =>
-                  exprType.extractClass(context.getProject) match {
+                  exprType.extractClass match {
                     case Some(x: ScTypeDefinition) if x.functionsByName("foreach").nonEmpty => Some(exprType)
                     case _ => None
                   }

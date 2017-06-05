@@ -15,11 +15,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -35,13 +33,11 @@ import _root_.scala.collection.mutable.ArrayBuffer
 class ScalaVariableOfTypeMacro extends ScalaMacro {
   def getPresentableName: String = "Scala variable of type macro"
 
-  override def innerCalculateLookupItems(exprs: Array[Expression], context: ExpressionContext)
-                                        (implicit typeSystem: TypeSystem): Array[LookupElement] = {
+  override def innerCalculateLookupItems(exprs: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
     calculateLookupItems(exprs.map(_.calculateResult(context).toString), context, showOne = false)
   }
 
-  def calculateLookupItems(exprs: Array[String], context: ExpressionContext, showOne: Boolean)
-                          (implicit typeSystem: TypeSystem): Array[LookupElement] = {
+  def calculateLookupItems(exprs: Array[String], context: ExpressionContext, showOne: Boolean): Array[LookupElement] = {
     if (!validExprs(exprs)) return null
     val offset = context.getStartOffset
     val editor = context.getEditor
@@ -76,8 +72,7 @@ class ScalaVariableOfTypeMacro extends ScalaMacro {
     array.toArray
   }
 
-  def innerCalculateResult(exprs: Array[Expression], context: ExpressionContext)
-                          (implicit typeSystem: TypeSystem): Result = {
+  def innerCalculateResult(exprs: Array[Expression], context: ExpressionContext): Result = {
     if (!validExprs(exprs)) return null
     val offset = context.getStartOffset
     val editor = context.getEditor
@@ -130,18 +125,17 @@ class ScalaVariableOfTypeMacro extends ScalaMacro {
                 context: ExpressionContext,
                 variant: ScalaResolveResult,
                 scType: ScType,
-                project: Project)
-               (implicit typeSystem: TypeSystem = project.typeSystem): Option[Result] = {
+                project: Project): Option[Result] = {
     exprs.apply(0).calculateResult(context).toString match {
       case "" =>
         Some(new TextResult(variant.getElement.name))
       case ScalaVariableOfTypeMacro.iterableId =>
         if (scType.canonicalText.startsWith("_root_.scala.Array")) Some(new TextResult(variant.getElement.name))
-        else scType.extractClass(project).collect {
+        else scType.extractClass.collect {
           case x: ScTypeDefinition if x.functionsByName("foreach").nonEmpty => new TextResult(variant.getElement.name)
         }
       case _ =>
-        val qualName = scType.extractClass(project) match {
+        val qualName = scType.extractClass match {
           case Some(x) => x.qualifiedName
           case None => ""
         }
@@ -155,8 +149,7 @@ class ScalaVariableOfTypeMacro extends ScalaMacro {
                      variant: ScalaResolveResult,
                      scType: ScType,
                      project: Project,
-                     array: ArrayBuffer[LookupElement])
-                    (implicit typeSystem: TypeSystem = project.typeSystem) {
+                     array: ArrayBuffer[LookupElement]) {
     exprs.apply(0) match {
       case "" =>
         val item = LookupElementBuilder.create(variant.getElement, variant.getElement.name).
@@ -165,14 +158,14 @@ class ScalaVariableOfTypeMacro extends ScalaMacro {
       case ScalaVariableOfTypeMacro.iterableId if scType.canonicalText.startsWith("_root_.scala.Array") =>
         array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)
       case ScalaVariableOfTypeMacro.iterableId =>
-        scType.extractClass(project) match {
+        scType.extractClass match {
           case Some(x: ScTypeDefinition) if x.functionsByName("foreach").nonEmpty =>
               array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)
           case _ =>
         }
       case  _ =>
         for (expr <- exprs) {
-          if ((scType.extractClass(project) match {
+          if ((scType.extractClass match {
             case Some(x) => x.qualifiedName
             case None => ""
           }) == expr) array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)

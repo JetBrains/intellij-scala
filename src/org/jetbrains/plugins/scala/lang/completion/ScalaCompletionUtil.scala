@@ -19,8 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -72,8 +72,7 @@ object ScalaCompletionUtil {
       }
     }
     for (param <- params) {
-      val names = NameSuggester.suggestNamesByType(param)
-      var name = if (names.length == 0) "x" else names(0)
+      var name = NameSuggester.suggestNamesByType(param).headOption.getOrElse("x")
       if (contains(name)) {
         var count = 0
         var newName = name + count
@@ -274,9 +273,7 @@ object ScalaCompletionUtil {
 
 
   def getDummyIdentifier(offset: Int, file: PsiFile): String = {
-    def isOpChar(c: Char): Boolean = {
-      ScalaNamesUtil.isIdentifier("+" + c)
-    }
+    def isOpChar(c: Char): Boolean = isIdentifier(s"+$c")
 
     val element = file.findElementAt(offset)
     val ref = file.findReferenceAt(offset)
@@ -294,11 +291,7 @@ object ScalaCompletionUtil {
             val from = offset - ref.getElement.getTextRange.getStartOffset + 1
             if (from < text.length && from >= 0) text.substring(from) else ""
         }
-        if (ScalaNamesUtil.isKeyword(rest)) {
-          CompletionUtil.DUMMY_IDENTIFIER
-        } else {
-          CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
-        }
+        dummyIdentifier(rest)
       }
 
       if (ref.getElement != null &&
@@ -308,16 +301,17 @@ object ScalaCompletionUtil {
       if (element != null && element.getNode.getElementType == ScalaTokenTypes.tSTUB) {
         CompletionUtil.DUMMY_IDENTIFIER_TRIMMED + "`"
       } else {
-        val actualElement = file.findElementAt(offset + 1)
-        if (actualElement != null && ScalaNamesUtil.isKeyword(actualElement.getText)) {
-          CompletionUtil.DUMMY_IDENTIFIER
-        } else {
-          CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
-        }
+        Option(file.findElementAt(offset + 1))
+          .map(_.getText)
+          .map(dummyIdentifier)
+          .getOrElse(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED)
       }
     }
   }
 
+  private def dummyIdentifier(string: String): String =
+    if (isKeyword(string)) CompletionUtil.DUMMY_IDENTIFIER
+    else CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
 
   def positionFromParameters(parameters: CompletionParameters): PsiElement = {
 

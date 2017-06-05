@@ -7,7 +7,7 @@ import com.intellij.compiler.impl.CompilerErrorTreeView
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.components.{ProjectComponent, ServiceManager}
+import com.intellij.openapi.components.{AbstractProjectComponent, ServiceManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogBuilder
 import com.intellij.openapi.util.Disposer
@@ -22,16 +22,8 @@ import org.jetbrains.plugins.scala.util.NotificationUtil
   * User: Dmitry.Naydanov
   * Date: 07.09.16.
   */
-class MigrationApiImpl(project: Project) extends ProjectComponent with MigrationApiService {
-  override def projectClosed(): Unit = {}
-
-  override def projectOpened(): Unit = {}
-
+class MigrationApiImpl(project: Project) extends AbstractProjectComponent(project) with MigrationApiService {
   override def getComponentName: String = "ScalaLibraryMigrationApi"
-
-  override def initComponent(): Unit = {}
-
-  override def disposeComponent(): Unit = {}
 
   override def getProject: Project = project
 

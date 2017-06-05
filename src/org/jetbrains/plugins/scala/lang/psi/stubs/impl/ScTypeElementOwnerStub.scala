@@ -19,17 +19,17 @@ trait ScTypeElementOwnerStub[E <: PsiElement] extends PsiOwner[E] {
   private[impl] var typeElementReference: SofterReference[Option[ScTypeElement]] = null
 
   def typeElement: Option[ScTypeElement] = {
-    typeElementReference = updateOptionalReference(typeElementReference) {
+    getFromOptionalReference(typeElementReference) {
       case (context, child) =>
         typeText.map {
           createTypeElementFromText(_, context, child)
         }
-    }
-    typeElementReference.get
+    } (typeElementReference = _)
   }
 }
 
-class ScTypeElementOwnerStubImpl[E <: PsiElement] private[impl](override protected[impl] val typeTextRef: Option[StringRef],
+class ScTypeElementOwnerStubImpl[E <: PsiElement] private[impl](override protected[impl]
+                                                                val typeTextRef: Option[StringRef],
                                                                 stubElement: StubElement[E])
   extends ScTypeElementOwnerStub[E] {
   override def getPsi: E = stubElement.getPsi

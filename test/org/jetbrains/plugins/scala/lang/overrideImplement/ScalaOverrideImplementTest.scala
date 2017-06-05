@@ -245,15 +245,15 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  def testOverrideVar() {
+  def testImplementVar() {
     val fileText =
       """
         |package test
         |
-        |class A {
-        |  var foo: A = new A
+        |trait A {
+        |  var foo: A
         |}
-        |class VarOverride extends A {
+        |class VarImplement extends A {
         |  val t = foo()
         |  <caret>
         |  def y(): Int = 3
@@ -263,19 +263,19 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
         |package test
         |
-        |class A {
-        |  var foo: A = new A
+        |trait A {
+        |  var foo: A
         |}
-        |class VarOverride extends A {
+        |class VarImplement extends A {
         |  val t = foo()
         |
-        |  override var foo: A = <selection>_</selection>
+        |  var foo: A = <selection>_</selection>
         |
         |  def y(): Int = 3
         |}
       """
     val methodName: String = "foo"
-    val isImplement = false
+    val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
@@ -1070,6 +1070,28 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val methodName: String = "foo"
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
+  }
+
+  def testOverrideClassParam(): Unit = {
+    val fileText =
+      """
+        |class Parent(val param1: Int, var param2: String)
+        |
+        |class Child extends Parent(4, "") {
+        |  <caret>
+        |}
+      """
+
+    val expectedText =
+      """
+        |class Parent(val param1: Int, var param2: String)
+        |
+        |class Child extends Parent(4, "") {
+        |  override val param1: Int = _
+        |}
+      """
+
+    runTest("param1", fileText, expectedText, isImplement = false)
   }
 
   def testDoNotSaveAnnotations(): Unit ={

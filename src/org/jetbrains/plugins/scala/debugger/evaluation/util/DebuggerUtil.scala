@@ -83,9 +83,10 @@ object DebuggerUtil {
     private var buffer = new ArrayBuffer[JVMName]
   }
 
-  def getJVMQualifiedName(tp: ScType)
-                         (implicit typeSystem: TypeSystem): JVMName = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
+  def getJVMQualifiedName(tp: ScType): JVMName = {
+    val stdTypes = tp.projectContext.stdTypes
+    import stdTypes._
+
     tp match {
       case Any => JVMNameUtil.getJVMRawText("java.lang.Object")
       case Null => JVMNameUtil.getJVMRawText("scala.Null") //shouldn't be
@@ -107,22 +108,23 @@ object DebuggerUtil {
         buff.append(getJVMQualifiedName(argument))
         buff.append("[]")
         buff.toName
-      case ParameterizedType(arr, Seq(arg)) if arr.extractClass().exists(_.qualifiedName == "scala.Array") =>
+      case ParameterizedType(arr, Seq(arg)) if arr.extractClass.exists(_.qualifiedName == "scala.Array") =>
         val buff = new JVMNameBuffer()
         buff.append(getJVMQualifiedName(arg))
         buff.append("[]")
         buff.toName
       case _ =>
-        tp.extractClass() match {
+        tp.extractClass match {
           case Some(clazz) => getClassJVMName(clazz)
           case None => JVMNameUtil.getJVMRawText(tp.canonicalText)
         }
     }
   }
 
-  def getJVMStringForType(tp: ScType, isParam: Boolean = true)
-                         (implicit typeSystem: TypeSystem): String = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
+  def getJVMStringForType(tp: ScType, isParam: Boolean = true): String = {
+    val stdTypes = tp.projectContext.stdTypes
+    import stdTypes._
+
     tp match {
       case AnyRef => "Ljava/lang/Object;"
       case Any => "Ljava/lang/Object;"
@@ -143,7 +145,7 @@ object DebuggerUtil {
       case ParameterizedType(ScDesignatorType(clazz: PsiClass), Seq(arg))
         if clazz.qualifiedName == "scala.Array" => "[" + getJVMStringForType(arg)
       case _ =>
-        tp.extractClass() match {
+        tp.extractClass match {
           case Some(obj: ScObject) => "L" + obj.getQualifiedNameForDebugger.replace('.', '/') + "$;"
           case Some(obj: ScTypeDefinition) => "L" + obj.getQualifiedNameForDebugger.replace('.', '/') + ";"
           case Some(clazz) => "L" + clazz.qualifiedName.replace('.', '/') + ";"
@@ -152,8 +154,7 @@ object DebuggerUtil {
     }
   }
 
-  def getFunctionJVMSignature(function: ScMethodLike)
-                             (implicit typeSystem: TypeSystem = function.typeSystem): JVMName = {
+  def getFunctionJVMSignature(function: ScMethodLike): JVMName = {
     val typeParams = function match {
       case fun: ScFunction if !fun.isConstructor => fun.typeParameters
       case _: ScFunction | _: ScPrimaryConstructor =>
@@ -195,8 +196,7 @@ object DebuggerUtil {
     JVMNameUtil.getJVMRawText(paramTypes + resultType)
   }
 
-  def constructorSignature(named: PsiNamedElement)
-                          (implicit typeSystem: TypeSystem): JVMName = {
+  def constructorSignature(named: PsiNamedElement): JVMName = {
     named match {
       case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
       case constr: ScPrimaryConstructor =>
@@ -215,8 +215,7 @@ object DebuggerUtil {
     }
   }
 
-  def lambdaJVMSignature(lambda: PsiElement)
-                        (implicit typeSystem: TypeSystem = lambda.typeSystem): Option[String] = {
+  def lambdaJVMSignature(lambda: PsiElement): Option[String] = {
     val (argumentTypes, returnType) = lambda match {
       case (expr: ScExpression) && Typeable(tp) if ScalaPsiUtil.isByNameArgument(expr) => (Seq.empty, tp)
       case Typeable(FunctionType(retT, argTypes)) => (argTypes, retT)
@@ -232,8 +231,7 @@ object DebuggerUtil {
     Some(paramText + returnTypeText)
   }
 
-  private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor)
-                                      (implicit typeSystem: TypeSystem) = param match {
+  private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor) = param match {
       case p: ScParameter if p.isRepeatedParameter => "Lscala/collection/Seq;"
       case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
       case _ => getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
@@ -241,13 +239,16 @@ object DebuggerUtil {
   
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Boolean): Value = {
     tp match {
-      case Boolean => vm.mirrorOf(b)
-      case Unit => vm.mirrorOfVoid()
+      case _ if tp.isBoolean => vm.mirrorOf(b)
+      case _ if tp.isUnit => vm.mirrorOfVoid()
       case _ => null
     }
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Long): Value = {
+    val stdTypes = tp.projectContext.stdTypes
+    import stdTypes._
+
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)
@@ -262,6 +263,9 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Char): Value = {
+    val stdTypes = tp.projectContext.stdTypes
+    import stdTypes._
+
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)
@@ -276,6 +280,9 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Double): Value = {
+    val stdTypes = tp.projectContext.stdTypes
+    import stdTypes._
+
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)
@@ -290,6 +297,9 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Float): Value = {
+    val stdTypes = tp.projectContext.stdTypes
+    import stdTypes._
+
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)

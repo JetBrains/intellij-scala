@@ -10,13 +10,14 @@ import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 
 
-
 /**
   * @author adkozlov
   */
-trait Conformance extends TypeSystemOwner {
-  type Data = (ScType, ScType, Boolean)
-  type Result = (Boolean, ScUndefinedSubstitutor)
+trait Conformance {
+  typeSystem: TypeSystem =>
+
+  private type Data = (ScType, ScType, Boolean)
+  private type Result = (Boolean, ScUndefinedSubstitutor)
 
   private val guard = RecursionManager.RecursionGuard[Data, Result](s"${typeSystem.name}.conformance.guard")
 
@@ -46,16 +47,16 @@ trait Conformance extends TypeSystemOwner {
       return (false, ScUndefinedSubstitutor())
     }
 
-    val res = guard.doPreventingRecursion(key, computable(left, right, visited, checkWeak))
+    val res = guard.doPreventingRecursion(key, conformsComputable(left, right, visited, checkWeak))
     if (res == null) return (false, ScUndefinedSubstitutor())
     cache.put(key, res)
     if (substitutor.isEmpty) return res
     res.copy(_2 = substitutor + res._2)
   }
 
-  final def clearCache(): Unit = cache.clear()
+  def clearCache(): Unit = cache.clear()
 
-  protected def computable(left: ScType, right: ScType,
-                           visited: Set[PsiClass],
-                           checkWeak: Boolean): Computable[(Boolean, ScUndefinedSubstitutor)]
+  protected def conformsComputable(left: ScType, right: ScType,
+                                   visited: Set[PsiClass],
+                                   checkWeak: Boolean): Computable[(Boolean, ScUndefinedSubstitutor)]
 }

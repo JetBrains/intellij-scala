@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable;
 
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.help.HelpManager;
@@ -19,9 +20,8 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ValidationReporter;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 
@@ -34,6 +34,8 @@ import java.awt.event.*;
 import java.util.EventListener;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
+
+import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -53,7 +55,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   private Project project;
   private ScType[] myTypes;
   private int occurrencesCount;
-  private ScalaVariableValidator validator;
+  private ValidationReporter reporter;
   private String[] possibleNames;
   private ScExpression expression;
   private JPanel myLinkContainer;
@@ -68,14 +70,14 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   public ScalaIntroduceVariableDialog(final Project project,
                                       ScType[] myTypes,
                                       int occurrencesCount,
-                                      ScalaVariableValidator validator,
+                                      ValidationReporter reporter,
                                       String[] possibleNames,
                                       ScExpression expression) {
     super(project, true);
     this.project = project;
     this.myTypes = myTypes;
     this.occurrencesCount = occurrencesCount;
-    this.validator = validator;
+    this.reporter = reporter;
     this.possibleNames = possibleNames;
     this.expression = expression;
     setUpNameComboBox(possibleNames);
@@ -171,14 +173,18 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
 
   private void setUpHyperLink() {
     HyperlinkLabel link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"));
-    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"));
     myLinkContainer.add(link);
 
     link.addHyperlinkListener(new HyperlinkListener() {
       @Override
       public void hyperlinkUpdate(HyperlinkEvent e) {
-        mySpecifyTypeChb.setSelected(addTypeAnnotation());
-        updateEnablingTypeList();
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+          @Override
+          public void run() {
+            mySpecifyTypeChb.setSelected(addTypeAnnotation());
+            updateEnablingTypeList();
+          }
+        });
       }
     });
   }
@@ -257,7 +263,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   }
 
   protected void doOKAction() {
-    if (!validator.isOK(this)) {
+    if (!reporter.isOK(this)) {
       return;
     }
     if (mySpecifyTypeChb.isEnabled()) {
@@ -386,7 +392,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
 
   private void updateOkStatus() {
     String text = getEnteredName();
-    setOKActionEnabled(ScalaNamesUtil.isIdentifier(text));
+    setOKActionEnabled(MODULE$.isIdentifier(text));
   }
 
   private void fireNameDataChanged() {

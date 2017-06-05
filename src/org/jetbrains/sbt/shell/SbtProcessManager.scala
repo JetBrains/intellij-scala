@@ -9,11 +9,12 @@ import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.data.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
-import org.jetbrains.sbt.project.structure.SbtRunner
+import org.jetbrains.sbt.project.structure.{SbtOpts, SbtRunner}
 
 import scala.collection.JavaConverters._
 /**
@@ -22,7 +23,6 @@ import scala.collection.JavaConverters._
   *
   * Created by jast on 2016-11-27.
   */
-// TODO transparently support shell or server process
 class SbtProcessManager(project: Project) extends AbstractProjectComponent(project) {
 
   @volatile private var myProcessHandler: Option[ColoredProcessHandler] = None
@@ -30,19 +30,21 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
   /** Plugins injected into user's global sbt build. */
   // TODO add configurable plugins somewhere for users and via API; factor this stuff out
-  private def injectedPlugins(sbtMajorVersion: String): Seq[String] =
-    sbtStructurePlugin(sbtMajorVersion).toSeq
+  private def injectedPlugins(sbtMajorVersion: Version): Seq[String] =
+    sbtStructurePlugin(sbtMajorVersion)
 
   // this *might* get messy if multiple IDEA projects start messing with the global settings.
   // but we should be fine since it is written before every sbt boot
-  private def sbtStructurePlugin(sbtMajorVersion: String): Seq[String] = {
+  private def sbtStructurePlugin(sbtMajorVersion: Version): Seq[String] = {
     // IDEA won't import the shared source dir between build definition and build, so this red
     val sbtStructureVersion = meta.Shared.sbtStructureVersion
-    sbtMajorVersion match {
+    val sbtIdeaShellVersion = "1.2"
+    sbtMajorVersion.presentation match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
       case "0.13" => Seq(
         """resolvers += Resolver.url("jb-structure-extractor-0.13", url(s"http://dl.bintray.com/jetbrains/sbt-plugins"))(sbt.Patterns(false,"[organisation]/[module]/scala_2.10/sbt_0.13/[revision]/[type]s/[artifact](-[classifier]).[ext]"))""",
-          s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor-0-13" % "$sbtStructureVersion")"""
+          s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor-0-13" % "$sbtStructureVersion")""",
+          s"""addSbtPlugin("org.jetbrains" % "sbt-idea-shell" % "$sbtIdeaShellVersion")"""
         ) // works for 0.13.5+, for older versions it will be ignored
       case "1.0" => Seq.empty // TODO build and publish extractor for sbt 1.0
     }
@@ -56,20 +58,16 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val sbtSettings = getSbtSettings(workingDirPath)
     lazy val launcher = launcherJar(sbtSettings)
 
-    val projectSbtVersion = SbtUtil.detectSbtVersion(workingDir, launcher)
-    val sbtMajorVersion = SbtUtil.majorVersion(projectSbtVersion)
-    val globalPluginsDir = SbtUtil.globalPluginsDirectory(sbtMajorVersion)
+    val projectSbtVersion = Version(SbtUtil.detectSbtVersion(workingDir, launcher))
+    val autoPluginsSupported = projectSbtVersion >= SbtRunner.sinceSbtVersionShell
 
     // an id to uniquely identify this boot of sbt form idea, so that any plugins it injects are never ever loaded otherwise
     val uuid = UUID.randomUUID().toString
 
-    // evil side effect! writes injected plugin settings to user's global sbt config
-    injectSettings(uuid, injectedPlugins(sbtMajorVersion), globalPluginsDir)
-
     val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
     val configuredSdk = sbtSettings.jdk.map(JdkByName).flatMap(SdkUtils.findProjectSdk)
     val sdk = configuredSdk.getOrElse(projectSdk)
-    // TODO prompt user to setup a JDK?
+    // TODO prompt user to setup a JDK
     assert(sdk != null, "Setup a project JDK to run the SBT shell")
 
     val javaParameters: JavaParameters = new JavaParameters
@@ -77,14 +75,25 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     javaParameters.configureByProject(project, 1, sdk)
     javaParameters.setWorkingDirectory(workingDir)
     javaParameters.setJarPath(launcher.getCanonicalPath)
-    // TODO make sure jvm also gets proxy settings
+
     val vmParams = javaParameters.getVMParametersList
+    vmParams.addAll(SbtOpts.loadFrom(workingDir).asJava)
     vmParams.addAll(sbtSettings.vmOptions.asJava)
     vmParams.add(s"-Didea.runid=$uuid")
 
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
-    val pty = createPtyCommandLine(commandLine)
 
+    if (autoPluginsSupported) {
+      val sbtMajorVersion = SbtUtil.majorVersion(projectSbtVersion)
+      val globalPluginsDir = SbtUtil.globalPluginsDirectory(sbtMajorVersion)
+
+      // evil side effect! writes injected plugin settings to user's global sbt config
+      injectSettings(uuid, injectedPlugins(sbtMajorVersion), globalPluginsDir)
+      // we have our plugins in there, load custom shell
+      commandLine.addParameter("idea-shell")
+    }
+
+    val pty = createPtyCommandLine(commandLine)
     new ColoredProcessHandler(pty)
   }
 
@@ -135,8 +144,6 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
         |// Manual changes to this file will be lost.
       """.stripMargin.trim
     val settingsString = settings.mkString("scala.collection.Seq(\n",",\n","\n)")
-
-    // TODO detect sbt version to ensure only valid plugins/settings are added
 
     // any idea-specific settings should be added conditional on sbt being started from idea
     val conditionalSettings =
@@ -204,13 +211,8 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   }
 
   override def projectClosed(): Unit = {
-    disposeComponent()
-  }
-
-  override def disposeComponent(): Unit = {
     destroyProcess()
   }
-
 }
 
 object SbtProcessManager {

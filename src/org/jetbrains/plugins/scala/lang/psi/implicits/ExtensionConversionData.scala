@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.ResolveState
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, TypeSystem, ValType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, ValType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
@@ -29,17 +29,15 @@ case class ExtensionConversionData(baseExpr: ScExpression,
       _.isInstanceOf[ValType]
     }
   val kinds: Set[ResolveTargets.Value] = processor.kinds
-
-  implicit val typeSystem: TypeSystem = baseExpr.typeSystem
 }
 
 object ExtensionConversionHelper {
-  def specialExtractParameterType(resolveResult: ScalaResolveResult)
-                                 (implicit typeSystem: TypeSystem): Option[(ScType, Seq[TypeParameter])] = {
-    val result = InferUtil.extractImplicitParameterType(resolveResult) match {
-      case functionType @ FunctionType(_, _) => Some(functionType)
+  def specialExtractParameterType(resolveResult: ScalaResolveResult): Option[(ScType, Seq[TypeParameter])] = {
+    val result = extractImplicitParameterType(resolveResult).flatMap {
+      case functionType@FunctionType(_, _) => Some(functionType)
       case implicitParameterType =>
-        ElementScope(resolveResult.element.getProject).cachedFunction1Type
+        implicit val project = resolveResult.element.getProject
+        ElementScope(project).cachedFunction1Type
           .flatMap { functionType =>
             val (_, substitutor) = implicitParameterType.conforms(functionType, ScUndefinedSubstitutor())
             substitutor.getSubstitutor.map {

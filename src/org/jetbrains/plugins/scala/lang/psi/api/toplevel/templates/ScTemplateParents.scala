@@ -5,19 +5,17 @@ package api
 package toplevel
 package templates
 
-import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -38,17 +36,16 @@ trait ScTemplateParents extends ScalaPsiElement {
   def typeElementsWithoutConstructor: Seq[ScTypeElement] =
     findChildrenByClassScala(classOf[ScTypeElement])
   def superTypes: Seq[ScType]
-  def supers: Seq[PsiClass] = ScTemplateParents.extractSupers(allTypeElements, getProject)
+  def supers: Seq[PsiClass] = ScTemplateParents.extractSupers(allTypeElements)
 }
 
 object ScTemplateParents {
-  def extractSupers(typeElements: Seq[ScTypeElement], project: Project)
-                   (implicit typeSystem: TypeSystem = project.typeSystem): Seq[PsiClass] = {
+  def extractSupers(typeElements: Seq[ScTypeElement])(implicit project: ProjectContext): Seq[PsiClass] = {
     typeElements.map {
       case element: ScTypeElement =>
         def tail(): PsiClass = {
           element.getType(TypingContext.empty).map {
-            case tp: ScType => tp.extractClass(project) match {
+            case tp: ScType => tp.extractClass match {
               case Some(clazz) => clazz
               case _ => null
             }
@@ -62,7 +59,7 @@ object ScTemplateParents {
               case ScalaResolveResult(c: PsiClass, _) => c
               case ScalaResolveResult(ta: ScTypeAliasDefinition, _) =>
                 ta.aliasedType match {
-                  case Success(te, _) => te.extractClass(project) match {
+                  case Success(te, _) => te.extractClass match {
                     case Some(c) => c
                     case _ => null
                   }

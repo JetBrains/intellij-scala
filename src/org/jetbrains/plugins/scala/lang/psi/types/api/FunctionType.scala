@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -30,15 +30,13 @@ sealed trait FunctionTypeFactory {
       .getOrElse(Nothing)
   }
 
-  protected def innerUnapply(`type`: ScType)
-                            (implicit typeSystem: TypeSystem): Option[Seq[ScType]] =
+  protected def innerUnapply(`type`: ScType): Option[Seq[ScType]] =
     extractForPrefix(`type`, typeName).filter {
       _.nonEmpty
     }
 
   @tailrec
-  private def extractForPrefix(`type`: ScType, prefix: String, depth: Int = 100)
-                              (implicit typeSystem: TypeSystem): Option[Seq[ScType]] =
+  private def extractForPrefix(`type`: ScType, prefix: String, depth: Int = 100): Option[Seq[ScType]] =
     depth match {
       case 0 => None //hack for http://youtrack.jetbrains.com/issue/SCL-6880 to avoid infinite loop.
       case _ =>
@@ -53,14 +51,13 @@ sealed trait FunctionTypeFactory {
         }
     }
 
-  private def extractForPrefix(parameterizedType: ScParameterizedType, prefix: String)
-                              (implicit typeSystem: TypeSystem) = {
+  private def extractForPrefix(parameterizedType: ScParameterizedType, prefix: String) = {
     def startsWith(definition: ScTypeDefinition) =
       Option(definition.qualifiedName).exists {
         _.startsWith(prefix)
       }
 
-    parameterizedType.designator.extractClassType().collect {
+    parameterizedType.designator.extractClassType.collect {
       case (definition: ScTypeDefinition, substitutor) if startsWith(definition) =>
         (definition, substitutor.followed(parameterizedType.substitutor))
     }.flatMap {
@@ -81,13 +78,13 @@ object FunctionType extends FunctionTypeFactory {
            (implicit elementScope: ElementScope): ValueType =
     innerApply(s"$typeName${parameters.length}", parameters :+ returnType)
 
-  def unapply(`type`: ScType)(implicit typeSystem: TypeSystem): Option[(ScType, Seq[ScType])] =
+  def unapply(`type`: ScType): Option[(ScType, Seq[ScType])] =
     innerUnapply(`type`).map { typeArguments =>
       val (parameters, Seq(resultType)) = typeArguments.splitAt(typeArguments.length - 1)
       (resultType, parameters)
     }
 
-  def isFunctionType(`type`: ScType)(implicit typeSystem: TypeSystem): Boolean = unapply(`type`).isDefined
+  def isFunctionType(`type`: ScType): Boolean = unapply(`type`).isDefined
 }
 
 object PartialFunctionType extends FunctionTypeFactory {
@@ -97,7 +94,7 @@ object PartialFunctionType extends FunctionTypeFactory {
            (implicit elementScope: ElementScope): ValueType =
     innerApply(typeName, Seq(parameter, returnType))
 
-  def unapply(`type`: ScType)(implicit typeSystem: TypeSystem): Option[(ScType, ScType)] =
+  def unapply(`type`: ScType): Option[(ScType, ScType)] =
     innerUnapply(`type`).filter {
       _.length == 2
     }.map { typeArguments =>
@@ -114,5 +111,5 @@ object TupleType extends FunctionTypeFactory {
            (implicit elementScope: ElementScope): ValueType =
     innerApply(s"$typeName${components.length}", components)
 
-  def unapply(`type`: ScType)(implicit typeSystem: TypeSystem): Option[Seq[ScType]] = innerUnapply(`type`)
+  def unapply(`type`: ScType): Option[Seq[ScType]] = innerUnapply(`type`)
 }

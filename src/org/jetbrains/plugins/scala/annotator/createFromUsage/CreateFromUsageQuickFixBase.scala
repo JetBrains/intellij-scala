@@ -8,12 +8,16 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
 /**
  * Nikolay.Tropin
  * 2014-07-28
  */
-abstract class CreateFromUsageQuickFixBase(ref: ScReferenceElement, description: String) extends IntentionAction {
+abstract class CreateFromUsageQuickFixBase(ref: ScReferenceElement, description: String)
+  extends IntentionAction with ProjectContextOwner {
+
+  implicit val projectContext: ProjectContext = ref
   
   val getText = s"Create $description '${ref.nameId.getText}'"
 

@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -51,6 +51,8 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
+    implicit val ctx: ProjectContext = project
+
     val expr = findExpression(element, editor).get
     if (expr == null || !expr.isValid) return
 
@@ -77,16 +79,14 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
       macros.add(m.getName)
     }
 
-    implicit val manager = element.getManager
-
     for (u <- underscores) {
       if (needComma) buf.append(",")
       if (underscores.size > 1) needComma = true
 
-      val names = NameSuggester.suggestNames(u,
-        new ScalaVariableValidator(null, project, u, false, expr.getContext, expr.getContext) {
-          override def validateName(name: String, increaseNumber: Boolean): String = {
-            var res = super.validateName(name, increaseNumber)
+      val names = NameSuggester.suggestNames(u)(
+        new ScalaVariableValidator(u, false, expr.getContext, expr.getContext) {
+          override def validateName(name: String): String = {
+            var res = super.validateName(name)
             var index = 1
 
             if (usedNames.contains(res)) {
@@ -104,13 +104,10 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
           }
         })
 
-      var un = names(0)
-      if (macros.contains(un)) {
-        if (names.length > 1) {
-          un = names(1)
-        } else {
-          un = "value"
-        }
+      val un = names.toList match {
+        case head :: _ if !macros.contains(head) => head
+        case _ :: head :: _ => head
+        case _ => "value"
       }
 
       usedNames.add(un)
@@ -119,7 +116,6 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
       u.getParent match {
         case typedStmt: ScTypedStmt =>
           needBraces = true
-          implicit val typeSystem = project.typeSystem
           buf.append(": ").append(typedStmt.getType(TypingContext.empty).get.canonicalText)
         case _ =>
       }
@@ -138,7 +134,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
     }
 
     if (underscores.size > 1 || needBraces) buf.insert(0, "(").append(")")
-    val arrow = ScalaPsiUtil.functionArrow(project)
+    val arrow = ScalaPsiUtil.functionArrow
     buf.append(s" $arrow ")
     val diff = buf.length
     buf.append(expr.getText)

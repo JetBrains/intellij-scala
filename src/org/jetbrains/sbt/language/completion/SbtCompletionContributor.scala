@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * @author Nikolay Obedin
@@ -33,7 +34,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
   extend(CompletionType.BASIC, afterInfixOperator, new CompletionProvider[CompletionParameters] {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       if (parameters.getOriginalFile.getFileType.getName != Sbt.Name) return
-      val project = parameters.getPosition.getProject
+      implicit val project: ProjectContext = parameters.getPosition.getProject
 
       val place     = positionFromParameters(parameters)
       val infixExpr = place.getContext.getContext.asInstanceOf[ScInfixExpr]
@@ -46,9 +47,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
       // Check if we're on the right side of expression
       if (parentRef != place.getContext) return
 
-      implicit val typeSystem = place.typeSystem
-
-      def qualifiedName(t: ScType) = t.extractClass(project).map(_.qualifiedName).getOrElse("")
+      def qualifiedName(t: ScType) = t.extractClass.map(_.qualifiedName).getOrElse("")
 
       // In expression `setting += ???` extracts type T of `setting: Setting[Seq[T]]`
       def extractSeqType: Option[ScType] = {
@@ -130,11 +129,11 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
       }
 
       // Get results from companion objects and static fields from java classes/enums
-      expectedType.extractClass(project) match {
+      expectedType.extractClass match {
         case Some(clazz: ScTypeDefinition) =>
           expectedType match {
             case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait, _) =>
-              proj.extractClass(project) foreach collectAndApplyVariants
+              proj.extractClass foreach collectAndApplyVariants
             case _ => // do nothing
           }
           ScalaPsiUtil.getCompanionModule(clazz) foreach collectAndApplyVariants

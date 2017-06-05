@@ -7,12 +7,13 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOverrideImplementVariableWithClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.util.ScalaUtils
@@ -33,23 +34,31 @@ object ScalaOIUtil {
         val method = sign.method
         assert(method.containingClass != null, "Containing Class is null: " + method.getText)
         Some(new ScMethodMember(sign, !isImplement))
-      case (named: PsiNamedElement, subst: ScSubstitutor) =>
+      case (typedDefinition: ScTypedDefinition, subst: ScSubstitutor) =>
+        ScalaPsiUtil.nameContext(typedDefinition) match {
+          case x: ScTemplateDefinition if x.containingClass == null => None
+          case x: ScValue => Some(new ScValueMember(x, typedDefinition, subst, !isImplement))
+          case x: ScVariable => Some(new ScVariableMember(x, typedDefinition, subst, !isImplement))
+          case x: ScClassParameter if x.isVal =>
+            def createMember(isVal: Boolean, parameter: ScClassParameter, subst: ScSubstitutor): ScMember = {
+              implicit val projectContext = parameter.projectContext
+
+              createOverrideImplementVariableWithClass(
+                variable = parameter,
+                substitutor = subst,
+                needsOverrideModifier = true,
+                isVal = isVal,
+                clazz = parameter.containingClass
+              )
+            }
+
+            createMember(isVal = true, x, subst).asOptionOf[ScValue]
+              .map(new ScValueMember(_, typedDefinition, subst, !isImplement))
+          case _ => None
+        }
+      case (named: PsiNamedElement, subst: ScSubstitutor)=>
         ScalaPsiUtil.nameContext(named) match {
-          case x: ScValue =>
-            assert(x.containingClass != null, "Containing Class is null: " + x.getText)
-            named match {
-              case y: ScTypedDefinition => Some(new ScValueMember(x, y, subst, !isImplement))
-              case _ => throw new IncorrectOperationException("Not supported type:" + x)
-            }
-          case x: ScVariable =>
-            assert(x.containingClass != null, "Containing Class is null: " + x.getText)
-            named match {
-              case y: ScTypedDefinition => Some(new ScVariableMember(x, y, subst, !isImplement))
-              case _ => throw new IncorrectOperationException("Not supported type:" + x)
-            }
-          case x: ScTypeAlias =>
-            assert(x.containingClass != null, "Containing Class is null: " + x.getText)
-            Some(new ScAliasMember(x, subst, !isImplement))
+          case x: ScTypeAlias if x.containingClass != null => Some(new ScAliasMember(x, subst, !isImplement))
           case x: PsiField => Some(new JavaFieldMember(x, subst))
           case _ => None
         }
@@ -62,7 +71,7 @@ object ScalaOIUtil {
     val elem = file.findElementAt(editor.getCaretModel.getOffset - 1)
     val clazz = PsiTreeUtil.getParentOfType(elem, classOf[ScTemplateDefinition], /*strict = */false)
     if (clazz == null) return
-    
+
     val classMembers =
       if (isImplement) getMembersToImplement(clazz, withSelfType = true)
       else getMembersToOverride(clazz, withSelfType = true)
@@ -127,8 +136,7 @@ object ScalaOIUtil {
             case _ => false
           })
       case x: ScTemplateDefinition =>
-        implicit val typeSystem = x.typeSystem
-        x.superTypes.map(_.extractClass(x.getProject)).find {
+        x.superTypes.map(_.extractClass).find {
           case Some(c) => isProductAbstractMethod(m, c, visited + clazz)
           case _ => false
         } match {
@@ -164,10 +172,10 @@ object ScalaOIUtil {
               !x.isInstanceOf[ScFunctionDefinition])
               || x.hasModifierPropertyScala("final") => false
       case x if x.isConstructor => false
-      case method if !ResolveUtils.isAccessible(method, clazz.extendsBlock, forCompletion = false) => false
+      case method if !ResolveUtils.isAccessible(method, clazz.extendsBlock) => false
       case method =>
         var flag = false
-        if (method match {case x: ScFunction => x.parameters.length == 0 case _ => method.getParameterList.getParametersCount == 0}) {
+        if (method match {case x: ScFunction => x.parameters.isEmpty case _ => method.getParameterList.getParametersCount == 0}) {
           for (pair <- clazz.allVals; v = pair._1) if (v.name == method.name) {
             ScalaPsiUtil.nameContext(v) match {
               case x: ScValue if x.containingClass == clazz => flag = true
@@ -186,7 +194,7 @@ object ScalaOIUtil {
     val place = clazz.extendsBlock
     m match {
       case _ if isProductAbstractMethod(m, clazz) => false
-      case method if !ResolveUtils.isAccessible(method, place, forCompletion = false) => false
+      case method if !ResolveUtils.isAccessible(method, place) => false
       case _ if name == "$tag" || name == "$init$" => false
       case x if !withOwn && x.containingClass == clazz => false
       case x if x.containingClass != null && x.containingClass.isInterface &&
@@ -201,33 +209,33 @@ object ScalaOIUtil {
   private def needOverride(named: PsiNamedElement, clazz: ScTemplateDefinition) = {
     ScalaPsiUtil.nameContext(named) match {
       case x: PsiModifierListOwner if x.hasModifierPropertyScala("final") => false
-      case m: PsiMember if !ResolveUtils.isAccessible(m, clazz.extendsBlock, forCompletion = false) => false
-      case x @ (_: ScPatternDefinition | _: ScVariableDefinition) if x.asInstanceOf[ScMember].containingClass != clazz =>
-        val declaredElements = x match {case v: ScValue => v.declaredElements case v: ScVariable => v.declaredElements}
+      case m: PsiMember if !ResolveUtils.isAccessible(m, clazz.extendsBlock) => false
+      case x: ScValue if x.containingClass != clazz =>
         var flag = false
         for (signe <- clazz.allMethods if signe.method.containingClass == clazz) {
           //containingClass == clazz so we sure that this is ScFunction (it is safe cast)
           signe.method match {
-            case fun: ScFunction => if (fun.parameters.length == 0 && declaredElements.exists(_.name == fun.name)) flag = true
-            case _ =>  //todo: ScPrimaryConstructor?
+            case fun: ScFunction if fun.parameters.isEmpty && x.declaredElements.exists(_.name == fun.name) =>
+              flag = true
+            case _ => //todo: ScPrimaryConstructor?
           }
         }
         for (pair <- clazz.allVals; v = pair._1) if (v.name == named.name) {
           ScalaPsiUtil.nameContext(v) match {
             case x: ScValue if x.containingClass == clazz => flag = true
-            case x: ScVariable if x.containingClass == clazz => flag = true
             case _ =>
           }
         }
         !flag
-      case x: ScTypeAliasDefinition if x.containingClass != clazz => true
+      case x: ScTypeAliasDefinition => x.containingClass != clazz
+      case x: ScClassParameter if x.isVal => x.containingClass != clazz
       case _ => false
     }
   }
 
   private def needImplement(named: PsiNamedElement, clazz: ScTemplateDefinition, withOwn: Boolean): Boolean = {
     ScalaPsiUtil.nameContext(named) match {
-      case m: PsiMember if !ResolveUtils.isAccessible(m, clazz.extendsBlock, forCompletion = false) => false
+      case m: PsiMember if !ResolveUtils.isAccessible(m, clazz.extendsBlock) => false
       case x: ScValueDeclaration if withOwn || x.containingClass != clazz => true
       case x: ScVariableDeclaration if withOwn || x.containingClass != clazz => true
       case x: ScTypeAliasDeclaration if withOwn || x.containingClass != clazz => true

@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package findUsages
 
-import java.util
-
 import com.intellij.openapi.application.ReadActionProcessor
 import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.roots.FileIndexFacade
@@ -20,12 +18,13 @@ import com.intellij.util.{CommonProcessors, Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.{isBackticked, isOpCharacter}
 
 /**
- * Nikolay.Tropin
- * 9/10/13
- */
+  * Nikolay.Tropin
+  * 9/10/13
+  */
 class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
     val project = queryParameters.getProject
@@ -36,8 +35,8 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
     val toProcess: Seq[(PsiElement, String)] = inReadAction {
       element match {
         case e if !e.isValid => Nil
-        case ScalaNamesUtil.isBackticked(name) => if (name != "") Seq((element, name), (element, s"`$name`")) else Seq((element, "``"))
-        case named: ScNamedElement if named.name.exists(ScalaNamesUtil.isOpCharacter) => Seq((named, named.name))
+        case isBackticked(name) => if (name != "") Seq((element, name), (element, s"`$name`")) else Seq((element, "``"))
+        case named: ScNamedElement if named.name.exists(isOpCharacter) => Seq((named, named.name))
         case _ => Nil
       }
     }
@@ -74,11 +73,13 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
                                       processor: Processor[VirtualFile]): Boolean = {
       val entries = getWordEntries(text, caseSensitively)
       if (entries.isEmpty) return true
+
       val collectProcessor: CommonProcessors.CollectProcessor[VirtualFile] = new CommonProcessors.CollectProcessor[VirtualFile]
       val checker = new Condition[Integer] {
         def value(integer: Integer): Boolean = (integer.intValue & searchContext) != 0
       }
       inReadAction {
+        import scala.collection.JavaConversions._
         FileBasedIndex.getInstance.processFilesContainingAllKeys(IdIndex.NAME, entries, scope, checker, collectProcessor)
       }
       val index: FileIndexFacade = FileIndexFacade.getInstance(manager.getProject)
@@ -90,13 +91,11 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
     }
 
     /**
-     * Only this method is actually differs from PsiSearchHelperImpl,
-     * because it works only for java identifiers there.
-     */
-    private def getWordEntries(name: String, caseSensitively: Boolean): util.List[IdIndexEntry] = {
-      val keys = new util.ArrayList[IdIndexEntry]
-      if (ScalaNamesUtil.isIdentifier(name)) keys.add(new IdIndexEntry(name, caseSensitively))
-      keys
-    }
+      * Only this method is actually differs from PsiSearchHelperImpl,
+      * because it works only for java identifiers there.
+      */
+    private def getWordEntries(name: String, caseSensitively: Boolean): Seq[IdIndexEntry] =
+      if (isIdentifier(name)) Seq(new IdIndexEntry(name, caseSensitively)) else Seq.empty
   }
+
 }

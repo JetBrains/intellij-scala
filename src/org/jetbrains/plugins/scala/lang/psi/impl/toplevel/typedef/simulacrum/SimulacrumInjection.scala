@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembe
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * @author Alefas
@@ -140,8 +139,7 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                   case Success(ParameterizedType(classType, Seq(tp)), _) if isProperTpt(tp).isDefined =>
                     def fromType: Seq[String] = {
                       val project = clazz.getProject
-                      implicit val typeSystem = project.typeSystem
-                      classType.extractClass(project) match {
+                      classType.extractClass match {
                         case Some(cl: ScTypeDefinition) => Seq(s" with ${cl.qualifiedName}.AllOps[$tpName$additionalWithComma]")
                         case _ => Seq.empty
                       }

@@ -85,10 +85,9 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
   
   private def setUpHyperLink(): HyperlinkLabel = {
     val link = TypeAnnotationUtil.createTypeAnnotationsHLink(targetClass.getProject, ScalaBundle.message("default.ta.settings"))
-    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"))
-   
+
     link.addHyperlinkListener(new HyperlinkListener {
-      override def hyperlinkUpdate(e: HyperlinkEvent): Unit = updateSpecifyTypeChb()
+      override def hyperlinkUpdate(e: HyperlinkEvent): Unit = extensions.invokeLater(updateSpecifyTypeChb())
     })
     
     link

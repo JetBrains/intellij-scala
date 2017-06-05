@@ -6,7 +6,6 @@ import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
-import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -18,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaStubBasedElementImpl}
@@ -26,9 +25,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 17.07.2008
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 17.07.2008
+  */
 
 object AnnotatorHighlighter {
   private val JAVA_COLLECTIONS_BASES = List("java.util.Map", "java.util.Collection")
@@ -41,28 +40,21 @@ object AnnotatorHighlighter {
     "scalaNil", "scalaStream", "scalaVector", "scalaSeq")
 
 
-  private def getParentStub(el: StubBasedPsiElement[_ <: StubElement[_ <: PsiElement]]): PsiElement = {
-    val stub: StubElement[_ <: PsiElement] = el.getStub
-    if (stub != null) {
-      stub.getParentStub.getPsi
-    } else el.getParent
-  }
-
   private def getParentByStub(x: PsiElement): PsiElement = {
     x match {
-      case el: ScalaStubBasedElementImpl[_] => getParentStub(el)
+      case el: ScalaStubBasedElementImpl[_, _] => el.getParent
       case _ => x.getContext
     }
   }
 
-  def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder)
-                               (implicit typeSystem: TypeSystem = refElement.typeSystem) {
+  def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+    implicit val project = refElement.projectContext
 
     def annotateCollectionByType(resolvedType: ScType) {
       if (ScalaNamesUtil.isOperatorName(
         resolvedType.presentableText.substring(0, resolvedType.presentableText.prefixLength(_ != '.')))) return
 
-      val scalaProjectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(refElement.getProject)
+      val scalaProjectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
 
       scalaProjectSettings.getCollectionTypeHighlightingLevel match {
         case ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_NONE => return
@@ -137,8 +129,10 @@ object AnnotatorHighlighter {
     }
 
     val annotation = holder.createInfoAnnotation(refElement.nameId, null)
-     resolvedElement match {
-       case c: PsiClass if StdType.QualNameToType.contains(c.qualifiedName) => //this is td, it's important!
+    val QualNameToType = project.stdTypes.QualNameToType
+
+    resolvedElement match {
+      case c: PsiClass if QualNameToType.contains(c.qualifiedName) => //this is td, it's important!
         annotation.setTextAttributes(DefaultHighlighter.PREDEF)
       case x: ScClass if x.getModifierList.has(ScalaTokenTypes.kABSTRACT) =>
         annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
@@ -376,7 +370,7 @@ object AnnotatorHighlighter {
   private def visitEnumerator(enumerator: ScEnumerator, holder: AnnotationHolder): Unit = {
     visitPattern(enumerator.pattern, holder, DefaultHighlighter.GENERATOR)
   }
-  
+
   private def referenceIsToCompanionObjectOfClass(r: ScReferenceElement): Boolean = {
     Option(r.getContext) exists {
       case _: ScMethodCall | _: ScReferenceExpression => true // These references to 'Foo' should be 'object' references: case class Foo(a: Int); Foo(1); Foo.apply(1).

@@ -9,7 +9,7 @@ import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
-import com.intellij.openapi.util.{Key, UserDataHolder}
+import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
@@ -145,8 +145,10 @@ package object project {
     def libraries: Seq[Library] =
       ProjectLibraryTable.getInstance(project).getLibraries.toSeq
 
-    def typeSystem: TypeSystem =
-      typeSystemIn(project)
+    def typeSystem: TypeSystem = {
+      if (project.hasDotty) DottyTypeSystem(project)
+      else ScalaTypeSystem(project)
+    }
 
     def language: Language =
       if (project.hasDotty) DottyLanguage.INSTANCE else ScalaLanguage.INSTANCE
@@ -156,15 +158,16 @@ package object project {
     def getOrUpdateUserData[T](key: Key[T], update: => T): T = {
       Option(holder.getUserData(key)).getOrElse {
         val newValue = update
-        holder.putUserData(key, newValue)
-        newValue
+        holder match {
+          case ex: UserDataHolderEx =>
+            ex.putUserDataIfAbsent(key, newValue)
+          case _ =>
+            holder.putUserData(key, newValue)
+            newValue
+        }
       }
     }
   }
-
-  def typeSystemIn(project: Project): TypeSystem =
-    if (project.hasDotty) DottyTypeSystem
-    else ScalaTypeSystem
 
   class ScalaModule(val module: Module) {
     def sdk: ScalaSdk = module.scalaSdk.map(new ScalaSdk(_)).getOrElse {

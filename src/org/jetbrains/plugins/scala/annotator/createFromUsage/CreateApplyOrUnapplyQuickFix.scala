@@ -10,12 +10,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 /**
@@ -24,6 +24,8 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
  */
 abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
         extends IntentionAction {
+  private implicit val ctx = td.projectContext
+
   override val getText = {
     val classKind = td match {
       case _: ScObject => "object"
@@ -51,9 +53,8 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
 
     val anchor = block.templateBody.get.getFirstChild
     val holder = anchor.getParent
-    val hasMembers = holder.children.findByType(classOf[ScMember]).isDefined
+    val hasMembers = holder.children.containsType[ScMember]
 
-    implicit val manager = td.getManager
     val entity = holder.addAfter(createElementFromText(text), anchor)
     if (hasMembers) holder.addAfter(createNewLine(), entity)
 

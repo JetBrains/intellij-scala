@@ -9,8 +9,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
@@ -26,9 +24,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportStmtStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReferenceElement, ResolveTargets, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -40,10 +38,12 @@ import scala.collection.mutable
  * Date: 20.02.2008
  */
 
-class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScImportStmt {
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScImportStmtStub) = {this(stub, ScalaElementTypes.IMPORT_STMT, null)}
+class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.IMPORT_STMT, node) with ScImportStmt {
+
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScImportStmtStub) = this(stub, null)
 
   override def toString: String = "ScImportStatement"
 
@@ -68,15 +68,9 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
         val nameHint = processor.getHint(NameHint.KEY)
         val name = if (nameHint == null) "" else nameHint.getName(state)
         if (name != "" && !importExpr.isSingleWildcard) {
-          val decodedName = ScalaNamesUtil.clean(name)
-          importExpr.selectorSet match {
-            case Some(set) => set.selectors.flatMap {
-              _.reference
-            }.exists {
-              reference => ScalaNamesUtil.clean(reference.refName) == decodedName
-            }
-            case None => if (ScalaNamesUtil.clean(ref.refName) != decodedName) return true
-          }
+          val decodedName = clean(name)
+          val importedNames = importExpr.importedNames.map(clean)
+          if (!importedNames.contains(decodedName)) return true
         }
         val checkWildcardImports = processor match {
           case r: ResolveProcessor =>
@@ -235,7 +229,7 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
                         shadowed += ((selector, result.getElement))
                         var newState: ResolveState = state
                         selector.importedName.map {
-                          ScalaNamesUtil.clean
+                          clean
                         }.foreach { name =>
                           newState = state.put(ResolverEnv.nameKey, name)
                         }

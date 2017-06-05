@@ -21,9 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * User: Alexander Podkhalyuzin
@@ -118,7 +117,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
         val refTypes = param.getExtendsList.getReferencedTypes
         if (refTypes.nonEmpty) {
           paramText = paramText + refTypes.map((typez: PsiType) => {
-            substitutor.subst(typez.toScType()(param.typeSystem)).presentableText
+            substitutor.subst(typez.toScType()(param.projectContext)).presentableText
           }).mkString(" <: ", " with ", "")
         }
         if (isBold) "<b>" + paramText + "</b>" else paramText
@@ -144,6 +143,9 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
 
         if (param.isContravariant) paramText.insert(0, "-")
         else if (param.isCovariant) paramText.insert(0, "+")
+
+        val stdTypes = param.projectContext.stdTypes
+        import stdTypes.{Any, Nothing}
 
         param.lowerBound foreach {
           case Nothing =>

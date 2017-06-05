@@ -20,7 +20,7 @@ import scala.tools.scalap.Decompiler
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
 
-  val DECOMPILER_VERSION = 285
+  val DECOMPILER_VERSION = 286
   private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_new_key_", DECOMPILER_VERSION, true)
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
 
@@ -40,13 +40,6 @@ object DecompilerUtil {
     } else {
       manager.getOpenProjects.filter(!_.isDisposed)
     }
-  }
-
-  def obtainProject: Project = {
-    val manager = ProjectManager.getInstance
-    val projects = openedNotDisposedProjects
-    if (projects.length == 0) manager.getDefaultProject
-    else projects(0)
   }
 
   // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).

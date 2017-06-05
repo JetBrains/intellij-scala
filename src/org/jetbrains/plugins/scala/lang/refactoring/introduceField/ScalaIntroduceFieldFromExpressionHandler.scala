@@ -95,7 +95,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
       showErrorMessage("Cannot find place for the new field", ifc.project, ifc.editor)
       return
     }
-    implicit val manager = aClass.getManager
+    implicit val projectContext = aClass.projectContext
     val name = settings.name
     val typeName = Option(settings.scType).map(_.canonicalText).getOrElse("")
     val replacedOccurences = replaceOccurences(occurrencesToReplace, name, ifc.file)

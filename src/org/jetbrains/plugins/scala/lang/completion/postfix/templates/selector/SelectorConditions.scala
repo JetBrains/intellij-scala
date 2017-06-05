@@ -3,12 +3,11 @@ package org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Boolean, ValType}
-import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
 
 import scala.language.implicitConversions
 
@@ -18,7 +17,14 @@ import scala.language.implicitConversions
  */
 object SelectorConditions {
 
-  val BOOLEAN_EXPR = typedCondition(Boolean)
+  val BOOLEAN_EXPR = new Condition[PsiElement]{
+    override def value(t: PsiElement): Boolean = t match {
+      case expr: ScExpression =>
+        val Boolean = expr.projectContext.stdTypes.Boolean
+        expr.getTypeIgnoreBaseType.getOrAny.conforms(Boolean)
+      case _ => false
+    }
+  }
 
   val ANY_EXPR = new Condition[PsiElement] {
     override def value(t: PsiElement): Boolean = t.isInstanceOf[ScExpression]
@@ -34,27 +40,16 @@ object SelectorConditions {
         val project = expression.getProject
 
         expression.getTypeIgnoreBaseType.toOption.flatMap { tp =>
-          implicit val typeSystem = project.typeSystem
-          tp.extractClass(project)
+          tp.extractClass
         }.exists { psiClass =>
           val manager = ScalaPsiManager.instance(project)
           val scope = GlobalSearchScope.allScope(project)
 
           manager.getCachedClasses(scope, ancestorFqn).exists { base =>
-            ScEquivalenceUtil.areClassesEquivalent(psiClass, base) ||
-              manager.cachedDeepIsInheritor(psiClass, base)
+            areClassesEquivalent(psiClass, base) || isInheritorDeep(psiClass, base)
           }
         }
       }
-  }
-
-  def typedCondition(myType: ValType) = new Condition[PsiElement]{
-
-    override def value(t: PsiElement): Boolean = t match {
-      case expr: ScExpression =>
-        expr.getTypeIgnoreBaseType.getOrAny.conforms(myType)(t.getProject.typeSystem)
-      case _ => false
-    }
   }
 
   class ExpandedCondition[T](source: Condition[T]) extends Condition[T] {

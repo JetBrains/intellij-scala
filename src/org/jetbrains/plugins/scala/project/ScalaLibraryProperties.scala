@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package project
 
 import java.io.File
+import java.util.Objects
 
 import com.intellij.openapi.roots.libraries.LibraryProperties
 import com.intellij.openapi.util.io.FileUtil._
@@ -39,6 +40,5 @@ class ScalaLibraryProperties extends LibraryProperties[ScalaLibraryPropertiesSta
     case _ => false
   }
 
-  override def hashCode(): Int =
-    platform.hashCode + languageLevel.hashCode * 31 + compilerClasspath.hashCode * 31
+  override def hashCode(): Int = Objects.hash(platform, languageLevel, compilerClasspath)
 }

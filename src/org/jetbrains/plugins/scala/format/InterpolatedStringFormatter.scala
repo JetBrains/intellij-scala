@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package format
 
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 
 /**
  * Pavel Fatin
@@ -51,7 +51,7 @@ object InterpolatedStringFormatter extends StringFormatter {
     if (ind + 1 < parts.size) {
       parts(ind + 1) match {
         case Text(s) =>
-          return s.isEmpty || !ScalaNamesUtil.isIdentifier(it.text + s.charAt(0)) ||
+          return s.isEmpty || !isIdentifier(it.text + s.charAt(0)) ||
                 s.startsWith("`") || s.exists(_ == '$')
         case _ =>
       }

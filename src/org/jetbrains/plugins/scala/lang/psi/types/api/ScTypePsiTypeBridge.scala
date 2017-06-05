@@ -2,20 +2,18 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
 /**
   * @author adkozlov
   */
-trait ScTypePsiTypeBridge extends TypeSystemOwner {
+trait PsiTypeBridge {
+  typeSystem: TypeSystem =>
+
   /**
     * @param treatJavaObjectAsAny if true, and paramTopLevel is true, java.lang.Object is treated as scala.Any
     *                             See SCL-3036 and SCL-2375
@@ -59,6 +57,10 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
                 noPrimitives: Boolean = false,
                 skolemToWildcard: Boolean = false)
                (implicit elementScope: ElementScope): PsiType = {
+
+    val stdTypes = `type`.projectContext.stdTypes
+    import stdTypes._
+
     def javaObject = createJavaObject
     def primitiveOrObject(primitive: PsiPrimitiveType) =
       if (noPrimitives) javaObject else primitive
@@ -108,11 +110,11 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
 
 object ExtractClass {
   def unapply(`type`: ScType): Option[PsiClass] = {
-    `type`.extractClass()
+    `type`.extractClass
   }
 
   def unapply(`type`: ScType, project: Project): Option[PsiClass] = {
-    `type`.extractClass(project)
+    `type`.extractClass
   }
 }
 

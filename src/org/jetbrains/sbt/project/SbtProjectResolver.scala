@@ -113,7 +113,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val sharedSourceModules = createSharedSourceModules(projectToModuleNode, libraryNodes, moduleFilesDirectory)
     projectNode.addAll(sharedSourceModules)
 
-    projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory, data.localCachePath)))
+    projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath))))
     projectNode
   }
 

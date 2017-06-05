@@ -39,13 +39,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameterType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import scala.annotation.tailrec
@@ -93,7 +94,7 @@ object ScalaRefactoringUtil {
       i = i - 1
     }
 
-    implicit val manager = e.getManager
+    implicit val projectContext = e.projectContext
     if (hasNlToken) e = createExpressionFromText(text.substring(0, i + 1))
     e.getParent match {
       case x: ScMethodCall if x.args.exprs.nonEmpty => createExpressionFromText(e.getText + " _")
@@ -101,18 +102,30 @@ object ScalaRefactoringUtil {
     }
   }
 
-  def addPossibleTypes(scType: ScType, expr: ScExpression)
-                      (implicit typeSystem: TypeSystem): Array[ScType] = {
-    val types = new ArrayBuffer[ScType]
-    if (scType != null) types += scType
-    expr.getTypeWithoutImplicits().foreach(types += _)
-    expr.getTypeIgnoreBaseType.foreach(types += _)
-    expr.expectedType().foreach(types += _)
-    if (types.isEmpty) types += Any
-    val unit = api.Unit
-    val sorted = types.map(_.removeAbstracts).distinct.sortWith((t1, t2) => t1.conforms(t2))
-    val result = if (sorted.contains(unit)) (sorted - unit) :+ unit else sorted
-    result.toArray
+  def addPossibleTypes(scType: ScType, expr: ScExpression): Array[ScType] = {
+    val stdTypes = expr.projectContext.stdTypes
+    import stdTypes._
+
+    val types = Option(scType).toSeq ++
+      expr.getTypeWithoutImplicits().toOption ++
+      expr.getTypeIgnoreBaseType.toOption ++
+      expr.expectedType()
+
+    val sorted =
+      types.map(_.removeAbstracts)
+        .distinct
+        .filterNot(_ == Nothing)
+        .sortWith {
+          case (Unit, _) => false //Unit goes to the very end
+          case (_, Unit) => true
+          case (t1, t2) => t1.conforms(t2)
+        }
+
+    if (sorted.isEmpty) {
+      if (scType == Nothing) Array(Nothing)
+      else Array(Any)
+    }
+    else sorted.toArray
   }
 
   def replaceSingletonTypes(scType: ScType): ScType = scType.recursiveUpdate {
@@ -187,8 +200,9 @@ object ScalaRefactoringUtil {
     PsiTreeUtil.findCommonParent(filtered: _*)
   }
 
-  def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int)
-                   (implicit typeSystem: TypeSystem = project.typeSystem): Option[(ScExpression, Array[ScType])] = {
+  def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {
+    implicit val ctx: ProjectContext = project
+
     val rangeText = file.getText.substring(startOffset, endOffset)
 
     def selectedInfixExpr(): Option[(ScExpression, Array[ScType])] = {
@@ -417,7 +431,7 @@ object ScalaRefactoringUtil {
                validatorsRes: mutable.MutableList[ScalaTypeValidator]) = {
 
       val occurrences = getTypeElementOccurrences(typeElement, classObject)
-      val validator = ScalaTypeValidator(conflictsReporter, project, typeElement, classObject, occurrences.isEmpty)
+      val validator = ScalaTypeValidator(typeElement, classObject, occurrences.isEmpty)
       occurrencesRes += occurrences
       validatorsRes += validator
     }
@@ -909,7 +923,7 @@ object ScalaRefactoringUtil {
 
         if (replaceAsInjection) {
           val withNextChar = file.getText.substring(newRange.getStartOffset, newRange.getEndOffset + 1)
-          val needBraces = ScalaNamesUtil.isIdentifier(withNextChar) && withNextChar.last != '$'
+          val needBraces = isIdentifier(withNextChar) && withNextChar.last != '$'
           val text = if (needBraces) s"$${$newString}" else s"$$$newString"
           shift += (if (needBraces) 2 else 1)
           document.replaceString(newRange.getStartOffset, newRange.getEndOffset, text)

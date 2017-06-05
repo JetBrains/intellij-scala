@@ -7,12 +7,9 @@ import java.util.concurrent.Future
 import com.intellij.execution.TaskExecutor
 import com.intellij.execution.process._
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.Consumer
 import com.intellij.util.io.BaseDataReader
-import org.jetbrains.plugins.scala
 
 import _root_.scala.collection.JavaConverters._
 
@@ -29,26 +26,12 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
   private val jvmParameters = CompileServerLauncher.jvmParameters
   
   def buildProcess(args: Seq[String], listener: String => Unit): CompilationProcess = {
-    val sdk = Option(ProjectRootManager.getInstance(project).getProjectSdk) getOrElse {
-      val all = ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance())
-      
-      if (all.isEmpty) {
-        error("No JDK available")
-        return null
-      } 
-      
-      all.get(0)
-    }
+    CompileServerLauncher.compilerJars.foreach(p => assert(p.exists(), p.getPath))
 
-    CompileServerLauncher.compilerJars.foreach {
-      case p => assert(p.exists(), p.getPath)
-    }
-    
-    scala.compiler.findJdkByName(sdk.getName) match {
-      case Left(msg) => 
-        error(msg)
+    CompileServerLauncher.compileServerJdk(project) match {
+      case None =>
         null
-      case Right(jdk) =>
+      case Some(jdk) =>
         val commands = ((FileUtil toCanonicalPath jdk.executable.getPath) +: "-cp" +: classPath(jdk) +: jvmParameters :+ 
           SERVER_CLASS_NAME).++(args)
 

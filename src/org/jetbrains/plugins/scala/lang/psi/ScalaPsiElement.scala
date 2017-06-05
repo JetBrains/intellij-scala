@@ -2,30 +2,22 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import com.intellij.openapi.project.Project
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
+import com.intellij.psi.PsiElement
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import com.intellij.psi.{PsiClass, PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.intersectScopes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem, UndefinedType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScalaType}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.monads.MonadTransformer
 
-trait ScalaPsiElement extends PsiElement with MonadTransformer {
+trait ScalaPsiElement extends PsiElement with MonadTransformer with ProjectContextOwner {
   protected var context: PsiElement = null
   protected var child: PsiElement = null
 
-  implicit def typeSystem: TypeSystem = PsiElementExt(this).typeSystem
+  implicit def elementScope: ElementScope = ElementScope(this)
 
-  implicit def elementScope: ElementScope = PsiElementExt(this).elementScope
-
-  implicit def manager: PsiManager = getManager
+  implicit def projectContext: ProjectContext = this.getProject
 
   def isInCompiledFile: Boolean =
     this.containingScalaFile.exists {
@@ -133,55 +125,4 @@ trait ScalaPsiElement extends PsiElement with MonadTransformer {
     }
     intersectScopes(super.getUseScope, maybeFileScope)
   }
-}
-
-object ScalaPsiElement {
-
-  case class ElementScope(project: Project, scope: GlobalSearchScope) {
-
-    implicit def typeSystem: TypeSystem = project.typeSystem
-
-    def getCachedClass(fqn: String): Option[PsiClass] =
-      getCachedClasses(fqn).find {
-        !_.isInstanceOf[ScObject]
-      }
-
-    def getCachedObject(fqn: String): Option[ScObject] =
-      getCachedClasses(fqn).collect {
-        case o: ScObject => o
-      }.headOption
-
-    def cachedFunction1Type: Option[ScParameterizedType] =
-      manager.cachedFunction1Type(this)
-
-    def function1Type(level: Int = 1): Option[ScParameterizedType] =
-      getCachedClass("scala.Function1").collect {
-        case t: ScTrait => t
-      }.map { t =>
-        val parameters = t.typeParameters.map {
-          TypeParameterType(_)
-        }.map {
-          UndefinedType(_, level = level)(project.typeSystem)
-        }
-
-        ScParameterizedType(ScalaType.designator(t), parameters)
-      }.collect {
-        case p: ScParameterizedType => p
-      }
-
-    def getCachedClasses(fqn: String): Array[PsiClass] =
-      manager.getCachedClasses(scope, fqn)
-
-    private def manager =
-      ScalaPsiManager.instance(project)
-  }
-
-  object ElementScope {
-    def apply(element: PsiElement): ElementScope =
-      ElementScope(element.getProject, element.getResolveScope)
-
-    def apply(project: Project): ElementScope =
-      ElementScope(project, GlobalSearchScope.allScope(project))
-  }
-
 }

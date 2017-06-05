@@ -21,23 +21,27 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.PsiUtilCore
+import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil._
 import org.jetbrains.plugins.scala.decompiler.{CompiledFileAdjuster, DecompilerUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScToplevelElement}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.JavaConverters._
@@ -46,7 +50,8 @@ import scala.collection.mutable.ArrayBuffer
 class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.INSTANCE)
         extends PsiFileBase(viewProvider, fileType.getLanguage)
                 with ScalaFile with FileDeclarationsHolder
-                with CompiledFileAdjuster with ScControlFlowOwner with FileResolveScopeProvider {
+                with CompiledFileAdjuster with ScControlFlowOwner
+                with FileResolveScopeProvider {
   override def getViewProvider: FileViewProvider = viewProvider
 
   override def getFileType: LanguageFileType = fileType
@@ -61,14 +66,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   def isCompiled: Boolean = compiled
 
   def sourceName: String = {
-    if (isCompiled) {
-      val stub = getStub
-      if (stub != null) {
-        return stub.sourceName
-      }
+    def decompile = {
       val virtualFile = getVirtualFile
-      DecompilerUtil.decompile(virtualFile, virtualFile.contentsToByteArray).sourceName
+      DecompilerUtil.decompile(virtualFile, virtualFile.contentsToByteArray)
     }
+
+    if (isCompiled) byStubOrPsi(_.sourceName)(decompile.sourceName)
     else ""
   }
 
@@ -154,7 +157,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     }
   }
 
-  @CachedInsidePsiElement(this, this)
   def isScriptFileImpl: Boolean = {
     val empty = this.children.forall {
       case _: PsiWhiteSpace => true
@@ -174,18 +176,19 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     false
   }
 
-  override def isScriptFile: Boolean = {
-    val stub = getStub
-    if (stub != null) stub.isScript
-    else isScriptFileImpl
-  }
+  @CachedInsidePsiElement(this, ModCount.anyScalaPsiModificationCount)
+  override def isScriptFile: Boolean = byStubOrPsi(_.isScript)(isScriptFileImpl)
 
-  def isWorksheetFile: Boolean = {
-    val vFile = getVirtualFile
-
-    vFile != null && (vFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION ||
-      ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
-        ScalaProjectSettings.getInstance(getProject).isTreatScratchFilesAsWorksheet )
+  override def isWorksheetFile: Boolean = {
+    Option(getVirtualFile).orElse(Option(getViewProvider.getVirtualFile).flatMap {
+      case light: LightVirtualFile => Option(light.getOriginalFile)
+      case _ => None
+    }).exists {
+      vFile => 
+        vFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION ||
+          ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
+          ScalaProjectSettings.getInstance(getProject).isTreatScratchFilesAsWorksheet
+    }
   }
 
 
@@ -222,7 +225,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
       val documentManager = PsiDocumentManager.getInstance(getProject)
       val document = documentManager.getDocument(this)
 
-      val prefixText = this.children.findByType(classOf[ScPackaging])
+      val prefixText = this.children.findByType[ScPackaging]
               .map(it => getText.substring(0, it.getTextRange.getStartOffset))
               .filter(!_.isEmpty)
 
@@ -271,7 +274,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   }
 
   private def stripPackagings(document: Document) {
-    this.depthFirst().findByType(classOf[ScPackaging]).foreach { p =>
+    this.depthFirst().findByType[ScPackaging].foreach { p =>
       val startOffset = p.getTextOffset
       val endOffset = startOffset + p.getTextLength
       document.replaceString(startOffset, endOffset, p.getBodyText.trim)
@@ -292,18 +295,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
       null
   }
 
-  def getPackagings: Array[ScPackaging] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.getChildrenByType(ScalaElementTypes.PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory)
-    } else findChildrenByClass(classOf[ScPackaging])
-  }
+  def getPackagings: Array[ScPackaging] =
+    byStubOrPsi(_.getChildrenByType(PACKAGING, ScPackagingFactory))(findChildrenByClass(classOf[ScPackaging]))
 
-  def getPackageName: String = {
-    val res = packageName
-    if (res == null) ""
-    else res
-  }
+  def getPackageName: String = Option(packageName).getOrElse("")
 
   @Nullable
   def packageName: String = {
@@ -367,8 +362,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     } else PsiClass.EMPTY_ARRAY
   }
 
-  def icon = Icons.FILE_TYPE_LOGO
-
   @CachedInsidePsiElement(this, ScalaPsiManager.instance(getProject).modificationTracker)
   protected def isScalaPredefinedClass: Boolean = {
     typeDefinitions.length == 1 && Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)
@@ -401,7 +394,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   }
 
   def packagingRanges: Seq[TextRange] =
-    this.depthFirst().filterByType(classOf[ScPackaging]).flatMap(_.reference).map(_.getTextRange).toList
+    this.depthFirst().filterByType[ScPackaging].flatMap(_.reference).map(_.getTextRange).toList
 
   def getFileResolveScope: GlobalSearchScope = {
     val vFile = getOriginalFile.getVirtualFile
@@ -428,21 +421,21 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   override def getContext: PsiElement = {
     getCopyableUserData(ScalaFileImpl.CONTEXT_KEY) match {
       case null => super.getContext
-      case _ => getCopyableUserData(ScalaFileImpl.CONTEXT_KEY)
+      case c => c
     }
   }
 
   override def getPrevSibling: PsiElement = {
     getCopyableUserData(ScalaFileImpl.CHILD_KEY) match {
       case null => super.getPrevSibling
-      case _ => getCopyableUserData(ScalaFileImpl.CHILD_KEY).getPrevSibling
+      case c => c.getPrevSibling
     }
   }
 
   override def getNextSibling: PsiElement = {
-    child match {
+    getCopyableUserData(ScalaFileImpl.CHILD_KEY) match {
       case null => super.getNextSibling
-      case _ => getCopyableUserData(ScalaFileImpl.CHILD_KEY).getNextSibling
+      case c => c.getNextSibling
     }
   }
 
@@ -455,6 +448,21 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     } else {
       super.insertFirstImport(importSt, first)
     }
+  }
+
+  override def immediateTypeDefinitions: Seq[ScTypeDefinition] =
+    byStubOrPsi(_.getChildrenByType(TYPE_DEFINITIONS, ScTypeDefinitionFactory)){
+      findChildrenByClassScala(classOf[ScTypeDefinition])
+    }
+
+  private def byStubOrPsi[R](byStub: ScFileStub => R)(byPsi: => R): R = getStub match {
+    case s: ScFileStub => byStub(s)
+    case _ => byPsi
+  }
+
+  override def subtreeChanged(): Unit = {
+    AnyScalaPsiModificationTracker.incModificationCount()
+    super.subtreeChanged()
   }
 }
 
@@ -496,7 +504,7 @@ object ScalaFileImpl {
     packagingsIn(root).map(packaging => toVector(packaging.packageName))
 
   private def packagingsIn(root: PsiElement): List[ScPackaging] = {
-    root.children.findByType(classOf[ScPackaging]) match {
+    root.children.findByType[ScPackaging] match {
       case Some(packaging) => packaging :: packagingsIn(packaging)
       case _ => Nil
     }

@@ -46,7 +46,7 @@ object ImportMembersUtil {
 
   @tailrec
   def replaceWithName(oldRef: ScReferenceElement, name: String): ScReferenceElement = {
-    implicit val manager = oldRef.getManager
+    import oldRef.projectContext
 
     oldRef match {
       case _ childOf (inf @ ScInfixExpr(_: ScReferenceExpression, `oldRef`, _)) =>
@@ -76,7 +76,7 @@ object ImportMembersUtil {
           case _ =>
         }
       case _ =>
-        implicit val manager = oldRef.getManager
+        implicit val projectContext = oldRef.projectContext
         oldRef match {
           case _ childOf (inf @ ScInfixExpr(_: ScReferenceExpression, `oldRef`, _)) =>
             val call = createEquivMethodCall(inf)

@@ -9,7 +9,7 @@ import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, JavaTe
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.InputValidatorEx
@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.sbt.project.module.SbtModuleType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -40,7 +41,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
     for (template <- FileTemplateManager.getInstance(project).getAllTemplates) {
       if (isScalaTemplate(template) && checkPackageExists(directory)) {
-        builder.addKind(template.getName, Icons.FILE_TYPE_LOGO, template.getName)
+        builder.addKind(template.getName, Icons.FILE, template.getName)
       }
     }
 
@@ -88,22 +89,28 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
   private def isUnderSourceRoots(dataContext: DataContext): Boolean = {
     val module: Module = dataContext.getData(LangDataKeys.MODULE.getName).asInstanceOf[Module]
-    if (!Option(module).exists(_.hasScala)) {
-      return false
-    }
+    val validModule =
+      if (module == null) false
+      else
+        ModuleType.get(module) match {
+          case _: SbtModuleType => true
+          case _ => module.hasScala
+        }
+
+    validModule && isUnderSourceRoots0(dataContext)
+  }
+
+  private def isUnderSourceRoots0(dataContext: DataContext) = {
     val view = dataContext.getData(LangDataKeys.IDE_VIEW.getName).asInstanceOf[IdeView]
     val project = dataContext.getData(CommonDataKeys.PROJECT.getName).asInstanceOf[Project]
     if (view != null && project != null) {
       val projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
       val dirs = view.getDirectories
-      for (dir <- dirs) {
+      dirs.exists { dir =>
         val aPackage = JavaDirectoryService.getInstance.getPackage(dir)
-        if (projectFileIndex.isInSourceContent(dir.getVirtualFile) && aPackage != null) {
-          return true
-        }
+        projectFileIndex.isInSourceContent(dir.getVirtualFile) && aPackage != null
       }
-    }
-    false
+    } else false
   }
 
   private def createClassFromTemplate(directory: PsiDirectory, className: String, templateName: String,

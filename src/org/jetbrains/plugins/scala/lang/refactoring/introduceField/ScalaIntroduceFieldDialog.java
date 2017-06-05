@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceField;
 
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.help.HelpManager;
@@ -20,9 +21,8 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ValidationReporter;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 
@@ -35,6 +35,9 @@ import java.awt.event.*;
 import java.util.EventListener;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
+import java.util.Set;
+
+import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -63,7 +66,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   private Project project;
   private ScType[] myTypes;
   private int occurrencesCount;
-  private ScalaVariableValidator validator;
+  private ValidationReporter reporter;
   private IntroduceFieldSettings mySettings;
 
   private LinkedHashMap<String, ScType> myTypeMap = null;
@@ -76,7 +79,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     this.project = ifc.project();
     this.myTypes = ifc.types();
     this.occurrencesCount = ifc.occurrences().length;
-    this.validator = ifc.validator();
+    this.reporter = ifc.reporter();
     this.mySettings = settings;
 
     ScExpression expression = ScalaRefactoringUtil.expressionToIntroduce(ifc.element());
@@ -267,7 +270,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     }
   }
 
-  private void setUpNameComboBox(String[] possibleNames) {
+  private void setUpNameComboBox(Set<String> possibleNames) {
 
       final EditorComboBoxEditor comboEditor = new StringComboboxEditor(project, ScalaFileType.INSTANCE, myNameComboBox);
 
@@ -343,14 +346,18 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
   private void setUpHyperLink(final ScExpression expression) {
     HyperlinkLabel link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"));
-    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"));
     myLinkContainer.add(link);
 
     link.addHyperlinkListener(new HyperlinkListener() {
       @Override
       public void hyperlinkUpdate(HyperlinkEvent e) {
-        mySpecifyTypeChb.setSelected(needTypeannotations(expression));
-        updateEnablingTypeList();
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+          @Override
+          public void run() {
+            mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+            updateEnablingTypeList();
+          }
+        });
       }
     });
   }
@@ -380,7 +387,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   }
 
   protected void doOKAction() {
-    if (!validator.isOK(this)) return;
+    if (!reporter.isOK(this)) return;
     saveSettings();
 
     mySettings.setName(getEnteredName());
@@ -548,7 +555,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
   private void updateOkStatus() {
     String text = getEnteredName();
-    setOKActionEnabled(ScalaNamesUtil.isIdentifier(text));
+    setOKActionEnabled(MODULE$.isIdentifier(text));
   }
 
   private void fireNameDataChanged() {

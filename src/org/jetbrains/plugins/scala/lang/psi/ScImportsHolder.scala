@@ -37,7 +37,7 @@ trait ScImportsHolder extends ScalaPsiElement {
 
   def getImportStatements: Seq[ScImportStmt] = {
     this match {
-      case s: ScalaStubBasedElementImpl[_] =>
+      case s: ScalaStubBasedElementImpl[_, _] =>
         val stub: StubElement[_] = s.getStub
         if (stub != null) {
           return stub.getChildrenByType(ScalaElementTypes.IMPORT_STMT, JavaArrayFactoryUtil.ScImportStmtFactory).toSeq
@@ -121,15 +121,13 @@ trait ScImportsHolder extends ScalaPsiElement {
     ref match {
       case ref: ScReferenceElement =>
         if (!ref.isValid || ref.isReferenceTo(clazz)) return
-        ref.bind() match {
-          case Some(ScalaResolveResult(t: ScTypeAliasDefinition, _)) if t.typeParameters.isEmpty =>
-            for (tp <- t.aliasedType(TypingContext.empty)) {
-              tp match {
-                case ScDesignatorType(c: PsiClass) if c == clazz => return
-                case _ =>
-              }
+        ref.bind().foreach {
+          case ScalaResolveResult(t: ScTypeAliasDefinition, _) if t.typeParameters.isEmpty =>
+            t.aliasedType(TypingContext.empty).foreach {
+              case ScDesignatorType(c: PsiClass) if c == clazz => return
+              case _ =>
             }
-          case _ =>
+          case ScalaResolveResult(c: PsiClass, _) if c.qualifiedName == clazz.qualifiedName => return
         }
       case _ =>
     }
@@ -174,7 +172,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       this.children.dropWhile(el => el.isInstanceOf[PsiComment] || el.isInstanceOf[PsiWhiteSpace]).headOption
 
     firstChildNotCommentWhitespace.foreach {
-      case pack: ScPackaging if !pack.isExplicit && this.children.filterByType(classOf[ScImportStmt]).isEmpty =>
+      case pack: ScPackaging if !pack.isExplicit && this.children.filterByType[ScImportStmt].isEmpty =>
         pack.addImportsForPaths(paths, refsContainer)
         return
       case _ =>

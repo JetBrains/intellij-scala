@@ -5,8 +5,6 @@ package api
 package toplevel
 package typedef
 
-import java.util
-
 import com.intellij.execution.junit.JUnitUtil
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
@@ -18,23 +16,25 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 import scala.collection.JavaConverters._
 
@@ -47,18 +47,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
 
   def additionalJavaNames: Array[String] = Array.empty
 
-  def extendsBlock: ScExtendsBlock = {
-    this match {
-      case st: ScalaStubBasedElementImpl[_] =>
-        val stub = st.getStub
-        if (stub != null) {
-          return stub.findChildStubByType(ScalaElementTypes.EXTENDS_BLOCK).getPsi
-        }
-      case _ =>
-    }
-    assert(getLastChild.isInstanceOf[ScExtendsBlock], "Class hasn't extends block: " + this.getText)
-    getLastChild.asInstanceOf[ScExtendsBlock]
-  }
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  def extendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementTypes.EXTENDS_BLOCK).orNull
 
   def innerExtendsListTypes: Array[PsiClassType] = {
     val eb = extendsBlock
@@ -76,9 +66,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     } else PsiClassType.EMPTY_ARRAY
   }
 
-  def showAsInheritor: Boolean = {
-    isInstanceOf[ScTypeDefinition] || extendsBlock.templateBody.isDefined
-  }
+  def showAsInheritor: Boolean = extendsBlock.templateBody.isDefined
 
   override def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = {
     PsiClassImplUtil.findMethodBySignature(this, patternMethod, checkBases)
@@ -142,6 +130,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     PsiClassImplUtil.getAllWithSubstitutorsByMap(this, MemberType.METHOD)
   }
 
+  @CachedInsidePsiElement(this, CachesUtil.getDependentItem(this)())
   override def getVisibleSignatures: JCollection[HierarchicalMethodSignature] = {
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
   }
@@ -210,16 +199,21 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     }
   }
 
-  def allVals: Seq[(PsiNamedElement, ScSubstitutor)] = TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(n => n.filter{
-    case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
-      (x.info.namedElement match {
-        case v =>
-          ScalaPsiUtil.nameContext(v) match {
-            case _: ScVariable => v.name == x.info.name
-            case _: ScValue => v.name == x.info.name
-            case _ => true
-          }
-      })}).map { case (_, n) => (n.info.namedElement, n.substitutor) }
+  def allVals: Seq[(PsiNamedElement, ScSubstitutor)] =
+    TypeDefinitionMembers.getSignatures(this).allFirstSeq()
+      .flatMap(n => n.filter {
+        case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
+          (x.info.namedElement match {
+            case v =>
+              ScalaPsiUtil.nameContext(v) match {
+                case _: ScVariable => v.name == x.info.name
+                case _: ScValue => v.name == x.info.name
+                case _ => true
+              }
+          })
+      })
+      .distinctBy { case (_, y) => y.info.namedElement }
+      .map { case (_, n) => (n.info.namedElement, n.substitutor) }
 
   def allValsIncludingSelfType: Seq[(PsiNamedElement, ScSubstitutor)] = {
     selfType match {
@@ -297,10 +291,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
                           lastParent: PsiElement,
                           place: PsiElement) : Boolean = {
     if (!processor.isInstanceOf[BaseProcessor]) {
-      val lastChild = this match {
-        case s: ScalaStubBasedElementImpl[_] => s.getLastChildStub
-        case _ => this.getLastChild
-      }
+      val lastChild = this.lastChildStub.orNull
       val languageLevel: LanguageLevel =
         processor match {
           case methodProcessor: MethodsProcessor => methodProcessor.getLanguageLevel
@@ -387,7 +378,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
   }
 
   def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
-    implicit val manager = member.getManager
+    implicit val projectContext = member.projectContext
     extendsBlock.templateBody.map {
       _.getNode
     }.map { node =>
@@ -432,52 +423,71 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
   }
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
-    if (baseClass == null || baseClass.isEffectivelyFinal) return false
+    val basePath = Path.of(baseClass)
 
-    val visited: util.Set[PsiClass] = new util.HashSet[PsiClass]
-    val baseQualifiedName = baseClass.qualifiedName
-    val baseName = baseClass.name
-    def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean): Boolean = {
-      ProgressManager.checkCanceled()
-      if (!visited.contains(drv)) {
-        visited.add(drv)
+    // These doesn't appear in the superTypes at the moment, so special case required.
+    if (basePath == Path.javaObject || (basePath == Path.scalaObject && !baseClass.isDeprecated)) return true
 
-        drv match {
-          case drg: ScTemplateDefinition =>
-            val supersIterator = drg.supers.iterator
+    if (basePath.kind.isFinal) return false
+
+    if (deep) superPathsDeep.contains(basePath)
+    else superPaths.contains(basePath)
+  }
+
+  @Cached(synchronized = false, ModCount.getModificationCount, this)
+  def cachedPath: Path = {
+    val kind = this match {
+      case _: ScTrait => Kind.ScTrait
+      case _: ScClass => Kind.ScClass
+      case _: ScObject => Kind.ScObject
+      case _: ScNewTemplateDefinition => Kind.ScNewTd
+      case s: ScSyntheticClass if s.className != "AnyRef" && s.className != "AnyVal" => Kind.SyntheticFinal
+      case _ => Kind.NonScala
+    }
+    Path(name, Option(qualifiedName), kind)
+  }
+
+  @Cached(synchronized = false, ModCount.getModificationCount, this)
+  private def superPaths: Set[Path] = {
+    if (DumbService.getInstance(getProject).isDumb) return Set.empty //to prevent failing during indexes
+
+    supers.map(Path.of).toSet
+  }
+
+  @Cached(synchronized = false, ModCount.getModificationCount, this)
+  private def superPathsDeep: Set[Path] = {
+    if (DumbService.getInstance(getProject).isDumb) return Set.empty //to prevent failing during indexes
+
+    var collected = Set[Path]()
+
+    def addForClass(c: PsiClass): Unit = {
+      val path = c match {
+        case td: ScTemplateDefinition => td.cachedPath
+        case _ => Path.of(c)
+      }
+      if (!collected.contains(path)) {
+        collected += path
+        c match {
+          case td: ScTemplateDefinition =>
+            val supersIterator = td.supers.iterator
             while (supersIterator.hasNext) {
-              val c = supersIterator.next()
-              val value = baseClass match {
-                case _: ScTrait if c.isInstanceOf[ScTrait] => true
-                case _: ScClass if c.isInstanceOf[ScClass] => true
-                case _ if !c.isInstanceOf[ScTemplateDefinition] => true
-                case _ => false
-              }
-              if (value && c.name == baseName && c.qualifiedName == baseQualifiedName && value) return true
-              if (deep && isInheritorInner(base, c, deep)) return true
+              addForClass(supersIterator.next())
             }
-          case _ =>
-            val supers = drv.getSuperTypes
-            val supersIterator = supers.iterator
+          case other =>
+            val supersIterator = other.getSuperTypes.iterator
             while (supersIterator.hasNext) {
               val psiT = supersIterator.next()
-              val c = psiT.resolveGenerics.getElement
-              if (c != null) {
-                if (c.name == baseName && c.qualifiedName == baseQualifiedName) return true
-                if (deep && isInheritorInner(base, c, deep)) return true
+              val next = psiT.resolveGenerics.getElement
+              if (next != null) {
+                addForClass(next)
               }
             }
         }
       }
-      false
     }
-    if (DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indexes
+    addForClass(this)
 
-    // This doesn't appear in the superTypes at the moment, so special case required.
-    if (baseQualifiedName == "java.lang.Object") return true
-    if (baseQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated) return true
-
-    isInheritorInner(baseClass, this, deep)
+    collected - cachedPath
   }
 
   def isMetaAnnotatationImpl: Boolean = {
@@ -490,4 +500,35 @@ object ScTemplateDefinition {
   object ExtendsBlock {
     def unapply(definition: ScTemplateDefinition): Some[ScExtendsBlock] = Some(definition.extendsBlock)
   }
+
+  sealed abstract class Kind(val isFinal: Boolean)
+  object Kind {
+    object ScClass extends Kind(false)
+    object ScTrait extends Kind(false)
+    object ScObject extends Kind(true)
+    object ScNewTd extends Kind(true)
+    object SyntheticFinal extends Kind(true)
+    object NonScala extends Kind(false)
+  }
+
+  case class Path(name: String, qName: Option[String], kind: Kind)
+
+  object Path {
+    def of(c: PsiClass): Path = {
+      c match {
+        case td: ScTemplateDefinition =>
+          td.cachedPath
+        case s: ScSyntheticClass if s.className != "AnyRef" && s.className != "AnyVal" =>
+          Path(c.name, Option(c.qualifiedName), Kind.SyntheticFinal)
+        case s: ScSyntheticClass =>
+          Path(c.name, Option(c.qualifiedName), Kind.ScClass)
+        case _ =>
+          Path(c.name, Option(c.qualifiedName), Kind.NonScala)
+      }
+    }
+
+    val javaObject = Path("Object", Some("java.lang.Object"), Kind.NonScala)
+    val scalaObject = Path("ScalaObject", Some("scala.ScalaObject"), Kind.ScTrait)
+  }
+
 }

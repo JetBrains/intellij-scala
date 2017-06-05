@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes.PatchedXmlLexer
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
@@ -167,7 +167,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       val indentString = (for (i <- 1 to indent) yield " ").foldLeft("")(_ + _)
       extensions.inWriteAction {
         val document = editor.getDocument
-        document.insertString(offset, indentString)
+        document.insertString(offset - 1, indentString)
         PsiDocumentManager.getInstance(project).commitDocument(document)
       }
     }
@@ -455,7 +455,7 @@ object ScalaTypedHandler {
 
   private def getPrevSiblingCondition(element: PsiElement): Option[PsiElement] = {
     var prev: PsiElement = PsiTreeUtil.prevLeaf(element)
-    while (prev != null && prev.getTextLength != 0) {
+    while (prev != null && prev.getTextLength == 0) {
       prev = prev.getPrevSibling
     }
     Option(prev)

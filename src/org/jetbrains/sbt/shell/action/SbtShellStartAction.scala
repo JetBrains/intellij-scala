@@ -17,7 +17,7 @@ class SbtShellStartAction extends ExternalSystemAction {
 
   override def update(e: AnActionEvent): Unit = {
     super.update(e)
-    e.getPresentation.setIcon(Icons.SCALA_CONSOLE)
+    e.getPresentation.setIcon(Icons.SBT_SHELL)
   }
 
   override def actionPerformed(event: AnActionEvent): Unit = {
@@ -30,4 +30,6 @@ class SbtShellStartAction extends ExternalSystemAction {
     (SbtProjectSystem.Id == getSystemId(e) ||
       ExternalSystemDataKeys.VIEW.getData(e.getDataContext) == null &&
       !SbtSystemSettings.getInstance(e.getProject).getLinkedProjectsSettings.isEmpty)
+
+  override def isEnabled(e: AnActionEvent): Boolean = hasProject(e)
 }

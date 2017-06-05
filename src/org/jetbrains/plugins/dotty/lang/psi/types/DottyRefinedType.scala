@@ -23,8 +23,6 @@ case class DottyRefinedType(designator: ScType,
 }
 
 object DottyRefinedType {
-  implicit val typeSystem = DottyTypeSystem
-
   def apply(designator: ScType, refinement: ScRefinement): DottyRefinedType = {
     val signatures = refinement.holders.map {
       case function: ScFunction => Seq(Signature(function))

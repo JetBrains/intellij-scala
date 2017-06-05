@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, CachedWithRecursionGuard$, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
@@ -35,8 +35,7 @@ import scala.collection.{Set, mutable}
   */
 //todo: refactor this terrible code
 class ScImplicitlyConvertible(val expression: ScExpression,
-                              val fromUnderscore: Boolean = false)
-                             (implicit val typeSystem: TypeSystem) {
+                              val fromUnderscore: Boolean = false) {
 
   private lazy val placeType =
     expression.getTypeWithoutImplicits(fromUnderscore = fromUnderscore).map {
@@ -89,7 +88,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
 
     placeType match {
       case None => Set.empty
-      case Some(Nothing) => Set.empty
+      case Some(t) if t.isNothing => Set.empty
       case Some(u: UndefinedType) => Set.empty
       case Some(scType) =>
         val processor = new CollectImplicitsProcessor(expression, false)
@@ -143,8 +142,9 @@ class ScImplicitlyConvertible(val expression: ScExpression,
 object ScImplicitlyConvertible {
   private implicit val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible")
 
-  def forMap(expression: ScExpression, result: ScalaResolveResult, `type`: ScType)
-            (implicit typeSystem: TypeSystem): Option[ImplicitMapResult] = {
+  def forMap(expression: ScExpression, result: ScalaResolveResult, `type`: ScType): Option[ImplicitMapResult] = {
+    import expression.projectContext
+
     ScalaPsiUtil.debug(s"Check implicit: $result for type: ${`type`}", LOG)
 
     if (PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(result.element), expression, false)) return None
@@ -203,8 +203,9 @@ object ScImplicitlyConvertible {
     (substitute(argumentType), substitute(function.returnType))
   }
 
-  private def getTypes(expression: ScExpression, substitutor: ScSubstitutor, element: PsiNamedElement)
-                      (implicit typeSystem: TypeSystem): Option[(ScType, ScType)] = {
+  private def getTypes(expression: ScExpression, substitutor: ScSubstitutor, element: PsiNamedElement): Option[(ScType, ScType)] = {
+    import expression.projectContext
+
     val funType = expression.elementScope.cachedFunction1Type.getOrElse {
       return None
     }
@@ -238,8 +239,8 @@ object ScImplicitlyConvertible {
                                  function: ScFunction,
                                  `type`: ScType,
                                  substitutor: ScSubstitutor,
-                                 undefinedSubstitutor: ScUndefinedSubstitutor)
-                                (implicit typeSystem: TypeSystem) = {
+                                 undefinedSubstitutor: ScUndefinedSubstitutor) = {
+
     var uSubst = undefinedSubstitutor
     uSubst.getSubstitutor(notNonable = false) match {
       case Some(unSubst) =>

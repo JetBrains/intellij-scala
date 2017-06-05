@@ -43,12 +43,12 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
               val path = commentText.substring(2, commentText.length - 2)
               val classes = ScalaPsiManager.instance(getProject).getCachedClasses(getResolveScope, path)
               if (classes.length == 1) {
-                drvTemplate.exists(td => !ScalaPsiUtil.cachedDeepIsInheritor(td, classes(0)))
+                drvTemplate.exists(td => !ScalaPsiUtil.isInheritorDeep(td, classes(0)))
               } else {
                 val clazz: Option[PsiClass] = classes.find(!_.isInstanceOf[ScObject])
                 clazz match {
                   case Some(psiClass) =>
-                    drvTemplate.exists(td => !ScalaPsiUtil.cachedDeepIsInheritor(td, psiClass))
+                    drvTemplate.exists(td => !ScalaPsiUtil.isInheritorDeep(td, psiClass))
                   case _ => false
                 }
               }
@@ -107,7 +107,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       def resolve: PsiClass = {
         def resolveNoHack: PsiClass = {
           findSuper(id) match {
-            case Some(t) => t.extractClass(getProject) match {
+            case Some(t) => t.extractClass match {
               case Some(c) => c
               case None    => null
             }
@@ -135,7 +135,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
         case None => Array[Object]()
         case Some(supers) =>
           val buff = new ArrayBuffer[Object]
-          supers.foreach { t => t.extractClass(getProject) match {
+          supers.foreach { t => t.extractClass match {
             case Some(c) => buff += c
             case None =>
           }}
@@ -149,7 +149,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     case Some(types) =>
       val name = id.getText
       for (t <- types) {
-        t.extractClass(getProject) match {
+        t.extractClass match {
           case Some(c) if name == c.name => return Some(t)
           case _ =>
         }

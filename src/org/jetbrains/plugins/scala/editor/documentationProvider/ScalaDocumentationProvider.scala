@@ -36,7 +36,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -106,7 +105,9 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
     val e = docedElement.getNavigationElement
 
-    implicit def urlText: ScType => String = e.typeSystem.urlText(_)
+    implicit def projectContext = e.projectContext
+    implicit def urlText: ScType => String = projectContext.typeSystem.urlText(_)
+
     e match {
       case clazz: ScTypeDefinition =>
         val buffer: StringBuilder = new StringBuilder("")
@@ -529,8 +530,7 @@ object ScalaDocumentationProvider {
                       args.headOption match {
                         case a: Some[ScType] =>
                           val project = function.getProject
-                          implicit val typeSystem = project.typeSystem
-                          a.get.extractClass(project) match {
+                          a.get.extractClass match {
                             case Some(clazz) => buffer append clazz.qualifiedName
                             case _ =>
                           }
@@ -1029,6 +1029,8 @@ object ScalaDocumentationProvider {
   }
 
   def generateTypeAliasInfo(alias: ScTypeAlias, subst: ScSubstitutor): String = {
+    import alias.projectContext
+
     val buffer = new StringBuilder
     buffer.append(getMemberHeader(alias))
     buffer.append("type ")

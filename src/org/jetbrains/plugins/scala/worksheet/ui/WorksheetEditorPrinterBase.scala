@@ -80,16 +80,14 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
       override def run() {
         viewerFolding runBatchFoldingOperation(new Runnable {
           override def run() {
-            foldings map {
+            foldings foreach {
               case (start, end, limit, originalEnd) =>
-                val offset = originalDocument getLineEndOffset java.lang.Math.min(originalEnd, originalDocument.getLineCount) // на какой строчке кончается ввод
-                val linesCount = viewerDocument.getLineNumber(end) - start - limit + 1 // разница между вводом и выводом
-                // правая часть \\ конец оффсета плейсхолдера фолда \\ конец ввода \\ на какой строчке кончается вводе \\ разница между вводом и выводом \\ кол-во строчек в вводе
-                new WorksheetFoldRegionDelegate(
-                  worksheetViewer, viewerDocument.getLineStartOffset(start + limit - 1), end,
-                  offset, linesCount, group, limit
-                )
-            } foreach (region => viewerFolding addFoldRegion region)
+                val offset = originalDocument getLineEndOffset java.lang.Math.min(originalEnd, originalDocument.getLineCount)
+                val linesCount = viewerDocument.getLineNumber(end) - start - limit + 1
+                
+                group.addRegion(viewerFolding, viewerDocument.getLineStartOffset(start + limit - 1), end,
+                  offset, linesCount, limit, isExpanded = false)
+            }
 
             WorksheetFoldGroup.save(getScalaFile, group)
           }
@@ -106,6 +104,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     val oldSync = originalEditor getUserData WorksheetEditorPrinterFactory.DIFF_SYNC_SUPPORT
     if (oldSync != null) oldSync.dispose()
 
+    group.installOn(viewerFolding)
     WorksheetEditorPrinterFactory.synch(originalEditor, worksheetViewer, getWorksheetSplitter, Some(group))
     
     cleanFoldings()

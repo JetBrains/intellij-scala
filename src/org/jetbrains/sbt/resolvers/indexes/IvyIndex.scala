@@ -4,8 +4,8 @@ import java.io._
 import java.util.Properties
 
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.project.Project
 import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.sbt._
 import org.jetbrains.sbt.resolvers._
 
@@ -40,7 +40,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     finally { checkStorage() }
   }
 
-  override def searchGroup(artifactId: String)(implicit project: Project): Set[String] = {
+  override def searchGroup(artifactId: String)(implicit project: ProjectContext): Set[String] = {
     withStorageCheck {
       if (artifactId.isEmpty)
         Option(groupToArtifactMap.getAllKeysWithExistingMapping) map {
@@ -51,7 +51,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     }
   }
 
-  override def searchArtifact(groupId: String)(implicit project: Project): Set[String] = {
+  override def searchArtifact(groupId: String)(implicit project: ProjectContext): Set[String] = {
     withStorageCheck {
       if (groupId.isEmpty)
         Option(artifactToGroupMap.getAllKeysWithExistingMapping) map {
@@ -62,12 +62,12 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     }
   }
 
-  override def searchVersion(groupId: String, artifactId: String)(implicit project: Project): Set[String] = {
+  override def searchVersion(groupId: String, artifactId: String)(implicit project: ProjectContext): Set[String] = {
     withStorageCheck {
       Option(groupArtifactToVersionMap.get(SbtResolverUtils.joinGroupArtifact(groupId, artifactId))).getOrElse(Set.empty)
     }
   }
-  override def doUpdate(progressIndicator: Option[ProgressIndicator] = None)(implicit project: Project): Unit = {
+  override def doUpdate(progressIndicator: Option[ProgressIndicator] = None)(implicit project: ProjectContext): Unit = {
     val agMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gaMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gavMap = mutable.HashMap.empty[String, mutable.Set[String]]
@@ -90,7 +90,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     store()
   }
 
-  override def getUpdateTimeStamp(implicit project: Project): Long = innerTimestamp
+  override def getUpdateTimeStamp(implicit project: ProjectContext): Long = innerTimestamp
 
   private def deleteIndex() = SbtIndexesManager.cleanUpCorruptedIndex(indexDir)
 
@@ -135,7 +135,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     val props = new Properties()
     props.setProperty(Keys.VERSION, CURRENT_INDEX_VERSION)
     props.setProperty(Keys.ROOT, root)
-    props.setProperty(Keys.UPDATE_TIMESTAMP, getUpdateTimeStamp(null).toString)
+    props.setProperty(Keys.UPDATE_TIMESTAMP, innerTimestamp.toString)
     props.setProperty(Keys.KIND, "ivy")
 
     val propFile = indexDir / Paths.PROPERTIES_FILE

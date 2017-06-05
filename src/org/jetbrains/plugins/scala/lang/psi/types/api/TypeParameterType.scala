@@ -1,10 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import java.util.Objects
+
 import com.intellij.psi.PsiTypeParameter
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter.javaPsiTypeParameterUpperType
 import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScSubstitutor, ScType, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.Seq
 
@@ -42,9 +46,10 @@ case class TypeParameter(typeParameters: Seq[TypeParameter],
                          lowerType: Suspension,
                          upperType: Suspension,
                          psiTypeParameter: PsiTypeParameter) {
-  val nameAndId = psiTypeParameter.nameAndId
 
-  val name = nameAndId._1
+  def name: String = psiTypeParameter.name
+
+  def nameAndId: (String, Long) = psiTypeParameter.nameAndId
 
   def update(function: ScType => ScType): TypeParameter = TypeParameter(
     typeParameters.map(_.update(function)),
@@ -71,19 +76,21 @@ case class TypeParameter(typeParameters: Seq[TypeParameter],
     case _ => false
   }
 
-  override def hashCode(): Int = Seq(name, typeParameters, psiTypeParameter)
-    .map(_.hashCode())
-    .foldLeft(0)((a, b) => 31 * a + b)
+  override def hashCode(): Int = Objects.hash(name, typeParameters, psiTypeParameter)
 }
 
 object TypeParameter {
   def apply(typeParameter: PsiTypeParameter): TypeParameter = {
     val (typeParameters, lazyLower, lazyUpper) = typeParameter match {
       case typeParam: ScTypeParam =>
-        (typeParam.typeParameters, () => typeParam.lowerBound.getOrNothing, () => typeParam.upperBound.getOrAny)
+        (typeParam.typeParameters,
+          () => typeParam.lowerBound.getOrNothing,
+          () => typeParam.upperBound.getOrAny)
       case _ =>
-        val manager = ScalaPsiManager.instance(typeParameter.getProject)
-        (Seq.empty, () => Nothing, () => manager.javaPsiTypeParameterUpperType(typeParameter))
+        (Seq.empty,
+          () => Nothing(typeParameter.getProject),
+          () => javaPsiTypeParameterUpperType(typeParameter)
+        )
     }
     TypeParameter(
       typeParameters.map(TypeParameter(_)),
@@ -91,22 +98,31 @@ object TypeParameter {
       Suspension(lazyUpper),
       typeParameter)
   }
+
+  def javaPsiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = {
+    val manager = ScalaPsiManager.instance(typeParameter.getProject)
+    manager.javaPsiTypeParameterUpperType(typeParameter)
+  }
 }
 
 case class TypeParameterType(arguments: Seq[TypeParameterType],
                              lowerType: Suspension,
                              upperType: Suspension,
                              psiTypeParameter: PsiTypeParameter) extends ValueType with NamedType {
-  val nameAndId = psiTypeParameter.nameAndId
 
-  override val name = nameAndId._1
+  override implicit def projectContext: ProjectContext = psiTypeParameter
+
+  override val name: String = psiTypeParameter.name
+
+  def nameAndId: (String, Long) = psiTypeParameter.nameAndId
 
   private var hash: Int = -1
 
+  //noinspection HashCodeUsesVar
   override def hashCode: Int = {
-    if (hash == -1) {
-      hash = Seq(name, arguments, lowerType, upperType, psiTypeParameter).map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-    }
+    if (hash == -1)
+      hash = Objects.hash(name, arguments, lowerType, upperType, psiTypeParameter)
+
     hash
   }
 
@@ -115,25 +131,24 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
     case _ => false
   }
 
-  def isCovariant = psiTypeParameter match {
+  def isCovariant: Boolean = psiTypeParameter match {
     case typeParam: ScTypeParam => typeParam.isCovariant
     case _ => false
   }
 
-  def isContravariant = psiTypeParameter match {
+  def isContravariant: Boolean = psiTypeParameter match {
     case typeParam: ScTypeParam => typeParam.isContravariant
     case _ => false
   }
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) =
+  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) =
     (`type` match {
       case that: TypeParameterType => (that.psiTypeParameter eq psiTypeParameter) || {
         (psiTypeParameter, that.psiTypeParameter) match {
           case (myBound: ScTypeParam, thatBound: ScTypeParam) =>
             //TODO this is a temporary hack, so ignore substitutor for now
-            myBound.lowerBound.exists(typeSystem.equivalence.equiv(_, thatBound.lowerBound.getOrNothing)) &&
-              myBound.upperBound.exists(typeSystem.equivalence.equiv(_, thatBound.upperBound.getOrNothing)) &&
+            myBound.lowerBound.exists(_.equiv(thatBound.lowerBound.getOrNothing)) &&
+              myBound.upperBound.exists(_.equiv(thatBound.upperBound.getOrNothing)) &&
               (myBound.name == thatBound.name || thatBound.isHigherKindedTypeParameter || myBound.isHigherKindedTypeParameter)
           case _ => false
         }
@@ -158,13 +173,13 @@ object TypeParameterType {
           () => typeParam.lowerBound.getOrNothing,
           () => typeParam.upperBound.getOrAny)
       case _ =>
-        val manager = ScalaPsiManager.instance(typeParameter.getProject)
         (maybeSubstitutor match {
           case Some(_) => typeParameter.getTypeParameters.toSeq
           case _ => Seq.empty
         },
-          () => Nothing,
-          () => manager.javaPsiTypeParameterUpperType(typeParameter))
+          () => Nothing(typeParameter.getProject),
+          () => javaPsiTypeParameterUpperType(typeParameter)
+        )
     }
     TypeParameterType(
       arguments.map(TypeParameterType(_, maybeSubstitutor)),

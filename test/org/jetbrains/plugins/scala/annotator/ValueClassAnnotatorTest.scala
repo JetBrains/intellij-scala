@@ -79,7 +79,7 @@ class ValueClassAnnotatorTest extends SimpleTestCase {
   def messages(@Language(value = "Scala") code: String): List[Message] = {
     val file: ScalaFile = code.parse
 
-    val annotator = new ScalaAnnotator() {}
+    val annotator = ScalaAnnotator.forProject
     val mock = new AnnotatorHolderMock(file)
     file.depthFirst().foreach(annotator.annotate(_, mock))
     mock.errorAnnotations

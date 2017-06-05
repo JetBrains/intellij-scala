@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
 /**
  * Nikolay.Tropin
@@ -69,10 +70,13 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
 private[evaluation] class NeedCompilationException(message: String) extends EvaluateException(message)
 
-private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragment, val position: SourcePosition)
-        extends ScalaEvaluatorBuilderUtil with SyntheticVariablesHelper {
+private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragment,
+                                                val position: SourcePosition)
+        extends ScalaEvaluatorBuilderUtil with SyntheticVariablesHelper with ProjectContextOwner {
 
   import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
+
+  override implicit def projectContext: ProjectContext = codeFragment.projectContext
 
   val contextClass: PsiElement =
     Option(position).map(pos => getContextClass(pos.getElementAt, strict = false)).orNull
@@ -80,7 +84,6 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
   def getEvaluator: Evaluator = new UnwrapRefEvaluator(fragmentEvaluator(codeFragment))
 
   protected def evaluatorFor(element: PsiElement): Evaluator = {
-    implicit val typeSystem = element.typeSystem
     element match {
       case implicitlyConvertedTo(expr) => evaluatorFor(expr)
       case needsCompilation(message) => throw new NeedCompilationException(message)

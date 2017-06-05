@@ -3,13 +3,11 @@ package codeInspection.methodSignature
 
 import com.intellij.codeInspection._
 import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.codeInspection.ProblemsHolderExt
 import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.RemoveCallParentheses
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.CollectMethodsProcessor
 
 /**
@@ -25,7 +23,6 @@ class JavaAccessorMethodCalledAsEmptyParenInspection extends AbstractMethodSigna
         call.getParent match {
           case _: ScMethodCall => // do nothing
           case _ => if (call.argumentExpressions.isEmpty) {
-            implicit val typeSystem = holder.typeSystem
             e.resolve() match {
               case _: ScalaPsiElement => // do nothing
               case (m: PsiMethod) if m.isAccessor && !isOverloadedMethod(e) && hasSameType(call, e) =>
@@ -38,15 +35,15 @@ class JavaAccessorMethodCalledAsEmptyParenInspection extends AbstractMethodSigna
     }
   }
 
-  private def isOverloadedMethod(ref: ScReferenceExpression)
-                                (implicit typeSystem: TypeSystem) = {
+  private def isOverloadedMethod(ref: ScReferenceExpression) = {
     val processor = new CollectMethodsProcessor(ref, ref.refName)
     ref.bind().flatMap(_.fromType).forall(processor.processType(_, ref))
     processor.candidatesS.size > 1
   }
 
-  private def hasSameType(call: ScMethodCall, ref: ScReferenceExpression)
-                         (implicit typeSystem: api.TypeSystem) = {
+  private def hasSameType(call: ScMethodCall, ref: ScReferenceExpression) = {
+    import call.projectContext
+
     val callType = call.getType().toOption
     val refType = ref.getType().toOption
     (callType, refType) match {

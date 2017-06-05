@@ -56,7 +56,7 @@ object CachedInsidePsiElement {
         val keyVarName = generateTermName("key")
         val holderName = generateTermName("holder")
         val resultName = generateTermName("result")
-        val cachedFunName = generateTermName("cachedFun")
+        val cachedFunName = generateTermName(name.toString + "cachedFun")
 
         val dataValue = if (hasParams) q"(..$parameterNames)" else q"()"
         val getOrCreateCachedHolder =

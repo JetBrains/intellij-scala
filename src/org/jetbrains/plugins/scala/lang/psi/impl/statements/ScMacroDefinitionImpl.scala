@@ -5,8 +5,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.scope._
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -24,11 +22,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, T
 /**
  * @author Jason Zaugg
  */
-class ScMacroDefinitionImpl private (stub: StubElement[ScFunction], nodeType: IElementType, node: ASTNode)
-  extends ScFunctionImpl(stub, nodeType, node) with ScMacroDefinition {
-  def this(node: ASTNode) = {this(null, null, node)}
+class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
+  extends ScFunctionImpl(stub, ScalaElementTypes.MACRO_DEFINITION, node) with ScMacroDefinition {
 
-  def this(stub: ScFunctionStub) = {this(stub, ScalaElementTypes.MACRO_DEFINITION, null)}
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScFunctionStub) = this(stub, null)
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,
@@ -72,10 +71,7 @@ class ScMacroDefinitionImpl private (stub: StubElement[ScFunction], nodeType: IE
     case Some(rte: ScTypeElement) => rte.getType(TypingContext.empty)
   }
 
-  def body: Option[ScExpression] = {
-    val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScFunctionStub].bodyExpression else findChild(classOf[ScExpression])
-  }
+  def body: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
   override def hasAssign: Boolean = true
 

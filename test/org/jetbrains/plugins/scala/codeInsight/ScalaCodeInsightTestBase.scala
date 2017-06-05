@@ -7,6 +7,7 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 /**
@@ -39,5 +40,19 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightPlatformCodeInsightTes
 
   protected def invokeSmartEnter() {
     executeActionAdapter(IdeActions.ACTION_EDITOR_COMPLETE_STATEMENT)
+  }
+
+  protected def doCompletionTest(fileText: String, resultText: String, item: String, char: Char = '\t', time: Int = 1, completionType: CompletionType = CompletionType.BASIC): Unit = {
+    configureFromFileTextAdapter("dummy.scala", normalize(fileText))
+    val (activeLookup, _) = complete(time, completionType)
+
+    assert(activeLookup != null, "No lookup was found")
+
+    val lookupItem = activeLookup.find(_.getLookupString == item)
+
+    assert(lookupItem.nonEmpty, "Completion list doesn't contain lookup with name = " + item)
+
+    lookupItem.foreach(completeLookupItem(_, char))
+    checkResultByText(normalize(resultText))
   }
 }

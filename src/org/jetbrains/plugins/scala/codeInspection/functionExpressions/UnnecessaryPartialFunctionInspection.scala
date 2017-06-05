@@ -11,7 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem, UndefinedType, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType, ValueType}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 object UnnecessaryPartialFunctionInspection {
   private val inspectionId = "UnnecessaryPartialFunction"
@@ -25,7 +26,6 @@ class UnnecessaryPartialFunctionInspection
 
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expression: ScBlockExpr =>
-      implicit val typeSystem = expression.typeSystem
       def isNotPartialFunction(expectedType: ScType) =
         findPartialFunctionType(holder.getFile).exists(!expectedType.conforms(_))
       def conformsTo(expectedType: ScType) = (inputType: ScType, resultType: ScType) =>
@@ -44,24 +44,26 @@ class UnnecessaryPartialFunctionInspection
           new UnnecessaryPartialFunctionQuickFix(expression))
   }
 
-  private def findType(file: PsiFile, className: String, parameterTypes: PsiClass => Seq[ScType]): Option[ValueType] =
-    ScalaPsiManager
-      .instance(file.getProject)
-      .getCachedClass(file.getResolveScope, className)
+  private def findType(file: PsiFile, className: String, parameterTypes: PsiClass => Seq[ScType]): Option[ValueType] ={
+      implicit val ctx: ProjectContext = file
+      ScalaPsiManager.instance
+        .getCachedClass(file.getResolveScope, className)
         .map(clazz =>
           ScParameterizedType(ScDesignatorType(clazz), parameterTypes(clazz)))
+    }
 
 
-  private def findPartialFunctionType(file: PsiFile)
-                                     (implicit typeSystem: TypeSystem): Option[ValueType] =
+  private def findPartialFunctionType(file: PsiFile): Option[ValueType] =
     findType(file, PartialFunctionClassName, undefinedTypeParameters)
 
-  private def undefinedTypeParameters(clazz: PsiClass)
-                                     (implicit typeSystem: TypeSystem): Seq[UndefinedType] =
+  private def undefinedTypeParameters(clazz: PsiClass): Seq[UndefinedType] = {
+    implicit val ctx: ProjectContext = clazz
+
     clazz
       .getTypeParameters
       .map(typeParameter => UndefinedType(TypeParameterType(typeParameter)))
       .toSeq
+  }
 
   private def canBeConvertedToFunction(caseClause: ScCaseClause, conformsToExpectedType: (ScType, ScType) => Boolean) =
     caseClause.guard.isEmpty &&

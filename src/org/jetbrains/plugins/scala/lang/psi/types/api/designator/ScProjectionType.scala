@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api.designator
 
-import com.intellij.openapi.project.Project
+import java.util.Objects
+
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -11,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
@@ -35,6 +36,7 @@ import scala.collection.mutable.ArrayBuffer
 class ScProjectionType private(val projected: ScType,
                                val element: PsiNamedElement,
                                val superReference: Boolean /* todo: find a way to remove it*/) extends DesignatorOwner {
+
   override protected def isAliasTypeInner: Option[AliasType] = {
     actualElement match {
       case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
@@ -81,16 +83,6 @@ class ScProjectionType private(val projected: ScType,
 
   override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst.subst)
 
-  private var hash: Int = -1
-
-  //noinspection HashCodeUsesVar
-  override def hashCode: Int = {
-    if (hash == -1) {
-      hash = projected.hashCode() + element.hashCode() * 31 + (if (superReference) 239 else 0)
-    }
-    hash
-  }
-
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, superReference)
 
   override def updateSubtypes(update: (ScType) => (Boolean, ScType), visited: Set[ScType]): ScType = {
@@ -111,10 +103,10 @@ class ScProjectionType private(val projected: ScType,
     val resolvePlace = {
       def fromClazz(definition: ScTypeDefinition): PsiElement =
         definition.extendsBlock.templateBody
-          .flatMap(_.asInstanceOf[ScTemplateBodyImpl].getLastChildStub.toOption).
-          getOrElse(definition.extendsBlock)
+          .flatMap(_.lastChildStub)
+          .getOrElse(definition.extendsBlock)
 
-      projected.extractClass(element.getProject) match {
+      projected.extractClass match {
         case Some(definition: ScTypeDefinition) => fromClazz(definition)
         case _ => projected match {
           case ScThisType(definition: ScTypeDefinition) => fromClazz(definition)
@@ -203,8 +195,7 @@ class ScProjectionType private(val projected: ScType,
   def actualElement: PsiNamedElement = actual._1
   def actualSubst: ScSubstitutor = actual._2
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     def isSingletonOk(typed: ScTypedDefinition): Boolean = {
       typed.nameContext match {
         case _: ScValue => true
@@ -236,7 +227,7 @@ class ScProjectionType private(val projected: ScType,
     r match {
       case t: StdType =>
         element match {
-          case synth: ScSyntheticClass => synth.t.equiv(t, uSubst, falseUndef)
+          case synth: ScSyntheticClass => synth.stdType.equiv(t, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
       case ParameterizedType(ScProjectionType(_, _, _), _) =>
@@ -331,27 +322,45 @@ class ScProjectionType private(val projected: ScType,
     case _ => false
   }
 
+  private var hash: Int = -1
+
+  //noinspection HashCodeUsesVar
+  override def hashCode: Int = {
+    if (hash == -1)
+      hash = Objects.hash(projected, element, scala.Boolean.box(superReference))
+
+    hash
+  }
+
   override def typeDepth: Int = projected.typeDepth
 }
 
 object ScProjectionType {
-  def create(projected: ScCompoundType, element: PsiNamedElement,
-             superReference: Boolean /* todo: find a way to remove it*/): ScType = {
-    val res = new ScProjectionType(projected, element, superReference)
-    res.isAliasType match {
-      case Some(AliasType(td: ScTypeAliasDefinition, _, upper)) if td.typeParameters.isEmpty => upper.getOrElse(res)
-      case _ => res
+
+  private val guard = RecursionManager.RecursionGuard[ScType, Option[ScType]]("aliasProjectionGuard")
+
+  def simpleAliasProjection(p: ScProjectionType): ScType = {
+    if (guard.currentStackContains(p)) return p
+
+    p.actual match {
+      case (td: ScTypeAliasDefinition, subst) if td.typeParameters.isEmpty =>
+        val upper = guard.doPreventingRecursion(p, td.upperBound.map(subst.subst).toOption)
+        upper
+          .filter(_.typeDepth < p.typeDepth)
+          .getOrElse(p)
+      case _ => p
     }
   }
 
   def apply(projected: ScType, element: PsiNamedElement,
             superReference: Boolean /* todo: find a way to remove it*/): ScType = {
 
-    projected match {
-      case c: ScCompoundType =>
+    val simple = new ScProjectionType(projected, element, superReference)
+    simple.actualElement match {
+      case td: ScTypeAliasDefinition if td.typeParameters.isEmpty =>
         val manager = ScalaPsiManager.instance(element.getProject)
-        manager.getCompoundProjectionType(c, element, superReference)
-      case _ => new ScProjectionType(projected, element, superReference)
+        manager.simpleAliasProjectionCached(simple).getOrElse(simple)
+      case _ => simple
     }
   }
 

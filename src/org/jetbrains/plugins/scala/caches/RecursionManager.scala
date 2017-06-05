@@ -7,7 +7,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Computable
 import com.intellij.util.containers.{ContainerUtil, SoftHashMap, SoftKeySoftValueHashMap}
 import gnu.trove.{THashMap, THashSet}
-import org.jetbrains.plugins.scala.extensions.ConcurrentMapExt
 
 /**
   * Nikolay.Tropin
@@ -95,14 +94,21 @@ object RecursionManager {
       ContainerUtil.newConcurrentMap[String, RecursionGuard[_, _]]()
 
     def apply[Data >: Null <: AnyRef, Result >: Null <: AnyRef](id: String): RecursionGuard[Data, Result] = {
-      guards.atomicGetOrElseUpdate(id, new RecursionGuard[Data, Result](id))
-        .asInstanceOf[RecursionGuard[Data, Result]]
+      guards.get(id) match {
+        case null =>
+          val newGuard = new RecursionGuard[Data, Result](id)
+          val race = guards.putIfAbsent(id, newGuard)
+
+          if (race != null) race.asInstanceOf[RecursionGuard[Data, Result]]
+          else newGuard
+        case v => v.asInstanceOf[RecursionGuard[Data, Result]]
+      }
     }
   }
 
   class MyKey[Data >: Null <: AnyRef](val guardId: String, val userObject: Data, val myCallEquals: Boolean) {
     // remember user object hashCode to ensure our internal maps consistency
-    private val myHashCode: Int = guardId.hashCode * 31 + userObject.hashCode
+    override val hashCode: Int = guardId.hashCode * 31 + userObject.hashCode
 
     override def equals(obj: Any): Boolean = {
       obj match {
@@ -112,8 +118,6 @@ object RecursionManager {
         case _ => false
       }
     }
-
-    override def hashCode: Int = myHashCode
   }
 
   private class CalculationStack {

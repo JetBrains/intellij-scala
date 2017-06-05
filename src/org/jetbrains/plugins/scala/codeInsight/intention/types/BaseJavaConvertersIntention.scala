@@ -12,10 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 
@@ -30,7 +28,6 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
   val alreadyConvertedPrefixes: Set[String]
 
   def isAvailable(p: Project, e: Editor, element: PsiElement): Boolean = {
-    implicit val typeSystem = p.typeSystem
     Option(getTargetExpression(element)) exists {
       scExpr =>
         def properTargetCollection = isProperTargetCollection(scExpr.getTypeAfterImplicitConversion().tr, p)
@@ -42,22 +39,20 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
     }
   }
 
-  def isProperTargetCollection(typeResult: TypeResult[ScType], project: Project)
-                              (implicit typeSystem: TypeSystem): Boolean =
+  def isProperTargetCollection(typeResult: TypeResult[ScType], project: Project): Boolean =
     typeResult.exists {
       scType =>
-        scType.extractClass(project) exists {
+        scType.extractClass exists {
           psiClass =>
             val superNames: Set[String] = allSupers(psiClass)
             superNames.exists(i => targetCollections.contains(i))
         }
     }
 
-  def isAlreadyConvertedCollection(typeResult: TypeResult[ScType], project: Project)
-                                  (implicit typeSystem: TypeSystem): Boolean =
+  def isAlreadyConvertedCollection(typeResult: TypeResult[ScType], project: Project): Boolean =
     typeResult.exists {
       scType =>
-        scType.extractClass(project) exists {
+        scType.extractClass exists {
           psiClass => alreadyConvertedPrefixes.exists(prefix => psiClass.getQualifiedName.startsWith(prefix))
         }
     }

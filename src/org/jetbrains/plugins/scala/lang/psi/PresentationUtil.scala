@@ -2,17 +2,15 @@ package org.jetbrains.plugins.scala.lang
 package psi
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
@@ -21,8 +19,16 @@ import org.jetbrains.plugins.scala.util.ScalaUtils
  */
 
 object PresentationUtil {
-  def presentationString(obj: Any): String = presentationString(obj, ScSubstitutor.empty)
-  def presentationString(obj: Any, substitutor: ScSubstitutor): String = {
+  def presentationString(owner: ProjectContextOwner): String = {
+    implicit val project = owner.projectContext
+    presentationString(owner.asInstanceOf[Any])(project)
+  }
+
+  def presentationString(obj: Any)
+                        (implicit project: ProjectContext): String = presentationString(obj, ScSubstitutor.empty)
+
+  def presentationString(obj: Any, substitutor: ScSubstitutor)
+                        (implicit project: ProjectContext): String = {
     val res: String = obj match {
       case clauses: ScParameters => clauses.clauses.map(presentationString(_, substitutor)).mkString("")
       case clause: ScParameterClause =>
@@ -44,19 +50,20 @@ object PresentationUtil {
       case tp: PsiEllipsisType =>
         presentationString(tp.getComponentType, substitutor) + "*"
       case tp: PsiType =>
-        presentationString(tp.toScType()(DecompilerUtil.obtainProject.typeSystem), substitutor)
+        presentationString(tp.toScType(), substitutor)
       case tp: ScTypeParamClause =>
         tp.typeParameters.map(t => presentationString(t, substitutor)).mkString("[", ", ", "]")
       case param: ScTypeParam =>
         var paramText = param.name
         if (param.isContravariant) paramText = "-" + paramText
         else if (param.isCovariant) paramText = "+" + paramText
+        val stdTypes = param.projectContext.stdTypes
         param.lowerBound foreach {
-          case Nothing =>
+          case stdTypes.Nothing =>
           case tp: ScType => paramText = paramText + " >: " + presentationString(tp, substitutor)
         }
         param.upperBound foreach {
-          case Any =>
+          case stdTypes.Any =>
           case tp: ScType => paramText = paramText + " <: " + presentationString(tp, substitutor)
         }
         param.viewBound foreach {

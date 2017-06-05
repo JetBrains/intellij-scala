@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.junit.Assert.fail
 
 /**
@@ -37,7 +36,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
 
   private def doTestInner() = {
     val (declaredType, rhsType) = declaredAndExpressionTypes()
-    val res: Boolean = rhsType.conforms(declaredType)(getProjectAdapter.typeSystem)
+    val res: Boolean = rhsType.conforms(declaredType)
 
     if (expectedResult != res)
       fail(
@@ -111,7 +110,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     }
     for ((expr, param) <- application.matchedParameters) {
       val exprTp = expr.getType().getOrElse(throw new RuntimeException(s"Failed to get type of expression(${expr.getText})"))
-      val res = exprTp.conforms(param.paramType)(expr.typeSystem)
+      val res = exprTp.conforms(param.paramType)
       if (res != expectedResult.toBoolean)
         errors +=
           s"""

@@ -3,15 +3,13 @@ package org.jetbrains.plugins.scala.codeInspection.booleans
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil.isOfBooleanType
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
 
 import scala.language.implicitConversions
 
@@ -60,7 +58,7 @@ object SimpleBooleanMatchUtil {
       case None => stmt
       case Some((clause, value)) =>
         val exprText = if (value) stmt.expr.get.getText else "!" + getParenthesisedText(stmt.expr.get)
-        createExpressionFromText(s"if ($exprText){ ${getTextWithoutBraces(clause)} }")(stmt.manager)
+        createExpressionFromText(s"if ($exprText){ ${getTextWithoutBraces(clause)} }")(stmt.projectContext)
     }
   }
 
@@ -75,7 +73,7 @@ object SimpleBooleanMatchUtil {
              |} else {
              |${getTextWithoutBraces(falseClause)}
              |}
-           """.stripMargin)(stmt.manager)
+           """.stripMargin)(stmt.projectContext)
       case _ => stmt
     }
   }
@@ -133,12 +131,6 @@ object SimpleBooleanMatchUtil {
       case _ => expr.getText
     }
   }
-
-  private def isOfBooleanType(expr: ScExpression)
-                             (implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = {
-    expr.getType(TypingContext.empty).getOrAny.weakConforms(api.Boolean)
-  }
-
 
   private def isValidClauses(stmt: ScMatchStmt): Boolean = getPartitionedClauses(stmt).nonEmpty
 

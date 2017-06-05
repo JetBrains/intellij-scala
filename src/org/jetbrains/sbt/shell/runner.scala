@@ -14,11 +14,13 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.pty4j.{PtyProcess, WinSize}
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.sbt.project.structure.SbtRunner
 import org.jetbrains.sbt.shell.action.{AutoCompleteAction, ExecuteTaskAction, RestartAction}
 
 import scala.collection.JavaConverters._
@@ -29,28 +31,38 @@ import scala.collection.JavaConverters._
 class SbtShellRunner(project: Project, consoleTitle: String)
   extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath) {
 
+  private val filePatternFilters = {
+    import PatternHyperlinkPart._
+
+    // file with line number
+    val fileWithLinePattern = pattern(s"${RegexpFilter.FILE_PATH_MACROS}:${RegexpFilter.LINE_MACROS}")
+    // FILE_PATH_MACROS includes a capturing group at the beginning that the format only can handle if the first linkPart is null
+    val fileWithLineFormat = new PatternHyperlinkFormat(fileWithLinePattern, false, false, null, PATH, LINE)
+
+    // file output without lines in messages
+    val fileOnlyPattern = pattern(s"${RegexpFilter.FILE_PATH_MACROS}")
+    val fileOnlyFormat = new PatternHyperlinkFormat(fileOnlyPattern, false, false, null, PATH)
+
+    val dataFinder = new PatternBasedFileHyperlinkRawDataFinder(Array(fileWithLineFormat, fileOnlyFormat))
+    new PatternBasedFileHyperlinkFilter(project, null, dataFinder)
+  }
+
+  private def pattern(patternMacro: String) =
+    new RegexpFilter(project, patternMacro).getPattern
+
   private val myConsoleView: LanguageConsoleImpl = ShellUIUtil.inUIsync {
     val cv = new LanguageConsoleImpl(project, SbtShellFileType.getName, SbtShellLanguage)
     cv.getConsoleEditor.setOneLineMode(true)
 
     // exception file links
     cv.addMessageFilter(new ExceptionFilter(GlobalSearchScope.allScope(project)))
-
-    // url links
     new UrlFilterProvider().getDefaultFilters(project).foreach(cv.addMessageFilter)
-
-    // file links
-    val patternMacro = s"${RegexpFilter.FILE_PATH_MACROS}:${RegexpFilter.LINE_MACROS}:\\s"
-    val pattern = new RegexpFilter(project, patternMacro).getPattern
-    import PatternHyperlinkPart._
-    // FILE_PATH_MACROS includes a capturing group at the beginning that the format only can handle if the first linkPart is null
-    val format = new PatternHyperlinkFormat(pattern, false, false, null, PATH, LINE)
-    val dataFinder = new PatternBasedFileHyperlinkRawDataFinder(Array(format))
-    val fileFilter = new PatternBasedFileHyperlinkFilter(project, null, dataFinder)
-    cv.addMessageFilter(fileFilter)
+    // file links in error messages and `inspect` output
+    cv.addMessageFilter(filePatternFilters)
 
     cv
   }
+
 
   private lazy val processManager = SbtProcessManager.forProject(project)
 
@@ -67,6 +79,10 @@ class SbtShellRunner(project: Project, consoleTitle: String)
   override def createConsoleView(): LanguageConsoleImpl = myConsoleView
 
   override def createProcess(): Process = myProcessHandler.getProcess
+
+  //don't init UI for unit tests
+  override def createContentDescriptorAndActions(): Unit =
+    if (!ApplicationManager.getApplication.isUnitTestMode) super.createContentDescriptorAndActions()
 
   override def initAndRun(): Unit = {
     super.initAndRun()
@@ -85,8 +101,8 @@ class SbtShellRunner(project: Project, consoleTitle: String)
 
       // TODO update icon with ready/working state
       val shellPromptChanger = new SbtShellReadyListener(
-        whenReady = myConsoleView.setPrompt(">"),
-        whenWorking = myConsoleView.setPrompt("X")
+        whenReady = if (!SbtRunner.isInTest) myConsoleView.setPrompt(">"),
+        whenWorking = if (!SbtRunner.isInTest) myConsoleView.setPrompt("X")
       )
       SbtProcessManager.forProject(project).attachListener(shellPromptChanger)
       SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
@@ -121,7 +137,7 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     allActions.asJava
   }
 
-  override def getConsoleIcon: Icon = SbtShellRunner.ICON
+  override def getConsoleIcon: Icon = Icons.SBT_SHELL
 
   def openShell(focus: Boolean): Unit = {
     val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(getExecutor.getToolWindowId)
@@ -129,7 +145,6 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     val content = toolWindow.getContentManager.findContent(consoleTitle)
     if (content != null)
       toolWindow.getContentManager.setSelectedContent(content, focus)
-
   }
 
   def createAutoCompleteAction(): AnAction = {
@@ -138,11 +153,6 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     action.getTemplatePresentation.setVisible(false)
     action
   }
-}
-
-object SbtShellRunner {
-  // TODO migrate sbt icons to where all the other icons are
-  val ICON: Icon = IconLoader.getIcon("/sbt.png")
 }
 
 class SbtShellExecuteActionHandler(processHandler: ProcessHandler)

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.smartStepInto
 
+import java.util.Objects
 import javax.swing.Icon
 
 import org.jetbrains.plugins.scala.icons.Icons
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
  * @author Nikolay.Tropin
  */
 class FakeAnonymousClassConstructor(templ: ScNewTemplateDefinition, interfaceName: String)
-  extends FakePsiMethod(templ, interfaceName, Array.empty, Unit, _ => false) {
+  extends FakePsiMethod(templ, interfaceName, Array.empty, Unit(templ.projectContext), _ => false) {
   override def isConstructor: Boolean = true
 
   override def getIcon(flags: Int): Icon = Icons.CLASS
@@ -22,6 +23,6 @@ class FakeAnonymousClassConstructor(templ: ScNewTemplateDefinition, interfaceNam
     case _ => false
   }
 
-  override def hashCode(): Int = navElement.hashCode() + 31 * getName.hashCode
+  override def hashCode(): Int = Objects.hash(navElement, getName)
 }
 

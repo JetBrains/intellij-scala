@@ -21,9 +21,6 @@ class ScLightParameter(val param: ScParameter, tp: ScType, i: Int)
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = Success(tp, Some(this))
 
-  override def remove(): Unit =
-    throw new UnsupportedOperationException("Operation on light element")
-
   override def deprecatedName: Option[String] = param.deprecatedName
 
   override def getActualDefaultExpression: Option[ScExpression] = param.getActualDefaultExpression

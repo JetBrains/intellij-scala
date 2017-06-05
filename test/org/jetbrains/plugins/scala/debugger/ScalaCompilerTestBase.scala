@@ -5,12 +5,11 @@ import java.io.File
 import javax.swing.SwingUtilities
 
 import com.intellij.ProjectTopics
-import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
+import com.intellij.compiler.{CompilerConfiguration, CompilerTestUtil}
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
@@ -20,7 +19,7 @@ import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders._
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert
 
@@ -41,12 +40,14 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
         forceFSRescan()
       }
     })
-    CompilerTestUtil.enableExternalCompiler()
 
     addRoots()
+    compilerVmOptions.foreach(setCompilerVmOptions)
     DebuggerTestUtil.enableCompileServer(useCompileServer)
     DebuggerTestUtil.forceJdk8ForBuildProcess()
   }
+
+  protected def compilerVmOptions: Option[String] = None
 
   protected def useCompileServer: Boolean = false
 
@@ -67,7 +68,12 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
     }
   }
 
-  override implicit protected def project: Project = getProject
+  private def setCompilerVmOptions(options: String) = {
+    if (useCompileServer)
+      ScalaCompileServerSettings.getInstance().COMPILE_SERVER_JVM_PARAMETERS = options
+    else
+      CompilerConfiguration.getInstance(getProject).setBuildProcessVMOptions(options)
+  }
 
   override implicit protected def module: Module = getModule
 

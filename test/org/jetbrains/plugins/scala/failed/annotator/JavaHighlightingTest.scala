@@ -52,28 +52,6 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
     assertNothing(errorsFromJavaCode(scala, java, "Test"))
   }
 
-  def testSCL7525() = {
-    val scala =
-      """
-        |package SCL7525
-        |object Test {
-        |  new Foo(new Foo.ArgsBar)
-        |}
-      """.stripMargin
-
-    val java =
-      """
-        |package SCL7525;
-        |public class Foo {
-        |    public Foo(Args a) { }
-        |    public static class Args<T extends Args<T>> { }
-        |    public static class ArgsBar extends Args<ArgsBar> { }
-        |}
-      """.stripMargin
-
-    assertNothing(errorsFromScalaCode(scala, java))
-  }
-
   def testSCL6409() = {
     val java =
       """

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 sealed trait ScUndefinedSubstitutor {
 
@@ -28,28 +28,21 @@ object ScUndefinedSubstitutor {
             lowerMap: Map[(String, Long), Set[ScType]] = Map.empty,
             upperAdditionalMap: Map[(String, Long), Set[ScType]] = Map.empty,
             lowerAdditionalMap: Map[(String, Long), Set[ScType]] = Map.empty)
-           (implicit typeSystem: TypeSystem): ScUndefinedSubstitutor = {
+           (implicit project: ProjectContext): ScUndefinedSubstitutor = {
 
-    new ScUndefinedSubstitutorImpl(upperMap, lowerMap, upperAdditionalMap, lowerAdditionalMap)(typeSystem)
+    new ScUndefinedSubstitutorImpl(upperMap, lowerMap, upperAdditionalMap, lowerAdditionalMap)
   }
 
-  def apply()(implicit typeSystem: TypeSystem): ScUndefinedSubstitutor = {
-    if (typeSystem eq ScalaTypeSystem) emptyScala
-    else if (typeSystem eq DottyTypeSystem) emptyDotty
-    else new ScUndefinedSubstitutorImpl()
-  }
+  def apply()(implicit project: ProjectContext): ScUndefinedSubstitutor = new ScUndefinedSubstitutorImpl()
 
   def multi(subs: Seq[ScUndefinedSubstitutor]) = new ScMultiUndefinedSubstitutor(subs)
-
-  private val emptyScala = new ScUndefinedSubstitutorImpl()(ScalaTypeSystem)
-  private val emptyDotty = new ScUndefinedSubstitutorImpl()(DottyTypeSystem)
 }
 
 private class ScUndefinedSubstitutorImpl(val upperMap: Map[(String, Long), Set[ScType]] = Map.empty,
                                          val lowerMap: Map[(String, Long), Set[ScType]] = Map.empty,
                                          val upperAdditionalMap: Map[(String, Long), Set[ScType]] = Map.empty,
                                          val lowerAdditionalMap: Map[(String, Long), Set[ScType]] = Map.empty)
-                                        (implicit typeSystem: TypeSystem)
+                                        (implicit project: ProjectContext)
   extends ScUndefinedSubstitutor {
 
   def copy(upperMap: Map[(String, Long), Set[ScType]] = upperMap,

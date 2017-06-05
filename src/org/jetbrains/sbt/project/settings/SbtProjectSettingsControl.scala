@@ -63,9 +63,10 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
     // TODO Remove the patching when the External System will provide this functionality natively
     content.getComponents.toSeq.foreachDefined {
-      case checkbox: JCheckBox if checkbox.getText.startsWith("Use auto-import") ||
-        checkbox.getText.startsWith("Create directories") =>
-
+      case checkbox: JCheckBox
+        if checkbox.getText.startsWith("Create directories") =>
+        // set it to off so that it doesn't stay enabled for people who clicked it before it was removed
+        checkbox.setSelected(false)
         Option(checkbox.getParent).foreach(_.remove(checkbox))
     }
 
@@ -79,6 +80,9 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
       content.add(label, labelConstraints)
       content.add(jdkPanel, fillLineConstraints)
+
+      // hide the sbt shell option until it matures (SCL-10984)
+      useSbtShellCheckBox.setVisible(false)
     }
   }
 

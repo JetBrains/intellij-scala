@@ -9,10 +9,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
@@ -26,18 +26,17 @@ class SbtAnnotator extends Annotator {
   def annotate(element: PsiElement, holder: AnnotationHolder): Unit = element match {
     case file: SbtFileImpl =>
       val project = file.getProject
-      implicit val typeSystem = project.typeSystem
       val sbtVersion =
         SbtSystemSettings.getInstance(project)
           .getLinkedProjectSettings(file)
           .safeMap(_.sbtVersion)
           .getOrElse(Sbt.LatestVersion)
-      new Worker(file.children.toVector, sbtVersion, holder).annotate
+      new Worker(file.children.toVector, sbtVersion, holder)(project).annotate()
     case _ =>
   }
 
   private class Worker(sbtFileElements: Seq[PsiElement], sbtVersion: String, holder: AnnotationHolder)
-                      (implicit typeSystem: TypeSystem) {
+                      (implicit project: ProjectContext) {
 
     private val allowedTypes: List[String] =
       if (sbtVersionLessThan("0.13.0")) AllowedTypes012
@@ -52,7 +51,7 @@ class SbtAnnotator extends Annotator {
       if (sbtVersionLessThan("0.13.6")) SbtBundle("sbt.annotation.expressionMustConform", expressionType)
       else SbtBundle("sbt.annotation.expressionMustConformSbt0136", expressionType)
 
-    def annotate(implicit typeSystem: TypeSystem) {
+    def annotate(): Unit = {
       sbtFileElements.collect {
         case exp: ScExpression => annotateTypeMismatch(exp)
         case element => annotateNonExpression(element)
@@ -98,11 +97,14 @@ object SbtAnnotator {
   val AllowedTypes013 = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
   val AllowedTypes0136 = List("sbt.internals.DslEntry")
 
-  def isTypeAllowed(expression: ScExpression, expressionType: ScType, allowedTypes: Seq[String])(implicit typeSystem: TypeSystem): Boolean =
+  def isTypeAllowed(expression: ScExpression, expressionType: ScType, allowedTypes: Seq[String]): Boolean = {
+    import expression.projectContext
+
     allowedTypes.flatMap { typeName =>
       createTypeFromText(typeName, expression.getContext, expression)
     }.exists { expectedType =>
       lazy val typeAfterImplicits = expression.getTypeAfterImplicitConversion(expectedOption = Option(expectedType)).tr.getOrNothing
       expressionType.conforms(expectedType) || typeAfterImplicits.conforms(expectedType)
     }
+  }
 }

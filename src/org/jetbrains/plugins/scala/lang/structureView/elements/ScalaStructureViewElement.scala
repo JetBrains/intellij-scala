@@ -3,6 +3,8 @@ package lang
 package structureView
 package elements
 
+import java.util.Objects
+
 import com.intellij.ide.structureView.StructureViewTreeElement
 import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
@@ -44,10 +46,5 @@ abstract class ScalaStructureViewElement[T <: PsiElement](val psiElement: T, val
     else value == that.getValue
   }
 
-  override def hashCode(): Int = {
-    val value = getValue
-    val is = if(inherited) 1 else 0
-    if (value == null) 0
-    else value.hashCode*2 + is
-  }
+  override def hashCode(): Int = Objects.hash(getValue, Boolean.box(inherited))
 }

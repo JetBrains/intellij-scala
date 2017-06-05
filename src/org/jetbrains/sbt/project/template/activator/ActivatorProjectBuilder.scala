@@ -1,8 +1,9 @@
 package org.jetbrains.sbt.project.template.activator
 
 import java.io.File
-import javax.swing.Icon
+import javax.swing.{Icon, JTextField}
 
+import com.intellij.ide.projectWizard.ProjectSettingsStep
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
@@ -14,7 +15,7 @@ import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -97,13 +98,24 @@ class ActivatorProjectBuilder extends
       }
 
       override def validate(): Boolean = {
+        val selected = settingsComponents.getSelectedTemplate
+        if (selected == null) error("Select template")
+        
         val context = settingsStep.getContext
 
-        if (context.isCreatingNewProject && !ScalaNamesUtil.isIdentifier(context.getProjectName) && context.getProjectName != null)
-          error("SBT Project name must be valid Scala identifier")
+        settingsStep match {
+          case projectSettingsStep: ProjectSettingsStep =>
+            projectSettingsStep.getPreferredFocusedComponent match {
+              case field: JTextField =>
+                val txt = field.getText
+                if (context.isCreatingNewProject && !isIdentifier(txt)) error("SBT Project name must be valid Scala identifier")
+              case _ =>
+            }
+          case _ =>
+        }
 
         val text = settingsStep.getModuleNameField.getText
-        if (text == null || !ScalaNamesUtil.isIdentifier(text))
+        if (!isIdentifier(text))
           error("SBT Project name must be valid Scala identifier")
 
         true

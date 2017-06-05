@@ -9,6 +9,7 @@ import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiJavaFile}
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * @author Alexander Podkhalyuzin
@@ -44,6 +45,8 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
         } else {
           val annotator = new ScalaAnnotator {
             override def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = true
+
+            override implicit def projectContext: ProjectContext = holder.getProject
           }
           val FakeAnnotation = new com.intellij.lang.annotation.Annotation(
             0, 0, HighlightSeverity.WEAK_WARNING, "message", "tooltip")

@@ -25,13 +25,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, Typeable, TypingContext}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, MostSpecificUtil}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import scala.annotation.tailrec
 import scala.collection.Set
 
 object ImplicitCollector {
@@ -92,9 +90,9 @@ class ImplicitCollector(place: PsiElement,
     searchImplicitsRecursively, extensionData, fullInfo, Some(ImplicitsRecursionGuard.currentMap))
 
   private val project = place.getProject
-  private implicit val typeSystem = project.typeSystem
+  private implicit def ctx: ProjectContext = project
 
-  private val clazz: Option[PsiClass] = tp.extractClass(project)
+  private val clazz: Option[PsiClass] = tp.extractClass
   private lazy val possibleScalaFunction: Option[Int] = clazz.flatMap(possibleFunctionN)
 
   private val mostSpecificUtil: MostSpecificUtil = MostSpecificUtil(place, 1)
@@ -198,7 +196,6 @@ class ImplicitCollector(place: PsiElement,
   }
 
   private class ImplicitParametersProcessor(withoutPrecedence: Boolean)
-                                           (implicit override val typeSystem: TypeSystem)
     extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
 
     protected def getPlace: PsiElement = place
@@ -627,30 +624,7 @@ class ImplicitCollector(place: PsiElement,
       case t => (false, t)
     }
 
-    @tailrec
-    def updateAliases(tp: ScType): ScType = {
-      var updated = false
-      val res = tp.recursiveUpdate { t =>
-        t.isAliasType match {
-          case Some(AliasType(ta, _, upper)) =>
-            updated = true
-            //todo: looks like a hack. Imagine type A <: B; type B <: List[A];
-            val nonRecursiveUpper = upper.map { upper =>
-              upper.recursiveUpdate { t =>
-                t.isAliasType match {
-                  case Some(AliasType(`ta`, _, _)) => (true, Any)
-                  case _ => (false, t)
-                }
-              }
-            }
-            (true, nonRecursiveUpper.getOrAny)
-          case _ => (false, t)
-        }
-      }
-      if (!updated) tp
-      else updateAliases(res)
-    }
-    updateAliases(noAbstracts)
+    noAbstracts.removeAliasDefinitions()
   }
 
   private def coreType(tp: ScType): ScType = {
@@ -694,7 +668,7 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def argsConformWeakly(left: ScType, right: ScType)(implicit typeSystem: TypeSystem): Boolean = {
+  private def argsConformWeakly(left: ScType, right: ScType): Boolean = {
     (left, right) match {
       case (leftFun: ScParameterizedType, rightFun: ScParameterizedType) =>
         leftFun.designator.canonicalText == "_root_.scala.Function1" &&

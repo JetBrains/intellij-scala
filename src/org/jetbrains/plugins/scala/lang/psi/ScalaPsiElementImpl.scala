@@ -2,15 +2,17 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement
+import com.intellij.extapi.psi.{ASTWrapperPsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.CheckUtil
-import com.intellij.psi.impl.source.tree.{LazyParseablePsiElement, SharedImplUtil}
-import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import com.intellij.psi.{PsiElement, PsiElementVisitor, StubBasedPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.ScalaStubBasedElementImpl.ifNotNull
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 
 /**
 @author ven
@@ -79,10 +81,25 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
       case _ => super.delete()
     }
   }
+
+  override def subtreeChanged(): Unit = {
+    AnyScalaPsiModificationTracker.incModificationCount()
+    super.subtreeChanged()
+  }
 }
 
-abstract class ScalaStubBasedElementImpl[T <: PsiElement](stub: StubElement[T], nodeType: IElementType, node: ASTNode)
-        extends ScalaStubBaseElementImplJavaRawTypeHack[T](stub, nodeType, node) with ScalaPsiElement {
+abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](stub: S,
+                                                                               nodeType: ScStubElementType[S, T],
+                                                                               node: ASTNode)
+        extends StubBasedPsiElementBase[S](stub, ifNotNull(stub, nodeType), node)
+          with StubBasedPsiElement[S] with ScalaPsiElement {
+
+  override def getElementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement] = {
+    byStubOrPsi(_.getStubType) {
+      getNode.getElementType.asInstanceOf[IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement]]
+    }
+  }
+
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
@@ -119,26 +136,6 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement](stub: StubElement[T], 
     }
   }
 
-  override def getParent: PsiElement = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.getParentStub.getPsi
-    }
-    inReadAction {
-      SharedImplUtil.getParent(getNode)
-    }
-  }
-
-  def getLastChildStub: PsiElement = {
-    val stub = getStub
-    if (stub != null) {
-      val children = stub.getChildrenStubs
-      if (children.size() == 0) return null
-      return children.get(children.size() - 1).getPsi
-    }
-    getLastChild
-  }
-
   override def findLastChildByType[T <: PsiElement](t: IElementType): T = {
     super[ScalaPsiElement].findLastChildByType(t)
   }
@@ -160,4 +157,25 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement](stub: StubElement[T], 
       case _ => super.delete()
     }
   }
+
+  //may use stubs even if AstNode exists
+  def byStubOrPsi[R](byStub: S => R)(byPsi: => R): R = getGreenStub match {
+    case null => byPsi
+    case s => byStub(s)
+  }
+
+  //byStub branch is used only if AstNode is missing
+  def byPsiOrStub[R](byPsi: => R)(byStub: S => R): R = getStub match {
+    case null => byPsi
+    case s => byStub(s)
+  }
+
+  override def subtreeChanged(): Unit = {
+    AnyScalaPsiModificationTracker.incModificationCount()
+    super.subtreeChanged()
+  }
+}
+
+object ScalaStubBasedElementImpl {
+  def ifNotNull[T >: Null](stub: AnyRef, node: T): T = if (stub == null) null else node
 }

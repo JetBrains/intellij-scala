@@ -29,7 +29,7 @@ public interface Icons {
 
   Icon FILE_TYPE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.png");
   //todo worksheet logo
-  Icon WORKSHEET_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.png");
+  Icon WORKSHEET_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/file_scala.png");
   Icon SCALA_SMALL_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala-small-logo.png");
   Icon SCALA_24 = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala24.png");
   Icon SCRIPT_FILE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_script_icon.png");
@@ -43,10 +43,13 @@ public interface Icons {
   Icon NO_SCALA_SDK = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/no_scala_sdk.png");
   
   //Toplevel nodes
+  Icon FILE = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/file_scala.png");
   Icon CLASS = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/class_scala.png");
   Icon TRAIT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/trait_scala.png");
   Icon OBJECT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/object_scala.png");
   Icon PACKAGE_OBJECT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/package_object.png");
+  Icon CLASS_AND_OBJECT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/class_object_scala.png");
+  Icon TRAIT_AND_OBJECT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/trait_object_scala.png");
 
   //Internal nodes
   Icon FUNCTION = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/function.png");
@@ -74,4 +77,9 @@ public interface Icons {
   Icon WARNING = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/warning.png");
 
   Icon LIGHTBEND_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/lightbend_logo.png");
+
+  // sbt
+  Icon SBT = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt.png");
+  Icon SBT_FILE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt-file.png");
+  Icon SBT_SHELL = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbtShell.png");
 }

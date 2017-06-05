@@ -830,6 +830,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL9865(): Unit = doInjectorTest(new SCL9865Injector)
 
+  def testSCL9877(): Unit = doTest()
+
   def testSCL10037() = doTest {
     """
       |import scala.language.existentials
@@ -1020,5 +1022,57 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
         |}
         |//Tier2.Tier3
       """.stripMargin)
+  }
+
+  def testSCL9432(): Unit = doTest {
+    """
+      |object SCL9432 {
+      |  def f(int: Int): Option[Int] = if (int % 2 == 0) Some(int) else None
+      |  def g(as: List[Int])(b: Int): Option[Int] = if (as contains b) None else f(b)
+      |  /*start*/List(1) flatMap g(List(2, 4))/*end*/
+      |}
+      |//List[Int]
+    """.stripMargin.trim
+  }
+
+  def testSCL7010(): Unit = doTest {
+    """
+      |object O {
+      |    case class Z()
+      |    def Z(i: Int) = 123
+      |    val x: Int => Int = /*start*/Z/*end*/
+      |  }
+      |//(Int) => Int
+    """.stripMargin.trim
+  }
+
+  def testSCL8267(): Unit = doTest()
+
+  def testSCL9119(): Unit = doTest {
+    """
+      |object ApplyBug {
+      |  class Foo {
+      |    def apply(t: Int): Int = 2
+      |  }
+      |
+      |  def foo = new Foo
+      |  def a(i: Int): Int = /*start*/new Foo()(i)/*end*/
+      |}
+      |//Int
+    """.stripMargin.trim
+  }
+
+  def testSCL9858(): Unit = doTest {
+    """
+      |trait TX {
+      |  type T
+      |}
+      |
+      |def recursiveFn(a: TX)(b: a.T): a.T = {
+      |  val res: a.T = /*start*/recursiveFn(a)(b)/*end*/
+      |  res
+      |}
+      |//a.T
+    """.stripMargin.trim
   }
 }

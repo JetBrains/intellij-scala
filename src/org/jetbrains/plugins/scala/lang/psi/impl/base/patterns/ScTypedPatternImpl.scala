@@ -48,7 +48,6 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   override def toString: String = "TypedPattern: " + name
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = {
-    implicit val typeSystem = this.typeSystem
     typePattern match {
       case Some(tp) =>
         if (tp.typeElement == null) return Failure("No type element for type pattern", Some(this))
@@ -56,7 +55,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           tp.typeElement.getType(ctx).map {
             case tp: ScExistentialType =>
               val skolem = tp.quantified
-              skolem.extractClassType(getProject) match {  //todo: type aliases?
+              skolem.extractClassType match {  //todo: type aliases?
                 case Some((clazz: ScTypeDefinition, subst)) =>
                   val typeParams = clazz.typeParameters
                   skolem match {

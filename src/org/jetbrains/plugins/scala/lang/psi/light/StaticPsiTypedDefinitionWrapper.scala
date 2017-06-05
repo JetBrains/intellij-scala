@@ -19,7 +19,8 @@ class StaticPsiTypedDefinitionWrapper(val delegate: ScTypedDefinition,
     LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
-} with PsiMethodWrapper(delegate.getManager, method, containingClass) with NavigablePsiElementWrapper {
+} with PsiMethodWrapper(delegate.getManager, method, containingClass)
+  with NavigablePsiElementWrapper[ScTypedDefinition] {
 
   override def isWritable: Boolean = getContainingFile.isWritable
 

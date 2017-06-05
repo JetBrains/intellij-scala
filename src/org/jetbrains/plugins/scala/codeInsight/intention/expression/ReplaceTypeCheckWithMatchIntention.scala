@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckToMatchU
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScIfStmt, ScMatchStmt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.InplaceRenameHelper
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 
 /**
@@ -50,7 +49,7 @@ class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAction {
       condition <- ifStmt.condition
       if findIsInstanceOfCalls(condition, onlyFirst = false) contains iioCall
     } {
-      val (matchStmtOption, renameData) = buildMatchStmt(ifStmt, iioCall, onlyFirst = false)(project.typeSystem)
+      val (matchStmtOption, renameData) = buildMatchStmt(ifStmt, iioCall, onlyFirst = false)
       for (matchStmt <- matchStmtOption) {
         val newMatch = inWriteAction {
           ifStmt.replaceExpression(matchStmt, removeParenthesis = true).asInstanceOf[ScMatchStmt]

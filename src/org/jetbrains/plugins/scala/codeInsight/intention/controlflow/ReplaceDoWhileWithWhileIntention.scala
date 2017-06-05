@@ -15,10 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.Set
 
@@ -52,13 +51,13 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
+    implicit val ctx: ProjectContext = project
     //check for name conflicts
     for {
       doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDoStmt]))
       body <- doStmt.getExprBody
       doStmtParent <- doStmt.parent
     } {
-      implicit val typeSystem = project.typeSystem
       val nameConflict = (declaredNames(body) intersect declaredNames(doStmtParent)).nonEmpty
       if (nameConflict) {
         val message = "This action will cause name conflict."
@@ -92,8 +91,6 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
         doStmtParent <- doStmt.parent
       } {
         val bodyText = body.getText
-
-        implicit val manager = element.getManager
 
         val newWhileStmt = createExpressionFromText(s"while (${condition.getText}) $bodyText")
         val newBody = createExpressionFromText(bodyText)
@@ -137,8 +134,9 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  def declaredNames(element: PsiElement)
-                   (implicit typeSystem: TypeSystem): Set[String] = {
+  def declaredNames(element: PsiElement): Set[String] = {
+    implicit val ctx: ProjectContext = element
+
     val firstChild: PsiElement = element.getFirstChild
     val processor: CompletionProcessor = new CompletionProcessor(StdKinds.refExprLastRef, firstChild, collectImplicits = true)
     element.processDeclarations(processor, ResolveState.initial(), firstChild, firstChild)

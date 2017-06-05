@@ -3,6 +3,8 @@ package lang
 package psi
 package types
 
+import java.util.Objects
+
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.psi._
 import com.intellij.psi.util.MethodSignatureUtil
@@ -10,8 +12,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter, TypeParameterType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -20,7 +23,10 @@ case class TypeAliasSignature(name: String,
                               lowerBound: ScType,
                               upperBound: ScType,
                               isDefinition: Boolean,
-                              ta: ScTypeAlias) {
+                              ta: ScTypeAlias) extends ProjectContextOwner {
+
+  override implicit def projectContext: ProjectContext = ta.projectContext
+
   def updateTypes(fun: ScType => ScType): TypeAliasSignature = TypeAliasSignature(name,
     typeParams.map(_.update(fun)),
     fun(lowerBound),
@@ -52,10 +58,8 @@ case class TypeAliasSignature(name: String,
     case _ => false
   }
 
-  override def hashCode(): Int = {
-    val state = Seq(name, typeParams, lowerBound, upperBound, isDefinition)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
+  override def hashCode(): Int =
+    Objects.hash(name, typeParams, lowerBound, upperBound, Boolean.box(isDefinition))
 
   def getType: Option[ScType] = ta match {
     case definition: ScTypeAliasDefinition => definition.aliasedType.toOption
@@ -74,12 +78,12 @@ object TypeAliasSignature {
 
 class Signature(val name: String, private val typesEval: List[Seq[() => ScType]], val paramLength: List[Int],
                 private val tParams: Seq[TypeParameter], val substitutor: ScSubstitutor,
-                val namedElement: PsiNamedElement, val hasRepeatedParam: Seq[Int] = Seq.empty)
-               (implicit val typeSystem: TypeSystem) {
+                val namedElement: PsiNamedElement, val hasRepeatedParam: Seq[Int] = Seq.empty) extends ProjectContextOwner {
+
+  override implicit def projectContext: ProjectContext = namedElement
 
   def this(name: String, stream: Seq[() => ScType], paramLength: Int, substitutor: ScSubstitutor,
-           namedElement: PsiNamedElement)
-          (implicit typeSystem: TypeSystem) =
+           namedElement: PsiNamedElement) =
     this(name, List(stream), List(paramLength), Seq.empty, substitutor, namedElement)
 
   private def types: List[Seq[() => ScType]] = typesEval
@@ -168,9 +172,8 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
     }
   }
 
-  override def hashCode: Int = {
-    simpleHashCode * 31 + parameterlessKind
-  }
+  override def hashCode: Int = simpleHashCode * 31 + parameterlessKind
+
 
   /**
    * Use it, while building class hierarchy.
@@ -198,7 +201,7 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
 }
 
 object Signature {
-  def apply(function: ScFunction)(implicit typeSystem: TypeSystem) = new Signature(
+  def apply(function: ScFunction) = new Signature(
     function.name,
     PhysicalSignature.typesEval(function),
     PhysicalSignature.paramLength(function),
@@ -208,7 +211,7 @@ object Signature {
     PhysicalSignature.hasRepeatedParam(function)
   )
 
-  def getter(definition: ScTypedDefinition)(implicit typeSystem: TypeSystem) = new Signature(
+  def getter(definition: ScTypedDefinition) = new Signature(
     definition.name,
     Seq.empty,
     0,
@@ -216,7 +219,7 @@ object Signature {
     definition
   )
 
-  def setter(definition: ScTypedDefinition)(implicit typeSystem: TypeSystem) = new Signature(
+  def setter(definition: ScTypedDefinition) = new Signature(
     s"$definition.name_=",
     Seq(() => definition.getType().getOrAny),
     1,
@@ -278,7 +281,6 @@ object PhysicalSignature {
 }
 
 class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
-                       (implicit override val typeSystem: TypeSystem)
         extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
           method.getTypeParameters.instantiate, substitutor, method, PhysicalSignature.hasRepeatedParam(method)) {
   override def isJava: Boolean = method.getLanguage == JavaFileType.INSTANCE.getLanguage

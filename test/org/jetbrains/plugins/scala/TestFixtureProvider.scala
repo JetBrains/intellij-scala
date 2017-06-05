@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
 /**
@@ -10,8 +9,6 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
   */
 trait TestFixtureProvider {
   def getFixture: CodeInsightTestFixture
-
-  implicit final def project: Project = getFixture.getProject
 
   implicit final def module: Module = getFixture.getModule
 }

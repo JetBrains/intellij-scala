@@ -8,8 +8,6 @@ package patterns
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -28,13 +26,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, Type
   * @author Alexander Podkhalyuzin
   *         Date: 28.02.2008
   */
-class ScReferencePatternImpl private(stub: StubElement[ScReferencePattern], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScReferencePattern with ContributedReferenceHost {
-  def this(node: ASTNode) =
-    this(null, null, node)
+class ScReferencePatternImpl private(stub: ScReferencePatternStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.REFERENCE_PATTERN, node) with ScReferencePattern with ContributedReferenceHost {
 
-  def this(stub: ScReferencePatternStub) =
-    this(stub, ScalaElementTypes.REFERENCE_PATTERN, null)
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScReferencePatternStub) = this(stub, null)
 
   override def accept(visitor: PsiElementVisitor) {
     visitor match {

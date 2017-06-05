@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.base.libraryLoaders
 import java.io.File
 
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
@@ -18,7 +17,7 @@ import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ScalaLanguage
 import org.jetbrains.plugins.scala.util.TestUtils
 
 case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
-                             (implicit val module: Module, project: Project)
+                             (implicit val module: Module)
   extends LibraryLoader {
 
   import ScalaLibraryLoader._
@@ -72,11 +71,11 @@ object ScalaLibraryLoader {
 
   ScalaLoader.loadScala()
 
-  private case class SyntheticClassesLoader(implicit val module: Module, project: Project)
+  private case class SyntheticClassesLoader(implicit val module: Module)
     extends LibraryLoader {
 
     def init(implicit version: ScalaVersion): Unit =
-      project.getComponent(classOf[SyntheticClasses]) match {
+      module.getProject.getComponent(classOf[SyntheticClasses]) match {
         case classes if !classes.isClassesRegistered => classes.registerClasses()
         case _ =>
       }

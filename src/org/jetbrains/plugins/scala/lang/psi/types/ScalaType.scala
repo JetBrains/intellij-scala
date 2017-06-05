@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclarati
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeInTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -17,8 +16,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 /**
   * @author adkozlov
   */
-trait ScalaType extends TypeInTypeSystem {
-  implicit val typeSystem = ScalaTypeSystem
+trait ScalaType extends ScType {
+  override def typeSystem: ScalaTypeSystem = ScalaTypeSystem
 }
 
 object ScalaType {
@@ -33,6 +32,8 @@ object ScalaType {
   //      with this as we currently only rely on this method to determine covariant types: the parameter
   //      types of FunctionN, or the elements of TupleN
   def expandAliases(tp: ScType, visited: Set[ScType] = Set.empty): TypeResult[ScType] = {
+    import tp.projectContext
+
     if (visited contains tp) return Success(tp, None)
     tp match {
       case proj@ScProjectionType(_, _, _) => proj.actualElement match {
@@ -64,7 +65,7 @@ object ScalaType {
     */
   def designator(element: PsiNamedElement): ScType = {
     element match {
-      case _: ScClass =>
+      case clazz: ScClass if !Option(clazz.getContext).exists(c => c.isInstanceOf[ScTemplateBody] || c.isInstanceOf[ScEarlyDefinitions]) =>
         val designatorType = ScDesignatorType(element)
         designatorType.getValType.getOrElse(designatorType)
       case _ =>

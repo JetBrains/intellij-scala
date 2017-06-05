@@ -40,17 +40,18 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScTypePresentation, TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType, ScalaType, ValueClassType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
-import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner, ProjectPsiElementExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
 
 import scala.collection.mutable.ArrayBuffer
@@ -61,12 +62,14 @@ import scala.meta.intellij.MetaExpansionsManager
  * User: Alexander Podkhalyuzin
  * Date: 23.06.2008
  */
-class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator
+abstract class ScalaAnnotator extends Annotator
+  with FunctionAnnotator with ScopeAnnotator
   with ParametersAnnotator with ApplicationAnnotator
   with AssignmentAnnotator with VariableDefinitionAnnotator
   with TypedStatementAnnotator with PatternDefinitionAnnotator
   with PatternAnnotator with ConstructorAnnotator
-  with OverridingAnnotator with ValueClassAnnotator with DumbAware {
+  with OverridingAnnotator with ValueClassAnnotator
+  with ProjectContextOwner with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val typeAware = isAdvancedHighlightingEnabled(element) && !element.isInDottyModule
@@ -82,7 +85,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case _ => (false, false)
     }
 
-    implicit val typeSystem = element.typeSystem
     val visitor = new ScalaElementVisitor {
       private def expressionPart(expr: ScExpression) {
         if (!compiled) {
@@ -430,6 +432,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder) = {
+    import ScalaProjectSettings.ScalaMetaMode
     if (annotation.isMetaAnnotation) {
       if (!MetaExpansionsManager.isUpToDate(annotation)) {
         val warning = holder.createWarningAnnotation(annotation, ScalaBundle.message("scala.meta.recompile"))
@@ -439,8 +442,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case Some(ah: ScAnnotationsHolder) => ah.getMetaExpansion
         case _ => Right("")
       }
+      val settings = ScalaProjectSettings.getInstance(annotation.getProject)
       result match {
-        case Left(errorMsg) =>
+        case Left(errorMsg) if settings.getScalaMetaMode == ScalaMetaMode.Enabled =>
           holder.createErrorAnnotation(annotation, ScalaBundle.message("scala.meta.expandfailed", errorMsg))
         case _ =>
       }
@@ -484,8 +488,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     data._2.forall(!_.contains(offset))
   }
 
-  def checkCatchBlockGeneralizedRule(block: ScCatchBlock, holder: AnnotationHolder, typeAware: Boolean)
-                                    (implicit typeSystem: api.TypeSystem) {
+  def checkCatchBlockGeneralizedRule(block: ScCatchBlock, holder: AnnotationHolder, typeAware: Boolean) {
     block.expression match {
       case Some(expr) =>
         val tp = expr.getType(TypingContext.empty).getOrAny
@@ -509,7 +512,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             }
             candidates(0) match {
               case ScalaResolveResult(fun: ScFunction, subst) =>
-                if (fun.returnType.isEmpty || !subst.subst(fun.returnType.get).equiv(api.Boolean)) {
+                if (fun.returnType.isEmpty || !subst.subst(fun.returnType.get).equiv(Boolean)) {
                   error()
                 }
               case _ => error()
@@ -518,14 +521,14 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             block.getContext match {
               case t: ScTryStmt =>
                 t.expectedTypeEx(fromUnderscore = false) match {
-                  case Some((tp: ScType, _)) if tp equiv api.Unit => //do nothing
+                  case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
                   case Some((tp: ScType, typeElement)) =>
                     val returnType = candidates(0) match {
                       case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst)
                       case _ => return
                     }
                     val expectedType = Success(tp, None)
-                    val conformance = ScalaAnnotator.smartCheckConformance(expectedType, returnType)
+                    val conformance = smartCheckConformance(expectedType, returnType)
                     if (!conformance) {
                       if (typeAware) {
                         val (retTypeText, expectedTypeText) = ScTypePresentation.different(returnType.getOrNothing, expectedType.get)
@@ -563,8 +566,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     teAnnotation
   }
 
-  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder)
-                                  (implicit typeSystem: TypeSystem) {
+  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {
     for {
       lower <- sTypeParam.lowerBound
       upper <- sTypeParam.upperBound
@@ -621,8 +623,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
-  private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder)
-                                               (implicit typeSystem: TypeSystem) {
+  private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     refElement match {
       case _: ScInterpolatedStringPartReference =>
         return //do not inspect interpolated literal, it will be highlighted in other place
@@ -872,8 +873,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
-  private def highlightWrongInterpolatedString(l: ScInterpolatedStringLiteral, holder: AnnotationHolder)
-                                              (implicit typeSystem: TypeSystem) {
+  private def highlightWrongInterpolatedString(l: ScInterpolatedStringLiteral, holder: AnnotationHolder) {
     val ref = l.findReferenceAt(0) match {
       case r: ScInterpolatedStringPartReference => r
       case _ => return
@@ -942,8 +942,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             registerUsedImports(call.getContainingFile.asInstanceOf[ScalaFile], importUsed)
   }
 
-  private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean)
-                                 (implicit typeSystem: TypeSystem) {
+  private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
     def checkExpressionTypeInner(fromUnderscore: Boolean) {
       val ExpressionTypeResult(exprType, importUsed, implicitFunction) =
         expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(fromUnderscore),
@@ -975,7 +974,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             case param: ScParameter =>
               if (!param.isDefaultParam) return //performance optimization
               param.getRealParameterType() match {
-                case Success(paramType, _) if paramType.extractClass(expr.getProject).isDefined =>
+                case Success(paramType, _) if paramType.extractClass.isDefined =>
                 //do not check generic types. See SCL-3508
                 case _ => return
               }
@@ -984,7 +983,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           }
 
           expr.expectedTypeEx(fromUnderscore) match {
-            case Some((tp: ScType, _)) if tp equiv api.Unit => //do nothing
+            case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
             case Some((tp: ScType, typeElement)) =>
               val expectedType = Success(tp, None)
               implicitFunction match {
@@ -998,7 +997,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                     EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)*/
                 case None => //do nothing
               }
-              val conformance = ScalaAnnotator.smartCheckConformance(expectedType, exprType)
+              val conformance = smartCheckConformance(expectedType, exprType)
               if (!conformance) {
                 if (typeAware) {
                   val markedPsi = (expr, expr.getParent) match {
@@ -1074,21 +1073,20 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
-  private def checkExplicitTypeForReturnStatement(ret: ScReturnStmt, holder: AnnotationHolder)
-                                                 (implicit typeSystem: TypeSystem) {
+  private def checkExplicitTypeForReturnStatement(ret: ScReturnStmt, holder: AnnotationHolder) {
     val fun: ScFunction = PsiTreeUtil.getParentOfType(ret, classOf[ScFunction])
     fun match {
       case null =>
         val error = ScalaBundle.message("return.outside.method.definition")
         val annotation: Annotation = holder.createErrorAnnotation(ret.returnKeyword, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      case _ if !fun.hasAssign || fun.returnType.exists(_ == api.Unit) =>
+      case _ if !fun.hasAssign || fun.returnType.exists(_ == Unit) =>
       case _ => fun.returnTypeElement match {
         case Some(_: ScTypeElement) =>
           import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
           funType match {
-            case Success(tp: ScType, _) if tp equiv api.Unit => return //nothing to check
+            case Success(tp: ScType, _) if tp equiv Unit => return //nothing to check
             case _ =>
           }
 
@@ -1220,8 +1218,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   def checkValueAndVariableVariance(toCheck: ScDeclaredElementsHolder, variance: Int,
-                                    declaredElements: Seq[Typeable with ScNamedElement], holder: AnnotationHolder)
-                                   (implicit typeSystem: TypeSystem) {
+                                    declaredElements: Seq[Typeable with ScNamedElement], holder: AnnotationHolder) {
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {
         element.getType() match {
@@ -1309,6 +1306,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   //fix for SCL-7176
   private def checkAbstractMemberPrivateModifier(element: PsiElement, toHighlight: Seq[PsiElement], holder: AnnotationHolder) {
     element match {
+      case fun: ScFunctionDeclaration if fun.isNative =>
       case modOwner: ScModifierListOwner =>
         modOwner.getModifierList.accessModifier match {
           case Some(am) if am.isUnqualifiedPrivateOrThis =>
@@ -1322,8 +1320,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
-  private def checkIntegerLiteral(literal: ScLiteral, holder: AnnotationHolder)
-                                 (implicit typeSystem: TypeSystem) {
+  private def checkIntegerLiteral(literal: ScLiteral, holder: AnnotationHolder) {
     val child = literal.getFirstChild.getNode
     val text = literal.getText
     val endsWithL = child.getText.endsWith("l") || child.getText.endsWith("L")
@@ -1405,7 +1402,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         val annotation = if (isNegative) holder.createErrorAnnotation(parent, error) else holder.createErrorAnnotation(literal, error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
 
-        val conformsToTypeList = Seq(api.Long) ++ createTypeFromText("_root_.scala.math.BigInt", literal.getContext, literal)
+        val Long = literal.projectContext.stdTypes.Long
+        val conformsToTypeList = Seq(Long) ++ createTypeFromText("_root_.scala.math.BigInt", literal.getContext, literal)
         val shouldRegisterFix = (if (isNegative) parent.asInstanceOf[ScPrefixExpr] else literal).expectedType().forall { x =>
           conformsToTypeList.exists(_.weakConforms(x))
         }
@@ -1417,20 +1415,14 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
     }
   }
-}
 
-object ScalaAnnotator {
-  val ignoreHighlightingKey: Key[(Long, mutable.HashSet[TextRange])] = Key.create("ignore.highlighting.key")
-
-  val usedImportsKey: Key[mutable.HashSet[ImportUsed]] = Key.create("used.imports.key")
 
   /**
-   * This method will return checked conformance if it's possible to check it.
-   * In other way it will return true to avoid red code.
-   * Check conformance in case l = r.
-   */
-  def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType])
-                           (implicit typeSystem: TypeSystem): Boolean = {
+    * This method will return checked conformance if it's possible to check it.
+    * In other way it will return true to avoid red code.
+    * Check conformance in case l = r.
+    */
+  def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType]): Boolean = {
     val leftType = l match {
       case Success(res, _) => res
       case _ => return true
@@ -1440,5 +1432,15 @@ object ScalaAnnotator {
       case _ => return true
     }
     rightType.conforms(leftType)
+  }
+}
+
+object ScalaAnnotator {
+  val ignoreHighlightingKey: Key[(Long, mutable.HashSet[TextRange])] = Key.create("ignore.highlighting.key")
+
+  val usedImportsKey: Key[mutable.HashSet[ImportUsed]] = Key.create("used.imports.key")
+
+  def forProject(implicit ctx: ProjectContext): ScalaAnnotator = new ScalaAnnotator {
+    override implicit def projectContext: ProjectContext = ctx
   }
 }

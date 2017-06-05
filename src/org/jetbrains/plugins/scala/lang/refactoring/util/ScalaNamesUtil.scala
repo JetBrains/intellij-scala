@@ -3,40 +3,23 @@ package lang
 package refactoring
 package util
 
-import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.text.StringUtil.isEmpty
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.EXCLUDE_PREFIX
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator._
 
 import scala.reflect.NameTransformer
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 24.06.2008
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 24.06.2008
+  */
 object ScalaNamesUtil {
-  val keywordNames = ScalaTokenTypes.KEYWORDS.getTypes.map(_.toString).toSet
 
-  private val lexerCache = new ThreadLocal[ScalaLexer] {
-    override def initialValue(): ScalaLexer = new ScalaLexer()
-  }
-
-  private def checkGeneric(text: String, predicate: ScalaLexer => Boolean): Boolean = {
-//    ApplicationManager.getApplication.assertReadAccessAllowed() - looks like we don't need it
-    if (text == null || text == "") return false
-
-    val lexer = lexerCache.get()
-    lexer.start(text, 0, text.length(), 0)
-    if (!predicate(lexer)) return false
-    lexer.advance()
-    lexer.getTokenType == null
-  }
-
-  def isOpCharacter(c : Char) : Boolean = {
+  def isOpCharacter(c: Char): Boolean = {
     c match {
       case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' | '|' | '/' | '\\' =>
         true
@@ -45,16 +28,8 @@ object ScalaNamesUtil {
     }
   }
 
-  def isIdentifier(text: String): Boolean = {
-    checkGeneric(text, lexer => lexer.getTokenType == ScalaTokenTypes.tIDENTIFIER)
-  }
-
-  def isQualifiedName(text: String): Boolean = {
-    if (StringUtil.isEmpty(text)) return false
-    text.split('.').forall(isIdentifier)
-  }
-
-  def isKeyword(text: String): Boolean = keywordNames.contains(text)
+  def isQualifiedName(text: String): Boolean =
+    !isEmpty(text) && text.split('.').forall(isIdentifier(_))
 
   def isOperatorName(text: String): Boolean = isIdentifier(text) && isOpCharacter(text(0))
 
@@ -126,7 +101,7 @@ object ScalaNamesUtil {
     splitName(fqn).map(escapeKeyword).mkString(".")
 
   def escapeKeyword(s: String): String =
-    if (ScalaNamesUtil.isKeyword(s)) s"`$s`" else s
+    if (isKeyword(s)) s"`$s`" else s
 
   def nameFitToPatterns(qualName: String, patterns: Array[String], strict: Boolean): Boolean = {
     val (exclude, include) = patterns.toSeq.partition(_.startsWith(EXCLUDE_PREFIX))

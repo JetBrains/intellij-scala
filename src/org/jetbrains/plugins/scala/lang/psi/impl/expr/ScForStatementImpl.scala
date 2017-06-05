@@ -7,6 +7,7 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope._
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -68,6 +69,28 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   }
 
   def getDesugarizedExprText(forDisplay: Boolean): Option[String] = {
+    if (ScUnderScoreSectionUtil.underscores(this).nonEmpty) {
+      val copyOf = this.copy().asInstanceOf[ScForStatement]
+      val underscores = ScUnderScoreSectionUtil.underscores(copyOf)
+      val length = underscores.length
+      def name(i: Int): String = s"forAnonParam$$$i"
+      underscores.zipWithIndex.foreach {
+        case (underscore, index) =>
+          val referenceExpression = ScalaPsiElementFactory.createReferenceExpressionFromText(name(index))
+          underscore.replaceExpression(referenceExpression, false)
+      }
+      val desugarizedExprText = copyOf.getDesugarizedExprText(forDisplay) //with side effects
+      copyOf.depthFirst().zip(this.depthFirst()).foreach {
+        case (p1: ScPattern, p2: ScPattern) =>
+          val index = p1.desugarizedPatternIndex
+          if (index != -1) p2.desugarizedPatternIndex = index
+        case _ =>
+      }
+      return desugarizedExprText.map {
+        (0 until length).map(name).mkString("(", ", ", ") => ") + _
+      }
+
+    }
     val exprText: StringBuilder = new StringBuilder
     val arrow = ScalaPsiUtil.functionArrow(getProject)
     val (enums, gens, guards) = enumerators match {
@@ -204,7 +227,10 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         if (text == "") None
         else {
           try {
-            Option(ScalaPsiElementFactory.createExpressionWithContextFromText(text, this.getContext, this))
+            Option(ScalaPsiElementFactory.createExpressionWithContextFromText(text, this.getContext, this)).flatMap {
+              case f: ScFunctionExpr => f.result
+              case expr => Some(expr)
+            }
           } catch {
             case _: Throwable => None
           }

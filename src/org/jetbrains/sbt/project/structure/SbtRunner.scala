@@ -6,7 +6,9 @@ import java.nio.charset.Charset
 import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.execution.process.OSProcessHandler
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.structure.SbtRunner._
 import org.jetbrains.sbt.shell.SbtShellCommunication
@@ -38,7 +40,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
 
     if (SbtLauncher.exists()) {
 
-      val sbtVersion = detectSbtVersion(directory, SbtLauncher)
+      val sbtVersion = Version(detectSbtVersion(directory, SbtLauncher))
       val majorSbtVersion = majorVersion(sbtVersion)
       lazy val project = id.findProject()
       // if the project is being freshly imported, there is no project instance to get the shell component
@@ -99,16 +101,16 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
       messages
   }
 
-  private def shellImportSupported(sbtVersion: String): Boolean =
-    versionCompare(sbtVersion, sinceSbtVersionShell) >= 0
-  
-  private def importSupported(sbtVersion: String): Boolean =
-    versionCompare(sbtVersion, sinceSbtVersion) >= 0
+  private def shellImportSupported(sbtVersion: Version): Boolean =
+    sbtVersion >= sinceSbtVersionShell
 
-  private def dumpFromProcess(directory: File, structureFile: File, options: Seq[String], sbtVersion: String): Try[String] = {
+  private def importSupported(sbtVersion: Version): Boolean =
+    sbtVersion >= sinceSbtVersion
+
+  private def dumpFromProcess(directory: File, structureFile: File, options: Seq[String], sbtVersion: Version): Try[String] = {
 
     val optString = options.mkString(", ")
-    val pluginJar = sbtStructureJar(sbtVersion)
+    val pluginJar = sbtStructureJar(sbtVersion.presentation)
 
     val setCommands = Seq(
       s"""shellPrompt := { _ => "" }""",
@@ -195,17 +197,27 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
 object SbtRunner {
   case object ImportCancelledException extends Exception
 
+  val isInTest: Boolean = ApplicationManager.getApplication.isUnitTestMode
+
   val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
 
   def getSbtLauncherDir: File = {
     val file: File = jarWith[this.type]
     val deep = if (file.getName == "classes") 1 else 2
-    (file << deep) / "launcher"
+    (file << deep) / "launcher" match {
+      case res: File if !res.exists() && isInTest =>
+        (for {
+          scalaVer <- jarWith[this.type].parent
+          target <- scalaVer.parent
+          project <- target.parent
+        } yield project / "out" / "plugin" / "Scala" / "launcher").get
+      case res => res
+    }
   }
 
   def getDefaultLauncher: File = getSbtLauncherDir / "sbt-launch.jar"
 
-  private val sinceSbtVersion = "0.12.4"
-  private val sinceSbtVersionShell = "0.13.5"
+  private val sinceSbtVersion = Version("0.12.4")
+  val sinceSbtVersionShell = Version("0.13.5")
 
 }

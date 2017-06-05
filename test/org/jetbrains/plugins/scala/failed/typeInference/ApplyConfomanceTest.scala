@@ -10,23 +10,6 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ApplyConfomanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
-
-
-  def testSCL9119() = {
-    val text =
-      """object ApplyBug {
-        |  class Foo {
-        |    def apply(t: Int): Int = 2
-        |  }
-        |
-        |  def foo = new Foo
-        |  def a(i: Int): Int = new Foo()(i)
-        |}
-        |/* True */
-      """.stripMargin
-    checkTextHasNoErrors(text)
-  }
-
   def testSCL5660(): Unit = {
     checkTextHasNoErrors(
       s"""

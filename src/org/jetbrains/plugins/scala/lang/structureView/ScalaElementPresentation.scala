@@ -51,10 +51,7 @@ object ScalaElementPresentation {
       presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses, fast, subst))
 
     if (fast) {
-      function.returnTypeElement match {
-        case Some(rt) if !function.isStub => presentableText.append(": ").append(rt.getText)
-        case _ => //do nothing
-      }
+      function.returnTypeElement.foreach(rt => presentableText.append(s": ${rt.getText}"))
     } else {
       presentableText.append(": ")
       try {

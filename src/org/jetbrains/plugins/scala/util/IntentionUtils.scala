@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
-import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -73,7 +72,7 @@ object IntentionUtils {
         argsAndMatchedParams.foreach {
           case (_ childOf (a: ScAssignStmt), param) if a.getLExpression.getText == param.name =>
           case (argExpr, param) =>
-            if (!onlyBoolean || (onlyBoolean && param.paramType == Boolean)) {
+            if (!onlyBoolean || (onlyBoolean && param.paramType.isBoolean)) {
               inWriteAction {
                 argExpr.replace(createExpressionFromText(param.name + " = " + argExpr.getText)(element.getManager))
               }
@@ -102,8 +101,9 @@ object IntentionUtils {
     }
   }
 
-  def negateAndValidateExpression(expr: ScExpression, buf: scala.StringBuilder)
-                                 (implicit manager: PsiManager): (ScExpression, ScExpression, Int) = {
+  def negateAndValidateExpression(expr: ScExpression, buf: scala.StringBuilder): (ScExpression, ScExpression, Int) = {
+    import expr.projectContext
+
     val parent =
       if (expr.getParent != null && expr.getParent.isInstanceOf[ScParenthesisedExpr]) expr.getParent.getParent
       else expr.getParent
@@ -191,7 +191,7 @@ object IntentionUtils {
         bufExpr.append(f.name).append("(").append(expr.getText).append(")")
         buf.append(bufExpr.toString())
 
-        implicit val manager = expr.getManager
+        implicit val projectContext = expr.projectContext
         val newExpr = createExpressionFromText(bufExpr.toString())
         val fullRef = createReferenceFromText(buf.toString()).resolve()
 

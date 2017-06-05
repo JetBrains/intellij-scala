@@ -3,12 +3,13 @@ package lang.psi.types.nonvalue
 
 import com.intellij.psi.PsiParameter
 import org.jetbrains.plugins.scala.extensions.PsiParameterExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * @author ilyas
@@ -85,8 +86,8 @@ object Parameter {
 }
 
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
-                       (implicit val elementScope: ElementScope) extends NonValueType with TypeInTypeSystem {
-  implicit val typeSystem = elementScope.typeSystem
+                       (implicit val elementScope: ElementScope) extends NonValueType {
+  implicit def projectContext: ProjectContext = elementScope.projectContext
 
   override def visitType(visitor: TypeVisitor): Unit = visitor.visitMethodType(this)
 
@@ -128,8 +129,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
       case m: ScMethodType =>
@@ -152,11 +152,13 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
   }
 }
 
-case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeParameter])
-                                (implicit val typeSystem: TypeSystem) extends NonValueType with TypeInTypeSystem {
+case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeParameter]) extends NonValueType {
+
   if (internalType.isInstanceOf[ScTypePolymorphicType]) {
     throw new IllegalArgumentException("Polymorphic type can't have wrong internal type")
   }
+
+  override implicit def projectContext: ProjectContext = internalType.projectContext
 
   def polymorphicTypeSubstitutor: ScSubstitutor = polymorphicTypeSubstitutor(inferValueType = false)
 
@@ -208,7 +210,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }).toMap)
   }
 
-  def abstractOrLowerTypeSubstitutor(implicit typeSystem: TypeSystem): ScSubstitutor = {
+  def abstractOrLowerTypeSubstitutor: ScSubstitutor = {
     def hasRecursiveTypeParameters(typez: ScType): Boolean = {
       var hasRecursiveTypeParameters = false
       typez.recursiveUpdate {
@@ -281,8 +283,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
       case p: ScTypePolymorphicType =>

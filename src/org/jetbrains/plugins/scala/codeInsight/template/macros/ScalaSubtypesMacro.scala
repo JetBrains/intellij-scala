@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextTyp
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
@@ -24,19 +23,17 @@ class ScalaSubtypesMacro extends ScalaMacro {
 
   override def isAcceptableInContext(context: TemplateContextType): Boolean = context.isInstanceOf[ScalaCodeContextType]
 
-  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext)
-                                   (implicit typeSystem: TypeSystem): Result =
+  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext): Result =
     if (params.length != 1) null else params(0).calculateResult(context)
 
   override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = calculateResult(params, context)
 
-  override def innerCalculateLookupItems(params: Array[Expression], context: ExpressionContext)
-                                        (implicit typeSystem: TypeSystem): Array[LookupElement] = {
+  override def innerCalculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
     if (params.length != 1) return Array[LookupElement]()
     val project = context.getProject
     params(0).calculateResult(context) match {
       case scTypeRes: ScalaTypeResult =>
-        scTypeRes.myType.extractClass(project) match {
+        scTypeRes.myType.extractClass match {
           case Some(x: ScTypeDefinition) =>
             import scala.collection.JavaConversions._
             ClassInheritorsSearch.search(x, GlobalSearchScope.projectScope(context.getProject), true).findAll().

@@ -30,13 +30,10 @@ trait ScImportExpr extends ScalaPsiElement {
 
   def deleteExpr()
 
-  def getNames: Array[String] = getLastChild match {
-    case _: ScImportSelectors => (for (selector <- selectors) yield selector.getText).toArray
-    case _ => getNode.getLastChildNode.getText match {
-      case "_" => Array[String]("_")
-      case _ if getNode.getLastChildNode.getLastChildNode != null => Array[String](getNode.getLastChildNode.getLastChildNode.getText)
-      case _ => Array[String]()
-    }
+  def importedNames: Seq[String] = selectorSet match {
+    case Some(set) => set.selectors.flatMap(_.importedName)
+    case _ if isSingleWildcard => Seq("_")
+    case _ => reference.toSeq.map(_.refName)
   }
 
   override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitImportExpr(this)

@@ -26,8 +26,7 @@ class ScParameterStubImpl(parent: StubElement[_ <: PsiElement],
                           val isCallByNameParameter: Boolean,
                           protected[impl] val bodyTextRef: Option[StringRef],
                           private val deprecatedNameRef: Option[StringRef])
-  extends ScNamedStubBase[ScParameter](parent, elementType, nameRef) with ScParameterStub
-    with ScTypeElementOwnerStub[ScParameter] with ScExpressionOwnerStub[ScParameter] {
+  extends ScNamedStubBase[ScParameter](parent, elementType, nameRef) with ScParameterStub {
 
   override def deprecatedName: Option[String] = deprecatedNameRef.asString
 }

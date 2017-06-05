@@ -10,8 +10,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightField
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -37,14 +35,14 @@ import scala.collection.mutable.ArrayBuffer
   * @author Alexander.Podkhalyuzin
   */
 
-class ScClassImpl private(stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, nodeType, node) with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
+class ScClassImpl private(stub: ScTemplateDefinitionStub, node: ASTNode)
+  extends ScTypeDefinitionImpl(stub, CLASS_DEFINITION, node) with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
 
   def this(node: ASTNode) =
-    this(null, null, node)
+    this(null, node)
 
   def this(stub: ScTemplateDefinitionStub) =
-    this(stub, CLASS_DEFINITION, null)
+    this(stub, null)
 
   override def toString: String = "ScClass: " + name
 
@@ -64,10 +62,7 @@ class ScClassImpl private(stub: StubElement[ScTemplateDefinition], nodeType: IEl
   override def getIconInner = Icons.CLASS
 
   override def constructor: Option[ScPrimaryConstructor] =
-    getStub match {
-      case null => super.constructor
-      case stub => stub.getChildrenByType(PRIMARY_CONSTRUCTOR, JavaArrayFactoryUtil.ScPrimaryConstructorFactory).headOption
-    }
+    this.stubOrPsiChild(PRIMARY_CONSTRUCTOR)
 
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}

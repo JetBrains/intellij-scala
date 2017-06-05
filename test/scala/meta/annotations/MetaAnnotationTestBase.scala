@@ -69,9 +69,6 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
       })
 
     setUpCompiler(myModule)
-  }
-
-  def compileMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): List[String] = {
     setUpLibraries()
     enableParadisePlugin()
 
@@ -80,13 +77,23 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
       modifiableRootModel.addModuleOrderEntry(module)
       modifiableRootModel.commit()
     }
+  }
 
-    VfsTestUtil.createFile(metaDirectory, "meta.scala", source)
+  protected def compileMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): List[String] = {
+    addMetaSource(source)
+    runMake()
+  }
+
+  protected def runMake(): List[String] = {
     try {
       make()
     } finally {
       shutdownCompiler()
     }
+  }
+
+  protected def addMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): Unit = {
+    VfsTestUtil.createFile(metaDirectory, "meta.scala", source)
   }
 
   private def enableParadisePlugin(): Unit = {
@@ -98,7 +105,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   }
 
 
-  def checkExpansionEquals(code: String, expectedExpansion: String): Unit = {
+  protected def checkExpansionEquals(code: String, expectedExpansion: String): Unit = {
     myFixture.configureByText(s"Usage${getTestName(false)}.scala", code)
     val holder = ScalaPsiUtil.getParentOfType(myFixture.getElementAtCaret, classOf[ScAnnotationsHolder]).asInstanceOf[ScAnnotationsHolder]
     holder.getMetaExpansion match {
@@ -217,7 +224,7 @@ object MetaAnnotationTestBase {
 
   private case class MetaParadiseLoader(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "paradise"
-    override protected val version: String = "3.0.0-M7"
+    override protected val version: String = "3.0.0-M8"
 
     override protected def folder(implicit version: ScalaVersion): String =
       s"${name}_${version.minor}"

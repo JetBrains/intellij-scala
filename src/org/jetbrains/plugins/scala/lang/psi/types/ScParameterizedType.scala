@@ -7,6 +7,7 @@ package types
  * @author ilyas
  */
 
+import java.util.Objects
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.psi._
@@ -17,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
@@ -63,9 +64,9 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
 
   //noinspection HashCodeUsesVar
   override def hashCode: Int = {
-    if (hash == -1) {
-      hash = designator.hashCode() + typeArguments.hashCode() * 31
-    }
+    if (hash == -1)
+      hash = Objects.hash(designator, typeArguments)
+
     hash
   }
 
@@ -118,8 +119,10 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    val Conformance: ScalaConformance = typeSystem
+    val Nothing = projectContext.stdTypes.Nothing
+
     var undefinedSubst = uSubst
     (this, r) match {
       case (ParameterizedType(Nothing, _), Nothing) => (true, uSubst)
@@ -194,7 +197,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
   private def getStandardType(prefix: String): Option[(ScTypeDefinition, Seq[ScType])] = {
     def startsWith(clazz: PsiClass, qualNamePrefix: String) = clazz.qualifiedName != null && clazz.qualifiedName.startsWith(qualNamePrefix)
 
-    designator.extractClassType() match {
+    designator.extractClassType match {
       case Some((clazz: ScTypeDefinition, sub)) if startsWith(clazz, prefix) =>
         val result = clazz.getType(TypingContext.empty)
         result match {

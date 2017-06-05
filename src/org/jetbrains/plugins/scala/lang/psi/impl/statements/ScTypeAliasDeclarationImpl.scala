@@ -10,13 +10,11 @@ import com.intellij.ide.util.EditSourceUtil
 import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.TYPE_DECLARATION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -25,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createId
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -33,14 +31,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, T
 * Time: 9:54:54
 */
 
-class ScTypeAliasDeclarationImpl private (stub: StubElement[ScTypeAlias], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeAliasDeclaration {
+class ScTypeAliasDeclarationImpl private (stub: ScTypeAliasStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, TYPE_DECLARATION, node) with ScTypeAliasDeclaration {
 
-  def this(node: ASTNode) =
-    this(null, null, node)
+  def this(node: ASTNode) = this(null, node)
 
-  def this(stub: ScTypeAliasStub) =
-    this(stub, TYPE_DECLARATION, null)
+  def this(stub: ScTypeAliasStub) = this(stub, null)
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
@@ -50,7 +46,7 @@ class ScTypeAliasDeclarationImpl private (stub: StubElement[ScTypeAlias], nodeTy
   }
 
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
-    case null => createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName).getPsi
+    case null => createIdentifier(getGreenStub.getName).getPsi
     case n => n
   }
   
@@ -67,16 +63,10 @@ class ScTypeAliasDeclarationImpl private (stub: StubElement[ScTypeAlias], nodeTy
   }
 
   override def upperTypeElement: Option[ScTypeElement] =
-    getStub match {
-      case stub: ScTypeAliasStub => stub.upperBoundTypeElement
-      case _ => boundElement(tUPPER_BOUND)
-    }
+    byPsiOrStub(boundElement(tUPPER_BOUND))(_.upperBoundTypeElement)
 
   override def lowerTypeElement: Option[ScTypeElement] =
-    getStub match {
-      case stub: ScTypeAliasStub => stub.lowerBoundTypeElement
-      case _ => boundElement(tLOWER_BOUND)
-    }
+    byPsiOrStub(boundElement(tLOWER_BOUND))(_.lowerBoundTypeElement)
 
   private def boundElement(elementType: IElementType) = {
     val result = findLastChildByType[PsiElement](elementType) match {

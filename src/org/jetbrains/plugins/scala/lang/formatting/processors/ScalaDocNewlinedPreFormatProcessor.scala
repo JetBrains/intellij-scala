@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.lang.formatting.processors
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createD
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
   * @author Roman.Shein
@@ -83,11 +84,12 @@ class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor {
   }
 
   private def fixAsterisk(element: PsiElement): Unit = {
+    implicit val ctx: ProjectContext = element
+
     val nextElement = PsiTreeUtil.nextLeaf(element)
     val parent = element.getParent
     //add asterisks inside multi-line newLines (e.g. "\n\n\n" -> "\n*\n*\n")
     if (nextElement != null && ScalaDocNewlinedPreFormatProcessor.isNewLine(element)) {
-      implicit val manager = PsiManager.getInstance(element.getProject)
       for (_ <- 2 to element.getText.count(_ == '\n')) {
         parent.addAfter(createDocWhiteSpace, element)
         parent.addAfter(createLeadingAsterisk, element)
@@ -125,10 +127,11 @@ class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor {
             }
           }
         } else if (newlinesOld < newlinesNew) {
+          implicit val ctx: ProjectContext = lastWs
           //add more newlines along with leading asterisks
           val parent = lastWs.getParent
-          implicit val manager = PsiManager.getInstance(lastWs.getProject)
           val prev = lastWs.getPrevSibling
+
           for (i <- 1 to newlinesNew - newlinesOld) {
             parent.addBefore(createLeadingAsterisk, lastWs)
             parent.addAfter(createDocWhiteSpace, prev)

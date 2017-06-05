@@ -5,6 +5,8 @@ package types
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.PsiMemberExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -164,6 +166,8 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
   }
 
   protected def substInternal(t: ScType) : ScType = {
+    import t.projectContext
+
     var result: ScType = t
     val visitor = new ScalaTypeVisitor {
       override def visitTypePolymorphicType(t: ScTypePolymorphicType): Unit = {
@@ -176,7 +180,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                 Suspension(substInternal(lowerType.v)),
                 Suspension(substInternal(upperType.v)),
                 psiTypeParameter)
-          })(t.typeSystem)
+          })
       }
 
       override def visitAbstractType(a: ScAbstractType): Unit = {
@@ -243,14 +247,14 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
               typez.extractDesignated(expandAliases = true) match {
                 case Some(t: ScTypeDefinition) =>
                   if (t == clazz) tp
-                  else if (ScalaPsiUtil.cachedDeepIsInheritor(t, clazz)) tp
+                  else if (isInheritorDeep(t, clazz)) tp
                   else {
                     t.selfType match {
                       case Some(selfType) =>
                         selfType.extractDesignated(expandAliases = true) match {
                           case Some(cl: PsiClass) =>
                             if (cl == clazz) tp
-                            else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
+                            else if (isInheritorDeep(cl, clazz)) tp
                             else null
                           case _ =>
                             selfType match {
@@ -258,7 +262,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                                 val iter = types.iterator
                                 while (iter.hasNext) {
                                   val tps = iter.next()
-                                  tps.extractClass(clazz.getProject) match {
+                                  tps.extractClass match {
                                     case Some(cl) =>
                                       if (cl == clazz) return tp
                                     case _ =>
@@ -282,7 +286,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                     case _ =>
                   }
                   if (cl == clazz) tp
-                  else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
+                  else if (isInheritorDeep(cl, clazz)) tp
                   else null
                 case Some(named: ScTypedDefinition) =>
                   update(named.getType(TypingContext.empty).getOrAny)
@@ -292,10 +296,10 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                       val iter = types.iterator
                       while (iter.hasNext) {
                         val tps = iter.next()
-                        tps.extractClass(clazz.getProject) match {
+                        tps.extractClass match {
                           case Some(cl) =>
                             if (cl == clazz) return tp
-                            else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) return tp
+                            else if (isInheritorDeep(cl, clazz)) return tp
                           case _ =>
                         }
                       }
@@ -318,7 +322,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
               }
               tp match {
                 case ScThisType(template) =>
-                  val parentTemplate = ScalaPsiUtil.getContextOfType(template, true, classOf[ScTemplateDefinition])
+                  val parentTemplate = template.containingClass
                   if (parentTemplate != null) tp = ScThisType(parentTemplate.asInstanceOf[ScTemplateDefinition])
                   else tp = null
                 case ScProjectionType(newType, _, _) => tp = newType
@@ -400,7 +404,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
       }
 
       override def visitJavaArrayType(j: JavaArrayType): Unit = {
-        result = JavaArrayType(substInternal(j.argument))(j.typeSystem)
+        result = JavaArrayType(substInternal(j.argument))
       }
 
       override def visitProjectionType(p: ScProjectionType): Unit = {
@@ -438,7 +442,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                 case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                 case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                 case named => named
-              }, s.hasRepeatedParam)(ScalaTypeSystem), rt)
+              }, s.hasRepeatedParam), rt)
         }, typeMap.map {
           case (s, sign) => (s, sign.updateTypes(substInternal))
         })
@@ -446,7 +450,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
         result = updateThisType match {
           case Some(thisType@ScDesignatorType(param: ScParameter)) =>
             val paramType = param.getRealParameterType(TypingContext.empty).getOrAny
-            if (paramType.conforms(middleRes)(ScalaTypeSystem)) thisType
+            if (paramType.conforms(middleRes)) thisType
             else middleRes
           case _ => middleRes
         }

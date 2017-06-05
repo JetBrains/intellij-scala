@@ -5,10 +5,10 @@ import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiModifierList}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestConfigurationUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestConfigurationUtil}
 
 import scala.annotation.tailrec
 
@@ -20,7 +20,7 @@ class UTestRunConfiguration(override val project: Project,
   override protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = {
     if (!clazz.isInstanceOf[ScObject]) return true
     val list: PsiModifierList = clazz.getModifierList
-    list != null && list.hasModifierProperty("abstract") ||  !ScalaPsiUtil.cachedDeepIsInheritor(clazz, getSuiteClass)
+    list != null && list.hasModifierProperty("abstract") ||  !ScalaPsiUtil.isInheritorDeep(clazz, getSuiteClass)
   }
 
   @tailrec
@@ -54,4 +54,7 @@ class UTestRunConfiguration(override val project: Project,
   override protected def sbtTestNameKey = ""
 
   override protected def escapeTestName(test: String): String = test.stripPrefix("tests").replace("\\", ".")
+
+  override protected def escapeClassAndTest(input: String): String =
+    if (input.contains(" ")) "\"" + input + "\"" else input
 }

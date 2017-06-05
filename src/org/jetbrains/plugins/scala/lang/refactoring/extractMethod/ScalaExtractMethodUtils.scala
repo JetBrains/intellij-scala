@@ -18,9 +18,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicateMatch
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -39,8 +39,7 @@ import scala.util.Sorting
   */
 
 object ScalaExtractMethodUtils {
-  def createMethodFromSettings(settings: ScalaExtractMethodSettings)
-                              (implicit typeSystem: TypeSystem): ScFunction = {
+  def createMethodFromSettings(settings: ScalaExtractMethodSettings): ScFunction = {
     val accessMod = settings.visibility
     val methodName = settings.methodName
 
@@ -93,7 +92,7 @@ object ScalaExtractMethodUtils {
         }
 
         settings.returnType match {
-          case Some(api.Unit) => byOutputsSize(
+          case Some(t) if t.isUnit => byOutputsSize(
             "\nfalse",
             s"\nSome$params",
             s"\nSome($multipleReturnText)")
@@ -119,7 +118,7 @@ object ScalaExtractMethodUtils {
           if (!ret.returnFunction.contains(method)) return
           val retExprText = ret.expr.map(_.getText).mkString
           val newText = settings.returnType match {
-            case Some(api.Unit) => byOutputsSize(
+            case Some(t) if t.isUnit => byOutputsSize(
               "true",
               "None",
               "None"
@@ -148,7 +147,7 @@ object ScalaExtractMethodUtils {
               var break = false
               for (param <- settings.parameters if !break) {
                 if (param.oldName == oldName) {
-                  implicit val manager = method.getManager
+                  implicit val projectContext = method.projectContext
                   def tail() {
                     if (param.oldName != param.newName) {
                       val newRef = createExpressionFromText(param.newName)
@@ -235,10 +234,8 @@ object ScalaExtractMethodUtils {
     * @return (isUnit, returnTypePresentableText)
     */
   def calcReturnTypeExt(settings: ScalaExtractMethodSettings): (Boolean, String) = {
-    def prepareResult(t: ScType) = {
-      val isUnit = t == api.Unit
-      (isUnit, t.presentableText)
-    }
+    def prepareResult(t: ScType) = (t.isUnit, t.presentableText)
+
     val returnStmtType = settings.returnType
     val outputs = settings.outputs
     val lastExprType = settings.lastExprType
@@ -257,7 +254,7 @@ object ScalaExtractMethodUtils {
     }
     val outputType = outputTypeText(settings)
     returnStmtType match {
-      case Some(api.Unit) => byOutputsSize(
+      case Some(t) if t.isUnit => byOutputsSize(
         (false, "Boolean"),
         (false, s"Option[$outputType]"),
         (false, s"Option[$outputType]")
@@ -367,18 +364,17 @@ object ScalaExtractMethodUtils {
     returnTypeText
   }
 
-  def replaceWithMethodCall(settings: ScalaExtractMethodSettings, d: DuplicateMatch)
-                           (implicit typeSystem: TypeSystem = d.typeSystem) {
+  def replaceWithMethodCall(settings: ScalaExtractMethodSettings, d: DuplicateMatch) {
     replaceWithMethodCall(settings, d.candidates, d.parameterText, d.outputName)
   }
 
   def replaceWithMethodCall(settings: ScalaExtractMethodSettings,
                             elements: Seq[PsiElement],
                             parameterText: ExtractMethodParameter => String,
-                            outputName: ExtractMethodOutput => String)
-                           (implicit typeSystem: TypeSystem) {
+                            outputName: ExtractMethodOutput => String) {
+    implicit val projectContext = settings.projectContext
+
     val element = elements.find(elem => elem.isInstanceOf[ScalaPsiElement]).getOrElse(return)
-    implicit val manager = element.getManager
     val processor = new CompletionProcessor(StdKinds.refExprLastRef, element, includePrefixImports = false)
     PsiTreeUtil.treeWalkUp(processor, element, null, ResolveState.initial)
     val allNames = new mutable.HashSet[String]()
@@ -422,9 +418,9 @@ object ScalaExtractMethodUtils {
       else if (settings.outputs.length == 0) {
         val exprText = settings.returnType match {
           case None => methodCallText
-          case Some(api.Unit) => s"if ($methodCallText) return"
+          case Some(t) if t.isUnit => s"if ($methodCallText) return"
           case Some(_) =>
-            val arrow = ScalaPsiUtil.functionArrow(manager.getProject)
+            val arrow = ScalaPsiUtil.functionArrow
             s"""$methodCallText match {
                |  case Some(toReturn) $arrow return toReturn
                |  case None $arrow
@@ -446,10 +442,10 @@ object ScalaExtractMethodUtils {
             val typeText = ScalaExtractMethodUtils.outputTypeText(settings)
             (s"$mFreshName: $typeText", true)
         }
-        val arrow = ScalaPsiUtil.functionArrow(manager.getProject)
+        val arrow = ScalaPsiUtil.functionArrow
         val exprText = settings.returnType match {
           case None => methodCallText
-          case Some(api.Unit) =>
+          case Some(t) if t.isUnit =>
             s"""$methodCallText match {
                |  case Some(result) $arrow result
                |  case None $arrow return

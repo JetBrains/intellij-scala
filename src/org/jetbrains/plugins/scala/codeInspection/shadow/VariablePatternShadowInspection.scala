@@ -9,9 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createPatternFromText, createReferenceFromText}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReferenceElement, StdKinds}
 
 class VariablePatternShadowInspection extends AbstractInspection("VariablePatternShadow", "Suspicious shadowing by a Variable Pattern") {
 
@@ -19,8 +18,7 @@ class VariablePatternShadowInspection extends AbstractInspection("VariablePatter
     case refPat: ScReferencePattern => check(refPat, holder)
   }
 
-  private def check(refPat: ScReferencePattern, holder: ProblemsHolder)
-                   (implicit typeSystem: TypeSystem = holder.typeSystem) {
+  private def check(refPat: ScReferencePattern, holder: ProblemsHolder) {
     val isInCaseClause = ScalaPsiUtil.nameContext(refPat).isInstanceOf[ScCaseClause]
     if (isInCaseClause) {
       val dummyRef: ScStableCodeReferenceElement = createReferenceFromText(refPat.name, refPat.getContext.getContext, refPat)

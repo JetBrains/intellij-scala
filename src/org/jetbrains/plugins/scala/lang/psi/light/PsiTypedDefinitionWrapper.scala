@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, Unit}
 
 /**
  * User: Alefas
@@ -45,7 +45,8 @@ class PsiTypedDefinitionWrapper(val delegate: ScTypedDefinition, isStatic: Boole
     LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
-} with PsiMethodWrapper(delegate.getManager, method, containingClass) with NavigablePsiElementWrapper {
+} with PsiMethodWrapper(delegate.getManager, method, containingClass)
+  with NavigablePsiElementWrapper[ScTypedDefinition] {
 
   override def hasModifierProperty(name: String): Boolean = {
     name match {
@@ -168,7 +169,9 @@ object PsiTypedDefinitionWrapper {
   }
 
   def typeFor(typedDefinition: ScTypedDefinition, role: DefinitionRole): ScType = {
-    if (role == SETTER || role == EQ) StdType.Unit
-    else typedDefinition.getType().getOrElse(StdType.AnyRef)
+    import typedDefinition.projectContext
+
+    if (role == SETTER || role == EQ) Unit
+    else typedDefinition.getType().getOrElse(AnyRef)
   }
 }

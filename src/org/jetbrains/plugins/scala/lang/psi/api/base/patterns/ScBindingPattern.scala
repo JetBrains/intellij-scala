@@ -23,37 +23,26 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
 
   def isWildcard: Boolean
 
-  protected def getEnclosingVariable: Option[ScVariable] = {
-    ScalaPsiUtil.nameContext(this) match {
-      case v: ScVariable => Some(v)
-      case _ => None
-    }
-  }
-
-  override def isStable: Boolean = getEnclosingVariable match {
-    case None => true
-    case _ => false
-  }
+  override def isStable: Boolean = !isVar
 
   override def isVar: Boolean = nameContext.isInstanceOf[ScVariable]
+
   override def isVal: Boolean = nameContext.isInstanceOf[ScValue]
 
   def isClassMember: Boolean = nameContext.getContext match {
     case _: ScTemplateBody | _: ScEarlyDefinitions => true
     case _ => false
   }
+
   def isBeanProperty: Boolean = nameContext match {
     case a: ScAnnotationsHolder => ScalaPsiUtil.isBeanProperty(a)
     case _ => false
   }
 
-  def containingClass: ScTemplateDefinition = {
-    ScalaPsiUtil.nameContext(this) match {
-      case memb: ScMember => memb.containingClass
-      case _ => null
-    }
+  def containingClass: ScTemplateDefinition = nameContext match {
+    case memb: ScMember => memb.containingClass
+    case _ => null
   }
-
 
   def getOriginalElement: PsiElement = {
     val ccontainingClass = containingClass

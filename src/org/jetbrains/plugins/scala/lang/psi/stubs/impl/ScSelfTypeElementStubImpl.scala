@@ -19,8 +19,7 @@ class ScSelfTypeElementStubImpl(parent: StubElement[_ <: PsiElement],
                                 nameRef: StringRef,
                                 protected[impl] val typeTextRef: Option[StringRef],
                                 private var typeNamesRefs: Array[StringRef])
-  extends ScNamedStubBase[ScSelfTypeElement](parent, elementType, nameRef) with ScSelfTypeElementStub
-    with ScTypeElementOwnerStub[ScSelfTypeElement] {
+  extends ScNamedStubBase[ScSelfTypeElement](parent, elementType, nameRef) with ScSelfTypeElementStub {
 
   override def classNames: Array[String] = typeNamesRefs.asStrings
 }

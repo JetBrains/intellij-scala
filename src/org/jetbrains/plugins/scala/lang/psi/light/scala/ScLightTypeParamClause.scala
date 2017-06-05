@@ -15,7 +15,7 @@ class ScLightTypeParamClause(tParams: Seq[TypeParameter], t: ScTypeParamClause)
   override def getTextByStub: String = t.getTextByStub
 
   override def typeParameters: Seq[ScTypeParam] = tParams.zip(t.typeParameters).map {
-    case (t: TypeParameter, tParam: ScTypeParam) => new ScLightTypeParam(t, tParam)
+    case (t: TypeParameter, tParam: ScTypeParam) => new ScDelegatingLightTypeParam(t, tParam)
   }
 
   override def toString: String = t.toString

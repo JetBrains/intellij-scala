@@ -10,11 +10,9 @@ import javax.swing.Icon
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -29,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypePa
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.annotation.tailrec
 
@@ -37,15 +36,15 @@ import scala.annotation.tailrec
 * Date: 22.02.2008
 */
 
-class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeBoundsOwnerImpl with ScTypeParam with PsiClassFake {
-  def this(node: ASTNode) = {
-    this(null, null, node)
-  }
+class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.TYPE_PARAM, node)
+    with ScTypeBoundsOwnerImpl with ScTypeParam with PsiClassFake {
 
-  def this(stub: ScTypeParamStub) = {
-    this(stub, ScalaElementTypes.TYPE_PARAM, null)
-  }
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScTypeParamStub) = this(stub, null)
+
+  override lazy val typeParamId: Long = reusableId(this)
 
   @tailrec
   final override protected def extractBound(in: ScType, isLower: Boolean): ScType = {
@@ -73,22 +72,10 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
 
   override def toString: String = "TypeParameter: " + name
 
-  def getOffsetInFile: Int = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTypeParamStub].positionInFile
-    }
-    getTextRange.getStartOffset
-  }
+  def getOffsetInFile: Int = byPsiOrStub(getTextRange.getStartOffset)(_.positionInFile)
 
-  def getContainingFileName: String = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTypeParamStub].containingFileName
-    }
-    val containingFile = getContainingFile
-    if (containingFile == null) return "NoFile"
-    containingFile.name
+  def getContainingFileName: String = byStubOrPsi(_.containingFileName) {
+    Option(getContainingFile).map(_.name).getOrElse("NoFile")
   }
 
   def getIndex: Int = 0
@@ -99,35 +86,19 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
 
   override def getContainingClass: ScTemplateDefinition = null
 
-  def isCovariant: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTypeParamStub].isCovariant
-    }
-    findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
-      case null => false
-      case x => x.getText == "+"
-    }
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  def isCovariant: Boolean = byStubOrPsi(_.isCovariant) {
+    Option(findChildByType[PsiElement](tIDENTIFIER))
+      .exists(_.getText == "+")
   }
 
-  def isContravariant: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTypeParamStub].isContravariant
-    }
-    findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
-      case null => false
-      case x => x.getText == "-"
-    }
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  def isContravariant: Boolean = byStubOrPsi(_.isContravariant) {
+    Option(findChildByType[PsiElement](tIDENTIFIER))
+      .exists(_.getText == "-")
   }
 
-  def typeParameterText: String = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTypeParamStub].text
-    }
-    getText
-  }
+  def typeParameterText: String = byStubOrPsi(_.text)(getText)
 
   def owner: ScTypeParametersOwner = getContext.getContext.asInstanceOf[ScTypeParametersOwner]
 
@@ -137,33 +108,17 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
-  override def viewTypeElement: Seq[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].viewBoundsTypeElements
-    } else super.viewTypeElement
-  }
+  override def viewTypeElement: Seq[ScTypeElement] =
+    byPsiOrStub(super.viewTypeElement)(_.viewBoundsTypeElements)
 
-  override def contextBoundTypeElement: Seq[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].contextBoundsTypeElements
-    } else super.contextBoundTypeElement
-  }
+  override def contextBoundTypeElement: Seq[ScTypeElement] =
+    byPsiOrStub(super.contextBoundTypeElement)(_.contextBoundsTypeElements)
 
-  override def lowerTypeElement: Option[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].lowerBoundTypeElement
-    } else super.lowerTypeElement
-  }
+  override def lowerTypeElement: Option[ScTypeElement] =
+    byPsiOrStub(super.lowerTypeElement)(_.lowerBoundTypeElement)
 
-  override def upperTypeElement: Option[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].upperBoundTypeElement
-    } else super.upperTypeElement
-  }
+  override def upperTypeElement: Option[ScTypeElement] =
+    byPsiOrStub(super.upperTypeElement)(_.upperBoundTypeElement)
 
   override def getIcon(flags: Int): Icon = {
     Icons.TYPE_ALIAS

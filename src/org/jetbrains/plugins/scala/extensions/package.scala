@@ -4,6 +4,7 @@ import java.io.Closeable
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.{Callable, Future}
 
+import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.{ApplicationManager, Result}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
@@ -12,14 +13,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Computable, ThrowableComputable}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
-import com.intellij.psi.impl.source.PostprocessReformattingAspect
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.impl.source.tree.SharedImplUtil
+import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.Processor
+import com.intellij.util.{ArrayFactory, Processor}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
@@ -33,11 +35,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
@@ -59,6 +60,7 @@ package object extensions {
   implicit class PsiMethodExt(val repr: PsiMethod) extends AnyVal {
 
     import PsiMethodExt._
+    implicit private def project: ProjectContext = repr.getProject
 
     def isAccessor: Boolean = isParameterless && hasQueryLikeName && !hasVoidReturnType
 
@@ -92,7 +94,7 @@ package object extensions {
           .map(_.getType(TypingContext.empty).getOrNothing)
       case _ =>
         parameters.map(_.getType)
-          .map(_.toScType()(repr.typeSystem))
+          .map(_.toScType())
     }
 
     def isParameterless: Boolean = parameters.isEmpty
@@ -183,6 +185,10 @@ package object extensions {
     def collectOption[B](pf: scala.PartialFunction[T, B]): Option[B] = Some(v).collect(pf)
   }
 
+  implicit class OptionExt[T](val option: Option[T]) extends AnyVal {
+    def getOrThrow(exception: => Exception): T = option.getOrElse(throw exception)
+  }
+
   implicit class BooleanExt(val b: Boolean) extends AnyVal {
     def option[A](a: => A): Option[A] = if (b) Some(a) else None
 
@@ -201,6 +207,11 @@ package object extensions {
       if (needParenthesis) s"($string)" else string
   }
 
+  implicit class StringsExt(val strings: Seq[String]) extends AnyVal {
+    def commaSeparated: String =
+      strings.mkString(", ")
+  }
+
   implicit class ASTNodeExt(val node: ASTNode) extends AnyVal {
     def hasChildOfType(elementType: IElementType): Boolean =
       node.findChildByType(elementType) != null
@@ -213,9 +224,9 @@ package object extensions {
         case _ => element.getStartOffsetInParent
       }
 
-    implicit def typeSystem: TypeSystem = element.getProject.typeSystem
-
     implicit def elementScope: ElementScope = ElementScope(element)
+
+    def projectContext: ProjectContext = element.getProject
 
     def ofNamedElement(substitutor: ScSubstitutor = ScSubstitutor.empty): Option[ScType] = {
       def lift(`type`: PsiType) = Option(`type`.toScType())
@@ -255,11 +266,6 @@ package object extensions {
     def parents: Iterator[PsiElement] = new ParentsIterator(element)
 
     def withParents: Iterator[PsiElement] = new ParentsIterator(element, strict = false)
-
-    def isStub: Boolean = element match {
-      case st: StubBasedPsiElement[_] => st.getStub != null
-      case _ => false
-    }
 
     def parentsInFile: Iterator[PsiElement] = element match {
       case _: PsiFile | _: PsiDirectory => Iterator.empty
@@ -329,23 +335,23 @@ package object extensions {
     def toScType(visitedRawTypes: Set[PsiClass] = Set.empty,
                  paramTopLevel: Boolean = false,
                  treatJavaObjectAsAny: Boolean = true)
-                (implicit typeSystem: TypeSystem): ScType =
-      typeSystem.bridge.toScType(`type`, treatJavaObjectAsAny)(visitedRawTypes, paramTopLevel)
+                (implicit project: ProjectContext): ScType =
+      project.typeSystem.toScType(`type`, treatJavaObjectAsAny)(visitedRawTypes, paramTopLevel)
   }
 
   implicit class PsiWildcardTypeExt(val `type`: PsiWildcardType) extends AnyVal {
-    def lower(implicit typeSystem: TypeSystem,
+    def lower(implicit project: ProjectContext,
               visitedRawTypes: Set[PsiClass],
               paramTopLevel: Boolean): Option[ScType] =
       bound(if (`type`.isSuper) Some(`type`.getSuperBound) else None)
 
-    def upper(implicit typeSystem: TypeSystem,
+    def upper(implicit project: ProjectContext,
               visitedRawTypes: Set[PsiClass],
               paramTopLevel: Boolean): Option[ScType] =
       bound(if (`type`.isExtends) Some(`type`.getExtendsBound) else None)
 
     private def bound(maybeBound: Option[PsiType])
-                     (implicit typeSystem: TypeSystem,
+                     (implicit project: ProjectContext,
                       visitedRawTypes: Set[PsiClass],
                       paramTopLevel: Boolean) = maybeBound map {
       _.toScType(visitedRawTypes, paramTopLevel = paramTopLevel)
@@ -419,7 +425,7 @@ package object extensions {
             m.containingClass match {
               case t: ScTrait =>
                 val linearization = MixinNodes.linearization(clazz)
-                  .flatMap(_.extractClass(clazz.getProject))
+                  .flatMap(_.extractClass)
                 var index = linearization.indexWhere(_ == t)
                 while (index >= 0) {
                   val cl = linearization(index)
@@ -480,6 +486,16 @@ package object extensions {
         case nd => nd.getName
       }
     }
+
+    def nameContext: PsiElement = {
+      named match {
+        case sc: ScNamedElement => sc.nameContext
+        case _ =>
+          named.withParentsInFile
+            .find(ScalaPsiUtil.isNameContext)
+            .orNull
+      }
+    }
   }
 
   implicit class PsiModifierListOwnerExt(val member: PsiModifierListOwner) extends AnyVal {
@@ -519,11 +535,20 @@ package object extensions {
   }
 
   implicit class IteratorExt[A](val delegate: Iterator[A]) extends AnyVal {
-    def findByType[T](aClass: Class[T]): Option[T] =
-      delegate.find(aClass.isInstance(_)).map(_.asInstanceOf[T])
+    def findByType[T: ClassTag]: Option[T] = {
+      val aClass = implicitly[ClassTag[T]].runtimeClass
+      delegate.find(aClass.isInstance).map(_.asInstanceOf[T])
+    }
 
-    def filterByType[T](aClass: Class[T]): Iterator[T] =
-      delegate.filter(aClass.isInstance(_)).map(_.asInstanceOf[T])
+    def filterByType[T: ClassTag]: Iterator[T] = {
+      val aClass = implicitly[ClassTag[T]].runtimeClass
+      delegate.filter(aClass.isInstance).map(_.asInstanceOf[T])
+    }
+
+    def containsType[T: ClassTag]: Boolean = {
+      val aClass = implicitly[ClassTag[T]].runtimeClass
+      delegate.exists(aClass.isInstance)
+    }
 
     def headOption: Option[A] = {
       if (delegate.hasNext) Some(delegate.next())
@@ -539,9 +564,9 @@ package object extensions {
         case Some(v) => v
         case None =>
           val newValue = update
-          val race = map.putIfAbsent(key, newValue) != null
+          val race = map.putIfAbsent(key, newValue)
 
-          if (race) map.get(key)
+          if (race != null) race
           else newValue
       }
     }
@@ -709,6 +734,8 @@ package object extensions {
   }
 
   implicit class PsiParameterExt(val param: PsiParameter) extends AnyVal {
+    implicit def project: ProjectContext = param.getProject
+
     def paramType(exact: Boolean = true, treatJavaObjectAsAny: Boolean = true): ScType = param match {
       case parameter: FakePsiParameter => parameter.parameter.paramType
       case parameter: ScParameter => parameter.getType(TypingContext.empty).getOrAny
@@ -718,7 +745,7 @@ package object extensions {
             arrayType.getComponentType
           case tp => tp
         }
-        paramType.toScType(paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)(param.typeSystem)
+        paramType.toScType(paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)
     }
 
     def index: Int = param match {
@@ -728,6 +755,92 @@ package object extensions {
         case list: PsiParameterList => list.getParameterIndex(param)
         case _ => -1
       }
+    }
+  }
+
+  implicit class StubBasedExt(val element: PsiElement) extends AnyVal {
+    def stubOrPsiChildren[Psi <: PsiElement, Stub <: StubElement[_ <: Psi]](elementType: IStubElementType[Stub, Psi], f: ArrayFactory[Psi]): Array[Psi] = {
+      def findWithNode(): Array[Psi] = {
+        val nodes = SharedImplUtil.getChildrenOfType(element.getNode, elementType)
+        val length = nodes.length
+        val array = f.create(length)
+        var i = 0
+        while (i < length) {
+          array(i) = nodes(i).getPsi.asInstanceOf[Psi]
+          i += 1
+        }
+        array
+      }
+
+      element match {
+        case st: StubBasedPsiElementBase[_] => st.getStubOrPsiChildren(elementType, f)
+        case file: PsiFileImpl =>
+          file.getGreenStub match {
+            case stub: StubElement[_] => stub.getChildrenByType(elementType, f)
+            case null => findWithNode()
+          }
+        case _ => findWithNode()
+      }
+    }
+
+    def stubOrPsiChildren[Psi <: PsiElement](filter: TokenSet, f: ArrayFactory[Psi]): Array[Psi] = {
+      def findWithNode(): Array[Psi] = {
+        val nodes = element.getNode.getChildren(filter)
+        val length = nodes.length
+        val array = f.create(length)
+        var i = 0
+        while (i < length) {
+          array(i) = nodes(i).getPsi.asInstanceOf[Psi]
+          i += 1
+        }
+        array
+      }
+
+      element match {
+        case st: StubBasedPsiElementBase[_] => st.getStubOrPsiChildren(filter, f)
+        case file: PsiFileImpl =>
+          file.getGreenStub match {
+            case stub: StubElement[_] => stub.getChildrenByType(filter, f)
+            case null => findWithNode()
+          }
+        case _ => findWithNode()
+      }
+    }
+
+    def stubOrPsiChild[Psi <: PsiElement, Stub <: StubElement[_ <: Psi]](elementType: IStubElementType[Stub, Psi]): Option[Psi] = {
+      def findWithNode() = {
+        val node = Option(element.getNode.findChildByType(elementType))
+        node.map(_.getPsi.asInstanceOf[Psi])
+      }
+
+      element match {
+        case st: StubBasedPsiElementBase[_] => Option(st.getStubOrPsiChild(elementType))
+        case file: PsiFileImpl =>
+          file.getGreenStub match {
+            case stub: StubElement[_] => Option(stub.findChildStubByType(elementType)).map(_.getPsi)
+            case _ => findWithNode()
+          }
+        case _ => findWithNode()
+      }
+    }
+
+    def greenStub: Option[StubElement[_]] = element match {
+      case st: StubBasedPsiElementBase[_] => Option(st.getGreenStub.asInstanceOf[StubElement[_]])
+      case file: PsiFileImpl => Option(file.getGreenStub)
+      case _ => None
+    }
+
+    def stub: Option[StubElement[_]] = element match {
+      case st: StubBasedPsiElementBase[_] => Option(st.getStub.asInstanceOf[StubElement[_]])
+      case file: PsiFileImpl => Option(file.getStub)
+      case _ => None
+    }
+
+    def lastChildStub: Option[PsiElement] = {
+      val children = stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
+      val size = children.length
+      if (size == 0) None
+      else Some(children(size - 1))
     }
   }
 

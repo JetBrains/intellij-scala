@@ -1,17 +1,15 @@
 package org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector
 
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplatePsiInfo
-import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil
 import org.jetbrains.plugins.scala.codeInspection.parentheses.UnnecessaryParenthesesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScPrefixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithUnaryNotSurrounder
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * @author Roman.Shein
@@ -25,7 +23,7 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
         case _: ScLiteral | _: ScReferenceExpression | _: ScParenthesisedExpr if elements.length == 1 =>
           "!" + templateText(elements)
         case ScPrefixExpr(operation, operand) if operation.refName == "!" &&
-          operand.getType(TypingContext.empty).getOrAny.conforms(Boolean)(operand.getProject.typeSystem) =>
+          operand.getType(TypingContext.empty).getOrAny.conforms(Boolean(operand.projectContext)) =>
           operand.getNode.getText
         case _ => s"!(${templateText(elements)})"
       }.getOrElse("!()")
@@ -44,8 +42,8 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
       SimplifyBooleanUtil.simplify(super.surroundPsi(elements), isTopLevel = false) match {
         case parenthesized: ScParenthesisedExpr
           if UnnecessaryParenthesesUtil.canBeStripped(parenthesized, ignoreClarifying = false) =>
-          implicit val manager = PsiManager.getInstance(parenthesized.getProject)
-          createExpressionFromText(UnnecessaryParenthesesUtil.getTextOfStripped(parenthesized, ignoreClarifying = false))
+          val stripped = UnnecessaryParenthesesUtil.getTextOfStripped(parenthesized, ignoreClarifying = false)
+          createExpressionFromText(stripped)(parenthesized)
         case other => other
       }
     }

@@ -14,7 +14,10 @@ import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotato
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.junit.Assert
+import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+
+import scala.util.control.NonFatal
 
 /**
   * @author Mikhail Mutcianko
@@ -24,59 +27,19 @@ trait AllProjectHighlightingTest {
 
   def getProject: Project
 
-  class DefaultReporter {
-    var totalErrors = 0
-    def reportError(file: VirtualFile, range: TextRange, message: String) = {
-      totalErrors += 1
-      println(s"Error: ${file.getName}${range.toString} - $message")
-    }
-    def updateProgress(percent: Int) = println(s"Highlighting -  $percent%")
-    def reportResults() = {
-      Assert.assertTrue(s"Found $totalErrors errors while highlighting the project", totalErrors == 0)
-    }
-  }
-
-  class TCReporter extends DefaultReporter {
-
-    def escapeTC(message: String): String = {
-      message
-        .replaceAll("##", "")
-        .replaceAll("([\"\'\n\r\\|\\[\\]])", "\\|$1")
-    }
-
-    override def updateProgress(percent: Int): Unit = println(s"##teamcity[progressMessage 'Highlighting - $percent%']")
-
-    override def reportError(file: VirtualFile, range: TextRange, message: String): Unit = {
-      totalErrors += 1
-      val escaped = escapeTC(Option(message).getOrElse(""))
-      val testName = s"${getClass.getName}.${Option(file).map(_.getName).getOrElse("UNKNOWN")}${Option(range).map(_.toString).getOrElse("(UNKNOWN)")}"
-      println(s"##teamcity[testStarted name='$testName']")
-      println(s"##teamcity[testFailed name='$testName' message='Highlighting error' details='$escaped']")
-      println(s"##teamcity[testFinished name='$testName']")
-    }
-
-    override def reportResults(): Unit = {
-      if (totalErrors > 0)
-        println(s"##teamcity[buildProblem description='Found $totalErrors errors while highlighting the project' ]")
-      else
-        println("##teamcity[buildStatus status='SUCCESS' text='No highlighting errors found in project']")
-    }
-  }
+  implicit def projectContext: ProjectContext = getProject
 
   def doAllProjectHighlightingTest(): Unit = {
     import scala.collection.JavaConversions._
 
-    val reporter = if (sys.env.contains("TEAMCITY_VERSION"))
-      new TCReporter
-    else
-      new DefaultReporter
+    val reporter = ProgressReporter.getInstance
 
     val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, SourceFilterScope(getProject))
 
     LocalFileSystem.getInstance().refreshFiles(files)
 
     val fileManager = PsiManager.getInstance(getProject).asInstanceOf[PsiManagerEx].getFileManager
-    val annotator = new ScalaAnnotator
+    val annotator = ScalaAnnotator.forProject
 
     var percent = 0
     val size: Int = files.size()
@@ -86,7 +49,8 @@ trait AllProjectHighlightingTest {
 
       val mock = new AnnotatorHolderMock(psiFile){
         override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
-          reporter.reportError(file, range, message)
+          // almost always duplicates reports from method below
+//          reporter.reportError(file, range, message)
           super.createErrorAnnotation(range, message)
         }
 
@@ -98,7 +62,7 @@ trait AllProjectHighlightingTest {
 
       if ((index + 1) * 100 >= (percent + 1) * size) {
         while ((index + 1) * 100 >= (percent + 1) * size) percent += 1
-        reporter.updateProgress(percent)
+        reporter.updateHighlightingProgress(percent)
       }
 
       val visitor = new ScalaRecursiveElementVisitor {
@@ -106,10 +70,7 @@ trait AllProjectHighlightingTest {
           try {
             annotator.annotate(element, mock)
           } catch {
-            case e: Throwable =>
-              println(s"Exception in ${file.getName}, Stacktrace: ")
-              e.printStackTrace()
-              assert(false)
+            case NonFatal(t) => reporter.reportError(file, element.getTextRange, s"Exception while highlighting: $t")
           }
           super.visitElement(element)
         }

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
   * @author adkozlov
   */
 trait DottyTypeVisitor extends TypeVisitor {
-  def visitNoType(noType: DottyNoType.type) {}
+  def visitNoType(noType: DottyNoType) {}
 
   def visitAndType(andType: DottyAndType) {}
 

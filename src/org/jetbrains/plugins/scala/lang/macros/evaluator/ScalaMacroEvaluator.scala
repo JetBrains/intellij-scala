@@ -27,15 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  * date 19.12.14
  */
 
-class ScalaMacroEvaluator(project: Project) extends ProjectComponent with ScalaMacroTypeable {
-
-  override def projectOpened(): Unit = ()
-
-  override def projectClosed(): Unit = ()
-
-  override def initComponent(): Unit = ()
-
-  override def disposeComponent(): Unit = ()
+class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(project) with ScalaMacroTypeable {
 
   override def getComponentName = "ScalaMacroEvaluator"
 

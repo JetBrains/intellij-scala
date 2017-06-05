@@ -4,14 +4,8 @@ package psi
 package api
 package statements
 
-import java.io.IOException
-
 import com.intellij.psi._
-import com.intellij.psi.impl.source.PsiFileImpl
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAnnotations}
@@ -21,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.macroAnnotations._
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.meta.intellij.MetaExpansionsManager
 
@@ -30,30 +25,14 @@ import scala.meta.intellij.MetaExpansionsManager
  */
 
 trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
-  def annotations: Seq[ScAnnotation] = {
-    val maybeStub: Option[StubElement[_ <: PsiElement]] = Some(this) flatMap {
-      case element: StubBasedPsiElement[_] =>
-        // !!! Appeasing an unexplained compile error
-        Option(element.getStub.asInstanceOf[StubElement[_ <: PsiElement]])
-      case file: PsiFileImpl =>
-        Option(file.getStub)
-      case _ => None
-    }
 
-    val maybeStubAnnotations = maybeStub.toSeq.flatMap({
-          _.getChildrenByType(TokenSet.create(ScalaElementTypes.ANNOTATIONS),
-            JavaArrayFactoryUtil.ScAnnotationsFactory).toSeq
-        }).headOption
-
-    val maybeAnnotations = maybeStubAnnotations.orElse(Option(findChildByClassScala(classOf[ScAnnotations])))
-
-    maybeAnnotations.toSeq.flatMap {
-      _.getAnnotations.toSeq
-    }
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  def annotations: Seq[ScAnnotation] = this.stubOrPsiChild(ScalaElementTypes.ANNOTATIONS) match {
+    case Some(ann) => ann.getAnnotations.toSeq
+    case _ => Seq.empty
   }
 
-  def hasAnnotation(qualifiedName: String): Boolean =
-    annotations(qualifiedName).nonEmpty
+  def hasAnnotation(qualifiedName: String): Boolean = annotations(qualifiedName).nonEmpty
 
   def annotations(qualifiedName: String): Seq[ScAnnotation] = {
     def acceptType: ScType => Boolean = {
@@ -113,11 +92,14 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
 
   @CachedWithRecursionGuard(this, Left("Recursive meta expansion"), ModCount.getBlockModificationCount)
   def getMetaExpansion: Either[String, scala.meta.Tree] = {
-    val metaAnnotation = annotations.find(_.isMetaAnnotation)
-    metaAnnotation match {
-      case Some(annot) => MetaExpansionsManager.runMetaAnnotation(annot)
-      case None        => Left("")
-    }
+    import ScalaProjectSettings.ScalaMetaMode
+    if (ScalaProjectSettings.getInstance(getProject).getScalaMetaMode == ScalaMetaMode.Enabled) {
+      val metaAnnotation = annotations.find(_.isMetaAnnotation)
+      metaAnnotation match {
+        case Some(annot) => MetaExpansionsManager.runMetaAnnotation(annot)
+        case None => Left("")
+      }
+    } else Left("Meta expansions disabled in settings")
   }
 
   def getApplicableAnnotations: Array[PsiAnnotation] = getAnnotations //todo: understatnd and fix

@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -139,20 +139,20 @@ package object collections {
     }
   }
 
-  class FunctionExpressionWithReturnTypeTemplate(tp: ScType) {
-    def unapply(expr: ScExpression)(implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = {
+  object returnsBoolean {
+    def unapply(expr: ScExpression): Boolean = {
+      import expr.projectContext
+
       expr.getType(TypingContext.empty) match {
         case Success(result, _) =>
           result match {
-            case FunctionType(returnType, _) => returnType.conforms(tp)
+            case FunctionType(returnType, _) => returnType.conforms(api.Boolean)
             case _ => false
           }
         case _ => false
       }
     }
   }
-
-  val returnsBoolean = new FunctionExpressionWithReturnTypeTemplate(api.Boolean)
 
   object binaryOperation {
     def unapply(expr: ScExpression): Option[String] = {
@@ -358,7 +358,7 @@ package object collections {
   def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = Option(expr).flatMap {
     _.getType().toOption
   }.flatMap {
-    _.tryExtractDesignatorSingleton.extractClass(expr.getProject)
+    _.tryExtractDesignatorSingleton.extractClass
   }.exists {
     qualifiedNameFitToPatterns(_, patterns)
   }
@@ -411,8 +411,7 @@ package object collections {
         ref.refName.startsWith("set") || ref.refName.endsWith("_=")
       }
 
-      def hasUnitReturnType(ref: ScReferenceExpression)
-                           (implicit typeSystem: TypeSystem = ref.typeSystem): Boolean = {
+      def hasUnitReturnType(ref: ScReferenceExpression): Boolean = {
         ref match {
           case MethodRepr(Typeable(FunctionType(_, _)), _, _, _) => false
           case ResolvesTo(fun: ScFunction) => fun.hasUnitResultType

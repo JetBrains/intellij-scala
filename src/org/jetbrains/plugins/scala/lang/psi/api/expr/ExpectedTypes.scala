@@ -62,7 +62,7 @@ private[expr] object ExpectedTypes {
    */
   def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
                         fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
-    import expr.typeSystem
+    import expr.projectContext
     @tailrec
     def fromFunction(tp: (ScType, Option[ScTypeElement])): Array[(ScType, Option[ScTypeElement])] = {
       tp._1 match {
@@ -352,8 +352,9 @@ private[expr] object ExpectedTypes {
   @tailrec
   private def processArgsExpected(res: ArrayBuffer[(ScType, Option[ScTypeElement])], expr: ScExpression, i: Int,
                                   tp: TypeResult[ScType], exprs: Seq[ScExpression], call: Option[MethodInvocation] = None,
-                                  forApply: Boolean = false, isDynamicNamed: Boolean = false)
-                                 (implicit typeSystem: TypeSystem) {
+                                  forApply: Boolean = false, isDynamicNamed: Boolean = false) {
+    import expr.projectContext
+
     def applyForParams(params: Seq[Parameter]) {
       val p: (ScType, Option[ScTypeElement]) =
         if (i >= params.length && params.nonEmpty && params.last.isRepeated)
@@ -384,7 +385,7 @@ private[expr] object ExpectedTypes {
             }
           }
         case typedStmt: ScTypedStmt if typedStmt.isSequenceArg && params.nonEmpty =>
-          val seqClass: Array[PsiClass] = ScalaPsiManager.instance(expr.getProject).
+          val seqClass: Array[PsiClass] = ScalaPsiManager.instance.
                   getCachedClasses(expr.getResolveScope, "scala.collection.Seq").filter(!_.isInstanceOf[ScObject])
           if (seqClass.length != 0) {
             val tp = ScParameterizedType(ScalaType.designator(seqClass(0)), Seq(params.last.paramType))

@@ -44,7 +44,7 @@ class ConvertToParenthesesIntentionTest extends ScalaIntentionTestBase {
   def testIntentionActionForOnSimpleForStatement(): Unit = {
     val text = s"for$CARET_MARKER{i <- 1 to 10} yield i + 1"
     val result = "for (i <- 1 to 10) yield i + 1"
-    doTest(text, result, familyName)
+    doTest(text, result)
   }
 
   def testIntentionActionOnLargeForYieldStatement(): Unit = {
@@ -53,6 +53,6 @@ class ConvertToParenthesesIntentionTest extends ScalaIntentionTestBase {
       |  c <- 'a' to 'e'
       |} yield "" + c + i""".stripMargin
     val result = """for (i <- 1 to 10; c <- 'a' to 'e') yield "" + c + i"""
-    doTest(text, result, familyName)
+    doTest(text, result)
   }
 }

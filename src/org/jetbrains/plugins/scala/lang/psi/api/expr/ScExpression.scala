@@ -204,8 +204,7 @@ object ScExpression {
 
   implicit class Ext(val expr: ScExpression) extends AnyVal {
     private implicit def elementScope = expr.elementScope
-
-    private implicit def typeSystem = expr.typeSystem
+    private def project = elementScope.projectContext
 
     def expectedType(fromUnderscore: Boolean = true): Option[ScType] =
       expectedTypeEx(fromUnderscore).map(_._1)
@@ -294,7 +293,7 @@ object ScExpression {
               val implicitCollector = new ImplicitCollector(expr, functionType, functionType, None, isImplicitConversion = true)
               val fromImplicit = implicitCollector.collect() match {
                 case Seq(res) =>
-                  val `type` = extractImplicitParameterType(res) match {
+                  val `type` = extractImplicitParameterType(res).flatMap {
                     case FunctionType(rt, Seq(_)) => Some(rt)
                     case paramType =>
                       expr.elementScope.cachedFunction1Type.flatMap { functionType =>
@@ -482,12 +481,16 @@ object ScExpression {
       if (integerLiteralValue.isEmpty) None
       else {
         val literalValue = integerLiteralValue.get
+
+        val stdTypes = project.stdTypes
+        import stdTypes._
+
         expected.removeAbstracts match {
-          case api.Char if literalValue >= scala.Char.MinValue.toInt && literalValue <= scala.Char.MaxValue.toInt =>
+          case Char if literalValue >= scala.Char.MinValue.toInt && literalValue <= scala.Char.MaxValue.toInt =>
             Some(Success(Char, Some(expr)))
-          case api.Byte if literalValue >= scala.Byte.MinValue.toInt && literalValue <= scala.Byte.MaxValue.toInt =>
+          case Byte if literalValue >= scala.Byte.MinValue.toInt && literalValue <= scala.Byte.MaxValue.toInt =>
             Some(Success(Byte, Some(expr)))
-          case api.Short if literalValue >= scala.Short.MinValue.toInt && literalValue <= scala.Short.MaxValue.toInt =>
+          case Short if literalValue >= scala.Short.MinValue.toInt && literalValue <= scala.Short.MaxValue.toInt =>
             Some(Success(Short, Some(expr)))
           case _ => None
         }
@@ -502,6 +505,8 @@ object ScExpression {
         case (Some(left), Some(right)) => (left, right)
         case _ => return None
       }
+      val stdTypes = project.stdTypes
+      import stdTypes._
 
       (l, r) match {
         case (Byte, Short | Int | Long | Float | Double) => Some(Success(expected, Some(expr)))
@@ -514,11 +519,16 @@ object ScExpression {
       }
     }
 
-    private def getStdType(t: ScType): Option[StdType] = t match {
-      case AnyVal => Some(AnyVal)
-      case valType: ValType => Some(valType)
-      case designatorType: ScDesignatorType => designatorType.getValType
-      case _ => None
+    private def getStdType(t: ScType): Option[StdType] = {
+      val stdTypes = project.stdTypes
+      import stdTypes._
+
+      t match {
+        case AnyVal => Some(AnyVal)
+        case valType: ValType => Some(valType)
+        case designatorType: ScDesignatorType => designatorType.getValType
+        case _ => None
+      }
     }
 
     @tailrec
@@ -624,6 +634,8 @@ object ScExpression {
   }
 
   private def shape(expression: ScExpression, ignoreAssign: Boolean = false): Option[ScType] = {
+    import expression.projectContext
+
     def shapeIgnoringAssign(maybeExpression: Option[ScExpression]) = maybeExpression.flatMap {
       shape(_, ignoreAssign = true)
     }

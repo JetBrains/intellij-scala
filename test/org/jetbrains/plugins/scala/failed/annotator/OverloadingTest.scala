@@ -30,9 +30,9 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     val file = myFixture.getFile
     val mock = new AnnotatorHolderMock(file)
 
-    assertEquals(Nil, file.depthFirst().filterByType(classOf[PsiErrorElement]).map(_.getText).toList)
+    assertEquals(Nil, file.depthFirst().filterByType[PsiErrorElement].map(_.getText).toList)
 
-    assertEquals(Nil, file.depthFirst().filterByType(classOf[PsiReference])
+    assertEquals(Nil, file.depthFirst().filterByType[PsiReference]
       .filter(_.resolve == null).map(_.getElement.getText).toList)
 
     file.depthFirst().foreach {
@@ -44,14 +44,14 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   }
 
   protected def annotate(element: ScPatternDefinition, holder: AnnotationHolder, typeAware: Boolean): Unit = {
-    for (expr <- element.expr; element <- element.children.findByType(classOf[ScTypeElement]))
+    for (expr <- element.expr; element <- element.children.findByType[ScTypeElement])
       checkConformance(expr, element, holder)
   }
 
   private def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder) {
     expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
       val expected = typeElement.calcType
-      if (!actual.conforms(expected)(typeElement.typeSystem)) {
+      if (!actual.conforms(expected)) {
         val expr = expression match {
           case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
           case _ => expression

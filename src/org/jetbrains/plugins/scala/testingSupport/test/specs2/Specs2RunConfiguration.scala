@@ -5,7 +5,14 @@ import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.SettingMap
+import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.testingSupport.test._
+import org.jetbrains.plugins.scala.util.ScalaUtil
+import org.jetbrains.sbt.shell.SbtShellCommunication
+
+import scala.concurrent.Future
 
 /**
   * @author Ksenia.Sautina
@@ -30,9 +37,37 @@ class Specs2RunConfiguration(override val project: Project,
   protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = Specs2RunConfiguration.isInvalidSuite(clazz, getSuiteClass)
 
   override protected def sbtClassKey = " -- -specname "
+
   override protected def sbtTestNameKey = " -- -ex "
 
+  //TODO temporarily disabled
   override def allowsSbtUiRun: Boolean = false
+
+  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] =
+    modifySetting(SettingMap(), "fullClasspath", "test", "Test",
+      "Attributed(new File(\"" + ScalaUtil.runnersPath().replace("\\", "\\\\") + "\"))(AttributeMap.empty)",
+      comm, !_.contains("scala-plugin-runners.jar"), shouldRevert = false)
+
+  override def getReporterParams: String = " -- -notifier " + reporterClass
+
+  override def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
+    testKind match {
+      case TestKind.REGEXP if useUiWithSbt =>
+        val pattern = zippedRegexps.head
+        Seq(s"$sbtClassKey${pattern._1}$sbtTestNameKey${pattern._2}$getReporterParams")
+      case TestKind.ALL_IN_PACKAGE if useUiWithSbt =>
+        Seq(s"$sbtClassKey$packageParameter$getReporterParams")
+      case _ => super.buildSbtParams(classToTests)
+    }
+  }
+
+  //Since regexp parameters are processed by specs2, no need to collect classes
+  override def getRegexpClassesAndTests: Map[String, Set[String]] = if (useUiWithSbt) Map() else super.getRegexpClassesAndTests
+
+  //TODO: should we have quotes here?
+  override def escapeTestName(test: String): String = "\\A" + test + "\\Z"
+
+  private def packageParameter: String = "\\A" + ScPackageImpl(getPackage(getTestPackagePath)).getQualifiedName + ".*"
 }
 
 object Specs2RunConfiguration extends SuiteValidityChecker {

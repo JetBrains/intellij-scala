@@ -405,12 +405,12 @@ class FunctionAnnotatorTest extends SimpleTestCase {
   }
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val annotator = new FunctionAnnotator() {}
+    val annotator = ScalaAnnotator.forProject
     val parse: ScalaFile = (Header + code).parse
 
     val mock = new AnnotatorHolderMock(parse)
 
-    parse.depthFirst().filterByType(classOf[ScFunctionDefinition]).foreach {
+    parse.depthFirst().filterByType[ScFunctionDefinition].foreach {
       annotator.annotateFunction(_, mock, typeAware = true)
     }
 

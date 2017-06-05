@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.performance.typing
 
-import org.jetbrains.plugins.scala.util.TestUtils
-
 /**
   * @author Roman.Shein
   *         Date: 15.12.2015

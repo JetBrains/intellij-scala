@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 
 /**
  * Pavel Fatin
@@ -65,7 +65,7 @@ object RedundantBlockInspection {
         case _: ScInterpolatedStringLiteral =>
           val text = child.getText
           val nextLetter = next.getText.headOption.getOrElse(' ')
-          val checkId = ScalaNamesUtil.isIdentifier(text) && (nextLetter == '$' || !ScalaNamesUtil.isIdentifier(text + nextLetter))
+          val checkId = isIdentifier(text) && (nextLetter == '$' || !isIdentifier(text + nextLetter))
           checkId && !text.startsWith("_") && !text.exists(_ == '$') && !text.startsWith("`")
         case _ => false
       }

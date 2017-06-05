@@ -86,7 +86,7 @@ trait TreeAdapter {
   def toFunDecl(t: ScFunctionDeclaration): m.Decl.Def = {
     m.Decl.Def(convertMods(t), toTermName(t), Seq(t.typeParameters map toTypeParams: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
-      t.typeElement.map(toType(_)).getOrElse(toStdTypeName(ptype.api.Unit)))
+      t.typeElement.map(toType(_)).getOrElse(toStdTypeName(ptype.api.Unit(t.projectContext))))
   }
 
   def toTypeDefn(t: ScTypeAliasDefinition): m.Defn.Type = {
@@ -346,16 +346,18 @@ trait TreeAdapter {
         res
       case t: ScGenericCall =>
         m.Term.ApplyType(ideaToMeta(t.referencedExpr).asInstanceOf[m.Term], Seq(t.arguments.map(toType):_*))
+      case t: ScParenthesisedExpr =>
+        t.expr.map(expression).getOrElse(unreachable)
+      case t: ScAssignStmt =>
+        m.Term.Assign(expression(t.getLExpression).asInstanceOf[m.Term.Ref], expression(t.getRExpression.get))
+      case t: ScUnderscoreSection =>
+        m.Term.Placeholder()
       case t: ScConstrExpr =>
         t ???
       case t: ScInterpolatedStringLiteral =>
         t ???
-      case t: ScParenthesisedExpr =>
-        t.expr.map(expression).getOrElse(unreachable)
       case t: ScTypedStmt =>
         t ???
-      case t: ScUnderscoreSection =>
-        m.Term.Placeholder()
       case t: ScXmlExpr =>
         t ???
 
@@ -461,7 +463,7 @@ trait TreeAdapter {
     else if (t.isSingleWildcard)
       m.Importer(getQualifier(t.qualifier), Seq(m.Importee.Wildcard()))
     else
-      m.Importer(getQualifier(t.qualifier), Seq(m.Importee.Name(m.Name.Indeterminate(t.getNames.head))))
+      m.Importer(getQualifier(t.qualifier), Seq(m.Importee.Name(m.Name.Indeterminate(t.importedNames.head))))
   }
 
   def literal(l: ScLiteral): m.Lit = {
@@ -469,16 +471,16 @@ trait TreeAdapter {
 
     import m.Lit
     val res = l match {
-      case ScLiteral(i: Integer)              => Lit(i)
-      case ScLiteral(l: java.lang.Long)       => Lit(l)
-      case ScLiteral(f: java.lang.Float)      => Lit(f)
-      case ScLiteral(d: java.lang.Double)     => Lit(d)
-      case ScLiteral(b: java.lang.Boolean)    => Lit(b)
-      case ScLiteral(c: java.lang.Character)  => Lit(c)
-      case ScLiteral(b: java.lang.Byte)       => Lit(b)
-      case ScLiteral(s: String)               => Lit(s)
-      case ScLiteral(null)                    => Lit(null)
-      case _ if l.isSymbol                    => Lit(l.getValue.asInstanceOf[Symbol].name) // symbol literals in meta contain a string as their value
+      case ScLiteral(i: Integer)              => Lit.Int(i)
+      case ScLiteral(l: java.lang.Long)       => Lit.Long(l)
+      case ScLiteral(f: java.lang.Float)      => Lit.Float(f)
+      case ScLiteral(d: java.lang.Double)     => Lit.Double(d)
+      case ScLiteral(b: java.lang.Boolean)    => Lit.Boolean(b)
+      case ScLiteral(c: java.lang.Character)  => Lit.Char(c)
+      case ScLiteral(b: java.lang.Byte)       => Lit.Byte(b)
+      case ScLiteral(s: String)               => Lit.String(s)
+      case ScLiteral(null)                    => Lit.Null()
+      case _ if l.isSymbol                    => Lit.Symbol(l.getValue.asInstanceOf[Symbol]) // symbol literals in meta contain a string as their value
       case other => other ?!
     }
     res
@@ -490,9 +492,9 @@ trait TreeAdapter {
     }
 
     if(t.bindings.exists(_.isVal))
-      m.Defn.Val(convertMods(t), Seq(t.bindings.map(pattern):_*), t.typeElement.map(toType(_)), expression(t.expr).get)
+      m.Defn.Val(convertMods(t), Seq(t.bindings.map(pattern):_*), t.typeElement.map(toType), expression(t.expr).get)
     else if(t.bindings.exists(_.isVar))
-      m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern):_*), t.typeElement.map(toType(_)), expression(t.expr))
+      m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern):_*), t.typeElement.map(toType), expression(t.expr))
     else unreachable
   }
 

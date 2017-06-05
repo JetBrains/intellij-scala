@@ -6,9 +6,7 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -23,11 +21,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, T
  * Time: 9:55:28
  */
 
-class ScValueDeclarationImpl private (stub: StubElement[ScValue], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScValueDeclaration {
-  def this(node: ASTNode) = {this(null, null, node)}
+class ScValueDeclarationImpl private (stub: ScValueStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, VALUE_DECLARATION, node) with ScValueDeclaration {
 
-  def this(stub: ScValueStub) = {this(stub, ScalaElementTypes.VALUE_DECLARATION, null)}
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScValueStub) = this(stub, null)
 
   override def toString: String = "ScValueDeclaration: " + declaredElements.map(_.name).mkString(", ")
 
@@ -38,20 +37,9 @@ class ScValueDeclarationImpl private (stub: StubElement[ScValue], nodeType: IEle
     case Some(te) => te.getType(ctx)
   }
 
-  def typeElement: Option[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScValueStub].typeElement
-    }
-    else findChild(classOf[ScTypeElement])
-  }
+  def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def getIdList: ScIdList = {
-    val stub = getStub
-    if (stub != null) {
-      stub.getChildrenByType(ScalaElementTypes.IDENTIFIER_LIST, JavaArrayFactoryUtil.ScIdListFactory).apply(0)
-    } else findChildByClass(classOf[ScIdList])
-  }
+  def getIdList: ScIdList = getStubOrPsiChild(IDENTIFIER_LIST)
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitValueDeclaration(this)

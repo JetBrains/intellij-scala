@@ -8,8 +8,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -27,7 +25,6 @@ class RegenerateTypeAnnotation extends PsiElementBaseIntentionAction {
       def message(key: String) {
         setText(ScalaBundle.message(key))
       }
-      implicit val typeSystem = project.typeSystem
 
       getTypeAnnotation(element).isDefined &&
         ToggleTypeAnnotation.complete(new RegenerateTypeAnnotationDescription(message), element)
@@ -35,13 +32,12 @@ class RegenerateTypeAnnotation extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    ToggleTypeAnnotation.complete(new RegenerateStrategy(Option(editor)), element)(project.typeSystem)
+    ToggleTypeAnnotation.complete(new RegenerateStrategy(Option(editor)), element)
   }
 
-  private def getTypeAnnotation(element: PsiElement)
-    (implicit typeSystem: TypeSystem): Option[ScTypeElement] = {
+  private def getTypeAnnotation(element: PsiElement): Option[ScTypeElement] = {
     def funType: Option[ScTypeElement] = for {
-      function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
+      function <- element.parentsInFile.findByType[ScFunctionDefinition]
       if function.hasAssign
       body <- function.body
       if !body.isAncestorOf(element)
@@ -49,10 +45,10 @@ class RegenerateTypeAnnotation extends PsiElementBaseIntentionAction {
     } yield r
 
     def valType: Option[ScTypeElement] =
-      element.parentsInFile.findByType(classOf[ScPatternDefinition]).flatMap(_.typeElement)
+      element.parentsInFile.findByType[ScPatternDefinition].flatMap(_.typeElement)
 
     def varType: Option[ScTypeElement] =
-      element.parentsInFile.findByType(classOf[ScVariableDefinition]).flatMap(_.typeElement)
+      element.parentsInFile.findByType[ScVariableDefinition].flatMap(_.typeElement)
 
     funType orElse valType orElse varType
   }

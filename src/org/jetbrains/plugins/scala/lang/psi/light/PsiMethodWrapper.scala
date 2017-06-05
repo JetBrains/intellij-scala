@@ -7,7 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.PsiSuperMethodImplUtil
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.util.{MethodSignature, MethodSignatureBackedByPsiMethod}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.light.LightUtil.javaTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -82,8 +82,8 @@ abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containi
     PsiSuperMethodImplUtil.getHierarchicalMethodSignature(this)
 }
 
-trait NavigablePsiElementWrapper extends NavigatablePsiElement {
-  val delegate: NavigatablePsiElement
+trait NavigablePsiElementWrapper[E <: NavigatablePsiElement] extends NavigatablePsiElement {
+  val delegate: E
 
   override final def navigate(requestFocus: Boolean): Unit =
     delegate.navigate(requestFocus)

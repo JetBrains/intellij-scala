@@ -38,8 +38,8 @@
         <element id="library" level="project" name="SBT: commons-lang:commons-lang:2.6:jar" />
         <element id="library" level="project" name="SBT: org.atteo:evo-inflector:1.2:jar" />
         <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-xml_2.11:1.0.2:jar" />
-        <element id="library" level="project" name="SBT: org.scala-lang:scala-library:2.11.8:jar" />
-        <element id="library" level="project" name="SBT: org.scala-lang:scala-reflect:2.11.8:jar" />
+        <element id="library" level="project" name="SBT: org.scala-lang:scala-library:2.11.11:jar" />
+        <element id="library" level="project" name="SBT: org.scala-lang:scala-reflect:2.11.11:jar" />
         <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4:jar" />
         <element id="library" level="project" name="SBT: org.apache.lucene:lucene-core:4.8.1:jar" />
         <element id="archive" name="scalap.jar">
@@ -58,12 +58,12 @@
         <element id="library" level="project" name="SBT: org.scalameta:transversers_2.11:1.6.0:jar" />
         <element id="library" level="project" name="SBT: org.scalameta:trees_2.11:1.6.0:jar" />
         <element id="library" level="project" name="SBT: org.scalameta:semantic_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:7.0.0-12-ga98ec5e:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:7.0.0-18-gd3edca5:jar" />
       </element>
       <element id="directory" name="launcher">
         <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.13:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:7.0.0-12-ga98ec5e:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:7.0.0-12-ga98ec5e:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:7.0.0-18-gd3edca5:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:7.0.0-18-gd3edca5:jar" />
       </element>
     </root>
   </artifact>

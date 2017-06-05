@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 
 import scala.annotation.tailrec
 
@@ -43,7 +43,7 @@ class ScalaSourcePositionProvider extends SourcePositionProvider {
 
   @tailrec
   private def resolveReferenceWithName(name: String, context: PsiElement): PsiElement = {
-    if (!ScalaNamesUtil.isIdentifier(name)) return null
+    if (!isIdentifier(name)) return null
     if (name == "$outer" || name.startsWith("x$")) return null
 
     val ref = ScalaPsiElementFactory.createExpressionWithContextFromText(name, context, context).asInstanceOf[ScReferenceExpression]

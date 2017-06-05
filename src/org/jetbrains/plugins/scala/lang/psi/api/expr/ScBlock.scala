@@ -48,14 +48,13 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
       }
       val clausesLubType =
         if (clausesTypes.isEmpty) Nothing
-        else typeSystem.bounds.lub(clausesTypes, checkWeak = true)
+        else clausesTypes.lub(checkWeak = true)
 
       implicit val resolveScope = getResolveScope
-      implicit val project = getProject
 
       getContext match {
         case _: ScCatchBlock =>
-          val manager = ScalaPsiManager.instance(project)
+          val manager = ScalaPsiManager.instance
           val funs = manager.getCachedClasses(resolveScope, "scala.PartialFunction")
           val fun = funs.find(_.isInstanceOf[ScTrait]).getOrElse(return Failure("Cannot find PartialFunction class", Some(this)))
           val throwable = manager.getCachedClass(resolveScope, "java.lang.Throwable").orNull

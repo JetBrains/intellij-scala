@@ -6,12 +6,13 @@ package result
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * @author ilyas
  */
 
-sealed abstract class TypeResult[+T] {
+sealed abstract class TypeResult[+T](implicit val projectContext: ProjectContext) {
   def map[U](f: T => U): TypeResult[U]
   def flatMap[U](f: T => TypeResult[U]): TypeResult[U]
   def filter(f: T => Boolean): TypeResult[T]
@@ -33,31 +34,18 @@ sealed abstract class TypeResult[+T] {
 }
 
 object TypeResult {
-  def fromOption(o: Option[ScType]): TypeResult[ScType] = o match {
+  def fromOption(o: Option[ScType])
+                (implicit pc: ProjectContext): TypeResult[ScType] = o match {
     case Some(t) => Success(t, None)
-    case None => new Failure("", None)
+    case None => Failure("", None)
   }
 
-  def ap2[A, B, Z](tr1: TypeResult[A], tr2: TypeResult[B])(f: (A, B) => Z): TypeResult[Z] = for {
-    t1 <- tr1
-    t2 <- tr2
-  } yield f(t1, t2)
-
-  def ap3[A, B, C, Z](tr1: TypeResult[A], tr2: TypeResult[B], tr3: TypeResult[C])(f: (A, B, C) => Z): TypeResult[Z] = for {
-    t1 <- tr1
-    t2 <- tr2
-    t3 <- tr3
-  } yield f(t1, t2, t3)
-
-  def sequence[A](trs: Seq[TypeResult[A]]): TypeResult[Seq[A]] = {
-    val seed: TypeResult[scala.List[A]] = Success(List[A](), None)
-    trs.foldLeft(seed) {
-      (result, tr) => result.flatMap(as => tr.map(a => a :: as))
-    }.map(_.reverse)
-  }
+  def Any(implicit project: ProjectContext) = Success(project.stdTypes.Any, None)
+  def Nothing(implicit project: ProjectContext) = Success(project.stdTypes.Nothing, None)
 }
 
-case class Success[+T](result: T, elem: Option[PsiElement]) extends TypeResult[T] { self =>
+case class Success[+T](result: T, elem: Option[PsiElement])
+                      (implicit pc: ProjectContext) extends TypeResult[T] { self =>
   def flatMap[U](f: (T) => TypeResult[U]): TypeResult[U] = f(result)
   def map[U](f: T => U) = Success(f(result), elem)
   def filter(f: T => Boolean): TypeResult[T] = if (f(result)) Success(result, elem) else Failure("Wrong type", elem)
@@ -80,7 +68,8 @@ class TypeResultWithFilter[+T](self: TypeResult[T], p: T => Boolean) {
   def withFilter(q: T => Boolean): TypeResultWithFilter[T] = new TypeResultWithFilter[T](self, x => p(x) && q(x))
 }
 
-case class Failure(cause: String, place: Option[PsiElement]) extends TypeResult[Nothing] {
+case class Failure(cause: String, place: Option[PsiElement])
+                  (implicit pc: ProjectContext) extends TypeResult[Nothing] {
   def flatMap[U](f: Nothing => TypeResult[U]): Failure = this
   def map[U](f: Nothing => U): Failure = this
   def foreach[B](f: Nothing => B) {}

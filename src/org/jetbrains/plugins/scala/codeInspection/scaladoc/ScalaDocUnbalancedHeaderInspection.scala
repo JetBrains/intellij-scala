@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * User: Dmitry Naidanov
@@ -75,10 +76,11 @@ class ScalaDocMoveTextToNewLineQuickFix(textData: PsiElement)
   override def getFamilyName: String = InspectionsUtil.SCALADOC
 
   def doApplyFix(project: Project) {
+    implicit val ctx: ProjectContext = project
+
     val data = getElement
     if (!data.isValid) return
 
-    implicit val manager = data.getManager
     data.getParent.addBefore(createDocWhiteSpace, data)
     data.getParent.addBefore(createLeadingAsterisk, data)
   }

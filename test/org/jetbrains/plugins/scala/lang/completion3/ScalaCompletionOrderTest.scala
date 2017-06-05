@@ -54,6 +54,12 @@ class ScalaCompletionOrderTest extends ScalaCompletionSortingTestCase {
   def testUseNameInAssignment(): Unit =
     checkFirst("Fast")
 
+  def testBackticks1(): Unit =
+    checkFirst("`type`", "typeSystem", "fromtype")
+
+  def testBackticks2(): Unit =
+    checkFirst("`type`", "typeSystem")
+
   def testWithStat(): Unit = {
     checkFirst("fbar", "fboo")
 

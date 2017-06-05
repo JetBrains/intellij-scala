@@ -7,7 +7,6 @@ package imports
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.BooleanExt
@@ -23,41 +22,27 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
   * @author Alexander Podkhalyuzin
   *         Date: 20.02.2008
   */
-class ScImportSelectorImpl private(stub: StubElement[ScImportSelector], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScImportSelector {
-  def this(node: ASTNode) =
-    this(null, null, node)
+class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, IMPORT_SELECTOR, node) with ScImportSelector {
 
-  def this(stub: ScImportSelectorStub) =
-    this(stub, IMPORT_SELECTOR, null)
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScImportSelectorStub) = this(stub, null)
 
   override def toString: String = "ImportSelector"
 
   def importedName: Option[String] =
-    Option(getStub).collect {
-      case stub: ScImportSelectorStub => stub
-    }.flatMap {
-      _.importedName
-    }.orElse {
-      Option(findChildByType[PsiElement](ID_SET)).map {
-        _.getText
-      }
-    }.orElse {
-      reference.map {
-        _.refName
-      }
+    byStubOrPsi(_.importedName) {
+      Option(findChildByType[PsiElement](ID_SET)).map(_.getText)
+        .orElse(reference.map(_.refName))
     }
 
-  def reference: Option[ScStableCodeReferenceElement] =
-    Option(getStub).collect {
-      case stub: ScImportSelectorStub => stub
-    }.flatMap {
-      _.reference
-    }.orElse {
-      Option(getFirstChild).collect {
-        case element: ScStableCodeReferenceElement => element
-      }
+  def reference: Option[ScStableCodeReferenceElement] = byPsiOrStub {
+    getFirstChild match {
+      case element: ScStableCodeReferenceElement => Option(element)
+      case _ => None
     }
+  }(_.reference)
 
   override def deleteSelector(): Unit = {
     val expr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
@@ -87,12 +72,8 @@ class ScImportSelectorImpl private(stub: StubElement[ScImportSelector], nodeType
     }
   }
 
-  def isAliasedImport: Boolean = {
-    getStub match {
-      case stub: ScImportSelectorStub => stub.isAliasedImport
-      case _ =>
-        PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr]).selectors.nonEmpty &&
-          !getLastChild.isInstanceOf[ScStableCodeReferenceElement]
-    }
+  def isAliasedImport: Boolean = byStubOrPsi(_.isAliasedImport) {
+    PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr]).selectors.nonEmpty &&
+      !getLastChild.isInstanceOf[ScStableCodeReferenceElement]
   }
 }

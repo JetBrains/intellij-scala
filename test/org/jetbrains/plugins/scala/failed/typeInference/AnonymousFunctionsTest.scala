@@ -12,43 +12,6 @@ import org.junit.experimental.categories.Category
 class AnonymousFunctionsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
-  def testSCL8267(): Unit = doTest()
-
-  def testSCL9432(): Unit = doTest {
-    """
-      |object SCL9432 {
-      |  def f(int: Int): Option[Int] = if (int % 2 == 0) Some(int) else None
-      |  def g(as: List[Int])(b: Int): Option[Int] = if (as contains b) None else f(b)
-      |  /*start*/List(1) flatMap g(List(2, 4))/*end*/
-      |}
-      |//List[Int]
-    """.stripMargin.trim
-  }
-
-  def testSCL4717(): Unit = doTest {
-    """
-      |object SCL4717 {
-      |  def inc(x: Int) = x + 1
-      |  def foo(f: Int => Unit) = f
-      |
-      |  val g: Int => Unit = inc _
-      |  foo(/*start*/inc _/*end*/)
-      |}
-      |//(Int) => Unit
-    """.stripMargin.trim
-  }
-
-  def testSCL7010(): Unit = doTest {
-    """
-      |object O {
-      |    case class Z()      |
-      |    def Z(i: Int) = 123      |
-      |    val x: Int => Int = /*start*/Z/*end*/
-      |  }
-      |//(Int) => Unit
-    """.stripMargin.trim
-  }
-
   def testSCL8621(): Unit = doTest {
     """
       |trait A[T] {
@@ -71,6 +34,51 @@ class AnonymousFunctionsTest extends TypeInferenceTestBase {
       |
       |f(s => ff(/*start*/s/*end*/))
       |//Seq[String]
+    """.stripMargin.trim
+  }
+
+  def testSCL11637(): Unit = doTest {
+    """
+      |trait IA {
+      |  type T <: IAT
+      |  trait IAT {
+      |    //...
+      |  }
+      |}
+      |
+      |object A {
+      |  def Make(): IA = new IA {
+      |    case class T() extends IAT {
+      |      // ...
+      |    }
+      |  }
+      |}
+      |
+      |trait IB[V] {
+      |  type T <: IBT[V]
+      |  trait IBT[K] {
+      |    def filter(f: K => Boolean): T
+      |  }
+      |  val empty: T
+      |}
+      |
+      |object B {
+      |  def Make(D: IA): IB[D.T] = new IB[D.T] {
+      |    case class T() extends IBT[D.T] {
+      |      def filter(f: D.T => Boolean): T = { this }
+      |    }
+      |    val empty: T = T()
+      |  }
+      |}
+      |
+      |package object global {
+      |  val MA = A.Make()
+      |  val MB = B.Make(MA)
+      |
+      |  def test(k: MA.T): Boolean = true
+      |  MB.empty.filter(k => test(/*start*/k/*end*/) )   // here the type of 'k' is inferenced to IA#T, and it does not interoperable with the type MA.T in the editor.
+      |}
+      |//global.MA.T
     """.stripMargin.trim
   }
 

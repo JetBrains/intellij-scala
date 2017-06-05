@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.worksheet.runconfiguration
 
-import com.intellij.openapi.components.ProjectComponent
-import com.intellij.openapi.editor.{Editor, EditorFactory}
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.editor.impl.EditorImpl
+import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.util.containers.WeakHashMap
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, WorksheetIncrementalEditorPrinter}
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, Wor
   * User: Dmitry.Naydanov
   * Date: 03.02.17.
   */
-class WorksheetCache extends ProjectComponent {
+class WorksheetCache(project: Project) extends AbstractProjectComponent(project)  {
   private val allViewers = new WeakHashMap[Editor, List[(Editor)]]()
   private val allReplPrinters = new WeakHashMap[Editor, WorksheetEditorPrinterBase]()
   private val patchedEditors = new WeakHashMap[Editor, String]()
@@ -102,12 +102,6 @@ class WorksheetCache extends ProjectComponent {
   override def projectClosed(): Unit = {
     invalidateViewers()
   }
-
-  override def projectOpened(): Unit = { }
-
-  override def initComponent(): Unit = { }
-
-  override def disposeComponent(): Unit = { }
 
   override def getComponentName: String = "WorksheetCache"
 }

@@ -6,8 +6,6 @@ package statements
 package params
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -15,36 +13,24 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParameterStub
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.DummyASTNode
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
 
-class ScClassParameterImpl private (stub: StubElement[ScParameter], nodeType: IElementType, node: ASTNode)
-  extends ScParameterImpl(stub, nodeType, node) with ScClassParameter {
+class ScClassParameterImpl private (stub: ScParameterStub, node: ASTNode)
+  extends ScParameterImpl(stub, ScalaElementTypes.CLASS_PARAM, node) with ScClassParameter {
 
-  def this(node: ASTNode) = {this(null, null, node)}
+  def this(node: ASTNode) = this(null, node)
 
-  def this(stub: ScParameterStub) = {this(stub, ScalaElementTypes.CLASS_PARAM, null)}
+  def this(stub: ScParameterStub) = this(stub, null)
 
   override def toString: String = "ClassParameter: " + name
 
-  override def isVal: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScParameterStub].isVal
-    }
-    findChildByType[PsiElement](ScalaTokenTypes.kVAL) != null
-  }
-  override def isVar: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScParameterStub].isVar
-    }
-    findChildByType[PsiElement](ScalaTokenTypes.kVAR) != null
-  }
+  override def isVal: Boolean = byStubOrPsi(_.isVal)(findChildByType(ScalaTokenTypes.kVAL) != null)
+
+  override def isVar: Boolean = byStubOrPsi(_.isVar)(findChildByType(ScalaTokenTypes.kVAR) != null)
 
   def isPrivateThis: Boolean = {
     if (!isEffectiveVal) return true
@@ -55,13 +41,7 @@ class ScClassParameterImpl private (stub: StubElement[ScParameter], nodeType: IE
     }
   }
 
-  override def isStable: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScParameterStub].isStable
-    }
-    !isVar
-  }
+  override def isStable: Boolean = byStubOrPsi(_.isStable)(findChildByType(ScalaTokenTypes.kVAR) == null)
 
   override def getOriginalElement: PsiElement = {
     val ccontainingClass = containingClass

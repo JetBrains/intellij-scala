@@ -26,7 +26,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private String[] BASE_PACKAGES = new String[0];
   private String SCALATEST_DEFAULT_SUPERCLASS = "org.scalatest.FunSuite";
-  
+
   private boolean SEARCH_ALL_SYMBOLS = false;
 
   private boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
@@ -46,11 +46,17 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean DISABLE_I18N = false;
   private boolean DONT_CACHE_COMPOUND_TYPES = false;
   private boolean AOT_COMPLETION = true;
+  private boolean PROJECT_VIEW_HIGHLIGHTING = false;
   private boolean SCALA_CLASSES_PRIORITY = true;
   private boolean GENERATE_TOSTRING_WITH_FIELD_NAMES = false;
 
 
   private boolean ENABLE_LIBRARY_EXTENSIONS = true;
+
+  //SCALA.META
+  public enum ScalaMetaMode {Enabled, Disabled, Manual}
+  private ScalaMetaMode scalaMetaMode = ScalaMetaMode.Enabled;
+  private boolean metaTrimMethodBodies = true;
 
   //WORKSHEET
   private int OUTPUT_LIMIT = 35;
@@ -67,14 +73,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean BREADCRUMBS_MATCH_ENABLED = false;
   private boolean BREADCRUMBS_VAL_DEF_ENABLED = false;
   private boolean BREADCRUMBS_IF_DO_WHILE_ENABLED = false;
-  
+
   //MIGRATORS AND BUNDLED INSPECTIONS
   private boolean BUNDLED_MIGRATORS_SEARCH_ENABLED = false;
   private boolean BUNDLED_INSPECTIONS_SEARCH_ENABLED = false;
   private Set<String> BUNDLED_INSPECTION_IDS_DISABLED = new HashSet<String>();
   private Map<String, ArrayList<String>> BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS = new HashMap<String, ArrayList<String>>();
-  
-  
+
+
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
 
   {
@@ -240,6 +246,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     AOT_COMPLETION = value;
   }
 
+  public boolean isProjectViewHighlighting() {
+    return PROJECT_VIEW_HIGHLIGHTING;
+  }
+
+  public void setProjectViewHighlighting(boolean value) {
+    PROJECT_VIEW_HIGHLIGHTING = value;
+  }
+
   public boolean isScalaPriority() {
     return SCALA_CLASSES_PRIORITY;
   }
@@ -255,7 +269,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   public void setCollectionTypeHighlightingLevel(int level) {
     this.COLLECTION_TYPE_HIGHLIGHTING_LEVEL = level;
   }
-  
+
   public Map<String, String> getIntInjectionMapping() {
     return INTERPOLATED_INJECTION_MAPPING;
   }
@@ -305,15 +319,15 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   public int getAutoRunDelay() {
     return AUTORUN_DELAY;
   }
-  
+
   public void setAutoRunDelay(int delay) {
     AUTORUN_DELAY = delay;
   }
-  
+
   public boolean isTreatScratchFilesAsWorksheet() {
     return TREAT_SCRATCH_AS_WORKSHEET;
   }
-  
+
   public void setTreatScratchFilesAsWorksheet(boolean b) {
     TREAT_SCRATCH_AS_WORKSHEET = b;
   }
@@ -325,19 +339,19 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   public void setBreadcrumbsFunctionEnabled(boolean enabled) {
     BREADCRUMBS_FUNCTION_ENABLED = enabled;
   }
-  
+
   public void setBreadcrumbsLambdaEnabled(boolean enabled) {
     BREADCRUMBS_LAMBDA_ENABLED = enabled;
   }
-  
+
   public void setBreadcrumbsMatchEnabled(boolean enabled) {
     BREADCRUMBS_MATCH_ENABLED = enabled;
   }
-  
+
   public void setBreadcrumbsValDefEnabled(boolean enabled) {
     BREADCRUMBS_VAL_DEF_ENABLED = enabled;
   }
-  
+
   public void setBreadcrumbsIfDoWhileEnabled(boolean enabled) {
     BREADCRUMBS_IF_DO_WHILE_ENABLED = enabled;
   }
@@ -365,42 +379,42 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   public boolean isBreadcrumbsIfDoWhileEnabled() {
     return BREADCRUMBS_IF_DO_WHILE_ENABLED;
   }
-  
+
   public boolean isBundledMigratorsSearchEnabled() {
     return BUNDLED_MIGRATORS_SEARCH_ENABLED;
   }
-  
+
   public boolean isBundledInspectionsSearchEnabled() {
     return BUNDLED_INSPECTIONS_SEARCH_ENABLED;
   }
-  
+
   public Set<String> getBundledInspectionIdsDisabled() {
     return BUNDLED_INSPECTION_IDS_DISABLED;
   }
-  
+
   public Map<String, ArrayList<String>> getBundledLibJarsPathsToInspections() {
     return BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS;
   }
-  
+
   public void setBundledMigratorsSearchEnabled(boolean enabled) {
     BUNDLED_MIGRATORS_SEARCH_ENABLED = enabled;
   }
-  
+
   public void setBundledInspectionsSearchEnabled(boolean enabled) {
     BUNDLED_INSPECTIONS_SEARCH_ENABLED = enabled;
   }
-  
+
   public void setBundledInspectionsIdsDisabled(Set<String> disabled) {
     BUNDLED_INSPECTION_IDS_DISABLED = disabled;
   }
-  
+
   public void setBundledLibJarsPathsToInspections(Map<String, ? extends List<String>> pathToInspections) {
     BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS = new HashMap<String, ArrayList<String>>();
     for (Map.Entry<String, ? extends List<String>> entry : pathToInspections.entrySet()) {
       BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS.put(entry.getKey(), new ArrayList<String>(entry.getValue()));
     }
   }
-  
+
   public boolean isGenerateToStringWithFieldNames() { return GENERATE_TOSTRING_WITH_FIELD_NAMES; }
 
   public void setGenerateToStringWithFieldNames(boolean generateToStringWithFieldNames) {
@@ -413,5 +427,21 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setEnableLibraryExtensions(boolean ENABLE_LIBRARY_EXTENSIONS) {
     this.ENABLE_LIBRARY_EXTENSIONS = ENABLE_LIBRARY_EXTENSIONS;
+  }
+
+  public ScalaMetaMode getScalaMetaMode() {
+    return scalaMetaMode;
+  }
+
+  public void setScalaMetaMode(ScalaMetaMode scalaMetaMode) {
+    this.scalaMetaMode = scalaMetaMode;
+  }
+
+  public boolean isMetaTrimMethodBodies() {
+    return metaTrimMethodBodies;
+  }
+
+  public void setMetaTrimMethodBodies(boolean metaTrimMethodBodies) {
+    this.metaTrimMethodBodies = metaTrimMethodBodies;
   }
 }

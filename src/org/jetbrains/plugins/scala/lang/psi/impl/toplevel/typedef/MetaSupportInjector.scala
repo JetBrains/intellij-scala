@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.meta._
 
@@ -45,16 +47,34 @@ class MetaSupportInjector extends SyntheticMembersInjector {
     injectForCompanionObject(source) ++ injectForThis(source)
   }
 
+  override def injectSupers(source: ScTypeDefinition): Seq[String] = {
+    def extractAdditionalSupers(tree: Tree): Set[String] = {
+      val supersA = source.extendsBlock.templateParents.map(_.typeElements.map(_.toString).toSet).getOrElse(Set.empty)
+      val supersB: Set[String] = tree match {
+        case Defn.Class(_, _, _, _, Template(_, parents, _, _)) => parents.map(_.toString()).toSet
+        case Defn.Trait(_, _, _, _, Template(_, parents, _, _)) => parents.map(_.toString()).toSet
+        case Defn.Object(_, _, Template(_, parents, _, _))      => parents.map(_.toString()).toSet
+        case _ => Set.empty
+      }
+      supersB &~ supersA
+    }
+    source.getMetaExpansion match {
+      case Right(tree) => extractAdditionalSupers(tree).toSeq
+      case _ => Seq.empty
+    }
+  }
+
   // theese two implementations must produce identical results on equivalent trees of PSI and scala.meta
   private def hash(member: ScMember): Int = {
     def paramHash(p: ScParameter) = p.typeElement.map(_.getText.hashCode).getOrElse(0)
     def paramClauseHash(pc: ScParameterClause) = pc.parameters.foldLeft(0)((a,b)=>a+paramHash(b))
     member match {
       case td: ScTypeDefinition => td.getName.hashCode
+      case ta: ScTypeAlias => ta.getName.hashCode
       case vd: ScValue => vd.declaredNames.foldLeft(0)((a,b) => a+b.hashCode)
       case fu: ScFunction =>
         fu.name.hashCode +
-          13*fu.paramClauses.clauses.foldLeft(0)((a,b)=>a+paramClauseHash(b)) +
+          13 * fu.paramClauses.clauses.foldLeft(0)((a,b)=>a+paramClauseHash(b)) +
           31 * fu.returnTypeElement.map(_.getText.hashCode).getOrElse(0)
       case other => other.getName.hashCode
     }
@@ -73,6 +93,7 @@ class MetaSupportInjector extends SyntheticMembersInjector {
         name.value.hashCode +
         13*paramss.foldLeft(0)((a, b) => a+b.foldLeft(0)((c,d) => c+ d.name.value.hashCode)) +
         31*tpe.map(_.toString().hashCode).getOrElse(0)
+      case Defn.Type(_, Type.Name(value), _, _) => value.hashCode
       case Defn.Val(_, pats, _, _) => pats.foldLeft(0)((a,b)=>a+patHash(b))
       case Defn.Var(_, pats, _, _) => pats.foldLeft(0)((a,b)=>a+patHash(b))
       case Defn.Class(_, Type.Name(value), _, _, _) => value.hashCode
@@ -88,7 +109,7 @@ class MetaSupportInjector extends SyntheticMembersInjector {
       case m: Defn => Some(m)
       case _ => None
     }
-    bMembers.filter(m => !aMembers.contains(hash(m))).map(trimBodies)
+    bMembers.filter(m => !aMembers.contains(hash(m))).map(trimBodies(_, a))
   }
 
 
@@ -107,16 +128,15 @@ class MetaSupportInjector extends SyntheticMembersInjector {
     }
   }
 
-  private def trimBodies(tree: Tree): Tree = {
-    if (noTrimBodiesProp) { tree }
-    else {
+  private def trimBodies(tree: Tree, elem: PsiElement): Tree = {
+    if (ScalaProjectSettings.getInstance(elem.getProject).isMetaTrimMethodBodies) {
       tree match {
         case Defn.Val(mods, pats, decltpe, _) => Defn.Val(mods, pats, decltpe, Term.Name("???"))
         case Defn.Var(mods, pats, decltpe, _) => Defn.Var(mods, pats, decltpe, Some(Term.Name("???")))
         case Defn.Def(mods, name, tparams, paramss, tpe, _) => Defn.Def(mods, name, tparams, paramss, tpe, Term.Name("???"))
         case other => other
       }
-    }
+    } else { tree }
   }
 
   private def injectForThis(source: ScTypeDefinition): Seq[String] = {
@@ -129,6 +149,6 @@ class MetaSupportInjector extends SyntheticMembersInjector {
       case Right(Term.Block(Seq(Defn.Object(_, _, templ), _)))      => Some(templ)
       case _ => None
     }
-    template.map(getDiff(source, _)).map(defns=>defns.map(t=>trimBodies(t).toString())).getOrElse(Seq.empty)
+    template.map(getDiff(source, _)).map(defns=>defns.map(t=>trimBodies(t, source).toString())).getOrElse(Seq.empty)
   }
 }

@@ -4,7 +4,6 @@ import com.intellij.psi.ResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignStmt, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver.getAllResolveResult
@@ -20,7 +19,7 @@ object DynamicResolveProcessor {
   def getDynamicReturn: ScType => ScType = {
     case methodType: ScMethodType => methodType.returnType
     case ScTypePolymorphicType(methodType: ScMethodType, parameters) =>
-      ScTypePolymorphicType(getDynamicReturn(methodType), parameters)(methodType.typeSystem)
+      ScTypePolymorphicType(getDynamicReturn(methodType), parameters)
     case scType => scType
   }
 
@@ -36,7 +35,6 @@ object DynamicResolveProcessor {
   }
 
   def isDynamicReference(reference: ScReferenceExpression): Boolean = {
-    implicit val typeSystem: TypeSystem = reference.typeSystem
 
     def qualifierType() = reference.qualifier
       .flatMap(_.getNonValueType().toOption)

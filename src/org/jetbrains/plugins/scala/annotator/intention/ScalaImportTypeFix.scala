@@ -32,7 +32,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
@@ -317,11 +316,6 @@ object ScalaImportTypeFix {
 
   @tailrec
   def notInner(clazz: PsiClass, ref: PsiElement): Boolean = {
-    def parent(t: ScTypeDefinition): PsiElement = {
-      val stub = t.asInstanceOf[ScTypeDefinitionImpl].getStub
-      if (stub != null) stub.getParentStub.getPsi
-      else t.getParent
-    }
     clazz match {
       case o: ScObject if o.isSyntheticObject =>
         ScalaPsiUtil.getCompanionModule(o) match {
@@ -329,7 +323,7 @@ object ScalaImportTypeFix {
           case _ => true
         }
       case t: ScTypeDefinition =>
-        parent(t) match {
+        t.getParent match {
           case _: ScalaFile => true
           case _: ScPackaging => true
           case _: ScTemplateBody =>

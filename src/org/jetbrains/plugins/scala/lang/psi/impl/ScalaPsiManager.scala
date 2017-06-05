@@ -13,7 +13,7 @@ import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
-import com.intellij.openapi.util.{Key, LowMemoryWatcher, ModificationTracker}
+import com.intellij.openapi.util.{Key, LowMemoryWatcher, ModificationTracker, SimpleModificationTracker}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiTreeChangeEventImpl}
@@ -26,7 +26,6 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticPackageCreator}
@@ -39,16 +38,18 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Null, ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(val project: Project) {
+  implicit def projectContext: ProjectContext = project
+
   private val inJavaPsiFacade: ThreadLocal[Boolean] = new ThreadLocal[Boolean] {
     override def initialValue(): Boolean = false
   }
@@ -67,51 +68,39 @@ class ScalaPsiManager(val project: Project) {
   private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
 
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
-    if (dontCacheCompound) ParameterlessNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    if (dontCacheCompound) ParameterlessNodes.build(tp, compoundTypeThisType)
     else getParameterlessSignaturesCached(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(synchronized = false, valueWrapper = ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
   private def getParameterlessSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
-    ParameterlessNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    ParameterlessNodes.build(tp, compoundTypeThisType)
   }
 
   def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
-    if (dontCacheCompound) TypeNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    if (dontCacheCompound) TypeNodes.build(tp, compoundTypeThisType)
     else getTypesCached(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
   private def getTypesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
-    TypeNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    TypeNodes.build(tp, compoundTypeThisType)
   }
 
   def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
-    if (dontCacheCompound) return SignatureNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    if (dontCacheCompound) return SignatureNodes.build(tp, compoundTypeThisType)
     getSignaturesCached(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
   private def getSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
-    SignatureNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    SignatureNodes.build(tp, compoundTypeThisType)
   }
 
-  def getCompoundProjectionType(projected: ScCompoundType,
-                                element: PsiNamedElement,
-                                superReference: Boolean): ScType = {
-    if (dontCacheCompound) ScProjectionType.create(projected, element, superReference)
-    else getCompoundProjectionTypeCached(projected, element, superReference)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
+  def simpleAliasProjectionCached(projection: ScProjectionType): ScType = {
+    ScProjectionType.simpleAliasProjection(projection)
   }
-
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange)
-  private def getCompoundProjectionTypeCached(projected: ScCompoundType,
-                                              element: PsiNamedElement,
-                                              superReference: Boolean): ScType = {
-    ScProjectionType.create(projected, element, superReference)
-  }
-
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
-  def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = clazz.isInheritor(base, true)
 
   def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
     if (DumbService.getInstance(project).isDumb) Seq.empty
@@ -264,11 +253,8 @@ class ScalaPsiManager(val project: Project) {
 
   private def clearCaches(): Unit = {
     val typeSystem = project.typeSystem
-    val equivalence = typeSystem.equivalence
-    val conformance = typeSystem.conformance
 
-    conformance.clearCache()
-    equivalence.clearCache()
+    typeSystem.clearCache()
     ParameterizedType.substitutorCache.clear()
     ScParameterizedType.cache.clear()
     collectImplicitObjectsCache.clear()
@@ -299,13 +285,14 @@ class ScalaPsiManager(val project: Project) {
   }
 
   private val syntheticPackagesCreator = new SyntheticPackageCreator(project)
-  private val syntheticPackages = new WeakValueHashMap[String, Any]
+  private val syntheticPackages = new WeakValueHashMap[String, AnyRef]
+  private val emptyMarker: AnyRef = new Object
 
   def syntheticPackage(fqn: String): ScSyntheticPackage = {
     var p = syntheticPackages.get(fqn)
     if (p == null) {
       p = syntheticPackagesCreator.getPackage(fqn)
-      if (p == null) p = Null
+      if (p == null) p = emptyMarker
       synchronized {
         val pp = syntheticPackages.get(fqn)
         if (pp == null) {
@@ -330,8 +317,7 @@ class ScalaPsiManager(val project: Project) {
   }
 
   private def andType(psiTypes: Seq[PsiType]): ScType = {
-    implicit val typeSystem = project.typeSystem
-    typeSystem.andType(psiTypes.map(_.toScType()))
+    projectContext.typeSystem.andType(psiTypes.map(_.toScType()))
   }
 
   def getStableTypeAliasesNames: Seq[String] = {
@@ -408,7 +394,8 @@ object ScalaPsiManager {
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager")
 
-  def instance(project: Project): ScalaPsiManager = project.getComponent(classOf[ScalaPsiManagerComponent]).instance
+  def instance(implicit ctx: ProjectContext): ScalaPsiManager =
+    ctx.project.getComponent(classOf[ScalaPsiManagerComponent]).instance
 
   private def subscribeToRootsChange(project: Project) = {
     project.getMessageBus.connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
@@ -433,6 +420,8 @@ object ScalaPsiManager {
       }
     }, project)
   }
+
+  object AnyScalaPsiModificationTracker extends SimpleModificationTracker
 }
 
 class ScalaPsiManagerComponent(project: Project) extends AbstractProjectComponent(project) {

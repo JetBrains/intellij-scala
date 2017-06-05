@@ -91,20 +91,23 @@ trait Namer {
     var res: m.Type.Name = null
     val visitor = new ScalaTypeVisitor {
       override def visitStdType(x: StdType) = {
+        val stdTypes = x.projectContext.stdTypes
+        import stdTypes._
+
         res = x match {
-          case ptype.api.Any    => std.anyTypeName
-          case ptype.api.AnyRef => std.anyRefTypeName
-          case ptype.api.AnyVal => std.anyValTypeName
-          case ptype.api.Nothing=> std.nothingTypeName
-          case ptype.api.Null   => std.nullTypeName
-          case ptype.api.Unit   => std.unit
-          case ptype.api.Boolean=> std.boolean
-          case ptype.api.Char   => std.char
-          case ptype.api.Int    => std.int
-          case ptype.api.Float  => std.float
-          case ptype.api.Double => std.double
-          case ptype.api.Byte   => std.byte
-          case ptype.api.Short  => std.short
+          case Any    => std.anyTypeName
+          case AnyRef => std.anyRefTypeName
+          case AnyVal => std.anyValTypeName
+          case Nothing=> std.nothingTypeName
+          case Null   => std.nullTypeName
+          case Unit   => std.unit
+          case Boolean=> std.boolean
+          case Char   => std.char
+          case Int    => std.int
+          case Float  => std.float
+          case Double => std.double
+          case Byte   => std.byte
+          case Short  => std.short
           case _ =>
             val clazz = ScalaPsiManager.instance(getCurrentProject).getCachedClass(GlobalSearchScope.allScope(getCurrentProject), s"scala.${x.name}")
             if (clazz != null)

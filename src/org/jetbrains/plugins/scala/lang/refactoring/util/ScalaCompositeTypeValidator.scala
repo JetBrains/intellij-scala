@@ -1,17 +1,15 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.search.{GlobalSearchScopesCore, PsiSearchHelper}
-import com.intellij.psi.{PsiDirectory, PsiFile, PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiDirectory, PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.util.Processor
-import org.jetbrains.plugins.scala.ScalaBundle
 
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Created by Kate Ustyuzhanina on 8/25/15.
- */
+  * Created by Kate Ustyuzhanina on 8/25/15.
+  */
 object ScalaCompositeTypeValidator {
   def apply(validators: List[ScalaValidator],
             conflictsReporter: ConflictsReporter,
@@ -33,9 +31,9 @@ class ScalaCompositeTypeValidator(conflictsReporter: ConflictsReporter,
                                   enclosingContainerAll: PsiElement,
                                   enclosingOne: PsiElement,
                                   validators: List[ScalaValidator])
-  extends ScalaTypeValidator(conflictsReporter, myProject, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
+  extends ScalaTypeValidator(selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
-  override def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = {
+  protected override def findConflictsImpl(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = {
     //returns declaration and message
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
 
@@ -43,51 +41,39 @@ class ScalaCompositeTypeValidator(conflictsReporter: ConflictsReporter,
     val filesToSearchIn = enclosingContainerAll match {
       case directory: PsiDirectory =>
         findFilesForDownConflictFindings(directory, name)
-      case _ => null
+      case _ => Seq.empty
     }
-
 
     for (file <- filesToSearchIn) {
       if (buf.isEmpty) {
-        buf ++= getForbiddenNamesInBlock(file, name)
+        buf ++= forbiddenNamesInBlock(file, name)
       }
     }
 
     for (validator <- validators) {
       if (buf.isEmpty) {
-        buf ++= getForbiddenNames(validator.enclosingContainer(allOcc), name)
+        buf ++= forbiddenNames(validator.enclosingContainer(allOcc), name)
       }
     }
 
-    buf.toArray
+    buf
   }
 
   //TODO iliminate duplication
-  private def findFilesForDownConflictFindings(directory: PsiDirectory, name: String): Array[PsiFile] = {
-    def oneRound(word: String) = {
-      val buffer = new ArrayBuffer[PsiFile]()
+  private def findFilesForDownConflictFindings(directory: PsiDirectory, name: String): Seq[PsiFile] = {
+    val buffer = new ArrayBuffer[PsiFile]()
 
-      val processor = new Processor[PsiFile] {
-        override def process(file: PsiFile): Boolean = {
-          buffer += file
-          true
-        }
+    val processor = new Processor[PsiFile] {
+      override def process(file: PsiFile): Boolean = {
+        buffer += file
+        true
       }
-
-      val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(directory.getProject)
-      helper.processAllFilesWithWord(word, GlobalSearchScopesCore.directoryScope(directory, true), processor, true)
-
-      buffer
     }
 
-    val resultBuffer = oneRound(name)
-    resultBuffer.toArray
-  }
+    val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(directory.getProject)
+    helper.processAllFilesWithWord(name, GlobalSearchScopesCore.directoryScope(directory, true), processor, true)
 
-  override def validateName(name: String, increaseNumber: Boolean): String = {
-    val newName = name.capitalize
-    super.validateName(newName, increaseNumber)
+    buffer
   }
-
 }
 

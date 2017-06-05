@@ -4,7 +4,6 @@ import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.template._
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 
 /**
  * @author Roman.Shein
@@ -12,8 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
  */
 class ScalaExpressionTypeMacro extends ScalaMacro {
 
-  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext)
-                                   (implicit typeSystem: TypeSystem): Result = {
+  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     if (params.length != 1) return null
     MacroUtil.resultToScExpr(params.head.calculateResult(context), context).flatMap(_.getType().toOption).
             map(myType => new ScalaTypeResult(myType)).orNull

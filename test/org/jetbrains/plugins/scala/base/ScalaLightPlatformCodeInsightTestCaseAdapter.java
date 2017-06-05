@@ -75,7 +75,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         Module module = module();
 
         ArrayList<LibraryLoader> result = new ArrayList<LibraryLoader>();
-        result.add(new ScalaLibraryLoader(isIncludeReflectLibrary(), module, project()));
+        result.add(new ScalaLibraryLoader(isIncludeReflectLibrary(), module));
 
         String path = rootPath();
         if (path != null) {

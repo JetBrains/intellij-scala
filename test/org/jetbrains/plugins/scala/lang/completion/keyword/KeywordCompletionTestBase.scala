@@ -12,7 +12,7 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isKeyword
 
 /**
  * @author Alexander Podkhalyuzin
@@ -43,7 +43,7 @@ abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTe
       if (lookup == null) Array.empty
       else lookup.getItems.toArray(LookupElement.EMPTY_ARRAY).map(_.getLookupString)
 
-    val res = items.filter(ScalaNamesUtil.isKeyword).sorted.mkString("\n")
+    val res = items.filter(isKeyword(_)).sorted.mkString("\n")
 
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val text = lastPsi.getText

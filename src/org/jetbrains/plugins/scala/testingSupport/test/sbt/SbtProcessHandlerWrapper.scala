@@ -4,7 +4,7 @@ import java.io.OutputStream
 
 import com.intellij.execution.process.{OSProcessHandler, ProcessEvent, ProcessHandler, ProcessListener}
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 
 /** Process wrapper used to imitate termination of process so that 'stop' button in UI stops tests, but foes not kill
   * SBT shell.
@@ -13,7 +13,7 @@ import scala.collection.mutable.ListBuffer
   */
 case class SbtProcessHandlerWrapper(inner: OSProcessHandler) extends ProcessHandler() {
 
-  private val myListeners: ListBuffer[ProcessListener] = ListBuffer()
+  private val myListeners: mutable.ListBuffer[ProcessListener] = mutable.ListBuffer()
 
   private var isTerminated: Boolean = false
 
@@ -39,17 +39,17 @@ case class SbtProcessHandlerWrapper(inner: OSProcessHandler) extends ProcessHand
 
   override def detachIsDefault(): Boolean = false
 
-  override def addProcessListener(listener: ProcessListener) {
+  override def addProcessListener(listener: ProcessListener): Unit = {
     myListeners += listener
     inner.addProcessListener(listener)
   }
 
-  override def removeProcessListener(listener: ProcessListener) {
+  override def removeProcessListener(listener: ProcessListener): Unit = {
     myListeners -= listener
     inner.removeProcessListener(listener)
   }
 
-  override def getExitCode = 0
+  override def getExitCode: Integer = 0
 
   override def notifyProcessDetached(): Unit =  destroyProcessImpl()
 

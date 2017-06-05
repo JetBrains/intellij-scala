@@ -31,6 +31,6 @@ trait ScCaseClause extends ScalaPsiElement {
 }
 
 object ScCaseClause {
-  def unapply(e: ScCaseClause): Some[(Option[ScPattern], Option[ScGuard], Option[ScExpression])] =
-    Some(e.pattern, e.guard, e.expr)
+  def unapply(e: ScCaseClause): Option[(Option[ScPattern], Option[ScGuard], Option[ScExpression])] =
+    Option(e).map(e => (e.pattern, e.guard, e.expr))
 }

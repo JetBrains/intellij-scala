@@ -6,9 +6,7 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -23,8 +21,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, T
  * @author Alexander Podkhalyuzin
  */
 
-class ScVariableDefinitionImpl private (stub: StubElement[ScVariable], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScVariableDefinition {
+class ScVariableDefinitionImpl private (stub: ScVariableStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, VARIABLE_DEFINITION, node) with ScVariableDefinition {
+
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScVariableStub) = this(stub, null)
+
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
@@ -32,23 +35,14 @@ class ScVariableDefinitionImpl private (stub: StubElement[ScVariable], nodeType:
     }
   }
 
-  def expr: Option[ScExpression] = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScVariableStub].bodyExpression
-    }
-    Option(findChildByClassScala(classOf[ScExpression]))
-  }
-
-  def this(node: ASTNode) = {this(null, null, node)}
-
-  def this(stub: ScVariableStub) = {this(stub, ScalaElementTypes.VARIABLE_DEFINITION, null)}
+  def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
   override def toString: String = "ScVariableDefinition"
 
-  def bindings: Seq[ScBindingPattern] = {
-    val plist = this.pList
-    if (plist != null) plist.patterns.flatMap((p: ScPattern) => p.bindings) else Seq.empty
+  def bindings: Seq[ScBindingPattern] = pList match {
+    case null => Seq.empty
+    case ScPatternList(Seq(pattern)) => pattern.bindings
+    case ScPatternList(patterns) => patterns.flatMap(_.bindings)
   }
 
   def getType(ctx: TypingContext): TypeResult[ScType] = typeElement match {
@@ -57,18 +51,7 @@ class ScVariableDefinitionImpl private (stub: StubElement[ScVariable], nodeType:
             .getOrElse(Failure("Cannot infer type without an expression", Some(this)))
   }
 
-  def typeElement: Option[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScVariableStub].typeElement
-    }
-    else findChild(classOf[ScTypeElement])
-  }
+  def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def pList: ScPatternList = {
-    val stub = getStub
-    if (stub != null) {
-      stub.getChildrenByType(ScalaElementTypes.PATTERN_LIST, JavaArrayFactoryUtil.ScPatternListFactory).apply(0)
-    } else findChildByClass(classOf[ScPatternList])
-  }
+  def pList: ScPatternList = getStubOrPsiChild(PATTERN_LIST)
 }

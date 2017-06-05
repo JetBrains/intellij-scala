@@ -10,6 +10,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.{IntentionAvailabilityChecker, IntentionUtils}
 
 /**
@@ -46,6 +47,8 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
+    implicit val ctx: ProjectContext = project
+
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null || !methodCallExpr.isValid) return
 
@@ -102,7 +105,6 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
     }
     val text = expr.toString()
 
-    implicit val manager = element.getManager
     createExpressionFromText(text) match {
       case infixExpr: ScInfixExpr =>
         infixExpr.asInstanceOf[ScInfixExpr].getBaseExpr.replaceExpression(createExpressionFromText(forA), removeParenthesis = true)

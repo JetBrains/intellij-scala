@@ -34,10 +34,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, Undefi
 object ShapelessForProduct extends ScalaMacroTypeable {
 
   override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
-    implicit val typeSystem = macros.typeSystem
     if (context.expectedType.isEmpty) return None
 
-    val elementScope = context.place.elementScope
+    implicit val elementScope = context.place.elementScope
 
     val clazz = elementScope.getCachedClass("shapeless.Generic")
     clazz match {

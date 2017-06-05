@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.debugger.Scala_2_10
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath
 import org.junit.Assert._
 
@@ -72,7 +73,7 @@ class MemoryLeakTest extends PlatformTestCase {
     project
   }
 
-  private def librariesLoaders(implicit project: Project): Seq[LibraryLoader] = {
+  private def librariesLoaders(implicit project: ProjectContext): Seq[LibraryLoader] = {
     implicit val module = ModuleManager.getInstance(project).getModules()(0)
     Seq(
       ScalaLibraryLoader(),
@@ -80,12 +81,12 @@ class MemoryLeakTest extends PlatformTestCase {
     )
   }
 
-  private def closeAndDispose(implicit project: Project): Unit = {
+  private def closeAndDispose(implicit project: ProjectContext): Unit = {
     librariesLoaders.foreach(_.clean())
     ProjectManagerEx.getInstanceEx.closeAndDispose(project)
 
     assertFalse(project.isOpen)
-    assertTrue(project.isDisposed)
+    assertTrue(project.project.isDisposed)
   }
 
   def testLeaksAfterProjectDispose(): Unit = {
@@ -100,7 +101,7 @@ class MemoryLeakTest extends PlatformTestCase {
     checkLeak[ScalaFile](allRoots, classOf[ScalaFile], f => f.getProject == project)
   }
 
-  private def doSomeWork(implicit project: Project): Unit = {
+  private def doSomeWork(implicit project: ProjectContext): Unit = {
     val file = findFile("HelloWorld.scala").asInstanceOf[ScalaFile]
 
     processFile(file)
@@ -113,14 +114,14 @@ class MemoryLeakTest extends PlatformTestCase {
     })
   }
 
-  private def allRootsForProject(implicit project: Project): Seq[AnyRef] =
+  private def allRootsForProject(implicit project: ProjectContext): Seq[AnyRef] =
     LeakHunter.allRoots().asScala :+ project.getPicoContainer
 }
 
 object MemoryLeakTest {
 
   private def findFile(fileName: String)
-                      (implicit project: Project): PsiFile = {
+                      (implicit project: ProjectContext): PsiFile = {
     val file = project.getBaseDir.findChild("src").findChild(fileName)
     PsiManager.getInstance(project).findFile(file)
   }
@@ -140,10 +141,9 @@ object MemoryLeakTest {
   }
 
   private[this] def annotateFile(implicit file: PsiFile): Unit =
-    new ScalaAnnotator().annotate(file, new AnnotatorHolderMock(file))
+    ScalaAnnotator.forProject.annotate(file, new AnnotatorHolderMock(file))
 
   private[this] def inspectFile(implicit file: PsiFile): Unit = {
-    implicit val project = file.getProject
 
     val tools = createInspectionTools
       .filter(_.getLanguage == ScalaLanguage.INSTANCE.getID)
@@ -151,20 +151,20 @@ object MemoryLeakTest {
         case toolWrapper: LocalInspectionToolWrapper => toolWrapper.getTool
       }
 
-    val inspectionManager = InspectionManager.getInstance(project)
+    val inspectionManager = InspectionManager.getInstance(file.getProject)
     tools.foreach {
       _.processFile(file, inspectionManager)
     }
   }
 
-  private[this] def createInspectionTools(implicit project: Project): Seq[InspectionToolWrapper[_, _]] = {
+  private[this] def createInspectionTools(implicit project: ProjectContext): Seq[InspectionToolWrapper[_, _]] = {
     import scala.collection.JavaConversions._
     createInspectionProfile.getAllEnabledInspectionTools(project)
       .flatMap(_.getTools)
       .map(_.getTool)
   }
 
-  private[this] def createInspectionProfile(implicit project: Project): InspectionProfile = {
+  private[this] def createInspectionProfile(implicit project: ProjectContext): InspectionProfile = {
     val result = new InspectionProfileImpl("test")
     result.initInspectionTools(project)
 

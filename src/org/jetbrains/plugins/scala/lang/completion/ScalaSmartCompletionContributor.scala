@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaConstructorInsertHandler, ScalaGenerateAnonymousFunctionInsertHandler}
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaChainLookupElement, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -26,10 +27,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.{types, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -46,7 +45,8 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   private def acceptTypes(typez: Seq[ScType], variants: Array[Object], result: CompletionResultSet,
                           scope: GlobalSearchScope, secondCompletion: Boolean, completeThis: Boolean,
                           place: PsiElement, originalPlace: PsiElement) {
-    implicit val typeSystem = scope.getProject.typeSystem
+    implicit val projectContext = place.projectContext
+
     def isAccessible(el: ScalaLookupItem): Boolean = {
       ScalaPsiUtil.nameContext(el.element) match {
         case memb: ScMember =>
@@ -63,7 +63,6 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         val elemToAdd = variant.asInstanceOf[LookupElement]
         if (isAccessible(scalaLookupItem) && !scalaLookupItem.isNamedParameterOrAssignment) {
           def checkType(_tp: ScType, _subst: ScSubstitutor, chainCompletion: Boolean, etaExpanded: Boolean = false): Boolean = {
-            import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
             val tp = _subst.subst(_tp)
             var elementAdded = false
             val scType = scalaLookupItem.substitutor.subst(tp)
@@ -74,7 +73,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
             } else {
               typez.foreach {
                 case ParameterizedType(tpe, Seq(arg)) if !elementAdded =>
-                  tpe.extractClass(scalaLookupItem.element.getProject) match {
+                  tpe.extractClass match {
                     case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.qualifiedName == "scala.Some" =>
                       if (!scType.equiv(Nothing) && scType.conforms(arg)) {
                         scalaLookupItem.someSmartCompletion = true
@@ -190,7 +189,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           def checkTypeProjection(tp: ScType) {
             tp match {
               case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait, _) =>
-                proj.extractClass(place.getProject) match {
+                proj.extractClass match {
                   case Some(o: ScObject) if ResolveUtils.isAccessible(o, place, forCompletion = true) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
                   case _ =>
                 }
@@ -199,7 +198,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           }
           @tailrec
           def checkType(tp: ScType) {
-            tp.extractClass(place.getProject) match {
+            tp.extractClass match {
               case Some(c: ScClass) if c.qualifiedName == "scala.Option" || c.qualifiedName == "scala.Some" =>
                 tp match {
                   case ParameterizedType(_, Seq(scType)) => checkType(scType)
@@ -235,7 +234,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           checkType(tp)
         }
         variants.foreach(applyVariant(_, checkForSecondCompletion = true))
-        if (typez.exists(_.equiv(types.api.Boolean))) {
+        if (typez.exists(_.equiv(Boolean))) {
           for (keyword <- Set("false", "true")) {
             result.addElement(LookupElementManager.getKeywordLookupElement(keyword, place.getProject))
           }
@@ -249,7 +248,6 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               case t: ScTemplateDefinition =>
                 t.getTypeWithProjections(TypingContext.empty, thisProjections = true) match {
                   case Success(scType, _) =>
-                    import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
                     val lookupString = (if (foundClazz) t.name + "." else "") + "this"
                     val el = new ScalaLookupItem(t, lookupString)
                     if (!scType.equiv(Nothing) && typez.exists(scType conforms _)) {
@@ -259,7 +257,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                       var elementAdded = false
                       typez.foreach {
                         case ParameterizedType(tp, Seq(arg)) if !elementAdded =>
-                          tp.extractClass(place.getProject) match {
+                          tp.extractClass match {
                             case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.qualifiedName == "scala.Some" =>
                               if (!scType.equiv(Nothing) && scType.conforms(arg)) {
                                 el.someSmartCompletion = true
@@ -342,8 +340,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   })
 
   private def argumentsForFunction(args: ScArgumentExprList, referenceExpression: ScReferenceExpression,
-                                   result: CompletionResultSet)
-                                  (implicit typeSystem: TypeSystem = referenceExpression.typeSystem) {
+                                   result: CompletionResultSet) {
     val braceArgs = args.isBraceArgs
     val expects = referenceExpression.expectedTypes()
     for (expected <- expects) {
@@ -646,7 +643,6 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           case ScAbstractType(_, _, upper) => upper
           case tp => tp
         }
-        implicit val typeSystem = newExpr.typeSystem
         for (typez <- types) {
           val element: LookupElement = convertTypeToLookupElement(typez, newExpr, addedClasses,
             new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler, renamesMap)

@@ -6,14 +6,14 @@ import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiPa
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, TypeSystem, ValType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, ValType}
 
 /**
  * Nikolay.Tropin
  * 2014-10-02
  */
 object ValueClassType {
-  def unapply(tp: ScType)(implicit typeSystem: TypeSystem): Option[ScType] = {
+  def unapply(tp: ScType): Option[ScType] = {
     tp match {
       case _: ValType => None
       case ExtractClass(cl: ScClass) if isValueClass(cl) =>
@@ -26,7 +26,7 @@ object ValueClassType {
     }
   }
 
-  def isValueType(tp: ScType)(implicit typeSystem: TypeSystem): Boolean = unapply(tp).isDefined
+  def isValueType(tp: ScType): Boolean = unapply(tp).isDefined
 
   def isValueClass(cl: PsiClass): Boolean = cl match {
     case scClass: ScClass =>

@@ -10,7 +10,6 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.impl.source.PsiFileImpl
-import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
@@ -84,6 +83,8 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     calcFakeCompanionModule()
   }
 
+  override def showAsInheritor: Boolean = true
+
   //Performance critical method
   //And it is REALLY SO!
   def baseCompanionModule: Option[ScTypeDefinition] = {
@@ -92,8 +93,8 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
     val thisName: String = name
     val tokenSet = TokenSets.TYPE_DEFINITIONS
-    val stub: Option[StubElement[_]] = scope match {
-      case stub: StubBasedPsiElement[_] => Option(stub.getStub)
+    val stub = scope match {
+      case stub: ScalaStubBasedElementImpl[_, _] => Option(stub.getStub)
       case file: PsiFileImpl => Option(file.getStub)
       case _ => None
     }
