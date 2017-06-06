@@ -190,7 +190,8 @@ case class ScCompoundType(components: Seq[ScType],
           (true, undefinedSubst)
         }
       case _ =>
-        if (signatureMap.isEmpty && typesMap.isEmpty) {
+        val needOnlyComponents = signatureMap.isEmpty && typesMap.isEmpty || ScCompoundType(components).conforms(this)
+        if (needOnlyComponents) {
           val filtered = components.filter {
             case t if t.isAny => false
             case t if t.isAnyRef =>
@@ -204,7 +205,6 @@ case class ScCompoundType(components: Seq[ScType],
           if (filtered.length == 1) filtered.head.equiv(r, undefinedSubst, falseUndef)
           else (false, undefinedSubst)
         } else (false, undefinedSubst)
-
     }
   }
 }
