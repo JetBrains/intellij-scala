@@ -110,7 +110,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   private def dumpFromProcess(directory: File, structureFile: File, options: Seq[String], sbtVersion: Version): Try[String] = {
 
     val optString = options.mkString(", ")
-    val pluginJar = sbtStructureJar(sbtVersion.presentation)
+    val pluginJar = sbtStructureJar(sbtVersion.major(2).presentation)
     val dumpStructureCommand =
       if (sbtVersion < sinceSbtVersionShell) "dump-structure"
       else "dumpStructure"
