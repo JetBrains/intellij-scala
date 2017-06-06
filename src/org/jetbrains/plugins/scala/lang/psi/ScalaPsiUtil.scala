@@ -2003,16 +2003,21 @@ object ScalaPsiUtil {
   }
 
   def isImplicit(namedElement: PsiNamedElement): Boolean = {
-    namedElement match {
-      case s: ScModifierListOwner => s.hasModifierProperty("implicit")
+    val maybeModifierListOwner = namedElement match {
+      case owner: ScModifierListOwner => Some(owner)
       case named: ScNamedElement =>
-        named.nameContext match {
-          case s: ScModifierListOwner => s.hasModifierProperty("implicit")
-          case _ => false
+        Option(named.nameContext).collect {
+          case owner: ScModifierListOwner => owner
         }
-      case _ => false
+      case _ => None
     }
+
+    maybeModifierListOwner
+      .exists(isImplicit)
   }
+
+  def isImplicit(modifierListOwner: ScModifierListOwner): Boolean =
+    modifierListOwner.hasModifierProperty("implicit")
 
   def replaceBracesWithParentheses(element: ScalaPsiElement): Unit = {
     import element.projectContext

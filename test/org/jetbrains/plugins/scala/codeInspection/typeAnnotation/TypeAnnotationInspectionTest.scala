@@ -30,6 +30,11 @@ class TypeAnnotationInspectionTest extends ScalaQuickFixTestBase {
     createTestText("private val foo")
   )
 
+  def testImplicitValue(): Unit = testQuickFix(
+    text = s"implicit val ${START}foo$END",
+    expected = s"implicit val foo: Foo"
+  )
+
   def testPublicVariable(): Unit = testQuickFix(
     text = s"var ${START}foo$END",
     expected = s"var foo: Foo"
@@ -42,6 +47,11 @@ class TypeAnnotationInspectionTest extends ScalaQuickFixTestBase {
 
   def testPrivateVariable(): Unit = checkTextHasNoErrors(
     createTestText("private var foo")
+  )
+
+  def testImplicitVariable(): Unit = testQuickFix(
+    text = s"implicit var ${START}foo$END",
+    expected = s"implicit var foo: Foo"
   )
 
   def testPublicMethod(): Unit = testQuickFix(
@@ -58,6 +68,11 @@ class TypeAnnotationInspectionTest extends ScalaQuickFixTestBase {
     createTestText("private def foo()")
   )
 
+  def testImplicitMethod(): Unit = testQuickFix(
+    text = s"implicit def ${START}foo$END()",
+    expected = s"implicit def foo(): Foo"
+  )
+
   private def testQuickFix(text: String, expected: String): Unit =
     testQuickFix(createTestText(text), createTestText(expected), AddTypeAnnotationQuickFix.Name)
 }
@@ -69,7 +84,9 @@ object TypeAnnotationInspectionTest {
        |class Foo
        |
        |class Bar {
-       |  $text = new Foo
+       |  $text = fooImpl()
+       |
+       |  private def fooImpl() = new Foo
        |}
        |
        |new Bar

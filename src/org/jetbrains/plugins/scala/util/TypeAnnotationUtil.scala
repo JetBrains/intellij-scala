@@ -14,6 +14,7 @@ import com.intellij.ui.HyperlinkLabel
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOrRemoveStrategy
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaTabbedCodeStylePanel, TypeAnnotationPolicy, TypeAnnotationRequirement}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isImplicit, superValsSignatures}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -78,9 +79,9 @@ object TypeAnnotationUtil {
       case func: ScFunctionDefinition =>
         func.superSignaturesIncludingSelfType.nonEmpty
       case variable: ScVariableDefinition =>
-        variable.declaredElements.headOption.map(ScalaPsiUtil.superValsSignatures(_, withSelfType = true)).exists(_.nonEmpty)
+        variable.declaredElements.headOption.map(superValsSignatures(_, withSelfType = true)).exists(_.nonEmpty)
       case pattern: ScPatternDefinition =>
-        pattern.declaredElements.headOption.map(ScalaPsiUtil.superValsSignatures(_, withSelfType = true)).exists(_.nonEmpty)
+        pattern.declaredElements.headOption.map(superValsSignatures(_, withSelfType = true)).exists(_.nonEmpty)
       case _ => false
     }
   }
@@ -105,15 +106,12 @@ object TypeAnnotationUtil {
     }
   }
 
-  def requirementForProperty(property: ScMember, settings: ScalaCodeStyleSettings): Int = {
-    if (property.isLocal || isMemberOf(property, "scala.DelayedInit")) {
-      settings.LOCAL_PROPERTY_TYPE_ANNOTATION
-    } else {
-      if (property.isPrivate) settings.PRIVATE_PROPERTY_TYPE_ANNOTATION
-      else if (property.isProtected) settings.PROTECTED_PROPERTY_TYPE_ANNOTATION
-      else settings.PUBLIC_PROPERTY_TYPE_ANNOTATION
-    }
-  }
+  def requirementForProperty(property: ScMember, settings: ScalaCodeStyleSettings): Int =
+    if (property.isLocal || isMemberOf(property, "scala.DelayedInit")) settings.LOCAL_PROPERTY_TYPE_ANNOTATION
+    else if (isImplicit(property)) settings.IMPLICIT_METHOD_TYPE_ANNOTATION
+    else if (property.isPrivate) settings.PRIVATE_PROPERTY_TYPE_ANNOTATION
+    else if (property.isProtected) settings.PROTECTED_PROPERTY_TYPE_ANNOTATION
+    else settings.PUBLIC_PROPERTY_TYPE_ANNOTATION
 
   def isMemberOf(member: ScMember, fqn: String): Boolean = {
     val result =
@@ -126,15 +124,12 @@ object TypeAnnotationUtil {
     result.getOrElse(false)
   }
 
-  def requirementForMethod(method: ScMember, settings: ScalaCodeStyleSettings): Int = {
-    if (method.isLocal) {
-      settings.LOCAL_METHOD_TYPE_ANNOTATION
-    } else {
-      if (method.isPrivate) settings.PRIVATE_METHOD_TYPE_ANNOTATION
-      else if (method.isProtected) settings.PROTECTED_METHOD_TYPE_ANNOTATION
-      else settings.PUBLIC_METHOD_TYPE_ANNOTATION
-    }
-  }
+  def requirementForMethod(method: ScMember, settings: ScalaCodeStyleSettings): Int =
+    if (method.isLocal) settings.LOCAL_METHOD_TYPE_ANNOTATION
+    else if (isImplicit(method)) settings.IMPLICIT_METHOD_TYPE_ANNOTATION
+    else if (method.isPrivate) settings.PRIVATE_METHOD_TYPE_ANNOTATION
+    else if (method.isProtected) settings.PROTECTED_METHOD_TYPE_ANNOTATION
+    else settings.PUBLIC_METHOD_TYPE_ANNOTATION
 
   def isSimple(element: PsiElement): Boolean = {
     def isSimpleInner(exp: ScExpression) = {
@@ -179,8 +174,8 @@ object TypeAnnotationUtil {
   def getTypeElement(element: ScalaPsiElement): Option[ScTypeElement] = {
     element match {
       case fun: ScFunction => fun.returnTypeElement
-      case ScalaPsiUtil.inNameContext(pd: ScPatternDefinition) => pd.typeElement
-      case ScalaPsiUtil.inNameContext(vd: ScVariableDefinition) => vd.typeElement
+      case inNameContext(pd: ScPatternDefinition) => pd.typeElement
+      case inNameContext(vd: ScVariableDefinition) => vd.typeElement
       case patternDefinition: ScPatternDefinition => patternDefinition.typeElement
       case variableDefinition: ScVariableDefinition => variableDefinition.typeElement
       case _ => None
