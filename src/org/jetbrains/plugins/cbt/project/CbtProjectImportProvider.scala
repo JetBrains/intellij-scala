@@ -4,6 +4,7 @@ import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExtern
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.RichVirtualFile
 
 class CbtProjectImportProvider(builder: CbtProjectImportBuilder)
   extends AbstractExternalProjectImportProvider(builder, CbtProjectSystem.Id) {
@@ -14,7 +15,9 @@ class CbtProjectImportProvider(builder: CbtProjectImportBuilder)
 
   override def getIcon = Sbt.Icon
 
-  override def canImport(entry: VirtualFile, project: Project): Boolean = true
+  override def canImport(entry: VirtualFile, project: Project): Boolean = {
+      entry.containsDirectory("build")
+  }
 
   override def getPathToBeImported(file: VirtualFile): String =
     file.getParent.getPath

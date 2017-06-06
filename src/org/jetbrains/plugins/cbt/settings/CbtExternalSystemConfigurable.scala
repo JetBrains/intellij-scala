@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.cbt.project.settings
+package org.jetbrains.plugins.cbt.settings
 
 import com.intellij.openapi.externalSystem.service.settings.{AbstractExternalProjectSettingsControl, AbstractExternalSystemConfigurable}
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, PaintAwarePanel}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
+import org.jetbrains.plugins.cbt.project.settings.{CbtProjectSettings, CbtProjectSettingsListener, CbtSystemSettings}
 
 class CbtExternalSystemConfigurable(project: Project)
   extends AbstractExternalSystemConfigurable[CbtProjectSettings, CbtProjectSettingsListener,

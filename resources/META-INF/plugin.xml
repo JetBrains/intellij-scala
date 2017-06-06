@@ -32,6 +32,11 @@
     <xi:include href="/META-INF/SBT.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/HOCON.xml" xpointer="xpointer(/idea-plugin/*)"/>
 
+    <application-components>
+        <component>
+            <implementation-class>org.jetbrains.plugins.cbt.settings.StartupRoutine</implementation-class>
+        </component>
+    </application-components>
 
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="org.jetbrains.plugins.cbt.runner.CbtConfigurationType"/>
@@ -42,5 +47,7 @@
 
         <projectImportProvider implementation="org.jetbrains.plugins.cbt.project.CbtProjectImportProvider"/>
         <projectImportBuilder implementation="org.jetbrains.plugins.cbt.project.CbtProjectImportBuilder"/>
+        <projectConfigurable groupId="build.tools" displayName="CBT" instance="org.jetbrains.plugins.cbt.settings.CbtExternalSystemConfigurable" />
+
     </extensions>
 </idea-plugin>

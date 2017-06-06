@@ -15,7 +15,6 @@ import com.intellij.util.Function
 import org.jetbrains.plugins.cbt.CbtProjectResolver
 import org.jetbrains.plugins.cbt.project.settings._
 import org.jetbrains.sbt.jarWith
-import org.jetbrains.sbt.project.SbtProjectSystem
 
 class CbtExternalSystemManager
   extends ExternalSystemManager[CbtProjectSettings, CbtProjectSettingsListener,
@@ -45,11 +44,11 @@ class CbtExternalSystemManager
       override def fun(project: Project): CbtSystemSettings = CbtSystemSettings.getInstance(project)
     }
 
-  override def enhanceLocalProcessing(urls: util.List[URL]) {
+  override def enhanceLocalProcessing(urls: util.List[URL]): Unit = {
     urls.add(jarWith[scala.App].toURI.toURL)
   }
 
-  override def enhanceRemoteProcessing(parameters: SimpleJavaParameters) {
+  override def enhanceRemoteProcessing(parameters: SimpleJavaParameters): Unit = {
     val classpath = parameters.getClassPath
 
     classpath.add(jarWith[this.type])

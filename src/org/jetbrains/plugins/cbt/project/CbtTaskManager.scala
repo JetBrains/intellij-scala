@@ -10,7 +10,9 @@ class CbtTaskManager extends ExternalSystemTaskManager[CbtExecutionSettings] {
   def executeTasks(id: ExternalSystemTaskId, taskNames: util.List[String], projectPath: String,
                    settings: CbtExecutionSettings, vmOptions: util.List[String],
                    scriptParameters: util.List[String], debuggerSetup: String,
-                   listener: ExternalSystemTaskNotificationListener) {}
+                   listener: ExternalSystemTaskNotificationListener): Unit = {
+    println("executeTasks called!")
+  }
 
   def cancelTask(id: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener) = false
 }
