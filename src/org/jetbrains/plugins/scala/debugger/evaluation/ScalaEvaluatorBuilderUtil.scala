@@ -40,6 +40,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
+import scala.util.Try
 
 /**
 * Nikolay.Tropin
@@ -1494,7 +1495,15 @@ object ScalaEvaluatorBuilderUtil {
       }
 
       if (elem == null) false
-      else CachedValuesManager.getCachedValue(elem, cacheProvider)
+      else {
+        try {
+          if (!elem.isValid) false
+          else CachedValuesManager.getCachedValue(elem, cacheProvider)
+        }
+        catch {
+          case _: PsiInvalidElementAccessException => false
+        }
+      }
     }
 
     def isGenerateAnonfunSimple: Boolean = {
