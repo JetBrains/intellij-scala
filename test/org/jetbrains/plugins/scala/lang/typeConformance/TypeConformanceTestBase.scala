@@ -29,26 +29,46 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
 
   def folderPath: String = baseRootPath() + "typeConformance/"
 
-  protected def doTest(fileText: String, fileName: String = getTestName(false) + ".scala") {
+  protected def doTest(fileText: String, fileName: String = getTestName(false) + ".scala", checkEquivalence: Boolean = false) {
     configureFromFileTextAdapter(fileName, fileText.trim)
-    doTestInner()
+    doTestInner(checkEquivalence)
   }
 
-  private def doTestInner() = {
-    val (declaredType, rhsType) = declaredAndExpressionTypes()
-    val res: Boolean = rhsType.conforms(declaredType)
+  private def errorMessage(title: String, expected: Boolean, declaredType: ScType, rhsType: ScType) = {
+    s"""$title
+       |Expected result: $expected
+       |declared type:   ${declaredType.presentableText}
+       |rhs type:        ${rhsType.presentableText}""".stripMargin
+  }
 
-    if (expectedResult != res)
-      fail(
-        s"""Conformance failure
-           |Expected result: $expectedResult
-           |declared type:   ${declaredType.presentableText}
-           |rhs type:        ${rhsType.presentableText}""".stripMargin)
+  private def doTestInner(checkEquivalence: Boolean) = {
+    val (declaredType, rhsType) = declaredAndExpressionTypes()
+    val expected = expectedResult
+    if (checkEquivalence) {
+      val equiv1 = rhsType.equiv(declaredType)
+      val equiv2 = declaredType.equiv(rhsType)
+      if (equiv1 != expected || equiv2 != expected) {
+        fail(errorMessage("Equivalence failure", expected, declaredType, rhsType))
+      }
+
+      if (expected) {
+        val conforms = rhsType.conforms(declaredType)
+        if (!conforms) {
+          fail(errorMessage("Conformance failure", expected, declaredType, rhsType))
+        }
+      }
+
+    }
+    else {
+      val res: Boolean = rhsType.conforms(declaredType)
+      if (expected != res)
+        fail(errorMessage("Conformance failure", expected, declaredType, rhsType))
+    }
   }
 
   protected def doTest() {
     configureFromFile()
-    doTestInner()
+    doTestInner(checkEquivalence = false)
   }
 
   protected def configureFromFile(fileName: String = getTestName(false) + ".scala") = {

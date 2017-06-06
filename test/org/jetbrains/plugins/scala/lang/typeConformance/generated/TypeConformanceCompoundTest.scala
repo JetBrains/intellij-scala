@@ -30,4 +30,16 @@ class TypeConformanceCompoundTest extends TypeConformanceTestBase {
   def testWrongName() {doTest()}
 
   def testnoAdditionalTemplateBody() {doTest()}
+
+  def testAnonImplementation(): Unit = doTest(
+    """
+      |trait Foo {
+      |  def foo: Unit
+      |}
+      |
+      |val newFoo: Foo = new Foo {
+      |  override def foo: Unit = ()
+      |}
+      |//True
+    """.stripMargin, checkEquivalence = true)
 }
