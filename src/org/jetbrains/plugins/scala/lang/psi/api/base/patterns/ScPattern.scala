@@ -271,7 +271,6 @@ object ScPattern {
         } else rightWay
       }
 
-      //    implicit val psiManager: PsiManager = PsiManager.getInstance(getProject)
       bind match {
         case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && ScPattern.isQuasiquote(fun) =>
           val tpe = pattern.getContext.getContext match {
@@ -364,12 +363,12 @@ object ScPattern {
               if (args.isEmpty) return None
               if (argIndex < args.length - 1) return Some(subst.subst(args(argIndex)))
               val lastArg = args.last
-              (lastArg +: BaseTypes.get(lastArg)).find {
-                case ParameterizedType(des, seqArgs) => seqArgs.length == 1 && des.extractClass.exists {
-                  _.qualifiedName == "scala.collection.Seq"
-                }
-                case _ => false
-              } match {
+              val baseTypesIterator = Iterator(lastArg) ++ BaseTypes.iterator(lastArg)
+              val seqType = baseTypesIterator.collectFirst {
+                case pt @ ParameterizedType(des, seqArgs)
+                  if seqArgs.length == 1 && des.extractClass.exists(_.qualifiedName == "scala.collection.Seq") => pt
+              }
+              seqType match {
                 case Some(seq@ParameterizedType(_, seqArgs)) =>
                   pattern match {
                     case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => Some(subst.subst(seq))

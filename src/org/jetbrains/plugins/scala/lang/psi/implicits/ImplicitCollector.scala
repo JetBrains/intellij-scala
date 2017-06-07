@@ -198,7 +198,7 @@ class ImplicitCollector(place: PsiElement,
   private class ImplicitParametersProcessor(withoutPrecedence: Boolean)
     extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
 
-    protected def getPlace: PsiElement = place
+    def getPlace: PsiElement = place
 
     def execute(element: PsiElement, state: ResolveState): Boolean = {
       if (!kindMatches(element)) return true

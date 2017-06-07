@@ -1,217 +1,165 @@
 package org.jetbrains.plugins.scala
-package lang.completeStatement
+package lang
+package completeStatement
+
+import com.intellij.testFramework.EditorTestUtil
 
 /**
- * @author Ksenia.Sautina
- * @since 2/25/13
- */
+  * @author Ksenia.Sautina
+  * @since 2/25/13
+  */
 class ScalaCompleteIfConditionTest extends ScalaCompleteStatementTestBase {
-  def testIfCondition1() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    if <caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    if (<caret>) {
-        |
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
 
-    checkScalaFileByText(fileText, resultText)
-  }
+  import EditorTestUtil.{CARET_TAG => CARET}
 
-  def testIfCondition2() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    if<caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    if (<caret>) {
-        |
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+  def testIfCondition1(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if $CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if ($CARET) {
+         |
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 
-    checkScalaFileByText(fileText, resultText)
-  }
+  def testIfCondition2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if$CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if ($CARET) {
+         |
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 
-  def testIfCondition3() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    if (<caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    if (<caret>) {
-        |
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+  def testIfCondition3(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if ($CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if ($CARET) {
+         |
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 
-    checkScalaFileByText(fileText, resultText)
-  }
+  def testIfCondition4(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if (true$CARET) {
+         |    }
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if (true) {
+         |      $CARET
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 
-  def testIfCondition4() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    if (true<caret>) {
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    if (true) {
-        |      <caret>
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+  def testIfCondition5(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if (true) {$CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if (true) {
+         |      $CARET
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 
-    checkScalaFileByText(fileText, resultText)
-  }
+  def testIfCondition6(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if (true$CARET) {
+         |      println()
+         |    }
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if (true) {
+         |      $CARET
+         |      println()
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 
-  def testIfCondition5() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    if (true) {<caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    if (true) {
-        |      <caret>
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    checkScalaFileByText(fileText, resultText)
-  }
-
-  def testIfCondition6() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    if (true<caret>) {
-        |      println()
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    if (true) {
-        |      <caret>
-        |      println()
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    checkScalaFileByText(fileText, resultText)
-  }
-
-  def testIfCondition7() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    if ()<caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    if (<caret>) {
-        |
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    checkScalaFileByText(fileText, resultText)
-  }
-
-  def testIfConditionJava() { //WHAT THE _?!
-    val fileText =
-      """
-        |class B {
-        |    public static void main(String[] args) {
-        |        if <caret>
-        |    }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |    public static void main(String[] args) {
-        |        if (<caret>) {
-        |        } 
-        |    }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    checkJavaFileByText(fileText, resultText)
-  }
-
-  def testIfCondition2Java() {
-    val fileText =
-      """
-        |class B {
-        |    public static void main(String[] args) {
-        |        if ()<caret>
-        |    }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |    public static void main(String[] args) {
-        |        if (<caret>) {
-        |        }
-        |    }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    checkJavaFileByText(fileText, resultText)
-  }
+  def testIfCondition7(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if ()$CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    if ($CARET) {
+         |
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 }

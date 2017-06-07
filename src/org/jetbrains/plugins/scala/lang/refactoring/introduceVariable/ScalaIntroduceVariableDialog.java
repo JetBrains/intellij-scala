@@ -233,9 +233,6 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     );
 
     ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(new DocumentListener() {
-                                                                                              public void beforeDocumentChange(DocumentEvent event) {
-                                                                                              }
-
                                                                                               public void documentChanged(DocumentEvent event) {
                                                                                                 fireNameDataChanged();
                                                                                               }

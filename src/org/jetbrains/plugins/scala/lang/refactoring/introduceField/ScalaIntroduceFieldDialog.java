@@ -290,9 +290,6 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     );
 
     ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(new DocumentListener() {
-                                                                                              public void beforeDocumentChange(DocumentEvent event) {
-                                                                                              }
-
                                                                                               public void documentChanged(DocumentEvent event) {
                                                                                                 fireNameDataChanged();
                                                                                               }
