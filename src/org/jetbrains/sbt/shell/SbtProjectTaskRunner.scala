@@ -6,6 +6,7 @@ import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.icons.AllIcons.Modules
 import com.intellij.openapi.compiler.ex.CompilerPathsEx
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil => ES}
@@ -144,6 +145,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     }
 
     val defaultTaskResult = TaskResultData(aborted = false, 0, 0)
+    val failedResult = new ProjectTaskResult(true, 1, 0)
 
     // TODO consider running module build tasks separately
     // may require collecting results individually and aggregating
@@ -153,7 +155,10 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
       .recover {
         case _ =>
           // TODO some kind of feedback / rethrow
-          new ProjectTaskResult(true, 1, 0)
+          failedResult
+      }
+      .andThen {
+        case _ => refreshRoots(modules, indicator)
       }
       .andThen {
         case Success(taskResult) =>
@@ -163,15 +168,17 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
           indicator.setText("sbt build completed")
           indicator.setText2("")
         case Failure(x) =>
+          callbackOpt.foreach(_.finished(failedResult))
           indicator.setText("sbt build failed")
           indicator.setText2(x.getMessage)
-        // TODO some kind of feedback / rethrow
       }
 
     // block thread to make indicator available :(
     Await.ready(commandFuture, Duration.Inf)
+  }
 
-    // remove this if/when external system handles this refresh on its own
+  // remove this if/when external system handles this refresh on its own
+  private def refreshRoots(modules: Array[Module], indicator: ProgressIndicator) = {
     indicator.setText("Synchronizing output directories...")
     val roots = CompilerPathsEx.getOutputPaths(modules)
     CompilerUtil.refreshOutputRoots(ContainerUtil.newArrayList(roots: _*))
