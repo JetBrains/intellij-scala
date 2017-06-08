@@ -82,11 +82,12 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
       .replaceAll(getClass.getPackage.getName.replace(".", "/") + "/$", ""))
     def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
       .map(m => CompilerPaths.getModuleOutputPath(m, false)).filter(_ != null).toList
+    def projectOutputDirs(project: Project) = project.scalaModules.flatMap(sm => outputDirs(sm)).distinct.toList
 
     def classLoaderForModule(module: Module): URLClassLoader = {
       annotationClassLoaders.getOrElseUpdate(module.getName, {
         val cp: List[URL] = OrderEnumerator.orderEntries(module).getClassesRoots.toList.map(toUrl)
-        val outDirs: List[URL] = outputDirs(module).map(str => new File(str).toURI.toURL)
+        val outDirs: List[URL] = projectOutputDirs(module.getProject).map(str => new File(str).toURI.toURL)
         val fullCP: immutable.Seq[URL] = outDirs ++ cp :+ pluginCP
         // a quick way to test for compatible meta version - check jar name in classpath
         if (annot.scalaLanguageLevelOrDefault == Scala_2_11 && cp.exists(_.toString.contains(s"trees_2.11-$META_MAJOR_VERSION")))
