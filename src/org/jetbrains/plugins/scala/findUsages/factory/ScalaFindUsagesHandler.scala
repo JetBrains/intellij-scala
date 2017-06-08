@@ -12,17 +12,19 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.findUsages.ScalaUsageTypeProvider
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 import org.jetbrains.plugins.scala.lang.psi.light._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
 import _root_.scala.collection.mutable
 
@@ -34,7 +36,27 @@ import _root_.scala.collection.mutable
 class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandlerFactory)
         extends FindUsagesHandler(element) {
 
-  override def getPrimaryElements: Array[PsiElement] = Array(element)
+  override def getPrimaryElements: Array[PsiElement] = {
+    def applyFactoryMethods(c: ScClass) = {
+      val companion = ScalaPsiUtil.getCompanionModule(c)
+      val applyMethods = companion.toSeq.flatMap(_.functionsByName("apply"))
+      applyMethods.filter {
+        case f: ScFunctionDefinition if f.isSyntheticApply => true
+        case f: ScFunctionDefinition =>
+          val returnType = f.returnType.toOption
+          returnType.exists(_.equiv(ScDesignatorType(c)))
+        case _ => false
+      }
+    }
+
+    element match {
+      case c: ScClass if factory.typeDefinitionOptions.isOnlyNewInstances =>
+        val constructors = c.constructors
+        (constructors ++ applyFactoryMethods(c)).toArray
+      case _ => Array(element)
+    }
+  }
+
   override def getStringsToSearch(element: PsiElement): util.Collection[String] = {
     val result: util.Set[String] = new util.HashSet[String]()
     element match {

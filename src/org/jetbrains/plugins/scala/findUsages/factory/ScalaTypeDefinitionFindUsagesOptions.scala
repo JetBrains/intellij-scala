@@ -18,14 +18,16 @@ class ScalaTypeDefinitionFindUsagesOptions(project: Project) extends JavaFindUsa
   var isMembersUsages = false
   var isSearchCompanionModule = false
 
+  var isOnlyNewInstances: Boolean = false
+
   override def equals(o: Any): Boolean = {
     o match {
       case other: ScalaTypeDefinitionFindUsagesOptions =>
-        if (!super.equals(o)) return false
-        if (other.isImplementingTypeDefinitions != isImplementingTypeDefinitions) return false
-        if (other.isMembersUsages != isMembersUsages) return false
-        if (other.isSearchCompanionModule != isSearchCompanionModule) return false
-        true
+        super.equals(o) &&
+          other.isImplementingTypeDefinitions == isImplementingTypeDefinitions &&
+          other.isMembersUsages == isMembersUsages &&
+          other.isSearchCompanionModule == isSearchCompanionModule &&
+          other.isOnlyNewInstances == isOnlyNewInstances
       case _ => false
     }
   }
@@ -35,11 +37,14 @@ class ScalaTypeDefinitionFindUsagesOptions(project: Project) extends JavaFindUsa
     res = 31 * res + (if (isImplementingTypeDefinitions) 1 else 0)
     res = 31 * res + (if (isMembersUsages) 1 else 0)
     res = 31 * res + (if (isSearchCompanionModule) 1 else 0)
+    res = 31 * res + (if (isOnlyNewInstances) 1 else 0)
     res
   }
 
   protected override def addUsageTypes(strings: util.LinkedHashSet[String]) {
-    if (isUsages || isMembersUsages) {
+    if (isOnlyNewInstances) {
+      strings.add(ScalaBundle.message("find.usages.instances.title"))
+    } else if (isUsages || isMembersUsages) {
       strings.add(FindBundle.message("find.usages.panel.title.usages"))
     }
 
