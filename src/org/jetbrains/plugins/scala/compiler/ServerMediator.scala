@@ -24,33 +24,6 @@ class ServerMediator(project: Project) extends AbstractProjectComponent(project)
   private def isScalaProject = project.hasScala
   private val settings = ScalaCompileServerSettings.getInstance
 
-  private val connection = project.getMessageBus.connect
-  private val serverLauncher = new BuildManagerListener {
-    override def beforeBuildProcessStarted(project: Project, uuid: UUID): Unit = {}
-
-    override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
-      if (settings.COMPILE_SERVER_ENABLED && isScalaProject) {
-        invokeAndWait {
-          CompileServerManager.configureWidget(project)
-        }
-
-        if (CompileServerLauncher.needRestart(project)) {
-          CompileServerLauncher.instance.stop()
-        }
-
-        if (!CompileServerLauncher.instance.running) {
-          invokeAndWait {
-            CompileServerLauncher.instance.tryToStart(project)
-          }
-        }
-      }
-    }
-
-    override def buildFinished(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {}
-  }
-
-  connection.subscribe(BuildManagerListener.TOPIC, serverLauncher)
-
   private val checkSettingsTask = new CompileTask {
     def execute(context: CompileContext): Boolean = {
       if (isScalaProject) {
@@ -73,8 +46,31 @@ class ServerMediator(project: Project) extends AbstractProjectComponent(project)
     }
   }
 
+  private val startCompileServerTask = new CompileTask {
+    def execute(context: CompileContext): Boolean = {
+      if (settings.COMPILE_SERVER_ENABLED && isScalaProject) {
+        invokeAndWait {
+          CompileServerManager.configureWidget(project)
+        }
+
+        if (CompileServerLauncher.needRestart(project)) {
+          CompileServerLauncher.instance.stop()
+        }
+
+        if (!CompileServerLauncher.instance.running) {
+          invokeAndWait {
+            CompileServerLauncher.instance.tryToStart(project)
+          }
+        }
+      }
+
+      true
+    }
+  }
+
   CompilerManager.getInstance(project).addBeforeTask(checkSettingsTask)
   CompilerManager.getInstance(project).addBeforeTask(checkCompileServerDottyTask)
+  CompilerManager.getInstance(project).addBeforeTask(startCompileServerTask)
 
   private def checkCompilationSettings(): Boolean = {
     def hasClashes(module: Module) = module.hasScala && {
