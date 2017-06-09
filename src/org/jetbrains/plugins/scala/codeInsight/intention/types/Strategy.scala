@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 
@@ -9,25 +10,28 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
  */
 
 trait Strategy {
-  def functionWithoutType(function: ScFunctionDefinition)
+  def functionWithoutType(function: ScFunctionDefinition): Unit = {}
 
-  def functionWithType(function: ScFunctionDefinition)
+  def functionWithType(function: ScFunctionDefinition,
+                       typeElement: ScTypeElement): Unit
 
-  def valueWithoutType(value: ScPatternDefinition)
+  def valueWithoutType(value: ScPatternDefinition): Unit = {}
 
-  def valueWithType(value: ScPatternDefinition)
+  def valueWithType(value: ScPatternDefinition,
+                    typeElement: ScTypeElement): Unit
 
-  def variableWithoutType(variable: ScVariableDefinition)
+  def variableWithoutType(variable: ScVariableDefinition): Unit = {}
 
-  def variableWithType(variable: ScVariableDefinition)
+  def variableWithType(variable: ScVariableDefinition,
+                       typeElement: ScTypeElement): Unit
 
-  def patternWithoutType(pattern: ScBindingPattern)
+  def patternWithoutType(pattern: ScBindingPattern): Unit = {}
 
-  def wildcardPatternWithoutType(pattern: ScWildcardPattern)
+  def wildcardPatternWithoutType(pattern: ScWildcardPattern): Unit = {}
 
-  def patternWithType(pattern: ScTypedPattern)
+  def patternWithType(pattern: ScTypedPattern): Unit = {}
 
-  def parameterWithoutType(param: ScParameter)
+  def parameterWithoutType(param: ScParameter): Unit = {}
 
-  def parameterWithType(param: ScParameter)
+  def parameterWithType(param: ScParameter): Unit = {}
 }

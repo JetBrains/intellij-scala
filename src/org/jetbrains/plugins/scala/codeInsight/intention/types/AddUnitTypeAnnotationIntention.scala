@@ -31,9 +31,6 @@ class AddUnitTypeAnnotationIntention extends PsiElementBaseIntentionAction {
     if (element == null || !IntentionAvailabilityChecker.checkIntention(this, element)) {
       false
     } else {
-      def message(key: String) {
-        setText(ScalaBundle.message(key))
-      }
       for {
         function <- element.parentsInFile.findByType[ScFunctionDefinition]
         if !function.hasAssign

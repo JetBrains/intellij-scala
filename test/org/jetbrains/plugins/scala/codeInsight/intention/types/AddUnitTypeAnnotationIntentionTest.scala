@@ -1,6 +1,8 @@
-package org.jetbrains.plugins.scala.codeInsight.intentions.types
+package org.jetbrains.plugins.scala
+package codeInsight
+package intention
+package types
 
-import org.jetbrains.plugins.scala.codeInsight.intention.types.AddUnitTypeAnnotationIntention
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
@@ -8,6 +10,7 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
   * @since 29/08/16
   */
 class AddUnitTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
+
   override def familyName: String = AddUnitTypeAnnotationIntention.familyName
 
   def test() {

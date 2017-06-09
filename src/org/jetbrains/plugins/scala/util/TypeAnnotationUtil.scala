@@ -11,8 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.HyperlinkLabel
-import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
-import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
+import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOrRemoveStrategy
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaTabbedCodeStylePanel, TypeAnnotationPolicy, TypeAnnotationRequirement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -25,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel.{ADD, BY_CODE_STYLE, REMOVE}
+import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 
 import scala.annotation.tailrec
 
@@ -196,7 +196,7 @@ object TypeAnnotationUtil {
         getTypeElement(element) match {
           case Some(typeElement)
             if (state == REMOVE) || ((state == BY_CODE_STYLE) && !isTypeAnnotationNeeded(element)) =>
-            AddOnlyStrategy.withoutEditor.removeTypeAnnotation(typeElement)
+            AddOrRemoveStrategy.removeTypeAnnotation(typeElement)
           case _ =>
         }
     }
