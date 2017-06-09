@@ -9,7 +9,8 @@ import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInsight.intention.types.{AddOnlyStrategy, ToggleTypeAnnotation, UpdateStrategy}
+import org.jetbrains.plugins.scala.codeInsight.intention.types.AbstractTypeAnnotationIntention.complete
+import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
@@ -106,7 +107,7 @@ class AddTypeAnnotationQuickFix(element: PsiElement)
   import AddTypeAnnotationQuickFix._
 
   def doApplyFix(project: Project): Unit =
-    ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, getElement)
+    complete(getElement)
 
   override def applyFix(project: Project,
                         descriptors: Array[CommonProblemDescriptor],
@@ -125,7 +126,7 @@ class AddTypeAnnotationQuickFix(element: PsiElement)
     )
 
     inWriteCommandAction(project, getFamilyName) {
-      strategy.addActualTypes(Option(refreshViews))
+      strategy.addActualTypes(refreshViews)
     }
   }
 }
@@ -145,7 +146,7 @@ object AddTypeAnnotationQuickFix {
       val quickFixesCount = quickFixes.length
       quickFixes.map(_.getElement)
         .foreach { element =>
-          ToggleTypeAnnotation.complete(strategy, element)
+          complete(element, strategy)
           updateProcessIndicator(element.getText, quickFixesCount)
         }
     }
@@ -153,25 +154,27 @@ object AddTypeAnnotationQuickFix {
 
   class CollectTypesToAddStrategy() extends AddOnlyStrategy(editor = None) {
 
+    import AddOnlyStrategy._
     import TypeAdjuster.markToAdjust
-    import UpdateStrategy.annotationsFor
 
     private val annotations = mutable.ArrayBuffer[(ScTypeElement, PsiElement)]()
 
-    def addActualTypes(refreshViews: Option[Runnable]): Unit =
+    def addActualTypes(refreshViews: Runnable): Unit = {
+      val maybeViews = Option(refreshViews)
+
       annotations.map {
         case (typeElement, anchor) => addActualType(typeElement, anchor)
       }.foreach { addedElement =>
         markToAdjust(addedElement)
-        refreshViews.foreach(_.run())
+        maybeViews.foreach(_.run())
       }
+    }
 
     override def addTypeAnnotation(`type`: ScType, context: PsiElement, anchor: PsiElement): Unit = {
-      annotations ++= annotationsFor(`type`, context).headOption
+      annotations ++= annotationFor(`type`, context)
         .map((_, anchor))
     }
   }
-
 }
 
 class LearnWhyQuickFix extends LocalQuickFixBase("Learn Why...") {
