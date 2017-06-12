@@ -9,6 +9,8 @@ import com.intellij.openapi.externalSystem.service.project.ExternalSystemProject
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
 
+import scala.xml.Node
+
 class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSettings] {
 
 
@@ -18,23 +20,76 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
                                   settings: CbtExecutionSettings,
                                   listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
     val projectPath = settings.realProjectPath
-
+    val root = new File(projectPath)
     println("Cbt resolver called")
 
-    val projectName = new File(settings.realProjectPath).getName
-    val projectData = new ProjectData(CbtProjectSystem.Id, projectName, projectPath, projectPath)
-    val projectDataNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
+    //    val projectName = new File(settings.realProjectPath).getName
+    //    val projectData = new ProjectData(CbtProjectSystem.Id, projectName, projectPath, projectPath)
+    //    val projectDataNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
+    //
+    //
+    //    projectDataNode
+    //      .createChild(ProjectKeys.CONTENT_ROOT, new ContentRootData(CbtProjectSystem.Id, projectPath))
+    //
+    //    createModules(projectPath, projectDataNode)
+    //      .foreach(projectDataNode.addChild)
+    //    projectDataNode
+    val xml = CBT.projectBuidInfo(root)
+    convert(xml)
+  }
 
 
-    projectDataNode
-      .createChild(ProjectKeys.CONTENT_ROOT, new ContentRootData(CbtProjectSystem.Id, projectPath))
+  private def convert(project: Node) =
+    convertProject(project)
 
-    createModules(projectPath, projectDataNode)
-      .foreach(projectDataNode.addChild)
-    projectDataNode
+  private def convertProject(project: Node) = {
+    val projectData = new ProjectData(CbtProjectSystem.Id,
+      (project \ "name").text,
+      (project \ "root").text,
+      (project \ "root").text)
+    val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
+    (project \ "modules" \ "module")
+      .map(convertModule(projectNode))
+      .foreach(projectNode.addChild)
+    (project \ "libraries" \ "library")
+      .map(convertLibrary(projectNode))
+      .foreach(projectNode.addChild)
+    projectNode
+  }
+
+  private def convertModule(parent: DataNode[_])(module: Node) = {
+    val moduleDependencies = //TODO 
+      Seq(module \ "moduleDependencies" \ "moduleDependency", module \ "parentBuild")
+        .flatten
+        .map(d => d.text.trim)
+    val moduleData = new ModuleData((module \ "name").text,
+      CbtProjectSystem.Id,
+      "JAVA_MODULE",
+      (module \ "name").text,
+      (module \ "root").text,
+      (module \ "root").text)
+    val moduleNode = new DataNode(ProjectKeys.MODULE, moduleData, parent)
+    moduleNode.createChild(ProjectKeys.CONTENT_ROOT,
+      new ContentRootData(CbtProjectSystem.Id, (module \ "sourcesRoot").text))
+    (module \ "mavenDependencies" \ "mavenDependency")
+      .map(convertLibraryDependency(moduleNode))
+      .foreach(moduleNode.addChild)
+    moduleNode
+  }
+
+  private def convertLibraryDependency(parent: DataNode[ModuleData])(dependency: Node) = {
+    val dependencyData = new LibraryDependencyData(parent.getData,
+      new LibraryData(CbtProjectSystem.Id, dependency.text.trim), LibraryLevel.PROJECT)
+    new DataNode(ProjectKeys.LIBRARY_DEPENDENCY, dependencyData, parent)
+  }
+
+  private def convertLibrary(parent: DataNode[_])(library: Node) = {
+    val libraryData = new LibraryData(CbtProjectSystem.Id, library.text.trim)
+    new DataNode(ProjectKeys.LIBRARY, libraryData, parent)
   }
 
   private def createModules(projectPath: String, parent: DataNode[ProjectData]) = {
+
     def createModuleNode(path: String, name: String, parent: DataNode[_]) = {
       val moduleData = new DataNode(ProjectKeys.MODULE,
         new ModuleData(name, CbtProjectSystem.Id, "JAVA_MODULE", name, path, path), parent)
