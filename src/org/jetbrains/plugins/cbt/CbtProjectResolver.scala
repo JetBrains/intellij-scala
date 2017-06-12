@@ -8,6 +8,7 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
+import org.jetbrains.plugins.cbt.structure.CbtProjectData
 
 import scala.xml.Node
 
@@ -23,17 +24,6 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     val root = new File(projectPath)
     println("Cbt resolver called")
 
-    //    val projectName = new File(settings.realProjectPath).getName
-    //    val projectData = new ProjectData(CbtProjectSystem.Id, projectName, projectPath, projectPath)
-    //    val projectDataNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
-    //
-    //
-    //    projectDataNode
-    //      .createChild(ProjectKeys.CONTENT_ROOT, new ContentRootData(CbtProjectSystem.Id, projectPath))
-    //
-    //    createModules(projectPath, projectDataNode)
-    //      .foreach(projectDataNode.addChild)
-    //    projectDataNode
     val xml = CBT.projectBuidInfo(root)
     convert(xml)
   }
@@ -54,11 +44,16 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     (project \ "libraries" \ "library")
       .map(convertLibrary(projectNode))
       .foreach(projectNode.addChild)
+    projectNode.addChild(createProjectData(projectNode))
     projectNode
   }
 
+  private def createProjectData(projectNode: DataNode[ProjectData]) =
+    new DataNode(CbtProjectData.Key, new CbtProjectData(), projectNode)
+
+
   private def convertModule(parent: DataNode[_])(module: Node) = {
-    val moduleDependencies = //TODO 
+    val moduleDependencies = //TODO
       Seq(module \ "moduleDependencies" \ "moduleDependency", module \ "parentBuild")
         .flatten
         .map(d => d.text.trim)
@@ -86,26 +81,6 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
   private def convertLibrary(parent: DataNode[_])(library: Node) = {
     val libraryData = new LibraryData(CbtProjectSystem.Id, library.text.trim)
     new DataNode(ProjectKeys.LIBRARY, libraryData, parent)
-  }
-
-  private def createModules(projectPath: String, parent: DataNode[ProjectData]) = {
-
-    def createModuleNode(path: String, name: String, parent: DataNode[_]) = {
-      val moduleData = new DataNode(ProjectKeys.MODULE,
-        new ModuleData(name, CbtProjectSystem.Id, "JAVA_MODULE", name, path, path), parent)
-      moduleData.createChild(ProjectKeys.CONTENT_ROOT, new ContentRootData(CbtProjectSystem.Id, path))
-      moduleData
-    }
-
-    val projectName = new File(projectPath).getName
-    val buildPath = new File(projectPath, "build").getPath
-    val rootModule = createModuleNode(projectPath, projectName, parent)
-    rootModule.addChild(createModuleNode(buildPath, "build", rootModule))
-    rootModule.createChild(ProjectKeys.LIBRARY_DEPENDENCY, new LibraryDependencyData(rootModule.getData,
-      new LibraryData(CbtProjectSystem.Id, "org.scala-lang:scala-library:2.12.2"), LibraryLevel.PROJECT))
-    //    rootModule.createChild(ProjectKeys.)
-
-    Seq(rootModule)
   }
 
   override def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean = true
