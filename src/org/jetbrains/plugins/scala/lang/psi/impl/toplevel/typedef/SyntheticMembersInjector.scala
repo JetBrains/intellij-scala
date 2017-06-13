@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -112,6 +113,16 @@ object SyntheticMembersInjector {
     buffer
   }
 
+  def updateSynthetic(element: ScMember, context: PsiElement): Unit = {
+    element match {
+      case td: ScTypeDefinition =>
+        td.setSynthetic(context)
+        td.members.foreach(updateSynthetic(_, context))
+      case fun: ScFunction => fun.setSynthetic(context)
+      case _ => //todo: ?
+    }
+  }
+
   def injectInners(source: ScTypeDefinition): Seq[ScTypeDefinition] = {
     val buffer = new ArrayBuffer[ScTypeDefinition]()
     for {
@@ -124,16 +135,7 @@ object SyntheticMembersInjector {
       }).extendsBlock
       val td = ScalaPsiElementFactory.createTypeDefinitionWithContext(template, context, source)
       td.setSyntheticContainingClass(source)
-      def updateSynthetic(element: ScMember): Unit = {
-        element match {
-          case td: ScTypeDefinition =>
-            td.setSynthetic(context)
-            td.members.foreach(updateSynthetic)
-          case fun: ScFunction => fun.setSynthetic(context)
-          case _ => //todo: ?
-        }
-      }
-      updateSynthetic(td)
+      updateSynthetic(td, context)
       buffer += td
     } catch {
       case e: Throwable =>
@@ -179,16 +181,18 @@ object SyntheticMembersInjector {
       template <- injector.injectMembers(source)
     } try {
       val context = source match {
-        case o: ScObject if o.isSyntheticObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(source)
+//        case o: ScObject if o.isSyntheticObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(source)
         case _ => source
       }
       val member = ScalaPsiElementFactory.createDefinitionWithContext(template, context, source)
+      member.setContext(context, null)
       member.setSynthetic(context)
-      member.setSyntheticContainingClass(source)
+      member.setSyntheticContainingClass(context)
       context match {
         case c: ScClass if c.isCase && source != context => member.setSyntheticCaseClass(c)
         case _ =>
       }
+      updateSynthetic(member, context)
       if (!member.hasModifierProperty("override")) buffer += member
     } catch {
       case e: Throwable =>

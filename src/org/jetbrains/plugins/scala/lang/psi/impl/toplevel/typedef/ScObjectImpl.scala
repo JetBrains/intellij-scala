@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
@@ -233,5 +234,22 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   override def getInterfaces: Array[PsiClass] = {
     getSupers.filter(_.isInterface)
+  }
+
+  override def desugaredElement: Option[ScObject] = {
+    import scala.meta.{Defn, Term, Tree}
+
+    if (isDesugared) return None
+    val expansion: Option[Tree] = getMetaExpansion match {
+      case Right(tree) => Some(tree)
+      case _ => fakeCompanionClassOrCompanionClass match {
+        case ah: ScAnnotationsHolder => ah.getMetaExpansion match {
+          case Right(Term.Block(Seq(_, obj: Defn.Object))) => Some(obj)
+          case _ => None
+        }
+        case _ => None
+      }
+    }
+    expansion.map(t=>ScalaPsiElementFactory.createObjectWithContext(t.toString(), getContext, this).setDesugared())
   }
 }

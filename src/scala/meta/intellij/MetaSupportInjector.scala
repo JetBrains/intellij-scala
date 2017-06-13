@@ -1,16 +1,17 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
+package scala.meta.intellij
+
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScObjectImpl, SyntheticMembersInjector}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.meta._
 
 class MetaSupportInjector extends SyntheticMembersInjector {
 
-  private val noTrimBodiesProp: Boolean = sys.props.contains("scala.meta.notrimbodies")
   /**
     * This method allows to add custom functions to any class, object or trait.
     * This includes synthetic companion object.
@@ -44,10 +45,12 @@ class MetaSupportInjector extends SyntheticMembersInjector {
   }
 
   override def injectMembers(source: ScTypeDefinition): Seq[String] = {
+    return Seq.empty
     injectForCompanionObject(source) ++ injectForThis(source)
   }
 
   override def injectSupers(source: ScTypeDefinition): Seq[String] = {
+    return Seq.empty
     def extractAdditionalSupers(tree: Tree): Set[String] = {
       val supersA = source.extendsBlock.templateParents.map(_.typeElements.map(_.toString).toSet).getOrElse(Set.empty)
       val supersB: Set[String] = tree match {

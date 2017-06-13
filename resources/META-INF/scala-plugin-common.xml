@@ -25,7 +25,7 @@
     <extensions defaultExtensionNs="org.intellij.scala">
         <!--<syntheticMemberInjector implementation="scala.meta.MetaAnnotationInjector"/>-->
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MonocleInjector"/>
-        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MetaSupportInjector"/>
+        <syntheticMemberInjector implementation="scala.meta.intellij.MetaSupportInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.QuasiQuotesInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum.SimulacrumInjection"/>
 
