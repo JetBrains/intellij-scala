@@ -43,8 +43,6 @@ trait ScExtendsBlock extends ScalaPsiElement {
 
   def isAnonymousClass: Boolean
 
-  def directSupersNames: Seq[String]
-
   def selfTypeElement : Option[ScSelfTypeElement]
 
   def selfType : Option[ScType]
