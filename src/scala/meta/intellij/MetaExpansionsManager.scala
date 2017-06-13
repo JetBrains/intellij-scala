@@ -177,7 +177,9 @@ object MetaExpansionsManager {
         case sm: ScalaMetaException       => Left(s"Semantic error: ${sm.getMessage}")
         case so: StackOverflowError       => Left(s"Stack overflow during expansion ${annotee.getText}")
         case e: InvocationTargetException => Left(e.getTargetException.getMessage)
-        case e: Exception                 => Left(s"Unexpected error during expansion: ${e.getMessage}")
+        case e: Exception                 =>
+          val x = e
+          Left(s"Unexpected error during expansion: ${e.getMessage}")
       }
     }
 

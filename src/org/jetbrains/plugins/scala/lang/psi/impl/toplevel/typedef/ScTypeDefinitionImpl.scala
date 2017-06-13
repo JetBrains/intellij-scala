@@ -393,4 +393,19 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   override def getOriginalElement: PsiElement = {
     ScalaPsiImplementationHelper.getOriginalClass(this)
   }
+
+  override def desugaredElement: Option[ScTemplateDefinition] = {
+    import scala.meta.{Defn, Term}
+
+    val defn = getMetaExpansion match {
+      case Right(templ: Defn.Class) => Some(templ)
+      case Right(templ: Defn.Trait) => Some(templ)
+      case Right(templ: Defn.Object) => Some(templ)
+      case Right(Term.Block(Seq(templ: Defn.Class, _))) => Some(templ)
+      case Right(Term.Block(Seq(templ: Defn.Trait, _))) => Some(templ)
+      case Right(Term.Block(Seq(templ: Defn.Object, _))) => Some(templ)
+      case _ => None
+    }
+    defn.map(tree=>ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this))
+  }
 }
