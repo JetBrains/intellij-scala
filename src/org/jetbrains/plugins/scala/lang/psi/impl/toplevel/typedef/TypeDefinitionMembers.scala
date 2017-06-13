@@ -742,8 +742,7 @@ object TypeDefinitionMembers {
                                          signaturesForJava: Lazy[SignatureNodes.Map] = () => new SignatureNodes.Map,
                                          syntheticMethods: Lazy[Seq[(Signature, SignatureNodes.Node)]] = () => Seq.empty
                                          ): Boolean = {
-    val substK = state.get(ScSubstitutor.key)
-    val subst = if (substK == null) ScSubstitutor.empty else substK
+    val subst = Option(state.get(ScSubstitutor.key)).getOrElse(ScSubstitutor.empty)
     val nameHint = processor.getHint(NameHint.KEY)
     val name = if (nameHint == null) "" else nameHint.getName(state)
 

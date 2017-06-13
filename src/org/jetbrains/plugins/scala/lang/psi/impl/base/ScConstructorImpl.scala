@@ -18,10 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParen
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{Expression, checkConformanceExt}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
@@ -142,6 +142,18 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
               } catch {
                 case _: SafeCheckException => //ignore
               }
+            case _ if i > 0 =>
+              val paramsByClauses = matchedParametersByClauses.toArray.apply(i - 1)
+              val mySubst = ScSubstitutor(Map(constr.getContainingClass.getTypeParameters.map { paramType =>
+                val typeParameterType = TypeParameterType(paramType)
+                typeParameterType.nameAndId -> UndefinedType(typeParameterType)
+              }:_*))
+              val undefParams = paramsByClauses.map(_._2).map(
+                param => Parameter(mySubst.subst(param.paramType), param.isRepeated, param.index)
+              )
+              val extRes = Compatibility.checkConformanceExt(false, undefParams, paramsByClauses.map(_._1), false, false)
+              val result = extRes.undefSubst.getSubstitutor.map(_.subst(nonValueType)).getOrElse(nonValueType)
+              return Success(result, Some(this))
             case _ =>
           }
           Success(nonValueType, Some(this))
@@ -200,7 +212,10 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   }
 
   @Cached(true, ModCount.getBlockModificationCount, this)
-  def matchedParameters: Seq[(ScExpression, Parameter)] = {
+  def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersByClauses.flatten
+
+  @Cached(true, ModCount.getBlockModificationCount, this)
+  def matchedParametersByClauses: Seq[Seq[(ScExpression, Parameter)]] = {
     val paramClauses = this.reference.flatMap(r => Option(r.resolve())) match {
       case Some(pc: ScPrimaryConstructor) => pc.parameterList.clauses.map(_.parameters)
       case Some(fun: ScFunction) if fun.isConstructor => fun.parameterList.clauses.map(_.parameters)
@@ -209,17 +224,17 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     }
     (for {
       (paramClause, argList) <- paramClauses.zip(arguments)
-      (arg, idx) <- argList.exprs.zipWithIndex
     } yield {
-      arg match {
-        case ScAssignStmt(refToParam: ScReferenceExpression, Some(expr)) =>
-          val param = paramClause.find(_.getName == refToParam.refName)
-            .orElse(refToParam.resolve().asOptionOf[ScParameter])
-          param.map(p => (expr, Parameter(p))).toSeq
-        case expr =>
-          val paramIndex = Math.min(idx, paramClause.size - 1)
-          paramClause.lift(paramIndex).map(p => (expr, Parameter(p))).toSeq
-      }
-    }).flatten
+      for ((arg, idx) <- argList.exprs.zipWithIndex) yield
+        arg match {
+          case ScAssignStmt(refToParam: ScReferenceExpression, Some(expr)) =>
+            val param = paramClause.find(_.getName == refToParam.refName)
+              .orElse(refToParam.resolve().asOptionOf[ScParameter])
+            param.map(p => (expr, Parameter(p))).toSeq
+          case expr =>
+            val paramIndex = Math.min(idx, paramClause.size - 1)
+            paramClause.lift(paramIndex).map(p => (expr, Parameter(p))).toSeq
+        }
+    }).map(_.flatten)
   }
 }

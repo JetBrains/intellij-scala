@@ -100,4 +100,10 @@ class TypeInferenceBugs4Test extends TypeInferenceTestBase {
   def testViewBounds() {doTest()}
 
   def testexistentialOverTypeParam() {doTest()}
+
+  def testSCL7332() {doTest()}
+
+  def testSCL7332_1() {doTest()}
+
+  def testSCL7332_2() {doTest()}
 }
