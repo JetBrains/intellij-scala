@@ -4,7 +4,7 @@ import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkType, ProjectJdkTable, SdkTypeId}
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
 import org.jetbrains.plugins.cbt.project.data.service
 import org.jetbrains.plugins.cbt.structure.CbtProjectData
@@ -27,16 +27,15 @@ object CbtProjectDataService {
     extends AbstractImporter[CbtProjectData](toImport, projectData, project, modelsProvider) {
 
     override def importData(): Unit = {
-      println("import data called")
+      println("CbtProjectDataService import data called")
       dataToImport.foreach(node => doImport(node.getData))
     }
 
 
-    def doImport(dataNode: CbtProjectData): Unit = {
+    def doImport(dataNode: CbtProjectData): Unit = executeProjectChangeAction {
       val javaSdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(JavaSdk.getInstance)
       ProjectRootManager.getInstance(project).setProjectSdk(javaSdk)
     }
-
   }
 
 }

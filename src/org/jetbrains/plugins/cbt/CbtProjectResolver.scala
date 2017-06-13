@@ -8,7 +8,7 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
-import org.jetbrains.plugins.cbt.structure.CbtProjectData
+import org.jetbrains.plugins.cbt.structure.{CbtModuleData, CbtProjectData}
 
 import scala.xml.Node
 
@@ -44,13 +44,22 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     (project \ "libraries" \ "library")
       .map(convertLibrary(projectNode))
       .foreach(projectNode.addChild)
-    projectNode.addChild(createProjectData(projectNode))
+    projectNode.addChild(createProjectData(projectNode, project))
+
+    //val libraries =
+
     projectNode
   }
 
-  private def createProjectData(projectNode: DataNode[ProjectData]) =
-    new DataNode(CbtProjectData.Key, new CbtProjectData(), projectNode)
+  private def createProjectData(projectDateNode: DataNode[ProjectData], node: Node) =
+    new DataNode(CbtProjectData.Key, new CbtProjectData(), projectDateNode)
 
+
+  private def createModuleData(moduleDataNode: DataNode[ModuleData], node: Node) = {
+    val scalacClasspath = (node \ "targetLibraries" \ "targetLibrary")
+      .map(t => new File(t.text.trim))
+    new DataNode(CbtModuleData.Key, new CbtModuleData(scalacClasspath), moduleDataNode)
+  }
 
   private def convertModule(parent: DataNode[_])(module: Node) = {
     val moduleDependencies = //TODO
@@ -69,6 +78,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     (module \ "mavenDependencies" \ "mavenDependency")
       .map(convertLibraryDependency(moduleNode))
       .foreach(moduleNode.addChild)
+    moduleNode.addChild(createModuleData(moduleNode, module))
     moduleNode
   }
 

@@ -50,6 +50,7 @@
         <projectConfigurable groupId="build.tools" displayName="CBT" instance="org.jetbrains.plugins.cbt.settings.CbtExternalSystemConfigurable" />
 
         <externalProjectDataService implementation="org.jetbrains.plugins.cbt.project.data.service.CbtProjectDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.plugins.cbt.project.data.service.CbtModuleDataService"/>
 
     </extensions>
 </idea-plugin>
