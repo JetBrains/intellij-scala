@@ -35,7 +35,6 @@ object CbtModuleDataService {
         module <- getIdeModuleByNode(dataNode)
       } {
         val scalaLibraries = getScalaLibraries(module, Platform.Scala)
-        println("Scala libs" + scalaLibraries)
         scalaLibraries
           .headOption
           .map(convertToScalaSdk(_, Platform.Scala, ScalaLanguageLevel.Default, dataNode.getData.scalacClasspath))

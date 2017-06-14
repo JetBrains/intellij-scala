@@ -44,6 +44,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     (project \ "libraries" \ "library")
       .map(convertLibrary(projectNode))
       .foreach(projectNode.addChild)
+    projectNode.addChild(createCbtLibrary(projectNode))
     projectNode.addChild(createProjectData(projectNode, project))
     projectNode
   }
@@ -74,6 +75,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     (module \ "mavenDependencies" \ "mavenDependency")
       .map(convertLibraryDependency(moduleNode))
       .foreach(moduleNode.addChild)
+    moduleNode.addChild(createCbtLibraryDependency(moduleNode))
     moduleNode.addChild(createModuleData(moduleNode, module))
     moduleNode
   }
@@ -92,6 +94,23 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     val dependencyData = new LibraryDependencyData(parent.getData,
       new LibraryData(CbtProjectSystem.Id, dependency.text.trim), LibraryLevel.PROJECT)
     new DataNode(ProjectKeys.LIBRARY_DEPENDENCY, dependencyData, parent)
+  }
+
+  private def createCbtLibraryDependency(parent: DataNode[ModuleData])= {
+    val dependencyData = new LibraryDependencyData(parent.getData,createCbtLibraryData, LibraryLevel.PROJECT)
+    new DataNode(ProjectKeys.LIBRARY_DEPENDENCY, dependencyData, parent)
+  }
+
+  def createCbtLibrary(parent: DataNode[_]) = {
+    val libraryData = createCbtLibraryData
+    val libraryNode = new DataNode(ProjectKeys.LIBRARY, libraryData, parent)
+    libraryNode
+  }
+
+  private def createCbtLibraryData = {
+    val libraryData = new LibraryData(CbtProjectSystem.Id, "CBT")
+    libraryData.addPath(LibraryPathType.SOURCE, "/home/ilya/apps/cbt")
+    libraryData
   }
 
   private def convertLibrary(parent: DataNode[_])(library: Node) = {
