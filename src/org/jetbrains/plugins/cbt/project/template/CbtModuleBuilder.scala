@@ -3,13 +3,9 @@ package org.jetbrains.plugins.cbt.project.template
 import java.io.File
 
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
-import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
-import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
-import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
@@ -24,9 +20,8 @@ import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{Platform, Versions}
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.template.SComboBox
+import org.jetbrains.sbt.RichFile
 
 
 class CbtModuleBuilder
@@ -53,29 +48,29 @@ class CbtModuleBuilder
   }
 
   override def setupRootModel(model: ModifiableRootModel): Unit = {
-//    val contentPath = getContentEntryPath
-//    if (StringUtil.isEmpty(contentPath)) return
-//
-//    val contentRootDir = new File(contentPath)
-//    createDirectory(contentRootDir)
-//
-//    val fileSystem = LocalFileSystem.getInstance
-//    val vContentRootDir = fileSystem.refreshAndFindFileByIoFile(contentRootDir)
-//    if (vContentRootDir == null) return
-//
-//    model.addContentEntry(vContentRootDir)
-//    model.inheritSdk()
-//
-//
-//    FileDocumentManager.getInstance.saveAllDocuments()
-//    ApplicationManager.getApplication.invokeLater(new Runnable() {
-//      override def run(): Unit =
-//        ExternalSystemUtil.refreshProjects(
-//          new ImportSpecBuilder(model.getProject, CbtProjectSystem.Id)
-//            .forceWhenUptodate()
-//            .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-//        )
-//    })
+    //    val contentPath = getContentEntryPath
+    //    if (StringUtil.isEmpty(contentPath)) return
+    //
+    //    val contentRootDir = new File(contentPath)
+    //    createDirectory(contentRootDir)
+    //
+    //    val fileSystem = LocalFileSystem.getInstance
+    //    val vContentRootDir = fileSystem.refreshAndFindFileByIoFile(contentRootDir)
+    //    if (vContentRootDir == null) return
+    //
+    //    model.addContentEntry(vContentRootDir)
+    //    model.inheritSdk()
+    //
+    //
+    //    FileDocumentManager.getInstance.saveAllDocuments()
+    //    ApplicationManager.getApplication.invokeLater(new Runnable() {
+    //      override def run(): Unit =
+    //        ExternalSystemUtil.refreshProjects(
+    //          new ImportSpecBuilder(model.getProject, CbtProjectSystem.Id)
+    //            .forceWhenUptodate()
+    //            .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+    //        )
+    //    })
     val contentPath = getContentEntryPath
     if (StringUtil.isEmpty(contentPath)) return
 
@@ -138,8 +133,13 @@ class CbtModuleBuilder
   }
 
   private def generateTemplate(root: File): Unit = {
-    CBT.runAction(Seq("tools", "createMain"), root)
+    val srcDir = root / "src"
+    srcDir.mkdirs()
+    val buildDir = root / "build" / "src"
+    buildDir.mkdirs()
+    CBT.runAction(Seq("tools", "createMain"), srcDir)
     CBT.runAction(Seq("tools", "createBuild"), root)
+    (root / "build" / "build.Scala").renameTo(buildDir / "Main.scala")
   }
 
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
