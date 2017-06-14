@@ -1,4 +1,3 @@
-import meta.Shared
 import sbt._
 
 object Versions {
@@ -6,7 +5,8 @@ object Versions {
   val scalaBinaryVersion: String = Scala.binary_2_11
   val sbtVersion: String = Sbt.latest
   val ideaVersion = "172.2273.8"
-  val sbtStructureVersion: String = Shared.sbtStructureVersion
+  val sbtStructureVersion: String = "7.0.0+40-35fa8975"
+  val sbtIdeaShellVersion: String = "1.2+2-3eadcace"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
@@ -46,7 +46,6 @@ object Versions {
     val latest_0_13 = "0.13.15"
     val latest_1_0 = "1.0.0-M6"
     val latest: String = latest_0_13
-    // maybe we should supply latest sbt via BuildInfo to Sbt.LatestVersion
 
     def binaryVersion(v: String): String = {
       if (v.startsWith(binary_0_12)) binary_0_12

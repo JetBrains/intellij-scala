@@ -6,6 +6,7 @@ import _root_.org.jetbrains.plugins.scala.util.TestUtils
 import _root_.org.jetbrains.sbt._
 import _root_.org.jetbrains.sbt.settings.SbtSystemSettings
 import com.intellij.openapi.project.Project
+import plugins.scala.buildinfo.BuildInfo
 
 /**
  * Mixin to use with tests involving setup of sbt-launch or/and sbt-structure
@@ -26,9 +27,9 @@ trait SbtStructureSetup {
     }
   }
 
-  private val LauncherVersion = "0.13.15"
+  private val LauncherVersion = BuildInfo.sbtLatestVersion
   // this compiles fine in sbt, ignore the red
-  private val SbtStructureVersion = meta.Shared.sbtStructureVersion
+  private val SbtStructureVersion = BuildInfo.sbtStructureVersion
   private val CustomSbtLauncher = IvyCacheDir / "org.scala-sbt" / "sbt-launch" / "jars" / s"sbt-launch-$LauncherVersion.jar"
-  private val CustomSbtStructure = IvyCacheDir / "scala_2.10" / "sbt_0.13" / "org.jetbrains" / "sbt-structure-extractor-0-13" / "jars" / s"sbt-structure-extractor-0-13-$SbtStructureVersion.jar"
+  private val CustomSbtStructure = IvyCacheDir / "scala_2.10" / "sbt_0.13" / "org.jetbrains" / "sbt-structure-extractor" / "jars" / s"sbt-structure-extractor-$SbtStructureVersion.jar"
 }

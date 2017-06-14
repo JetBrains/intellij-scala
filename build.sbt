@@ -32,10 +32,9 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
   .dependsOn(compilerSettings, scalap % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
-  .enablePlugins(SbtIdeaPlugin)
+  .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
-    unmanagedSourceDirectories in Compile += baseDirectory.value / "project" / "meta",
     ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
     javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
     scalacOptions in Global += "-target:jvm-1.6",
@@ -60,7 +59,14 @@ lazy val scalaCommunity: sbt.Project =
     ,
     aggregate.in(updateIdea) := false,
     test in Test := test.in(Test).dependsOn(setUpTestEnvironment).value,
-    testOnly in Test := testOnly.in(Test).dependsOn(setUpTestEnvironment).evaluated
+    testOnly in Test := testOnly.in(Test).dependsOn(setUpTestEnvironment).evaluated,
+    buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
+    buildInfoKeys := Seq(
+      name, version, scalaVersion, sbtVersion,
+      BuildInfoKey.constant("sbtLatestVersion", Versions.sbtStructureVersion),
+      BuildInfoKey.constant("sbtStructureVersion", Versions.sbtStructureVersion),
+      BuildInfoKey.constant("sbtIdeaShellVersion", Versions.sbtIdeaShellVersion)
+    )
   )
 
 lazy val jpsPlugin =

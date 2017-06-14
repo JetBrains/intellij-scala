@@ -9,6 +9,7 @@ import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtExternalSystemManager
@@ -38,8 +39,8 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   // but we should be fine since it is written before every sbt boot
   private def sbtStructurePlugin(sbtMajorVersion: Version): Seq[String] = {
     // IDEA won't import the shared source dir between build definition and build, so this red
-    val sbtStructureVersion = meta.Shared.sbtStructureVersion
-    val sbtIdeaShellVersion = "1.2+2-3eadcace"
+    val sbtStructureVersion = BuildInfo.sbtStructureVersion
+    val sbtIdeaShellVersion = BuildInfo.sbtIdeaShellVersion
     sbtMajorVersion.presentation match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
       case _ => Seq(
@@ -63,7 +64,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     // an id to identify this boot of sbt as being launched from idea, so that any plugins it injects are never ever loaded otherwise
     // use sbtStructureVersion as approximation of compatible versions of IDEA this is allowed to launch with.
     // this avoids failing reloads when multiple sbt instances are booted from IDEA (SCL-12009)
-    val runid = meta.Shared.sbtStructureVersion
+    val runid = BuildInfo.sbtStructureVersion
 
     val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
     val configuredSdk = sbtSettings.jdk.map(JdkByName).flatMap(SdkUtils.findProjectSdk)
