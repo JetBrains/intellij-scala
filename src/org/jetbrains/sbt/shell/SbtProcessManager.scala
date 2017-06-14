@@ -77,6 +77,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     javaParameters.setJarPath(launcher.getCanonicalPath)
 
     val vmParams = javaParameters.getVMParametersList
+    vmParams.add("-server")
     vmParams.addAll(SbtOpts.loadFrom(workingDir).asJava)
     vmParams.addAll(sbtSettings.vmOptions.asJava)
     vmParams.add(s"-Didea.runid=$runid")
