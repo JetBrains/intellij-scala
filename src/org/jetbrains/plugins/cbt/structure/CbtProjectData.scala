@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.cbt.structure
 
-import java.io.File
-
 import com.intellij.openapi.externalSystem.model.Key
 import org.jetbrains.sbt.project.data.SbtEntityData
 

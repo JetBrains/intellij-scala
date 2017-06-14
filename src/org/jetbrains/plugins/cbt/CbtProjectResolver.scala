@@ -56,7 +56,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
 
 
   private def createModuleData(moduleDataNode: DataNode[ModuleData], node: Node) = {
-    val scalacClasspath = (node \ "targetLibraries" \ "targetLibrary")
+    val scalacClasspath = (node \ "classpaths" \ "classpathItem")
       .map(t => new File(t.text.trim))
     new DataNode(CbtModuleData.Key, new CbtModuleData(scalacClasspath), moduleDataNode)
   }
@@ -73,8 +73,12 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       (module \ "root").text,
       (module \ "root").text)
     val moduleNode = new DataNode(ProjectKeys.MODULE, moduleData, parent)
-    moduleNode.createChild(ProjectKeys.CONTENT_ROOT,
-      new ContentRootData(CbtProjectSystem.Id, (module \ "sourcesRoot").text))
+    val contentRootData = new ContentRootData(CbtProjectSystem.Id, (module \ "root").text)
+    (module \ "sources" \ "source")
+      .map(s => new File(s.text.trim))
+      .filter(_.isDirectory)
+      .foreach(d => contentRootData.storePath(ExternalSystemSourceType.SOURCE, d.getPath))
+    moduleNode.createChild(ProjectKeys.CONTENT_ROOT, contentRootData)
     (module \ "mavenDependencies" \ "mavenDependency")
       .map(convertLibraryDependency(moduleNode))
       .foreach(moduleNode.addChild)
