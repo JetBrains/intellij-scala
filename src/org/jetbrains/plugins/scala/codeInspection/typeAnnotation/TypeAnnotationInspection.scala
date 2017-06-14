@@ -12,7 +12,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AbstractTypeAnnotationIntention.complete
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.settings._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -36,7 +35,7 @@ class TypeAnnotationInspection extends AbstractInspection {
       inspect(value, value.bindings.head, value.expr)
     case variable: ScVariableDefinition if variable.isSimple && !variable.hasExplicitType =>
       inspect(variable, variable.bindings.head, variable.expr)
-    case method: ScFunctionDefinition if functionIsValid(method) =>
+    case method: ScFunctionDefinition if method.hasAssign && !method.hasExplicitType && !method.isSecondaryConstructor =>
       inspect(method, method.nameId, method.body)
   }
 }
@@ -47,33 +46,16 @@ object TypeAnnotationInspection {
 
   private[typeAnnotation] val Description = "Explicit type annotation required (according to Code Style settings)"
 
-  private def functionIsValid(function: ScFunctionDefinition): Boolean =
-    function.hasAssign && !function.hasExplicitType &&
-      !function.isSecondaryConstructor &&
-      !function.hasAnnotation("org.junit.Test") && !function.hasAnnotation("junit.framework.Test") &&
-      !isMemberOf(function, "junit.framework.TestCase")
-
   private def inspect(member: ScMember,
                       anchor: PsiElement,
                       maybeExpression: Option[ScExpression])
-                     (implicit holder: ProblemsHolder) {
-    if (isRequired(member)) {
+                     (implicit holder: ProblemsHolder): Unit = {
+    if (isTypeAnnotationNeeded(member)) {
       holder.registerProblem(anchor, Description,
         new AddTypeAnnotationQuickFix(anchor),
         new LearnWhyQuickFix,
         new ModifyCodeStyleQuickFix)
     }
-  }
-
-  private[this] def isRequired(member: ScMember)
-                              (implicit holder: ProblemsHolder): Boolean = {
-    def requirement: (ScMember, ScalaCodeStyleSettings) => Int = member match {
-      case _: ScPatternDefinition | _: ScVariableDefinition => requirementForProperty
-      case _ => requirementForMethod
-    }
-
-    val settings = ScalaCodeStyleSettings.getInstance(holder.getProject)
-    requirement(member, settings) == TypeAnnotationRequirement.Required.ordinal
   }
 }
 

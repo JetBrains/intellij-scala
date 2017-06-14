@@ -307,22 +307,19 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     }
   }
 
-  private boolean needTypeannotations(ScExpression expression) {
-    ScalaCodeStyleSettings settings = ScalaCodeStyleSettings.getInstance(expression.getProject());
-
-    TypeAnnotationUtil.Visibility visibility = TypeAnnotationUtil.visibilityFromString(getVisibility());
-
-    return TypeAnnotationUtil.isTypeAnnotationNeeded(
-            TypeAnnotationUtil.requirementForProperty(false, visibility, settings), //can't declare in local scope
-            settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
-            settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
+  private boolean needsTypeAnnotation(ScExpression expression) {
+    return TypeAnnotationUtil.isTypeAnnotationNeededProperty(
+            expression,
+            getVisibility(),
+            false, //can't declare in local scope
             false,
-            TypeAnnotationUtil.isSimple(expression)
+            TypeAnnotationUtil.isSimple(expression),
+            ScalaCodeStyleSettings.getInstance(project)
     );
   }
 
   private void setUpTypeComboBox(final ScExpression expression) {
-    mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+    mySpecifyTypeChb.setSelected(needsTypeAnnotation(expression));
     updateEnablingTypeList();
 
     mySpecifyTypeChb.addActionListener(new ActionListener() {
@@ -335,7 +332,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     visibilityComboBox.addItemListener(new ItemListener() {
       @Override
       public void itemStateChanged(ItemEvent e) {
-        mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+        mySpecifyTypeChb.setSelected(needsTypeAnnotation(expression));
         updateEnablingTypeList();
       }
     });
@@ -351,7 +348,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
         ApplicationManager.getApplication().invokeLater(new Runnable() {
           @Override
           public void run() {
-            mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+            mySpecifyTypeChb.setSelected(needsTypeAnnotation(expression));
             updateEnablingTypeList();
           }
         });

@@ -13,8 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionEx
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createClauseForFunctionExprFromText, createColon, createTypeElementFromText, createWhitespace}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText}
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -91,24 +90,26 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
         IntentionUtil.startTemplate(added, context, expr, e)
       case _ =>
         ScalaPsiUtil.adjustTypes(added)
-        rightExpressionOf(context).foreach(simplify)
+
+        val maybeExpression = context match {
+          case variable: ScVariableDefinition => variable.expr
+          case pattern: ScPatternDefinition => pattern.expr
+          case function: ScFunctionDefinition => function.body
+          case _ => None
+        }
+
+        maybeExpression
+          .zip(simplify(maybeExpression))
+          .foreach {
+            case (expression, replacement) => expression.replace(replacement)
+          }
     }
   }
 
-  private def rightExpressionOf(definition: PsiElement): Option[ScExpression] = definition match {
-    case variable: ScVariableDefinition => variable.expr
-    case pattern: ScPatternDefinition => pattern.expr
-    case function: ScFunctionDefinition => function.body
-    case _ => None
-  }
-
-  private def simplify(expression: ScExpression): Unit = expression match {
-    case call: ScGenericCall if TypeAnnotationUtil.isEmptyCollectionFactory(call) =>
-      val s = call.getText
-      implicit val manager = expression.projectContext
-      val newExpression = ScalaPsiElementFactory.createExpressionFromText(s.substring(0, s.indexOf('[')))
-      expression.replace(newExpression)
-    case _ =>
+  private def simplify(maybeExpression: Option[ScExpression]) = maybeExpression.collect {
+    case ScGenericCall(referenced, _) if TypeAnnotationUtil.isFactoryMethod(referenced) =>
+      implicit val context = referenced.projectContext
+      createExpressionFromText(referenced.getText)
   }
 }
 

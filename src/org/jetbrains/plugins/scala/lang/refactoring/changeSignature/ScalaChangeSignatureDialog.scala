@@ -28,9 +28,8 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.table.{JBListTable, JBTableRowEditor, JBTableRowRenderer}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
@@ -38,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPanel
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil.{createTypeAnnotationsHLink, isTypeAnnotationNeededMethod}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
@@ -201,31 +200,8 @@ class ScalaChangeSignatureDialog(val project: Project,
     new ScalaChangeSignatureRowEditor(scalaItem, this)
   }
 
-  def needTypeAnnotation(element: PsiElement, visibilityString: String): Boolean = {
-    val settings = ScalaCodeStyleSettings.getInstance(element.getProject)
-
-    val visibility =
-      if (visibilityString.contains("private")) TypeAnnotationUtil.Private
-      else if (visibilityString.contains("protected")) TypeAnnotationUtil.Protected
-      else TypeAnnotationUtil.Public
-
-    val isOverride = TypeAnnotationUtil.isOverriding(element)
-
-    val isSimple =
-      element match {
-        case funcDef: ScFunctionDefinition =>
-          funcDef.body.exists(TypeAnnotationUtil.isSimple)
-        case _=> false
-      }
-
-    TypeAnnotationUtil.isTypeAnnotationNeeded(
-      TypeAnnotationUtil.requirementForMethod(TypeAnnotationUtil.isLocal(element), visibility, settings = settings),
-      settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
-      settings.SIMPLE_METHOD_TYPE_ANNOTATION,
-      isOverride,
-      isSimple
-    )
-  }
+  private def needsTypeAnnotation(element: PsiElement, visibilityString: String): Boolean =
+    isTypeAnnotationNeededMethod(element, visibilityString)()
 
   override def calculateSignature(): String = {
     def nameAndType(item: ScalaParameterTableModelItem) = {
@@ -250,7 +226,7 @@ class ScalaChangeSignatureDialog(val project: Project,
     val needType =
       if (!needSpecifyTypeChb) true
       else if (mySpecifyTypeChb != null) mySpecifyTypeChb.isSelected
-      else needTypeAnnotation(method.getMethod, visibility)
+      else needsTypeAnnotation(method.getMethod, visibility)
     
     val typeAnnot =
       if (retTypeText.isEmpty || !needType) ""
@@ -537,12 +513,12 @@ class ScalaChangeSignatureDialog(val project: Project,
   }
   
   private def setUpHyperLink(): HyperlinkLabel = {
-    val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
+    val link = createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
 
     link.addHyperlinkListener(new HyperlinkListener() {
       def hyperlinkUpdate(e: HyperlinkEvent) {
         extensions.invokeLater {
-          mySpecifyTypeChb.setSelected(needTypeAnnotation(method.getMethod, getVisibility))
+          mySpecifyTypeChb.setSelected(needsTypeAnnotation(method.getMethod, getVisibility))
           updateSignatureAlarmFired()
         }
       }
@@ -554,14 +530,14 @@ class ScalaChangeSignatureDialog(val project: Project,
   private def setUpVisibilityListener(): Unit = {
     myVisibilityPanel.addListener(new ChangeListener {
       override def stateChanged(e: ChangeEvent) = {
-        mySpecifyTypeChb.setSelected(needTypeAnnotation(method.getMethod, getVisibility))
+        mySpecifyTypeChb.setSelected(needsTypeAnnotation(method.getMethod, getVisibility))
         updateSignatureAlarmFired()
       }
     })
   }
   
   private def setUpSpecifyTypeChb(): Unit ={
-    mySpecifyTypeChb.setSelected(needTypeAnnotation(method.getMethod, getVisibility))
+    mySpecifyTypeChb.setSelected(needsTypeAnnotation(method.getMethod, getVisibility))
     
     mySpecifyTypeChb.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = updateSignatureAlarmFired()
