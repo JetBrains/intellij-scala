@@ -14,6 +14,8 @@ import scala.xml.Node
 
 class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSettings] {
 
+  private case class ProjectInfo(libraries: Map[String, LibraryData],
+                                 modules: Map[String, ModuleData])
 
   override def resolveProjectInfo(id: ExternalSystemTaskId,
                                   projectPath: String,
@@ -37,14 +39,28 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       (project \ "name").text,
       (project \ "root").text,
       (project \ "root").text)
+
+
     val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
+
+    val libraries = (project \ "libraries" \ "library")
+      .map(createLibraryData)
+      .map(l => l.getExternalName -> l)
+      .toMap +
+      ("CBT" -> createCbtLibraryData)
+
+    libraries.values
+      .map(createLibraryNode(projectNode))
+      .foreach(projectNode.addChild)
+
+    val modules = (project \ "modules" \ "module")
+      .map(createModuleData)
+      .map(m => m.getExternalName -> m)
+      .toMap
     (project \ "modules" \ "module")
-      .map(convertModule(projectNode))
+      .map(m => createModuleNode(projectNode, libraries, modules((m \ "name").text.trim), m))
       .foreach(projectNode.addChild)
-    (project \ "libraries" \ "library")
-      .map(convertLibrary(projectNode))
-      .foreach(projectNode.addChild)
-    projectNode.addChild(createCbtLibrary(projectNode))
+
     projectNode.addChild(createProjectData(projectNode, project))
     projectNode
   }
@@ -53,30 +69,33 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     new DataNode(CbtProjectData.Key, new CbtProjectData(), projectDateNode)
 
 
-  private def createModuleData(moduleDataNode: DataNode[ModuleData], node: Node) = {
+  private def createExtModuleData(moduleDataNode: DataNode[ModuleData], node: Node) = {
     val scalacClasspath = (node \ "classpaths" \ "classpathItem")
       .map(t => new File(t.text.trim))
     new DataNode(CbtModuleData.Key, new CbtModuleData(scalacClasspath), moduleDataNode)
   }
 
-  private def convertModule(parent: DataNode[_])(module: Node) = {
-    val moduleDependencies = //TODO
-      Seq(module \ "moduleDependencies" \ "moduleDependency", module \ "parentBuild")
-        .flatten
-        .map(d => d.text.trim)
-    val moduleData = new ModuleData((module \ "name").text,
+  private def createModuleData(module: Node) =
+    new ModuleData((module \ "name").text,
       CbtProjectSystem.Id,
       "JAVA_MODULE",
       (module \ "name").text,
       (module \ "root").text,
       (module \ "root").text)
+
+  private def createModuleNode(parent: DataNode[_], libraries: Map[String, LibraryData],
+                               moduleData: ModuleData, module: Node) = {
+    val moduleDependencies = //TODO
+      Seq(module \ "moduleDependencies" \ "moduleDependency", module \ "parentBuild")
+        .flatten
+        .map(d => d.text.trim)
     val moduleNode = new DataNode(ProjectKeys.MODULE, moduleData, parent)
     moduleNode.addChild(createContentRoot(module, moduleNode))
     (module \ "mavenDependencies" \ "mavenDependency")
-      .map(convertLibraryDependency(moduleNode))
+      .map(d => createLibraryDependencyNode(moduleNode, libraries(d.text.trim)))
       .foreach(moduleNode.addChild)
-    moduleNode.addChild(createCbtLibraryDependency(moduleNode))
-    moduleNode.addChild(createModuleData(moduleNode, module))
+    moduleNode.addChild(createLibraryDependencyNode(moduleNode, libraries("CBT")))
+    moduleNode.addChild(createExtModuleData(moduleNode, module))
     moduleNode
   }
 
@@ -90,36 +109,27 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     new DataNode(ProjectKeys.CONTENT_ROOT, contentRootData, parent)
   }
 
-  private def convertLibraryDependency(parent: DataNode[ModuleData])(dependency: Node) = {
-    val dependencyData = new LibraryDependencyData(parent.getData,
-      new LibraryData(CbtProjectSystem.Id, dependency.text.trim), LibraryLevel.PROJECT)
+  private def createLibraryDependencyNode(parent: DataNode[ModuleData], libraryData: LibraryData) = {
+    val dependencyData = new LibraryDependencyData(parent.getData, libraryData, LibraryLevel.PROJECT)
     new DataNode(ProjectKeys.LIBRARY_DEPENDENCY, dependencyData, parent)
   }
 
-  private def createCbtLibraryDependency(parent: DataNode[ModuleData])= {
-    val dependencyData = new LibraryDependencyData(parent.getData,createCbtLibraryData, LibraryLevel.PROJECT)
-    new DataNode(ProjectKeys.LIBRARY_DEPENDENCY, dependencyData, parent)
-  }
-
-  def createCbtLibrary(parent: DataNode[_]) = {
-    val libraryData = createCbtLibraryData
-    val libraryNode = new DataNode(ProjectKeys.LIBRARY, libraryData, parent)
-    libraryNode
-  }
-
-  private def createCbtLibraryData = {
+    private def createCbtLibraryData = {
     val libraryData = new LibraryData(CbtProjectSystem.Id, "CBT")
-    libraryData.addPath(LibraryPathType.SOURCE, "/home/ilya/apps/cbt")
+    libraryData.addPath(LibraryPathType.BINARY, "/home/ilya/apps/cbt")
     libraryData
   }
 
-  private def convertLibrary(parent: DataNode[_])(library: Node) = {
+  private def createLibraryData(library: Node) = {
     val libraryData = new LibraryData(CbtProjectSystem.Id, (library \ "name").text.trim)
     (library \ "jars" \ "jar")
       .map(_.text.trim)
       .foreach(libraryData.addPath(LibraryPathType.BINARY, _))
-    val libraryNode = new DataNode(ProjectKeys.LIBRARY, libraryData, parent)
-    libraryNode
+    libraryData
+  }
+
+  private def createLibraryNode(parent: DataNode[_])(libraryData: LibraryData) = {
+    new DataNode(ProjectKeys.LIBRARY, libraryData, parent)
   }
 
   override def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean = true
