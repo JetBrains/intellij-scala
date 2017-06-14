@@ -105,10 +105,10 @@ trait Importer[E] {
       override def execute(): Unit = action
     })
 
-  def convertToScalaSdk(library: Library,
-                        platform: Platform,
-                        languageLevel: ScalaLanguageLevel,
-                        compilerClasspath: Seq[File]): ScalaSdk = {
+  def setScalaSdk(library: Library,
+                  platform: Platform,
+                  languageLevel: ScalaLanguageLevel,
+                  compilerClasspath: Seq[File]): Unit = {
 
     val properties = new ScalaLibraryProperties()
     properties.platform = platform
@@ -118,8 +118,6 @@ trait Importer[E] {
     val model = getModifiableLibraryModelEx(library)
     model.setKind(ScalaLibraryType.instance.getKind)
     model.setProperties(properties)
-
-    new ScalaSdk(library)
   }
 }
 

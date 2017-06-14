@@ -77,7 +77,7 @@ object ModuleExtDataService {
               case Scala => compilerClasspath
               case Dotty => compilerClasspath.filterNot(_.getName.startsWith("sbt-interface-"))
             }
-            convertToScalaSdk(library, platform, languageLevel, classpath)
+            setScalaSdk(library, platform, languageLevel, classpath)
           case None =>
             showWarning(SbtBundle("sbt.dataService.scalaLibraryIsNotFound", compilerVersion.presentation, module.getName))
           case _ => // do nothing
