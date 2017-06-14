@@ -46,19 +46,20 @@
           <element id="module-output" name="scalap" />
         </element>
         <element id="library" level="project" name="SBT: org.scalatest:scalatest-finders-patched:0.9.9:jar" />
-        <element id="library" level="project" name="SBT: org.scalameta:common_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.scalameta:dialects_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.scalameta:inline_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.scalameta:inputs_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.scalameta:parsers_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.scalameta:quasiquotes_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.scalameta:scalameta_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.scalameta:tokenizers_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.scalameta:tokens_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.scalameta:transversers_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.scalameta:trees_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.scalameta:semantic_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:7.0.0-18-gd3edca5:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:common_2.11:1.7.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:dialects_2.11:1.7.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:inline_2.11:1.7.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:inputs_2.11:1.7.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:scalameta_2.11:1.7.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:semantic_2.11:1.7.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:tokenizers_2.11:1.7.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:tokens_2.11:1.7.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:transversers_2.11:1.7.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:trees_2.11:1.7.0:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:7.0.0+40-35fa8975:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:io_2.11:1.7.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:parsers_2.11:1.7.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalameta:quasiquotes_2.11:1.7.0:jar" />
       </element>
       <element id="directory" name="launcher">
         <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:7.0.0-18-gd3edca5:jar" />
