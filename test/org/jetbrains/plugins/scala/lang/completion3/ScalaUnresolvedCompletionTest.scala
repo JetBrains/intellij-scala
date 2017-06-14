@@ -1,167 +1,165 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-import com.intellij.lang.annotation.HighlightSeverity
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
+import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.lang.annotation.HighlightSeverity.ERROR
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.completion.ScalaTextLookupItem
-import org.junit.Assert
+import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase.DEFAULT_CHAR
+import org.junit.Assert.assertArrayEquals
 
 /**
   * Created by Kate Ustiuzhanin on 24/03/2017.
   */
-class ScalaUnresolvedCompletionTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
+
+  import EditorTestUtil.{CARET_TAG => CARET}
 
   def testFieldVal(): Unit = {
     val fileText =
-      """
-        |class Test {
-        |  def method(): Unit ={
-        |    val doubleValue = 34.4
-        |    if (doubleValue > intValue) {
-        |      methodWithParams("Hey!")
-        |    } else {
-        |      methodWithoutParams()
-        |    }
-        |  }
-        |
-        |  val <caret>
-        |}
-      """
-
-    doTest(normalize(fileText), Seq("intValue"), Seq("methodWithParams(s: String)", "methodWithoutParams()"))
+      s"""
+         |class Test {
+         |  def method(): Unit ={
+         |    val doubleValue = 34.4
+         |    if (doubleValue > intValue) {
+         |      methodWithParams("Hey!")
+         |    } else {
+         |      methodWithoutParams()
+         |    }
+         |  }
+         |
+         |  val $CARET
+         |}
+      """.stripMargin
+    doTest(fileText, "intValue")
   }
 
 
   def testFieldVar(): Unit = {
     val fileText =
-      """
-        |def foo(a: Int, b: Int): Unit = {
-        |  val mid = a + (b - a) / 2
-        |
-        |  if (mid == value) {
-        |    field1 = "got result"
-        |    println(field1)
-        |  } else if (mid > value) {
-        |    foo1(a, mid - 1)
-        |  } else {
-        |    foo2(mid + 1, value)
-        |  }
-        |
-        |  var <caret>
-        |}
-      """
-
-    doTest(fileText, Seq("field1", "value"), Seq("foo1(i: Int, i1: Int)", "foo2(i: Int, value: Any)"))
+      s"""
+         |def foo(a: Int, b: Int): Unit = {
+         |  val mid = a + (b - a) / 2
+         |
+         |  if (mid == value) {
+         |    field1 = "got result"
+         |    println(field1)
+         |  } else if (mid > value) {
+         |    foo1(a, mid - 1)
+         |  } else {
+         |    foo2(mid + 1, value)
+         |  }
+         |
+         |  var $CARET
+         |}
+      """.stripMargin
+    doTest(fileText, "field1", "value")
   }
 
   def testMethodWithUnresolvedParams(): Unit = {
     val fileText =
-      """
-        |def foo(a: Int, b: Int): Unit = {
-        |  val mid = a + (b - a) / 2
-        |
-        |  if (mid == value) {
-        |    field1 = "got result"
-        |    println(field1)
-        |  } else if (mid > value) {
-        |    foo1(a, mid - 1)
-        |  } else {
-        |    foo2(mid + 1, value)
-        |  }
-        |
-        |  def <caret>
-        |}
-      """
-
-    doTest(fileText, Seq("field1", "value", "foo1(i: Int, i1: Int)", "foo2(i: Int, value: Any)"))
+      s"""
+         |def foo(a: Int, b: Int): Unit = {
+         |  val mid = a + (b - a) / 2
+         |
+         |  if (mid == value) {
+         |    field1 = "got result"
+         |    println(field1)
+         |  } else if (mid > value) {
+         |    foo1(a, mid - 1)
+         |  } else {
+         |    foo2(mid + 1, value)
+         |  }
+         |
+         |  def $CARET
+         |}
+      """.stripMargin
+    doTest(fileText, "field1", "value", "foo1(i: Int, i1: Int)", "foo2(i: Int, value: Any)")
   }
 
   def testMethod(): Unit = {
     val fileText =
-      """
-        |class Test {
-        |  def method(): Unit ={
-        |    val doubleValue = 34.4
-        |    if (doubleValue > intValue) {
-        |      methodWithParams("Hey!")
-        |    } else {
-        |      methodWithoutParams()
-        |    }
-        |  }
-        |
-        |  def <caret>
-        |}
-      """
-
-    doTest(normalize(fileText), Seq("methodWithParams(str: String)", "methodWithoutParams()", "intValue"))
+      s"""
+         |class Test {
+         |  def method(): Unit ={
+         |    val doubleValue = 34.4
+         |    if (doubleValue > intValue) {
+         |      methodWithParams("Hey!")
+         |    } else {
+         |      methodWithoutParams()
+         |    }
+         |  }
+         |
+         |  def $CARET
+         |}
+      """.stripMargin
+    doTest(fileText, "methodWithParams(str: String)", "methodWithoutParams()", "intValue")
   }
 
   def testMethodWithNamedParams(): Unit = {
     val fileText =
-      """
-        |class Test {
-        |  def method(): Unit = {
-        |    val doubleValue = 34.4
-        |    if (doubleValue > intValue) {
-        |      methodWithParams(a = "Hey!", b = 4, 23)
-        |    } else {
-        |      methoda(12, 23, " ", 23.3,  34, " ")
-        |    }
-        |  }
-        |
-        |  def <caret>
-        |}
-      """
-
-    doTest(normalize(fileText),
-      Seq("methodWithParams(a: String, b: Int, i: Int)", "methoda(i: Int, i1: Int, str: String, d: Double, i2: Int, str1: String)", "intValue"))
+      s"""
+         |class Test {
+         |  def method(): Unit = {
+         |    val doubleValue = 34.4
+         |    if (doubleValue > intValue) {
+         |      methodWithParams(a = "Hey!", b = 4, 23)
+         |    } else {
+         |      methoda(12, 23, " ", 23.3,  34, " ")
+         |    }
+         |  }
+         |
+         |  def $CARET
+         |}
+      """.stripMargin
+    doTest(fileText, "methodWithParams(a: String, b: Int, i: Int)", "methoda(i: Int, i1: Int, str: String, d: Double, i2: Int, str1: String)", "intValue")
   }
 
   def testInfixMethodWithParams(): Unit = {
     val fileText =
-      """
-        |case class I(k: Int) {
-        | I(1) add 3
-        |
-        | def <caret>
-        |}
-      """
-
-    doTest(normalize(fileText), Seq("add(i: Int)"))
+      s"""
+         |case class I(k: Int) {
+         | I(1) add 3
+         |
+         | def $CARET
+         |}
+      """.stripMargin
+    doTest(fileText, "add(i: Int)")
   }
 
   def testObject(): Unit = {
     val fileText =
-      """
-        |class Test {
-        |  def method(): Unit ={
-        |    val doubleValue = 34.4
-        |    if (doubleValue > intValue) {
-        |      methodWithoutParams("Hey!")
-        |    } else {
-        |      methodWithoutParams()
-        |    }
-        |  }
-        |
-        |  object <caret>
-        |}
-      """
-
-    doTest(normalize(fileText), Seq("intValue", "methodWithoutParams", "methodWithoutParams"))
+      s"""
+         |class Test {
+         |  def method(): Unit ={
+         |    val doubleValue = 34.4
+         |    if (doubleValue > intValue) {
+         |      methodWithoutParams("Hey!")
+         |    } else {
+         |      methodWithoutParams()
+         |    }
+         |  }
+         |
+         |  object $CARET
+         |}
+      """.stripMargin
+    doTest(fileText, "intValue", "methodWithoutParams", "methodWithoutParams")
   }
 
   def testObjectSelected(): Unit = {
     val fileText =
+      s"""
+         |class Test {
+         |  def method(): Unit = {
+         |   methodWithoutParams("Hey!")
+         |   object $CARET
+         |  }
+         |}
       """
-        |class Test {
-        |  def method(): Unit = {
-        |   methodWithoutParams("Hey!")
-        |   object <caret>
-        |  }
-        |}
-      """
+    complete(fileText)
 
-    val resultText =
+    getFixture.finishLookup(DEFAULT_CHAR)
+
+    val expectedFileText =
       """
         |class Test {
         |  def method(): Unit = {
@@ -172,169 +170,147 @@ class ScalaUnresolvedCompletionTest extends ScalaLightCodeInsightFixtureTestAdap
         |  }
         |}
       """.stripMargin
-
-    doTest(normalize(fileText), normalize(resultText))
+    checkResultByText(expectedFileText)
   }
 
   def testCaseClass(): Unit = {
     val fileText =
-      """
-        |class Test {
-        |  def method(): Unit ={
-        |    val doubleValue = 34.4
-        |    if (doubleValue > intValue) {
-        |      methodWithParams("Hey!")
-        |    } else {
-        |      methodWithoutParams()
-        |    }
-        |  }
-        |
-        |  case class <caret>
-        |}
-      """
-
-    doTest(normalize(fileText), Seq("methodWithParams(str: String)", "methodWithoutParams()"), Seq("intValue"))
+      s"""
+         |class Test {
+         |  def method(): Unit ={
+         |    val doubleValue = 34.4
+         |    if (doubleValue > intValue) {
+         |      methodWithParams("Hey!")
+         |    } else {
+         |      methodWithoutParams()
+         |    }
+         |  }
+         |
+         |  case class $CARET
+         |}
+      """.stripMargin
+    doTest(fileText, "methodWithParams(str: String)", "methodWithoutParams()")
   }
 
   def testClass(): Unit = {
-
     val fileText =
-      """
-        |object Test{
-        | sealed trait <caret>
-        |
-        | case class ClassWithParams(firstParam: Long, secondParam: Option[String]) extends Base
-        |
-        | println(foo(3, 4))
-        |
-        | val typedVal: NewType = "Hey!"
-        |}
-      """
-
-    doTest(normalize(fileText), Seq("Base", "NewType"), Seq("foo"))
+      s"""
+         |object Test{
+         | sealed trait $CARET
+         |
+         | case class ClassWithParams(firstParam: Long, secondParam: Option[String]) extends Base
+         |
+         | println(foo(3, 4))
+         |
+         | val typedVal: NewType = "Hey!"
+         |}
+      """.stripMargin
+    doTest(fileText, "Base", "NewType")
   }
 
   def testTypeAlias(): Unit = {
     val fileText =
-      """
-        |object Test{
-        | type <caret>
-        |
-        | case class ClassWithParams(firstParam: Long, secondParam: Option[String]) extends Base
-        |
-        | val typedVal: NewType = "Hey!"
-        |
-        | println(unresolved)
-        |}
-      """
-
-    doTest(normalize(fileText), Seq("Base", "NewType"), Seq("unresolved"))
+      s"""
+         |object Test{
+         | type $CARET
+         |
+         | case class ClassWithParams(firstParam: Long, secondParam: Option[String]) extends Base
+         |
+         | val typedVal: NewType = "Hey!"
+         |
+         | println(unresolved)
+         |}
+      """.stripMargin
+    doTest(fileText, "Base", "NewType")
   }
 
   def testClassAfterNew(): Unit = {
     val fileText =
-      """
-        |class <caret>
-        |new Test(12, "hi!")
+      s"""
+         |class $CARET
+         |new Test(12, "hi!")
       """.stripMargin
 
-    doTest(normalize(fileText), Seq("Test(i: Int, str: String)"))
+    doTest(fileText, "Test(i: Int, str: String)")
   }
 
   def testRanges(): Unit = {
     val fileText =
-      """
-        |class X {
-        |  printX(12)
-        |  printX("Sfd")
-        |
-        |  case class I(k: Int) {
-        |    def addd(i: Int) = ???
-        |
-        |    Seq(3, 4) tail
-        |
-        |    def tt: Seq[Int] = ???
-        |
-        |  }
-        |
-        |  def foo(a: Int, b: Int): Unit = {
-        |    val mid = a + (b - a) / 2
-        |
-        |    if (mid == value) {
-        |      field1 = "got result"
-        |      println(field1)
-        |    } else if (mid > value) {
-        |      foo1(a, mid - 1)
-        |    } else {
-        |      foo2(mid + 1, value)
-        |    }
-        |
-        |    def <caret>
-        |  }
-        |}
-      """
-
-    doTest(
-      fileText,
-      Seq("field1", "foo1(i: Int, i1: Int)", "foo2(i: Int, value: Any)", "value"),
-      Seq("printX(str: String)", "printX(i: Int)")
-    )
+      s"""
+         |class X {
+         |  printX(12)
+         |  printX("Sfd")
+         |
+         |  case class I(k: Int) {
+         |    def addd(i: Int) = ???
+         |
+         |    3, 4) tail
+         |
+         |    def tt: Seq[Int] = ???
+         |
+         |  }
+         |
+         |  def foo(a: Int, b: Int): Unit = {
+         |    val mid = a + (b - a) / 2
+         |
+         |    if (mid == value) {
+         |      field1 = "got result"
+         |      println(field1)
+         |    } else if (mid > value) {
+         |      foo1(a, mid - 1)
+         |    } else {
+         |      foo2(mid + 1, value)
+         |    }
+         |
+         |    def $CARET
+         |  }
+         |}
+      """.stripMargin
+    doTest(fileText, "field1", "foo1(i: Int, i1: Int)", "foo2(i: Int, value: Any)", "value")
   }
 
-  def testNoCompletionAfterOverrideField(): Unit = noCompletion("override val <caret> }", Seq("variable"))
+  def testNoCompletionAfterOverrideField(): Unit =
+    noCompletion(s"override val $CARET }")
 
-  def testNoCompletionAfterOverrideClazz(): Unit = noCompletion("override class <caret> }", Seq("TestType"))
+  def testNoCompletionAfterOverrideClazz(): Unit =
+    noCompletion(s"override class $CARET }")
 
-  def testNoCompletionAfterOverrideType(): Unit = noCompletion("override type <caret> }", Seq("TestType"))
+  def testNoCompletionAfterOverrideType(): Unit =
+    noCompletion(s"override type $CARET")
 
-  def testNoCompletionAfterOverrideMethod(): Unit = noCompletion("override def <caret> }", Seq("method(i: Int, str: String)"))
+  def testNoCompletionAfterOverrideMethod(): Unit =
+    noCompletion(s"override def $DEFAULT_CHAR }")
 
-  private def noCompletion(text: String, excluded: Seq[String]): Unit = {
-    val fileBaseText =
-      """
-        |class Test {
-        |  variable + 3
-        |
-        |  method(12, "test")
-        |
-        |  val t: TestType = _
-        |
-      """
+  private def noCompletion(text: String) = doTest(
+    fileText =
+      s"""
+         |class Test {
+         |  variable + 3
+         |
+         |  method(12, "test")
+         |
+         |  val t: TestType = _
+         |$text
+      """.stripMargin
+  )
 
-    doTest(fileBaseText + text, Seq.empty, excluded)
-  }
+  private def complete(fileText: String): Array[LookupElement] = {
+    val file = configureFromFileText(fileText).getVirtualFile
 
-  private def doHighlighting(fileText: String) = {
     val fixture = getFixture
-    fixture.openFileInEditor(fixture.configureByText("dummy.scala", normalize(fileText)).getVirtualFile)
-    fixture.doHighlighting(HighlightSeverity.ERROR)
-    fixture
+    fixture.openFileInEditor(file)
+    fixture.doHighlighting(ERROR)
+
+    fixture.completeBasic()
   }
 
-  private def doTest(fileText: String, includedSeq: Seq[String], excludedSeq: Seq[String] = Seq.empty): Unit = {
-    doHighlighting(fileText)
+  private def doTest(fileText: String, expected: String*): Unit = {
+    val actual = complete(fileText).collect {
+      case item: ScalaTextLookupItem => item
+    }.map(_.getLookupString)
 
-    val actual =
-      getFixture
-        .completeBasic()
-        .filter(_.isInstanceOf[ScalaTextLookupItem])
-        .map(_.getLookupString)
-        .sorted
-
-    assertContaints(actual, excludedSeq)
-    Assert.assertEquals(null, includedSeq.sorted.mkString("\n"), actual.mkString("\n"))
-  }
-
-  private def doTest(fileText: String, resultText: String): Unit = {
-    doHighlighting(fileText)
-
-    getFixture.completeBasic()
-    getFixture.finishLookup('\t')
-    getFixture.checkResult(resultText)
-  }
-
-  private def assertContaints(expected: Seq[String], excluded: Seq[String]): Unit = {
-    val intersection = expected.intersect(excluded)
-    assert(intersection.isEmpty, "Completion list contains unexpected elements:\n" + intersection.mkString("\n"))
+    val actualSet = actual.sorted
+    val expectedSet = expected.sorted
+    assertArrayEquals(expectedSet.toArray[AnyRef], actualSet.toArray[AnyRef])
   }
 }

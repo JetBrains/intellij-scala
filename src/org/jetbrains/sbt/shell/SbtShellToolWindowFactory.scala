@@ -29,7 +29,6 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
   // don't auto-activate because starting sbt shell is super heavy weight
   override def isDoNotActivateOnStart: Boolean = true
 
-
 }
 
 object SbtShellToolWindowFactory {

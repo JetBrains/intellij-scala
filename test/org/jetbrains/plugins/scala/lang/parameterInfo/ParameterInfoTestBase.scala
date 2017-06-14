@@ -11,14 +11,14 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.testFramework.utils.parameterInfo.MockUpdateParameterInfoContext
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
 import scala.collection.mutable
 
 abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  override def getTestDataPath: String = TestUtils.getTestDataPath + "/parameterInfo/"
+  override def getTestDataPath: String =
+    s"${super.getTestDataPath}parameterInfo/"
 
   protected def createHandler: ParameterInfoHandlerWithTabActionSupport[Owner, Any, _ <: PsiElement]
 

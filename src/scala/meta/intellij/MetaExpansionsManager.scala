@@ -34,8 +34,8 @@ import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
   */
 class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(project)  {
   import org.jetbrains.plugins.scala.project._
-
   import scala.collection.convert.decorateAsScala._
+  import MetaExpansionsManager.META_MAJOR_VERSION
 
   override def getComponentName = "MetaExpansionsManager"
 
@@ -82,14 +82,15 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
       .replaceAll(getClass.getPackage.getName.replace(".", "/") + "/$", ""))
     def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
       .map(m => CompilerPaths.getModuleOutputPath(m, false)).filter(_ != null).toList
+    def projectOutputDirs(project: Project) = project.scalaModules.flatMap(sm => outputDirs(sm)).distinct.toList
 
     def classLoaderForModule(module: Module): URLClassLoader = {
       annotationClassLoaders.getOrElseUpdate(module.getName, {
         val cp: List[URL] = OrderEnumerator.orderEntries(module).getClassesRoots.toList.map(toUrl)
-        val outDirs: List[URL] = outputDirs(module).map(str => new File(str).toURI.toURL)
+        val outDirs: List[URL] = projectOutputDirs(module.getProject).map(str => new File(str).toURI.toURL)
         val fullCP: immutable.Seq[URL] = outDirs ++ cp :+ pluginCP
         // a quick way to test for compatible meta version - check jar name in classpath
-        if (annot.scalaLanguageLevelOrDefault == Scala_2_11 && cp.exists(_.toString.contains("trees_2.11-1.6")))
+        if (annot.scalaLanguageLevelOrDefault == Scala_2_11 && cp.exists(_.toString.contains(s"trees_2.11-$META_MAJOR_VERSION")))
           new URLClassLoader(fullCP, getClass.getClassLoader)
         else if (annot.scalaLanguageLevelOrDefault == Scala_2_11)
           new MetaClassLoader(fullCP)
@@ -112,6 +113,8 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
 }
 
 object MetaExpansionsManager {
+
+  val META_MAJOR_VERSION = "1.7"
 
   private val LOG = Logger.getInstance(getClass)
 
@@ -163,8 +166,8 @@ object MetaExpansionsManager {
         val maybeClass = getCompiledMetaAnnotClass(annot)
         ProgressManager.checkCanceled()
         (maybeClass, maybeClass.map(_.getClassLoader)) match {
-          case (Some(clazz), Some(cl:MetaClassLoader)) if cl.incompScala => Right(runAdapterString(clazz, compiledArgs))
-          case (Some(clazz), Some(_:MetaClassLoader))  => Right(runAdapterBinary(clazz, compiledArgs))
+          case (Some(clazz), Some(cl:MetaClassLoader)) => Right(runAdapterString(clazz, compiledArgs))
+//          case (Some(clazz), Some(_:MetaClassLoader))  => Right(runAdapterBinary(clazz, compiledArgs))
           case (Some(clazz), _)                        => Right(runDirect(clazz, compiledArgs))
           case (None, _)                               => Left("Meta annotation class could not be found")
         }
@@ -184,6 +187,7 @@ object MetaExpansionsManager {
   // use if meta versions are different within the same Scala major version
   // annotations runs inside a separate classloader to avoid conflicts of different meta versions on classpath
   // same Scala version allows use of java serialization which is faster than parsing trees from strings
+  @deprecated("Seems to cause issues in 1.7.0", "1.7.0")
   private def runAdapterBinary(clazz: Class[_], args: Seq[AnyRef]): Tree = {
     val runner = clazz.getClassLoader.loadClass(classOf[MetaAnnotationRunner].getName)
     val method = runner.getDeclaredMethod("run", classOf[Class[_]], Integer.TYPE, classOf[Array[Byte]])

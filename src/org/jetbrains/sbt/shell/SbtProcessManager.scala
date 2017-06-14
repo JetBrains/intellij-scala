@@ -38,15 +38,13 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   private def sbtStructurePlugin(sbtMajorVersion: Version): Seq[String] = {
     // IDEA won't import the shared source dir between build definition and build, so this red
     val sbtStructureVersion = meta.Shared.sbtStructureVersion
-    val sbtIdeaShellVersion = "1.2"
+    val sbtIdeaShellVersion = "1.2+2-3eadcace"
     sbtMajorVersion.presentation match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
-      case "0.13" => Seq(
-        """resolvers += Resolver.url("jb-structure-extractor-0.13", url(s"http://dl.bintray.com/jetbrains/sbt-plugins"))(sbt.Patterns(false,"[organisation]/[module]/scala_2.10/sbt_0.13/[revision]/[type]s/[artifact](-[classifier]).[ext]"))""",
-          s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor-0-13" % "$sbtStructureVersion")""",
+      case _ => Seq(
+          s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor" % "$sbtStructureVersion")""",
           s"""addSbtPlugin("org.jetbrains" % "sbt-idea-shell" % "$sbtIdeaShellVersion")"""
         ) // works for 0.13.5+, for older versions it will be ignored
-      case "1.0" => Seq.empty // TODO build and publish extractor for sbt 1.0
     }
   }
 
@@ -64,7 +62,6 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     // an id to identify this boot of sbt as being launched from idea, so that any plugins it injects are never ever loaded otherwise
     // use sbtStructureVersion as approximation of compatible versions of IDEA this is allowed to launch with.
     // this avoids failing reloads when multiple sbt instances are booted from IDEA (SCL-12009)
-    // (this is marked red by IDEA because it doesn't understand sbt project model, but it compiles fine)
     val runid = meta.Shared.sbtStructureVersion
 
     val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk

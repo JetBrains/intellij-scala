@@ -1,196 +1,185 @@
 package org.jetbrains.plugins.scala
-package lang.completeStatement
+package lang
+package completeStatement
+
+import com.intellij.testFramework.EditorTestUtil
 
 /**
- * @author Ksenia.Sautina
- * @author Dmitry.Naydanov
- * @since 2/25/13
- */
+  * @author Ksenia.Sautina
+  * @author Dmitry.Naydanov
+  * @since 2/25/13
+  */
 class ScalaCompleteWhileConditionTest extends ScalaCompleteStatementTestBase {
-  def testWhileCondition1() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    while <caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    while (<caret>) {
-        |
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
 
-    checkScalaFileByText(fileText, resultText)
-  }
+  import EditorTestUtil.{CARET_TAG => CARET}
 
-  def testWhileCondition2() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    while<caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    while (<caret>) {
-        |
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    checkScalaFileByText(fileText, resultText)
-  }
-
-  def testWhileCondition3() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    while (<caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    while (<caret>) {
-        |
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    checkScalaFileByText(fileText, resultText)
-  }
-
-
-  def testWhileCondition4() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    while (true<caret>) {
-        |
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    while (true) {
-        |      <caret>
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    checkScalaFileByText(fileText, resultText)
-  }
-
-  def testWhileCondition5() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    while (true) {<caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    while (true) {
-        |      <caret>
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    checkScalaFileByText(fileText, resultText)
-  }
-
-  def testWhileCondition6() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    while (true<caret>) {
-        |      println()
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    while (true) {
-        |      <caret>
-        |      println()
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    checkScalaFileByText(fileText, resultText)
-  }
-
-  def testWhileCondition7() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    while ()<caret>
-        |  }
-        |}
+  def testWhileCondition1(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while $CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while ($CARET) {
+         |
+         |    }
+         |  }
+         |}
       """.stripMargin
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    while (<caret>) {
-        |
-        |    }
-        |  }
-        |}
+  )
+
+  def testWhileCondition2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while$CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while ($CARET) {
+         |
+         |    }
+         |  }
+         |}
       """.stripMargin
+  )
 
-    checkScalaFileByText(fileText, resultText)
-  }
-
-  def testWhileCondition8() {
-    val fileText =
-      """
-        |object A {
-        |  while (true)<caret>
-        |}
+  def testWhileCondition3(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while ($CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while ($CARET) {
+         |
+         |    }
+         |  }
+         |}
       """.stripMargin
+  )
 
-    val resultText =
-      """
-        |object A {
-        |  while (true) {
-        |    <caret>
-        |  }
-        |}
+
+  def testWhileCondition4(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while (true$CARET) {
+         |
+         |    }
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while (true) {
+         |      $CARET
+         |    }
+         |  }
+         |}
       """.stripMargin
+  )
 
-    checkScalaFileByText(fileText, resultText)
-  }
+  def testWhileCondition5(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while (true) {$CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while (true) {
+         |      $CARET
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
+
+  def testWhileCondition6(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while (true$CARET) {
+         |      println()
+         |    }
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while (true) {
+         |      $CARET
+         |      println()
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
+
+  def testWhileCondition7(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while ()$CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    while ($CARET) {
+         |
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
+
+  def testWhileCondition8(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |object A {
+         |  while (true)$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |object A {
+         |  while (true) {
+         |    $CARET
+         |  }
+         |}
+      """.stripMargin
+  )
 }

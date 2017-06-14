@@ -367,4 +367,8 @@ object ScProjectionType {
   def unapply(proj: ScProjectionType): Option[(ScType, PsiNamedElement, Boolean)] = {
     Some(proj.projected, proj.element, proj.superReference)
   }
+
+  object withActual {
+    def unapply(proj: ScProjectionType): Option[(PsiNamedElement, ScSubstitutor)] = Some(proj.actual)
+  }
 }

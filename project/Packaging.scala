@@ -4,6 +4,9 @@ import sbt.Keys._
 import sbt._
 
 object Packaging {
+
+  case class ModuleKey(id:ModuleID, attributes: Map[String,String])
+
   sealed trait PackageEntry {
     val destination: String
   }
@@ -34,13 +37,37 @@ object Packaging {
 
   import PackageEntry._
 
-  def convertEntriesToMappings(entries: Seq[PackageEntry], libraries: Classpath): Seq[(File, String)] = {
+  def convertEntriesToMappings(entries: Seq[PackageEntry],
+                               libraries: Classpath
+                              ): Seq[(File, String)] = {
     val resolvedLibraries = (for {
       jarFile <- libraries
       moduleId <- jarFile.get(moduleID.key)
-      key = moduleId.organization % moduleId.name % moduleId.revision
-    } yield (key, jarFile.data)).toMap
+    } yield {
+      (moduleKey(moduleId), jarFile.data)
+    }).toMap
     entries.map(e => convertEntry(e, resolvedLibraries))
+  }
+
+  /**
+    * Extract only key-relevant parts of the ModuleId, so that mappings succeed even if they contain extra attributes
+    */
+  def moduleKey(moduleId: ModuleID): ModuleKey =
+    ModuleKey (
+      moduleId.organization % moduleId.name % moduleId.revision,
+      moduleId.extraAttributes
+        .map { case (k,v) => k.stripPrefix("e:") -> v}
+        .filter { case (k,_) => k == "scalaVersion" || k == "sbtVersion" }
+    )
+
+  def crossName(moduleId: ModuleID, scalaVersion: String): String = {
+    import CrossVersion._
+    val name = moduleId.name
+    moduleId.crossVersion match {
+      case Disabled => name
+      case f: Full => name + "_" + f.remapVersion(scalaVersion)
+      case b: Binary => name + "_" + b.remapVersion(Versions.Scala.binaryVersion(scalaVersion))
+    }
   }
 
   def pluginVersion: String =
@@ -60,7 +87,8 @@ object Packaging {
     (tmpFile, path)
   }
 
-  private def convertEntry(entry: PackageEntry, resolvedLibraries: Map[ModuleID, File]): (File, String) = {
+  private def convertEntry(entry: PackageEntry,
+                           resolvedLibraries: Map[ModuleKey, File]): (File, String) = {
     entry match {
       case Directory(source, destination) =>
         source -> destination
@@ -69,10 +97,12 @@ object Packaging {
       case MergedArtifact(srcs, destination) =>
         mergeIntoTemporaryJar(srcs: _*) -> destination
       case Library(libraryId, destination) =>
-        val libKey = libraryId.organization % libraryId.name % libraryId.revision
-        resolvedLibraries(libKey) -> destination
+        resolvedLibraries(moduleKey(libraryId)) -> destination
       case AllOrganisation(org, destination) =>
-        mergeIntoTemporaryJar(resolvedLibraries.filter(_._1.organization == org).values.toSeq: _*) -> destination
+        mergeIntoTemporaryJar(
+          resolvedLibraries.filter {
+            case (key,file) => key.id.organization == org
+          }.values.toSeq: _*) -> destination
     }
   }
 

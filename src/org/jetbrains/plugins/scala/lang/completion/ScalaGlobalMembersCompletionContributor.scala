@@ -1,37 +1,42 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang
+package completion
 
 import com.intellij.codeInsight.CodeInsightSettings
+import com.intellij.codeInsight.completion.JavaCompletionFeatures.GLOBAL_MEMBER_NAME
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.featureStatistics.FeatureUsageTracker
-import com.intellij.openapi.actionSystem.{ActionManager, IdeActions}
-import com.intellij.openapi.keymap.KeymapUtil
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.IdeActions.ACTION_SHOW_INTENTION_ACTIONS
+import com.intellij.openapi.keymap.KeymapUtil.getFirstKeyboardShortcutText
 import com.intellij.patterns.PlatformPatterns.psiElement
+import com.intellij.psi.PsiClass.EMPTY_ARRAY
+import com.intellij.psi.ResolveState.initial
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.ProcessingContext
-import gnu.trove.THashSet
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.PredefinedConversionsProvider.findConversionProvider
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager.getLookupElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{fileContext, nameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.implicits.{CollectImplicitsProcessor, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.CollectImplicitsProcessor
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.{ImplicitMapResult, forMap}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
-import scala.collection.mutable
+import scala.collection.{JavaConverters, mutable}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -41,46 +46,83 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
   import ScalaGlobalMembersCompletionContributor._
 
   extend(CompletionType.BASIC, psiElement, new CompletionProvider[CompletionParameters]() {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                       result: CompletionResultSet) {
-      if (parameters.getInvocationCount < 2) return
-      val position: PsiElement = positionFromParameters(parameters)
-      if (!ScalaPsiUtil.fileContext(position).isInstanceOf[ScalaFile]) return
+    def addCompletions(parameters: CompletionParameters,
+                       context: ProcessingContext,
+                       resultSet: CompletionResultSet): Unit = {
+      val invocationCount = parameters.getInvocationCount
+      if (invocationCount < 2) return
 
-      position.getContext match {
-        case reference: ScReferenceExpression =>
-          val maybeQualifier = reference.qualifier.orElse {
-            Option(reference.getContext).collect {
-              case expr: ScSugarCallExpr if expr.operation == reference => expr.getBaseExpr
-            }
-          }
+      val position = positionFromParameters(parameters)
+      if (!fileContext(position).isInstanceOf[ScalaFile]) return
 
-          val file = parameters.getOriginalFile
-          maybeQualifier match {
-            case Some(qualifier) =>
-              qualifier.getTypeWithoutImplicits().foreach {
-                completeImplicits(reference, result, file, _)
-              }
-            case _ =>
-              if (result.getPrefixMatcher.getPrefix != "") {
-                complete(reference, result, file, parameters.getInvocationCount)
-              }
-          }
-        case _ =>
+      val maybeReference = Option(position.getContext).collect {
+        case reference: ScReferenceExpression => reference
       }
+
+      val lookups = maybeReference.toIterable.flatMap {
+        createLookups(_, accessAll = invocationCount >= 3)(resultSet.getPrefixMatcher, parameters.getOriginalFile)
+      }
+
+      lookups.find(!_.shouldImport)
+        .flatMap(_ => hintString)
+        .foreach(resultSet.addLookupAdvertisement)
+
+      import JavaConverters._
+      resultSet.addAllElements(lookups.asJava)
     }
   })
 }
 
 object ScalaGlobalMembersCompletionContributor {
 
-  private def isStatic(element: PsiNamedElement): Boolean = {
-    nameContext(element) match {
-      case member: PsiMember => isStatic(element, member.containingClass)
+  private def createLookups(reference: ScReferenceExpression,
+                            accessAll: Boolean)
+                           (implicit prefixMatcher: PrefixMatcher,
+                            originalFile: PsiFile): Iterable[ScalaLookupItem] = {
+    implicit def elementsSet =
+      reference.getVariants(implicits = false, filterNotNamedVariants = false).collect {
+        case ScalaLookupItem(element: PsiNamedElement) => element
+        case element: PsiNamedElement => element
+      }.toSet
+
+    findQualifier(reference) match {
+      case Some(qualifier) =>
+        qualifier.getTypeWithoutImplicits()
+          .toOption.toSeq
+          .flatMap(implicitResults(reference, _))
+          .flatMap {
+            case (resolveResult, resultType) =>
+              val (element, elementObject) = adaptResolveResult(resolveResult)
+              completeImplicits(reference, element, elementObject, resultType)
+          }
+      case _ if prefixMatcher.getPrefix == "" => Seq.empty
+      case _ =>
+        complete(reference) {
+          case _ if accessAll => true
+          case member => isAccessible(member, reference, forCompletion = true)
+        }
     }
   }
 
-  private def isStatic(element: PsiNamedElement, containingClass: PsiClass): Boolean = {
+  private def hintString: Option[String] =
+    Option(CompletionService.getCompletionService.getAdvertisementText)
+      .zip(Option(ActionManager.getInstance.getAction(ACTION_SHOW_INTENTION_ACTIONS)))
+      .headOption.flatMap {
+      case (_, action) => Option(getFirstKeyboardShortcutText(action))
+    }.map(shortcut => s"To import a method statically, press $shortcut")
+
+
+  private[this] def findQualifier(reference: ScReferenceExpression): Option[ScExpression] =
+    reference.qualifier.orElse {
+      Option(reference.getContext).collect {
+        case expr: ScSugarCallExpr if expr.operation == reference => expr.getBaseExpr
+      }
+    }
+
+  private[this] def isStatic(element: PsiNamedElement): Boolean =
+    contextContainingClass(element).exists(isStatic(element, _))
+
+  private[this] def isStatic(element: PsiNamedElement, containingClass: PsiClass): Boolean = {
     nameContext(element) match {
       case member: PsiMember =>
         if (containingClass == null) return false
@@ -100,259 +142,211 @@ object ScalaGlobalMembersCompletionContributor {
     }
   }
 
-  private def completeImplicits(ref: ScReferenceExpression, result: CompletionResultSet, originalFile: PsiFile,
-                                originalType: ScType) {
+  import JavaConverters._
 
-    FeatureUsageTracker.getInstance.triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)
-    val scope: GlobalSearchScope = ref.getResolveScope
-    val file = ref.getContainingFile
+  private def implicitElements(reference: ScReferenceExpression): Iterable[ScMember] = {
+    triggerFeature()
 
-    val collection = StubIndex.getElements(ScalaIndexKeys.IMPLICITS_KEY, "implicit", file.getProject, scope, classOf[ScMember])
-
-    import scala.collection.JavaConversions._
-
-    val proc = new CollectImplicitsProcessor(ref, true)
-    val processedObjects: mutable.HashSet[String] = mutable.HashSet.empty
-
-    def processObject(o: ScObject): Unit = {
-      val qualifiedName = o.qualifiedName
-      if (!processedObjects(qualifiedName)) {
-        processedObjects.add(qualifiedName)
-        if (o.isStatic) o.getType(TypingContext.empty).foreach(proc.processType(_, ref))
-      }
-    }
-
-    val names =
-      Set("scala.collection.convert.DecorateAsJava",
-        "scala.collection.convert.DecorateAsScala",
-        "scala.collection.convert.WrapAsScala",
-        "scala.collection.convert.WrapAsJava"
-      )
-
-    def checkClass(clazz: PsiClass): Unit = {
-      if (clazz == null) return
-      if (!names(clazz.qualifiedName)) return
-      ClassInheritorsSearch.search(clazz, false).find(_.isInstanceOf[ScObject]).collect {
-        case o: ScObject => processObject(o)
-      }
-    }
-
-    for (element <- collection) {
-      element match {
-        case v: ScValue =>
-          v.containingClass match {
-            case o: ScObject =>
-              for (d <- v.declaredElements if isStatic(d)) {
-                proc.execute(d, ResolveState.initial())
-              }
-            case clazz => checkClass(clazz)
-          }
-        case f: ScFunction =>
-          f.containingClass match {
-            case o: ScObject =>
-              if (isStatic(f)) proc.execute(element, ResolveState.initial())
-            case clazz => checkClass(clazz)
-          }
-        case c: ScClass =>
-          c.getSyntheticImplicitMethod match {
-            case Some(f: ScFunction) =>
-              c.containingClass match {
-                case o: ScObject =>
-                  if (isStatic(c)) proc.execute(f, ResolveState.initial())
-                case clazz => checkClass(clazz)
-              }
-            case _ =>
-          }
-        case _ =>
-      }
-    }
-
-    val elements = elementsSet(ref)
-
-    val lookups = proc.candidates.toSeq.flatMap {
-      ScImplicitlyConvertible.forMap(ref, _, originalType)
-    }.flatMap { result =>
-      val processor = new CompletionProcessor(StdKinds.methodRef, ref)
-      processor.processType(result.resultType, ref)
-
-      val (element, elementObject) = adaptResolveResult(result.resolveResult)
-      processor.candidates.map {
-        (_, element, elementObject)
-      }
-    }.map {
-      case (candidate, element, elementObject) =>
-        val lookup = getLookupElement(candidate, isClassName = true,
-          shouldImport = shouldImport(candidate.getElement, elements, file, originalFile)).head
-        lookup.usedImportStaticQuickfix = true
-        lookup.elementToImport = Option(element)
-        lookup.objectOfElementToImport = elementObject
-        lookup
-    }
-    result.addAllElements(lookups)
+    StubIndex.getElements(
+      ScalaIndexKeys.IMPLICITS_KEY,
+      "implicit",
+      reference.getContainingFile.getProject,
+      reference.getResolveScope,
+      classOf[ScMember]
+    ).asScala
   }
 
-  private def complete(ref: ScReferenceExpression, result: CompletionResultSet, originalFile: PsiFile, invocationCount: Int): Unit = {
-    FeatureUsageTracker.getInstance.triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)
-    val matcher: PrefixMatcher = result.getPrefixMatcher
-    val scope: GlobalSearchScope = ref.getResolveScope
-    val file = ref.getContainingFile
+  private def implicitResults(reference: ScReferenceExpression,
+                              originalType: ScType): Seq[(ScalaResolveResult, ScType)] =
+    implicitCandidates(reference)
+      .flatMap(forMap(reference, _, originalType))
+      .flatMap(ImplicitMapResult.unapply)
 
-    var hintShown: Boolean = false
+  private def implicitCandidates(reference: ScReferenceExpression): Seq[ScalaResolveResult] = {
+    implicit val processor = new CollectImplicitsProcessor(reference, true)
+    val processedObjects = mutable.HashSet.empty[String]
 
-    def showHint(shouldImport: Boolean): Unit =
-      if (!hintShown && !shouldImport && CompletionService.getCompletionService.getAdvertisementText == null) {
-        val action = ActionManager.getInstance.getAction(IdeActions.ACTION_SHOW_INTENTION_ACTIONS)
-        Option(KeymapUtil.getFirstKeyboardShortcutText(action)).foreach { shortcut =>
-          result.addLookupAdvertisement(s"To import a method statically, press $shortcut")
-        }
-        hintShown = true
+    def processElements(elements: Seq[PsiNamedElement]): Unit = elements
+      .filter(isStatic)
+      .foreach(processor.execute(_, initial()))
+
+    def findInheritor(definition: ScTemplateDefinition): Option[ScObject] =
+      ClassInheritorsSearch.search(definition, false).asScala.collectFirst {
+        case o: ScObject if o.isStatic => o
+      }.filter { o =>
+        processedObjects.add(o.qualifiedName)
       }
 
-    val elemsSet = elementsSet(ref)
-    val namesCache = ScalaShortNamesCacheManager.getInstance(ref.getProject)
+    implicitElements(reference).collect {
+      case v: ScValue => (v, () => v.declaredElements)
+      case f: ScFunction => (f, () => Seq(f))
+      case c: ScClass => (c, () => c.getSyntheticImplicitMethod.toSeq)
+    }.flatMap {
+      case (member, elements) => Option(member.containingClass).map((_, elements))
+    }.foreach {
+      case (_: ScObject, elements) =>
+        processElements(elements())
+      case (definition, _) =>
+        findConversionProvider(definition)
+          .foreach { provider =>
+            findInheritor(definition).foreach(provider.process)
+          }
+    }
 
-    def isAccessible(member: PsiMember, containingClass: PsiClass): Boolean = invocationCount >= 3 ||
-      (ResolveUtils.isAccessible(member, ref, forCompletion = true) && ResolveUtils.isAccessible(containingClass, ref, forCompletion = true))
+    processor.candidates.toSeq
+  }
 
-    def inheritors(clazz: PsiClass) =
-      ClassInheritorsSearch.search(clazz, scope, true).toArray(PsiClass.EMPTY_ARRAY).toSeq
+  private def completeImplicits(reference: ScReferenceExpression,
+                                element: PsiNamedElement,
+                                elementObject: Option[ScObject],
+                                resultType: ScType)
+                               (implicit elements: Set[PsiNamedElement],
+                                originalFile: PsiFile): Iterable[ScalaLookupItem] = {
+    val processor = new CompletionProcessor(StdKinds.methodRef, reference)
+    processor.processType(resultType, reference)
 
-    (namesCache.getAllMethodNames ++ namesCache.getAllJavaMethodNames).filter {
-      matcher.prefixMatches
-    }.foreach { methodName =>
-      val classes = new THashSet[PsiClass]
+    processor.candidates.map { candidate =>
+      val lookup = getLookupElement(
+        candidate,
+        isClassName = true,
+        shouldImport = shouldImport(candidate.getElement, reference)).head
 
-      namesCache.getMethodsByName(methodName, scope).foreach { method =>
-        Option(method.containingClass).toSeq.flatMap { containingClass =>
-          Seq(containingClass) ++ (method match {
-            case _: ScFunction => inheritors(containingClass)
-            case _ => Seq.empty
-          })
-        }.filter {
-          isStatic(method, _)
-        }.filter { containingClass =>
-          classes.add(containingClass) && isAccessible(method, containingClass)
-        }.foreach { containingClass =>
-          val shouldImport = ScalaGlobalMembersCompletionContributor.shouldImport(method, elemsSet, file, originalFile)
-          showHint(shouldImport)
+      lookup.usedImportStaticQuickfix = true
+      lookup.elementToImport = Option(element)
+      lookup.objectOfElementToImport = elementObject
+
+      lookup
+    }
+  }
+
+  private[this] def complete(reference: ScReferenceExpression)
+                            (isAccessibleFromReference: PsiMember => Boolean)
+                            (implicit elements: Set[PsiNamedElement],
+                             matcher: PrefixMatcher,
+                             originalFile: PsiFile): Iterable[ScalaLookupItem] = {
+    triggerFeature()
+
+    implicit val elementScope = reference.elementScope
+
+    def isAccessible(member: PsiMember, containingClass: PsiClass): Boolean =
+      isAccessibleFromReference(member) && isAccessibleFromReference(containingClass)
+
+    def inheritedIn(member: PsiMember, element: PsiNamedElement): Seq[PsiClass] =
+      member.containingClass match {
+        case null => Seq.empty
+        case clazz =>
+          val inheritors = member match {
+            case _: ScValueOrVariable | _: ScFunction =>
+              ClassInheritorsSearch.search(clazz, elementScope.scope, true).toArray(EMPTY_ARRAY)
+            case _ => EMPTY_ARRAY
+          }
+
+          (Seq(clazz) ++ inheritors).filter { containingClass =>
+            isStatic(element, containingClass) && isAccessible(member, containingClass)
+          }
+      }
+
+    val (methods, javaFields, scalaFields) = findAllMembers
+
+    val methodsLookups = methods.flatMap { method =>
+      val processedClasses = mutable.HashSet.empty[PsiClass]
+      inheritedIn(method, method)
+        .filter(processedClasses.add)
+        .flatMap { containingClass =>
+          val methodName = method.name
 
           val overloads = containingClass match {
             case o: ScObject => o.functionsByName(methodName)
-            case _ => containingClass.getAllMethods.toSeq.filter {
-              _.name == methodName
-            }
+            case _ => containingClass.getAllMethods.toSeq
+              .filter(_.name == methodName)
           }
 
           val overload = overloads match {
             case Seq() => None
             case Seq(_) => Some(method, false)
             case Seq(first, second, _*) =>
-              Some(if (first.getParameterList.getParametersCount != 0) first else second, true)
+              Some(if (first.isParameterless) second else first, true)
           }
 
           overload.map {
             case (m, overloaded) =>
-              createLookupElement(m, containingClass, shouldImport, overloaded = overloaded)
-          }.foreach {
-            result.addElement
+              createLookupElement(m, containingClass, shouldImport(method, reference), overloaded = overloaded)
           }
         }
-      }
     }
 
-    def createLookups(field: PsiMember, namedElement: PsiNamedElement, containingClasses: Iterable[PsiClass]) =
-      containingClasses.filter {
-        isAccessible(field, _)
-      }.map { containingClass =>
-        val shouldImport = ScalaGlobalMembersCompletionContributor.shouldImport(namedElement, elemsSet, file, originalFile)
-        showHint(shouldImport)
-        createLookupElement(namedElement, containingClass, shouldImport)
-      }.foreach {
-        result.addElement
+    def createLookups(namedElement: PsiNamedElement, containingClass: PsiClass) =
+      createLookupElement(namedElement, containingClass, shouldImport(namedElement, reference))
+
+    val fieldsLookups = javaFields.filter(isStatic)
+      .flatMap { field =>
+        Option(field.containingClass)
+          .filter(isAccessible(field, _))
+          .map(createLookups(field, _))
       }
 
-    namesCache.getAllFieldNames.filter {
-      matcher.prefixMatches
-    }.flatMap {
-      namesCache.getFieldsByName(_, scope)
-    }.filter {
-      isStatic
-    }.foreach { field =>
-      createLookups(field, field, Option(field.containingClass))
+    val membersLookups = scalaFields.collect {
+      case v: ScValueOrVariable => v
+    }.flatMap { field =>
+      val namedElement = field.declaredElements.head
+      inheritedIn(field, namedElement)
+        .map(createLookups(namedElement, _))
     }
 
-    namesCache.getAllScalaFieldNames.filter {
-      matcher.prefixMatches
-    }.foreach { fieldName =>
-      namesCache.getScalaFieldsByName(fieldName, scope).collect {
-        case v: ScValueOrVariable => v
-      }.foreach { field =>
-        field.declaredElements.find {
-          _.name == fieldName
-        }.foreach { namedElement =>
-          val classes = Option(field.containingClass).toSeq.flatMap { containingClass =>
-            Seq(containingClass) ++ inheritors(containingClass)
-          }.filter {
-            isStatic(namedElement, _)
-          }
-
-          createLookups(field, namedElement, classes)
-        }
-      }
-    }
+    methodsLookups ++ fieldsLookups ++ membersLookups
   }
 
-  private def adaptResolveResult(resolveResult: ScalaResolveResult) = {
-    val element = resolveResult.getElement
+  private[this] def findAllMembers(implicit elementScope: ElementScope,
+                                   matcher: PrefixMatcher) = {
+    def prefixMatches: String => Boolean = matcher.prefixMatches
 
-    val elementObject = Option(element).map {
-      nameContext
-    }.collect {
-      case member: ScMember => member
-    }.flatMap { member =>
-      Option(member.containingClass)
-    }.collect {
+    val ElementScope(project, scope) = elementScope
+    val namesCache = ScalaShortNamesCacheManager.getInstance(project)
+
+    val methods = (namesCache.getAllMethodNames ++ namesCache.getAllJavaMethodNames)
+      .filter(prefixMatches)
+      .flatMap(namesCache.getMethodsByName(_, scope))
+
+    val javaFields = namesCache.getAllFieldNames.toSeq
+      .filter(prefixMatches)
+      .flatMap(namesCache.getFieldsByName(_, scope))
+
+    val scalaFields = namesCache.getAllScalaFieldNames
+      .filter(matcher.prefixMatches)
+      .flatMap(namesCache.getScalaFieldsByName(_, scope))
+
+    (methods, javaFields, scalaFields)
+  }
+
+  private[this] def triggerFeature(): Unit =
+    FeatureUsageTracker.getInstance.triggerFeatureUsed(GLOBAL_MEMBER_NAME)
+
+  private[this] def adaptResolveResult(resolveResult: ScalaResolveResult) = {
+    val ScalaResolveResult(element, substitutor) = resolveResult
+
+    val elementObject = contextContainingClass(element).collect {
       case c: ScClass => c
       case t: ScTrait => t
-    }.map {
-      ScThisType
-    }.map {
-      resolveResult.substitutor.subst
-    }.flatMap {
-      _.extractClass
-    }.collect {
-      case o: ScObject => o
-    }
+    }.map(ScThisType)
+      .map(substitutor.subst)
+      .flatMap(_.extractClass)
+      .collect {
+        case o: ScObject => o
+      }
 
     (element, elementObject)
   }
 
-  private def shouldImport(element: PsiNamedElement, elements: Set[PsiNamedElement],
-                           file: PsiFile, originalFile: PsiFile): Boolean = {
-    def qualifiedName(element: PsiNamedElement, file: PsiFile) =
-      Option(element).filter {
-        _.getContainingFile == file
-      }.map {
-        nameContext
-      }.collect {
-        case member: PsiMember => member
-      }.flatMap {
-        member =>
-          Option(member.containingClass)
-      }.flatMap {
-        clazz =>
-          Option(clazz.qualifiedName)
-      }
-
+  private[this] def shouldImport(element: PsiNamedElement, reference: ScReferenceExpression)
+                                (implicit elements: Set[PsiNamedElement], originalFile: PsiFile): Boolean = {
     val contains = if (element.getContainingFile == originalFile) {
       //complex logic to detect static methods in same file, which we shouldn't import
-      qualifiedName(element, originalFile).exists { name =>
-        elements.filter {
-          _.name == element.name
-        }.flatMap {
-          qualifiedName(_, file)
-        }.contains(name)
-      }
+      val filtered = elements
+        .filter(_.getContainingFile == reference.getContainingFile)
+        .filter(_.name == element.name)
+      val objectNames = filtered.flatMap(contextContainingClassName)
+
+      contextContainingClassName(element).exists(objectNames.contains)
     } else {
       elements.contains(element)
     }
@@ -360,15 +354,20 @@ object ScalaGlobalMembersCompletionContributor {
     !contains
   }
 
-  private def elementsSet(reference: ScReferenceExpression) = {
-    reference.getVariants(implicits = false, filterNotNamedVariants = false).collect {
-      case ScalaLookupItem(element: PsiNamedElement) => element
-      case element: PsiNamedElement => element
-    }.toSet
-  }
+  private[this] def contextContainingClass(element: PsiNamedElement): Option[PsiClass] =
+    Option(element.nameContext).collect {
+      case member: PsiMember => member
+    }.flatMap { member =>
+      Option(member.containingClass)
+    }
 
-  private def createLookupElement(member: PsiNamedElement, clazz: PsiClass, shouldImport: Boolean,
-                                  overloaded: Boolean = false): LookupElement =
+  private[this] def contextContainingClassName(element: PsiNamedElement): Option[String] =
+    contextContainingClass(element).flatMap { clazz =>
+      Option(clazz.qualifiedName)
+    }
+
+  private[this] def createLookupElement(member: PsiNamedElement, clazz: PsiClass, shouldImport: Boolean,
+                                        overloaded: Boolean = false): ScalaLookupItem =
     getLookupElement(new ScalaResolveResult(member), isClassName = true,
       isOverloadedForClassName = overloaded, shouldImport = shouldImport, containingClass = Some(clazz)).head
 }

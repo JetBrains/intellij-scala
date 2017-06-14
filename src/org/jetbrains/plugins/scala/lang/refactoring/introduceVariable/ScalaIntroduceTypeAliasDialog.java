@@ -139,9 +139,6 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         );
 
         ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(new DocumentListener() {
-                                                                                                    public void beforeDocumentChange(DocumentEvent event) {
-                                                                                                    }
-
                                                                                                     public void documentChanged(DocumentEvent event) {
                                                                                                         fireNameDataChanged();
                                                                                                     }

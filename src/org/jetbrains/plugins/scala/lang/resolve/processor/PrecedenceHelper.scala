@@ -24,7 +24,7 @@ import scala.collection.mutable.ArrayBuffer
 trait PrecedenceHelper[T] {
   this: BaseProcessor =>
 
-  protected def getPlace: PsiElement
+  def getPlace: PsiElement
   protected lazy val placePackageName: String = ResolveUtils.getPlacePackage(getPlace)
   protected val levelSet: util.HashSet[ScalaResolveResult] = new util.HashSet
   protected val qualifiedNamesSet: util.HashSet[T] = new util.HashSet[T]

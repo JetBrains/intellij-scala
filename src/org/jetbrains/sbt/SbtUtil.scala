@@ -42,7 +42,9 @@ object SbtUtil {
   private def defaultGlobalBase = fileProperty("user.home") / ".sbt"
   private def defaultVersionedGlobalBase(sbtVersion: String): File = defaultGlobalBase / sbtVersion
 
-  def majorVersion(sbtVersion: Version): Version = sbtVersion.major(2)
+  def majorVersion(sbtVersion: Version): Version =
+    if (sbtVersion.presentation.contains("-M")) sbtVersion
+    else sbtVersion.major(2)
 
   def detectSbtVersion(directory: File, sbtLauncher: => File): String =
     sbtVersionIn(directory)

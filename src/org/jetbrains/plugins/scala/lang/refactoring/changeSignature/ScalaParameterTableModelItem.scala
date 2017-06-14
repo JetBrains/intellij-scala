@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
-import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.changeSignature.ParameterTableModelItemBase
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -38,7 +37,7 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
     }
 
     if (typeText.isEmpty) {
-      problems += RefactoringBundle.message("changeSignature.no.type.for.parameter", parameter.getName)
+      problems += ScalaBundle.message("change.signature.specify.type.for.parameter", parameter.getName)
       return
     }
 
@@ -53,7 +52,7 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
     if (parameter.isByName && parameter.isRepeatedParameter) {
       problems += "Parameter could not be repeated and by-name in the same time"
     }
-    val typeElem = ScalaPsiElementFactory.createTypeElementFromText(trimmed, typeCodeFragment.getContext, typeCodeFragment)
+    val typeElem = ScalaPsiElementFactory.createTypeElementFromText(trimmed, typeCodeFragment, typeCodeFragment)
     if (typeElem == null || typeElem.getType().isEmpty) {
       problems += s"Could not understand type $trimmed"
       parameter.scType = null

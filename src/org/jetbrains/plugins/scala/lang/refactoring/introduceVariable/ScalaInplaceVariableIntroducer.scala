@@ -79,7 +79,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
   setDeclaration(newDeclaration)
   myCheckIdentifierListener = checkIdentifierListener()
 
-  private def checkIdentifierListener(): DocumentListener = new DocumentAdapter() {
+  private def checkIdentifierListener(): DocumentListener = new DocumentListener {
     override def documentChanged(e: DocumentEvent): Unit = {
       commitDocument()
       val range = new TextRange(myCaretRangeMarker.getStartOffset, myCaretRangeMarker.getEndOffset)
@@ -100,7 +100,6 @@ class ScalaInplaceVariableIntroducer(project: Project,
           resetBalloonPanel(nameIsValid)
         }
       }
-      super.documentChanged(e)
     }
   }
 

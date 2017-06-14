@@ -68,8 +68,7 @@ trait ScalaConformance extends api.Conformance {
             }
           case _ =>
         }
-        val bases: Seq[ScType] = BaseTypes.get(right)
-        val iterator = bases.iterator
+        val iterator = BaseTypes.iterator(right)
         while (iterator.hasNext) {
           ProgressManager.checkCanceled()
           val tp = iterator.next()

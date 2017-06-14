@@ -97,7 +97,8 @@ package object extensions {
           .map(_.toScType())
     }
 
-    def isParameterless: Boolean = parameters.isEmpty
+    def isParameterless: Boolean =
+      repr.getParameterList.getParametersCount == 0
   }
 
   object PsiMethodExt {
