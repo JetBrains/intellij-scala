@@ -385,7 +385,7 @@ object InferUtil {
     val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
     val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
-      expectedType = abstractSubst.subst(p.paramType)))
+      expectedType = abstractSubst.subst(p.paramType), defaultType = p.defaultType.map(s.subst)))
     val c = Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true,
       isShapesResolve = false)
     val tpe = if (c.problems.isEmpty) {
