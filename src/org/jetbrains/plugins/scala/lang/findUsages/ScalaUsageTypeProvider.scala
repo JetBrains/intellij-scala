@@ -134,7 +134,7 @@ object ScalaUsageTypeProvider {
 
   private[this] def typeArgsUsageType(typeArguments: ScTypeArgs): UsageType =
     Option(typeArguments.getParent).collect {
-      case ScGenericCall(reference: ScReferenceExpression, Seq(_)) => reference.refName
+      case ScGenericCall(reference, Seq(_)) => reference.refName
     }.collect {
       case "isInstanceOf" => CLASS_INSTANCE_OF
       case "asInstanceOf" => CLASS_CAST_TO

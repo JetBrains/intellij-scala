@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
@@ -123,32 +123,6 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
       newVisibility, newName, retType, params, Array.empty)
   }
 
-  private def addTypeAnnotation(element: PsiElement, visibilityString: String): Boolean ={
-    val settings = ScalaCodeStyleSettings.getInstance(element.getProject)
-
-    val visibility =
-      if (visibilityString == null) TypeAnnotationUtil.Public
-      else if (visibilityString.contains("private")) TypeAnnotationUtil.Private
-      else if (visibilityString.contains("protected")) TypeAnnotationUtil.Protected
-      else TypeAnnotationUtil.Public
-
-    val isOverride = TypeAnnotationUtil.isOverriding(element)
-
-    val isSimple =
-      element match {
-        case funcDef: ScFunctionDefinition =>
-          funcDef.body.exists(TypeAnnotationUtil.isSimple)
-        case _=> false
-      }
-
-    TypeAnnotationUtil.isTypeAnnotationNeeded(
-      TypeAnnotationUtil.requirementForMethod(TypeAnnotationUtil.isLocal(element), visibility, settings = settings),
-      settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
-      settings.SIMPLE_METHOD_TYPE_ANNOTATION,
-      isOverride,
-      isSimple
-    )
-  }
   protected def scalaProcessor(newVisibility: String,
                                newName: String,
                                newReturnType: String,
@@ -165,10 +139,11 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
     }
 
     val params = newParams.map(_.map(_.asInstanceOf[ScalaParameterInfo]))
+    val annotationNeeded = TypeAnnotationUtil.isTypeAnnotationNeededMethod(targetMethod, newVisibility)()
 
     val changeInfo =
       new ScalaChangeInfo(newVisibility, targetMethod.asInstanceOf[ScMethodLike], newName, maybeReturnType.getOrElse(Any), params,
-        isAddDefaultValue, Some(addTypeAnnotation(targetMethod, newVisibility)))
+        isAddDefaultValue, Some(annotationNeeded))
 
     new ScalaChangeSignatureProcessor(getProjectAdapter, changeInfo)
   }

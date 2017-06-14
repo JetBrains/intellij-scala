@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSetti
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil._
 
 import scala.collection.mutable
 
@@ -33,22 +33,22 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
           val addOverrideModifierChb = new NonFocusableCheckBox(ScalaBundle.message("add.override.modifier"))
           val copyScalaDocChb = new NonFocusableCheckBox(ScalaBundle.message("copy.scaladoc"))
           val typePanel = new JPanel()
-          
+
           private val otherComponents = Array[JComponent](copyScalaDocChb, addOverrideModifierChb, typePanel)
           private val sortedElements = ScalaMemberChooser.sorted(elements, targetClass)
-          
+
         } with MemberChooser[T](sortedElements.toArray[T], allowEmptySelection, allowMultiSelection, targetClass.getProject, null, otherComponents) {
-  
+
   val mySpecifyTypeChb = new ThreeStateCheckBox(ScalaBundle.message("specify.return.type.explicitly"))
-  
+
   setUpSettingsPanel()
   setUpTypePanel()
   trackSelection()
-  
+
   override def doOKAction(): Unit = {
     ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED = addOverrideModifierChb.isSelected
     ScalaApplicationSettings.getInstance.COPY_SCALADOC = copyScalaDocChb.isSelected
-    
+
     ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY = {
       mySpecifyTypeChb.getState match {
         case State.SELECTED => ScalaApplicationSettings.ReturnTypeLevel.ADD
@@ -56,52 +56,52 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
         case State.DONT_CARE => ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
       }
     }
-    
+
     super.doOKAction()
   }
-  
+
   private def setUpSettingsPanel(): Unit ={
     typePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
-    
+
     addOverrideModifierChb.setSelected(ScalaApplicationSettings.getInstance().ADD_OVERRIDE_TO_IMPLEMENTED)
     addOverrideModifierChb.setVisible(needAddOverrideChb)
-    
+
     copyScalaDocChb.setSelected(ScalaApplicationSettings.getInstance().COPY_SCALADOC)
     copyScalaDocChb.setVisible(needCopyScalaDocChb)
   }
-  
+
   private def setUpTypePanel(): JPanel ={
     updateSpecifyTypeChb()
     typePanel.add(mySpecifyTypeChb)
-    
+
     val myLinkContainer = new JPanel
     myLinkContainer.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
     typePanel.add(myLinkContainer)
-    
+
     myLinkContainer.add(setUpHyperLink())
     typePanel.setVisible(needSpecifyTypeChb)
     typePanel
   }
-  
+
   private def setUpHyperLink(): HyperlinkLabel = {
-    val link = TypeAnnotationUtil.createTypeAnnotationsHLink(targetClass.getProject, ScalaBundle.message("default.ta.settings"))
+    val link = createTypeAnnotationsHLink(targetClass.getProject, ScalaBundle.message("default.ta.settings"))
 
     link.addHyperlinkListener(new HyperlinkListener {
       override def hyperlinkUpdate(e: HyperlinkEvent): Unit = extensions.invokeLater(updateSpecifyTypeChb())
     })
-    
+
     link
   }
-  
+
   private def updateSpecifyTypeChb(): Unit = mySpecifyTypeChb.setState(computeCheckBoxState)
-    
+
   private def trackSelection(): Unit = {
     val selectionListener = new TreeSelectionListener {
       override def valueChanged(e: TreeSelectionEvent): Unit = {
         updateSpecifyTypeChb()
       }
     }
-    
+
     // Reorder listeners. We need to know information about current selected element,
     // but, if we add new listener it will be called before MemberChooser listener,
     // and mySelectedElements in our listener will have previous information
@@ -110,7 +110,7 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
     myTree.addTreeSelectionListener(selectionListener)
     listeners.foreach(myTree.addTreeSelectionListener)
   }
-    
+
   private def computeCheckBoxState: ThreeStateCheckBox.State = {
     import scala.collection.JavaConversions._
 
@@ -120,8 +120,8 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
       case m: ClassMember => m.getElement
     }
 
-    val hasTypeNeeded = elements.exists(isTypeNeeded)
-    val hasNotNeeded = elements.exists(!isTypeNeeded(_))
+    val hasTypeNeeded = elements.exists(typeAnnotationNeeded)
+    val hasNotNeeded = elements.exists(!typeAnnotationNeeded(_))
 
     if (hasTypeNeeded && hasNotNeeded || elements.isEmpty)
       State.DONT_CARE
@@ -131,50 +131,38 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
       State.NOT_SELECTED
   }
 
-  private def isTypeNeeded(element: PsiElement): Boolean = {
-    def defaults: (Int, Int, Int) =
-      (TypeAnnotationRequirement.Preferred.ordinal(), TypeAnnotationPolicy.Regular.ordinal, TypeAnnotationPolicy.Optional.ordinal)
-  
-    val settings = ScalaCodeStyleSettings.getInstance(element.getProject)
+  private def typeAnnotationNeeded(element: PsiElement): Boolean = {
+    val isOverriding = !element.isInstanceOf[ScTypedDeclaration]
+    val simple = isSimple(element)
 
-    val (requiment, ovPolicy, simplePolicy) = element match {
+    implicit val pair = (isOverriding, simple)
+
+    def default = isTypeAnnotationNeeded(
+      TypeAnnotationRequirement.Preferred.ordinal(),
+      TypeAnnotationPolicy.Regular.ordinal,
+      TypeAnnotationPolicy.Optional.ordinal
+    )
+
+    implicit val settings = ScalaCodeStyleSettings.getInstance(element.getProject)
+
+    element match {
       case _: ScPatternDefinition | _: ScVariableDefinition |
-           _: ScVariableDeclaration | _: ScValueDeclaration   =>
-      
-        (TypeAnnotationUtil.requirementForProperty(element.asInstanceOf[ScMember], settings),
-          settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION, settings.SIMPLE_PROPERTY_TYPE_ANNOTATION)
-    
-      case  _: ScFunctionDeclaration|  _: ScFunctionDefinition  =>
-      
-        (TypeAnnotationUtil.requirementForMethod(element.asInstanceOf[ScMember], settings),
-          settings.OVERRIDING_METHOD_TYPE_ANNOTATION, settings.SIMPLE_METHOD_TYPE_ANNOTATION)
-
+           _: ScVariableDeclaration | _: ScValueDeclaration =>
+        isTypeAnnotationNeededProperty(element.asInstanceOf[ScMember])
+      case _: ScFunctionDeclaration | _: ScFunctionDefinition =>
+        isTypeAnnotationNeededMethod(element.asInstanceOf[ScMember])
       case modifierListOwner: PsiModifierListOwner =>
-        val list = modifierListOwner.getModifierList
-        val visibility = if (list.hasModifierProperty("private")) TypeAnnotationUtil.Private
-        else if (list.hasModifierProperty("protected")) TypeAnnotationUtil.Protected
-        else TypeAnnotationUtil.Public
-  
-        modifierListOwner match {
-            
-          case method: PsiMethod =>
-            
-            (TypeAnnotationUtil.requirementForMethod(isLocal = false, visibility, settings),
-              settings.OVERRIDING_METHOD_TYPE_ANNOTATION, settings.SIMPLE_METHOD_TYPE_ANNOTATION)
-            
-          case field: PsiField =>
-            
-            (TypeAnnotationUtil.requirementForMethod(isLocal = false, visibility, settings),
-              settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION, settings.SIMPLE_PROPERTY_TYPE_ANNOTATION)
-            
-          case _ => defaults
-        }
-    
-      case _ => defaults
-    }
+        val visibility = Visibility(modifierListOwner)
 
-    TypeAnnotationUtil.isTypeAnnotationNeeded(requiment, ovPolicy, simplePolicy,
-      !element.isInstanceOf[ScTypedDeclaration], isSimple = TypeAnnotationUtil.isSimple(element))
+        modifierListOwner match {
+          case _: PsiMethod =>
+            isTypeAnnotationNeededMethod(visibility)
+          case _: PsiField =>
+            isTypeAnnotationNeededProperty(visibility)
+          case _ => default
+        }
+      case _ => default
+    }
   }
 }
 

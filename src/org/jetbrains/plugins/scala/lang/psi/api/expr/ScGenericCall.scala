@@ -37,6 +37,10 @@ trait ScGenericCall extends ScExpression {
 }
 
 object ScGenericCall {
-  def unapply(gc: ScGenericCall): Option[(ScExpression, Seq[ScTypeElement])] = Some(gc.referencedExpr, gc.arguments)
+
+  def unapply(call: ScGenericCall): Option[(ScReferenceExpression, Seq[ScTypeElement])] =
+    Option(call.referencedExpr).collect {
+      case reference: ScReferenceExpression => (reference, call.arguments)
+    }
 }
 
