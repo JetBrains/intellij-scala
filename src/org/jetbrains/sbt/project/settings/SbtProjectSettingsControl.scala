@@ -104,6 +104,13 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
       // hide the sbt shell option until it matures (SCL-10984)
       useSbtShellCheckBox.setVisible(false)
+
+      content.getComponents.toSeq.foreachDefined {
+        case checkbox: JCheckBox
+          if checkbox.getText.startsWith("Use auto-import") =>
+          checkbox.setSelected(false)
+          Option(checkbox.getParent).foreach(_.remove(checkbox))
+      }
     }
   }
 
