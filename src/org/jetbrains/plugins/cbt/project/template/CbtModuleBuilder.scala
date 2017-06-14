@@ -135,11 +135,8 @@ class CbtModuleBuilder
   private def generateTemplate(root: File): Unit = {
     val srcDir = root / "src"
     srcDir.mkdirs()
-    val buildDir = root / "build" / "src"
-    buildDir.mkdirs()
     CBT.runAction(Seq("tools", "createMain"), srcDir)
     CBT.runAction(Seq("tools", "createBuild"), root)
-    (root / "build" / "build.Scala").renameTo(buildDir / "Main.scala")
   }
 
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
