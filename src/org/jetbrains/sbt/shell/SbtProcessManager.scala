@@ -1,9 +1,9 @@
 package org.jetbrains.sbt.shell
 
 import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
-import java.util.UUID
 
-import com.intellij.execution.configurations.{GeneralCommandLine, JavaParameters, PtyCommandLine}
+import com.intellij.debugger.impl.{DebuggerManagerImpl, GenericDebuggerRunnerSettings}
+import com.intellij.execution.configurations._
 import com.intellij.execution.process.{ColoredProcessHandler, ProcessAdapter}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
@@ -25,8 +25,9 @@ import scala.collection.JavaConverters._
   */
 class SbtProcessManager(project: Project) extends AbstractProjectComponent(project) {
 
-  @volatile private var myProcessHandler: Option[ColoredProcessHandler] = None
-  @volatile private var myShellRunner: Option[SbtShellRunner] = None
+  import SbtProcessManager.ProcessData
+
+  @volatile private var processData: Option[ProcessData] = None
 
   /** Plugins injected into user's global sbt build. */
   // TODO add configurable plugins somewhere for users and via API; factor this stuff out
@@ -49,7 +50,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   }
 
 
-  private def createShellProcessHandler(): ColoredProcessHandler = {
+  private def createShellProcessHandler(): (ColoredProcessHandler, Option[RemoteConnection]) = {
     val workingDirPath = project.getBaseDir.getCanonicalPath
     val workingDir = new File(workingDirPath)
 
@@ -75,16 +76,18 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     javaParameters.configureByProject(project, 1, sdk)
     javaParameters.setWorkingDirectory(workingDir)
     javaParameters.setJarPath(launcher.getCanonicalPath)
+    val debugConnection: Option[RemoteConnection] = if (sbtSettings.shellDebugMode) {
+      val debuggerSettings = new GenericDebuggerRunnerSettings()
+      debuggerSettings.setLocal(false) // I guess this means the thing being debugged is???
+      // this will actually patch the javaParameters as a side effect
+      Option(DebuggerManagerImpl.createDebugParameters(javaParameters, debuggerSettings, true))
+    } else None
 
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
     vmParams.addAll(SbtOpts.loadFrom(workingDir).asJava)
     vmParams.addAll(sbtSettings.vmOptions.asJava)
     vmParams.add(s"-Didea.runid=$runid")
-    sbtSettings.remoteDebugSbtShellPort.foreach { port =>
-      vmParams.add("-Xdebug")
-      vmParams.add(s"-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=$port")
-    }
 
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
 
@@ -99,7 +102,9 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     }
 
     val pty = createPtyCommandLine(commandLine)
-    new ColoredProcessHandler(pty)
+    val cpty = new ColoredProcessHandler(pty)
+
+    (cpty, debugConnection)
   }
 
   private def getSbtSettings(dir: String) = SbtExternalSystemManager.executionSettingsFor(project, dir)
@@ -128,13 +133,12 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     * The process handler should only be used to access the running process!
     * SbtProcessManager is solely responsible for handling the running state.
     */
-  private[shell] def acquireShellProcessHandler: ColoredProcessHandler = myProcessHandler.synchronized {
-    myProcessHandler match {
-      case Some(handler) if handler.getProcess.isAlive => handler
-      case _ =>
-        val handler = createShellProcessHandler()
-        myProcessHandler = Option(handler)
+  private[shell] def acquireShellProcessHandler: ColoredProcessHandler = processData.synchronized {
+    processData match {
+      case Some(ProcessData(handler, _)) if handler.getProcess.isAlive =>
         handler
+      case _ =>
+        updateProcessData().processHandler
     }
   }
 
@@ -166,12 +170,17 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     }
   }
 
-  private def updateShellRunner() = {
+  private def updateProcessData(): ProcessData = {
+    val (handler, debugConnection) = createShellProcessHandler()
+
     val title = project.getName
-    val runner = new SbtShellRunner(project, title)
-    myShellRunner = Option(runner)
-    runner.initAndRun()
-    runner
+    val runner = new SbtShellRunner(project, title, debugConnection)
+
+    val pd = ProcessData(handler, runner)
+
+    processData = Option(pd)
+    pd.runner.initAndRun()
+    pd
   }
 
   def attachListener(listener: ProcessAdapter): Unit =
@@ -187,13 +196,13 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   }
 
   /** Creates the SbtShellRunner view, or focuses it if it already exists. */
-  def openShellRunner(focus: Boolean = false): SbtShellRunner = myProcessHandler.synchronized {
+  def openShellRunner(focus: Boolean = false): SbtShellRunner = {
 
-    val theRunner = myShellRunner match {
-      case Some(runner) if runner.getConsoleView.isRunning =>
+    val theRunner = processData match {
+      case Some(ProcessData(_, runner)) if runner.getConsoleView.isRunning =>
         runner
       case _ =>
-        updateShellRunner()
+        updateProcessData().runner
     }
 
     ShellUIUtil.inUIsync(theRunner.openShell(focus))
@@ -201,16 +210,18 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     theRunner
   }
 
-  def restartProcess(): Unit = myProcessHandler.synchronized {
+  def restartProcess(): Unit = processData.synchronized {
     destroyProcess()
-    myProcessHandler = Option(createShellProcessHandler())
-    updateShellRunner()
+    updateProcessData()
   }
 
-  def destroyProcess(): Unit = myProcessHandler.synchronized {
-    myProcessHandler.foreach(_.destroyProcess())
-    myProcessHandler = None
-    myShellRunner = None
+  def destroyProcess(): Unit = processData.synchronized {
+    processData match {
+      case Some(ProcessData(handler, _)) =>
+        handler.destroyProcess()
+        processData = None
+      case None => // nothing to do
+    }
   }
 
   override def projectClosed(): Unit = {
@@ -220,4 +231,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
 object SbtProcessManager {
   def forProject(project: Project): SbtProcessManager = project.getComponent(classOf[SbtProcessManager])
+
+  private case class ProcessData(processHandler: ColoredProcessHandler,
+                                 runner: SbtShellRunner)
 }

@@ -4,6 +4,7 @@ import java.util
 import javax.swing.Icon
 
 import com.intellij.execution.Executor
+import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.console._
 import com.intellij.execution.process.{OSProcessHandler, ProcessHandler}
 import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory
@@ -24,25 +25,24 @@ import scala.collection.JavaConverters._
 /**
   * Created by jast on 2016-5-29.
   */
-class SbtShellRunner(project: Project, consoleTitle: String)
+class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Option[RemoteConnection])
   extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath) {
 
   private val toolWindowTitle = project.getName
 
-  private val myConsoleView: LanguageConsoleImpl =
+  private lazy val myConsoleView: LanguageConsoleImpl =
     ShellUIUtil.inUIsync {
-      SbtShellConsoleView(project)
+      SbtShellConsoleView(project, debugConnection)
     }
-
-  private lazy val processManager = SbtProcessManager.forProject(project)
 
   // lazy so that getProcessHandler will return something initialized when this is first accessed
   private lazy val myConsoleExecuteActionHandler: SbtShellExecuteActionHandler =
     new SbtShellExecuteActionHandler(getProcessHandler)
 
   // the process handler should only be used to listen to the running process!
-  // SbtProcessComponent is solely responsible for destroying/respawning
-  private lazy val myProcessHandler = processManager.acquireShellProcessHandler
+  // SbtProcessManager is solely responsible for destroying/respawning
+  private lazy val myProcessHandler =
+    SbtProcessManager.forProject(project).acquireShellProcessHandler
 
   override def createProcessHandler(process: Process): OSProcessHandler = myProcessHandler
 
@@ -74,7 +74,7 @@ class SbtShellRunner(project: Project, consoleTitle: String)
       // TODO update icon with ready/working state
       val shellPromptChanger = new SbtShellReadyListener(
         whenReady = if (!SbtRunner.isInTest) myConsoleView.setPrompt(">"),
-        whenWorking = if (!SbtRunner.isInTest) myConsoleView.setPrompt("(running) >")
+        whenWorking = if (!SbtRunner.isInTest) myConsoleView.setPrompt("(busy) >")
       )
       SbtProcessManager.forProject(project).attachListener(shellPromptChanger)
       SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)

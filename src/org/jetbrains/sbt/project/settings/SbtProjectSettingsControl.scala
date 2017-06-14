@@ -3,7 +3,6 @@ package project.settings
 
 import java.awt.{Component, FlowLayout}
 import javax.swing._
-import javax.swing.event.{ChangeEvent, ChangeListener}
 
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
@@ -11,10 +10,7 @@ import com.intellij.openapi.externalSystem.util.PaintAwarePanel
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
-import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.Condition
-import com.intellij.ui.components.{JBLabel, JBTextField}
-import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
 
@@ -51,10 +47,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   private val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
   private val useSbtShellCheckBox = new JCheckBox(SbtBundle("sbt.settings.useShell"))
   private val remoteDebugSbtShell = new JCheckBox(SbtBundle("sbt.settings.remoteDebug"))
-  private val remoteDebugPortLabel = new JBLabel(SbtBundle("sbt.settings.remoteDebugPort"))
-  private val remoteDebugPortText = new JBTextField(6)
-  private val remoteDebugBalloonBuilder =
-    JBPopupFactory.getInstance().createBalloonBuilder(new JBTextField("Invalid port selected.")).setTitle("Warning!")
 
   def fillExtraControls(@NotNull content: PaintAwarePanel, indentLevel: Int) {
     val labelConstraints = getLabelConstraints(indentLevel)
@@ -69,17 +61,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     val optionPanel = new JPanel()
     optionPanel.setLayout(new BoxLayout(optionPanel, BoxLayout.Y_AXIS))
     optionPanel.add(useSbtShellCheckBox)
-    remoteDebugSbtShell.addChangeListener(new ChangeListener(){
-      override def stateChanged(e: ChangeEvent): Unit = remoteDebugPortText.setEnabled(remoteDebugSbtShell.isSelected)
-    })
     optionPanel.add(remoteDebugSbtShell)
     remoteDebugSbtShell.setAlignmentX(Component.LEFT_ALIGNMENT)
-    val remoteDebugPortPanel = new JPanel(new GridLayoutManager(2, 2))
-    remoteDebugPortPanel.setAlignmentX(Component.LEFT_ALIGNMENT)
-    remoteDebugPortText.setMaximumSize(remoteDebugPortText.getPreferredSize)
-    remoteDebugPortPanel.add(remoteDebugPortLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false))
-    remoteDebugPortPanel.add(remoteDebugPortText, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false))
-    optionPanel.add(remoteDebugPortPanel)
     content.add(optionPanel, fillLineConstraints)
 
     // TODO Remove the patching when the External System will provide this functionality natively
@@ -104,6 +87,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
       // hide the sbt shell option until it matures (SCL-10984)
       useSbtShellCheckBox.setVisible(false)
+      remoteDebugSbtShell.setVisible(false)
 
       content.getComponents.toSeq.foreachDefined {
         case checkbox: JCheckBox
@@ -121,8 +105,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       resolveClassifiersCheckBox.isSelected != settings.resolveClassifiers ||
       resolveSbtClassifiersCheckBox.isSelected != settings.resolveSbtClassifiers ||
       useSbtShellCheckBox.isSelected != settings.useSbtShell ||
-      remoteDebugSbtShell.isSelected != settings.useRemoteDebugSbtShell ||
-      remoteDebugPortText.getText != settings.remoteDebugPort
+      remoteDebugSbtShell.isSelected != settings.enableDebugSbtShell
   }
 
   protected def resetExtraSettings(isDefaultModuleCreation: Boolean) {
@@ -134,8 +117,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     resolveClassifiersCheckBox.setSelected(settings.resolveClassifiers)
     resolveSbtClassifiersCheckBox.setSelected(settings.resolveSbtClassifiers)
     useSbtShellCheckBox.setSelected(settings.useSbtShell)
-    remoteDebugSbtShell.setSelected(settings.useRemoteDebugSbtShell)
-    remoteDebugPortText.setText(settings.remoteDebugPort)
+    remoteDebugSbtShell.setSelected(settings.enableDebugSbtShell)
   }
 
   override def updateInitialExtraSettings() {
@@ -147,21 +129,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.resolveClassifiers = resolveClassifiersCheckBox.isSelected
     settings.resolveSbtClassifiers = resolveSbtClassifiersCheckBox.isSelected
     settings.useSbtShell = useSbtShellCheckBox.isSelected
-    settings.useRemoteDebugSbtShell = remoteDebugSbtShell.isSelected
-    settings.remoteDebugPort = remoteDebugPortText.getText
-    checkPort(settings)
-  }
-
-  protected def checkPort(settings: SbtProjectSettings): Unit = {
-    def popupWarning(): Unit = {
-      remoteDebugBalloonBuilder.createBalloon().showInCenterOf(remoteDebugPortText)
-    }
-    if (settings.remoteDebugPort != null && settings.remoteDebugPort.nonEmpty) try {
-      val port = Integer.parseInt(settings.remoteDebugPort)
-      if (port < 0 || port >= 65536) popupWarning()
-    } catch {
-      case _: NumberFormatException => popupWarning()
-    }
+    settings.enableDebugSbtShell = remoteDebugSbtShell.isSelected
   }
 
   private def selectedJdkName = Option(jdkComboBox.getSelectedJdk).map(_.getName)
