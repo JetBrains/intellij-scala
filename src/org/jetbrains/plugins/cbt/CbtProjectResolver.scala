@@ -89,8 +89,12 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
   }
 
   private def convertLibrary(parent: DataNode[_])(library: Node) = {
-    val libraryData = new LibraryData(CbtProjectSystem.Id, library.text.trim)
-    new DataNode(ProjectKeys.LIBRARY, libraryData, parent)
+    val libraryData = new LibraryData(CbtProjectSystem.Id, (library \ "name").text.trim)
+    (library \ "jars" \ "jar")
+      .map(_.text.trim)
+      .foreach(libraryData.addPath(LibraryPathType.BINARY, _))
+    val libraryNode = new DataNode(ProjectKeys.LIBRARY, libraryData, parent)
+    libraryNode
   }
 
   override def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean = true

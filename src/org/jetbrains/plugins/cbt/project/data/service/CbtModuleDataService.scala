@@ -39,6 +39,8 @@ object CbtModuleDataService {
         scalaLibraries
           .headOption
           .map(convertToScalaSdk(_, Platform.Scala, ScalaLanguageLevel.Default, dataNode.getData.scalacClasspath))
+        val model = getModifiableRootModel(module)
+        model.inheritSdk()
       }
     }
   }
