@@ -45,9 +45,6 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       .map(convertLibrary(projectNode))
       .foreach(projectNode.addChild)
     projectNode.addChild(createProjectData(projectNode, project))
-
-    //val libraries =
-
     projectNode
   }
 
@@ -73,17 +70,22 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       (module \ "root").text,
       (module \ "root").text)
     val moduleNode = new DataNode(ProjectKeys.MODULE, moduleData, parent)
-    val contentRootData = new ContentRootData(CbtProjectSystem.Id, (module \ "root").text)
-    (module \ "sources" \ "source")
-      .map(s => new File(s.text.trim))
-      .filter(_.isDirectory)
-      .foreach(d => contentRootData.storePath(ExternalSystemSourceType.SOURCE, d.getPath))
-    moduleNode.createChild(ProjectKeys.CONTENT_ROOT, contentRootData)
+    moduleNode.addChild(createContentRoot(module, moduleNode))
     (module \ "mavenDependencies" \ "mavenDependency")
       .map(convertLibraryDependency(moduleNode))
       .foreach(moduleNode.addChild)
     moduleNode.addChild(createModuleData(moduleNode, module))
     moduleNode
+  }
+
+  private def createContentRoot(module: Node, parent: DataNode[_]) = {
+    val contentRootData = new ContentRootData(CbtProjectSystem.Id, (module \ "root").text)
+    (module \ "sources" \ "source")
+      .map(s => new File(s.text.trim))
+      .filter(_.isDirectory)
+      .foreach(d => contentRootData.storePath(ExternalSystemSourceType.SOURCE, d.getPath))
+    contentRootData.storePath(ExternalSystemSourceType.EXCLUDED, (module \ "target").text.trim)
+    new DataNode(ProjectKeys.CONTENT_ROOT, contentRootData, parent)
   }
 
   private def convertLibraryDependency(parent: DataNode[ModuleData])(dependency: Node) = {
