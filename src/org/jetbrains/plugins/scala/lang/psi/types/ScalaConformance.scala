@@ -1169,7 +1169,7 @@ trait ScalaConformance extends api.Conformance {
             e.wildcards.find(_.name == name) match {
               case Some(ScExistentialArgument(thatName, args, lower, upper)) if !rejected.contains(thatName) =>
                 val tpt = tptsMap.getOrElseUpdate(thatName,
-                  TypeParameterType(args, Suspension(lower), Suspension(upper), new ScExistentialLightTypeParam(name))
+                  TypeParameterType(args, lower, upper, new ScExistentialLightTypeParam(name))
                 )
                 (true, tpt)
               case _ => (false, t)
@@ -1495,17 +1495,9 @@ trait ScalaConformance extends api.Conformance {
             undefinedSubst = t._2
             i = i + 1
           }
-          val subst = ScSubstitutor(typeParameters1.zip(typeParameters2).map {
-            case (key, TypeParameter(_, lowerType, upperType, psiTypeParameter)) => (key.nameAndId,
-              TypeParameterType(
-                (psiTypeParameter match {
-                  case typeParam: ScTypeParam => typeParam.typeParameters
-                  case _ => Seq.empty
-                }).map(TypeParameterType(_)),
-                lowerType,
-                upperType,
-                psiTypeParameter))
-          }.toMap)
+          val keys = typeParameters1.map(_.nameAndId)
+          val values = typeParameters2.map(TypeParameterType(_))
+          val subst = ScSubstitutor(keys.zip(values).toMap)
           val t = conformsInner(subst.subst(internalType1), internalType2, HashSet.empty, undefinedSubst)
           if (!t._1) {
             result = (false, undefinedSubst)
