@@ -153,6 +153,7 @@ object SbtUtil {
     }
   }
 
+
   def getSbtProjectIdSeparated(module: Module): (Option[String], Option[String]) =
     getSbtModuleData(module) match {
       case Some(data) => (Some(data.buildURI.toString), Some(data.id))

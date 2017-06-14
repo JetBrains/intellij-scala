@@ -1,21 +1,24 @@
 package org.jetbrains.sbt.shell
 
+import java.io.File
 import java.util
 
 import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.icons.AllIcons.Modules
 import com.intellij.openapi.compiler.ex.CompilerPathsEx
+import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
+import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
+import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil => ES}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -180,8 +183,26 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
   // remove this if/when external system handles this refresh on its own
   private def refreshRoots(modules: Array[Module], indicator: ProgressIndicator) = {
     indicator.setText("Synchronizing output directories...")
-    val roots = CompilerPathsEx.getOutputPaths(modules)
-    CompilerUtil.refreshOutputRoots(ContainerUtil.newArrayList(roots: _*))
+
+    // simply refresh all the source roots to catch any generated files -- this MAY have a performance impact
+    // in which case it might be necessary to receive the generated sources directly from sbt and refresh them (see BuildManager)
+    val info = ProjectDataManager.getInstance().getExternalProjectData(project,SbtProjectSystem.Id, project.getBasePath)
+    val allSourceRoots = ES.findAllRecursively(info.getExternalProjectStructure, ProjectKeys.CONTENT_ROOT)
+    val generatedSourceRoots = allSourceRoots.asScala.flatMap { node =>
+      val data = node.getData
+      // sbt-side generated sources are still imported as regular sources
+      val generated = data.getPaths(ExternalSystemSourceType.SOURCE_GENERATED).asScala
+      val regular = data.getPaths(ExternalSystemSourceType.SOURCE).asScala
+      generated ++ regular
+    }.map(_.getPath).toSeq.distinct
+
+    val outputRoots = CompilerPathsEx.getOutputPaths(modules)
+    val toRefresh = generatedSourceRoots ++ outputRoots
+
+    CompilerUtil.refreshOutputRoots(toRefresh.asJavaCollection)
+    val toRefreshFiles = toRefresh.map(new File(_)).asJava
+    LocalFileSystem.getInstance().refreshIoFiles(toRefreshFiles, true, true, null)
+
     indicator.setText("")
   }
 }
