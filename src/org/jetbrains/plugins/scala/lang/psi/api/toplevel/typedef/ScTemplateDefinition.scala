@@ -47,6 +47,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
 
   def additionalJavaNames: Array[String] = Array.empty
 
+  private var _isDesugared: Boolean = false
+  def setDesugared(): ScTemplateDefinition = {_isDesugared = true; this}
+  def isDesugared: Boolean = _isDesugared
   def desugaredElement: Option[ScTemplateDefinition] = None
 
   @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)

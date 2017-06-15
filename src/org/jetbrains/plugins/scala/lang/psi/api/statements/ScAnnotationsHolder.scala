@@ -97,7 +97,8 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
       val metaAnnotation = annotations.find(_.isMetaAnnotation)
       metaAnnotation match {
         case Some(annot) => MetaExpansionsManager.runMetaAnnotation(annot)
-        case None => Left("")
+        case None =>
+          Left("")
       }
     } else Left("Meta expansions disabled in settings")
   }

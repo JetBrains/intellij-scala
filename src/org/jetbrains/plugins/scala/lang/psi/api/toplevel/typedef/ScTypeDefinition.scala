@@ -27,6 +27,8 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable with ScDocCommentOwner
     with ScAnnotationsHolder with ScCommentOwner {
 
+  override def extendsBlock = super.extendsBlock
+
   def isCase: Boolean = false
 
   def isObject: Boolean = false

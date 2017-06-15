@@ -23,10 +23,6 @@ trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember wit
     isSyntheticCaseClassCompanion = true
   }
 
-  private var _isDesugared: Boolean = false
-  def setDesugared(): ScObject = {_isDesugared = true; this}
-  def isDesugared: Boolean = _isDesugared
-
   def getObjectToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kOBJECT)
 
   def getObjectClassOrTraitToken: PsiElement = getObjectToken
