@@ -254,9 +254,13 @@ object InferUtil {
               case ScMethodType(inter, _, innerImpl) if innerImpl && !fromImplicitParameters => inter
               case _ => internal
             }
+          val valueType = (expr match {
+            case scExpr: ScExpression => scExpr.updateWithImplicitParameters(innerInternal, checkExpectedType = true, fromUnderscore = false)
+            case _ => innerInternal
+          }).inferValueType
           val update: ScTypePolymorphicType = localTypeInference(m,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
-            Seq(new Expression(undefineSubstitutor(typeParams).subst(innerInternal.inferValueType))),
+            Seq(new Expression(undefineSubstitutor(typeParams).subst(valueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = filterTypeParams)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
         }
