@@ -19,12 +19,15 @@ trait PsiOwner[T <: PsiElement] {
                                        (refUpdate: SofterReference[Seq[E]] => Unit): Seq[E] =
     getFromReferenceWithFilter(reference, elementConstructor, refUpdate)
 
-  private def getFromReferenceWithFilter[E <: PsiElement, C](reference: SofterReference[C],
-                                                            elementConstructor: (PsiElement, PsiElement) => C,
-                                                            refUpdate: SofterReference[C] => Unit)
-                                                           (implicit evidence: C => Seq[E]): C = {
+  protected def getFromReferenceWithFilter[E <: PsiElement, C](reference: SofterReference[C],
+                                                               elementConstructor: (PsiElement, PsiElement) => C,
+                                                               refUpdate: SofterReference[C] => Unit)
+                                                              (implicit evidence: C => Seq[E]): C = {
     def updateAndGetNewValue(): C = {
       val result = elementConstructor(getPsi, null)
+
+      assert(result.forall(_.getContext == getPsi))
+
       refUpdate(new SofterReference[C](result))
       result
     }

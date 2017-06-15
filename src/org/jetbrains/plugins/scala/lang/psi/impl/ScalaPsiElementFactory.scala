@@ -830,11 +830,6 @@ object ScalaPsiElementFactory {
   def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement =
     createElementWithContext[ScTypeElement](text, context, child, Type.parse(_)).orNull
 
-  def createConstructorTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement =
-    createElementWithContext[ScConstructor](text, context, child, Constructor.parse).map {
-      _.typeElement
-    }.orNull
-
   def createTypeParameterClauseFromTextWithContext(text: String, context: PsiElement,
                                                    child: PsiElement): ScTypeParamClause =
     createElementWithContext[ScTypeParamClause](text, context, child, TypeParamClause.parse).orNull
