@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeEl
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
@@ -141,23 +142,23 @@ object MetaExpansionsManager {
   def runMetaAnnotation(annot: ScAnnotation): Either[String, Tree] = {
 
     def hasCompatibleScalaVersion = annot.scalaLanguageLevelOrDefault == Scala_2_11
+    val copied: ScAnnotationsHolder = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
+      .asInstanceOf[ScAnnotationsHolder]
 
-    @CachedInsidePsiElement(annot, ModCount.getModificationCount)
+//    @CachedInsidePsiElement(annotee, ModCount.getBlockModificationCount)
     def runMetaAnnotationsImpl: Either[String, Tree] = {
-
-      val copiedAnnot = annot.getContainingFile.copy().findElementAt(annot.getTextOffset).getParent
 
       val converter = new TreeConverter {
         override def getCurrentProject: Project = annot.getProject
         override def dumbMode: Boolean = true
+        override protected val annotationToSkip = annot
       }
 
-      val annotee: ScAnnotationsHolder = ScalaPsiUtil.getParentOfType(copiedAnnot, classOf[ScAnnotationsHolder])
-        .asInstanceOf[ScAnnotationsHolder]
+//      val copied = annotee.copy().asInstanceOf[ScAnnotationsHolder]
+//      copied.annotations.find(_.getText == annot.getText).foreach(_.delete())
 
-      annotee.annotations.find(_.getText == annot.getText).foreach(_.delete())
       try {
-        val converted = converter.ideaToMeta(annotee)
+        val converted = converter.ideaToMeta(copied)
         val convertedAnnot = converter.toAnnotCtor(annot)
         val typeArgs = annot.typeElement match {
           case pe: ScParameterizedTypeElement => pe.typeArgList.typeArgs.map(converter.toType)
@@ -172,17 +173,18 @@ object MetaExpansionsManager {
           case (Some(clazz), _) => Right(runDirect(clazz, compiledArgs))
           case (None, _)        => Left("Meta annotation class could not be found")
         }
-        AnyScalaPsiModificationTracker.incModificationCount()
+        ScalaPsiManager.instance(copied).clearAllCaches()
+//        AnyScalaPsiModificationTracker.incModificationCount()
         errorOrTree
       } catch {
         case pc: ProcessCanceledException => throw pc
-        case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
-        case sm: ScalaMetaException       => Left(s"Semantic error: ${sm.getMessage}")
-        case so: StackOverflowError       => Left(s"Stack overflow during expansion ${annotee.getText}")
-        case e: InvocationTargetException => Left(e.getTargetException.getMessage)
         case e: Exception                 =>
           val x = e
           Left(s"Unexpected error during expansion: ${e.getMessage}")
+        case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
+        case sm: ScalaMetaException       => Left(s"Semantic error: ${sm.getMessage}")
+        case so: StackOverflowError       => Left(s"Stack overflow during expansion ${copied.getText}")
+        case e: InvocationTargetException => Left(e.getTargetException.getMessage)
       }
     }
 
@@ -237,12 +239,12 @@ object MetaExpansionsManager {
         s"No 'apply' method in annotation class, declared methods:\n ${clazz.getDeclaredMethods.mkString("\n")}")
       )
     method.setAccessible(true)
-    try {
+//    try {
       method.invoke(inst, args.map(_.asInstanceOf[scala.meta.Stat]): _*).asInstanceOf[Tree]
-    } catch {
-      // rewrap exception to mimic adapter behaviour
-      case e: InvocationTargetException =>
-        throw new InvocationTargetException(new RuntimeException(e.getTargetException.toString))
-    }
+//    } catch {
+//       rewrap exception to mimic adapter behaviour
+//      case e: InvocationTargetException =>
+//        throw new InvocationTargetException(new RuntimeException(e.getTargetException.toString).st)
+//    }
   }
 }
