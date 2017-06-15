@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeEl
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project._
@@ -165,12 +166,14 @@ object MetaExpansionsManager {
         val compiledArgs = convertedAnnot.asInstanceOf[AnyRef] +: typeArgs :+ converted.asInstanceOf[AnyRef]
         val maybeClass = getCompiledMetaAnnotClass(annot)
         ProgressManager.checkCanceled()
-        (maybeClass, maybeClass.map(_.getClassLoader)) match {
-          case (Some(clazz), Some(cl:MetaClassLoader)) => Right(runAdapterString(clazz, compiledArgs))
-//          case (Some(clazz), Some(_:MetaClassLoader))  => Right(runAdapterBinary(clazz, compiledArgs))
-          case (Some(clazz), _)                        => Right(runDirect(clazz, compiledArgs))
-          case (None, _)                               => Left("Meta annotation class could not be found")
+        val errorOrTree = (maybeClass, maybeClass.map(_.getClassLoader)) match {
+          case (Some(clazz), Some(cl: MetaClassLoader)) => Right(runAdapterString(clazz, compiledArgs))
+//        case (Some(clazz), Some(_:MetaClassLoader))   => Right(runAdapterBinary(clazz, compiledArgs))
+          case (Some(clazz), _) => Right(runDirect(clazz, compiledArgs))
+          case (None, _)        => Left("Meta annotation class could not be found")
         }
+        AnyScalaPsiModificationTracker.incModificationCount()
+        errorOrTree
       } catch {
         case pc: ProcessCanceledException => throw pc
         case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
