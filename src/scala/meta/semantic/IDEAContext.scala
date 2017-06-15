@@ -2,6 +2,7 @@ package scala.meta.semantic
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
@@ -110,4 +111,5 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
   override def supermembers(member : Member) : Seq[Member] = ???
   override def submembers(member: Member): Seq[Member] = ???
 
+  override protected val annotationToSkip: ScAnnotation = null
 }

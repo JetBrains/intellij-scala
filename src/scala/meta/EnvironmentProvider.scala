@@ -3,6 +3,7 @@ package scala.meta
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.{PsiFile, PsiManager}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 
 trait EnvironmentProvider {
   def findFileByPath(path: String): PsiFile = {
@@ -16,5 +17,8 @@ trait EnvironmentProvider {
   // at the time this comment is written, paradise doesn't convert trees 100% equal to what is written in source code
   // this flag tells tree converter to mimic paradise converter behaviour
   def paradiseCompatibilityHacks: Boolean = true
+
+  // macro annotation itself must not appear in converted tree(paradise behaviour)
+  protected val annotationToSkip: ScAnnotation
 }
 
