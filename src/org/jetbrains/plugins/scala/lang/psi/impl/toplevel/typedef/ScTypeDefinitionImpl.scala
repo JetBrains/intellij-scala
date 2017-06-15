@@ -406,6 +406,6 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
       case Right(Term.Block(Seq(templ: Defn.Object, _))) => Some(templ)
       case _ => None
     }
-    defn.map(tree=>ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this))
+    defn.map(tree=>ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this).setDesugared())
   }
 }

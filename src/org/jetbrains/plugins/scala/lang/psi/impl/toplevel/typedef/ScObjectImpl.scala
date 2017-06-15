@@ -236,7 +236,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     getSupers.filter(_.isInterface)
   }
 
-  override def desugaredElement: Option[ScObject] = {
+  override def desugaredElement: Option[ScTemplateDefinition] = {
     import scala.meta.{Defn, Term, Tree}
 
     if (isDesugared) return None
