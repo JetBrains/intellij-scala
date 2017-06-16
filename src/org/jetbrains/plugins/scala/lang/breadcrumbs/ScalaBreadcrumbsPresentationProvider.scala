@@ -38,17 +38,24 @@ object ScalaBreadcrumbsPresentationProvider {
   private val JAVA_HOVERED = EditorColors.BREADCRUMBS_HOVERED
   private val JAVA_CURRENT = EditorColors.BREADCRUMBS_CURRENT
   private val JAVA_DEFAULT = EditorColors.BREADCRUMBS_DEFAULT
-  
-  
+
+  private val DEFAULT_COLOR = EditorColors.GUTTER_BACKGROUND
+
+
   case class MyCrumbPresentation(colorKey: TextAttributesKey) extends CrumbPresentation {
     override def getBackgroundColor(selected: Boolean, hovered: Boolean, light: Boolean): Color = {
       import com.intellij.ui.ColorUtil._
-      
-      val c = getColorByKey(colorKey)
+
+      val c = {
+        val byKey = getColorByKey(colorKey)
+        if (byKey == null) EditorColorsManager.getInstance.getGlobalScheme.getColor(DEFAULT_COLOR) else byKey
+      }
+      if (c == null) return null
       val color = if (selected) brighter(c, 1) else if (hovered) darker(c, 1) else c
 
       val fontColor = getAttributesByKey(colorKey).getForegroundColor
-      
+      if (fontColor == null) return color
+
       val backgroundLum = calculateColorLuminance(color)
       val fontLum = calculateColorLuminance(fontColor)
       
@@ -79,12 +86,7 @@ object ScalaBreadcrumbsPresentationProvider {
   
   //Good idea from Android plugin 
   private val THRESHOLD = 1.9
-  
-  def calculateContrastRatio(color1: Color, color2: Color): Double = {
-    val color1Luminance = calculateColorLuminance(color1)
-    val color2Luminance = calculateColorLuminance(color2)
-    (Math.max(color1Luminance, color2Luminance) + 0.05) / (Math.min(color2Luminance, color1Luminance) + 0.05)
-  }
+
 
   private def calculateColorLuminance(color: Color) = 
     calculateLuminanceContribution(color.getRed / 255.0) * 0.2126 + 
