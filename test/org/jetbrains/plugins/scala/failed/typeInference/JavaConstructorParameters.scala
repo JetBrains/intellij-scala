@@ -13,4 +13,6 @@ class JavaConstructorParameters extends TypeInferenceTestBase{
   override def folderPath: String = super.folderPath + "bugs5/"
 
   def testSCL9875(): Unit = doTest()
+
+  def testSCL12071(): Unit = doTest()
 }
