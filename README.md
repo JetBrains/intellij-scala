@@ -3,15 +3,14 @@
 
 # Scala Plugin for IntelliJ IDEA
 
-Plugin that implements Scala, SBT, Play 2, SSP and Hocon support in IntelliJ
-IDEA.
+Plugin that implements Scala, SBT, Play 2, SSP and Hocon support in IntelliJ IDEA.
 
-## Setting up the project
+## General information
 
 - To get information about how to install and use this plugin in IDEA, please
   use [IntelliJ IDEA online help](https://www.jetbrains.com/idea/help/scala.html).
 
-- If you have any question about Scala plugin, we'd be glad to answer it in [our
+- If you have any question about the Scala plugin, we'd be glad to answer it in [our
   developer community](https://devnet.jetbrains.com/community/idea/scala).
 
 - If you found a bug, please report it on [our issue
@@ -20,11 +19,11 @@ IDEA.
 - If you want to contribute, please see our [intro to the Scala plugin
   internals](http://blog.jetbrains.com/scala/2016/04/21/how-to-contribute-to-intellij-scala-plugin/).
 
-## Developing Scala plugin
+## Setting up the project
 
 In order to take part in Scala plugin development, you need to:
 
-1. Install IntelliJ IDEA 2017.1 or higher with compatible version of Scala plugin
+1. Install IntelliJ IDEA 2017.1 or higher with a compatible version of Scala plugin
 
 2. Fork this repository and clone it to your computer
 
@@ -35,18 +34,18 @@ In order to take part in Scala plugin development, you need to:
 3. Open IntelliJ IDEA, select `File -> New -> Project from existing sources`, point to
 the directory where Scala plugin repository is and then import it as SBT project.
 
-4. When importing is finished, go to Scala plugin repo directory and run
+4. When importing is finished, in order to get artifacts and run configurations for IDEA project,
+go to the Scala plugin repo directory and run
 
   ```
   $ git checkout .idea
   ```
 
-  in order to get artifacts and run configurations for IDEA project.
 
-5. Open the SBT options (```Preferences -> Build, Execution, Deployment -> SBT```)
+5. Open the SBT options (`Preferences -> Build, Execution, Deployment -> SBT`)
 
-  - select ```Use SBT shell for build and import```
-  - in ```Global SBT settings -> JVM Options -> Maximum heap size```, enter at least `2048`
+  - select `Use SBT shell for build and import`
+  - in `Global SBT settings -> JVM Options -> Maximum heap size`, enter at least `2048`
 
 6. Select the IDEA run configuration and select the `Run` or `Debug` button to build and start a development version
 of IDEA with the Scala plugin.
