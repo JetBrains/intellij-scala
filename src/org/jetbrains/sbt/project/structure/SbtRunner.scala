@@ -41,7 +41,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     if (SbtLauncher.exists()) {
 
       val sbtVersion = Version(detectSbtVersion(directory, SbtLauncher))
-      val majorSbtVersion = majorVersion(sbtVersion)
+      val majorSbtVersion = binaryVersion(sbtVersion)
       lazy val project = id.findProject()
       // if the project is being freshly imported, there is no project instance to get the shell component
       val useShellImport = importFromShell && shellImportSupported(sbtVersion) && project != null

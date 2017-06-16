@@ -93,7 +93,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
 
     if (autoPluginsSupported) {
-      val sbtMajorVersion = SbtUtil.majorVersion(projectSbtVersion)
+      val sbtMajorVersion = SbtUtil.binaryVersion(projectSbtVersion)
       val globalPluginsDir = SbtUtil.globalPluginsDirectory(sbtMajorVersion)
 
       // evil side effect! writes injected plugin settings to user's global sbt config
