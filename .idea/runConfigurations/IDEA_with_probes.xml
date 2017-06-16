@@ -2,7 +2,7 @@
   <configuration default="false" name="IDEA with probes" type="Application" factoryName="Application">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <option name="MAIN_CLASS_NAME" value="com.intellij.idea.Main" />
-    <option name="VM_PARAMETERS" value="-Xmx800m -XX:ReservedCodeCacheSize=64m -XX:MaxPermSize=350m -XX:+HeapDumpOnOutOfMemoryError -ea -Didea.is.internal=true -Didea.debug.mode=true -Didea.system.path=$USER_HOME$/.IdeaData/IDEA-15/scala/system -Didea.config.path=$USER_HOME$/.IdeaData/IDEA-15/scala/config -Dapple.laf.useScreenMenuBar=true -Dplugin.path=$PROJECT_DIR$/out/plugin/Scala -Didea.platform.prefix=Idea -agentpath:$YOURKIT_AGENT_LIB$=sampling,telemetryperiod=100,probeclasspath=$PROJECT_DIR$\out\artifacts\probes\probes.jar,probe_off=*,probe_on=org.jetbrains.plugins.scala.probes.ResolveProbes$MultiResolveProbe,probe_on=org.jetbrains.plugins.scala.probes.ClearCaches$Probe,probe_on=org.jetbrains.plugins.scala.probes.GetType$Probe,probe_on=org.jetbrains.plugins.scala.probes.FindMethodsByName$Probe,probe_on=org.jetbrains.plugins.scala.probes.Conformance$Probe,probe_on=org.jetbrains.plugins.scala.probes.GetNode$Probe" />
+    <option name="VM_PARAMETERS" value="-Xmx800m -XX:ReservedCodeCacheSize=64m -XX:MaxPermSize=350m -XX:+HeapDumpOnOutOfMemoryError -ea -Didea.is.internal=true -Didea.debug.mode=true -Didea.system.path=$USER_HOME$/.IdeaData/IDEA-15/scala/system -Didea.config.path=$USER_HOME$/.IdeaData/IDEA-15/scala/config -Dapple.laf.useScreenMenuBar=true -Dplugin.path=$PROJECT_DIR$/out/plugin/Scala -Didea.platform.prefix=Idea -agentpath:/Applications/YourKit-Java-Profiler-2016.02.app/Contents/Resources/bin/mac=sampling,telemetryperiod=100,probeclasspath=$PROJECT_DIR$/../intellij-scala\out\artifacts\probes\probes.jar,probe_off=*,probe_on=org.jetbrains.plugins.scala.probes.ResolveProbes$MultiResolveProbe,probe_on=org.jetbrains.plugins.scala.probes.ClearCaches$Probe,probe_on=org.jetbrains.plugins.scala.probes.GetType$Probe,probe_on=org.jetbrains.plugins.scala.probes.FindMethodsByName$Probe,probe_on=org.jetbrains.plugins.scala.probes.Conformance$Probe,probe_on=org.jetbrains.plugins.scala.probes.GetNode$Probe" />
     <option name="PROGRAM_PARAMETERS" value="" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -13,9 +13,6 @@
     <module name="ideaRunner" />
     <envs />
     <method>
-      <option name="BuildArtifacts" enabled="true">
-        <artifact name="ScalaPlugins" />
-      </option>
       <option name="BuildArtifacts" enabled="true">
         <artifact name="probes" />
       </option>
