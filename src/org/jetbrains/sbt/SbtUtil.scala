@@ -24,7 +24,7 @@ object SbtUtil {
   /** Directory for global sbt plugins given sbt version */
   def globalPluginsDirectory(sbtVersion: Version): File =
     getFileProperty(globalPluginsProperty).getOrElse {
-      val base = globalBase(sbtVersion.presentation)
+      val base = globalBase(sbtVersion)
       new File(base, "plugins")
     }
 
@@ -32,7 +32,7 @@ object SbtUtil {
   private val globalBaseProperty = "sbt.global.base"
 
   /** Base directory for global sbt settings. */
-  def globalBase(version: String): File =
+  def globalBase(version: Version): File =
     getFileProperty(globalBaseProperty).getOrElse(defaultVersionedGlobalBase(version))
 
   private def getFileProperty(name: String): Option[File] = Option(System.getProperty(name)) flatMap { path =>
@@ -40,10 +40,14 @@ object SbtUtil {
   }
   private def fileProperty(name: String): File = new File(System.getProperty(name))
   private def defaultGlobalBase = fileProperty("user.home") / ".sbt"
-  private def defaultVersionedGlobalBase(sbtVersion: String): File = defaultGlobalBase / sbtVersion
+  private def defaultVersionedGlobalBase(sbtVersion: Version): File = {
+    defaultGlobalBase / binaryVersion(sbtVersion).presentation
+  }
 
-  def majorVersion(sbtVersion: Version): Version =
-    if (sbtVersion.presentation.contains("-M")) sbtVersion
+  def binaryVersion(sbtVersion: Version): Version =
+    // 1.0.0 milestones are regarded as not bincompat by sbt
+    if ((sbtVersion ~= Version("1.0.0")) && sbtVersion.presentation.contains("-M"))
+      sbtVersion
     else sbtVersion.major(2)
 
   def detectSbtVersion(directory: File, sbtLauncher: => File): String =

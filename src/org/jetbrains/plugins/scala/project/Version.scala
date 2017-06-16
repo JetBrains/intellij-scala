@@ -12,7 +12,7 @@ case class Version(presentation: String) extends Ordered[Version] {
   def compare(other: Version): Int =
     implicitly[Ordering[Seq[Group]]].compare(groups, other.groups)
 
-  // Returns whether this version is equal to or more specific than the other version
+  /** Returns whether this version is equal to or more specific than the other version. */
   def ~=(other: Version): Boolean =
     groups.zip(other.groups).forall(p => p._1 ~= p._2) &&
       groups.lengthCompare(other.groups.length) >= 0
