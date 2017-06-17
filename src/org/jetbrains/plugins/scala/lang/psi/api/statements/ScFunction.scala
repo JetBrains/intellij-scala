@@ -605,9 +605,17 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
 object ScFunction {
   implicit class Ext(val function: ScFunction) extends AnyVal {
+
+    import Ext._
+
     private implicit def project = function.getProject
     private implicit def resolveScope = function.getResolveScope
     private implicit def elementScope = function.elementScope
+
+    def isApplyMethod: Boolean = function.name == Apply
+
+    /** Is this function sometimes invoked without it's name appearing at the call site? */
+    def isSpecial: Boolean = Special(function.name)
 
     def returnType: TypeResult[ScType] = {
       if (importantOrderFunction(function)) {
@@ -654,26 +662,23 @@ object ScFunction {
     }
   }
 
-  object Name {
-    val Apply = "apply"
-    val Update = "update"
+  object Ext {
+    private val Apply = "apply"
+    private val Update = "update"
 
-    val Unapply = "unapply"
-    val UnapplySeq = "unapplySeq"
+    private val Unapply = "unapply"
+    private val UnapplySeq = "unapplySeq"
 
-    val Foreach = "foreach"
-    val Map = "map"
-    val FlatMap = "flatMap"
-    val Filter = "filter"
-    val WithFilter = "withFilter"
+    private val Foreach = "foreach"
+    private val Map = "map"
+    private val FlatMap = "flatMap"
+    private val Filter = "filter"
+    private val WithFilter = "withFilter"
 
-    val Unapplies: Set[String] = Set(Unapply, UnapplySeq)
-    val ForComprehensions: Set[String] = Set(Foreach, Map, FlatMap, Filter, WithFilter)
-    val Special: Set[String] = Set(Apply, Update) ++ Unapplies ++ ForComprehensions
+    private val Unapplies: Set[String] = Set(Unapply, UnapplySeq)
+    private val ForComprehensions: Set[String] = Set(Foreach, Map, FlatMap, Filter, WithFilter)
+    private val Special: Set[String] = Set(Apply, Update) ++ Unapplies ++ ForComprehensions
   }
-
-  /** Is this function sometimes invoked without it's name appearing at the call site? */
-  def isSpecial(name: String): Boolean = Name.Special(name)
 
   private val calculatingBlockKey: Key[ThreadLocal[Boolean]] = Key.create("calculating.function.returns.block")
 
