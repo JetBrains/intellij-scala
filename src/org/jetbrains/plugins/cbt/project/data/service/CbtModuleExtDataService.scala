@@ -5,32 +5,32 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
-import org.jetbrains.plugins.cbt.structure.CbtModuleData
+import org.jetbrains.plugins.cbt.structure.CbtModuleExtData
 import org.jetbrains.plugins.scala.project.{Platform, ScalaLanguageLevel}
 import org.jetbrains.sbt.project.data.service.{AbstractDataService, AbstractImporter, Importer}
 
-class CbtModuleDataService extends AbstractDataService[CbtModuleData, Library](CbtModuleData.Key) {
-  override def createImporter(toImport: Seq[DataNode[CbtModuleData]],
+class CbtModuleExtDataService extends AbstractDataService[CbtModuleExtData, Library](CbtModuleExtData.Key) {
+  override def createImporter(toImport: Seq[DataNode[CbtModuleExtData]],
                               projectData: ProjectData,
                               project: Project,
-                              modelsProvider: IdeModifiableModelsProvider): Importer[CbtModuleData] =
-    new CbtModuleDataService.Importer(toImport, projectData, project, modelsProvider)
+                              modelsProvider: IdeModifiableModelsProvider): Importer[CbtModuleExtData] =
+    new CbtModuleExtDataService.Importer(toImport, projectData, project, modelsProvider)
 }
 
-object CbtModuleDataService {
+object CbtModuleExtDataService {
 
-  private class Importer(toImport: Seq[DataNode[CbtModuleData]],
+  private class Importer(toImport: Seq[DataNode[CbtModuleExtData]],
                          projectData: ProjectData,
                          project: Project,
                          modelsProvider: IdeModifiableModelsProvider)
-    extends AbstractImporter[CbtModuleData](toImport, projectData, project, modelsProvider) {
+    extends AbstractImporter[CbtModuleExtData](toImport, projectData, project, modelsProvider) {
 
     override def importData(): Unit = {
       println("CbtModuleDataService import data called")
       dataToImport.foreach(node => doImport(node))
     }
 
-    def doImport(dataNode: DataNode[CbtModuleData]): Unit = {
+    def doImport(dataNode: DataNode[CbtModuleExtData]): Unit = {
       for {
         module <- getIdeModuleByNode(dataNode)
       } {

@@ -8,9 +8,11 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
-import org.jetbrains.plugins.cbt.structure.{CbtModuleData, CbtProjectData}
+import org.jetbrains.plugins.cbt.structure.{CbtModuleExtData, CbtProjectData}
+import org.jetbrains.plugins.scala.project.Version
 
 import scala.xml.Node
+import org.jetbrains.sbt.RichFile
 
 class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSettings] {
 
@@ -27,7 +29,9 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     println("Cbt resolver called")
 
     val xml = CBT.projectBuidInfo(root)
-    convert(xml)
+    println(xml.toString)
+    val r = convert(xml)
+    r
   }
 
 
@@ -72,7 +76,8 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
   private def createExtModuleData(moduleDataNode: DataNode[ModuleData], node: Node) = {
     val scalacClasspath = (node \ "classpaths" \ "classpathItem")
       .map(t => new File(t.text.trim))
-    new DataNode(CbtModuleData.Key, new CbtModuleData(scalacClasspath), moduleDataNode)
+    new DataNode(CbtModuleExtData.Key,
+      new CbtModuleExtData(Version((node \ "scalaVersion").text.trim), scalacClasspath), moduleDataNode)
   }
 
   private def createModuleData(module: Node) =
@@ -114,9 +119,16 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     new DataNode(ProjectKeys.LIBRARY_DEPENDENCY, dependencyData, parent)
   }
 
-    private def createCbtLibraryData = {
-    val libraryData = new LibraryData(CbtProjectSystem.Id, "CBT")
-    libraryData.addPath(LibraryPathType.BINARY, "/home/ilya/apps/cbt")
+  private def createCbtLibraryData = {
+    val CBT_PATH = new File("/home/ilya/apps/cbt")
+    val libraryData = new LibraryData(CbtProjectSystem.Id, "CBT", true)
+    libraryData.addPath(LibraryPathType.BINARY, CBT_PATH.getPath)
+    val cbtDirs = Seq("stage1", "stage2", "compatibility", "nailgun_launcher")
+    cbtDirs
+      .foreach(dir => {
+        libraryData.addPath(LibraryPathType.SOURCE, (CBT_PATH / dir).getPath)
+        libraryData.addPath(LibraryPathType.BINARY, (CBT_PATH / dir / "target").getPath)
+      })
     libraryData
   }
 
