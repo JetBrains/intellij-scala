@@ -18,7 +18,7 @@ import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.{Platform, Versions}
+import org.jetbrains.plugins.scala.project.{Platform, Version, Versions}
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.template.SComboBox
 import org.jetbrains.sbt.RichFile
@@ -133,10 +133,11 @@ class CbtModuleBuilder
   }
 
   private def generateTemplate(root: File): Unit = {
-    val srcDir = root / "src"
-    srcDir.mkdirs()
-    CBT.runAction(Seq("tools", "createMain"), srcDir)
-    CBT.runAction(Seq("tools", "createBuild"), root)
+//    val srcDir = root / "src"
+//    srcDir.mkdirs()
+//    CBT.runAction(Seq("tools", "createMain"), srcDir)
+//    CBT.runAction(Seq("tools", "createBuild"), root)
+    CbtProjectGenerator(root, Version(selections.scalaVersion))
   }
 
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
