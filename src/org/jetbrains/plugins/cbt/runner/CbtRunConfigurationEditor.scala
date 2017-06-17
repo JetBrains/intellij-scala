@@ -3,9 +3,11 @@ package org.jetbrains.plugins.cbt.runner
 import javax.swing.JComponent
 
 import com.intellij.openapi.options.SettingsEditor
+import com.intellij.openapi.project.Project
 
-class CbtRunConfigurationEditor extends SettingsEditor[CbtRunConfiguration]{
-  val form = new CbtRunConfigurationForm()
+class CbtRunConfigurationEditor(project: Project, configuration: CbtRunConfiguration)
+  extends SettingsEditor[CbtRunConfiguration] {
+  val form = new CbtRunConfigurationForm(project, configuration)
 
   override def createEditor(): JComponent = form.getMainPanel
 

@@ -24,9 +24,12 @@ class CbtRunConfiguration(val project: Project, val configurationFactory: Config
 
   private var task = ""
 
+  private var workingDir = defaultWorkingDirectory
+
   override def getValidModules: util.Collection[Module] = List()
 
-  override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new CbtRunConfigurationEditor()
+  override def getConfigurationEditor: SettingsEditor[CbtRunConfiguration] =
+    new CbtRunConfigurationEditor(project, this)
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState = {
     new CbtComandLineState(this, environment)
@@ -34,18 +37,23 @@ class CbtRunConfiguration(val project: Project, val configurationFactory: Config
 
   def getTask: String = task
 
+  def getWorkingDir: String = workingDir
+
   override def writeExternal(element: Element) {
     super.writeExternal(element)
     JDOMExternalizer.write(element, "task", task)
+    JDOMExternalizer.write(element, "workingDir", workingDir)
   }
 
   override def readExternal(element: Element) {
     super.readExternal(element)
     task = JDOMExternalizer.readString(element, "task")
+    workingDir = JDOMExternalizer.readString(element, "workingDir")
   }
 
   def apply(params: CbtRunConfigurationForm): Unit = {
     task = params.getTask
+    workingDir = params.getWorkingDirectory
   }
 
   class CbtComandLineState(configuration: CbtRunConfiguration, environment: ExecutionEnvironment)
@@ -55,8 +63,9 @@ class CbtRunConfiguration(val project: Project, val configurationFactory: Config
       val factory = ProcessHandlerFactory.getInstance
 
       val commandLine = new GeneralCommandLine("cbt", task)
-                        .withWorkDirectory(defaultWorkingDirectory)
+        .withWorkDirectory(workingDir)
       factory.createColoredProcessHandler(commandLine)
     }
   }
+
 }
