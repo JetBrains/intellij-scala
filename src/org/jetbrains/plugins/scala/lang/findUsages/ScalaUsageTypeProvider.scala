@@ -53,11 +53,10 @@ object ScalaUsageTypeProvider {
       result.innerResolveResult
         .getOrElse(result).element
 
-    import ScFunction.Name.Apply
     expression.bind()
       .map(resolvedElement)
       .collect {
-        case function: ScFunction if function.name == Apply && expression.refName != Apply => methodApply
+        case function: ScFunction if function.isApplyMethod => methodApply
         case definition: ScFunctionDefinition if isAncestor(definition, expression, false) => RECURSION
       }.orNull
   }
