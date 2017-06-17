@@ -31,13 +31,17 @@ class IfElseToFilteredOptionInspectionTest extends OperationsOnCollectionInspect
     )
   }
 
-  def testShouldReplaceWithMethodCallAsParam() = {
-    val getInt = "def getInt() = 2;"
+  def testShouldWorkEvenIfWhitespacePresent() = {
     doTest(
-      s"$evenFunction $getInt ${START}if (isEven(getInt())) Option(getInt()) else None$END",
-      s"$evenFunction $getInt if (isEven(getInt())) Option(getInt()) else None",
-      s"$evenFunction $getInt Option(getInt()).filter(isEven)"
+      s"$evenFunction ${START}if (isEven(2   )) Option( 2) else None$END",
+      s"$evenFunction if (isEven(2   )) Option( 2) else None",
+      s"$evenFunction Option(2).filter(isEven)"
     )
+  }
+
+  def testShouldNotReplaceWithMethodCallAsParam() = {
+    val getInt = "def getInt() = 2;"
+    checkTextHasNoErrors(s"$evenFunction $getInt ${START}if (isEven(getInt())) Option(getInt()) else None$END")
   }
 
   def testShouldNotShowIfMethodParametersAreNotEqual() =

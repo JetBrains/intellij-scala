@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import com.intellij.codeInsight.PsiEquivalenceUtil._
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
+import org.jetbrains.plugins.scala.util.SideEffectsUtil
 
 /**
   * @author mattfowler
@@ -15,10 +17,20 @@ object FilterOption extends SimplificationType {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case ex@IfStmt(ScMethodCall(method, Seq(methodArg)), some@scalaSome(_), scalaNone()) =>
-      replaceIfEqual(ex, method, methodArg, some)
+      replaceIfEquivalent(ex, method, methodArg, some)
     case ex@IfStmt(ScMethodCall(method, Seq(methodArg)), option@scalaOption(_), scalaNone()) =>
-      replaceIfEqual(ex, method, methodArg, option)
+      replaceIfEquivalent(ex, method, methodArg, option)
     case _ => None
+  }
+
+  private def replaceIfEquivalent(ex: ScExpression,
+                                     method: ScExpression,
+                                     methodArg: ScExpression,
+                                     option: ScExpression) = {
+    if (SideEffectsUtil.hasNoSideEffects(methodArg))
+      replaceIfEqual(ex, method, methodArg, option)
+    else
+      None
   }
 
   private def replaceIfEqual(expression: ScExpression,
@@ -27,13 +39,11 @@ object FilterOption extends SimplificationType {
                              option: ScExpression): Option[Simplification] = {
     val replaceWith = getReplacement(_: String, expression, methodArgument, methodCall)
     option match {
-      case scalaSome(arg) if argsEqual(methodArgument, arg) => Some(replaceWith("Some"))
-      case scalaOption(arg) if argsEqual(methodArgument, arg) => Some(replaceWith("Option"))
+      case scalaSome(arg) if areElementsEquivalent(methodArgument, arg) => Some(replaceWith("Some"))
+      case scalaOption(arg) if areElementsEquivalent(methodArgument, arg) => Some(replaceWith("Option"))
       case _ => None
     }
   }
-
-  private def argsEqual(firstArg: ScExpression, secondArg: ScExpression) = firstArg.getText == secondArg.getText
 
   private def getReplacement(optionCall: String, expression: ScExpression, methodArg: ScExpression, methodCall: ScExpression) = {
     replace(expression).withText(s"$optionCall(${methodArg.getText}).filter(${methodCall.getText})")
