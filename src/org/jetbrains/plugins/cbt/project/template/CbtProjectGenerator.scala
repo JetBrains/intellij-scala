@@ -14,10 +14,11 @@ object CbtProjectGenerator {
 
 object BuildFileTemplate {
   def apply(scalaVersion: Version): String =
-    """
+    s"""
       |import cbt._
       |
-      |class Build(val  context: Context) extends BaseBuild {
+      |class Build(val context: Context) extends BaseBuild {
+      |  override def defaultScalaVersion = "${scalaVersion.toString}"
       |}
     """.stripMargin
 }
