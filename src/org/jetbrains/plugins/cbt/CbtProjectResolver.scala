@@ -11,7 +11,7 @@ import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
 import org.jetbrains.plugins.cbt.structure.{CbtModuleExtData, CbtProjectData}
 import org.jetbrains.plugins.scala.project.Version
 
-import scala.xml.Node
+import scala.xml.{Node, XML}
 import org.jetbrains.sbt.RichFile
 
 class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSettings] {
@@ -28,7 +28,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     val root = new File(projectPath)
     println("Cbt resolver called")
 
-    val xml = CBT.projectBuidInfo(root)
+    val xml = XML.loadString(CBT.runAction(Seq("buildInfoXml"), root, Some((id, listener))))
     println(xml.toString)
     val r = convert(xml)
     r
