@@ -3,6 +3,7 @@ package lang
 package psi
 package types
 
+import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -155,6 +156,7 @@ case class ScExistentialType(quantified: ScType,
     val res = mutable.HashMap.empty[ScExistentialArgument, Seq[ScType]]
     //todo: use recursiveVarianceUpdateModifiable?
     def checkRecursive(tp: ScType, rejected: Set[String]) {
+      ProgressManager.checkCanceled()
       tp match {
         case JavaArrayType(argument) => checkRecursive(argument, rejected)
         case ScAbstractType(tpt, lower, upper) =>
