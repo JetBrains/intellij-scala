@@ -86,7 +86,7 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
     projectSettings.setExternalProjectPath(getProject.getBasePath)
     projectSettings.setModules(java.util.Collections.singleton(getModule.getModuleFilePath))
     SbtSystemSettings.getInstance(getProject).linkProject(projectSettings)
-    getModule.setOption(ExternalSystemConstants.ROOT_PROJECT_PATH_KEY, getProject.getBasePath)
+//    getModule.setOption(ExternalSystemConstants.ROOT_PROJECT_PATH_KEY, getProject.getBasePath)
   }
 
   private def addTestFileToModuleSources(): Unit = {

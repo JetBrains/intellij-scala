@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.renderers
 
 import java.util
+import javax.swing.Icon
 
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
 import com.intellij.debugger.ui.impl.ThreadsDebuggerTree
@@ -8,6 +9,8 @@ import com.intellij.debugger.ui.impl.watch.{DebuggerTree, LocalVariableDescripto
 import com.intellij.debugger.ui.tree.render.{ArrayRenderer, ChildrenBuilder, DescriptorLabelListener}
 import com.intellij.debugger.ui.tree._
 import com.intellij.openapi.util.Disposer
+import com.intellij.ui.SimpleTextAttributes
+import com.intellij.xdebugger.frame.{XDebuggerTreeNodeHyperlink, XValueChildrenList}
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 
 /**
@@ -42,6 +45,20 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
         def initChildrenArrayRenderer(renderer: ArrayRenderer) {}
 
         def getParentDescriptor: ValueDescriptor = testVariable
+
+        override def setErrorMessage(errorMessage: String): Unit = {}
+
+        override def setErrorMessage(errorMessage: String, link: XDebuggerTreeNodeHyperlink): Unit = {}
+
+        override def addChildren(children: XValueChildrenList, last: Boolean): Unit = {}
+
+        override def tooManyChildren(remaining: Int): Unit = {}
+
+        override def setMessage(message: String, icon: Icon, attributes: SimpleTextAttributes, link: XDebuggerTreeNodeHyperlink): Unit = {}
+
+        override def setAlreadySorted(alreadySorted: Boolean): Unit = {}
+
+        override def isObsolete: Boolean = false
       }, context)
 
       testVariable
