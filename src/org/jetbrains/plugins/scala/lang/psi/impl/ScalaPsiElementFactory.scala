@@ -675,7 +675,7 @@ object ScalaPsiElementFactory {
         case alias: ScTypeAliasDefinition =>
           val overrideText = if (needsOverride && !alias.hasModifierProperty("override")) "override " else ""
           val modifiersText = alias.getModifierList.getText
-          val typeText = substitutor.subst(alias.aliasedType(TypingContext.empty).getOrAny).canonicalText
+          val typeText = substitutor.subst(alias.aliasedType.getOrAny).canonicalText
           s"$overrideText$modifiersText type ${alias.name} = $typeText"
         case alias: ScTypeAliasDeclaration =>
           val overrideText = if (needsOverride) "override " else ""

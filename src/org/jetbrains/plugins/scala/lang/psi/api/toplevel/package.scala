@@ -25,7 +25,7 @@ package object toplevel {
           val returnTypeDepth = f.returnType.getOrAny.typeDepth
           typeParametersOwnerDepth(f, returnTypeDepth)
         case ta: ScTypeAliasDefinition =>
-          val aliasedDepth = ta.aliasedType(TypingContext.empty).getOrAny.typeDepth
+          val aliasedDepth = ta.aliasedType.getOrAny.typeDepth
           typeParametersOwnerDepth(ta, aliasedDepth)
         case ta: ScTypeAliasDeclaration =>
           val boundsDepth = ta.lowerBound.getOrNothing.typeDepth.max(ta.upperBound.getOrAny.typeDepth)

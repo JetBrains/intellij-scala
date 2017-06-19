@@ -46,7 +46,7 @@ trait ScSimpleTypeElement extends ScTypeElement with ImplicitParametersOwner {
    */
   def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled()
-    getNonValueType(TypingContext.empty, withUnnecessaryImplicitsUpdate = true) //to update implicitParameters field
+    getNonValueType(withUnnecessaryImplicitsUpdate = true) //to update implicitParameters field
     implicitParameters
   }
 }

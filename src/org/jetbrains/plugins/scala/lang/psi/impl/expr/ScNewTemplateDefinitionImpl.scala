@@ -103,7 +103,7 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
     } else {
       extendsBlock.templateParents match {
         case Some(tp) if tp.allTypeElements.length == 1 =>
-          tp.allTypeElements.head.getNonValueType(ctx)
+          tp.allTypeElements.head.getNonValueType()
         case _ =>
           superTypes.headOption match {
             case Some(t) => Success(t, Some(this))

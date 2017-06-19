@@ -73,7 +73,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       case c: ScObject => "Object:" + c.qualifiedName
       case c: PsiClass => "Class:" + c.qualifiedName
       case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
-        t.aliasedType(TypingContext.empty) match {
+        t.aliasedType match {
           case Success(tp, _) =>
             tp.extractClass match {
               case Some(_: ScObject) => defaultForTypeAlias(t)

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 
 /**
   * @author adkozlov
@@ -16,8 +16,8 @@ abstract class DottyAndOrTypeElementImpl(node: ASTNode) extends ScalaPsiElementI
 
   protected def apply: Seq[ScType] => ScType
 
-  protected def innerType(context: TypingContext) = {
-    def lift(typeElement: ScTypeElement) = typeElement.getType(context)
+  protected def innerType(): TypeResult[ScType] = {
+    def lift(typeElement: ScTypeElement) = typeElement.getType()
 
     val rightType = rightTypeElement match {
       case Some(typeElement) => lift(typeElement)

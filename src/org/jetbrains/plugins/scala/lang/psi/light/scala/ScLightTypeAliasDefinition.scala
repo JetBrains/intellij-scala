@@ -28,8 +28,6 @@ class ScLightTypeAliasDefinition(s: TypeAliasSignature, val ta: ScTypeAliasDefin
 
   override def aliasedType: TypeResult[ScType] = Success(s.lowerBound, Some(this))
 
-  override def aliasedType(ctx: TypingContext): TypeResult[ScType] = Success(s.lowerBound, Some(this))
-
   override def aliasedTypeElement: Option[ScTypeElement] = ta.aliasedTypeElement
 
   override def getOriginalElement: PsiElement = super[ScTypeAliasDefinition].getOriginalElement

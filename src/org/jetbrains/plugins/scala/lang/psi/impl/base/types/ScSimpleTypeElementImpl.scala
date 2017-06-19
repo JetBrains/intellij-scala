@@ -36,17 +36,17 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
  */
 
 class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
-  protected def innerType(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true)
+  protected def innerType(): TypeResult[ScType] = innerNonValueType(inferValueType = true)
 
-  override def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true, noConstructor = true)
+  override def getTypeNoConstructor: TypeResult[ScType] = innerNonValueType(inferValueType = true, noConstructor = true)
 
   @CachedWithRecursionGuard(this, Failure("Recursive non value type of type element", Some(this)),
     ModCount.getBlockModificationCount)
-  override def getNonValueType(ctx: TypingContext, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] =
-    innerNonValueType(ctx, inferValueType = false, withUnnecessaryImplicitsUpdate = withUnnecessaryImplicitsUpdate)
+  override def getNonValueType(withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] =
+    innerNonValueType(inferValueType = false, withUnnecessaryImplicitsUpdate = withUnnecessaryImplicitsUpdate)
 
 
-  private def innerNonValueType(ctx: TypingContext, inferValueType: Boolean, noConstructor: Boolean = false, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] = {
+  private def innerNonValueType(inferValueType: Boolean, noConstructor: Boolean = false, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
 
     def parametrise(tp: ScType, clazz: PsiClass, subst: ScSubstitutor): ScType = {
