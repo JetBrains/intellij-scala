@@ -41,19 +41,21 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     if (SbtLauncher.exists()) {
 
       val sbtVersion = Version(detectSbtVersion(directory, SbtLauncher))
-      val majorSbtVersion = majorVersion(sbtVersion)
+      val majorSbtVersion = binaryVersion(sbtVersion)
       lazy val project = id.findProject()
       // if the project is being freshly imported, there is no project instance to get the shell component
       val useShellImport = importFromShell && shellImportSupported(sbtVersion) && project != null
 
       if (importSupported(sbtVersion)) usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
 
+        val structureFilePath = path(structureFile)
+
         val messageResult: Try[String] = {
           if (useShellImport) {
             val shell = SbtShellCommunication.forProject(project)
-            dumpFromShell(shell, structureFile, options)
+            dumpFromShell(shell, structureFilePath, options)
           }
-          else dumpFromProcess(directory, structureFile, options: Seq[String], majorSbtVersion)
+          else dumpFromProcess(directory, structureFilePath, options: Seq[String], majorSbtVersion)
         }
 
         messageResult.flatMap { messages =>
@@ -78,11 +80,11 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   private val statusUpdate = (message:String) =>
     listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
 
-  private def dumpFromShell(shell: SbtShellCommunication, structureFile: File, options: Seq[String]): Try[String] = {
+  private def dumpFromShell(shell: SbtShellCommunication, structureFilePath: String, options: Seq[String]): Try[String] = {
 
-    val fileString = structureFile.getAbsolutePath
     val optString = options.mkString(" ")
-    val cmd = s";reload; */*:dumpStructureTo $fileString $optString"
+    val setCmd = s"""set org.jetbrains.sbt.StructureKeys.sbtStructureOptions in Global := "$optString""""
+    val cmd = s";reload; $setCmd ;*/*:dumpStructureTo $structureFilePath"
     val output =
       shell.command(cmd, new StringBuilder, messageAggregator(id, statusUpdate), showShell = true)
 
@@ -107,24 +109,21 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   private def importSupported(sbtVersion: Version): Boolean =
     sbtVersion >= sinceSbtVersion
 
-  private def dumpFromProcess(directory: File, structureFile: File, options: Seq[String], sbtVersion: Version): Try[String] = {
+  private def dumpFromProcess(directory: File, structureFilePath: String, options: Seq[String], sbtVersion: Version): Try[String] = {
 
     val optString = options.mkString(", ")
     val pluginJar = sbtStructureJar(sbtVersion.major(2).presentation)
-    val dumpStructureCommand =
-      if (sbtVersion < sinceSbtVersionShell) "dump-structure"
-      else "dumpStructure"
 
     val setCommands = Seq(
       s"""shellPrompt := { _ => "" }""",
-      s"""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbt-structure-output-file") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("${path(structureFile)}"))""",
-      s"""SettingKey[_root_.java.lang.String]("sbt-structure-options") in _root_.sbt.Global := "$optString""""
+      s"""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("$structureFilePath"))""",
+      s"""SettingKey[_root_.java.lang.String]("sbtStructureOptions") in _root_.sbt.Global := "$optString""""
     ).mkString("set _root_.scala.collection.Seq(", ",", ")")
 
     val sbtCommands = Seq(
       setCommands,
       s"""apply -cp "${path(pluginJar)}" org.jetbrains.sbt.CreateTasks""",
-      s"*/*:$dumpStructureCommand"
+      s"*/*:dumpStructure"
     ).mkString(";",";","")
 
     val processCommandsRaw =

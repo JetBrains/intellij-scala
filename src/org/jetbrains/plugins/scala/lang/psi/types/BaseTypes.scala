@@ -121,25 +121,30 @@ private class BaseTypesIterator(tp: ScType) extends Iterator[ScType] {
   }
 
   private object InterestedIn {
-    def unapply(tp: ScType): Option[ScType] = tp match {
-      case IsTypeAlias(ta, s) =>
-        if (!visitedAliases.contains(ta)) {
-          visitedAliases += ta
-          ta.aliasedType match {
-            case Success(aliased, _) => Some(s.subst(aliased))
-            case _ => None
+    def unapply(tp: ScType): Option[ScType] = {
+      if (seenTypes.contains(tp)) return None
+      seenTypes += tp
+
+      tp match {
+        case IsTypeAlias(ta, s) =>
+          if (!visitedAliases.contains(ta)) {
+            visitedAliases += ta
+            ta.aliasedType match {
+              case Success(aliased, _) => Some(s.subst(aliased))
+              case _ => None
+            }
           }
-        }
-        else None
-      case ScThisType(clazz) =>
-        clazz.getTypeWithProjections(TypingContext.empty).toOption
-      case TypeParameterType(Nil, _, upper, _) =>
-        Some(upper.v)
-      case ScExistentialArgument(_, Nil, _, upper) =>
-        Some(upper)
-      case ex: ScExistentialType =>
-        Some(ex.quantified.unpackedType)
-      case _ => None
+          else None
+        case ScThisType(clazz) =>
+          clazz.getTypeWithProjections(TypingContext.empty).toOption
+        case TypeParameterType(Nil, _, upper, _) =>
+          Some(upper.v)
+        case ScExistentialArgument(_, Nil, _, upper) =>
+          Some(upper)
+        case ex: ScExistentialType =>
+          Some(ex.quantified.unpackedType)
+        case _ => None
+      }
     }
   }
 }

@@ -20,15 +20,17 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
 
   override def toString: String = s"$typeName: $getText"
 
+  def getType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = getType
+
   @CachedWithRecursionGuard(this, Failure("Recursive type of type element", Some(this)),
     ModCount.getBlockModificationCount)
-  def getType(ctx: TypingContext): TypeResult[ScType] = innerType(ctx)
+  private[types] def getType: TypeResult[ScType] = innerType()
 
-  def getTypeNoConstructor(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = getType(ctx)
+  def getTypeNoConstructor: TypeResult[ScType] = getType
 
-  def getNonValueType(ctx: TypingContext, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] = innerType(ctx)
+  def getNonValueType(withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] = innerType()
 
-  protected def innerType(ctx: TypingContext): TypeResult[ScType]
+  protected def innerType(): TypeResult[ScType]
 
   /** Link from a view or context bound to the type element of the corresponding synthetic parameter. */
   def analog: Option[ScTypeElement] = {
@@ -77,8 +79,8 @@ trait ScDesugarizableTypeElement extends ScTypeElement {
 
   def typeElementFromText: String => ScTypeElement = createTypeElementFromText(_, getContext, this)
 
-  override protected def innerType(ctx: TypingContext): TypeResult[ScType] = computeDesugarizedType match {
-    case Some(typeElement) => typeElement.getType(ctx)
+  override protected def innerType(): TypeResult[ScType] = computeDesugarizedType match {
+    case Some(typeElement) => typeElement.getType
     case _ => Failure(s"Cannot desugarize $typeName", Some(this))
   }
 }

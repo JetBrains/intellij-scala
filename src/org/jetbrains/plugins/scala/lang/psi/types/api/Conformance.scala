@@ -34,7 +34,9 @@ trait Conformance {
                           checkWeak: Boolean = false): Result = {
     ProgressManager.checkCanceled()
 
-    if (left.equiv(Any) || right.equiv(Nothing)) return (true, substitutor)
+    if (left.isAny || right.isNothing || left == right) return (true, substitutor)
+
+    if (!right.canBeSameOrInheritor(left)) return (false, substitutor)
 
     val key = (left, right, checkWeak)
 

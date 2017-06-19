@@ -53,10 +53,14 @@ object ScalaBreadcrumbsPresentationProvider {
       val (first, second) = if (isTemplateDef) BASE_COLORS_PAIR else BASE_COLORS_PAIR.swap
       val (background1, background2) = (getBackgroundColorByKey(first), getBackgroundColorByKey(second))
       
-      if (background1 != null && background2 != null) 
+      val color = if (background1 != null && background2 != null) 
         adjustColor(background1, background2, isTemplateDef) 
       else 
         adjustColor(getForegroundColorByKey(first), getForegroundColorByKey(second), isTemplateDef)
+      
+      val fgColor = getForegroundColorByKey(getBaseKey(selected, hovered, light))
+      
+      if (fgColor == null) color else adjustColor(color, fgColor, isTemplateDef, 4)
     }
   }
   
@@ -64,13 +68,18 @@ object ScalaBreadcrumbsPresentationProvider {
     override def getBackgroundColor(selected: Boolean, hovered: Boolean, light: Boolean): Color = getForegroundColorByKey(DEFAULT_COLOR)
   }
   
+  private def getBaseKey(selected: Boolean, hovered: Boolean, light: Boolean) = {
+    import EditorColors._
+    if (selected) BREADCRUMBS_CURRENT else if (hovered) BREADCRUMBS_HOVERED else if (light) BREADCRUMBS_INACTIVE else BREADCRUMBS_DEFAULT
+  }
+  
   private def adjustColor(c: Color, t: Int) = if (calculateColorLuminance(c) < 0.5) brighter(c, t) else darker(c, t)
   
-  private def adjustColor(c: Color, by: Color, isTemplateDef: Boolean) = {
+  private def adjustColor(c: Color, by: Color, isTemplateDef: Boolean, t: Int = 2) = {
     val (lum1, lum2) = (calculateColorLuminance(c), calculateColorLuminance(by))
 
     if (checkContrastRatio(lum1, lum2)) c
-    else if (lum1 < lum2 || lum1 == lum2 && isTemplateDef && lum1 > MIN_LUM) darker(c, 2) else brighter(c, 2)
+    else if (lum1 < lum2 || lum1 == lum2 && isTemplateDef && lum1 > MIN_LUM) darker(c, t) else brighter(c, t)
   }
   
   private def getAttributesByKey(attributesKey: TextAttributesKey) = 

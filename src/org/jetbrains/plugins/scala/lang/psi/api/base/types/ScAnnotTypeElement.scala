@@ -5,7 +5,8 @@ package api
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -17,5 +18,5 @@ trait ScAnnotTypeElement extends ScTypeElement {
 
   def typeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  protected def innerType(ctx: TypingContext) = typeElement.getType(ctx)
+  protected def innerType(): TypeResult[ScType] = typeElement.getType()
 }

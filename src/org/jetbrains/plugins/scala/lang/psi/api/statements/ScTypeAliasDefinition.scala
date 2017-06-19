@@ -24,24 +24,15 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
 
   def aliasedTypeElement: Option[ScTypeElement]
 
-  def aliasedType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = {
-    if (ctx.visited.contains(this)) {
-      new Failure(ScalaBundle.message("circular.dependency.detected", name), Some(this)) {
-        override def isCyclic = true
-      }
-    } else {
-      aliasedTypeElement.map {
-        _.getType(ctx(this))
-      }.getOrElse(Failure("No alias type", Some(this)))
-    }
-  }
-
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
-  def aliasedType: TypeResult[ScType] = aliasedType()
+  def aliasedType: TypeResult[ScType] =
+    aliasedTypeElement.map {
+      _.getType(TypingContext.empty)
+    }.getOrElse(Failure("No alias type", Some(this)))
 
-  def lowerBound: TypeResult[ScType] = aliasedType()
+  def lowerBound: TypeResult[ScType] = aliasedType
 
-  def upperBound: TypeResult[ScType] = aliasedType()
+  def upperBound: TypeResult[ScType] = aliasedType
 
   def isExactAliasFor(cls: PsiClass): Boolean = {
     val isDefinedInObject = containingClass match {

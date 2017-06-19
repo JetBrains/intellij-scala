@@ -37,7 +37,7 @@ object CbtModuleExtDataService {
         val scalaLibraries = getScalaLibraries(module, Platform.Scala)
         scalaLibraries
           .headOption
-          .map(convertToScalaSdk(_, Platform.Scala, ScalaLanguageLevel.Default, dataNode.getData.scalacClasspath))
+          .foreach(setScalaSdk(_, Platform.Scala, ScalaLanguageLevel.Default, dataNode.getData.scalacClasspath))
         val model = getModifiableRootModel(module)
         model.inheritSdk()
       }

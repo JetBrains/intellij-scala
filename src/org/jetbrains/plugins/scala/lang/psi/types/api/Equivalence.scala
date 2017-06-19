@@ -40,6 +40,8 @@ trait Equivalence {
 
     if (left == right) return (true, substitutor)
 
+    if (!left.canBeSameClass(right)) return (false, substitutor)
+
     val key = (left, right, falseUndef)
 
     val nowEval = eval.get()

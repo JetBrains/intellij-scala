@@ -269,15 +269,7 @@ object ScExpression {
         expectedType(fromUnderscore = fromUnderscore)
       }
 
-      if (isShape) {
-        val tp: ScType = shape(expr).getOrElse(Nothing)
-
-        expected.filter {
-          !tp.conforms(_)
-        }.flatMap {
-          tryConvertToSAM(fromUnderscore, _, tp)
-        }.getOrElse(ExpressionTypeResult(Success(tp, Some(expr))))
-      }
+      if (isShape) ExpressionTypeResult(Success(shape(expr).getOrElse(Nothing), Some(expr)))
       else {
         val tr = getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
         (expected, tr.toOption) match {

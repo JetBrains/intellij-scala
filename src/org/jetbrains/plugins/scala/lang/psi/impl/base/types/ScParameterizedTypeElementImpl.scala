@@ -149,13 +149,13 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     case _ => None
   }
 
-  override protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  override protected def innerType(): TypeResult[ScType] = {
     computeDesugarizedType match {
       case Some(typeElement) =>
-        return typeElement.getType(TypingContext.empty)
+        return typeElement.getType()
       case _ =>
     }
-    val tr = typeElement.getType(ctx)
+    val tr = typeElement.getType()
     val res = tr.getOrElse(return tr)
 
     //todo: possible refactoring to remove parameterized type inference in simple type
@@ -186,7 +186,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
 
     val args: scala.Seq[ScTypeElement] = typeArgList.typeArgs
     if (args.isEmpty) return tr
-    val argTypesWrapped = args.map {_.getType(ctx)}
+    val argTypesWrapped = args.map {_.getType()}
     val argTypesgetOrElseped = argTypesWrapped.map {_.getOrAny}
     def fails(t: ScType) = (for (f@Failure(_, _) <- argTypesWrapped) yield f).foldLeft(this.success(t))(_.apply(_))
 
@@ -194,7 +194,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     argTypesWrapped.find(_.isCyclic) match {
       case Some(_) => fails(ScParameterizedType(res, Seq(argTypesgetOrElseped.toSeq: _*)))
       case None =>
-        val typeArgs = args.map(_.getType(ctx))
+        val typeArgs = args.map(_.getType())
         val result = ScParameterizedType(res, typeArgs.map(_.getOrAny))
         (for (f@Failure(_, _) <- typeArgs) yield f).foldLeft(this.success(result))(_.apply(_))
     }

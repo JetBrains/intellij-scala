@@ -318,8 +318,8 @@ abstract class MixinNodes {
       case cp: ScCompoundType =>
         processRefinement(cp, map, place)
         val thisTypeSubst = compoundThisType match {
-          case Some(_) => ScSubstitutor(Map.empty, Map.empty, compoundThisType)
-          case _ => ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(tp))
+          case Some(_) => ScSubstitutor(Map.empty, compoundThisType)
+          case _ => ScSubstitutor(Predef.Map.empty, Some(tp))
         }
         (MixinNodes.linearization(cp), ScSubstitutor.empty, thisTypeSubst)
       case _ =>
@@ -336,34 +336,33 @@ abstract class MixinNodes {
               place = Option(template.extendsBlock)
               processScala(template, ScSubstitutor.empty, map, place, base = true)
               val lin = MixinNodes.linearization(template)
-              var zSubst = ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
+              var zSubst = ScSubstitutor(Map.empty, Some(ScThisType(template)))
               var placer = template.getContext
               while (placer != null) {
                 placer match {
                   case t: ScTemplateDefinition => zSubst = zSubst.followed(
-                    ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(t)))
+                    ScSubstitutor(Map.empty, Some(ScThisType(t)))
                   )
                   case _ =>
                 }
                 placer = placer.getContext
               }
-              (if (lin.nonEmpty) lin.tail else lin, ScSubstitutor.empty.putAliases(template), zSubst)
+              (if (lin.nonEmpty) lin.tail else lin, ScSubstitutor.empty, zSubst)
             case template: ScTemplateDefinition =>
               place = template.lastChildStub
               processScala(template, ScSubstitutor.empty, map, place, base = true)
-              var zSubst = ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
+              var zSubst = ScSubstitutor(Map.empty, Some(ScThisType(template)))
               var placer = template.getContext
               while (placer != null) {
                 placer match {
                   case t: ScTemplateDefinition => zSubst = zSubst.followed(
-                    ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(t)))
+                    ScSubstitutor(Map.empty, Some(ScThisType(t)))
                   )
                   case _ =>
                 }
                 placer = placer.getContext
               }
-              (MixinNodes.linearization(template),
-                ScSubstitutor.empty.putAliases(template), zSubst)
+              (MixinNodes.linearization(template), ScSubstitutor.empty, zSubst)
             case syn: ScSyntheticClass =>
               (syn.getSuperTypes.map { psiType => psiType.toScType() }: Seq[ScType],
                 ScSubstitutor.empty, ScSubstitutor.empty)
@@ -427,14 +426,7 @@ abstract class MixinNodes {
     }
     superClass match {
       case td : ScTypeDefinition =>
-        var aliasesMap = res.aliasesMap
-        for (alias <- td.aliases) {
-          derived.aliasesMap.get(alias.name) match {
-            case Some(t) => aliasesMap = aliasesMap + ((alias.name, t))
-            case None =>
-          }
-        }
-        res = ScSubstitutor(res.tvMap, aliasesMap, None)
+        res = ScSubstitutor(res.tvMap, None)
       case _ => ()
     }
     res

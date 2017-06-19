@@ -47,4 +47,23 @@ class TypeConformanceExistentialTest extends TypeConformanceTestBase {
 
   //SCL-10295
   def testExistentialWithAliasedDesignator() {doTest()}
+
+  def testSCL12127ConformanceFreeze(): Unit = {
+    doTest(
+      """
+        |abstract class Quantity[A <: Quantity[A]] extends Serializable with Ordered[A] {
+        |  self: A ⇒
+        |}
+        |
+        |trait Dimension[A <: Quantity[A]]
+        |
+        |type RQuantity = T forSome {type T <: Quantity[T]}
+        |type RDimension = Dimension[_ <: RQuantity]
+        |
+        |val rq: RQuantity = ???
+        |val x: Function[_, _] = rq
+        |//false
+        |""".stripMargin
+    )
+  }
 }

@@ -27,10 +27,10 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, C
 * Date: 13.03.2008
 */
 class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) with ScTypeProjection {
-  protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  protected def innerType(): TypeResult[ScType] = {
     this.bind() match {
       case Some(ScalaResolveResult(elem, _)) =>
-        val te: TypeResult[ScType] = typeElement.getType(ctx)
+        val te: TypeResult[ScType] = typeElement.getType()
         te match {
           case Success(ScDesignatorType(_: PsiPackage), _) =>
             this.success(ScalaType.designator(elem))

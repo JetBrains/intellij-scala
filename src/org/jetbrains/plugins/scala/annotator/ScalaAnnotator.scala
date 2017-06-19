@@ -107,7 +107,7 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement) {
-        val typeParamOwner = parameterized.typeElement.getTypeNoConstructor().toOption
+        val typeParamOwner = parameterized.typeElement.getTypeNoConstructor.toOption
           .flatMap(_.extractDesignated(expandAliases = false))
           .collect {case t: ScTypeParametersOwner => t}
         typeParamOwner.foreach { t =>

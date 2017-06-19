@@ -675,7 +675,7 @@ object ScalaPsiElementFactory {
         case alias: ScTypeAliasDefinition =>
           val overrideText = if (needsOverride && !alias.hasModifierProperty("override")) "override " else ""
           val modifiersText = alias.getModifierList.getText
-          val typeText = substitutor.subst(alias.aliasedType(TypingContext.empty).getOrAny).canonicalText
+          val typeText = substitutor.subst(alias.aliasedType.getOrAny).canonicalText
           s"$overrideText$modifiersText type ${alias.name} = $typeText"
         case alias: ScTypeAliasDeclaration =>
           val overrideText = if (needsOverride) "override " else ""
@@ -829,11 +829,6 @@ object ScalaPsiElementFactory {
 
   def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement =
     createElementWithContext[ScTypeElement](text, context, child, Type.parse(_)).orNull
-
-  def createConstructorTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement =
-    createElementWithContext[ScConstructor](text, context, child, Constructor.parse).map {
-      _.typeElement
-    }.orNull
 
   def createTypeParameterClauseFromTextWithContext(text: String, context: PsiElement,
                                                    child: PsiElement): ScTypeParamClause =

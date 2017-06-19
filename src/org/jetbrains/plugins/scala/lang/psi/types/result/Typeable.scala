@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.types.result
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
@@ -27,30 +26,9 @@ object Typeable {
     }
 }
 
-trait TypingContext {
-  self =>
-
-  /**
-   * Set of visited elements to prevent cycles
-   */
-  def visited: Set[ScNamedElement]
-
-  def isUndefined = false
-
-  def apply(named: ScNamedElement): TypingContext = new TypingContext {
-    def visited: Set[ScNamedElement] = self.visited + named
-  }
-
-  def apply(seq: Seq[ScNamedElement]): TypingContext = seq.foldLeft(TypingContext.empty)((ctx, elem) => ctx(elem))
-
-}
+//todo: get rid of this class; currently it is used only to resolve overloaded getType() in ScParameter
+sealed trait TypingContext
 
 object TypingContext {
-  val empty = new TypingContext {def visited = Set()}
-
-  val undefined = new TypingContext {
-    def visited = Set()
-    override def isUndefined = true
-  }
-
+  val empty = new TypingContext {}
 }

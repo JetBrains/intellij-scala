@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.caches
 
 import java.util
+import java.util.Objects
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.openapi.diagnostic.Logger
@@ -108,7 +109,7 @@ object RecursionManager {
 
   class MyKey[Data >: Null <: AnyRef](val guardId: String, val userObject: Data, val myCallEquals: Boolean) {
     // remember user object hashCode to ensure our internal maps consistency
-    override val hashCode: Int = guardId.hashCode * 31 + userObject.hashCode
+    override val hashCode: Int = Objects.hash(guardId, userObject)
 
     override def equals(obj: Any): Boolean = {
       obj match {

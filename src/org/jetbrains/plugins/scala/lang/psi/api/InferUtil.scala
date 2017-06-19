@@ -254,9 +254,13 @@ object InferUtil {
               case ScMethodType(inter, _, innerImpl) if innerImpl && !fromImplicitParameters => inter
               case _ => internal
             }
+          val valueType = (expr match {
+            case scExpr: ScExpression => scExpr.updateWithImplicitParameters(innerInternal, checkExpectedType = true, fromUnderscore = false)
+            case _ => innerInternal
+          }).inferValueType
           val update: ScTypePolymorphicType = localTypeInference(m,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
-            Seq(new Expression(undefineSubstitutor(typeParams).subst(innerInternal.inferValueType))),
+            Seq(new Expression(undefineSubstitutor(typeParams).subst(valueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = filterTypeParams)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
         }
@@ -385,7 +389,7 @@ object InferUtil {
     val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
     val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
-      expectedType = abstractSubst.subst(p.paramType)))
+      expectedType = abstractSubst.subst(p.paramType), defaultType = p.defaultType.map(s.subst)))
     val c = Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true,
       isShapesResolve = false)
     val tpe = if (c.problems.isEmpty) {
@@ -446,8 +450,8 @@ object InferUtil {
                 if (safeCheck && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
                   throw new SafeCheckException
                 TypeParameter(typeParameters, /* doesn't important here */
-                  Suspension(lower),
-                  Suspension(upper),
+                  lower,
+                  upper,
                   psiTypeParameter)
             })
           } else {
@@ -530,8 +534,8 @@ object InferUtil {
               }.map {
                 case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
                   TypeParameter(typeParameters, /* doesn't important here */
-                    Suspension(sub.subst(lowerType.v)),
-                    Suspension(sub.subst(upperType.v)),
+                    sub.subst(lowerType.v),
+                    sub.subst(upperType.v),
                     psiTypeParameter)
               })
             }

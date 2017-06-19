@@ -5,12 +5,13 @@ import org.jetbrains.plugins.dotty.lang.psi.api.base.types.DottyRefinedTypeEleme
 import org.jetbrains.plugins.dotty.lang.psi.types.DottyRefinedType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElementExt
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 
 /**
   * @author adkozlov
   */
 class DottyRefinedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with DottyRefinedTypeElement {
-  override protected def innerType(context: TypingContext) =
-    this.success(DottyRefinedType(typeElement.getType(context).getOrAny, refinement))
+  override protected def innerType(): TypeResult[ScType] =
+    this.success(DottyRefinedType(typeElement.getType().getOrAny, refinement))
 }

@@ -155,7 +155,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
             createType(c, subst, raw = outerClassHasTypeParameters(proj))
           }
         case a: ScTypeAliasDefinition =>
-          a.aliasedType(TypingContext.empty) match {
+          a.aliasedType match {
             case Success(c: ScParameterizedType, _) =>
               toPsiType(ScParameterizedType(c.designator, args), noPrimitives)
             case _ => javaObject
@@ -170,7 +170,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
             case _ => createType(clazz, raw = outerClassHasTypeParameters(proj))
           }
         case elem: ScTypeAliasDefinition =>
-          elem.aliasedType(TypingContext.empty) match {
+          elem.aliasedType match {
             case Success(typez, _) => toPsiType(typez, noPrimitives)
             case Failure(_, _) => javaObject
           }

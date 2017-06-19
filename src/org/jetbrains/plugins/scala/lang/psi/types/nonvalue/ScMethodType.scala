@@ -119,7 +119,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                           variance: Int = 1): ScType = {
+                                           variance: Int = 1, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
@@ -247,8 +247,8 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     typeParameters.map {
       case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
         TypeParameter(parameters, // todo: ?
-          Suspension(lowerType.v.removeAbstracts),
-          Suspension(upperType.v.removeAbstracts),
+          lowerType.v.removeAbstracts,
+          upperType.v.removeAbstracts,
           psiTypeParameter)
     })
 
@@ -258,14 +258,14 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       typeParameters.map {
         case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
           TypeParameter(parameters, // TODO: ?
-            Suspension(lowerType.v.recursiveUpdate(update, visited)),
-            Suspension(upperType.v.recursiveUpdate(update, visited)),
+            lowerType.v.recursiveUpdate(update, visited),
+            upperType.v.recursiveUpdate(update, visited),
             psiTypeParameter)
       })
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                                    variance: Int = 1): ScType = {
+                                                    variance: Int = 1, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
@@ -276,8 +276,8 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           typeParameters.map {
             case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
               TypeParameter(parameters, // TODO: ?
-                Suspension(innerUpdate(lowerType.v, -variance)),
-                Suspension(innerUpdate(upperType.v, variance)),
+                innerUpdate(lowerType.v, -variance),
+                innerUpdate(upperType.v, variance),
                 psiTypeParameter)
           })
     }
@@ -298,18 +298,9 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           undefinedSubst = t._2
           i = i + 1
         }
-        val subst = ScSubstitutor(
-          typeParameters.zip(p.typeParameters).map({
-            case (key, TypeParameter(_, lowerType, upperType, psiTypeParameter)) =>
-              (key.nameAndId, TypeParameterType(
-                (psiTypeParameter match {
-                  case typeParam: ScTypeParam => typeParam.typeParameters
-                  case _ => Seq.empty
-                }).map(TypeParameterType(_)),
-                lowerType,
-                upperType,
-                psiTypeParameter))
-        }).toMap)
+        val keys = typeParameters.map(_.nameAndId)
+        val values = p.typeParameters.map(TypeParameterType(_))
+        val subst = ScSubstitutor(keys.zip(values).toMap)
         subst.subst(internalType).equiv(p.internalType, undefinedSubst, falseUndef)
       case _ => (false, undefinedSubst)
     }

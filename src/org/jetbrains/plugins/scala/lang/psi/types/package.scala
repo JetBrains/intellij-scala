@@ -3,12 +3,13 @@ package org.jetbrains.plugins.scala.lang.psi
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType, PsiTypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import scala.util.control.NoStackTrace
 /**
@@ -107,6 +108,37 @@ package object types {
     def extractClass: Option[PsiClass] = {
       new ClassTypeExtractor(needSubstitutor = false)
         .extractFrom(scType).map(_._1)
+    }
+
+    //performance critical method!
+    //may return None even if extractClass is not empty
+    @scala.annotation.tailrec
+    final def extractClassSimple(visited: Set[ScTypeAliasDefinition] = Set.empty): Option[PsiClass] = scType match {
+      case ScDesignatorType(c: PsiClass) => Some(c)
+      case _: StdType => None
+      case ParameterizedType(des, _) => des.extractClassSimple(visited)
+      case ScProjectionType(_, c: PsiClass, _) => Some(c)
+      case ScProjectionType(_, ta: ScTypeAliasDefinition, _) if !visited.contains(ta) => ta.aliasedType.toOption match {
+        case Some(t) => t.extractClassSimple(visited + ta)
+        case _ => None
+      }
+      case ScThisType(td) => Some(td)
+      case _ => None
+    }
+
+    //performance critical method!
+    def canBeSameOrInheritor(t: ScType): Boolean = checkSimpleClasses(t,
+      (c1, c2) => areClassesEquivalent(c1, c2) || c1.isInheritor(c2, /*checkDeep*/ true)
+    )
+
+    //performance critical method!
+    def canBeSameClass(t: ScType): Boolean = checkSimpleClasses(t, areClassesEquivalent)
+
+    private def checkSimpleClasses(t: ScType, condition: (PsiClass, PsiClass) => Boolean) = {
+      (scType.extractClassSimple(), t.extractClassSimple()) match {
+        case (Some(c1), Some(c2)) if !condition(c1, c2) => false
+        case _ => true
+      }
     }
 
     def removeAliasDefinitions(expandableOnly: Boolean = false): ScType = {

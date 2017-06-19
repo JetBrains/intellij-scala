@@ -1,24 +1,21 @@
 package org.jetbrains.sbt.shell
 
 import com.intellij.codeEditor.printing.PrintAction
-import com.intellij.execution.ExecutionManager
+import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.console.LanguageConsoleImpl
-import com.intellij.execution.filters.PatternHyperlinkPart.{LINE, PATH}
 import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
 import com.intellij.execution.filters._
-import com.intellij.execution.impl.ConsoleViewImpl
-import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.ide.actions.{NextOccurenceToolbarAction, PreviousOccurenceToolbarAction}
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.sbt.shell.action.{ExecuteTaskAction, RestartAction, StopAction}
+import org.jetbrains.sbt.shell.action.{DebugShellAction, ExecuteTaskAction, RestartAction, StopAction}
 
 /**
   * Created by jast on 2017-05-17.
   */
-class SbtShellConsoleView private(project: Project) extends
+class SbtShellConsoleView private(project: Project, debugConnection: Option[RemoteConnection]) extends
   LanguageConsoleImpl(project, SbtShellFileType.getName, SbtShellLanguage) {
 
   override def createConsoleActions(): Array[AnAction] = {
@@ -31,21 +28,24 @@ class SbtShellConsoleView private(project: Project) extends
         case _ => true
       }
 
-    val myToolbarActions = Array(
+    val conditionalDebugAction: Array[AnAction] =
+      debugConnection.map(new DebugShellAction(project, _)).toArray
+
+    val myToolbarActions: Array[AnAction] = Array(
       new RestartAction(project),
       new StopAction(project),
       new ExecuteTaskAction("products", Option(AllIcons.Actions.Compile))
     )
 
-    defaultActions ++ myToolbarActions
+    defaultActions ++ conditionalDebugAction ++ myToolbarActions
   }
 
 }
 
 object SbtShellConsoleView {
 
-  def apply(project: Project): SbtShellConsoleView = {
-    val cv = new SbtShellConsoleView(project)
+  def apply(project: Project, debugConnection: Option[RemoteConnection]): SbtShellConsoleView = {
+    val cv = new SbtShellConsoleView(project, debugConnection)
     cv.getConsoleEditor.setOneLineMode(true)
 
     // stack trace file links

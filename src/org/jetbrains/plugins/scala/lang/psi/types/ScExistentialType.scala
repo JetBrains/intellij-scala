@@ -3,6 +3,7 @@ package lang
 package psi
 package types
 
+import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -56,7 +57,7 @@ case class ScExistentialType(quantified: ScType,
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                           variance: Int = 1): ScType = {
+                                           variance: Int = 1, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
@@ -155,6 +156,7 @@ case class ScExistentialType(quantified: ScType,
     val res = mutable.HashMap.empty[ScExistentialArgument, Seq[ScType]]
     //todo: use recursiveVarianceUpdateModifiable?
     def checkRecursive(tp: ScType, rejected: Set[String]) {
+      ProgressManager.checkCanceled()
       tp match {
         case JavaArrayType(argument) => checkRecursive(argument, rejected)
         case ScAbstractType(tpt, lower, upper) =>
@@ -231,8 +233,8 @@ case class ScExistentialType(quantified: ScType,
         def updateTypeParam: TypeParameter => TypeParameter = {
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(typeParameters.map(updateTypeParam),
-              Suspension(updateRecursive(lowerType.v, newSet, variance)),
-              Suspension(updateRecursive(upperType.v, newSet, -variance)),
+              updateRecursive(lowerType.v, newSet, variance),
+              updateRecursive(upperType.v, newSet, -variance),
               psiTypeParameter)
         }
 
@@ -327,8 +329,8 @@ case class ScExistentialType(quantified: ScType,
           typeParameters.map {
             case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
               TypeParameter(parameters, // todo: is it important here to update?
-                Suspension(updateRecursive(lowerType.v, rejected, variance)),
-                Suspension(updateRecursive(upperType.v, rejected, variance)),
+                updateRecursive(lowerType.v, rejected, variance),
+                updateRecursive(upperType.v, rejected, variance),
                 psiTypeParameter)
           })
       case _ => tp
@@ -484,7 +486,7 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                                    variance: Int = 1): ScType = {
+                                                    variance: Int = 1, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, _) =>
