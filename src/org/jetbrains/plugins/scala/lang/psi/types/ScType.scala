@@ -3,6 +3,7 @@ package lang
 package psi
 package types
 
+import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
@@ -17,6 +18,7 @@ trait ScType extends ProjectContextOwner {
 
   final def isAliasType: Option[AliasType] = {
     if (aliasType == null) {
+      ProgressManager.checkCanceled()
       aliasType = isAliasTypeInner
     }
     aliasType
@@ -26,6 +28,7 @@ trait ScType extends ProjectContextOwner {
 
   final def unpackedType: ScType = {
     if (unpacked == null) {
+      ProgressManager.checkCanceled()
       unpacked = unpackedTypeInner
     }
     unpacked
