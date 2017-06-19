@@ -55,4 +55,86 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}""".stripMargin
     )
   }
+
+  def testSCL6384() = {
+    val text =
+      """
+        |object Test {
+        |  class R[A](f: List[A] => A)(g: A => Any)
+        |  def f: List[String] => String = _.foldRight("")(_+_)
+        |  val r = new R(f)(_.substring(3))
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testSCL9555() = {
+    val text =
+      """
+        |object Test {
+        |  case class PrintedColumn[T](
+        |                               name: String,
+        |                               value: T => Any,
+        |                               color: T => String = { _: T => "blue" })
+        |  case class Foo(a: Int, b: String)
+        |  val col: PrintedColumn[Foo] = PrintedColumn("a", _.a)
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testSCL10149() = {
+    val text =
+      """
+        |object SCL10149{
+        |
+        |  trait Functor[F[_]] {
+        |    def map[A, B](fa: F[A])(f: A => B): F[B]
+        |  }
+        |
+        |  trait Applicative[F[_]] extends Functor[F] {
+        |    def apply[A, B](fab: F[A => B])(fa: F[A]): F[B] =
+        |      map2(fab, fa)((ab, a) => ab(a))
+        |
+        |    def unit[A](a: => A): F[A]
+        |
+        |    def map2[A, B, C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] =
+        |      apply(apply(unit(f.curried))(fa))(fb)
+        |  }
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testSCL10151() = {
+    val text =
+      """
+        |object Test {
+        |
+        |  case class Failure[E](head: E, tail: Vector[E] = Vector.empty[E])
+        |
+        |  val v1: Failure[String] = Failure("zonk")
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testSCL10264() = {
+    checkTextHasNoErrors(
+      """
+        |import scala.language.higherKinds
+        |
+        |trait Functor [F[_]] {
+        |  def map [A, B] (fa: F[A]) (f: A => B): F[B]
+        |}
+        |
+        |trait Applicative [F[_]] extends Functor[F] {
+        |  def apply [A, B] (fab: F[A => B]) (fa: F[A]): F[B] = map2(fab, fa) (_(_))
+        |  def unit [A] (a: => A): F[A]
+        |  def map [A, B] (fa: F[A]) (f: A => B): F[B] = apply(unit(f))(fa) // <-- (fa) is highlighted, error message: "Type mismatch, expected: F[Nothing], actual: F[A]"
+        |  def map2 [A, B, C] (fa: F[A], fb: F[B]) (f: (A, B) => C): F[C]
+        |}
+        |""".stripMargin
+    )
+  }
 }
