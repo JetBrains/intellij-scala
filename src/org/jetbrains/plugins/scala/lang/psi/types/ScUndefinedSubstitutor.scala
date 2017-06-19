@@ -61,7 +61,7 @@ object ScUndefinedSubstitutor {
             }
           case (ex: ScExistentialType, _, data) => (false, ex, data ++ ex.boundNames)
           case (tp, _, data) => (false, tp, data)
-        }, variance)
+        }, variance, revertVariances = true)
     }
     updated.unpackedType
   }

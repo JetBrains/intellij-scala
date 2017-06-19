@@ -71,7 +71,7 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                           variance: Int = 1): ScType = {
+                                           variance: Int = 1, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>

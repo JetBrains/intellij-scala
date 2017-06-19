@@ -97,15 +97,15 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                           variance: Int = 1): ScType = {
+                                           variance: Int = 1, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
         val des = designator.extractDesignated(expandAliases = false) match {
           case Some(n: ScTypeParametersOwner) =>
             n.typeParameters.map {
-              case tp if tp.isContravariant => -1
-              case tp if tp.isCovariant => 1
+              case tp if tp.isContravariant => ScTypeParam.Contravariant
+              case tp if tp.isCovariant => ScTypeParam.Covariant
               case _ => 0
             }
           case _ => Seq.empty
@@ -114,7 +114,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
           typeArguments.zipWithIndex.map {
             case (ta, i) =>
               val v = if (i < des.length) des(i) else 0
-              ta.recursiveVarianceUpdateModifiable(newData, update, v * variance)
+              ta.recursiveVarianceUpdateModifiable(newData, update, v * (if (revertVariances) -1 else 1) * (variance + 1 - Math.abs(variance)))
           })
     }
   }
