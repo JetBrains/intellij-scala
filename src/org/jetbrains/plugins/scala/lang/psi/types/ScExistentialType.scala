@@ -56,7 +56,7 @@ case class ScExistentialType(quantified: ScType,
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                           variance: Int = 1): ScType = {
+                                           variance: Int = 1, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
@@ -484,7 +484,7 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                                    variance: Int = 1): ScType = {
+                                                    variance: Int = 1, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, _) =>
