@@ -1,13 +1,10 @@
-package org.jetbrains.plugins.scala.failed.typeInference
+package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
-import org.junit.experimental.categories.Category
 
 /**
   * @author Nikolay.Tropin
   */
-@Category(Array(classOf[PerfCycleTests]))
 class CurriedConformanceTest extends TypeConformanceTestBase {
 
   def testSCL7488(): Unit = {
