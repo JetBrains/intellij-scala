@@ -1,0 +1,19 @@
+<html>
+<body>
+Replaces an if statement that evaluates to an Option with filter.
+
+<p>
+Before:
+<pre>
+if (method(x)) Some(x) else None
+</pre>
+
+<br>
+After:
+<pre>
+Option(x).filter(method)
+</pre>
+</p>
+
+</body>
+</html>
