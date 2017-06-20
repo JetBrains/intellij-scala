@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplate
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Path, TypeArgs}
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.XmlExpr
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 import scala.annotation.tailrec
 
@@ -100,7 +101,7 @@ trait SimpleExpr extends ParserNode with ScalaTokenTypes {
                   builder error ErrMsg("wrong.expression")
                 }
               }
-              if (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+              if (builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRPARENTHESIS)) {
                 builder.advanceLexer()
                 isTuple = true
               }

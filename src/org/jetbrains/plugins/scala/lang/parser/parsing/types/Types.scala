@@ -6,6 +6,7 @@ package types
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -39,7 +40,7 @@ trait Types extends ParserNode {
       return (false,isTuple)
     }
     var exit = true
-    while (exit && builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+    while (exit && builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRPARENTHESIS)) {
       isTuple = true
       builder.advanceLexer() //Ate ,
       if (!typesParse) {

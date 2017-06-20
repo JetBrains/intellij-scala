@@ -84,7 +84,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          Tuple
+          ExpressionInParenthesis
             PsiElement(()('(')
             PsiWhiteSpace('\n    ')
             Literal

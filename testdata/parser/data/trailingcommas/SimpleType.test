@@ -70,16 +70,15 @@ ScalaFile
             <empty list>
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          TupleType: (
+          TypeInParenthesis: (
     Int,
     )
             PsiElement(()('(')
             PsiWhiteSpace('\n    ')
-            TypesList
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(,)(',')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
             PsiWhiteSpace('\n    ')
             PsiElement())(')')
           PsiWhiteSpace(' ')
