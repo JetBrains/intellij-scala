@@ -51,7 +51,11 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       .map(createLibraryData)
       .map(l => l.getExternalName -> l)
       .toMap
-    libraries.values
+    val cbtLibraries = (project \ "cbtLibraries" \ "library")
+      .map(createLibraryData)
+
+    Seq(libraries.values, cbtLibraries)
+      .flatten
       .map(createLibraryNode(projectNode))
       .foreach(projectNode.addChild)
 
@@ -60,7 +64,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       .map(m => m.getExternalName -> m)
       .toMap
     (project \ "modules" \ "module")
-      .map(m => createModuleNode(projectNode, libraries, modules, modules((m \ "@name").text.trim), m))
+      .map(m => createModuleNode(projectNode, libraries, cbtLibraries, modules, modules((m \ "@name").text.trim), m))
       .foreach(projectNode.addChild)
 
     projectNode.addChild(createProjectData(projectNode, project))
@@ -85,12 +89,15 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       (module \ "@root").text,
       (module \ "@root").text)
 
-  private def createModuleNode(parent: DataNode[_], libraries: Map[String, LibraryData],
+  private def createModuleNode(parent: DataNode[_], libraries: Map[String, LibraryData], cbtLibraries: Seq[LibraryData],
                                modules: Map[String, ModuleData], moduleData: ModuleData, module: Node) = {
     val moduleNode = new DataNode(ProjectKeys.MODULE, moduleData, parent)
     moduleNode.addChild(createContentRoot(module, moduleNode))
     (module \ "dependencies" \ "binaryDependency")
       .map(d => createLibraryDependencyNode(moduleNode, libraries(d.text.trim)))
+      .foreach(moduleNode.addChild)
+    cbtLibraries
+      .map(createLibraryDependencyNode(moduleNode, _))
       .foreach(moduleNode.addChild)
     Seq(module \ "dependencies" \ "moduleDependency", module \ "parentBuild")
       .flatten
