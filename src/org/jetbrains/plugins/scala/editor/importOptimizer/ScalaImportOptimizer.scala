@@ -722,14 +722,18 @@ object ScalaImportOptimizer {
           group != ScalaCodeStyleSettings.BLANK_LINE && (group == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS ||
             prefix.startsWith(group))
         }
-        val elem = suitable.tail.foldLeft(suitable.head) { (l, r) =>
-          if (l == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) r
-          else if (r == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) l
-          else if (r.startsWith(l)) r
-          else l
+        if (suitable.length == 0) 0
+        else {
+          val elem = suitable.tail.foldLeft(suitable.head) { (l, r) =>
+            if (l == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) r
+            else if (r == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) l
+            else if (r.startsWith(l)) r
+            else l
+          }
+
+          groups.indexOf(elem)
         }
 
-        groups.indexOf(elem)
     }
   }
 
