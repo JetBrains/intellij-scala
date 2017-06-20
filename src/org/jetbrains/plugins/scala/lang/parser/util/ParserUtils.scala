@@ -5,9 +5,11 @@ package util
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiBuilder.Marker
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.DebugPrint
 
 import scala.annotation.tailrec
@@ -40,7 +42,6 @@ object ParserUtils extends ParserUtilsBase {
     if (builder.eof()) /*builder error "unexpected end of file"; */ return
 
     if (lastSet.contains(builder.getTokenType)) builder.advanceLexer()
-    return
   }
 
   def eatSeqWildcardNext(builder: PsiBuilder): Boolean = {
@@ -172,5 +173,41 @@ object ParserUtils extends ParserUtilsBase {
         }
       case _ => true
     }
+  }
+
+  def countNewLinesBeforeCurrentTokenRaw(builder: ScalaPsiBuilder): Int = {
+    var i = 1
+    while (i < builder.getCurrentOffset && TokenSets.WHITESPACE_OR_COMMENT_SET.contains(builder.rawLookup(-i))) i += 1
+    val textBefore = builder.getOriginalText.subSequence(builder.rawTokenTypeStart(-i + 1), builder.rawTokenTypeStart(0)).toString
+    if (!textBefore.contains('\n')) return 0
+    val lines = s"start $textBefore end".split('\n')
+    if (lines.exists(_.forall(StringUtil.isWhiteSpace))) 2
+    else 1
+  }
+  
+  def isTrailingCommasEnabled(builder: ScalaPsiBuilder): Boolean = 
+    ScalaProjectSettings.getInstance(builder.getProject).isTrailingCommasEnabled
+
+  def isTrailingComma(builder: ScalaPsiBuilder, expectedBrace: IElementType): Boolean = {
+    if (builder.getTokenType != ScalaTokenTypes.tCOMMA) return false
+
+    isTrailingCommasEnabled(builder) && {
+      val marker = builder.mark()
+
+      builder.advanceLexer()
+      val s = builder.getTokenType == expectedBrace && countNewLinesBeforeCurrentTokenRaw(builder) > 0
+
+      marker.rollbackTo()
+
+      s
+    }
+  }
+
+  def eatTrailingComma(builder: ScalaPsiBuilder, expectedBrace: IElementType): Boolean = {
+    if (!isTrailingComma(builder, expectedBrace)) return false
+
+    builder.advanceLexer() //eat `,`
+
+    true
   }
 }

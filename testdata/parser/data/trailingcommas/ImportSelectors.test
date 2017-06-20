@@ -1,0 +1,44 @@
+trait ImportSelectors {
+  import foo.{
+  Ev0,
+  Ev1,
+  }
+}
+-----
+ScalaFile
+  ScTrait: ImportSelectors
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ImportSelectors')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: foo
+              PsiElement(identifier)('foo')
+            PsiElement(.)('.')
+            ImportSelectors
+              PsiElement({)('{')
+              PsiWhiteSpace('\n  ')
+              ImportSelector
+                CodeReferenceElement: Ev0
+                  PsiElement(identifier)('Ev0')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n  ')
+              ImportSelector
+                CodeReferenceElement: Ev1
+                  PsiElement(identifier)('Ev1')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -6,6 +6,7 @@ package params
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -22,15 +23,15 @@ object FunTypeParamClause {
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>
         builder.advanceLexer() //Ate [
-        builder.disableNewlines
+        builder.disableNewlines()
       case _ =>
-        funMarker.drop
+        funMarker.drop()
         return false
     }
     if (!TypeParam.parse(builder, mayHaveVariance = false)) {
       builder error ErrMsg("wrong.parameter")
     }
-    while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+    while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRSQBRACKET)) {
       builder.advanceLexer() //Ate
       if (!TypeParam.parse(builder, mayHaveVariance = false)) {
         builder error ErrMsg("wrong.parameter")
@@ -38,11 +39,11 @@ object FunTypeParamClause {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tRSQBRACKET =>
-        builder.advanceLexer //Ate ]
+        builder.advanceLexer() //Ate ]
       case _ => builder error ErrMsg("wrong.parameter")
     }
-    builder.restoreNewlinesState
+    builder.restoreNewlinesState()
     funMarker.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)
-    return true
+    true
   }
 }

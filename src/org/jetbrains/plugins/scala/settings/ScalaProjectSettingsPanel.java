@@ -86,6 +86,7 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox myProjectViewHighlighting;
   private JComboBox scalaMetaMode;
   private JCheckBox metaTrimBodies;
+  private JCheckBox trailingCommasEnabledCheckBox;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private Project myProject;
   private JBList librariesList;
@@ -227,6 +228,8 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setScalaMetaMode((ScalaProjectSettings.ScalaMetaMode) scalaMetaMode.getModel().getSelectedItem());
     scalaProjectSettings.setMetaTrimMethodBodies(metaTrimBodies.isSelected());
 
+    scalaProjectSettings.setTrailingCommasEnabled(trailingCommasEnabledCheckBox.isSelected());
+    
     if (myProject != null && myProject.isDefault())
       ((JarCacheModel) librariesList.getModel()).commit();
 
@@ -340,6 +343,8 @@ public class ScalaProjectSettingsPanel {
     if (!scalaProjectSettings.getScalaMetaMode().equals(scalaMetaMode.getModel().getSelectedItem())) return true;
     if (scalaProjectSettings.isMetaTrimMethodBodies() != metaTrimBodies.isSelected()) return true;
 
+    if (scalaProjectSettings.isTrailingCommasEnabled() != trailingCommasEnabledCheckBox.isSelected()) return true;
+    
     return false;
   }
 
@@ -400,6 +405,8 @@ public class ScalaProjectSettingsPanel {
             scalaProjectSettings.getBundledLibJarsPathsToInspections(),
             scalaProjectSettings.getBundledInspectionIdsDisabled(), myProject));
 
+    setValue(trailingCommasEnabledCheckBox, scalaProjectSettings.isTrailingCommasEnabled());
+    
     injectionPrefixTable.loadSettings(scalaProjectSettings);
 
     scalaMetaMode.getModel().setSelectedItem(scalaProjectSettings.getScalaMetaMode());

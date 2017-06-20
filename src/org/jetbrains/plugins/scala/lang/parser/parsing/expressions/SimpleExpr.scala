@@ -77,17 +77,17 @@ trait SimpleExpr extends ParserNode with ScalaTokenTypes {
       case ScalaTokenTypes.tLPARENTHESIS =>
         state = true
         builder.advanceLexer()
-        builder.disableNewlines
+        builder.disableNewlines()
         builder.getTokenType match {
           case ScalaTokenTypes.tRPARENTHESIS =>
             builder.advanceLexer()
-            builder.restoreNewlinesState
+            builder.restoreNewlinesState()
             newMarker = simpleMarker.precede
             simpleMarker.done(ScalaElementTypes.UNIT_EXPR)
           case _ =>
             if (!expr.parse(builder)) {
               builder error ErrMsg("rparenthesis.expected")
-              builder.restoreNewlinesState
+              builder.restoreNewlinesState()
               newMarker = simpleMarker.precede
               simpleMarker.done(ScalaElementTypes.UNIT_EXPR)
             } else {
@@ -109,7 +109,7 @@ trait SimpleExpr extends ParserNode with ScalaTokenTypes {
               } else {
                 builder.advanceLexer()
               }
-              builder.restoreNewlinesState
+              builder.restoreNewlinesState()
               newMarker = simpleMarker.precede
               simpleMarker.done(if (isTuple) ScalaElementTypes.TUPLE else ScalaElementTypes.PARENT_EXPR)
             }
@@ -174,6 +174,7 @@ trait SimpleExpr extends ParserNode with ScalaTokenTypes {
       }
     }
     subparse(newMarker)
-    return true
+    
+    true
   }
 }
