@@ -6,6 +6,7 @@ package top.params
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -31,47 +32,45 @@ trait ImplicitClassParamClause {
     //Look for '('
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>
-        builder.advanceLexer //Ate '('
-        builder.disableNewlines
+        builder.advanceLexer() //Ate '('
+        builder.disableNewlines()
         //Look for implicit
         builder.getTokenType match {
-          case ScalaTokenTypes.kIMPLICIT => {
+          case ScalaTokenTypes.kIMPLICIT =>
             //It's ok
-            builder.advanceLexer //Ate implicit
-          }
-          case _ => {
+            builder.advanceLexer() //Ate implicit
+          case _ =>
             builder error ErrMsg("wrong.parameter")
-          }
         }
         //ok, let's parse parameters
         if (!(classParam parse builder)) {
-          classParamMarker.rollbackTo
-          builder.restoreNewlinesState
+          classParamMarker.rollbackTo()
+          builder.restoreNewlinesState()
           return false
         }
-        while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-          builder.advanceLexer //Ate ,
+        while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRPARENTHESIS)) {
+          builder.advanceLexer() //Ate ,
           if (!(classParam parse builder)) {
-            classParamMarker.rollbackTo
-            builder.restoreNewlinesState
+            classParamMarker.rollbackTo()
+            builder.restoreNewlinesState()
             return false
           }
         }
       case _ =>
-        classParamMarker.rollbackTo
+        classParamMarker.rollbackTo()
         return false
     }
     //Look for ')'
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS =>
-        builder.advanceLexer //Ate )
-        builder.restoreNewlinesState
+        builder.advanceLexer() //Ate )
+        builder.restoreNewlinesState()
         classParamMarker.done(ScalaElementTypes.PARAM_CLAUSE)
-        return true
+        true
       case _ =>
-        builder.restoreNewlinesState
-        classParamMarker.rollbackTo
-        return false
+        builder.restoreNewlinesState()
+        classParamMarker.rollbackTo()
+        false
     }
   }
 }

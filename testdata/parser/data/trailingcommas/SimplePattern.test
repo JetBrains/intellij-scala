@@ -1,0 +1,228 @@
+trait SimplePattern {
+  val (
+    foo,
+    bar,
+    ) = null: Any
+
+  // test '@' syntax in patterns
+  Some(1) match {
+    case Some(x @ 1,
+    ) => x
+  }
+
+  // test ': _*' syntax in patterns
+  List(1, 2, 3) match {
+    case List(1, 2, _ @ _*,
+    ) => 1
+  }
+
+  // test varargs in patterns
+  val List(x, y, _*,
+  ) = 42 :: 17 :: Nil
+}
+-----
+ScalaFile
+  ScTrait: SimplePattern
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SimplePattern')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            TuplePattern
+              PsiElement(()('(')
+              PsiWhiteSpace('\n    ')
+              ArgumentPatterns
+                ReferencePattern: foo
+                  PsiElement(identifier)('foo')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n    ')
+                ReferencePattern: bar
+                  PsiElement(identifier)('bar')
+                PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TypedStatement
+            Literal
+              PsiElement(null)('null')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// test '@' syntax in patterns')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          MethodCall
+            ReferenceExpression: Some
+              PsiElement(identifier)('Some')
+            ArgumentList
+              PsiElement(()('(')
+              Literal
+                PsiElement(integer)('1')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: Some
+                  PsiElement(identifier)('Some')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  NamingPattern: x
+                    PsiElement(identifier)('x')
+                    PsiWhiteSpace(' ')
+                    PsiElement(@)('@')
+                    PsiWhiteSpace(' ')
+                    LiteralPattern
+                      Literal
+                        PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// test ': _*' syntax in patterns')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          MethodCall
+            ReferenceExpression: List
+              PsiElement(identifier)('List')
+            ArgumentList
+              PsiElement(()('(')
+              Literal
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Literal
+                PsiElement(integer)('2')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Literal
+                PsiElement(integer)('3')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: List
+                  PsiElement(identifier)('List')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  LiteralPattern
+                    Literal
+                      PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    Literal
+                      PsiElement(integer)('2')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  NamingPattern: _
+                    PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement(@)('@')
+                    PsiWhiteSpace(' ')
+                    Sequence Wildcard
+                      PsiElement(_)('_')
+                      PsiElement(identifier)('*')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                Literal
+                  PsiElement(integer)('1')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition
+          PsiComment(comment)('// test varargs in patterns')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ConstructorPattern
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+              Pattern Argument List
+                PsiElement(()('(')
+                ReferencePattern: x
+                  PsiElement(identifier)('x')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferencePattern: y
+                  PsiElement(identifier)('y')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Sequence Wildcard
+                  PsiElement(_)('_')
+                  PsiElement(identifier)('*')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n  ')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            Literal
+              PsiElement(integer)('42')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ::
+              PsiElement(identifier)('::')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              Literal
+                PsiElement(integer)('17')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ::
+                PsiElement(identifier)('::')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: Nil
+                PsiElement(identifier)('Nil')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -6,6 +6,7 @@ package top.params
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -31,41 +32,40 @@ trait ClassParamClause {
     //Look for '('
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>
-        builder.advanceLexer //Ate '('
-        builder.disableNewlines
+        builder.advanceLexer() //Ate '('
+        builder.disableNewlines()
         builder.getTokenType match {
-          case ScalaTokenTypes.kIMPLICIT => {
-            classParamMarker.rollbackTo
-            builder.restoreNewlinesState
+          case ScalaTokenTypes.kIMPLICIT =>
+            classParamMarker.rollbackTo()
+            builder.restoreNewlinesState()
             return false
-          }
-          case _ => {}
+          case _ =>
         }
         //ok, let's parse parameters
         if (classParam parse builder) {
-          while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-            builder.advanceLexer //Ate ,
+          while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRPARENTHESIS)) {
+            builder.advanceLexer() //Ate ,
             if (!(classParam parse builder)) {
               builder error ErrMsg("wrong.parameter")
             }
           }
         }
       case _ =>
-        classParamMarker.rollbackTo
+        classParamMarker.rollbackTo()
         return false
     }
     //Look for ')'
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS =>
-        builder.advanceLexer //Ate )
-        builder.restoreNewlinesState
+        builder.advanceLexer() //Ate )
+        builder.restoreNewlinesState()
         classParamMarker.done(ScalaElementTypes.PARAM_CLAUSE)
-        return true
+        true
       case _ =>
         classParamMarker.done(ScalaElementTypes.PARAM_CLAUSE)
         builder error ErrMsg("rparenthesis.expected")
-        builder.restoreNewlinesState
-        return true
+        builder.restoreNewlinesState()
+        true
     }
   }
 }

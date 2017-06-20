@@ -6,6 +6,7 @@ package expressions
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -30,21 +31,20 @@ trait ArgumentExprs {
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
-        builder.disableNewlines
+        builder.disableNewlines()
         expr parse builder
-        while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+        while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRPARENTHESIS)) {
           builder.advanceLexer()
-          if (!expr.parse(builder)) {
-            builder error ErrMsg("wrong.expression")
-          }
+          if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
         }
+      
         builder.getTokenType match {
           case ScalaTokenTypes.tRPARENTHESIS =>
             builder.advanceLexer() //Ate )
           case _ =>
             builder error ScalaBundle.message("rparenthesis.expected")
         }
-        builder.restoreNewlinesState
+        builder.restoreNewlinesState()
         argMarker.done(ScalaElementTypes.ARG_EXPRS)
         true
       case ScalaTokenTypes.tLBRACE =>
