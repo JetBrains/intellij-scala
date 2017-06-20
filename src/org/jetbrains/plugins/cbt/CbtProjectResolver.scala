@@ -71,7 +71,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     new DataNode(CbtProjectData.Key, new CbtProjectData(), projectDateNode)
 
   private def createExtModuleData(moduleDataNode: DataNode[ModuleData], node: Node) = {
-    val scalacClasspath = (node \ "classpaths" \ "classpathItem")
+    val scalacClasspath = (node \ "classpath" \ "classpathItem")
       .map(t => new File(t.text.trim))
     new DataNode(CbtModuleExtData.Key,
       new CbtModuleExtData(Version((node \ "@scalaVersion").text.trim), scalacClasspath), moduleDataNode)
@@ -89,7 +89,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
                                modules: Map[String, ModuleData], moduleData: ModuleData, module: Node) = {
     val moduleNode = new DataNode(ProjectKeys.MODULE, moduleData, parent)
     moduleNode.addChild(createContentRoot(module, moduleNode))
-    (module \ "dependencies" \ "libraryDependency")
+    (module \ "dependencies" \ "binaryDependency")
       .map(d => createLibraryDependencyNode(moduleNode, libraries(d.text.trim)))
       .foreach(moduleNode.addChild)
     Seq(module \ "dependencies" \ "moduleDependency", module \ "parentBuild")
