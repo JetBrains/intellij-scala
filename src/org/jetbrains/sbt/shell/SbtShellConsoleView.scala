@@ -69,7 +69,7 @@ object SbtShellConsoleView {
     val fileWithLineFormat = new PatternHyperlinkFormat(fileWithLinePattern, false, false, null, PATH, LINE)
 
     // file output without lines in messages
-    val fileOnlyPattern = pattern(s"${RegexpFilter.FILE_PATH_MACROS}")
+    val fileOnlyPattern = pattern(RegexpFilter.FILE_PATH_MACROS)
     val fileOnlyFormat = new PatternHyperlinkFormat(fileOnlyPattern, false, false, null, PATH)
 
     val dataFinder = new PatternBasedFileHyperlinkRawDataFinder(Array(fileWithLineFormat, fileOnlyFormat))
