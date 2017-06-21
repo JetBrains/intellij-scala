@@ -9,12 +9,12 @@ class CbtProjectSettings extends ExternalProjectSettings {
   super.setUseAutoImport(true)
 
   @BeanProperty
-  var linkCbtLibs = true
+  var isCbt = false
 
   override def clone(): CbtProjectSettings = {
     val result = new CbtProjectSettings()
     copyTo(result)
-    result.linkCbtLibs = linkCbtLibs
+    result.isCbt = isCbt
     result
   }
 }

@@ -28,17 +28,17 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     val projectPath = settings.realProjectPath
     val root = new File(projectPath)
     println("Cbt resolver called")
-    val xml = XML.loadString(CBT.runAction(Seq("buildInfoXml"), root, Some((id, listener))))
+    val xml = XML.loadString(CBT.runAction(Seq("buildInfoXml"), root, Some(id, listener)))
     println(xml.toString)
-    val r = convert(xml, settings.linnkCbtLibs)
+    val r = convert(xml, settings.isCbt)
     r
   }
 
 
-  private def convert(project: Node, linkCbtLibs: Boolean) =
-    convertProject(project, linkCbtLibs)
+  private def convert(project: Node, isCbt: Boolean) =
+    convertProject(project, isCbt)
 
-  private def convertProject(project: Node, linkCbtLibs: Boolean) = {
+  private def convertProject(project: Node, isCbt: Boolean) = {
     val projectData = new ProjectData(CbtProjectSystem.Id,
       (project \ "@name").text,
       (project \ "@root").text,
@@ -51,10 +51,11 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       .map(l => l.getExternalName -> l)
       .toMap
     val cbtLibraries =
-      if (linkCbtLibs)
+      if (!isCbt)
         (project \ "cbtLibraries" \ "library")
           .map(createLibraryData)
-      else Seq.empty
+      else
+        Seq.empty
 
     Seq(libraries.values, cbtLibraries)
       .flatten
@@ -66,7 +67,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       .map(m => m.getExternalName -> m)
       .toMap
     (project \ "modules" \ "module")
-      .map(m => createModuleNode(projectNode, libraries, cbtLibraries, modules, modules((m \ "@name").text.trim), m))
+      .map(m => createModuleNode(projectNode, libraries, cbtLibraries, modules, modules((m \ "@name").text.trim), isCbt, m))
       .foreach(projectNode.addChild)
 
     projectNode.addChild(createProjectData(projectNode, project))
@@ -92,9 +93,9 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       (module \ "@root").text)
 
   private def createModuleNode(parent: DataNode[_], libraries: Map[String, LibraryData], cbtLibraries: Seq[LibraryData],
-                               modules: Map[String, ModuleData], moduleData: ModuleData, module: Node) = {
+                               modules: Map[String, ModuleData], moduleData: ModuleData, isCbt: Boolean, module: Node) = {
     val moduleNode = new DataNode(ProjectKeys.MODULE, moduleData, parent)
-    moduleNode.addChild(createContentRoot(module, moduleNode))
+    moduleNode.addChild(createContentRoot(module, moduleNode, isCbt))
     (module \ "dependencies" \ "binaryDependency")
       .map(d => createLibraryDependencyNode(moduleNode, libraries(d.text.trim)))
       .foreach(moduleNode.addChild)
@@ -107,6 +108,15 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       .map(createModuleDependency(moduleNode))
       .foreach(moduleNode.addChild)
     moduleNode.addChild(createExtModuleData(moduleNode, module))
+
+    if (isCbt) {
+      for {//Dirty hack for now :)
+        m <- modules.values
+        if m.getExternalName != moduleData.getExternalName
+      } {
+        moduleNode.addChild(createModuleDependency(moduleNode)(m))
+      }
+    }
     moduleNode
   }
 
@@ -115,7 +125,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     new DataNode(ProjectKeys.MODULE_DEPENDENCY, moduleDependencyData, parent)
   }
 
-  private def createContentRoot(module: Node, parent: DataNode[_]) = {
+  private def createContentRoot(module: Node, parent: DataNode[_], isCbt: Boolean) = {
     val rootPath = Paths.get((module \ "@root").text).toAbsolutePath
     val contentRootData = new ContentRootData(CbtProjectSystem.Id, rootPath.toString)
     (module \ "sources" \ "source")
@@ -124,6 +134,12 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       .filter(s => s.toAbsolutePath.startsWith(rootPath))
       .foreach(s => contentRootData.storePath(ExternalSystemSourceType.SOURCE, s.toString))
     contentRootData.storePath(ExternalSystemSourceType.EXCLUDED, (module \ "@target").text.trim)
+    if (isCbt) {
+      val moduleName = (module \ "@name").text.trim
+      if (moduleName == "cbt") {
+        contentRootData.storePath(ExternalSystemSourceType.EXCLUDED, rootPath.resolve("cache").toAbsolutePath.toString)
+      }
+    }
     new DataNode(ProjectKeys.CONTENT_ROOT, contentRootData, parent)
   }
 

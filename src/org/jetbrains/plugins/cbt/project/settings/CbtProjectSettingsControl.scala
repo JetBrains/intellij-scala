@@ -9,26 +9,26 @@ import org.jetbrains.sbt.project.settings.Context
 
 class CbtProjectSettingsControl(context: Context, initialSettings: CbtProjectSettings)
   extends AbstractExternalProjectSettingsControl[CbtProjectSettings](initialSettings) {
-  private val linkCbtLibsCheckBox = new JCheckBox("Link CBT libraries")
+  private val isCbtCheckBox = new JCheckBox("This is CBT source code")
 
   override def applyExtraSettings(settings: CbtProjectSettings): Unit = {
-    settings.linkCbtLibs = linkCbtLibsCheckBox.isSelected
+    settings.isCbt = isCbtCheckBox.isSelected
   }
 
   override def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
     val initial = getInitialSettings
-    linkCbtLibsCheckBox.setSelected(initial.linkCbtLibs)
+    isCbtCheckBox.setSelected(initial.isCbt)
   }
 
   override def fillExtraControls(content: PaintAwarePanel, indentLevel: Int): Unit = {
     val fillLineConstraints = getFillLineConstraints(indentLevel)
 
-    content.add(linkCbtLibsCheckBox, fillLineConstraints)
+    content.add(isCbtCheckBox, fillLineConstraints)
   }
 
   override def isExtraSettingModified: Boolean = {
     val initial = getInitialSettings
-    linkCbtLibsCheckBox.isSelected != initial.linkCbtLibs
+    isCbtCheckBox.isSelected != initial.isCbt
   }
 
   override def validate(settings: CbtProjectSettings): Boolean = true
