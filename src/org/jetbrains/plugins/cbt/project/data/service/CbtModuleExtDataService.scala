@@ -31,10 +31,8 @@ object CbtModuleExtDataService {
       dataToImport.foreach(node => doImport(node))
     }
 
-    def doImport(dataNode: DataNode[CbtModuleExtData]): Unit = {
-      for {
-        module <- getIdeModuleByNode(dataNode)
-      } {
+    def doImport(dataNode: DataNode[CbtModuleExtData]): Unit =
+      getIdeModuleByNode(dataNode).foreach { module =>
         val data = dataNode.getData
         module.configureScalaCompilerSettingsFrom("CBT", data.scalacOptions)
         val scalaLibraries = getScalaLibraries(module, Platform.Scala)
@@ -44,7 +42,6 @@ object CbtModuleExtDataService {
         val model = getModifiableRootModel(module)
         model.inheritSdk()
       }
-    }
   }
 
 }

@@ -112,14 +112,10 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       .foreach(moduleNode.addChild)
     moduleNode.addChild(createExtModuleData(moduleNode, module))
 
-    if (isCbt) {
-      for {//Dirty hack for now :)
-        m <- modules.values
-        if m.getExternalName != moduleData.getExternalName
-      } {
-        moduleNode.addChild(createModuleDependency(moduleNode)(m))
-      }
-    }
+    modules.values //Dirty hack for now :)
+      .filter(_.getExternalName != moduleData.getExternalName)
+      .map(createModuleDependency(moduleNode))
+      .foreach(moduleNode.addChild)
     moduleNode
   }
 
