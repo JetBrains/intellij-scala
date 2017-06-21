@@ -6,6 +6,7 @@ package expressions
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -34,7 +35,7 @@ trait Bindings {
         return false
     }
     binding parse builder
-    while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+    while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRPARENTHESIS)) {
       builder.advanceLexer() //Ate ,
       if (!binding.parse(builder)) {
         builder error ErrMsg("wrong.binding")

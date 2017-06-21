@@ -6,6 +6,7 @@ package params
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -26,16 +27,16 @@ trait TypeParamClause {
     val typeMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>
-        builder.advanceLexer //Ate [
-        builder.disableNewlines
+        builder.advanceLexer() //Ate [
+        builder.disableNewlines()
       case _ =>
-        typeMarker.drop
+        typeMarker.drop()
         return false
     }
     if (!typeParam.parse(builder, mayHaveVariance = true)) {
       builder error ScalaBundle.message("wrong.parameter")
     }
-    while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+    while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRSQBRACKET)) {
       builder.advanceLexer() //Ate
       if (!typeParam.parse(builder, mayHaveVariance = true)) {
         builder error ScalaBundle.message("wrong.parameter")
@@ -43,12 +44,12 @@ trait TypeParamClause {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tRSQBRACKET =>
-        builder.advanceLexer //Ate ]
+        builder.advanceLexer() //Ate ]
       case _ =>
         builder error ScalaBundle.message("rsqbracket.expected")
     }
-    builder.restoreNewlinesState
+    builder.restoreNewlinesState()
     typeMarker.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)
-    return true
+    true
   }
 }

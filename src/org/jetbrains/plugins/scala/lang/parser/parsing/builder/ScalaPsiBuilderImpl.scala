@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.builder
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
-import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 import scala.collection.mutable
@@ -34,26 +32,20 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
     if (eof) return 0
     if (!ParserUtils.elementCanStartStatement(getTokenType, this)) return 0
 
-    var i = 1
-    while (i < getCurrentOffset && TokenSets.WHITESPACE_OR_COMMENT_SET.contains(rawLookup(-i))) i += 1
-    val textBefore = getOriginalText.subSequence(rawTokenTypeStart(-i + 1), rawTokenTypeStart(0)).toString
-    if (!textBefore.contains('\n')) return 0
-    val lines = s"start $textBefore end".split('\n')
-    if (lines.exists(_.forall(StringUtil.isWhiteSpace))) 2
-    else 1
+    ParserUtils.countNewLinesBeforeCurrentTokenRaw(this)
   }
 
   def isNewlinesEnabled: Boolean = newlinesEnabled.isEmpty || newlinesEnabled.top
 
-  def disableNewlines {
+  def disableNewlines() {
     newlinesEnabled.push(false)
   }
 
-  def enableNewlines {
+  def enableNewlines() {
     newlinesEnabled.push(true)
   }
 
-  def restoreNewlinesState {
+  def restoreNewlinesState() {
     assert(newlinesEnabled.nonEmpty)
     newlinesEnabled.pop()
   }

@@ -25,61 +25,65 @@ object ImportSelectors extends ParserNode {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer() //Ate {
-        builder.enableNewlines
+        builder.enableNewlines()
       case _ =>
         builder error ErrMsg("lbrace.expected")
         importSelectorMarker.drop()
         return false
     }
+    
+    def doneImportSelectors() {
+      builder.advanceLexer()
+      builder.restoreNewlinesState()
+      importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
+    }
+    
     //Let's parse Import selectors while we will not see Import selector or will see '}'
     while (true) {
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE =>
           builder error ErrMsg("import.selector.expected")
           builder.advanceLexer() //Ate }
-          builder.restoreNewlinesState
+          builder.restoreNewlinesState()
           importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
           return true
         case ScalaTokenTypes.tUNDER =>
           builder.advanceLexer() //Ate _
           builder.getTokenType match {
-            case ScalaTokenTypes.tRBRACE => {
+            case ScalaTokenTypes.tRBRACE =>
               builder.advanceLexer() //Ate }
-              builder.restoreNewlinesState
+              builder.restoreNewlinesState()
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
-            }
-            case _ => {
+            case _ =>
               ParserUtils.parseLoopUntilRBrace(builder, () => {}) //we need to find closing brace, otherwise we can miss important things
-              builder.restoreNewlinesState
+              builder.restoreNewlinesState()
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
-            }
           }
         case ScalaTokenTypes.tIDENTIFIER =>
           ImportSelector parse builder
+          
+          if (ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRBRACE)) {
+            doneImportSelectors()
+            return true
+          }
+          
           builder.getTokenType match {
-            case ScalaTokenTypes.tCOMMA => {
-              builder.advanceLexer() //Ate ,
-            }
-            case ScalaTokenTypes.tRBRACE => {
-              builder.advanceLexer() //Ate}
-              builder.restoreNewlinesState
+            case ScalaTokenTypes.tCOMMA => builder.advanceLexer() //Ate ,
+            case ScalaTokenTypes.tRBRACE =>
+              doneImportSelectors()
+              return true
+            case null =>
+              builder.restoreNewlinesState()
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
-            }
-            case null => {
-              builder.restoreNewlinesState
-              importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
-              return true
-            }
-            case _ => {
+            case _ =>
               builder error ErrMsg("rbrace.expected")
               builder.advanceLexer()
-            }
           }
         case null =>
-          builder.restoreNewlinesState
+          builder.restoreNewlinesState()
           importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
           return true
         case _ =>

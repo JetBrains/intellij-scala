@@ -6,6 +6,7 @@ package types
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
 
 /**
@@ -17,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
  *  typeArgs ::= '[' Types ']'
  */
 object TypeArgs extends TypeArgs {
-  override protected def parseComponent(builder: ScalaPsiBuilder) = Type.parse(builder)
+  override protected def parseComponent(builder: ScalaPsiBuilder): Boolean = Type.parse(builder)
 }
 
 trait TypeArgs {
@@ -54,7 +55,8 @@ trait TypeArgs {
 
         if (checkTypeVariable || parseComponent(builder)) {
           var parsedType = true
-          while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType) {
+          while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType && 
+            !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRSQBRACKET)) {
             builder.advanceLexer()
             parsedType = checkTypeVariable || parseComponent(builder)
             if (!parsedType) builder error ScalaBundle.message("wrong.type")

@@ -57,7 +57,7 @@ lazy val scalaCommunity: sbt.Project =
       ideaInternalPluginsJars.value
         .filterNot(cp => cp.data.getName.contains("lucene-core") || cp.data.getName.contains("junit-jupiter-api"))
     ,
-    aggregate.in(updateIdea) := false,
+    Keys.aggregate.in(updateIdea) := false,
     test in Test := test.in(Test).dependsOn(setUpTestEnvironment).value,
     testOnly in Test := testOnly.in(Test).dependsOn(setUpTestEnvironment).evaluated,
     buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
