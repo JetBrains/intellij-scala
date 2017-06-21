@@ -77,11 +77,14 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
   private def createProjectData(projectDateNode: DataNode[ProjectData], node: Node) =
     new DataNode(CbtProjectData.Key, new CbtProjectData(), projectDateNode)
 
-  private def createExtModuleData(moduleDataNode: DataNode[ModuleData], node: Node) = {
-    val scalacClasspath = (node \ "classpath" \ "classpathItem")
+  private def createExtModuleData(moduleDataNode: DataNode[ModuleData], module: Node) = {
+    val scalacClasspath = (module \ "classpath" \ "classpathItem")
       .map(t => new File(t.text.trim))
-    new DataNode(CbtModuleExtData.Key,
-      new CbtModuleExtData(Version((node \ "@scalaVersion").text.trim), scalacClasspath), moduleDataNode)
+    val scalacOptions =
+      (module \ "scalacOptions" \ "option")
+        .map(_.text)
+    val moduleExtData = new CbtModuleExtData(Version((module \ "@scalaVersion").text.trim), scalacClasspath, scalacOptions)
+    new DataNode(CbtModuleExtData.Key, moduleExtData, moduleDataNode)
   }
 
   private def createModuleData(module: Node) =

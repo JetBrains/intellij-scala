@@ -8,6 +8,7 @@ import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.cbt.structure.CbtModuleExtData
 import org.jetbrains.plugins.scala.project.{Platform, ScalaLanguageLevel}
 import org.jetbrains.sbt.project.data.service.{AbstractDataService, AbstractImporter, Importer}
+import org.jetbrains.plugins.scala.project.ModuleExt
 
 class CbtModuleExtDataService extends AbstractDataService[CbtModuleExtData, Library](CbtModuleExtData.Key) {
   override def createImporter(toImport: Seq[DataNode[CbtModuleExtData]],
@@ -34,10 +35,12 @@ object CbtModuleExtDataService {
       for {
         module <- getIdeModuleByNode(dataNode)
       } {
+        val data = dataNode.getData
+        module.configureScalaCompilerSettingsFrom("CBT", data.scalacOptions)
         val scalaLibraries = getScalaLibraries(module, Platform.Scala)
         scalaLibraries
           .headOption
-          .foreach(setScalaSdk(_, Platform.Scala, ScalaLanguageLevel.Default, dataNode.getData.scalacClasspath))
+          .foreach(setScalaSdk(_, Platform.Scala, ScalaLanguageLevel.Default, data.scalacClasspath))
         val model = getModifiableRootModel(module)
         model.inheritSdk()
       }
