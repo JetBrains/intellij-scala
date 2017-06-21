@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.cbt.project.template
 
 import java.io.File
+import javax.swing.JCheckBox
 
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
@@ -19,15 +20,14 @@ import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{Platform, Version, Versions}
-import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.{RichFile, Sbt, SbtBundle}
 import org.jetbrains.sbt.project.template.SComboBox
-import org.jetbrains.sbt.RichFile
 
 
 class CbtModuleBuilder
   extends AbstractExternalModuleBuilder[CbtProjectSettings](CbtProjectSystem.Id, new CbtProjectSettings) {
 
-  private class Selections(var scalaVersion: String = null)
+  private class Selections(var scalaVersion: String = null, var linkCbtLibs: Boolean = true)
 
   private val selections = new Selections()
 
@@ -100,13 +100,23 @@ class CbtModuleBuilder
     val scalaVersionComboBox = applyTo(new SComboBox())(
       _.setItems(loadedScalaVersions)
     )
-    val step = sdkSettingsStep(settingsStep)
 
     scalaVersionComboBox.addActionListenerEx {
       selections.scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
     }
 
-    settingsStep.addSettingsField("Scala", scalaVersionComboBox)
+    val linkCbtLibsCheckBox: JCheckBox = applyTo(new JCheckBox("Link CBT libraries"))(
+      _.setToolTipText("Link CBT kibraries to every moudle in the project (should be disabled if editing CBT's source code)"),
+      _.setSelected(selections.linkCbtLibs)
+    )
+
+    linkCbtLibsCheckBox.addActionListenerEx {
+      selections.linkCbtLibs = linkCbtLibsCheckBox.isSelected
+    }
+    val step = sdkSettingsStep(settingsStep)
+
+    settingsStep.addSettingsField("Scala:", scalaVersionComboBox)
+    settingsStep.addSettingsField("CBT:", linkCbtLibsCheckBox)
     step
   }
 
@@ -119,6 +129,8 @@ class CbtModuleBuilder
 
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
     val root = new File(getModuleFileDirectory)
+    getExternalProjectSettings.linkCbtLibs = selections.linkCbtLibs
+
     if (root.exists()) {
       updateModulePath()
       generateTemplate(root)
@@ -133,10 +145,6 @@ class CbtModuleBuilder
   }
 
   private def generateTemplate(root: File): Unit = {
-//    val srcDir = root / "src"
-//    srcDir.mkdirs()
-//    CBT.runAction(Seq("tools", "createMain"), srcDir)
-//    CBT.runAction(Seq("tools", "createBuild"), root)
     CbtProjectGenerator(root, Version(selections.scalaVersion))
   }
 

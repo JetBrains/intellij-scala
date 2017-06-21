@@ -28,8 +28,12 @@ class CbtExternalSystemManager
 
   override def getExecutionSettingsProvider: Function[Pair[Project, String], CbtExecutionSettings] =
     new Function[Pair[Project, String], CbtExecutionSettings]() {
-      override def fun(pair: Pair[Project, String]): CbtExecutionSettings =
-        new CbtExecutionSettings(pair.second)
+      override def fun(pair: Pair[Project, String]): CbtExecutionSettings = {
+        val project = pair.first
+        val path = pair.second
+        val projectSettings = CbtProjectSettings.getInstance(project, path)
+        new CbtExecutionSettings(path, projectSettings.linkCbtLibs)
+      }
     }
 
   override def getProjectResolverClass: Class[CbtProjectResolver] = classOf[CbtProjectResolver]

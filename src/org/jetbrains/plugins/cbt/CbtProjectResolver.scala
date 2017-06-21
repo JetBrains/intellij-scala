@@ -28,18 +28,17 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     val projectPath = settings.realProjectPath
     val root = new File(projectPath)
     println("Cbt resolver called")
-
     val xml = XML.loadString(CBT.runAction(Seq("buildInfoXml"), root, Some((id, listener))))
     println(xml.toString)
-    val r = convert(xml)
+    val r = convert(xml, settings.linnkCbtLibs)
     r
   }
 
 
-  private def convert(project: Node) =
-    convertProject(project)
+  private def convert(project: Node, linkCbtLibs: Boolean) =
+    convertProject(project, linkCbtLibs)
 
-  private def convertProject(project: Node) = {
+  private def convertProject(project: Node, linkCbtLibs: Boolean) = {
     val projectData = new ProjectData(CbtProjectSystem.Id,
       (project \ "@name").text,
       (project \ "@root").text,
@@ -51,8 +50,11 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       .map(createLibraryData)
       .map(l => l.getExternalName -> l)
       .toMap
-    val cbtLibraries = (project \ "cbtLibraries" \ "library")
-      .map(createLibraryData)
+    val cbtLibraries =
+      if (linkCbtLibs)
+        (project \ "cbtLibraries" \ "library")
+          .map(createLibraryData)
+      else Seq.empty
 
     Seq(libraries.values, cbtLibraries)
       .flatten
