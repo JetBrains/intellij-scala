@@ -109,16 +109,9 @@ class CbtModuleBuilder
     getExternalProjectSettings.isCbt = selections.isCbt
 
     if (root.exists()) {
-      updateModulePath()
       generateTemplate(root)
     }
     super.createModule(moduleModel)
-  }
-
-  private def updateModulePath() {
-    val file = new File(getModuleFilePath)
-    val path = file.getParent + "/" + Sbt.ModulesDirectory + "/" + file.getName.toLowerCase
-    setModuleFilePath(path)
   }
 
   private def generateTemplate(root: File): Unit = {
