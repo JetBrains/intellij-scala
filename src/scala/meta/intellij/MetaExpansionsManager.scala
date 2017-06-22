@@ -13,6 +13,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
@@ -173,7 +175,7 @@ object MetaExpansionsManager {
           case (Some(clazz), _) => Right(runDirect(clazz, compiledArgs))
           case (None, _)        => Left("Meta annotation class could not be found")
         }
-        ScalaPsiManager.instance(copied).clearAllCaches()
+        CachesUtil.updateModificationCount(copied)
 //        AnyScalaPsiModificationTracker.incModificationCount()
         errorOrTree
       } catch {
@@ -188,7 +190,7 @@ object MetaExpansionsManager {
       }
     }
 
-    runMetaAnnotationsImpl
+    extensions.inReadAction(runMetaAnnotationsImpl)
   }
 
   // use if meta versions are different within the same Scala major version
