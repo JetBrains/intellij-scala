@@ -34,7 +34,6 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     r
   }
 
-
   private def convert(project: Node, isCbt: Boolean) =
     convertProject(project, isCbt)
 
@@ -111,11 +110,22 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       .map(createModuleDependency(moduleNode))
       .foreach(moduleNode.addChild)
     moduleNode.addChild(createExtModuleData(moduleNode, module))
-    if (isCbt) {
-      modules.values //Dirty hack for now :)
-        .filter(_.getExternalName != moduleData.getExternalName)
+    if (isCbt) { //Dirty hack for now :)
+      val name = moduleData.getExternalName
+      modules.values
+        .filter { m =>
+          m.getExternalName != name &&
+          m.getExternalName.contains("libraries") &&
+          !m.getExternalName.contains("build")
+        }
         .map(createModuleDependency(moduleNode))
         .foreach(moduleNode.addChild)
+
+      if (name != "cbt") {
+        modules.get("cbt")
+          .map(createModuleDependency(moduleNode))
+          .foreach(moduleNode.addChild)
+      }
     }
     moduleNode
   }
