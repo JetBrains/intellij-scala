@@ -57,8 +57,6 @@ public class TestRunConfigurationForm {
 
   private void createUIComponents() {
     regexpTable = new JBTable();
-    regexpTable.setSelectionBackground(Color.white);
-    regexpTable.setSelectionForeground(Color.black);
     final DefaultTableModel model = (DefaultTableModel) regexpTable.getModel();
     model.addColumn("Class pattern");
     model.addColumn("Test pattern");
