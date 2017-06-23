@@ -13,12 +13,16 @@ import org.jetbrains.plugins.cbt.structure.{CbtModuleExtData, CbtProjectData}
 import org.jetbrains.plugins.scala.project.Version
 
 import scala.xml.{Node, XML}
+import scala.collection.JavaConverters._
 import org.jetbrains.sbt.RichFile
 
 class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSettings] {
 
   private case class ProjectInfo(libraries: Map[String, LibraryData],
-                                 modules: Map[String, ModuleData])
+                                 modules: Map[String, ModuleData],
+                                 cbtLibraries: Seq[LibraryData],
+                                 compilerLibraries: Map[String, LibraryData],
+                                 isCbt: Boolean)
 
   override def resolveProjectInfo(id: ExternalSystemTaskId,
                                   projectPath: String,
@@ -37,6 +41,9 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
   private def convert(project: Node, isCbt: Boolean) =
     convertProject(project, isCbt)
 
+  private def formarScalaLibrary(version: String) =
+    s"org.scala-lang:scala-library:$version"
+
   private def convertProject(project: Node, isCbt: Boolean) = {
     val projectData = new ProjectData(CbtProjectSystem.Id,
       (project \ "@name").text,
@@ -45,16 +52,26 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
 
     val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
 
-    val libraries = (project \ "libraries" \ "library")
+    val compilerLibraries = (project \ "scalaCompilers" \ "compiler")
+      .map(c => formarScalaLibrary((c \ "@version").text) -> createCompilerLibraryData(c))
+      .toMap
+
+    val mavenLibraries = (project \ "libraries" \ "library")
       .map(createLibraryData)
       .map(l => l.getExternalName -> l)
       .toMap
+
+    val libraries = mavenLibraries
+    //      .map {
+    //        case (n, _) if compilerLibraries.contains(n) => (n, compilerLibraries(n))
+    //        case (n, d) => (n, d)
+    //      }
     val cbtLibraries =
-      if (!isCbt)
-        (project \ "cbtLibraries" \ "library")
-          .map(createLibraryData)
-      else
-        Seq.empty
+    if (!isCbt)
+      (project \ "cbtLibraries" \ "library")
+        .map(createLibraryData)
+    else
+      Seq.empty
 
     Seq(libraries.values, cbtLibraries)
       .flatten
@@ -65,20 +82,46 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       .map(createModuleData)
       .map(m => m.getExternalName -> m)
       .toMap
+
+    val projectInfo =
+      ProjectInfo(libraries = libraries,
+        modules = modules,
+        cbtLibraries = cbtLibraries,
+        compilerLibraries = compilerLibraries,
+        isCbt = isCbt)
+
     (project \ "modules" \ "module")
-      .map(m => createModuleNode(projectNode, libraries, cbtLibraries, modules, modules((m \ "@name").text.trim), isCbt, m))
+      .map(m => createModuleNode(projectNode, projectInfo, modules((m \ "@name").text.trim), m))
       .foreach(projectNode.addChild)
 
     projectNode.addChild(createProjectData(projectNode, project))
     projectNode
   }
 
+  private def createCompilerLibraryData(compiler: Node) = {
+    val version = (compiler \ "@version").text
+    val scalaLibName = s"org.scala-lang:scala-library:$version"
+    val libraryData = new LibraryData(CbtProjectSystem.Id, scalaLibName)
+    (compiler \ "jar")
+      .map(_.text.trim)
+      .foreach(libraryData.addPath(LibraryPathType.BINARY, _))
+    libraryData
+  }
+
   private def createProjectData(projectDateNode: DataNode[ProjectData], node: Node) =
     new DataNode(CbtProjectData.Key, new CbtProjectData(), projectDateNode)
 
-  private def createExtModuleData(moduleDataNode: DataNode[ModuleData], module: Node) = {
+  private def createExtModuleData(compilerLibraries: Map[String, LibraryData],
+                                  moduleDataNode: DataNode[ModuleData], module: Node) = {
     val scalacClasspath = (module \ "classpath" \ "classpathItem")
       .map(t => new File(t.text.trim))
+      .flatMap { f =>
+        compilerLibraries.map { case (n, l) => (s"scala-library-${n.split(':').last}", l) }
+          .get(f.getName.stripSuffix(".jar"))
+          .map(_.getPaths(LibraryPathType.BINARY).asScala.map(s => new File(s)))
+          .getOrElse(Seq(f))
+      }
+      .distinct
     val scalacOptions =
       (module \ "scalacOptions" \ "option")
         .map(_.text)
@@ -94,8 +137,8 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       (module \ "@root").text,
       (module \ "@root").text)
 
-  private def createModuleNode(parent: DataNode[_], libraries: Map[String, LibraryData], cbtLibraries: Seq[LibraryData],
-                               modules: Map[String, ModuleData], moduleData: ModuleData, isCbt: Boolean, module: Node) = {
+  private def createModuleNode(parent: DataNode[_], projectInfo: ProjectInfo, moduleData: ModuleData, module: Node) = {
+    import projectInfo._
     val moduleNode = new DataNode(ProjectKeys.MODULE, moduleData, parent)
     moduleNode.addChild(createContentRoot(module, moduleNode, isCbt))
     (module \ "dependencies" \ "binaryDependency")
@@ -109,14 +152,15 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       .flatMap(m => modules.get(m.text.trim))
       .map(createModuleDependency(moduleNode))
       .foreach(moduleNode.addChild)
-    moduleNode.addChild(createExtModuleData(moduleNode, module))
+    moduleNode.addChild(createExtModuleData(compilerLibraries, moduleNode, module))
+
     if (isCbt) { //Dirty hack for now :)
       val name = moduleData.getExternalName
       modules.values
         .filter { m =>
           m.getExternalName != name &&
-          m.getExternalName.contains("libraries") &&
-          !m.getExternalName.contains("build")
+            m.getExternalName.contains("libraries") &&
+            !m.getExternalName.contains("build")
         }
         .map(createModuleDependency(moduleNode))
         .foreach(moduleNode.addChild)
