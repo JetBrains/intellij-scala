@@ -22,19 +22,19 @@ object CBT {
         outputType match {
           case ProcessOutputTypes.STDOUT => buffer.append(text)
           case ProcessOutputTypes.STDERR =>
-            taskListener.foreach { case (id, l) =>
-              if (text.contains('\n')) {
-                val (prefix, suffix) = text.span {
-                  _ != '\n'
-                }
-                errorBuffer.append(prefix)
-                l.onStatusChange(new ExternalSystemTaskNotificationEvent(id, errorBuffer.toString))
-                errorBuffer.setLength(0)
-                errorBuffer.append(suffix)
-              } else {
-                errorBuffer.append(text)
-              }
-            }
+//            taskListener.foreach { case (id, l) =>
+//              if (text.contains('\n')) {
+//                val (prefix, suffix) = text.span {
+//                  _ != '\n'
+//                }
+//                errorBuffer.append(prefix)
+//                l.onStatusChange(new ExternalSystemTaskNotificationEvent(id, errorBuffer.toString))
+//                errorBuffer.setLength(0)
+//                errorBuffer.append(suffix)
+//              } else {
+//                errorBuffer.append(text)
+//              }
+//            }
         }
       }
     }
