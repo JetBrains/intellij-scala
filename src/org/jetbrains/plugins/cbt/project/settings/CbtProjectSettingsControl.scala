@@ -9,7 +9,7 @@ import org.jetbrains.sbt.project.settings.Context
 
 class CbtProjectSettingsControl(context: Context, initialSettings: CbtProjectSettings)
   extends AbstractExternalProjectSettingsControl[CbtProjectSettings](initialSettings) {
-  private val isCbtCheckBox = new JCheckBox("This is CBT source code")
+  private val isCbtCheckBox = new JCheckBox("Do not link CBT (use when opening CBT itself)")
 
   override def applyExtraSettings(settings: CbtProjectSettings): Unit = {
     settings.isCbt = isCbtCheckBox.isSelected

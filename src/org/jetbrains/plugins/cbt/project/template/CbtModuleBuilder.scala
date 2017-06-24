@@ -82,18 +82,9 @@ class CbtModuleBuilder
       selections.scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
     }
 
-    val isCbtCheckBox: JCheckBox = applyTo(new JCheckBox("This is cbt source code"))(
-      _.setToolTipText("Check this if you are opening cbt source code"),
-      _.setSelected(selections.isCbt)
-    )
-
-    isCbtCheckBox.addActionListenerEx {
-      selections.isCbt = isCbtCheckBox.isSelected
-    }
     val step = sdkSettingsStep(settingsStep)
 
     settingsStep.addSettingsField("Scala:", scalaVersionComboBox)
-    settingsStep.addSettingsField("CBT:", isCbtCheckBox)
     step
   }
 
