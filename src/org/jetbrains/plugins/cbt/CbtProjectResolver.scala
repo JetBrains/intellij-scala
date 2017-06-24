@@ -56,16 +56,11 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       .map(c => formarScalaLibrary((c \ "@version").text) -> createCompilerLibraryData(c))
       .toMap
 
-    val mavenLibraries = (project \ "libraries" \ "library")
+    val libraries = (project \ "libraries" \ "library")
       .map(createLibraryData)
       .map(l => l.getExternalName -> l)
       .toMap
 
-    val libraries = mavenLibraries
-    //      .map {
-    //        case (n, _) if compilerLibraries.contains(n) => (n, compilerLibraries(n))
-    //        case (n, d) => (n, d)
-    //      }
     val cbtLibraries =
     if (!isCbt)
       (project \ "cbtLibraries" \ "library")
@@ -182,7 +177,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
   private def createContentRoot(module: Node, parent: DataNode[_], isCbt: Boolean) = {
     val rootPath = Paths.get((module \ "@root").text).toAbsolutePath
     val contentRootData = new ContentRootData(CbtProjectSystem.Id, rootPath.toString)
-    (module \ "sources" \ "source")
+    (module \ "sourceDirs" \ "dir")
       .map(s => Paths.get(s.text.trim))
       .filter(s => Files.isDirectory(s))
       .filter(s => s.toAbsolutePath.startsWith(rootPath))
