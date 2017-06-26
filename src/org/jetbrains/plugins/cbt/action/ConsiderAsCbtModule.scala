@@ -45,7 +45,7 @@ class ConsiderAsCbtModule extends AnAction {
     val modulePath = moduleDir.getVirtualFile.getPath.toFile
     val project = CommonDataKeys.PROJECT.getData(dataContext)
     val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
-    projectSettings.extraModules = projectSettings.extraModules :+ modulePath
-    println(s"""New project Modules: ${projectSettings.extraModules.map(_.getPath).mkString(",")}""")
+    projectSettings.extraModules = (projectSettings.extraModules :+ modulePath).distinct
+    println(s"""Extra project Modules: ${projectSettings.extraModules.map(_.getPath).mkString(",")}""")
   }
 }

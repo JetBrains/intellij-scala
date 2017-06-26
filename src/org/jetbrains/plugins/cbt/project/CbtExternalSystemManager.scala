@@ -32,7 +32,7 @@ class CbtExternalSystemManager
         val project = pair.first
         val path = pair.second
         val projectSettings = CbtProjectSettings.getInstance(project, path)
-        new CbtExecutionSettings(path, projectSettings.isCbt)
+        new CbtExecutionSettings(path, projectSettings.isCbt, projectSettings.extraModules)
       }
     }
 
