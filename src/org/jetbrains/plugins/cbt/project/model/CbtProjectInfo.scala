@@ -4,7 +4,7 @@ import java.io.File
 
 import scala.xml.Node
 
-object ProjectInfo {
+object CbtProjectInfo {
 
   def apply(xml: Node): Project =
     Deserializer(xml)

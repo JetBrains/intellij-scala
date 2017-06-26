@@ -2,7 +2,7 @@ package org.jetbrains.plugins.cbt.project.model
 
 import java.io.File
 
-import org.jetbrains.plugins.cbt.project.model.ProjectInfo._
+import org.jetbrains.plugins.cbt.project.model.CbtProjectInfo._
 
 import scala.xml._
 
