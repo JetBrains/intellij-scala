@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.cbt.project.settings
 
+import java.io.File
+
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.project.Project
 
@@ -11,10 +13,14 @@ class CbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var isCbt = false
 
+  @BeanProperty
+  var extraModules: Seq[File] = Seq.empty
+
   override def clone(): CbtProjectSettings = {
     val result = new CbtProjectSettings()
     copyTo(result)
     result.isCbt = isCbt
+    result.extraModules = extraModules
     result
   }
 }

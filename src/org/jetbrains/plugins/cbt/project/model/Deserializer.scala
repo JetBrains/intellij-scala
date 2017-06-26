@@ -2,22 +2,13 @@ package org.jetbrains.plugins.cbt.project.model
 
 import java.io.File
 
+import org.jetbrains.plugins.cbt
 import org.jetbrains.plugins.cbt.project.model.CbtProjectInfo._
+import org.jetbrains.plugins.cbt.Helpers._
 
 import scala.xml._
 
 object Deserializer {
-
-  private implicit class XmlOps(val xml: NodeSeq) {
-    def value: String =
-      xml.text.trim
-  }
-
-  private implicit class StringOps(val str: String) {
-    def toFile: File =
-      new File(str)
-  }
-
   def apply(xml: Node): Project =
     deserialize(xml)
 
