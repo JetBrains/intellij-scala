@@ -5,6 +5,7 @@ import com.intellij.psi.PsiDirectory
 import org.jetbrains.plugins.cbt.CBT
 import org.jetbrains.plugins.cbt.Helpers._
 import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
+import collection.JavaConverters._
 
 class ConsiderAsCbtModule extends AnAction {
   override def update(e: AnActionEvent): Unit = {
@@ -22,6 +23,11 @@ class ConsiderAsCbtModule extends AnAction {
 
     val dataContext = e.getDataContext
     val project = CommonDataKeys.PROJECT.getData(dataContext)
+    val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
+
+    def moduleExists(dir: PsiDirectory) = {
+      projectSettings.getModules.asScala.map(_.toFile).map(_.getName).contains(dir.getName)
+    }
 
     if (!CBT.isCbtProject(project)) {
       disable()
@@ -29,7 +35,8 @@ class ConsiderAsCbtModule extends AnAction {
       try {
         val target = CommonDataKeys.PSI_ELEMENT.getData(dataContext)
         target match {
-          case dir: PsiDirectory if CBT.isCbtModuleDir(dir.getVirtualFile) => enable()
+          case dir: PsiDirectory
+            if CBT.isCbtModuleDir(dir.getVirtualFile) && !moduleExists(dir) => enable()
           case _ => disable()
         }
       }
@@ -47,5 +54,6 @@ class ConsiderAsCbtModule extends AnAction {
     val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
     projectSettings.extraModules = (projectSettings.extraModules :+ modulePath).distinct
     println(s"""Extra project Modules: ${projectSettings.extraModules.map(_.getPath).mkString(",")}""")
+    project.refresh()
   }
 }

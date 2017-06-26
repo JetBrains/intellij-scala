@@ -9,7 +9,7 @@ import com.intellij.openapi.externalSystem.service.project.ExternalSystemProject
 import org.jetbrains.plugins.cbt.project.model.{CbtProjectConverter, CbtProjectInfo}
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
 
-  
+
 class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSettings] {
 
   override def resolveProjectInfo(id: ExternalSystemTaskId,
