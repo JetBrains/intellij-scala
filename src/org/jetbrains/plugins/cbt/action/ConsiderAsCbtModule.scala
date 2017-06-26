@@ -3,7 +3,7 @@ package org.jetbrains.plugins.cbt.action
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.psi.PsiDirectory
 import org.jetbrains.plugins.cbt.CBT
-import org.jetbrains.plugins.cbt.Helpers._
+import org.jetbrains.plugins.cbt._
 import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 import collection.JavaConverters._
 

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.cbt
+package org.jetbrains.plugins
 
 import java.io.File
 
@@ -8,13 +8,10 @@ import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMo
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
-import org.jetbrains.sbt.project.SbtProjectSystem
 
-import scala.xml.NodeSeq
+package object cbt {
 
-object Helpers {
-
-  implicit class XmlOps(val xml: NodeSeq) {
+  implicit class XmlOps(val xml: _root_.scala.xml.NodeSeq) {
     def value: String =
       xml.text.trim
   }
