@@ -9,8 +9,7 @@ import com.intellij.openapi.externalSystem.service.project.ExternalSystemProject
 import org.jetbrains.plugins.cbt.project.model.{CbtProjectConverter, CbtProjectInfo}
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
 
-import scala.xml.XML
-
+  
 class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSettings] {
 
   override def resolveProjectInfo(id: ExternalSystemTaskId,
@@ -21,9 +20,8 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     val projectPath = settings.realProjectPath
     val root = new File(projectPath)
     println("Cbt resolver called")
-    println(s"""New project Modules: ${settings.extraModules.map(_.getPath).mkString(",")}""")
 
-    val xml = XML.loadString(CBT.runAction(Seq("buildInfoXml"), root, Some(id, listener)))
+    val xml = CBT.buildInfoXml(root, settings.extraModules, Some(id, listener))
     println(xml.toString)
     val project = CbtProjectInfo(xml)
     val ideaProjectModel = CbtProjectConverter(project, settings)

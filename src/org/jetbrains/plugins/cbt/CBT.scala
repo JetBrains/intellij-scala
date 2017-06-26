@@ -12,6 +12,7 @@ import org.jetbrains.plugins.cbt.project.settings.CbtSystemSettings
 import org.jetbrains.sbt.RichVirtualFile
 
 import scala.sys.process.{Process, ProcessLogger}
+import scala.xml.{Elem, XML}
 
 
 object CBT {
@@ -19,7 +20,7 @@ object CBT {
     runAction(action, root, None)
 
   def runAction(action: Seq[String], root: File,
-                taskListener: Option[(ExternalSystemTaskId, ExternalSystemTaskNotificationListener)]): String =    {
+                taskListener: Option[(ExternalSystemTaskId, ExternalSystemTaskNotificationListener)]): String = {
     val colorEncoder = new AnsiEscapeDecoder
     val logger = ProcessLogger(
       { _ => }, { text =>
@@ -32,6 +33,13 @@ object CBT {
         }
       })
     Process(Seq("cbt") ++ action, root) !! logger
+  }
+
+  def buildInfoXml(root: File, extraModules: Seq[File],
+                   taskListener: Option[(ExternalSystemTaskId, ExternalSystemTaskNotificationListener)]): Elem = {
+    val extraMododulesStr = extraModules.map(_.getPath).mkString(":")
+    val xml = runAction(Seq("buildInfoXml", extraMododulesStr), root, taskListener)
+    XML.loadString(xml)
   }
 
   def isCbtModuleDir(entry: VirtualFile): Boolean =
