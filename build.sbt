@@ -63,7 +63,7 @@ lazy val scalaCommunity: sbt.Project =
     buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
     buildInfoKeys := Seq(
       name, version, scalaVersion, sbtVersion,
-      BuildInfoKey.constant("sbtLatestVersion", Versions.sbtStructureVersion),
+      BuildInfoKey.constant("sbtLatestVersion", Versions.sbtVersion),
       BuildInfoKey.constant("sbtStructureVersion", Versions.sbtStructureVersion),
       BuildInfoKey.constant("sbtIdeaShellVersion", Versions.sbtIdeaShellVersion)
     )
