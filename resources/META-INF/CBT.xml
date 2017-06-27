@@ -24,12 +24,16 @@
                 implementation="org.jetbrains.plugins.cbt.project.data.service.CbtProjectDataService"/>
         <externalProjectDataService
                 implementation="org.jetbrains.plugins.cbt.project.data.service.CbtModuleExtDataService"/>
-
+        <internalFileTemplate name="CBT Build Class"/>
     </extensions>
     <actions>
         <action id="ConsiderAsCbtModule" class="org.jetbrains.plugins.cbt.action.ConsiderAsCbtModule"
                 text="Consider as CBT module">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+        </action>
+        <action id="NewCbtBuildFile" class="org.jetbrains.plugins.cbt.action.NewCbtBuildFile"
+                text="CBT build file" >
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Scala.NewClass"/>
         </action>
     </actions>
 </idea-plugin>
