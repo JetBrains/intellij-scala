@@ -529,32 +529,32 @@ object TypeDefinitionMembers {
     place.foreach {
       case _: ScInterpolatedPrefixReference =>
         val allowedNames = ans.keySet
-        for (child <- clazz.getChildren) {
-          child match {
-            case n: ScExtendsBlock =>
-              val children = n.getFirstChild.getChildren
-              for (c <- children) {
-                c match {
-                  case o: ScObject =>
-                    if (allowedNames.contains(o.name)) {
-                      @CachedInsidePsiElement(o, CachesUtil.getDependentItem(o)())
-                      def buildNodesObject(): SMap = SignatureNodes.build(o)
+        val eb = clazz match {
+          case td: ScTemplateDefinition => Some(td.extendsBlock)
+          case _ => clazz.getChildren.collectFirst({case e: ScExtendsBlock => e})
+        }
+        eb.foreach { n =>
+          val children = n.getFirstChild.getChildren
+          for (c <- children) {
+            c match {
+              case o: ScObject =>
+                if (allowedNames.contains(o.name)) {
+                  @CachedInsidePsiElement(o, CachesUtil.getDependentItem(o)())
+                  def buildNodesObject(): SMap = SignatureNodes.build(o)
 
-                      val add = buildNodesObject()
-                      ans ++= add
-                    }
-                  case c: ScClass =>
-                    if (allowedNames.contains(c.name)) {
-                      @CachedInsidePsiElement(c, CachesUtil.getDependentItem(c)())
-                      def buildNodesClass2(): SMap = SignatureNodes.build(c)
-
-                      val add = buildNodesClass2()
-                      ans ++= add
-                    }
-                  case _ =>
+                  val add = buildNodesObject()
+                  ans ++= add
                 }
-              }
-            case _ =>
+              case c: ScClass =>
+                if (allowedNames.contains(c.name)) {
+                  @CachedInsidePsiElement(c, CachesUtil.getDependentItem(c)())
+                  def buildNodesClass2(): SMap = SignatureNodes.build(c)
+
+                  val add = buildNodesClass2()
+                  ans ++= add
+                }
+              case _ =>
+            }
           }
         }
       case _ =>

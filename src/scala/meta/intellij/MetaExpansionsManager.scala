@@ -20,15 +20,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeEl
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
-import org.jetbrains.plugins.scala.project._
 
 import scala.collection.immutable
 import scala.meta.parsers.Parse
-import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
+import scala.meta.trees.{AbortException, ScalaMetaException, ScalaMetaRetry, TreeConverter}
 import scala.meta.{Dialect, Tree}
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 
@@ -38,8 +34,9 @@ import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
   */
 class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(project)  {
   import org.jetbrains.plugins.scala.project._
-  import scala.collection.convert.decorateAsScala._
+
   import MetaExpansionsManager.META_MAJOR_VERSION
+  import scala.collection.convert.decorateAsScala._
 
   override def getComponentName = "MetaExpansionsManager"
 
@@ -103,14 +100,22 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
       })
     }
 
-    val annotClass = annot.constructor.reference.get.bind().map(_.parentElement.get.asInstanceOf[ScClass])
+    val annotClass = annot.constructor.reference
+      .getOrElse(throw new ScalaMetaRetry)
+      .bind()
+      .map(_.parentElement.getOrElse(throw new ScalaMetaRetry).asInstanceOf[ScClass])
     val metaModule = annotClass.flatMap(_.module)
     val classLoader = metaModule
       .map(classLoaderForModule)  // try annotation's own module first - if it exists as a part of rhe codebase
       .orElse(annot.module.map(classLoaderForModule)) // otherwise it's somwere among current module dependencies
     try {
-      classLoader.map(_.loadClass(annotClass.get.asInstanceOf[ScTemplateDefinition].qualifiedName + "$inline$"))
+      annotClass.flatMap(clazz =>
+        classLoader.map(  loader =>
+          loader.loadClass(clazz.asInstanceOf[ScTemplateDefinition].qualifiedName + "$inline$")
+        )
+      )
     } catch {
+      case p: ProcessCanceledException => throw p
       case _:  ClassNotFoundException => None
     }
   }
@@ -143,11 +148,9 @@ object MetaExpansionsManager {
 
   def runMetaAnnotation(annot: ScAnnotation): Either[String, Tree] = {
 
-    def hasCompatibleScalaVersion = annot.scalaLanguageLevelOrDefault == Scala_2_11
     val copied: ScAnnotationsHolder = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
       .asInstanceOf[ScAnnotationsHolder]
 
-//    @CachedInsidePsiElement(annotee, ModCount.getBlockModificationCount)
     def runMetaAnnotationsImpl: Either[String, Tree] = {
 
       val converter = new TreeConverter {
@@ -155,9 +158,6 @@ object MetaExpansionsManager {
         override def dumbMode: Boolean = true
         override protected val annotationToSkip = annot
       }
-
-//      val copied = annotee.copy().asInstanceOf[ScAnnotationsHolder]
-//      copied.annotations.find(_.getText == annot.getText).foreach(_.delete())
 
       try {
         val converted = converter.ideaToMeta(copied)
@@ -176,17 +176,15 @@ object MetaExpansionsManager {
           case (None, _)        => Left("Meta annotation class could not be found")
         }
         CachesUtil.updateModificationCount(copied)
-//        AnyScalaPsiModificationTracker.incModificationCount()
         errorOrTree
       } catch {
         case pc: ProcessCanceledException => throw pc
-        case e: Exception                 =>
-          val x = e
-          Left(s"Unexpected error during expansion: ${e.getMessage}")
+        case e:  ScalaMetaRetry           => throw e
         case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
         case sm: ScalaMetaException       => Left(s"Semantic error: ${sm.getMessage}")
         case so: StackOverflowError       => Left(s"Stack overflow during expansion ${copied.getText}")
         case e: InvocationTargetException => Left(e.getTargetException.getMessage)
+        case e: Exception                 => Left(s"Unexpected error during expansion: ${e.getMessage}")
       }
     }
 
