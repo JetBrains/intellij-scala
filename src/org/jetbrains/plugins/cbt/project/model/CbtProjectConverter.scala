@@ -48,6 +48,19 @@ class CbtProjectConverter(project: Project) {
     new DataNode(ProjectKeys.LIBRARY, libraryData, parent)
   }
 
+  private[model] def createLibraryData(library: Library) = {
+    val libraryData = new LibraryData(CbtProjectSystem.Id, library.name)
+    library.jars
+      .foreach { j =>
+        val libraryType = j.jarType match {
+          case JarType.Binary => LibraryPathType.BINARY
+          case JarType.Source => LibraryPathType.SOURCE
+        }
+        libraryData.addPath(libraryType, j.jar.getPath)
+      }
+    libraryData
+  }
+
   private[model] def createModule(parent: DataNode[_])(module: Module) = {
     val moduleData = createModuleData(module)
     val moduleNode = new DataNode(ProjectKeys.MODULE, moduleData, parent)
@@ -108,9 +121,6 @@ class CbtProjectConverter(project: Project) {
       module.root.getPath)
   }
 
-  private[model] def createProjectData(projectNode: DataNode[ProjectData]) =
-    new DataNode(CbtProjectData.Key, new CbtProjectData(), projectNode)
-
   private[model] def createCbtDependencies(moduleNode: DataNode[ModuleData]) =
     project.cbtLibraries.map(_.name)
       .map(createBinaryDependencyNode(moduleNode))
@@ -121,10 +131,6 @@ class CbtProjectConverter(project: Project) {
     new DataNode(ProjectKeys.LIBRARY_DEPENDENCY, dependencyData, parent)
   }
 
-  private[model] def createLibraryData(library: Library) = {
-    val libraryData = new LibraryData(CbtProjectSystem.Id, library.name)
-    library.jars
-      .foreach(l => libraryData.addPath(LibraryPathType.BINARY, l.getPath))
-    libraryData
-  }
+  private[model] def createProjectData(projectNode: DataNode[ProjectData]) =
+    new DataNode(CbtProjectData.Key, new CbtProjectData(), projectNode)
 }

@@ -27,11 +27,19 @@ object CbtProjectInfo {
                     parentBuild: Option[String],
                     scalacOptions: Seq[String])
 
-  case class Library(name: String, jars: Seq[File])
+  case class Library(name: String, jars: Seq[LibraryJar])
 
   case class BinaryDependency(name: String)
 
   case class ModuleDependency(name: String)
 
   case class ScalaCompiler(version: String, jars: Seq[File])
+
+  case class LibraryJar(jar: File, jarType: JarType.JarType)
+
+  object JarType extends Enumeration {
+    type JarType = Value
+    val Binary = Value("binary")
+    val Source = Value("source")
+  }
 }

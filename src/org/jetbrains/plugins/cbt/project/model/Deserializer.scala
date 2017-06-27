@@ -4,6 +4,7 @@ import java.io.File
 
 import org.jetbrains.plugins.cbt._
 import org.jetbrains.plugins.cbt.project.model.CbtProjectInfo._
+
 import scala.xml._
 
 object Deserializer {
@@ -41,9 +42,11 @@ object Deserializer {
   private def deserializeModuleDependency(node: Node): ModuleDependency =
     ModuleDependency(node.value)
 
-  private def deserializeLibrary(node: Node): Library =
-    Library(name = (node \ "@name").value,
-      jars = (node \ "jar").map(_.value.toFile))
+  private def deserializeLibrary(node: Node): Library = {
+    val jars = (node \ "jar")
+      .map(j => LibraryJar(j.value.toFile, JarType.withName((j \ "@type").value)))
+    Library(name = (node \ "@name").value, jars = jars)
+  }
 
   private def deserializeCompiler(node: Node): ScalaCompiler =
     ScalaCompiler(version = (node \ "@version").value,
