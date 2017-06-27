@@ -105,8 +105,8 @@ public class ScalaProjectSettingsPanel {
     });
 
     InjectorPersistentCache jarCache = (myProject != null && !myProject.isDefault())
-            ? LibraryInjectorLoader$.MODULE$.getInstance(myProject).getJarCache()
-            : LibraryInjectorLoader$.MODULE$.verifyAndLoadCache();
+        ? LibraryInjectorLoader$.MODULE$.getInstance(myProject).getJarCache()
+        : LibraryInjectorLoader$.MODULE$.verifyAndLoadCache();
     librariesList = new JBList(new JarCacheModel(jarCache));
     librariesList.setCellRenderer(new JarCacheRenderer());
 
@@ -223,13 +223,13 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setBundledMigratorsSearchEnabled(migratorsEnabledCheckBox.isSelected());
     scalaProjectSettings.setBundledInspectionsSearchEnabled(jarBundledInspectionsEnabledCheckBox.isSelected());
     scalaProjectSettings.setBundledInspectionsIdsDisabled(
-            ((BundledInspectionsUiTableModel) disabledInspectionsTable.getModel()).getDisabledIdsWithPreservedOrder()
+        ((BundledInspectionsUiTableModel) disabledInspectionsTable.getModel()).getDisabledIdsWithPreservedOrder()
     );
     scalaProjectSettings.setScalaMetaMode((ScalaProjectSettings.ScalaMetaMode) scalaMetaMode.getModel().getSelectedItem());
     scalaProjectSettings.setMetaTrimMethodBodies(metaTrimBodies.isSelected());
 
     scalaProjectSettings.setTrailingCommasEnabled(trailingCommasEnabledCheckBox.isSelected());
-    
+
     if (myProject != null && myProject.isDefault())
       ((JarCacheModel) librariesList.getModel()).commit();
 
@@ -263,26 +263,26 @@ public class ScalaProjectSettingsPanel {
     if (!ScalaPluginUpdater.getScalaPluginBranch().equals(updateChannel.getModel().getSelectedItem())) return true;
 
     if (!scalaProjectSettings.getBasePackages().equals(
-            getBasePackages())) return true;
+        getBasePackages())) return true;
     if (!scalaProjectSettings.getScalaTestDefaultSuperClass().equals(
-            scalaTestDefaultSuperClass.getText())) return true;
+        scalaTestDefaultSuperClass.getText())) return true;
     if (scalaProjectSettings.isShowImplisitConversions() !=
-            showImplicitConversionsInCheckBox.isSelected()) return true;
+        showImplicitConversionsInCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
-            showArgumentsToByNameParametersCheckBox.isSelected()) return true;
+        showArgumentsToByNameParametersCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isCustomScalatestSyntaxHighlighting() !=
-            customScalatestSyntaxHighlightingCheckbox.isSelected()) return true;
+        customScalatestSyntaxHighlightingCheckbox.isSelected()) return true;
     if (scalaProjectSettings.isIncludeBlockExpressions() !=
-            includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
+        includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isIncludeLiterals() !=
-            includeLiteralsCheckBox.isSelected()) return true;
+        includeLiteralsCheckBox.isSelected()) return true;
 
     if (scalaProjectSettings.getImplicitParametersSearchDepth() !=
-            (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
+        (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
     if (scalaProjectSettings.getOutputLimit() !=
-            (Integer) outputSpinner.getValue()) return true;
+        (Integer) outputSpinner.getValue()) return true;
     if (scalaProjectSettings.isInProcessMode() !=
-            runWorksheetInTheCheckBox.isSelected()) return true;
+        runWorksheetInTheCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isInteractiveMode() != worksheetInteractiveModeCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isUseEclipseCompatibility() != useEclipseCompatibilityModeCheckBox.isSelected())
       return true;
@@ -290,15 +290,15 @@ public class ScalaProjectSettingsPanel {
       return true;
 
     if (scalaProjectSettings.isSearchAllSymbols() !=
-            searchAllSymbolsIncludeCheckBox.isSelected()) return true;
+        searchAllSymbolsIncludeCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isEnableJavaToScalaConversion() !=
-            enableConversionOnCopyCheckBox.isSelected()) return true;
+        enableConversionOnCopyCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isAddOverrideToImplementInConverter() !=
-            addOverrideToImplementCheckBox.isSelected()) return true;
+        addOverrideToImplementCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isDontShowConversionDialog() !=
-            donTShowDialogCheckBox.isSelected()) return true;
+        donTShowDialogCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isTreatDocCommentAsBlockComment() !=
-            treatDocCommentAsBlockComment.isSelected()) return true;
+        treatDocCommentAsBlockComment.isSelected()) return true;
 
     if (scalaProjectSettings.isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
       return true;
@@ -319,7 +319,7 @@ public class ScalaProjectSettingsPanel {
       return true;
 
     if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
-            collectionHighlightingChooser.getSelectedIndex()) return true;
+        collectionHighlightingChooser.getSelectedIndex()) return true;
 
     if (scalaProjectSettings.getAutoRunDelay() != getWorksheetDelay()) return true;
 
@@ -337,14 +337,14 @@ public class ScalaProjectSettingsPanel {
       return true;
 
     if (!scalaProjectSettings.getBundledInspectionIdsDisabled().equals(
-            ((BundledInspectionsUiTableModel) disabledInspectionsTable.getModel()).getDisabledIdsWithPreservedOrder()))
+        ((BundledInspectionsUiTableModel) disabledInspectionsTable.getModel()).getDisabledIdsWithPreservedOrder()))
       return true;
 
     if (!scalaProjectSettings.getScalaMetaMode().equals(scalaMetaMode.getModel().getSelectedItem())) return true;
     if (scalaProjectSettings.isMetaTrimMethodBodies() != metaTrimBodies.isSelected()) return true;
 
     if (scalaProjectSettings.isTrailingCommasEnabled() != trailingCommasEnabledCheckBox.isSelected()) return true;
-    
+
     return false;
   }
 
@@ -402,11 +402,11 @@ public class ScalaProjectSettingsPanel {
     setValue(migratorsEnabledCheckBox, scalaProjectSettings.isBundledMigratorsSearchEnabled());
     setValue(jarBundledInspectionsEnabledCheckBox, scalaProjectSettings.isBundledInspectionsSearchEnabled());
     disabledInspectionsTable.setModel(new BundledInspectionsUiTableModel(
-            scalaProjectSettings.getBundledLibJarsPathsToInspections(),
-            scalaProjectSettings.getBundledInspectionIdsDisabled(), myProject));
+        scalaProjectSettings.getBundledLibJarsPathsToInspections(),
+        scalaProjectSettings.getBundledInspectionIdsDisabled(), myProject));
 
     setValue(trailingCommasEnabledCheckBox, scalaProjectSettings.isTrailingCommasEnabled());
-    
+
     injectionPrefixTable.loadSettings(scalaProjectSettings);
 
     scalaMetaMode.getModel().setSelectedItem(scalaProjectSettings.getScalaMetaMode());
@@ -624,17 +624,20 @@ public class ScalaProjectSettingsPanel {
     final Spacer spacer6 = new Spacer();
     panel6.add(spacer6, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
     final JPanel panel7 = new JPanel();
-    panel7.setLayout(new GridLayoutManager(3, 2, new Insets(9, 9, 0, 0), -1, -1));
+    panel7.setLayout(new GridLayoutManager(4, 2, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Misc", panel7);
-    panel7.add(injectionJPanel, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel7.add(injectionJPanel, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label6 = new JLabel();
     label6.setText("ScalaTest default super class:");
     panel7.add(label6, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer7 = new Spacer();
-    panel7.add(spacer7, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    panel7.add(spacer7, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     scalaTestDefaultSuperClass = new JTextField();
     scalaTestDefaultSuperClass.setColumns(25);
     panel7.add(scalaTestDefaultSuperClass, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    trailingCommasEnabledCheckBox = new JCheckBox();
+    trailingCommasEnabledCheckBox.setText("Trailing commas enabled");
+    panel7.add(trailingCommasEnabledCheckBox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel8 = new JPanel();
     panel8.setLayout(new GridLayoutManager(2, 3, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Updates", panel8);
@@ -757,7 +760,7 @@ public class ScalaProjectSettingsPanel {
     protected JComponent createCenterPanel() {
       JComponent res = new JPanel();
       res.add(new JLabel("Changes in ScalaTest highlighting will be processed correctly only on freshly highlighted files." +
-              "For best experience please restart Intellij IDEA"));
+          "For best experience please restart Intellij IDEA"));
       return res;
     }
 
