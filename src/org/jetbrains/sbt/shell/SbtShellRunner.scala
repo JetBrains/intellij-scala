@@ -52,7 +52,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
   //don't init UI for unit tests
   override def createContentDescriptorAndActions(): Unit =
-    if (!ApplicationManager.getApplication.isUnitTestMode) super.createContentDescriptorAndActions()
+    if (!SbtRunner.isInTest) super.createContentDescriptorAndActions()
 
   override def initAndRun(): Unit = {
     super.initAndRun()
@@ -61,7 +61,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       // on Windows the terminal defaults to 80 columns which wraps and breaks highlighting.
       // Use a wider value that should be reasonable in most cases. Has no effect on Unix.
       // TODO perhaps determine actual width of window and adapt accordingly
-      if (!ApplicationManager.getApplication.isUnitTestMode) {
+      if (!SbtRunner.isInTest) {
         myProcessHandler.getProcess match {
           case proc: PtyProcess => proc.setWinSize(new WinSize(2000, 100))
         }
