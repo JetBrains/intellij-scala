@@ -305,7 +305,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
       case docEx: DocumentEx => docEx.isInBulkUpdate
       case _ => false
     }
-    if (myBalloon.isDisposed || isBulkUpdate) return
+    if (myBalloon == null || myBalloon.isDisposed || isBulkUpdate) return
     if (!nameIsValid) {
       myBalloonPanel add myLabelPanel
       myBalloonPanel remove myChbPanel
@@ -320,7 +320,6 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
   protected override def moveOffsetAfter(success: Boolean): Unit = {
     try {
-      myBalloon.hide()
       if (success) {
         if (myExprMarker != null) {
           val startOffset: Int = myExprMarker.getStartOffset
