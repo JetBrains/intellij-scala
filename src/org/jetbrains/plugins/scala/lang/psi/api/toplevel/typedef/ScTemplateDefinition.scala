@@ -63,7 +63,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
       }
     } catch {
       case _:ScalaMetaRetry =>
-        AnyScalaPsiModificationTracker.incModificationCount()
         this.stubOrPsiChild(ScalaElementTypes.EXTENDS_BLOCK).orNull
     }
   }
