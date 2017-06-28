@@ -26,6 +26,10 @@
                 implementation="org.jetbrains.plugins.cbt.project.data.service.CbtModuleExtDataService"/>
         <internalFileTemplate name="CBT Build Class"/>
     </extensions>
+
+    <extensions defaultExtensionNs="org.intellij.scala" >
+        <scalaIntentionAvailabilityChecker implementation="org.jetbrains.plugins.cbt.inspection.InspectionDisabler"/>
+    </extensions>
     <actions>
         <action id="ConsiderAsCbtModule" class="org.jetbrains.plugins.cbt.action.ConsiderAsCbtModule"
                 text="Consider as CBT module">
