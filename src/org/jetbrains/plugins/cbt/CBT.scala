@@ -35,9 +35,9 @@ object CBT {
     Process(Seq("cbt") ++ action, root) !! logger
   }
 
-  def buildInfoXml(root: File, extraModules: Seq[File],
+  def buildInfoXml(root: File, extraModules: Seq[String],
                    taskListener: Option[(ExternalSystemTaskId, ExternalSystemTaskNotificationListener)]): Elem = {
-    val extraMododulesStr = extraModules.map(_.getPath).mkString(":")
+    val extraMododulesStr = extraModules.mkString(":")
     val xml = runAction(Seq("buildInfoXml", extraMododulesStr), root, taskListener)
     XML.loadString(xml)
   }

@@ -49,11 +49,13 @@ class ConsiderAsCbtModule extends AnAction {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val dataContext = e.getDataContext
     val moduleDir = CommonDataKeys.PSI_ELEMENT.getData(dataContext).asInstanceOf[PsiDirectory]
-    val modulePath = moduleDir.getVirtualFile.getPath.toFile
+    val modulePath = moduleDir.getVirtualFile.getPath
     val project = CommonDataKeys.PROJECT.getData(dataContext)
     val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
-    projectSettings.extraModules = (projectSettings.extraModules :+ modulePath).distinct
-    println(s"""Extra project Modules: ${projectSettings.extraModules.map(_.getPath).mkString(",")}""")
+    if (!projectSettings.extraModules.contains(modulePath)) {
+      projectSettings.extraModules.add(modulePath)
+    }
+    println(s"""Extra project Modules: ${projectSettings.extraModules.toString}""")
     project.refresh()
   }
 }

@@ -6,4 +6,4 @@ import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutio
 
 class CbtExecutionSettings(val realProjectPath: String,
                            val isCbt: Boolean,
-                           val extraModules: Seq[File]) extends ExternalSystemExecutionSettings
+                           val extraModules: Seq[String]) extends ExternalSystemExecutionSettings
