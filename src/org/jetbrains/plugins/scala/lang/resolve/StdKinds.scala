@@ -25,4 +25,6 @@ object StdKinds {
   val varsRef = ValueSet(VAR)
 
   val packageRef = ValueSet(PACKAGE)
+
+  val annotCtor = ValueSet(CLASS, ANNOTATION)
 }

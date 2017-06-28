@@ -1125,6 +1125,11 @@ object ScalaPsiUtil {
     el.asInstanceOf[T]
   }
 
+  @tailrec
+  def getContext(element: PsiElement, level: Int): Option[PsiElement] =
+    if (level == 0) Some(element) else if (element.getContext == null) None
+    else getContext(element.getParent, level - 1)
+
   /**
     * For one classOf use PsiTreeUtil.getContextOfType instead
     */
