@@ -25,6 +25,11 @@
         <externalProjectDataService
                 implementation="org.jetbrains.plugins.cbt.project.data.service.CbtModuleExtDataService"/>
         <internalFileTemplate name="CBT Build Class"/>
+
+        <toolWindow id="CBT" anchor="right"
+                    icon="/org/jetbrains/plugins/scala/images/sbt.png"
+                    factoryClass="org.jetbrains.plugins.cbt.project.CbtTooolWindowFactory"
+                    conditionClass="org.jetbrains.plugins.cbt.project.CbtToolWindowFactoryCondition"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala" >
