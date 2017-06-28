@@ -39,10 +39,10 @@ class SbtProjectOpenProcessor(builder: SbtProjectImportBuilder) extends ProjectO
       }
     }
 
-    if (!ApplicationManager.getApplication.isUnitTestMode)
+    if (!ApplicationManager.getApplication.isUnitTestMode) {
       dialog.show()
-
-    dialog.isOK
+      dialog.isOK
+    } else true
   }
 
   // That's a hack to display SBT icon in the open project file chooser (this part of the IDEA API is broken)

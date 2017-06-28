@@ -79,10 +79,12 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       SbtProcessManager.forProject(project).attachListener(shellPromptChanger)
       SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
 
-      val twm = ToolWindowManager.getInstance(project)
-      val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
-      val content = createToolWindowContent
-      addToolWindowContent(toolWindow, content)
+      if (!SbtRunner.isInTest) {
+        val twm = ToolWindowManager.getInstance(project)
+        val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
+        val content = createToolWindowContent
+        addToolWindowContent(toolWindow, content)
+      }
     }
   }
 
