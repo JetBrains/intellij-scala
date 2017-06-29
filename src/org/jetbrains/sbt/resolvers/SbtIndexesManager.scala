@@ -29,13 +29,15 @@ class SbtIndexesManager(val project: Project) extends AbstractProjectComponent(p
   private val indexes = new mutable.HashMap[String, ResolverIndex]()
 
   private def doUpdateResolverIndexWithProgress(name: String, index: ResolverIndex): Unit = {
-    ProgressManager.getInstance().run(new Task.Backgroundable(project, "Updating indexes") {
-      override def run(indicator: ProgressIndicator): Unit = {
-        indicator.setIndeterminate(true)
-        indicator.setText(s"Updating: $name")
-        index.doUpdate(Some(indicator))(project)
-      }
-    })
+    if (!project.isDisposed) {
+      ProgressManager.getInstance().run(new Task.Backgroundable(project, "Updating indexes") {
+        override def run(indicator: ProgressIndicator): Unit = {
+          indicator.setIndeterminate(true)
+          indicator.setText(s"Updating: $name")
+          index.doUpdate(Some(indicator))(project)
+        }
+      })
+    }
   }
 
   def updateWithProgress(resolvers: Seq[SbtResolver]): Unit = {

@@ -11,7 +11,6 @@ import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory
 import com.intellij.execution.ui.layout.PlaceInGrid
 import com.intellij.execution.ui.{RunContentDescriptor, RunnerLayoutUi}
 import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
