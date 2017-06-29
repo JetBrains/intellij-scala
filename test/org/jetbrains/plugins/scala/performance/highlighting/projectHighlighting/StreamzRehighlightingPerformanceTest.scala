@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.performance.highlighting.projectHighlighting
 
 import com.intellij.openapi.editor.LogicalPosition
 import org.jetbrains.plugins.scala.SlowTests
+import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
 import scala.collection.mutable.ArrayBuffer
@@ -22,6 +23,7 @@ class StreamzRehighlightingPerformanceTest extends RehighlightingPerformanceTypi
 
   def revision: String = "559aa356291e1760e72f59816df70bdcf169d089"
 
+  @Ignore
   def testTypingCamelPackageObj(): Unit = {
     val fileName = "streamz-akka-camel/src/main/scala/streamz/akka/camel/package.scala"
     val tries = ArrayBuffer[Try[Unit]]()
