@@ -57,7 +57,6 @@ import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
 import scala.meta.intellij.MetaExpansionsManager
-import scala.meta.trees.ScalaMetaRetry
 import scala.util.Try
 
 /**
@@ -441,8 +440,7 @@ abstract class ScalaAnnotator extends Annotator
         warning.registerFix(new RecompileAnnotationAction(annotation))
       }
       val result = annotation.parent.flatMap(_.parent) match {
-        case Some(ah: ScAnnotationsHolder) => try { ah.getMetaExpansion }
-          catch { case _: ScalaMetaRetry => return }
+        case Some(ah: ScAnnotationsHolder) => ah.getMetaExpansion
         case _ => Right("")
       }
       val settings = ScalaProjectSettings.getInstance(annotation.getProject)

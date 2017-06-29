@@ -17,8 +17,6 @@ class ScalaMetaResolveError(elem: PsiElement) extends ScalaMetaException(s"Canno
 
 class ScalaMetaTypeResultFailure(elem: Option[PsiElement], cause: String) extends ScalaMetaException(s"Cannot calculate type at ${elem.map(_.getText).getOrElse("UNKNOWN")}($cause)")
 
-class ScalaMetaRetry extends Exception
-
 package object error {
   def unreachable = throw new AbortException("This code should be unreachable")
   def unreachable(reason: String) = throw new AbortException("This code should be unreachable: " + reason)

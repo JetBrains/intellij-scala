@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
@@ -38,7 +37,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 import scala.collection.JavaConverters._
-import scala.meta.trees.ScalaMetaRetry
 
 /**
  * @author ven
@@ -54,16 +52,13 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
   def isDesugared: Boolean = _isDesugared
   def desugaredElement: Option[ScTemplateDefinition] = None
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def extendsBlock: ScExtendsBlock = {
-    try {
-      desugaredElement match {
-        case Some(defn) => defn.extendsBlock
-        case None => this.stubOrPsiChild(ScalaElementTypes.EXTENDS_BLOCK).orNull
-      }
-    } catch {
-      case _:ScalaMetaRetry =>
-        this.stubOrPsiChild(ScalaElementTypes.EXTENDS_BLOCK).orNull
+    @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+    def getCached: ScExtendsBlock = this.stubOrPsiChild(ScalaElementTypes.EXTENDS_BLOCK).orNull
+
+    desugaredElement match {
+      case Some(defn) => defn.extendsBlock
+      case None => getCached
     }
   }
 
