@@ -98,7 +98,7 @@ object CachedInsidePsiElement {
 
           val $resultName = $computation
           $updateHolder
-          $resultName
+          $getFromHolder
           """
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
