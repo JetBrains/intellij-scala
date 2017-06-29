@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
 import scala.collection.immutable
 import scala.meta.parsers.Parse
-import scala.meta.trees.{AbortException, ScalaMetaException, ScalaMetaRetry, TreeConverter}
+import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
 import scala.meta.{Dialect, Tree}
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 
@@ -101,9 +101,7 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
     }
 
     val annotClass = annot.constructor.reference
-      .getOrElse(throw new ScalaMetaRetry)
-      .bind()
-      .map(_.parentElement.getOrElse(throw new ScalaMetaRetry).asInstanceOf[ScClass])
+      .flatMap(_.bind().flatMap(_.parentElement.map(_.asInstanceOf[ScClass])))
     val metaModule = annotClass.flatMap(_.module)
     val classLoader = metaModule
       .map(classLoaderForModule)  // try annotation's own module first - if it exists as a part of rhe codebase
@@ -179,7 +177,6 @@ object MetaExpansionsManager {
         errorOrTree
       } catch {
         case pc: ProcessCanceledException => throw pc
-        case e:  ScalaMetaRetry           => throw e
         case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
         case sm: ScalaMetaException       => Left(s"Semantic error: ${sm.getMessage}")
         case so: StackOverflowError       => Left(s"Stack overflow during expansion ${copied.getText}")

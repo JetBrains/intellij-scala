@@ -58,7 +58,6 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, Set, mutable}
-import scala.meta.trees.ScalaMetaRetry
 
 /**
   * User: Alexander Podkhalyuzin
@@ -1152,14 +1151,10 @@ object ScalaPsiUtil {
 
     import scala.{meta => m}
 
-    try {
-      ah.getMetaExpansion match {
-        case Left(_) => None
-        case Right(m.Term.Block(Seq(_: m.Defn, obj: m.Defn.Object))) => Some(obj)
-        case Right(_) => None
-      }
-    } catch {
-      case _:ScalaMetaRetry => None
+    ah.getMetaExpansion match {
+      case Left(_) => None
+      case Right(m.Term.Block(Seq(_: m.Defn, obj: m.Defn.Object))) => Some(obj)
+      case Right(_) => None
     }
   }
 
