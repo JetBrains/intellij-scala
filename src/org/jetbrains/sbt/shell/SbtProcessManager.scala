@@ -206,7 +206,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
         updateProcessData().runner
     }
 
-    ShellUIUtil.inUIsync(theRunner.openShell(focus))
+    ShellUIUtil.inUIsync(if (!SbtRunner.isInTest) theRunner.openShell(focus))
 
     theRunner
   }
