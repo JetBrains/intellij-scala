@@ -2,12 +2,16 @@ package org.jetbrains.plugins.cbt
 
 import java.io.File
 
-import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
+import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.model.{CbtProjectConverter, CbtProjectInfo}
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
+import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
+
+import scala.util.Failure
 
 
 class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSettings] {
@@ -23,9 +27,9 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
 
     val xml = CBT.buildInfoXml(root, settings.extraModules, Some(id, listener))
     println(xml.toString)
-    val project = CbtProjectInfo(xml)
-    val ideaProjectModel = CbtProjectConverter(project, settings)
-    ideaProjectModel
+    xml.map(CbtProjectInfo(_))
+      .map(CbtProjectConverter(_, settings))
+      .get
   }
 
   override def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean = true

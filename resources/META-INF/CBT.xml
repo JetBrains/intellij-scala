@@ -25,6 +25,8 @@
         <externalProjectDataService
                 implementation="org.jetbrains.plugins.cbt.project.data.service.CbtModuleExtDataService"/>
         <internalFileTemplate name="CBT Build Class"/>
+        <externalSystemTaskNotificationListener implementation="org.jetbrains.plugins.cbt.project.CbtNotificationListener"/>
+
 
         <toolWindow id="CBT" anchor="right"
                     icon="/org/jetbrains/plugins/scala/images/sbt.png"
