@@ -120,7 +120,7 @@ object CachedWithRecursionGuard {
           }
 
           $updateHolder
-          $resultName
+          $getFromHolder
           """
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
