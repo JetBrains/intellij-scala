@@ -63,7 +63,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
   private var mySpecifyTypeChb: JCheckBox = null
   private var myDeclarationStartOffset: Int = 0
   private val newDeclaration = ScalaPsiUtil.getParentOfType(namedElement, classOf[ScEnumerator], classOf[ScDeclaredElementsHolder])
-  private var myCheckIdentifierListener: DocumentListener = null
+  private var myCheckIdentifierListener: Option[DocumentListener] = None
   private val myFile: PsiFile = namedElement.getContainingFile
   private val myBalloonPanel: JPanel = new JPanel()
   private var nameIsValid: Boolean = true
@@ -77,7 +77,6 @@ class ScalaInplaceVariableIntroducer(project: Project,
   private val typePanel = new JPanel()
 
   setDeclaration(newDeclaration)
-  myCheckIdentifierListener = checkIdentifierListener()
 
   private def checkIdentifierListener(): DocumentListener = new DocumentListener {
     override def documentChanged(e: DocumentEvent): Unit = {
@@ -252,7 +251,10 @@ class ScalaInplaceVariableIntroducer(project: Project,
       })
     }
 
-    myEditor.getDocument.addDocumentListener(myCheckIdentifierListener)
+    myCheckIdentifierListener = Some(checkIdentifierListener())
+    myCheckIdentifierListener.foreach {
+      myEditor.getDocument.addDocumentListener
+    }
 
     setBalloonPanel(nameIsValid = true)
     myBalloonPanel
@@ -369,7 +371,9 @@ class ScalaInplaceVariableIntroducer(project: Project,
   }
 
   override def finish(success: Boolean): Unit = {
-    myEditor.getDocument.removeDocumentListener(myCheckIdentifierListener)
+    myCheckIdentifierListener.foreach {
+      myEditor.getDocument.removeDocumentListener
+    }
 
     if (mySpecifyTypeChb != null && !isEnumerator) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = mySpecifyTypeChb.isSelected
 
