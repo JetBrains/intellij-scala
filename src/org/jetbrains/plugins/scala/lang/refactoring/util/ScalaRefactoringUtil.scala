@@ -11,7 +11,7 @@ import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, RangeHighlighter, TextAttributes}
 import com.intellij.openapi.editor.{Editor, RangeMarker, VisualPosition}
@@ -545,11 +545,12 @@ object ScalaRefactoringUtil {
       }
     })
 
-    JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
-      def run() {
-        pass(list.getSelectedValue.asInstanceOf[T])
-      }
-    }).addListener(new JBPopupAdapter {
+    val callback: Runnable = pass(list.getSelectedValue.asInstanceOf[T])
+
+    val callbackInTransaction: Runnable =
+      TransactionGuard.getInstance().submitTransactionLater(editor.getProject, callback)
+
+    val highlighterAdapter = new JBPopupAdapter {
       override def beforeShown(event: LightweightWindowEvent): Unit = {
         selection.addHighlighter()
       }
@@ -558,7 +559,16 @@ object ScalaRefactoringUtil {
         highlighter.dropHighlight()
         selection.removeHighlighter()
       }
-    }).createPopup.showInBestPositionFor(editor)
+    }
+    JBPopupFactory.getInstance.createListPopupBuilder(list)
+      .setTitle(title)
+      .setMovable(false)
+      .setResizable(false)
+      .setRequestFocus(true)
+      .setItemChoosenCallback(callbackInTransaction)
+      .addListener(highlighterAdapter)
+      .createPopup
+      .showInBestPositionFor(editor)
   }
 
   def getShortText(expr: ScalaPsiElement): String = {
