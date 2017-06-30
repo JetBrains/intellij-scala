@@ -7,6 +7,7 @@ import com.intellij.codeInsight.template._
 import com.intellij.codeInsight.template.impl.ConstantNode
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
@@ -137,7 +138,9 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
       override def templateFinished(template: Template, brokenOff: Boolean) {
         if (!brokenOff) {
           val offset = editor.getCaretModel.getOffset
-          document.insertString(offset, " ")
+          inWriteAction {
+            document.insertString(offset, " ")
+          }
           editor.getCaretModel.moveToOffset(offset + 1)
         }
       }
