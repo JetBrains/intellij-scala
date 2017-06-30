@@ -11,7 +11,7 @@ import com.intellij.openapi.application.{ApplicationManager, Result}
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.command.impl.StartMarkAction
 import com.intellij.openapi.command.undo.UndoManager
-import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
+import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.editor.ex.DocumentEx
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Editor, ScrollType}
@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaInplaceVariableIntroducer.addTypeAnnotation
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaInplaceVariableIntroducer.needTypeAnnotation
 import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaNamesUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -75,6 +75,8 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
   private val myChbPanel = new JPanel()
   private val typePanel = new JPanel()
+
+  private val needTypeDefault: Boolean = needTypeAnnotation(namedElement, expr, forceType = forceInferType)
 
   setDeclaration(newDeclaration)
 
@@ -124,10 +126,9 @@ class ScalaInplaceVariableIntroducer(project: Project,
     PsiDocumentManager.getInstance(myProject).commitDocument(myEditor.getDocument)
   }
 
-  private def needInferType = forceInferType.getOrElse {
+  private def needInferType =
     if (mySpecifyTypeChb != null) mySpecifyTypeChb.isSelected
-    else addTypeAnnotation(namedElement, expr)
-  }
+    else needTypeDefault
 
   override def getInitialName: String = initialName
 
@@ -165,7 +166,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
     if (types.nonEmpty && forceInferType.isEmpty) {
       val selectedType = types(0)
       mySpecifyTypeChb = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.specify.type.explicitly"))
-      mySpecifyTypeChb.setSelected(addTypeAnnotation(namedElement, expr))
+      mySpecifyTypeChb.setSelected(needTypeDefault)
       mySpecifyTypeChb.setMnemonic('t')
       mySpecifyTypeChb.addItemListener(new ItemListener {
         override def itemStateChanged(e: ItemEvent): Unit = {
@@ -244,7 +245,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
           writeAction.execute()
           ApplicationManager.getApplication.runReadAction(new Runnable {
             def run(): Unit = {
-              if (addTypeAnnotation(namedElement, expr)) resetGreedyToRightBack()
+              if (needTypeDefault) resetGreedyToRightBack()
             }
           })
         }
@@ -262,22 +263,26 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
   private def setUpTypePanel(): JPanel = {
     typePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
-    typePanel.add(mySpecifyTypeChb)
 
-    val myLinkContainer = new JPanel
-    myLinkContainer.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
-    typePanel.add(myLinkContainer)
+    if (mySpecifyTypeChb != null) {
+      typePanel.add(mySpecifyTypeChb)
 
-    val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
-    link.addHyperlinkListener(new HyperlinkListener() {
-      override def hyperlinkUpdate(e: HyperlinkEvent) {
-        extensions.invokeLater {
-          mySpecifyTypeChb.setSelected(addTypeAnnotation(namedElement, expr))
+      val myLinkContainer = new JPanel
+      myLinkContainer.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
+      typePanel.add(myLinkContainer)
+
+      val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
+      link.addHyperlinkListener(new HyperlinkListener() {
+        override def hyperlinkUpdate(e: HyperlinkEvent) {
+          extensions.invokeLater {
+            mySpecifyTypeChb.setSelected(needTypeDefault)
+          }
         }
-      }
-    })
+      })
 
-    myLinkContainer.add(link)
+      myLinkContainer.add(link)
+    }
+
     typePanel
   }
 
@@ -375,7 +380,8 @@ class ScalaInplaceVariableIntroducer(project: Project,
       myEditor.getDocument.removeDocumentListener
     }
 
-    if (mySpecifyTypeChb != null && !isEnumerator) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = mySpecifyTypeChb.isSelected
+    if (mySpecifyTypeChb != null && !isEnumerator)
+      ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = mySpecifyTypeChb.isSelected
 
     try {
       val named = namedElement(getDeclaration).orNull
@@ -400,21 +406,30 @@ class ScalaInplaceVariableIntroducer(project: Project,
 }
 
 object ScalaInplaceVariableIntroducer {
-  def addTypeAnnotation(anchor: PsiElement, expression: ScExpression, fromDialogMode: Boolean = false): Boolean = {
-    if (fromDialogMode) {
-      ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE
-    } else {
-      val isLocal = TypeAnnotationUtil.isLocal(anchor)
-      val visibility = if (!isLocal) TypeAnnotationUtil.Private else TypeAnnotationUtil.Public
-      val settings = ScalaCodeStyleSettings.getInstance(expression.getProject)
+  def needTypeAnnotation(anchor: PsiElement,
+                         expression: ScExpression,
+                         fromDialogMode: Boolean = false,
+                         forceType: Option[Boolean] = None): Boolean = {
 
-      TypeAnnotationUtil.isTypeAnnotationNeeded(
-        TypeAnnotationUtil.requirementForProperty(isLocal, visibility, settings),
-        settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
-        settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
-        isOverride = false, // no overriding enable in current refactoring
-        isSimple = TypeAnnotationUtil.isSimple(expression)
-      )
+    forceType.getOrElse {
+      if (expression == null || !expression.isValid) {
+        false
+      }
+      else if (fromDialogMode) {
+        ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE
+      } else {
+        val isLocal = TypeAnnotationUtil.isLocal(anchor)
+        val visibility = if (!isLocal) TypeAnnotationUtil.Private else TypeAnnotationUtil.Public
+        val settings = ScalaCodeStyleSettings.getInstance(expression.getProject)
+
+        TypeAnnotationUtil.isTypeAnnotationNeeded(
+          TypeAnnotationUtil.requirementForProperty(isLocal, visibility, settings),
+          settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
+          settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
+          isOverride = false, // no overriding enable in current refactoring
+          isSimple = TypeAnnotationUtil.isSimple(expression)
+        )
+      }
     }
   }
 }

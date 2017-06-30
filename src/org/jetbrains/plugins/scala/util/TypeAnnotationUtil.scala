@@ -26,6 +26,8 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel.{ADD, BY_CODE_STYLE, REMOVE}
 
+import scala.annotation.tailrec
+
 /**
   * Created by kate on 7/14/16.
   */
@@ -165,11 +167,13 @@ object TypeAnnotationUtil {
     case _ => false
   }
 
-  def isLocal(psiElement: PsiElement): Boolean = psiElement match {
+  @tailrec
+  final def isLocal(psiElement: PsiElement): Boolean = psiElement match {
+    case null => false
     case member: ScMember => member.isLocal
-    case _: PsiLocalVariable => true
-    case _ if psiElement.getContext != null => !psiElement.getContext.isInstanceOf[ScTemplateBody]
-    case _ => false
+    case _: ScEnumerator | _: ScForStatement | _: PsiLocalVariable => true
+    case _: ScTemplateBody => false
+    case _ => isLocal(psiElement.getContext)
   }
 
   def getTypeElement(element: ScalaPsiElement): Option[ScTypeElement] = {
