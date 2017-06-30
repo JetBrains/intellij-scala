@@ -124,10 +124,7 @@
         <action id="Scala.Sbt.StartShell"
                 class="org.jetbrains.sbt.shell.action.SbtShellStartAction"
                 text="Start SBT Shell"
-        >
-            <add-to-group group-id="ToolsMenu" anchor="after" relative-to-action="Scala.RunConsole" />
-        </action>
-
+        />
         <action id="Scala.Sbt.RunTask"
                 class="org.jetbrains.sbt.shell.action.RunTaskAction"
                 text="Run"
