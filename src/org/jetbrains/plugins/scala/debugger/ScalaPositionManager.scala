@@ -142,8 +142,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     checkForIndyLambdas(refType)
 
     try {
-      val line: Int = position.getLine
-      locationsOfLine(refType, line).asJava
+      inReadAction {
+        val line: Int = position.getLine
+        locationsOfLine(refType, line).asJava
+      }
     }
     catch {
       case _: AbsentInformationException => Collections.emptyList()
