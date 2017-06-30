@@ -13,7 +13,7 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 
   override def init(toolWindow: ToolWindow): Unit = {
     toolWindow.setStripeTitle(SbtShellToolWindowFactory.title)
-    toolWindow.setIcon(Icons.SBT_SHELL)
+    toolWindow.setIcon(Icons.SBT_SHELL_TOOLWINDOW)
     toolWindow.setAnchor(ToolWindowAnchor.BOTTOM, null)
     toolWindow.setType(ToolWindowType.DOCKED, null)
   }
