@@ -52,8 +52,14 @@ case class ElementScope(project: Project, scope: GlobalSearchScope) {
 }
 
 object ElementScope {
-  def apply(element: PsiElement): ElementScope =
-    ElementScope(element.getProject, element.getResolveScope)
+  def apply(element: PsiElement): ElementScope = {
+    val project = element.getProject
+    val scope =
+      if (element.isValid) element.getResolveScope
+      else GlobalSearchScope.allScope(project)
+
+    ElementScope(project, scope)
+  }
 
   def apply(project: Project): ElementScope =
     ElementScope(project, GlobalSearchScope.allScope(project))
