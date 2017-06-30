@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
  */
 
 class ChildrenIterator(element: PsiElement) extends Iterator[PsiElement] {
-  private var current = element.getFirstChild
+  private var current = Option(element).map(_.getFirstChild).orNull
 
   def hasNext: Boolean = current != null
 
