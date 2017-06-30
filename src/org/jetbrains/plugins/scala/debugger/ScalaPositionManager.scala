@@ -338,7 +338,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    calcElement().map(SourcePosition.createFromElement)
+    calcElement().filter(_.isValid).map(SourcePosition.createFromElement)
   }
 
   private def findScriptFile(refType: ReferenceType): Option[PsiFile] = {
