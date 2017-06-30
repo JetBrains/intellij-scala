@@ -399,7 +399,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   def getFileResolveScope: GlobalSearchScope = {
     val vFile = getOriginalFile.getVirtualFile
 
-    if (vFile == null) GlobalSearchScope.allScope(getProject)
+    if (vFile == null || !vFile.isValid) GlobalSearchScope.allScope(getProject)
     else if (isCompiled) compiledFileResolveScope
     else ResolveScopeManager.getInstance(getProject).getDefaultResolveScope(vFile)
   }
