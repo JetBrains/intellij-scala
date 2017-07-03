@@ -545,10 +545,9 @@ object ScalaRefactoringUtil {
       }
     })
 
-    val callback: Runnable = pass(list.getSelectedValue.asInstanceOf[T])
-
-    val callbackInTransaction: Runnable =
-      TransactionGuard.getInstance().submitTransactionLater(editor.getProject, callback)
+    val callback: Runnable = inTransactionLater(editor.getProject) {
+      pass(list.getSelectedValue.asInstanceOf[T])
+    }
 
     val highlighterAdapter = new JBPopupAdapter {
       override def beforeShown(event: LightweightWindowEvent): Unit = {
@@ -565,7 +564,7 @@ object ScalaRefactoringUtil {
       .setMovable(false)
       .setResizable(false)
       .setRequestFocus(true)
-      .setItemChoosenCallback(callbackInTransaction)
+      .setItemChoosenCallback(callback)
       .addListener(highlighterAdapter)
       .createPopup
       .showInBestPositionFor(editor)

@@ -6,7 +6,8 @@ import java.util.concurrent.{Callable, Future}
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.application.{ApplicationManager, Result}
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.{ApplicationManager, Result, TransactionGuard}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
@@ -706,6 +707,10 @@ package object extensions {
         }
       })
     }
+  }
+
+  def inTransactionLater(disposable: Disposable)(body: => Unit): Runnable = {
+    TransactionGuard.getInstance().submitTransactionLater(disposable, body)
   }
 
   private def preservingControlFlow(body: => Unit) {
