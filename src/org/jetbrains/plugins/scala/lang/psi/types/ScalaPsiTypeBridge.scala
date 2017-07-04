@@ -110,10 +110,13 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       } else designator
   }
 
-  override def toPsiType(`type`: ScType,
-                         noPrimitives: Boolean,
-                         skolemToWildcard: Boolean)
-                        (implicit elementScope: ElementScope): PsiType = {
+  override def toPsiType(`type`: ScType, noPrimitives: Boolean)
+                        (implicit elementScope: ElementScope): PsiType = toPsiTypeInner(`type`, noPrimitives)
+
+  private def toPsiTypeInner(`type`: ScType,
+                             noPrimitives: Boolean = false,
+                             visitedAliases: Set[ScTypeAliasDefinition] = Set.empty)
+                            (implicit elementScope: ElementScope): PsiType = {
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
       proj.projected.extractClass match {
@@ -123,41 +126,41 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     }
 
     val t = `type`.removeAliasDefinitions()
-    if (t.isInstanceOf[NonValueType]) return toPsiType(t.inferValueType)
+    if (t.isInstanceOf[NonValueType]) return toPsiTypeInner(t.inferValueType)
 
     def javaObject = createJavaObject
     val qualNameToType = elementScope.projectContext.stdTypes.QualNameToType
 
     t match {
-      case ScCompoundType(Seq(typez, _*), _, _) => toPsiType(typez)
+      case ScCompoundType(Seq(typez, _*), _, _) => toPsiTypeInner(typez)
       case ScDesignatorType(c: ScTypeDefinition) if qualNameToType.contains(c.qualifiedName) =>
-        toPsiType(qualNameToType(c.qualifiedName), noPrimitives, skolemToWildcard)
+        toPsiTypeInner(qualNameToType(c.qualifiedName), noPrimitives)
       case ScDesignatorType(valClass: ScClass) if ValueClassType.isValueClass(valClass) =>
         valClass.parameters.head.getRealParameterType(TypingContext.empty) match {
           case Success(tp, _) if !(noPrimitives && tp.isPrimitive) =>
-            toPsiType(tp, noPrimitives, skolemToWildcard)
+            toPsiTypeInner(tp, noPrimitives)
           case _ => createType(valClass)
         }
       case ScDesignatorType(c: PsiClass) => createType(c)
-      case ScalaArrayOf(arg) => new PsiArrayType(toPsiType(arg))
+      case arrayType(arg) => new PsiArrayType(toPsiTypeInner(arg))
       case ParameterizedType(ScDesignatorType(c: PsiClass), args) =>
         val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY) {
-          case (s, (targ, tp)) => s.put(tp, toPsiType(targ, noPrimitives = true, skolemToWildcard = true))
+          case (s, (targ, tp)) => s.put(tp, toPsiTypeInner(targ, noPrimitives = true))
         }
         createType(c, subst)
       case ParameterizedType(proj@ScProjectionType(_, _, _), args) => proj.actualElement match {
         case c: PsiClass =>
-          if (c.qualifiedName == "scala.Array" && args.length == 1) new PsiArrayType(toPsiType(args.head))
+          if (c.qualifiedName == "scala.Array" && args.length == 1) new PsiArrayType(toPsiTypeInner(args.head))
           else {
             val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY) {
-              case (s, (targ, tp)) => s.put(tp, toPsiType(targ, skolemToWildcard = true))
+              case (s, (targ, tp)) => s.put(tp, toPsiTypeInner(targ))
             }
             createType(c, subst, raw = outerClassHasTypeParameters(proj))
           }
-        case a: ScTypeAliasDefinition =>
+        case a: ScTypeAliasDefinition if !visitedAliases.contains(a) =>
           a.aliasedType match {
             case Success(c: ScParameterizedType, _) =>
-              toPsiType(ScParameterizedType(c.designator, args), noPrimitives)
+              toPsiTypeInner(ScParameterizedType(c.designator, args), noPrimitives, visitedAliases + a)
             case _ => javaObject
           }
         case _ => javaObject
@@ -166,19 +169,19 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       case proj@ScProjectionType(_, _, _) => proj.actualElement match {
         case clazz: PsiClass =>
           clazz match {
-            case syn: ScSyntheticClass => toPsiType(syn.stdType)
+            case syn: ScSyntheticClass => toPsiTypeInner(syn.stdType)
             case _ => createType(clazz, raw = outerClassHasTypeParameters(proj))
           }
-        case elem: ScTypeAliasDefinition =>
+        case elem: ScTypeAliasDefinition if !visitedAliases.contains(elem) =>
           elem.aliasedType match {
-            case Success(typez, _) => toPsiType(typez, noPrimitives)
+            case Success(typez, _) => toPsiTypeInner(typez, noPrimitives, visitedAliases + elem)
             case Failure(_, _) => javaObject
           }
         case _ => javaObject
       }
       case ScThisType(clazz) => createType(clazz)
       case TypeParameterType(_, _, _, typeParameter) => EmptySubstitutor.getInstance().substitute(typeParameter)
-      case ex: ScExistentialType => toPsiType(ex.quantified, noPrimitives)
+      case ex: ScExistentialType => toPsiTypeInner(ex.quantified, noPrimitives)
       case argument: ScExistentialArgument =>
         val upper = argument.upper
         val manager = PsiManager.getInstance(elementScope.project)
@@ -186,16 +189,18 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           val lower = argument.lower
           if (lower.equiv(Nothing)) PsiWildcardType.createUnbounded(manager)
           else {
-            val sup: PsiType = toPsiType(lower)
+            val sup: PsiType = toPsiTypeInner(lower)
             if (sup.isInstanceOf[PsiWildcardType]) javaObject
             else PsiWildcardType.createSuper(manager, sup)
           }
         } else {
-          val psi = toPsiType(upper)
+          val psi = toPsiTypeInner(upper)
           if (psi.isInstanceOf[PsiWildcardType]) javaObject
           else PsiWildcardType.createExtends(manager, psi)
         }
-      case _ => super.toPsiType(`type`, noPrimitives, skolemToWildcard)
+
+      case std: StdType => stdToPsiType(std, noPrimitives)
+      case _ => javaObject
     }
   }
 }
