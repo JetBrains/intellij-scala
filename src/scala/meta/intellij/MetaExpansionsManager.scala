@@ -13,13 +13,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
 import scala.collection.immutable
@@ -146,10 +146,11 @@ object MetaExpansionsManager {
 
   def runMetaAnnotation(annot: ScAnnotation): Either[String, Tree] = {
 
-    val copied: ScAnnotationsHolder = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
+    val holder: ScAnnotationsHolder = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
       .asInstanceOf[ScAnnotationsHolder]
 
-    def runMetaAnnotationsImpl: Either[String, Tree] = {
+    @CachedInsidePsiElement(annot, ModCount.getBlockModificationCount)
+    def runMetaAnnotationsImpl(annot: ScAnnotation): Either[String, Tree] = {
 
       val converter = new TreeConverter {
         override def getCurrentProject: Project = annot.getProject
@@ -158,7 +159,7 @@ object MetaExpansionsManager {
       }
 
       try {
-        val converted = converter.ideaToMeta(copied)
+        val converted = converter.ideaToMeta(holder)
         val convertedAnnot = converter.toAnnotCtor(annot)
         val typeArgs = annot.typeElement match {
           case pe: ScParameterizedTypeElement => pe.typeArgList.typeArgs.map(converter.toType)
@@ -173,19 +174,18 @@ object MetaExpansionsManager {
           case (Some(clazz), _) => Right(runDirect(clazz, compiledArgs))
           case (None, _)        => Left("Meta annotation class could not be found")
         }
-        CachesUtil.updateModificationCount(copied)
         errorOrTree
       } catch {
         case pc: ProcessCanceledException => throw pc
         case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
         case sm: ScalaMetaException       => Left(s"Semantic error: ${sm.getMessage}")
-        case so: StackOverflowError       => Left(s"Stack overflow during expansion ${copied.getText}")
+        case so: StackOverflowError       => Left(s"Stack overflow during expansion ${holder.getText}")
         case e: InvocationTargetException => Left(e.getTargetException.getMessage)
         case e: Exception                 => Left(s"Unexpected error during expansion: ${e.getMessage}")
       }
     }
 
-    extensions.inReadAction(runMetaAnnotationsImpl)
+    extensions.inReadAction(runMetaAnnotationsImpl(annot))
   }
 
   // use if meta versions are different within the same Scala major version

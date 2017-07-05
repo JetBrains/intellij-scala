@@ -19,20 +19,17 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.intellij.util.VisibilityIcons
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
 import org.jetbrains.plugins.scala.conversion.JavaToScala
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScToplevelElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -43,7 +40,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionTy
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.projectView.{ClassAndCompanionObject, SingularDefinition, TraitAndCompanionObject}
-import org.jetbrains.plugins.scala.extensions._
 
 import scala.annotation.tailrec
 import scala.collection.Seq
@@ -394,6 +390,11 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     ScalaPsiImplementationHelper.getOriginalClass(this)
   }
 
+  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
+  private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition = {
+    ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this).setDesugared()
+  }
+
   override def desugaredElement: Option[ScTemplateDefinition] = {
     import scala.meta.{Defn, Term}
 
@@ -406,6 +407,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
       case Right(Term.Block(Seq(templ: Defn.Object, _))) => Some(templ)
       case _ => None
     }
-    defn.map(tree=>ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this).setDesugared())
+
+    defn.map(cachedDesugared)
   }
 }

@@ -236,6 +236,11 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     getSupers.filter(_.isInterface)
   }
 
+  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
+  private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition = {
+    ScalaPsiElementFactory.createObjectWithContext(tree.toString(), getContext, this).setDesugared()
+  }
+
   override def desugaredElement: Option[ScTemplateDefinition] = {
     import scala.meta.{Defn, Term, Tree}
 
@@ -250,6 +255,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
         case _ => None
       }
     }
-    expansion.map(t=>ScalaPsiElementFactory.createObjectWithContext(t.toString(), getContext, this).setDesugared())
+
+    expansion.map(cachedDesugared)
   }
 }
