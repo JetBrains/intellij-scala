@@ -26,6 +26,7 @@
                 implementation="org.jetbrains.plugins.cbt.project.data.service.CbtModuleExtDataService"/>
         <internalFileTemplate name="CBT Build Class"/>
         <externalSystemTaskNotificationListener implementation="org.jetbrains.plugins.cbt.project.CbtNotificationListener"/>
+        <projectTaskRunner implementation="org.jetbrains.plugins.cbt.runner.CbtProjectTaskRunner"/>
 
 
         <toolWindow id="CBT" anchor="right"

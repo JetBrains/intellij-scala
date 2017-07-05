@@ -19,3 +19,7 @@ class CbtConfigurationType extends ConfigurationType {
 
   def getId: String = "CbtRunConfiguration"
 }
+
+object CbtConfigurationType {
+  def getInstance = new CbtConfigurationType
+}
