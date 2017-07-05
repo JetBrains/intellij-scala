@@ -113,19 +113,25 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
     
   private def computeCheckBoxState: ThreeStateCheckBox.State = {
     import scala.collection.JavaConversions._
-    
-    val distintValues = mySelectedElements.iterator
-      .collect{case member: ClassMember => member}
-      .map(member => istypeNeeded(member.getElement))
-      .toList.distinct
-  
-    distintValues.length match {
-      case 1 => if (distintValues.head) State.SELECTED else State.NOT_SELECTED
-      case _ => State.DONT_CARE
+
+    if (mySelectedElements == null) return State.DONT_CARE
+
+    val elements = mySelectedElements.collect {
+      case m: ClassMember => m.getElement
     }
+
+    val hasTypeNeeded = elements.exists(isTypeNeeded)
+    val hasNotNeeded = elements.exists(!isTypeNeeded(_))
+
+    if (hasTypeNeeded && hasNotNeeded || elements.isEmpty)
+      State.DONT_CARE
+    else if (hasTypeNeeded)
+      State.SELECTED
+    else
+      State.NOT_SELECTED
   }
-  
-  private def istypeNeeded(element: PsiElement): Boolean = {
+
+  private def isTypeNeeded(element: PsiElement): Boolean = {
     def defaults: (Int, Int, Int) =
       (TypeAnnotationRequirement.Preferred.ordinal(), TypeAnnotationPolicy.Regular.ordinal, TypeAnnotationPolicy.Optional.ordinal)
   
