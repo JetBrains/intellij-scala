@@ -1465,7 +1465,7 @@ object ScalaEvaluatorBuilderUtil {
 
   def isAnonfunInsideSuperCall(elem: PsiElement): Boolean = {
     def isInsideSuperCall(td: ScTypeDefinition) = {
-      val extBlock = td.extendsBlock
+      val extBlock = Option(td).map(_.extendsBlock).orNull
       PsiTreeUtil.getParentOfType(elem, classOf[ScEarlyDefinitions], classOf[ScConstructor]) match {
         case ed: ScEarlyDefinitions if ed.getParent == extBlock => true
         case c: ScConstructor if c.getParent.getParent == extBlock => true
