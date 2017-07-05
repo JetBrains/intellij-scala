@@ -45,8 +45,12 @@ object ScClsStubBuilder {
     @tailrec
     def go(prefix: String, suffix: String): Boolean = {
       if (!prefix.endsWith("$")) {
-        val child = parent.findChild(prefix + ".class")
-        if (child != null && DecompilerUtil.isScalaFile(child)) return true
+        val isScala =
+          Option(parent)
+            .map(_.findChild(prefix + ".class"))
+            .exists(DecompilerUtil.isScalaFile)
+
+        if (isScala) return true
       }
       split(suffix) match {
         case Some((suffixPrefix, suffixSuffix)) => go(prefix + "$" + suffixPrefix, suffixSuffix)
