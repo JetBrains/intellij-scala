@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -92,6 +93,13 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
         if (templateDef != null) {
           return new ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef, editor, file, element)
         }
+      case ScalaTokenTypes.tIDENTIFIER =>
+        val scElement = PsiTreeUtil.getParentOfType(element, classOf[ScalaPsiElement])
+        if (scElement != null) {
+          return new ScalaHighlightImplicitUsagesHandler(editor, file, scElement)
+        }
+      case ScalaTokenTypes.tCOLON =>
+        return new ScalaHighlightImplicitUsagesHandler(editor, file, element)
       case _ =>
     }
     null
