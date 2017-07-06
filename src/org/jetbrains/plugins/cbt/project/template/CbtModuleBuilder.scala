@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.cbt.project.template
 
+import java.awt.FlowLayout
 import java.io.File
-import javax.swing.JCheckBox
+import javax.swing.{JCheckBox, JPanel}
 
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
@@ -14,40 +15,19 @@ import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil.createDirectory
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
-import org.jetbrains.plugins.cbt.CBT
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{Platform, Version, Versions}
-import org.jetbrains.sbt.{RichFile, Sbt, SbtBundle}
 import org.jetbrains.sbt.project.template.SComboBox
 
 
 class CbtModuleBuilder
   extends AbstractExternalModuleBuilder[CbtProjectSettings](CbtProjectSystem.Id, new CbtProjectSettings) {
 
-  private class Selections(var scalaVersion: String = null,
-                           var isCbt: Boolean = false,
-                           var useCbtForInternalTasks: Boolean = true)
-
   private val selections = new Selections()
-
   private var scalaVersions: Array[String] = Array.empty
-
-  private def loadedScalaVersions = {
-    if (scalaVersions.isEmpty)
-      scalaVersions = withProgressSynchronously(s"Fetching Scala versions") { _ =>
-        Versions.loadScalaVersions(Platform.Scala)
-      }
-    scalaVersions
-  }
-
-  private def setupDefaults() = {
-    if (selections.scalaVersion == null)
-      selections.scalaVersion =
-        loadedScalaVersions.headOption.getOrElse(Versions.DefaultScalaVersion)
-  }
 
   override def setupRootModel(model: ModifiableRootModel): Unit = {
     val contentPath = getContentEntryPath
@@ -80,7 +60,7 @@ class CbtModuleBuilder
       _.setItems(loadedScalaVersions)
     )
 
-    val useCbtFroInternalTasksCheckBox = applyTo(new JCheckBox())(
+    val useCbtFroInternalTasksCheckBox = applyTo(new JCheckBox("Use CBT for Running and Building your project"))(
       _.setSelected(selections.useCbtForInternalTasks)
     )
 
@@ -92,11 +72,33 @@ class CbtModuleBuilder
       selections.useCbtForInternalTasks = useCbtFroInternalTasksCheckBox.isSelected
     }
 
+    val scalaPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
+      _.add(scalaVersionComboBox)
+    )
+
+    val cbtSettingsPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
+      _.add(useCbtFroInternalTasksCheckBox)
+    )
+
     val step = sdkSettingsStep(settingsStep)
 
-    settingsStep.addSettingsField("Scala:", scalaVersionComboBox)
-    settingsStep.addSettingsField("Use CBT for Running and Building your project:", useCbtFroInternalTasksCheckBox)
+    settingsStep.addSettingsField("Scala:", scalaPanel)
+    settingsStep.addSettingsField("CBT:", cbtSettingsPanel)
     step
+  }
+
+  private def loadedScalaVersions = {
+    if (scalaVersions.isEmpty)
+      scalaVersions = withProgressSynchronously(s"Fetching Scala versions") { _ =>
+        Versions.loadScalaVersions(Platform.Scala)
+      }
+    scalaVersions
+  }
+
+  private def setupDefaults() = {
+    if (selections.scalaVersion == null)
+      selections.scalaVersion =
+        loadedScalaVersions.headOption.getOrElse(Versions.DefaultScalaVersion)
   }
 
   private def sdkSettingsStep(settingsStep: SettingsStep) = {
@@ -122,4 +124,9 @@ class CbtModuleBuilder
   }
 
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
+
+  private class Selections(var scalaVersion: String = null,
+                           var isCbt: Boolean = false,
+                           var useCbtForInternalTasks: Boolean = true)
+
 }
