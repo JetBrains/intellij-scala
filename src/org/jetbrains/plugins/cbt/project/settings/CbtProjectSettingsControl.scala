@@ -10,25 +10,30 @@ import org.jetbrains.sbt.project.settings.Context
 class CbtProjectSettingsControl(context: Context, initialSettings: CbtProjectSettings)
   extends AbstractExternalProjectSettingsControl[CbtProjectSettings](initialSettings) {
   private val isCbtCheckBox = new JCheckBox("Do not link CBT (use when opening CBT itself)")
+  private val useCbtForInternalTasksCheckBox = new JCheckBox("Use CBT for Running and Building your project")
 
   override def applyExtraSettings(settings: CbtProjectSettings): Unit = {
     settings.isCbt = isCbtCheckBox.isSelected
+    settings.useCbtForInternalTasks = useCbtForInternalTasksCheckBox.isSelected
   }
 
   override def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
     val initial = getInitialSettings
     isCbtCheckBox.setSelected(initial.isCbt)
+    useCbtForInternalTasksCheckBox.setSelected(initial.useCbtForInternalTasks)
   }
 
   override def fillExtraControls(content: PaintAwarePanel, indentLevel: Int): Unit = {
     val fillLineConstraints = getFillLineConstraints(indentLevel)
 
     content.add(isCbtCheckBox, fillLineConstraints)
+    content.add(useCbtForInternalTasksCheckBox, fillLineConstraints)
   }
 
   override def isExtraSettingModified: Boolean = {
     val initial = getInitialSettings
-    isCbtCheckBox.isSelected != initial.isCbt
+    isCbtCheckBox.isSelected != initial.isCbt ||
+      useCbtForInternalTasksCheckBox.isSelected != initial.useCbtForInternalTasks
   }
 
   override def validate(settings: CbtProjectSettings): Boolean = true

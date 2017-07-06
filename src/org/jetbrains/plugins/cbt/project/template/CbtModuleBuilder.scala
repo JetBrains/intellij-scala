@@ -27,7 +27,9 @@ import org.jetbrains.sbt.project.template.SComboBox
 class CbtModuleBuilder
   extends AbstractExternalModuleBuilder[CbtProjectSettings](CbtProjectSystem.Id, new CbtProjectSettings) {
 
-  private class Selections(var scalaVersion: String = null, var isCbt: Boolean = false)
+  private class Selections(var scalaVersion: String = null,
+                           var isCbt: Boolean = false,
+                           var useCbtForInternalTasks: Boolean = true)
 
   private val selections = new Selections()
 
@@ -78,13 +80,22 @@ class CbtModuleBuilder
       _.setItems(loadedScalaVersions)
     )
 
+    val useCbtFroInternalTasksCheckBox = applyTo(new JCheckBox())(
+      _.setSelected(selections.useCbtForInternalTasks)
+    )
+
     scalaVersionComboBox.addActionListenerEx {
       selections.scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
+    }
+
+    useCbtFroInternalTasksCheckBox.addActionListenerEx {
+      selections.useCbtForInternalTasks = useCbtFroInternalTasksCheckBox.isSelected
     }
 
     val step = sdkSettingsStep(settingsStep)
 
     settingsStep.addSettingsField("Scala:", scalaVersionComboBox)
+    settingsStep.addSettingsField("Use CBT for Running and Building your project:", useCbtFroInternalTasksCheckBox)
     step
   }
 
@@ -98,6 +109,7 @@ class CbtModuleBuilder
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
     val root = new File(getModuleFileDirectory)
     getExternalProjectSettings.isCbt = selections.isCbt
+    getExternalProjectSettings.useCbtForInternalTasks = selections.useCbtForInternalTasks
 
     if (root.exists()) {
       generateTemplate(root)

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.cbt.project.settings
 
-import java.io.File
 import java.util
 
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
@@ -15,6 +14,9 @@ class CbtProjectSettings extends ExternalProjectSettings {
   var isCbt = false
 
   @BeanProperty
+  var useCbtForInternalTasks = true
+
+  @BeanProperty
   var extraModules: java.util.List[String] = new util.ArrayList[String]()
 
   override def clone(): CbtProjectSettings = {
@@ -22,6 +24,7 @@ class CbtProjectSettings extends ExternalProjectSettings {
     copyTo(result)
     result.isCbt = isCbt
     result.extraModules = extraModules
+    result.useCbtForInternalTasks = useCbtForInternalTasks
     result
   }
 }

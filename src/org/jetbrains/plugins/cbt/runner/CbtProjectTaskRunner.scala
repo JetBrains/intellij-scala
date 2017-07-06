@@ -6,24 +6,29 @@ import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.{ExecutionManager, Executor}
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.task._
 import com.intellij.task.impl.ExecuteRunConfigurationTaskImpl
 import org.jetbrains.plugins.cbt._
-import org.jetbrains.plugins.cbt.project.CbtProjectSystem
+import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 
 import scala.collection.JavaConverters._
 
 class CbtProjectTaskRunner extends ProjectTaskRunner {
 
-  override def canRun(projectTask: ProjectTask): Boolean = projectTask match {
-    case task: ModuleBuildTask =>
-      ExternalSystemApiUtil.isExternalSystemAwareModule(CbtProjectSystem.Id, task.getModule)
-    case task: ExecuteRunConfigurationTaskImpl =>
-      task.getSettings.getConfiguration.getProject.isCbtProject
-    case _ => false
+  override def canRun(projectTask: ProjectTask): Boolean = {
+    Option(projectTask).flatMap {
+      case task: ModuleBuildTask =>
+        Some(task.getModule.getProject)
+      case task: ExecuteRunConfigurationTaskImpl =>
+        Some(task.getSettings.getConfiguration.getProject)
+      case _ => None
+    }.exists { project =>
+      val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
+      project.isCbtProject &&
+        projectSettings.useCbtForInternalTasks
+    }
   }
 
   override def run(project: Project, context: ProjectTaskContext,
@@ -46,6 +51,12 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
     ExecutionManager.getInstance(project).restartRunProfile(environment)
   }
 
+  override def createExecutionEnvironment(project: Project,
+                                          task: ExecuteRunConfigurationTask,
+                                          executor: Executor): ExecutionEnvironment = {
+    createExecutionEnvironment(project, task, None)
+  }
+
   private def createExecutionEnvironment(project: Project, projectTask: ProjectTask, callback: Option[() => Unit]) = {
     val configuration = projectTask match {
       case task: ModuleBuildTask =>
@@ -58,11 +69,5 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
     val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
     val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance, DefaultJavaProgramRunner.getInstance, runnerSettings, project)
     environment
-  }
-
-  override def createExecutionEnvironment(project: Project,
-                                          task: ExecuteRunConfigurationTask,
-                                          executor: Executor): ExecutionEnvironment = {
-    createExecutionEnvironment(project, task, None)
   }
 }
