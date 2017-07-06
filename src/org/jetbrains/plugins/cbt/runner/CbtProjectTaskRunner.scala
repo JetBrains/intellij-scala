@@ -2,6 +2,7 @@ package org.jetbrains.plugins.cbt.runner
 
 import java.util
 
+import com.intellij.execution.application.ApplicationConfiguration
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
 import com.intellij.execution.runners.ExecutionEnvironment
@@ -22,7 +23,14 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
       case task: ModuleBuildTask =>
         Some(task.getModule.getProject)
       case task: ExecuteRunConfigurationTaskImpl =>
-        Some(task.getSettings.getConfiguration.getProject)
+        val taskSupported = task.getRunProfile match {
+          case _: ApplicationConfiguration => true
+          case _ => false
+        }
+        if (taskSupported)
+          Some(task.getSettings.getConfiguration.getProject)
+        else
+          None
       case _ => None
     }.exists { project =>
       val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
@@ -51,12 +59,6 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
     ExecutionManager.getInstance(project).restartRunProfile(environment)
   }
 
-  override def createExecutionEnvironment(project: Project,
-                                          task: ExecuteRunConfigurationTask,
-                                          executor: Executor): ExecutionEnvironment = {
-    createExecutionEnvironment(project, task, None)
-  }
-
   private def createExecutionEnvironment(project: Project, projectTask: ProjectTask, callback: Option[() => Unit]) = {
     val configuration = projectTask match {
       case task: ModuleBuildTask =>
@@ -69,5 +71,11 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
     val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
     val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance, DefaultJavaProgramRunner.getInstance, runnerSettings, project)
     environment
+  }
+
+  override def createExecutionEnvironment(project: Project,
+                                          task: ExecuteRunConfigurationTask,
+                                          executor: Executor): ExecutionEnvironment = {
+    createExecutionEnvironment(project, task, None)
   }
 }
