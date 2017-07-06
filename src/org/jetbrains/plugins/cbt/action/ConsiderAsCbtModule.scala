@@ -29,7 +29,7 @@ class ConsiderAsCbtModule extends AnAction {
       projectSettings.getModules.asScala.map(_.toFile).map(_.getName).contains(dir.getName)
     }
 
-    if (!CBT.isCbtProject(project)) {
+    if (!project.isCbtProject) {
       disable()
     } else {
       try {

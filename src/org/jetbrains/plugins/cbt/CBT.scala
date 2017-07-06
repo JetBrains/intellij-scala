@@ -89,7 +89,4 @@ object CBT {
   def isCbtModuleDir(entry: VirtualFile): Boolean =
     entry.containsDirectory("build")
 
-  def isCbtProject(project: Project): Boolean =
-    CbtSystemSettings.getInstance(project).getLinkedProjectSettings(project.getBasePath) != null
-
 }

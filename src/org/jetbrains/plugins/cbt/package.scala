@@ -8,6 +8,7 @@ import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMo
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
+import org.jetbrains.plugins.cbt.project.settings.CbtSystemSettings
 
 package object cbt {
 
@@ -32,6 +33,8 @@ package object cbt {
           )
       })
     }
-  }
 
+    def isCbtProject: Boolean =
+      CbtSystemSettings.getInstance(project).getLinkedProjectSettings(project.getBasePath) != null
+  }
 }
