@@ -392,7 +392,8 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
 
   @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
   private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition = {
-    ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this).setDesugared()
+    ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this)
+      .setDesugared(actualElement = this)
   }
 
   override def desugaredElement: Option[ScTemplateDefinition] = {

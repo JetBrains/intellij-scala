@@ -68,8 +68,10 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   private def containingClassInner: ScTemplateDefinition = {
     def isCorrectContext(found: ScTemplateDefinition): Boolean = {
       val context = getContext
-      context == found.extendsBlock || found.extendsBlock.templateBody.contains(context) ||
-        found.extendsBlock.earlyDefinitions.contains(context)
+      context == found.extendsBlock ||
+        found.extendsBlock.templateBody.contains(context) ||
+        found.extendsBlock.earlyDefinitions.contains(context) ||
+        found.physicalExtendsBlock.templateBody.contains(context) // in case a member is not present in the desugared extends block (e.g. deleted by a macro)
     }
     (getContainingClassLoose, this) match {
       case (null, _) => null
