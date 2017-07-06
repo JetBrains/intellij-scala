@@ -64,7 +64,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled()
 
-    if (ScUnderScoreSectionUtil.underscores(this).nonEmpty) {
+    if (ScUnderScoreSectionUtil.isUnderscoreFunction(this)) {
       this.getTypeWithoutImplicits(fromUnderscore = true) //to update implicitParametersFromUnder
       implicitParametersFromUnder
     } else {

@@ -1035,11 +1035,9 @@ abstract class ScalaAnnotator extends Annotator
   private def checkExpressionImplicitParameters(expr: ScExpression, holder: AnnotationHolder) {
     expr.findImplicitParameters match {
       case Some(seq) =>
-        for (resolveResult <- seq) {
-          if (resolveResult != null) {
-            registerUsedImports(expr, resolveResult)
-            registerUsedElement(expr, resolveResult, checkWrite = false)
-          }
+        for (resolveResult <- seq if resolveResult != null) {
+          registerUsedImports(expr, resolveResult)
+          registerUsedElement(expr, resolveResult, checkWrite = false)
         }
       case _ =>
     }
@@ -1112,10 +1110,8 @@ abstract class ScalaAnnotator extends Annotator
 
         simpleTypeElement.findImplicitParameters match {
           case Some(parameters) =>
-            parameters.foreach {
-              case r: ScalaResolveResult =>
-                registerUsedImports(typeElement, r)
-              case null =>
+            for (r <- parameters if r != null) {
+              registerUsedImports(typeElement, r)
             }
           case _ =>
         }
