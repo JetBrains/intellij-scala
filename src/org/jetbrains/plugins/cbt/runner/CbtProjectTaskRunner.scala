@@ -2,6 +2,7 @@ package org.jetbrains.plugins.cbt.runner
 
 import java.util
 
+import com.intellij.debugger.impl.GenericDebuggerRunner
 import com.intellij.execution.application.ApplicationConfiguration
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
@@ -62,20 +63,51 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
   private def createExecutionEnvironment(project: Project, projectTask: ProjectTask, callback: Option[() => Unit]) = {
     val configuration = projectTask match {
       case task: ModuleBuildTask =>
-        new CbtBuildConfigurationFactory("compile", callback, CbtConfigurationType.getInstance)
+        new CbtBuildConfigurationFactory("compile", CbtConfigurationType.getInstance, callback = callback)
           .createTemplateConfiguration(project)
       case task: ExecuteRunConfigurationTask =>
-        new CbtBuildConfigurationFactory("run", callback, CbtConfigurationType.getInstance)
+        val debug = task.getRunnerSettings != null
+        new CbtBuildConfigurationFactory("run", CbtConfigurationType.getInstance, callback = callback)
           .createTemplateConfiguration(project)
     }
+    val runner = projectTask match {
+      case task: ModuleBuildTask =>
+        DefaultJavaProgramRunner.getInstance()
+      case task: ExecuteRunConfigurationTask =>
+        if (task.getRunnerSettings == null)
+          DefaultJavaProgramRunner.getInstance
+        else
+          new GenericDebuggerRunner
+    }
     val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
-    val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance, DefaultJavaProgramRunner.getInstance, runnerSettings, project)
+    val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance, runner, runnerSettings, project)
     environment
   }
 
   override def createExecutionEnvironment(project: Project,
                                           task: ExecuteRunConfigurationTask,
                                           executor: Executor): ExecutionEnvironment = {
-    createExecutionEnvironment(project, task, None)
+    val debug = task.getRunnerSettings != null
+    val runner = if (debug) new GenericDebuggerRunner else DefaultJavaProgramRunner.getInstance
+    new ExecutionEnvironment(executor, runner, task.getSettings, project)
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

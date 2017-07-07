@@ -5,6 +5,7 @@ import java.nio.file.Files
 
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
+import org.jetbrains.plugins.cbt._
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.model.CbtProjectInfo._
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
@@ -46,6 +47,19 @@ class CbtProjectConverter(project: Project) {
   private[model] def createLibraryNode(parent: DataNode[_])(library: Library) = {
     val libraryData = createLibraryData(library)
     new DataNode(ProjectKeys.LIBRARY, libraryData, parent)
+  }
+
+  private[model] def createLibraryData(library: Library) = {
+    val libraryData = new LibraryData(CbtProjectSystem.Id, library.name)
+    library.jars
+      .foreach { j =>
+        val libraryType = j.jarType match {
+          case JarType.Binary => LibraryPathType.BINARY
+          case JarType.Source => LibraryPathType.SOURCE
+        }
+        libraryData.addPath(libraryType, j.jar.getPath)
+      }
+    libraryData
   }
 
   private[model] def createModule(parent: DataNode[_])(module: Module) = {
@@ -100,12 +114,19 @@ class CbtProjectConverter(project: Project) {
   }
 
   private[model] def createModuleData(module: Module) = {
-    new ModuleData(module.name,
+    val moduleData = new ModuleData(module.name,
       CbtProjectSystem.Id,
       "JAVA_MODULE",
       module.name,
       module.root.getPath,
       module.root.getPath)
+
+    //TODO use only if using cbt for internal tasks
+    moduleData.setInheritProjectCompileOutputPath(false)
+    val scalaVersionWithoutMinor = module.scalaVersion.split('.').dropRight(1).mkString(".")
+    val outputPath = module.root / "target" / s"scala-$scalaVersionWithoutMinor" / "classes"
+    moduleData.setCompileOutputPath(ExternalSystemSourceType.SOURCE, outputPath.getAbsolutePath)
+    moduleData
   }
 
   private[model] def createCbtDependencies(moduleNode: DataNode[ModuleData]) =
@@ -116,19 +137,6 @@ class CbtProjectConverter(project: Project) {
     val libraryData = createLibraryData(librariesMap(dependencyName))
     val dependencyData = new LibraryDependencyData(parent.getData, libraryData, LibraryLevel.PROJECT)
     new DataNode(ProjectKeys.LIBRARY_DEPENDENCY, dependencyData, parent)
-  }
-
-  private[model] def createLibraryData(library: Library) = {
-    val libraryData = new LibraryData(CbtProjectSystem.Id, library.name)
-    library.jars
-      .foreach { j =>
-        val libraryType = j.jarType match {
-          case JarType.Binary => LibraryPathType.BINARY
-          case JarType.Source => LibraryPathType.SOURCE
-        }
-        libraryData.addPath(libraryType, j.jar.getPath)
-      }
-    libraryData
   }
 
   private[model] def createProjectData(projectNode: DataNode[ProjectData]) =

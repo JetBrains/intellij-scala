@@ -22,6 +22,15 @@ package object cbt {
       new File(str)
   }
 
+  implicit class BooleanOps(val bool: Boolean) {
+    def option[A](a: A): Option[A] =
+      if (bool) Some(a) else None
+  }
+
+  implicit class FileOps(val file: File) {
+    def /(path: String): File = new File(file, path)
+  }
+
   implicit class ProjectOps(val project: Project) {
     def refresh(): Unit = {
       ApplicationManager.getApplication.invokeLater(new Runnable() {

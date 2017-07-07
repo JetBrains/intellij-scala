@@ -13,7 +13,11 @@ import com.intellij.openapi.project.Project
 import scala.collection.JavaConversions._
 
 
-class CbtBuildConfiguration(val task: String, val project: Project, callback: Option[() => Unit], val configurationFactory: ConfigurationFactory)
+class CbtBuildConfiguration(val task: String,
+                            val project: Project,
+                            val debug: Boolean,
+                            val callback: Option[() => Unit],
+                            val configurationFactory: ConfigurationFactory)
   extends ModuleBasedConfiguration[RunConfigurationModule](task.capitalize, new RunConfigurationModule(project), configurationFactory) {
 
   override def getBeforeRunTasks: util.List[BeforeRunTask[_]] = {
@@ -27,5 +31,5 @@ class CbtBuildConfiguration(val task: String, val project: Project, callback: Op
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = null
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState =
-    new CbtComandLineState(task, project.getBaseDir.getPath, callback, environment)
+    new CbtComandLineState(task, project.getBaseDir.getPath, debug, callback, environment)
 }

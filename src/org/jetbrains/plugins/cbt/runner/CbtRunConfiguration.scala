@@ -2,11 +2,9 @@ package org.jetbrains.plugins.cbt.runner
 
 import java.util
 
+import com.intellij.execution.Executor
 import com.intellij.execution.configurations._
-import com.intellij.execution.impl.UnknownBeforeRunTaskProvider
-import com.intellij.execution.process.{ProcessHandler, ProcessHandlerFactory}
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.{BeforeRunTask, Executor}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
@@ -28,7 +26,7 @@ class CbtRunConfiguration(val project: Project, val configurationFactory: Config
     new CbtRunConfigurationEditor(project, this)
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState = {
-    new CbtComandLineState(task, workingDir, None, environment)
+    new CbtComandLineState(task, workingDir, false, None, environment)
   }
 
   def getTask: String = task
