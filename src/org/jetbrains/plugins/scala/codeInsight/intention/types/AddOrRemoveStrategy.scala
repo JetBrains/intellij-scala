@@ -22,25 +22,27 @@ class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy
   import AddOrRemoveStrategy._
 
   override def functionWithType(function: ScFunctionDefinition,
-                                typeElement: ScTypeElement): Unit =
+                                typeElement: ScTypeElement): Boolean =
     removeTypeAnnotation(typeElement)
 
   override def valueWithType(value: ScPatternDefinition,
-                             typeElement: ScTypeElement): Unit =
+                             typeElement: ScTypeElement): Boolean =
     removeTypeAnnotation(typeElement)
 
   override def variableWithType(variable: ScVariableDefinition,
-                                typeElement: ScTypeElement): Unit =
+                                typeElement: ScTypeElement): Boolean =
     removeTypeAnnotation(typeElement)
 
-  override def patternWithType(pattern: ScTypedPattern): Unit = {
+  override def patternWithType(pattern: ScTypedPattern): Boolean = {
     import pattern.projectContext
 
     val newPattern = createPatternFromText(pattern.name)
     pattern.replace(newPattern)
+
+    true
   }
 
-  override def parameterWithType(parameter: ScParameter): Unit = {
+  override def parameterWithType(parameter: ScParameter): Boolean = {
     import parameter.projectContext
 
     val newParameter = createParameterFromText(parameter.name)
@@ -60,15 +62,19 @@ class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy
     }
 
     element.replace(replacement)
+
+    true
   }
 }
 
 object AddOrRemoveStrategy {
 
-  def removeTypeAnnotation(typeElement: ScTypeElement): Unit = {
+  def removeTypeAnnotation(typeElement: ScTypeElement): Boolean = {
     typeElement.prevSiblings
       .find(_.getText == ":")
       .foreach(_.delete())
     typeElement.delete()
+
+    true
   }
 }

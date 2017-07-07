@@ -21,41 +21,74 @@ class ToggleTypeAnnotation extends AbstractTypeAnnotationIntention {
 
   override protected def descriptionStrategy: Strategy = new Strategy {
 
-    override def functionWithoutType(function: ScFunctionDefinition): Unit =
+    override def functionWithoutType(function: ScFunctionDefinition): Boolean = {
       setText(message("intention.type.annotation.function.add.text"))
 
+      true
+    }
+
     def functionWithType(function: ScFunctionDefinition,
-                         typeElement: ScTypeElement): Unit =
+                         typeElement: ScTypeElement): Boolean = {
       setText(message("intention.type.annotation.function.remove.text"))
 
-    override def valueWithoutType(value: ScPatternDefinition): Unit =
+      true
+    }
+
+    override def valueWithoutType(value: ScPatternDefinition): Boolean = {
       setText(message("intention.type.annotation.value.add.text"))
 
+      true
+    }
+
     def valueWithType(value: ScPatternDefinition,
-                      typeElement: ScTypeElement): Unit =
+                      typeElement: ScTypeElement): Boolean = {
       setText(message("intention.type.annotation.value.remove.text"))
 
-    override def variableWithoutType(variable: ScVariableDefinition): Unit =
+      true
+    }
+
+    override def variableWithoutType(variable: ScVariableDefinition): Boolean = {
       setText(message("intention.type.annotation.variable.add.text"))
 
+      true
+    }
+
     def variableWithType(variable: ScVariableDefinition,
-                         typeElement: ScTypeElement): Unit =
+                         typeElement: ScTypeElement): Boolean = {
       setText(message("intention.type.annotation.variable.remove.text"))
 
-    override def patternWithoutType(pattern: ScBindingPattern): Unit =
+      true
+    }
+
+    override def patternWithoutType(pattern: ScBindingPattern): Boolean = {
       setText(message("intention.type.annotation.pattern.add.text"))
 
-    override def wildcardPatternWithoutType(pattern: ScWildcardPattern): Unit =
+      true
+    }
+
+    override def wildcardPatternWithoutType(pattern: ScWildcardPattern): Boolean = {
       setText(message("intention.type.annotation.pattern.add.text"))
 
-    override def patternWithType(pattern: ScTypedPattern): Unit =
+      true
+    }
+
+    override def patternWithType(pattern: ScTypedPattern): Boolean = {
       setText(message("intention.type.annotation.pattern.remove.text"))
 
-    override def parameterWithoutType(param: ScParameter): Unit =
+      true
+    }
+
+    override def parameterWithoutType(param: ScParameter): Boolean = {
       setText(message("intention.type.annotation.parameter.add.text"))
 
-    override def parameterWithType(param: ScParameter): Unit =
+      true
+    }
+
+    override def parameterWithType(param: ScParameter): Boolean = {
       setText(message("intention.type.annotation.parameter.remove.text"))
+
+      true
+    }
   }
 
   override protected def invocationStrategy(maybeEditor: Option[Editor]): Strategy =

@@ -63,36 +63,30 @@ object AbstractTypeAnnotationIntention {
   def complete(element: PsiElement,
                strategy: Strategy = new AddOnlyStrategy): Boolean = {
     functionParent(element).foreach { function =>
-      function.returnTypeElement match {
+      return function.returnTypeElement match {
         case Some(typeElement) =>
           strategy.functionWithType(function, typeElement)
         case _ =>
           strategy.functionWithoutType(function)
       }
-
-      return true
     }
 
     valueParent(element).foreach { value =>
-      value.typeElement match {
+      return value.typeElement match {
         case Some(typeElement) =>
           strategy.valueWithType(value, typeElement)
         case _ =>
           strategy.valueWithoutType(value)
       }
-
-      return true
     }
 
     variableParent(element).foreach { variable =>
-      variable.typeElement match {
+      return variable.typeElement match {
         case Some(typeElement) =>
           strategy.variableWithType(variable, typeElement)
         case _ =>
           strategy.variableWithoutType(variable)
       }
-
-      return true
     }
 
     for {
@@ -101,15 +95,13 @@ object AbstractTypeAnnotationIntention {
       param.parentsInFile.findByType[ScFunctionExpr] match {
         case Some(func) =>
           if (param.typeElement.isDefined) {
-            strategy.parameterWithType(param)
-            return true
+            return strategy.parameterWithType(param)
           } else {
             val index = func.parameters.indexOf(param)
             func.expectedType() match {
               case Some(FunctionType(_, params)) =>
                 if (index >= 0 && index < params.length) {
-                  strategy.parameterWithoutType(param)
-                  return true
+                  return strategy.parameterWithoutType(param)
                 }
               case _ =>
             }
@@ -121,17 +113,14 @@ object AbstractTypeAnnotationIntention {
     for (pattern <- element.parentsInFile.findByType[ScBindingPattern]) {
       pattern match {
         case p: ScTypedPattern if p.typePattern.isDefined =>
-          strategy.patternWithType(p)
-          return true
+          return strategy.patternWithType(p)
         case _: ScReferencePattern =>
-          strategy.patternWithoutType(pattern)
-          return true
+          return strategy.patternWithoutType(pattern)
         case _ =>
       }
     }
     for (pattern <- element.parentsInFile.findByType[ScWildcardPattern]) {
-      strategy.wildcardPatternWithoutType(pattern)
-      return true
+      return strategy.wildcardPatternWithoutType(pattern)
     }
 
     false
