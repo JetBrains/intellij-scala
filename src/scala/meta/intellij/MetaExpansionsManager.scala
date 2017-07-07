@@ -180,7 +180,7 @@ object MetaExpansionsManager {
         case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
         case sm: ScalaMetaException       => Left(s"Semantic error: ${sm.getMessage}")
         case so: StackOverflowError       => Left(s"Stack overflow during expansion ${holder.getText}")
-        case e: InvocationTargetException => Left(e.getTargetException.getMessage)
+        case e: InvocationTargetException => Left(e.getTargetException.toString)
         case e: Exception                 => Left(s"Unexpected error during expansion: ${e.getMessage}")
       }
     }
