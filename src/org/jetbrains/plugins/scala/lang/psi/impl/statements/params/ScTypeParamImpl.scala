@@ -70,7 +70,7 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
     }
   }
 
-  override def toString: String = "TypeParameter: " + name
+  override def toString: String = "TypeParameter: " + ifReadAllowed(name)("")
 
   def getOffsetInFile: Int = byPsiOrStub(getTextRange.getStartOffset)(_.positionInFile)
 

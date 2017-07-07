@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 
 /**
  * @author Alexander Podkhalyuzin
@@ -29,7 +30,7 @@ class ScValueDeclarationImpl private (stub: ScValueStub, node: ASTNode)
 
   def this(stub: ScValueStub) = this(stub, null)
 
-  override def toString: String = "ScValueDeclaration: " + declaredElements.map(_.name).mkString(", ")
+  override def toString: String = "ScValueDeclaration: " + ifReadAllowed(declaredNames.mkString(", "))("")
 
   def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 

@@ -46,7 +46,7 @@ class ScReferencePatternImpl private(stub: ScReferencePatternStub, node: ASTNode
 
   def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
-  override def toString: String = "ReferencePattern: " + name
+  override def toString: String = "ReferencePattern: " + ifReadAllowed(name)("")
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = {
     this.expectedType match {

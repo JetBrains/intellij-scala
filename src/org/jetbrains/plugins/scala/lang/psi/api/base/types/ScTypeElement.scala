@@ -5,6 +5,7 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -18,7 +19,10 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
 trait ScTypeElement extends ScalaPsiElement with Typeable {
   protected val typeName: String
 
-  override def toString: String = s"$typeName: $getText"
+  override def toString: String = {
+    val text = ifReadAllowed(getText)("")
+    s"$typeName: $text"
+  }
 
   def getType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = getType
 

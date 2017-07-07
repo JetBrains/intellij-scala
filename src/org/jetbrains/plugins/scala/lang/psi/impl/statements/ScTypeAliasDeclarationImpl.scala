@@ -13,6 +13,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.TYPE_DECLARATION
@@ -50,7 +51,7 @@ class ScTypeAliasDeclarationImpl private (stub: ScTypeAliasStub, node: ASTNode)
     case n => n
   }
   
-  override def toString: String = "ScTypeAliasDeclaration: " + name
+  override def toString: String = "ScTypeAliasDeclaration: " + ifReadAllowed(name)("")
 
   def lowerBound: TypeResult[ScType] = lowerTypeElement match {
       case Some(te) => te.getType()

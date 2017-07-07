@@ -7,11 +7,12 @@ import java.util.concurrent.{Callable, Future}
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationUtil}
 import com.intellij.openapi.application.{ApplicationManager, Result, TransactionGuard}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
-import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Computable, ThrowableComputable}
+import com.intellij.openapi.util.{Computable, Ref, ThrowableComputable}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.SharedImplUtil
@@ -647,6 +648,14 @@ package object extensions {
           override def compute(): T = body
         }
       )
+    }
+  }
+
+  def ifReadAllowed[T](body: => T)(default: => T): T = {
+    try {
+      ApplicationUtil.tryRunReadAction(body)
+    } catch {
+      case _: ProcessCanceledException => default
     }
   }
 

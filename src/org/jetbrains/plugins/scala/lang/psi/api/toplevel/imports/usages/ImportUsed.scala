@@ -10,6 +10,7 @@ package usages
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 
 /**
  * Base class to store import-provided reference elements
@@ -17,7 +18,7 @@ import com.intellij.psi.util.PsiTreeUtil
  * @author ilyas
  */
 abstract sealed class ImportUsed(val e: PsiElement) {
-  override def toString: String = e.getText
+  override def toString: String = ifReadAllowed(e.getText)("")
 
   def qualName: Option[String]
 }
