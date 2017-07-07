@@ -26,16 +26,25 @@ class RegenerateTypeAnnotation extends AbstractTypeAnnotationIntention {
   override protected def descriptionStrategy: Strategy = new Strategy {
 
     override def functionWithType(function: ScFunctionDefinition,
-                                  typeElement: ScTypeElement): Unit =
+                                  typeElement: ScTypeElement): Boolean = {
       setText(message("intention.type.annotation.function.regenerate.text"))
 
+      true
+    }
+
     override def variableWithType(variable: ScVariableDefinition,
-                                  typeElement: ScTypeElement): Unit =
+                                  typeElement: ScTypeElement): Boolean = {
       setText(message("intention.type.annotation.variable.regenerate.text"))
 
+      true
+    }
+
     override def valueWithType(value: ScPatternDefinition,
-                               typeElement: ScTypeElement): Unit =
+                               typeElement: ScTypeElement): Boolean = {
       setText(message("intention.type.annotation.value.regenerate.text"))
+
+      true
+    }
   }
 
 
@@ -43,21 +52,27 @@ class RegenerateTypeAnnotation extends AbstractTypeAnnotationIntention {
     private val strategy = new AddOrRemoveStrategy(maybeEditor)
 
     override def functionWithType(function: ScFunctionDefinition,
-                                  typeElement: ScTypeElement): Unit = {
+                                  typeElement: ScTypeElement): Boolean = {
       strategy.functionWithType(function, typeElement)
       strategy.functionWithoutType(function)
+
+      true
     }
 
     override def variableWithType(variable: ScVariableDefinition,
-                                  typeElement: ScTypeElement): Unit = {
+                                  typeElement: ScTypeElement): Boolean = {
       strategy.variableWithType(variable, typeElement)
       strategy.variableWithoutType(variable)
+
+      true
     }
 
     override def valueWithType(value: ScPatternDefinition,
-                               typeElement: ScTypeElement): Unit = {
+                               typeElement: ScTypeElement): Boolean = {
       strategy.valueWithType(value, typeElement)
       strategy.valueWithoutType(value)
+
+      true
     }
   }
 }

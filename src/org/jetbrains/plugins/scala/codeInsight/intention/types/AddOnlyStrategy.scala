@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
@@ -22,40 +22,59 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
   def functionWithType(function: ScFunctionDefinition,
-                       typeElement: ScTypeElement): Unit = {}
+                       typeElement: ScTypeElement): Boolean = true
 
   def valueWithType(value: ScPatternDefinition,
-                    typeElement: ScTypeElement): Unit = {}
+                    typeElement: ScTypeElement): Boolean = true
 
   def variableWithType(variable: ScVariableDefinition,
-                       typeElement: ScTypeElement): Unit = {}
+                       typeElement: ScTypeElement): Boolean = true
 
-  override def functionWithoutType(function: ScFunctionDefinition): Unit =
+  override def patternWithType(pattern: ScTypedPattern): Boolean = true
+
+  override def parameterWithType(param: ScParameter): Boolean = true
+
+  override def functionWithoutType(function: ScFunctionDefinition): Boolean = {
     function.returnType.foreach {
       addTypeAnnotation(_, function, function.paramClauses)
     }
 
-  override def valueWithoutType(value: ScPatternDefinition): Unit =
+    true
+  }
+
+  override def valueWithoutType(value: ScPatternDefinition): Boolean = {
     value.getType().foreach {
       addTypeAnnotation(_, value, value.pList)
     }
 
-  override def variableWithoutType(variable: ScVariableDefinition): Unit =
+    true
+  }
+
+  override def variableWithoutType(variable: ScVariableDefinition): Boolean = {
     variable.getType().foreach {
       addTypeAnnotation(_, variable, variable.pList)
     }
 
-  override def patternWithoutType(pattern: ScBindingPattern): Unit =
+    true
+  }
+
+  override def patternWithoutType(pattern: ScBindingPattern): Boolean = {
     pattern.expectedType.foreach {
       addTypeAnnotation(_, pattern.getParent, pattern)
     }
 
-  override def wildcardPatternWithoutType(pattern: ScWildcardPattern): Unit =
+    true
+  }
+
+  override def wildcardPatternWithoutType(pattern: ScWildcardPattern): Boolean = {
     pattern.expectedType.foreach {
       addTypeAnnotation(_, pattern.getParent, pattern)
     }
 
-  override def parameterWithoutType(param: ScParameter): Unit =
+    true
+  }
+
+  override def parameterWithoutType(param: ScParameter): Boolean = {
     param.parentsInFile.findByType[ScFunctionExpr] match {
       case Some(func) =>
         val index = func.parameters.indexOf(param)
@@ -77,7 +96,10 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
       case _ =>
     }
 
-  def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement) {
+    true
+  }
+
+  def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement): Unit = {
     import AddOnlyStrategy._
     val tps = annotationsFor(t, context)
     val added = addActualType(tps.head, anchor)
