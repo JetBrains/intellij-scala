@@ -8,6 +8,7 @@ package typedef
 import com.intellij.execution.junit.JUnitUtil
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.util.Key
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil.MemberType
@@ -47,16 +48,18 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
 
   def additionalJavaNames: Array[String] = Array.empty
 
-  private var _isDesugared: Boolean = false
+  def originalElement: Option[ScTemplateDefinition] = Option(getUserData(originalElemKey))
   def setDesugared(actualElement: ScTypeDefinition): ScTemplateDefinition = {
-    _isDesugared = true
+    putUserData(originalElemKey, actualElement)
+
     members.foreach { member =>
       member.setSynthetic(actualElement)
       member.setSyntheticContainingClass(actualElement)
     }
     this
   }
-  def isDesugared: Boolean = _isDesugared
+  def isDesugared: Boolean = originalElement.isDefined
+
   def desugaredElement: Option[ScTemplateDefinition] = None
 
   @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
@@ -367,7 +370,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
             case _ =>
               extendsBlock match {
                 case e: ScExtendsBlock if e != null =>
-                  if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
+                  if (PsiTreeUtil.isContextAncestor(e, place, true) ||
+                      ScalaPsiUtil.isSyntheticContextAncestor(e, place) ||
+                      !PsiTreeUtil.isContextAncestor(this, place, true)) {
                     this match {
                       case t: ScTypeDefinition if selfTypeElement.isDefined &&
                         !PsiTreeUtil.isContextAncestor(selfTypeElement.get, place, true) &&
@@ -544,5 +549,7 @@ object ScTemplateDefinition {
     val javaObject = Path("Object", Some("java.lang.Object"), Kind.NonScala)
     val scalaObject = Path("ScalaObject", Some("scala.ScalaObject"), Kind.ScTrait)
   }
+
+  private val originalElemKey: Key[ScTemplateDefinition] = Key.create("ScTemplateDefinition.originalElem")
 
 }

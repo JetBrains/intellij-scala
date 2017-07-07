@@ -1158,6 +1158,17 @@ object ScalaPsiUtil {
     }
   }
 
+  // determines if an element can access other elements in a synthetic subtree that shadows
+  // element's original(physical) subtree - e.g. physical method of some class referencing
+  // a synthetic method of the same class
+  def isSyntheticContextAncestor(ancestor: PsiElement, element: PsiElement): Boolean = {
+    ancestor.getContext match {
+      case td: ScTemplateDefinition if td.isDesugared =>
+        PsiTreeUtil.isContextAncestor(td.originalElement.get, element, true)
+      case _ => false
+    }
+  }
+
   object FakeCompanionClassOrCompanionClass {
     def unapply(obj: ScObject): Option[PsiClass] = Option(obj.fakeCompanionClassOrCompanionClass)
   }
