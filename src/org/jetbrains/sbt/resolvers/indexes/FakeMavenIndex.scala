@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.resolvers.indexes
 import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.sbt.resolvers.ArtifactInfo
 
 /**
   * @author Mikhail Mutcianko
@@ -19,4 +20,6 @@ class FakeMavenIndex (val root: String, val name: String) extends ResolverIndex 
   override def getUpdateTimeStamp(implicit project: ProjectContext) = ResolverIndex.MAVEN_UNAVALIABLE
 
   override def close() = ()
+
+  override def searchArtifactInfo(fqName: String): Set[ArtifactInfo] = Set.empty
 }

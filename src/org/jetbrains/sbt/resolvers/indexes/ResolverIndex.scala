@@ -6,6 +6,7 @@ import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.sbt._
+import org.jetbrains.sbt.resolvers.ArtifactInfo
 
 /**
   * @author Mikhail Mutcianko
@@ -20,6 +21,8 @@ trait ResolverIndex {
 
   def searchVersion(groupId: String, artifactId: String)
                    (implicit project: ProjectContext): Set[String]
+
+  def searchArtifactInfo(fqName: String): Set[ArtifactInfo]
 
   def doUpdate(progressIndicator: Option[ProgressIndicator] = None)
               (implicit project: ProjectContext): Unit
@@ -49,6 +52,7 @@ object ResolverIndex {
     val ARTIFACT_TO_GROUP_FILE = "artifact-to-group.map"
     val GROUP_TO_ARTIFACT_FILE = "group-to-artifact.map"
     val GROUP_ARTIFACT_TO_VERSION_FILE = "group-artifact-to-version.map"
+    val FQ_NAME_TO_GROUP_ARTIFACT_VERSION_FILE = "fqname-to-group-artifact-version.map"
   }
 
   object Keys {

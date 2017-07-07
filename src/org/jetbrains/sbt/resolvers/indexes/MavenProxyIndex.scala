@@ -3,6 +3,7 @@ package org.jetbrains.sbt.resolvers.indexes
 import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.idea.maven.indices.{MavenIndex, MavenProjectIndicesManager}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.sbt.resolvers.ArtifactInfo
 
 import scala.collection.JavaConversions._
 
@@ -50,5 +51,7 @@ class MavenProxyIndex(val root: String, val name: String) extends ResolverIndex 
     MavenProjectIndicesManager.getInstance(project)
       .getIndices.find(_.getRepositoryPathOrUrl == MavenIndex.normalizePathOrUrl(root))
   }
+
+  override def searchArtifactInfo(fqName: String): Set[ArtifactInfo] = Set.empty
 }
 

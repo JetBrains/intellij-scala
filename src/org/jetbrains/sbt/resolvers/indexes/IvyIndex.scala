@@ -2,6 +2,8 @@ package org.jetbrains.sbt.resolvers.indexes
 
 import java.io._
 import java.util.Properties
+import java.util.function.Consumer
+import java.util.jar.JarFile
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
@@ -25,12 +27,14 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
   private val artifactToGroupMap = createPersistentMap(indexDir / Paths.ARTIFACT_TO_GROUP_FILE)
   private val groupToArtifactMap = createPersistentMap(indexDir / Paths.GROUP_TO_ARTIFACT_FILE)
   private val groupArtifactToVersionMap = createPersistentMap(indexDir / Paths.GROUP_ARTIFACT_TO_VERSION_FILE)
+  private val fqNameToGroupArtifactVersionMap = createPersistentMap(indexDir / Paths.FQ_NAME_TO_GROUP_ARTIFACT_VERSION_FILE)
   private var (_, _, innerTimestamp, _) = loadProps()
 
   private def checkStorage(): Unit = {
     if (artifactToGroupMap.isCorrupted ||
         groupToArtifactMap.isCorrupted ||
-        groupArtifactToVersionMap.isCorrupted)
+        groupArtifactToVersionMap.isCorrupted ||
+        fqNameToGroupArtifactVersionMap.isCorrupted)
       deleteIndex()
   }
 
@@ -67,17 +71,39 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
       Option(groupArtifactToVersionMap.get(SbtResolverUtils.joinGroupArtifact(groupId, artifactId))).getOrElse(Set.empty)
     }
   }
+
+  override def searchArtifactInfo(fqName: String): Set[ArtifactInfo] = {
+    withStorageCheck {
+      Option(fqNameToGroupArtifactVersionMap.get(fqName)).getOrElse(Set.empty).map(s => {
+        val info: Array[String] = s.split(":")
+        ArtifactInfo(info(0), info(1), info(2))
+      })
+    }
+  }
+
+
   override def doUpdate(progressIndicator: Option[ProgressIndicator] = None)(implicit project: ProjectContext): Unit = {
     val agMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gaMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gavMap = mutable.HashMap.empty[String, mutable.Set[String]]
+    val fqNameGavMap = mutable.HashMap.empty[String, mutable.Set[String]]
+
     def processArtifact(artifact: ArtifactInfo) {
       progressIndicator foreach { _.checkCanceled() }
       agMap.getOrElseUpdate(artifact.artifactId, mutable.Set.empty) += artifact.groupId
       gaMap.getOrElseUpdate(artifact.groupId, mutable.Set.empty) += artifact.artifactId
       gavMap.getOrElseUpdate(SbtResolverUtils.joinGroupArtifact(artifact), mutable.Set.empty) += artifact.version
     }
-    new SbtIvyCacheEnumerator(new File(root)).artifacts.foreach(processArtifact)
+
+    def processFqNames(fqNameArtifacts: (String, mutable.Set[ArtifactInfo])): Unit = {
+      val fqName = fqNameArtifacts._1
+      val artifacts = fqNameArtifacts._2.map(a => a.groupId + ":" + a.artifactId + ":" + a.version)
+      fqNameGavMap.getOrElseUpdate(fqName, mutable.Set.empty) ++= artifacts
+    }
+
+    val ivyCacheEnumerator = new SbtIvyCacheEnumerator(new File(root))
+    ivyCacheEnumerator.artifacts.foreach(processArtifact)
+    ivyCacheEnumerator.fqNameToArtfiacts.foreach(processFqNames)
 
     progressIndicator foreach { _.checkCanceled() }
     progressIndicator foreach { _.setText2(SbtBundle("sbt.resolverIndexer.progress.saving")) }
@@ -85,6 +111,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     agMap  foreach { element => artifactToGroupMap.put(element._1, element._2.toSet) }
     gaMap  foreach { element => groupToArtifactMap.put(element._1, element._2.toSet) }
     gavMap foreach { element => groupArtifactToVersionMap.put(element._1, element._2.toSet) }
+    fqNameGavMap foreach { element => fqNameToGroupArtifactVersionMap.put(element._1, element._2.toSet) }
 
     innerTimestamp = System.currentTimeMillis()
     store()
@@ -168,17 +195,63 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
   class SbtIvyCacheEnumerator(val cacheDir: File) {
 
     def artifacts: Stream[ArtifactInfo] = listArtifacts(cacheDir)
+    var fqNameToArtfiacts: mutable.Map[String, mutable.Set[ArtifactInfo]] = mutable.Map.empty
 
     private val ivyFileFilter = new FileFilter {
       override def accept(file: File): Boolean = file.name.endsWith(".xml") && file.lastModified() > innerTimestamp
+    }
+
+    private def fqNamesFromJarFile(file: File): Stream[String] = {
+      val jarFile = new JarFile(file)
+
+      val classExt = ".class"
+
+      val entries = jarFile.entries().filter(e => e.getName.endsWith(classExt) && !e.getName.contains("$"))
+
+      entries
+        .map(e => e.getName)
+        .map(name => name.replaceAll("/", ".").substring(0, name.length - classExt.length))
+        .toStream
+    }
+
+    def listFqNames(dir: File, artifacts: Stream[ArtifactInfo]): mutable.Map[ArtifactInfo, Set[String]] = {
+      val artifactToFqNames = mutable.HashMap.empty[ArtifactInfo, Set[String]]
+
+      var jarsDir = new File(dir, "jars")
+      if (!jarsDir.exists) {
+        jarsDir = new File(dir, "bundles")
+        if (!jarsDir.exists())
+          return artifactToFqNames
+      }
+
+      artifacts.forEach(new Consumer[ArtifactInfo] {
+        override def accept(t: ArtifactInfo): Unit = {
+          val fname = t.artifactId + "-" + t.version + ".jar"
+          val jarFile = new File(jarsDir, fname)
+          if (jarFile.exists) {
+            artifactToFqNames.put(t, fqNamesFromJarFile(jarFile).toSet)
+          }
+        }
+      })
+
+      artifactToFqNames
     }
 
     private def listArtifacts(dir: File): Stream[ArtifactInfo] = {
       if (!dir.isDirectory)
         throw InvalidRepository(dir.getAbsolutePath)
       val artifactsHere = dir.listFiles(ivyFileFilter).flatMap(extractArtifact).toStream
+      if (artifactsHere.nonEmpty) {
+        val artifactToFqNames = listFqNames(dir, artifactsHere)
+        for (entry <- artifactToFqNames.entrySet;
+             fqName <- entry.getValue;
+             artifact = entry.getKey) {
+          fqNameToArtfiacts.getOrElseUpdate(fqName, mutable.Set.empty) += artifact
+        }
+      }
       artifactsHere ++ dir.listFiles.toStream.filter(_.isDirectory).flatMap(listArtifacts)
     }
+
 
     private def extractArtifact(ivyFile: File): Option[ArtifactInfo] = {
       try {
@@ -192,5 +265,6 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
       }
     }
   }
+
 
 }
