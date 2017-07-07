@@ -13,7 +13,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -86,7 +86,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
 
   def isConstructorReference: Boolean = getConstructor.nonEmpty
 
-  override def toString: String = "CodeReferenceElement: " + getText
+  override def toString: String = "CodeReferenceElement: " + ifReadAllowed(getText)("")
 
   def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import org.jetbrains.plugins.scala.lang.resolve.StdKinds._

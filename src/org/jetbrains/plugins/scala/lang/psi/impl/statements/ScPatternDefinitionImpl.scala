@@ -7,6 +7,7 @@ package statements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -36,7 +37,7 @@ class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
     }
   }
 
-  override def toString: String = "ScPatternDefinition"
+  override def toString: String = "ScPatternDefinition: " + ifReadAllowed(declaredNames.mkString(", "))("")
 
   def bindings: Seq[ScBindingPattern] = pList match {
     case null => Seq.empty

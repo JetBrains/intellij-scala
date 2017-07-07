@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScVariableStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 
 
 /**
@@ -28,7 +29,7 @@ class ScVariableDeclarationImpl private (stub: ScVariableStub, node: ASTNode)
 
   def this(stub: ScVariableStub) = this(stub, null)
 
-  override def toString: String = "ScVariableDeclaration: " + declaredElements.map(_.name).mkString(", ")
+  override def toString: String = "ScVariableDeclaration: " + ifReadAllowed(declaredNames.mkString(", "))("")
 
   def getType(ctx: TypingContext): TypeResult[ScType] = wrap(typeElement) flatMap {_.getType(TypingContext.empty)}
 

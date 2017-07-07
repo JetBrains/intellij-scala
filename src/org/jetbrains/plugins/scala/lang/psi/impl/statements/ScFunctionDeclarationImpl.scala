@@ -6,6 +6,7 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -32,7 +33,7 @@ class ScFunctionDeclarationImpl private (stub: ScFunctionStub, node: ASTNode)
     }
   }
 
-  override def toString: String = "ScFunctionDeclaration: " + name
+  override def toString: String = "ScFunctionDeclaration: " + ifReadAllowed(name)("")
 
   def returnTypeInner: TypeResult[ScType] = {
     typeElement match {

@@ -44,7 +44,7 @@ class ScClassImpl private(stub: ScTemplateDefinitionStub, node: ASTNode)
   def this(stub: ScTemplateDefinitionStub) =
     this(stub, null)
 
-  override def toString: String = "ScClass: " + name
+  override def toString: String = "ScClass: " + ifReadAllowed(name)("")
 
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
