@@ -26,7 +26,7 @@ class CbtRunConfiguration(val project: Project, val configurationFactory: Config
     new CbtRunConfigurationEditor(project, this)
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState = {
-    new CbtComandLineState(task, workingDir, false, None, environment)
+    new CbtComandLineState(task, workingDir, None, environment)
   }
 
   def getTask: String = task

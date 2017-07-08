@@ -9,14 +9,13 @@ import scala.collection.JavaConverters._
 
 class CbtComandLineState(task: String,
                          workingDir: String,
-                         debug: Boolean,
                          callback: Option[() => Unit],
                          environment: ExecutionEnvironment)
   extends CommandLineState(environment) {
 
   override def startProcess(): ProcessHandler = {
     val factory = ProcessHandlerFactory.getInstance
-    val arguments = "cbt" +: debug.option("-debug").toSeq :+ task
+    val arguments = Seq("cbt", task)
     val commandLine = new GeneralCommandLine(arguments.asJava)
       .withWorkDirectory(workingDir)
     val hanlder = factory.createColoredProcessHandler(commandLine)
