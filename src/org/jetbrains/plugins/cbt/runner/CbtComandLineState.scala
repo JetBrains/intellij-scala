@@ -15,7 +15,7 @@ class CbtComandLineState(task: String,
 
   override def startProcess(): ProcessHandler = {
     val factory = ProcessHandlerFactory.getInstance
-    val arguments = Seq("cbt", task)
+    val arguments = "cbt" +: task.split(' ').map(_.trim).toSeq
     val commandLine = new GeneralCommandLine(arguments.asJava)
       .withWorkDirectory(workingDir)
     val hanlder = factory.createColoredProcessHandler(commandLine)
