@@ -12,12 +12,14 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.task._
 import com.intellij.task.impl.ExecuteRunConfigurationTaskImpl
+import com.intellij.util.Alarm
 import org.jetbrains.plugins.cbt._
 import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 
 import scala.collection.JavaConverters._
 
 class CbtProjectTaskRunner extends ProjectTaskRunner {
+  val alarm = new Alarm
 
   override def canRun(projectTask: ProjectTask): Boolean = {
     Option(projectTask).flatMap {
@@ -55,7 +57,18 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
 
   private def handleTask(project: Project, callback: ProjectTaskNotification)(task: ProjectTask) = {
     val taskCallback =
-      Option(callback).map(f => () => f.finished(new ProjectTaskResult(false, 0, 0)))
+      Option(callback)
+        .map { f =>
+          () => {
+            val request = new Runnable {
+              def run(): Unit = {
+                f.finished(new ProjectTaskResult(false, 0, 0))
+              }
+            }
+            alarm.addRequest(request, 500)
+          }
+        }
+
     val environment = createExecutionEnvironment(project, task, taskCallback)
     ExecutionManager.getInstance(project).restartRunProfile(environment)
   }
@@ -66,7 +79,6 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
         new CbtBuildConfigurationFactory("compile", CbtConfigurationType.getInstance, callback = callback)
           .createTemplateConfiguration(project)
       case task: ExecuteRunConfigurationTask =>
-        val debug = task.getRunnerSettings != null
         new CbtBuildConfigurationFactory("run", CbtConfigurationType.getInstance, callback = callback)
           .createTemplateConfiguration(project)
     }
@@ -88,8 +100,10 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
                                           task: ExecuteRunConfigurationTask,
                                           executor: Executor): ExecutionEnvironment = {
     val debug = task.getRunnerSettings != null
-    val runner = if (debug) new GenericDebuggerRunner else DefaultJavaProgramRunner.getInstance
-    new ExecutionEnvironment(executor, runner, task.getSettings, project)
+    if (debug)
+      new ExecutionEnvironment(executor, new GenericDebuggerRunner, task.getSettings, project)
+    else
+      createExecutionEnvironment(project, task, None)
   }
 }
 
