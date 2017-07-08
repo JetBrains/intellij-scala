@@ -15,12 +15,12 @@ import org.jetbrains.plugins.scala.project.Version
 object CbtProjectConverter {
   def apply(project: Project, settings: CbtExecutionSettings): DataNode[ProjectData] =
     if (settings.isCbt)
-      new CbtSourceProjectConverter(project).convert()
+      new CbtSourceProjectConverter(project, settings).convert()
     else
-      new CbtProjectConverter(project).convert()
+      new CbtProjectConverter(project, settings).convert()
 }
 
-class CbtProjectConverter(project: Project) {
+class CbtProjectConverter(project: Project, settings: CbtExecutionSettings) {
   private[model] val librariesMap = (project.libraries ++ project.cbtLibraries).map(l => l.name -> l).toMap
   private[model] val modulesMap = project.modules.map(m => m.name -> m).toMap
   private[model] val compilerLibrariesMap = project.scalaCompilers.map(c => s"scala-library-${c.version}" -> c).toMap
@@ -120,12 +120,12 @@ class CbtProjectConverter(project: Project) {
       module.name,
       module.root.getPath,
       module.root.getPath)
-
-    //TODO use only if using cbt for internal tasks
-    moduleData.setInheritProjectCompileOutputPath(false)
-    val scalaVersionWithoutMinor = module.scalaVersion.split('.').dropRight(1).mkString(".")
-    val outputPath = module.root / "target" / s"scala-$scalaVersionWithoutMinor" / "classes"
-    moduleData.setCompileOutputPath(ExternalSystemSourceType.SOURCE, outputPath.getAbsolutePath)
+    if (settings.useCbtForInternalTasks) {
+      moduleData.setInheritProjectCompileOutputPath(false)
+      val scalaVersionWithoutMinor = module.scalaVersion.split('.').dropRight(1).mkString(".")
+      val outputPath = module.root / "target" / s"scala-$scalaVersionWithoutMinor" / "classes"
+      moduleData.setCompileOutputPath(ExternalSystemSourceType.SOURCE, outputPath.getAbsolutePath)
+    }
     moduleData
   }
 

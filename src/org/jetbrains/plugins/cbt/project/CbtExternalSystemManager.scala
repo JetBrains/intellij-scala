@@ -15,7 +15,8 @@ import com.intellij.util.Function
 import org.jetbrains.plugins.cbt.CbtProjectResolver
 import org.jetbrains.plugins.cbt.project.settings._
 import org.jetbrains.sbt.jarWith
-import collection.JavaConverters._
+
+import scala.collection.JavaConverters._
 
 class CbtExternalSystemManager
   extends ExternalSystemManager[CbtProjectSettings, CbtProjectSettingsListener,
@@ -33,7 +34,10 @@ class CbtExternalSystemManager
         val project = pair.first
         val path = pair.second
         val projectSettings = CbtProjectSettings.getInstance(project, path)
-        new CbtExecutionSettings(path, projectSettings.isCbt, projectSettings.extraModules.asScala)
+        new CbtExecutionSettings(path,
+          projectSettings.isCbt,
+          projectSettings.useCbtForInternalTasks,
+          projectSettings.extraModules.asScala)
       }
     }
 

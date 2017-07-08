@@ -3,8 +3,10 @@ package org.jetbrains.plugins.cbt.project.model
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
 import org.jetbrains.plugins.cbt.project.model.CbtProjectInfo._
+import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
 
-class CbtSourceProjectConverter(project: Project) extends CbtProjectConverter(project) {
+class CbtSourceProjectConverter(project: Project, settings: CbtExecutionSettings)
+  extends CbtProjectConverter(project, settings) {
   override private[model] val librariesMap = project.libraries.map(l => l.name -> l).toMap
 
   override private[model] def createCbtDependencies(moduleNode: DataNode[ModuleData]) = Seq.empty
