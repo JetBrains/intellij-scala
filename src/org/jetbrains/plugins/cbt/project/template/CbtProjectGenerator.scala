@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.cbt.project.template
 
 import java.io.File
+
 import com.intellij.openapi.util.io.FileUtil._
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.RichFile
@@ -15,11 +16,11 @@ object CbtProjectGenerator {
 object BuildFileTemplate {
   def apply(scalaVersion: Version): String =
     s"""
-      |import cbt._
-      |
+       |import cbt._
+       |
       |class Build(val context: Context) extends BaseBuild {
-      |  override def defaultScalaVersion = "${scalaVersion.toString}"
-      |}
+       |  override def defaultScalaVersion = "${scalaVersion.toString}"
+       |}
     """.stripMargin
 }
 

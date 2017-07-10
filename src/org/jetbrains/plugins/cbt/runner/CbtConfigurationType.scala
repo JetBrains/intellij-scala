@@ -4,7 +4,6 @@ import javax.swing.Icon
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.runner.SbtRunConfigurationFactory
 
 class CbtConfigurationType extends ConfigurationType {
   val confFactory = new CbtRunConfigurationFactory(this)

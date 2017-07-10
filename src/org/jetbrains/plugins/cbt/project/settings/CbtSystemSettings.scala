@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.cbt.project.settings
 
-import java.io.File
 import java.util
 
 import com.intellij.openapi.components.{PersistentStateComponent, ServiceManager, State, Storage}

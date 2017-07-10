@@ -22,7 +22,7 @@ class CbtModuleExtDataService extends AbstractDataService[CbtModuleExtData, Libr
 object CbtModuleExtDataService {
 
   private def showWarning(project: Project, warning: String) = {
-    val notification = new NotificationData("CBT rpoejct import", warning,
+    val notification = new NotificationData("CBT project import", warning,
       NotificationCategory.WARNING, NotificationSource.PROJECT_SYNC)
     ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notification)
   }
@@ -34,7 +34,6 @@ object CbtModuleExtDataService {
     extends AbstractImporter[CbtModuleExtData](toImport, projectData, project, modelsProvider) {
 
     override def importData(): Unit = {
-      println("CbtModuleDataService import data called")
       dataToImport.foreach(node => doImport(node))
     }
 

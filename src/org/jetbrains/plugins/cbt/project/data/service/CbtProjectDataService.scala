@@ -27,10 +27,8 @@ object CbtProjectDataService {
     extends AbstractImporter[CbtProjectData](toImport, projectData, project, modelsProvider) {
 
     override def importData(): Unit = {
-      println("CbtProjectDataService import data called")
       dataToImport.foreach(node => doImport(node.getData))
     }
-
 
     def doImport(dataNode: CbtProjectData): Unit = executeProjectChangeAction {
       val javaSdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(JavaSdk.getInstance)

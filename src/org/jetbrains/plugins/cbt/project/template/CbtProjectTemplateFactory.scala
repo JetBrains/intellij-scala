@@ -12,11 +12,10 @@ class CbtProjectTemplateFactory extends ProjectTemplatesFactory {
   override def getGroupIcon(group: String) = Icons.SCALA_SMALL_LOGO
 
   override def createTemplates(group: String, context: WizardContext): Array[ProjectTemplate] = {
-    if (context.isCreatingNewProject) {
+    if (context.isCreatingNewProject)
       Array(new CbtProjectTemplate)
-    } else {
+    else
       Array.empty
-    }
   }
 }
 

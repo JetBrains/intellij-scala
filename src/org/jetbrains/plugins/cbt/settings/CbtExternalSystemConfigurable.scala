@@ -43,5 +43,5 @@ class CbtExternalSystemConfigurable(project: Project)
     }
 
 
-  override def getId: String = "sbt.project.settings.configurable"
+  override def getId: String = "cbt.project.settings.configurable"
 }
