@@ -74,7 +74,7 @@ object CBT {
                                   errors: mutable.ListBuffer[String], onMessage: String => Unit) =
     message.trim match {
       case "[" =>
-        messageBuffer.append("]")
+        messageBuffer.append("[")
       case "]" =>
         messageBuffer.append("] ")
       case s if messageBuffer.nonEmpty && messageBuffer.endsWith("[") =>
