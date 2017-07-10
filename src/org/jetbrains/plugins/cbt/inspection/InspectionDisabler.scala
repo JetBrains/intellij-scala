@@ -2,11 +2,10 @@ package org.jetbrains.plugins.cbt.inspection
 
 import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.cbt.CBT
+import org.jetbrains.plugins.cbt._
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
-import  org.jetbrains.plugins.cbt._
+
 class InspectionDisabler extends IntentionAvailabilityChecker {
-  val disabledInspections = Seq("ScalaFileName", "ScalaPackageName")
 
   override def canCheck(psiElement: PsiElement): Boolean = {
     val project = psiElement.getProject
@@ -14,5 +13,12 @@ class InspectionDisabler extends IntentionAvailabilityChecker {
   }
 
   override def isInspectionAvailable(inspection: InspectionProfileEntry, psiElement: PsiElement): Boolean =
-    !disabledInspections.contains(inspection.getShortName)
+    inspection.getShortName match {
+      case "ScalaPackageName" => false
+      case "ScalaFileName" =>
+        val file = psiElement.getContainingFile
+        file.getName.toLowerCase != "build.scala" ||
+          file.getParent.getName.toLowerCase != "build"
+      case _ => true
+    }
 }
