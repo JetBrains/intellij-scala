@@ -20,6 +20,9 @@ package object cbt {
   implicit class StringOps(val str: String) {
     def toFile: File =
       new File(str)
+
+    def rtrim: String =
+      str.replaceAll("\\s+$", "")
   }
 
   implicit class BooleanOps(val bool: Boolean) {
@@ -46,4 +49,5 @@ package object cbt {
     def isCbtProject: Boolean =
       CbtSystemSettings.getInstance(project).getLinkedProjectSettings(project.getBasePath) != null
   }
+
 }

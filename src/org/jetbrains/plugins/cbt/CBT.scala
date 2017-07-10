@@ -77,13 +77,13 @@ object CBT {
         messageBuffer.append("[")
       case "]" =>
         messageBuffer.append("] ")
-      case s if messageBuffer.nonEmpty && messageBuffer.endsWith("[") =>
-        messageBuffer.append(s)
+      case _ if messageBuffer.nonEmpty && messageBuffer.endsWith("[") =>
+        messageBuffer.append(message.trim)
       case _ if messageBuffer.nonEmpty =>
-        messageBuffer.append(message)
+        messageBuffer.append(message.rtrim)
         onMessage(messageBuffer.toString())
         messageBuffer.clear()
-      case _ => onMessage(message)
+      case _ => onMessage(message.rtrim)
     }
 
   def isCbtModuleDir(entry: VirtualFile): Boolean =
