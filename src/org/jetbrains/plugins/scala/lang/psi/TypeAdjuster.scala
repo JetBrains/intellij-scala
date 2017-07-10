@@ -324,46 +324,40 @@ object TypeAdjuster extends ApplicationAdapter {
     def withNewText(s: String): SimpleInfo = copy(replacement = s)
 
     def updateTarget(target: PsiNamedElement): SimpleInfo = {
-      def addSingletonType(typeText: String) = origElement match {
-        case s: ScSimpleTypeElement if s.singleton => s"$typeText.type"
-        case _ => typeText
-      }
+      import ScalaNamesUtil.{qualifiedName, splitName}
 
-      def pathAndPrefixed(qual: String, prefixLength: Int): Option[(String, String)] = {
-        val words = ScalaNamesUtil.splitName(qual)
-        if (words.size > prefixLength) {
-          val packageName = words.dropRight(prefixLength).mkString(".")
-          val prefixed = words.takeRight(prefixLength + 1).mkString(".")
-          Some((packageName, prefixed))
-        }
-        else None
-      }
+      def prefixAndPath(qualifiedName: String, prefixLength: Int): Option[(String, Some[String])] =
+        splitName(qualifiedName) match {
+          case words if words.size > prefixLength =>
+            val packageName = words.dropRight(prefixLength).mkString(".")
+            val prefixed = words.takeRight(prefixLength + 1).mkString(".")
 
-      def update(newTypeText: String, pathsToImport: Seq[String]) =
-        copy(replacement = addSingletonType(newTypeText), resolve = Some(target), pathsToImport = pathsToImport)
-
-      target match {
-        case cl: PsiClass if needPrefix(cl) =>
-          pathAndPrefixed(cl.qualifiedName, 1) match {
-            case Some((packageName, prefixed)) =>
-              update(prefixed, Seq(packageName))
-            case _ => this
-          }
-        case _ =>
-          ScalaNamesUtil.qualifiedName(target).flatMap { qualName =>
-            val addingPrefixesIterator =
-              Iterator.from(0)
-                .map(pathAndPrefixed(qualName, _))
-                .takeWhile(_.isDefined)
-                .flatten
-            addingPrefixesIterator.collectFirst {
-              case (_, prefixed) if resolvesRight(prefixed) =>
-                update(prefixed, Seq.empty)
-              case (path, prefixed) if !resolvesWrong(prefixed) =>
-                update(prefixed, Seq(path))
+            val suffix = origElement match {
+              case s: ScSimpleTypeElement if s.singleton => ".type"
+              case _ => ""
             }
-          }.getOrElse(this)
+            Some((prefixed + suffix, Some(packageName)))
+          case _ => None
+        }
+
+      def prefixAndPathGenerator(qualifiedName: String) = Iterator.from(0)
+        .map(prefixAndPath(qualifiedName, _))
+        .takeWhile(_.isDefined)
+        .flatten
+        .collectFirst {
+          case (prefixed, _) if resolvesRight(prefixed) => (prefixed, None)
+          case pair@(prefixed, _) if !resolvesWrong(prefixed) => pair
+        }
+
+      val maybePrefixAndPath = target match {
+        case clazz: PsiClass if needPrefix(clazz) => prefixAndPath(clazz.qualifiedName, 1)
+        case _ => qualifiedName(target).flatMap(prefixAndPathGenerator)
       }
+
+      maybePrefixAndPath.map {
+        case (typeText, maybePath) =>
+          copy(replacement = typeText, resolve = Some(target), pathsToImport = maybePath.toSeq)
+      }.getOrElse(this)
     }
 
     override def checkReplacementResolve: Boolean = resolvesRight(replacement)
@@ -372,14 +366,16 @@ object TypeAdjuster extends ApplicationAdapter {
     private def resolvesWrong(refText: String): Boolean = alreadyResolves(refText).contains(false)
 
     private def alreadyResolves(refText: String): Option[Boolean] = {
-      def areEquivTypes(e1: PsiNamedElement, e2: PsiNamedElement): Boolean = {
-        ScDesignatorType(e1).equiv(ScDesignatorType(e2))
-      }
+      def equivalent(left: PsiNamedElement, right: PsiNamedElement): Boolean =
+        ScEquivalenceUtil.smartEquivalence(left, right) ||
+          ScDesignatorType(left).equiv(ScDesignatorType(right))
 
       val ref = newRef(refText, origElement)
-      (ref.flatMap(_.resolve().toOption), resolve) match {
+        .flatMap(reference => Option(reference.resolve()))
+
+      (ref, resolve) match {
         case (Some(e1: PsiNamedElement), Some(e2: PsiNamedElement)) =>
-          Some(ScEquivalenceUtil.smartEquivalence(e1, e2) || areEquivTypes(e1, e2))
+          Some(equivalent(e1, e2))
         case (Some(_), _) => Some(false)
         case _ => None
       }
