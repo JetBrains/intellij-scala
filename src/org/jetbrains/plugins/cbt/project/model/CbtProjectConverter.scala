@@ -13,8 +13,10 @@ import org.jetbrains.plugins.cbt.project.{CbtExtraModuleType, CbtProjectSystem}
 import org.jetbrains.plugins.cbt.structure.{CbtModuleExtData, CbtProjectData}
 import org.jetbrains.plugins.scala.project.Version
 
+import scala.util.Try
+
 object CbtProjectConverter {
-  def apply(project: Project, settings: CbtExecutionSettings): DataNode[ProjectData] =
+  def apply(project: Project, settings: CbtExecutionSettings): Try[DataNode[ProjectData]] =
     if (settings.isCbt)
       new CbtSourceProjectConverter(project, settings).convert()
     else
@@ -26,8 +28,8 @@ class CbtProjectConverter(project: Project, settings: CbtExecutionSettings) {
   private[model] val modulesMap = project.modules.map(m => m.name -> m).toMap
   private[model] val compilerLibrariesMap = project.scalaCompilers.map(c => s"scala-library-${c.version}" -> c).toMap
 
-  def convert(): DataNode[ProjectData] =
-    convertProject(project: Project)
+  def convert(): Try[DataNode[ProjectData]] =
+    Try(convertProject(project: Project))
 
   private[model] def convertProject(project: Project): DataNode[ProjectData] = {
     val projectData = new ProjectData(CbtProjectSystem.Id,
