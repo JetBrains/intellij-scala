@@ -5,10 +5,8 @@ import java.io.File
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.cbt.project.settings.CbtSystemSettings
 import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
 import org.jetbrains.sbt.RichVirtualFile
 
@@ -31,33 +29,29 @@ object CBT {
 
   def runAction(action: Seq[String], root: File,
                 taskListener: Option[(ExternalSystemTaskId, ExternalSystemTaskNotificationListener)]): Try[String] = {
-    val colorEncoder = new AnsiEscapeDecoder
-
     val outBuffer = new StringBuilder
     val errorBuffer = new StringBuilder
-    val errors = new mutable.ListBuffer[String]
-    val messageBuffer = new StringBuilder
 
+    val errors = new mutable.ListBuffer[String]
+    val onMessage = (text: String) => {
+      errorBuffer.append(text + "\n")
+      if (isError(text)) {
+        errors += text
+      }
+      taskListener.foreach {
+        case (id, l) =>
+          l.onStatusChange(new ExternalSystemTaskNotificationEvent(id, text + "\n"))
+      }
+    }
+
+    val ansiCodesEscaper = new AnsiCodesEscaper(onMessage)
     val logger = ProcessLogger(
       { text =>
-        outBuffer.append(text.trim :+ '\n')
+        outBuffer.append(text.trim + '\n')
       }, { text =>
-        taskListener.foreach {
-          case (id, l) =>
-            colorEncoder.escapeText(text, ProcessOutputTypes.STDERR, new ColoredTextAcceptor {
-              override def coloredTextAvailable(text: String, attributes: Key[_]): Unit = {
-                def onMessage(message: String) = {
-                  l.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message + "\n"))
-                  errorBuffer.append(message + "\n")
-                  if (isError(message)) {
-                    errors += message
-                  }
-                }
-                concatErrorMessages(text, messageBuffer, errors, onMessage)
-              }
-            })
-        }
-      })
+        ansiCodesEscaper.escape(text)
+      }
+    )
     val exitCode = Process(Seq("cbt") ++ action, root) ! logger
     exitCode match {
       case 0 =>
@@ -70,23 +64,35 @@ object CBT {
   private def isError(line: String) =
     line.startsWith("[error]")
 
-  private def concatErrorMessages(message: String, messageBuffer: StringBuilder,
-                                  errors: mutable.ListBuffer[String], onMessage: String => Unit) =
-    message.trim match {
-      case "[" =>
-        messageBuffer.append("[")
-      case "]" =>
-        messageBuffer.append("] ")
-      case _ if messageBuffer.nonEmpty && messageBuffer.endsWith("[") =>
-        messageBuffer.append(message.trim)
-      case _ if messageBuffer.nonEmpty =>
-        messageBuffer.append(message.rtrim)
-        onMessage(messageBuffer.toString())
-        messageBuffer.clear()
-      case _ => onMessage(message.rtrim)
-    }
-
   def isCbtModuleDir(entry: VirtualFile): Boolean =
     entry.containsDirectory("build")
+
+  private class AnsiCodesEscaper(onMessage: String => Unit) {
+    val colorEncoder = new AnsiEscapeDecoder
+    val messageBuffer = new StringBuilder
+    val textAcceptor = new ColoredTextAcceptor {
+      override def coloredTextAvailable(text: String, attributes: Key[_]): Unit = {
+        concatErrorMessages(text)
+      }
+    }
+
+    def escape(text: String): Unit =
+      colorEncoder.escapeText(text, ProcessOutputTypes.STDERR, textAcceptor)
+
+    private def concatErrorMessages(text: String) =
+      text.trim match {
+        case "[" =>
+          messageBuffer.append("[")
+        case "]" =>
+          messageBuffer.append("] ")
+        case _ if messageBuffer.nonEmpty && messageBuffer.endsWith("[") =>
+          messageBuffer.append(text.trim)
+        case _ if messageBuffer.nonEmpty =>
+          messageBuffer.append(text.rtrim)
+          onMessage(messageBuffer.toString())
+          messageBuffer.clear()
+        case _ => onMessage(text.rtrim)
+      }
+  }
 
 }
