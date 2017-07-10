@@ -5,10 +5,11 @@ import java.nio.file.Files
 
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
+import com.intellij.openapi.module.ModuleTypeId
 import org.jetbrains.plugins.cbt._
-import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.model.CbtProjectInfo._
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
+import org.jetbrains.plugins.cbt.project.{CbtExtraModuleType, CbtProjectSystem}
 import org.jetbrains.plugins.cbt.structure.{CbtModuleExtData, CbtProjectData}
 import org.jetbrains.plugins.scala.project.Version
 
@@ -113,10 +114,16 @@ class CbtProjectConverter(project: Project, settings: CbtExecutionSettings) {
     new DataNode(ProjectKeys.MODULE_DEPENDENCY, dependencyData, parent)
   }
 
+  private def isExtraModule(module: Module): Boolean =
+    settings.extraModules.contains(module.root.getAbsolutePath)
+
   private[model] def createModuleData(module: Module) = {
+    val moduleType =
+      if (isExtraModule(module)) CbtExtraModuleType.ID
+      else ModuleTypeId.JAVA_MODULE
     val moduleData = new ModuleData(module.name,
       CbtProjectSystem.Id,
-      "JAVA_MODULE",
+      moduleType,
       module.name,
       module.root.getPath,
       module.root.getPath)

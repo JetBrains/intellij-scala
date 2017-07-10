@@ -19,13 +19,15 @@
         <projectImportBuilder implementation="org.jetbrains.plugins.cbt.project.CbtProjectImportBuilder"/>
         <projectConfigurable groupId="build.tools" displayName="CBT"
                              instance="org.jetbrains.plugins.cbt.settings.CbtExternalSystemConfigurable"/>
+        <moduleType id="CBT_EXTRA_MODULE" implementationClass="org.jetbrains.plugins.cbt.project.CbtExtraModuleType"/>
 
         <externalProjectDataService
                 implementation="org.jetbrains.plugins.cbt.project.data.service.CbtProjectDataService"/>
         <externalProjectDataService
                 implementation="org.jetbrains.plugins.cbt.project.data.service.CbtModuleExtDataService"/>
         <internalFileTemplate name="CBT Build Class"/>
-        <externalSystemTaskNotificationListener implementation="org.jetbrains.plugins.cbt.project.CbtNotificationListener"/>
+        <externalSystemTaskNotificationListener
+                implementation="org.jetbrains.plugins.cbt.project.CbtNotificationListener"/>
         <projectTaskRunner implementation="org.jetbrains.plugins.cbt.runner.CbtProjectTaskRunner"/>
 
 
@@ -35,7 +37,7 @@
                     conditionClass="org.jetbrains.plugins.cbt.project.CbtToolWindowFactoryCondition"/>
     </extensions>
 
-    <extensions defaultExtensionNs="org.intellij.scala" >
+    <extensions defaultExtensionNs="org.intellij.scala">
         <scalaIntentionAvailabilityChecker implementation="org.jetbrains.plugins.cbt.inspection.InspectionDisabler"/>
     </extensions>
     <actions>
@@ -43,8 +45,12 @@
                 text="Consider as CBT module">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
         </action>
+         <action id="StopConsiderAsCbtModule" class="org.jetbrains.plugins.cbt.action.StopConsiderAsCbtModule"
+                text="Stop consider as CBT module">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+        </action>
         <action id="NewCbtBuildFile" class="org.jetbrains.plugins.cbt.action.NewCbtBuildFile"
-                text="CBT build file" >
+                text="CBT build file">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Scala.NewClass"/>
         </action>
     </actions>
