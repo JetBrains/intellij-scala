@@ -53,6 +53,7 @@ object RedundantDefaultArgumentUtil {
 
   def hasDefaultValue(parameter: ScParameter, value: ScLiteral): Boolean = parameter.getDefaultExpression match {
     case Some(_: ScInterpolatedStringLiteral) => false
+    case _ if value.isInstanceOf[ScInterpolatedStringLiteral] => false
     case Some(defaultValue: ScLiteral) if defaultValue.getValue != null => value.getValue == defaultValue.getValue
     case _ => false
   }
