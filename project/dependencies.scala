@@ -193,7 +193,8 @@ object DependencyGroups {
     "org.scalameta" % "scalameta_2.12" % scalaMetaVersion,
     "org.scala-js" % "scalajs-library_2.10" % "0.6.14",
     "com.typesafe.play" % "play_2.10" % "2.4.10",
-    "com.typesafe.akka" % "akka-actor_2.11" % "2.4.17"
+    "com.typesafe.akka" % "akka-actor_2.11" % "2.4.19",
+    "com.typesafe.akka" % "akka-stream_2.11" % "2.4.19"
   )
 
   val testScalaLibraryDownloader = Seq(
