@@ -50,7 +50,19 @@ class WorksheetCache(project: Project) extends AbstractProjectComponent(project)
     patchedEditors.remove(editor)
   }
   
-  def getViewer(editor: Editor): Editor = get(editor)
+  def getViewer(editor: Editor): Editor = {
+    val viewer = get(editor)
+    
+    if (viewer != null && viewer.isDisposed || editor.isDisposed) {
+      synchronized {
+        allViewers.remove(editor)
+      }
+      
+      return null
+    }
+    
+    viewer
+  }
 
   def addViewer(viewer: Editor, editor: Editor) {
     synchronized {
