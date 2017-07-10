@@ -38,7 +38,7 @@ ScalaFile
             CodeReferenceElement: String
               PsiElement(identifier)('String')
         PsiWhiteSpace('\n  ')
-        ScPatternDefinition
+        ScPatternDefinition: msg
           AnnotationsList
             <empty list>
           Modifiers
@@ -83,7 +83,7 @@ ScalaFile
       EarlyDefinitions
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScPatternDefinition
+        ScPatternDefinition: name
           AnnotationsList
             <empty list>
           Modifiers

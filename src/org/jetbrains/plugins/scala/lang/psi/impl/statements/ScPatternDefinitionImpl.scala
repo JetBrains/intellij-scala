@@ -37,7 +37,11 @@ class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
     }
   }
 
-  override def toString: String = "ScPatternDefinition: " + ifReadAllowed(declaredNames.mkString(", "))("")
+  override def toString: String = ifReadAllowed {
+    val names = declaredNames
+    if (names.isEmpty) "ScPatternDefinition"
+    else "ScPatternDefinition: " + declaredNames.mkString(", ")
+  }("")
 
   def bindings: Seq[ScBindingPattern] = pList match {
     case null => Seq.empty

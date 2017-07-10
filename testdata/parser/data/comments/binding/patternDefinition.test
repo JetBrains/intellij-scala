@@ -2,7 +2,7 @@
 val a = 1
 -----
 ScalaFile
-  ScPatternDefinition
+  ScPatternDefinition: a
     PsiComment(comment)('// comment')
     PsiWhiteSpace('\n')
     AnnotationsList
