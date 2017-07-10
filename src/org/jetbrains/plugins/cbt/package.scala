@@ -12,12 +12,12 @@ import org.jetbrains.plugins.cbt.project.settings.CbtSystemSettings
 
 package object cbt {
 
-  implicit class XmlOps(val xml: _root_.scala.xml.NodeSeq) {
+  implicit class ReachXml(val xml: _root_.scala.xml.NodeSeq) {
     def value: String =
       xml.text.trim
   }
 
-  implicit class StringOps(val str: String) {
+  implicit class ReachString(val str: String) {
     def toFile: File =
       new File(str)
 
@@ -25,7 +25,7 @@ package object cbt {
       str.replaceAll("\\s+$", "")
   }
 
-  implicit class BooleanOps(val bool: Boolean) {
+  implicit class ReachBoolean(val bool: Boolean) {
     def option[A](a: A): Option[A] =
       if (bool) Some(a) else None
   }
@@ -34,7 +34,7 @@ package object cbt {
     def /(path: String): File = new File(file, path)
   }
 
-  implicit class ProjectOps(val project: Project) {
+  implicit class ReachProject(val project: Project) {
     def refresh(): Unit = {
       ApplicationManager.getApplication.invokeLater(new Runnable() {
         override def run(): Unit =
