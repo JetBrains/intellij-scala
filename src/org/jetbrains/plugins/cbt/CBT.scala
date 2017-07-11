@@ -7,6 +7,7 @@ import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
 import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
 import org.jetbrains.sbt.RichVirtualFile
 
@@ -17,13 +18,15 @@ import scala.xml.{Elem, XML}
 
 
 object CBT {
-  def runAction(action: Seq[String], root: File): Try[String] =
-    runAction(action, root, None)
 
-  def buildInfoXml(root: File, extraModules: Seq[String],
+  def buildInfoXml(root: File, settings: CbtExecutionSettings,
                    taskListener: Option[(ExternalSystemTaskId, ExternalSystemTaskNotificationListener)]): Try[Elem] = {
-    val extraMododulesStr = extraModules.mkString(":")
-    val xml = runAction(Seq("buildInfoXml", extraMododulesStr), root, taskListener)
+    def buildParams: Seq[String] = {
+      val extraModulesStr = settings.extraModules.mkString(":")
+      val needCbtLibsStr = settings.isCbt.unary_!.toString
+      Seq("--extraModules", extraModulesStr, "--needCbtLibs", needCbtLibsStr)
+    }
+    val xml = runAction("buildInfoXml" +: buildParams, root, taskListener)
     xml.map(XML.loadString)
   }
 

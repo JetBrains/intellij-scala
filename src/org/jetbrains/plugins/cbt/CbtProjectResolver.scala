@@ -25,7 +25,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     val root = new File(projectPath)
     println("Cbt resolver called")
 
-    val xml = CBT.buildInfoXml(root, settings.extraModules, Some(id, listener))
+    val xml = CBT.buildInfoXml(root, settings, Some(id, listener))
     println(xml.toString)
     xml.map(CbtProjectInfo(_))
       .flatMap(CbtProjectConverter(_, settings))
