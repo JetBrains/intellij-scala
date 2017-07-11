@@ -416,11 +416,13 @@ object ScalaInplaceVariableIntroducer {
       else if (fromDialogMode) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE
       else {
         import TypeAnnotationUtil._
-        val visibility = if (!isLocal(anchor)) Private else Public
+        val local = isLocal(anchor)
+
+        val visibility = if (!local) Private else Public
         isTypeAnnotationNeededProperty(
           anchor,
           visibility.toString
-        )(isLocal = false, isOverriding = false) // no overriding enable in current refactoring
+        )(isLocal = local, isOverriding = false) // no overriding enable in current refactoring
       }
     } else true
 }
