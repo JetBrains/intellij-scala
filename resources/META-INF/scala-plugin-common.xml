@@ -933,10 +933,6 @@
                          displayName="Useless expression" groupPath="Scala" groupName="General"
                          shortName="ScalaUselessExpression" level="WEAK WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.NoReturnTypeForImplicitDefInspection"
-                         displayName="No return type for implicit function" groupPath="Scala" groupName="General"
-                         shortName="NoReturnTypeForImplicitDef" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundInspection"
                          displayName="View bounds are deprecated" groupPath="Scala" groupName="General"
                          shortName="DeprecatedViewBound" level="WARNING"
@@ -1078,10 +1074,12 @@
                          displayName="Method with Unit result type is defined like procedure" groupPath="Scala" groupName="Method signature"
                          shortName="UnitMethodDefinedLikeProcedure" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.DeclarationHasNoExplicitTypeInspection"
-                         displayName="Method declaration has no explicit return type" groupPath="Scala" groupName="Method signature"
-                         shortName="DeclarationHasNoExplicitType" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.DeclarationHasNoExplicitTypeInspection"
+                displayName="Method declaration has no explicit return type" groupPath="Scala"
+                groupName="Method signature"
+                shortName="DeclarationHasNoExplicitType" level="WARNING"
+                enabledByDefault="false" language="Scala"/>
 
         <!--Scalastyle inspection-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
