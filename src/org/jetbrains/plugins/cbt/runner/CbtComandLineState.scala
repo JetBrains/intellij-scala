@@ -4,7 +4,7 @@ import com.intellij.execution.configurations.{CommandLineState, GeneralCommandLi
 import com.intellij.execution.process.{ProcessEvent, ProcessHandler, ProcessHandlerFactory, ProcessListener}
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.cbt._
+
 import scala.collection.JavaConverters._
 
 class CbtComandLineState(task: String,
@@ -15,7 +15,7 @@ class CbtComandLineState(task: String,
 
   override def startProcess(): ProcessHandler = {
     val factory = ProcessHandlerFactory.getInstance
-    val arguments = "cbt" +: task.split(' ').map(_.trim).toSeq
+    val arguments = Seq("cbt", "direct") ++ task.split(' ').map(_.trim).toSeq
     val commandLine = new GeneralCommandLine(arguments.asJava)
       .withWorkDirectory(workingDir)
     val hanlder = factory.createColoredProcessHandler(commandLine)
