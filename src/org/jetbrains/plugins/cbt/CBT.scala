@@ -3,9 +3,10 @@ package org.jetbrains.plugins.cbt
 import java.io.File
 
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
-import com.intellij.openapi.externalSystem.service.notification.NotificationSource
+import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationSource}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
 import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
 import org.jetbrains.sbt.RichVirtualFile
@@ -31,7 +32,10 @@ object CBT {
 
   def runAction(action: Seq[String], root: File, projectOpt: Option[Project],
                 taskListener: Option[(ExternalSystemTaskId, ExternalSystemTaskNotificationListener)]): Try[String] = {
-
+    projectOpt.foreach { project =>
+      ExternalSystemNotificationManager.getInstance(project)
+        .clearNotifications(NotificationSource.PROJECT_SYNC, CbtProjectSystem.Id)
+    }
     val onOutput = (text: String, stderr: Boolean) => {
       if (stderr) {
         taskListener.foreach {

@@ -25,6 +25,8 @@ class CbtOutputListener(onOutput: (String, Boolean) => Unit,
   private val errorsList = mutable.ListBuffer.empty[String]
   private val outBuffer = StringBuilder.newBuilder
   private val errorBuffer = StringBuilder.newBuilder
+  private val errorBuilder = new ErrorWarningBuilder("[error]")
+  private val warningBuilder = new ErrorWarningBuilder("[warning]")
 
   def dataReceived(text: String, stderr: Boolean): Unit = {
     if (stderr) {
@@ -52,9 +54,20 @@ class CbtOutputListener(onOutput: (String, Boolean) => Unit,
     onOutput(text + "\n", true)
     if (isError(text)) {
       errorsList += text
-      projectOpt.foreach(CbtOutputListener.showError(_, text, notificationSource))
+      for {
+        text <- errorBuilder.parserPart(text)
+        project <- projectOpt
+      } {
+        CbtOutputListener.showError(project, text, notificationSource)
+      }
     } else if (isWarning(text)) {
       warningsList += text
+      for {
+        text <- warningBuilder.parserPart(text)
+        project <- projectOpt
+      } {
+        CbtOutputListener.showWarning(project, text, notificationSource)
+      }
       projectOpt.foreach(CbtOutputListener.showWarning(_, text, notificationSource))
     }
   }
@@ -64,6 +77,22 @@ class CbtOutputListener(onOutput: (String, Boolean) => Unit,
 
   private def isWarning(line: String) =
     line.startsWith("[warn]")
+}
+
+private class ErrorWarningBuilder(prefix: String) {
+  private val buffer = StringBuilder.newBuilder
+
+  def parserPart(text: String): Option[String] = {
+    val part = text.stripPrefix(prefix)
+    buffer.append(part + "\n")
+    if (part.trim == "^") {
+      val fullText = buffer.toString
+      buffer.clear()
+      Some(fullText)
+    } else {
+      None
+    }
+  }
 }
 
 private class ColoredOutputAccumulator(onMessage: String => Unit) extends OutputAccumulator(onMessage) {
