@@ -1,6 +1,7 @@
 package scala.tools.scalap
 
 import java.io.{ByteArrayOutputStream, PrintStream}
+import java.nio.charset.StandardCharsets
 
 import scala.reflect.internal.pickling.ByteCodecs
 import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{Annotation, ArrayValue, ConstValueIndex}
@@ -18,7 +19,13 @@ object Decompiler {
   private val SCALA_LONG_SIG_ANNOTATION = "Lscala/reflect/ScalaLongSignature;"
   private val BYTES_VALUE = "bytes"
 
+  private val scalaSigBytes = SCALA_SIG.getBytes(StandardCharsets.UTF_8)
+
+  private def hasScalaSigBytes(content: Array[Byte]): Boolean = containsSubArray(content, scalaSigBytes)
+
   def decompile(fileName: String, bytes: Array[Byte]): Option[(String, String)] = {
+    if (!hasScalaSigBytes(bytes)) return None
+
     val byteCode = ByteCode(bytes)
     val isPackageObject = fileName == "package.class"
     val classFile = ClassFileParser.parse(byteCode)
@@ -99,4 +106,24 @@ object Decompiler {
     }
     Some(sourceFileName, decompiledSourceText)
   }
+
+  private def containsSubArray(text: Array[Byte], word: Array[Byte]): Boolean = {
+    if (text.length < word.length || word.length == 0) return false
+
+    var wordStartIdx = 0
+    var innerIdx = 0
+
+    while (wordStartIdx <= text.length - word.length) {
+      while(innerIdx < word.length && text(wordStartIdx + innerIdx) == word(innerIdx)) {
+        innerIdx += 1
+      }
+      if (innerIdx == word.length) return true
+      else {
+        wordStartIdx += 1
+        innerIdx = 0
+      }
+    }
+    false
+  }
+
 }
