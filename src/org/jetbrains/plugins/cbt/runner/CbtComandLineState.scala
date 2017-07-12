@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.cbt.runner
 
 import com.intellij.execution.configurations.{CommandLineState, GeneralCommandLine}
-import com.intellij.execution.process.{ProcessEvent, ProcessHandler, ProcessHandlerFactory, ProcessListener}
+import com.intellij.execution.process._
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.openapi.externalSystem.service.notification.NotificationSource
 import com.intellij.openapi.util.Key
+import org.jetbrains.plugins.cbt.CbtOutputListener
 
 import scala.collection.JavaConverters._
 
@@ -15,7 +17,8 @@ class CbtComandLineState(task: String,
 
   override def startProcess(): ProcessHandler = {
     val factory = ProcessHandlerFactory.getInstance
-    val arguments = Seq("cbt", "direct") ++ task.split(' ').map(_.trim).toSeq
+    val arguments = Seq("cbt", "direct") ++
+      task.split(' ').map(_.trim).toSeq
     val commandLine = new GeneralCommandLine(arguments.asJava)
       .withWorkDirectory(workingDir)
     val hanlder = factory.createColoredProcessHandler(commandLine)
@@ -24,6 +27,12 @@ class CbtComandLineState(task: String,
   }
 
   private class CbtProcessProcessListener extends ProcessListener {
+
+    val cbtOutputListener =
+      new CbtOutputListener(onOutput, Option(environment.getProject), NotificationSource.TASK_EXECUTION)
+
+    def onOutput(text: String, stderr: Boolean): Unit = {}
+
     override def processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean): Unit = {}
 
     override def startNotified(event: ProcessEvent): Unit = {}
@@ -32,7 +41,16 @@ class CbtComandLineState(task: String,
       callback.foreach(_.apply)
     }
 
-    override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {}
+    override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+      println(outputType.toString)
+      outputType match {
+        case ProcessOutputTypes.STDERR =>
+          cbtOutputListener.dataReceived(event.getText, stderr = true)
+        case ProcessOutputTypes.STDOUT =>
+          cbtOutputListener.dataReceived(event.getText, stderr = false)
+        case _ =>
+      }
+    }
   }
 
 }

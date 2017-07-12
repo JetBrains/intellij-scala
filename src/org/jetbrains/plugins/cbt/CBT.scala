@@ -3,6 +3,7 @@ package org.jetbrains.plugins.cbt
 import java.io.File
 
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
+import com.intellij.openapi.externalSystem.service.notification.NotificationSource
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
@@ -40,7 +41,7 @@ object CBT {
       }
     }
 
-    val outputHandler = new CbtOutputListener(onOutput, projectOpt)
+    val outputHandler = new CbtOutputListener(onOutput, projectOpt, NotificationSource.PROJECT_SYNC)
     val logger = ProcessLogger(
       outputHandler.dataReceived(_, stderr = false),
       outputHandler.dataReceived(_, stderr = true))
