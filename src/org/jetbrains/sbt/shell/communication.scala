@@ -63,6 +63,7 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
       if (next != null) {
         val (cmd, listener) = next
 
+        listener.started()
         process.attachListener(listener)
 
         process.usingWriter { shell =>
@@ -130,7 +131,8 @@ private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[
 
   def future: Future[A] = promise.future
 
-  override def startNotified(event: ProcessEvent): Unit = aggregate(TaskStart)
+  def started(): Unit =
+    aggregate(TaskStart)
 
   override def processTerminated(event: ProcessEvent): Unit = {
     // TODO separate event type for completion by termination?
