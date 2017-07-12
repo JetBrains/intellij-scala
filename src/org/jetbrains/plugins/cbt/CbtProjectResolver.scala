@@ -2,17 +2,13 @@ package org.jetbrains.plugins.cbt
 
 import java.io.File
 
-import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
+import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
-import org.jetbrains.plugins.cbt.project.CbtProjectSystem
+import com.intellij.openapi.project.ProjectManager
 import org.jetbrains.plugins.cbt.project.model.{CbtProjectConverter, CbtProjectInfo}
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
-import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
-
-import scala.util.Failure
-
 
 class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSettings] {
 
@@ -24,9 +20,9 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     val projectPath = settings.realProjectPath
     val root = new File(projectPath)
     println("Cbt resolver called")
+    val projectOpt = ProjectManager.getInstance.getOpenProjects.toSeq.find(_.getBaseDir == projectPath)
 
-    val xml = CBT.buildInfoXml(root, settings, Some(id, listener))
-    println(xml.toString)
+    val xml = CBT.buildInfoXml(root, settings, projectOpt,  Some(id, listener))
     xml.map(CbtProjectInfo(_))
       .flatMap(CbtProjectConverter(_, settings))
       .get

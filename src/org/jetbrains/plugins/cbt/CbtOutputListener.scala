@@ -2,11 +2,14 @@ package org.jetbrains.plugins.cbt
 
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
+import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 
 import scala.collection.mutable
 
-class CbtOutputHandler(onOutput: (String, Boolean) => Unit) {
+class CbtOutputListener(onOutput: (String, Boolean) => Unit, projectOpt: Option[Project]) {
 
   private val ansiCodesEscaper = new AnsiCodesEscaper(onStdErr)
 
@@ -41,8 +44,10 @@ class CbtOutputHandler(onOutput: (String, Boolean) => Unit) {
     onOutput(text + "\n", true)
     if (isError(text)) {
       errorsList += text
+      projectOpt.foreach(CbtOutputListener.showError(_, text))
     } else if (isWarning(text)) {
       warningsList += text
+      projectOpt.foreach(CbtOutputListener.showWarning(_, text))
     }
   }
 
@@ -80,4 +85,18 @@ class CbtOutputHandler(onOutput: (String, Boolean) => Unit) {
       }
   }
 
+}
+
+object CbtOutputListener {
+  def showError(project: Project, text: String): Unit = {
+    val notification = new NotificationData("CBT project import", text,
+      NotificationCategory.ERROR, NotificationSource.PROJECT_SYNC)
+    ExternalSystemNotificationManager.getInstance(project).showNotification(CbtProjectSystem.Id, notification)
+  }
+
+  def showWarning(project: Project, text: String): Unit = {
+    val notification = new NotificationData("CBT project import", text,
+      NotificationCategory.WARNING, NotificationSource.PROJECT_SYNC)
+    ExternalSystemNotificationManager.getInstance(project).showNotification(CbtProjectSystem.Id, notification)
+  }
 }

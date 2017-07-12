@@ -18,7 +18,7 @@ class CbtNotificationListener extends ExternalSystemTaskNotificationListenerAdap
             .foreach { project =>
               val notification = new NotificationData("CBT project import", text,
                 NotificationCategory.ERROR, NotificationSource.PROJECT_SYNC)
-              ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notification)
+              ExternalSystemNotificationManager.getInstance(project).showNotification(CbtProjectSystem.Id, notification)
             }
       }
     }

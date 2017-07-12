@@ -2,10 +2,8 @@ package org.jetbrains.plugins.cbt
 
 import java.io.File
 
-import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
-import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
-import com.intellij.openapi.util.Key
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
 import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
@@ -18,7 +16,7 @@ import scala.xml.{Elem, XML}
 
 object CBT {
 
-  def buildInfoXml(root: File, settings: CbtExecutionSettings,
+  def buildInfoXml(root: File, settings: CbtExecutionSettings, projectOpt: Option[Project],
                    taskListener: Option[(ExternalSystemTaskId, ExternalSystemTaskNotificationListener)]): Try[Elem] = {
     def buildParams: Seq[String] = {
       val extraModulesStr = settings.extraModules.mkString(":")
@@ -26,11 +24,11 @@ object CBT {
       Seq("--extraModules", extraModulesStr, "--needCbtLibs", needCbtLibsStr)
     }
 
-    val xml = runAction("buildInfoXml" +: buildParams, root, taskListener)
+    val xml = runAction("buildInfoXml" +: buildParams, root, projectOpt, taskListener)
     xml.map(XML.loadString)
   }
 
-  def runAction(action: Seq[String], root: File,
+  def runAction(action: Seq[String], root: File, projectOpt: Option[Project],
                 taskListener: Option[(ExternalSystemTaskId, ExternalSystemTaskNotificationListener)]): Try[String] = {
 
     val onOutput = (text: String, stderr: Boolean) => {
@@ -42,7 +40,7 @@ object CBT {
       }
     }
 
-    val outputHandler = new CbtOutputHandler(onOutput)
+    val outputHandler = new CbtOutputListener(onOutput, projectOpt)
     val logger = ProcessLogger(
       outputHandler.dataReceived(_, stderr = false),
       outputHandler.dataReceived(_, stderr = true))
