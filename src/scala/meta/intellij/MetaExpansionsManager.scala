@@ -155,7 +155,7 @@ object MetaExpansionsManager {
       val converter = new TreeConverter {
         override def getCurrentProject: Project = annot.getProject
         override def dumbMode: Boolean = true
-        override protected val annotationToSkip = annot
+        override protected val annotationToSkip: ScAnnotation = annot
       }
 
       try {
@@ -221,7 +221,11 @@ object MetaExpansionsManager {
     val runner = clazz.getClassLoader.loadClass(classOf[MetaAnnotationRunner].getName)
     val method = runner.getDeclaredMethod("runString", classOf[Class[_]], classOf[Array[String]])
     val convertedArgs = args.map(_.toString).toArray
-    val result = method.invoke(null, clazz, convertedArgs).toString
+    val result = try {
+      method.invoke(null, clazz, convertedArgs).toString
+    } catch {
+      case e: InvocationTargetException => throw e.getTargetException
+    }
     val parsed = Parse.parseStat.apply(scala.meta.Input.String(result), Dialect.standards("Scala212"))
     parsed.getOrElse(throw new AbortException(s"Failed to parse result: $result"))
   }
