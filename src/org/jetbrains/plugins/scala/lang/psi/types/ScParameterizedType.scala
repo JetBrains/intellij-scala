@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
@@ -248,6 +249,14 @@ object ScParameterizedType {
       case ScProjectionType(_: ScCompoundType, _, _) =>
         cache.atomicGetOrElseUpdate((designator, typeArgs),
           createCompoundProjectionParameterized(simple))
+      case ScTypePolymorphicType(internalType, typeParameters) if internalType.isInstanceOf[ScParameterizedType] =>
+        val internal = internalType.asInstanceOf[ScParameterizedType]
+        new ScParameterizedType(internal.designator, internal.typeArguments.map {
+          case pType: TypeParameterType =>
+            typeParameters.zip(typeArgs).find{case (tParam, _) => TypeParameterType(tParam).equiv(pType)}.map(_._2).getOrElse(pType)
+          case aType =>
+            aType
+        })
       case _ => simple
     }
   }
