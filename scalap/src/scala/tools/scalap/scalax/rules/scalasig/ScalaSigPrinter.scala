@@ -11,7 +11,7 @@ package scalax
 package rules
 package scalasig
 
-import java.io.{ByteArrayOutputStream, PrintStream}
+import java.lang.StringBuilder
 import java.util.regex.Pattern
 
 import org.apache.commons.lang.StringEscapeUtils
@@ -26,11 +26,14 @@ case object ShowAll extends Verbosity
 case object HideClassPrivate extends Verbosity
 case object HideInstancePrivate extends Verbosity
 
-class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
+class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
   import ScalaSigPrinter._
-  import stream._
 
-  def this(stream: PrintStream, printPrivates: Boolean) = this(stream: PrintStream, if (printPrivates) ShowAll else HideClassPrivate)
+  def this(builder: StringBuilder, printPrivates: Boolean) = this(builder: StringBuilder, if (printPrivates) ShowAll else HideClassPrivate)
+
+  def print(s: String): Unit = builder.append(s)
+
+  def result: String = builder.toString
 
   private val currentTypeParameters: mutable.HashMap[TypeSymbol, String] = new mutable.HashMap[TypeSymbol, String]()
 
@@ -242,11 +245,9 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
   }
 
   def getClassString(level: Int, c: ClassSymbol): String = {
-    val baos = new ByteArrayOutputStream
-    val stream = new PrintStream(baos)
-    val printer = new ScalaSigPrinter(stream, verbosity)
+    val printer = new ScalaSigPrinter(new StringBuilder(), verbosity)
     printer.printClass(level, c)
-    baos.toString
+    printer.result
   }
 
   def getPrinterByConstructor(c: ClassSymbol): String = {
@@ -255,11 +256,9 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
       case _ => false
     } match {
       case Some(m: MethodSymbol) =>
-        val baos = new ByteArrayOutputStream
-        val stream = new PrintStream(baos)
-        val printer = new ScalaSigPrinter(stream, verbosity)
+        val printer = new ScalaSigPrinter(new StringBuilder(), verbosity)
         printer.printPrimaryConstructor(m, c)
-        val res = baos.toString
+        val res = printer.result
         if (res.length() > 0 && res.charAt(0) != '(') " " + res
         else res
       case _ => ""
@@ -303,9 +302,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
   }
 
   private def methodSymbolAsClassParam(msymb: MethodSymbol, c: ClassSymbol): String = {
-    val baos = new ByteArrayOutputStream
-    val stream = new PrintStream(baos)
-    val printer = new ScalaSigPrinter(stream, verbosity)
+    val printer = new ScalaSigPrinter(new StringBuilder(), verbosity)
     var break = false
     for (child <- c.children if !break) {
       child match {
@@ -313,8 +310,8 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
           if (!ms.isPrivate || !ms.isLocal) {
             printer.printSymbolAttributes(ms, onNewLine = false, ())
             printer.printModifiers(ms)
-            if (ms.isParamAccessor && ms.isMutable) stream.print("var ")
-            else if (ms.isParamAccessor) stream.print("val ")
+            if (ms.isParamAccessor && ms.isMutable) printer.print("var ")
+            else if (ms.isParamAccessor) printer.print("val ")
           }
           break = true
         case _ =>
@@ -323,8 +320,8 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
 
     val nameAndType = processName(msymb.name) + " : " + toString(msymb.infoType)(TypeFlags(true))
     val default = if (msymb.hasDefault) " = { /* compiled code */ }" else ""
-    stream.print(nameAndType + default)
-    baos.toString
+    printer.print(nameAndType + default)
+    printer.result
   }
 
   def printMethodType(t: Type, printResult: Boolean,
@@ -440,23 +437,23 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
   }
 
   def toString(attrib: AttributeInfo): String = {
-    val buffer = new StringBuffer
-    buffer.append(toString(attrib.typeRef, "@"))
+    val builder = new StringBuilder()
+    builder.append(toString(attrib.typeRef, "@"))
     if (attrib.value.isDefined) {
-      buffer.append("(")
-      buffer.append(valueToString(attrib.value.get))
-      buffer.append(")")
+      builder.append("(")
+      builder.append(valueToString(attrib.value.get))
+      builder.append(")")
     }
     if (attrib.values.nonEmpty) {
-      buffer.append("(")
+      builder.append("(")
       for (name ~ value <- attrib.values) {
-        buffer.append(processName(name))
-        buffer.append(" = ")
-        buffer.append(valueToString(value))
+        builder.append(processName(name))
+        builder.append(" = ")
+        builder.append(valueToString(value))
       }
-      buffer.append(")")
+      builder.append(")")
     }
-    buffer.toString
+    builder.toString
   }
 
   // TODO char, float, etc.
