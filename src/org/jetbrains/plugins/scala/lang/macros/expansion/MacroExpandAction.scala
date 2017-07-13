@@ -313,11 +313,11 @@ object MacroExpandAction {
                 case td: ScTypeDefinition => td.baseCompanionModule
                 case _ => None
               }
-              companion.foreach(_.delete())
+              companion.foreach(o=>o.getParent.getNode.removeChild(o.getNode))
             }
             block.children.find(_.isInstanceOf[ScalaPsiElement]).foreach(p => p.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, holder.getText))
             holder.getParent.addRangeAfter(children.tail.head, children.dropRight(1).last, holder)
-            holder.delete()
+            holder.getParent.getNode.removeChild(holder.getNode)
           case Some(psi: PsiElement) => // defns/method bodies/etc...
             val result = holder.replace(psi)
             result.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, holder.getText)
