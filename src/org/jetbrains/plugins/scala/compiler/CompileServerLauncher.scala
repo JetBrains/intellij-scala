@@ -9,7 +9,7 @@ import com.intellij.notification.{Notification, NotificationListener, Notificati
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
@@ -71,6 +71,10 @@ class CompileServerLauncher extends ApplicationComponent {
   private def start(project: Project, jdk: JDK): Either[String, Process] = {
     import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.{compilerJars, jvmParameters}
 
+    val settings = ScalaCompileServerSettings.getInstance
+
+    settings.updateSdk(jdk.name)
+
     compilerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
         val bootCp = bootClasspath(project)
@@ -79,13 +83,11 @@ class CompileServerLauncher extends ApplicationComponent {
           if (bootClassPathLibs.isEmpty) Nil
           else Seq("-Xbootclasspath/a:" + bootClassPathLibs.mkString(File.pathSeparator))
         val classpath = (jdk.tools +: presentFiles).map(_.canonicalPath).mkString(File.pathSeparator)
-        val settings = ScalaCompileServerSettings.getInstance
 
         val freePort = CompileServerLauncher.findFreePort
         if (settings.COMPILE_SERVER_PORT != freePort) {
           new RemoteServerStopper(settings.COMPILE_SERVER_PORT).sendStop()
-          settings.COMPILE_SERVER_PORT = freePort
-          ApplicationManager.getApplication.saveSettings()
+          settings.updatePort(freePort)
         }
 
         val ngRunnerFqn = "org.jetbrains.plugins.scala.nailgun.NailgunRunner"
@@ -147,8 +149,14 @@ class CompileServerLauncher extends ApplicationComponent {
 
 object CompileServerLauncher {
   def compileServerSdk(project: Project): Sdk = {
-    val sdk = BuildManager.getBuildProcessRuntimeSdk(project).first
-    ScalaCompileServerSettings.getInstance().COMPILE_SERVER_SDK = sdk.getName
+    def defaultSdk = BuildManager.getBuildProcessRuntimeSdk(project).first
+
+    val settings = ScalaCompileServerSettings.getInstance()
+
+    val sdk =
+      if (settings.USE_DEFAULT_SDK) defaultSdk
+      else ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK)
+
     sdk
   }
 
