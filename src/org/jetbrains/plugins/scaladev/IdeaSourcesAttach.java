@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scaladev;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.TransactionGuard;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -78,7 +79,7 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
                 for (LibraryOrderEntry lib : libs) {
                     final Library library = lib.getLibrary();
                     if (library != null && library.getUrls(OrderRootType.SOURCES).length == 0) {
-                        ApplicationManager.getApplication().invokeLater(new Runnable() {
+                        TransactionGuard.getInstance().submitTransactionLater(myProject, new Runnable() {
                             @Override
                             public void run() {
                                 AttachSourcesUtil.appendSources(library, roots.toArray(new VirtualFile[roots.size()]));
