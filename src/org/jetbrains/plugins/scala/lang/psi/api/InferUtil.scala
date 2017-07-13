@@ -391,7 +391,7 @@ object InferUtil {
     val tpe = if (c.problems.isEmpty) {
       var un: ScUndefinedSubstitutor = c.undefSubst
       val subst = c.undefSubst
-      subst.getSubstitutorWithBounds(!safeCheck) match {
+      subst.getSubstitutorWithBounds(safeCheck) match {
         case Some((unSubst, lMap, uMap)) =>
           if (!filterTypeParams) {
             val undefiningSubstitutor = ScSubstitutor(typeParams.map(typeParam => {

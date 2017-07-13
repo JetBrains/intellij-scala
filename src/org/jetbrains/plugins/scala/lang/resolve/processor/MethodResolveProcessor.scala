@@ -430,7 +430,7 @@ object MethodResolveProcessor {
 
     if (result.problems.forall(_ == ExpectedTypeMismatch)) {
       var uSubst = result.undefSubst
-      uSubst.getSubstitutor(notNonable = false) match {
+      uSubst.getSubstitutor match {
         case None => result.copy(problems = Seq(WrongTypeParameterInferred))
         case Some(unSubst) =>
           def hasRecursiveTypeParameters(typez: ScType): Boolean = {
@@ -462,7 +462,7 @@ object MethodResolveProcessor {
               }
             }
           }
-          uSubst.getSubstitutor(notNonable = false) match {
+          uSubst.getSubstitutor match {
             case Some(_) => result
             case _ => result.copy(problems = Seq(WrongTypeParameterInferred))
           }

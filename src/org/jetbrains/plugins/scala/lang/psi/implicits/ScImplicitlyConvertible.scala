@@ -242,7 +242,7 @@ object ScImplicitlyConvertible {
                                  undefinedSubstitutor: ScUndefinedSubstitutor) = {
 
     var uSubst = undefinedSubstitutor
-    uSubst.getSubstitutor(notNonable = false) match {
+    uSubst.getSubstitutor match {
       case Some(unSubst) =>
         def hasRecursiveTypeParameters(`type`: ScType): Boolean = {
           var result = false
@@ -327,7 +327,7 @@ object ScImplicitlyConvertible {
             (ScSubstitutor(() => Map.empty), ScSubstitutor(() => Map.empty))
         }
 
-        uSubst.getSubstitutor(notNonable = false)
+        uSubst.getSubstitutor
           .map(createDependentSubstitutors)
           .map {
             case (dependentSubstitutor, implicitDependentSubstitutor) =>

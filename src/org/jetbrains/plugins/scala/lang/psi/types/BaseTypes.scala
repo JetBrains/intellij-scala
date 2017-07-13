@@ -3,96 +3,27 @@ package lang
 package psi
 package types
 
-import com.intellij.openapi.progress.ProgressManager
+import java.util
+
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParameterExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 object BaseTypes {
-  def get(t: ScType, notAll: Boolean = false, visitedAliases: Set[ScTypeAlias] = Set.empty): Seq[ScType] = {
-    implicit val project = t.projectContext
 
-    ProgressManager.checkCanceled()
-    t match {
-      case ScDesignatorType(td : ScTemplateDefinition) =>
-        reduce(td.superTypes.flatMap(tp => if (!notAll) BaseTypes.get(tp, notAll, visitedAliases = visitedAliases) ++ Seq(tp) else Seq(tp)))
-      case ScDesignatorType(c : PsiClass) =>
-        reduce(c.getSuperTypes.flatMap { p => {
-          val tp = p.toScType()
-          (if (!notAll) BaseTypes.get(tp, notAll, visitedAliases = visitedAliases)
-          else Seq()) ++ Seq(tp)
-        }
-        })
-      case ScDesignatorType(ta: ScTypeAliasDefinition) =>
-        if (visitedAliases.contains(ta)) return Seq.empty
-        BaseTypes.get(ta.aliasedType.getOrElse(return Seq.empty), visitedAliases = visitedAliases + ta)
-      case ScThisType(clazz) => BaseTypes.get(clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return Seq.empty), visitedAliases = visitedAliases)
-      case TypeParameterType(Nil, _, upper, _) => get(upper.v, notAll, visitedAliases = visitedAliases)
-      case ScExistentialArgument(_, Nil, _, upper) => get(upper, notAll, visitedAliases = visitedAliases)
-      case _: JavaArrayType => Seq(Any)
-      case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
-        val ta = p.actualElement.asInstanceOf[ScTypeAliasDefinition]
-        if (visitedAliases.contains(ta)) return Seq.empty
-        BaseTypes.get(p.actualSubst.subst(ta.aliasedType.getOrElse(return Seq.empty)), visitedAliases = visitedAliases + ta)
-      case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
-        if (visitedAliases.contains(ta)) return Seq.empty
-        val genericSubst = ScalaPsiUtil.typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
-        BaseTypes.get(genericSubst.subst(ta.aliasedType.getOrElse(return Seq.empty)), visitedAliases = visitedAliases + ta)
-      case ParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
-        val ta = p.actualElement.asInstanceOf[ScTypeAliasDefinition]
-        if (visitedAliases.contains(ta)) return Seq.empty
-        val genericSubst = ScalaPsiUtil.
-          typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
-        val s = p.actualSubst.followed(genericSubst)
-        BaseTypes.get(s.subst(ta.aliasedType.getOrElse(return Seq.empty)), visitedAliases = visitedAliases + ta)
-      case p : ScParameterizedType =>
-        p.designator.extractClass match {
-          case Some(td: ScTypeDefinition) =>
-            reduce(td.superTypes.flatMap { tp =>
-              if (!notAll) BaseTypes.get(p.substitutor.subst(tp), notAll, visitedAliases = visitedAliases) ++ Seq(p.substitutor.subst(tp)) else Seq(p
-                    .substitutor.subst(tp))
-            })
-          case Some(clazz) =>
-            val s = p.substitutor
-            reduce(clazz.getSuperTypes.flatMap { t => {
-              val substituted = s.subst(t.toScType())
-              (if (!notAll) BaseTypes.get(substituted, notAll, visitedAliases = visitedAliases)
-              else Seq()) ++ Seq(substituted)
-            }
-            })
-          case _ => Seq.empty
-        }
-      case ex: ScExistentialType => get(ex.quantified, notAll, visitedAliases = visitedAliases).map { _.unpackedType }
-      case ScCompoundType(comps, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp, visitedAliases = visitedAliases) ++ Seq(comp)))
-      case proj@ScProjectionType(_, elem, _) =>
-        val s = proj.actualSubst
-        elem match {
-          case td : ScTypeDefinition => reduce(td.superTypes.flatMap{tp =>
-            if (!notAll) BaseTypes.get(s.subst(tp), visitedAliases = visitedAliases) ++ Seq(s.subst(tp))
-            else Seq(s.subst(tp))
-          })
-          case c : PsiClass =>
-            reduce(c.getSuperTypes.flatMap {st =>
-            {
-              val substituted = s.subst(st.toScType())
-              (if (!notAll) BaseTypes.get(substituted, visitedAliases = visitedAliases)
-              else Seq()) ++ Seq(substituted)
-            }
-            })
-          case _ => Seq.empty
-        }
-      case _ => Seq.empty
-    }
-  }
+  def iterator(tp: ScType): Iterator[ScType] = new BaseTypesIterator(tp)
 
-  def reduce(types: Seq[ScType]): Seq[ScType] = {
+  def get(t: ScType): Seq[ScType] = reduce(iterator(t).toList)
+
+  private def reduce(types: Seq[ScType]): Seq[ScType] = {
     val res = new mutable.HashMap[PsiClass, ScType]
     object all extends mutable.HashMap[PsiClass, mutable.Set[ScType]] with mutable.MultiMap[PsiClass, ScType]
     val iterator = types.iterator
@@ -110,5 +41,110 @@ object BaseTypes {
       }
     }
     res.values.toList
+  }
+}
+
+private class BaseTypesIterator(tp: ScType) extends Iterator[ScType] {
+  import tp.projectContext
+
+  private val initialCapacity = 4
+  private val queue = new util.ArrayDeque[ScType](initialCapacity)
+  private val visitedAliases = mutable.Set.empty[ScTypeAlias]
+  private val seenTypes = mutable.Set.empty[ScType]
+
+  enqueueSupers(tp)
+
+  override def hasNext: Boolean = !queue.isEmpty
+
+  override def next(): ScType = {
+    val tp = queue.pollLast()
+    enqueueSupers(tp)
+    tp
+  }
+
+  private def enqueue(tp: ScType): Unit = {
+    if (!seenTypes.contains(tp)) {
+      queue.addFirst(tp)
+      seenTypes += tp
+    }
+  }
+
+  private def enqueueSupersForClass(c: PsiClass, substitutor: ScSubstitutor = ScSubstitutor.empty): Unit = {
+    val superTypes = c match {
+      case td: ScTemplateDefinition => td.superTypes
+      case _ => c.getSuperTypes.toSeq.map(_.toScType())
+    }
+    superTypes.foreach { st =>
+      val substed = substitutor.subst(st)
+      enqueue(substed)
+    }
+  }
+
+  @tailrec
+  private def enqueueSupers(t: ScType): Unit = {
+    t match {
+      case InterestedIn(r) => enqueueSupers(r)
+      case ClassType(c, subst) => enqueueSupersForClass(c, subst)
+      case JavaArrayType(_) => enqueue(Any)
+      case ScCompoundType(comps, _, _) => comps.foreach(enqueue)
+      case _ =>
+    }
+  }
+
+  private object IsTypeAlias {
+    def unapply(tp: ScType): Option[(ScTypeAliasDefinition, ScSubstitutor)] = tp match {
+      case ScDesignatorType(ta: ScTypeAliasDefinition) => Some((ta, ScSubstitutor.empty))
+      case ScProjectionType.withActual((ta: ScTypeAliasDefinition, actualSubst)) => Some((ta, actualSubst))
+      case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
+        val genericSubst = ScalaPsiUtil.typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
+        Some((ta, genericSubst))
+      case ParameterizedType(ScProjectionType.withActual(ta: ScTypeAliasDefinition, actualSubst), args) =>
+        val genericSubst = ScalaPsiUtil.typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
+        val s = actualSubst.followed(genericSubst)
+        Some((ta, s))
+      case _ => None
+    }
+  }
+
+  private object ClassType {
+    def unapply(tp: ScType): Option[(PsiClass, ScSubstitutor)] = tp match {
+      case ScDesignatorType(c: PsiClass) => Some((c, ScSubstitutor.empty))
+      case p : ScParameterizedType =>
+        p.designator.extractClass match {
+          case Some(clazz) => Some((clazz, p.substitutor))
+          case _ => None
+        }
+      case ScProjectionType.withActual(c: PsiClass, subst) =>
+        Some((c, subst))
+      case _ => None
+    }
+  }
+
+  private object InterestedIn {
+    def unapply(tp: ScType): Option[ScType] = {
+      if (seenTypes.contains(tp)) return None
+      seenTypes += tp
+
+      tp match {
+        case IsTypeAlias(ta, s) =>
+          if (!visitedAliases.contains(ta)) {
+            visitedAliases += ta
+            ta.aliasedType match {
+              case Success(aliased, _) => Some(s.subst(aliased))
+              case _ => None
+            }
+          }
+          else None
+        case ScThisType(clazz) =>
+          clazz.getTypeWithProjections(TypingContext.empty).toOption
+        case TypeParameterType(Nil, _, upper, _) =>
+          Some(upper.v)
+        case ScExistentialArgument(_, Nil, _, upper) =>
+          Some(upper)
+        case ex: ScExistentialType =>
+          Some(ex.quantified.unpackedType)
+        case _ => None
+      }
+    }
   }
 }

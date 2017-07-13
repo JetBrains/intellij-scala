@@ -223,48 +223,6 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     buffer
   }
 
-  def directSupersNames: Seq[String] = {
-    @tailrec
-    def process(te: ScTypeElement, acc: Vector[String]): Vector[String] = {
-      te match {
-        case simpleType: ScSimpleTypeElement =>
-          simpleType.reference match {
-            case Some(ref) => acc :+ ref.refName
-            case _ => acc
-          }
-        case infixType: ScReferenceableInfixTypeElement =>
-          acc :+ infixType.reference.refName
-        case x: ScParameterizedTypeElement =>
-          x.typeElement match {
-            case scType: ScTypeElement => process(scType, acc)
-            case _ => acc
-          }
-        case x: ScParenthesisedTypeElement =>
-          x.typeElement match {
-            case Some(typeElement) => process(typeElement, acc)
-            case None => acc
-          }
-        case _ => acc
-      }
-    }
-
-    def default(res: Seq[String]): Seq[String] =
-      res ++ Seq("Object", "ScalaObject")
-
-    def productSerializable(res: Seq[String])(underCaseClass: Boolean): Seq[String] =
-      res ++ (if (underCaseClass) Seq("Product", "Serializable") else Seq.empty)
-
-    def search = productSerializable _ compose default
-
-    templateParents match {
-      case None => Seq.empty
-      case Some(parents) =>
-        val parentElements: Seq[ScTypeElement] = parents.allTypeElements.toIndexedSeq
-        val results: Seq[String] = parentElements flatMap (process(_, Vector[String]()))
-        search(results)(isUnderCaseClass).toBuffer
-    }
-  }
-
   def members: Seq[ScMember] = {
     templateBodies.flatMap {
       _.members
