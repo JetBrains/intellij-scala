@@ -15,19 +15,21 @@ import org.jetbrains.sbt.project.module.SbtModule
 import scala.collection.JavaConverters._
 
 /**
- * @author Pavel Fatin
- */
-class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, SbtFileType) with ScDeclarationSequenceHolder{
+  * @author Pavel Fatin
+  */
+class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, SbtFileType) with ScDeclarationSequenceHolder {
   override def isScriptFileImpl: Boolean = false
 
   override def immediateTypeDefinitions: Seq[Nothing] = Seq.empty
 
   override def packagings: Seq[Nothing] = Seq.empty
 
-  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = 
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean =
     super[ScalaFileImpl].processDeclarations(processor, state, lastParent, place) &&
-    super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place) &&
-    processImplicitImports(processor, state, lastParent,place)
+      super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place) &&
+      processImplicitImports(processor, state, lastParent, place)
+
+  override val allowsForwardReferences: Boolean = true
 
   private def processImplicitImports(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
     val expressions = implicitImportExpressions ++ localObjectsWithDefinitions.map(_.qualifiedName + "._")
@@ -51,7 +53,7 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
   }
 
   private def implicitImportExpressions = projectDefinitionModule.orElse(fileModule)
-          .fold(Seq.empty[String])(SbtModule.getImportsFrom)
+    .fold(Seq.empty[String])(SbtModule.getImportsFrom)
 
   private def localObjectsWithDefinitions: Seq[PsiClass] = {
     projectDefinitionModule.fold(Seq.empty[PsiClass]) { module =>
@@ -61,7 +63,7 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
       val moduleWithDependenciesAndLibrariesScope = module.getModuleWithDependenciesAndLibrariesScope(false)
 
       Sbt.DefinitionHolderClasses.flatMap(manager.getCachedClasses(moduleWithDependenciesAndLibrariesScope, _))
-              .flatMap(ClassInheritorsSearch.search(_, moduleScope, true).findAll.asScala)
+        .flatMap(ClassInheritorsSearch.search(_, moduleScope, true).findAll.asScala)
     }
   }
 

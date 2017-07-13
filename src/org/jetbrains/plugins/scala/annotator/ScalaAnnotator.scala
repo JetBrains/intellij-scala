@@ -102,7 +102,7 @@ abstract class ScalaAnnotator extends Annotator
         }
       }
 
-      override def visitAnnotTypeElement(annot: ScAnnotTypeElement) = {
+      override def visitAnnotTypeElement(annot: ScAnnotTypeElement): Unit = {
         super.visitAnnotTypeElement(annot)
       }
 
@@ -687,33 +687,38 @@ abstract class ScalaAnnotator extends Annotator
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
-      resolve(0) match {
-        case r: ScalaResolveResult if r.isForwardReference =>
-          ScalaPsiUtil.nameContext(r.getActualElement) match {
-            case v: ScValue if !v.hasModifierProperty("lazy") => showError()
-            case _: ScVariable => showError()
-            case nameContext =>
-              //if it has not lazy val or var between reference and statement then it's forward reference
-              val context = PsiTreeUtil.findCommonContext(refElement, nameContext)
-              if (context != null) {
-                val neighbour = (PsiTreeUtil.findFirstContext(nameContext, false, new Condition[PsiElement] {
-                  override def value(elem: PsiElement): Boolean = elem.getContext.eq(context)
-                }) match {
-                  case s: ScalaPsiElement => s.getDeepSameElementInContext
-                  case elem => elem
-                }).getPrevSibling
 
-                def check(neighbour: PsiElement): Boolean = {
-                  if (neighbour == null ||
-                    neighbour.getTextRange.getStartOffset <= refElement.getTextRange.getStartOffset) return false
-                  neighbour match {
-                    case v: ScValue if !v.hasModifierProperty("lazy") => true
-                    case _: ScVariable => true
-                    case _ => check(neighbour.getPrevSibling)
+      refElement.getContainingFile match {
+        case file: ScalaFile if !file.allowsForwardReferences =>
+          resolve(0) match {
+            case r: ScalaResolveResult if r.isForwardReference =>
+              ScalaPsiUtil.nameContext(r.getActualElement) match {
+                case v: ScValue if !v.hasModifierProperty("lazy") => showError()
+                case _: ScVariable => showError()
+                case nameContext =>
+                  //if it has not lazy val or var between reference and statement then it's forward reference
+                  val context = PsiTreeUtil.findCommonContext(refElement, nameContext)
+                  if (context != null) {
+                    val neighbour = (PsiTreeUtil.findFirstContext(nameContext, false, new Condition[PsiElement] {
+                      override def value(elem: PsiElement): Boolean = elem.getContext.eq(context)
+                    }) match {
+                      case s: ScalaPsiElement => s.getDeepSameElementInContext
+                      case elem => elem
+                    }).getPrevSibling
+
+                    def check(neighbour: PsiElement): Boolean = {
+                      if (neighbour == null ||
+                        neighbour.getTextRange.getStartOffset <= refElement.getTextRange.getStartOffset) return false
+                      neighbour match {
+                        case v: ScValue if !v.hasModifierProperty("lazy") => true
+                        case _: ScVariable => true
+                        case _ => check(neighbour.getPrevSibling)
+                      }
+                    }
+                    if (check(neighbour)) showError()
                   }
-                }
-                if (check(neighbour)) showError()
               }
+            case _ =>
           }
         case _ =>
       }
