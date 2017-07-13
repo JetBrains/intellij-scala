@@ -125,7 +125,7 @@ class MacroExpandAction extends AnAction {
     val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansion.body)(PsiManager.getInstance(e.getProject))
     val element = call.getParent.addAfter(blockImpl, call)
     element match {
-      case ScBlock(x, _*) => x.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, call.getText)
+      case ScBlock(x, _*) => x.putCopyableUserData(EXPANDED_KEY, UndoExpansionData(call.getText))
       case _ => // unreachable
     }
     call.delete()
@@ -265,10 +265,11 @@ class MacroExpandAction extends AnAction {
 }
 
 object MacroExpandAction {
+  case class UndoExpansionData(original: String, companion: Option[String] = None)
 
   val MACRO_DEBUG_OPTION = "-Ymacro-debug-lite"
 
-  val EXPANDED_KEY = new Key[String]("MACRO_EXPANDED_KEY")
+  val EXPANDED_KEY = new Key[UndoExpansionData]("MACRO_EXPANDED_KEY")
 
   private val LOG = Logger.getInstance(getClass)
   val windowGroup = NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.PROJECT_VIEW)
@@ -308,19 +309,26 @@ object MacroExpandAction {
         newPsi.firstChild match {
           case Some(block: ScBlock) => // insert content of block expression(annotation can generate >1 expression)
             val children = block.getChildren
-            if (expansion.removeCompanionObject) {
+            val savedCompanion = if (expansion.removeCompanionObject) {
               val companion = holder match {
                 case td: ScTypeDefinition => td.baseCompanionModule
                 case _ => None
               }
-              companion.foreach(o=>o.getParent.getNode.removeChild(o.getNode))
-            }
-            block.children.find(_.isInstanceOf[ScalaPsiElement]).foreach(p => p.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, holder.getText))
+              companion.map { o =>
+                o.getParent.getNode.removeChild(o.getNode)
+                o.getText
+              }
+            } else None
+            block.children
+              .find(_.isInstanceOf[ScalaPsiElement])
+              .foreach { p =>
+                p.putCopyableUserData(EXPANDED_KEY, UndoExpansionData(holder.getText, savedCompanion))
+              }
             holder.getParent.addRangeAfter(children.tail.head, children.dropRight(1).last, holder)
             holder.getParent.getNode.removeChild(holder.getNode)
           case Some(psi: PsiElement) => // defns/method bodies/etc...
             val result = holder.replace(psi)
-            result.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, holder.getText)
+            result.putCopyableUserData(EXPANDED_KEY, UndoExpansionData(holder.getText))
           case None => LOG.warn(s"Failed to parse expansion: $body")
         }
       case other => LOG.warn(s"Unexpected annotated element: $other at ${other.getText}")
