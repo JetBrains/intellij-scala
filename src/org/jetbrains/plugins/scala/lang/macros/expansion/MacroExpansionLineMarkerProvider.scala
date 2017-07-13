@@ -24,6 +24,9 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import scala.collection.JavaConversions._
 import scala.meta.intellij.MetaExpansionsManager
 import ScalaProjectSettings.ScalaMetaMode
+import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction.UndoExpansionData
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
 class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
@@ -34,6 +37,7 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
     if (ScalaProjectSettings.getInstance(element.getProject).getScalaMetaMode == ScalaMetaMode.Disabled) return
     if (element.getNode == null || element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER ) return
     processElement(element).foreach(result.add)
+    createUndoExpansionMarkers(element, result)
   }
 
   private def processElement(element: PsiElement): Option[Marker] = {
@@ -69,18 +73,31 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
     }
   }
 
-  private def collectReflectExpansions(elements: util.List[PsiElement], result: Markers): Unit = {
-    val expansions = elements.map(p => (p, p.getCopyableUserData(MacroExpandAction.EXPANDED_KEY))).filter(_._2 != null)
-    val res = expansions.map { case (current, saved) =>
-      newMarker(current, AllIcons.General.ExpandAllHover, "Undo Macro Expansion") { _ =>
-        inWriteAction {
-          val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(saved)(PsiManager.getInstance(current.getProject))
-          current.replace(newPsi)
-          saved
-        }
+  private def createUndoExpansionMarkers(element: PsiElement, result: Markers): Unit = {
+    val parent = element.getParent
+
+    def undoExpansion(original: String, companion: Option[String] = None): Unit = {
+      val newPsi = ScalaPsiElementFactory
+        .createBlockExpressionWithoutBracesFromText(original.trim)(PsiManager.getInstance(element.getProject))
+      parent match {
+        case td: ScTypeDefinition if companion.isDefined =>
+          val definition = ScalaPsiElementFactory.createTypeDefinitionWithContext(companion.get.trim, parent.getContext, null)
+          td.baseCompanionModule.foreach(_.replace(definition))
+        case _ => None
       }
+      parent.replace(newPsi)
+
     }
-    result.addAll(res)
+
+    def mkUndoMarker(undoFunc: => Unit) = newMarker(element, AllIcons.Actions.Undo, "Undo macro expansion") { _ =>
+      inWriteAction(undoFunc)
+    }
+
+    parent.getCopyableUserData(MacroExpandAction.EXPANDED_KEY) match {
+      case UndoExpansionData(original, savedCompanion) =>
+        result.add(mkUndoMarker(undoExpansion(original, savedCompanion)))
+      case _ =>
+    }
   }
 
   private def newMarker[T](elem: PsiElement, icon: Icon, caption: String)(fun: PsiElement => T): Marker = {
