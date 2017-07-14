@@ -133,4 +133,26 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
 
     Assert.assertTrue("Generated type not equal to specified", fooType.equiv(fooBarAType))
   }
+
+  def testSCL12104(): Unit = {
+    compileMetaSource(
+      """
+        |import scala.meta._
+        |class AnnotationWithType[SomeType] extends scala.annotation.StaticAnnotation {
+        |  inline def apply(defn: Any): Any = meta { defn }
+        |}
+      """.stripMargin
+    )
+    myFixture.configureByText(s"$testClassName.scala",
+    s"""
+      |@AnnotationWithType[Unit]
+      |class $testClassName
+    """.stripMargin
+    )
+
+    testClass.getMetaExpansion match {
+      case Left(error)  => Assert.fail(s"Expansion failed: $error")
+      case _ =>
+    }
+  }
 }
