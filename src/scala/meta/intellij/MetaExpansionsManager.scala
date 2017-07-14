@@ -240,12 +240,6 @@ object MetaExpansionsManager {
         s"No 'apply' method in annotation class, declared methods:\n ${clazz.getDeclaredMethods.mkString("\n")}")
       )
     method.setAccessible(true)
-//    try {
-      method.invoke(inst, args.map(_.asInstanceOf[scala.meta.Stat]): _*).asInstanceOf[Tree]
-//    } catch {
-//       rewrap exception to mimic adapter behaviour
-//      case e: InvocationTargetException =>
-//        throw new InvocationTargetException(new RuntimeException(e.getTargetException.toString).st)
-//    }
+    method.invoke(inst, args: _*).asInstanceOf[Tree]
   }
 }
