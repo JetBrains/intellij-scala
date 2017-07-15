@@ -6,6 +6,7 @@ package toplevel
 package typedef
 
 import com.intellij.navigation.NavigationItem
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
@@ -157,6 +158,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
               ""
             }
           } catch {
+            case p: ProcessCanceledException => throw p
             case _: Exception => ""
           }
         }

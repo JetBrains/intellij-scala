@@ -9,6 +9,7 @@ import javax.swing.Icon
 
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.lexer.JavaLexer
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
@@ -146,6 +147,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
             res += method
           }
           catch {
+            case p: ProcessCanceledException => throw p
             case _: Exception => //do not add methods with wrong signature
           }
         })

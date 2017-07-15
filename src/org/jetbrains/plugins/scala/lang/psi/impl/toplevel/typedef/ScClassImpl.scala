@@ -6,7 +6,7 @@ package toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightField
@@ -178,6 +178,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
               method.setSynthetic(this)
               buf += method
             } catch {
+              case p: ProcessCanceledException => throw p
               case _: Exception =>
               //do not add methods if class has wrong signature.
             }
@@ -248,6 +249,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
             method.setSynthetic(this)
             Some(method)
           } catch {
+            case p: ProcessCanceledException => throw p
             case _: Exception => None
           }
         case None => None
