@@ -370,14 +370,14 @@ object ScalaPsiUtil {
     exprTp match {
       case ScTypePolymorphicType(internal, typeParam) if typeParam.nonEmpty &&
         !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[UndefinedType] =>
-        if (!isDynamic || approveDynamic(internal, call.getProject, call.getResolveScope)) {
+        if (!isDynamic || approveDynamic(internal, call.getProject, call.resolveScope)) {
           val state: ResolveState = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, internal)
           processor.processType(internal, call.getEffectiveInvokedExpr, state)
         }
         candidates = processor.candidatesS
       case _ =>
     }
-    if (candidates.isEmpty && (!isDynamic || approveDynamic(exprTp.inferValueType, call.getProject, call.getResolveScope))) {
+    if (candidates.isEmpty && (!isDynamic || approveDynamic(exprTp.inferValueType, call.getProject, call.resolveScope))) {
       val state: ResolveState = ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, exprTp.inferValueType)
       processor.processType(exprTp.inferValueType, call.getEffectiveInvokedExpr, state)
       candidates = processor.candidatesS
@@ -417,7 +417,7 @@ object ScalaPsiUtil {
           val res = fun match {
             case fun: ScFun => (update(s.subst(fun.polymorphicType)), r.importsUsed, r.implicitFunction, Some(r))
             case fun: ScFunction => (update(s.subst(fun.polymorphicType())), r.importsUsed, r.implicitFunction, Some(r))
-            case meth: PsiMethod => (update(ResolveUtils.javaPolymorphicType(meth, s, call.getResolveScope)),
+            case meth: PsiMethod => (update(ResolveUtils.javaPolymorphicType(meth, s, call.resolveScope)),
               r.importsUsed, r.implicitFunction, Some(r))
           }
           call.getInvokedExpr.getNonValueType(TypingContext.empty) match {

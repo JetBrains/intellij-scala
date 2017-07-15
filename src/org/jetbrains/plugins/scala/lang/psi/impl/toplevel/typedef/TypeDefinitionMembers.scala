@@ -119,7 +119,7 @@ object TypeDefinitionMembers {
 
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
-        val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.getResolveScope, "java.lang.Object")
+        val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.resolveScope, "java.lang.Object")
         obj.map { obj =>
           for (method <- obj.getMethods) {
             method.getName match {
@@ -360,7 +360,7 @@ object TypeDefinitionMembers {
 
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
-        val obj = ScalaPsiManager.instance.getCachedClass(template.getResolveScope, "java.lang.Object")
+        val obj = ScalaPsiManager.instance.getCachedClass(template.resolveScope, "java.lang.Object")
         obj.map { obj =>
           for (method <- obj.getMethods) {
             method.getName match {

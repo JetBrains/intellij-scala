@@ -99,7 +99,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
   }
 
   private def inheritorsOf(cls: PsiClass): Seq[ScTypeDefinition] = {
-    val found: Array[ScTypeDefinition] = ClassInheritorsSearch.search(cls, cls.getResolveScope, false).toArray(PsiClass.EMPTY_ARRAY).collect {
+    val found: Array[ScTypeDefinition] = ClassInheritorsSearch.search(cls, cls.resolveScope, false).toArray(PsiClass.EMPTY_ARRAY).collect {
       case x: ScTypeDefinition => x
     }
     found.sortBy(_.getNavigationElement.getTextRange.getStartOffset)

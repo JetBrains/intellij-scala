@@ -195,7 +195,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       }
 
       if (c._2.nonEmpty) {
-        ScalaPsiUtil.tuplizy(exprs, getResolveScope, getManager, ScalaPsiUtil.firstLeaf(this)).map { e =>
+        ScalaPsiUtil.tuplizy(exprs, this.resolveScope, getManager, ScalaPsiUtil.firstLeaf(this)).map { e =>
           val cd = fun(e)
           if (cd._2.nonEmpty) tail
           else {
@@ -269,7 +269,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
                 }
                 val (res, imports) = super.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
                 implicit val project = getProject
-                implicit val scope = getResolveScope
+                implicit val scope = MethodInvocation.this.resolveScope
 
                 val str = ScalaPsiManager.instance(project).getCachedClass(scope, "java.lang.String")
                 val stringType = str.map(ScalaType.designator(_)).getOrElse(Any)

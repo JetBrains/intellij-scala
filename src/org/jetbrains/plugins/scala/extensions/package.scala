@@ -17,6 +17,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.SharedImplUtil
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
@@ -332,6 +333,10 @@ package object extensions {
         next = next.getNextSibling
       next
     }
+
+    def resolveScope: GlobalSearchScope =
+      if (element.isValid) element.getResolveScope
+      else GlobalSearchScope.EMPTY_SCOPE
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {

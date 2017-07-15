@@ -14,6 +14,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -94,7 +95,7 @@ class ScPackagingImpl private(stub: ScPackagingStub, node: ASTNode)
         case _ =>
       }
 
-      findPackageObject(place.getResolveScope).foreach { definition =>
+      findPackageObject(place.resolveScope).foreach { definition =>
         var newState = state
         definition.getType().foreach { tp =>
           newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)

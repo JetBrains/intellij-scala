@@ -467,7 +467,7 @@ object ScPattern {
                   else {
                     val productFqn = "scala.Product" + productChance.length
                     (for {
-                      productClass <- ScalaPsiManager.instance.getCachedClass(place.getResolveScope, productFqn)
+                      productClass <- ScalaPsiManager.instance.getCachedClass(place.resolveScope, productFqn)
                       clazz <- tp.extractClass
                     } yield clazz == productClass || clazz.isInheritor(productClass, true)).
                       filter(identity).fold(Seq(tp))(_ => productChance)

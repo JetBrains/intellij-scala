@@ -6,7 +6,7 @@ package expr
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.PsiTypeExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
@@ -110,7 +110,7 @@ private[expr] object ExpectedTypes {
       case _: ScCatchBlock => Array.empty
       case te: ScThrowStmt =>
         // Not in the SLS, but in the implementation.
-        val throwableClass = ScalaPsiManager.instance(te.getProject).getCachedClass(te.getResolveScope, "java.lang.Throwable")
+        val throwableClass = ScalaPsiManager.instance(te.getProject).getCachedClass(te.resolveScope, "java.lang.Throwable")
         val throwableType = throwableClass.map(new ScDesignatorType(_)).getOrElse(Any)
         Array((throwableType, None))
       //see SLS[8.4]
@@ -386,7 +386,7 @@ private[expr] object ExpectedTypes {
           }
         case typedStmt: ScTypedStmt if typedStmt.isSequenceArg && params.nonEmpty =>
           val seqClass: Array[PsiClass] = ScalaPsiManager.instance.
-                  getCachedClasses(expr.getResolveScope, "scala.collection.Seq").filter(!_.isInstanceOf[ScObject])
+                  getCachedClasses(expr.resolveScope, "scala.collection.Seq").filter(!_.isInstanceOf[ScObject])
           if (seqClass.length != 0) {
             val tp = ScParameterizedType(ScalaType.designator(seqClass(0)), Seq(params.last.paramType))
             res += ((tp, None))

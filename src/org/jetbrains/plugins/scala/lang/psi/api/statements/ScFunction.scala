@@ -589,7 +589,7 @@ object ScFunction {
     import Ext._
 
     private implicit def project = function.getProject
-    private implicit def resolveScope = function.getResolveScope
+    private implicit def resolveScope = function.resolveScope
     private implicit def elementScope = function.elementScope
 
     def isApplyMethod: Boolean = function.name == Apply

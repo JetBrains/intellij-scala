@@ -60,7 +60,7 @@ object ScalaStubsUtil {
   def getSelfTypeInheritors(clazz: PsiClass): Seq[ScTemplateDefinition] = {
     @CachedInsidePsiElement(clazz, CachesUtil.enclosingModificationOwner(clazz))
     def selfTypeInheritorsInner(): Seq[ScTemplateDefinition] = {
-      val scope = clazz.getResolveScope
+      val scope = clazz.resolveScope
       val inheritors = new ArrayBuffer[ScTemplateDefinition]
       val project = clazz.getProject
       val name = clazz.name

@@ -254,7 +254,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           case None => //nothing to do
         }
 
-        val scope = place.getResolveScope
+        val scope = place.resolveScope
         val obj: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(scope, "java.lang.Object").orNull
         if (obj != null) {
           val namesSet = Set("hashCode", "toString", "equals", "getClass")

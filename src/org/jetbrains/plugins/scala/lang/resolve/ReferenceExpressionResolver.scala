@@ -6,7 +6,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
@@ -514,7 +514,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     }
 
     def processDynamic(`type`: ScType, e: ScExpression, baseProcessor: BaseProcessor): BaseProcessor =
-    ScalaPsiManager.instance(ref.getProject).getCachedClass(ref.getResolveScope, "scala.Dynamic").map {
+    ScalaPsiManager.instance(ref.getProject).getCachedClass(ref.resolveScope, "scala.Dynamic").map {
       ScDesignatorType(_)
     }.filter {
       `type`.conforms(_)

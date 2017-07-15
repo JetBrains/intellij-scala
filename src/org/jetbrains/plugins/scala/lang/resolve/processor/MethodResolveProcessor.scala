@@ -152,7 +152,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
         //tupling ok
         isShapeResolve = false
         val oldArg = argumentClauses
-        val tpl = ScalaPsiUtil.tuplizy(argumentClauses.head, ref.getResolveScope, ref.getManager, ScalaPsiUtil.firstLeaf(ref))
+        val tpl = ScalaPsiUtil.tuplizy(argumentClauses.head, ref.resolveScope, ref.getManager, ScalaPsiUtil.firstLeaf(ref))
         if (tpl.isEmpty) {
           return MethodResolveProcessor.candidates(this, input)
         }
@@ -265,7 +265,7 @@ object MethodResolveProcessor {
       def processFunctionType(retType: ScType, params: Seq[ScType]): ConformanceExtResult = {
         val args = params.map(new Expression(_))
         val result = Compatibility.compatible(fun, substitutor, List(args), checkWithImplicits = false,
-        scope = ref.getResolveScope, isShapesResolve = isShapeResolve)
+        scope = ref.resolveScope, isShapesResolve = isShapeResolve)
         problems ++= result.problems
         addExpectedTypeProblems(Some(retType), result = Some(result))
       }
@@ -297,7 +297,7 @@ object MethodResolveProcessor {
       if (typeArgElements.isEmpty || typeArgElements.length == classTypeParameters.length) {
         val result =
           Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits,
-            ref.getResolveScope, isShapeResolve)
+            ref.resolveScope, isShapeResolve)
         problems ++= result.problems
         result.copy(problems)
       } else {
@@ -311,7 +311,7 @@ object MethodResolveProcessor {
       if (typeArgElements.isEmpty || typeArgElements.length == classTypeParmeters.length) {
         val result =
           Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits,
-            ref.getResolveScope, isShapeResolve)
+            ref.resolveScope, isShapeResolve)
         problems ++= result.problems
         result.copy(problems)
       } else {
@@ -391,7 +391,7 @@ object MethodResolveProcessor {
         } else {
           val result =
             Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits,
-              ref.getResolveScope, isShapeResolve, ref)
+              ref.resolveScope, isShapeResolve, ref)
           problems ++= result.problems
           addExpectedTypeProblems(result = Some(result))
         }
@@ -411,7 +411,7 @@ object MethodResolveProcessor {
           val args = argumentClauses.headOption.toList
           val result =
             Compatibility.compatible(tp, substitutor, args, checkWithImplicits,
-              ref.getResolveScope, isShapeResolve)
+              ref.resolveScope, isShapeResolve)
           problems ++= result.problems
           addExpectedTypeProblems(result = Some(result))
         }

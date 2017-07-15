@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -39,7 +40,7 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
               expr.getType(TypingContext.empty) match {
                 case Success(_, _) =>
                   val tp = expr.getType(TypingContext.empty).getOrAny
-                  val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.getResolveScope, "java.lang.Throwable")
+                  val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.resolveScope, "java.lang.Throwable")
                   throwable.fold(lifted) { throwable =>
                     val throwableType = ScDesignatorType(throwable)
                     val processor = new MethodResolveProcessor(expr, "apply", List(Seq(new Compatibility.Expression(throwableType))),

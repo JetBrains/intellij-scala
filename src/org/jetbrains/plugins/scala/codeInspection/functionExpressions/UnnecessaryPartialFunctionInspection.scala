@@ -47,7 +47,7 @@ class UnnecessaryPartialFunctionInspection
   private def findType(file: PsiFile, className: String, parameterTypes: PsiClass => Seq[ScType]): Option[ValueType] ={
       implicit val ctx: ProjectContext = file
       ScalaPsiManager.instance
-        .getCachedClass(file.getResolveScope, className)
+        .getCachedClass(file.resolveScope, className)
         .map(clazz =>
           ScParameterizedType(ScDesignatorType(clazz), parameterTypes(clazz)))
     }

@@ -6,6 +6,7 @@ import java.util
 import com.intellij.psi.{PsiElement, PsiPackage}
 import com.intellij.refactoring.rename.RenamePsiPackageProcessor
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 
 /**
  * @author Alefas
@@ -15,7 +16,7 @@ class RenameScalaPackageProcessor extends RenamePsiPackageProcessor with ScalaRe
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     element match {
       case p: PsiPackage =>
-        val po = ScalaShortNamesCacheManager.getInstance(element.getProject).getPackageObjectByName(p.getQualifiedName, element.getResolveScope)
+        val po = ScalaShortNamesCacheManager.getInstance(element.getProject).getPackageObjectByName(p.getQualifiedName, element.resolveScope)
         if (po != null && po.name != "`package`") {
           allRenames.put(po, newName)
         }

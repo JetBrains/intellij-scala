@@ -57,7 +57,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       processor.execute(new ScSyntheticClass("-?", Any), state)
     }
 
-    val scope = place.getResolveScope
+    val scope = place.resolveScope
 
     place match {
       case ref: ScStableCodeReferenceElement if ref.refName == "_root_" && ref.qualifier.isEmpty =>
