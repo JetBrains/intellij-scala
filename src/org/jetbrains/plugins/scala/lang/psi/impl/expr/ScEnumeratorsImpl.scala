@@ -7,6 +7,7 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope._
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -48,18 +49,18 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     for (c <- children) {
       c match {
         case c: ScGenerator =>
-          for (b <- c.pattern.bindings) if (!processor.execute(b, state)) return false
+          for (p <- Option(c.pattern); b <- p.bindings) if (!processor.execute(b, state)) return false
           processor match {
             case b: BaseProcessor => b.changedLevel
             case _ =>
           }
         case c: ScEnumerator =>
-          for (b <- c.pattern.bindings) if (!processor.execute(b, state)) return false
+          for (p <- Option(c.pattern); b <- p.bindings) if (!processor.execute(b, state)) return false
         case _ =>
       }
     }
     true
   }
 
-  override def patterns: Seq[ScPattern] = namings.reverse.map(_.pattern)
+  override def patterns: Seq[ScPattern] = namings.reverse.flatMap(_.pattern.toOption)
 }
