@@ -91,6 +91,7 @@ object Dependencies {
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
 
+  val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val dottyInterface: ModuleID = "ch.epfl.lamp" % "dotty-interfaces" % "0.1.1-20170227-179a5d6-NIGHTLY"
@@ -137,7 +138,8 @@ object DependencyGroups {
     scalaLibrary,
     scalaReflect,
     scalaCompiler,
-    commonsLang
+    commonsLang,
+    bcel
   )
 
   val scalaRunner = Seq(

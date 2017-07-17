@@ -1,11 +1,13 @@
 package scala.tools.scalap
 
+import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
 import java.lang.StringBuilder
 
+import org.apache.bcel.classfile._
+
 import scala.reflect.internal.pickling.ByteCodecs
-import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{Annotation, ArrayValue, ConstValueIndex}
-import scala.tools.scalap.scalax.rules.scalasig._
+import scala.tools.scalap.scalax.rules.scalasig.{ByteCode, ScalaSig, ScalaSigAttributeParsers, ScalaSigPrinter}
 
 /**
  * @author Alefas
@@ -23,86 +25,84 @@ object Decompiler {
 
   private def hasScalaSigBytes(content: Array[Byte]): Boolean = containsSubArray(content, scalaSigBytes)
 
+  private def isScalaSignatureAnnotation(entry: AnnotationEntry) = {
+    val annType = entry.getAnnotationType
+    annType == SCALA_SIG_ANNOTATION || annType == SCALA_LONG_SIG_ANNOTATION
+  }
+
+  private def toBytes(elemValue: ElementValue): Array[Byte] = {
+    def simpleToBytes(sv: SimpleElementValue) = sv.getValueString.getBytes(StandardCharsets.UTF_8)
+
+    elemValue match {
+      case sv: SimpleElementValue => simpleToBytes(sv)
+      case arr: ArrayElementValue =>
+        val fromSimpleValues = arr.getElementValuesArray.collect {
+          case sv: SimpleElementValue => simpleToBytes(sv)
+        }
+        Array.concat(fromSimpleValues: _*)
+    }
+  }
+
+  private def parseScalaSig(entry: AnnotationEntry) = {
+    val bytesValue = entry.getElementValuePairs.find(_.getNameString == BYTES_VALUE)
+    bytesValue match {
+      case Some(v) =>
+        val bytes = toBytes(v.getValue)
+        val length = ByteCodecs.decode(bytes)
+        Some(ScalaSigAttributeParsers.parse(ByteCode(bytes.take(length))))
+      case _ => None
+    }
+  }
+
   def decompile(fileName: String, bytes: Array[Byte]): Option[(String, String)] = {
     if (!hasScalaSigBytes(bytes)) return None
 
-    val byteCode = ByteCode(bytes)
-    val isPackageObject = fileName == "package.class"
-    val classFile = ClassFileParser.parse(byteCode)
-    val scalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse) match {
-      // No entries in ScalaSig attribute implies that the signature is stored in the annotation
-      case Some(ScalaSig(_, _, entries)) if entries.isEmpty =>
-        import classFile._
-        val annotation = classFile.annotation(SCALA_SIG_ANNOTATION)
-          .orElse(classFile.annotation(SCALA_LONG_SIG_ANNOTATION))
-        annotation match {
-          case None => null
-          case Some(Annotation(_, elements)) =>
-            val bytesElem = elements.find(elem => constant(elem.elementNameIndex) == BYTES_VALUE).get
+    val parsed = new ClassParser(new ByteArrayInputStream(bytes), fileName).parse()
 
-            val parts = (bytesElem.elementValue match {
-              case ConstValueIndex(index) => Seq(constantWrapped(index))
-              case ArrayValue(seq) => seq.collect {case ConstValueIndex(index) => constantWrapped(index)}
-            }).collect {case x: StringBytesPair => x.bytes}
+    val scalaSig =
+      parsed.getAnnotationEntries
+        .find(isScalaSignatureAnnotation)
+        .flatMap(parseScalaSig)
 
-            val bytes = parts.reduceLeft(Array.concat(_, _))
-
-            val length = ByteCodecs.decode(bytes)
-            val scalaSig = ScalaSigAttributeParsers.parse(ByteCode(bytes.take(length)))
-            scalaSig
-        }
-      case Some(other) => other
-      case None => null
+    scalaSig.map { sig =>
+      val decompiledSourceText = decompiledText(fileName, sig)
+      val sourceFileName = parsed.getSourceFileName
+      (sourceFileName, decompiledSourceText)
     }
-    if (scalaSig == null) return None
-    val decompiledSourceText = {
-      val printer = new ScalaSigPrinter(new StringBuilder, false)
+  }
 
-      if (scalaSig == null) return None
-      val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
-      // Print package with special treatment for package objects
-      syms.head.parent match {
-        //Partial match
-        case Some(p) if p.name != "<empty>" =>
-          val path = p.path
-          if (!isPackageObject) {
+  private def decompiledText(fileName: String, scalaSig: ScalaSig) = {
+    val printer = new ScalaSigPrinter(new StringBuilder, false)
+
+    val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
+    // Print package with special treatment for package objects
+    syms.head.parent match {
+      //Partial match
+      case Some(p) if p.name != "<empty>" =>
+        val path = p.path
+        val isPackageObject = fileName == "package.class"
+
+        if (!isPackageObject) {
+          printer.print("package ")
+          printer.print(ScalaSigPrinter.processName(path))
+          printer.print("\n")
+        } else {
+          val i = path.lastIndexOf(".")
+          if (i > 0) {
             printer.print("package ")
-            printer.print(ScalaSigPrinter.processName(path))
+            printer.print(ScalaSigPrinter.processName(path.substring(0, i)))
             printer.print("\n")
-          } else {
-            val i = path.lastIndexOf(".")
-            if (i > 0) {
-              printer.print("package ")
-              printer.print(ScalaSigPrinter.processName(path.substring(0, i)))
-              printer.print("\n")
-            }
           }
-        case _ =>
-      }
-
-      // Print classes
-      for (c <- syms) {
-        printer.printSymbol(c)
-      }
-
-      printer.result
+        }
+      case _ =>
     }
 
-    val sourceFileName = {
-      classFile.attribute(SOURCE_FILE) match {
-        case Some(attr: Attribute) =>
-          val SourceFileInfo(index: Int) = SourceFileAttributeParser.parse(attr.byteCode)
-          val c = classFile.header.constants(index)
-          val sBytes: Array[Byte] = c match {
-            case s: String => s.getBytes(UTF8)
-            case scala.tools.scalap.scalax.rules.scalasig.StringBytesPair(_: String, bytes: Array[Byte]) => bytes
-            case _ => Array.empty
-          }
-          new String(sBytes, UTF8)
-        case None => "-no-source-"
-      }
+    // Print classes
+    for (c <- syms) {
+      printer.printSymbol(c)
     }
-    Some(sourceFileName, decompiledSourceText)
+
+    printer.result
   }
 
   private def containsSubArray(text: Array[Byte], word: Array[Byte]): Boolean = {
