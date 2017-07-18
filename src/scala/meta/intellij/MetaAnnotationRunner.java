@@ -77,7 +77,9 @@ public class MetaAnnotationRunner {
         }   catch (InvocationTargetException e) {
             // we can't even pass exceptions without re-wraping them since classes on the invoking side are incompatible
             // also flatten to avoid getting nested ITEs
-            throw new RuntimeException(e.getTargetException().toString());
+            RuntimeException exception = new RuntimeException(e.getTargetException().toString());
+            exception.setStackTrace(e.getStackTrace());
+            throw exception;
         }
         return result;
     }

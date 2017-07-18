@@ -180,8 +180,7 @@ object MetaExpansionsManager {
         case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
         case sm: ScalaMetaException       => Left(s"Semantic error: ${sm.getMessage}")
         case so: StackOverflowError       => Left(s"Stack overflow during expansion ${holder.getText}")
-        case e: InvocationTargetException => Left(e.getTargetException.toString)
-        case e: Exception                 => Left(s"Unexpected error during expansion: ${e.getMessage}")
+        case e: Exception                 => Left(e.toString)
       }
     }
 
@@ -240,6 +239,10 @@ object MetaExpansionsManager {
         s"No 'apply' method in annotation class, declared methods:\n ${clazz.getDeclaredMethods.mkString("\n")}")
       )
     method.setAccessible(true)
-    method.invoke(inst, args: _*).asInstanceOf[Tree]
+    try {
+      method.invoke(inst, args: _*).asInstanceOf[Tree]
+    } catch {
+      case e: InvocationTargetException => throw e.getTargetException
+    }
   }
 }
