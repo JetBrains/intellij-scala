@@ -5,7 +5,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.scope._
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -64,7 +64,7 @@ class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
 
   protected def needCheckProcessingDeclarationsForBody = true
 
-  override def toString: String = "ScMacroDefinition: " + name
+  override def toString: String = "ScMacroDefinition: " + ifReadAllowed(name)("")
 
   def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
     case None => Success(doGetType(), Some(this)) // TODO look up type from the macro impl.

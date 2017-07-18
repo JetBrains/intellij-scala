@@ -37,7 +37,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
-            ScPatternDefinition
+            ScPatternDefinition: x
               AnnotationsList
                 <empty list>
               Modifiers

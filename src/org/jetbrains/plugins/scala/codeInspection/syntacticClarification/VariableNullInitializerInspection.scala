@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
   * Created by a.tsukanov on 26.05.2016.
   */
 class VariableNullInitializerInspection extends AbstractInspection(inspectionId, inspectionName) {
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case definition: ScVariableDefinition if !definition.isLocal =>
       definition.expr.filter {
         _.isValid

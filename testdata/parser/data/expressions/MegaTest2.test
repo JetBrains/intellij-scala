@@ -1238,7 +1238,7 @@ ScalaFile
           BlockExpression
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
-            ScVariableDefinition
+            ScVariableDefinition: cmp
               AnnotationsList
                 <empty list>
               Modifiers

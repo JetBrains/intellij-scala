@@ -54,7 +54,8 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
 /**
  * @author Ksenia.Sautina
@@ -265,7 +266,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   protected def sbtTestNameKey = " "
   protected def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] =
     Future(Map.empty)
-  protected def initialize(comm:SbtShellCommunication): Unit =
+  protected def initialize(comm:SbtShellCommunication): Future[String] =
     comm.command("initialize", showShell = false)
 
   protected def modifySetting(settings: SettingMap,
@@ -706,15 +707,29 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             map(SettingQueryHandler.getProjectIdPrefix(SbtUtil.getSbtProjectIdSeparated(getModule)) + "testOnly" + _)
           val comm = SbtShellCommunication.forProject(project)
           val handler = new SbtTestEventHandler(processHandler)
-          (if (useUiWithSbt) {
-            initialize(comm)
-            modifySbtSettingsForUi(comm)
-          } else Future(SettingMap())) flatMap {
-            oldSettings => Future.sequence(commands.map(comm.command(_, {},
-              SbtShellCommunication.listenerAggregator(handler), showShell = false))) flatMap {
-              _ => resetSbtSettingsForUi(comm, oldSettings)
-            }
-          } onComplete {_ => handler.closeRoot()}
+
+
+          val sbtRun = {
+            val oldSettings = if (useUiWithSbt)
+              for {
+                _ <- initialize(comm)
+                mod <- modifySbtSettingsForUi(comm)
+              } yield mod
+            else Future.successful(SettingMap())
+
+            val cmdF = commands.map(
+              comm.command(_, {}, SbtShellCommunication.listenerAggregator(handler), showShell = false)
+            )
+            for {
+              old <- oldSettings
+              _ <- Future.sequence(cmdF)
+              reset <- resetSbtSettingsForUi(comm, old)
+            } yield reset
+          }
+          sbtRun.onComplete(_ => handler.closeRoot())
+
+          // await the sbt run completion so that tests don't have to deal with async behavior
+          Await.ready(sbtRun, 10.minutes)
         }
         res
       }

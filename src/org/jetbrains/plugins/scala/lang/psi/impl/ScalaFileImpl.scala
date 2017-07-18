@@ -464,6 +464,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     AnyScalaPsiModificationTracker.incModificationCount()
     super.subtreeChanged()
   }
+
+  override val allowsForwardReferences: Boolean = false
 }
 
 object ScalaFileImpl {

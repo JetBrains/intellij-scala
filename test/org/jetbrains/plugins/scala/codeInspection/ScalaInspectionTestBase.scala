@@ -22,39 +22,37 @@ abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestA
   protected val classOfInspection: Class[_ <: LocalInspectionTool]
   protected val description: String
 
-  override protected final def checkTextHasNoErrors(text: String): Unit = checkTextHasNoErrors(text, _ == normalize(description))
-
-  protected final def checkTextHasError(text: String): Unit = checkTextHasError(text, description)
-
-  protected final def checkTextHasNoErrors(text: String, descriptionMatcher: String => Boolean): Unit = {
-    val ranges = configureByText(text, descriptionMatcher).map(_._2)
+  protected override final def checkTextHasNoErrors(text: String): Unit = {
+    val ranges = configureByText(text).map(_._2)
     assertTrue(s"Highlights found at: ${ranges.mkString(", ")}.", ranges.isEmpty)
   }
 
-  protected final def checkTextHasError(text: String, errorDescription : String): Unit = {
-    val ranges = configureByText(text, _ == normalize(errorDescription)).map(_._2)
-
-    def allHintsDescriptions = configureByText(text, _ => true).map(_._1).map(_.getDescription).filter(_ != null)
-
-    assertTrue(s"Highlights not found: $errorDescription, found hints: $allHintsDescriptions", ranges.nonEmpty)
+  protected final def checkTextHasError(text: String): Unit = {
+    val ranges = configureByText(text).map(_._2)
+    assertTrue(s"Highlights not found: $description", ranges.nonEmpty)
 
     val range = selectedRange(getEditor.getSelectionModel)
     assertTrue(s"Highlights found at: ${ranges.mkString(", ")}, not found: $range", ranges.contains(range))
   }
 
-  protected final def configureByText(text: String, descriptionMatcher: String => Boolean): Seq[(HighlightInfo, TextRange)] = {
-    val (normalizedText, offset) = findCaretOffset(text, stripTrailingSpaces = true)
+  protected final def configureByText(text: String): Seq[(HighlightInfo, TextRange)] = {
+    val fileText = createTestText(text)
+    val (normalizedText, offset) = findCaretOffset(fileText, stripTrailingSpaces = true)
 
     val fixture = getFixture
     fixture.configureByText("dummy.scala", normalizedText)
     fixture.enableInspections(classOfInspection)
 
+    val description = normalize(this.description)
+
     import scala.collection.JavaConversions._
     fixture.doHighlighting()
-      .filter(highlightInfo => descriptionMatcher(highlightInfo.getDescription))
+      .filter(_.getDescription == description)
       .map(info => (info, highlightedRange(info)))
       .filter(checkOffset(_, offset))
   }
+
+  protected def createTestText(text: String): String = text
 }
 
 object ScalaInspectionTestBase {
@@ -73,7 +71,7 @@ object ScalaInspectionTestBase {
 abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase {
 
   protected final def testQuickFix(text: String, expected: String, hint: String): Unit = {
-    val highlights = configureByText(text, _ == normalize(description)).map(_._1)
+    val highlights = configureByText(text).map(_._1)
 
     import ScalaQuickFixTestBase._
     val actions = highlights.flatMap(quickFixes)
@@ -85,7 +83,9 @@ abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase {
     startCommand(getProject) {
       action.invoke(getProject, getEditor, getFile)
     }
-    getFixture.checkResult(normalize(expected), /*stripTrailingSpaces = */ true)
+
+    val expectedFileText = createTestText(expected)
+    getFixture.checkResult(normalize(expectedFileText), /*stripTrailingSpaces = */ true)
   }
 }
 

@@ -35,7 +35,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScPatternDefinition
+        ScPatternDefinition: foo, bar
           AnnotationsList
             <empty list>
           Modifiers
@@ -176,7 +176,7 @@ ScalaFile
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
         PsiWhiteSpace('\n\n  ')
-        ScPatternDefinition
+        ScPatternDefinition: x, y
           PsiComment(comment)('// test varargs in patterns')
           PsiWhiteSpace('\n  ')
           AnnotationsList

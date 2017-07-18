@@ -1,6 +1,7 @@
 package scala.tools.scalap
 
-import java.io.{ByteArrayOutputStream, PrintStream}
+import java.nio.charset.StandardCharsets
+import java.lang.StringBuilder
 
 import scala.reflect.internal.pickling.ByteCodecs
 import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{Annotation, ArrayValue, ConstValueIndex}
@@ -18,7 +19,13 @@ object Decompiler {
   private val SCALA_LONG_SIG_ANNOTATION = "Lscala/reflect/ScalaLongSignature;"
   private val BYTES_VALUE = "bytes"
 
+  private val scalaSigBytes = SCALA_SIG.getBytes(StandardCharsets.UTF_8)
+
+  private def hasScalaSigBytes(content: Array[Byte]): Boolean = containsSubArray(content, scalaSigBytes)
+
   def decompile(fileName: String, bytes: Array[Byte]): Option[(String, String)] = {
+    if (!hasScalaSigBytes(bytes)) return None
+
     val byteCode = ByteCode(bytes)
     val isPackageObject = fileName == "package.class"
     val classFile = ClassFileParser.parse(byteCode)
@@ -49,8 +56,8 @@ object Decompiler {
     }
     if (scalaSig == null) return None
     val decompiledSourceText = {
-      val baos = new ByteArrayOutputStream
-      val stream = new PrintStream(baos, true, UTF8)
+      val printer = new ScalaSigPrinter(new StringBuilder, false)
+
       if (scalaSig == null) return None
       val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
       // Print package with special treatment for package objects
@@ -59,28 +66,26 @@ object Decompiler {
         case Some(p) if p.name != "<empty>" =>
           val path = p.path
           if (!isPackageObject) {
-            stream.print("package ")
-            stream.print(ScalaSigPrinter.processName(path))
-            stream.print("\n")
+            printer.print("package ")
+            printer.print(ScalaSigPrinter.processName(path))
+            printer.print("\n")
           } else {
             val i = path.lastIndexOf(".")
             if (i > 0) {
-              stream.print("package ")
-              stream.print(ScalaSigPrinter.processName(path.substring(0, i)))
-              stream.print("\n")
+              printer.print("package ")
+              printer.print(ScalaSigPrinter.processName(path.substring(0, i)))
+              printer.print("\n")
             }
           }
         case _ =>
       }
 
       // Print classes
-      val printer = new ScalaSigPrinter(stream, false)
-
       for (c <- syms) {
         printer.printSymbol(c)
       }
-      val sourceBytes = baos.toByteArray
-      new String(sourceBytes, UTF8)
+
+      printer.result
     }
 
     val sourceFileName = {
@@ -99,4 +104,24 @@ object Decompiler {
     }
     Some(sourceFileName, decompiledSourceText)
   }
+
+  private def containsSubArray(text: Array[Byte], word: Array[Byte]): Boolean = {
+    if (text.length < word.length || word.length == 0) return false
+
+    var wordStartIdx = 0
+    var innerIdx = 0
+
+    while (wordStartIdx <= text.length - word.length) {
+      while(innerIdx < word.length && text(wordStartIdx + innerIdx) == word(innerIdx)) {
+        innerIdx += 1
+      }
+      if (innerIdx == word.length) return true
+      else {
+        wordStartIdx += 1
+        innerIdx = 0
+      }
+    }
+    false
+  }
+
 }

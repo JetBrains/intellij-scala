@@ -68,14 +68,16 @@ class ScalaBreadcrumbsInfoProvider extends BreadcrumbsProvider {
 }
 
 object ScalaBreadcrumbsInfoProvider {
+  private val PAR_HOLDER = "(...)"
+  
   val SCALA_LANG: Array[Language] = Array[Language](ScalaLanguage.INSTANCE)
   
   val MAX_TEXT_LENGTH = 150
   val MAX_STRING_LENGTH = 25
   
   object MyTextRepresentationUtil {
-    private def limitString(s: String, stub: String = "(...)") = if (s == null) "" else if (s.length < MAX_STRING_LENGTH) s else stub
-    private def limitText(txt: String, stub: String = "...") = {
+    private def limitString(s: String, stub: String = PAR_HOLDER) = if (s == null) "" else if (s.length < MAX_STRING_LENGTH) s else stub
+    private def limitText(txt: String, stub: String = "...", limit: Int = MAX_TEXT_LENGTH) = {
       if (txt == null) "" else if (txt.length < MAX_TEXT_LENGTH) txt else txt.substring(0, MAX_TEXT_LENGTH - 1 - stub.length) + stub
     }
     
@@ -88,17 +90,11 @@ object ScalaBreadcrumbsInfoProvider {
 
     def getSignature(fun: ScFunctionExpr): String = getSignature(None, fun.parameters, None)
     
-    def getConstructorSignature(constr: ScFunction): String = {
-      if (!constr.isConstructor) return ""
-      
-      val signature = getSignature(None, constr.parameters, None)
-      "this" + limitString(signature)
-    }
+    def getConstructorSignature(constr: ScFunction): String = 
+      if (!constr.isConstructor) "" else "this" + limitString(getSignature(None, constr.parameters, None))
 
-    def getPrimaryConstructorSignature(constr: ScPrimaryConstructor): String = { 
-      val signature = getSignature(None, constr.parameters, None)
-      "this" + limitString(signature)
-    }
+    def getPrimaryConstructorSignature(constr: ScPrimaryConstructor): String = 
+      "this" + limitString(getSignature(None, constr.parameters, None))
     
     def describeFunction(fun: ScFunction): String = if (fun.isConstructor) getConstructorSignature(fun) else getSignature(fun)
     
@@ -106,33 +102,29 @@ object ScalaBreadcrumbsInfoProvider {
     
     def describeTemplateDef(td: ScTemplateDefinition): String = td match {
       case newDef: ScNewTemplateDefinition if Option(newDef.extendsBlock).exists(_.isAnonymousClass) =>
-        val s = "new " + newDef.extendsBlock.templateParents.map(_.getText).getOrElse("Any")
-        if (s.length < MAX_STRING_LENGTH * 2) s else s.substring(0, MAX_STRING_LENGTH * 2 - 4) + "..."
+        val txt = StringBuilder.newBuilder.append("new ").append(newDef.supers.map(_.getName).mkString("", " with ", ""))
+        if (newDef.constructor.exists(_.args.isDefined)) txt.append(PAR_HOLDER)
+        
+        limitText(txt.result(), limit = MAX_STRING_LENGTH*2)
       case other => other.name
     }
     
-    def describeMember(mb: ScMember): String = {
-      mb match {
-        case pattern: ScPatternDefinition =>
-          val vs = pattern.bindings.map(b => b.name)
-          "val " + limitString(if (vs.length == 1) vs.head else vs.mkString("(", ", ", ""))
-        case other => other.getName
-      }
+    def describeMember(mb: ScMember): String = mb match {
+      case pattern: ScPatternDefinition =>
+        val vs = pattern.bindings.map(b => b.name)
+        "val " + limitString(if (vs.length == 1) vs.head else vs.mkString("(", ", ", ""))
+      case other => other.getName
     }
     
-    def describeExpression(expr: ScExpression): String = {
-      expr match {
-        case ifSt: ScIfStmt => s"if (${limitString(ifSt.condition.map(_.getText).getOrElse(""))}) {...}"
-        case whileSt: ScWhileStmt => s"while(${limitString(whileSt.condition.map(_.getText).getOrElse(""), "...")})"
-        case doWhileSt: ScDoStmt => s"do ... while(${limitString(doWhileSt.condition.map(_.getText).getOrElse(""), "...")})"
-        case matchSt: ScMatchStmt => limitString(matchSt.expr.map(_.getText).getOrElse("(...)")) + " match {...}"
-        case _ => "Expr"
-      }
+    def describeExpression(expr: ScExpression): String = expr match {
+      case ifSt: ScIfStmt => s"if (${limitString(ifSt.condition.map(_.getText).getOrElse(""))}) {...}"
+      case whileSt: ScWhileStmt => s"while(${limitString(whileSt.condition.map(_.getText).getOrElse(""), "...")})"
+      case doWhileSt: ScDoStmt => s"do ... while(${limitString(doWhileSt.condition.map(_.getText).getOrElse(""), "...")})"
+      case matchSt: ScMatchStmt => limitString(matchSt.expr.map(_.getText).getOrElse(PAR_HOLDER)) + " match {...}"
+      case _ => "Expr"
     }
     
-    def describeCaseClause(clause: ScCaseClause): String = {
-      s"case ${limitString(clause.pattern.map(_.getText).getOrElse(""))} =>"
-    }
+    def describeCaseClause(clause: ScCaseClause): String = s"case ${limitString(clause.pattern.map(_.getText).getOrElse(""))} =>"
     
     def getTemplateDefTooltip(td: ScTemplateDefinition): String = {
       (td match {
@@ -143,13 +135,9 @@ object ScalaBreadcrumbsInfoProvider {
       }) + " " + describeTemplateDef(td)
     }
     
-    def getFunctionTooltip(fun: ScFunction): String = {
-      describeFunction(fun) + (if (fun.getBody != null) limitText(fun.getBody.getText) else "")
-    }
+    def getFunctionTooltip(fun: ScFunction): String = describeFunction(fun) + (if (fun.getBody != null) limitText(fun.getBody.getText) else "")
     
-    def getFunctionTooltip(funExpr: ScFunctionExpr): String = {
-      limitText(funExpr.getText)
-    }
+    def getFunctionTooltip(funExpr: ScFunctionExpr): String = limitText(funExpr.getText)
     
     def getMemberTooltip(member: ScMember): String = limitText(member.getText)
     

@@ -8,7 +8,7 @@ package patterns
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import org.jetbrains.plugins.scala.extensions.PsiTypeExt
+import org.jetbrains.plugins.scala.extensions.{PsiTypeExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -45,7 +45,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
   }
 
-  override def toString: String = "TypedPattern: " + name
+  override def toString: String = "TypedPattern: " + ifReadAllowed(name)("")
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = {
     typePattern match {

@@ -35,7 +35,7 @@ import scala.collection.mutable.ArrayBuffer
   * @author Alexander.Podkhalyuzin
   */
 
-class ScClassImpl private(stub: ScTemplateDefinitionStub, node: ASTNode)
+class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
   extends ScTypeDefinitionImpl(stub, CLASS_DEFINITION, node) with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
 
   def this(node: ASTNode) =
@@ -44,7 +44,7 @@ class ScClassImpl private(stub: ScTemplateDefinitionStub, node: ASTNode)
   def this(stub: ScTemplateDefinitionStub) =
     this(stub, null)
 
-  override def toString: String = "ScClass: " + name
+  override def toString: String = "ScClass: " + ifReadAllowed(name)("")
 
   override def accept(visitor: PsiElementVisitor) {
     visitor match {

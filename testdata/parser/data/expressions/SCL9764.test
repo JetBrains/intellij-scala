@@ -23,7 +23,7 @@ ScalaFile
         PsiElement(.)('.')
         PsiElement(identifier)('Future')
   PsiWhiteSpace('\n\n')
-  ScPatternDefinition
+  ScPatternDefinition: f1
     AnnotationsList
       <empty list>
     Modifiers
@@ -45,7 +45,7 @@ ScalaFile
           PsiElement(integer)('1')
         PsiElement())(')')
   PsiWhiteSpace('\n')
-  ScPatternDefinition
+  ScPatternDefinition: f2
     AnnotationsList
       <empty list>
     Modifiers

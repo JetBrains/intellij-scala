@@ -1,9 +1,12 @@
-package org.jetbrains.plugins.scala.codeInsight.intentions.types
+package org.jetbrains.plugins.scala
+package codeInsight
+package intention
+package types
 
-import org.jetbrains.plugins.scala.codeInsight.intention.types.ToggleTypeAnnotation
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
+
   override def familyName: String = ToggleTypeAnnotation.FamilyName
 
   def testCollectionFactorySimplification(): Unit = doTest(

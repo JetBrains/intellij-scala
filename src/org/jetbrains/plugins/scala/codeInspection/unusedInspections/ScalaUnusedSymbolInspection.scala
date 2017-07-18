@@ -53,7 +53,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   }
 
   def shouldProcessElement(elem: PsiElement): Boolean = elem match {
-    case f: ScFunction if ScFunction.isSpecial(f.name) => false
+    case f: ScFunction if f.isSpecial => false
     case m: ScMember if m.hasModifierProperty(ScalaKeyword.IMPLICIT) => false
     case _ => ScalaPsiUtil.isLocalOrPrivate(elem)
   }

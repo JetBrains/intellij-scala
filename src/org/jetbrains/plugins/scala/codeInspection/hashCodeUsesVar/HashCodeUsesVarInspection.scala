@@ -8,14 +8,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
 /**
   * Daniyar Itegulov
   * 2016-02-08
   */
 class HashCodeUsesVarInspection extends AbstractInspection {
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case hashCodeMethod: PsiMethod if MethodUtils.isHashCode(hashCodeMethod) =>
       hashCodeMethod.accept(new ScalaRecursiveElementVisitor {
         override def visitReferenceExpression(exp: ScReferenceExpression): Unit = {

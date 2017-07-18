@@ -13,7 +13,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSuperReference, ScThisReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction, ScMacroDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -86,7 +86,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
 
   def isConstructorReference: Boolean = getConstructor.nonEmpty
 
-  override def toString: String = "CodeReferenceElement: " + getText
+  override def toString: String = "CodeReferenceElement: " + ifReadAllowed(getText)("")
 
   def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
@@ -113,6 +113,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
         else if (ste.getLastChild.isInstanceOf[PsiErrorElement]) stableQualRef
 
         else if (ste.singleton) stableQualRef
+        else if (ste.annotation) annotCtor
         else stableClass
       case _: ScTypeAlias => stableClass
       case _: ScInterpolationPattern => stableImportSelector
@@ -295,10 +296,12 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
               // this allows the type elements in a context or view bound to be path-dependent types, based on parameters.
               // See ScalaPsiUtil.syntheticParamClause and StableCodeReferenceElementResolver#computeEffectiveParameterClauses
               treeWalkUp(p.analog.get, lastParent)
+                // annotation should not walk through it's own annotee while resolving
+            case p: ScAnnotationsHolder
+              if processor.kinds.contains(ResolveTargets.ANNOTATION) && PsiTreeUtil.isContextAncestor(p, this, true) =>
+                treeWalkUp(place.getContext, place)
             case p =>
-              if (!p.processDeclarations(processor,
-                ResolveState.initial,
-                lastParent, this)) return
+              if (!p.processDeclarations(processor, ResolveState.initial, lastParent, this)) return
               place match {
                 case (_: ScTemplateBody | _: ScExtendsBlock) => // template body and inherited members are at the same level.
                 case _ => if (!processor.changedLevel) return

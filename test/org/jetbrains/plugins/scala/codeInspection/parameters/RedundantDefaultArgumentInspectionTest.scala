@@ -199,4 +199,11 @@ class RedundantDefaultArgumentInspectionTest extends ScalaQuickFixTestBase {
         |foo(s"aa")
       """.stripMargin)
   }
+
+  def testNamedArgInterpolatedString(): Unit = {
+    checkTextHasNoErrors(
+      """def foo(s: String = "")
+        |foo(s = s"aa")
+      """.stripMargin)
+  }
 }

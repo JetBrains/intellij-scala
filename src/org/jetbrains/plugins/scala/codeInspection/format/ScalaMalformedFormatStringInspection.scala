@@ -42,9 +42,9 @@ import org.jetbrains.plugins.scala.format.{Injection, Span, _}
 /**
  * Pavel Fatin
  */
-
 class ScalaMalformedFormatStringInspection extends AbstractInspection {
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case element =>
       val representation = FormattedStringParser.parse(element)
               .orElse(PrintStringParser.parse(element))

@@ -36,7 +36,7 @@ ScalaFile
             CodeReferenceElement: Int
               PsiElement(identifier)('Int')
         PsiWhiteSpace('\n  ')
-        ScVariableDefinition
+        ScVariableDefinition: x
           AnnotationsList
             <empty list>
           Modifiers

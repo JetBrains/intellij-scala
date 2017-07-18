@@ -4,7 +4,7 @@ args match {
 }
 ------
 ScalaFile
-  ScPatternDefinition
+  ScPatternDefinition: args, body
     AnnotationsList
       <empty list>
     Modifiers

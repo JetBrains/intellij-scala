@@ -18,6 +18,7 @@ import com.intellij.ui.content.{Content, ContentFactory}
 import com.pty4j.{PtyProcess, WinSize}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.sbt.project.structure.SbtRunner
+import org.jetbrains.annotations.NotNull
 
 import scala.collection.JavaConverters._
 
@@ -119,7 +120,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       toolWindow.getContentManager.setSelectedContent(content, focus)
   }
 
-  def addToolWindowContent(toolWindow: ToolWindow, content: Content): Unit = {
+  def addToolWindowContent(@NotNull toolWindow: ToolWindow, @NotNull content: Content): Unit = {
     val twContentManager = toolWindow.getContentManager
     twContentManager.removeAllContents(true)
     twContentManager.addContent(content)

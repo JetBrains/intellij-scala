@@ -8,6 +8,7 @@ package types
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -27,7 +28,7 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
 
   def this(stub: ScSelfTypeElementStub) = this(stub, null)
 
-  override def toString: String = "SelfType: " + name
+  override def toString: String = "SelfType: " + ifReadAllowed(name)("")
 
   def nameId: PsiElement = findChildByType[PsiElement](TokenSets.SELF_TYPE_ID)
 

@@ -253,8 +253,8 @@ trait ScalaBounds extends api.Bounds {
             lub(t1, t.getRealParameterType(TypingContext.empty).getOrAny, checkWeak)
           case (_, ScDesignatorType(t: ScTypedDefinition)) if !t.isInstanceOf[ScObject] =>
             lub(t1, t.getType(TypingContext.empty).getOrAny, checkWeak)
-          case (ex: ScExistentialType, _) => lub(ex.quantified, t2, checkWeak).unpackedType
-          case (_, ex: ScExistentialType) => lub(t1, ex.quantified, checkWeak).unpackedType
+          case (ex: ScExistentialType, _) => lubInner(ex.quantified, t2, checkWeak, stopAddingUpperBound).unpackedType
+          case (_, ex: ScExistentialType) => lubInner(t1, ex.quantified, checkWeak, stopAddingUpperBound).unpackedType
           case (TypeParameterType(Nil, _, upper, _), _) if !stopAddingUpperBound => lub(upper.v, t2, checkWeak)
           case (_, TypeParameterType(Nil, _, upper, _)) if !stopAddingUpperBound => lub(t1, upper.v, checkWeak)
           case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2))

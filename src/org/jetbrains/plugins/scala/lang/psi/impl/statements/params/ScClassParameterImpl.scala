@@ -7,6 +7,7 @@ package params
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -26,7 +27,7 @@ class ScClassParameterImpl private (stub: ScParameterStub, node: ASTNode)
 
   def this(stub: ScParameterStub) = this(stub, null)
 
-  override def toString: String = "ClassParameter: " + name
+  override def toString: String = "ClassParameter: " + ifReadAllowed(name)("")
 
   override def isVal: Boolean = byStubOrPsi(_.isVal)(findChildByType(ScalaTokenTypes.kVAL) != null)
 

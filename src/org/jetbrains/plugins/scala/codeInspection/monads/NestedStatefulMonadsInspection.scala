@@ -17,7 +17,8 @@ object NestedStatefulMonadsInspection {
 }
 
 final class NestedStatefulMonadsInspection extends AbstractInspection(Annotation) {
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case call: ScMethodCall =>
       val project = call.getProject
       call.getType().getOrAny match {

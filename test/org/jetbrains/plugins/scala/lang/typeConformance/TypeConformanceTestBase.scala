@@ -67,8 +67,12 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
   }
 
   protected def doTest() {
+    doTest(false)
+  }
+
+  protected def doTest(checkEquivalence: Boolean) {
     configureFromFile()
-    doTestInner(checkEquivalence = false)
+    doTestInner(checkEquivalence)
   }
 
   protected def configureFromFile(fileName: String = getTestName(false) + ".scala") = {
