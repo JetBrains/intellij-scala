@@ -4,7 +4,7 @@ package project.template
 import java.awt.FlowLayout
 import java.io.File
 import javax.swing.border.EmptyBorder
-import javax.swing.{Box, JCheckBox, JLabel, JPanel}
+import javax.swing._
 
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.application.ApplicationManager
@@ -97,8 +97,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     }
 
     val scalaVersionComboBox          = applyTo(new SComboBox())(
-      setupScalaVersionItems,
-      _.setTextRenderer(Version.abbreviate)
+      setupScalaVersionItems
     )
 
     val step = sdkSettingsStep(settingsStep)
@@ -165,6 +164,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     val buildFile = root / Sbt.BuildFile
     val projectDir = root / Sbt.ProjectDirectory
     val propertiesFile = projectDir / Sbt.PropertiesFile
+    val pluginsFile = projectDir / Sbt.PluginsFile
 
     if (!buildFile.createNewFile() ||
             !projectDir.mkdir()) return
@@ -173,6 +173,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     (root / "src" / "test" / "scala").mkdirs()
 
     writeToFile(buildFile, SbtModuleBuilder.formatProjectDefinition(name, platform, scalaVersion))
+    writeToFile(pluginsFile, SbtModuleBuilder.formatSbtPlugins(platform))
     writeToFile(propertiesFile, SbtModuleBuilder.formatSbtProperties(sbtVersion))
   }
 
@@ -216,6 +217,8 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     if (loadedVersions.contains(selections.scalaVersion)) {
       cbx.setSelectedItem(selections.scalaVersion)
+    } else {
+      cbx.setSelectedIndex(0)
     }
   }
 
@@ -234,7 +237,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   }
 
 
-  override def getNodeIcon = Sbt.Icon
+  override def getNodeIcon: Icon = Sbt.Icon
 
   override def setupRootModel(model: ModifiableRootModel) {
     val contentPath = getContentEntryPath
@@ -277,27 +280,24 @@ private object SbtModuleBuilder {
     case Scala =>
       s"""name := "$name"
          |
-         |version := "1.0"
+         |version := "0.1"
          |
          |scalaVersion := "$scalaVersion"
-        """
-        .stripMargin
+        """.stripMargin
 
     case Dotty =>
-      s"""scalaVersion := "$scalaVersion"
-        |
-        |scalaOrganization := "ch.epfl.lamp"
-        |
-        |scalaBinaryVersion := "2.11"
-        |
-        |scalaOrganization in updateSbtClassifiers := (scalaOrganization in Global).value
-        |
-        |ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
-        |
-        |libraryDependencies += "ch.epfl.lamp" % "dotty_2.11" % scalaVersion.value % "scala-tool"
-        |
-        |scalaCompilerBridgeSource := ("ch.epfl.lamp" % "dotty-sbt-bridge" % scalaVersion.value % "component").sources()"""
-        .stripMargin
+      s"""
+         |name := "dotty-example-project"
+         |description := "Example sbt project that compiles using Dotty"
+         |version := "0.1"
+         |
+         |scalaVersion := "$scalaVersion"
+       """.stripMargin
+  }
+
+  def formatSbtPlugins(platform: Platform): String = platform match {
+    case Dotty => """addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.1.4")"""
+    case Scala => s""
   }
 
   def formatSbtProperties(sbtVersion: String) = s"sbt.version = $sbtVersion"

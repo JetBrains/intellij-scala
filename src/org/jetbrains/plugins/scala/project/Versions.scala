@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.project
 
 import com.intellij.util.net.HttpConfigurable
+import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
 
 import scala.io.Source
@@ -57,17 +58,17 @@ object Versions  {
   private object Entity {
     val Scala = Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
-      Version("2.8.0"),
-      Seq("2.8.2", "2.9.3", "2.10.6", "2.11.8", "2.12.1"))
+      Version("2.10.0"),
+      Seq("2.10.6", "2.11.11", "2.12.2"))
 
     val Sbt = Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
       Version("0.13.5"),
-      Seq("0.13.15"))
+      Seq(BuildInfo.sbtLatestVersion))
 
-    val Dotty = Entity(s"http://repo1.maven.org/maven2/ch/epfl/lamp/dotty_2.11/",
+    val Dotty = Entity("https://repo1.maven.org/maven2/ch/epfl/lamp/dotty_0.2/",
       """.+>(\d+.\d+.+)/<.*""".r,
-      Version("0.1-SNAPSHOT"),
-      Seq("0.1.1-SNAPSHOT"))
+      Version("0.2.0"),
+      Seq("0.2.0-RC1"))
   }
 }
