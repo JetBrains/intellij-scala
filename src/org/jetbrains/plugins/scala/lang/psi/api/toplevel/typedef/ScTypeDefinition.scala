@@ -133,7 +133,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     }
   }
 
-  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   def calcFakeCompanionModule(): Option[ScObject] = {
     val accessModifier = getModifierList.accessModifier.fold("")(_.modifierFormattedText + " ")
     val objText = this match {
@@ -180,7 +180,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     val objOption: Option[ScObject] = obj.toOption
     objOption.foreach { (obj: ScObject) =>
       obj.setSyntheticObject()
-      obj.extendsBlock.members.foreach {
+      obj.physicalExtendsBlock.members.foreach {
         case s: ScFunctionDefinition =>
           s.setSynthetic(this) // So we find the `apply` method in ScalaPsiUtil.syntheticParamForParam
           this match {
