@@ -127,6 +127,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     artifactToGroupMap.force()
     groupToArtifactMap.force()
     groupArtifactToVersionMap.force()
+    fqNameToGroupArtifactVersionMap.force()
   }
 
   override def close(): Unit = {
@@ -134,6 +135,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     artifactToGroupMap.close()
     groupToArtifactMap.close()
     groupArtifactToVersionMap.close()
+    fqNameToGroupArtifactVersionMap.close()
   }
 
   private def loadProps() = {
@@ -182,13 +184,14 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
 
   private class SetDescriptor extends DataExternalizer[Set[String]] {
     def save(s: DataOutput, set: Set[String]) {
-      s.writeInt(set.size)
+      s.writeLong(set.size)
       set foreach s.writeUTF
     }
 
     def read(s: DataInput): Set[String] = {
-      val count = s.readInt
-      1.to(count).map(_ => s.readUTF()).toSet
+      val count = s.readLong
+
+      1L.to(count).map(_ => s.readUTF()).toSet
     }
   }
 
