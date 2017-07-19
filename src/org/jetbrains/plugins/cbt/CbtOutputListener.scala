@@ -13,35 +13,29 @@ import scala.collection.mutable
 class CbtOutputListener(onOutput: (String, Boolean) => Unit,
                         projectOpt: Option[Project],
                         notificationSource: NotificationSource) {
-
-  private val textAccumulator = notificationSource match {
-    case NotificationSource.PROJECT_SYNC =>
-      new ColoredOutputAccumulator(onStdErr)
-    case NotificationSource.TASK_EXECUTION =>
-      new OutputAccumulator(onStdErr)
-  }
-
   private val warningsList = mutable.ListBuffer.empty[String]
   private val errorsList = mutable.ListBuffer.empty[String]
   private val outBuffer = StringBuilder.newBuilder
   private val errorBuffer = StringBuilder.newBuilder
   private val errorBuilder = new ErrorWarningBuilder("[error]")
-  private val warningBuilder = new ErrorWarningBuilder("[warning]")
+  private val warningBuilder = new ErrorWarningBuilder("[warn]")
 
-  def dataReceived(text: String, stderr: Boolean): Unit = {
+  def parseLine(text: String, stderr: Boolean): Unit = {
+    val escapedText = AnsiCodesEscaper.escape(text)
     if (stderr) {
-      textAccumulator.addText(text)
+      errorBuffer.append(escapedText)
+      handleErrorOrWarning(escapedText)
     } else {
-      outBuffer.append(text)
-      onOutput(text, false)
+      outBuffer.append(escapedText)
     }
+    onOutput(escapedText, stderr)
   }
-
-  def stdOut: String =
-    outBuffer.toString
 
   def stdErr: String =
     errorBuffer.toString
+
+  def stdOut: String =
+    outBuffer.toString
 
   def errors: Seq[String] =
     errorsList
@@ -49,26 +43,17 @@ class CbtOutputListener(onOutput: (String, Boolean) => Unit,
   def warnngs: Seq[String] =
     warningsList
 
-  private def onStdErr(text: String): Unit = {
-    errorBuffer.append(text + "\n")
-    onOutput(text + "\n", true)
+  private def handleErrorOrWarning(text: String): Unit = {
     if (isError(text)) {
-      errorsList += text
-      for {
-        text <- errorBuilder.parserPart(text)
-        project <- projectOpt
-      } {
-        CbtOutputListener.showError(project, text, notificationSource)
+      errorBuilder.parserPart(text).foreach { res =>
+        errorsList += res
+        projectOpt.foreach(CbtOutputListener.showError(_, res, notificationSource))
       }
     } else if (isWarning(text)) {
-      warningsList += text
-      for {
-        text <- warningBuilder.parserPart(text)
-        project <- projectOpt
-      } {
-        CbtOutputListener.showWarning(project, text, notificationSource)
+      warningBuilder.parserPart(text).foreach { res =>
+        warningsList += res
+        projectOpt.foreach(CbtOutputListener.showWarning(_, res, notificationSource))
       }
-      projectOpt.foreach(CbtOutputListener.showWarning(_, text, notificationSource))
     }
   }
 
@@ -95,59 +80,34 @@ private class ErrorWarningBuilder(prefix: String) {
   }
 }
 
-private class ColoredOutputAccumulator(onMessage: String => Unit) extends OutputAccumulator(onMessage) {
-  private val colorEncoder = new AnsiEscapeDecoder
-
-  private val textAcceptor = new ColoredTextAcceptor {
-    override def coloredTextAvailable(text: String, attributes: Key[_]): Unit = {
-      concatErrorMessages(text)
-    }
-  }
-
-  override def addText(text: String): Unit =
-    colorEncoder.escapeText(text, ProcessOutputTypes.STDERR, textAcceptor)
-}
-
-private class OutputAccumulator(onMessage: String => Unit) {
-  private val messageBuffer = new StringBuilder
-
-  def addText(text: String): Unit =
-    concatErrorMessages(text)
-
-  protected def concatErrorMessages(text: String): Unit =
-    text.trim match {
-      case "[" =>
-        messageBuffer.append("[")
-      case "]" =>
-        messageBuffer.append("] ")
-      case _ if messageBuffer.nonEmpty && messageBuffer.endsWith("[") =>
-        messageBuffer.append(text.trim)
-      case _ if messageBuffer.nonEmpty =>
-        messageBuffer.append(text.rtrim)
-        onMessage(messageBuffer.toString())
-        messageBuffer.clear()
-      case _ => onMessage(text.rtrim)
-    }
-}
 
 object CbtOutputListener {
-
   def showError(project: Project, text: String, notificationSource: NotificationSource): Unit = {
     showNotification(project, text, NotificationCategory.ERROR, notificationSource)
-  }
-
-  def showNotification(project: Project, text: String, notificationCategory: NotificationCategory,
-                       notificationSource: NotificationSource): Unit = {
-    ApplicationManager.getApplication.invokeLater(new Runnable {
-      override def run(): Unit = {
-        val notification = new NotificationData("CBT project import", text,
-          notificationCategory, notificationSource)
-        ExternalSystemNotificationManager.getInstance(project).showNotification(CbtProjectSystem.Id, notification)
-      }
-    })
   }
 
   def showWarning(project: Project, text: String, notificationSource: NotificationSource): Unit = {
     showNotification(project, text, NotificationCategory.WARNING, notificationSource)
   }
+
+  private def showNotification(project: Project, text: String, notificationCategory: NotificationCategory,
+                       notificationSource: NotificationSource): Unit = {
+    ApplicationManager.getApplication.invokeLater(new Runnable {
+      override def run(): Unit = {
+        val notification = new NotificationData("CBT project import", text,  notificationCategory, notificationSource)
+        ExternalSystemNotificationManager.getInstance(project).showNotification(CbtProjectSystem.Id, notification)
+      }
+    })
+  }
+}
+
+object AnsiCodesEscaper {
+  private val escapeCodes = Seq(Console.RESET,
+    Console.RED,
+    Console.GREEN,
+    Console.BLUE,
+    Console.YELLOW)
+
+  def escape(text: String): String =
+    escapeCodes.fold(text)((t, c) => t.replaceAllLiterally(c, ""))
 }

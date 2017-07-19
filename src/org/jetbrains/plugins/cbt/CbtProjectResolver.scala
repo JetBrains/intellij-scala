@@ -20,7 +20,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     val projectPath = settings.realProjectPath
     val root = new File(projectPath)
     println("Cbt resolver called")
-    val projectOpt = ProjectManager.getInstance.getOpenProjects.toSeq.find(_.getBaseDir == projectPath)
+    val projectOpt = ProjectManager.getInstance.getOpenProjects.toSeq.find(_.getBaseDir.getCanonicalPath == projectPath)
 
     val xml = CBT.buildInfoXml(root, settings, projectOpt,  Some(id, listener))
     xml.map(CbtProjectInfo(_))

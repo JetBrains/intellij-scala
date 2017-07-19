@@ -49,9 +49,9 @@ class CbtComandLineState(task: String,
     override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
       outputType match {
         case ProcessOutputTypes.STDERR =>
-          cbtOutputListener.dataReceived(event.getText, stderr = true)
+          cbtOutputListener.parseLine(event.getText, stderr = true)
         case ProcessOutputTypes.STDOUT =>
-          cbtOutputListener.dataReceived(event.getText, stderr = false)
+          cbtOutputListener.parseLine(event.getText, stderr = false)
         case _ =>
       }
     }
