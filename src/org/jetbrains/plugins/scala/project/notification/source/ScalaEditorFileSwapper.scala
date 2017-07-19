@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Pair
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -19,7 +20,7 @@ object ScalaEditorFileSwapper {
     }
     val fqn: String = getFQN(psiFile)
     if (fqn == null) return null
-    val classes = ScalaPsiManager.instance(project).getCachedClasses(psiFile.getResolveScope, fqn)
+    val classes = ScalaPsiManager.instance(project).getCachedClasses(psiFile.resolveScope, fqn)
     var clazz: PsiClass = null
     for (cl <- classes if clazz == null) {
       if (cl.getContainingFile == psiFile) clazz = cl

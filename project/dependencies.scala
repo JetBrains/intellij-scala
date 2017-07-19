@@ -4,9 +4,9 @@ object Versions {
   val scalaVersion: String = Scala.latest_2_11
   val scalaBinaryVersion: String = Scala.binary_2_11
   val sbtVersion: String = Sbt.latest
-  val ideaVersion = "172.2953.9"
-  val sbtStructureVersion: String = "7.0.0+45-b2a6b23a"
-  val sbtIdeaShellVersion: String = "1.2+2-3eadcace"
+  val ideaVersion = "172.3317.6"
+  val sbtStructureVersion: String = "7.0.0+54-18d3848c"
+  val sbtIdeaShellVersion: String = "1.2+7-625c26bc"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
@@ -40,11 +40,11 @@ object Versions {
   object Sbt {
     val binary_0_12 = "0.12"
     val binary_0_13 = "0.13"
-    val binary_1_0 = "1.0.0-M6"
+    val binary_1_0 = "1.0"
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.15"
-    val latest_1_0 = "1.0.0-M6"
+    val latest_1_0 = "1.0.0-RC2"
     val latest: String = latest_0_13
 
     def binaryVersion(v: String): String = {
@@ -91,6 +91,7 @@ object Dependencies {
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
 
+  val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val dottyInterface: ModuleID = "ch.epfl.lamp" % "dotty-interfaces" % "0.1.1-20170227-179a5d6-NIGHTLY"
@@ -137,7 +138,8 @@ object DependencyGroups {
     scalaLibrary,
     scalaReflect,
     scalaCompiler,
-    commonsLang
+    commonsLang,
+    bcel
   )
 
   val scalaRunner = Seq(
@@ -193,7 +195,8 @@ object DependencyGroups {
     "org.scalameta" % "scalameta_2.12" % scalaMetaVersion,
     "org.scala-js" % "scalajs-library_2.10" % "0.6.14",
     "com.typesafe.play" % "play_2.10" % "2.4.10",
-    "com.typesafe.akka" % "akka-actor_2.11" % "2.4.17"
+    "com.typesafe.akka" % "akka-actor_2.11" % "2.4.19",
+    "com.typesafe.akka" % "akka-stream_2.11" % "2.4.19"
   )
 
   val testScalaLibraryDownloader = Seq(

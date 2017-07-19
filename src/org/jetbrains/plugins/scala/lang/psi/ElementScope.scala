@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
@@ -52,8 +53,12 @@ case class ElementScope(project: Project, scope: GlobalSearchScope) {
 }
 
 object ElementScope {
-  def apply(element: PsiElement): ElementScope =
-    ElementScope(element.getProject, element.getResolveScope)
+  def apply(element: PsiElement): ElementScope = {
+    val project = element.getProject
+    val scope = element.resolveScope
+
+    ElementScope(project, scope)
+  }
 
   def apply(project: Project): ElementScope =
     ElementScope(project, GlobalSearchScope.allScope(project))

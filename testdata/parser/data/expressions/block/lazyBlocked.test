@@ -28,7 +28,7 @@ ScalaFile
         BlockExpression
           PsiElement({)('{')
           PsiWhiteSpace('\n    ')
-          ScPatternDefinition
+          ScPatternDefinition: s
             AnnotationsList
               <empty list>
             Modifiers

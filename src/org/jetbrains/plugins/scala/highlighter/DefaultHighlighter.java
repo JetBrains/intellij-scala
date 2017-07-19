@@ -64,7 +64,7 @@ public class DefaultHighlighter {
   @NonNls
   static final String IMMUTABLE_COLLECTION_NAME = "Immutable Collection";
   @NonNls
-  static final String JAVA_COLLECTION_NAME = "Standart Java Collection";
+  static final String JAVA_COLLECTION_NAME = "Standard Java Collection";
   @NonNls
   static final String TYPEPARAM_NAME = "Type parameter";
   @NonNls
@@ -170,7 +170,7 @@ public class DefaultHighlighter {
   @NonNls
   static final String IMMUTABLE_COLLECTION_ID = "Scala Immutable Collection";
   @NonNls
-  static final String JAVA_COLLECTION_ID = "Standart Java Collection";
+  static final String JAVA_COLLECTION_ID = "StandardF Java Collection";
   @NonNls
   static final String TYPEPARAM_ID = "Scala Type parameter";
   @NonNls

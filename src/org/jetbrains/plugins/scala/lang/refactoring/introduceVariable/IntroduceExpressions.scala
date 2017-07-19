@@ -24,12 +24,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParen
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaInplaceVariableIntroducer.addTypeAnnotation
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
@@ -78,11 +76,6 @@ trait IntroduceExpressions {
             val suggestedNames = NameSuggester.suggestNames(expr)
 
             val asVar = false
-            val forceInferType = expr match {
-              case _: ScFunctionExpr => Some(true)
-              case _ => None
-            }
-//            val needExplicitType = forceInferType.getOrElse(ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE)
             val selectedType = types(0)
             val introduceRunnable: Computable[SmartPsiElementPointer[PsiElement]] =
               introduceVariable(startOffset, endOffset, file, editor, expr, occurrences, suggestedNames.head, selectedType,
@@ -99,6 +92,7 @@ trait IntroduceExpressions {
                 val newExpr: ScExpression = newDeclaration match {
                   case ScVariableDefinition.expr(x) => x
                   case ScPatternDefinition.expr(x) => x
+                  case enum: ScEnumerator => enum.rvalue
                   case _ => null
                 }
                 if (namedElement != null && namedElement.isValid) {
@@ -109,7 +103,7 @@ trait IntroduceExpressions {
                     PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
                     val variableIntroducer =
                       new ScalaInplaceVariableIntroducer(project, editor, newExpr, types, namedElement,
-                        INTRODUCE_VARIABLE_REFACTORING_NAME, replaceAll, asVar, forceInferType)
+                        INTRODUCE_VARIABLE_REFACTORING_NAME, replaceAll, asVar, forceInferType(expr))
 
                     import scala.collection.JavaConversions._
                     variableIntroducer.performInplaceRefactoring(new util.LinkedHashSet[String](suggestedNames))
@@ -140,6 +134,8 @@ trait IntroduceExpressions {
       case _: IntroduceException =>
     }
   }
+
+  private def forceInferType(expr: ScExpression): Boolean = expr.isInstanceOf[ScFunctionExpr]
 
   //returns smart pointer to ScDeclaredElementsHolder or ScEnumerator
   private def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
@@ -234,6 +230,9 @@ trait IntroduceExpressions {
     val typeName = if (varType != null) varType.canonicalText else ""
     val expression = ScalaRefactoringUtil.expressionToIntroduce(expression_)
 
+    def needsTypeAnnotation =
+      ScalaInplaceVariableIntroducer.needsTypeAnnotation(_: PsiElement, expression, forceInferType(expression), fromDialogMode)
+
     val isFunExpr = expression.isInstanceOf[ScFunctionExpr]
     val mainRange = new TextRange(startOffset, endOffset)
     val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
@@ -269,7 +268,8 @@ trait IntroduceExpressions {
     def createEnumeratorIn(forStmt: ScForStatement): ScEnumerator = {
       val parent: ScEnumerators = forStmt.enumerators.orNull
       val inParentheses = parent.prevSiblings.toList.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
-      val created = createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), typeName)
+      val needType = needsTypeAnnotation(parent)
+      val created = createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), if (needType) typeName else "")
       val elem = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
       var result: ScEnumerator = null
       if (elem != null) {
@@ -297,8 +297,7 @@ trait IntroduceExpressions {
 
     def createVariableDefinition(): PsiElement = {
       if (fastDefinition) {
-        val addType = addTypeAnnotation(firstElement, expression, fromDialogMode)
-        ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = addType
+        val addType = needsTypeAnnotation(firstElement)
         replaceRangeByDeclaration(replacedOccurences(0), createDeclaration(varName, if (addType) typeName else "", isVariable,
           ScalaRefactoringUtil.unparExpr(expression)))
       } else {
@@ -322,14 +321,13 @@ trait IntroduceExpressions {
         }
         val anchor = parent.getChildren.find(_.getTextRange.contains(firstRange)).getOrElse(parent.getLastChild)
         if (anchor != null) {
-          val addType = addTypeAnnotation(anchor, expression, fromDialogMode)
+          val addType = needsTypeAnnotation(anchor)
 
           val created = createDeclaration(varName, if (addType) typeName else "", isVariable,
             ScalaRefactoringUtil.unparExpr(expression))
 
           val result = ScalaPsiUtil.addStatementBefore(created.asInstanceOf[ScBlockStatement], parent, Some(anchor))
           CodeEditUtil.markToReformat(parent.getNode, needFormatting)
-          ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = addType
           result
         } else throw new IntroduceException
       }

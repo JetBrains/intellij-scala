@@ -40,7 +40,7 @@ ScalaFile
             CodeReferenceElement: MAX
               PsiElement(identifier)('MAX')
         PsiWhiteSpace('\n  ')
-        ScVariableDefinition
+        ScVariableDefinition: foo
           AnnotationsList
             <empty list>
           Modifiers

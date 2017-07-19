@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement, ScTypeProjection}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScInfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -212,7 +212,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
       context match {
         case context: CreateParameterInfoContext =>
           val res = args.getParent match {
-            case ScGenericCall(expr, _) => expr.asOptionOf[ScReferenceExpression].flatMap(fromResolved(_))
+            case ScGenericCall(expr, _) => fromResolved(expr)
             case ScInfixExpr(_, ref, _) => fromResolved(ref)
             case ScParameterizedTypeElement(typeElem, _) =>
               typeElem match {

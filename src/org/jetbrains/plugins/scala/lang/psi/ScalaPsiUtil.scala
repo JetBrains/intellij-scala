@@ -370,14 +370,14 @@ object ScalaPsiUtil {
     exprTp match {
       case ScTypePolymorphicType(internal, typeParam) if typeParam.nonEmpty &&
         !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[UndefinedType] =>
-        if (!isDynamic || approveDynamic(internal, call.getProject, call.getResolveScope)) {
+        if (!isDynamic || approveDynamic(internal, call.getProject, call.resolveScope)) {
           val state: ResolveState = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, internal)
           processor.processType(internal, call.getEffectiveInvokedExpr, state)
         }
         candidates = processor.candidatesS
       case _ =>
     }
-    if (candidates.isEmpty && (!isDynamic || approveDynamic(exprTp.inferValueType, call.getProject, call.getResolveScope))) {
+    if (candidates.isEmpty && (!isDynamic || approveDynamic(exprTp.inferValueType, call.getProject, call.resolveScope))) {
       val state: ResolveState = ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, exprTp.inferValueType)
       processor.processType(exprTp.inferValueType, call.getEffectiveInvokedExpr, state)
       candidates = processor.candidatesS
@@ -417,7 +417,7 @@ object ScalaPsiUtil {
           val res = fun match {
             case fun: ScFun => (update(s.subst(fun.polymorphicType)), r.importsUsed, r.implicitFunction, Some(r))
             case fun: ScFunction => (update(s.subst(fun.polymorphicType())), r.importsUsed, r.implicitFunction, Some(r))
-            case meth: PsiMethod => (update(ResolveUtils.javaPolymorphicType(meth, s, call.getResolveScope)),
+            case meth: PsiMethod => (update(ResolveUtils.javaPolymorphicType(meth, s, call.resolveScope)),
               r.importsUsed, r.implicitFunction, Some(r))
           }
           call.getInvokedExpr.getNonValueType(TypingContext.empty) match {
@@ -1124,6 +1124,11 @@ object ScalaPsiUtil {
     el.asInstanceOf[T]
   }
 
+  @tailrec
+  def getContext(element: PsiElement, level: Int): Option[PsiElement] =
+    if (level == 0) Some(element) else if (element.getContext == null) None
+    else getContext(element.getParent, level - 1)
+
   /**
     * For one classOf use PsiTreeUtil.getContextOfType instead
     */
@@ -1150,6 +1155,17 @@ object ScalaPsiUtil {
       case Left(_) => None
       case Right(m.Term.Block(Seq(_: m.Defn, obj: m.Defn.Object))) => Some(obj)
       case Right(_) => None
+    }
+  }
+
+  // determines if an element can access other elements in a synthetic subtree that shadows
+  // element's original(physical) subtree - e.g. physical method of some class referencing
+  // a synthetic method of the same class
+  def isSyntheticContextAncestor(ancestor: PsiElement, element: PsiElement): Boolean = {
+    ancestor.getContext match {
+      case td: ScTemplateDefinition if td.isDesugared =>
+        PsiTreeUtil.isContextAncestor(td.originalElement.get, element, true)
+      case _ => false
     }
   }
 
@@ -2003,16 +2019,21 @@ object ScalaPsiUtil {
   }
 
   def isImplicit(namedElement: PsiNamedElement): Boolean = {
-    namedElement match {
-      case s: ScModifierListOwner => s.hasModifierProperty("implicit")
+    val maybeModifierListOwner = namedElement match {
+      case owner: ScModifierListOwner => Some(owner)
       case named: ScNamedElement =>
-        named.nameContext match {
-          case s: ScModifierListOwner => s.hasModifierProperty("implicit")
-          case _ => false
+        Option(named.nameContext).collect {
+          case owner: ScModifierListOwner => owner
         }
-      case _ => false
+      case _ => None
     }
+
+    maybeModifierListOwner
+      .exists(isImplicit)
   }
+
+  def isImplicit(modifierListOwner: ScModifierListOwner): Boolean =
+    modifierListOwner.hasModifierProperty("implicit")
 
   def replaceBracesWithParentheses(element: ScalaPsiElement): Unit = {
     import element.projectContext

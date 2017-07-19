@@ -4,6 +4,7 @@ package project
 import com.intellij.ide.util.newProjectWizard.AddModuleWizard
 import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.ide.wizard.Step
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.service.project.wizard.SelectExternalProjectStep
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -38,9 +39,10 @@ class SbtProjectOpenProcessor(builder: SbtProjectImportBuilder) extends ProjectO
       }
     }
 
-    dialog.show()
-
-    dialog.isOK
+    if (!ApplicationManager.getApplication.isUnitTestMode) {
+      dialog.show()
+      dialog.isOK
+    } else true
   }
 
   // That's a hack to display SBT icon in the open project file chooser (this part of the IDEA API is broken)

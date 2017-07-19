@@ -142,8 +142,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     checkForIndyLambdas(refType)
 
     try {
-      val line: Int = position.getLine
-      locationsOfLine(refType, line).asJava
+      inReadAction {
+        val line: Int = position.getLine
+        locationsOfLine(refType, line).asJava
+      }
     }
     catch {
       case _: AbsentInformationException => Collections.emptyList()
@@ -336,7 +338,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    calcElement().map(SourcePosition.createFromElement)
+    calcElement().filter(_.isValid).map(SourcePosition.createFromElement)
   }
 
   private def findScriptFile(refType: ReferenceType): Option[PsiFile] = {
@@ -859,7 +861,7 @@ object ScalaPositionManager {
     case obj: ScObject =>
       val manager: ScalaPsiManager = ScalaPsiManager.instance(obj.getProject)
       val clazz: PsiClass =
-        manager.getCachedClass(obj.getResolveScope, "scala.DelayedInit").orNull
+        manager.getCachedClass(obj.resolveScope, "scala.DelayedInit").orNull
       clazz != null && obj.isInheritor(clazz, deep = true)
     case _ => false
   }

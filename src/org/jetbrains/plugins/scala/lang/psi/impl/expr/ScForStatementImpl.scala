@@ -5,6 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.psi._
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -232,6 +233,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
               case expr => Some(expr)
             }
           } catch {
+            case p: ProcessCanceledException => throw p
             case _: Throwable => None
           }
         }

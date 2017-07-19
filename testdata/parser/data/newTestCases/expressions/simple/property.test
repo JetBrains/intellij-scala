@@ -30,7 +30,7 @@ ScalaFile
             ExtendsBlock
               ScTemplateBody
                 PsiElement({)('{')
-                ScVariableDefinition
+                ScVariableDefinition: a
                   AnnotationsList
                     <empty list>
                   Modifiers

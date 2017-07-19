@@ -269,7 +269,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
   override def getParent: PsiElement = definition.getParent
 
   override def getResolveScope: GlobalSearchScope = {
-    definition.getResolveScope
+    definition.resolveScope
   }
 
   override def getUseScope: SearchScope = {

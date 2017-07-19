@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 class ApparentRefinementOfResultTypeInspection extends AbstractMethodSignatureInspection(
   "ScalaApparentRefinementOfResultType", "Apparent refinement of result type; are you missing an '=' sign?") {
 
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case f: ScFunctionDeclaration  => f.typeElement match {
       case Some(e @ ScCompoundTypeElement(types, Some(_))) if types.nonEmpty =>
         holder.registerProblem(e, getDisplayName, new InsertMissingEquals(f))

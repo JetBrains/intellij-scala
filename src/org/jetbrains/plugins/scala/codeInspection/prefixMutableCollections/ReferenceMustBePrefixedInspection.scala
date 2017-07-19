@@ -21,7 +21,8 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
   */
 
 class ReferenceMustBePrefixedInspection extends AbstractInspection(id, displayName) {
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case ref: ScReferenceElement if ref.qualifier.isEmpty && !ref.getParent.isInstanceOf[ScImportSelector] =>
       ref.bind() match {
         case Some(r: ScalaResolveResult) if r.nameShadow.isEmpty =>

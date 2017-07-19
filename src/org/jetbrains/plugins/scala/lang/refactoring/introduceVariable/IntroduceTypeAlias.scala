@@ -7,7 +7,7 @@ import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.internal.statistic.UsageTrigger
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.impl.StartMarkAction
 import com.intellij.openapi.editor.Editor
@@ -21,7 +21,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inTransactionLater}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -370,11 +370,7 @@ trait IntroduceTypeAlias {
       }
     })
 
-    JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
-      def run() {
-        pass(list.getSelectedValue.asInstanceOf[T])
-      }
-    }).addListener(new JBPopupAdapter {
+    val highlightingListener = new JBPopupAdapter {
       override def beforeShown(event: LightweightWindowEvent): Unit = {
         selection.addHighlighter()
       }
@@ -383,7 +379,21 @@ trait IntroduceTypeAlias {
         highlighter.dropHighlight()
         selection.removeHighlighter()
       }
-    }).createPopup.showInBestPositionFor(editor)
+    }
+
+    val callback: Runnable = inTransactionLater(editor.getProject) {
+      pass(list.getSelectedValue.asInstanceOf[T])
+    }
+
+    JBPopupFactory.getInstance.createListPopupBuilder(list)
+      .setTitle(title)
+      .setMovable(false)
+      .setResizable(false)
+      .setRequestFocus(true)
+      .setItemChoosenCallback(callback)
+      .addListener(highlightingListener)
+      .createPopup
+      .showInBestPositionFor(editor)
   }
 
   protected def createAndGetPackageObjectBody(typeElement: ScTypeElement,

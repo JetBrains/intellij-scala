@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
  */
 
 class PrevSiblignsIterator(element: PsiElement) extends Iterator[PsiElement] {
-  private var current = element.getPrevSibling
+  private var current = Option(element).map(_.getPrevSibling).orNull
 
   def hasNext: Boolean = current != null
 

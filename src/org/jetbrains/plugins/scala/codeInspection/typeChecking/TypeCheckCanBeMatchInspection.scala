@@ -41,9 +41,9 @@ object TypeCheckCanBeMatchInspection {
   val inspectionName = "Type check can be replaced by pattern matching"
 }
 
-class TypeCheckCanBeMatchInspection extends AbstractInspection(inspectionId, inspectionName){
+class TypeCheckCanBeMatchInspection extends AbstractInspection(inspectionId, inspectionName) {
 
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case IsInstanceOfCall(call) =>
       for {
         ifStmt <- Option(PsiTreeUtil.getParentOfType(call, classOf[ScIfStmt]))
@@ -267,7 +267,6 @@ object TypeCheckToMatchUtil {
   }
 
   def findAsInstOfCalls(body: Option[ScExpression], isInstOfCall: ScGenericCall): Seq[ScGenericCall] = {
-    import isInstOfCall.projectContext
 
     def isAsInstOfCall(genCall: ScGenericCall) = {
       genCall.referencedExpr match {

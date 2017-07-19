@@ -25,8 +25,6 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   private val communicationActive = new Semaphore(1)
   private val shellQueueReady = new Semaphore(1)
   private val commands = new LinkedBlockingQueue[(String, CommandListener[_])]()
-  private val communicationListeners: java.util.List[CommunicationListener] =
-    new java.util.concurrent.CopyOnWriteArrayList[CommunicationListener]()
 
   /** Queue an sbt command for execution in the sbt shell, returning a Future[String] containing the entire shell output. */
   def command(cmd: String, showShell: Boolean = true): Future[String] =
@@ -40,15 +38,8 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
     val listener = new CommandListener(default, eventHandler)
     if (showShell) process.openShellRunner()
     commands.put((cmd, listener))
-    import scala.collection.JavaConversions._
-    asScalaBuffer(communicationListeners).foreach(_.onCommandQueued(cmd))
     listener.future
   }
-
-  def addListener(listener: CommunicationListener): Unit = communicationListeners.add(listener)
-
-  def removeListener(listener: CommunicationListener): Unit = communicationListeners.remove(listener)
-
 
   /** Start processing command queue if it is not yet active. */
   private def startQueueProcessing(handler: OSProcessHandler): Unit = {
@@ -72,18 +63,16 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
       if (next != null) {
         val (cmd, listener) = next
 
+        listener.started()
         process.attachListener(listener)
 
         process.usingWriter { shell =>
           shell.println(cmd)
           shell.flush()
         }
-        import scala.collection.JavaConversions._
         listener.future.onComplete { _ =>
           process.removeListener(listener)
-          asScalaBuffer(communicationListeners).foreach(_.onCommandFinished(cmd))
         }
-        asScalaBuffer(communicationListeners).foreach(_.onCommandPolled(cmd))
       } else shellQueueReady.release()
     }
   }
@@ -142,7 +131,8 @@ private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[
 
   def future: Future[A] = promise.future
 
-  override def startNotified(event: ProcessEvent): Unit = aggregate(TaskStart)
+  def started(): Unit =
+    aggregate(TaskStart)
 
   override def processTerminated(event: ProcessEvent): Unit = {
     // TODO separate event type for completion by termination?

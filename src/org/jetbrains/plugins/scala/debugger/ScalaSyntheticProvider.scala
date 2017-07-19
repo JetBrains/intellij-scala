@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.debugger
 
+import java.util.concurrent.ConcurrentMap
+
 import com.intellij.debugger.engine.SyntheticTypeComponentProvider
+import com.intellij.util.containers.ContainerUtil
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
@@ -17,11 +20,16 @@ class ScalaSyntheticProvider extends SyntheticTypeComponentProvider {
 }
 
 object ScalaSyntheticProvider {
+  private val cache: ConcurrentMap[TypeComponent, java.lang.Boolean] = ContainerUtil.createConcurrentWeakMap()
+
   def isSynthetic(typeComponent: TypeComponent): Boolean = {
+    val fromCache = cache.get(typeComponent)
+    if (fromCache != null) return fromCache
+
     val isScala = DebuggerUtil.isScala(typeComponent.declaringType(), default = false)
     if (!isScala) return false
 
-    typeComponent match {
+    val result = typeComponent match {
       case _ if hasSpecialization(typeComponent) && !isMacroDefined(typeComponent) => true
       case m: Method if m.isConstructor && ScalaPositionManager.isAnonfunType(m.declaringType()) => true
       case m: Method if isDefaultArg(m) => true
@@ -34,6 +42,8 @@ object ScalaSyntheticProvider {
         val machine: VirtualMachine = typeComponent.virtualMachine
         machine != null && machine.canGetSyntheticAttribute && typeComponent.isSynthetic
     }
+    cache.putIfAbsent(typeComponent, result)
+    result
   }
 
   def unspecializedName(s: String): Option[String] = """.*(?=\$mc\w+\$sp)""".r.findFirstIn(s)
@@ -71,7 +81,22 @@ object ScalaSyntheticProvider {
   }
 
   private def isTraitForwarder(m: Method): Boolean = {
-    Try(onlyInvokesStatic(m) && hasTraitWithImplementation(m)).getOrElse(false)
+    //trait forwarders are usually generated with line number of the containing class
+    def looksLikeForwarderLocation: Boolean = {
+      val line = m.location().lineNumber()
+      if (line < 0) return false
+
+      val methods = m.declaringType().methods()
+      val lines =
+        methods
+          .flatMap(m => Option(m.location()))
+          .map(_.lineNumber())
+          .filter(_ >= 0)
+
+      lines.nonEmpty && line <= lines.min
+    }
+
+    Try(onlyInvokesStatic(m) && hasTraitWithImplementation(m) && looksLikeForwarderLocation).getOrElse(false)
   }
 
   def isMacroDefined(typeComponent: TypeComponent): Boolean = {

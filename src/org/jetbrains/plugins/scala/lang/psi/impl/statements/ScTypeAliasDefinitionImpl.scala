@@ -11,6 +11,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -52,7 +53,7 @@ class ScTypeAliasDefinitionImpl private (stub: ScTypeAliasStub, node: ASTNode)
     if (descriptor != null) descriptor.navigate(requestFocus)
   }
 
-  override def toString: String = "ScTypeAliasDefinition: " + name
+  override def toString: String = "ScTypeAliasDefinition: " + ifReadAllowed(name)("")
 
   override def getPresentation: ItemPresentation = {
     new ItemPresentation() {

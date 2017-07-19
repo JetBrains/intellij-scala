@@ -6,6 +6,7 @@ package toplevel
 package typedef
 
 import com.intellij.navigation.NavigationItem
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
@@ -26,6 +27,8 @@ import scala.collection.Seq
 trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable with ScDocCommentOwner
     with ScAnnotationsHolder with ScCommentOwner {
+
+  override def extendsBlock = super.extendsBlock
 
   def isCase: Boolean = false
 
@@ -155,6 +158,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
               ""
             }
           } catch {
+            case p: ProcessCanceledException => throw p
             case _: Exception => ""
           }
         }

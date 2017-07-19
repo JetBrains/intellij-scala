@@ -63,7 +63,7 @@ lazy val scalaCommunity: sbt.Project =
     buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
     buildInfoKeys := Seq(
       name, version, scalaVersion, sbtVersion,
-      BuildInfoKey.constant("sbtLatestVersion", Versions.sbtStructureVersion),
+      BuildInfoKey.constant("sbtLatestVersion", Versions.sbtVersion),
       BuildInfoKey.constant("sbtStructureVersion", Versions.sbtStructureVersion),
       BuildInfoKey.constant("sbtIdeaShellVersion", Versions.sbtIdeaShellVersion)
     )
@@ -292,7 +292,9 @@ lazy val pluginPackagerCommunity =
           "lib/scala-plugin-runners.jar"),
         AllOrganisation("org.scalameta", "lib/scalameta120.jar"),
         Library(scalaLibrary,
-          "lib/scala-library.jar")
+          "lib/scala-library.jar"),
+        Library(bcel,
+          "lib/bcel.jar")
       ) ++
         crossLibraries.map { lib =>
           Library(

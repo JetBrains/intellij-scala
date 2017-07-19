@@ -9,6 +9,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScCaseClauses}
@@ -50,7 +51,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         if (clausesTypes.isEmpty) Nothing
         else clausesTypes.lub(checkWeak = true)
 
-      implicit val resolveScope = getResolveScope
+      implicit val resolveScope = this.resolveScope
 
       getContext match {
         case _: ScCatchBlock =>

@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -62,7 +63,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           fun match {
             case fun: ScFun => s.subst(fun.polymorphicType)
             case fun: ScFunction => s.subst(fun.polymorphicType())
-            case meth: PsiMethod => ResolveUtils.javaPolymorphicType(meth, s, getResolveScope)
+            case meth: PsiMethod => ResolveUtils.javaPolymorphicType(meth, s, this.resolveScope)
           }
         case _ => api.Nothing
       }

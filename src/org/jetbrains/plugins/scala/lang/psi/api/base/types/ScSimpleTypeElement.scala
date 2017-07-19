@@ -7,6 +7,8 @@ package types
 
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.AnnotationExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotationExpr
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -21,6 +23,8 @@ trait ScSimpleTypeElement extends ScTypeElement with ImplicitParametersOwner {
   def pathElement: ScPathElement = findChildByClassScala(classOf[ScPathElement])
 
   def singleton: Boolean = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
+
+  def annotation: Boolean = ScalaPsiUtil.getContext(this, 2).exists(_.isInstanceOf[ScAnnotationExpr])
 
   def findConstructor: Option[ScConstructor] = {
     def findConstructor(element: ScalaPsiElement) = element.getContext match {

@@ -102,12 +102,12 @@ case class ScExistentialType(quantified: ScType,
       case (ParameterizedType(UndefinedType(parameterType, _), args), _) if !falseUndef =>
         r match {
           case ParameterizedType(des, defArgs) =>
-            val y = conformance.addParam(parameterType, des, undefinedSubst, defArgs, args)
+            val y = conformance.addParam(parameterType, des, undefinedSubst)
             if (!y._1) return (false, undefinedSubst)
             undefinedSubst = y._2
             return ScExistentialType(ScParameterizedType(des, args), wildcards).equiv(r, undefinedSubst, falseUndef)
           case ScExistentialType(ParameterizedType(des, defArgs), _) =>
-            val y = conformance.addParam(parameterType, des, undefinedSubst, defArgs, args)
+            val y = conformance.addParam(parameterType, des, undefinedSubst)
             if (!y._1) return (false, undefinedSubst)
             undefinedSubst = y._2
             return ScExistentialType(ScParameterizedType(des, args), wildcards).equiv(r, undefinedSubst, falseUndef)
@@ -148,6 +148,21 @@ case class ScExistentialType(quantified: ScType,
           undefinedSubst = t._2
         }
         quantified.equiv(ex.quantified, undefinedSubst, falseUndef) //todo: probable problems with different positions of skolemized types.
+      case poly: ScTypePolymorphicType if poly.typeParameters.length == wildcards.length =>
+        val list = wildcards.zip(poly.typeParameters)
+        val iterator = list.iterator
+        var t = (true, undefinedSubst)
+        while (iterator.hasNext) {
+          val (w, tp) = iterator.next()
+          t = w.lower.equivInner(tp.lowerType.v, t._2, falseUndef)
+          if (!t._1) return (false, undefinedSubst)
+          t = w.upper.equivInner(tp.upperType.v, t._2, falseUndef)
+          if (!t._1) return (false, undefinedSubst)
+        }
+        val polySubst = ScSubstitutor(poly.typeParameters.zip(wildcards).map{case (tp, wildcard) =>
+          (tp.nameAndId, wildcard)
+        }.toMap)
+        quantified.equiv(polySubst.subst(poly.internalType), t._2, falseUndef)
       case _ => (false, undefinedSubst)
     }
   }

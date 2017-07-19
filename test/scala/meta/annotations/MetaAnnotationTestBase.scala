@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerProjectExtension, ModuleRootAdapter, ModuleRootEvent}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{EdtTestUtil, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.ThrowableRunnable
@@ -23,8 +24,9 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.debugger.{DebuggerTestUtil, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -218,6 +220,16 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     applicationEx.doNotSave(setting)
     CompilerTestUtil.saveApplicationSettings()
   }
+
+  // because getElementAtCaret from fixture forces resolve
+  protected def elementAtCaret = PsiTreeUtil.getParentOfType(myFixture.getFile.findElementAt(myFixture.getCaretOffset-1), classOf[ScalaPsiElement])
+  protected def annotName: String = getTestName(true)
+  protected def testClassName: String = getTestName(false)
+  protected def testClass: ScTypeDefinition = myFixture
+    .getFile
+    .getChildren
+    .collectFirst({case c: ScTypeDefinition if c.name == testClassName => c})
+    .getOrElse{Assert.fail(s"Class $testClassName not found"); throw new RuntimeException}
 }
 
 object MetaAnnotationTestBase {
@@ -239,5 +251,16 @@ object MetaAnnotationTestBase {
       case null =>
       case file => file.refresh(false, false)
     }
+  }
+
+  def mkAnnot(name: String, body: String): String = {
+    s"""
+       |import scala.meta._
+       |class $name extends scala.annotation.StaticAnnotation {
+       |  inline def apply(defn: Any): Any = meta {
+       |    $body
+       |  }
+       |}
+     """.stripMargin
   }
 }

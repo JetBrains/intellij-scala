@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScalaArrayOf}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, StdType, arrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 import scala.collection.JavaConversions._
@@ -32,10 +32,10 @@ trait DottyPsiTypeBridge extends api.PsiTypeBridge {
     case _ => super.toScType(`type`, treatJavaObjectAsAny)
   }
 
-  override def toPsiType(`type`: ScType, noPrimitives: Boolean, skolemToWildcard: Boolean)
+  override def toPsiType(`type`: ScType, noPrimitives: Boolean)
                         (implicit elementScope: ElementScope): PsiType = {
     def createComponent: ScType => PsiType =
-      toPsiType(_, noPrimitives, skolemToWildcard)
+      toPsiType(_, noPrimitives)
 
     `type` match {
       case ScDesignatorType(clazz: PsiClass) => createType(clazz)
@@ -56,11 +56,12 @@ trait DottyPsiTypeBridge extends api.PsiTypeBridge {
             seq.zip(clazz.getTypeParameters)
               .foldLeft(PsiSubstitutor.EMPTY) {
                 case (substitutor, (scType, typeParameter)) => substitutor.put(typeParameter,
-                  toPsiType(scType, noPrimitives = true, skolemToWildcard = true))
+                  toPsiType(scType, noPrimitives = true))
               })
         }
-      case ScalaArrayOf(arg) => new PsiArrayType(toPsiType(arg))
-      case _ => super.toPsiType(`type`, noPrimitives, skolemToWildcard)
+      case arrayType(arg) => new PsiArrayType(toPsiType(arg))
+      case std: StdType => stdToPsiType(std, noPrimitives)
+      case _ => createJavaObject
     }
   }
 }

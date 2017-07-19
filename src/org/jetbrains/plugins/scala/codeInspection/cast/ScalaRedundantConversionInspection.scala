@@ -18,7 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
  */
 
 class ScalaRedundantConversionInspection extends AbstractInspection("Redundant conversion") {
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case element @ ScReferenceExpression.withQualifier(qualifier) && PsiReferenceEx.resolve(target) =>
       process(element, qualifier, target, qualifier.getTextLength, holder)
     case element @ ScPostfixExpr(operand, operator @ PsiReferenceEx.resolve(target)) =>
@@ -26,7 +27,6 @@ class ScalaRedundantConversionInspection extends AbstractInspection("Redundant c
   }
 
   private def process(element: PsiElement, left: ScExpression, target: PsiElement, offset: Int, holder: ProblemsHolder) {
-    import left.projectContext
 
     target match {
       case f: ScSyntheticFunction if f.name.startsWith("to") =>

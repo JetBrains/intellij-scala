@@ -181,7 +181,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
         ApplicationManager.getApplication().invokeLater(new Runnable() {
           @Override
           public void run() {
-            mySpecifyTypeChb.setSelected(addTypeAnnotation());
+            mySpecifyTypeChb.setSelected(needsTypeAnnotation());
             updateEnablingTypeList();
           }
         });
@@ -190,19 +190,19 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   }
 
   //treat expression as local variable
-  private boolean addTypeAnnotation() {
-    ScalaCodeStyleSettings settings = ScalaCodeStyleSettings.getInstance(project);
-    return TypeAnnotationUtil.isTypeAnnotationNeeded(
-            TypeAnnotationUtil.requirementForProperty(true, TypeAnnotationUtil.Public$.MODULE$, settings),
-            settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
-            settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
+  private boolean needsTypeAnnotation() {
+    return TypeAnnotationUtil.isTypeAnnotationNeededProperty(
+            expression,
+            TypeAnnotationUtil.Public$.MODULE$.toString(),
             false,
-            TypeAnnotationUtil.isSimple(expression)
+            false,
+            TypeAnnotationUtil.isSimple(expression),
+            ScalaCodeStyleSettings.getInstance(project)
     );
   }
 
   private void setUpSpecifyTypeChb() {
-    mySpecifyTypeChb.setSelected(addTypeAnnotation());
+    mySpecifyTypeChb.setSelected(needsTypeAnnotation());
 
     mySpecifyTypeChb.addActionListener(new ActionListener() {
       @Override

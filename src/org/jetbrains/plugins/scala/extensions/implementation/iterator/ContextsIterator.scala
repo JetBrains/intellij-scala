@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
  */
 
 class ContextsIterator(element: PsiElement, strict: Boolean = true) extends Iterator[PsiElement] {
-  private var current = if (strict) element.getContext else element
+  private var current = if (strict && element != null) element.getContext else element
 
   def hasNext: Boolean = current != null
 

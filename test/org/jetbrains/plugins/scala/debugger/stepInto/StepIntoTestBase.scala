@@ -4,8 +4,8 @@ import com.intellij.debugger.settings.DebuggerSettings
 import org.jetbrains.plugins.scala.debugger._
 
 /**
- * @author Nikolay.Tropin
- */
+  * @author Nikolay.Tropin
+  */
 
 class StepIntoTest extends StepIntoTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
@@ -45,6 +45,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
+
   def testSimple() {
     addBreakpoint(2, "Simple.scala")
     runDebugger() {
@@ -71,6 +72,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |  def foo(): Int = z
        |}""".stripMargin.trim()
   )
+
   def testConstructor() {
     addBreakpoint(2, "Constructor.scala")
     runDebugger("Constructor") {
@@ -104,6 +106,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |}
        |""".stripMargin.trim()
   )
+
   def testApplyMethod(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -133,6 +136,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |}
        |""".stripMargin.trim()
   )
+
   def testIntoPackageObject(): Unit = {
     addBreakpoint(4, "IntoPackageObject.scala")
     runDebugger("test.IntoPackageObject") {
@@ -167,6 +171,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |}
        |""".stripMargin.trim()
   )
+
   def testFromPackageObject(): Unit = {
     runDebugger("test1.FromPackageObject") {
       waitForBreakpoint()
@@ -192,6 +197,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |  }
        |}""".stripMargin.trim()
   )
+
   def testWithDefaultParam() {
     runDebugger() {
       waitForBreakpoint()
@@ -217,6 +223,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |  }
        |}""".stripMargin.trim()
   )
+
   def testTraitMethod() {
     runDebugger() {
       waitForBreakpoint()
@@ -246,6 +253,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
         |  def apply(i: Int) = Some(i)
        |}""".stripMargin.trim()
   )
+
   def testUnapplyMethod() {
     runDebugger() {
       waitForBreakpoint()
@@ -273,6 +281,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
+
   def testImplicitConversion() {
     runDebugger() {
       waitForBreakpoint()
@@ -292,6 +301,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
+
   def testLazyVal(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -316,6 +326,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |}
       """.stripMargin.trim()
   )
+
   def testLazyVal2(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -325,27 +336,28 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   }
 
   addFileWithBreakpoints("SimpleGetters.scala",
-   s"""object SimpleGetters {
-      |  val z = 0
-      |
+    s"""object SimpleGetters {
+       |  val z = 0
+       |
       |  def main(args: Array[String]) {
-      |    val x = new SimpleGetters
-      |    x.getA $bp
-      |    sum(x.z, x.gB)
-      |  }
-      |
+       |    val x = new SimpleGetters
+       |    x.getA $bp
+       |    sum(x.z, x.gB)
+       |  }
+       |
       |  def sum(i1: Int, i2: Int) = i1 + i2
-      |}
-      |
+       |}
+       |
       |class SimpleGetters {
-      |  val a = 0
-      |  var b = 1
-      |
+       |  val a = 0
+       |  var b = 1
+       |
       |  def getA = a
-      |  def gB = this.b
-      |  def z = SimpleGetters.z
-      |}
+       |  def gB = this.b
+       |  def z = SimpleGetters.z
+       |}
     """.stripMargin.trim)
+
   def testSimpleGetters(): Unit = {
     DebuggerSettings.getInstance().SKIP_GETTERS = true
     runDebugger() {
@@ -360,25 +372,26 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   }
 
   addFileWithBreakpoints("CustomizedPatternMatching.scala",
-   s"""object CustomizedPatternMatching {
-      |  def main(args: Array[String]) {
-      |    val b = new B()
-      |    foo(b)$bp
-      |  }
-      |
+    s"""object CustomizedPatternMatching {
+       |  def main(args: Array[String]) {
+       |    val b = new B()
+       |    foo(b)$bp
+       |  }
+       |
       |  def foo(b: B): Unit = {
-      |    b.b() match {
-      |      case "a" =>
-      |      case "b" =>
-      |      case _ =>
-      |    }
-      |  }
-      |
+       |    b.b() match {
+       |      case "a" =>
+       |      case "b" =>
+       |      case _ =>
+       |    }
+       |  }
+       |
       |  class B {
-      |    def b() = "b"
-      |  }
-      |}
+       |    def b() = "b"
+       |  }
+       |}
     """.stripMargin.trim)
+
   def testCustomizedPatternMatching(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -402,6 +415,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |    }
        |  }
        |}""".stripMargin)
+
   def testPrivateMethodUsedInLambda(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -436,6 +450,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |  }
        |}
       """.stripMargin)
+
   def testSpecialization(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -449,4 +464,45 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
     }
   }
 
+
+  addFileWithBreakpoints("CustomTraitForwarder.scala",
+    s"""|object CustomTraitForwarder {
+        |
+        |  def main(args: Array[String]): Unit = {
+        |    val inh = new Inheritor
+        |    inh.foo(1)$bp
+        |  }
+        |}
+        |
+        |class Inheritor extends BaseTrait1 with BaseTrait2 {
+        |  override def foo(x: Int): Int = super[BaseTrait1].foo(x)
+        |}
+        |
+        |trait BaseTrait1 {
+        |  def foo(x: Int): Int = {
+        |    x
+        |  }
+        |}
+        |
+        |trait BaseTrait2 {
+        |  def foo(x: Int): Int = {
+        |    x
+        |  }
+        |}
+    """.stripMargin)
+
+  def testCustomTraitForwarder(): Unit = {
+    val debuggerSettings = DebuggerSettings.getInstance()
+    val old = debuggerSettings.SKIP_SYNTHETIC_METHODS
+    debuggerSettings.SKIP_SYNTHETIC_METHODS = true
+    runDebugger() {
+      try {
+        waitForBreakpoint()
+        doStepInto()
+        checkLocation("CustomTraitForwarder.scala", "foo", 10)
+      } finally {
+        debuggerSettings.SKIP_SYNTHETIC_METHODS = old
+      }
+    }
+  }
 }

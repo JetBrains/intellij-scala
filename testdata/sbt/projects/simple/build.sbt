@@ -1,3 +1,3 @@
 name := "simple"
 version := "SNAPSHOT"
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.11"

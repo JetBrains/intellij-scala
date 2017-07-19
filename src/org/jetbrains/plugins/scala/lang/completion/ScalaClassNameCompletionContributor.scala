@@ -178,7 +178,7 @@ object ScalaClassNameCompletionContributor {
     for {
       name <- manager.getStableTypeAliasesNames
       if prefixMatcher.prefixMatches(name)
-      alias <- manager.getStableAliasesByName(name, position.getResolveScope)
+      alias <- manager.getStableAliasesByName(name, position.resolveScope)
     } {
       addTypeForCompletion(TypeAliasToImport(alias))
     }

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CollectMethodsProcesso
 class JavaAccessorMethodCalledAsEmptyParenInspection extends AbstractMethodSignatureInspection(
   "ScalaJavaAccessorMethodCalledAsEmptyParen", "Java accessor method called as empty-paren") {
 
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case e: ScReferenceExpression => e.getParent match {
       case call: ScMethodCall =>
         call.getParent match {
@@ -42,7 +42,6 @@ class JavaAccessorMethodCalledAsEmptyParenInspection extends AbstractMethodSigna
   }
 
   private def hasSameType(call: ScMethodCall, ref: ScReferenceExpression) = {
-    import call.projectContext
 
     val callType = call.getType().toOption
     val refType = ref.getType().toOption

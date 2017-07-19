@@ -112,7 +112,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           subst.subst(methodType)
         case method: PsiMethod =>
           if (i > 0) return Failure("Java constructors only have one parameter section", Some(this))
-          ResolveUtils.javaMethodType(method, subst, getResolveScope, Some(subst.subst(tp)))
+          ResolveUtils.javaMethodType(method, subst, this.resolveScope, Some(subst.subst(tp)))
       }
       val typeParameters: Seq[TypeParameter] = r.getActualElement match {
         case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>

@@ -6,7 +6,7 @@ package expr
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{ElementText, PsiNamedElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{ElementText, PsiElementExt, PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
@@ -423,7 +423,7 @@ object ScExpression {
           cand = applyProc.candidates
         }
       }
-      if (cand.length == 0 && ScalaPsiUtil.approveDynamic(tp, expr.getProject, expr.getResolveScope) && call.isDefined) {
+      if (cand.length == 0 && ScalaPsiUtil.approveDynamic(tp, expr.getProject, expr.resolveScope) && call.isDefined) {
         cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call.get, tp, isShape = true, isDynamic = true)
       }
       cand

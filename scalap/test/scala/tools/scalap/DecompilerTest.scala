@@ -95,4 +95,8 @@ class DecompilerTest extends DecompilerTestBase {
   def testPackageName(): Unit = {
     doTest("Bactickeds.class")
   }
+
+  def testScalaLongSignature(): Unit = {
+    doTest("Generated.class")
+  }
 }

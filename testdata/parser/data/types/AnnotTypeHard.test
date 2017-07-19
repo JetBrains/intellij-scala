@@ -137,7 +137,7 @@ ScalaFile
                       CodeReferenceElement: field
                         PsiElement(identifier)('field')
         PsiWhiteSpace('\n\n  ')
-        ScPatternDefinition
+        ScPatternDefinition: x
           AnnotationsList
             Annotation
               PsiElement(@)('@')

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 class JavaMutatorMethodOverridenAsParameterlessInspection extends AbstractMethodSignatureInspection(
   "ScalaJavaMutatorMethodOverridenAsParameterless", "Java mutator method overriden as parameterless") {
 
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case f: ScFunction if f.isParameterless =>
       f.superMethods.headOption match { // f.superMethod returns None for some reason
         case Some(_: ScalaPsiElement) => // do nothing

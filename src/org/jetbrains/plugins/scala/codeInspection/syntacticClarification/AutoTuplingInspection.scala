@@ -15,7 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
  * 2014-09-26
  */
 class AutoTuplingInspection extends AbstractInspection("Auto-tupling") {
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case mc @ ScMethodCall(ref: ScReferenceExpression, _) if ref.bind().exists(_.tuplingUsed) =>
       holder.registerProblem(mc.args, message, new MakeTuplesExplicitFix(mc))
   }

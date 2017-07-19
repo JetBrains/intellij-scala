@@ -57,7 +57,8 @@ public abstract class LayeredParser implements PsiParser {
     myParsers.add(info);
   }
   
-  protected void setSubRootElements(Collection<IElementType> elements) {
+  public void setSubRootElements(Collection<IElementType> elements) {
+    mySubRootElements.clear();
     mySubRootElements.addAll(elements);
   }
   

@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil.{isSimple, isTypeAnnotationNeededMethod}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -322,22 +322,15 @@ object ScalaExtractMethodUtils {
   }
 
   def addTypeAnnotation(extractMethodSettings: ScalaExtractMethodSettings, visibilityString: String): Boolean = {
-    val isLocal = TypeAnnotationUtil.isLocal(extractMethodSettings.nextSibling)
-
-    val isSimple = extractMethodSettings.elements.head match {
-      case expression: ScExpression if extractMethodSettings.elements.length == 1 =>
-        TypeAnnotationUtil.isSimple(expression)
+    val simple = extractMethodSettings.elements match {
+      case Array(expression: ScExpression) => isSimple(expression)
       case _ => false
     }
 
-    val settings = ScalaCodeStyleSettings.getInstance(extractMethodSettings.nextSibling.getProject)
-    TypeAnnotationUtil.isTypeAnnotationNeeded(
-      TypeAnnotationUtil.requirementForMethod(isLocal, TypeAnnotationUtil.visibilityFromString(visibilityString), settings),
-      settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
-      settings.SIMPLE_METHOD_TYPE_ANNOTATION,
-      isOverride = false, // don't override in current refactoring
-      isSimple = isSimple
-    )
+    isTypeAnnotationNeededMethod(
+      extractMethodSettings.nextSibling,
+      visibilityString
+    )(isOverriding = false, isSimple = simple) // don't override in current refactoring
   }
 
   def previewSignatureText(settings: ScalaExtractMethodSettings): String = {

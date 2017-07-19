@@ -49,7 +49,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     }
   }
 
-  override def toString: String = "ReferenceExpression: " + getText
+  override def toString: String = "ReferenceExpression: " + ifReadAllowed(getText)("")
 
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
@@ -509,7 +509,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             .map(convertQualifier)
         }
 
-        ResolveUtils.javaPolymorphicType(method, s, getResolveScope, returnType)
+        ResolveUtils.javaPolymorphicType(method, s, this.resolveScope, returnType)
       case _ => return resolveFailure
     }
     qualifier match {

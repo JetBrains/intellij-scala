@@ -22,7 +22,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       EarlyDefinitions
         PsiElement({)('{')
-        ScPatternDefinition
+        ScPatternDefinition: g
           AnnotationsList
             Annotation
               PsiElement(@)('@')
@@ -46,7 +46,7 @@ ScalaFile
             PsiElement(integer)('3')
         PsiElement(;)(';')
         PsiWhiteSpace(' ')
-        ScVariableDefinition
+        ScVariableDefinition: h
           AnnotationsList
             <empty list>
           Modifiers

@@ -29,10 +29,12 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
   private JComboBox myPublicMethodComboBox;
   private JComboBox myProtectedMethodComboBox;
   private JComboBox myPrivateMethodComboBox;
-  private JComboBox myOverridingPropertyComboBox;
-  private JComboBox myOverridingMethodComboBox;
   private JComboBox myLocalPropertyComboBox;
   private JComboBox myLocalMethodComboBox;
+  private JComboBox myImplicitPropertyComboBox;
+  private JComboBox myImplicitMethodComboBox;
+  private JComboBox myOverridingPropertyComboBox;
+  private JComboBox myOverridingMethodComboBox;
   private JComboBox mySimplePropertyComboBox;
   private JComboBox mySimpleMethodComboBox;
   private JPanel myLinkContainer;
@@ -40,19 +42,21 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
   protected TypeAnnotationsPanel(@NotNull CodeStyleSettings settings) {
     super(settings);
 
-    myLocalPropertyComboBox.setModel(new EnumComboBoxModel<TypeAnnotationRequirement>(TypeAnnotationRequirement.class));
-    myPublicPropertyComboBox.setModel(new EnumComboBoxModel<TypeAnnotationRequirement>(TypeAnnotationRequirement.class));
-    myProtectedPropertyComboBox.setModel(new EnumComboBoxModel<TypeAnnotationRequirement>(TypeAnnotationRequirement.class));
-    myPrivatePropertyComboBox.setModel(new EnumComboBoxModel<TypeAnnotationRequirement>(TypeAnnotationRequirement.class));
-    myOverridingPropertyComboBox.setModel(new EnumComboBoxModel<TypeAnnotationPolicy>(TypeAnnotationPolicy.class));
-    mySimplePropertyComboBox.setModel(new EnumComboBoxModel<TypeAnnotationPolicy>(TypeAnnotationPolicy.class));
+    setModel(myPublicPropertyComboBox, TypeAnnotationRequirement.class);
+    setModel(myProtectedPropertyComboBox, TypeAnnotationRequirement.class);
+    setModel(myPrivatePropertyComboBox, TypeAnnotationRequirement.class);
+    setModel(myLocalPropertyComboBox, TypeAnnotationRequirement.class);
+    setModel(myImplicitPropertyComboBox, TypeAnnotationRequirement.class);
+    setModel(myOverridingPropertyComboBox, TypeAnnotationPolicy.class);
+    setModel(mySimplePropertyComboBox, TypeAnnotationPolicy.class);
 
-    myLocalMethodComboBox.setModel(new EnumComboBoxModel<TypeAnnotationRequirement>(TypeAnnotationRequirement.class));
-    myPublicMethodComboBox.setModel(new EnumComboBoxModel<TypeAnnotationRequirement>(TypeAnnotationRequirement.class));
-    myProtectedMethodComboBox.setModel(new EnumComboBoxModel<TypeAnnotationRequirement>(TypeAnnotationRequirement.class));
-    myPrivateMethodComboBox.setModel(new EnumComboBoxModel<TypeAnnotationRequirement>(TypeAnnotationRequirement.class));
-    myOverridingMethodComboBox.setModel(new EnumComboBoxModel<TypeAnnotationPolicy>(TypeAnnotationPolicy.class));
-    mySimpleMethodComboBox.setModel(new EnumComboBoxModel<TypeAnnotationPolicy>(TypeAnnotationPolicy.class));
+    setModel(myPublicMethodComboBox, TypeAnnotationRequirement.class);
+    setModel(myProtectedMethodComboBox, TypeAnnotationRequirement.class);
+    setModel(myPrivateMethodComboBox, TypeAnnotationRequirement.class);
+    setModel(myLocalMethodComboBox, TypeAnnotationRequirement.class);
+    setModel(myImplicitMethodComboBox, TypeAnnotationRequirement.class);
+    setModel(myOverridingMethodComboBox, TypeAnnotationPolicy.class);
+    setModel(mySimpleMethodComboBox, TypeAnnotationPolicy.class);
 
 //    HyperlinkLabel link = new HyperlinkLabel("Configure type annotation inspection");
 //
@@ -111,17 +115,19 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
   public void apply(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
 
-    scalaSettings.LOCAL_PROPERTY_TYPE_ANNOTATION = myLocalPropertyComboBox.getSelectedIndex();
     scalaSettings.PUBLIC_PROPERTY_TYPE_ANNOTATION = myPublicPropertyComboBox.getSelectedIndex();
     scalaSettings.PROTECTED_PROPERTY_TYPE_ANNOTATION = myProtectedPropertyComboBox.getSelectedIndex();
     scalaSettings.PRIVATE_PROPERTY_TYPE_ANNOTATION = myPrivatePropertyComboBox.getSelectedIndex();
+    scalaSettings.LOCAL_PROPERTY_TYPE_ANNOTATION = myLocalPropertyComboBox.getSelectedIndex();
+    scalaSettings.IMPLICIT_PROPERTY_TYPE_ANNOTATION = myImplicitPropertyComboBox.getSelectedIndex();
     scalaSettings.OVERRIDING_PROPERTY_TYPE_ANNOTATION = myOverridingPropertyComboBox.getSelectedIndex();
     scalaSettings.SIMPLE_PROPERTY_TYPE_ANNOTATION = mySimplePropertyComboBox.getSelectedIndex();
 
-    scalaSettings.LOCAL_METHOD_TYPE_ANNOTATION = myLocalMethodComboBox.getSelectedIndex();
     scalaSettings.PUBLIC_METHOD_TYPE_ANNOTATION = myPublicMethodComboBox.getSelectedIndex();
     scalaSettings.PROTECTED_METHOD_TYPE_ANNOTATION = myProtectedMethodComboBox.getSelectedIndex();
     scalaSettings.PRIVATE_METHOD_TYPE_ANNOTATION = myPrivateMethodComboBox.getSelectedIndex();
+    scalaSettings.LOCAL_METHOD_TYPE_ANNOTATION = myLocalMethodComboBox.getSelectedIndex();
+    scalaSettings.IMPLICIT_METHOD_TYPE_ANNOTATION = myImplicitMethodComboBox.getSelectedIndex();
     scalaSettings.OVERRIDING_METHOD_TYPE_ANNOTATION = myOverridingMethodComboBox.getSelectedIndex();
     scalaSettings.SIMPLE_METHOD_TYPE_ANNOTATION = mySimpleMethodComboBox.getSelectedIndex();
   }
@@ -130,18 +136,21 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
   public boolean isModified(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
 
-    return (scalaSettings.LOCAL_PROPERTY_TYPE_ANNOTATION != myLocalPropertyComboBox.getSelectedIndex() ||
-        scalaSettings.PUBLIC_PROPERTY_TYPE_ANNOTATION != myPublicPropertyComboBox.getSelectedIndex() ||
-        scalaSettings.PROTECTED_PROPERTY_TYPE_ANNOTATION != myProtectedPropertyComboBox.getSelectedIndex() ||
-        scalaSettings.PRIVATE_PROPERTY_TYPE_ANNOTATION != myPrivatePropertyComboBox.getSelectedIndex() ||
-        scalaSettings.OVERRIDING_PROPERTY_TYPE_ANNOTATION != myOverridingPropertyComboBox.getSelectedIndex() ||
-        scalaSettings.SIMPLE_PROPERTY_TYPE_ANNOTATION != mySimplePropertyComboBox.getSelectedIndex() ||
-        scalaSettings.LOCAL_METHOD_TYPE_ANNOTATION != myLocalMethodComboBox.getSelectedIndex() ||
-        scalaSettings.PUBLIC_METHOD_TYPE_ANNOTATION != myPublicMethodComboBox.getSelectedIndex() ||
-        scalaSettings.PROTECTED_METHOD_TYPE_ANNOTATION != myProtectedMethodComboBox.getSelectedIndex() ||
-        scalaSettings.PRIVATE_METHOD_TYPE_ANNOTATION != myPrivateMethodComboBox.getSelectedIndex() ||
-        scalaSettings.OVERRIDING_METHOD_TYPE_ANNOTATION != myOverridingMethodComboBox.getSelectedIndex() ||
-        scalaSettings.SIMPLE_METHOD_TYPE_ANNOTATION != mySimpleMethodComboBox.getSelectedIndex());
+    return (scalaSettings.PUBLIC_PROPERTY_TYPE_ANNOTATION != myPublicPropertyComboBox.getSelectedIndex() ||
+            scalaSettings.PROTECTED_PROPERTY_TYPE_ANNOTATION != myProtectedPropertyComboBox.getSelectedIndex() ||
+            scalaSettings.PRIVATE_PROPERTY_TYPE_ANNOTATION != myPrivatePropertyComboBox.getSelectedIndex() ||
+            scalaSettings.LOCAL_PROPERTY_TYPE_ANNOTATION != myLocalPropertyComboBox.getSelectedIndex() ||
+            scalaSettings.IMPLICIT_PROPERTY_TYPE_ANNOTATION != myImplicitPropertyComboBox.getSelectedIndex() ||
+            scalaSettings.OVERRIDING_PROPERTY_TYPE_ANNOTATION != myOverridingPropertyComboBox.getSelectedIndex() ||
+            scalaSettings.SIMPLE_PROPERTY_TYPE_ANNOTATION != mySimplePropertyComboBox.getSelectedIndex() ||
+            scalaSettings.PUBLIC_METHOD_TYPE_ANNOTATION != myPublicMethodComboBox.getSelectedIndex() ||
+            scalaSettings.PROTECTED_METHOD_TYPE_ANNOTATION != myProtectedMethodComboBox.getSelectedIndex() ||
+            scalaSettings.PRIVATE_METHOD_TYPE_ANNOTATION != myPrivateMethodComboBox.getSelectedIndex() ||
+            scalaSettings.LOCAL_METHOD_TYPE_ANNOTATION != myLocalMethodComboBox.getSelectedIndex() ||
+            scalaSettings.IMPLICIT_METHOD_TYPE_ANNOTATION != myImplicitMethodComboBox.getSelectedIndex() ||
+            scalaSettings.OVERRIDING_METHOD_TYPE_ANNOTATION != myOverridingMethodComboBox.getSelectedIndex() ||
+            scalaSettings.SIMPLE_METHOD_TYPE_ANNOTATION != mySimpleMethodComboBox.getSelectedIndex()
+    );
   }
 
   @Nullable
@@ -154,19 +163,25 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
   protected void resetImpl(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
 
-    myLocalPropertyComboBox.setSelectedIndex(scalaSettings.LOCAL_PROPERTY_TYPE_ANNOTATION);
     myPublicPropertyComboBox.setSelectedIndex(scalaSettings.PUBLIC_PROPERTY_TYPE_ANNOTATION);
     myProtectedPropertyComboBox.setSelectedIndex(scalaSettings.PROTECTED_PROPERTY_TYPE_ANNOTATION);
     myPrivatePropertyComboBox.setSelectedIndex(scalaSettings.PRIVATE_PROPERTY_TYPE_ANNOTATION);
+    myLocalPropertyComboBox.setSelectedIndex(scalaSettings.LOCAL_PROPERTY_TYPE_ANNOTATION);
+    myImplicitPropertyComboBox.setSelectedIndex(scalaSettings.IMPLICIT_PROPERTY_TYPE_ANNOTATION);
     myOverridingPropertyComboBox.setSelectedIndex(scalaSettings.OVERRIDING_PROPERTY_TYPE_ANNOTATION);
     mySimplePropertyComboBox.setSelectedIndex(scalaSettings.SIMPLE_PROPERTY_TYPE_ANNOTATION);
 
-    myLocalMethodComboBox.setSelectedIndex(scalaSettings.LOCAL_METHOD_TYPE_ANNOTATION);
     myPublicMethodComboBox.setSelectedIndex(scalaSettings.PUBLIC_METHOD_TYPE_ANNOTATION);
     myProtectedMethodComboBox.setSelectedIndex(scalaSettings.PROTECTED_METHOD_TYPE_ANNOTATION);
     myPrivateMethodComboBox.setSelectedIndex(scalaSettings.PRIVATE_METHOD_TYPE_ANNOTATION);
+    myLocalMethodComboBox.setSelectedIndex(scalaSettings.LOCAL_METHOD_TYPE_ANNOTATION);
+    myImplicitMethodComboBox.setSelectedIndex(scalaSettings.IMPLICIT_METHOD_TYPE_ANNOTATION);
     myOverridingMethodComboBox.setSelectedIndex(scalaSettings.OVERRIDING_METHOD_TYPE_ANNOTATION);
     mySimpleMethodComboBox.setSelectedIndex(scalaSettings.SIMPLE_METHOD_TYPE_ANNOTATION);
+  }
+
+  private static <E extends Enum<E>> void setModel(JComboBox comboBox, Class<E> clazz) {
+    comboBox.setModel(new EnumComboBoxModel<E>(clazz));
   }
 
   {
@@ -185,11 +200,11 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
    */
   private void $$$setupUI$$$() {
     contentPanel = new JPanel();
-    contentPanel.setLayout(new GridLayoutManager(17, 4, new Insets(0, 10, 0, 0), -1, -1));
+    contentPanel.setLayout(new GridLayoutManager(21, 4, new Insets(0, 10, 0, 0), -1, -1));
     final Spacer spacer1 = new Spacer();
-    contentPanel.add(spacer1, new GridConstraints(16, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    contentPanel.add(spacer1, new GridConstraints(20, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     final Spacer spacer2 = new Spacer();
-    contentPanel.add(spacer2, new GridConstraints(16, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+    contentPanel.add(spacer2, new GridConstraints(20, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
     final JLabel label1 = new JLabel();
     label1.setText("Value");
     contentPanel.add(label1, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -222,17 +237,17 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
     contentPanel.add(myPrivateMethodComboBox, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final TitledSeparator titledSeparator2 = new TitledSeparator();
     titledSeparator2.setText("Refinements");
-    contentPanel.add(titledSeparator2, new GridConstraints(10, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    contentPanel.add(titledSeparator2, new GridConstraints(14, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label6 = new JLabel();
     label6.setText("Value");
-    contentPanel.add(label6, new GridConstraints(11, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(label6, new GridConstraints(15, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JLabel label7 = new JLabel();
     label7.setText("Method");
-    contentPanel.add(label7, new GridConstraints(11, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(label7, new GridConstraints(15, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myOverridingPropertyComboBox = new JComboBox();
-    contentPanel.add(myOverridingPropertyComboBox, new GridConstraints(12, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(myOverridingPropertyComboBox, new GridConstraints(16, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myOverridingMethodComboBox = new JComboBox();
-    contentPanel.add(myOverridingMethodComboBox, new GridConstraints(12, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(myOverridingMethodComboBox, new GridConstraints(16, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final TitledSeparator titledSeparator3 = new TitledSeparator();
     titledSeparator3.setText("Local");
     contentPanel.add(titledSeparator3, new GridConstraints(6, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -248,20 +263,20 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
     contentPanel.add(myLocalMethodComboBox, new GridConstraints(8, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JLabel label10 = new JLabel();
     label10.setText("Overriding:");
-    contentPanel.add(label10, new GridConstraints(12, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(label10, new GridConstraints(16, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JLabel label11 = new JLabel();
     label11.setText("Local:");
     contentPanel.add(label11, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JLabel label12 = new JLabel();
     label12.setText("Simple:");
-    contentPanel.add(label12, new GridConstraints(13, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(label12, new GridConstraints(17, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     mySimplePropertyComboBox = new JComboBox();
-    contentPanel.add(mySimplePropertyComboBox, new GridConstraints(13, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(mySimplePropertyComboBox, new GridConstraints(17, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     mySimpleMethodComboBox = new JComboBox();
-    contentPanel.add(mySimpleMethodComboBox, new GridConstraints(13, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(mySimpleMethodComboBox, new GridConstraints(17, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JLabel label13 = new JLabel();
     label13.setText("<html><body>\n<br>\n<sup>*</sup>Add - specify type explicity in refactorings.<br>\n<sup>*</sup>Check - display a warning when explicit type annotation is required.<br>\n<br>\n</body></html>");
-    contentPanel.add(label13, new GridConstraints(14, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPanel.add(label13, new GridConstraints(18, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer3 = new Spacer();
     contentPanel.add(spacer3, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_NONE, 1, GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 10), null, new Dimension(-1, 10), 0, false));
     final Spacer spacer4 = new Spacer();
@@ -269,7 +284,25 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
     myLinkContainer = new JPanel();
     myLinkContainer.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
     myLinkContainer.setVisible(false);
-    contentPanel.add(myLinkContainer, new GridConstraints(15, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    contentPanel.add(myLinkContainer, new GridConstraints(19, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    final TitledSeparator titledSeparator4 = new TitledSeparator();
+    titledSeparator4.setText("Implicit");
+    contentPanel.add(titledSeparator4, new GridConstraints(10, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    final JLabel label14 = new JLabel();
+    label14.setText("Value");
+    contentPanel.add(label14, new GridConstraints(11, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label15 = new JLabel();
+    label15.setText("Method");
+    contentPanel.add(label15, new GridConstraints(11, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label16 = new JLabel();
+    label16.setText("Implicit:");
+    contentPanel.add(label16, new GridConstraints(12, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myImplicitPropertyComboBox = new JComboBox();
+    contentPanel.add(myImplicitPropertyComboBox, new GridConstraints(12, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myImplicitMethodComboBox = new JComboBox();
+    contentPanel.add(myImplicitMethodComboBox, new GridConstraints(12, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final Spacer spacer5 = new Spacer();
+    contentPanel.add(spacer5, new GridConstraints(13, 0, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_NONE, 1, GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 10), null, new Dimension(-1, 10), 0, false));
   }
 
   /**
