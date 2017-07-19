@@ -46,12 +46,20 @@ public class MetaAnnotationRunner {
         }
     }
 
+    @SuppressWarnings("unused")
     public static String runString(Class<?> clazz, String[] args) throws Exception {
         Map<String, Dialect> standards = Dialect$.MODULE$.standards();
         Object[] trees = new Tree[args.length];
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
-            Parsed<Stat> parsed = Parse$.MODULE$.parseStat().apply(Input$.MODULE$.stringToInput().apply(arg), standards.get("Scala212").get());
+            Parsed<? extends Tree> parsed;
+            // first and last arguments are annotation constructor and annotation holder which are terms
+            // everything in between is considered a type argument and must be parsed as such
+            if (i > 0 && i < args.length - 1) {
+                parsed = Parse$.MODULE$.parseType().apply(Input$.MODULE$.stringToInput().apply(arg), standards.get("Scala212").get());
+            } else {
+                parsed = Parse$.MODULE$.parseStat().apply(Input$.MODULE$.stringToInput().apply(arg), standards.get("Scala212").get());
+            }
             trees[i] = parsed.get();
         }
         Object result = invokeAnnotation(clazz, trees);
