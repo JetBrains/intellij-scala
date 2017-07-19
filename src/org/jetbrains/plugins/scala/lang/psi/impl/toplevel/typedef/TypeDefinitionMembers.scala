@@ -131,6 +131,11 @@ object TypeDefinitionMembers {
         }
       }
 
+      for (method <- template.syntheticMethodsWithOverride if method.getParameterList.getParametersCount == 0) {
+        val sig = new PhysicalSignature(method, subst)
+        addSignature(sig)
+      }
+
       for (member <- template.members) {
         member match {
           case _var: ScVariable if nonBridge(place, _var) =>
@@ -184,11 +189,6 @@ object TypeDefinitionMembers {
             addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
           case _ =>
         }
-      }
-
-      for (method <- template.syntheticMethodsWithOverride if method.getParameterList.getParametersCount == 0) {
-        val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
       }
 
       for (td <- template.syntheticTypeDefinitions) {
@@ -372,6 +372,11 @@ object TypeDefinitionMembers {
         }
       }
 
+      for (method <- template.syntheticMethodsWithOverride) {
+        val sig = new PhysicalSignature(method, subst)
+        addSignature(sig)
+      }
+
       for (member <- template.members) {
         member match {
           case _var: ScVariable if nonBridge(place, _var) =>
@@ -453,11 +458,6 @@ object TypeDefinitionMembers {
             }
           case _ =>
         }
-      }
-
-      for (method <- template.syntheticMethodsWithOverride) {
-        val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
       }
 
       for (td <- template.syntheticTypeDefinitions) {
