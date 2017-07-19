@@ -125,6 +125,8 @@ object MetaExpansionsManager {
 
   private val LOG = Logger.getInstance(getClass)
 
+  class MetaWrappedException(val target: Throwable) extends Exception
+
   def getInstance(project: Project): MetaExpansionsManager = project.getComponent(classOf[MetaExpansionsManager]).asInstanceOf[MetaExpansionsManager]
 
   def getCompiledMetaAnnotClass(annot: ScAnnotation): Option[Class[_]] = getInstance(annot.getProject).getCompiledMetaAnnotClass(annot)
@@ -180,7 +182,8 @@ object MetaExpansionsManager {
         case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
         case sm: ScalaMetaException       => Left(s"Semantic error: ${sm.getMessage}")
         case so: StackOverflowError       => Left(s"Stack overflow during expansion ${holder.getText}")
-        case e: Exception                 => Left(e.toString)
+        case mw: MetaWrappedException     => Left(mw.target.toString)
+        case e: Exception                 => Left(e.getMessage)
       }
     }
 
@@ -242,7 +245,7 @@ object MetaExpansionsManager {
     try {
       method.invoke(inst, args: _*).asInstanceOf[Tree]
     } catch {
-      case e: InvocationTargetException => throw e.getTargetException
+      case e: InvocationTargetException => throw new MetaWrappedException(e.getTargetException)
     }
   }
 }
