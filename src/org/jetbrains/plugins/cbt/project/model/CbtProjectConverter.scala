@@ -116,13 +116,12 @@ class CbtProjectConverter(project: Project, settings: CbtExecutionSettings) {
     new DataNode(ProjectKeys.MODULE_DEPENDENCY, dependencyData, parent)
   }
 
-  private def isExtraModule(module: Module): Boolean =
-    settings.extraModules.contains(module.root.getAbsolutePath)
-
   private[model] def createModuleData(module: Module) = {
-    val moduleType =
-      if (isExtraModule(module)) CbtExtraModuleType.ID
-      else ModuleTypeId.JAVA_MODULE
+    val moduleType = module.moduleType match {
+      case ModuleType.Default => ModuleTypeId.JAVA_MODULE
+      case ModuleType.Extra => CbtExtraModuleType.ID
+      case _ => ModuleTypeId.JAVA_MODULE
+    }
     val moduleData = new ModuleData(module.name,
       CbtProjectSystem.Id,
       moduleType,

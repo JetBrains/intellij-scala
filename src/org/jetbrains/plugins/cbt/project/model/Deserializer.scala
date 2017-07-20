@@ -28,6 +28,7 @@ object Deserializer {
     Module(name = (node \ "@name").value,
       root = new File((node \ "@root").value),
       scalaVersion = (node \ "@scalaVersion").value,
+      moduleType = ModuleType((node \ "@type").value),
       sourceDirs = (node \ "sourceDirs" \ "dir").map(_.value.toFile),
       target = (node \ "@target").value.toFile,
       binaryDependencies = (node \ "dependencies" \ "binaryDependency").map(deserializeBinaryDependency),
@@ -44,7 +45,7 @@ object Deserializer {
 
   private def deserializeLibrary(node: Node): Library = {
     val jars = (node \ "jar")
-      .map(j => LibraryJar(j.value.toFile, JarType.withName((j \ "@type").value)))
+      .map(j => LibraryJar(j.value.toFile, JarType((j \ "@type").value)))
     Library(name = (node \ "@name").value, jars = jars)
   }
 
