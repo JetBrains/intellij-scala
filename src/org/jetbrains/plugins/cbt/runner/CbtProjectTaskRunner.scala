@@ -46,16 +46,25 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
                    callback: ProjectTaskNotification,
                    tasks: util.Collection[_ <: ProjectTask]): Unit = {
     FileDocumentManager.getInstance().saveAllDocuments()
-    tasks.asScala
+    val moduleBuildTasks = tasks.asScala
       .collect {
         case task: ModuleBuildTask => task
-        case task: ExecuteRunConfigurationTask => task
       }
-      .headOption
-      .foreach(handleTask(project, callback))
+      .toList
+
+    val taskOpt = if (moduleBuildTasks.length == 1)  // If build single module task selected
+      moduleBuildTasks.headOption
+    else if (moduleBuildTasks.length > 1) // build the whole project selected
+      moduleBuildTasks
+        .find(_.getModule.getModuleFile.getParent.getCanonicalPath == project.getBaseDir.getCanonicalPath)
+    else None
+    taskOpt.foreach { task =>
+      val workingDir = task.getModule.getModuleFile.getParent.getPath
+      buildTask(project, workingDir, callback, task)
+    }
   }
 
-  private def handleTask(project: Project, callback: ProjectTaskNotification)(task: ProjectTask) = {
+  private def buildTask(project: Project, workingDir: String, callback: ProjectTaskNotification, task: ModuleBuildTask) = {
     val taskCallback =
       Option(callback)
         .map { f =>
@@ -69,17 +78,17 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
           }
         }
 
-    val environment = createExecutionEnvironment(project, task, taskCallback)
+    val environment = createExecutionEnvironment(project, workingDir, task, taskCallback)
     ExecutionManager.getInstance(project).restartRunProfile(environment)
   }
 
-  private def createExecutionEnvironment(project: Project, projectTask: ProjectTask, callback: Option[() => Unit]) = {
+  private def createExecutionEnvironment(project: Project,  workingDir: String, projectTask: ProjectTask, callback: Option[() => Unit]) = {
     val configuration = projectTask match {
       case task: ModuleBuildTask =>
-        new CbtBuildConfigurationFactory("compile", CbtConfigurationType.getInstance, callback = callback)
+        new CbtBuildConfigurationFactory("compile", workingDir, CbtConfigurationType.getInstance, callback = callback)
           .createTemplateConfiguration(project)
       case task: ExecuteRunConfigurationTask =>
-        new CbtBuildConfigurationFactory("run", CbtConfigurationType.getInstance, callback = callback)
+        new CbtBuildConfigurationFactory("run", workingDir, CbtConfigurationType.getInstance, callback = callback)
           .createTemplateConfiguration(project)
     }
     val runner = projectTask match {
@@ -103,7 +112,7 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
     if (debug)
       new ExecutionEnvironment(executor, new GenericDebuggerRunner, task.getSettings, project)
     else
-      createExecutionEnvironment(project, task, None)
+      createExecutionEnvironment(project, project.getBaseDir.getPath, task, None)
   }
 }
 
