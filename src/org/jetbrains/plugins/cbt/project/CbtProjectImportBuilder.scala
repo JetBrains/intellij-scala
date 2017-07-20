@@ -8,6 +8,7 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalProjectImportBuilder
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.cbt.CBT
 import org.jetbrains.sbt.Sbt
 
 class CbtProjectImportBuilder(projectDataManager: ProjectDataManager)
@@ -16,7 +17,7 @@ class CbtProjectImportBuilder(projectDataManager: ProjectDataManager)
 
   def getName = "CBT"
 
-  def getIcon = Sbt.Icon
+  def getIcon = CBT.Icon
 
   def doPrepare(context: WizardContext) {}
 

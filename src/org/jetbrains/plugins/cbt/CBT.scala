@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
 import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.sbt.RichVirtualFile
 
 import scala.sys.process.{Process, ProcessLogger}
@@ -17,6 +18,7 @@ import scala.xml.{Elem, XML}
 
 
 object CBT {
+  val Icon = Icons.CBT
 
   def buildInfoXml(root: File, settings: CbtExecutionSettings, projectOpt: Option[Project],
                    taskListener: Option[(ExternalSystemTaskId, ExternalSystemTaskNotificationListener)]): Try[Elem] = {

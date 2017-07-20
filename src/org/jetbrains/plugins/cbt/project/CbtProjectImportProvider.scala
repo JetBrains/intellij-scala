@@ -13,7 +13,7 @@ class CbtProjectImportProvider(builder: CbtProjectImportBuilder)
 
   override def getName = "CBT"
 
-  override def getIcon = Sbt.Icon
+  override def getIcon = CBT.Icon
 
   override def canImport(entry: VirtualFile, project: Project): Boolean =
     CBT.isCbtModuleDir(entry)
