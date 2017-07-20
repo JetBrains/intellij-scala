@@ -9,7 +9,6 @@ import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalProjectImportBuilder
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.CBT
-import org.jetbrains.sbt.Sbt
 
 class CbtProjectImportBuilder(projectDataManager: ProjectDataManager)
   extends AbstractExternalProjectImportBuilder[CbtImportControl](projectDataManager,

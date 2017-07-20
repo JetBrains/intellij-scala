@@ -11,11 +11,11 @@ class CbtExtraModuleType extends ModuleType[CbtModuleBuilder](CbtExtraModuleType
 
   override def getDescription = CbtExtraModuleType.NAME
 
-  override def getNodeIcon(isOpened: Boolean) = Icons.ADD_CLAUSE
+  override def getNodeIcon(isOpened: Boolean) = Icons.CBT_EXTRA_MODULE
 }
 
 object CbtExtraModuleType {
   val ID: String = "CBT_EXTRA_MODULE"
-  val NAME: String = "CBT extra Module"
+  val NAME: String = "CBT Extra Module"
 }
 

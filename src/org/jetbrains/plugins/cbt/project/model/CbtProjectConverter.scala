@@ -9,7 +9,7 @@ import com.intellij.openapi.module.ModuleTypeId
 import org.jetbrains.plugins.cbt._
 import org.jetbrains.plugins.cbt.project.model.CbtProjectInfo._
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
-import org.jetbrains.plugins.cbt.project.{CbtExtraModuleType, CbtProjectSystem}
+import org.jetbrains.plugins.cbt.project.{CbtExtraModuleType, CbtProjectSystem, CbtTestModuleType}
 import org.jetbrains.plugins.cbt.structure.{CbtModuleExtData, CbtProjectData}
 import org.jetbrains.plugins.scala.project.Version
 
@@ -120,7 +120,8 @@ class CbtProjectConverter(project: Project, settings: CbtExecutionSettings) {
     val moduleType = module.moduleType match {
       case ModuleType.Default => ModuleTypeId.JAVA_MODULE
       case ModuleType.Extra => CbtExtraModuleType.ID
-      case _ => ModuleTypeId.JAVA_MODULE
+      case ModuleType.Test => CbtTestModuleType.ID
+      case ModuleType.Build => ModuleTypeId.JAVA_MODULE
     }
     val moduleData = new ModuleData(module.name,
       CbtProjectSystem.Id,
