@@ -2,7 +2,7 @@ package org.jetbrains.plugins.cbt.project.template
 
 import java.awt.FlowLayout
 import java.io.File
-import javax.swing.{JCheckBox, JPanel}
+import javax.swing.{Box, JCheckBox, JPanel}
 
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
@@ -64,6 +64,10 @@ class CbtModuleBuilder
       _.setSelected(selections.useCbtForInternalTasks)
     )
 
+    val useDirectCheckBox = applyTo(new JCheckBox("Use CBT direct mode (use that if have some problems with nailgun)"))(
+      _.setSelected(selections.useDirect)
+    )
+
     scalaVersionComboBox.addActionListenerEx {
       selections.scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
     }
@@ -72,12 +76,17 @@ class CbtModuleBuilder
       selections.useCbtForInternalTasks = useCbtFroInternalTasksCheckBox.isSelected
     }
 
+    useDirectCheckBox.addActionListenerEx {
+      selections.useDirect = useDirectCheckBox.isSelected
+    }
+
     val scalaPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
       _.add(scalaVersionComboBox)
     )
 
     val cbtSettingsPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
-      _.add(useCbtFroInternalTasksCheckBox)
+      _.add(useCbtFroInternalTasksCheckBox),
+      _.add(useDirectCheckBox)
     )
 
     val step = sdkSettingsStep(settingsStep)
@@ -112,6 +121,7 @@ class CbtModuleBuilder
     val root = new File(getModuleFileDirectory)
     getExternalProjectSettings.isCbt = selections.isCbt
     getExternalProjectSettings.useCbtForInternalTasks = selections.useCbtForInternalTasks
+    getExternalProjectSettings.useDirect = selections.useDirect
 
     if (root.exists()) {
       generateTemplate(root)
@@ -127,6 +137,7 @@ class CbtModuleBuilder
 
   private class Selections(var scalaVersion: String = null,
                            var isCbt: Boolean = false,
-                           var useCbtForInternalTasks: Boolean = true)
+                           var useCbtForInternalTasks: Boolean = true,
+                           var useDirect: Boolean = false)
 
 }

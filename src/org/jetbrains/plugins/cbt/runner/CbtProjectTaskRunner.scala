@@ -83,14 +83,16 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
   }
 
   private def createExecutionEnvironment(project: Project,  workingDir: String, projectTask: ProjectTask, callback: Option[() => Unit]) = {
+
+    val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
     val configuration = projectTask match {
       case task: ModuleBuildTask =>
-        new CbtBuildConfigurationFactory("compile", workingDir, CbtConfigurationType.getInstance, callback = callback)
+        new CbtBuildConfigurationFactory("compile", projectSettings.useDirect, workingDir, CbtConfigurationType.getInstance, callback = callback)
           .createTemplateConfiguration(project)
       case task: ExecuteRunConfigurationTask =>
         val mainClass = task.getRunProfile.asInstanceOf[ApplicationConfiguration].getMainClass.getQualifiedName
         val taskName = s"runMain $mainClass"
-        new CbtBuildConfigurationFactory(taskName, workingDir, CbtConfigurationType.getInstance, callback = callback)
+        new CbtBuildConfigurationFactory(taskName, projectSettings.useDirect, workingDir, CbtConfigurationType.getInstance, callback = callback)
           .createTemplateConfiguration(project)
     }
     val runner = projectTask match {

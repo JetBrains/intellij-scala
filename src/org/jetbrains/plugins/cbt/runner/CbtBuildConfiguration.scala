@@ -14,6 +14,7 @@ import scala.collection.JavaConversions._
 
 
 class CbtBuildConfiguration(val task: String,
+                            val useDirect: Boolean,
                             val workingDir: String,
                             val project: Project,
                             val callback: Option[() => Unit],
@@ -31,5 +32,5 @@ class CbtBuildConfiguration(val task: String,
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = null
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState =
-    new CbtComandLineState(task, workingDir, callback, environment)
+    new CbtComandLineState(task, useDirect, workingDir, callback, environment)
 }

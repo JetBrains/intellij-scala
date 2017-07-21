@@ -4,10 +4,11 @@ import com.intellij.execution.configurations.{ConfigurationFactory, Configuratio
 import com.intellij.openapi.project.Project
 
 class CbtBuildConfigurationFactory(task: String,
+                                   useDirect: Boolean,
                                    workingDir: String,
                                    typez: ConfigurationType,
                                    callback: Option[() => Unit] = None) extends ConfigurationFactory(typez) {
   override def createTemplateConfiguration(project: Project): RunConfiguration =
-    new CbtBuildConfiguration(task, workingDir, project, callback, this)
+    new CbtBuildConfiguration(task, useDirect, workingDir, project, callback, this)
 }
 

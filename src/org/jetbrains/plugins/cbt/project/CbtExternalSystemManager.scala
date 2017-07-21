@@ -37,6 +37,7 @@ class CbtExternalSystemManager
         new CbtExecutionSettings(path,
           projectSettings.isCbt,
           projectSettings.useCbtForInternalTasks,
+          projectSettings.useDirect,
           projectSettings.extraModules.asScala)
       }
     }

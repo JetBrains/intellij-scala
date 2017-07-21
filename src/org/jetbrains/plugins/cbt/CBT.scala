@@ -28,11 +28,11 @@ object CBT {
       Seq("--extraModules", extraModulesStr, "--needCbtLibs", needCbtLibsStr)
     }
 
-    val xml = runAction("buildInfoXml" +: buildParams, root, projectOpt, taskListener)
+    val xml = runAction("buildInfoXml" +: buildParams,settings.useDirect,root, projectOpt, taskListener)
     xml.map(XML.loadString)
   }
 
-  def runAction(action: Seq[String], root: File, projectOpt: Option[Project],
+  def runAction(action: Seq[String], useDirect: Boolean, root: File, projectOpt: Option[Project],
                 taskListener: Option[(ExternalSystemTaskId, ExternalSystemTaskNotificationListener)]): Try[String] = {
     projectOpt.foreach { project =>
       ExternalSystemNotificationManager.getInstance(project)
@@ -51,7 +51,8 @@ object CBT {
     val logger = ProcessLogger(
       outputHandler.parseLine(_, stderr = false),
       outputHandler.parseLine(_, stderr = true))
-    val exitCode = Process(Seq("cbt", "direct") ++ action, root) ! logger
+    val task = Seq("cbt") ++ (if (useDirect) Seq("direct") else Seq.empty) ++ action
+    val exitCode = Process(task, root) ! logger
     exitCode match {
       case 0 =>
         Success(outputHandler.stdOut)

@@ -17,6 +17,9 @@ class CbtProjectSettings extends ExternalProjectSettings {
   var useCbtForInternalTasks = true
 
   @BeanProperty
+  var useDirect: Boolean = false
+
+  @BeanProperty
   var extraModules: java.util.List[String] = new util.ArrayList[String]()
 
   override def clone(): CbtProjectSettings = {
@@ -25,6 +28,7 @@ class CbtProjectSettings extends ExternalProjectSettings {
     result.isCbt = isCbt
     result.extraModules = extraModules
     result.useCbtForInternalTasks = useCbtForInternalTasks
+    result.useDirect = useDirect
     result
   }
 }

@@ -12,6 +12,7 @@ import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 import scala.collection.JavaConverters._
 
 class CbtComandLineState(task: String,
+                         useDirect: Boolean,
                          workingDir: String,
                          callback: Option[() => Unit],
                          environment: ExecutionEnvironment)
@@ -19,7 +20,8 @@ class CbtComandLineState(task: String,
 
   override def startProcess(): ProcessHandler = {
     val factory = ProcessHandlerFactory.getInstance
-    val arguments = Seq("cbt", "direct") ++
+    val arguments = Seq("cbt") ++
+      (if (useDirect) Seq("direct") else Seq.empty) ++
       task.split(' ').map(_.trim).toSeq
     val commandLine = new GeneralCommandLine(arguments.asJava)
       .withWorkDirectory(workingDir)
