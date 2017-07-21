@@ -139,7 +139,7 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
     }
 
     val params = newParams.map(_.map(_.asInstanceOf[ScalaParameterInfo]))
-    val annotationNeeded = TypeAnnotationUtil.isTypeAnnotationNeededMethod(targetMethod, newVisibility)()
+    val annotationNeeded = TypeAnnotationUtil.isTypeAnnotationNeededMethod(targetMethod, newVisibility)()()
 
     val changeInfo =
       new ScalaChangeInfo(newVisibility, targetMethod.asInstanceOf[ScMethodLike], newName, maybeReturnType.getOrElse(Any), params,

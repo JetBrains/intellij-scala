@@ -13,7 +13,7 @@ import com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrar
 import com.intellij.ui.HyperlinkLabel
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOrRemoveStrategy
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaTabbedCodeStylePanel, TypeAnnotationPolicy, TypeAnnotationRequirement}
+import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaTabbedCodeStylePanel}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{getModule, inNameContext, isImplicit, superValsSignatures}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -36,62 +36,51 @@ object TypeAnnotationUtil {
   private val TraversableClassNames =
     Seq("Seq", "Array", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
 
-  private[this] def isRequired: Int =
-    TypeAnnotationRequirement.Required.ordinal
+  def isTypeAnnotationNeeded(requirement: Boolean,
+                             exludeSimple: Boolean)
+                            (isSimple: Boolean): Boolean = {
 
-  def isTypeAnnotationNeeded(requirement: Int,
-                             overridingPolicy: Int,
-                             simplePolicy: Int)
-                            (implicit pair: (Boolean, Boolean)): Boolean = {
-    val (isOverriding, isSimple) = pair
-    val typeAnnotationPolicy = TypeAnnotationPolicy.Optional.ordinal
-
-    requirement != TypeAnnotationRequirement.Optional.ordinal &&
-      (!isSimple || simplePolicy != typeAnnotationPolicy) &&
-      (!isOverriding || overridingPolicy != typeAnnotationPolicy)
+    requirement && !(exludeSimple && isSimple)
   }
 
   def isTypeAnnotationNeededProperty(visibility: Visibility)
-                                    (implicit settings: ScalaCodeStyleSettings,
-                                     pair: (Boolean, Boolean)): Boolean =
+                                    (settings: ScalaCodeStyleSettings,
+                                     isSimple: Boolean): Boolean =
     isTypeAnnotationNeeded(
-      visibility.forProperty,
-      TypeAnnotationRequirement.Required.ordinal(), // TODO remove
-      if (settings.TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS) TypeAnnotationPolicy.Optional.ordinal() else TypeAnnotationPolicy.Regular.ordinal()
-    )
+      visibility.forMember(settings),
+      settings.TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS
+    )(isSimple)
 
   def isTypeAnnotationNeededProperty(property: ScMember)
-                                    (implicit settings: ScalaCodeStyleSettings,
-                                     pair: (Boolean, Boolean)): Boolean =
+                                    (settings: ScalaCodeStyleSettings,
+                                     isSimple: Boolean): Boolean =
     Visibility(property) match {
       case Implicit if settings.TYPE_ANNOTATION_IMPLICIT_MODIFIER => true
-      case visibility => isTypeAnnotationNeededProperty(visibility)
+      case visibility => isTypeAnnotationNeededProperty(visibility)(settings, isSimple)
     }
 
   def isTypeAnnotationNeededProperty(element: PsiElement, visibilityString: String)
                                     (isLocal: Boolean = this.isLocal(element),
                                      isOverriding: Boolean = this.isOverriding(element),
                                      isSimple: Boolean = this.isSimple(element))
-                                    (implicit settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(element.getProject)): Boolean = {
-    implicit val pair = (isOverriding, isSimple)
-    isTypeAnnotationNeededProperty(Visibility(visibilityString, isLocal))
+                                    (settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(element.getProject)): Boolean = {
+    isTypeAnnotationNeededProperty(Visibility(visibilityString, isLocal))(settings, isSimple)
   }
 
   def isTypeAnnotationNeededMethod(visibility: Visibility)
-                                  (implicit settings: ScalaCodeStyleSettings,
-                                   pair: (Boolean, Boolean)): Boolean =
+                                  (settings: ScalaCodeStyleSettings,
+                                   isSimple: Boolean): Boolean =
     isTypeAnnotationNeeded(
-      visibility.forMethod,
-      TypeAnnotationRequirement.Required.ordinal(), // TODO remove
-      if (settings.TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS) TypeAnnotationPolicy.Optional.ordinal() else TypeAnnotationPolicy.Regular.ordinal()
-    )
+      visibility.forMember(settings),
+      settings.TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS
+    )(isSimple)
 
   def isTypeAnnotationNeededMethod(method: ScMember)
-                                  (implicit settings: ScalaCodeStyleSettings,
-                                   pair: (Boolean, Boolean)): Boolean =
+                                  (settings: ScalaCodeStyleSettings,
+                                   isSimple: Boolean): Boolean =
     Visibility(method) match {
       case Implicit if settings.TYPE_ANNOTATION_IMPLICIT_MODIFIER => true
-      case visibility => isTypeAnnotationNeededMethod(visibility)
+      case visibility => isTypeAnnotationNeededMethod(visibility)(settings, isSimple)
     }
 
 
@@ -99,22 +88,20 @@ object TypeAnnotationUtil {
                                   (isLocal: Boolean = this.isLocal(element),
                                    isOverriding: Boolean = this.isOverriding(element),
                                    isSimple: Boolean = this.isSimple(element))
-                                  (implicit settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(element.getProject)): Boolean = {
-    implicit val pair = (isOverriding, isSimple)
-    isTypeAnnotationNeededMethod(Visibility(visibilityString, isLocal))
+                                  (settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(element.getProject)): Boolean = {
+    isTypeAnnotationNeededMethod(Visibility(visibilityString, isLocal))(settings, isSimple)
   }
 
   def isTypeAnnotationNeeded(element: ScalaPsiElement): Boolean = {
-    implicit val settings = ScalaCodeStyleSettings.getInstance(element.getProject)
-    implicit val pair = (isOverriding(element), isSimple(element))
+    val settings = ScalaCodeStyleSettings.getInstance(element.getProject)
 
     element match {
       case value: ScPatternDefinition if value.isSimple => //not simple will contains more than one declaration
-        isTypeAnnotationNeededProperty(value)
+        isTypeAnnotationNeededProperty(value)(settings, isSimple(element))
       case variable: ScVariableDefinition if variable.isSimple =>
-        isTypeAnnotationNeededProperty(variable)
+        isTypeAnnotationNeededProperty(variable)(settings, isSimple(element))
       case method: ScFunctionDefinition if method.hasAssign && !method.isSecondaryConstructor =>
-        isTypeAnnotationNeededMethod(method)
+        isTypeAnnotationNeededMethod(method)(settings, isSimple(element))
       case _ => true
     }
   }
@@ -213,14 +200,7 @@ object TypeAnnotationUtil {
 
   // TODO refactor or remove
   sealed trait Visibility {
-
-    final def forProperty(implicit settings: ScalaCodeStyleSettings): Int =
-      if (forMember(settings)) TypeAnnotationRequirement.Required.ordinal() else TypeAnnotationRequirement.Optional.ordinal()
-
-    final def forMethod(implicit settings: ScalaCodeStyleSettings): Int =
-      if (forMember(settings)) TypeAnnotationRequirement.Required.ordinal() else TypeAnnotationRequirement.Optional.ordinal()
-
-    protected def forMember(implicit settings: ScalaCodeStyleSettings): Boolean
+    def forMember(settings: ScalaCodeStyleSettings): Boolean
   }
 
   object Visibility {
@@ -282,31 +262,31 @@ object TypeAnnotationUtil {
   // TODO refactor or remove
   private case object Implicit extends Visibility {
 
-    override def forMember(implicit settings: ScalaCodeStyleSettings): Boolean =
+    override def forMember(settings: ScalaCodeStyleSettings): Boolean =
       settings.TYPE_ANNOTATION_IMPLICIT_MODIFIER
   }
 
   private case object Local extends Visibility {
 
-    override def forMember(implicit settings: ScalaCodeStyleSettings): Boolean =
+    override def forMember(settings: ScalaCodeStyleSettings): Boolean =
       settings.TYPE_ANNOTATION_LOCAL_DEFINITION
   }
 
   case object Private extends Visibility {
 
-    override def forMember(implicit settings: ScalaCodeStyleSettings): Boolean =
+    override def forMember(settings: ScalaCodeStyleSettings): Boolean =
       settings.TYPE_ANNOTATION_PRIVATE_MEMBER
   }
 
   case object Protected extends Visibility {
 
-    override def forMember(implicit settings: ScalaCodeStyleSettings): Boolean =
+    override def forMember(settings: ScalaCodeStyleSettings): Boolean =
       settings.TYPE_ANNOTATION_PROTECTED_MEMBER
   }
 
   case object Public extends Visibility {
 
-    override def forMember(implicit settings: ScalaCodeStyleSettings): Boolean =
+    override def forMember(settings: ScalaCodeStyleSettings): Boolean =
       settings.TYPE_ANNOTATION_PUBLIC_MEMBER
   }
 

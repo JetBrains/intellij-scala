@@ -201,7 +201,7 @@ class ScalaChangeSignatureDialog(val project: Project,
   }
 
   private def needsTypeAnnotation(element: PsiElement, visibilityString: String): Boolean =
-    isTypeAnnotationNeededMethod(element, visibilityString)()
+    isTypeAnnotationNeededMethod(element, visibilityString)()()
 
   override def calculateSignature(): String = {
     def nameAndType(item: ScalaParameterTableModelItem) = {

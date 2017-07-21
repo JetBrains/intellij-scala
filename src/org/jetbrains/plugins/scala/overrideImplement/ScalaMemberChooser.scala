@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.ui.{HyperlinkLabel, NonFocusableCheckBox}
 import com.intellij.util.ui.ThreeStateCheckBox
 import com.intellij.util.ui.ThreeStateCheckBox.State
-import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, TypeAnnotationPolicy, TypeAnnotationRequirement}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -132,33 +132,29 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
   }
 
   private def typeAnnotationNeeded(element: PsiElement): Boolean = {
-    val isOverriding = !element.isInstanceOf[ScTypedDeclaration]
     val simple = isSimple(element)
 
-    implicit val pair = (isOverriding, simple)
-
     def default = isTypeAnnotationNeeded(
-      TypeAnnotationRequirement.Preferred.ordinal(),
-      TypeAnnotationPolicy.Regular.ordinal,
-      TypeAnnotationPolicy.Optional.ordinal
-    )
+      requirement = true,
+      exludeSimple = true
+    )(simple)
 
-    implicit val settings = ScalaCodeStyleSettings.getInstance(element.getProject)
+    val settings = ScalaCodeStyleSettings.getInstance(element.getProject)
 
     element match {
       case _: ScPatternDefinition | _: ScVariableDefinition |
            _: ScVariableDeclaration | _: ScValueDeclaration =>
-        isTypeAnnotationNeededProperty(element.asInstanceOf[ScMember])
+        isTypeAnnotationNeededProperty(element.asInstanceOf[ScMember])(settings, simple)
       case _: ScFunctionDeclaration | _: ScFunctionDefinition =>
-        isTypeAnnotationNeededMethod(element.asInstanceOf[ScMember])
+        isTypeAnnotationNeededMethod(element.asInstanceOf[ScMember])(settings, simple)
       case modifierListOwner: PsiModifierListOwner =>
         val visibility = Visibility(modifierListOwner)
 
         modifierListOwner match {
           case _: PsiMethod =>
-            isTypeAnnotationNeededMethod(visibility)
+            isTypeAnnotationNeededMethod(visibility)(settings, simple)
           case _: PsiField =>
-            isTypeAnnotationNeededProperty(visibility)
+            isTypeAnnotationNeededProperty(visibility)(settings, simple)
           case _ => default
         }
       case _ => default
