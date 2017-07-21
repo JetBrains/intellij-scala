@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPanel
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil.{createTypeAnnotationsHLink, isTypeAnnotationNeededMethod}
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil.{createTypeAnnotationsHLink, isTypeAnnotationNeededDefinition}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
@@ -201,7 +201,7 @@ class ScalaChangeSignatureDialog(val project: Project,
   }
 
   private def needsTypeAnnotation(element: PsiElement, visibilityString: String): Boolean =
-    isTypeAnnotationNeededMethod(element, visibilityString)()()
+    isTypeAnnotationNeededDefinition(element, visibilityString)()()
 
   override def calculateSignature(): String = {
     def nameAndType(item: ScalaParameterTableModelItem) = {

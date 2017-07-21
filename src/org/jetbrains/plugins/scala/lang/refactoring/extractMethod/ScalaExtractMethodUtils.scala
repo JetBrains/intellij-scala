@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil.{isSimple, isTypeAnnotationNeededMethod}
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil.{isSimple, isTypeAnnotationNeededDefinition}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -327,7 +327,7 @@ object ScalaExtractMethodUtils {
       case _ => false
     }
 
-    isTypeAnnotationNeededMethod(
+    isTypeAnnotationNeededDefinition(
       extractMethodSettings.nextSibling,
       visibilityString
     )(isOverriding = false, isSimple = simple)() // don't override in current refactoring

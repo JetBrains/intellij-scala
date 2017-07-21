@@ -308,7 +308,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   }
 
   private boolean needsTypeAnnotation(ScExpression expression) {
-    return TypeAnnotationUtil.isTypeAnnotationNeededProperty(
+    return TypeAnnotationUtil.isTypeAnnotationNeededDefinition(
             expression,
             getVisibility(),
             false, //can't declare in local scope

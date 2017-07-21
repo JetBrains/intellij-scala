@@ -419,7 +419,7 @@ object ScalaInplaceVariableIntroducer {
         val local = isLocal(anchor)
 
         val visibility = if (!local) Private else Public
-        isTypeAnnotationNeededProperty(
+        isTypeAnnotationNeededDefinition(
           anchor,
           visibility.toString
         )(isLocal = local, isOverriding = false)() // no overriding enable in current refactoring

@@ -36,60 +36,33 @@ object TypeAnnotationUtil {
   private val TraversableClassNames =
     Seq("Seq", "Array", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
 
-  def isTypeAnnotationNeeded(requirement: Boolean,
+  def isTypeAnnotationNeeded(isRequired: Boolean,
                              exludeSimple: Boolean)
-                            (isSimple: Boolean): Boolean = {
+                            (isSimple: Boolean): Boolean =
+    isRequired && !(exludeSimple && isSimple)
 
-    requirement && !(exludeSimple && isSimple)
-  }
-
-  def isTypeAnnotationNeededProperty(visibility: Visibility)
-                                    (settings: ScalaCodeStyleSettings,
-                                     isSimple: Boolean): Boolean =
+  def isTypeAnnotationNeededDefinition(visibility: Visibility)
+                                      (settings: ScalaCodeStyleSettings,
+                                       isSimple: Boolean): Boolean =
     isTypeAnnotationNeeded(
       visibility.forMember(settings),
       settings.TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS
     )(isSimple)
 
-  def isTypeAnnotationNeededProperty(property: ScMember)
-                                    (settings: ScalaCodeStyleSettings,
-                                     isSimple: Boolean): Boolean =
+  def isTypeAnnotationNeededDefinition(property: ScMember)
+                                  (settings: ScalaCodeStyleSettings,
+                                   isSimple: Boolean): Boolean =
     Visibility(property) match {
       case Implicit if settings.TYPE_ANNOTATION_IMPLICIT_MODIFIER => true
-      case visibility => isTypeAnnotationNeededProperty(visibility)(settings, isSimple)
+      case visibility => isTypeAnnotationNeededDefinition(visibility)(settings, isSimple)
     }
 
-  def isTypeAnnotationNeededProperty(element: PsiElement, visibilityString: String)
-                                    (isLocal: Boolean = this.isLocal(element),
-                                     isOverriding: Boolean = this.isOverriding(element),
-                                     isSimple: Boolean = this.isSimple(element))
-                                    (settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(element.getProject)): Boolean = {
-    isTypeAnnotationNeededProperty(Visibility(visibilityString, isLocal))(settings, isSimple)
-  }
-
-  def isTypeAnnotationNeededMethod(visibility: Visibility)
-                                  (settings: ScalaCodeStyleSettings,
-                                   isSimple: Boolean): Boolean =
-    isTypeAnnotationNeeded(
-      visibility.forMember(settings),
-      settings.TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS
-    )(isSimple)
-
-  def isTypeAnnotationNeededMethod(method: ScMember)
-                                  (settings: ScalaCodeStyleSettings,
-                                   isSimple: Boolean): Boolean =
-    Visibility(method) match {
-      case Implicit if settings.TYPE_ANNOTATION_IMPLICIT_MODIFIER => true
-      case visibility => isTypeAnnotationNeededMethod(visibility)(settings, isSimple)
-    }
-
-
-  def isTypeAnnotationNeededMethod(element: PsiElement, visibilityString: String)
+  def isTypeAnnotationNeededDefinition(element: PsiElement, visibilityString: String)
                                   (isLocal: Boolean = this.isLocal(element),
                                    isOverriding: Boolean = this.isOverriding(element),
                                    isSimple: Boolean = this.isSimple(element))
                                   (settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(element.getProject)): Boolean = {
-    isTypeAnnotationNeededMethod(Visibility(visibilityString, isLocal))(settings, isSimple)
+    isTypeAnnotationNeededDefinition(Visibility(visibilityString, isLocal))(settings, isSimple)
   }
 
   def isTypeAnnotationNeeded(element: ScalaPsiElement): Boolean = {
@@ -97,11 +70,11 @@ object TypeAnnotationUtil {
 
     element match {
       case value: ScPatternDefinition if value.isSimple => //not simple will contains more than one declaration
-        isTypeAnnotationNeededProperty(value)(settings, isSimple(element))
+        isTypeAnnotationNeededDefinition(value)(settings, isSimple(element))
       case variable: ScVariableDefinition if variable.isSimple =>
-        isTypeAnnotationNeededProperty(variable)(settings, isSimple(element))
+        isTypeAnnotationNeededDefinition(variable)(settings, isSimple(element))
       case method: ScFunctionDefinition if method.hasAssign && !method.isSecondaryConstructor =>
-        isTypeAnnotationNeededMethod(method)(settings, isSimple(element))
+        isTypeAnnotationNeededDefinition(method)(settings, isSimple(element))
       case _ => true
     }
   }

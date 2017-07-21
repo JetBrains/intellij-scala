@@ -135,7 +135,7 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
     val simple = isSimple(element)
 
     def default = isTypeAnnotationNeeded(
-      requirement = true,
+      isRequired = true,
       exludeSimple = true
     )(simple)
 
@@ -143,18 +143,16 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
 
     element match {
       case _: ScPatternDefinition | _: ScVariableDefinition |
-           _: ScVariableDeclaration | _: ScValueDeclaration =>
-        isTypeAnnotationNeededProperty(element.asInstanceOf[ScMember])(settings, simple)
-      case _: ScFunctionDeclaration | _: ScFunctionDefinition =>
-        isTypeAnnotationNeededMethod(element.asInstanceOf[ScMember])(settings, simple)
+           _: ScVariableDeclaration | _: ScValueDeclaration |
+           _: ScFunctionDeclaration | _: ScFunctionDefinition =>
+        isTypeAnnotationNeededDefinition(element.asInstanceOf[ScMember])(settings, simple)
+
       case modifierListOwner: PsiModifierListOwner =>
         val visibility = Visibility(modifierListOwner)
 
         modifierListOwner match {
-          case _: PsiMethod =>
-            isTypeAnnotationNeededMethod(visibility)(settings, simple)
-          case _: PsiField =>
-            isTypeAnnotationNeededProperty(visibility)(settings, simple)
+          case _: PsiMethod | _: PsiField =>
+            isTypeAnnotationNeededDefinition(visibility)(settings, simple)
           case _ => default
         }
       case _ => default

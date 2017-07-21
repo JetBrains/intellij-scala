@@ -191,7 +191,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
 
   //treat expression as local variable
   private boolean needsTypeAnnotation() {
-    return TypeAnnotationUtil.isTypeAnnotationNeededProperty(
+    return TypeAnnotationUtil.isTypeAnnotationNeededDefinition(
             expression,
             TypeAnnotationUtil.Public$.MODULE$.toString(),
             false,
