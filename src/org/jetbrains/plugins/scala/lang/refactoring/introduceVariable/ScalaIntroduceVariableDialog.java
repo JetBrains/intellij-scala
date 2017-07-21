@@ -195,7 +195,6 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
             expression,
             TypeAnnotationUtil.Public$.MODULE$.toString(),
             false,
-            false,
             TypeAnnotationUtil.isSimple(expression),
             ScalaCodeStyleSettings.getInstance(project)
     );

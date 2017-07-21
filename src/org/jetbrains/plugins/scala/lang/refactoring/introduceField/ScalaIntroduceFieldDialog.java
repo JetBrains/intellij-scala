@@ -312,7 +312,6 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
             expression,
             getVisibility(),
             false, //can't declare in local scope
-            false,
             TypeAnnotationUtil.isSimple(expression),
             ScalaCodeStyleSettings.getInstance(project)
     );

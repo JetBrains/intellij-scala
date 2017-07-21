@@ -422,7 +422,7 @@ object ScalaInplaceVariableIntroducer {
         isTypeAnnotationNeededDefinition(
           anchor,
           visibility.toString
-        )(isLocal = local, isOverriding = false)() // no overriding enable in current refactoring
+        )(isLocal = local)()
       }
     } else true
 }

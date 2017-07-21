@@ -59,7 +59,6 @@ object TypeAnnotationUtil {
 
   def isTypeAnnotationNeededDefinition(element: PsiElement, visibilityString: String)
                                   (isLocal: Boolean = this.isLocal(element),
-                                   isOverriding: Boolean = this.isOverriding(element),
                                    isSimple: Boolean = this.isSimple(element))
                                   (settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(element.getProject)): Boolean = {
     isTypeAnnotationNeededDefinition(Visibility(visibilityString, isLocal))(settings, isSimple)
@@ -76,18 +75,6 @@ object TypeAnnotationUtil {
       case method: ScFunctionDefinition if method.hasAssign && !method.isSecondaryConstructor =>
         isTypeAnnotationNeededDefinition(method)(settings, isSimple(element))
       case _ => true
-    }
-  }
-
-  private def isOverriding(element: PsiElement): Boolean = {
-    element match {
-      case func: ScFunctionDefinition =>
-        func.superSignaturesIncludingSelfType.nonEmpty
-      case variable: ScVariableDefinition =>
-        variable.declaredElements.headOption.map(superValsSignatures(_, withSelfType = true)).exists(_.nonEmpty)
-      case pattern: ScPatternDefinition =>
-        pattern.declaredElements.headOption.map(superValsSignatures(_, withSelfType = true)).exists(_.nonEmpty)
-      case _ => false
     }
   }
 

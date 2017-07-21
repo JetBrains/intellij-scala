@@ -330,7 +330,7 @@ object ScalaExtractMethodUtils {
     isTypeAnnotationNeededDefinition(
       extractMethodSettings.nextSibling,
       visibilityString
-    )(isOverriding = false, isSimple = simple)() // don't override in current refactoring
+    )(isSimple = simple)()
   }
 
   def previewSignatureText(settings: ScalaExtractMethodSettings): String = {
