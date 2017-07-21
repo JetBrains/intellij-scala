@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatting.settings;
 /**
  * Pavel Fatin
  */
+// TODO remove
 public enum TypeAnnotationPolicy {
   Optional("Optional"),
   Regular("As Usual");

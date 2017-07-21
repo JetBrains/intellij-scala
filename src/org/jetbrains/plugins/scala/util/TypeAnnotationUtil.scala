@@ -56,15 +56,15 @@ object TypeAnnotationUtil {
                                      pair: (Boolean, Boolean)): Boolean =
     isTypeAnnotationNeeded(
       visibility.forProperty,
-      settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
-      settings.SIMPLE_METHOD_TYPE_ANNOTATION
+      TypeAnnotationRequirement.Required.ordinal(), // TODO remove
+      if (settings.TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS) TypeAnnotationPolicy.Optional.ordinal() else TypeAnnotationPolicy.Regular.ordinal()
     )
 
   def isTypeAnnotationNeededProperty(property: ScMember)
                                     (implicit settings: ScalaCodeStyleSettings,
                                      pair: (Boolean, Boolean)): Boolean =
     Visibility(property) match {
-      case Implicit if settings.IMPLICIT_PROPERTY_TYPE_ANNOTATION == isRequired => true
+      case Implicit if settings.TYPE_ANNOTATION_IMPLICIT_MODIFIER => true
       case visibility => isTypeAnnotationNeededProperty(visibility)
     }
 
@@ -82,15 +82,15 @@ object TypeAnnotationUtil {
                                    pair: (Boolean, Boolean)): Boolean =
     isTypeAnnotationNeeded(
       visibility.forMethod,
-      settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
-      settings.SIMPLE_METHOD_TYPE_ANNOTATION
+      TypeAnnotationRequirement.Required.ordinal(), // TODO remove
+      if (settings.TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS) TypeAnnotationPolicy.Optional.ordinal() else TypeAnnotationPolicy.Regular.ordinal()
     )
 
   def isTypeAnnotationNeededMethod(method: ScMember)
                                   (implicit settings: ScalaCodeStyleSettings,
                                    pair: (Boolean, Boolean)): Boolean =
     Visibility(method) match {
-      case Implicit if settings.IMPLICIT_METHOD_TYPE_ANNOTATION == isRequired => true
+      case Implicit if settings.TYPE_ANNOTATION_IMPLICIT_MODIFIER => true
       case visibility => isTypeAnnotationNeededMethod(visibility)
     }
 
@@ -211,11 +211,16 @@ object TypeAnnotationUtil {
     })
   }
 
+  // TODO refactor or remove
   sealed trait Visibility {
 
-    def forProperty(implicit settings: ScalaCodeStyleSettings): Int
+    final def forProperty(implicit settings: ScalaCodeStyleSettings): Int =
+      if (forMember(settings)) TypeAnnotationRequirement.Required.ordinal() else TypeAnnotationRequirement.Optional.ordinal()
 
-    def forMethod(implicit settings: ScalaCodeStyleSettings): Int
+    final def forMethod(implicit settings: ScalaCodeStyleSettings): Int =
+      if (forMember(settings)) TypeAnnotationRequirement.Required.ordinal() else TypeAnnotationRequirement.Optional.ordinal()
+
+    protected def forMember(implicit settings: ScalaCodeStyleSettings): Boolean
   }
 
   object Visibility {
@@ -274,49 +279,35 @@ object TypeAnnotationUtil {
     }
   }
 
+  // TODO refactor or remove
   private case object Implicit extends Visibility {
 
-    override def forProperty(implicit settings: ScalaCodeStyleSettings): Int =
-      settings.IMPLICIT_PROPERTY_TYPE_ANNOTATION
-
-    override def forMethod(implicit settings: ScalaCodeStyleSettings): Int =
-      settings.IMPLICIT_METHOD_TYPE_ANNOTATION
+    override def forMember(implicit settings: ScalaCodeStyleSettings): Boolean =
+      settings.TYPE_ANNOTATION_IMPLICIT_MODIFIER
   }
 
   private case object Local extends Visibility {
 
-    override def forProperty(implicit settings: ScalaCodeStyleSettings): Int =
-      settings.LOCAL_PROPERTY_TYPE_ANNOTATION
-
-    override def forMethod(implicit settings: ScalaCodeStyleSettings): Int =
-      settings.LOCAL_METHOD_TYPE_ANNOTATION
+    override def forMember(implicit settings: ScalaCodeStyleSettings): Boolean =
+      settings.TYPE_ANNOTATION_LOCAL_DEFINITION
   }
 
   case object Private extends Visibility {
 
-    override def forProperty(implicit settings: ScalaCodeStyleSettings): Int =
-      settings.PRIVATE_PROPERTY_TYPE_ANNOTATION
-
-    override def forMethod(implicit settings: ScalaCodeStyleSettings): Int =
-      settings.PRIVATE_METHOD_TYPE_ANNOTATION
+    override def forMember(implicit settings: ScalaCodeStyleSettings): Boolean =
+      settings.TYPE_ANNOTATION_PRIVATE_MEMBER
   }
 
   case object Protected extends Visibility {
 
-    override def forProperty(implicit settings: ScalaCodeStyleSettings): Int =
-      settings.PROTECTED_PROPERTY_TYPE_ANNOTATION
-
-    override def forMethod(implicit settings: ScalaCodeStyleSettings): Int =
-      settings.PROTECTED_METHOD_TYPE_ANNOTATION
+    override def forMember(implicit settings: ScalaCodeStyleSettings): Boolean =
+      settings.TYPE_ANNOTATION_PROTECTED_MEMBER
   }
 
   case object Public extends Visibility {
 
-    override def forProperty(implicit settings: ScalaCodeStyleSettings): Int =
-      settings.PUBLIC_PROPERTY_TYPE_ANNOTATION
-
-    override def forMethod(implicit settings: ScalaCodeStyleSettings): Int =
-      settings.PUBLIC_METHOD_TYPE_ANNOTATION
+    override def forMember(implicit settings: ScalaCodeStyleSettings): Boolean =
+      settings.TYPE_ANNOTATION_PUBLIC_MEMBER
   }
 
   private var requestCountsToShow: Int = 0

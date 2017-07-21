@@ -29,7 +29,6 @@ class ScalaDelegateToJavaMethodTest  extends JavaCodeInsightFixtureTestCase {
     TypeAnnotationSettings.set(getProject, codeStyleSettings)
     new ScalaGenerateDelegateHandler().invoke(myFixture.getProject, myFixture.getEditor, scalaFile)
     TypeAnnotationSettings.set(getProject, oldSettings)
-    println(oldSettings.asInstanceOf[ScalaCodeStyleSettings].OVERRIDING_METHOD_TYPE_ANNOTATION)
     assertEquals(clean(expectedText), clean(scalaFile.getText))
   }
 
