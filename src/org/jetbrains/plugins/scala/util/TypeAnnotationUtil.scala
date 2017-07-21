@@ -32,6 +32,7 @@ import scala.annotation.tailrec
 /**
   * Created by kate on 7/14/16.
   */
+// TODO more refactoring needed
 object TypeAnnotationUtil {
   private val TraversableClassNames =
     Seq("Seq", "Array", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
@@ -98,7 +99,7 @@ object TypeAnnotationUtil {
     maybeExpression.exists(isSimple)
   }
 
-  def isObject(reference: ScReferenceExpression): Boolean = {
+  private def isObject(reference: ScReferenceExpression): Boolean = {
     def resolvedElement(result: ScalaResolveResult) =
       result.innerResolveResult
         .getOrElse(result).element
@@ -124,7 +125,7 @@ object TypeAnnotationUtil {
     case _ => isLocal(psiElement.getContext)
   }
 
-  def getTypeElement(element: ScalaPsiElement): Option[ScTypeElement] = {
+  private def getTypeElement(element: ScalaPsiElement): Option[ScTypeElement] = {
     element match {
       case fun: ScFunction => fun.returnTypeElement
       case inNameContext(pd: ScPatternDefinition) => pd.typeElement
@@ -159,11 +160,11 @@ object TypeAnnotationUtil {
   }
 
   // TODO refactor or remove
-  sealed trait Visibility {
+  private sealed trait Visibility {
     def forMember(settings: ScalaCodeStyleSettings): Boolean
   }
 
-  object Visibility {
+  private object Visibility {
 
     def apply(modifierListOwner: PsiModifierListOwner): Visibility = modifierListOwner.getModifierList match {
       case list if list.hasModifierProperty("private") => Private
@@ -232,19 +233,19 @@ object TypeAnnotationUtil {
       settings.TYPE_ANNOTATION_LOCAL_DEFINITION
   }
 
-  case object Private extends Visibility {
+  private case object Private extends Visibility {
 
     override def forMember(settings: ScalaCodeStyleSettings): Boolean =
       settings.TYPE_ANNOTATION_PRIVATE_MEMBER
   }
 
-  case object Protected extends Visibility {
+  private case object Protected extends Visibility {
 
     override def forMember(settings: ScalaCodeStyleSettings): Boolean =
       settings.TYPE_ANNOTATION_PROTECTED_MEMBER
   }
 
-  case object Public extends Visibility {
+  private case object Public extends Visibility {
 
     override def forMember(settings: ScalaCodeStyleSettings): Boolean =
       settings.TYPE_ANNOTATION_PUBLIC_MEMBER
