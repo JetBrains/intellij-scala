@@ -1,11 +1,8 @@
-package org.jetbrains.plugins.cbt
+package org.jetbrains.plugins.cbt.process
 
-import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
-import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 
 import scala.collection.mutable

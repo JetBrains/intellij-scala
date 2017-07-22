@@ -7,6 +7,7 @@ import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.project.ProjectManager
+import org.jetbrains.plugins.cbt.process.CbtProcess
 import org.jetbrains.plugins.cbt.project.model.{CbtProjectConverter, CbtProjectInfo}
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
 
@@ -22,7 +23,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     println("Cbt resolver called")
     val projectOpt = ProjectManager.getInstance.getOpenProjects.toSeq.find(_.getBaseDir.getCanonicalPath == projectPath)
 
-    val xml = CBT.buildInfoXml(root, settings, projectOpt,  Some(id, listener))
+    val xml = CbtProcess.buildInfoXml(root, settings, projectOpt,  Some(id, listener))
     xml.map(CbtProjectInfo(_))
       .flatMap(CbtProjectConverter(_, settings))
       .get

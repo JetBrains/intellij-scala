@@ -6,7 +6,7 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationSource}
 import com.intellij.openapi.util.Key
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.cbt.CbtOutputListener
+import org.jetbrains.plugins.cbt.process.CbtOutputListener
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 
 import scala.collection.JavaConverters._
