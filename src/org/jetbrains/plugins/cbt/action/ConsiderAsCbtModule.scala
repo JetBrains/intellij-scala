@@ -20,7 +20,6 @@ class ConsiderAsCbtModule extends CbtProjectAction {
     if (!projectSettings.extraModules.contains(modulePath)) {
       projectSettings.extraModules.add(modulePath)
     }
-    println(s"""Extra project Modules: ${projectSettings.extraModules.toString}""")
     project.refresh()
   }
 
