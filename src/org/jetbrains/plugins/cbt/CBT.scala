@@ -49,8 +49,8 @@ object CBT {
 
     val outputHandler = new CbtOutputListener(onOutput, projectOpt, NotificationSource.PROJECT_SYNC)
     val logger = ProcessLogger(
-      outputHandler.parseLine(_, stderr = false),
-      outputHandler.parseLine(_, stderr = true))
+      text => outputHandler.parseLine(text, stderr = false),
+      text => outputHandler.parseLine(text + '\n', stderr = true))
     val task = Seq("cbt") ++ (if (useDirect) Seq("direct") else Seq.empty) ++ action
     val exitCode = Process(task, root) ! logger
     exitCode match {

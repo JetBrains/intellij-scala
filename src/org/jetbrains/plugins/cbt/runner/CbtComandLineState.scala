@@ -5,9 +5,9 @@ import com.intellij.execution.process._
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationSource}
 import com.intellij.openapi.util.Key
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.cbt.CbtOutputListener
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
-import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 
 import scala.collection.JavaConverters._
 
@@ -19,43 +19,61 @@ class CbtComandLineState(task: String,
   extends CommandLineState(environment) {
 
   override def startProcess(): ProcessHandler = {
-    val factory = ProcessHandlerFactory.getInstance
+    ExternalSystemNotificationManager.getInstance(environment.getProject)
+      .clearNotifications(NotificationSource.TASK_EXECUTION, CbtProjectSystem.Id)
     val arguments = Seq("cbt") ++
       (if (useDirect) Seq("direct") else Seq.empty) ++
       task.split(' ').map(_.trim).toSeq
     val commandLine = new GeneralCommandLine(arguments.asJava)
       .withWorkDirectory(workingDir)
-    val hanlder = factory.createColoredProcessHandler(commandLine)
-    hanlder.addProcessListener(new CbtProcessProcessListener)
+    val hanlder = new CbtProcessHandler(commandLine)
     hanlder
   }
 
-  private class CbtProcessProcessListener extends ProcessListener {
+  class CbtProcessHandler(commandLine: GeneralCommandLine) extends KillableProcessHandler(commandLine)
+    with AnsiEscapeDecoder.ColoredTextAcceptor {
+    setShouldKillProcessSoftly(false)
 
-    val cbtOutputListener =
+    final private val myColoredTextListeners = ContainerUtil.newArrayList[AnsiEscapeDecoder.ColoredTextAcceptor]
+    private val myAnsiEscapeDecoder = new AnsiEscapeDecoder
+    private val onOutput = (_: String, _: Boolean) => ()
+    private val cbtOutputListener =
       new CbtOutputListener(onOutput, Option(environment.getProject), NotificationSource.TASK_EXECUTION)
 
-    def onOutput(text: String, stderr: Boolean): Unit = {}
 
-    override def processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean): Unit = {}
-
-    override def startNotified(event: ProcessEvent): Unit = {
-      ExternalSystemNotificationManager.getInstance(environment.getProject)
-        .clearNotifications(NotificationSource.TASK_EXECUTION, CbtProjectSystem.Id)
-    }
-
-    override def processTerminated(event: ProcessEvent): Unit = {
-      callback.foreach(_.apply)
-    }
-
-    override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+    override def notifyTextAvailable(text: String, outputType: Key[_]): Unit = {
       outputType match {
         case ProcessOutputTypes.STDERR =>
-          cbtOutputListener.parseLine(event.getText, stderr = true)
+          cbtOutputListener.parseLine(text, stderr = true)
         case ProcessOutputTypes.STDOUT =>
-          cbtOutputListener.parseLine(event.getText, stderr = false)
+          cbtOutputListener.parseLine(text, stderr = false)
         case _ =>
       }
+      myAnsiEscapeDecoder.escapeText(text, outputType, this)
+    }
+
+    override def coloredTextAvailable(text: String, attributes: Key[_]): Unit = {
+      textAvailable(text, attributes)
+      notifyColoredListeners(text, attributes)
+    }
+
+    protected def notifyColoredListeners(text: String, attributes: Key[_]): Unit = {
+      import scala.collection.JavaConversions._
+      for (listener <- myColoredTextListeners) {
+        listener.coloredTextAvailable(text, attributes)
+      }
+    }
+
+    protected def textAvailable(text: String, attributes: Key[_]): Unit = {
+      super.notifyTextAvailable(text, attributes)
+    }
+
+    def addColoredTextListener(listener: AnsiEscapeDecoder.ColoredTextAcceptor): Unit = {
+      myColoredTextListeners.add(listener)
+    }
+
+    def removeColoredTextListener(listener: AnsiEscapeDecoder.ColoredTextAcceptor): Unit = {
+      myColoredTextListeners.remove(listener)
     }
   }
 

@@ -69,7 +69,7 @@ private class ErrorWarningBuilder(prefix: String) {
 
   def parserPart(text: String): Option[String] = {
     val part = text.stripPrefix(prefix)
-    buffer.append(part + "\n")
+    buffer.append(part)
     if (part.trim == "^") {
       val fullText = buffer.toString
       buffer.clear()
