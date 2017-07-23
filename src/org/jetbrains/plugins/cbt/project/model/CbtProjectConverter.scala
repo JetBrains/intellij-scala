@@ -87,7 +87,7 @@ class CbtProjectConverter(project: Project, settings: CbtExecutionSettings) {
     val contentRootData = new ContentRootData(CbtProjectSystem.Id, rootPath.toString)
     module.sourceDirs
       .map(_.toPath)
-      .filter(s => Files.isDirectory(s))
+//      .filter(s => Files.isDirectory(s))
       .filter(s => s.toAbsolutePath.startsWith(rootPath))
       .foreach(s => contentRootData.storePath(ExternalSystemSourceType.SOURCE, s.toString))
     contentRootData.storePath(ExternalSystemSourceType.EXCLUDED, module.target.getPath)
