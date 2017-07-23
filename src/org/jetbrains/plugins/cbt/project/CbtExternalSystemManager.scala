@@ -12,7 +12,6 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Pair
 import com.intellij.util.Function
-import org.jetbrains.plugins.cbt.CbtProjectResolver
 import org.jetbrains.plugins.cbt.project.settings._
 import org.jetbrains.sbt.jarWith
 

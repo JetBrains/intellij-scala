@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.cbt
+package org.jetbrains.plugins.cbt.project
 
 import java.io.File
 
@@ -8,8 +8,8 @@ import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, Ext
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.project.ProjectManager
 import org.jetbrains.plugins.cbt.process.CbtProcess
-import org.jetbrains.plugins.cbt.project.model.{CbtProjectConverter, CbtProjectInfo}
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
+import org.jetbrains.plugins.cbt.project.template.CbtProjectImporter
 
 class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSettings] {
 
@@ -21,10 +21,8 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
     val projectPath = settings.realProjectPath
     val root = new File(projectPath)
     val projectOpt = ProjectManager.getInstance.getOpenProjects.toSeq.find(_.getBaseDir.getCanonicalPath == projectPath)
-    val xml = CbtProcess.buildInfoXml(root, settings, projectOpt,  Some(id, listener))
-    xml.map(CbtProjectInfo(_))
-      .flatMap(CbtProjectConverter(_, settings))
-      .get
+    val xml = CbtProcess.buildInfoXml(root, settings, projectOpt, Some(id, listener))
+    xml.flatMap(CbtProjectImporter.importProject(_, settings)).get
   }
 
   override def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean = true
