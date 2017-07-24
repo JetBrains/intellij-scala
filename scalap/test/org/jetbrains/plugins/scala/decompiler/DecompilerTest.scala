@@ -135,4 +135,8 @@ class DecompilerTest extends DecompilerTestBase {
   def testScl8251() = {
     doTest("LinkedEntry.class")
   }
+
+  def testScl7997() = {
+    doTest("CommentDecompilation.class")
+  }
 }

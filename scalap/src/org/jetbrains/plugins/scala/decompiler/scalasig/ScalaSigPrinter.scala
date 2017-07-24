@@ -697,8 +697,10 @@ object ScalaSigPrinter {
           case _ => isSpecial(c)
         }
 
+        def hasCommentStart(s: String) = s.contains("//") || s.contains("/*")
 
-        if (id.isEmpty) return false
+        if (id.isEmpty || hasCommentStart(id)) return false
+
         if (isIdentifierStart(id(0))) {
           if (id.indexWhere(c => !isIdentifierPart(c) && !isOperatorPart(c) && c != '_') >= 0) return false
           val index = id.indexWhere(isOperatorPart)
