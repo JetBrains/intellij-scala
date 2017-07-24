@@ -303,19 +303,19 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
 
   private def methodSymbolAsClassParam(msymb: MethodSymbol, c: ClassSymbol): String = {
     val printer = new ScalaSigPrinter(new StringBuilder(), verbosity)
-    var break = false
-    for (child <- c.children if !break) {
-      child match {
-        case ms: MethodSymbol if ms.isParamAccessor && msymb.name == ms.name =>
-          if (!ms.isPrivate || !ms.isLocal) {
-            printer.printSymbolAttributes(ms, onNewLine = false, ())
-            printer.printModifiers(ms)
-            if (ms.isParamAccessor && ms.isMutable) printer.print("var ")
-            else if (ms.isParamAccessor) printer.print("val ")
-          }
-          break = true
-        case _ =>
-      }
+    val paramAccessors = c.children.filter {
+      case ms: MethodSymbol if ms.isParamAccessor && ms.name.startsWith(msymb.name) => true
+      case _ => false
+    }
+    val isMutable = paramAccessors.exists(_.name == msymb.name + "_$eq")
+    val toPrint = paramAccessors.find(m => !m.isPrivate || !m.isLocal)
+    toPrint match {
+      case Some(ms) =>
+        printer.printSymbolAttributes(ms, onNewLine = false, ())
+        printer.printModifiers(ms)
+        if (isMutable) printer.print("var ")
+        else printer.print("val ")
+      case _ =>
     }
 
     val nameAndType = processName(msymb.name) + " : " + toString(msymb.infoType)(TypeFlags(true))
