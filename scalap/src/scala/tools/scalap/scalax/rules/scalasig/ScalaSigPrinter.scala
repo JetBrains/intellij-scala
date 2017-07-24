@@ -437,23 +437,16 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
   }
 
   def toString(attrib: AttributeInfo): String = {
-    val builder = new StringBuilder()
-    builder.append(toString(attrib.typeRef, "@"))
-    if (attrib.value.isDefined) {
-      builder.append("(")
-      builder.append(valueToString(attrib.value.get))
-      builder.append(")")
-    }
-    if (attrib.values.nonEmpty) {
-      builder.append("(")
-      for (name ~ value <- attrib.values) {
-        builder.append(processName(name))
-        builder.append(" = ")
-        builder.append(valueToString(value))
+    val prefix = toString(attrib.typeRef, "@")
+    val hasArgs = attrib.args.size + attrib.namedArgs.size
+    if (hasArgs > 0) {
+      val argTexts = attrib.args.map(valueToString)
+      val namedArgsText = attrib.namedArgs.map {
+        case (name ~ value) => s"${processName(name)} = ${valueToString(value)}"
       }
-      builder.append(")")
+      (argTexts ++ namedArgsText).mkString(s"$prefix(", ", ", ")")
     }
-    builder.toString
+    else prefix
   }
 
   // TODO char, float, etc.
