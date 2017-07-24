@@ -96,7 +96,6 @@ class ProjectImportTest {
               .find(_.name == l.name)
               .toSeq
               .flatMap(_.jars)
-              .filter(_.jarType == JarType.Source)
               .map(_.jar.getCanonicalPath)
             (l.name, jars)
           }
