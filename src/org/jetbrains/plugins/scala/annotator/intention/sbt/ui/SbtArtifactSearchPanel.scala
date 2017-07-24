@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator.intention.ui
+package org.jetbrains.plugins.scala.annotator.intention.sbt.ui
 
 import java.awt.{BorderLayout, Component}
 import javax.swing._
@@ -6,8 +6,6 @@ import javax.swing.event.{TreeModelListener, TreeSelectionEvent, TreeSelectionLi
 import javax.swing.tree.{TreeCellRenderer, TreeModel, TreePath, TreeSelectionModel}
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.editor.EditorFactory
-import com.intellij.psi.PsiFileFactory
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{ScrollPaneFactory, SimpleColoredComponent, SimpleTextAttributes}
 import com.intellij.util.ui.UIUtil
@@ -16,7 +14,8 @@ import org.jetbrains.sbt.resolvers.ArtifactInfo
 /**
   * Created by user on 7/13/17.
   */
-class SbtArtifactSearchPanel(dialog: SbtArtifactSearchDialog, artifactInfoSet: Set[ArtifactInfo]) extends JPanel {
+class SbtArtifactSearchPanel(wizard: SbtArtifactSearchWizard, artifactInfoSet: Set[ArtifactInfo]) extends JPanel {
+  var canGoNext: Boolean = false
   val myResultList: Tree = new Tree()
 
   init()
@@ -41,12 +40,13 @@ class SbtArtifactSearchPanel(dialog: SbtArtifactSearchDialog, artifactInfoSet: S
 
     myResultList.addTreeSelectionListener(new TreeSelectionListener {
       override def valueChanged(treeSelectionEvent: TreeSelectionEvent): Unit = {
-        dialog.setOKActionEnabled(treeSelectionEvent.getNewLeadSelectionPath != null)
+        canGoNext = treeSelectionEvent.getNewLeadSelectionPath != null
+        wizard.updateWizardButtons()
       }
     })
   }
 
-  def getResult(): Option[ArtifactInfo] = {
+  def getResult: Option[ArtifactInfo] = {
     for (path: TreePath <- myResultList.getSelectionPaths) {
       path.getLastPathComponent match {
         case info: ArtifactInfo => return Some(info)
