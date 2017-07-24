@@ -64,6 +64,9 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
       new Binding(
         TYPE_ANNOTATION_EXCLUDE_IN_TEST_SOURCES, myTestSources.isSelected)
       (TYPE_ANNOTATION_EXCLUDE_IN_TEST_SOURCES = _, myTestSources.setSelected),
+      new Binding(
+        TYPE_ANNOTATION_EXCLUDE_IN_SCRIPT, myScript.isSelected)
+      (TYPE_ANNOTATION_EXCLUDE_IN_SCRIPT = _, myScript.setSelected),
 
       new Binding(
         TYPE_ANNOTATION_EXCLUDE_MEMBER_OF, elementsIn(myMembers))
