@@ -5,7 +5,7 @@ object Versions {
   val scalaBinaryVersion: String = Scala.binary_2_11
   val sbtVersion: String = Sbt.latest
   val ideaVersion = "172.3317.6"
-  val sbtStructureVersion: String = "7.0.0+54-18d3848c"
+  val sbtStructureVersion: String = "7.0.0+61-051fb9ba"
   val sbtIdeaShellVersion: String = "1.2+7-625c26bc"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
