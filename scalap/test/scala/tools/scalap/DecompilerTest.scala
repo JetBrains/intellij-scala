@@ -99,4 +99,32 @@ class DecompilerTest extends DecompilerTestBase {
   def testScalaLongSignature(): Unit = {
     doTest("Generated.class")
   }
+
+  def testTransientAnnotation(): Unit = {
+    doTest("AnyValManifest.class")
+  }
+
+  def testDuplicatedAnnotation(): Unit = {
+    doTest("AssemblyBuilder.class")
+  }
+
+  def testHashTable(): Unit = {
+    doTest("HashTable.class")
+  }
+
+  def testOverloadedMethodsAnnotations(): Unit = {
+    doTest("StringLike.class")
+  }
+
+  def testSbtSessionSettings(): Unit = {
+    doTest("SessionSettings.class")
+  }
+
+  def testScl12271(): Unit = {
+    doTest("DefaultEntry.class")
+  }
+
+  def testScl5865() = {
+    doTest("$colon$colon.class")
+  }
 }

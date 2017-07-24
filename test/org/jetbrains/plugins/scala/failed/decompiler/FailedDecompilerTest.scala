@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.failed.decompiler
 
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.junit.experimental.categories.Category
-
 import scala.tools.scalap.DecompilerTestBase
+import org.junit.experimental.categories.Category
 
 /**
   * @author Nikolay.Tropin
@@ -11,10 +10,6 @@ import scala.tools.scalap.DecompilerTestBase
 @Category(Array(classOf[PerfCycleTests]))
 class FailedDecompilerTest extends DecompilerTestBase {
   override def basePath(separator: Char): String = s"${super.basePath(separator)}failed$separator"
-
-  def testScl5865() = {
-    doTest("$colon$colon.class")
-  }
 
   def testScl7997() = {
     doTest("CommentDecompilation.class")

@@ -36,14 +36,26 @@ abstract class ScalaSigSymbol extends Symbol {
 
   lazy val children : Seq[Symbol] = applyScalaSigRule(ScalaSigParsers.symbols) filter (_.parent.contains(this))
   lazy val attributes : Seq[AttributeInfo] = {
-    applyScalaSigRule(ScalaSigParsers.attributes) filter {attr =>
+    val found = applyScalaSigRule(ScalaSigParsers.attributes) filter {attr =>
       (attr.symbol, this) match {
         case (s, t) if s == t => true
-        case (MethodSymbol(info1, _), MethodSymbol(info2, _))
-          if info1.name == (info2.name + " ") => true
+        case (m1: MethodSymbol, m2: MethodSymbol) => equiv(m1, m2)
         case _ => false
       }
     }
+    val distinct = found.map(a => a.typeRef -> a).toMap.values
+    distinct.toVector
+  }
+
+  private def equiv(m1: MethodSymbol, m2: MethodSymbol) = {
+    def unwrapType(t: Type) = t match {
+      case NullaryMethodType(tp) => tp
+      case PolyType(tp, Seq()) => tp
+      case _ => t
+    }
+
+    m1.name.trim == m2.name.trim && m1.parent == m2.parent &&
+      unwrapType(m1.infoType) == unwrapType(m2.infoType)
   }
 }
 
