@@ -113,6 +113,7 @@
         <editorNotificationProvider implementation="org.jetbrains.sbt.project.notifications.SbtNoImportNotificationProvider"/>
 
         <projectTaskRunner implementation="org.jetbrains.sbt.shell.SbtProjectTaskRunner"/>
+        <postStartupActivity implementation="org.jetbrains.sbt.project.SbtStartupActivity"/>
 
     </extensions>
 
