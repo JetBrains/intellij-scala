@@ -17,7 +17,7 @@ import scala.collection.JavaConverters._
   * @author Pavel Fatin
   */
 class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsPanelBase(settings) {
-  private val Bindings: Seq[Binding[_]] = {
+  private def bindingsFor(settings: CodeStyleSettings): Seq[Binding[_]] = {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
     import scalaSettings._
@@ -97,14 +97,14 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
 
   override protected def getPanel: JComponent = myContent
 
-  override protected def isModified(codeStyleSettings: CodeStyleSettings): Boolean =
-    Bindings.exists(!_.leftEqualsRight)
+  override protected def isModified(settings: CodeStyleSettings): Boolean =
+    bindingsFor(settings).exists(!_.leftEqualsRight)
 
-  override protected def resetImpl(codeStyleSettings: CodeStyleSettings): Unit =
-    Bindings.foreach(it => it.copyLeftToRight())
+  override protected def resetImpl(settings: CodeStyleSettings): Unit =
+    bindingsFor(settings).foreach(it => it.copyLeftToRight())
 
-  override protected def apply(codeStyleSettings: CodeStyleSettings): Unit =
-    Bindings.foreach(it => it.copyRightToLeft())
+  override protected def apply(settings: CodeStyleSettings): Unit =
+    bindingsFor(settings).foreach(it => it.copyRightToLeft())
 }
 
 private object TypeAnnotationsPanel {
