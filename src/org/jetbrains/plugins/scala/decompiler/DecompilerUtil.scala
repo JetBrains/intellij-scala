@@ -12,15 +12,13 @@ import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.reference.SoftReference
 
-import scala.tools.scalap.Decompiler
-
 /**
  * @author ilyas
  */
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
 
-  val DECOMPILER_VERSION = 286
+  val DECOMPILER_VERSION = 287
   private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_new_key_", DECOMPILER_VERSION, true)
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
 
@@ -96,21 +94,12 @@ object DecompilerUtil {
   }
 
   private def decompileInner(file: VirtualFile, bytes: Array[Byte]): DecompilationResult = {
-    try {
-      Decompiler.decompile(file.getName, bytes) match {
-        case Some((sourceFileName, decompiledSourceText)) =>
-          new DecompilationResult(isScala = true, sourceFileName, file.getTimeStamp) {
-            override def sourceText: String = decompiledSourceText
-          }
-        case _ => new DecompilationResult(isScala = false, "", file.getTimeStamp)
-      }
-    } catch {
-      case m: MatchError =>
-        LOG.warn(s"Error during decompiling $file: ${m.getMessage()}. Stacktrace is suppressed.")
-        new DecompilationResult(isScala = false, "", file.getTimeStamp)
-      case t: Throwable =>
-        LOG.warn(s"Error during decompiling $file: ${t.getMessage}. Stacktrace is suppressed.")
-        new DecompilationResult(isScala = false, "", file.getTimeStamp)
+    Decompiler.decompile(file.getName, bytes) match {
+      case Some((sourceFileName, decompiledSourceText)) =>
+        new DecompilationResult(isScala = true, sourceFileName, file.getTimeStamp) {
+          override def sourceText: String = decompiledSourceText
+        }
+      case _ => new DecompilationResult(isScala = false, "", file.getTimeStamp)
     }
   }
 

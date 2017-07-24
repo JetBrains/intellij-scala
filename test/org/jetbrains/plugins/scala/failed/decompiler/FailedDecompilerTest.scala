@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.failed.decompiler
 
 import org.jetbrains.plugins.scala.PerfCycleTests
-import scala.tools.scalap.DecompilerTestBase
+import org.jetbrains.plugins.scala.decompiler.DecompilerTestBase
 import org.junit.experimental.categories.Category
 
 /**
@@ -13,9 +13,5 @@ class FailedDecompilerTest extends DecompilerTestBase {
 
   def testScl7997() = {
     doTest("CommentDecompilation.class")
-  }
-
-  def testScl8251() = {
-    doTest("LinkedEntry.class")
   }
 }

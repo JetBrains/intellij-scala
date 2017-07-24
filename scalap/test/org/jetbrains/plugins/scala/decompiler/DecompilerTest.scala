@@ -1,4 +1,4 @@
-package scala.tools.scalap
+package org.jetbrains.plugins.scala.decompiler
 
 import java.io.{File => jFile}
 
@@ -126,5 +126,13 @@ class DecompilerTest extends DecompilerTestBase {
 
   def testScl5865() = {
     doTest("$colon$colon.class")
+  }
+
+  def testSuperInner() = {
+    doTest("ProcessBuilderImpl.class")
+  }
+
+  def testScl8251() = {
+    doTest("LinkedEntry.class")
   }
 }
