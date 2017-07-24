@@ -160,11 +160,11 @@ object TypeAnnotationUtil {
   }
 
   // TODO refactor or remove
-  private sealed trait Visibility {
+  sealed trait Visibility {
     def forMember(settings: ScalaCodeStyleSettings): Boolean
   }
 
-  private object Visibility {
+  object Visibility {
 
     def apply(modifierListOwner: PsiModifierListOwner): Visibility = modifierListOwner.getModifierList match {
       case list if list.hasModifierProperty("private") => Private
@@ -233,7 +233,7 @@ object TypeAnnotationUtil {
       settings.TYPE_ANNOTATION_LOCAL_DEFINITION
   }
 
-  private case object Private extends Visibility {
+  case object Private extends Visibility {
 
     override def forMember(settings: ScalaCodeStyleSettings): Boolean =
       settings.TYPE_ANNOTATION_PRIVATE_MEMBER
@@ -245,7 +245,7 @@ object TypeAnnotationUtil {
       settings.TYPE_ANNOTATION_PROTECTED_MEMBER
   }
 
-  private case object Public extends Visibility {
+  case object Public extends Visibility {
 
     override def forMember(settings: ScalaCodeStyleSettings): Boolean =
       settings.TYPE_ANNOTATION_PUBLIC_MEMBER
