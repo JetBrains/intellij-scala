@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   override def getModifierList: ScModifierList = this.stubOrPsiChild(ScalaElementTypes.MODIFIERS).orNull
 
   def hasModifierProperty(name: String): Boolean = hasModifierPropertyInner(name)

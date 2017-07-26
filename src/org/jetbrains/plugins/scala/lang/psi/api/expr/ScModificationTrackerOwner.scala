@@ -74,7 +74,7 @@ trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeB
     ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
   }
 
-  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def getMirrorPositionForCompletion(dummyIdentifier: String, pos: Int): Option[PsiElement] = {
     val text = new StringBuilder(getText)
     text.insert(pos, dummyIdentifier)

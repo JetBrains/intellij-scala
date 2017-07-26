@@ -86,13 +86,13 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
 
   override def getContainingClass: ScTemplateDefinition = null
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   def isCovariant: Boolean = byStubOrPsi(_.isCovariant) {
     Option(findChildByType[PsiElement](tIDENTIFIER))
       .exists(_.getText == "+")
   }
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   def isContravariant: Boolean = byStubOrPsi(_.isContravariant) {
     Option(findChildByType[PsiElement](tIDENTIFIER))
       .exists(_.getText == "-")

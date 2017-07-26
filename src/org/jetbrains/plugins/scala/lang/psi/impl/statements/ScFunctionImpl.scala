@@ -42,7 +42,7 @@ abstract class ScFunctionImpl protected (stub: ScFunctionStub, nodeType: ScFunct
     n.getPsi
   }
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   def paramClauses: ScParameters = getStubOrPsiChild(ScalaElementTypes.PARAM_CLAUSES)
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
@@ -71,6 +71,6 @@ abstract class ScFunctionImpl protected (stub: ScFunctionStub, nodeType: ScFunct
     true
   }
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   def returnTypeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 }

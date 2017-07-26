@@ -32,7 +32,7 @@ object CachedWithRecursionGuard {
       case _ => abort("Wrong annotation parameters!")
     }
 
-    val (element, defaultValue, dependencyItem) = parameters
+    val (element, defaultValue, modTracker) = parameters
 
     annottees.toList match {
       case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
@@ -69,9 +69,9 @@ object CachedWithRecursionGuard {
         val dataValue = if (hasParams) q"(..$parameterNames)" else q"()"
         val getOrCreateCachedHolder =
           if (hasParams)
-            q"$cachesUtilFQN.getOrCreateCachedMap[$elementType, $dataType, $resultType]($elemName, $keyVarName, () => $dependencyItem)"
+            q"$cachesUtilFQN.getOrCreateCachedMap[$elementType, $dataType, $resultType]($elemName, $keyVarName, () => $modTracker)"
           else
-            q"$cachesUtilFQN.getOrCreateCachedRef[$elementType, $resultType]($elemName, $keyVarName, () => $dependencyItem)"
+            q"$cachesUtilFQN.getOrCreateCachedRef[$elementType, $resultType]($elemName, $keyVarName, () => $modTracker)"
 
         val getFromHolder =
           if (hasParams) q"$holderName.get($dataName)"

@@ -239,7 +239,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
       " = throw new Error(\"\")"
   }
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def getSyntheticImplicitMethod: Option[ScFunction] = {
     if (hasModifierProperty("implicit")) {
       constructor match {

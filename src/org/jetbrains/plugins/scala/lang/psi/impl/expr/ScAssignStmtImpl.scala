@@ -47,13 +47,13 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
     }
   }
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def resolveAssignment: Option[ScalaResolveResult] = resolveAssignmentInner(shapeResolve = false)
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def shapeResolveAssignment: Option[ScalaResolveResult] = resolveAssignmentInner(shapeResolve = true)
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def mirrorMethodCall: Option[ScMethodCall] = {
     getLExpression match {
       case ref: ScReferenceExpression =>

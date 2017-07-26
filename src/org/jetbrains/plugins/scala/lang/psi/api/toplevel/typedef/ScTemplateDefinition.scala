@@ -62,7 +62,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
 
   def desugaredElement: Option[ScTemplateDefinition] = None
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   def physicalExtendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementTypes.EXTENDS_BLOCK).orNull
 
   def extendsBlock: ScExtendsBlock = desugaredElement.map(_.extendsBlock).getOrElse(physicalExtendsBlock)
@@ -453,7 +453,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     else superPaths.contains(basePath)
   }
 
-  @Cached(synchronized = false, ModCount.getModificationCount, this)
+  @Cached(ModCount.getModificationCount, this)
   def cachedPath: Path = {
     val kind = this match {
       case _: ScTrait => Kind.ScTrait
@@ -466,14 +466,14 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     Path(name, Option(qualifiedName), kind)
   }
 
-  @Cached(synchronized = false, ModCount.getModificationCount, this)
+  @Cached(ModCount.getModificationCount, this)
   private def superPaths: Set[Path] = {
     if (DumbService.getInstance(getProject).isDumb) return Set.empty //to prevent failing during indexes
 
     supers.map(Path.of).toSet
   }
 
-  @Cached(synchronized = false, ModCount.getModificationCount, this)
+  @Cached(ModCount.getModificationCount, this)
   private def superPathsDeep: Set[Path] = {
     if (DumbService.getInstance(getProject).isDumb) return Set.empty //to prevent failing during indexes
 

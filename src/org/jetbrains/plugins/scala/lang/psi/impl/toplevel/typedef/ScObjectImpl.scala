@@ -159,7 +159,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = SyntheticMembersInjector.inject(this, withOverride = false)
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def fakeCompanionClass: Option[PsiClass] = getCompanionModule(this) match {
     case Some(_) => None
     case None =>
@@ -173,7 +173,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     case _ => getCompanionModule(this).get
   }
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   private def getModuleField: Option[PsiField] = {
     if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this)))) None
     else {
@@ -221,7 +221,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     res.toArray
   }
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   override def getConstructors: Array[PsiMethod] = Array(new EmptyPrivateConstructor(this))
 
   override def isPhysical: Boolean = {
@@ -238,7 +238,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     getSupers.filter(_.isInterface)
   }
 
-  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition = {
     ScalaPsiElementFactory.createObjectWithContext(tree.toString(), getContext, this)
       .setDesugared(actualElement = this)

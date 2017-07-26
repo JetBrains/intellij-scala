@@ -54,7 +54,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     *
     * `object a { def foo { def bar = 0 }}`
     */
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   def containingClass: ScTemplateDefinition = {
     if (isLocalByStub) null
     else containingClassInner
