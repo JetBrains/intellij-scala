@@ -57,3 +57,12 @@ On the sbt shell:
 
 1. `packagePluginCommunity`
 2. `runFastTests`
+
+The "fast tests" can take over an hour. To get a quick feedback on project health, run the "typeInference tests"
+
+    > testOnly org.jetbrains.plugins.scala.lang.typeInference.*
+    
+## Travis CI
+
+The project is configured to build and run the typeInference tests with Travis CI, which you can enable in your forks.
+The full test suite can't currently be run because Travis doesn't allow builds to take that long.
