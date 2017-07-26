@@ -75,7 +75,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     }
   }
 
-  override def toString: String = (if (isPackageObject) "ScPackageObject: " else "ScObject: ") + name
+  override def toString: String = (if (isPackageObject) "ScPackageObject: " else "ScObject: ") + ifReadAllowed(name)("")
 
   override def getIconInner: Icon = if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
 

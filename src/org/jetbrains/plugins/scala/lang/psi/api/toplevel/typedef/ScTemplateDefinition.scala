@@ -147,7 +147,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     PsiClassImplUtil.getAllWithSubstitutorsByMap(this, MemberType.METHOD)
   }
 
-  @CachedInsidePsiElement(this, CachesUtil.getDependentItem(this)())
+  @CachedInsidePsiElement(this, CachesUtil.libraryAwareModTracker(this))
   override def getVisibleSignatures: JCollection[HierarchicalMethodSignature] = {
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
   }

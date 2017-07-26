@@ -75,20 +75,16 @@ object CachesUtil {
   val PACKAGE_OBJECT_KEY: Key[(ScTypeDefinition, java.lang.Long)] = Key.create("package.object.key")
   val PROJECT_HAS_DOTTY_KEY: Key[java.lang.Boolean] = Key.create("project.has.dotty")
 
-  def getDependentItem(element: PsiElement)(dep_item: Object = enclosingModificationOwner(element)): Object = {
+
+  def libraryAwareModTracker(element: PsiElement): ModificationTracker = {
     element.getContainingFile match {
       case file: ScalaFile if file.isCompiled =>
-        if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
-          return dep_item
-        }
-        var dir = file.getParent
-        while (dir != null) {
-          if (dir.getName == "scala-library.jar") return ModificationTracker.NEVER_CHANGED
-          dir = dir.getParent
-        }
-        ProjectRootManager.getInstance(element.getProject)
+        val fileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
+
+        if (fileIndex.isInLibrary(file.getVirtualFile)) ProjectRootManager.getInstance(element.getProject)
+        else enclosingModificationOwner(element)
       case _: ClsFileImpl => ProjectRootManager.getInstance(element.getProject)
-      case _ => dep_item
+      case _ => enclosingModificationOwner(element)
     }
   }
 

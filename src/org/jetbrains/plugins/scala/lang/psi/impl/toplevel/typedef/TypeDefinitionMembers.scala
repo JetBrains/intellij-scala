@@ -507,7 +507,7 @@ object TypeDefinitionMembers {
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 
   def getParameterlessSignatures(clazz: PsiClass): PMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def inner(): PMap = ParameterlessNodes.build(clazz)
 
     inner()
@@ -515,14 +515,14 @@ object TypeDefinitionMembers {
 
   def getTypes(clazz: PsiClass): TMap = {
 
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def inner(): TMap =TypeNodes.build(clazz)
 
     inner()
   }
 
   def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None): SMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def buildNodesClass(): SMap = SignatureNodes.build(clazz)
 
     val ans = buildNodesClass()
@@ -539,7 +539,7 @@ object TypeDefinitionMembers {
             c match {
               case o: ScObject =>
                 if (allowedNames.contains(o.name)) {
-                  @CachedInsidePsiElement(o, CachesUtil.getDependentItem(o)())
+                  @CachedInsidePsiElement(o, CachesUtil.libraryAwareModTracker(o))
                   def buildNodesObject(): SMap = SignatureNodes.build(o)
 
                   val add = buildNodesObject()
@@ -547,7 +547,7 @@ object TypeDefinitionMembers {
                 }
               case c: ScClass =>
                 if (allowedNames.contains(c.name)) {
-                  @CachedInsidePsiElement(c, CachesUtil.getDependentItem(c)())
+                  @CachedInsidePsiElement(c, CachesUtil.libraryAwareModTracker(c))
                   def buildNodesClass2(): SMap = SignatureNodes.build(c)
 
                   val add = buildNodesClass2()
@@ -576,7 +576,7 @@ object TypeDefinitionMembers {
 
   def getSelfTypeSignatures(clazz: PsiClass): SMap = {
 
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def selfTypeSignaturesInner(): SMap = {
       implicit val ctx: ProjectContext = clazz
 

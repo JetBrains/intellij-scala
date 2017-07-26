@@ -11,6 +11,7 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.impl.source.PsiFileImpl
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
@@ -133,7 +134,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     }
   }
 
-  @Cached(ModCount.getBlockModificationCount, this)
+  @Cached(CachesUtil.libraryAwareModTracker(this), this)
   def calcFakeCompanionModule(): Option[ScObject] = {
     val accessModifier = getModifierList.accessModifier.fold("")(_.modifierFormattedText + " ")
     val objText = this match {
