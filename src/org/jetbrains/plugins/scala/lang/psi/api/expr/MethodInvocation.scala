@@ -288,7 +288,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       }
     }
 
-    var res: ScType = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed)) match {
+    val res: ScType = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed)) match {
       case Some(s) => s
       case None =>
         var (processedType, importsUsed, implicitFunction, applyOrUpdateResult) =
@@ -312,17 +312,12 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         }
     }
 
-    //Implicit parameters
-    val checkImplicitParameters = withEtaExpansion(this)
-    if (checkImplicitParameters) {
-      val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, useExpectedType, fullInfo = false)
-      res = tuple._1
-      implicitParameters = tuple._2
-    }
+    val (newType, params) = this.updatedWithImplicitParameters(res, useExpectedType)
+    setImplicitParameters(params, fromUnderscore = false)
 
     updateCacheFields()
 
-    Success(res, Some(this))
+    Success(newType, Some(this))
   }
 
   @volatile private var problemsVar: Seq[ApplicabilityProblem] = Seq.empty

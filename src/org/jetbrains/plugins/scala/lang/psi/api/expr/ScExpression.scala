@@ -43,10 +43,17 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     this.getTypeAfterImplicitConversion().tr
 
   @volatile
-  protected var implicitParameters: Option[Seq[ScalaResolveResult]] = None
+  private var implicitParameters: Option[Seq[ScalaResolveResult]] = None
 
   @volatile
-  protected var implicitParametersFromUnder: Option[Seq[ScalaResolveResult]] = None
+  private var implicitParametersFromUnder: Option[Seq[ScalaResolveResult]] = None
+
+  final protected def setImplicitParameters(results: Option[Seq[ScalaResolveResult]], fromUnderscore: Boolean): Unit = {
+    if (fromUnderscore)
+      implicitParametersFromUnder = results
+    else
+      implicitParameters = results
+  }
 
   /**
     * Warning! There is a hack in scala compiler for ClassManifest and ClassTag.
@@ -428,17 +435,20 @@ object ScExpression {
       cand
     }
 
-    def updateWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean, fromUnderscore: Boolean): ScType = {
+    //has side effect!
+    private def updateWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean, fromUnderscore: Boolean): ScType = {
+      val (newType, params) = updatedWithImplicitParameters(tpe, checkExpectedType)
+
+      expr.setImplicitParameters(params, fromUnderscore)
+
+      newType
+    }
+
+    def updatedWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
       val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(expr)
-      if (checkImplicitParameters) {
-        val tuple = InferUtil.updateTypeWithImplicitParameters(tpe, expr, None, checkExpectedType, fullInfo = false)
-
-        if (fromUnderscore) expr.implicitParametersFromUnder = tuple._2
-        else expr.implicitParameters = tuple._2
-
-        tuple._1
-      }
-      else tpe
+      if (checkImplicitParameters)
+        InferUtil.updateTypeWithImplicitParameters(tpe, expr, None, checkExpectedType, fullInfo = false)
+      else (tpe, None)
     }
 
     //numeric literal narrowing

@@ -255,7 +255,8 @@ object InferUtil {
               case _ => internal
             }
           val valueType = (expr match {
-            case scExpr: ScExpression => scExpr.updateWithImplicitParameters(innerInternal, checkExpectedType = true, fromUnderscore = false)
+            case scExpr: ScExpression =>
+              scExpr.updatedWithImplicitParameters(innerInternal, checkExpectedType = true)._1
             case _ => innerInternal
           }).inferValueType
           val update: ScTypePolymorphicType = localTypeInference(m,
