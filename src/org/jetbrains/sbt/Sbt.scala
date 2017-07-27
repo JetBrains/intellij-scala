@@ -3,7 +3,7 @@ package org.jetbrains.sbt
 import java.io.File
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.IconLoader
+import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.icons.Icons
 
 /**
@@ -49,7 +49,7 @@ object Sbt {
   // this should be in sync with sbt.BuildUtil.baseImports
   val DefaultImplicitImports = Seq("sbt._", "Process._", "Keys._", "dsl._")
 
-  val LatestVersion = "0.13.15"
+  val LatestVersion: String = BuildInfo.sbtLatestVersion
 
   lazy val Icon = Icons.SBT
 

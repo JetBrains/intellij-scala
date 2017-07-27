@@ -43,7 +43,7 @@ object Versions {
     val binary_1_0 = "1.0"
 
     val latest_0_12 = "0.12.4"
-    val latest_0_13 = "0.13.15"
+    val latest_0_13 = "0.13.16"
     val latest_1_0 = "1.0.0-RC2"
     val latest: String = latest_0_13
 
@@ -156,7 +156,7 @@ object DependencyGroups {
     Seq("0.12.4", "0.13.0", "0.13.1", "0.13.2",
         "0.13.5", "0.13.6", "0.13.7", "0.13.8",
         "0.13.9", "0.13.11", "0.13.12", "0.13.13",
-        "0.13.15")
+        "0.13.15", "0.13.16")
       .map(v => "org.scala-sbt" % "sbt-launch" % v)
 
   val testDownloader = Seq(
