@@ -18,7 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+import org.jetbrains.plugins.scala.settings.{Declaration, Implementation, Location, ScalaTypeAnnotationSettings}
+import org.jetbrains.plugins.scala.util._
 
 import scala.collection.mutable
 
@@ -41,16 +42,16 @@ class TypeAnnotationInspection extends AbstractInspection {
 }
 
 object TypeAnnotationInspection {
-
-  import TypeAnnotationUtil._
-
   private[typeAnnotation] val Description = "Explicit type annotation required (according to Code Style settings)"
 
   private def inspect(member: ScMember,
                       anchor: PsiElement,
                       maybeExpression: Option[ScExpression])
                      (implicit holder: ProblemsHolder): Unit = {
-    if (isTypeAnnotationNeeded(member)) {
+
+    if (ScalaTypeAnnotationSettings(member.getProject).isTypeAnnotationRequiredFor(
+      Declaration(member), Location(member), Some(Implementation(member)))) {
+
       holder.registerProblem(anchor, Description,
         new AddTypeAnnotationQuickFix(anchor),
         new LearnWhyQuickFix,

@@ -26,8 +26,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.Dup
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil.{isSimple, isTypeAnnotationNeededDefinition}
+import org.jetbrains.plugins.scala.settings._
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -56,7 +55,7 @@ object ScalaExtractMethodUtils {
     val retType =
       if ((settings.addReturnType == ScalaApplicationSettings.ReturnTypeLevel.REMOVE) ||
         (settings.addReturnType == ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
-          && !addTypeAnnotation(settings, settings.visibility))) " = "
+          && !isTypeAnnotationRequiredFor(settings, settings.visibility))) " = "
       else if (settings.calcReturnTypeIsUnit && !codeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT) ""
       else s": ${settings.calcReturnTypeText} ="
 
@@ -321,16 +320,15 @@ object ScalaExtractMethodUtils {
     s"$name$colon$byNameArrow$typeText"
   }
 
-  def addTypeAnnotation(extractMethodSettings: ScalaExtractMethodSettings, visibilityString: String): Boolean = {
-    val simple = extractMethodSettings.elements match {
-      case Array(expression: ScExpression) => isSimple(expression)
-      case _ => false
+  def isTypeAnnotationRequiredFor(settings: ScalaExtractMethodSettings, visibility: String): Boolean = {
+    val implementation = Some(settings.elements) collect {
+      case Array(expression: ScExpression) => Implementation.of(expression)
     }
 
-    isTypeAnnotationNeededDefinition(
-      extractMethodSettings.nextSibling,
-      visibilityString
-    )(isSimple = simple)()
+    val element = settings.elements(0)
+
+    ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
+      Declaration(Visibility(visibility)), Location(element), implementation)
   }
 
   def previewSignatureText(settings: ScalaExtractMethodSettings): String = {

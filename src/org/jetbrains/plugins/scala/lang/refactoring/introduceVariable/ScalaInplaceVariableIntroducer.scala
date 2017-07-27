@@ -34,8 +34,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaNamesUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.util._
 
 import scala.collection.mutable
 
@@ -414,15 +414,7 @@ object ScalaInplaceVariableIntroducer {
     if (!forceType) {
       if (expression == null || !expression.isValid) false
       else if (fromDialogMode) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE
-      else {
-        import TypeAnnotationUtil._
-        val local = isLocal(anchor)
-
-        val visibility = if (!local) Private else Public
-        isTypeAnnotationNeededDefinition(
-          anchor,
-          visibility.toString
-        )(isLocal = local)()
-      }
+      else ScalaTypeAnnotationSettings(anchor.getProject).isTypeAnnotationRequiredFor(
+        Declaration(Visibility.Default), Location(anchor), Some(Implementation.of(expression)))
     } else true
 }

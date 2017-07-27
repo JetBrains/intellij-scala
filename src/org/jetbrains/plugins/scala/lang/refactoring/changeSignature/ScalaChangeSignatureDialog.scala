@@ -37,7 +37,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPanel
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil.{createTypeAnnotationsHLink, isTypeAnnotationNeededDefinition}
+import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
@@ -201,7 +202,8 @@ class ScalaChangeSignatureDialog(val project: Project,
   }
 
   private def needsTypeAnnotation(element: PsiElement, visibilityString: String): Boolean =
-    isTypeAnnotationNeededDefinition(element, visibilityString)()()
+    ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
+      Declaration(element, Visibility(visibilityString)), Location(element), Some(Implementation(element)))
 
   override def calculateSignature(): String = {
     def nameAndType(item: ScalaParameterTableModelItem) = {
@@ -513,7 +515,7 @@ class ScalaChangeSignatureDialog(val project: Project,
   }
   
   private def setUpHyperLink(): HyperlinkLabel = {
-    val link = createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
+    val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
 
     link.addHyperlinkListener(new HyperlinkListener() {
       def hyperlinkUpdate(e: HyperlinkEvent) {

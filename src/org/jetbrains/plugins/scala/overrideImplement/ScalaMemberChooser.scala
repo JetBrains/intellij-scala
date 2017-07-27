@@ -13,7 +13,8 @@ import com.intellij.util.ui.ThreeStateCheckBox.State
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.settings.{Declaration, Location, ScalaApplicationSettings, ScalaTypeAnnotationSettings}
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil._
 
 import scala.collection.mutable
@@ -131,33 +132,9 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
       State.NOT_SELECTED
   }
 
-  private def typeAnnotationNeeded(element: PsiElement): Boolean = {
-    val simple = isSimple(element)
-
-    def default = isTypeAnnotationNeeded(
-      isRequired = true,
-      exludeSimple = true
-    )(simple)
-
-    val settings = ScalaCodeStyleSettings.getInstance(element.getProject)
-
-    element match {
-      case _: ScPatternDefinition | _: ScVariableDefinition |
-           _: ScVariableDeclaration | _: ScValueDeclaration |
-           _: ScFunctionDeclaration | _: ScFunctionDefinition =>
-        isTypeAnnotationNeededDefinition(element.asInstanceOf[ScMember])(settings, simple)
-
-      case modifierListOwner: PsiModifierListOwner =>
-        val visibility = Visibility(modifierListOwner)
-
-        modifierListOwner match {
-          case _: PsiMethod | _: PsiField =>
-            isTypeAnnotationNeededDefinition(visibility)(settings, simple)
-          case _ => default
-        }
-      case _ => default
-    }
-  }
+  private def typeAnnotationNeeded(element: PsiElement): Boolean =
+    ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
+      Declaration(element), Location(targetClass), implementation = None)
 }
 
 object ScalaMemberChooser {
