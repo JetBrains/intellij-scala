@@ -49,7 +49,7 @@ object Declaration {
     }
 
     override def isImplicit: Boolean = element match {
-      case owner: ScModifierListOwner => owner.hasModifierProperty("implicit")
+      case owner: ScModifierListOwner => owner.hasModifierPropertyScala("implicit")
       case _ => false
     }
 
