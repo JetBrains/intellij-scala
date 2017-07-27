@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.settings
 
 import com.intellij.psi.{PsiElement, PsiModifierListOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+
+import scala.util.matching.Regex
 
 /**
   * @author Pavel Fatin
@@ -23,6 +26,8 @@ trait Declaration {
 }
 
 object Declaration {
+  private val AsteriskPattern = new Regex("(.*)\\*(.*)")
+
   def apply(element: PsiElement): Declaration = new PhysycalDeclaration(element)
 
   def apply(element: PsiElement, newVisibility: Visibility): Declaration = new PhysycalDeclaration(element) {
@@ -60,15 +65,29 @@ object Declaration {
 
     override def hasUnitType: Boolean = element match {
       case f: ScFunction => f.hasUnitResultType
-      case e: ScExpression => e.getType().exists(_.isUnit)
+      case v: Typeable => v.getType().exists(_.isUnit)
       case _ => false
     }
 
-    override def typeMatches(patterns: Set[String]): Boolean = false
+    override def typeMatches(patterns: Set[String]): Boolean = element match {
+      case v: Typeable => v.getType().exists(t => patterns.exists(matches(t, _)))
+      case _ => false
+    }
 
     override def isAnnotatedWith(annotations: Set[String]): Boolean = element match {
       case holder: ScAnnotationsHolder => annotations.exists(holder.hasAnnotation)
       case _ => false
+    }
+  }
+
+  private def matches(t: ScType, pattern: String): Boolean = {
+    val s = t.canonicalText.stripPrefix("_root_.")
+
+    pattern match {
+      case AsteriskPattern(prefix, suffix) =>
+        s.length > prefix.length + suffix.length && s.startsWith(prefix) && s.endsWith(suffix)
+      case plainText =>
+        s == plainText
     }
   }
 
