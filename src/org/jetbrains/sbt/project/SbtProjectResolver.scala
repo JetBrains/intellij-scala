@@ -17,6 +17,7 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
+import org.jetbrains.sbt.structure.ProjectData
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.{structure => sbtStructure}
 
@@ -84,17 +85,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     message.startsWith("[error] ") || message.startsWith("[warn] ")
 
   private def convert(root: String, data: sbtStructure.StructureData, settingsJdk: Option[String]): Node[ESProjectData] = {
-    val projects = data.projects
-    val project: sbtStructure.ProjectData =
+    val projects: Seq[sbtStructure.ProjectData] = data.projects
+    val rootProject: sbtStructure.ProjectData =
       projects.find(p => FileUtil.filesEqual(p.base, new File(root)))
         .orElse(projects.headOption)
         .getOrElse(throw new RuntimeException("No root project found"))
-    val projectNode = new ProjectNode(project.name, root, root)
+    val projectNode = new ProjectNode(rootProject.name, root, root)
 
     val basePackages = projects.flatMap(_.basePackages).distinct
-    val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
+    val javacOptions = rootProject.java.map(_.options).getOrElse(Seq.empty)
 
-    val projectJdk = chooseJdk(project, settingsJdk)
+    val projectJdk = chooseJdk(rootProject, settingsJdk)
 
     projectNode.add(new SbtProjectNode(SbtProjectData(basePackages, projectJdk, javacOptions, data.sbtVersion, root)))
 
@@ -113,7 +114,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val sharedSourceModules = createSharedSourceModules(projectToModuleNode, libraryNodes, moduleFilesDirectory)
     projectNode.addAll(sharedSourceModules)
 
-    projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath))))
+    val buildModuleForProject: (ProjectData) => ModuleNode = createBuildModule(_, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath))
+    projectNode.addAll(allBuildModules(rootProject, projects, buildModuleForProject))
     projectNode
   }
 
@@ -132,6 +134,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     androidSdk
       .orElse(jdkHomeInSbtProject)
       .orElse(default)
+  }
+
+  private def allBuildModules(rootProject: sbtStructure.ProjectData, projects: Seq[sbtStructure.ProjectData], buildModule: (ProjectData) => ModuleNode) = {
+
+    val rootBuildModule = buildModule(rootProject)
+    projects.map { p =>
+      val mod = buildModule(p)
+
+      // subprojects of the main root project inherit the build definitions classpath
+      if (p.id != rootProject.id && p.buildURI == rootProject.buildURI) {
+        val depNode = new ModuleDependencyNode(mod, rootBuildModule)
+        mod.add(depNode)
+      }
+      mod
+    }
   }
 
   def createModuleDependencies(projects: Seq[sbtStructure.ProjectData], moduleNodes: Seq[ModuleNode]): Unit = {
