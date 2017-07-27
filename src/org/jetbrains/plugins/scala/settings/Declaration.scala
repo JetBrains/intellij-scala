@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.settings
 
 import com.intellij.psi.{PsiElement, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 
 /**
@@ -53,7 +53,10 @@ object Declaration {
       case _ => false
     }
 
-    override def isConstant: Boolean = false
+    override def isConstant: Boolean = element match {
+      case value: ScValue => value.hasModifierPropertyScala("final")
+      case _ => false
+    }
 
     override def hasUnitType: Boolean = element match {
       case f: ScFunction => f.hasUnitResultType
