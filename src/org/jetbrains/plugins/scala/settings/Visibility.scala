@@ -11,7 +11,8 @@ object Visibility {
   final object Default extends Visibility
 
   def apply(s: String): Visibility =
-    if (s.startsWith("private")) Visibility.Private
+    if (s == null) Visibility.Default
+    else if (s.startsWith("private")) Visibility.Private
     else if (s.startsWith("protected")) Visibility.Protected
     else Visibility.Default
 }
