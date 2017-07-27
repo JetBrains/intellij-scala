@@ -3,6 +3,7 @@ package org.jetbrains.sbt
 import java.io.File
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.icons.Icons
 
@@ -59,7 +60,9 @@ object Sbt {
     val baseDir = new File(project.getBasePath)
     val projectDir = baseDir / Sbt.ProjectDirectory
     file.getName == Sbt.BuildFile && file.isUnder(baseDir) ||
-      file.getName.endsWith(s".${Sbt.FileExtension}") && file.isUnder(baseDir) ||
+      isSbtFile(file.getName) && file.isUnder(baseDir) ||
       file.getName.endsWith(".scala") && file.isUnder(projectDir)
   }
+
+  def isSbtFile(@NotNull filename: String): Boolean = filename.endsWith(s".${Sbt.FileExtension}")
 }
