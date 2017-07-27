@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
  */
 
 class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
-  protected def innerType(): TypeResult[ScType] = innerNonValueType(inferValueType = true)
+  protected def innerType: TypeResult[ScType] = innerNonValueType(inferValueType = true)
 
   override def getTypeNoConstructor: TypeResult[ScType] = innerNonValueType(inferValueType = true, noConstructor = true)
 

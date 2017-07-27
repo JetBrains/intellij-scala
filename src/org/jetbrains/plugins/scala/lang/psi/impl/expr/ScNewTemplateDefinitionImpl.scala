@@ -49,7 +49,7 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
       case parents: ScClassParents if parents.typeElements.length == 1 => parents
     }.flatMap(_.constructor)
 
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  protected override def innerType: TypeResult[ScType] = {
     constructor match {
       case Some(constructor) =>
         constructor.reference match {
@@ -72,7 +72,7 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
               val text = "(" + getText.substring(0, calcOffset(4, constructor.arguments(len))) + ")" +
                 constructor.arguments.takeRight(argLen - len).map(_.getText).mkString
               val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
-              return newExpr.getNonValueType(ctx, fromUnderscore = true)
+              return newExpr.getNonValueType(fromUnderscore = true)
             }
           case _ =>
         }

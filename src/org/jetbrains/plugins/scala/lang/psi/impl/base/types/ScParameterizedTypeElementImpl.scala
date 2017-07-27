@@ -149,7 +149,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     case _ => None
   }
 
-  override protected def innerType(): TypeResult[ScType] = {
+  override protected def innerType: TypeResult[ScType] = {
     computeDesugarizedType match {
       case Some(typeElement) =>
         return typeElement.getType()

@@ -20,14 +20,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, CachedWithRecursionGuard$, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
 class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) with ScTypeProjection {
-  protected def innerType(): TypeResult[ScType] = {
+  protected def innerType: TypeResult[ScType] = {
     this.bind() match {
       case Some(ScalaResolveResult(elem, _)) =>
         val te: TypeResult[ScType] = typeElement.getType()

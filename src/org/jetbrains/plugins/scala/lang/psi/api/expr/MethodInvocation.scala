@@ -127,16 +127,16 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     */
   def isUpdateCall: Boolean = false
 
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  protected override def innerType: TypeResult[ScType] = {
     try {
-      tryToGetInnerType(ctx, useExpectedType = true)
+      tryToGetInnerType(useExpectedType = true)
     } catch {
       case _: SafeCheckException =>
-        tryToGetInnerType(ctx, useExpectedType = false)
+        tryToGetInnerType(useExpectedType = false)
     }
   }
 
-  private def tryToGetInnerType(ctx: TypingContext, useExpectedType: Boolean): TypeResult[ScType] = {
+  private def tryToGetInnerType(useExpectedType: Boolean): TypeResult[ScType] = {
     var problemsLocal: Seq[ApplicabilityProblem] = Seq.empty
     var matchedParamsLocal: Seq[(Parameter, ScExpression)] = Seq.empty
     var importsUsedLocal: collection.Set[ImportUsed] = collection.Set.empty
@@ -151,7 +151,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       applyOrUpdateElemVar = applyOrUpdateElemLocal
     }
 
-    var nonValueType: TypeResult[ScType] = getEffectiveInvokedExpr.getNonValueType(TypingContext.empty)
+    var nonValueType: TypeResult[ScType] = getEffectiveInvokedExpr.getNonValueType()
     this match {
       case _: ScPrefixExpr => return nonValueType //no arg exprs, just reference expression type
       case _: ScPostfixExpr => return nonValueType //no arg exprs, just reference expression type

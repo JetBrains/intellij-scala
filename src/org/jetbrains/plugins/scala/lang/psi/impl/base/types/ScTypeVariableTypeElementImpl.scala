@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
  * @since 26/09/14.
  */
 class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeVariableTypeElement {
-  override protected def innerType(): TypeResult[ScType] = this.success(ScExistentialArgument(name, List.empty, Nothing, Any))
+  override protected def innerType: TypeResult[ScType] = this.success(ScExistentialArgument(name, List.empty, Nothing, Any))
 
   override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 

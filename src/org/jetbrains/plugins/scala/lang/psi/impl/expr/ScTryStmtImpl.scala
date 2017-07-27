@@ -30,8 +30,8 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
 
   override def toString: String = "TryStatement"
 
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    val lifted = tryBlock.getType(ctx)
+  protected override def innerType: TypeResult[ScType] = {
+    val lifted = tryBlock.getType(TypingContext.empty)
     lifted flatMap { _ => catchBlock match {
         case None => lifted
         case Some(cb) =>

@@ -348,7 +348,7 @@ object ScalaPsiUtil {
     val (expr, exprTp, typeArgs: Seq[ScTypeElement]) = call.getEffectiveInvokedExpr match {
       case gen: ScGenericCall =>
         // The type arguments are for the apply/update method, separate them from the referenced expression. (SCL-3489)
-        val referencedType = gen.referencedExpr.getNonValueType(TypingContext.empty).getOrNothing
+        val referencedType = gen.referencedExpr.getNonValueType().getOrNothing
         referencedType match {
           case _: ScTypePolymorphicType => //that means that generic call is important here
             (gen, gen.getType(TypingContext.empty).getOrNothing, Seq.empty)
@@ -358,7 +358,7 @@ object ScalaPsiUtil {
       case expression => (expression, tp, Seq.empty)
     }
     val invoked = call.getInvokedExpr
-    val typeParams = invoked.getNonValueType(TypingContext.empty).map {
+    val typeParams = invoked.getNonValueType().map {
       case ScTypePolymorphicType(_, tps) => tps
       case _ => Seq.empty
     }.getOrElse(Seq.empty)
@@ -420,7 +420,7 @@ object ScalaPsiUtil {
             case meth: PsiMethod => (update(ResolveUtils.javaPolymorphicType(meth, s, call.resolveScope)),
               r.importsUsed, r.implicitFunction, Some(r))
           }
-          call.getInvokedExpr.getNonValueType(TypingContext.empty) match {
+          call.getInvokedExpr.getNonValueType() match {
             case Success(ScTypePolymorphicType(_, typeParams), _) =>
               res.copy(_1 = res._1 match {
                 case ScTypePolymorphicType(internal, typeParams2) =>

@@ -190,7 +190,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     buffer.toArray
   }
 
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  protected override def innerType: TypeResult[ScType] = {
     this.bind() match {
       case Some(srr) => convertBindToType(srr)
       case _ => resolveFailure
@@ -517,7 +517,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
       case None => //infix, prefix and postfix
         getContext match {
           case sugar: ScSugarCallExpr if sugar.operation == this =>
-            sugar.getBaseExpr.getNonValueType(TypingContext.empty) match {
+            sugar.getBaseExpr.getNonValueType() match {
               case Success(ScTypePolymorphicType(_, typeParams), _) =>
                 inner match {
                   case ScTypePolymorphicType(internal, typeParams2) =>
@@ -537,7 +537,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
           case _ =>
         }
       case Some(qualifier) =>
-        qualifier.getNonValueType(TypingContext.empty) match {
+        qualifier.getNonValueType() match {
           case Success(ScTypePolymorphicType(_, typeParams), _) =>
             inner match {
               case ScTypePolymorphicType(internal, typeParams2) =>
@@ -562,13 +562,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     qualifier match {
       case Some(_: ScSuperReference) => Seq.empty
       case Some(qual) =>
-        qual.getNonValueType(TypingContext.empty).map {
+        qual.getNonValueType().map {
           case t: ScTypePolymorphicType => t.typeParameters
           case _ => Seq.empty
         }.getOrElse(Seq.empty)
       case _ => getContext match {
         case sugar: ScSugarCallExpr if sugar.operation == this =>
-          sugar.getBaseExpr.getNonValueType(TypingContext.empty).map {
+          sugar.getBaseExpr.getNonValueType().map {
             case t: ScTypePolymorphicType => t.typeParameters
             case _ => Seq.empty
           }.getOrElse(Seq.empty)

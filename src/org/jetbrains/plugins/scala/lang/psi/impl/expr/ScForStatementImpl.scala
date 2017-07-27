@@ -347,9 +347,9 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
   }
 
-  override protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  override protected def innerType: TypeResult[ScType] = {
     getDesugarizedExpr match {
-      case Some(newExpr) => newExpr.getNonValueType(ctx)
+      case Some(newExpr) => newExpr.getNonValueType()
       case None => Failure("Cannot create expression", Some(this))
     }
   }
