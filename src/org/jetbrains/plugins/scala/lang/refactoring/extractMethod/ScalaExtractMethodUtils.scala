@@ -328,7 +328,7 @@ object ScalaExtractMethodUtils {
     val element = settings.elements(0)
 
     ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
-      Declaration(Visibility(visibility)), Location(element), implementation)
+      Declaration(Visibility(visibility)), Location(settings.nextSibling), implementation)
   }
 
   def previewSignatureText(settings: ScalaExtractMethodSettings): String = {
