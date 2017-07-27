@@ -295,11 +295,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val result = new ContentRootNode(project.base.path)
 
-    result.storePaths(ExternalSystemSourceType.SOURCE, productionSources)
-    result.storePaths(ExternalSystemSourceType.RESOURCE, productionResources)
+    result.storePaths(ExternalSystemSourceType.SOURCE, unmanagedDirectories(productionSources))
+    result.storePaths(ExternalSystemSourceType.SOURCE_GENERATED, managedDirectories(productionSources))
+    result.storePaths(ExternalSystemSourceType.RESOURCE, allDirectories(productionResources))
 
-    result.storePaths(ExternalSystemSourceType.TEST, testSources)
-    result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, testResources)
+    result.storePaths(ExternalSystemSourceType.TEST, unmanagedDirectories(testSources))
+    result.storePaths(ExternalSystemSourceType.TEST_GENERATED, managedDirectories(testSources))
+    result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, allDirectories(testResources))
 
     getExcludedTargetDirs(project).foreach { path =>
       result.storePath(ExternalSystemSourceType.EXCLUDED, path.path)
@@ -307,6 +309,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     result
   }
+
+  private def allDirectories(dirs: Seq[sbtStructure.DirectoryData]) =
+    dirs.map(_.file.canonicalPath)
+
+  private def managedDirectories(dirs: Seq[sbtStructure.DirectoryData]) =
+    dirs.filter(_.managed).map(_.file.canonicalPath)
+
+  private def unmanagedDirectories(dirs: Seq[sbtStructure.DirectoryData]) =
+    dirs.filterNot(_.managed).map(_.file.canonicalPath)
 
   // We cannot always exclude the whole ./target/ directory because of
   // the generated sources, so we resort to an heuristics.
@@ -385,14 +396,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def validRootPathsIn(project: sbtStructure.ProjectData, scope: String)
-                              (selector: sbtStructure.ConfigurationData => Seq[sbtStructure.DirectoryData]): Seq[String] = {
+                              (selector: sbtStructure.ConfigurationData => Seq[sbtStructure.DirectoryData]): Seq[sbtStructure.DirectoryData] = {
     project.configurations
             .find(_.id == scope)
             .map(selector)
             .getOrElse(Seq.empty)
-            .map(_.file)
-            .filter(!_.isOutsideOf(project.base))
-            .map(_.path)
+            .filterNot(_.file.isOutsideOf(project.base))
   }
 
   protected def createLibraryDependencies(dependencies: Seq[sbtStructure.ModuleDependencyData])
@@ -473,5 +482,9 @@ object SbtProjectResolver {
     def onTaskOutput(message: String, stdOut: Boolean): Unit =
       listener.onTaskOutput(taskId, message, stdOut)
   }
+
+  // ExternalSystemSourceType enum extension
+  val ResourceGenerated: ExternalSystemSourceType = ExternalSystemSourceType.from(false, true, true, false)
+  val TestResourceGenerated: ExternalSystemSourceType = ExternalSystemSourceType.from(true, true, true, false)
 
 }
