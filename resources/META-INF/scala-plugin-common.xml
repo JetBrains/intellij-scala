@@ -418,9 +418,6 @@
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScSelfTypeInheritorsIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAnnotatedMemberIndex"/>
 
-        <projectService serviceInterface="org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker"
-                        serviceImplementation="org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker"/>
-
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
 

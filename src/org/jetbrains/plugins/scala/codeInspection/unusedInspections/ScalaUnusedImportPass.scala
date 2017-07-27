@@ -10,7 +10,6 @@ import com.intellij.codeInsight.daemon.ProblemHighlightFilter
 import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.diagnostic.{AttachmentFactory, LogMessageEx}
 import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.undo.UndoManager
@@ -18,7 +17,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Comparing, Key}
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.{DocumentUtil, Processor}
@@ -46,7 +45,7 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
   override def collectInformationWithProgress(progress: ProgressIndicator): Unit = {
     file match {
       case scalaFile: ScalaFile if HighlightingLevelManager.getInstance(file.getProject) shouldInspect file =>
-        val unusedImports = ImportTracker.getInstance(file.getProject).getUnusedImport(scalaFile)
+        val unusedImports = ImportTracker.getUnusedImports(scalaFile)
         val annotations = collectAnnotations(unusedImports, new AnnotationHolderImpl(new AnnotationSession(file)))
 
         val list = new util.ArrayList[HighlightInfo](annotations.length)

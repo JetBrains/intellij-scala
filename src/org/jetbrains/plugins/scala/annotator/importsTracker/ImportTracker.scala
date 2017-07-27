@@ -3,27 +3,37 @@ package annotator
 package importsTracker
 
 
-import com.intellij.openapi.components.ServiceManager
-import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.collection.{Set, mutable}
+import scala.collection.mutable
+import scala.collection.Set
 
 /**
  * @author Alexander Podkhalyuzin
  */
-class ImportTracker {
-  def registerUsedImports(file: ScalaFile, used: Set[ImportUsed]) {
-    val refHolder = ScalaRefCountHolder.getInstance(file)
-    for (imp <- used) {
-      refHolder.registerImportUsed(imp)
+object ImportTracker {
+
+  def registerUsedImports(elem: PsiElement, imports: Set[ImportUsed]): Unit = {
+    if (!elem.isValid) return
+
+    elem.getContainingFile match {
+      case scalaFile: ScalaFile =>
+        val refHolder = ScalaRefCountHolder.getInstance(scalaFile)
+        imports.foreach(refHolder.registerImportUsed)
+      case _ =>
     }
   }
 
-  def getUnusedImport(file: ScalaFile): Seq[ImportUsed] = {
+  def registerUsedImports(element: PsiElement, resolveResult: ScalaResolveResult): Unit = {
+    registerUsedImports(element, resolveResult.importsUsed)
+  }
+
+  def getUnusedImports(file: ScalaFile): Seq[ImportUsed] = {
     val buff = new mutable.HashSet[ImportUsed]()
     val imports = file.getAllImportUsed
     val refHolder = ScalaRefCountHolder.getInstance(file)
@@ -45,11 +55,5 @@ class ImportTracker {
       }
     }
     buff.toSeq
-  }
-}
-
-object ImportTracker {
-  def getInstance(project: Project): ImportTracker = {
-    ServiceManager.getService(project, classOf[ImportTracker])
   }
 }
