@@ -151,7 +151,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  def createModuleDependencies(projects: Seq[sbtStructure.ProjectData], moduleNodes: Seq[ModuleNode]): Unit = {
+  private def createModuleDependencies(projects: Seq[sbtStructure.ProjectData], moduleNodes: Seq[ModuleNode]): Unit = {
     projects.zip(moduleNodes).foreach { case (moduleProject, moduleNode) =>
       moduleProject.dependencies.projects.foreach { dependencyId =>
         val dependency = moduleNodes.find(_.getId == dependencyId.project).getOrElse(
@@ -164,7 +164,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  def createModules(projects: Seq[sbtStructure.ProjectData], libraryNodes: Seq[LibraryNode], moduleFilesDirectory: File): Seq[ModuleNode] = {
+  private def createModules(projects: Seq[sbtStructure.ProjectData], libraryNodes: Seq[LibraryNode], moduleFilesDirectory: File): Seq[ModuleNode] = {
     val unmanagedSourcesAndDocsLibrary = libraryNodes.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
     val modules = projects.map { project =>
       val moduleNode = createModule(project, moduleFilesDirectory)
@@ -192,7 +192,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     modules
   }
 
-  def createLibraries(data: sbtStructure.StructureData, projects: Seq[sbtStructure.ProjectData]): Seq[LibraryNode] = {
+  private def createLibraries(data: sbtStructure.StructureData, projects: Seq[sbtStructure.ProjectData]): Seq[LibraryNode] = {
     val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)
     val (modulesWithoutBinaries, modulesWithBinaries) = repositoryModules.partition(_.binaries.isEmpty)
     val otherModuleIds = projects.flatMap(_.dependencies.modules.map(_.id)).toSet --
@@ -389,7 +389,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  def createSbtBuildModuleData(project: sbtStructure.ProjectData, localCachePath: Option[String]): SbtBuildModuleNode = {
+  private def createSbtBuildModuleData(project: sbtStructure.ProjectData, localCachePath: Option[String]): SbtBuildModuleNode = {
     val imports = project.build.imports.flatMap(_.trim.substring(7).split(", "))
     val resolvers = project.resolvers map { r => new SbtMavenResolver(r.name, r.root).asInstanceOf[SbtResolver] }
     new SbtBuildModuleNode(SbtBuildModuleData(imports, resolvers + SbtResolver.localCacheResolver(localCachePath)))
@@ -482,9 +482,5 @@ object SbtProjectResolver {
     def onTaskOutput(message: String, stdOut: Boolean): Unit =
       listener.onTaskOutput(taskId, message, stdOut)
   }
-
-  // ExternalSystemSourceType enum extension
-  val ResourceGenerated: ExternalSystemSourceType = ExternalSystemSourceType.from(false, true, true, false)
-  val TestResourceGenerated: ExternalSystemSourceType = ExternalSystemSourceType.from(true, true, true, false)
 
 }
