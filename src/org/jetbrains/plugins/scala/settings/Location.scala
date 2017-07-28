@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.settings
 
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiModifier}
 import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
@@ -49,7 +50,13 @@ object Location {
 
     override def isInsideAnonymousClass: Boolean = false
 
-    override def isInsidePrivateClass: Boolean = false
+    override def isInsidePrivateClass: Boolean = element match {
+      case memeber: ScMember => memeber.getContainingClass match {
+        case owner: ScModifierListOwner => owner.hasModifierPropertyScala(PsiModifier.PRIVATE)
+        case _ => false
+      }
+      case _ => false
+    }
 
     override def isInsideOf(classes: Set[String]): Boolean = element match {
       case member: ScMember => isMemberOf(member, classes)
