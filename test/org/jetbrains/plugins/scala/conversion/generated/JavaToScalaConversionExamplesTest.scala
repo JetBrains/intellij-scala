@@ -65,7 +65,7 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
       TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
     )
   
-  def testNoRetunTypeForLocalAndOverride() =
+  def testNoRetunTypeForLocal() =
     doTest(TypeAnnotationSettings.noTypeAnnotationForLocal(
       TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
     ))

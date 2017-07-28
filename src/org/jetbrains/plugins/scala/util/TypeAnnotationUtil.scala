@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOrRemoveStrate
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaTabbedCodeStylePanel
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel.{ADD, BY_CODE_STYLE, REMOVE}
@@ -26,15 +25,15 @@ import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
   */
 // TODO more refactoring needed
 object TypeAnnotationUtil {
-  private def getTypeElement(element: ScalaPsiElement): Option[ScTypeElement] = {
-    element match {
-      case fun: ScFunction => fun.returnTypeElement
-      case inNameContext(pd: ScPatternDefinition) => pd.typeElement
-      case inNameContext(vd: ScVariableDefinition) => vd.typeElement
-      case patternDefinition: ScPatternDefinition => patternDefinition.typeElement
-      case variableDefinition: ScVariableDefinition => variableDefinition.typeElement
-      case _ => None
-    }
+  // We shouldn't convert _typed pattern_ to _variable pattern_, because typed pattern differs from type annotation:
+  // val v: String = new Object() - type mismatch
+  // val Some(v: String) = Some(new Object()) - compiles OK
+  // Thus, the presence of type affects the outcome, and such a type is not optional.
+  private def getTypeElement(element: ScalaPsiElement): Option[ScTypeElement] = element match {
+    case function: ScFunction => function.returnTypeElement
+    case pattern: ScPatternDefinition => pattern.typeElement
+    case variable: ScVariableDefinition => variable.typeElement
+    case _ => None
   }
 
   def removeTypeAnnotationIfNeeded(element: ScalaPsiElement,
