@@ -1,5 +1,7 @@
 package org.jetbrains.sbt.shell
 
+import java.util.concurrent.TimeUnit
+
 import org.jetbrains.plugins.scala.SlowTests
 import org.junit.experimental.categories.Category
 
@@ -51,12 +53,14 @@ abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
     doTestAddToSetting("javaOptions", """set javaOptions in scalaTest in Test:=List("optOne")""", """"optTwo"""",
       "List(optOne, optTwo)", timeout, Some("Test"), Some("test"), Some(getScalaTestProjectUri), Some("scalaTest"))
 
+
   protected def doTestShowSetting(commandBefore: String, settingName: String, expectedValue: String, timeoutSeconds: Int,
                                   taskName: Option[String] = None, projectUri: Option[String]= None,
                                   projectName: Option[String] = None) = {
     val handler = SettingQueryHandler(settingName, taskName, projectUri, projectName, comm)
-    val res = Await.result(comm.command(commandBefore, showShell = false).flatMap { _ => handler.getSettingValue() },
-      Duration(timeoutSeconds, "second"))
+    val res = Await.result(
+      comm.command(commandBefore, showShell = false).flatMap { _ => handler.getSettingValue() },
+      Duration(timeoutSeconds, TimeUnit.SECONDS))
     runner.getConsoleView.flushDeferredText()
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found")
     assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix))
@@ -90,7 +94,7 @@ abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
     assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix))
   }
 
-  protected def getScalaTestProjectUri: String = "file:/" + getBasePath.replace("\\", "/") + "/" + getPath + "/"
+  protected def getScalaTestProjectUri: String = "file:" + getBasePath.replace("\\", "/") + "/" + getPath + "/"
 
   protected val timeout = 60
 }
