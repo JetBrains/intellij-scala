@@ -3,10 +3,7 @@ package decompiler
 
 import java.io._
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.ex.ProjectManagerEx
-import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
@@ -27,17 +24,6 @@ object DecompilerUtil {
   }
   object DecompilationResult {
     def empty: DecompilationResult = new DecompilationResult(isScala = false, sourceName = "", timeStamp = 0L)
-  }
-
-  private def openedNotDisposedProjects: Array[Project] = {
-    val manager = ProjectManager.getInstance
-    if (ApplicationManager.getApplication.isUnitTestMode) {
-      val testProject = manager.asInstanceOf[ProjectManagerEx].getOpenProjects.find(!_.isDisposed).orNull
-      if (testProject != null) Array(testProject)
-      else Array.empty
-    } else {
-      manager.getOpenProjects.filter(!_.isDisposed)
-    }
   }
 
   // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
@@ -94,7 +80,15 @@ object DecompilerUtil {
   }
 
   private def decompileInner(file: VirtualFile, bytes: Array[Byte]): DecompilationResult = {
-    Decompiler.decompile(file.getName, bytes) match {
+    val result =
+      try Decompiler.decompile(file.getName, bytes)
+      catch {
+        case e: Exception =>
+          LOG.warn(e.getMessage)
+          None
+      }
+
+    result match {
       case Some((sourceFileName, decompiledSourceText)) =>
         new DecompilationResult(isScala = true, sourceFileName, file.getTimeStamp) {
           override def sourceText: String = decompiledSourceText

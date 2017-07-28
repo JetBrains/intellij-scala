@@ -12,7 +12,17 @@ class Ref[T <: Entry : ClassTag](val index: Int)(implicit val scalaSig: ScalaSig
   def get: T = {
     val entry = scalaSig.get(index)
 
-    assert(scalaSig.isInitialized && implicitly[ClassTag[T]].runtimeClass.isInstance(entry))
+    if (!scalaSig.isInitialized)
+      throw new ScalaDecompilerException("usage of scalaSig entry before initialization")
+
+    val expectedClass = implicitly[ClassTag[T]].runtimeClass
+    if (!expectedClass.isInstance(entry)) {
+      val expName = expectedClass.getCanonicalName
+      val actName = entry.getClass.getCanonicalName
+      val message =
+        s"wrong type of reference at index $index, expected: $expName, actual: $actName"
+      throw new ScalaDecompilerException(message)
+    }
 
     entry.asInstanceOf[T]
   }
@@ -40,3 +50,5 @@ object Ref {
 
   implicit def unwrapOption[T <: Entry](ref: Option[Ref[T]]): Option[T] = ref.map(_.get)
 }
+
+class ScalaDecompilerException(message: String) extends Exception(message)

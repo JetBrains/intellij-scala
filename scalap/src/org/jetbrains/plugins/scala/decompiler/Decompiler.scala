@@ -5,7 +5,7 @@ import java.lang.StringBuilder
 import java.nio.charset.StandardCharsets
 
 import org.apache.bcel.classfile._
-import org.jetbrains.plugins.scala.decompiler.scalasig.{Parser, ScalaSig, ScalaSigPrinter}
+import org.jetbrains.plugins.scala.decompiler.scalasig.{Parser, ScalaDecompilerException, ScalaSig, ScalaSigPrinter}
 
 import scala.reflect.internal.pickling.ByteCodecs
 
@@ -60,10 +60,15 @@ object Decompiler {
         .find(isScalaSignatureAnnotation)
         .flatMap(parseScalaSig)
 
-    scalaSig.map { sig =>
-      val decompiledSourceText = decompiledText(fileName, sig)
-      val sourceFileName = parsed.getSourceFileName
-      (sourceFileName, decompiledSourceText)
+    try {
+      scalaSig.map { sig =>
+        val decompiledSourceText = decompiledText(fileName, sig)
+        val sourceFileName = parsed.getSourceFileName
+        (sourceFileName, decompiledSourceText)
+      }
+    } catch {
+      case sde: ScalaDecompilerException =>
+        throw new RuntimeException(s"Error decompiling class ${parsed.getClassName}, ${sde.getMessage}")
     }
   }
 
