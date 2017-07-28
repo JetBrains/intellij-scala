@@ -425,7 +425,7 @@ object InferUtil {
                     val substedLower = unSubst.subst(lowerType.v)
                     val withParams = tryAddParameters(_addLower, typeParameters)
 
-                    if (hasRecursiveTypeParams(substedLower)) withParams
+                    if (substedLower == _addLower || hasRecursiveTypeParams(substedLower)) withParams
                     else substedLower.lub(withParams)
                   case None =>
                     unSubst.subst(lowerType.v)
@@ -435,7 +435,7 @@ object InferUtil {
                     val substedUpper = unSubst.subst(upperType.v)
                     val withParams = tryAddParameters(_addUpper, typeParameters)
 
-                    if (hasRecursiveTypeParams(substedUpper)) withParams
+                    if (substedUpper == _addUpper || hasRecursiveTypeParams(substedUpper)) withParams
                     else substedUpper.glb(withParams)
                   case None =>
                     unSubst.subst(upperType.v)
