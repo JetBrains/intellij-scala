@@ -32,7 +32,7 @@ object Implementation {
   private def isSimple(expression: PsiElement): Boolean = expression match {
     case _: ScLiteral => true
     case _: ScNewTemplateDefinition => true
-    case ref: ScReferenceExpression if isObject(ref) => true
+    case ref: ScReferenceExpression if isObject(ref) => true // TODO Foo.Bar?
     case ScGenericCall(referenced, _) if isFactoryMethod(referenced) => true
     case ScMethodCall(invoked: ScReferenceExpression, _) if isObject(invoked) => true
     case _: ScThrowStmt => true
@@ -57,6 +57,7 @@ object Implementation {
     }
   }
 
+  // TODO Restore encapsulation
   def isFactoryMethod(referenced: ScReferenceExpression): Boolean = referenced match {
     case ScReferenceExpression.withQualifier(qualifier: ScReferenceExpression) =>
       TraversableClassNames.contains(qualifier.refName) && referenced.refName == "empty"

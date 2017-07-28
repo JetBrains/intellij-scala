@@ -30,15 +30,13 @@ object ScalaTypeAnnotationSettings {
         TYPE_ANNOTATION_IMPLICIT_MODIFIER && declaration.isImplicit ||
           TYPE_ANNOTATION_UNIT_TYPE && declaration.hasUnitType
       } || {
-        TYPE_ANNOTATION_LOCAL_DEFINITION && isLocal ||
-          !isLocal && {
-            declaration.visibility match {
-              case Visibility.Private => TYPE_ANNOTATION_PRIVATE_MEMBER
-              case Visibility.Protected => TYPE_ANNOTATION_PROTECTED_MEMBER
-              case Visibility.Default => TYPE_ANNOTATION_PUBLIC_MEMBER
-              case _ => false
-            }
-          }
+        if (isLocal) TYPE_ANNOTATION_LOCAL_DEFINITION
+        else declaration.visibility match {
+          case Visibility.Private => TYPE_ANNOTATION_PRIVATE_MEMBER
+          case Visibility.Protected => TYPE_ANNOTATION_PROTECTED_MEMBER
+          case Visibility.Default => TYPE_ANNOTATION_PUBLIC_MEMBER
+          case _ => false
+        }
       } &&
         ! {
           TYPE_ANNOTATION_EXCLUDE_CONSTANT && declaration.isConstant ||

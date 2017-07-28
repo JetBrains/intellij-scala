@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.settings
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope
 import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
@@ -33,9 +33,11 @@ object Location {
     override def isInLocalScope: Boolean = Some(element) match {
       case Some(_: ScTemplateBody | Parent(_: ScTemplateBody)) => false
       case Some(Parent(file: ScalaFile)) if !file.isScriptFile => false
+      case Some(Parent(_: PsiClass)) => false
       case _ => true
     }
 
+    // TODO
     override def isInScript: Boolean = false
 
     override def isInTestSources: Boolean = false
