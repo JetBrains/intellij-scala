@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.settings
 
-import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getModule
@@ -37,8 +37,10 @@ object Location {
       case _ => true
     }
 
-    // TODO
-    override def isInScript: Boolean = false
+    override def isInScript: Boolean = element.getContainingFile match {
+      case file: ScalaFile => file.isScriptFile || !file.getName.endsWith(".scala")
+      case _ => false
+    }
 
     override def isInTestSources: Boolean = false
 
