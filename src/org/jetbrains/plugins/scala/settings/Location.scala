@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -48,7 +49,10 @@ object Location {
       ProjectFileIndex.SERVICE.getInstance(element.getProject).isInTestSourceContent(file.getVirtualFile)
     }
 
-    override def isInsideAnonymousClass: Boolean = false
+    override def isInsideAnonymousClass: Boolean = element match {
+      case memeber: ScMember => memeber.getContainingClass.isInstanceOf[ScNewTemplateDefinition]
+      case _ => false
+    }
 
     override def isInsidePrivateClass: Boolean = element match {
       case memeber: ScMember => memeber.getContainingClass match {
