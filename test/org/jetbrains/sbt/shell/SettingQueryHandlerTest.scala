@@ -1,7 +1,6 @@
-package org.jetbrains.sbt.shell.sbt13_latest
+package org.jetbrains.sbt.shell
 
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.sbt.shell.{SbtProjectPlatformTestCase, SettingQueryHandler}
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.Await
@@ -12,7 +11,7 @@ import scala.concurrent.duration.Duration
   * Created by Roman.Shein on 27.03.2017.
   */
 @Category(Array(classOf[SlowTests]))
-class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
+abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
 
   def testFailedCommand() = {
     Await.result(comm.command("set npSuchSetting:=42", showShell = false), Duration(timeout, "second"))
@@ -41,18 +40,16 @@ class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
     doTestSetSetting("fork", "true", timeout, projectName = Some("scalaTest"))
 
   def testProjectNoTaskAdd() =
-    doTestAddToSetting("javaOptions", "set javaOptions in scalaTest:=List(\"optOne\")", "\"optTwo\"",
+    doTestAddToSetting("javaOptions", """set javaOptions in scalaTest:=List("optOne")""", """"optTwo"""",
       "List(optOne, optTwo)", timeout, projectName = Some("scalaTest"))
 
   def testProjectAdd() =
-    doTestAddToSetting("javaOptions", "set javaOptions in scalaTest in Test:=List(\"optOne\")", "\"optTwo\"",
+    doTestAddToSetting("javaOptions", """set javaOptions in scalaTest in Test:=List("optOne")""", """"optTwo"""",
       "List(optOne, optTwo)", timeout, Some("Test"), Some("test"), projectName = Some("scalaTest"))
 
   def testProjectWithUriAdd() =
-    doTestAddToSetting("javaOptions", "set javaOptions in scalaTest in Test:=List(\"optOne\")", "\"optTwo\"",
+    doTestAddToSetting("javaOptions", """set javaOptions in scalaTest in Test:=List("optOne")""", """"optTwo"""",
       "List(optOne, optTwo)", timeout, Some("Test"), Some("test"), Some(getScalaTestProjectUri), Some("scalaTest"))
-
-  override def getPath: String = "sbt/shell/sbtTestRunTest"
 
   protected def doTestShowSetting(commandBefore: String, settingName: String, expectedValue: String, timeoutSeconds: Int,
                                   taskName: Option[String] = None, projectUri: Option[String]= None,
@@ -95,5 +92,5 @@ class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
 
   protected def getScalaTestProjectUri: String = "file:/" + getBasePath.replace("\\", "/") + "/" + getPath + "/"
 
-  private val timeout = 60
+  protected val timeout = 60
 }

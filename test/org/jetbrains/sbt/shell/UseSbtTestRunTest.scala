@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.shell.sbt13_07
+package org.jetbrains.sbt.shell
 
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
@@ -7,14 +7,13 @@ import com.intellij.openapi.module.ModuleManager
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
-import org.jetbrains.sbt.shell.SbtProjectPlatformTestCase
 import org.junit.experimental.categories.Category
 
 /**
   * Created by Roman.Shein on 13.04.2017.
   */
 @Category(Array(classOf[SlowTests]))
-class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
+abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
 
   def testScalaTestSimpleTest() =
     runSingleTest(ScalaTestingTestCase.getScalaTestTemplateConfig(getProject), "test.scalaTest.SimpleScalaTest",
@@ -135,7 +134,4 @@ class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
     unexpectedStrings.foreach(str => assert(!log.contains(str), s"Sbt shell console contained $str"))
     assert(!log.contains(SbtProjectPlatformTestCase.errorPrefix))
   }
-
-  override def getPath: String = "sbt/shell/sbtTestRunTest_07"
-
 }
