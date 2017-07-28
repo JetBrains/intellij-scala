@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.settings
 
+import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.Parent
@@ -42,7 +43,9 @@ object Location {
       case _ => false
     }
 
-    override def isInTestSources: Boolean = false
+    override def isInTestSources: Boolean = Option(element.getContainingFile).exists { file =>
+      ProjectFileIndex.SERVICE.getInstance(element.getProject).isInTestSourceContent(file.getVirtualFile)
+    }
 
     override def isInsideAnonymousClass: Boolean = false
 
