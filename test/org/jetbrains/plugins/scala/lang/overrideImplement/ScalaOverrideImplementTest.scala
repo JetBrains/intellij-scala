@@ -889,8 +889,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
     val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
    
-    runTest(methodName, fileText, expectedText, isImplement,
-      settings = TypeAnnotationSettings.noTypeAnnotationForPublic(settings))
+    runTest(methodName, fileText, expectedText, isImplement, settings)
   }
 
   def testImplicitParams() {
