@@ -289,7 +289,9 @@ object TypeAdjuster extends ApplicationAdapter {
 
         override def execute(element: PsiElement, state: ResolveState): Boolean = {
           element match {
-            case ta: ScTypeAliasDefinition if ta.isAliasFor(clazz) && !ScTypePresentation.shouldExpand(ta) =>
+            case ta: ScTypeAliasDefinition if ta.isAliasFor(clazz) &&
+              !ScTypePresentation.shouldExpand(ta) && !ta.isDeprecated =>
+
               collected = Some(ta)
               false
             case _ => true
