@@ -12,7 +12,7 @@ import com.intellij.openapi.application.{ApplicationManager, Result, Transaction
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Computable, ThrowableComputable}
+import com.intellij.openapi.util.{Computable, Ref, ThrowableComputable}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.SharedImplUtil
@@ -656,9 +656,14 @@ package object extensions {
     }
   }
 
+  //use only for defining toString method
   def ifReadAllowed[T](body: => T)(default: => T): T = {
     try {
-      ApplicationUtil.tryRunReadAction(body)
+      val ref: Ref[T] = Ref.create()
+      ProgressManager.getInstance().executeNonCancelableSection {
+        ref.set(ApplicationUtil.tryRunReadAction(body))
+      }
+      ref.get()
     } catch {
       case _: ProcessCanceledException => default
     }
