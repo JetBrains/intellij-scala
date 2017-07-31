@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ValidationReporter;
 import org.jetbrains.plugins.scala.settings.*;
+import org.jetbrains.plugins.scala.settings.annotations.*;
 import org.jetbrains.plugins.scala.util.*;
 import scala.Some$;
 

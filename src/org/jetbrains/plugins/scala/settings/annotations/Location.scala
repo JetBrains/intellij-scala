@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.settings
+package org.jetbrains.plugins.scala.settings.annotations
 
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope

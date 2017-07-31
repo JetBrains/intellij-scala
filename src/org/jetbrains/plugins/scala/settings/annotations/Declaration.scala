@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.settings
+package org.jetbrains.plugins.scala.settings.annotations
 
 import com.intellij.psi.{PsiElement, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction, ScValue}

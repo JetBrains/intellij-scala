@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPanel
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.JavaConverters._

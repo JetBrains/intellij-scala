@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.settings
+package org.jetbrains.plugins.scala.settings.annotations
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings

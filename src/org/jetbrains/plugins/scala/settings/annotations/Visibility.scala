@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.settings
+package org.jetbrains.plugins.scala.settings.annotations
 
 /**
   * @author Pavel Fatin

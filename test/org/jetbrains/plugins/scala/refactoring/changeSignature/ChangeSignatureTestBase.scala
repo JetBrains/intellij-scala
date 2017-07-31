@@ -19,7 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.settings.{Declaration, Implementation, Location, Visibility}
+import org.jetbrains.plugins.scala.settings.annotations
+import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Implementation, Location, Visibility}
 import org.jetbrains.plugins.scala.util._
 import org.junit.Assert._
 
@@ -141,7 +142,7 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
 
     val params = newParams.map(_.map(_.asInstanceOf[ScalaParameterInfo]))
     // TODO Having this repeated separately somehow defies the purpose of testing
-    val annotationNeeded = settings.ScalaTypeAnnotationSettings(targetMethod.getProject).isTypeAnnotationRequiredFor(
+    val annotationNeeded = annotations.ScalaTypeAnnotationSettings(targetMethod.getProject).isTypeAnnotationRequiredFor(
       Declaration(targetMethod, Visibility(newVisibility)), Location(targetMethod), Some(Implementation(targetMethod)))
 
     val changeInfo =

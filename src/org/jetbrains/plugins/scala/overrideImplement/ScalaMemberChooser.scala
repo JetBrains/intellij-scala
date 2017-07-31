@@ -10,11 +10,9 @@ import com.intellij.psi._
 import com.intellij.ui.{HyperlinkLabel, NonFocusableCheckBox}
 import com.intellij.util.ui.ThreeStateCheckBox
 import com.intellij.util.ui.ThreeStateCheckBox.State
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.settings.{Declaration, Location, ScalaApplicationSettings, ScalaTypeAnnotationSettings}
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Location, ScalaTypeAnnotationSettings}
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil._
 
 import scala.collection.mutable

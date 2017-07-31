@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel.{ADD, BY_CODE_STYLE, REMOVE}
 import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Implementation, Location, ScalaTypeAnnotationSettings}
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 
 /**

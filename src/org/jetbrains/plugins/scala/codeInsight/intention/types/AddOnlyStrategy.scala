@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText}
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.settings.Implementation
+import org.jetbrains.plugins.scala.settings.annotations.Implementation
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {

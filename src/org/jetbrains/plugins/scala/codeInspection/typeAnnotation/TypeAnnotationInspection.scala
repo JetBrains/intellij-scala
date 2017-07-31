@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.settings.{Declaration, Implementation, Location, ScalaTypeAnnotationSettings}
+import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Implementation, Location, ScalaTypeAnnotationSettings}
 import org.jetbrains.plugins.scala.util._
 
 import scala.collection.mutable

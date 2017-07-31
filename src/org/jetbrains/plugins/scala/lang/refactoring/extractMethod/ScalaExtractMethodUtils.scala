@@ -26,7 +26,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.Dup
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.settings.annotations._
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
