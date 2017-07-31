@@ -499,7 +499,10 @@ class ScalaChangeSignatureDialog(val project: Project,
     typePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
     
     mySpecifyTypeChb = new JCheckBox
-    mySpecifyTypeChb.setText("Specify return &type")
+    mySpecifyTypeChb.setText("Specify result type")
+    mySpecifyTypeChb.setMnemonic('t')
+    mySpecifyTypeChb.setDisplayedMnemonicIndex(1)
+
     typePanel.add(mySpecifyTypeChb)
     
     val myLinkContainer = new JPanel
@@ -608,3 +611,4 @@ class ScalaChangeSignatureDialog(val project: Project,
   }
 
 }
+
