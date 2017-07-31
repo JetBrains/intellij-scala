@@ -22,7 +22,12 @@ class SbtArtifactSearchPanel(wizard: SbtArtifactSearchWizard, artifactInfoSet: S
 
   def init(): Unit = {
     myResultList.setExpandableItemsEnabled(false)
-    myResultList.getEmptyText.setText("Loading...")
+
+    if (artifactInfoSet.isEmpty)
+      myResultList.getEmptyText.setText("Nothing to show")
+    else
+      myResultList.getEmptyText.setText("Loading...")
+
     myResultList.setRootVisible(false)
     myResultList.setShowsRootHandles(true)
 

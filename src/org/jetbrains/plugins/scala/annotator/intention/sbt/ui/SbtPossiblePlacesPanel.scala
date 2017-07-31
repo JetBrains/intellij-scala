@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.intention.sbt.ui
 
-import java.awt.{BorderLayout, Component}
+import java.awt.{BorderLayout, Component, Dimension}
 import javax.swing.event.{TreeModelListener, TreeSelectionEvent, TreeSelectionListener}
 import javax.swing.tree.{TreeCellRenderer, TreeModel, TreePath, TreeSelectionModel}
 import javax.swing.{JPanel, JTree, ScrollPaneConstants}
@@ -8,7 +8,7 @@ import javax.swing.{JPanel, JTree, ScrollPaneConstants}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
-import com.intellij.openapi.editor.{Editor, EditorFactory, LogicalPosition}
+import com.intellij.openapi.editor.{Editor, EditorFactory, LogicalPosition, ScrollType}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.ui.treeStructure.Tree
@@ -32,7 +32,12 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
 
   def init(): Unit = {
     myResultList.setExpandableItemsEnabled(false)
-    myResultList.getEmptyText.setText("Loading...")
+
+    if (fileLines.isEmpty)
+      myResultList.getEmptyText.setText("Nothing to show")
+    else
+      myResultList.getEmptyText.setText("Loading...")
+
     myResultList.setRootVisible(false)
     myResultList.setShowsRootHandles(true)
 
@@ -79,16 +84,26 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
       val editorHighlighter = EditorHighlighterFactory.getInstance.createEditorHighlighter(project, ScalaFileType.INSTANCE)
       editor.asInstanceOf[EditorEx].setHighlighter(editorHighlighter)
       editor.getCaretModel.moveToOffset(myCurFileLine.line)
-//      editor.getCaretModel.moveToLogicalPosition(new LogicalPosition(myCurFileLine.line, 1))
+      editor.getScrollingModel.scrollToCaret(ScrollType.CENTER)
+
+      val prevSouthComponent = myLayout.getLayoutComponent(BorderLayout.SOUTH)
+      if (prevSouthComponent != null)
+        remove(prevSouthComponent)
+
       add(editor.getComponent, BorderLayout.SOUTH)
       updateUI()
     }
   }
 
-  def createEditor(path: String): Editor =
-    EditorFactory.getInstance.createViewer(
+  def createEditor(path: String): Editor = {
+    val viewer = EditorFactory.getInstance.createViewer(
       FileDocumentManager.getInstance.getDocument(project.getBaseDir.findFileByRelativePath(path))
     )
+    viewer.getComponent.setPreferredSize(new Dimension(600, 400))
+    viewer.getComponent.updateUI()
+
+    viewer
+  }
 
   def getResult: Option[FileLine] = {
     for (path: TreePath <- myResultList.getSelectionPaths) {

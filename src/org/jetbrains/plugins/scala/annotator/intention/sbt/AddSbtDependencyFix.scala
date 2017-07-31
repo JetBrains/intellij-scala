@@ -11,7 +11,8 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.annotator.intention.sbt.ui.SbtArtifactSearchWizard
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.resolvers.SbtResolver
@@ -38,18 +39,33 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
     // For the case when refElement.refName is fully quialified name
     val artifactInfoSet = ivyIndex.searchArtifactInfo(getReferenceText)
 
-    // Can't make any suggestions
-    if (artifactInfoSet.isEmpty)
-      return
-
     def findFileLines(): Seq[FileLine] = {
       val libDeps: Seq[ScInfixExpr] = AddSbtDependencyUtils.getTopLevelLibraryDependencies(psiSbtFile)
       val fileLines = libDeps.map((elem: ScInfixExpr) => toFileLine(elem)(project))
 
-      fileLines
+      val sbtProjects: Seq[ScPatternDefinition] = AddSbtDependencyUtils.getTopLevelSbtProjects(psiSbtFile)
+      val patternDefinitionToSettings = scala.collection.mutable.HashMap.empty[ScPatternDefinition, Set[ScMethodCall]]
+
+      sbtProjects.foreach(sbtProj => {
+        patternDefinitionToSettings.put(sbtProj, AddSbtDependencyUtils.getSettings(sbtProj).toSet)
+      })
+
+      val libDepsFromProjects: Iterable[ScInfixExpr] =
+        patternDefinitionToSettings.values.flatMap(f => f.toList).flatMap(f => AddSbtDependencyUtils.getLibraryDepenciesInsideSettings(f))
+
+      val seqCalls: Iterable[ScMethodCall] = libDepsFromProjects.flatMap(l => AddSbtDependencyUtils.getPossiblePlacesToAddFromLibraryDependencies(l))
+
+      val x = 1
+
+      fileLines ++
+        libDepsFromProjects.map(f => toFileLine(f)(project)) ++
+        seqCalls.map(f => toFileLine(f)(project)) ++
+        patternDefinitionToSettings.values.flatten.map(f => toFileLine(f)(project))
     }
 
-    val wizard = new SbtArtifactSearchWizard(project, artifactInfoSet, findFileLines())
+    val foundFileLines = findFileLines()
+
+    val wizard = new SbtArtifactSearchWizard(project, artifactInfoSet, foundFileLines)
 
     val (infoOption, fileLineOption) = wizard.search()
     if (infoOption.isEmpty || fileLineOption.isEmpty)
@@ -58,7 +74,7 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
     val artifactInfo = infoOption.get
     val fileLine = fileLineOption.get
 
-    AddSbtDependencyUtils.addDependency(fileLine.element, artifactInfo, fileLine.element.getContainingFile)(project)
+    AddSbtDependencyUtils.addDependency(fileLine.element, artifactInfo)(project)
 
     refresh(project)
   }
@@ -70,7 +86,17 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
 
     val relativePath = path.substring(project.getBasePath.length + 1)
 
-    FileLine(relativePath, elem.getTextOffset, elem)
+    val offset =
+      elem match {
+        case call: ScMethodCall =>
+          call.getEffectiveInvokedExpr match {
+            case expr: ScReferenceExpression => expr.nameId.getTextOffset
+            case _ => elem.getTextOffset
+          }
+        case _ => elem.getTextOffset
+      }
+
+    FileLine(relativePath, offset, elem)
   }
 
   private def refresh(project: Project): Unit = {

@@ -19,7 +19,8 @@ class SbtPossiblePlacesStep(wizard: SbtArtifactSearchWizard, project: Project, f
   override def getComponent: JComponent = this
 
   override def _commit(finishChosen: Boolean): Unit = {
-    wizard.resultFileLine = getResult
+    if (finishChosen)
+      wizard.resultFileLine = getResult
   }
 
   override def getIcon: Icon = null

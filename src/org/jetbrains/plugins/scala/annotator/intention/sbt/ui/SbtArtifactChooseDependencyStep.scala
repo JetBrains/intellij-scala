@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.intention.sbt.ui
 
+import java.awt.Dimension
 import javax.swing.{Icon, JComponent}
 
 import com.intellij.ide.wizard.Step
@@ -13,6 +14,7 @@ class SbtArtifactChooseDependencyStep(wizard: SbtArtifactSearchWizard, artifactI
 
   override def _init(): Unit = {
     wizard.setTitle("Sbt Artifact Search")
+    setPreferredSize(new Dimension(600, 900))
   }
 
   override def getIcon: Icon = null
