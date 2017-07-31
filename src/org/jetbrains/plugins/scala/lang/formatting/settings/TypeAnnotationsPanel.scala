@@ -4,7 +4,7 @@ import java.util
 import javax.swing._
 
 import com.intellij.openapi.editor.colors.EditorColorsScheme
-import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.ui.{Messages, NonEmptyInputValidator}
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.{AnActionButton, AnActionButtonRunnable, ToolbarDecorator}
 import org.jetbrains.plugins.scala.ScalaFileType
@@ -111,7 +111,7 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
 private object TypeAnnotationsPanel {
   private def addActionFor(list: JList[String], entity: String) = new AnActionButtonRunnable {
     override def run(t: AnActionButton): Unit = {
-      val s = Messages.showInputDialog(list, null, s"Add $entity" , null, null, null)
+      val s = Messages.showInputDialog(list, null, s"Add $entity" , null, null, new NonEmptyInputValidator())
       val model = list.getModel.asInstanceOf[DefaultListModel[String]]
       model.addElement(s)
     }
