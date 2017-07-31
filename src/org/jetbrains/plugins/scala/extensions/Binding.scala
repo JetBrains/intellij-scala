@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.formatting.settings
+package org.jetbrains.plugins.scala.extensions
 
 /**
   * @author Pavel Fatin

@@ -8,6 +8,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.{AnActionButton, AnActionButtonRunnable, ToolbarDecorator}
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.extensions.Binding
 import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter
 import org.jetbrains.plugins.scala.lang.formatting.settings.TypeAnnotationsPanel._
 
