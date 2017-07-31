@@ -4,15 +4,13 @@ import java.util
 import javax.swing._
 
 import com.intellij.openapi.editor.colors.EditorColorsScheme
-import com.intellij.openapi.ui.{InputValidator, Messages}
+import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import com.intellij.ui.{AnActionButton, AnActionButtonRunnable, ToolbarDecorator}
+import com.intellij.util.execution.ParametersListUtil
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.Binding
 import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter
 import org.jetbrains.plugins.scala.lang.formatting.settings.TypeAnnotationsPanel._
-
-import scala.collection.JavaConverters._
 
 /**
   * @author Pavel Fatin
@@ -81,10 +79,6 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
     )
   }
 
-  configureList(myMembers, "Class")
-  configureList(myAnnotations, "Annotation")
-  configureList(myTypes, "Type pattern")
-
   override protected def getTabTitle: String = "Type Annotations"
 
   override protected def getRightMargin: Int = 0
@@ -109,53 +103,9 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
 }
 
 private object TypeAnnotationsPanel {
-  private def addActionFor(list: JList[String], entity: String) = new AnActionButtonRunnable {
-    override def run(t: AnActionButton): Unit = {
-      val model = list.getModel.asInstanceOf[DefaultListModel[String]]
+  private def elementsIn(field: TextFieldWithBrowseButton): util.Set[String] =
+    new util.HashSet(ParametersListUtil.COLON_LINE_PARSER.fun(field.getText))
 
-      val validator = new InputValidator() {
-        override def canClose(s: String): Boolean = checkInput(s)
-
-        override def checkInput(s: String): Boolean = !s.isEmpty && !model.contains(s)
-      }
-
-      val s = Messages.showInputDialog(list, null, s"Add $entity" , null, null, validator)
-      list.setSelectedIndex(add(s, model))
-    }
-  }
-
-  private def add(s: String, model: DefaultListModel[String]): Int = {
-    val size = model.getSize
-    var i = 0
-    while (i < size) {
-      if (model.get(i) > s) {
-        model.add(i, s)
-        return i
-      }
-      i += 1
-    }
-    model.addElement(s)
-    size
-  }
-
-  private def configureList(list: JList[String], entity: String): Unit = {
-    list.setModel(new DefaultListModel[String])
-
-    val decorator = ToolbarDecorator.createDecorator(list)
-      .setAddAction(addActionFor(list, entity))
-      .disableUpDownActions()
-
-    list.getParent.add(decorator.createPanel())
-  }
-
-  private def elementsIn(list: JList[String]): util.Set[String] = {
-    val model = list.getModel
-    Range(0, model.getSize).map(model.getElementAt).toSet.asJava
-  }
-
-  private def setElementsIn(list: JList[String], elements: util.Set[String]): Unit = {
-    val model = list.getModel.asInstanceOf[DefaultListModel[String]]
-    model.clear()
-    elements.asScala.toSeq.sorted.foreach(model.addElement)
-  }
+  private def setElementsIn(field: TextFieldWithBrowseButton, elements: util.Set[String]): Unit =
+    field.setText(ParametersListUtil.COLON_LINE_JOINER.fun(new util.ArrayList(elements)))
 }
