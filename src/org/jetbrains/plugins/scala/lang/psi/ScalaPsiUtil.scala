@@ -249,10 +249,10 @@ object ScalaPsiUtil {
   }
 
   def findImplicitConversion(baseExpr: ScExpression, refName: String, ref: ScExpression, processor: BaseProcessor,
-                             noImplicitsForArgs: Boolean, calcType: Option[ScType] = None): Option[ImplicitResolveResult] = {
+                             noImplicitsForArgs: Boolean, precalcType: Option[ScType] = None): Option[ImplicitResolveResult] = {
     implicit val ctx: ProjectContext = baseExpr
 
-    val exprType = calcType match {
+    val exprType = precalcType match {
       case None => ImplicitCollector.exprType(baseExpr, fromUnder = false) match {
         case None => return None
         case Some(x) if x.equiv(Nothing) => return None //do not proceed with nothing type, due to performance problems.
