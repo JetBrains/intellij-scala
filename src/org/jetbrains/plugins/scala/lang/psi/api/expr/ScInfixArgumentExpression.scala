@@ -11,11 +11,7 @@ trait ScInfixArgumentExpression extends ScExpression {
    */
   def isCall: Boolean = {
     getContext match {
-      case infix: ScInfixExpr =>
-        infix.isLeftAssoc match {
-          case true => infix.lOp == this
-          case false => infix.rOp == this
-        }
+      case infix: ScInfixExpr => infix.getArgExpr == this
       case _ => false
     }
   }

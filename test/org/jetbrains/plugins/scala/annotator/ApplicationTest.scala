@@ -54,4 +54,30 @@ class ApplicationTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin)
   }
+
+  def testDecodeRightAssoc(): Unit = {
+    checkTextHasNoErrors(
+      """object BacktickedRightAssoc {
+        |  class Options
+        |  implicit val opt: Options = new Options
+        |
+        |  implicit class SymbolicOperations(val arr: Array[Byte]) {
+        |    def `>:`(i: Int): arr.type = ???
+        |
+        |    def `>::`(i: Int)(implicit opt: Options): arr.type = ???
+        |  }
+        |
+        |  val a: Array[Byte] = ???
+        |
+        |  1 `>:` a
+        |
+        |  1 `$greater$colon` a
+        |
+        |  1 `>::` a
+        |
+        |  1 `$greater$colon$colon` a
+        |}
+        |""".stripMargin
+    )
+  }
 }

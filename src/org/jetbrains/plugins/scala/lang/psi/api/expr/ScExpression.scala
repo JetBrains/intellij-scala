@@ -123,9 +123,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     def implicitFunction(element: ScalaPsiElement): Option[PsiNamedElement] = element.getParent match {
       case reference: ScReferenceExpression =>
         referenceImplicitFunction(reference)
-      case expression@ScInfixExpr(leftOperand, operation, rightOperand)
-        if (expression.isLeftAssoc && this == rightOperand) || (!expression.isLeftAssoc && this == leftOperand) =>
-        referenceImplicitFunction(operation)
+      case infix: ScInfixExpr if this == infix.getBaseExpr =>
+        referenceImplicitFunction(infix.operation)
       case call: ScMethodCall => call.getImplicitFunction
       case generator: ScGenerator => implicitFunction(generator)
       case _ =>
