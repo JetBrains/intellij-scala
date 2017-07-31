@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 class FloatLiteralEndingWithDecimalPointInspection extends AbstractInspection("FloatLiteralEndingWithDecimalPoint", "Floating point literal ending with '.'"){
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case lit: ScLiteral if lit.getText.endsWith(".") =>
       holder.registerProblem(lit, getDisplayName, new MakeDoubleFix(lit), new MakeFloatFix(lit), new AddZeroAfterDecimalPoint(lit))
   }

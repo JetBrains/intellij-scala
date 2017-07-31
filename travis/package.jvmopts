@@ -1,0 +1,4 @@
+-Xmx2560m
+-XX:ReservedCodeCacheSize=128m
+-XX:+CMSClassUnloadingEnabled
+-Dfile.encoding=UTF8

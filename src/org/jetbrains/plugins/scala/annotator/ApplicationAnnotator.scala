@@ -5,6 +5,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiParameter}
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
+import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
@@ -32,6 +33,9 @@ trait ApplicationAnnotator {
   def annotateReference(reference: ScReferenceElement, holder: AnnotationHolder) {
     for {result <- reference.multiResolve(false)
          r = result.asInstanceOf[ScalaResolveResult]} {
+
+      ImportTracker.registerUsedImports(reference, r)
+
       if (r.isAssignment) {
         annotateAssignmentReference(reference, holder)
       }

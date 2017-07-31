@@ -53,11 +53,10 @@ object ScalaUsageTypeProvider {
       result.innerResolveResult
         .getOrElse(result).element
 
-    import ScFunction.Name.Apply
     expression.bind()
       .map(resolvedElement)
       .collect {
-        case function: ScFunction if function.name == Apply && expression.refName != Apply => methodApply
+        case function: ScFunction if function.isApplyMethod => methodApply
         case definition: ScFunctionDefinition if isAncestor(definition, expression, false) => RECURSION
       }.orNull
   }
@@ -134,7 +133,7 @@ object ScalaUsageTypeProvider {
 
   private[this] def typeArgsUsageType(typeArguments: ScTypeArgs): UsageType =
     Option(typeArguments.getParent).collect {
-      case ScGenericCall(reference: ScReferenceExpression, Seq(_)) => reference.refName
+      case ScGenericCall(reference, Seq(_)) => reference.refName
     }.collect {
       case "isInstanceOf" => CLASS_INSTANCE_OF
       case "asInstanceOf" => CLASS_CAST_TO

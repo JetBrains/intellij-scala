@@ -6,15 +6,12 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 class BuiltinMatcherExistsInspection
   extends AbstractInspection("Specs2Matchers",
                              InspectionBundle.message("specs2.builtin.matcher.alternative.exists")) {
 
-  def actionFor(holder: ProblemsHolder) = {
+  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case elem @ ScMethodCall(matcher, Seq(ScMethodCall(inner, _))) if equalToMatcher(matcher) && optional(inner) =>
       suggestFixForOptional(elem, holder)
     case elem @ ScMethodCall(matcher, Seq(inner: ScExpression)) if equalToMatcher(matcher) && optional(inner) =>

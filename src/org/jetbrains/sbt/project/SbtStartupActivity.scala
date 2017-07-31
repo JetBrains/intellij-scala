@@ -1,0 +1,50 @@
+package org.jetbrains.sbt.project
+
+import javax.swing.event.HyperlinkEvent
+
+import com.intellij.ide.actions.ImportModuleAction
+import com.intellij.ide.util.newProjectWizard.AddModuleWizard
+import com.intellij.notification.{Notification, NotificationGroup, NotificationListener, NotificationType}
+import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
+import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.startup.StartupActivity
+import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.settings.SbtSystemSettings
+
+class SbtStartupActivity extends StartupActivity {
+  override def runActivity(project: Project): Unit = {
+    showNotificationForUnlinkedSbtProject(project)
+  }
+
+  val ImportDescription = "import"
+
+  private def showNotificationForUnlinkedSbtProject(project: Project) =
+    if (SbtSystemSettings.getInstance(project).getLinkedProjectsSettings.isEmpty &&
+      project.getUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT) != java.lang.Boolean.TRUE &&
+      SbtProjectImportProvider.canImport(project.getBaseDir)
+    ) {
+      val message = s"""<a href="$ImportDescription">Import SBT project</a>"""
+
+      NotificationGroup.balloonGroup(Sbt.Name)
+        .createNotification("SBT project detected", message, NotificationType.INFORMATION, notificationListener(project))
+        .notify(project)
+    }
+
+  private def notificationListener(project: Project) = new NotificationListener.Adapter() {
+
+    override protected def hyperlinkActivated(notification: Notification, e: HyperlinkEvent): Unit = {
+      notification.expire()
+      if (ImportDescription == e.getDescription) {
+        val projectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
+        val sbtProjectImportBuilder = new SbtProjectImportBuilder(projectDataManager)
+        val sbtProjectImportProvider = new SbtProjectImportProvider(sbtProjectImportBuilder)
+        val wizard = new AddModuleWizard(project, project.getBasePath, sbtProjectImportProvider)
+
+        if (wizard.getStepCount <= 0 || wizard.showAndGet)
+          ImportModuleAction.createFromWizard(project, wizard)
+      }
+    }
+  }
+}

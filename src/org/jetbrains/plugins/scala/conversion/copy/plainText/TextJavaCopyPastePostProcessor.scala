@@ -14,6 +14,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.conversion.copy.{Association, SingularCopyPastePostProcessor}
 import org.jetbrains.plugins.scala.conversion.{ConverterUtil, JavaToScala}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
@@ -52,7 +53,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
     if (!ScalaProjectSettings.getInstance(project).isEnableJavaToScalaConversion) return
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
 
-    val scope = file.getResolveScope
+    val scope = file.resolveScope
     if (!file.isInstanceOf[ScalaFile]) return
 
     val (text, _, _) = value match {

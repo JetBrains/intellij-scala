@@ -2,7 +2,7 @@
 var a = 1
 -----
 ScalaFile
-  ScVariableDefinition
+  ScVariableDefinition: a
     PsiComment(comment)('// comment')
     PsiWhiteSpace('\n')
     AnnotationsList

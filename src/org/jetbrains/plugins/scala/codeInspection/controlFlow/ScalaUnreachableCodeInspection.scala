@@ -19,8 +19,9 @@ import scala.annotation.tailrec
  * Nikolay.Tropin
  * 2014-04-22
  */
-class ScalaUnreachableCodeInspection extends AbstractInspection("ScalaUnreachableCode", "Unreachable code"){
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+class ScalaUnreachableCodeInspection extends AbstractInspection("ScalaUnreachableCode", "Unreachable code") {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case funDef: ScFunctionDefinition =>
       val cfg = funDef.getControlFlow()
       val components = ControlFlowUtil.detectConnectedComponents(cfg)

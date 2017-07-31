@@ -8,7 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.scope._
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -68,7 +68,7 @@ class ScFunctionDefinitionImpl protected (stub: ScFunctionStub, node: ASTNode)
   
   protected def needCheckProcessingDeclarationsForBody = true
 
-  override def toString: String = "ScFunctionDefinition: " + name
+  override def toString: String = "ScFunctionDefinition: " + ifReadAllowed(name)("")
 
   def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
     case None if !hasAssign => Success(api.Unit, Some(this))

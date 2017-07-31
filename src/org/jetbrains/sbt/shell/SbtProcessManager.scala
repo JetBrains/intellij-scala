@@ -38,7 +38,6 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   // this *might* get messy if multiple IDEA projects start messing with the global settings.
   // but we should be fine since it is written before every sbt boot
   private def sbtStructurePlugin(sbtMajorVersion: Version): Seq[String] = {
-    // IDEA won't import the shared source dir between build definition and build, so this red
     val sbtStructureVersion = BuildInfo.sbtStructureVersion
     val sbtIdeaShellVersion = BuildInfo.sbtIdeaShellVersion
     sbtMajorVersion.presentation match {

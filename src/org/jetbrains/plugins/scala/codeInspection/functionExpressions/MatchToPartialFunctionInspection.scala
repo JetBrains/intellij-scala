@@ -26,8 +26,9 @@ import scala.collection.JavaConverters._
  * Nikolay.Tropin
  * 9/26/13
  */
-class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId) {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case fun @ ScFunctionExpr(Seq(param), Some(ms @ ScMatchStmt(ref: ScReferenceExpression, _)))
       if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) && checkSameResolve(fun) =>
       registerProblem(holder, ms, fun)
@@ -39,7 +40,6 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
   }
 
   private def notExpectedType(expr: ScExpression) = {
-    import expr.projectContext
     (expr.getType(), expr.expectedType()) match {
       case (Success(tpe: ScType, _), Some(expType: ScType)) => !expType.equiv(tpe)
       case _ => true

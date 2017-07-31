@@ -35,7 +35,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
         PsiWhiteSpace('\n  ')
-        ScVariableDefinition
+        ScVariableDefinition: b
           AnnotationsList
             <empty list>
           Modifiers

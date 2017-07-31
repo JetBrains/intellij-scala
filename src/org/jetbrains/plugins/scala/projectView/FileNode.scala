@@ -25,8 +25,7 @@ private class FileNode(file: ScalaFile)(implicit project: ProjectContext, settin
   override protected def updateImpl(data: PresentationData): Unit = {
     super.updateImpl(data)
 
-    val name = Option(file.getVirtualFile).map(_.getNameWithoutExtension).getOrElse(file.getName)
-    data.setPresentableText(name)
+    data.setPresentableText(file.getName.stripSuffix(".scala"))
 
     val icon =
       if (file.isWorksheetFile) Icons.WORKSHEET_LOGO

@@ -23,7 +23,7 @@ import scala.annotation.tailrec
  */
 abstract class ScalaUnnecessaryParenthesesInspectionBase extends AbstractInspection("UnnecessaryParenthesesU", "Remove unnecessary parentheses") {
 
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case parenthesized: ScParenthesisedExpr
       if !parenthesized.getParent.isInstanceOf[ScParenthesisedExpr] && IntentionAvailabilityChecker.checkInspection(this, parenthesized) &&
         UnnecessaryParenthesesUtil.canBeStripped(parenthesized, getIgnoreClarifying) =>

@@ -43,7 +43,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   override def toString: String = "ExtendsBlock"
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   def templateBody: Option[ScTemplateBody] = {
     def childStubTemplate(stub: ScExtendsBlockStub) =
       Option(stub.findChildStubByType(TEMPLATE_BODY))
@@ -171,7 +171,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       case _ => false
     }
 
-  @Cached(false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def syntheticTypeElements: Seq[ScTypeElement] = {
     if (templateParents.nonEmpty) return Seq.empty //will be handled separately
     getContext match {

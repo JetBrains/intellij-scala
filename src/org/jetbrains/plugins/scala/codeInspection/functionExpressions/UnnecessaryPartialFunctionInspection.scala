@@ -24,7 +24,7 @@ object UnnecessaryPartialFunctionInspection {
 class UnnecessaryPartialFunctionInspection
   extends AbstractInspection(inspectionId, inspectionName){
 
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expression: ScBlockExpr =>
       def isNotPartialFunction(expectedType: ScType) =
         findPartialFunctionType(holder.getFile).exists(!expectedType.conforms(_))
@@ -47,7 +47,7 @@ class UnnecessaryPartialFunctionInspection
   private def findType(file: PsiFile, className: String, parameterTypes: PsiClass => Seq[ScType]): Option[ValueType] ={
       implicit val ctx: ProjectContext = file
       ScalaPsiManager.instance
-        .getCachedClass(file.getResolveScope, className)
+        .getCachedClass(file.resolveScope, className)
         .map(clazz =>
           ScParameterizedType(ScDesignatorType(clazz), parameterTypes(clazz)))
     }

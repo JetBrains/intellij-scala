@@ -292,7 +292,9 @@ lazy val pluginPackagerCommunity =
           "lib/scala-plugin-runners.jar"),
         AllOrganisation("org.scalameta", "lib/scalameta120.jar"),
         Library(scalaLibrary,
-          "lib/scala-library.jar")
+          "lib/scala-library.jar"),
+        Library(bcel,
+          "lib/bcel.jar")
       ) ++
         crossLibraries.map { lib =>
           Library(

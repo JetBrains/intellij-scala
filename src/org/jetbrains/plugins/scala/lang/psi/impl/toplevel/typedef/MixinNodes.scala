@@ -442,7 +442,7 @@ abstract class MixinNodes {
 
 object MixinNodes {
   def linearization(clazz: PsiClass): Seq[ScType] = {
-    @CachedWithRecursionGuard(clazz, Seq.empty, CachesUtil.getDependentItem(clazz)())
+    @CachedWithRecursionGuard(clazz, Seq.empty, CachesUtil.libraryAwareModTracker(clazz))
     def inner(): Seq[ScType] = {
       implicit val ctx: ProjectContext = clazz
 

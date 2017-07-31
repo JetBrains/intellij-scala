@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScPatternDefinition
+        ScPatternDefinition: a, b, c
           AnnotationsList
             <empty list>
           Modifiers

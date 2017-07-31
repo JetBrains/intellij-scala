@@ -10,7 +10,8 @@ import org.jetbrains.plugins.scala.lang.transformation.AbstractTransformer
   * @author Pavel Fatin
   */
 class TransformerBasedInspection(name: String, solution: String, transformer: AbstractTransformer) extends AbstractInspection(name) {
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = new PartialFunction[PsiElement, Any] {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = new PartialFunction[PsiElement, Any] {
     def isDefinedAt(e: PsiElement): Boolean = transformer.transformation(e.getProject).isDefinedAt(e)
 
     def apply(e: PsiElement): Unit = {

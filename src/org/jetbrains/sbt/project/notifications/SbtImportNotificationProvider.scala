@@ -16,6 +16,7 @@ import com.intellij.openapi.roots.ex.ProjectRootManagerEx
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
 import com.intellij.util.containers.ContainerUtilRt
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSystemSettings
@@ -66,7 +67,7 @@ abstract class SbtImportNotificationProvider(project: Project, notifications: Ed
 
         val projects = ContainerUtilRt.newHashSet(sbtSystemSettings.getLinkedProjectsSettings)
         projects.add(projectSettings)
-        sbtSystemSettings.setLinkedProjectsSettings(projects)
+        extensions.invokeAndWait(sbtSystemSettings.setLinkedProjectsSettings(projects))
 
         ExternalSystemApiUtil.executeProjectChangeAction(new DisposeAwareProjectChange(project) {
           def execute() {

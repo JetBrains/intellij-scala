@@ -22,14 +22,14 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
     case _ => null
   }
 
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  protected override def innerType: TypeResult[ScType] = {
     getStringContextExpression match {
       case Some(mc: ScMethodCall) => mc.getInvokedExpr match {
         case expr: ScReferenceExpression if QuasiquoteInferUtil.isMetaQQ(expr) =>
           QuasiquoteInferUtil.getMetaQQExprType(this)
-        case _ => mc.getNonValueType(ctx)
+        case _ => mc.getNonValueType()
       }
-      case Some(expr) => expr.getNonValueType(ctx)
+      case Some(expr) => expr.getNonValueType()
       case _ => Failure(s"Cannot find method ${getFirstChild.getText} of StringContext", Some(this))
     }
   }

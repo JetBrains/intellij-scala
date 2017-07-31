@@ -53,6 +53,9 @@ class SbtRunnerTest extends UsefulTestCase {
   def testSbtLaunch_0_13_15(): Unit =
     doTestSbtLauncherVersionDetection("0.13.15")
 
+  def testSbtLaunch_0_13_16(): Unit =
+    doTestSbtLauncherVersionDetection("0.13.16")
+
   def testMockLauncherWithoutSbtBootProperties(): Unit = {
     val expectedVersion = "1.0.0"
     val launcherFile = generateMockLauncher(expectedVersion)

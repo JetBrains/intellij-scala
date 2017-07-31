@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import scala.language.implicitConversions
 
 class SimplifyBooleanMatchInspection extends AbstractInspection("SimplifyBooleanMatch", "Trivial match can be simplified") {
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+
+  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case stmt: ScMatchStmt if stmt.isValid && SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(stmt) =>
       val toHighlight = Option(stmt.findFirstChildByType(ScalaTokenTypes.kMATCH)).getOrElse(stmt)
       holder.registerProblem(toHighlight, getDisplayName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new SimplifyBooleanMatchToIfStmtQuickFix(stmt))

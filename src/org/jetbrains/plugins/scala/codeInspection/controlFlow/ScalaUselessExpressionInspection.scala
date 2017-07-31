@@ -18,7 +18,8 @@ import org.jetbrains.plugins.scala.util.{IntentionAvailabilityChecker, SideEffec
  * 2014-09-22
  */
 class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessExpression", "Useless expression") {
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+
+  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScExpression if IntentionAvailabilityChecker.checkInspection(this, expr.getParent) =>
       if (canResultInSideEffectsOnly(expr) && SideEffectsUtil.hasNoSideEffects(expr)) {
         val message = "Useless expression"

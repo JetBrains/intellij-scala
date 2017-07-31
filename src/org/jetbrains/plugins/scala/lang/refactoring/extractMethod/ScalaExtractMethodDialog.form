@@ -145,7 +145,7 @@
               <horizontalTextPosition value="11"/>
               <inheritsPopupMenu value="false"/>
               <margin top="0" left="0" bottom="0" right="0"/>
-              <text value="Specify return &amp;type"/>
+              <text value="Specify result &amp;type"/>
             </properties>
           </component>
           <grid id="5a14d" binding="myLinkContainer" layout-manager="BorderLayout" hgap="0" vgap="0">

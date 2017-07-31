@@ -123,11 +123,11 @@ trait ScalaConformance extends api.Conformance {
         case _ =>
           argsPair match {
             case (UndefinedType(parameterType, _), rt) =>
-              val y = addParam(parameterType, rt, undefinedSubst, args2, args1)
+              val y = addParam(parameterType, rt, undefinedSubst)
               if (!y._1) return (false, undefinedSubst)
               undefinedSubst = y._2
             case (lt, UndefinedType(parameterType, _)) =>
-              val y = addParam(parameterType, lt, undefinedSubst, args1, args2)
+              val y = addParam(parameterType, lt, undefinedSubst)
               if (!y._1) return (false, undefinedSubst)
               undefinedSubst = y._2
             case (ScAbstractType(tpt, lower, upper), r) =>
@@ -989,6 +989,21 @@ trait ScalaConformance extends api.Conformance {
                 case _ =>
                   result = (false, undefinedSubst)
               }
+              if (args1.length < args2.length && (result == null || !result._1)) {
+                //partial unification SCL-11320
+                val captureLength = args2.length - args1.length
+
+                val (captured, abstracted) = args2.splitAt(captureLength)
+                val t = checkParameterizedType(parameterType.arguments.map(_.psiTypeParameter).iterator, args1, abstracted,
+                  undefinedSubst, visited, checkWeak)
+                result = if (t._1) {
+                  val abstractedTypeParams = abstracted.zipWithIndex.map { case (aType, i) => TypeParameter(Seq(), Nothing, Any, new ScExistentialLightTypeParam("p" + i + "$$")) }
+                  addParam(parameterType, ScTypePolymorphicType(ScParameterizedType(des2,
+                    captured ++ abstractedTypeParams.map(TypeParameterType(_))), abstractedTypeParams), t._2)
+                } else {
+                  t
+                }
+              }
             case (_, UndefinedType(parameterType, _)) =>
               (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
                 case Some((aArgs, aType)) =>
@@ -1575,13 +1590,11 @@ trait ScalaConformance extends api.Conformance {
     }
   }
 
-  def addParam(parameterType: TypeParameterType, bound: ScType, undefinedSubst: ScUndefinedSubstitutor,
-               defArgs: Seq[ScType], undefArgs: Seq[ScType]): (Boolean, ScUndefinedSubstitutor) =
-    addArgedBound(parameterType, bound, undefinedSubst, defArgs, undefArgs, variance = 0, addUpper = true, addLower = true)
+  def addParam(parameterType: TypeParameterType, bound: ScType, undefinedSubst: ScUndefinedSubstitutor): (Boolean, ScUndefinedSubstitutor) =
+    addArgedBound(parameterType, bound, undefinedSubst, variance = 0, addUpper = true, addLower = true)
 
   def addArgedBound(parameterType: TypeParameterType, bound: ScType, undefinedSubst: ScUndefinedSubstitutor,
-                    defArgs: Seq[ScType], undefArgs: Seq[ScType], variance: Int = 1,
-                    addUpper: Boolean = false, addLower: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
+                    variance: Int = 1, addUpper: Boolean = false, addLower: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     if (!addUpper && !addLower) return (false, undefinedSubst)
     var res = undefinedSubst
     if (addUpper) res = res.addUpper(parameterType.nameAndId, bound, variance = variance)

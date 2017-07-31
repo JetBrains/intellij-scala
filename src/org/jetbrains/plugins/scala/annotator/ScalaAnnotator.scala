@@ -12,7 +12,8 @@ import com.intellij.openapi.util.{Condition, Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
-import org.jetbrains.plugins.scala.annotator.importsTracker._
+import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.annotator.quickfix._
@@ -102,7 +103,7 @@ abstract class ScalaAnnotator extends Annotator
         }
       }
 
-      override def visitAnnotTypeElement(annot: ScAnnotTypeElement) = {
+      override def visitAnnotTypeElement(annot: ScAnnotTypeElement): Unit = {
         super.visitAnnotTypeElement(annot)
       }
 
@@ -202,7 +203,7 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitForExpression(expr: ScForStatement) {
-        checkForStmtUsedTypes(expr, holder)
+        registerUsedImports(expr, ScalaPsiUtil.getExprImports(expr))
         super.visitForExpression(expr)
       }
 
@@ -234,7 +235,7 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitMethodCallExpression(call: ScMethodCall) {
-        checkMethodCallImplicitConversion(call, holder)
+        registerUsedImports(call, call.getImportsUsed)
         if (typeAware) annotateMethodInvocation(call, holder)
         super.visitMethodCallExpression(call)
       }
@@ -431,7 +432,7 @@ abstract class ScalaAnnotator extends Annotator
     //todo: super[ControlFlowInspections].annotate(element, holder)
   }
 
-  private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder) = {
+  private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Any = {
     import ScalaProjectSettings.ScalaMetaMode
     if (annotation.isMetaAnnotation) {
       if (!MetaExpansionsManager.isUpToDate(annotation)) {
@@ -492,7 +493,7 @@ abstract class ScalaAnnotator extends Annotator
     block.expression match {
       case Some(expr) =>
         val tp = expr.getType(TypingContext.empty).getOrAny
-        val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.getResolveScope, "java.lang.Throwable").orNull
+        val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.resolveScope, "java.lang.Throwable").orNull
         if (throwable == null) return
         val throwableType = ScDesignatorType(throwable)
         def checkMember(memberName: String, checkReturnTypeIsBoolean: Boolean) {
@@ -687,33 +688,38 @@ abstract class ScalaAnnotator extends Annotator
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
-      resolve(0) match {
-        case r: ScalaResolveResult if r.isForwardReference =>
-          ScalaPsiUtil.nameContext(r.getActualElement) match {
-            case v: ScValue if !v.hasModifierProperty("lazy") => showError()
-            case _: ScVariable => showError()
-            case nameContext =>
-              //if it has not lazy val or var between reference and statement then it's forward reference
-              val context = PsiTreeUtil.findCommonContext(refElement, nameContext)
-              if (context != null) {
-                val neighbour = (PsiTreeUtil.findFirstContext(nameContext, false, new Condition[PsiElement] {
-                  override def value(elem: PsiElement): Boolean = elem.getContext.eq(context)
-                }) match {
-                  case s: ScalaPsiElement => s.getDeepSameElementInContext
-                  case elem => elem
-                }).getPrevSibling
 
-                def check(neighbour: PsiElement): Boolean = {
-                  if (neighbour == null ||
-                    neighbour.getTextRange.getStartOffset <= refElement.getTextRange.getStartOffset) return false
-                  neighbour match {
-                    case v: ScValue if !v.hasModifierProperty("lazy") => true
-                    case _: ScVariable => true
-                    case _ => check(neighbour.getPrevSibling)
+      refElement.getContainingFile match {
+        case file: ScalaFile if !file.allowsForwardReferences =>
+          resolve(0) match {
+            case r: ScalaResolveResult if r.isForwardReference =>
+              ScalaPsiUtil.nameContext(r.getActualElement) match {
+                case v: ScValue if !v.hasModifierProperty("lazy") => showError()
+                case _: ScVariable => showError()
+                case nameContext =>
+                  //if it has not lazy val or var between reference and statement then it's forward reference
+                  val context = PsiTreeUtil.findCommonContext(refElement, nameContext)
+                  if (context != null) {
+                    val neighbour = (PsiTreeUtil.findFirstContext(nameContext, false, new Condition[PsiElement] {
+                      override def value(elem: PsiElement): Boolean = elem.getContext.eq(context)
+                    }) match {
+                      case s: ScalaPsiElement => s.getDeepSameElementInContext
+                      case elem => elem
+                    }).getPrevSibling
+
+                    def check(neighbour: PsiElement): Boolean = {
+                      if (neighbour == null ||
+                        neighbour.getTextRange.getStartOffset <= refElement.getTextRange.getStartOffset) return false
+                      neighbour match {
+                        case v: ScValue if !v.hasModifierProperty("lazy") => true
+                        case _: ScVariable => true
+                        case _ => check(neighbour.getPrevSibling)
+                      }
+                    }
+                    if (check(neighbour)) showError()
                   }
-                }
-                if (check(neighbour)) showError()
               }
+            case _ =>
           }
         case _ =>
       }
@@ -931,24 +937,12 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  private def registerUsedImports(element: PsiElement, result: ScalaResolveResult) {
-    ImportTracker.getInstance(element.getProject).
-            registerUsedImports(element.getContainingFile.asInstanceOf[ScalaFile], result.importsUsed)
-  }
-
-  private def checkMethodCallImplicitConversion(call: ScMethodCall, holder: AnnotationHolder) {
-    val importUsed = call.getImportsUsed
-    ImportTracker.getInstance(call.getProject).
-            registerUsedImports(call.getContainingFile.asInstanceOf[ScalaFile], importUsed)
-  }
-
-  private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
+  private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean): Unit = {
     def checkExpressionTypeInner(fromUnderscore: Boolean) {
       val ExpressionTypeResult(exprType, importUsed, implicitFunction) =
-        expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(fromUnderscore),
-          fromUnderscore = fromUnderscore)
-      ImportTracker.getInstance(expr.getProject).
-              registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
+        expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(fromUnderscore), fromUnderscore = fromUnderscore)
+
+      registerUsedImports(expr, importUsed)
 
       expr match {
         case _: ScMatchStmt =>
@@ -1042,8 +1036,7 @@ abstract class ScalaAnnotator extends Annotator
       case Some(seq) =>
         for (resolveResult <- seq) {
           if (resolveResult != null) {
-            ImportTracker.getInstance(expr.getProject).registerUsedImports(
-              expr.getContainingFile.asInstanceOf[ScalaFile], resolveResult.importsUsed)
+            registerUsedImports(expr, resolveResult)
             registerUsedElement(expr, resolveResult, checkWrite = false)
           }
         }
@@ -1096,15 +1089,10 @@ abstract class ScalaAnnotator extends Annotator
             _.importsUsed
           }
 
-          ImportTracker.getInstance(ret.getProject).registerUsedImports(ret.getContainingFile.asInstanceOf[ScalaFile], importUsed)
+          registerUsedImports(ret, importUsed)
         case _ =>
       }
     }
-  }
-
-  private def checkForStmtUsedTypes(f: ScForStatement, holder: AnnotationHolder) {
-    ImportTracker.getInstance(f.getProject).registerUsedImports(f.getContainingFile.asInstanceOf[ScalaFile],
-      ScalaPsiUtil.getExprImports(f))
   }
 
   private def checkImportExpr(impExpr: ScImportExpr, holder: AnnotationHolder) {
@@ -1443,4 +1431,6 @@ object ScalaAnnotator {
   def forProject(implicit ctx: ProjectContext): ScalaAnnotator = new ScalaAnnotator {
     override implicit def projectContext: ProjectContext = ctx
   }
+
+
 }

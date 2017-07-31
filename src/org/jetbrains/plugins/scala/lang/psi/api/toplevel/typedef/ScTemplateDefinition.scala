@@ -8,6 +8,7 @@ package typedef
 import com.intellij.execution.junit.JUnitUtil
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.util.Key
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil.MemberType
@@ -47,8 +48,24 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
 
   def additionalJavaNames: Array[String] = Array.empty
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
-  def extendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementTypes.EXTENDS_BLOCK).orNull
+  def originalElement: Option[ScTemplateDefinition] = Option(getUserData(originalElemKey))
+  def setDesugared(actualElement: ScTypeDefinition): ScTemplateDefinition = {
+    putUserData(originalElemKey, actualElement)
+
+    members.foreach { member =>
+      member.setSynthetic(actualElement)
+      member.setSyntheticContainingClass(actualElement)
+    }
+    this
+  }
+  def isDesugared: Boolean = originalElement.isDefined
+
+  def desugaredElement: Option[ScTemplateDefinition] = None
+
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
+  def physicalExtendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementTypes.EXTENDS_BLOCK).orNull
+
+  def extendsBlock: ScExtendsBlock = desugaredElement.map(_.extendsBlock).getOrElse(physicalExtendsBlock)
 
   def innerExtendsListTypes: Array[PsiClassType] = {
     val eb = extendsBlock
@@ -130,7 +147,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     PsiClassImplUtil.getAllWithSubstitutorsByMap(this, MemberType.METHOD)
   }
 
-  @CachedInsidePsiElement(this, CachesUtil.getDependentItem(this)())
+  @CachedInsidePsiElement(this, CachesUtil.libraryAwareModTracker(this))
   override def getVisibleSignatures: JCollection[HierarchicalMethodSignature] = {
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
   }
@@ -353,7 +370,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
             case _ =>
               extendsBlock match {
                 case e: ScExtendsBlock if e != null =>
-                  if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
+                  if (PsiTreeUtil.isContextAncestor(e, place, true) ||
+                      ScalaPsiUtil.isSyntheticContextAncestor(e, place) ||
+                      !PsiTreeUtil.isContextAncestor(this, place, true)) {
                     this match {
                       case t: ScTypeDefinition if selfTypeElement.isDefined &&
                         !PsiTreeUtil.isContextAncestor(selfTypeElement.get, place, true) &&
@@ -434,7 +453,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     else superPaths.contains(basePath)
   }
 
-  @Cached(synchronized = false, ModCount.getModificationCount, this)
+  @Cached(ModCount.getModificationCount, this)
   def cachedPath: Path = {
     val kind = this match {
       case _: ScTrait => Kind.ScTrait
@@ -447,14 +466,14 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     Path(name, Option(qualifiedName), kind)
   }
 
-  @Cached(synchronized = false, ModCount.getModificationCount, this)
+  @Cached(ModCount.getModificationCount, this)
   private def superPaths: Set[Path] = {
     if (DumbService.getInstance(getProject).isDumb) return Set.empty //to prevent failing during indexes
 
     supers.map(Path.of).toSet
   }
 
-  @Cached(synchronized = false, ModCount.getModificationCount, this)
+  @Cached(ModCount.getModificationCount, this)
   private def superPathsDeep: Set[Path] = {
     if (DumbService.getInstance(getProject).isDumb) return Set.empty //to prevent failing during indexes
 
@@ -530,5 +549,7 @@ object ScTemplateDefinition {
     val javaObject = Path("Object", Some("java.lang.Object"), Kind.NonScala)
     val scalaObject = Path("ScalaObject", Some("scala.ScalaObject"), Kind.ScTrait)
   }
+
+  private val originalElemKey: Key[ScTemplateDefinition] = Key.create("ScTemplateDefinition.originalElem")
 
 }

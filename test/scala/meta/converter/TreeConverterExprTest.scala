@@ -191,4 +191,18 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
+  def testTypedExpr(): Unit = {
+    doTest(
+      "foo(arg: Tpe)",
+      Term.Apply(Term.Name("foo"), Seq(Term.Ascribe(Term.Name("arg"), Type.Name("Tpe"))))
+    )
+  }
+
+  def testRepeatedTyped(): Unit = {
+    doTest(
+      "foo(args: _*)",
+      Term.Apply(Term.Name("foo"), Seq(Term.Arg.Repeated(Term.Name("args"))))
+    )
+  }
+
 }

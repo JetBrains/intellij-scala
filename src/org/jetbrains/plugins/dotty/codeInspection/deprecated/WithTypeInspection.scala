@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEl
   * @author adkozlov
   */
 class WithTypeInspection extends AbstractInspection(id, name) {
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case typeElement: DottyAndTypeElementImpl =>
       typeElement.findChildrenByType(kWITH).foreach { token =>
         holder.registerProblem(token, message, LIKE_DEPRECATED, new ReplaceWithTypeQuickFix(token))

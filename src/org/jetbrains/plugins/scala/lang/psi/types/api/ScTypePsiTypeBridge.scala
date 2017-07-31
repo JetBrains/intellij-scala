@@ -53,19 +53,20 @@ trait PsiTypeBridge {
     case _ => throw new IllegalArgumentException(s"psi type ${`type`} should not be converted to ${typeSystem.name} type")
   }
 
-  def toPsiType(`type`: ScType,
-                noPrimitives: Boolean = false,
-                skolemToWildcard: Boolean = false)
-               (implicit elementScope: ElementScope): PsiType = {
+  def toPsiType(`type`: ScType, noPrimitives: Boolean = false)
+               (implicit elementScope: ElementScope): PsiType
 
-    val stdTypes = `type`.projectContext.stdTypes
+  final def stdToPsiType(std: StdType, noPrimitives: Boolean = false)
+                        (implicit elementScope: ElementScope): PsiType = {
+    val stdTypes = std.projectContext.stdTypes
     import stdTypes._
 
     def javaObject = createJavaObject
+
     def primitiveOrObject(primitive: PsiPrimitiveType) =
       if (noPrimitives) javaObject else primitive
 
-    `type` match {
+    std match {
       case Any => javaObject
       case AnyRef => javaObject
       case Unit if noPrimitives =>
@@ -82,7 +83,6 @@ trait PsiTypeBridge {
       case Double => primitiveOrObject(PsiType.DOUBLE)
       case Null => javaObject
       case Nothing => javaObject
-      case JavaArrayType(arg) => new PsiArrayType(toPsiType(arg))
       case _ => javaObject
     }
   }
@@ -118,10 +118,11 @@ object ExtractClass {
   }
 }
 
-object ScalaArrayOf {
+object arrayType {
   def unapply(scType: ScType): Option[ScType] = scType match {
     case ParameterizedType(ScDesignatorType(cl: ScClass), Seq(arg))
       if cl.qualifiedName == "scala.Array" => Some(arg)
+    case JavaArrayType(arg) => Some(arg)
     case _ => None
   }
 }

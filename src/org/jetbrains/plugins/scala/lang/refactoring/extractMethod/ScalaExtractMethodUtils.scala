@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+import org.jetbrains.plugins.scala.settings.annotations._
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -56,7 +56,7 @@ object ScalaExtractMethodUtils {
     val retType =
       if ((settings.addReturnType == ScalaApplicationSettings.ReturnTypeLevel.REMOVE) ||
         (settings.addReturnType == ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
-          && !addTypeAnnotation(settings, settings.visibility))) " = "
+          && !isTypeAnnotationRequiredFor(settings, settings.visibility))) " = "
       else if (settings.calcReturnTypeIsUnit && !codeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT) ""
       else s": ${settings.calcReturnTypeText} ="
 
@@ -321,23 +321,15 @@ object ScalaExtractMethodUtils {
     s"$name$colon$byNameArrow$typeText"
   }
 
-  def addTypeAnnotation(extractMethodSettings: ScalaExtractMethodSettings, visibilityString: String): Boolean = {
-    val isLocal = TypeAnnotationUtil.isLocal(extractMethodSettings.nextSibling)
-
-    val isSimple = extractMethodSettings.elements.head match {
-      case expression: ScExpression if extractMethodSettings.elements.length == 1 =>
-        TypeAnnotationUtil.isSimple(expression)
-      case _ => false
+  def isTypeAnnotationRequiredFor(settings: ScalaExtractMethodSettings, visibility: String): Boolean = {
+    val implementation = Some(settings.elements) collect {
+      case Array(expression: ScExpression) => Implementation.of(expression)
     }
 
-    val settings = ScalaCodeStyleSettings.getInstance(extractMethodSettings.nextSibling.getProject)
-    TypeAnnotationUtil.isTypeAnnotationNeeded(
-      TypeAnnotationUtil.requirementForMethod(isLocal, TypeAnnotationUtil.visibilityFromString(visibilityString), settings),
-      settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
-      settings.SIMPLE_METHOD_TYPE_ANNOTATION,
-      isOverride = false, // don't override in current refactoring
-      isSimple = isSimple
-    )
+    val element = settings.elements(0)
+
+    ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
+      Declaration(Visibility(visibility)), Location(settings.nextSibling), implementation)
   }
 
   def previewSignatureText(settings: ScalaExtractMethodSettings): String = {

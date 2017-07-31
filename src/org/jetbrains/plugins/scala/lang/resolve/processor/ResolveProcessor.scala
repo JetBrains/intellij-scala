@@ -30,7 +30,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   private var resolveScope: GlobalSearchScope = null
   def getResolveScope: GlobalSearchScope = {
     if (resolveScope == null) {
-      resolveScope = ref.getResolveScope
+      resolveScope = ref.resolveScope
     }
     resolveScope
   }

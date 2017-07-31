@@ -112,7 +112,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
     }
   }
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def getFunctionWrappers: Seq[ScPrimaryConstructorWrapper] = {
     val buffer = new ArrayBuffer[ScPrimaryConstructorWrapper]()
     buffer += new ScPrimaryConstructorWrapper(this)

@@ -94,11 +94,16 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
     validConfigurationIn(mavenProject).foreach { configuration =>
       val repositories = mavenProject.getRemoteRepositories
 
-      def resolve(id: MavenId) {
+      def resolve(id: MavenId): MavenArtifact = {
         embedder.resolve(new MavenArtifactInfo(id, "pom", null), repositories)
         embedder.resolve(new MavenArtifactInfo(id, "jar", null), repositories)
       }
 
+      // Scala Maven plugin can add scala-library to compilation classpath, without listing it as a project dependency.
+      // Such an approach is probably incorrect, but we have to support that behaviour "as is".
+      configuration.implicitScalaLibrary.foreach { scalaLibraryId =>
+        mavenProject.addDependency(resolve(scalaLibraryId))
+      }
       configuration.compilerClasspath.foreach(resolve)
       configuration.plugins.foreach(resolve)
     }
@@ -116,61 +121,68 @@ private object ScalaMavenImporter {
   implicit class RichFile(val file: File) extends AnyVal {
     def /(child: String): File = new File(file, child)
   }
-}
 
-private class ScalaConfiguration(project: MavenProject) {
-  private def versionNumber = compilerVersion.map(_.presentation).getOrElse("unknown")
+  private class ScalaConfiguration(project: MavenProject) {
+    private def versionNumber = compilerVersion.map(_.presentation).getOrElse("unknown")
 
-  private def scalaCompilerId = new MavenId("org.scala-lang", "scala-compiler", versionNumber)
+    private def scalaCompilerId = new MavenId("org.scala-lang", "scala-compiler", versionNumber)
 
-  private def scalaLibraryId = new MavenId("org.scala-lang", "scala-library", versionNumber)
+    private def scalaLibraryId = new MavenId("org.scala-lang", "scala-library", versionNumber)
 
-  private def scalaReflectId = new MavenId("org.scala-lang", "scala-reflect", versionNumber)
+    private def scalaReflectId = new MavenId("org.scala-lang", "scala-reflect", versionNumber)
 
-  private def compilerPlugin: Option[MavenPlugin] =
-    project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.filter(!_.isDefault).orElse(
-      project.findPlugin("net.alchim31.maven", "scala-maven-plugin").toOption.filter(!_.isDefault))
+    private def compilerPlugin: Option[MavenPlugin] =
+      project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.filter(!_.isDefault).orElse(
+        project.findPlugin("net.alchim31.maven", "scala-maven-plugin").toOption.filter(!_.isDefault))
 
-  private def compilerConfigurations: Seq[Element] = compilerPlugin.toSeq.flatMap { plugin =>
-    plugin.getConfigurationElement.toOption.toSeq ++
-            plugin.getGoalConfiguration("compile").toOption.toSeq
-  }
+    private def compilerConfigurations: Seq[Element] = compilerPlugin.toSeq.flatMap { plugin =>
+      plugin.getConfigurationElement.toOption.toSeq ++
+        plugin.getGoalConfiguration("compile").toOption.toSeq
+    }
 
-  private def standardLibrary: Option[MavenArtifact] =
-    project.findDependencies("org.scala-lang", "scala-library").headOption
+    private def standardLibrary: Option[MavenArtifact] =
+      project.findDependencies("org.scala-lang", "scala-library").headOption
 
-  def compilerClasspath: Seq[MavenId] = {
-    val basicIds = Seq(scalaCompilerId, scalaLibraryId)
-    if (usesReflect) basicIds :+ scalaReflectId else basicIds
-  }
+    // An implied scala-library dependency when there's no explicit scala-library dependency, but scalaVersion is given.
+    def implicitScalaLibrary: Option[MavenId] = Some(compilerVersionProperty, standardLibrary) collect  {
+      case (Some(compilerVersion), None) => new MavenId("org.scala-lang", "scala-library", compilerVersion)
+    }
 
-  def compilerVersion: Option[Version] = element("scalaVersion").map(_.getTextTrim)
-          .orElse(standardLibrary.map(_.getVersion)).map(Version(_))
+    def compilerClasspath: Seq[MavenId] = {
+      val basicIds = Seq(scalaCompilerId, scalaLibraryId)
+      if (usesReflect) basicIds :+ scalaReflectId else basicIds
+    }
 
-  private def usesReflect: Boolean = compilerVersion.exists(it => it.toLanguageLevel.exists(_ >= Scala_2_10))
+    def compilerVersion: Option[Version] = compilerVersionProperty
+      .orElse(standardLibrary.map(_.getVersion)).map(Version(_))
 
-  def vmOptions: Seq[String] = elements("jvmArgs", "jvmArg").map(_.getTextTrim)
+    private def compilerVersionProperty: Option[String] = element("scalaVersion").map(_.getTextTrim)
 
-  def compilerOptions: Seq[String] = elements("args", "arg").map(_.getTextTrim)
+    private def usesReflect: Boolean = compilerVersion.exists(it => it.toLanguageLevel.exists(_ >= Scala_2_10))
 
-  def plugins: Seq[MavenId] = {
-    elements("compilerPlugins", "compilerPlugin").flatMap { plugin =>
-      plugin.getChildTextTrim("groupId").toOption
-              .zip(plugin.getChildTextTrim("artifactId").toOption)
-              .zip(plugin.getChildTextTrim("version").toOption).map {
-        case ((groupId, artifactId), version) => new MavenId(groupId, artifactId, version)
+    def vmOptions: Seq[String] = elements("jvmArgs", "jvmArg").map(_.getTextTrim)
+
+    def compilerOptions: Seq[String] = elements("args", "arg").map(_.getTextTrim)
+
+    def plugins: Seq[MavenId] = {
+      elements("compilerPlugins", "compilerPlugin").flatMap { plugin =>
+        plugin.getChildTextTrim("groupId").toOption
+          .zip(plugin.getChildTextTrim("artifactId").toOption)
+          .zip(plugin.getChildTextTrim("version").toOption).map {
+          case ((groupId, artifactId), version) => new MavenId(groupId, artifactId, version)
+        }
       }
     }
+
+    private def elements(root: String, name: String): Seq[Element] =
+      element(root).toSeq.flatMap(elements(_, name))
+
+    private def elements(root: Element, name: String): Seq[Element] =
+      root.getChildren(name)
+
+    private def element(name: String): Option[Element] =
+      compilerConfigurations.flatMap(_.getChild(name).toOption.toSeq).headOption
+
+    def valid: Boolean = compilerPlugin.isDefined && compilerVersion.isDefined
   }
-
-  private def elements(root: String, name: String): Seq[Element] =
-    element(root).toSeq.flatMap(elements(_, name))
-
-  private def elements(root: Element, name: String): Seq[Element] =
-    root.getChildren(name)
-
-  private def element(name: String): Option[Element] =
-    compilerConfigurations.flatMap(_.getChild(name).toOption.toSeq).headOption
-
-  def valid: Boolean = compilerPlugin.isDefined && compilerVersion.isDefined
 }

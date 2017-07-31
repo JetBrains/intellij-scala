@@ -51,7 +51,7 @@ ScalaFile
           BlockExpression
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
-            ScVariableDefinition
+            ScVariableDefinition: result
               AnnotationsList
                 <empty list>
               Modifiers

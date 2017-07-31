@@ -127,16 +127,16 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     */
   def isUpdateCall: Boolean = false
 
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  protected override def innerType: TypeResult[ScType] = {
     try {
-      tryToGetInnerType(ctx, useExpectedType = true)
+      tryToGetInnerType(useExpectedType = true)
     } catch {
       case _: SafeCheckException =>
-        tryToGetInnerType(ctx, useExpectedType = false)
+        tryToGetInnerType(useExpectedType = false)
     }
   }
 
-  private def tryToGetInnerType(ctx: TypingContext, useExpectedType: Boolean): TypeResult[ScType] = {
+  private def tryToGetInnerType(useExpectedType: Boolean): TypeResult[ScType] = {
     var problemsLocal: Seq[ApplicabilityProblem] = Seq.empty
     var matchedParamsLocal: Seq[(Parameter, ScExpression)] = Seq.empty
     var importsUsedLocal: collection.Set[ImportUsed] = collection.Set.empty
@@ -151,7 +151,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       applyOrUpdateElemVar = applyOrUpdateElemLocal
     }
 
-    var nonValueType: TypeResult[ScType] = getEffectiveInvokedExpr.getNonValueType(TypingContext.empty)
+    var nonValueType: TypeResult[ScType] = getEffectiveInvokedExpr.getNonValueType()
     this match {
       case _: ScPrefixExpr => return nonValueType //no arg exprs, just reference expression type
       case _: ScPostfixExpr => return nonValueType //no arg exprs, just reference expression type
@@ -195,7 +195,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       }
 
       if (c._2.nonEmpty) {
-        ScalaPsiUtil.tuplizy(exprs, getResolveScope, getManager, ScalaPsiUtil.firstLeaf(this)).map { e =>
+        ScalaPsiUtil.tuplizy(exprs, this.resolveScope, getManager, ScalaPsiUtil.firstLeaf(this)).map { e =>
           val cd = fun(e)
           if (cd._2.nonEmpty) tail
           else {
@@ -269,7 +269,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
                 }
                 val (res, imports) = super.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
                 implicit val project = getProject
-                implicit val scope = getResolveScope
+                implicit val scope = MethodInvocation.this.resolveScope
 
                 val str = ScalaPsiManager.instance(project).getCachedClass(scope, "java.lang.String")
                 val stringType = str.map(ScalaType.designator(_)).getOrElse(Any)
@@ -288,7 +288,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       }
     }
 
-    var res: ScType = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed)) match {
+    val res: ScType = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed)) match {
       case Some(s) => s
       case None =>
         var (processedType, importsUsed, implicitFunction, applyOrUpdateResult) =
@@ -312,17 +312,12 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         }
     }
 
-    //Implicit parameters
-    val checkImplicitParameters = withEtaExpansion(this)
-    if (checkImplicitParameters) {
-      val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, useExpectedType, fullInfo = false)
-      res = tuple._1
-      implicitParameters = tuple._2
-    }
+    val (newType, params) = this.updatedWithImplicitParameters(res, useExpectedType)
+    setImplicitParameters(params, fromUnderscore = false)
 
     updateCacheFields()
 
-    Success(res, Some(this))
+    Success(newType, Some(this))
   }
 
   @volatile private var problemsVar: Seq[ApplicabilityProblem] = Seq.empty

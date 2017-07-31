@@ -219,11 +219,11 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         implicit val elementScope = place.elementScope
         processType(j.getParameterizedType.getOrElse(return true),
           place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
-      case p@ParameterizedType(_, _) =>
-        p.designator match {
+      case p@ParameterizedType(designator, typeArgs) =>
+        designator match {
           case tpt@TypeParameterType(_, _, upper, _) =>
             if (visitedTypeParameter.contains(tpt)) return true
-            processType(p.substitutor.subst(upper.v), place,
+            processType(p.substitutor.subst(ParameterizedType(upper.v, typeArgs)), place,
               state.put(ScSubstitutor.key, ScSubstitutor(p)), visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter + tpt)
           case _ => p.extractDesignatedType(expandAliases = false) match {
             case Some((designator, subst)) =>
@@ -254,7 +254,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           case None => //nothing to do
         }
 
-        val scope = place.getResolveScope
+        val scope = place.resolveScope
         val obj: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(scope, "java.lang.Object").orNull
         if (obj != null) {
           val namesSet = Set("hashCode", "toString", "equals", "getClass")

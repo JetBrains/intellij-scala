@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScVariableStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 
 
 /**
@@ -39,7 +40,7 @@ class ScVariableDefinitionImpl private (stub: ScVariableStub, node: ASTNode)
 
   def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
-  override def toString: String = "ScVariableDefinition"
+  override def toString: String = "ScVariableDefinition: " + ifReadAllowed(declaredNames.mkString(", "))("")
 
   def bindings: Seq[ScBindingPattern] = pList match {
     case null => Seq.empty
