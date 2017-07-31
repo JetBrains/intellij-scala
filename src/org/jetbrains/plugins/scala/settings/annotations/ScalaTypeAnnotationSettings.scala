@@ -28,7 +28,8 @@ object ScalaTypeAnnotationSettings {
 
       {
         TYPE_ANNOTATION_IMPLICIT_MODIFIER && declaration.isImplicit ||
-          TYPE_ANNOTATION_UNIT_TYPE && declaration.hasUnitType
+          TYPE_ANNOTATION_UNIT_TYPE && declaration.hasUnitType ||
+            implementation.exists(_.containsReturn)
       } || {
         if (isLocal) TYPE_ANNOTATION_LOCAL_DEFINITION
         else declaration.visibility match {

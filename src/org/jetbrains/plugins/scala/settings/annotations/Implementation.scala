@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
   * @author Pavel Fatin
   */
 trait Implementation {
+  def containsReturn: Boolean
+
   def isTypeObvious: Boolean
 }
 
@@ -22,10 +24,20 @@ object Implementation {
   def of(expression: PsiElement): Implementation = new Expression(expression)
 
   private class Definition(element: PsiElement) extends Implementation {
+    override def containsReturn: Boolean = element match {
+      case f: ScFunctionDefinition => f.returnUsages().exists {
+        case _: ScReturnStmt => true
+        case _ => false
+      }
+      case _ => false
+    }
+
     override def isTypeObvious: Boolean = rightHandSideOf(element).exists(isSimple)
   }
 
   private class Expression(element: PsiElement) extends Implementation {
+    override def containsReturn: Boolean = false
+
     override def isTypeObvious: Boolean = isSimple(element)
   }
 
