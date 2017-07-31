@@ -4,7 +4,7 @@ import java.util
 import javax.swing._
 
 import com.intellij.openapi.editor.colors.EditorColorsScheme
-import com.intellij.openapi.ui.{Messages, NonEmptyInputValidator}
+import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.{AnActionButton, AnActionButtonRunnable, ToolbarDecorator}
 import org.jetbrains.plugins.scala.ScalaFileType
@@ -111,10 +111,31 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
 private object TypeAnnotationsPanel {
   private def addActionFor(list: JList[String], entity: String) = new AnActionButtonRunnable {
     override def run(t: AnActionButton): Unit = {
-      val s = Messages.showInputDialog(list, null, s"Add $entity" , null, null, new NonEmptyInputValidator())
       val model = list.getModel.asInstanceOf[DefaultListModel[String]]
-      model.addElement(s)
+
+      val validator = new InputValidator() {
+        override def canClose(s: String): Boolean = checkInput(s)
+
+        override def checkInput(s: String): Boolean = !s.isEmpty && !model.contains(s)
+      }
+
+      val s = Messages.showInputDialog(list, null, s"Add $entity" , null, null, validator)
+      list.setSelectedIndex(add(s, model))
     }
+  }
+
+  private def add(s: String, model: DefaultListModel[String]): Int = {
+    val size = model.getSize
+    var i = 0
+    while (i < size) {
+      if (model.get(i) > s) {
+        model.add(i, s)
+        return i
+      }
+      i += 1
+    }
+    model.addElement(s)
+    size
   }
 
   private def configureList(list: JList[String], entity: String): Unit = {
