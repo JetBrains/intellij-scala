@@ -500,8 +500,7 @@ class ScalaChangeSignatureDialog(val project: Project,
     
     mySpecifyTypeChb = new JCheckBox
     mySpecifyTypeChb.setText("Specify result type")
-    mySpecifyTypeChb.setMnemonic('t')
-    mySpecifyTypeChb.setDisplayedMnemonicIndex(1)
+    mySpecifyTypeChb.setDisplayedMnemonicIndex(15)
 
     typePanel.add(mySpecifyTypeChb)
     
