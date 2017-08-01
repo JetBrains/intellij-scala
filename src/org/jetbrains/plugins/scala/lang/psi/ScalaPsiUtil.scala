@@ -1035,11 +1035,6 @@ object ScalaPsiUtil {
     }
   }
 
-  def getModifiersPresentableText(modifiers: ScModifierList): String =
-    Option(modifiers)
-      .map(_.modifiers.mkString(" "))
-      .getOrElse("")
-
   def isLineTerminator(element: PsiElement): Boolean = {
     element match {
       case _: PsiWhiteSpace if element.getText.indexOf('\n') != -1 => true
