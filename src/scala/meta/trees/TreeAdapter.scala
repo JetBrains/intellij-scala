@@ -278,9 +278,9 @@ trait TreeAdapter {
       case t: ScLiteral =>
         literal(t)
       case t: ScUnitExpr =>
-        m.Lit(())
+        m.Lit.Unit(())
       case t: ScReturnStmt =>
-        m.Term.Return(expression(t.expr).getOrElse(m.Lit(())))
+        m.Term.Return(expression(t.expr).getOrElse(m.Lit.Unit(())))
       case t: ScBlockExpr if t.hasCaseClauses =>
         m.Term.PartialFunction(Seq(t.caseClauses.get.caseClauses.map(caseClause):_*))
       case t: ScBlock =>
@@ -299,7 +299,7 @@ trait TreeAdapter {
           m.Term.Apply(m.Term.Select(expression(t.operand), toTermName(t.operation)), Nil)
         }
       case t: ScIfStmt =>
-        val unit = m.Lit(())
+        val unit = m.Lit.Unit(())
         m.Term.If(expression(t.condition.get),
             t.thenBranch.map(expression).getOrElse(unit), t.elseBranch.map(expression).getOrElse(unit))
       case t: ScDoStmt =>
