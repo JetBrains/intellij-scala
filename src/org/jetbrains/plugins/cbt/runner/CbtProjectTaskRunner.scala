@@ -4,10 +4,11 @@ import java.util
 
 import com.intellij.debugger.impl.GenericDebuggerRunner
 import com.intellij.execution.application.ApplicationConfiguration
-import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.executors.{DefaultDebugExecutor, DefaultRunExecutor}
 import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
-import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.{ExecutionManager, Executor}
+import com.intellij.execution.remote.{RemoteConfiguration, RemoteConfigurationType}
+import com.intellij.execution.runners.{ExecutionEnvironment, ExecutionEnvironmentBuilder}
+import com.intellij.execution.{ExecutionManager, Executor, ProgramRunnerUtil, RunManager}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.task._
@@ -109,14 +110,35 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
     environment
   }
 
+  private def createDebugger(project: Project) = {
+    val configType = new RemoteConfigurationType
+    val configName = "Debug CBT Task"
+    val configFactory = configType.getFactory
+    val runManager = RunManager.getInstance(project)
+
+    val runConfig = {
+      val rc = runManager.createConfiguration(configName, configFactory)
+      runManager.setTemporaryConfiguration(rc)
+      rc
+    }
+
+    val settings = runConfig.getConfiguration.asInstanceOf[RemoteConfiguration]
+    settings.PORT = "5006"
+    settings.HOST = "localhost"
+    settings.SERVER_MODE = false
+    settings.USE_SOCKET_TRANSPORT = true
+
+    val environmentBuilder = ExecutionEnvironmentBuilder.create(DefaultDebugExecutor.getDebugExecutorInstance, runConfig)
+    ProgramRunnerUtil.executeConfiguration(environmentBuilder.build(), false, false)
+  }
   override def createExecutionEnvironment(project: Project,
                                           task: ExecuteRunConfigurationTask,
                                           executor: Executor): ExecutionEnvironment = {
     val debug = task.getRunnerSettings != null
-    if (debug)
-      new ExecutionEnvironment(executor, new GenericDebuggerRunner, task.getSettings, project)
-    else
-      createExecutionEnvironment(project, project.getBaseDir.getPath, task, None)
+    if (debug) {
+      createDebugger(project)
+    }
+    createExecutionEnvironment(project, project.getBaseDir.getPath, task, None)
   }
 }
 
