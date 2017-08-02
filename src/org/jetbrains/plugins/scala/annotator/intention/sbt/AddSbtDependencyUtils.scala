@@ -5,7 +5,7 @@ import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -77,7 +77,25 @@ object AddSbtDependencyUtils {
   }
 
   def getLibraryDepenciesInsideSettings(settings: ScMethodCall): Seq[ScInfixExpr] = {
-    settings.args.exprsArray.filter({
+    var args = settings.args.exprsArray
+
+    val optCall: Option[ScMethodCall] =
+      if (args.length == 1) {
+        args(0) match {
+          case typedStmt: ScTypedStmt if typedStmt.isSequenceArg =>
+            typedStmt.expr match {
+              case call: ScMethodCall => Some(call)
+              case _ => None
+            }
+          case _ => None
+        }
+      } else {
+        None
+      }
+
+    args = if (optCall.isDefined) optCall.get.args.exprsArray else args
+
+    args.filter({
       case infix: ScInfixExpr if infix.lOp.getText == libraryDependencies => true
       case _ => false
     }).map(f => f.asInstanceOf[ScInfixExpr])
