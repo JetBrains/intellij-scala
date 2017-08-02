@@ -58,6 +58,10 @@ class ProjectImportTest {
             LibraryJar(
               jar = "/ROOT/fake_cbt_cache/scala-library-2.11.8.jar".toFile,
               jarType = JarType.Binary
+            ),
+            LibraryJar(
+              jar = "/ROOT/fake_cbt_cache/scala-library-2.11.8-sources.jar".toFile,
+              jarType = JarType.Source
             )
           )
         )
@@ -85,10 +89,13 @@ class ProjectImportTest {
         })
         val actualLibraries = collector.getResults.asScala
           .map { l =>
-            val jars = l.getFiles(OrderRootType.CLASSES)
-              .map(_.getCanonicalPath.stripSuffix("!/"))
-              .toList
-            (l.getName.stripPrefix("CBT: "), jars)
+            val binaryJars = l.getFiles(OrderRootType.CLASSES)
+              .map(j => (j.getCanonicalPath.stripSuffix("!/"), JarType.Binary))
+              .toSet
+            val sourceJars = l.getFiles(OrderRootType.SOURCES)
+              .map(j => (j.getCanonicalPath.stripSuffix("!/"), JarType.Source))
+              .toSet
+            (l.getName.stripPrefix("CBT: "), binaryJars ++ sourceJars)
           }
           .toSet
         val expectedLibraries = moudleInfo.binaryDependencies
@@ -97,7 +104,8 @@ class ProjectImportTest {
               .find(_.name == l.name)
               .toSeq
               .flatMap(_.jars)
-              .map(_.jar.getCanonicalPath)
+              .map(j => (j.jar.getCanonicalPath, j.jarType))
+              .toSet
             (l.name, jars)
           }
           .toSet
