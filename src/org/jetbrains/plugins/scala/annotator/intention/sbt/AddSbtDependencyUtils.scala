@@ -50,15 +50,17 @@ object AddSbtDependencyUtils {
       val element = ref.resolve()
       if (element != null) {
         val patternDefinition = getScPatternDefinition(element)
-        val canonicalText = patternDefinition.getType().get.canonicalText
-        if (canonicalText == "_root_.scala.collection.Seq[_root_.sbt.ModuleID]" || canonicalText == "scala.Seq[_root_.sbt.ModuleID]") {
-          if (patternDefinition.expr.isEmpty)
-            return
+        if (patternDefinition != null) {
+          val canonicalText = patternDefinition.getType().get.canonicalText
+          if (canonicalText == "_root_.scala.collection.Seq[_root_.sbt.ModuleID]" || canonicalText == "scala.Seq[_root_.sbt.ModuleID]") {
+            if (patternDefinition.expr.isEmpty)
+              return
 
-          patternDefinition.expr.get match {
-            case call: ScMethodCall if call.deepestInvokedExpr.getText == "Seq" => res ++= Seq(call)
-            case infix: ScInfixExpr => processInfix(infix)
-            case _ =>
+            patternDefinition.expr.get match {
+              case call: ScMethodCall if call.deepestInvokedExpr.getText == "Seq" => res ++= Seq(call)
+              case infix: ScInfixExpr => processInfix(infix)
+              case _ =>
+            }
           }
         }
       }
