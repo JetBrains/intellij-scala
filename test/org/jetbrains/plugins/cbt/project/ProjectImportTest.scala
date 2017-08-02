@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.cbt.project
 
 import java.io.File
+import java.nio.file._
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
@@ -55,7 +56,7 @@ class ProjectImportTest {
           name = "org.scala-lang:scala-library:2.11.8",
           jars = Seq(
             LibraryJar(
-              jar = "ROOT/org/scala-lang/scala-library/2.11.8/scala-library-2.11.8.jar".toFile,
+              jar = "/ROOT/fake_cbt_cache/scala-library-2.11.8.jar".toFile,
               jarType = JarType.Binary
             )
           )
@@ -85,7 +86,7 @@ class ProjectImportTest {
         val actualLibraries = collector.getResults.asScala
           .map { l =>
             val jars = l.getFiles(OrderRootType.CLASSES)
-              .map(_.getCanonicalPath)
+              .map(_.getCanonicalPath.stripSuffix("!/"))
               .toList
             (l.getName.stripPrefix("CBT: "), jars)
           }
@@ -136,12 +137,21 @@ class ProjectImportTest {
     replace(project).asInstanceOf[Project]
   }
 
+  private def createJarFiles(project: CbtProjectInfo.Project): Unit = {
+    for (l <- project.libraries; j <- l.jars) j match {
+      case CbtProjectInfo.LibraryJar(f, _) =>
+        Files.createDirectories(f.toPath.getParent)
+        f.createNewFile()
+    }
+  }
+
   private def testProject(name: String, projectInfo: CbtProjectInfo.Project): Unit = {
     val testFixture = IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(name).getFixture
     testFixture.setUp()
     val project = testFixture.getProject
     val settings = new CbtExecutionSettings(project.getBasePath, false, true, true, Seq.empty)
     val projectInfoWithActualPaths = replacePaths(projectInfo, name, project.getBasePath)
+    createJarFiles(projectInfoWithActualPaths)
     CbtProjectConverter(projectInfoWithActualPaths, settings)
       .map { projectNode =>
         ServiceManager.getService(classOf[ProjectDataManager]).importData(projectNode, project, true)
