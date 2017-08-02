@@ -6,9 +6,10 @@ import com.intellij.openapi.project.Project
 class CbtBuildConfigurationFactory(task: String,
                                    useDirect: Boolean,
                                    workingDir: String,
+                                   options: Seq[String],
                                    typez: ConfigurationType,
-                                   callback: Option[() => Unit] = None) extends ConfigurationFactory(typez) {
+                                   listener: Option[CbtProcessListener]) extends ConfigurationFactory(typez) {
   override def createTemplateConfiguration(project: Project): RunConfiguration =
-    new CbtBuildConfiguration(task, useDirect, workingDir, project, callback, this)
+    new CbtBuildConfiguration(task, useDirect, workingDir, options, project, listener, this)
 }
 

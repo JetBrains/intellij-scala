@@ -14,14 +14,16 @@ import scala.collection.JavaConverters._
 class CbtComandLineState(task: String,
                          useDirect: Boolean,
                          workingDir: String,
-                         callback: Option[() => Unit],
-                         environment: ExecutionEnvironment)
+                         listener: Option[CbtProcessListener],
+                         environment: ExecutionEnvironment,
+                         options: Seq[String] = Seq.empty)
   extends CommandLineState(environment) {
 
   override def startProcess(): ProcessHandler = {
     ExternalSystemNotificationManager.getInstance(environment.getProject)
       .clearNotifications(NotificationSource.TASK_EXECUTION, CbtProjectSystem.Id)
     val arguments = Seq("cbt") ++
+      options ++
       (if (useDirect) Seq("direct") else Seq.empty) ++
       task.split(' ').map(_.trim).toSeq
     val commandLine = new GeneralCommandLine(arguments.asJava)
@@ -36,10 +38,12 @@ class CbtComandLineState(task: String,
 
     final private val myColoredTextListeners = ContainerUtil.newArrayList[AnsiEscapeDecoder.ColoredTextAcceptor]
     private val myAnsiEscapeDecoder = new AnsiEscapeDecoder
-    private val onOutput = (_: String, _: Boolean) => ()
     private val cbtOutputListener =
       new CbtOutputListener(onOutput, Option(environment.getProject), NotificationSource.TASK_EXECUTION)
 
+    private def onOutput(text: String, stderr: Boolean) = {
+      listener.foreach(_.onTextAvailable(text, stderr))
+    }
 
     override def notifyTextAvailable(text: String, outputType: Key[_]): Unit = {
       outputType match {

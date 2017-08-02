@@ -16,8 +16,9 @@ import scala.collection.JavaConversions._
 class CbtBuildConfiguration(val task: String,
                             val useDirect: Boolean,
                             val workingDir: String,
+                            val options: Seq[String],
                             val project: Project,
-                            val callback: Option[() => Unit],
+                            val listener: Option[CbtProcessListener],
                             val configurationFactory: ConfigurationFactory)
   extends ModuleBasedConfiguration[RunConfigurationModule](task.capitalize, new RunConfigurationModule(project), configurationFactory) {
 
@@ -32,5 +33,5 @@ class CbtBuildConfiguration(val task: String,
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = null
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState =
-    new CbtComandLineState(task, useDirect, workingDir, callback, environment)
+    new CbtComandLineState(task, useDirect, workingDir, listener, environment, options = options)
 }
