@@ -5,6 +5,8 @@ import java.nio.file._
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.module.{ModuleManager, Module => IdeaModule}
 import com.intellij.openapi.project.{Project => IdeaProject}
@@ -16,6 +18,9 @@ import org.jetbrains.plugins.cbt._
 import org.jetbrains.plugins.cbt.project.model.CbtProjectInfo.{JarType, Library, LibraryJar, ModuleType}
 import org.jetbrains.plugins.cbt.project.model.{CbtProjectConverter, CbtProjectInfo}
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
+import org.jetbrains.plugins.cbt.structure.CbtModuleExtData
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.sbt.project.data.ModuleNode
 import org.junit.Assert._
 import org.junit.Test
 
@@ -37,7 +42,10 @@ class ProjectImportTest {
     moduleDependencies = Seq.empty,
     classpath = Seq.empty,
     parentBuild = None,
-    scalacOptions = Seq.empty
+    scalacOptions = Seq(
+      "-unchecked",
+      "-deprecation"
+    )
   )
   private val cbtLibs = Seq(
     Library(
@@ -94,15 +102,19 @@ class ProjectImportTest {
     testProject("testSimple", projectInfo)
   }
 
-  private def projectEquals(project: IdeaProject, projectInfo: CbtProjectInfo.Project) = {
+  private def projectEquals(project: IdeaProject, projectNode: DataNode[ProjectData], projectInfo: CbtProjectInfo.Project) = {
     def moduleEquals(module: IdeaModule, moudleInfo: CbtProjectInfo.Module) = {
       assertEquals(moudleInfo.name, module.getName)
       val moduleRootManager = ModuleRootManager.getInstance(module)
 
       val actulaSourceDirs = moduleRootManager.getContentEntries.flatMap(_.getSourceFolders).map(_.getJpsElement.getFile).toSet
       assertEquals(moudleInfo.sourceDirs.toSet, actulaSourceDirs)
-
       assertEquals(moudleInfo.moduleDependencies.map(_.name).toSet, moduleRootManager.getDependencies.map(_.getName).toSet)
+
+      val moduleNode = projectNode.getChildren.asScala
+          .collect{case md: DataNode[ModuleData] => md}
+          .find(_.getData.getInternalName == moudleInfo.name)
+          .get
 
       def librariesEqual() = {
         val actualLibraries = {
@@ -136,7 +148,17 @@ class ProjectImportTest {
           .toSet
         assertEquals(expectedLibraries, actualLibraries)
       }
+      def scalacOptionsEqual() = {
+        val expected = moudleInfo.scalacOptions.toSet
+        val actual = moduleNode.getChildren.asScala
+          .find(_.getKey == CbtModuleExtData.Key)
+          .map(_.getData.asInstanceOf[CbtModuleExtData].scalacOptions)// {case d: DataNode[CbtModuleExtData] => d.getData.scalacOptions}
+          .get
+          .toSet
+        assertEquals(expected, actual)
+      }
       librariesEqual()
+      scalacOptionsEqual()
     }
 
 
@@ -185,11 +207,12 @@ class ProjectImportTest {
     val settings = new CbtExecutionSettings(project.getBasePath, false, true, true, Seq.empty)
     val projectInfoWithActualPaths = replacePaths(projectInfo, name, project.getBasePath)
     createJarFiles(projectInfoWithActualPaths)
-    CbtProjectConverter(projectInfoWithActualPaths, settings)
-      .map { projectNode =>
-        ServiceManager.getService(classOf[ProjectDataManager]).importData(projectNode, project, true)
+    val projectNode = CbtProjectConverter(projectInfoWithActualPaths, settings)
+      .map { n =>
+        ServiceManager.getService(classOf[ProjectDataManager]).importData(n, project, true)
+        n
       }
       .get
-    projectEquals(project, projectInfoWithActualPaths)
+    projectEquals(project, projectNode,  projectInfoWithActualPaths)
   }
 }
