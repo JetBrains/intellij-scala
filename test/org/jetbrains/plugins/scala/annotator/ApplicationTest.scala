@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 
 /**
   * @author Nikolay.Tropin
@@ -79,5 +80,58 @@ class ApplicationTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
         |""".stripMargin
     )
+  }
+}
+
+class ApplicationTest212 extends ScalaLightCodeInsightFixtureTestAdapter {
+  override implicit val version: ScalaVersion = Scala_2_12
+
+  //adapted from `better-files` project
+  def testImplicitArgNotSAM(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |package test
+        |
+        |import java.io._
+        |
+        |abstract class FileTest {
+        |  class Options
+        |
+        |  def output1   (implicit options: Options = new Options): OutputStream
+        |  def output2[T](implicit options: Options = new Options): OutputStream
+        |  def input     (implicit options: Options = new Options): InputStream
+        |
+        |  implicit class InputStreamOps(in: InputStream) {
+        |    def >>(out: OutputStream): Unit = ???
+        |  }
+        |
+        |  def useDefault(): Unit = {
+        |    input >> output1
+        |    input >> output1()
+        |
+        |    input >> output2
+        |    input >> output2()
+        |
+        |    input >> output2[Nothing]
+        |    input >> output2[Nothing]()
+        |  }
+        |
+        |  def passImplicit(implicit opt: Options): Unit = {
+        |    input >> output1
+        |    input >> output1()
+        |
+        |    input >> output2
+        |    input >> output2()
+        |
+        |    input >> output2[Nothing]
+        |    input >> output2[Nothing]()
+        |  }
+        |
+        |  def explicit(): Unit = {
+        |    input >> output1(new Options)
+        |    input >> output2(new Options)
+        |    input >> output2[Nothing](new Options)
+        |  }
+        |}""".stripMargin)
   }
 }
