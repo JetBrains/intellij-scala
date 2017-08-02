@@ -7,7 +7,7 @@ import java.util.concurrent.{Callable, Future}
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationUtil}
+import com.intellij.openapi.application.ex.ApplicationUtil
 import com.intellij.openapi.application.{ApplicationManager, Result, TransactionGuard}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
@@ -105,10 +105,10 @@ package object extensions {
   }
 
   object PsiMethodExt {
-    val AccessorNamePattern =
+    val AccessorNamePattern: Regex =
       """(?-i)(?:get|is|can|could|has|have|to)\p{Lu}.*""".r
 
-    val MutatorNamePattern =
+    val MutatorNamePattern: Regex =
       """(?-i)(?:do|set|add|remove|insert|delete|aquire|release|update)(?:\p{Lu}.*)""".r
   }
 
@@ -656,9 +656,14 @@ package object extensions {
     }
   }
 
+  //use only for defining toString method
   def ifReadAllowed[T](body: => T)(default: => T): T = {
     try {
-      ApplicationUtil.tryRunReadAction(body)
+      val ref: Ref[T] = Ref.create()
+      ProgressManager.getInstance().executeNonCancelableSection {
+        ref.set(ApplicationUtil.tryRunReadAction(body))
+      }
+      ref.get()
     } catch {
       case _: ProcessCanceledException => default
     }
@@ -705,7 +710,7 @@ package object extensions {
     }
   }
 
-  def invokeLater[T](body: => T) {
+  def invokeLater[T](body: => T): Unit = {
     ApplicationManager.getApplication.invokeLater(new Runnable {
       def run() {
         body
@@ -713,7 +718,7 @@ package object extensions {
     })
   }
 
-  def invokeAndWait[T](body: => Unit) {
+  def invokeAndWait[T](body: => T): Unit = {
     preservingControlFlow {
       ApplicationManager.getApplication.invokeAndWait(new Runnable {
         def run() {
@@ -890,5 +895,5 @@ package object extensions {
     v
   }
 
-  val ChildOf = Parent
+  val ChildOf: Parent.type = Parent
 }

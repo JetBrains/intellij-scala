@@ -11,6 +11,7 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.impl.source.PsiFileImpl
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
@@ -133,7 +134,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     }
   }
 
-  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
+  @Cached(CachesUtil.libraryAwareModTracker(this), this)
   def calcFakeCompanionModule(): Option[ScObject] = {
     val accessModifier = getModifierList.accessModifier.fold("")(_.modifierFormattedText + " ")
     val objText = this match {
@@ -180,7 +181,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     val objOption: Option[ScObject] = obj.toOption
     objOption.foreach { (obj: ScObject) =>
       obj.setSyntheticObject()
-      obj.extendsBlock.members.foreach {
+      obj.physicalExtendsBlock.members.foreach {
         case s: ScFunctionDefinition =>
           s.setSynthetic(this) // So we find the `apply` method in ScalaPsiUtil.syntheticParamForParam
           this match {

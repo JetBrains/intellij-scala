@@ -1,4 +1,6 @@
-[![Build Status](https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:Scala_Tests)/statusIcon.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Scala_Tests&guest=1) [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/JetBrains/intellij-scala)
+[![TC Build Status](https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:Scala_Tests)/statusIcon.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Scala_Tests&guest=1)
+[![Travis Build Status](https://travis-ci.org/JetBrains/intellij-scala.svg)](https://travis-ci.org/JetBrains/intellij-scala) 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/JetBrains/intellij-scala)
 
 
 # Scala Plugin for IntelliJ IDEA
@@ -57,3 +59,12 @@ On the sbt shell:
 
 1. `packagePluginCommunity`
 2. `runFastTests`
+
+The "fast tests" can take over an hour. To get a quick feedback on project health, run the "typeInference tests"
+
+    > testOnly org.jetbrains.plugins.scala.lang.typeInference.*
+    
+## Travis CI
+
+The project is configured to build and run the typeInference tests with Travis CI, which you can enable in your forks.
+The full test suite can't currently be run because Travis doesn't allow builds to take that long.

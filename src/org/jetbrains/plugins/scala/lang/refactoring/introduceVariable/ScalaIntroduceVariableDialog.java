@@ -16,14 +16,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ValidationReporter;
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
+import org.jetbrains.plugins.scala.settings.*;
+import org.jetbrains.plugins.scala.settings.annotations.*;
+import org.jetbrains.plugins.scala.util.*;
+import scala.Some$;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -189,16 +190,12 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     });
   }
 
-  //treat expression as local variable
+  // TODO Are all non-local variables now "private"?
+  // TODO Is there a scope selection?
   private boolean needsTypeAnnotation() {
-    return TypeAnnotationUtil.isTypeAnnotationNeededProperty(
-            expression,
-            TypeAnnotationUtil.Public$.MODULE$.toString(),
-            false,
-            false,
-            TypeAnnotationUtil.isSimple(expression),
-            ScalaCodeStyleSettings.getInstance(project)
-    );
+    return ScalaTypeAnnotationSettings$.MODULE$.apply(expression.getProject()).isTypeAnnotationRequiredFor(
+        Declaration$.MODULE$.apply(Visibility$.MODULE$.apply("private"), false, false, false),
+        Location$.MODULE$.apply(expression), Some$.MODULE$.apply(Implementation$.MODULE$.apply(expression)));
   }
 
   private void setUpSpecifyTypeChb() {

@@ -30,25 +30,25 @@ class ScWhileStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScWh
   def condition: Option[ScExpression] = {
     val rpar = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     val c = if (rpar != null) PsiTreeUtil.getPrevSiblingOfType(rpar, classOf[ScExpression]) else null
-    if (c == null) None else Some(c)
+    Option(c)
   }
 
   def body: Option[ScExpression] = {
     val rpar = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     val c = if (rpar != null) PsiTreeUtil.getNextSiblingOfType(rpar, classOf[ScExpression]) else null
-    if (c == null) None else Some(c)
+    Option(c)
   }
 
   def getLeftParenthesis: Option[PsiElement] = {
     val leftParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
-    if (leftParenthesis == null) None else Some(leftParenthesis)
+    Option(leftParenthesis)
   }
 
   def getRightParenthesis: Option[PsiElement] = {
     val rightParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
-    if (rightParenthesis == null) None else Some(rightParenthesis)
+    Option(rightParenthesis)
   }
 
 
-  protected override def innerType(ctx: TypingContext) = Success(api.Unit, Some(this))
+  protected override def innerType = Success(api.Unit, Some(this))
 }

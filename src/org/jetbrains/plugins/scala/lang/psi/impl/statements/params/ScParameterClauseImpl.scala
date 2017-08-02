@@ -31,7 +31,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
   override def toString: String = "ParametersClause"
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   def parameters: Seq[ScParameter] = {
     getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory).toSeq
   }
@@ -67,7 +67,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     }
   }
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   def isImplicit: Boolean = byStubOrPsi(_.isImplicit)(findChildByType(ScalaTokenTypes.kIMPLICIT) != null)
 
   def addParameter(param: ScParameter): ScParameterClause = {

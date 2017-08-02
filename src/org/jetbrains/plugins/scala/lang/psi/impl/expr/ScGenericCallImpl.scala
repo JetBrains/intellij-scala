@@ -93,15 +93,15 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     }
   }
 
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    val typeResult = referencedExpr.getNonValueType(ctx)
+  protected override def innerType: TypeResult[ScType] = {
+    val typeResult = referencedExpr.getNonValueType()
     convertReferencedType(typeResult)
   }
 
   def shapeType: TypeResult[ScType] = {
     val typeResult: TypeResult[ScType] = referencedExpr match {
       case ref: ScReferenceExpression => ref.shapeType
-      case expr => expr.getNonValueType(TypingContext.empty)
+      case expr => expr.getNonValueType()
     }
     shapeType(typeResult)
   }
@@ -109,7 +109,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   def shapeMultiType: Array[TypeResult[ScType]] = {
     val typeResult: Array[TypeResult[ScType]] = referencedExpr match {
       case ref: ScReferenceExpression => ref.shapeMultiType
-      case expr => Array(expr.getNonValueType(TypingContext.empty))
+      case expr => Array(expr.getNonValueType())
     }
     typeResult.map(shapeType(_))
   }
@@ -124,7 +124,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   def multiType: Array[TypeResult[ScType]] = {
     val typeResult: Array[TypeResult[ScType]] = referencedExpr match {
       case ref: ScReferenceExpression => ref.multiType
-      case expr => Array(expr.getNonValueType(TypingContext.empty))
+      case expr => Array(expr.getNonValueType())
     }
     typeResult.map(convertReferencedType)
   }

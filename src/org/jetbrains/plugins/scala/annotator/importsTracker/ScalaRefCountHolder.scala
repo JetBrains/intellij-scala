@@ -2,12 +2,17 @@ package org.jetbrains.plugins.scala.annotator.importsTracker
 
 import java.util.concurrent.atomic.AtomicReference
 
-import com.intellij.openapi.util.{Key, TextRange, UserDataHolderEx}
+import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ReadValueUsed, ValueUsed, WriteValueUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
+
+import scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin

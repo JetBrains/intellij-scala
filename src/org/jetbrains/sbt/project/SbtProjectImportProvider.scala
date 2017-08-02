@@ -30,8 +30,10 @@ object SbtProjectImportProvider {
       entry.getName == Sbt.ProjectDirectory ||
               entry.containsDirectory(Sbt.ProjectDirectory) ||
               entry.containsFile(Sbt.BuildFile)
+
     } else {
-      entry.getName == Sbt.BuildFile
+      entry.getName == Sbt.BuildFile ||
+        Sbt.isSbtFile(entry.getName)
     }
   }
 

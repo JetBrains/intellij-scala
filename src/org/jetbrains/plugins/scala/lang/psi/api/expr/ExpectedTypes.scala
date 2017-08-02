@@ -183,7 +183,7 @@ private[expr] object ExpectedTypes {
             case ref: ScReferenceExpression =>
               if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
               else mapResolves(ref.multiResolve(false), ref.multiType)
-            case _ => Array((callExpression.getNonValueType(TypingContext.empty), false))
+            case _ => Array((callExpression.getNonValueType(), false))
           }
           tps.foreach { case (r, isDynamicNamed) =>
             processArgsExpected(res, expr, i, r, exprs, isDynamicNamed = isDynamicNamed)
@@ -286,7 +286,7 @@ private[expr] object ExpectedTypes {
                 val multiType = gen.multiType
                 gen.multiResolve.map(mapResolves(_, multiType)).getOrElse(multiType.map((_, false)))
               }
-            case _ => Array((callExpression.getNonValueType(TypingContext.empty), false))
+            case _ => Array((callExpression.getNonValueType(), false))
           }
           val callOption = args.getParent match {
             case call: MethodInvocation => Some(call)

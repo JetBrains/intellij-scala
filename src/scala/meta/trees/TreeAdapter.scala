@@ -278,9 +278,9 @@ trait TreeAdapter {
       case t: ScLiteral =>
         literal(t)
       case t: ScUnitExpr =>
-        m.Lit(())
+        m.Lit.Unit(())
       case t: ScReturnStmt =>
-        m.Term.Return(expression(t.expr).getOrElse(m.Lit(())))
+        m.Term.Return(expression(t.expr).getOrElse(m.Lit.Unit(())))
       case t: ScBlockExpr if t.hasCaseClauses =>
         m.Term.PartialFunction(Seq(t.caseClauses.get.caseClauses.map(caseClause):_*))
       case t: ScBlock =>
@@ -299,7 +299,7 @@ trait TreeAdapter {
           m.Term.Apply(m.Term.Select(expression(t.operand), toTermName(t.operation)), Nil)
         }
       case t: ScIfStmt =>
-        val unit = m.Lit(())
+        val unit = m.Lit.Unit(())
         m.Term.If(expression(t.condition.get),
             t.thenBranch.map(expression).getOrElse(unit), t.elseBranch.map(expression).getOrElse(unit))
       case t: ScDoStmt =>
@@ -352,15 +352,16 @@ trait TreeAdapter {
         m.Term.Assign(expression(t.getLExpression).asInstanceOf[m.Term.Ref], expression(t.getRExpression.get))
       case t: ScUnderscoreSection =>
         m.Term.Placeholder()
+      case t: ScTypedStmt =>
+        m.Term.Ascribe(expression(t.expr), t.typeElement.map(toType).getOrElse(unreachable))
+      case t: ScTypedStmt if t.isSequenceArg=>
+        unreachable("can only be used as call arg")
       case t: ScConstrExpr =>
         t ???
       case t: ScInterpolatedStringLiteral =>
         t ???
-      case t: ScTypedStmt =>
-        t ???
       case t: ScXmlExpr =>
         t ???
-
       case other: ScalaPsiElement => other ?!
     }
   }
@@ -368,7 +369,8 @@ trait TreeAdapter {
   def callArgs(e: ScExpression): m.Term.Arg = {
     e match {
       case t: ScAssignStmt => m.Term.Arg.Named(toTermName(t.getLExpression), expression(t.getRExpression).get)
-      case t: ScUnderscoreSection => m.Term.Placeholder()
+      case _: ScUnderscoreSection => m.Term.Placeholder()
+      case t: ScTypedStmt if t.isSequenceArg=> m.Term.Arg.Repeated(expression(t.expr))
       case other => expression(e)
     }
   }

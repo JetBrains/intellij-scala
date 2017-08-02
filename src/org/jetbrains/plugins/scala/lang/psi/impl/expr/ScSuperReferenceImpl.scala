@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -169,7 +169,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       }
   }
 
-  protected override def innerType(ctx: TypingContext) = Failure("Cannot infer type of `super' expression", Some(this))
+  protected override def innerType = Failure("Cannot infer type of `super' expression", Some(this))
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitSuperReference(this)

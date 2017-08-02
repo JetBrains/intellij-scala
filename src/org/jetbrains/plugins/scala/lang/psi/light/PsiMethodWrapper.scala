@@ -20,34 +20,72 @@ abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containi
 
   implicit def elementScope: ElementScope = ElementScope(containingClass)
 
+  private var retTypeElement: Option[PsiTypeElement] = None
+  private var paramList: Option[PsiParameterList] = None
+  private var retType: Option[PsiType] = None
+
   protected def returnType: ScType
 
   protected def parameterListText: String
 
-  override lazy val getReturnType: PsiType = Option(returnType).map(_.toPsiType()).orNull
-
-  override lazy val getReturnTypeElement: PsiTypeElement = {
-    val simpleTypeElem = method.getReturnTypeElement
-    if (simpleTypeElem == null) null
-    else {
-      val fullTypeElem = Option(getReturnType)
-        .map(javaTypeElement(_, method, manager.getProject))
-
-      fullTypeElem.map(simpleTypeElem.replace(_).asInstanceOf[PsiTypeElement])
-        .getOrElse(simpleTypeElem)
+  override def getReturnType: PsiType = {
+    retType.getOrElse {
+      val computed = Option(returnType).map(_.toPsiType()).orNull
+      retType = Some(computed)
+      retType.orNull
     }
   }
 
-  override lazy val getParameterList: PsiParameterList = {
+  override def getReturnTypeElement: PsiTypeElement = {
+    retTypeElement.getOrElse {
+      updateRetTypeElement()
+      retTypeElement.orNull
+    }
+  }
+
+  override def getParameterList: PsiParameterList = {
+    paramList.getOrElse {
+      updateParamList()
+      paramList.orNull
+    }
+  }
+
+  private def updateRetTypeElement(): Unit = {
+    //`getReturnType` inside synchronized may lead to a deadlock
+    val fullTypeElem = Option(getReturnType)
+      .map(javaTypeElement(_, method, manager.getProject))
+
+    //we update not only retTypeElement, but also psi of `method`
+    synchronized {
+      if (retTypeElement.isEmpty) {
+        val simpleTypeElem = method.getReturnTypeElement
+        if (simpleTypeElem != null) {
+          val newTypeElem =
+            fullTypeElem.map(simpleTypeElem.replace(_).asInstanceOf[PsiTypeElement])
+              .getOrElse(simpleTypeElem)
+
+          retTypeElement = Some(newTypeElem)
+        }
+      }
+    }
+  }
+
+  private def updateParamList(): Unit = {
     val elementFactory = JavaPsiFacade.getInstance(getProject).getElementFactory
+    //`parameterListText` is heavy operation without side effects, so it should be outside synchronized
     val dummyMethod = elementFactory.createMethodFromText(s"void method$parameterListText", method)
 
-    method.getParameterList.replace(dummyMethod.getParameterList).asInstanceOf[PsiParameterList]
+    synchronized {
+      if (paramList.isEmpty) {
+        val newParamLis = method.getParameterList.replace(dummyMethod.getParameterList).asInstanceOf[PsiParameterList]
+        paramList = Some(newParamLis)
+      }
+    }
   }
 
   override def getSignature(substitutor: PsiSubstitutor): MethodSignature = {
-    getParameterList
-    getReturnTypeElement
+    updateParamList()
+    updateRetTypeElement()
     method.getSignature(substitutor)
   }
 

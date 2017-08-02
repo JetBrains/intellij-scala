@@ -1,8 +1,5 @@
 package scala.meta.annotations
 
-import java.io.File
-
-import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.junit.Assert

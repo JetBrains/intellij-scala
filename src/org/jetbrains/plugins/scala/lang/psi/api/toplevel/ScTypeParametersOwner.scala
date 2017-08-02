@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 trait ScTypeParametersOwner extends ScalaPsiElement {
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   def typeParameters: Seq[ScTypeParam] = {
     typeParametersClause match {
       case Some(clause) => clause.typeParameters

@@ -11,8 +11,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -28,13 +29,12 @@ class ScReturnStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScR
 
   override def toString: String = "ReturnStatement"
 
-  protected[expr] override def innerType(ctx: TypingContext) = Success(Nothing, Some(this))
+  protected override def innerType: TypeResult[ScType] = Success(Nothing, Some(this))
     //Failure("Cannot infer type of `return' expression", Some(this))
 
   def returnKeyword: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.kRETURN)
 
   def returnFunction: Option[ScFunctionDefinition] = {
-    val o = PsiTreeUtil.getParentOfType(this, classOf[ScFunctionDefinition])
-    if (o == null) None else Some(o)
+    Option(PsiTreeUtil.getParentOfType(this, classOf[ScFunctionDefinition]))
   }
 }

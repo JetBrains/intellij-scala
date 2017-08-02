@@ -235,12 +235,12 @@ object MethodResolveProcessor {
           }.getOrElse(Nothing)
         case _ => Nothing
       }
-      val (conforms, subst) = retType.typeSystem.conformsInner(retType, expected)
+      val (conforms, subst) = retType.typeSystem.conformsInner(expected, retType)
       if (!conforms && !expected.equiv(api.Unit)) {
         problems += ExpectedTypeMismatch
       }
       result match {
-        case Some(aResult) => aResult.copy(problems, aResult.undefSubst + subst)
+        case Some(aResult) => aResult.copy(problems, if (expected.equiv(api.Unit)) aResult.undefSubst else aResult.undefSubst + subst)
         case None => ConformanceExtResult(problems, subst)
       }
     }
@@ -424,7 +424,8 @@ object MethodResolveProcessor {
     if (result.problems.forall(_ == ExpectedTypeMismatch)) {
       var uSubst = result.undefSubst
       uSubst.getSubstitutor match {
-        case None => result.copy(problems = Seq(WrongTypeParameterInferred))
+        case None =>
+          result.copy(problems = Seq(WrongTypeParameterInferred))
         case Some(unSubst) =>
           def hasRecursiveTypeParameters(typez: ScType): Boolean = {
 

@@ -19,6 +19,4 @@ trait MigrationApiService {
   def inReadAction[T](action: => T): T
   
   def inWriteAction[T](action: => T): T
-  
-  def onEdt(action: => Unit): Unit
 }

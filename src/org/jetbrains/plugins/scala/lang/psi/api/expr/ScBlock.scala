@@ -34,7 +34,7 @@ import scala.collection.mutable.ArrayBuffer
 
 trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImportsHolder {
 
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  protected override def innerType: TypeResult[ScType] = {
     if (hasCaseClauses) {
       val caseClauses = findChildByClassScala(classOf[ScCaseClauses])
       val clauses: Seq[ScCaseClause] = caseClauses.caseClauses

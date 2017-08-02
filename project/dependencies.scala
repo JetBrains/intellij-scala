@@ -5,14 +5,14 @@ object Versions {
   val scalaBinaryVersion: String = Scala.binary_2_11
   val sbtVersion: String = Sbt.latest
   val ideaVersion = "172.3317.6"
-  val sbtStructureVersion: String = "7.0.0+54-18d3848c"
+  val sbtStructureVersion: String = "7.0.0+61-051fb9ba"
   val sbtIdeaShellVersion: String = "1.2+7-625c26bc"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
   val wagonVersion = "2.6"
   val httpComponentsVersion = "4.3.1"
-  val scalaMetaVersion = "1.7.0"
+  val scalaMetaVersion = "1.8.0"
   val paradiseVersion = "3.0.0-M8"
 
   object Scala {
@@ -43,7 +43,7 @@ object Versions {
     val binary_1_0 = "1.0"
 
     val latest_0_12 = "0.12.4"
-    val latest_0_13 = "0.13.15"
+    val latest_0_13 = "0.13.16"
     val latest_1_0 = "1.0.0-RC2"
     val latest: String = latest_0_13
 
@@ -156,7 +156,7 @@ object DependencyGroups {
     Seq("0.12.4", "0.13.0", "0.13.1", "0.13.2",
         "0.13.5", "0.13.6", "0.13.7", "0.13.8",
         "0.13.9", "0.13.11", "0.13.12", "0.13.13",
-        "0.13.15")
+        "0.13.15", "0.13.16")
       .map(v => "org.scala-sbt" % "sbt-launch" % v)
 
   val testDownloader = Seq(

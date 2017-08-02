@@ -16,7 +16,7 @@ abstract class DottyAndOrTypeElementImpl(node: ASTNode) extends ScalaPsiElementI
 
   protected def apply: Seq[ScType] => ScType
 
-  protected def innerType(): TypeResult[ScType] = {
+  protected def innerType: TypeResult[ScType] = {
     def lift(typeElement: ScTypeElement) = typeElement.getType()
 
     val rightType = rightTypeElement match {

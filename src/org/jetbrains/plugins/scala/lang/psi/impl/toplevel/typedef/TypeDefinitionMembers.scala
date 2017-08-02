@@ -131,6 +131,11 @@ object TypeDefinitionMembers {
         }
       }
 
+      for (method <- template.syntheticMethodsWithOverride if method.getParameterList.getParametersCount == 0) {
+        val sig = new PhysicalSignature(method, subst)
+        addSignature(sig)
+      }
+
       for (member <- template.members) {
         member match {
           case _var: ScVariable if nonBridge(place, _var) =>
@@ -184,11 +189,6 @@ object TypeDefinitionMembers {
             addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
           case _ =>
         }
-      }
-
-      for (method <- template.syntheticMethodsWithOverride if method.getParameterList.getParametersCount == 0) {
-        val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
       }
 
       for (td <- template.syntheticTypeDefinitions) {
@@ -372,6 +372,11 @@ object TypeDefinitionMembers {
         }
       }
 
+      for (method <- template.syntheticMethodsWithOverride) {
+        val sig = new PhysicalSignature(method, subst)
+        addSignature(sig)
+      }
+
       for (member <- template.members) {
         member match {
           case _var: ScVariable if nonBridge(place, _var) =>
@@ -455,11 +460,6 @@ object TypeDefinitionMembers {
         }
       }
 
-      for (method <- template.syntheticMethodsWithOverride) {
-        val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
-      }
-
       for (td <- template.syntheticTypeDefinitions) {
         td match {
           case obj: ScObject => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
@@ -507,7 +507,7 @@ object TypeDefinitionMembers {
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 
   def getParameterlessSignatures(clazz: PsiClass): PMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def inner(): PMap = ParameterlessNodes.build(clazz)
 
     inner()
@@ -515,14 +515,14 @@ object TypeDefinitionMembers {
 
   def getTypes(clazz: PsiClass): TMap = {
 
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def inner(): TMap =TypeNodes.build(clazz)
 
     inner()
   }
 
   def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None): SMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def buildNodesClass(): SMap = SignatureNodes.build(clazz)
 
     val ans = buildNodesClass()
@@ -539,7 +539,7 @@ object TypeDefinitionMembers {
             c match {
               case o: ScObject =>
                 if (allowedNames.contains(o.name)) {
-                  @CachedInsidePsiElement(o, CachesUtil.getDependentItem(o)())
+                  @CachedInsidePsiElement(o, CachesUtil.libraryAwareModTracker(o))
                   def buildNodesObject(): SMap = SignatureNodes.build(o)
 
                   val add = buildNodesObject()
@@ -547,7 +547,7 @@ object TypeDefinitionMembers {
                 }
               case c: ScClass =>
                 if (allowedNames.contains(c.name)) {
-                  @CachedInsidePsiElement(c, CachesUtil.getDependentItem(c)())
+                  @CachedInsidePsiElement(c, CachesUtil.libraryAwareModTracker(c))
                   def buildNodesClass2(): SMap = SignatureNodes.build(c)
 
                   val add = buildNodesClass2()
@@ -576,7 +576,7 @@ object TypeDefinitionMembers {
 
   def getSelfTypeSignatures(clazz: PsiClass): SMap = {
 
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def selfTypeSignaturesInner(): SMap = {
       implicit val ctx: ProjectContext = clazz
 
