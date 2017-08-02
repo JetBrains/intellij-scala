@@ -13,7 +13,7 @@ import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
 import com.intellij.util.CommonProcessors.CollectProcessor
 import org.jetbrains.plugins.cbt._
-import org.jetbrains.plugins.cbt.project.model.CbtProjectInfo.{JarType, ModuleType}
+import org.jetbrains.plugins.cbt.project.model.CbtProjectInfo.{JarType, Library, LibraryJar, ModuleType}
 import org.jetbrains.plugins.cbt.project.model.{CbtProjectConverter, CbtProjectInfo}
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
 import org.junit.Assert._
@@ -22,7 +22,7 @@ import org.junit.Test
 import scala.collection.JavaConverters._
 
 class ProjectImportTest {
-  val modulePrototype =   CbtProjectInfo.Module(
+  private val modulePrototype =   CbtProjectInfo.Module(
     name = null,
     root = "ROOT".toFile,
     sourceDirs = Seq("ROOT/src".toFile),
@@ -30,12 +30,34 @@ class ProjectImportTest {
     target = "ROOT/target".toFile,
     moduleType = ModuleType.Default,
     binaryDependencies = Seq(
-      CbtProjectInfo.BinaryDependency("org.scala-lang:scala-library:2.11.8")
+      CbtProjectInfo.BinaryDependency("org.scala-lang:scala-library:2.11.8"),
+      CbtProjectInfo.BinaryDependency("CBT: cbtCore"),
+      CbtProjectInfo.BinaryDependency("CBT: cbtLib")
     ),
     moduleDependencies = Seq.empty,
     classpath = Seq.empty,
     parentBuild = None,
     scalacOptions = Seq.empty
+  )
+  private val cbtLibs = Seq(
+    Library(
+      name = "CBT: cbtCore",
+      jars = Seq(
+        LibraryJar(
+          jar = "ROOT/fake_cbt_cache/cbtCore.jar".toFile,
+          jarType = JarType.Binary
+        )
+      )
+    ),
+    Library(
+      name = "CBT: cbtLib",
+      jars = Seq(
+        LibraryJar(
+          jar = "ROOT/fake_cbt_cache/cbtLib.jar".toFile,
+          jarType = JarType.Binary
+        )
+      )
+    )
   )
   @Test
   def testSimple(): Unit = {
@@ -56,17 +78,17 @@ class ProjectImportTest {
           name = "org.scala-lang:scala-library:2.11.8",
           jars = Seq(
             LibraryJar(
-              jar = "/ROOT/fake_cbt_cache/scala-library-2.11.8.jar".toFile,
+              jar = "ROOT/fake_cbt_cache/scala-library-2.11.8.jar".toFile,
               jarType = JarType.Binary
             ),
             LibraryJar(
-              jar = "/ROOT/fake_cbt_cache/scala-library-2.11.8-sources.jar".toFile,
+              jar = "ROOT/fake_cbt_cache/scala-library-2.11.8-sources.jar".toFile,
               jarType = JarType.Source
             )
           )
         )
       ),
-      cbtLibraries = Seq.empty,
+      cbtLibraries = cbtLibs,
       scalaCompilers = Seq.empty)
 
     testProject("testSimple", projectInfo)
@@ -81,32 +103,35 @@ class ProjectImportTest {
       assertEquals(moudleInfo.sourceDirs.toSet, actulaSourceDirs)
 
       assertEquals(moudleInfo.moduleDependencies.map(_.name).toSet, moduleRootManager.getDependencies.map(_.getName).toSet)
+
       def librariesEqual() = {
-        val collector = new CollectProcessor[IdeaLibrary]
-        ApplicationManager.getApplication.runReadAction(new Runnable {
-          override def run(): Unit =
-            moduleRootManager.getModifiableModel.orderEntries().librariesOnly().forEachLibrary(collector)
-        })
-        val actualLibraries = collector.getResults.asScala
-          .map { l =>
-            val binaryJars = l.getFiles(OrderRootType.CLASSES)
-              .map(j => (j.getCanonicalPath.stripSuffix("!/"), JarType.Binary))
-              .toSet
-            val sourceJars = l.getFiles(OrderRootType.SOURCES)
-              .map(j => (j.getCanonicalPath.stripSuffix("!/"), JarType.Source))
-              .toSet
-            (l.getName.stripPrefix("CBT: "), binaryJars ++ sourceJars)
-          }
-          .toSet
+        val actualLibraries = {
+          val collector = new CollectProcessor[IdeaLibrary]
+          ApplicationManager.getApplication.runReadAction(new Runnable {
+            override def run(): Unit =
+              moduleRootManager.getModifiableModel.orderEntries().librariesOnly().forEachLibrary(collector)
+          })
+          collector.getResults.asScala
+            .map { l =>
+              val binaryJars = l.getFiles(OrderRootType.CLASSES)
+                .map(j => (j.getCanonicalPath.stripSuffix("!/"), JarType.Binary))
+                .toSet
+              val sourceJars = l.getFiles(OrderRootType.SOURCES)
+                .map(j => (j.getCanonicalPath.stripSuffix("!/"), JarType.Source))
+                .toSet
+              (l.getName.stripPrefix("CBT: "), binaryJars ++ sourceJars)
+            }
+            .toSet
+        }
         val expectedLibraries = moudleInfo.binaryDependencies
-          .map { l =>
-            val jars = projectInfo.libraries
-              .find(_.name == l.name)
+          .map { d =>
+            val jars = (projectInfo.libraries ++ projectInfo.cbtLibraries)
+              .find(_.name == d.name)
               .toSeq
               .flatMap(_.jars)
               .map(j => (j.jar.getCanonicalPath, j.jarType))
               .toSet
-            (l.name, jars)
+            (d.name, jars)
           }
           .toSet
         assertEquals(expectedLibraries, actualLibraries)
@@ -146,7 +171,7 @@ class ProjectImportTest {
   }
 
   private def createJarFiles(project: CbtProjectInfo.Project): Unit = {
-    for (l <- project.libraries; j <- l.jars) j match {
+    for (l <- project.libraries ++ project.cbtLibraries; j <- l.jars) j match {
       case CbtProjectInfo.LibraryJar(f, _) =>
         Files.createDirectories(f.toPath.getParent)
         f.createNewFile()
