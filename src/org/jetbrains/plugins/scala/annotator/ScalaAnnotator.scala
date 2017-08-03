@@ -58,6 +58,7 @@ import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
 import scala.meta.intellij.MetaExpansionsManager
+import scala.util.Try
 
 /**
  * User: Alexander Podkhalyuzin
