@@ -18,7 +18,7 @@ trait Implementation {
 
 object Implementation {
   private val TraversableClassNames =
-    Seq("Seq", "Array", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
+    Seq("Seq", "Array", "List", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
 
   def apply(definition: PsiElement): Implementation = new Definition(definition)
 
