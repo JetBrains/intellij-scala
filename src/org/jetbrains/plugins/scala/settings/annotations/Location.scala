@@ -72,7 +72,7 @@ object Location {
     Option(member.getContainingClass).flatMap { containingClass =>
       Option(getModule(member)).map { module =>
         val scope = ElementScope(member.getProject, moduleWithDependenciesAndLibrariesScope(module))
-        classes.flatMap(scope.getCachedClass).exists(containingClass.isInheritor(_, true))
+        classes.flatMap(scope.getCachedClass).exists(it => containingClass.equals(it) || containingClass.isInheritor(it, true))
       }
     } getOrElse {
       false
