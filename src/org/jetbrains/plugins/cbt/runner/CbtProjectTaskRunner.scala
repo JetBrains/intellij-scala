@@ -129,7 +129,7 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
     }
 
     val settings = runConfig.getConfiguration.asInstanceOf[RemoteConfiguration]
-    settings.PORT = "5006"
+    settings.PORT = "5005"
     settings.HOST = "localhost"
     settings.SERVER_MODE = false
     settings.USE_SOCKET_TRANSPORT = true
