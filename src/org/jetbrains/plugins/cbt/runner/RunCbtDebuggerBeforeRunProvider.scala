@@ -10,7 +10,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.util.Key
 import com.intellij.util.concurrency.Semaphore
 
-class RunCbtDebuggerBeforeRunProvider  extends BeforeRunTaskProvider[RunCbtDebuggerBeforeRunTask] {
+class RunCbtDebuggerBeforeRunProvider extends BeforeRunTaskProvider[RunCbtDebuggerBeforeRunTask] {
   override def getId: Key[RunCbtDebuggerBeforeRunTask] = RunCbtDebuggerBeforeRunProvider.ID
 
   override def getName: String = RunCbtDebuggerBeforeRunProvider.NAME
@@ -31,11 +31,18 @@ class RunCbtDebuggerBeforeRunProvider  extends BeforeRunTaskProvider[RunCbtDebug
                            env: ExecutionEnvironment, beforeTunTask: RunCbtDebuggerBeforeRunTask): Boolean = {
     val project = env.getProject
     val finished = new Semaphore
+    var result: Boolean = false
     finished.down()
     val listener = new CbtProcessListener {
       override def onComplete(): Unit = ()
       override def onTextAvailable(text: String, stderr: Boolean): Unit = {
-        if (text contains "Listening for transport") {
+        if (text startsWith  "Listening for transport") {
+          result = true
+          Thread.sleep(500)
+          finished.up()
+        }
+        if (text startsWith "ERROR:") {
+          result = false
           Thread.sleep(500)
           finished.up()
         }
@@ -46,11 +53,12 @@ class RunCbtDebuggerBeforeRunProvider  extends BeforeRunTaskProvider[RunCbtDebug
       true, beforeTunTask.workingDir, Seq("-debug"), CbtConfigurationType.getInstance, Some(listener))
       .createTemplateConfiguration(project)
     val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
+    runnerSettings.setSingleton(true)
     val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance, DefaultJavaProgramRunner.getInstance, runnerSettings, project)
     ExecutionManager.getInstance(project).restartRunProfile(environment)
 
     finished.waitFor()
-    true
+    result
   }
 
 }
