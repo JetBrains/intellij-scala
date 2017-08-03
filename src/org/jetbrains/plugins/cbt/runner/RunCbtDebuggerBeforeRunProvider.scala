@@ -10,8 +10,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.util.Key
 import com.intellij.util.concurrency.Semaphore
 
-class RunCbtDebuggerBeforeRunProvider(taskName: String, workingDir: String)
-  extends BeforeRunTaskProvider[RunCbtDebuggerBeforeRunTask] {
+class RunCbtDebuggerBeforeRunProvider  extends BeforeRunTaskProvider[RunCbtDebuggerBeforeRunTask] {
   override def getId: Key[RunCbtDebuggerBeforeRunTask] = RunCbtDebuggerBeforeRunProvider.ID
 
   override def getName: String = RunCbtDebuggerBeforeRunProvider.NAME
@@ -26,23 +25,25 @@ class RunCbtDebuggerBeforeRunProvider(taskName: String, workingDir: String)
   override def configureTask(runConfiguration: RunConfiguration, task: RunCbtDebuggerBeforeRunTask): Boolean = false
 
   override def createTask(runConfiguration: RunConfiguration): RunCbtDebuggerBeforeRunTask =
-    new RunCbtDebuggerBeforeRunTask(taskName, workingDir)
+    null
 
   override def executeTask(ctx: DataContext, c: RunConfiguration,
                            env: ExecutionEnvironment, beforeTunTask: RunCbtDebuggerBeforeRunTask): Boolean = {
     val project = env.getProject
     val finished = new Semaphore
-
+    finished.down()
     val listener = new CbtProcessListener {
       override def onComplete(): Unit = ()
       override def onTextAvailable(text: String, stderr: Boolean): Unit = {
         if (text contains "Listening for transport") {
+          Thread.sleep(500)
           finished.up()
         }
       }
     }
 
-    val configuration = new CbtBuildConfigurationFactory(beforeTunTask.taskName, true, beforeTunTask.workingDir, Seq("-debug"), CbtConfigurationType.getInstance, Some(listener))
+    val configuration = new CbtBuildConfigurationFactory(beforeTunTask.taskName,
+      true, beforeTunTask.workingDir, Seq("-debug"), CbtConfigurationType.getInstance, Some(listener))
       .createTemplateConfiguration(project)
     val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
     val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance, DefaultJavaProgramRunner.getInstance, runnerSettings, project)
@@ -59,4 +60,5 @@ object RunCbtDebuggerBeforeRunProvider {
 }
 class RunCbtDebuggerBeforeRunTask(val taskName: String, val workingDir: String)
   extends BeforeRunTask[RunCbtDebuggerBeforeRunTask](RunCbtDebuggerBeforeRunProvider.ID) {
+  setEnabled(true)
 }

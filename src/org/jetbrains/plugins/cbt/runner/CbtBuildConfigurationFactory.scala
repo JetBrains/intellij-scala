@@ -12,4 +12,3 @@ class CbtBuildConfigurationFactory(task: String,
   override def createTemplateConfiguration(project: Project): RunConfiguration =
     new CbtBuildConfiguration(task, useDirect, workingDir, options, project, listener, this)
 }
-

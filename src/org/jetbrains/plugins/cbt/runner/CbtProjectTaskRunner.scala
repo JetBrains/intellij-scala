@@ -119,18 +119,15 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
   }
 
   private def createDebugger(project: Project) = {
-    val configType = new RemoteConfigurationType
     val configName = "Debug CBT Task"
-    val configFactory = configType.getFactory
+    val configFactory = new CbtDebugConfigurationFactory(CbtDebugConfigurationType.getInstance)
     val runManager = RunManager.getInstance(project)
     val runConfig = {
       val rc = runManager.createConfiguration(configName, configFactory)
       runManager.setTemporaryConfiguration(rc)
       rc
     }
-    val beforeRunTask = new RunCbtDebuggerBeforeRunProvider("run", project.getBaseDir.getPath).createTask(runConfig.getConfiguration)
-    val beforeRunTasks: util.List[BeforeRunTask[_]] = Collections.singletonList(beforeRunTask)
-    runConfig.getConfiguration.setBeforeRunTasks(beforeRunTasks)
+
     val settings = runConfig.getConfiguration.asInstanceOf[RemoteConfiguration]
     settings.PORT = "5006"
     settings.HOST = "localhost"
