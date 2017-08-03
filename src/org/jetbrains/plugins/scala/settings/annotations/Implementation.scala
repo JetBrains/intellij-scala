@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.extensions._
 
 /**
   * @author Pavel Fatin
@@ -36,7 +37,10 @@ object Implementation {
   }
 
   private class Expression(element: PsiElement) extends Implementation {
-    override def containsReturn: Boolean = false
+    override def containsReturn: Boolean = element.depthFirst().exists {
+      case _: ScReturnStmt => true
+      case _ => false
+    }
 
     override def isTypeObvious: Boolean = isSimple(element)
   }
