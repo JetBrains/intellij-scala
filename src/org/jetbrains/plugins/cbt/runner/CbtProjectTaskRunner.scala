@@ -128,15 +128,8 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
       rc
     }
 
-    val settings = runConfig.getConfiguration.asInstanceOf[RemoteConfiguration]
-    settings.PORT = "5005"
-    settings.HOST = "localhost"
-    settings.SERVER_MODE = false
-    settings.USE_SOCKET_TRANSPORT = true
-
     val environmentBuilder = ExecutionEnvironmentBuilder.create(DefaultDebugExecutor.getDebugExecutorInstance, runConfig)
     environmentBuilder.build()
-//    ProgramRunnerUtil.executeConfiguration(environmentBuilder.build(), false, false)
   }
   override def createExecutionEnvironment(project: Project,
                                           task: ExecuteRunConfigurationTask,
