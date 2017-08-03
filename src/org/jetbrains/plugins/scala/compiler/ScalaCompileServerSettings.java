@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.compiler;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import javafx.application.Application;
 
 import java.util.UUID;
 

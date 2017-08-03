@@ -1035,11 +1035,6 @@ object ScalaPsiUtil {
     }
   }
 
-  def getModifiersPresentableText(modifiers: ScModifierList): String =
-    Option(modifiers)
-      .map(_.modifiers.mkString(" "))
-      .getOrElse("")
-
   def isLineTerminator(element: PsiElement): Boolean = {
     element match {
       case _: PsiWhiteSpace if element.getText.indexOf('\n') != -1 => true
@@ -1457,7 +1452,7 @@ object ScalaPsiUtil {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
           case named: ScAssignStmt => parameterOf(named)
           case block: ScBlock if block.statements == Seq(exp) => parameterOf(block)
-          case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
+          case ie: ScInfixExpr if exp == ie.getArgExpr =>
             ie.operation match {
               case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(Parameter(_))
               case ResolvesTo(method: PsiMethod) =>

@@ -12,7 +12,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.{TypeAnnotationSettings, TypeAnnotationUtil}
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
 import scala.collection.mutable
 

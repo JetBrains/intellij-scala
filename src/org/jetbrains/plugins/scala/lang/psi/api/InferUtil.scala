@@ -283,20 +283,20 @@ object InferUtil {
 
     // interim fix for SCL-3905.
     def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType], fromSAM: Boolean = false,
-                                  fromMethodInvoaction: Boolean = false): ScType = {
+                                  fromMethodInvocation: Boolean = false): ScMethodType = {
       implicit val elementScope = mt.elementScope
       expr match {
-        case invocation: MethodInvocation if !fromMethodInvoaction =>
+        case _: MethodInvocation if !fromMethodInvocation =>
           mt.returnType match {
             case methodType: ScMethodType => mt.copy(
-              returnType = applyImplicitViewToResult(methodType, expectedType, fromSAM, fromMethodInvoaction = true)
+              returnType = applyImplicitViewToResult(methodType, expectedType, fromSAM, fromMethodInvocation = true)
             )
             case _ => mt
           }
         case _ =>
           expectedType match {
-            case Some(expectedType@FunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length
-              && !mt.returnType.conforms(expectedType) =>
+            case Some(expected) if mt.returnType.conforms(expected) => mt
+            case Some(FunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length =>
               if (expectedRet.equiv(Unit)) { //value discarding
                 ScMethodType(Unit, mt.params, mt.isImplicit)
               } else {

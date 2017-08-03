@@ -23,7 +23,8 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
   override def toString: String = "InfixExpression"
 
   override def argumentExpressions: Seq[ScExpression] = {
-    if (isLeftAssoc) Seq(lOp) else rOp match {
+    if (isRightAssoc) Seq(lOp)
+    else rOp match {
       case tuple: ScTuple => tuple.exprs
       case t: ScParenthesisedExpr => t.expr match {
         case Some(expr) => Seq(expr)

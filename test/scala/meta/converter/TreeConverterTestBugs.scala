@@ -44,7 +44,7 @@ class TreeConverterTestBugs extends TreeConverterTestBaseWithLibrary {
     doTest(
       "val x: Foo[Int Or String] = 2",
       Defn.Val(Nil, Pat.Var.Term(Term.Name("x")) :: Nil, Some(Type.Apply(Type.Name("Foo"),
-        Seq(Type.ApplyInfix(Type.Name("Int"), Type.Name("Or"), Type.Name("String"))))), Lit(2))
+        Seq(Type.ApplyInfix(Type.Name("Int"), Type.Name("Or"), Type.Name("String"))))), Lit.Int(2))
     )
   }
 
@@ -53,7 +53,7 @@ class TreeConverterTestBugs extends TreeConverterTestBaseWithLibrary {
     doTest(
       "object Foo { def apply() = 42 }",
       Defn.Object(Nil, Term.Name("Foo"), Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None),
-        Some(Seq(Defn.Def(Nil, Term.Name("apply"), Nil, Seq(Seq()), None, Lit(42))))))
+        Some(Seq(Defn.Def(Nil, Term.Name("apply"), Nil, Seq(Seq()), None, Lit.Int(42))))))
     )
   }
 }

@@ -752,7 +752,7 @@ abstract class ScalaAnnotator extends Annotator
           resolveResult.implicitFunction match {
             case Some(fun) =>
               val inf = e.getParent.asInstanceOf[ScInfixExpr]
-              val expr = if (inf.isLeftAssoc) inf.rOp else inf.lOp
+              val expr = inf.getBaseExpr
               highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
             case _ =>
           }
