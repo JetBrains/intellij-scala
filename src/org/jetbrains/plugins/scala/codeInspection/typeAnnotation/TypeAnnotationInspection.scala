@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.codeInsight.intention.types.AbstractTypeAnnot
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScTypedStmt, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -39,6 +39,8 @@ class TypeAnnotationInspection extends AbstractInspection {
       inspect(method, method.nameId, method.body)
     case (parameter: ScParameter) && Parent(Parent(Parent(_: ScFunctionExpr))) if parameter.typeElement.isEmpty =>
       inspect(parameter, parameter.nameId, implementation = None)
+    case (underscore: ScUnderscoreSection) && Parent(parent) if !parent.isInstanceOf[ScTypedStmt] =>
+      inspect(underscore, underscore, implementation = None)
   }
 }
 

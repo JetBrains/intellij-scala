@@ -32,6 +32,7 @@ object ScalaTypeAnnotationSettings {
             implementation.exists(_.containsReturn)
       } || {
         if (declaration.entity == Entity.Parameter) TYPE_ANNOTATION_FUNCTION_PARAMETER
+        if (declaration.entity == Entity.UnderscoreParameter) TYPE_ANNOTATION_UNDERSCORE_PARAMETER
         else if (isLocal) TYPE_ANNOTATION_LOCAL_DEFINITION
         else declaration.visibility match {
           case Visibility.Private => TYPE_ANNOTATION_PRIVATE_MEMBER
