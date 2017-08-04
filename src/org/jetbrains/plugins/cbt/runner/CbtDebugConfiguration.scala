@@ -10,7 +10,9 @@ import com.intellij.openapi.project.Project
 import scala.collection.JavaConversions._
 
 
-class CbtDebugConfiguration(val project: Project, val configurationFactory: ConfigurationFactory)
+class CbtDebugConfiguration(val task: String,
+                            val project: Project,
+                            val configurationFactory: ConfigurationFactory)
   extends RemoteConfiguration(project, configurationFactory) {
   PORT = "5005"
   HOST = "localhost"
@@ -18,7 +20,7 @@ class CbtDebugConfiguration(val project: Project, val configurationFactory: Conf
   USE_SOCKET_TRANSPORT = true
 
   override def getBeforeRunTasks: util.List[BeforeRunTask[_]] = {
-    val beforeRunTask = new RunCbtDebuggerBeforeRunTask("run", project.getBaseDir.getPath)
+    val beforeRunTask = new RunCbtDebuggerBeforeRunTask(task, project.getBaseDir.getPath)
     List(beforeRunTask)
   }
 }

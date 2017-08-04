@@ -118,9 +118,9 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
     environment
   }
 
-  private def createDebugger(project: Project) = {
+  private def createDebugger(task: String, project: Project) = {
     val configName = "Debug CBT Task"
-    val configFactory = new CbtDebugConfigurationFactory(CbtDebugConfigurationType.getInstance)
+    val configFactory = new CbtDebugConfigurationFactory(task, CbtDebugConfigurationType.getInstance)
     val runManager = RunManager.getInstance(project)
     val runConfig = {
       val rc = runManager.createConfiguration(configName, configFactory)
@@ -136,7 +136,7 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
                                           executor: Executor): ExecutionEnvironment = {
     val debug = task.getRunnerSettings != null
     if (debug) {
-      createDebugger(project)
+      createDebugger("run", project)
     } else
       createExecutionEnvironment(project, project.getBaseDir.getPath, task, None)
   }
