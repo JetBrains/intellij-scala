@@ -1,15 +1,13 @@
 package org.jetbrains.plugins.cbt.runner
 
 import java.util
-import java.util.Collections
 
-import com.intellij.debugger.impl.GenericDebuggerRunner
+import com.intellij.debugger.impl.{GenericDebuggerRunner, GenericDebuggerRunnerSettings}
+import com.intellij.execution._
 import com.intellij.execution.application.ApplicationConfiguration
 import com.intellij.execution.executors.{DefaultDebugExecutor, DefaultRunExecutor}
 import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
-import com.intellij.execution.remote.{RemoteConfiguration, RemoteConfigurationType}
 import com.intellij.execution.runners.{ExecutionEnvironment, ExecutionEnvironmentBuilder}
-import com.intellij.execution._
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.task._
@@ -31,6 +29,9 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
       case task: ExecuteRunConfigurationTaskImpl =>
         val taskSupported = task.getRunProfile match {
           case _: ApplicationConfiguration => true
+          case _: CbtRunConfiguration
+            if task.getRunnerSettings.isInstanceOf[GenericDebuggerRunnerSettings] =>
+            true
           case _ => false
         }
         if (taskSupported)
@@ -120,25 +121,26 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
   }
 
   private def createDebugger(task: String, project: Project) = {
-    val configName = "Debug CBT Task"
     val configFactory = new CbtDebugConfigurationFactory(task, CbtDebugConfigurationType.getInstance)
-    val runManager = RunManager.getInstance(project)
-    val runConfig = {
-      val rc = runManager.createConfiguration(configName, configFactory)
-      runManager.setTemporaryConfiguration(rc)
-      rc
-    }
+    val configuration = configFactory.createTemplateConfiguration(project)
+    val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
 
-    val environmentBuilder = ExecutionEnvironmentBuilder.create(DefaultDebugExecutor.getDebugExecutorInstance, runConfig)
-    environmentBuilder.build()
+    val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance,
+      new GenericDebuggerRunner, runnerSettings, project)
+    environment
   }
   override def createExecutionEnvironment(project: Project,
                                           task: ExecuteRunConfigurationTask,
                                           executor: Executor): ExecutionEnvironment = {
     val debug = task.getRunnerSettings != null
     if (debug) {
-      val mainClass = task.getRunProfile.asInstanceOf[ApplicationConfiguration].getMainClass.getQualifiedName
-      val taskName = s"runMain $mainClass"
+      val taskName = task.getRunProfile match {
+        case conf: CbtRunConfiguration =>
+          conf.getTask
+        case conf: ApplicationConfiguration =>
+          val mainClass = conf.getMainClass.getQualifiedName
+          s"runMain $mainClass"
+      }
       createDebugger(taskName, project)
     } else
       createExecutionEnvironment(project, project.getBaseDir.getPath, task, None)
