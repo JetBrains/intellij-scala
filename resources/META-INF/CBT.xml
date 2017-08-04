@@ -31,6 +31,7 @@
                 implementation="org.jetbrains.plugins.cbt.project.CbtNotificationListener"/>
         <projectTaskRunner implementation="org.jetbrains.plugins.cbt.runner.CbtProjectTaskRunner"/>
         <stepsBeforeRunProvider implementation="org.jetbrains.plugins.cbt.runner.RunCbtDebuggerBeforeRunProvider" />
+        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.cbt.annotator.CbtLineMarkerProvider"/>
 
 
         <toolWindow id="CBT" anchor="right"
