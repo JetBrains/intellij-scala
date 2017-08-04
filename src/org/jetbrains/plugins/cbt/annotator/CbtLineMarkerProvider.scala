@@ -22,7 +22,7 @@ import org.jetbrains.plugins.cbt.runner.CbtProcessListener
 import org.jetbrains.plugins.cbt.runner.internal.{CbtBuildConfigurationFactory, CbtBuildConfigurationType}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl
 
 import scala.util.Try
@@ -30,6 +30,14 @@ import scala.util.Try
 class CbtLineMarkerProvider extends LineMarkerProvider {
   override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
     val project = element.getProject
+
+    def isBuildClass(scClass: ScClass) =
+      scClass.supers
+        .collect { case t: ScTrait => t.name; case c: ScClass => c.name }
+        .toSet
+        .intersect(CBT.cbtBuildClassNames.toSet)
+        .nonEmpty
+
     if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER &&
       project.isCbtProject) {
       val range = element.getTextRange
@@ -38,7 +46,7 @@ class CbtLineMarkerProvider extends LineMarkerProvider {
         wrapper <- Option(parent.getParent.getParent.getParent)
         f <- Try(parent.asInstanceOf[ScFunction]).toOption
         c <- Try(wrapper.asInstanceOf[ScClass]).toOption
-        if f.nameId == element && c.name == "Build" //TODO change to inherits from Build
+        if f.nameId == element && isBuildClass(c)//TODO change to inherits from Build
         m <- createRunMarker(project, range, f)
       } yield m).orNull
     } else null

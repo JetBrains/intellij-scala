@@ -10,4 +10,7 @@ object CBT {
 
   def isCbtModuleDir(entry: VirtualFile): Boolean =
     entry.containsDirectory("build")
+
+  val cbtBuildClassNames: Seq[String] =
+    Seq("BaseBuild", "BasicBuild", "BuildBuild", "Plugin")
 }
