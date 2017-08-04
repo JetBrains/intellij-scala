@@ -42,7 +42,7 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
     settings.setCreateEmptyContentRootDirectories(true)
     settings
   }
-  
+
   private val reporter = ProgressReporter.getInstance
 
   override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
@@ -102,15 +102,15 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
     val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, searchScope)
     val file = files.filter(_.getName == filename).toList match {
       case vf :: Nil => vf
-      case Nil => //is this a filepath?
+      case Nil => // is this a file path?
         val file = VfsTestUtil.findFileByCaseSensitivePath(s"$projectDirPath/$filename")
-        if (file != null && files.contains(file)) file
-        else {
-          Assert.assertTrue(s"Could not find file: $filename.\nConsider providing relative path from project root", false)
-          null
-        }
+        Assert.assertTrue(
+          s"Could not find file: $filename. Consider providing relative path from project root",
+          file != null && files.contains(file)
+        )
+        file
       case list =>
-        Assert.assertTrue(s"There are ${list.size} files with name $filename.\nProvide full path from project root", false)
+        Assert.fail(s"There are ${list.size} files with name $filename. Provide full path from project root")
         null
     }
     LocalFileSystem.getInstance().refreshFiles(files)

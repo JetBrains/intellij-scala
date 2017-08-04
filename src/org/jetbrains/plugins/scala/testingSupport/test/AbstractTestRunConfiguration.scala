@@ -58,9 +58,9 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
 /**
- * @author Ksenia.Sautina
- * @since 5/15/12
- */
+  * @author Ksenia.Sautina
+  * @since 5/15/12
+  */
 
 abstract class AbstractTestRunConfiguration(val project: Project,
                                             val configurationFactory: ConfigurationFactory,
@@ -137,9 +137,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   private def provideDefaultWorkingDir = {
     val module = getModule
     ScalaTestDefaultWorkingDirectoryProvider.EP_NAME.getExtensions.find(_.getWorkingDirectory(module) != null) match {
-        case Some(provider) => provider.getWorkingDirectory(module)
-        case _ => Option(getProject.getBaseDir).map(_.getPath).getOrElse("")
-      }
+      case Some(provider) => provider.getWorkingDirectory(module)
+      case _ => Option(getProject.getBaseDir).map(_.getPath).getOrElse("")
+    }
   }
 
   @BeanProperty
@@ -147,7 +147,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   @BeanProperty
   var testName = ""
   @BeanProperty
-  var testKind = TestKind.CLASS
+  var testKind: TestKind = TestKind.CLASS
   @BeanProperty
   var showProgressMessages = true
   @BeanProperty
@@ -270,14 +270,14 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     comm.command("initialize", showShell = false)
 
   protected def modifySetting(settings: SettingMap,
-                             setting: String,
-                             showTaskName: String,
-                             setTaskName: String,
-                             value: String,
-                             comm: SbtShellCommunication,
-                             modificationCondition: String => Boolean,
-                             shouldSet: Boolean = false,
-                             shouldRevert: Boolean = true): Future[SettingMap] = {
+                              setting: String,
+                              showTaskName: String,
+                              setTaskName: String,
+                              value: String,
+                              comm: SbtShellCommunication,
+                              modificationCondition: String => Boolean,
+                              shouldSet: Boolean = false,
+                              shouldRevert: Boolean = true): Future[SettingMap] = {
     val (projectUri, projectId) = getSbtProjectUriAndId
     val showHandler = SettingQueryHandler(setting, Some(showTaskName), projectUri, projectId, comm)
     val setHandler = if (showTaskName == setTaskName) showHandler else
@@ -340,7 +340,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   }
 
   override def checkConfiguration() {
-    def checkModule() = if (getModule == null) throw new RuntimeConfigurationException("Module is not specified")
+    def checkModule(): Unit =
+      if (getModule == null) throw new RuntimeConfigurationException("Module is not specified")
 
     testKind match {
       case TestKind.ALL_IN_PACKAGE =>
@@ -364,7 +365,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           } else {
             throw new RuntimeConfigurationException("No Suite Class is found for Class %s in module %s".
               format(getTestClassPath,
-              getModule.getName))
+                getModule.getName))
           }
         }
         if (testKind == TestKind.TEST_NAME && getTestName == "") {
@@ -504,8 +505,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   }
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
-    def classNotFoundError() {
-      throw new ExecutionException("Test class not found.")
+    def classNotFoundError(name: String) {
+      throw new ExecutionException(s"Test class not found: $name")
     }
     var clazz: PsiClass = null
     var suiteClass: PsiClass = null
@@ -518,23 +519,24 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           pack = ScPackageImpl(getPackage(getTestPackagePath))
         case TestKind.TEST_NAME =>
           clazz = getClassPathClazz
-          if (getTestName == null || getTestName == "") throw new ExecutionException("Test name not found.")
+          if (getTestName == null || getTestName == "") throw new ExecutionException("Test name was null or empty.")
         case TestKind.REGEXP =>
           checkRegexps((e, p) => new ExecutionException(s"Failed to compile pattern $p", e), new ExecutionException("No patterns detected"))
       }
       suiteClass = getSuiteClass
     }
     catch {
-      case _ if clazz == null => classNotFoundError()
+      case _ if clazz == null => classNotFoundError(clazz.getName)
     }
-    if (clazz == null && pack == null && testKind != TestKind.REGEXP) classNotFoundError()
+    if (clazz == null && pack == null && testKind != TestKind.REGEXP) classNotFoundError(clazz.getName)
     if (suiteClass == null)
       throw new ExecutionException(errorMessage)
     val classes = new mutable.HashSet[PsiClass]
     testKind match {
       case TestKind.CLASS | TestKind.TEST_NAME =>
         //requires explicitly state class
-        if (ScalaPsiUtil.isInheritorDeep(clazz, suiteClass)) classes += clazz else throw new ExecutionException("Not found suite class.")
+        if (ScalaPsiUtil.isInheritorDeep(clazz, suiteClass)) classes += clazz
+        else throw new ExecutionException(s"Did not find suite class: ${suiteClass.getName}")
       case TestKind.ALL_IN_PACKAGE =>
         val scope = getScope(withDependencies = false)
         def getClasses(pack: ScPackage): Seq[PsiClass] = {
@@ -552,9 +554,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           if (!isInvalidSuite(cl))
             classes += cl
         }
-        if (classes.isEmpty) throw new ExecutionException("Not found suite class.")
+        if (classes.isEmpty) throw new ExecutionException("Did not find suite class.")
       case TestKind.REGEXP =>
-        //actuall addition of suites and tests happens in addPatterns()
+      //actuall addition of suites and tests happens in addPatterns()
     }
 
     val module = getModule
@@ -588,8 +590,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         val wDir = getWorkingDirectory
         params.setWorkingDirectory(expandPath(wDir))
 
-//        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug " +
-//          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
+        //        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug " +
+        //          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
 
         val rtJarPath = ScalaUtil.runnersPath()
         params.getClassPath.add(rtJarPath)
@@ -612,7 +614,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
         params.setMainClass(mainClass)
 
-        def addParameters(add: String => Unit, after: Unit => Unit) = {
+        def addParameters(add: String => Unit, after: Unit => Unit): Unit = {
 
           addClassesAndTests(getTestMap(getClasses, getFailedTests), add)
           if (reporterClass != null) {
@@ -627,20 +629,20 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
         val (myAdd, myAfter): (String => Unit, Unit => Unit) =
           if (JdkUtil.useDynamicClasspath(getProject)) {
-          try {
-            val fileWithParams: File = File.createTempFile("abstracttest", ".tmp")
-            val outputStream = new FileOutputStream(fileWithParams)
-            val printer: PrintStream = new PrintStream(outputStream)
-            params.getProgramParametersList.add("@" + fileWithParams.getPath)
+            try {
+              val fileWithParams: File = File.createTempFile("abstracttest", ".tmp")
+              val outputStream = new FileOutputStream(fileWithParams)
+              val printer: PrintStream = new PrintStream(outputStream)
+              params.getProgramParametersList.add("@" + fileWithParams.getPath)
 
-            (printer.println, _ => printer.close())
+              (printer.println, _ => printer.close())
+            }
+            catch {
+              case ioException: IOException => throw new ExecutionException("Failed to create dynamic classpath file with command-line args.", ioException)
+            }
+          } else {
+            (params.getProgramParametersList.add(_), _ => ())
           }
-          catch {
-            case ioException: IOException => throw new ExecutionException("Failed to create dynamic classpath file with command-line args.", ioException)
-          }
-        } else {
-          (params.getProgramParametersList.add(_), _ => ())
-        }
 
         addParametersString(getTestArgs, myAdd)
         addParameters(myAdd, myAfter)
@@ -666,25 +668,25 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         val config = getConfiguration
         JavaRunConfigurationExtensionManager.getInstance.
           attachExtensionsToProcess(currentConfiguration, processHandler, runnerSettings)
-          val consoleProperties = new SMTRunnerConsoleProperties(currentConfiguration, "Scala", executor)
-            with PropertiesExtension {
-            override def getTestLocator = new ScalaTestLocationProvider
+        val consoleProperties = new SMTRunnerConsoleProperties(currentConfiguration, "Scala", executor)
+          with PropertiesExtension {
+          override def getTestLocator = new ScalaTestLocationProvider
 
-            def getRunConfigurationBase: RunConfigurationBase = config
-          }
+          def getRunConfigurationBase: RunConfigurationBase = config
+        }
 
-          consoleProperties.setIdBasedTestTree(true)
+        consoleProperties.setIdBasedTestTree(true)
 
-          // console view
-          val consoleView = if (useSbt && !useUiWithSbt) {
-            val console = new ConsoleViewImpl(project, true)
-            console.attachToProcess(processHandler)
-            console
-          } else SMTestRunnerConnectionUtil.createAndAttachConsole("Scala", processHandler, consoleProperties)
+        // console view
+        val consoleView = if (useSbt && !useUiWithSbt) {
+          val console = new ConsoleViewImpl(project, true)
+          console.attachToProcess(processHandler)
+          console
+        } else SMTestRunnerConnectionUtil.createAndAttachConsole("Scala", processHandler, consoleProperties)
 
-          val res = new DefaultExecutionResult(
-            consoleView, processHandler,
-            createActions(consoleView, processHandler, executor): _*)
+        val res = new DefaultExecutionResult(
+          consoleView, processHandler,
+          createActions(consoleView, processHandler, executor): _*)
 
         consoleView match {
           case testConsole: BaseTestsOutputConsoleView =>

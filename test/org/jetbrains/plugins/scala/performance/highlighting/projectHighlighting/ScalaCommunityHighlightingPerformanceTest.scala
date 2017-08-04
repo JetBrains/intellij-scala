@@ -12,14 +12,13 @@ import org.junit.experimental.categories.Category
 class ScalaCommunityHighlightingPerformanceTest extends PerformanceSbtProjectHighlightingTestBase
   with ScalaCommunityGithubRepo {
 
-  def testPerformanceScalaCommunityScalaPsiUtil() = doTest("ScalaPsiUtil.scala", 25.seconds)
+  def testPerformanceScalaCommunityScalaPsiUtil(): Unit = doTest("ScalaPsiUtil.scala", 25.seconds)
 
-  def testPerformanceScalaCommunityScalaAnnotator() = doTest("ScalaAnnotator.scala", 10.seconds)
+  def testPerformanceScalaCommunityScalaAnnotator(): Unit = doTest("ScalaAnnotator.scala", 10.seconds)
 
-  def testPerformanceScalaCommunityScalaEvaluatorBuilderUtil() =
-    doTest("ScalaEvaluatorBuilderUtil.scala", 14.seconds)
+  def testPerformanceScalaCommunityScalaEvaluatorBuilderUtil(): Unit = doTest("ScalaEvaluatorBuilderUtil.scala", 14.seconds)
 
-  def testPerformanceScalaCommunityConformance() = doTest("Conformance.scala", 11.seconds)
+  def testPerformanceScalaCommunityConformance(): Unit = doTest("Conformance.scala", 11.seconds)
 
-  def testPerformanceScalaCommunityScalaSpacingProcessor() = doTest("ScalaSpacingProcessor.scala", 5.seconds)
+  def testPerformanceScalaCommunityScalaSpacingProcessor(): Unit = doTest("ScalaSpacingProcessor.scala", 5.seconds)
 }
