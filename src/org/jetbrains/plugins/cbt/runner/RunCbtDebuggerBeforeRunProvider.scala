@@ -37,7 +37,7 @@ class RunCbtDebuggerBeforeRunProvider extends BeforeRunTaskProvider[RunCbtDebugg
     val listener = new CbtProcessListener {
       override def onComplete(): Unit = ()
       override def onTextAvailable(text: String, stderr: Boolean): Unit = {
-        if (text startsWith  "Listening for transport") {
+        if (text startsWith "Listening for transport") {
           result = true
           Thread.sleep(500)
           finished.up()

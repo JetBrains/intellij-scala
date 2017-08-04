@@ -5,9 +5,9 @@ import java.util
 import com.intellij.debugger.impl.{GenericDebuggerRunner, GenericDebuggerRunnerSettings}
 import com.intellij.execution._
 import com.intellij.execution.application.ApplicationConfiguration
-import com.intellij.execution.executors.{DefaultDebugExecutor, DefaultRunExecutor}
+import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
-import com.intellij.execution.runners.{ExecutionEnvironment, ExecutionEnvironmentBuilder}
+import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.task._
@@ -64,15 +64,15 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
     else None
     taskOpt.foreach { task =>
       val workingDir = task.getModule.getModuleFile.getParent.getPath
-      buildTask(project, workingDir, callback, task)
+      buildTask(project, workingDir, callback)
     }
   }
 
-  private def buildTask(project: Project, workingDir: String, callback: ProjectTaskNotification, task: ModuleBuildTask) = {
-    val taskCallback =
-      Option(callback)
-        .map { f =>
-          () => {
+  private def buildTask(project: Project, workingDir: String, callback: ProjectTaskNotification) = {
+    val listener = new CbtProcessListener {
+      override def onComplete(): Unit =
+        Option(callback)
+          .foreach { f =>
             val request = new Runnable {
               def run(): Unit = {
                 f.finished(new ProjectTaskResult(false, 0, 0))
@@ -80,48 +80,52 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
             }
             alarm.addRequest(request, 500)
           }
-        }
-
-    val environment = createExecutionEnvironment(project, workingDir, task, taskCallback)
-    ExecutionManager.getInstance(project).restartRunProfile(environment)
-  }
-
-  private def createExecutionEnvironment(project: Project,  workingDir: String, projectTask: ProjectTask, callback: Option[() => Unit]) = {
-    val listener = new CbtProcessListener {
-      override def onComplete(): Unit =
-        callback.foreach(_.apply())
 
       override def onTextAvailable(text: String, stderr: Boolean): Unit = ()
     }
+
+
+    val environment = CbtProjectTaskRunner.createExecutionEnv("compile", project, workingDir, listener)
+    ExecutionManager.getInstance(project).restartRunProfile(environment)
+  }
+
+
+
+  override def createExecutionEnvironment(project: Project,
+                                          task: ExecuteRunConfigurationTask,
+                                          executor: Executor): ExecutionEnvironment = {
+    val debug = task.getRunnerSettings != null
+    val (taskName, workingDir) = task.getRunProfile match {
+      case conf: CbtRunConfiguration =>
+        (conf.getTask, conf.getWorkingDir)
+      case conf: ApplicationConfiguration =>
+        val mainClass = conf.getMainClass.getQualifiedName
+        (s"runMain $mainClass", conf.getWorkingDirectory)
+    }
+    if (debug)
+      CbtProjectTaskRunner.createDebugExecutionEnv(taskName, workingDir,  project)
+     else
+      CbtProjectTaskRunner.createExecutionEnv(taskName, project, workingDir, CbtProcessListener.Dummy)
+  }
+}
+
+
+
+object CbtProjectTaskRunner {
+  def createExecutionEnv(task: String, project: Project, workingDir: String, listener: CbtProcessListener): ExecutionEnvironment = {
     val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
-    val configuration = projectTask match {
-      case task: ModuleBuildTask =>
-        new CbtBuildConfigurationFactory("compile", projectSettings.useDirect,
+    val configuration =
+        new CbtBuildConfigurationFactory(task, projectSettings.useDirect,
           workingDir, Seq.empty, CbtBuildConfigurationType.getInstance, listener)
           .createTemplateConfiguration(project)
-      case task: ExecuteRunConfigurationTask =>
-        val mainClass = task.getRunProfile.asInstanceOf[ApplicationConfiguration].getMainClass.getQualifiedName
-        val taskName = s"runMain $mainClass"
-        new CbtBuildConfigurationFactory(taskName, projectSettings.useDirect,
-          workingDir,Seq.empty, CbtBuildConfigurationType.getInstance, listener)
-          .createTemplateConfiguration(project)
-    }
-    val runner = projectTask match {
-      case task: ModuleBuildTask =>
-        DefaultJavaProgramRunner.getInstance()
-      case task: ExecuteRunConfigurationTask =>
-        if (task.getRunnerSettings == null)
-          DefaultJavaProgramRunner.getInstance
-        else
-          new GenericDebuggerRunner
-    }
     val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
-    val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance, runner, runnerSettings, project)
+    val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance,
+      DefaultJavaProgramRunner.getInstance, runnerSettings, project)
     environment
   }
 
-  private def createDebugger(task: String, project: Project) = {
-    val configFactory = new CbtDebugConfigurationFactory(task, CbtDebugConfigurationType.getInstance)
+  def createDebugExecutionEnv(task: String, workingDir: String,  project: Project): ExecutionEnvironment = {
+    val configFactory = new CbtDebugConfigurationFactory(task, workingDir, CbtDebugConfigurationType.getInstance)
     val configuration = configFactory.createTemplateConfiguration(project)
     val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
 
@@ -129,27 +133,7 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
       new GenericDebuggerRunner, runnerSettings, project)
     environment
   }
-  override def createExecutionEnvironment(project: Project,
-                                          task: ExecuteRunConfigurationTask,
-                                          executor: Executor): ExecutionEnvironment = {
-    val debug = task.getRunnerSettings != null
-    if (debug) {
-      val taskName = task.getRunProfile match {
-        case conf: CbtRunConfiguration =>
-          conf.getTask
-        case conf: ApplicationConfiguration =>
-          val mainClass = conf.getMainClass.getQualifiedName
-          s"runMain $mainClass"
-      }
-      createDebugger(taskName, project)
-    } else
-      createExecutionEnvironment(project, project.getBaseDir.getPath, task, None)
-  }
 }
-
-
-
-
 
 
 

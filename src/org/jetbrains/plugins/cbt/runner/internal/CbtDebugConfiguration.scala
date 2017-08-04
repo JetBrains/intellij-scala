@@ -12,6 +12,7 @@ import scala.collection.JavaConversions._
 
 
 class CbtDebugConfiguration(val task: String,
+                            val workingDir: String,
                             val project: Project,
                             val configurationFactory: ConfigurationFactory)
   extends RemoteConfiguration(project, configurationFactory) {
@@ -21,7 +22,7 @@ class CbtDebugConfiguration(val task: String,
   USE_SOCKET_TRANSPORT = true
 
   override def getBeforeRunTasks: util.List[BeforeRunTask[_]] = {
-    val beforeRunTask = new RunCbtDebuggerBeforeRunTask(task, project.getBaseDir.getPath)
+    val beforeRunTask = new RunCbtDebuggerBeforeRunTask(task, workingDir)
     List(beforeRunTask)
   }
 }
