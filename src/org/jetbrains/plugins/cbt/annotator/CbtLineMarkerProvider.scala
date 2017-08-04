@@ -18,7 +18,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.cbt._
 import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
-import org.jetbrains.plugins.cbt.runner.CbtProcessListener
+import org.jetbrains.plugins.cbt.runner.{CbtProcessListener, CbtProjectTaskRunner}
 import org.jetbrains.plugins.cbt.runner.internal.{CbtBuildConfigurationFactory, CbtBuildConfigurationType}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -58,20 +58,17 @@ class CbtLineMarkerProvider extends LineMarkerProvider {
     }
     val handler = new GutterIconNavigationHandler[PsiElement] {
       override def navigate(e: MouseEvent, elt: PsiElement): Unit = {
-        val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
         val dir = {
-          val modules = ModuleManager.getInstance(project).getModules.toSeq.sortBy(_.getName.length.unary_-)
+          val modules = ModuleManager.getInstance(project).getModules.toSeq.sortBy(_.baseDir.length.unary_-)
           val fileDir = Paths.get(elt.getContainingFile.getContainingDirectory.getVirtualFile.getPath)
-          modules.find(m => fileDir.startsWith(m.getModuleFile.getParent.getCanonicalPath))
-            .map(_.getModuleFile.getParent.getCanonicalPath)
+          modules
+            .find(m => fileDir.startsWith(m.getModuleFile.getParent.getCanonicalPath))
+            .map(_.getModuleFile.getParent.getParent.getCanonicalPath)
             .get
         }
         val task = elt.getParent.asInstanceOf[ScFunctionDefinitionImpl].getName
-        val configuration = new CbtBuildConfigurationFactory(task, projectSettings.useDirect,
-          dir, Seq.empty, CbtBuildConfigurationType.getInstance, CbtProcessListener.Dummy)
-          .createTemplateConfiguration(project)
-        val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
-        val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance, DefaultJavaProgramRunner.getInstance, runnerSettings, project)
+        val environment = CbtProjectTaskRunner.createExecutionEnv(task, project, dir, CbtProcessListener.Dummy)
+
         ExecutionManager.getInstance(project).restartRunProfile(environment)
       }
     }
