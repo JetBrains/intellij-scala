@@ -4,7 +4,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.extensions._
 
 /**
@@ -47,11 +46,11 @@ object Implementation {
 
   private def isSimple(expression: PsiElement): Boolean = expression match {
     case _: ScLiteral => true
-    case _: ScNewTemplateDefinition => true
-    case ref: ScReferenceExpression if isObject(ref) => true // TODO Foo.Bar?
+    case _: ScThrowStmt => true
+    case it: ScNewTemplateDefinition if it.extendsBlock.templateBody.isEmpty => true
+    case ref: ScReferenceExpression if isObject(ref) => true
     case ScGenericCall(referenced, _) if isFactoryMethod(referenced) => true
     case ScMethodCall(invoked: ScReferenceExpression, _) if isObject(invoked) => true
-    case _: ScThrowStmt => true
     case _ => false
   }
 
@@ -63,11 +62,7 @@ object Implementation {
   }
 
   private def isObject(reference: ScReferenceExpression): Boolean = {
-    def resolvedElement(result: ScalaResolveResult) =
-      result.innerResolveResult
-        .getOrElse(result).element
-
-    reference.bind().map(resolvedElement).exists {
+    reference.bind().map(result => result.innerResolveResult.getOrElse(result).element).exists {
       case function: ScFunction => function.isApplyMethod
       case _ => false
     }
