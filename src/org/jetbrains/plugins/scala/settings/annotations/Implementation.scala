@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.settings.annotations
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiEnumConstant}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
@@ -49,6 +49,7 @@ object Implementation {
     case _: ScThrowStmt => true
     case it: ScNewTemplateDefinition if it.extendsBlock.templateBody.isEmpty => true
     case ref: ScReferenceExpression if isObject(ref) => true
+    case ScReferenceExpression(_: PsiEnumConstant) => true
     case ScGenericCall(referenced, _) if isFactoryMethod(referenced) => true
     case ScMethodCall(invoked: ScReferenceExpression, _) if isObject(invoked) => true
     case _ => false

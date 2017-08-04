@@ -86,6 +86,8 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
 }
 
 object ScReferenceExpression {
+  def unapply(e: ScReferenceExpression): Option[PsiElement] = Option(e.resolve())
+
   object withQualifier {
     def unapply(exp: ScReferenceExpression): Option[ScExpression] = exp.qualifier
   }
