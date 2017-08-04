@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.settings.annotations
 
 import com.intellij.psi.{PsiElement, PsiEnumConstant}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.extensions._
 
 /**
   * @author Pavel Fatin
@@ -47,7 +48,7 @@ object Implementation {
   }
 
   private def isSimple(expression: PsiElement): Boolean = expression match {
-    case _: ScLiteral => true
+    case literal: ScLiteral => literal.getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL
     case _: ScThrowStmt => true
     case it: ScNewTemplateDefinition if it.extendsBlock.templateBody.isEmpty => true
     case ref: ScReferenceExpression if isApplyCall(ref) => true
