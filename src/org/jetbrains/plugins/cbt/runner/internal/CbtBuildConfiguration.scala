@@ -9,19 +9,20 @@ import com.intellij.execution.{BeforeRunTask, Executor}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.cbt.runner.{CbtComandLineState, CbtProcessListener}
+import org.jetbrains.plugins.cbt.runner.{CbtComandLineState, CbtProcessListener, TaskModuleData}
 
 import scala.collection.JavaConversions._
 
 
 class CbtBuildConfiguration(val task: String,
                             val useDirect: Boolean,
-                            val workingDir: String,
+                            val taskModuleData: TaskModuleData,
                             val options: Seq[String],
                             val project: Project,
                             val listener: CbtProcessListener,
                             val configurationFactory: ConfigurationFactory)
-  extends ModuleBasedConfiguration[RunConfigurationModule](task.capitalize, new RunConfigurationModule(project), configurationFactory) {
+  extends ModuleBasedConfiguration[RunConfigurationModule](s"${taskModuleData.name}: $task",
+    new RunConfigurationModule(project), configurationFactory) {
 
   override def getBeforeRunTasks: util.List[BeforeRunTask[_]] = {
     // For not adding default buildTask
@@ -34,5 +35,5 @@ class CbtBuildConfiguration(val task: String,
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = null
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState =
-    new CbtComandLineState(task, useDirect, workingDir, listener, environment, options = options)
+    new CbtComandLineState(task, useDirect, taskModuleData.dir, listener, environment, options = options)
 }

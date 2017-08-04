@@ -2,14 +2,13 @@ package org.jetbrains.plugins.cbt.runner.internal
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, RunConfiguration}
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.cbt.runner.CbtProcessListener
+import org.jetbrains.plugins.cbt.runner.{CbtProcessListener, TaskModuleData}
 
 class CbtBuildConfigurationFactory(task: String,
                                    useDirect: Boolean,
-                                   workingDir: String,
-                                   options: Seq[String],
+                                   taskModuleData: TaskModuleData,                                   options: Seq[String],
                                    typez: ConfigurationType,
                                    listener: CbtProcessListener) extends ConfigurationFactory(typez) {
   override def createTemplateConfiguration(project: Project): RunConfiguration =
-    new CbtBuildConfiguration(task, useDirect, workingDir, options, project, listener, this)
+    new CbtBuildConfiguration(task, useDirect, taskModuleData, options, project, listener, this)
 }

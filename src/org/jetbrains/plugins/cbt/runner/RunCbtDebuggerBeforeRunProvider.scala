@@ -51,7 +51,7 @@ class RunCbtDebuggerBeforeRunProvider extends BeforeRunTaskProvider[RunCbtDebugg
     }
 
     val configuration = new CbtBuildConfigurationFactory(beforeTunTask.taskName,
-      true, beforeTunTask.workingDir, Seq("-debug"), CbtConfigurationType.getInstance, listener)
+      true, beforeTunTask.taskModuleData, Seq("-debug"), CbtConfigurationType.getInstance, listener)
       .createTemplateConfiguration(project)
     val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
     runnerSettings.setSingleton(true)
@@ -67,7 +67,7 @@ object RunCbtDebuggerBeforeRunProvider {
   lazy val ID: Key[RunCbtDebuggerBeforeRunTask] = Key.create(NAME)
   val NAME = "CBT Debug"
 }
-class RunCbtDebuggerBeforeRunTask(val taskName: String, val workingDir: String)
+class RunCbtDebuggerBeforeRunTask(val taskName: String, val taskModuleData: TaskModuleData)
   extends BeforeRunTask[RunCbtDebuggerBeforeRunTask](RunCbtDebuggerBeforeRunProvider.ID) {
   setEnabled(true)
 }
