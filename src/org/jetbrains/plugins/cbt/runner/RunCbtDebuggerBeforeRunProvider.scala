@@ -9,6 +9,7 @@ import com.intellij.execution.{BeforeRunTask, BeforeRunTaskProvider, ExecutionMa
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.util.Key
 import com.intellij.util.concurrency.Semaphore
+import org.jetbrains.plugins.cbt.runner.internal.CbtBuildConfigurationFactory
 
 class RunCbtDebuggerBeforeRunProvider extends BeforeRunTaskProvider[RunCbtDebuggerBeforeRunTask] {
   override def getId: Key[RunCbtDebuggerBeforeRunTask] = RunCbtDebuggerBeforeRunProvider.ID
@@ -50,7 +51,7 @@ class RunCbtDebuggerBeforeRunProvider extends BeforeRunTaskProvider[RunCbtDebugg
     }
 
     val configuration = new CbtBuildConfigurationFactory(beforeTunTask.taskName,
-      true, beforeTunTask.workingDir, Seq("-debug"), CbtConfigurationType.getInstance, Some(listener))
+      true, beforeTunTask.workingDir, Seq("-debug"), CbtConfigurationType.getInstance, listener)
       .createTemplateConfiguration(project)
     val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
     runnerSettings.setSingleton(true)

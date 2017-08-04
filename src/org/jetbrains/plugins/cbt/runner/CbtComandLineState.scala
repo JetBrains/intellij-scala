@@ -14,7 +14,7 @@ import scala.collection.JavaConverters._
 class CbtComandLineState(task: String,
                          useDirect: Boolean,
                          workingDir: String,
-                         listener: Option[CbtProcessListener],
+                         listener: CbtProcessListener,
                          environment: ExecutionEnvironment,
                          options: Seq[String] = Seq.empty)
   extends CommandLineState(environment) {
@@ -42,7 +42,7 @@ class CbtComandLineState(task: String,
       new CbtOutputListener(onOutput, Option(environment.getProject), NotificationSource.TASK_EXECUTION)
 
     private def onOutput(text: String, stderr: Boolean) = {
-      listener.foreach(_.onTextAvailable(text, stderr))
+      listener.onTextAvailable(text, stderr)
     }
 
     override def notifyTextAvailable(text: String, outputType: Key[_]): Unit = {

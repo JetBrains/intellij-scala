@@ -17,6 +17,7 @@ import com.intellij.task.impl.ExecuteRunConfigurationTaskImpl
 import com.intellij.util.Alarm
 import org.jetbrains.plugins.cbt._
 import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
+import org.jetbrains.plugins.cbt.runner.internal.{CbtBuildConfigurationFactory, CbtBuildConfigurationType, CbtDebugConfigurationFactory, CbtDebugConfigurationType}
 
 import scala.collection.JavaConverters._
 
@@ -85,7 +86,7 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
   }
 
   private def createExecutionEnvironment(project: Project,  workingDir: String, projectTask: ProjectTask, callback: Option[() => Unit]) = {
-    val listener =new CbtProcessListener {
+    val listener = new CbtProcessListener {
       override def onComplete(): Unit =
         callback.foreach(_.apply())
 
@@ -95,13 +96,13 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
     val configuration = projectTask match {
       case task: ModuleBuildTask =>
         new CbtBuildConfigurationFactory("compile", projectSettings.useDirect,
-          workingDir, Seq.empty, CbtConfigurationType.getInstance, Some(listener))
+          workingDir, Seq.empty, CbtBuildConfigurationType.getInstance, listener)
           .createTemplateConfiguration(project)
       case task: ExecuteRunConfigurationTask =>
         val mainClass = task.getRunProfile.asInstanceOf[ApplicationConfiguration].getMainClass.getQualifiedName
         val taskName = s"runMain $mainClass"
         new CbtBuildConfigurationFactory(taskName, projectSettings.useDirect,
-          workingDir,Seq.empty, CbtConfigurationType.getInstance, Some(listener))
+          workingDir,Seq.empty, CbtBuildConfigurationType.getInstance, listener)
           .createTemplateConfiguration(project)
     }
     val runner = projectTask match {
@@ -136,7 +137,9 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
                                           executor: Executor): ExecutionEnvironment = {
     val debug = task.getRunnerSettings != null
     if (debug) {
-      createDebugger("run", project)
+      val mainClass = task.getRunProfile.asInstanceOf[ApplicationConfiguration].getMainClass.getQualifiedName
+      val taskName = s"runMain $mainClass"
+      createDebugger(taskName, project)
     } else
       createExecutionEnvironment(project, project.getBaseDir.getPath, task, None)
   }

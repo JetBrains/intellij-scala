@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.cbt.runner
+package org.jetbrains.plugins.cbt.runner.internal
 
 import java.util
 
@@ -9,6 +9,7 @@ import com.intellij.execution.{BeforeRunTask, Executor}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.cbt.runner.{CbtComandLineState, CbtProcessListener}
 
 import scala.collection.JavaConversions._
 
@@ -18,7 +19,7 @@ class CbtBuildConfiguration(val task: String,
                             val workingDir: String,
                             val options: Seq[String],
                             val project: Project,
-                            val listener: Option[CbtProcessListener],
+                            val listener: CbtProcessListener,
                             val configurationFactory: ConfigurationFactory)
   extends ModuleBasedConfiguration[RunConfigurationModule](task.capitalize, new RunConfigurationModule(project), configurationFactory) {
 

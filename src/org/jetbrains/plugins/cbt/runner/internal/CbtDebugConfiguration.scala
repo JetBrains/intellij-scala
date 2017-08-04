@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.cbt.runner
+package org.jetbrains.plugins.cbt.runner.internal
 
 import java.util
 
@@ -6,6 +6,7 @@ import com.intellij.execution.BeforeRunTask
 import com.intellij.execution.configurations._
 import com.intellij.execution.remote.RemoteConfiguration
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.cbt.runner.RunCbtDebuggerBeforeRunTask
 
 import scala.collection.JavaConversions._
 

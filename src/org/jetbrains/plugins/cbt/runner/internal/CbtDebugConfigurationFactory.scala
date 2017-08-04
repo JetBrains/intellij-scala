@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.cbt.runner
+package org.jetbrains.plugins.cbt.runner.internal
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, RunConfiguration}
 import com.intellij.openapi.project.Project

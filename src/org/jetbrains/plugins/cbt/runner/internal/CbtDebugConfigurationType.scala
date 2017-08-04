@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.cbt.runner
+package org.jetbrains.plugins.cbt.runner.internal
 
 import javax.swing.Icon
 
