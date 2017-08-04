@@ -2,12 +2,14 @@ package org.jetbrains.plugins.scala.performance.highlighting.projectHighlighting
 
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.performance.ScalaCommunityGithubRepo
+import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
 /**
   * Author: Svyatoslav Ilinskiy
   * Date: 10/23/15.
   */
+@Ignore
 @Category(Array(classOf[SlowTests]))
 class ScalaCommunityHighlightingPerformanceTest extends PerformanceSbtProjectHighlightingTestBase
   with ScalaCommunityGithubRepo {
