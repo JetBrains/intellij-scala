@@ -505,8 +505,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   }
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
-    def classNotFoundError(name: String) {
-      throw new ExecutionException(s"Test class not found: $name")
+    def classNotFoundError = {
+      throw new ExecutionException(s"Test class not found: $getTestClassPath")
     }
     var clazz: PsiClass = null
     var suiteClass: PsiClass = null
@@ -519,24 +519,31 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           pack = ScPackageImpl(getPackage(getTestPackagePath))
         case TestKind.TEST_NAME =>
           clazz = getClassPathClazz
-          if (getTestName == null || getTestName == "") throw new ExecutionException("Test name was null or empty.")
+          if (getTestName == null || getTestName == "")
+            throw new ExecutionException("Test name was null or empty.")
         case TestKind.REGEXP =>
-          checkRegexps((e, p) => new ExecutionException(s"Failed to compile pattern $p", e), new ExecutionException("No patterns detected"))
+          checkRegexps(
+            (e, p) => new ExecutionException(s"Failed to compile pattern $p", e),
+            new ExecutionException("No patterns detected")
+          )
       }
       suiteClass = getSuiteClass
     }
     catch {
-      case _ if clazz == null => classNotFoundError(clazz.getName)
+      case _ if clazz == null => classNotFoundError
     }
-    if (clazz == null && pack == null && testKind != TestKind.REGEXP) classNotFoundError(clazz.getName)
+    if (clazz == null && pack == null && testKind != TestKind.REGEXP)
+      classNotFoundError
+
     if (suiteClass == null)
       throw new ExecutionException(errorMessage)
+
     val classes = new mutable.HashSet[PsiClass]
     testKind match {
       case TestKind.CLASS | TestKind.TEST_NAME =>
         //requires explicitly state class
         if (ScalaPsiUtil.isInheritorDeep(clazz, suiteClass)) classes += clazz
-        else throw new ExecutionException(s"Did not find suite class: ${suiteClass.getName}")
+        else throw new ExecutionException(s"Did not find suite class: ${suiteClass.getQualifiedName}")
       case TestKind.ALL_IN_PACKAGE =>
         val scope = getScope(withDependencies = false)
         def getClasses(pack: ScPackage): Seq[PsiClass] = {
@@ -554,7 +561,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           if (!isInvalidSuite(cl))
             classes += cl
         }
-        if (classes.isEmpty) throw new ExecutionException("Did not find suite class.")
+        if (classes.isEmpty)
+          throw new ExecutionException(s"Did not find suite classes in package ${pack.getQualifiedName}")
       case TestKind.REGEXP =>
       //actuall addition of suites and tests happens in addPatterns()
     }

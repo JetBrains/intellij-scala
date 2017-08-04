@@ -25,7 +25,7 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
     val project = ProjectUtil.openOrImport(getSbtRootFile.getAbsolutePath, null, false)
     import org.jetbrains.plugins.scala.extensions._
     val sdk = TestUtils.createJdk()
-    inWriteAction{
+    inWriteAction {
       ProjectJdkTable.getInstance.addJdk(sdk)
       ProjectRootManager.getInstance(project).setProjectSdk(sdk)
     }
@@ -41,9 +41,9 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
 
   def getSbtRootFile: File = new File(getBasePath + "/" + getPath + "/" + getBuildFileName)
 
-  override protected def setUpModule() = {}
+  override protected def setUpModule(): Unit = {}
 
-  override protected def setUpJdk() = {}
+  override protected def setUpJdk(): Unit = {}
 
   override def setUp(): Unit = {
     super.setUp()
