@@ -17,7 +17,7 @@ trait Implementation {
 
 object Implementation {
   private val TraversableClassNames =
-    Seq("Seq", "Array", "List", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
+    Set("Seq", "Array", "List", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
 
   def apply(definition: PsiElement): Implementation = new Definition(definition)
 
@@ -48,10 +48,10 @@ object Implementation {
     case _: ScLiteral => true
     case _: ScThrowStmt => true
     case it: ScNewTemplateDefinition if it.extendsBlock.templateBody.isEmpty => true
-    case ref: ScReferenceExpression if isObject(ref) => true
+    case ref: ScReferenceExpression if isApplyCall(ref) => true
     case ScReferenceExpression(_: PsiEnumConstant) => true
-    case ScGenericCall(referenced, _) if isFactoryMethod(referenced) => true
-    case ScMethodCall(invoked: ScReferenceExpression, _) if isObject(invoked) => true
+    case ScGenericCall(referenced, _) if isEmptyCollectionFactory(referenced) => true
+    case ScMethodCall(invoked: ScReferenceExpression, _) if isApplyCall(invoked) => true
     case _ => false
   }
 
@@ -62,7 +62,7 @@ object Implementation {
     case _ => None //support isSimple for JavaPsi
   }
 
-  private def isObject(reference: ScReferenceExpression): Boolean = {
+  private def isApplyCall(reference: ScReferenceExpression): Boolean = {
     reference.bind().map(result => result.innerResolveResult.getOrElse(result).element).exists {
       case function: ScFunction => function.isApplyMethod
       case _ => false
@@ -70,7 +70,7 @@ object Implementation {
   }
 
   // TODO Restore encapsulation
-  def isFactoryMethod(referenced: ScReferenceExpression): Boolean = referenced match {
+  def isEmptyCollectionFactory(referenced: ScReferenceExpression): Boolean = referenced match {
     case ScReferenceExpression.withQualifier(qualifier: ScReferenceExpression) =>
       TraversableClassNames.contains(qualifier.refName) && referenced.refName == "empty"
     case _ => false
