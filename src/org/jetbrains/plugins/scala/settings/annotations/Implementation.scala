@@ -21,7 +21,9 @@ object Implementation {
 
   def apply(definition: PsiElement): Implementation = new Definition(definition)
 
-  def of(expression: PsiElement): Implementation = new Expression(expression)
+  object Expression {
+    def apply(expression: PsiElement): Implementation = new Expression(expression)
+  }
 
   private class Definition(element: PsiElement) extends Implementation {
     override def containsReturn: Boolean = element match {

@@ -12,12 +12,12 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AbstractTypeAnnotationIntention.complete
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, TypeAdjuster}
 import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Implementation, Location, ScalaTypeAnnotationSettings}
 import org.jetbrains.plugins.scala.util._
 
@@ -30,7 +30,6 @@ class TypeAnnotationInspection extends AbstractInspection {
 
   import TypeAnnotationInspection._
 
-  // TODO Treat "simple" expressions just like any other expressions
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case value: ScPatternDefinition if value.isSimple && !value.hasExplicitType =>
       inspect(value, value.bindings.head, value.expr)
@@ -38,19 +37,21 @@ class TypeAnnotationInspection extends AbstractInspection {
       inspect(variable, variable.bindings.head, variable.expr)
     case method: ScFunctionDefinition if method.hasAssign && !method.hasExplicitType && !method.isSecondaryConstructor =>
       inspect(method, method.nameId, method.body)
+    case (parameter: ScParameter) && Parent(Parent(Parent(_: ScFunctionExpr))) if parameter.typeElement.isEmpty =>
+      inspect(parameter, parameter.nameId, implementation = None)
   }
 }
 
 object TypeAnnotationInspection {
   private[typeAnnotation] val Description = "Explicit type annotation required (according to Code Style settings)"
 
-  private def inspect(member: ScMember,
+  private def inspect(element: ScalaPsiElement,
                       anchor: PsiElement,
-                      maybeExpression: Option[ScExpression])
+                      implementation: Option[ScExpression])
                      (implicit holder: ProblemsHolder): Unit = {
 
-    if (ScalaTypeAnnotationSettings(member.getProject).isTypeAnnotationRequiredFor(
-      Declaration(member), Location(member), Some(Implementation(member)))) {
+    if (ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
+      Declaration(element), Location(element), implementation.map(Implementation.Expression(_)))) {
 
       holder.registerProblem(anchor, Description,
         new AddTypeAnnotationQuickFix(anchor),
