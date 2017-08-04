@@ -6,7 +6,7 @@ package expr
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiTypeExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
@@ -43,16 +43,27 @@ private[expr] object ExpectedTypes {
 
   def smartExpectedTypeEx(expr: ScExpression, fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] = {
     val types = expectedExprTypes(expr, withResolvedFunction = true, fromUnderscore = fromUnderscore)
-    types.length match {
-      case 1 => Some(types(0))
-      case _ => None
-    }
+
+    onlyOne(types)
   }
 
   def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] = {
     val types = expr.expectedTypesEx(fromUnderscore)
-    types.length match {
-      case 1 => Some(types(0))
+
+    onlyOne(types)
+  }
+
+  private def onlyOne(types: Seq[(ScType, Option[ScTypeElement])]): Option[(ScType, Option[ScTypeElement])] = {
+    val distinct =
+      types.sortBy {
+        case (_: ScAbstractType, _) => 1
+        case _ => 0
+      }.distinctBy {
+        case (ScAbstractType(_, lower, upper), _) if lower == upper => lower
+        case (t, _) => t
+      }
+    distinct match {
+      case Seq(tp) => Some(tp)
       case _ => None
     }
   }
