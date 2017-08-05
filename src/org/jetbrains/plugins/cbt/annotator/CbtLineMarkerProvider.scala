@@ -37,30 +37,22 @@ class CbtLineMarkerProvider extends RunLineMarkerContributor {
         wrapper <- Option(parent.getParent.getParent.getParent)
         f <- Try(parent.asInstanceOf[ScFunction]).toOption
         c <- Try(wrapper.asInstanceOf[ScClass]).toOption
-        if f.nameId == element && isBuildClass(c) //TODO change to inherits from Build
+        if f.nameId == element && isBuildClass(c)
         m <- createRunMarker(project, range, f)
       } yield m).orNull
     } else null
   }
 
   private def createRunMarker(project: Project, range: TextRange, scFun: ScFunction): Option[RunLineMarkerContributor.Info] = {
+    val task = scFun.asInstanceOf[ScFunctionDefinitionImpl].getName
     val tooltipHandler = new com.intellij.util.Function[PsiElement, String] {
-      override def fun(param: PsiElement): String = "Run"
-    }
-    val dir = {
-      val modules = ModuleManager.getInstance(project).getModules.toSeq.sortBy(_.baseDir.length.unary_-)
-      val fileDir = Paths.get(scFun.getContainingFile.getContainingDirectory.getVirtualFile.getPath)
-      modules
-        .find(m => fileDir.startsWith(m.getModuleFile.getParent.getCanonicalPath))
-        .map(_.getModuleFile.getParent.getParent.getCanonicalPath)
-        .get
+      override def fun(param: PsiElement): String = s"Run or Debug task '$task'"
     }
     val module = {
       val buildModule = CBT.moduleByPath(scFun.getContainingFile.getVirtualFile.getPath, project)
       val moudleDir = buildModule.baseDir.toFile.toPath.getParent.toString
       CBT.moduleByPath(moudleDir, project)
     }
-    val task = scFun.asInstanceOf[ScFunctionDefinitionImpl].getName
     val actions: Array[AnAction] =
       Array(new RunTaskAction(task, module, project), new DebugTaskAction(task, module, project))
     val info = new RunLineMarkerContributor.Info(AllIcons.General.Run, tooltipHandler, actions: _ *)

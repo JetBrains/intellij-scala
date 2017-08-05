@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.runner.CbtProjectTaskRunner
 
 class DebugTaskAction(task: String, module: Module, project: Project)
-  extends AnAction("Debug", "Debug", AllIcons.General.Debug) {
+  extends AnAction(s"Debug task '$task'", s"Debug task '$task'", AllIcons.General.Debug) {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val environment = CbtProjectTaskRunner.createDebugExecutionEnv(task, module, project)
     ExecutionManager.getInstance(project).restartRunProfile(environment)

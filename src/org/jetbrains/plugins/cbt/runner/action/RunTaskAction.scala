@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.runner.{CbtProcessListener, CbtProjectTaskRunner}
 
 class RunTaskAction(task: String, module: Module, project: Project)
-  extends AnAction("Run", "Run", AllIcons.General.Run){
+  extends AnAction(s"Run task '$task'", "sRun task '$task'", AllIcons.General.Run){
   override def actionPerformed(e: AnActionEvent): Unit = {
     val environment = CbtProjectTaskRunner.createExecutionEnv(task, module, project, CbtProcessListener.Dummy)
     ExecutionManager.getInstance(project).restartRunProfile(environment)
