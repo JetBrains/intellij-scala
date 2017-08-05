@@ -134,6 +134,7 @@ object CbtProjectTaskRunner {
     val configFactory = new CbtDebugConfigurationFactory(task, module, CbtDebugConfigurationType.getInstance)
     val configuration = configFactory.createTemplateConfiguration(project)
     val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
+    runnerSettings.setSingleton(true)
 
     val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance,
       new GenericDebuggerRunner, runnerSettings, project)
