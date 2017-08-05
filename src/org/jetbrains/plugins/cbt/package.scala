@@ -63,4 +63,11 @@ package object cbt {
       module.getModuleFile.getParent.getCanonicalPath
   }
 
+  def runnable(action: => Unit): Runnable = new Runnable {
+    override def run(): Unit = action
+  }
+
+  def runReadAction(action: => Unit): Unit =
+    ApplicationManager.getApplication.runReadAction(runnable(action))
+
 }
