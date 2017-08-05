@@ -52,7 +52,7 @@
                 text="Stop consider as CBT module">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
         </action>
-        <action id="NewCbtBuildFile" class="org.jetbrains.plugins.cbt.action.NewCbtBuildFile"
+        <action id="NewCbtBuildFile" class="org.jetbrains.plugins.cbt.action.NewCbtBuildFileAction"
                 text="CBT build file">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Scala.NewClass"/>
         </action>

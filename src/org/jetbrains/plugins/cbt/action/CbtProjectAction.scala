@@ -3,7 +3,7 @@ package org.jetbrains.plugins.cbt.action
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys, Presentation}
 import org.jetbrains.plugins.cbt._
 
-abstract class CbtProjectAction extends AnAction {
+trait CbtProjectAction extends AnAction {
   override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
     val dataContext = e.getDataContext
