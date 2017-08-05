@@ -51,7 +51,9 @@ class CbtRunConfiguration(val project: Project,
     task = JDOMExternalizer.readString(element,"task")
     module = {
       val moduleName = JDOMExternalizer.readString(element, "moduleName")
-      moduleManager.findModuleByName(moduleName)
+      Option(moduleName)
+        .map(moduleManager.findModuleByName)
+        .orNull
     }
   }
 
@@ -59,7 +61,9 @@ class CbtRunConfiguration(val project: Project,
     task = params.getTask
     module = {
       val moduleName = params.getModuleName
-      moduleManager.findModuleByName(moduleName)
+      Option(moduleName)
+        .map(moduleManager.findModuleByName)
+        .orNull
     }
   }
 
