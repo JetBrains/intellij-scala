@@ -30,7 +30,7 @@ object CbtProjectDataService {
       dataToImport.foreach(node => doImport(node.getData))
     }
 
-    def doImport(dataNode: CbtProjectData): Unit = executeProjectChangeAction {
+    private def doImport(dataNode: CbtProjectData): Unit = executeProjectChangeAction {
       val javaSdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(JavaSdk.getInstance)
       ProjectRootManager.getInstance(project).setProjectSdk(javaSdk)
     }

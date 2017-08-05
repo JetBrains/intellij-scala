@@ -9,5 +9,6 @@ class CbtLocalSettings(project: Project)
   extends AbstractExternalSystemLocalSettings(CbtProjectSystem.Id, project)
 
 object CbtLocalSettings {
-  def getInstance(project: Project): CbtLocalSettings = ServiceManager.getService(project, classOf[CbtLocalSettings])
+  def getInstance(project: Project): CbtLocalSettings =
+    ServiceManager.getService(project, classOf[CbtLocalSettings])
 }

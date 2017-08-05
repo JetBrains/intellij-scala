@@ -22,9 +22,13 @@ class CbtModuleExtDataService extends AbstractDataService[CbtModuleExtData, Libr
 object CbtModuleExtDataService {
 
   private def showWarning(project: Project, warning: String) = {
-    val notification = new NotificationData("CBT project import", warning,
-      NotificationCategory.WARNING, NotificationSource.PROJECT_SYNC)
-    ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notification)
+    val notification =
+      new NotificationData("CBT project import",
+        warning,
+        NotificationCategory.WARNING,
+        NotificationSource.PROJECT_SYNC)
+    ExternalSystemNotificationManager.getInstance(project)
+      .showNotification(SbtProjectSystem.Id, notification)
   }
 
   private class Importer(toImport: Seq[DataNode[CbtModuleExtData]],
@@ -42,17 +46,17 @@ object CbtModuleExtDataService {
         val data = dataNode.getData
         module.configureScalaCompilerSettingsFrom("CBT", data.scalacOptions)
         val scalaLibraries = getScalaLibraries(module, Platform.Scala)
+        val default =
+          scalaLibraries.find(_.scalaVersion.exists(_.toLanguageLevel == data.scalaVersion.toLanguageLevel))
         val scalaLib = scalaLibraries
           .find(_.scalaVersion.contains(data.scalaVersion))
-          .orElse(scalaLibraries.find(_.scalaVersion.exists(_.toLanguageLevel == data.scalaVersion.toLanguageLevel)))
-
+          .orElse(default)
         scalaLib match {
           case Some(lib) =>
             setScalaSdk(lib, Platform.Scala, ScalaLanguageLevel.Default, data.scalacClasspath)
           case None =>
-            showWarning(project, s"Can not find scala library ${data.scalaVersion.toString  }")
+            showWarning(project, s"Can not find scala library ${data.scalaVersion.toString}")
         }
-
         val model = getModifiableRootModel(module)
         model.inheritSdk()
       }

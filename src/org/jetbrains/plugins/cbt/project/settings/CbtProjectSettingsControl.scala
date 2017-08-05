@@ -9,9 +9,12 @@ import org.jetbrains.sbt.project.settings.Context
 
 class CbtProjectSettingsControl(context: Context, initialSettings: CbtProjectSettings)
   extends AbstractExternalProjectSettingsControl[CbtProjectSettings](initialSettings) {
-  private val isCbtCheckBox = new JCheckBox("Do not link CBT (use when opening CBT itself)")
-  private val useCbtForInternalTasksCheckBox = new JCheckBox("Use CBT for Running and Building your project")
-  private val useDirectCheckBox = new JCheckBox("Use CBT direct mode (use that if have some problems with nailgun)")
+  private val isCbtCheckBox =
+    new JCheckBox("Do not link CBT (use when opening CBT itself)")
+  private val useCbtForInternalTasksCheckBox =
+    new JCheckBox("Use CBT for Running and Building your project")
+  private val useDirectCheckBox =
+    new JCheckBox("Use CBT direct mode (use that if have some problems with nailgun)")
 
   override def applyExtraSettings(settings: CbtProjectSettings): Unit = {
     settings.isCbt = isCbtCheckBox.isSelected
@@ -28,7 +31,6 @@ class CbtProjectSettingsControl(context: Context, initialSettings: CbtProjectSet
 
   override def fillExtraControls(content: PaintAwarePanel, indentLevel: Int): Unit = {
     val fillLineConstraints = getFillLineConstraints(indentLevel)
-
     content.add(isCbtCheckBox, fillLineConstraints)
     content.add(useCbtForInternalTasksCheckBox, fillLineConstraints)
     content.add(useDirectCheckBox, fillLineConstraints)

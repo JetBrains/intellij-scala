@@ -14,7 +14,9 @@ import org.jdom.Element
 import scala.collection.JavaConversions._
 
 
-class CbtRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
+class CbtRunConfiguration(val project: Project,
+                          val configurationFactory: ConfigurationFactory,
+                          val name: String)
   extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
 
   private var task = ""
@@ -25,9 +27,8 @@ class CbtRunConfiguration(val project: Project, val configurationFactory: Config
   override def getConfigurationEditor: SettingsEditor[CbtRunConfiguration] =
     new CbtRunConfigurationEditor(project, this)
 
-  override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState = {
+  override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState =
     new CbtComandLineState(task, false, workingDir, CbtProcessListener.Dummy, environment)
-  }
 
   def getTask: String = task
 

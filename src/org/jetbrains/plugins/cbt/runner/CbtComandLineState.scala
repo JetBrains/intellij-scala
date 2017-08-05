@@ -32,12 +32,15 @@ class CbtComandLineState(task: String,
     hanlder
   }
 
-  class CbtProcessHandler(commandLine: GeneralCommandLine) extends KillableProcessHandler(commandLine)
-    with AnsiEscapeDecoder.ColoredTextAcceptor {
+  class CbtProcessHandler(commandLine: GeneralCommandLine)
+    extends KillableProcessHandler(commandLine)
+      with AnsiEscapeDecoder.ColoredTextAcceptor {
     setShouldKillProcessSoftly(false)
 
-    final private val myColoredTextListeners = ContainerUtil.newArrayList[AnsiEscapeDecoder.ColoredTextAcceptor]
-    private val myAnsiEscapeDecoder = new AnsiEscapeDecoder
+    final private val myColoredTextListeners =
+      ContainerUtil.newArrayList[AnsiEscapeDecoder.ColoredTextAcceptor]
+    private val myAnsiEscapeDecoder =
+      new AnsiEscapeDecoder
     private val cbtOutputListener =
       new CbtOutputListener(onOutput, Option(environment.getProject), NotificationSource.TASK_EXECUTION)
 

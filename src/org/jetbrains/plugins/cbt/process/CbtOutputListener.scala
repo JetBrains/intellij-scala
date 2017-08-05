@@ -87,12 +87,19 @@ object CbtOutputListener {
     showNotification(project, text, NotificationCategory.WARNING, notificationSource)
   }
 
-  private def showNotification(project: Project, text: String, notificationCategory: NotificationCategory,
-                       notificationSource: NotificationSource): Unit = {
+  private def showNotification(project: Project,
+                               text: String,
+                               notificationCategory: NotificationCategory,
+                                notificationSource: NotificationSource): Unit = {
     ApplicationManager.getApplication.invokeLater(new Runnable {
       override def run(): Unit = {
-        val notification = new NotificationData("CBT project import", text,  notificationCategory, notificationSource)
-        ExternalSystemNotificationManager.getInstance(project).showNotification(CbtProjectSystem.Id, notification)
+        val notification =
+          new NotificationData("CBT project import",
+            text,
+            notificationCategory,
+            notificationSource)
+        ExternalSystemNotificationManager.getInstance(project)
+          .showNotification(CbtProjectSystem.Id, notification)
       }
     })
   }

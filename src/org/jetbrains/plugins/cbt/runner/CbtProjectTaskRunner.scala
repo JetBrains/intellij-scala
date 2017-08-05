@@ -113,13 +113,18 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
 
 
 object CbtProjectTaskRunner {
-  def createExecutionEnv(task: String, module: Module, project: Project, listener: CbtProcessListener, options: Seq[String] = Seq.empty): ExecutionEnvironment = {
+  def createExecutionEnv(task: String,
+                         module: Module,
+                         project: Project,
+                         listener: CbtProcessListener,
+                         options: Seq[String] = Seq.empty): ExecutionEnvironment = {
     val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
     val configuration =
         new CbtBuildConfigurationFactory(task, projectSettings.useDirect,
           module, options, CbtBuildConfigurationType.getInstance, listener)
           .createTemplateConfiguration(project)
-    val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
+    val runnerSettings =
+      new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
     runnerSettings.setSingleton(true)
     val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance,
       DefaultJavaProgramRunner.getInstance, runnerSettings, project)
@@ -129,13 +134,12 @@ object CbtProjectTaskRunner {
   def createDebugExecutionEnv(task: String,
                               module: Module,
                               project: Project,
-                              listener: CbtProcessListener = CbtProcessListener.Dummy)
-  : ExecutionEnvironment = {
+                              listener: CbtProcessListener = CbtProcessListener.Dummy): ExecutionEnvironment = {
     val configFactory = new CbtDebugConfigurationFactory(task, module, CbtDebugConfigurationType.getInstance)
     val configuration = configFactory.createTemplateConfiguration(project)
-    val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
+    val runnerSettings =
+      new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
     runnerSettings.setSingleton(true)
-
     val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance,
       new GenericDebuggerRunner, runnerSettings, project)
     environment

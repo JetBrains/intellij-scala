@@ -15,18 +15,23 @@ class RunCbtDebuggerBeforeRunProvider extends BeforeRunTaskProvider[RunCbtDebugg
 
   override def isConfigurable: Boolean = false
 
-  override def getDescription(task: RunCbtDebuggerBeforeRunTask): String = RunCbtDebuggerBeforeRunProvider.NAME
+  override def getDescription(task: RunCbtDebuggerBeforeRunTask): String =
+    RunCbtDebuggerBeforeRunProvider.NAME
 
-  override def canExecuteTask(configuration: RunConfiguration, task: RunCbtDebuggerBeforeRunTask): Boolean =
+  override def canExecuteTask(configuration: RunConfiguration,
+                              task: RunCbtDebuggerBeforeRunTask): Boolean =
     task.isInstanceOf[RunCbtDebuggerBeforeRunTask]
 
-  override def configureTask(runConfiguration: RunConfiguration, task: RunCbtDebuggerBeforeRunTask): Boolean = false
+  override def configureTask(runConfiguration: RunConfiguration,
+                             task: RunCbtDebuggerBeforeRunTask): Boolean = false
 
   override def createTask(runConfiguration: RunConfiguration): RunCbtDebuggerBeforeRunTask =
     null
 
-  override def executeTask(ctx: DataContext, c: RunConfiguration,
-                           env: ExecutionEnvironment, beforeTunTask: RunCbtDebuggerBeforeRunTask): Boolean = {
+  override def executeTask(ctx: DataContext,
+                           c: RunConfiguration,
+                           env: ExecutionEnvironment,
+                           beforeTunTask: RunCbtDebuggerBeforeRunTask): Boolean = {
     val project = env.getProject
     val finished = new Semaphore
     var result: Boolean = false

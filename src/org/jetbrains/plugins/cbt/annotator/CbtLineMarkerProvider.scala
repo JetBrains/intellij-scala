@@ -29,8 +29,8 @@ class CbtLineMarkerProvider extends RunLineMarkerContributor {
         .intersect(CBT.cbtBuildClassNames.toSet)
         .nonEmpty
 
-    if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER &&
-      project.isCbtProject) {
+    if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER
+      && project.isCbtProject) {
       val range = element.getTextRange
       (for {
         parent <- Option(element.getParent)
@@ -43,7 +43,9 @@ class CbtLineMarkerProvider extends RunLineMarkerContributor {
     } else null
   }
 
-  private def createRunMarker(project: Project, range: TextRange, scFun: ScFunction): Option[RunLineMarkerContributor.Info] = {
+  private def createRunMarker(project: Project,
+                              range: TextRange,
+                              scFun: ScFunction): Option[RunLineMarkerContributor.Info] = {
     val task = scFun.asInstanceOf[ScFunctionDefinitionImpl].getName
     val tooltipHandler = new com.intellij.util.Function[PsiElement, String] {
       override def fun(param: PsiElement): String = s"Run or Debug task '$task'"

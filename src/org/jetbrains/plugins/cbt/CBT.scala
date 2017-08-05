@@ -19,9 +19,10 @@ object CBT {
     Seq("BaseBuild", "BasicBuild", "BuildBuild", "Plugin")
 
   def moduleByPath(dir: String, project: Project): Module = {
-    val modules = ModuleManager.getInstance(project).getModules.toSeq.sortBy(_.baseDir.length.unary_-)
     val fileDir = Paths.get(dir)
-    modules
+    ModuleManager.getInstance(project).getModules
+      .toSeq
+      .sortBy(_.baseDir.length.unary_-)
       .find(m => fileDir.startsWith(m.getModuleFile.getParent.getCanonicalPath))
       .get
   }

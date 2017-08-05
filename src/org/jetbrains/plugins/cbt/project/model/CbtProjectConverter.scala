@@ -24,9 +24,12 @@ object CbtProjectConverter {
 }
 
 class CbtProjectConverter(project: Project, settings: CbtExecutionSettings) {
-  private[model] val librariesMap = (project.libraries ++ project.cbtLibraries).map(l => l.name -> l).toMap
-  private[model] val modulesMap = project.modules.map(m => m.name -> m).toMap
-  private[model] val compilerLibrariesMap = project.scalaCompilers.map(c => s"scala-library-${c.version}" -> c).toMap
+  private[model] val librariesMap =
+    (project.libraries ++ project.cbtLibraries).map(l => l.name -> l).toMap
+  private[model] val modulesMap =
+    project.modules.map(m => m.name -> m).toMap
+  private[model] val compilerLibrariesMap =
+    project.scalaCompilers.map(c => s"scala-library-${c.version}" -> c).toMap
 
   def convert(): Try[DataNode[ProjectData]] =
     Try(convertProject(project: Project))
@@ -87,7 +90,6 @@ class CbtProjectConverter(project: Project, settings: CbtExecutionSettings) {
     val contentRootData = new ContentRootData(CbtProjectSystem.Id, rootPath.toString)
     module.sourceDirs
       .map(_.toPath)
-//      .filter(s => Files.isDirectory(s))
       .filter(s => s.toAbsolutePath.startsWith(rootPath))
       .foreach(s => contentRootData.storePath(ExternalSystemSourceType.SOURCE, s.toString))
     contentRootData.storePath(ExternalSystemSourceType.EXCLUDED, module.target.getPath)
@@ -100,15 +102,14 @@ class CbtProjectConverter(project: Project, settings: CbtExecutionSettings) {
     new DataNode(CbtModuleExtData.Key, moduleExtData, moduleNode)
   }
 
-  private[model] def replaceClasspathScalaLibsWithCompilers(classpath: Seq[File]) = {
+  private[model] def replaceClasspathScalaLibsWithCompilers(classpath: Seq[File]) =
     classpath.flatMap { f =>
       compilerLibrariesMap
         .get(f.getName.stripSuffix(".jar"))
         .map(_.jars)
         .getOrElse(Seq(f))
-    }
+      }
       .distinct
-  }
 
   private[model] def createModuleDependency(parent: DataNode[ModuleData])(dependency: ModuleDependency) = {
     val moduleData = createModuleData(modulesMap(dependency.name))
@@ -123,12 +124,13 @@ class CbtProjectConverter(project: Project, settings: CbtExecutionSettings) {
       case ModuleType.Test => CbtTestModuleType.ID
       case ModuleType.Build => ModuleTypeId.JAVA_MODULE
     }
-    val moduleData = new ModuleData(module.name,
-      CbtProjectSystem.Id,
-      moduleType,
-      module.name,
-      module.root.getPath,
-      module.root.getPath)
+    val moduleData =
+      new ModuleData(module.name,
+        CbtProjectSystem.Id,
+        moduleType,
+        module.name,
+        module.root.getPath,
+        module.root.getPath)
     if (settings.useCbtForInternalTasks) {
       moduleData.setInheritProjectCompileOutputPath(false)
       val scalaVersionWithoutMinor = module.scalaVersion.split('.').dropRight(1).mkString(".")
@@ -142,7 +144,8 @@ class CbtProjectConverter(project: Project, settings: CbtExecutionSettings) {
     project.cbtLibraries.map(_.name)
       .map(createBinaryDependencyNode(moduleNode))
 
-  private[model] def createBinaryDependencyNode(parent: DataNode[ModuleData])(dependencyName: String): DataNode[LibraryDependencyData] = {
+  private[model] def createBinaryDependencyNode(parent: DataNode[ModuleData])
+                                               (dependencyName: String): DataNode[LibraryDependencyData] = {
     val libraryData = createLibraryData(librariesMap(dependencyName))
     val dependencyData = new LibraryDependencyData(parent.getData, libraryData, LibraryLevel.PROJECT)
     new DataNode(ProjectKeys.LIBRARY_DEPENDENCY, dependencyData, parent)

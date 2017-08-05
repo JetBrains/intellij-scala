@@ -56,17 +56,20 @@ class CbtModuleBuilder
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
     setupDefaults()
 
-    val scalaVersionComboBox = applyTo(new SComboBox())(
-      _.setItems(loadedScalaVersions)
-    )
+    val scalaVersionComboBox =
+      applyTo(new SComboBox())(
+        _.setItems(loadedScalaVersions)
+      )
 
-    val useCbtFroInternalTasksCheckBox = applyTo(new JCheckBox("Use CBT for Running and Building your project"))(
-      _.setSelected(selections.useCbtForInternalTasks)
-    )
+    val useCbtFroInternalTasksCheckBox =
+      applyTo(new JCheckBox("Use CBT for Running and Building your project"))(
+        _.setSelected(selections.useCbtForInternalTasks)
+      )
 
-    val useDirectCheckBox = applyTo(new JCheckBox("Use CBT direct mode (use that if have some problems with nailgun)"))(
-      _.setSelected(selections.useDirect)
-    )
+    val useDirectCheckBox =
+      applyTo(new JCheckBox("Use CBT direct mode (use that if have some problems with nailgun)"))(
+        _.setSelected(selections.useDirect)
+      )
 
     scalaVersionComboBox.addActionListenerEx {
       selections.scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]

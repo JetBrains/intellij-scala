@@ -7,7 +7,9 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.data.SbtEntityData
 
 
-case class CbtModuleExtData(scalaVersion: Version, scalacClasspath: Seq[File], scalacOptions: Seq[String])
+case class CbtModuleExtData(scalaVersion: Version,
+                            scalacClasspath: Seq[File],
+                            scalacOptions: Seq[String])
 
 object CbtModuleExtData {
   val Key: Key[CbtModuleExtData] =

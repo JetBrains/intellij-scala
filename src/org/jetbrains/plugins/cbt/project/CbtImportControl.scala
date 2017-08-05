@@ -11,12 +11,14 @@ class CbtImportControl
     CbtProjectSystem.Id, CbtSystemSettings.getInstance(ProjectManager.getInstance.getDefaultProject),
     CbtProjectSettings.default) {
 
-  def getLinkedProjectChooserDescriptor = new FileChooserDescriptor(false, true, true, true, true, true)
+  def getLinkedProjectChooserDescriptor =
+    new FileChooserDescriptor(false, true, true, true, true, true)
 
   def onLinkedProjectPathChange(path: String) {}
 
   def createProjectSettingsControl(settings: CbtProjectSettings) =
     new CbtProjectSettingsControl(Context.Wizard, settings)
 
-  def createSystemSettingsControl(settings: CbtSystemSettings) = new CbtSystemSettingsControl(settings)
+  def createSystemSettingsControl(settings: CbtSystemSettings) =
+    new CbtSystemSettingsControl(settings)
 }

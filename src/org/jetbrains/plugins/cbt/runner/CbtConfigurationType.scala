@@ -14,7 +14,8 @@ class CbtConfigurationType extends ConfigurationType {
 
   def getConfigurationTypeDescription: String = "Run CBT Task"
 
-  def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory)
+  def getConfigurationFactories: Array[ConfigurationFactory] =
+    Array[ConfigurationFactory](confFactory)
 
   def getId: String = "CbtRunConfiguration"
 }

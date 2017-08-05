@@ -32,7 +32,8 @@ object Deserializer {
       sourceDirs = (node \ "sourceDirs" \ "dir").map(_.value.toFile),
       target = (node \ "@target").value.toFile,
       binaryDependencies = (node \ "dependencies" \ "binaryDependency").map(deserializeBinaryDependency),
-      moduleDependencies = (node \ "dependencies" \ "moduleDependency" ++ node \ "parentBuild").map(deserializeModuleDependency),
+      moduleDependencies =
+        (node \ "dependencies" \ "moduleDependency" ++ node \ "parentBuild").map(deserializeModuleDependency),
       classpath = (node \ "classpath" \ "classpathItem").map(_.value.toFile),
       parentBuild = (node \ "parentBuild").headOption.map(_.value),
       scalacOptions = (node \ "scalacOptions" \ "option").map(_.value))

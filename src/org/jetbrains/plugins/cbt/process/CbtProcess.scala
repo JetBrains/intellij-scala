@@ -14,20 +14,28 @@ import scala.util.{Failure, Success, Try}
 import scala.xml.{Elem, XML}
 
 object CbtProcess {
-  def buildInfoXml(root: File, settings: CbtExecutionSettings, projectOpt: Option[Project],
-                   taskListener: Option[(ExternalSystemTaskId, ExternalSystemTaskNotificationListener)]): Try[Elem] = {
+  def buildInfoXml(root: File,
+                   settings: CbtExecutionSettings,
+                   projectOpt: Option[Project],
+                   taskListener: Option[(ExternalSystemTaskId,
+                   ExternalSystemTaskNotificationListener)]): Try[Elem] = {
     def buildParams: Seq[String] = {
       val extraModulesStr = settings.extraModules.mkString(":")
       val needCbtLibsStr = settings.isCbt.unary_!.toString
       Seq("--extraModules", extraModulesStr, "--needCbtLibs", needCbtLibsStr)
     }
 
-    val xml = runAction("buildInfoXml" +: buildParams, settings.useDirect, root, projectOpt, taskListener)
+    val xml =
+      runAction("buildInfoXml" +: buildParams, settings.useDirect, root, projectOpt, taskListener)
     xml.map(XML.loadString)
   }
 
-  def runAction(action: Seq[String], useDirect: Boolean, root: File, projectOpt: Option[Project],
-                taskListener: Option[(ExternalSystemTaskId, ExternalSystemTaskNotificationListener)]): Try[String] = {
+  def runAction(action: Seq[String],
+                useDirect: Boolean,
+                root: File,
+                projectOpt: Option[Project],
+                taskListener: Option[(ExternalSystemTaskId,
+                  ExternalSystemTaskNotificationListener)]): Try[String] = {
     projectOpt.foreach { project =>
       ExternalSystemNotificationManager.getInstance(project)
         .clearNotifications(NotificationSource.PROJECT_SYNC, CbtProjectSystem.Id)
@@ -41,7 +49,8 @@ object CbtProcess {
       }
     }
 
-    val outputHandler = new CbtOutputListener(onOutput, projectOpt, NotificationSource.PROJECT_SYNC)
+    val outputHandler =
+      new CbtOutputListener(onOutput, projectOpt, NotificationSource.PROJECT_SYNC)
     val logger = ProcessLogger(
       text => outputHandler.parseLine(text, stderr = false),
       text => outputHandler.parseLine(text + '\n', stderr = true))

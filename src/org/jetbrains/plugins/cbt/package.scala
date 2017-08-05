@@ -34,7 +34,7 @@ package object cbt {
   }
 
   implicit class FileOps(val file: File) {
-    def /(path: String): File = new File(file, path)
+    def / (path: String): File = new File(file, path)
   }
 
   implicit class ReachProject(val project: Project) {
@@ -51,7 +51,8 @@ package object cbt {
 
     def isCbtProject: Boolean =
       Try{
-        CbtSystemSettings.getInstance(project).getLinkedProjectSettings(project.getBasePath)
+        CbtSystemSettings.getInstance(project)
+          .getLinkedProjectSettings(project.getBasePath)
       }
         .toOption
         .exists(_ != null)
