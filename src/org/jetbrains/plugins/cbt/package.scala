@@ -6,9 +6,12 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.CbtSystemSettings
+
+import _root_.scala.util.Try
 
 package object cbt {
 
@@ -47,7 +50,16 @@ package object cbt {
     }
 
     def isCbtProject: Boolean =
-      CbtSystemSettings.getInstance(project).getLinkedProjectSettings(project.getBasePath) != null
+      Try{
+        CbtSystemSettings.getInstance(project).getLinkedProjectSettings(project.getBasePath)
+      }
+        .toOption
+        .exists(_ != null)
+  }
+
+  implicit class ReachModule(val module: Module) {
+    def baseDir: String = //TODO get from data node
+      module.getModuleFile.getParent.getCanonicalPath
   }
 
 }
