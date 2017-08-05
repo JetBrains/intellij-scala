@@ -47,9 +47,7 @@ class CbtLineMarkerProvider extends RunLineMarkerContributor {
                               range: TextRange,
                               scFun: ScFunction): Option[RunLineMarkerContributor.Info] = {
     val task = scFun.asInstanceOf[ScFunctionDefinitionImpl].getName
-    val tooltipHandler = new com.intellij.util.Function[PsiElement, String] {
-      override def fun(param: PsiElement): String = s"Run or Debug task '$task'"
-    }
+    val tooltipHandler = (_: PsiElement) => s"Run or Debug task '$task'"
     val module = {
       val buildModule = CBT.moduleByPath(scFun.getContainingFile.getVirtualFile.getPath, project)
       val moudleDir = buildModule.baseDir.toFile.toPath.getParent.toString

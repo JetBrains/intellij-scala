@@ -16,6 +16,7 @@ import org.jetbrains.plugins.cbt.project.settings._
 import org.jetbrains.sbt.jarWith
 
 import scala.collection.JavaConverters._
+import org.jetbrains.plugins.cbt._
 
 class CbtExternalSystemManager
   extends ExternalSystemManager[CbtProjectSettings, CbtProjectSettingsListener,
@@ -28,10 +29,7 @@ class CbtExternalSystemManager
   override def getExternalProjectDescriptor: FileChooserDescriptor = new CbtOpenProjectDescriptor
 
   override def getExecutionSettingsProvider: Function[Pair[Project, String], CbtExecutionSettings] =
-    new Function[Pair[Project, String], CbtExecutionSettings]() {
-      override def fun(pair: Pair[Project, String]): CbtExecutionSettings = {
-        val project = pair.first
-        val path = pair.second
+    (project: Project, path: String) => {
         val projectSettings = CbtProjectSettings.getInstance(project, path)
         new CbtExecutionSettings(path,
           projectSettings.isCbt,
@@ -39,19 +37,14 @@ class CbtExternalSystemManager
           projectSettings.useDirect,
           projectSettings.extraModules.asScala)
       }
-    }
 
   override def getProjectResolverClass: Class[CbtProjectResolver] = classOf[CbtProjectResolver]
 
-  override def getLocalSettingsProvider: Function[Project, CbtLocalSettings] =
-    new Function[Project, CbtLocalSettings]() {
-      override def fun(project: Project): CbtLocalSettings = CbtLocalSettings.getInstance(project)
-    }
+  override val getLocalSettingsProvider: Function[Project, CbtLocalSettings] =
+    (project: Project) => CbtLocalSettings.getInstance(project)
 
   override def getSettingsProvider: Function[Project, CbtSystemSettings] =
-    new Function[Project, CbtSystemSettings]() {
-      override def fun(project: Project): CbtSystemSettings = CbtSystemSettings.getInstance(project)
-    }
+    (project: Project) =>CbtSystemSettings.getInstance(project)
 
   override def enhanceLocalProcessing(urls: util.List[URL]): Unit = {
     urls.add(jarWith[scala.App].toURI.toURL)

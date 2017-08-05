@@ -26,7 +26,7 @@ class CbtBuildConfiguration(val task: String,
     new RunConfigurationModule(project), configurationFactory) {
   setModule(module)
 
-  override def getBeforeRunTasks: util.List[BeforeRunTask[_ <: BeforeRunTask[_]]] = {
+  override def getBeforeRunTasks: util.List[BeforeRunTask[_]] = {
     // For not adding default buildTask
     val unknownTask = new UnknownBeforeRunTaskProvider("unknown").createTask(this)
     List(unknownTask)

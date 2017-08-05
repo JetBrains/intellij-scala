@@ -69,4 +69,14 @@ package object cbt {
   def runReadAction(action: => Unit): Unit =
     ApplicationManager.getApplication.runReadAction(runnable(action))
 
+  implicit def scalaFunction1ToIdeaOne[A, B](f: A => B): com.intellij.util.Function[A, B] =
+    new com.intellij.util.Function[A, B]() {
+      override def fun(x: A): B = f(x)
+    }
+
+  implicit def scalaFunction2ToIdeaOne[A, B, C](f: (A, B) => C): com.intellij.util.Function[com.intellij.openapi.util.Pair[A, B], C] =
+    new com.intellij.util.Function[com.intellij.openapi.util.Pair[A, B], C] () {
+      override def fun(x: com.intellij.openapi.util.Pair[A, B]): C =
+        f(x.first, x.second)
+    }
 }
