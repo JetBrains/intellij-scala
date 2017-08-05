@@ -39,13 +39,12 @@ package object cbt {
 
   implicit class ReachProject(val project: Project) {
     def refresh(): Unit = {
-      ApplicationManager.getApplication.invokeLater(new Runnable() {
-        override def run(): Unit =
-          ExternalSystemUtil.refreshProjects(
-            new ImportSpecBuilder(project, CbtProjectSystem.Id)
-              .forceWhenUptodate()
-              .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-          )
+      ApplicationManager.getApplication.invokeLater(runnable {
+        ExternalSystemUtil.refreshProjects(
+          new ImportSpecBuilder(project, CbtProjectSystem.Id)
+            .forceWhenUptodate()
+            .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+        )
       })
     }
 

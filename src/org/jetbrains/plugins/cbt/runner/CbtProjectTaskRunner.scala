@@ -76,11 +76,10 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
       override def onComplete(): Unit =
         Option(callback)
           .foreach { f =>
-            val request = new Runnable {
-              def run(): Unit = {
-                f.finished(new ProjectTaskResult(false, 0, 0))
-              }
+            val request = runnable {
+              f.finished(new ProjectTaskResult(false, 0, 0))
             }
+
             alarm.addRequest(request, 500)
           }
 

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.cbt.process
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.cbt._
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 
 import scala.collection.mutable
@@ -90,17 +91,15 @@ object CbtOutputListener {
   private def showNotification(project: Project,
                                text: String,
                                notificationCategory: NotificationCategory,
-                                notificationSource: NotificationSource): Unit = {
-    ApplicationManager.getApplication.invokeLater(new Runnable {
-      override def run(): Unit = {
-        val notification =
-          new NotificationData("CBT project import",
-            text,
-            notificationCategory,
-            notificationSource)
-        ExternalSystemNotificationManager.getInstance(project)
-          .showNotification(CbtProjectSystem.Id, notification)
-      }
+                               notificationSource: NotificationSource): Unit = {
+    ApplicationManager.getApplication.invokeLater(runnable {
+      val notification =
+        new NotificationData("CBT project import",
+          text,
+          notificationCategory,
+          notificationSource)
+      ExternalSystemNotificationManager.getInstance(project)
+        .showNotification(CbtProjectSystem.Id, notification)
     })
   }
 }
