@@ -18,6 +18,8 @@ class CbtDebugConfiguration(task: String,
                             configurationFactory: ConfigurationFactory)
   extends RemoteConfiguration(project, configurationFactory) {
   setModule(module)
+  setName(s"Debug ${module.getName}: $task")
+
   PORT = "5005"
   HOST = "localhost"
   SERVER_MODE = false
@@ -27,6 +29,4 @@ class CbtDebugConfiguration(task: String,
     val beforeRunTask = new RunCbtDebuggerBeforeRunTask(task, module)
     List(beforeRunTask)
   }
-  override def getActionName: String = s"Debug ${module.getName}: $task"
-
 }
