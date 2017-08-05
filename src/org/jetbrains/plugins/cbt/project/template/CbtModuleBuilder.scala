@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.cbt.project.template
 
-import java.awt.FlowLayout
+import java.awt.{FlowLayout, GridLayout}
 import java.io.File
 import javax.swing.{Box, JCheckBox, JPanel}
 
@@ -87,7 +87,7 @@ class CbtModuleBuilder
       _.add(scalaVersionComboBox)
     )
 
-    val cbtSettingsPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
+    val cbtSettingsPanel = applyTo(new JPanel(new GridLayout(2, 1)))(
       _.add(useCbtFroInternalTasksCheckBox),
       _.add(useDirectCheckBox)
     )
