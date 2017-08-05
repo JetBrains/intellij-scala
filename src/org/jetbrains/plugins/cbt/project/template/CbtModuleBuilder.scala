@@ -61,7 +61,7 @@ class CbtModuleBuilder
         _.setItems(loadedScalaVersions)
       )
 
-    val useCbtFroInternalTasksCheckBox =
+    val useCbtForInternalTasksCheckBox =
       applyTo(new JCheckBox("Use CBT for Running and Building your project"))(
         _.setSelected(selections.useCbtForInternalTasks)
       )
@@ -75,8 +75,8 @@ class CbtModuleBuilder
       selections.scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
     }
 
-    useCbtFroInternalTasksCheckBox.addActionListenerEx {
-      selections.useCbtForInternalTasks = useCbtFroInternalTasksCheckBox.isSelected
+    useCbtForInternalTasksCheckBox.addActionListenerEx {
+      selections.useCbtForInternalTasks = useCbtForInternalTasksCheckBox.isSelected
     }
 
     useDirectCheckBox.addActionListenerEx {
@@ -88,7 +88,7 @@ class CbtModuleBuilder
     )
 
     val cbtSettingsPanel = applyTo(new JPanel(new GridLayout(2, 1)))(
-      _.add(useCbtFroInternalTasksCheckBox),
+      _.add(useCbtForInternalTasksCheckBox),
       _.add(useDirectCheckBox)
     )
 
