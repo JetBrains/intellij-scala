@@ -58,7 +58,7 @@ package object cbt {
   }
 
   implicit class ReachModule(val module: Module) {
-    def baseDir: String = //TODO get form data node
+    def baseDir: String = //TODO get from data node
       module.getModuleFile.getParent.getCanonicalPath
   }
 

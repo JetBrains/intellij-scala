@@ -10,7 +10,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.cbt._
-import org.jetbrains.plugins.cbt.runner.TaskModuleData
 import org.jetbrains.plugins.cbt.runner.action.{DebugTaskAction, RunTaskAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -56,10 +55,14 @@ class CbtLineMarkerProvider extends RunLineMarkerContributor {
         .map(_.getModuleFile.getParent.getParent.getCanonicalPath)
         .get
     }
-    val taskModuleData = TaskModuleData(dir, project)
+    val module = {
+      val buildModule = CBT.moduleByPath(scFun.getContainingFile.getVirtualFile.getPath, project)
+      val moudleDir = buildModule.baseDir.toFile.toPath.getParent.toString
+      CBT.moduleByPath(moudleDir, project)
+    }
     val task = scFun.asInstanceOf[ScFunctionDefinitionImpl].getName
-    val actions: Array[AnAction] = Array(new RunTaskAction(task, taskModuleData, project),
-      new DebugTaskAction(task, taskModuleData, project))
+    val actions: Array[AnAction] =
+      Array(new RunTaskAction(task, module, project), new DebugTaskAction(task, module, project))
     val info = new RunLineMarkerContributor.Info(AllIcons.General.Run, tooltipHandler, actions: _ *)
     Some(info)
   }

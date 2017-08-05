@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.cbt.runner
 
-import com.intellij.execution.application.ApplicationConfiguration
 import com.intellij.execution.configurations.RunConfiguration
-import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.{BeforeRunTask, BeforeRunTaskProvider, ExecutionManager}
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Key
 import com.intellij.util.concurrency.Semaphore
-import org.jetbrains.plugins.cbt.runner.internal.CbtBuildConfigurationFactory
 
 class RunCbtDebuggerBeforeRunProvider extends BeforeRunTaskProvider[RunCbtDebuggerBeforeRunTask] {
   override def getId: Key[RunCbtDebuggerBeforeRunTask] = RunCbtDebuggerBeforeRunProvider.ID
@@ -50,24 +47,26 @@ class RunCbtDebuggerBeforeRunProvider extends BeforeRunTaskProvider[RunCbtDebugg
       }
     }
 
-    val configuration = new CbtBuildConfigurationFactory(beforeTunTask.taskName,
-      true, beforeTunTask.taskModuleData, Seq("-debug"), CbtConfigurationType.getInstance, listener)
-      .createTemplateConfiguration(project)
-    val runnerSettings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
-    runnerSettings.setSingleton(true)
-    val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance, DefaultJavaProgramRunner.getInstance, runnerSettings, project)
-    ExecutionManager.getInstance(project).restartRunProfile(environment)
-
+    val environment =
+      CbtProjectTaskRunner.createExecutionEnv(beforeTunTask.taskName,
+        beforeTunTask.module,
+        project,
+        listener,
+        options = Seq("-debug"))
+    ExecutionManager.getInstance(project)
+      .restartRunProfile(environment)
     finished.waitFor()
     result
   }
 
 }
+
 object RunCbtDebuggerBeforeRunProvider {
   lazy val ID: Key[RunCbtDebuggerBeforeRunTask] = Key.create(NAME)
   val NAME = "CBT Debug"
 }
-class RunCbtDebuggerBeforeRunTask(val taskName: String, val taskModuleData: TaskModuleData)
+
+class RunCbtDebuggerBeforeRunTask(val taskName: String, val module: Module)
   extends BeforeRunTask[RunCbtDebuggerBeforeRunTask](RunCbtDebuggerBeforeRunProvider.ID) {
   setEnabled(true)
 }
