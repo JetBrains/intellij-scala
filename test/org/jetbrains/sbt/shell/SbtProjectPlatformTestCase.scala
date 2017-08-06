@@ -62,7 +62,7 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
     handler.destroyProcess()
     //give the handler some time to terminate the process
     while (!handler.isProcessTerminated || handler.isProcessTerminating) {
-      Thread.sleep(500)
+      Thread.sleep(100)
     }
     ProjectManager.getInstance().closeProject(myProject)
     super.tearDown()
