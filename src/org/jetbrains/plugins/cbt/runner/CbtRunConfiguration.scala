@@ -2,8 +2,9 @@ package org.jetbrains.plugins.cbt.runner
 
 import java.util
 
-import com.intellij.execution.Executor
+import com.intellij.execution.{BeforeRunTask, Executor}
 import com.intellij.execution.configurations._
+import com.intellij.execution.impl.UnknownBeforeRunTaskProvider
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.SettingsEditor
@@ -57,6 +58,10 @@ class CbtRunConfiguration(val project: Project,
     }
   }
 
+  override def getBeforeRunTasks: util.List[BeforeRunTask[_]] = {
+    val unknownTask = new UnknownBeforeRunTaskProvider("unknown").createTask(this)
+    List(unknownTask)
+  }
   def apply(params: CbtRunConfigurationForm): Unit = {
     task = params.getTask
     module = {
