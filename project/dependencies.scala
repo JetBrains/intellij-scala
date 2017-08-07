@@ -1,19 +1,19 @@
 import sbt._
 
 object Versions {
-  val scalaVersion: String = Scala.latest_2_11
-  val scalaBinaryVersion: String = Scala.binary_2_11
+  val scalaVersion: String = Scala.latest_2_12
+  val scalaBinaryVersion: String = Scala.binary_2_12
   val sbtVersion: String = Sbt.latest
   val ideaVersion = "172.3544.35"
-  val sbtStructureVersion: String = "7.0.0+61-051fb9ba"
-  val sbtIdeaShellVersion: String = "1.2+7-625c26bc"
+  val sbtStructureVersion: String = "2017.2"
+  val sbtIdeaShellVersion: String = "2017.2"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
   val wagonVersion = "2.6"
   val httpComponentsVersion = "4.3.1"
   val scalaMetaVersion = "1.8.0"
-  val paradiseVersion = "3.0.0-M8"
+  val paradiseVersion = "3.0.0-M10"
 
   object Scala {
     val binary_2_9 = "2.9.2"
@@ -26,7 +26,7 @@ object Versions {
     val latest_2_9 = "2.9.2"
     val latest_2_10 = "2.10.6"
     val latest_2_11 = "2.11.11"
-    val latest_2_12 = "2.12.2"
+    val latest_2_12 = "2.12.3"
     val latest: String = latest_2_12
 
     def binaryVersion(v: String): String =
@@ -44,7 +44,7 @@ object Versions {
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.16"
-    val latest_1_0 = "1.0.0-RC2"
+    val latest_1_0 = "1.0.0-RC3"
     val latest: String = latest_0_13
 
     def binaryVersion(v: String): String = {
@@ -75,21 +75,23 @@ object Dependencies {
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
-  val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "1.0.5"
+  val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "1.0.6"
   val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
-  val sbtStructureCore: ModuleID = "org.jetbrains" % "sbt-structure-core_2.11" % sbtStructureVersion
+  val sbtStructureCore: ModuleID = "org.jetbrains" % "sbt-structure-core_2.12" % sbtStructureVersion
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.2"
   val scalatestFindersPatched: ModuleID = "org.scalatest" % "scalatest-finders-patched" % "0.9.9"
+
+  val specs2: ModuleID = "org.specs2" %% "specs2-core" % "3.9.1" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
 
   val luceneCore: ModuleID = "org.apache.lucene" % "lucene-core" % luceneVersion
   val commonsLang: ModuleID = "commons-lang" % "commons-lang" % "2.6"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
 
-  val scalastyle_2_11: ModuleID = "org.scalastyle" % "scalastyle_2.11" % "0.8.0"
-  val scalariform_2_11: ModuleID = "org.scalariform" % "scalariform_2.11" % "0.1.7"
+  val scalastyle_2_12: ModuleID = "org.scalastyle" % "scalastyle_2.12" % "0.9.0"
+  val scalariform_2_12: ModuleID = "org.scalariform" % "scalariform_2.12" % "0.2.2"
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
-  val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
+  val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.12" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
 
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
@@ -117,8 +119,8 @@ object DependencyGroups {
   )
 
   val scalastyle: Seq[ModuleID] = Seq(
-    scalastyle_2_11,
-    scalariform_2_11
+    scalastyle_2_12,
+    scalariform_2_12
   )
 
   val scalaCommunity: Seq[ModuleID] = Seq(
@@ -143,13 +145,13 @@ object DependencyGroups {
   )
 
   val scalaRunner = Seq(
-    "org.specs2" %% "specs2" % "2.3.11" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+    specs2
   )
 
   val runners = Seq(
-    "org.specs2" %% "specs2" % "2.3.11" % "provided"  excludeAll ExclusionRule(organization = "org.ow2.asm"),
-    "org.scalatest" % "scalatest_2.11" % "2.2.1" % "provided",
-    "com.lihaoyi" %% "utest" % "0.3.1" % "provided"
+    specs2,
+    "org.scalatest" %% "scalatest" % "3.0.1" % "provided",
+    "com.lihaoyi" %% "utest" % "0.4.8" % "provided"
   )
 
   val sbtLaunchTestDownloader: Seq[ModuleID] =
@@ -160,43 +162,45 @@ object DependencyGroups {
       .map(v => "org.scala-sbt" % "sbt-launch" % v)
 
   val testDownloader = Seq(
-    "org.scalatest" % "scalatest_2.11" % "2.2.1",
-    "org.scalatest" % "scalatest_2.10" % "2.2.1",
+
+    scalaXml,
+    "com.chuusai" % "shapeless_2.11" % "2.0.0",
+    "com.github.julien-truffaut" %% "monocle-core" % "1.2.0",
+    "com.github.julien-truffaut" %% "monocle-generic" % "1.2.0",
+    "com.github.julien-truffaut" %% "monocle-macro" % "1.2.0",
+    "com.lihaoyi" % "utest_2.10" % "0.3.1" % "provided",
+    "com.lihaoyi" % "utest_2.10" % "0.4.3" % "provided",
+    "com.lihaoyi" % "utest_2.11" % "0.4.3" % "provided",
+    "com.typesafe.akka" % "akka-actor_2.11" % "2.4.19",
+    "com.typesafe.akka" % "akka-stream_2.11" % "2.4.19",
+    "com.typesafe.play" % "play_2.10" % "2.4.10",
+    "com.typesafe.slick" %% "slick" % "3.2.0",
+    "io.spray" %% "spray-routing" % "1.3.1",
+    "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
+    "org.specs2" % "specs2_2.10" % "2.4.6",
+    "org.scala-js" % "scalajs-library_2.10" % "0.6.14",
+    "org.scalaz" % "scalaz-core_2.10" % "7.1.0",
+    "org.scalaz" % "scalaz-concurrent_2.10" % "7.1.0",
+    "org.scalaz" % "scalaz-core_2.11" % "7.1.0",
+    "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0",
+    "org.scalaz.stream" % "scalaz-stream_2.11" % "0.6a",
     "org.specs2" % "specs2_2.11" % "2.4.15",
     "org.specs2" % "specs2-core_2.11" % "3.0.1",
     "org.specs2" % "specs2-common_2.11" % "3.0.1",
     "org.specs2" % "specs2-matcher_2.11" % "3.0.1",
-    "com.lihaoyi" % "utest_2.10" % "0.3.1" % "provided",
-    "com.lihaoyi" % "utest_2.11" % "0.4.3" % "provided",
-    "com.lihaoyi" % "utest_2.10" % "0.4.3" % "provided",
-    "org.scalaz" % "scalaz-core_2.11" % "7.1.0",
-    "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0",
-    "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.5",
-    "org.specs2" % "specs2_2.10" % "2.4.6",
-    "org.scalaz" % "scalaz-core_2.10" % "7.1.0",
-    "org.scalaz" % "scalaz-concurrent_2.10" % "7.1.0",
-    "org.scalaz.stream" % "scalaz-stream_2.11" % "0.6a",
-    "com.chuusai" % "shapeless_2.11" % "2.0.0",
     "org.typelevel" % "scodec-bits_2.11" % "1.1.0-SNAPSHOT",
     "org.typelevel" % "scodec-core_2.11" % "1.7.0-SNAPSHOT",
-    "org.scalatest" % "scalatest_2.11" % "2.1.7",
-    "org.scalatest" % "scalatest_2.10" % "2.1.7",
     "org.scalatest" % "scalatest_2.10" % "1.9.2",
+    "org.scalatest" % "scalatest_2.10" % "2.1.7",
+    "org.scalatest" % "scalatest_2.10" % "2.2.1",
+    "org.scalatest" % "scalatest_2.11" % "2.1.7",
+    "org.scalatest" % "scalatest_2.11" % "2.2.1",
     "org.scalatest" % "scalatest_2.11" % "3.0.1",
     "org.scalactic" % "scalactic_2.11" % "3.0.1",
-    "com.github.julien-truffaut"  %%  "monocle-core"    % "1.2.0",
-    "com.github.julien-truffaut"  %%  "monocle-generic" % "1.2.0",
-    "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0",
-    "io.spray" %% "spray-routing" % "1.3.1",
-    "com.typesafe.slick" %% "slick" % "3.2.0",
-    "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
-    "org.typelevel" %% "cats" % "0.4.0",
-    "org.scalameta" % "paradise_2.11.11" % paradiseVersion exclude("org.scalameta", "scalameta_2.11"),
+//    "org.scalatest" % "scalatest_2.12" % "3.0.1",
+    "org.scalameta" % s"paradise_${Scala.latest_2_11}" % paradiseVersion exclude("org.scalameta", "scalameta_2.11"),
     "org.scalameta" % "scalameta_2.12" % scalaMetaVersion,
-    "org.scala-js" % "scalajs-library_2.10" % "0.6.14",
-    "com.typesafe.play" % "play_2.10" % "2.4.10",
-    "com.typesafe.akka" % "akka-actor_2.11" % "2.4.19",
-    "com.typesafe.akka" % "akka-stream_2.11" % "2.4.19"
+    "org.typelevel" %% "cats" % "0.4.0"
   )
 
   val testScalaLibraryDownloader = Seq(

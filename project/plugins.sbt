@@ -6,7 +6,7 @@ resolvers += Resolver.url("dancingrobot84-bintray",
 
 addSbtPlugin("org.jetbrains" % "sbt-ide-settings" % "0.1.1")
 addSbtPlugin("com.dancingrobot84" % "sbt-idea-plugin" % "0.4.2")
-addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.2.11")
+addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.2.27")
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.7.0")
 
 // FIXME coursier as a plugin currently breaks tests
