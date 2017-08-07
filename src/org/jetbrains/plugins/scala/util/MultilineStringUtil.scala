@@ -246,6 +246,8 @@ object MultilineStringUtil {
   val stringLiteralSizeLimit = 64 * 1024
 
   private def isTooLong(s: String, lineSeparator: String): Boolean = {
+    if (s == null || lineSeparator == null) return false
+    
     val safeSizeInChars = stringLiteralSizeLimit / 4
 
     s.length >= stringLiteralSizeLimit ||
