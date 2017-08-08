@@ -148,6 +148,7 @@ object DependencyGroups {
   )
 
   val runners = Seq(
+    "org.scala-lang" % "scala-compiler" % scalaVersion,
     specs2,
     "org.scalatest" %% "scalatest" % "3.0.1" % "provided",
     "com.lihaoyi" %% "utest" % "0.4.8" % "provided"
