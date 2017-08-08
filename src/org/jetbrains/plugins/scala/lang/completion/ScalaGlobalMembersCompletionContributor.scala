@@ -151,7 +151,7 @@ object ScalaGlobalMembersCompletionContributor {
       ScalaIndexKeys.IMPLICITS_KEY,
       "implicit",
       reference.getContainingFile.getProject,
-      reference.getResolveScope,
+      reference.resolveScope,
       classOf[ScMember]
     ).asScala
   }

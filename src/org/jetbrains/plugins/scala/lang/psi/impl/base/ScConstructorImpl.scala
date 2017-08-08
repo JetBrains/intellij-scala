@@ -112,7 +112,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           subst.subst(methodType)
         case method: PsiMethod =>
           if (i > 0) return Failure("Java constructors only have one parameter section", Some(this))
-          ResolveUtils.javaMethodType(method, subst, getResolveScope, Some(subst.subst(tp)))
+          ResolveUtils.javaMethodType(method, subst, this.resolveScope, Some(subst.subst(tp)))
       }
       val typeParameters: Seq[TypeParameter] = r.getActualElement match {
         case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
@@ -211,10 +211,10 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     }
   }
 
-  @Cached(true, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersByClauses.flatten
 
-  @Cached(true, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def matchedParametersByClauses: Seq[Seq[(ScExpression, Parameter)]] = {
     val paramClauses = this.reference.flatMap(r => Option(r.resolve())) match {
       case Some(pc: ScPrimaryConstructor) => pc.parameterList.clauses.map(_.parameters)

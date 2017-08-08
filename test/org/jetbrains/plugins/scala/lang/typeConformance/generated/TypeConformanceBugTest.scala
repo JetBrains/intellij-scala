@@ -45,4 +45,8 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
   def testSCL8980_2() {doTest()}
 
   def testSCL11060() {doTest()}
+
+  def testSCL12202(): Unit = doTest()
+
+  def testSCL11320() {doTest(checkEquivalence = true)}
 }

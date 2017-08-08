@@ -18,5 +18,5 @@ trait ScAnnotTypeElement extends ScTypeElement {
 
   def typeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  protected def innerType(): TypeResult[ScType] = typeElement.getType()
+  protected def innerType: TypeResult[ScType] = typeElement.getType()
 }

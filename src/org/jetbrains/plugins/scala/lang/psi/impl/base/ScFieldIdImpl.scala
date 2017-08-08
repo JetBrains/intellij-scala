@@ -6,6 +6,7 @@ package base
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.FIELD_ID
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -25,7 +26,7 @@ class ScFieldIdImpl private(stub: ScFieldIdStub, node: ASTNode)
 
   def this(stub: ScFieldIdStub) = this(stub, null)
 
-  override def toString: String = "Field identifier: " + name
+  override def toString: String = "Field identifier: " + ifReadAllowed(name)("")
 
   def getType(ctx: TypingContext): TypeResult[ScType] = getParent /*id list*/ .getParent match {
     case typed: ScTypedDeclaration => typed.getType(ctx)

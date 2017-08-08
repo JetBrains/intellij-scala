@@ -6,7 +6,7 @@ package expr
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{ElementText, PsiNamedElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{ElementText, PsiElementExt, PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
@@ -43,10 +43,17 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     this.getTypeAfterImplicitConversion().tr
 
   @volatile
-  protected var implicitParameters: Option[Seq[ScalaResolveResult]] = None
+  private var implicitParameters: Option[Seq[ScalaResolveResult]] = None
 
   @volatile
-  protected var implicitParametersFromUnder: Option[Seq[ScalaResolveResult]] = None
+  private var implicitParametersFromUnder: Option[Seq[ScalaResolveResult]] = None
+
+  final protected def setImplicitParameters(results: Option[Seq[ScalaResolveResult]], fromUnderscore: Boolean): Unit = {
+    if (fromUnderscore)
+      implicitParametersFromUnder = results
+    else
+      implicitParameters = results
+  }
 
   /**
     * Warning! There is a hack in scala compiler for ClassManifest and ClassTag.
@@ -67,7 +74,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     }
   }
 
-  protected def innerType(ctx: TypingContext): TypeResult[ScType] =
+  protected def innerType: TypeResult[ScType] =
     Failure(ScalaBundle.message("no.type.inferred", getText), Some(this))
 
   /**
@@ -225,18 +232,17 @@ object ScExpression {
     def getTypeIgnoreBaseType: TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
     @CachedWithRecursionGuard(expr, Failure("Recursive getNonValueType", Some(expr)), ModCount.getBlockModificationCount)
-    def getNonValueType(ctx: TypingContext = TypingContext.empty, //todo: remove?
-                        ignoreBaseType: Boolean = false,
+    def getNonValueType(ignoreBaseType: Boolean = false,
                         fromUnderscore: Boolean = false): TypeResult[ScType] = {
       ProgressManager.checkCanceled()
-      if (fromUnderscore) expr.innerType(TypingContext.empty)
+      if (fromUnderscore) expr.innerType
       else {
         val unders = ScUnderScoreSectionUtil.underscores(expr)
-        if (unders.isEmpty) expr.innerType(TypingContext.empty)
+        if (unders.isEmpty) expr.innerType
         else {
           val params = unders.zipWithIndex.map {
             case (u, index) =>
-              val tpe = u.getNonValueType(TypingContext.empty, ignoreBaseType).getOrAny.inferValueType.unpackedType
+              val tpe = u.getNonValueType(ignoreBaseType).getOrAny.inferValueType.unpackedType
               Parameter(tpe, isRepeated = false, index = index)
           }
           val methType =
@@ -327,7 +333,7 @@ object ScExpression {
 
       if (fromNullLiteral.nonEmpty) fromNullLiteral.get
       else {
-        val inner = expr.getNonValueType(TypingContext.empty, ignoreBaseTypes, fromUnderscore)
+        val inner = expr.getNonValueType(ignoreBaseTypes, fromUnderscore)
         inner match {
           case Success(rtp, _) =>
             var res = rtp
@@ -423,23 +429,26 @@ object ScExpression {
           cand = applyProc.candidates
         }
       }
-      if (cand.length == 0 && ScalaPsiUtil.approveDynamic(tp, expr.getProject, expr.getResolveScope) && call.isDefined) {
+      if (cand.length == 0 && ScalaPsiUtil.approveDynamic(tp, expr.getProject, expr.resolveScope) && call.isDefined) {
         cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call.get, tp, isShape = true, isDynamic = true)
       }
       cand
     }
 
-    def updateWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean, fromUnderscore: Boolean): ScType = {
+    //has side effect!
+    private def updateWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean, fromUnderscore: Boolean): ScType = {
+      val (newType, params) = updatedWithImplicitParameters(tpe, checkExpectedType)
+
+      expr.setImplicitParameters(params, fromUnderscore)
+
+      newType
+    }
+
+    def updatedWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
       val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(expr)
-      if (checkImplicitParameters) {
-        val tuple = InferUtil.updateTypeWithImplicitParameters(tpe, expr, None, checkExpectedType, fullInfo = false)
-
-        if (fromUnderscore) expr.implicitParametersFromUnder = tuple._2
-        else expr.implicitParameters = tuple._2
-
-        tuple._1
-      }
-      else tpe
+      if (checkImplicitParameters)
+        InferUtil.updateTypeWithImplicitParameters(tpe, expr, None, checkExpectedType, fullInfo = false)
+      else (tpe, None)
     }
 
     //numeric literal narrowing
@@ -588,40 +597,6 @@ object ScExpression {
           inner(retType, t => t)
         case _ => tp
       }
-    }
-
-    private def updateNotMethodInvocation(oldTp: ScType, expected: Option[ScType], fromUnderscore: Boolean): ScType = {
-      def tryUpdateRes(checkExpectedType: Boolean, oldTp: ScType): ScType = {
-        var res = oldTp
-        if (checkExpectedType) {
-          InferUtil.updateAccordingToExpectedType(Success(res, Some(expr)), fromImplicitParameters = true,
-            filterTypeParams = false, expectedType = expected, expr = expr,
-            check = checkExpectedType) match {
-            case Success(newRes, _) => res = newRes
-            case _ =>
-          }
-        }
-
-        val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(expr)
-        if (checkImplicitParameters) {
-          val tuple = InferUtil.updateTypeWithImplicitParameters(res, expr, None, checkExpectedType, fullInfo = false)
-          res = tuple._1
-          if (fromUnderscore) expr.implicitParametersFromUnder = tuple._2
-          else expr.implicitParameters = tuple._2
-        }
-        res
-      }
-
-      if (!isMethodInvocation(expr)) {
-        //it is not updated according to expected type, let's do it
-        try {
-          tryUpdateRes(checkExpectedType = true, oldTp)
-        } catch {
-          case _: SafeCheckException =>
-            tryUpdateRes(checkExpectedType = false, oldTp)
-        }
-      }
-      else oldTp
     }
   }
 

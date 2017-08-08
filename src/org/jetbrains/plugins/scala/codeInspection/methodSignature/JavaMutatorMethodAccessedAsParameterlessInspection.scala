@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 class JavaMutatorMethodAccessedAsParameterlessInspection extends AbstractMethodSignatureInspection(
   "ScalaJavaMutatorMethodAccessedAsParameterless", "Java mutator method accessed as parameterless") {
 
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case e: ScReferenceExpression if !e.getParent.isInstanceOf[ScMethodCall] &&
             !e.getParent.isInstanceOf[ScInfixExpr] &&
             !e.getParent.isInstanceOf[ScUnderscoreSection] && e.isValid &&

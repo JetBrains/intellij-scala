@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 
 class VariablePatternShadowInspection extends AbstractInspection("VariablePatternShadow", "Suspicious shadowing by a Variable Pattern") {
 
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case refPat: ScReferencePattern => check(refPat, holder)
   }
 

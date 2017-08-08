@@ -119,7 +119,7 @@ object TypeDefinitionMembers {
 
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
-        val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.getResolveScope, "java.lang.Object")
+        val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.resolveScope, "java.lang.Object")
         obj.map { obj =>
           for (method <- obj.getMethods) {
             method.getName match {
@@ -129,6 +129,11 @@ object TypeDefinitionMembers {
             }
           }
         }
+      }
+
+      for (method <- template.syntheticMethodsWithOverride if method.getParameterList.getParametersCount == 0) {
+        val sig = new PhysicalSignature(method, subst)
+        addSignature(sig)
       }
 
       for (member <- template.members) {
@@ -184,11 +189,6 @@ object TypeDefinitionMembers {
             addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
           case _ =>
         }
-      }
-
-      for (method <- template.syntheticMethodsWithOverride if method.getParameterList.getParametersCount == 0) {
-        val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
       }
 
       for (td <- template.syntheticTypeDefinitions) {
@@ -360,7 +360,7 @@ object TypeDefinitionMembers {
 
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
-        val obj = ScalaPsiManager.instance.getCachedClass(template.getResolveScope, "java.lang.Object")
+        val obj = ScalaPsiManager.instance.getCachedClass(template.resolveScope, "java.lang.Object")
         obj.map { obj =>
           for (method <- obj.getMethods) {
             method.getName match {
@@ -370,6 +370,11 @@ object TypeDefinitionMembers {
             }
           }
         }
+      }
+
+      for (method <- template.syntheticMethodsWithOverride) {
+        val sig = new PhysicalSignature(method, subst)
+        addSignature(sig)
       }
 
       for (member <- template.members) {
@@ -455,11 +460,6 @@ object TypeDefinitionMembers {
         }
       }
 
-      for (method <- template.syntheticMethodsWithOverride) {
-        val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
-      }
-
       for (td <- template.syntheticTypeDefinitions) {
         td match {
           case obj: ScObject => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
@@ -507,7 +507,7 @@ object TypeDefinitionMembers {
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 
   def getParameterlessSignatures(clazz: PsiClass): PMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def inner(): PMap = ParameterlessNodes.build(clazz)
 
     inner()
@@ -515,46 +515,46 @@ object TypeDefinitionMembers {
 
   def getTypes(clazz: PsiClass): TMap = {
 
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def inner(): TMap =TypeNodes.build(clazz)
 
     inner()
   }
 
   def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None): SMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def buildNodesClass(): SMap = SignatureNodes.build(clazz)
 
     val ans = buildNodesClass()
     place.foreach {
       case _: ScInterpolatedPrefixReference =>
         val allowedNames = ans.keySet
-        for (child <- clazz.getChildren) {
-          child match {
-            case n: ScExtendsBlock =>
-              val children = n.getFirstChild.getChildren
-              for (c <- children) {
-                c match {
-                  case o: ScObject =>
-                    if (allowedNames.contains(o.name)) {
-                      @CachedInsidePsiElement(o, CachesUtil.getDependentItem(o)())
-                      def buildNodesObject(): SMap = SignatureNodes.build(o)
+        val eb = clazz match {
+          case td: ScTemplateDefinition => Some(td.extendsBlock)
+          case _ => clazz.getChildren.collectFirst({case e: ScExtendsBlock => e})
+        }
+        eb.foreach { n =>
+          val children = n.getFirstChild.getChildren
+          for (c <- children) {
+            c match {
+              case o: ScObject =>
+                if (allowedNames.contains(o.name)) {
+                  @CachedInsidePsiElement(o, CachesUtil.libraryAwareModTracker(o))
+                  def buildNodesObject(): SMap = SignatureNodes.build(o)
 
-                      val add = buildNodesObject()
-                      ans ++= add
-                    }
-                  case c: ScClass =>
-                    if (allowedNames.contains(c.name)) {
-                      @CachedInsidePsiElement(c, CachesUtil.getDependentItem(c)())
-                      def buildNodesClass2(): SMap = SignatureNodes.build(c)
-
-                      val add = buildNodesClass2()
-                      ans ++= add
-                    }
-                  case _ =>
+                  val add = buildNodesObject()
+                  ans ++= add
                 }
-              }
-            case _ =>
+              case c: ScClass =>
+                if (allowedNames.contains(c.name)) {
+                  @CachedInsidePsiElement(c, CachesUtil.libraryAwareModTracker(c))
+                  def buildNodesClass2(): SMap = SignatureNodes.build(c)
+
+                  val add = buildNodesClass2()
+                  ans ++= add
+                }
+              case _ =>
+            }
           }
         }
       case _ =>
@@ -576,7 +576,7 @@ object TypeDefinitionMembers {
 
   def getSelfTypeSignatures(clazz: PsiClass): SMap = {
 
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def selfTypeSignaturesInner(): SMap = {
       implicit val ctx: ProjectContext = clazz
 

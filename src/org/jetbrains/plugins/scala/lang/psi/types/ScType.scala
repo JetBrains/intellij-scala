@@ -4,6 +4,7 @@ package psi
 package types
 
 import com.intellij.openapi.progress.ProgressManager
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
@@ -36,7 +37,7 @@ trait ScType extends ProjectContextOwner {
 
   protected def isAliasTypeInner: Option[AliasType] = None
 
-  override final def toString: String = presentableText
+  override final def toString: String = ifReadAllowed(presentableText)(getClass.getSimpleName)
 
   def isValue: Boolean
 

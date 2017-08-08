@@ -3,7 +3,8 @@ package org.jetbrains.sbt
 import java.io.File
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.IconLoader
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.icons.Icons
 
 /**
@@ -19,6 +20,8 @@ object Sbt {
   val BuildFile = "build.sbt"
 
   val PropertiesFile = "build.properties"
+
+  val PluginsFile = "plugins.sbt"
 
   val ProjectDirectory = "project"
 
@@ -47,7 +50,7 @@ object Sbt {
   // this should be in sync with sbt.BuildUtil.baseImports
   val DefaultImplicitImports = Seq("sbt._", "Process._", "Keys._", "dsl._")
 
-  val LatestVersion = "0.13.15"
+  val LatestVersion: String = BuildInfo.sbtLatestVersion
 
   lazy val Icon = Icons.SBT
 
@@ -57,7 +60,9 @@ object Sbt {
     val baseDir = new File(project.getBasePath)
     val projectDir = baseDir / Sbt.ProjectDirectory
     file.getName == Sbt.BuildFile && file.isUnder(baseDir) ||
-      file.getName.endsWith(s".${Sbt.FileExtension}") && file.isUnder(baseDir) ||
+      isSbtFile(file.getName) && file.isUnder(baseDir) ||
       file.getName.endsWith(".scala") && file.isUnder(projectDir)
   }
+
+  def isSbtFile(@NotNull filename: String): Boolean = filename.endsWith(s".${Sbt.FileExtension}")
 }

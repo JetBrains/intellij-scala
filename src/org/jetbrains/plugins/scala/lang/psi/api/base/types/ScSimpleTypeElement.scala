@@ -7,6 +7,8 @@ package types
 
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.AnnotationExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotationExpr
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -22,6 +24,8 @@ trait ScSimpleTypeElement extends ScTypeElement with ImplicitParametersOwner {
 
   def singleton: Boolean = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
 
+  def annotation: Boolean = ScalaPsiUtil.getContext(this, 2).exists(_.isInstanceOf[ScAnnotationExpr])
+
   def findConstructor: Option[ScConstructor] = {
     def findConstructor(element: ScalaPsiElement) = element.getContext match {
       case constructor: ScConstructor => Some(constructor)
@@ -32,22 +36,6 @@ trait ScSimpleTypeElement extends ScTypeElement with ImplicitParametersOwner {
       case typeElement: ScParameterizedTypeElement => findConstructor(typeElement)
       case _ => findConstructor(this)
     }
-  }
-
-  @volatile
-  protected var implicitParameters: Option[Seq[ScalaResolveResult]] = None
-
-  /**
-   * Warning! There is a hack in scala compiler for ClassManifest and ClassTag.
-   * In case of implicit parameter with type ClassManifest[T]
-   * this method will return ClassManifest with substitutor of type T.
-    *
-    * @return implicit parameters used for this expression
-   */
-  def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
-    ProgressManager.checkCanceled()
-    getNonValueType(withUnnecessaryImplicitsUpdate = true) //to update implicitParameters field
-    implicitParameters
   }
 }
 

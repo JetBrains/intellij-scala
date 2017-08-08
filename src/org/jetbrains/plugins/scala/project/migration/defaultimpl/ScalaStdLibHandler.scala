@@ -1,21 +1,21 @@
 package org.jetbrains.plugins.scala.project.migration.defaultimpl
 
 import com.intellij.openapi.externalSystem.model.project.LibraryData
-import com.intellij.openapi.projectRoots.{JavaSdkVersion, JdkVersionUtil}
+import com.intellij.openapi.projectRoots.JavaSdkVersion
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.migration.ScalaLibraryMigrator
 import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationLocalFixHolder, MigrationReport}
 import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationLocalFixHolderImpl
+import org.jetbrains.plugins.scala.project.migration.defaultimpl.ScalaStdLibHandler._
 import org.jetbrains.plugins.scala.project.migration.handlers.VersionedArtifactHandlerBase
 import org.jetbrains.plugins.scala.project.template.Artifact.ScalaLibrary
-
-import ScalaStdLibHandler._
 
 /**
   * User: Dmitry.Naydanov
@@ -35,13 +35,15 @@ class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(
       val project = projectStructure.getProject
       val sdksModel = new ProjectSdksModel
 
-      projectStructure.onEdt {
+      import JavaSdkVersion.fromVersionString
+
+      extensions.invokeLater {
         sdksModel.reset(project)
-        if (JdkVersionUtil.getVersion(sdksModel.getProjectSdk.getVersionString) == JavaSdkVersion.JDK_1_8) return None
+        if (fromVersionString(sdksModel.getProjectSdk.getVersionString) == JavaSdkVersion.JDK_1_8) return None
 
         val sdks = sdksModel.getSdks
 
-        sdks.find(sdk => JdkVersionUtil.getVersion(sdk.getVersionString) == JavaSdkVersion.JDK_1_8) match {
+        sdks.find(sdk => fromVersionString(sdk.getVersionString) == JavaSdkVersion.JDK_1_8) match {
           case Some(jdk) =>
             if(sdksModel.getProjectSdk != jdk) projectStructure.inWriteAction(ProjectRootManager.getInstance(project).setProjectSdk(jdk))
           case None => MigrationReport.createSingleMessageReport(MigrationReport.Warning, "No JDK 1.8 found. Scala 2.12 supports Java 1.8 only")

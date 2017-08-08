@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
  */
 class SbtReplaceProjectWithProjectInInspection extends AbstractInspection {
 
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case defn: ScPatternDefinition if defn.getContainingFile.getFileType.getName == Sbt.Name =>
       (defn.expr, defn.bindings) match {
         case (Some(call: ScMethodCall), Seq(projectNamePattern: ScReferencePattern)) =>

@@ -504,7 +504,6 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       Document document = myEditor.getDocument();
       final PsiFile file = PsiDocumentManager.getInstance(myProject).getPsiFile(document);
       if (file == null) return;
-      PsiDocumentManager.getInstance(myProject).commitAllDocuments();
 
       if (EditorUtil.inVirtualSpace(myEditor, myPosition)) {
         return;

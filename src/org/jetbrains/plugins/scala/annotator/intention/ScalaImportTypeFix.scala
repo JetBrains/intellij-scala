@@ -342,7 +342,7 @@ object ScalaImportTypeFix {
     if (ref.isInstanceOf[ScTypeProjection]) return Array.empty
     val kinds = ref.getKinds(incomplete = false)
     val cache = ScalaPsiManager.instance(myProject)
-    val classes = cache.getClassesByName(ref.refName, ref.getResolveScope)
+    val classes = cache.getClassesByName(ref.refName, ref.resolveScope)
 
     def shouldAddClass(clazz: PsiClass) = {
       clazz != null &&
@@ -360,7 +360,7 @@ object ScalaImportTypeFix {
       case c => Seq(c)
     }.filter(shouldAddClass).foreach(buffer += ClassTypeToImport(_))
 
-    val typeAliases = cache.getStableAliasesByName(ref.refName, ref.getResolveScope)
+    val typeAliases = cache.getStableAliasesByName(ref.refName, ref.resolveScope)
     for (alias <- typeAliases) {
       val containingClass = alias.containingClass
       if (containingClass != null && ScalaPsiUtil.hasStablePath(alias) &&

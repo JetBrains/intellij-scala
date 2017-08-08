@@ -7,7 +7,7 @@ import java.util
 
 import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
-import com.intellij.openapi.externalSystem.model.ExternalSystemException
+import com.intellij.openapi.externalSystem.model.{ExternalSystemException, ProjectSystemId}
 import com.intellij.openapi.externalSystem.util._
 import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, ExternalSystemManager}
 import com.intellij.openapi.options.Configurable
@@ -49,7 +49,7 @@ class SbtExternalSystemManager
       PathManager.PROPERTY_LOG_PATH, PathManager.getLogPath)
   }
 
-  override def getSystemId = SbtProjectSystem.Id
+  override def getSystemId: ProjectSystemId = SbtProjectSystem.Id
 
   override def getSettingsProvider: Function[Project, SbtSystemSettings] = SbtSystemSettings.getInstance _
 

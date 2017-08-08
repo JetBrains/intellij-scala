@@ -193,14 +193,6 @@ object PatternAnnotatorUtil {
       }
     }
 
-    object arrayType {
-      def unapply(scType: ScType): Option[ScType] = scType match {
-        case ScalaArrayOf(arg) => Some(arg)
-        case JavaArrayType(arg) => Some(arg)
-        case _ => None
-      }
-    }
-
     matching.weakConforms(matched) || ((matching, matched) match {
       case (arrayType(arg1), arrayType(arg2)) => matchesPattern(arg1, arg2)
       case (_, parameterized: ScParameterizedType) =>

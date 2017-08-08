@@ -20,7 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
  * Date: 6/29/15
  */
 class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, inspectionName) {
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case definition: ScNewTemplateDefinition if ScalaPsiUtil.isSAMEnabled(definition) =>
       definition.expectedTypes().toSeq.flatMap {
         ScalaPsiUtil.toSAMType(_, definition)

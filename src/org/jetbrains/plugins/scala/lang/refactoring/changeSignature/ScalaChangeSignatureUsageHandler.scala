@@ -4,7 +4,7 @@ package lang.refactoring.changeSignature
 import com.intellij.psi._
 import com.intellij.refactoring.changeSignature._
 import com.intellij.usageView.UsageInfo
-import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
+import org.jetbrains.plugins.scala.codeInsight.intention.types.{AddOnlyStrategy, AddOrRemoveStrategy}
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ElementText, PsiElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -84,7 +84,8 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
             case cp: ScClassParameter => (cp.getParent, cp)
             case ctx => (ctx, ctx.getLastChild)
           }
-          AddOnlyStrategy.withoutEditor.addTypeAnnotation(substType, context, anchor)
+
+          new AddOnlyStrategy().addTypeAnnotation(substType, context, anchor)
       }
     }
 
@@ -110,7 +111,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
           if (addTypeAnnotation) {
             if (oldTypeElem.isEmpty) addType(element, None, substType)
           } else {
-            oldTypeElem.foreach(AddOnlyStrategy.withoutEditor.removeTypeAnnotation)
+            oldTypeElem.foreach(AddOrRemoveStrategy.removeTypeAnnotation)
           }
         }
       else

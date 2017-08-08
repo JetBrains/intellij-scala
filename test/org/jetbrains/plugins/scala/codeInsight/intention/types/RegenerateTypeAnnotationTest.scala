@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.intention.types
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 class RegenerateTypeAnnotationTest extends ScalaIntentionTestBase {
-  def familyName: String = RegenerateTypeAnnotation.getFamilyName
+  def familyName: String = RegenerateTypeAnnotation.FamilyName
 
   def testIntentionIsAvailable_Var() {
     checkIntentionIsAvailable("var x: Int = 1")

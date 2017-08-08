@@ -38,7 +38,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n')
-        ScPatternDefinition
+        ScPatternDefinition: helloWorldUU
           AnnotationsList
             <empty list>
           Modifiers

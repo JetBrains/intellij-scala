@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
@@ -20,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
-import org.jetbrains.plugins.scala.project._
 
 import scala.collection.immutable
 import scala.meta.parsers.Parse
@@ -34,8 +34,9 @@ import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
   */
 class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(project)  {
   import org.jetbrains.plugins.scala.project._
-  import scala.collection.convert.decorateAsScala._
+
   import MetaExpansionsManager.META_MAJOR_VERSION
+  import scala.collection.convert.decorateAsScala._
 
   override def getComponentName = "MetaExpansionsManager"
 
@@ -99,14 +100,20 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
       })
     }
 
-    val annotClass = annot.constructor.reference.get.bind().map(_.parentElement.get.asInstanceOf[ScClass])
+    val annotClass = annot.constructor.reference
+      .flatMap(_.bind().flatMap(_.parentElement.map(_.asInstanceOf[ScClass])))
     val metaModule = annotClass.flatMap(_.module)
     val classLoader = metaModule
       .map(classLoaderForModule)  // try annotation's own module first - if it exists as a part of rhe codebase
       .orElse(annot.module.map(classLoaderForModule)) // otherwise it's somwere among current module dependencies
     try {
-      classLoader.map(_.loadClass(annotClass.get.asInstanceOf[ScTemplateDefinition].qualifiedName + "$inline$"))
+      annotClass.flatMap(clazz =>
+        classLoader.map(  loader =>
+          loader.loadClass(clazz.asInstanceOf[ScTemplateDefinition].qualifiedName + "$inline$")
+        )
+      )
     } catch {
+      case p: ProcessCanceledException => throw p
       case _:  ClassNotFoundException => None
     }
   }
@@ -117,6 +124,8 @@ object MetaExpansionsManager {
   val META_MAJOR_VERSION = "1.7"
 
   private val LOG = Logger.getInstance(getClass)
+
+  class MetaWrappedException(val target: Throwable) extends Exception
 
   def getInstance(project: Project): MetaExpansionsManager = project.getComponent(classOf[MetaExpansionsManager]).asInstanceOf[MetaExpansionsManager]
 
@@ -139,24 +148,20 @@ object MetaExpansionsManager {
 
   def runMetaAnnotation(annot: ScAnnotation): Either[String, Tree] = {
 
-    def hasCompatibleScalaVersion = annot.scalaLanguageLevelOrDefault == Scala_2_11
+    val holder: ScAnnotationsHolder = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
+      .asInstanceOf[ScAnnotationsHolder]
 
-    @CachedInsidePsiElement(annot, ModCount.getModificationCount)
-    def runMetaAnnotationsImpl: Either[String, Tree] = {
-
-      val copiedAnnot = annot.getContainingFile.copy().findElementAt(annot.getTextOffset).getParent
+    @CachedInsidePsiElement(annot, ModCount.getBlockModificationCount)
+    def runMetaAnnotationsImpl(annot: ScAnnotation): Either[String, Tree] = {
 
       val converter = new TreeConverter {
         override def getCurrentProject: Project = annot.getProject
         override def dumbMode: Boolean = true
+        override protected val annotationToSkip: ScAnnotation = annot
       }
 
-      val annotee: ScAnnotationsHolder = ScalaPsiUtil.getParentOfType(copiedAnnot, classOf[ScAnnotationsHolder])
-        .asInstanceOf[ScAnnotationsHolder]
-
-      annotee.annotations.find(_.getText == annot.getText).foreach(_.delete())
       try {
-        val converted = converter.ideaToMeta(annotee)
+        val converted = converter.ideaToMeta(holder)
         val convertedAnnot = converter.toAnnotCtor(annot)
         val typeArgs = annot.typeElement match {
           case pe: ScParameterizedTypeElement => pe.typeArgList.typeArgs.map(converter.toType)
@@ -165,23 +170,24 @@ object MetaExpansionsManager {
         val compiledArgs = convertedAnnot.asInstanceOf[AnyRef] +: typeArgs :+ converted.asInstanceOf[AnyRef]
         val maybeClass = getCompiledMetaAnnotClass(annot)
         ProgressManager.checkCanceled()
-        (maybeClass, maybeClass.map(_.getClassLoader)) match {
-          case (Some(clazz), Some(cl:MetaClassLoader)) => Right(runAdapterString(clazz, compiledArgs))
-//          case (Some(clazz), Some(_:MetaClassLoader))  => Right(runAdapterBinary(clazz, compiledArgs))
-          case (Some(clazz), _)                        => Right(runDirect(clazz, compiledArgs))
-          case (None, _)                               => Left("Meta annotation class could not be found")
+        val errorOrTree = (maybeClass, maybeClass.map(_.getClassLoader)) match {
+          case (Some(clazz), Some(cl: MetaClassLoader)) => Right(runAdapterString(clazz, compiledArgs))
+//        case (Some(clazz), Some(_:MetaClassLoader))   => Right(runAdapterBinary(clazz, compiledArgs))
+          case (Some(clazz), _) => Right(runDirect(clazz, compiledArgs))
+          case (None, _)        => Left("Meta annotation class could not be found")
         }
+        errorOrTree
       } catch {
         case pc: ProcessCanceledException => throw pc
         case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
         case sm: ScalaMetaException       => Left(s"Semantic error: ${sm.getMessage}")
-        case so: StackOverflowError       => Left(s"Stack overflow during expansion ${annotee.getText}")
-        case e: InvocationTargetException => Left(e.getTargetException.getMessage)
-        case e: Exception                 => Left(s"Unexpected error during expansion: ${e.getMessage}")
+        case so: StackOverflowError       => Left(s"Stack overflow during expansion ${holder.getText}")
+        case mw: MetaWrappedException     => Left(mw.target.toString)
+        case e: Exception                 => Left(e.getMessage)
       }
     }
 
-    runMetaAnnotationsImpl
+    extensions.inReadAction(runMetaAnnotationsImpl(annot))
   }
 
   // use if meta versions are different within the same Scala major version
@@ -217,7 +223,11 @@ object MetaExpansionsManager {
     val runner = clazz.getClassLoader.loadClass(classOf[MetaAnnotationRunner].getName)
     val method = runner.getDeclaredMethod("runString", classOf[Class[_]], classOf[Array[String]])
     val convertedArgs = args.map(_.toString).toArray
-    val result = method.invoke(null, clazz, convertedArgs).toString
+    val result = try {
+      method.invoke(null, clazz, convertedArgs).toString
+    } catch {
+      case e: InvocationTargetException => throw e.getTargetException
+    }
     val parsed = Parse.parseStat.apply(scala.meta.Input.String(result), Dialect.standards("Scala212"))
     parsed.getOrElse(throw new AbortException(s"Failed to parse result: $result"))
   }
@@ -233,11 +243,9 @@ object MetaExpansionsManager {
       )
     method.setAccessible(true)
     try {
-      method.invoke(inst, args.map(_.asInstanceOf[scala.meta.Stat]): _*).asInstanceOf[Tree]
+      method.invoke(inst, args: _*).asInstanceOf[Tree]
     } catch {
-      // rewrap exception to mimic adapter behaviour
-      case e: InvocationTargetException =>
-        throw new InvocationTargetException(new RuntimeException(e.getTargetException.toString))
+      case e: InvocationTargetException => throw new MetaWrappedException(e.getTargetException)
     }
   }
 }

@@ -81,6 +81,10 @@ class ScExistentialLightTypeParam(override val name: String)(implicit pc: Projec
 
   override def getOffsetInFile: Int = -1
 
+  override def typeParameters: Seq[ScTypeParam] = Seq.empty
+
+  override def hasTypeParameters = false
+
   override def getContainingFileName: String = "No containing file"
 
   override def typeParameterText: String = name

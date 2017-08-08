@@ -165,7 +165,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                       (lastRepeated(params1) ^ lastRepeated(params2))) return lastRepeated(params2) //todo: this is hack!!! see SCL-3846, SCL-4048
               if (lastRepeated(params1) && !lastRepeated(params2)) params1 = params1.map {
                 case p: Parameter if p.isRepeated =>
-                  val seq = ScalaPsiManager.instance(r1.element.getProject).getCachedClass(r1.element.getResolveScope,
+                  val seq = ScalaPsiManager.instance(r1.element.getProject).getCachedClass(r1.element.resolveScope,
                     "scala.collection.Seq").orNull
                   if (seq != null) {
                     val newParamType = p.paramType match {
@@ -360,7 +360,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         }
       case f: ScFunction => f.polymorphicType()
       case p: ScPrimaryConstructor => p.polymorphicType
-      case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, ScSubstitutor.empty, elem.getResolveScope)
+      case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, ScSubstitutor.empty, elem.resolveScope)
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
         case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, elem, true) =>
           pd.declaredType.getOrElse(Nothing)

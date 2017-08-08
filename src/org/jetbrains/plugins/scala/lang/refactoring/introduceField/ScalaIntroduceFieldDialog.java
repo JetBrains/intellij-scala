@@ -17,14 +17,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ValidationReporter;
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
+import org.jetbrains.plugins.scala.settings.*;
+import org.jetbrains.plugins.scala.settings.annotations.*;
+import org.jetbrains.plugins.scala.util.*;
+import scala.Some$;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -68,6 +70,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   private int occurrencesCount;
   private ValidationReporter reporter;
   private IntroduceFieldSettings mySettings;
+  private ScTemplateDefinition myClass;
 
   private LinkedHashMap<String, ScType> myTypeMap = null;
   private EventListenerList myListenerList = new EventListenerList();
@@ -81,6 +84,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     this.occurrencesCount = ifc.occurrences().length;
     this.reporter = ifc.reporter();
     this.mySettings = settings;
+    this.myClass = ifc.aClass();
 
     ScExpression expression = ScalaRefactoringUtil.expressionToIntroduce(ifc.element());
 
@@ -307,22 +311,14 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     }
   }
 
-  private boolean needTypeannotations(ScExpression expression) {
-    ScalaCodeStyleSettings settings = ScalaCodeStyleSettings.getInstance(expression.getProject());
-
-    TypeAnnotationUtil.Visibility visibility = TypeAnnotationUtil.visibilityFromString(getVisibility());
-
-    return TypeAnnotationUtil.isTypeAnnotationNeeded(
-            TypeAnnotationUtil.requirementForProperty(false, visibility, settings), //can't declare in local scope
-            settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
-            settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
-            false,
-            TypeAnnotationUtil.isSimple(expression)
-    );
+  private boolean needsTypeAnnotation(ScExpression expression) {
+    return ScalaTypeAnnotationSettings$.MODULE$.apply(expression.getProject()).isTypeAnnotationRequiredFor(
+        Declaration$.MODULE$.apply(Visibility$.MODULE$.apply(getVisibility()), false, false, false),
+        Location$.MODULE$.apply(myClass), Some$.MODULE$.apply(Implementation$.MODULE$.apply(expression)));
   }
 
   private void setUpTypeComboBox(final ScExpression expression) {
-    mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+    mySpecifyTypeChb.setSelected(needsTypeAnnotation(expression));
     updateEnablingTypeList();
 
     mySpecifyTypeChb.addActionListener(new ActionListener() {
@@ -335,7 +331,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     visibilityComboBox.addItemListener(new ItemListener() {
       @Override
       public void itemStateChanged(ItemEvent e) {
-        mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+        mySpecifyTypeChb.setSelected(needsTypeAnnotation(expression));
         updateEnablingTypeList();
       }
     });
@@ -351,7 +347,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
         ApplicationManager.getApplication().invokeLater(new Runnable() {
           @Override
           public void run() {
-            mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+            mySpecifyTypeChb.setSelected(needsTypeAnnotation(expression));
             updateEnablingTypeList();
           }
         });

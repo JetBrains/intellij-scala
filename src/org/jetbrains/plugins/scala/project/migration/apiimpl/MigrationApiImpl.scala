@@ -159,16 +159,12 @@ class MigrationApiImpl(project: Project) extends AbstractProjectComponent(projec
   override def inReadAction[T](action: => T): T = extensions.inReadAction( action )
 
   override def inWriteAction[T](action: => T): T = extensions.inWriteAction( action )
-
-  override def onEdt(action: => Unit): Unit = ApplicationManager.getApplication.invokeLater(new Runnable {
-    override def run(): Unit = action
-  })
 }
 
 object MigrationApiImpl {
   private val MY_MESSAGE_CONTENT_NAME = "Scala migration messages"
   
-  def getApiInstance(project: Project): MigrationApiService = project.getComponent(classOf[MigrationApiImpl])
+  def getApiInstance(project: Project): MigrationApiService = project.getComponent[MigrationApiImpl](classOf[MigrationApiImpl])
 
   def openMessageView(project: Project, content: Content, treeView: CompilerErrorTreeView) {
     val commandProcessor = CommandProcessor.getInstance()

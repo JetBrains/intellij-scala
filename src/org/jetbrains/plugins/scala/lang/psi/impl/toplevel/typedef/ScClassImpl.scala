@@ -6,7 +6,7 @@ package toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightField
@@ -44,7 +44,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
   def this(stub: ScTemplateDefinitionStub) =
     this(stub, null)
 
-  override def toString: String = "ScClass: " + name
+  override def toString: String = "ScClass: " + ifReadAllowed(name)("")
 
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
@@ -178,6 +178,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
               method.setSynthetic(this)
               buf += method
             } catch {
+              case p: ProcessCanceledException => throw p
               case _: Exception =>
               //do not add methods if class has wrong signature.
             }
@@ -238,7 +239,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
       " = throw new Error(\"\")"
   }
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def getSyntheticImplicitMethod: Option[ScFunction] = {
     if (hasModifierProperty("implicit")) {
       constructor match {
@@ -248,6 +249,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
             method.setSynthetic(this)
             Some(method)
           } catch {
+            case p: ProcessCanceledException => throw p
             case _: Exception => None
           }
         case None => None

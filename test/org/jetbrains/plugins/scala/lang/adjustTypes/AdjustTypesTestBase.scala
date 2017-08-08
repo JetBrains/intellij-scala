@@ -77,3 +77,10 @@ abstract class AdjustTypesTestBase extends ScalaLightPlatformCodeInsightTestCase
     assertEquals(output, res)
   }
 }
+object ClassTag {
+
+}
+
+class Test {
+  def foo[T]: scala.reflect.ClassTag[T] = ???
+}

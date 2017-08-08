@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 class UnitMethodIsParameterlessInspection extends AbstractMethodSignatureInspection(
   "ScalaUnitMethodIsParameterless", "Method with Unit result type is parameterless") {
 
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case f: ScFunction if f.isParameterless && f.hasUnitResultType && f.superMethods.isEmpty =>
       holder.registerProblem(f.nameId, getDisplayName, new AddEmptyParentheses(f))
   }

@@ -20,11 +20,6 @@ trait ScValueOrVariable extends ScBlockStatement with ScMember with ScDocComment
 
   def declaredElements: Seq[ScTypedDefinition]
 
-  def declaredNames: Seq[String] =
-    declaredElements.map {
-      _.name
-    }
-
   def typeElement: Option[ScTypeElement]
 
   def declaredType: Option[ScType] =

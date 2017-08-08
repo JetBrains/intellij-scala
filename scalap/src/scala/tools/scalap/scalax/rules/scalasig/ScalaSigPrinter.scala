@@ -11,7 +11,7 @@ package scalax
 package rules
 package scalasig
 
-import java.io.{ByteArrayOutputStream, PrintStream}
+import java.lang.StringBuilder
 import java.util.regex.Pattern
 
 import org.apache.commons.lang.StringEscapeUtils
@@ -26,11 +26,14 @@ case object ShowAll extends Verbosity
 case object HideClassPrivate extends Verbosity
 case object HideInstancePrivate extends Verbosity
 
-class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
+class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
   import ScalaSigPrinter._
-  import stream._
 
-  def this(stream: PrintStream, printPrivates: Boolean) = this(stream: PrintStream, if (printPrivates) ShowAll else HideClassPrivate)
+  def this(builder: StringBuilder, printPrivates: Boolean) = this(builder: StringBuilder, if (printPrivates) ShowAll else HideClassPrivate)
+
+  def print(s: String): Unit = builder.append(s)
+
+  def result: String = builder.toString
 
   private val currentTypeParameters: mutable.HashMap[TypeSymbol, String] = new mutable.HashMap[TypeSymbol, String]()
 
@@ -242,11 +245,9 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
   }
 
   def getClassString(level: Int, c: ClassSymbol): String = {
-    val baos = new ByteArrayOutputStream
-    val stream = new PrintStream(baos)
-    val printer = new ScalaSigPrinter(stream, verbosity)
+    val printer = new ScalaSigPrinter(new StringBuilder(), verbosity)
     printer.printClass(level, c)
-    baos.toString
+    printer.result
   }
 
   def getPrinterByConstructor(c: ClassSymbol): String = {
@@ -255,11 +256,9 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
       case _ => false
     } match {
       case Some(m: MethodSymbol) =>
-        val baos = new ByteArrayOutputStream
-        val stream = new PrintStream(baos)
-        val printer = new ScalaSigPrinter(stream, verbosity)
+        val printer = new ScalaSigPrinter(new StringBuilder(), verbosity)
         printer.printPrimaryConstructor(m, c)
-        val res = baos.toString
+        val res = printer.result
         if (res.length() > 0 && res.charAt(0) != '(') " " + res
         else res
       case _ => ""
@@ -303,28 +302,26 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
   }
 
   private def methodSymbolAsClassParam(msymb: MethodSymbol, c: ClassSymbol): String = {
-    val baos = new ByteArrayOutputStream
-    val stream = new PrintStream(baos)
-    val printer = new ScalaSigPrinter(stream, verbosity)
-    var break = false
-    for (child <- c.children if !break) {
-      child match {
-        case ms: MethodSymbol if ms.isParamAccessor && msymb.name == ms.name =>
-          if (!ms.isPrivate || !ms.isLocal) {
-            printer.printSymbolAttributes(ms, onNewLine = false, ())
-            printer.printModifiers(ms)
-            if (ms.isParamAccessor && ms.isMutable) stream.print("var ")
-            else if (ms.isParamAccessor) stream.print("val ")
-          }
-          break = true
-        case _ =>
-      }
+    val printer = new ScalaSigPrinter(new StringBuilder(), verbosity)
+    val paramAccessors = c.children.filter {
+      case ms: MethodSymbol if ms.isParamAccessor && ms.name.startsWith(msymb.name) => true
+      case _ => false
+    }
+    val isMutable = paramAccessors.exists(_.name == msymb.name + "_$eq")
+    val toPrint = paramAccessors.find(m => !m.isPrivate || !m.isLocal)
+    toPrint match {
+      case Some(ms) =>
+        printer.printSymbolAttributes(ms, onNewLine = false, ())
+        printer.printModifiers(ms)
+        if (isMutable) printer.print("var ")
+        else printer.print("val ")
+      case _ =>
     }
 
     val nameAndType = processName(msymb.name) + " : " + toString(msymb.infoType)(TypeFlags(true))
     val default = if (msymb.hasDefault) " = { /* compiled code */ }" else ""
-    stream.print(nameAndType + default)
-    baos.toString
+    printer.print(nameAndType + default)
+    printer.result
   }
 
   def printMethodType(t: Type, printResult: Boolean,
@@ -440,23 +437,16 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
   }
 
   def toString(attrib: AttributeInfo): String = {
-    val buffer = new StringBuffer
-    buffer.append(toString(attrib.typeRef, "@"))
-    if (attrib.value.isDefined) {
-      buffer.append("(")
-      buffer.append(valueToString(attrib.value.get))
-      buffer.append(")")
-    }
-    if (attrib.values.nonEmpty) {
-      buffer.append("(")
-      for (name ~ value <- attrib.values) {
-        buffer.append(processName(name))
-        buffer.append(" = ")
-        buffer.append(valueToString(value))
+    val prefix = toString(attrib.typeRef, "@")
+    val hasArgs = attrib.args.size + attrib.namedArgs.size
+    if (hasArgs > 0) {
+      val argTexts = attrib.args.map(valueToString)
+      val namedArgsText = attrib.namedArgs.map {
+        case (name ~ value) => s"${processName(name)} = ${valueToString(value)}"
       }
-      buffer.append(")")
+      (argTexts ++ namedArgsText).mkString(s"$prefix(", ", ", ")")
     }
-    buffer.toString
+    else prefix
   }
 
   // TODO char, float, etc.

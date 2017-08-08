@@ -12,6 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingCont
   * @author adkozlov
   */
 class DottyRefinedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with DottyRefinedTypeElement {
-  override protected def innerType(): TypeResult[ScType] =
+  override protected def innerType: TypeResult[ScType] =
     this.success(DottyRefinedType(typeElement.getType().getOrAny, refinement))
 }

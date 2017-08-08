@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileAdapter, VirtualFileEvent}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.settings.SbtSystemSettings
-
+import org.jetbrains.plugins.scala.extensions
 
 /**
  * @author Nikolay Obedin
@@ -30,14 +30,14 @@ class SbtAutoImportListener(project: Project) extends VirtualFileAdapter {
         .getLinkedProjectSettings(project.getBasePath))
 
     if (settings.fold(false)(_.useOurOwnAutoImport) && isBuildFile(file)) {
-      ApplicationManager.getApplication.invokeLater(new Runnable() {
-        override def run(): Unit =
+      extensions.invokeLater {
+        if (!project.isDisposed)
           ExternalSystemUtil.refreshProjects(
             new ImportSpecBuilder(project, SbtProjectSystem.Id)
                     .forceWhenUptodate()
                     .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
           )
-      })
+      }
     }
   }
 

@@ -42,7 +42,7 @@ class ScTraitImpl private (stub: ScTemplateDefinitionStub, node: ASTNode)
   }
 
 
-  override def toString: String = "ScTrait: " + name
+  override def toString: String = "ScTrait: " + ifReadAllowed(name)("")
 
   override def getIconInner = Icons.TRAIT
 

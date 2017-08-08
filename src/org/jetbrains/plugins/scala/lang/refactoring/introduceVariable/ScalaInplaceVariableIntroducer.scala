@@ -24,7 +24,6 @@ import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
 import com.intellij.ui.NonFocusableCheckBox
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScExpression}
@@ -33,18 +32,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaInplaceVariableIntroducer.needTypeAnnotation
 import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaNamesUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+import org.jetbrains.plugins.scala.settings.annotations._
+import org.jetbrains.plugins.scala.util._
 
 import scala.collection.mutable
 
 /**
- * Nikolay.Tropin
- * 6/3/13
- */
+  * Nikolay.Tropin
+  * 6/3/13
+  */
 
 class ScalaInplaceVariableIntroducer(project: Project,
                                      editor: Editor,
@@ -54,8 +53,8 @@ class ScalaInplaceVariableIntroducer(project: Project,
                                      title: String,
                                      replaceAll: Boolean,
                                      asVar: Boolean,
-                                     forceInferType: Option[Boolean])
-        extends InplaceVariableIntroducer[ScExpression](namedElement, editor, project, title, Array.empty[ScExpression], expr) {
+                                     forceInferType: Boolean)
+  extends InplaceVariableIntroducer[ScExpression](namedElement, editor, project, title, Array.empty[ScExpression], expr) {
 
   implicit def projectContext: ProjectContext = project
 
@@ -76,7 +75,8 @@ class ScalaInplaceVariableIntroducer(project: Project,
   private val myChbPanel = new JPanel()
   private val typePanel = new JPanel()
 
-  private val needTypeDefault: Boolean = needTypeAnnotation(namedElement, expr, forceType = forceInferType)
+  private val needTypeDefault: Boolean =
+    ScalaInplaceVariableIntroducer.needsTypeAnnotation(namedElement, expr, forceInferType)
 
   setDeclaration(newDeclaration)
 
@@ -144,12 +144,12 @@ class ScalaInplaceVariableIntroducer(project: Project,
             private def changeValOrVar(asVar: Boolean, declaration: PsiElement): Unit = {
               val replacement =
                 declaration match {
-                case value: ScValue if asVar =>
-                  createVarFromValDeclaration(value)
-                case variable: ScVariableDefinition if !asVar =>
-                  createValFromVarDefinition(variable)
-                case _ => declaration
-              }
+                  case value: ScValue if asVar =>
+                    createVarFromValDeclaration(value)
+                  case variable: ScVariableDefinition if !asVar =>
+                    createValFromVarDefinition(variable)
+                  case _ => declaration
+                }
               if (replacement != declaration) setDeclaration(declaration.replace(replacement))
             }
 
@@ -163,7 +163,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
       })
     }
 
-    if (types.nonEmpty && forceInferType.isEmpty) {
+    if (types.nonEmpty && !forceInferType) {
       val selectedType = types(0)
       mySpecifyTypeChb = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.specify.type.explicitly"))
       mySpecifyTypeChb.setSelected(needTypeDefault)
@@ -312,6 +312,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
       case docEx: DocumentEx => docEx.isInBulkUpdate
       case _ => false
     }
+
     if (myBalloon == null || myBalloon.isDisposed || isBulkUpdate) return
     if (!nameIsValid) {
       myBalloonPanel add myLabelPanel
@@ -321,7 +322,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
       myBalloonPanel add myChbPanel
       myBalloonPanel remove myLabelPanel
     }
-    Seq(myVarCheckbox, mySpecifyTypeChb) filter(_ != null) foreach (_.setEnabled(nameIsValid))
+    Seq(myVarCheckbox, mySpecifyTypeChb).filter(_ != null).foreach(_.setEnabled(nameIsValid))
     myBalloon.revalidate()
   }
 
@@ -362,7 +363,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
   }
 
   protected override def getReferencesSearchScope(file: VirtualFile): SearchScope = {
-   new LocalSearchScope(myElementToRename.getContainingFile)
+    new LocalSearchScope(myElementToRename.getContainingFile)
   }
 
   protected override def checkLocalScope(): PsiElement = {
@@ -406,30 +407,15 @@ class ScalaInplaceVariableIntroducer(project: Project,
 }
 
 object ScalaInplaceVariableIntroducer {
-  def needTypeAnnotation(anchor: PsiElement,
-                         expression: ScExpression,
-                         fromDialogMode: Boolean = false,
-                         forceType: Option[Boolean] = None): Boolean = {
 
-    forceType.getOrElse {
-      if (expression == null || !expression.isValid) {
-        false
-      }
-      else if (fromDialogMode) {
-        ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE
-      } else {
-        val isLocal = TypeAnnotationUtil.isLocal(anchor)
-        val visibility = if (!isLocal) TypeAnnotationUtil.Private else TypeAnnotationUtil.Public
-        val settings = ScalaCodeStyleSettings.getInstance(expression.getProject)
-
-        TypeAnnotationUtil.isTypeAnnotationNeeded(
-          TypeAnnotationUtil.requirementForProperty(isLocal, visibility, settings),
-          settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
-          settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
-          isOverride = false, // no overriding enable in current refactoring
-          isSimple = TypeAnnotationUtil.isSimple(expression)
-        )
-      }
-    }
-  }
+  private[introduceVariable] def needsTypeAnnotation(anchor: PsiElement,
+                                                     expression: ScExpression,
+                                                     forceType: Boolean,
+                                                     fromDialogMode: Boolean = false): Boolean =
+    if (!forceType) {
+      if (expression == null || !expression.isValid) false
+      else if (fromDialogMode) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE
+      else ScalaTypeAnnotationSettings(anchor.getProject).isTypeAnnotationRequiredFor(
+        Declaration(Visibility.Default), Location(anchor), Some(Implementation.of(expression)))
+    } else true
 }

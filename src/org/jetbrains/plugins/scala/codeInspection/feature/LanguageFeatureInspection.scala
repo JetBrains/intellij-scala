@@ -54,7 +54,7 @@ class LanguageFeatureInspection extends AbstractInspection("LanguageFeature", "A
       case e: ScMacroDefinition => e.children.find(it => it.getText == "macro").getOrElse(e)
     })
 
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = PartialFunction.apply { e: PsiElement =>
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = PartialFunction.apply { e: PsiElement =>
     val module = ModuleUtilCore.findModuleForPsiElement(e)
 
     if (module != null && module.scalaSdk.exists(_.languageLevel >= Scala_2_10)) {

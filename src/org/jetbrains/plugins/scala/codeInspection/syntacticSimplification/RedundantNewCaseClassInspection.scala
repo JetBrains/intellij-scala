@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
   */
 class RedundantNewCaseClassInspection extends AbstractInspection("RedundantNewCaseClass", "Redundant New on Case Class") {
 
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case newTemplate: ScNewTemplateDefinition if !newTemplate.extendsBlock.isAnonymousClass =>
       if (hasRedundantNew(newTemplate)) {
         holder.registerProblem(newTemplate.getFirstChild, ScalaBundle.message("new.on.case.class.instantiation.redundant"),

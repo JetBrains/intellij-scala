@@ -40,4 +40,6 @@ trait ScalaFile extends ScalaPsiElement with ScToplevelElement with PsiClassOwne
   def isScriptFileImpl: Boolean
 
   def isWorksheetFile: Boolean
+
+  def allowsForwardReferences: Boolean
 }
