@@ -78,10 +78,7 @@ package object types {
       case tp: ScType => (false, tp)
     }
 
-    def toPsiType(noPrimitives: Boolean = false)
-                 (implicit elementScope: ElementScope): PsiType = {
-      typeSystem.toPsiType(scType, noPrimitives = noPrimitives)
-    }
+    def toPsiType: PsiType = typeSystem.toPsiType(scType)
 
     /**
       * Returns named element associated with type.

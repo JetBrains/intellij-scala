@@ -30,7 +30,7 @@ abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containi
 
   override def getReturnType: PsiType = {
     retType.getOrElse {
-      val computed = Option(returnType).map(_.toPsiType()).orNull
+      val computed = Option(returnType).map(_.toPsiType).orNull
       retType = Some(computed)
       retType.orNull
     }

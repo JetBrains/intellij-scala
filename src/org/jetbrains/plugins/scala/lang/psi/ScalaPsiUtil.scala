@@ -1215,11 +1215,11 @@ object ScalaPsiUtil {
       def getSubstitutionMap: java.util.Map[PsiTypeParameter, PsiType] = new java.util.HashMap[PsiTypeParameter, PsiType]()
 
       def substitute(`type`: PsiType): PsiType = {
-        substitutor.subst(`type`.toScType()).toPsiType()
+        substitutor.subst(`type`.toScType()).toPsiType
       }
 
       def substitute(typeParameter: PsiTypeParameter): PsiType = {
-        substitutor.subst(TypeParameterType(typeParameter, Some(substitutor))).toPsiType()
+        substitutor.subst(TypeParameterType(typeParameter, Some(substitutor))).toPsiType
       }
 
       def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY
