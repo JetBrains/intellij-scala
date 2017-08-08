@@ -31,7 +31,7 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
-  .dependsOn(compilerSettings, scalap % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
+  .dependsOn(compilerSettings, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
@@ -106,10 +106,10 @@ lazy val nailgunRunners =
   .dependsOn(scalaRunner)
   .settings(libraryDependencies += Dependencies.nailgun)
 
-lazy val scalap =
-  newProject("scalap", file("scalap"))
+lazy val decompiler =
+  newProject("decompiler", file("decompiler"))
     .settings(commonTestSettings(packagedPluginDir):_*)
-    .settings(libraryDependencies ++= DependencyGroups.scalap)
+    .settings(libraryDependencies ++= DependencyGroups.decompiler)
 
 lazy val macroAnnotations =
   newProject("macroAnnotations", file("macroAnnotations"))
@@ -122,7 +122,7 @@ lazy val macroAnnotations =
 
 lazy val ideaRunner =
   newProject("ideaRunner", file("idea-runner"))
-  .dependsOn(Seq(compilerSettings, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, scalap).map(_ % Provided): _*)
+  .dependsOn(Seq(compilerSettings, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, decompiler).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
     unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value,
@@ -280,7 +280,7 @@ lazy val pluginPackagerCommunity =
       val lib = Seq(
         Artifact(pack.in(scalaCommunity, Compile).value,
           "lib/scala-plugin.jar"),
-        Artifact(pack.in(scalap, Compile).value,
+        Artifact(pack.in(decompiler, Compile).value,
           "lib/scalap.jar"),
         Artifact(pack.in(compilerSettings, Compile).value,
           "lib/compiler-settings.jar"),

@@ -1,3 +1,4 @@
+import Dependencies.scalastyle
 import sbt._
 
 object Versions {
@@ -78,20 +79,21 @@ object Dependencies {
   val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "1.0.6"
   val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
-  val sbtStructureCore: ModuleID = "org.jetbrains" % "sbt-structure-core_2.12" % sbtStructureVersion
+  val sbtStructureCore: ModuleID = "org.jetbrains" %% "sbt-structure-core" % sbtStructureVersion
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.2"
   val scalatestFindersPatched: ModuleID = "org.scalatest" % "scalatest-finders-patched" % "0.9.9"
 
-  val specs2: ModuleID = "org.specs2" %% "specs2-core" % "3.9.1" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+  //  val specs2: ModuleID = "org.specs2" %% "specs2-core" % "3.9.1" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+  val specs2: ModuleID = "org.specs2" %% "specs2-core" % "2.4.17" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
 
   val luceneCore: ModuleID = "org.apache.lucene" % "lucene-core" % luceneVersion
   val commonsLang: ModuleID = "commons-lang" % "commons-lang" % "2.6"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
 
-  val scalastyle_2_12: ModuleID = "org.scalastyle" % "scalastyle_2.12" % "0.9.0"
-  val scalariform_2_12: ModuleID = "org.scalariform" % "scalariform_2.12" % "0.2.2"
+  val scalastyle: ModuleID = "org.scalastyle" %% "scalastyle" % "0.9.0"
+  val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.2"
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
-  val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.12" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
+  val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
 
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
@@ -118,11 +120,6 @@ object DependencyGroups {
     sbtInterface
   )
 
-  val scalastyle: Seq[ModuleID] = Seq(
-    scalastyle_2_12,
-    scalariform_2_12
-  )
-
   val scalaCommunity: Seq[ModuleID] = Seq(
     scalaLibrary,
     scalaReflect,
@@ -133,10 +130,12 @@ object DependencyGroups {
     evoInflector,
     scalatestFindersPatched,
     jamm,
-    luceneCore
-  ) ++ scalastyle
+    luceneCore,
+    scalastyle,
+    scalariform
+  )
 
-  val scalap = Seq(
+  val decompiler = Seq(
     scalaLibrary,
     scalaReflect,
     scalaCompiler,
