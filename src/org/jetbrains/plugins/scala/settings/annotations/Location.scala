@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.settings.annotations
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope
 import com.intellij.psi.{PsiClass, PsiElement, PsiModifier}
-import org.jetbrains.plugins.scala.extensions.Parent
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -45,8 +45,12 @@ object Location {
       case _ => false
     }
 
-    override def isInTestSources: Boolean = Option(element.getContainingFile).exists { file =>
-      ProjectFileIndex.SERVICE.getInstance(element.getProject).isInTestSourceContent(file.getVirtualFile)
+    override def isInTestSources: Boolean = {
+      val psiFile = Option(element.getContainingFile)
+      val vFile = psiFile.flatMap(_.getVirtualFile.toOption)
+      val index = ProjectFileIndex.SERVICE.getInstance(element.getProject)
+
+      vFile.exists(index.isInTestSourceContent)
     }
 
     override def isInsideAnonymousClass: Boolean = element match {
