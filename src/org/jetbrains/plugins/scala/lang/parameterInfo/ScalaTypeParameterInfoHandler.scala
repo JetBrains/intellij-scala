@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScInfixExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -214,13 +213,15 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
           val res = args.getParent match {
             case ScGenericCall(expr, _) => fromResolved(expr)
             case ScInfixExpr(_, ref, _) => fromResolved(ref)
-            case ScParameterizedTypeElement(typeElem, _) =>
-              typeElem match {
-                case pt: ScTypeProjection => fromResolved(pt, useActualElement = true)
-                case ScSimpleTypeElement(Some(ref)) => fromResolved(ref, useActualElement = true)
+            case ScParameterizedTypeElement(typeElement, _) =>
+              val maybeReferenceElement = typeElement match {
+                case projection: ScTypeProjection => Some(projection)
+                case ScSimpleTypeElement(maybeReference) => maybeReference
                 case _ => None
               }
-            case _: ScMacroDefinition => None//todo:
+
+              maybeReferenceElement.flatMap(fromResolved(_, useActualElement = true))
+            case _ => None // todo: ScMacroDefinition
           }
           context.setItemsToShow(res.toArray)
         case context: UpdateParameterInfoContext =>
