@@ -64,6 +64,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
   val INIT_NAME = "$init$"
 
   case class TypeFlags(printRep: Boolean)
+  implicit object _tf extends TypeFlags(false)
 
   def printSymbol(symbol: Symbol) {printSymbol(0, symbol)}
 
@@ -91,7 +92,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
       accessibilityOk && !symbol.isCaseAccessor && !paramAccessor
     }
     if (shouldPrint) {
-      def indent() {for (i <- 1 to level) print("  ")}
+      def indent() {for (_ <- 1 to level) print("  ")}
 
       printSymbolAttributes(symbol, onNewLine = true, indent())
       symbol match {
@@ -417,7 +418,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     printModifiers(a)
     print("type ")
     print(processName(a.name))
-    val tp = a.infoType match {
+    val tp: Unit = a.infoType match {
       case PolyType(typeRef, symbols) => printType(PolyTypeWithCons(typeRef, symbols, " = "))
       case t => printType(t, " = ")
     }
@@ -464,8 +465,6 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
       case _ => arg.toString
     }
   }
-
-  implicit object _tf extends TypeFlags(false)
 
   def printType(sym: SymbolInfoSymbol)(implicit flags: TypeFlags): Unit = printType(sym.infoType)(flags)
 
@@ -671,7 +670,7 @@ object ScalaSigPrinter {
       "yield")
 
   def processName(name: String): String = {
-    def processNameWithoutDot(name: String) = {
+    def processNameWithoutDot(name: String): String = {
       def isIdentifier(id: String): Boolean = {
         //following four methods is the same like in scala.tools.nsc.util.Chars class
         /** Can character start an alphanumeric Scala identifier? */
