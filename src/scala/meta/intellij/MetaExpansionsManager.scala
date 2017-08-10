@@ -102,7 +102,7 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
     val annotClass: Option[ScClass] = for {
       ref <- annot.constructor.reference
       resolved <- ref.bind()
-      parent <- resolved.parentElement.asInstanceOf[ScClass]
+      parent = resolved.parentElement.asInstanceOf[ScClass]
     } yield parent
     val metaModule = annotClass.flatMap(_.module)
     val classLoader = metaModule
