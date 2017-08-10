@@ -27,7 +27,7 @@ sealed trait TypeParameter {
     function(upperType.v),
     psiTypeParameter)
 
-  def updateWithVariance(function: (ScType, Int) => ScType, variance: Int): TypeParameter = TypeParameter.StrictTp(
+  def updateWithVariance(function: (ScType, Variance) => ScType, variance: Variance): TypeParameter = TypeParameter.StrictTp(
     typeParameters.map(_.updateWithVariance(function, variance)),
     function(lowerType.v, variance),
     function(upperType.v, -variance),

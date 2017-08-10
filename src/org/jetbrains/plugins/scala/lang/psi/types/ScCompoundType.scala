@@ -115,27 +115,27 @@ case class ScCompoundType(components: Seq[ScType],
     })
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                                    variance: Int = 1, revertVariances: Boolean = false): ScType = {
-    update(this, variance, data) match {
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
+    update(this, v, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
         def updateTypeParam: TypeParameter => TypeParameter = {
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(typeParameters.map(updateTypeParam),
-              lowerType.v.recursiveVarianceUpdateModifiable(newData, update, 1),
-              upperType.v.recursiveVarianceUpdateModifiable(newData, update, 1),
+              lowerType.v.recursiveVarianceUpdateModifiable(newData, update, Covariant),
+              upperType.v.recursiveVarianceUpdateModifiable(newData, update, Covariant),
               psiTypeParameter)
         }
-        new ScCompoundType(components.map(_.recursiveVarianceUpdateModifiable(newData, update, variance)), signatureMap.map {
+        new ScCompoundType(components.map(_.recursiveVarianceUpdateModifiable(newData, update, v)), signatureMap.map {
           case (s: Signature, tp) =>
             val tParams = s.typeParams.subst(updateTypeParam)
             (new Signature(
-            s.name, s.substitutedTypes.map(_.map(f => () => f().recursiveVarianceUpdateModifiable(newData, update, 1))),
+            s.name, s.substitutedTypes.map(_.map(f => () => f().recursiveVarianceUpdateModifiable(newData, update, Covariant))),
             s.paramLength, tParams, ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam
-          ), tp.recursiveVarianceUpdateModifiable(newData, update, 1))
+          ), tp.recursiveVarianceUpdateModifiable(newData, update, Covariant))
         }, typesMap.map {
-          case (s, sign) => (s, sign.updateTypes(_.recursiveVarianceUpdateModifiable(newData, update, 1)))
+          case (s, sign) => (s, sign.updateTypes(_.recursiveVarianceUpdateModifiable(newData, update, Covariant)))
         })
     }
   }

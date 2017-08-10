@@ -5,7 +5,7 @@ package types
 
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeSystem, TypeVisitor, ValueType, Variance}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
 
@@ -94,15 +94,15 @@ trait ScType extends ProjectContextOwner {
 
   def updateSubtypes(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = this
 
-  def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int = 1): ScType = {
+  def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType), variance: Variance = Covariant): ScType = {
     recursiveVarianceUpdateModifiable[Unit]((), (tp, v, _) => {
       val (newTp, newV) = update(tp, v)
       (newTp, newV, ())
     }, variance)
   }
 
-  def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                           variance: Int = 1, revertVariances: Boolean = false): ScType = {
+  def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                           variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case _ => this

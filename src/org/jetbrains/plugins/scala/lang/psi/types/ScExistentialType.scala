@@ -56,8 +56,8 @@ case class ScExistentialType(quantified: ScType,
     }
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                           variance: Int = 1, revertVariances: Boolean = false): ScType = {
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                           variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
@@ -237,9 +237,9 @@ case class ScExistentialType(quantified: ScType,
   }
 
   //todo: use recursiveVarianceUpdateModifiable?
-  private def updateRecursive(tp: ScType, rejected: Set[String] = Set.empty, variance: Int = 1)
-                             (implicit update: (Int, ScExistentialArgument, ScType) => ScType): ScType = {
-    if (variance == 0) return tp //optimization
+  private def updateRecursive(tp: ScType, rejected: Set[String] = Set.empty, variance: Variance = Covariant)
+                             (implicit update: (Variance, ScExistentialArgument, ScType) => ScType): ScType = {
+    if (variance == Invariant) return tp //optimization
     tp match {
       case _: StdType => tp
       case ScCompoundType(components, signatureMap, typeMap) =>
@@ -395,13 +395,13 @@ case class ScExistentialType(quantified: ScType,
       }
       res
     }
-    val res = updateRecursive(this, Set.empty, 1) {
+    val res = updateRecursive(this, Set.empty, Covariant) {
       case (variance, arg, tp) =>
         variance match {
-          case 1 if !hasWildcards(arg.upper)=>
+          case Covariant if !hasWildcards(arg.upper)=>
             updated = true
             arg.upper
-          case -1 if !hasWildcards(arg.lower)=>
+          case Contravariant if !hasWildcards(arg.lower)=>
             updated = true
             arg.lower
           case _ => tp
@@ -494,18 +494,18 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
     ScExistentialArgument(name, args, lower.recursiveUpdate(update, visited), upper.recursiveUpdate(update, visited))
   }
 
-  def recursiveVarianceUpdateModifiableNoUpdate[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                                            variance: Int = 1): ScExistentialArgument = {
+  def recursiveVarianceUpdateModifiableNoUpdate[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                                            variance: Variance = Covariant): ScExistentialArgument = {
     ScExistentialArgument(name, args, lower.recursiveVarianceUpdateModifiable(data, update, -variance),
       upper.recursiveVarianceUpdateModifiable(data, update, variance))
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                                    variance: Int = 1, revertVariances: Boolean = false): ScType = {
-    update(this, variance, data) match {
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
+    update(this, v, data) match {
       case (true, res, _) => res
       case (_, _, _) =>
-        recursiveVarianceUpdateModifiableNoUpdate(data, update, variance)
+        recursiveVarianceUpdateModifiableNoUpdate(data, update, v)
     }
   }
 
