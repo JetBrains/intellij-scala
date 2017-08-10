@@ -20,10 +20,8 @@ import org.jetbrains.plugins.scala.conversion.ConverterUtil.{ElementPart, TextPa
 import org.jetbrains.plugins.scala.conversion.ast.{JavaCodeReferenceStatement, LiteralExpression, MainConstruction, TypedElement}
 import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings._
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable.ListBuffer
 
@@ -68,8 +66,9 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           case TextPart(s) =>
             resultNode.addChild(LiteralExpression(s))
           case ElementPart(comment: PsiComment) =>
-            if (!dropElements.contains(comment)) resultNode.addChild(LiteralExpression(comment.getText))
-            dropElements += comment
+            if (!dropElements.contains(comment))
+              resultNode.addChild(LiteralExpression(comment.getText))
+            dropElements.add(comment)
           case ElementPart(element) =>
             val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, dropElements, textMode = false)
             resultNode.addChild(result)
