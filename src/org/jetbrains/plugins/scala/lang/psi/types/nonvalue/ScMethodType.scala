@@ -258,8 +258,8 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       typeParameters.map {
         case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
           TypeParameter(parameters, // TODO: ?
-            lowerType.v.recursiveUpdate(update, visited),
-            upperType.v.recursiveUpdate(update, visited),
+            lowerType.v.recursiveUpdate(update, visited, addToVisited = true),
+            upperType.v.recursiveUpdate(update, visited, addToVisited = true),
             psiTypeParameter)
       })
   }

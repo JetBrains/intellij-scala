@@ -83,12 +83,16 @@ trait ScType extends ProjectContextOwner {
    * To just collect info about types (see collectAbstracts) always return false
    *
    * default implementation for types, which don't contain other types.
+   *
+   * addToVisited should true for lazily computed subtypes, in other cases we cannot have infinite recursion
    */
-  final def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType] = Set.empty): ScType = {
-    update(this) match {
+  final def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType] = Set.empty, addToVisited: Boolean = false): ScType = {
+    if (visited(this)) this
+    else update(this) match {
       case (true, res) => res
-      case _ if visited.contains(this) => this
-      case _ => updateSubtypes(update, visited + this)
+      case _ =>
+        val newVisited = if (addToVisited) visited + this else visited
+        updateSubtypes(update, newVisited)
     }
   }
 

@@ -88,19 +88,18 @@ case class ScCompoundType(components: Seq[ScType],
     def updateTypeParam: TypeParameter => TypeParameter = {
       case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
         TypeParameter(typeParameters.map(updateTypeParam),
-          lowerType.v.recursiveUpdate(update, visited + this),
-          upperType.v.recursiveUpdate(update, visited + this),
+          lowerType.v.recursiveUpdate(update, visited, addToVisited = true),
+          upperType.v.recursiveUpdate(update, visited, addToVisited = true),
           psiTypeParameter)
     }
 
-    val newVisited = visited + this
-    new ScCompoundType(components.map(_.recursiveUpdate(update, newVisited)), signatureMap.map {
+    new ScCompoundType(components.map(_.recursiveUpdate(update, visited)), signatureMap.map {
       case (s: Signature, tp) =>
 
         val pTypes: List[Seq[() => ScType]] =
-          s.substitutedTypes.map(_.map(f => () => f().recursiveUpdate(update, newVisited)))
+          s.substitutedTypes.map(_.map(f => () => f().recursiveUpdate(update, visited, addToVisited = true)))
         val tParams = s.typeParams.subst(updateTypeParam)
-        val rt: ScType = tp.recursiveUpdate(update, newVisited)
+        val rt: ScType = tp.recursiveUpdate(update, visited)
         (new Signature(
           s.name, pTypes, s.paramLength, tParams, ScSubstitutor.empty, s.namedElement match {
             case fun: ScFunction =>
@@ -111,7 +110,7 @@ case class ScCompoundType(components: Seq[ScType],
           }, s.hasRepeatedParam
         ), rt)
     }, typesMap.map {
-      case (s, sign) => (s, sign.updateTypes(_.recursiveUpdate(update, newVisited)))
+      case (s, sign) => (s, sign.updateTypes(_.recursiveUpdate(update, visited, addToVisited = true)))
     })
   }
 
