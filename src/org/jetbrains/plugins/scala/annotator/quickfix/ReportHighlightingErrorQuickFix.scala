@@ -13,18 +13,19 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
  */
 
 object ReportHighlightingErrorQuickFix extends IntentionAction {
-  def getText: String = ScalaBundle.message("report.highlighting.error.fix")
 
-  def startInWriteAction: Boolean = false
+  override def getText: String = ScalaBundle.message("report.highlighting.error.fix")
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+  override def startInWriteAction: Boolean = false
+
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (file.isInstanceOf[ScalaCodeFragment]) return false
     true
   }
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile) {
     DesktopUtils.browse("http://youtrack.jetbrains.net/issues/SCL#newissue=yes")
   }
 
-  def getFamilyName: String = ScalaBundle.message("report.highlighting.error.fix")
+  override def getFamilyName: String = ScalaBundle.message("report.highlighting.error.fix")
 }

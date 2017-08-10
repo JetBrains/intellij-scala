@@ -31,9 +31,7 @@ import scala.util.control.Exception._
 class CompileServerLauncher extends ApplicationComponent {
    private var serverInstance: Option[ServerInstance] = None
 
-   def initComponent() {}
-
-   def disposeComponent() {
+  override def disposeComponent(): Unit = {
      if (running) stop()
    }
 
@@ -131,11 +129,9 @@ class CompileServerLauncher extends ApplicationComponent {
   def stop(project: Project) {
     stop()
 
-    ApplicationManager.getApplication invokeLater new Runnable {
-      override def run() {
-        CompileServerManager.configureWidget(project)
-      }
-    }
+    ApplicationManager.getApplication invokeLater (() => {
+      CompileServerManager.configureWidget(project)
+    })
   }
 
   def running: Boolean = serverInstance.exists(_.running)
@@ -144,7 +140,7 @@ class CompileServerLauncher extends ApplicationComponent {
 
   def port: Option[Int] = serverInstance.map(_.port)
 
-  def getComponentName: String = getClass.getSimpleName
+  override def getComponentName: String = getClass.getSimpleName
 }
 
 object CompileServerLauncher {
@@ -215,7 +211,7 @@ object CompileServerLauncher {
       if (size.isEmpty) Nil else List("-Xmx%sm".format(size))
     }
 
-    val (userMaxPermSize, otherParams) = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").partition(_.contains("-XX:MaxPermSize"))
+    val (_, otherParams) = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").partition(_.contains("-XX:MaxPermSize"))
 
     xmx ++ otherParams
   }

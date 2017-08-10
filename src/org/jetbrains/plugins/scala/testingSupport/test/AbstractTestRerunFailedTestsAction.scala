@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.test
 
-import java.util.{ArrayList, List}
+import java.util
 
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.RunProfileState
@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.testingSupport.locationProvider.PsiLocationWi
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, TestCommandLinePatcher}
 
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.JavaConverters._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -32,7 +33,7 @@ class AbstractTestRerunFailedTestsAction(consoleView: ConsoleView)
     val properties: TestConsoleProperties = getModel.getProperties
     val configuration = properties.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
     new MyRunProfileAdapter(configuration) {
-      def getModules: Array[Module] = configuration.getModules
+      override def getModules: Array[Module] = configuration.getModules
 
       def getTestName(failed: AbstractTestProxy): String = {
         failed.getLocation(getProject, GlobalSearchScope.allScope(getProject)) match {
@@ -41,19 +42,19 @@ class AbstractTestRerunFailedTestsAction(consoleView: ConsoleView)
         }
       }
 
-      def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
+      override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
         val extensionConfiguration =
           properties.asInstanceOf[PropertiesExtension].getRunConfigurationBase
         val state = configuration.getState(executor, env)
         val patcher = state.asInstanceOf[TestCommandLinePatcher]
-        val failedTests = getFailedTests(configuration.getProject)
+        val failedTests = getFailedTests(configuration.getProject).asScala
         val buffer = new ArrayBuffer[(String, String)]
         val classNames = patcher.getClasses.map(s => {
           val i = s.lastIndexOf(".")
           if (i < 0) s
           else s.substring(i + 1)
         } -> s).toMap
-        import scala.collection.JavaConversions._
+
         for (failed <- failedTests) { //todo: fix after adding location API
         def tail() {
           var parent = failed.getParent
@@ -100,11 +101,12 @@ class AbstractTestRerunFailedTestsAction(consoleView: ConsoleView)
     }
   }
 
-  override def getFailedTests(project: Project): List[AbstractTestProxy] = {
-    val list = new ArrayList[AbstractTestProxy]()
+  override def getFailedTests(project: Project): util.List[AbstractTestProxy] = {
+    val list = new util.ArrayList[AbstractTestProxy]()
     val allTests = getModel.getRoot.getAllTests
-    import scala.collection.JavaConversions._
-    for (test <- allTests if isFailed(test)) list add test
+    allTests.forEach { test =>
+      if (isFailed(test)) list.add(test)
+    }
     list
   }
 }

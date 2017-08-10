@@ -10,7 +10,8 @@ import com.sun.jdi.BooleanValue
  */
 
 class ScalaIfEvaluator(condition: Evaluator, ifBranch: Evaluator, elseBranch: Option[Evaluator]) extends Evaluator {
-  private var modifier: Modifier = null
+
+  private var modifier: Modifier = _
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     var value: AnyRef = condition.evaluate(context)
@@ -39,5 +40,5 @@ class ScalaIfEvaluator(condition: Evaluator, ifBranch: Evaluator, elseBranch: Op
     value
   }
 
-  def getModifier: Modifier = modifier
+  override def getModifier: Modifier = modifier
 }

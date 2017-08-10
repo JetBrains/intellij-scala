@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
   * Date: 07.11.11
   */
 class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, typeEvaluator: TypeEvaluator) extends Evaluator {
-  def getModifier: Modifier = null
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     val value: Value = operandEvaluator.evaluate(context).asInstanceOf[Value]

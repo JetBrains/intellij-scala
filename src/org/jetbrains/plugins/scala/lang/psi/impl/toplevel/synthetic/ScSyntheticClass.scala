@@ -200,18 +200,18 @@ import com.intellij.openapi.project.Project
 class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectComponent {
   implicit def ctx: ProjectContext = project
 
-  def projectOpened(): Unit = {
+  override def projectOpened(): Unit = {
     StartupManager.getInstance(project).registerPostStartupActivity {
       registerClasses()
     }
   }
-  def disposeComponent(): Unit = {}
+  override def disposeComponent(): Unit = {}
 
-  def getComponentName = "SyntheticClasses"
+  override def getComponentName = "SyntheticClasses"
 
   override def initComponent(): Unit = {}
 
-  def projectClosed(): Unit = {
+  override def projectClosed(): Unit = {
     scriptSyntheticValues.clear()
     all.clear()
     numeric.clear()
@@ -230,7 +230,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   private var classesInitialized: Boolean = false
   def isClassesRegistered: Boolean = classesInitialized
 
-  var stringPlusMethod: ScType => ScSyntheticFunction = null
+  var stringPlusMethod: ScType => ScSyntheticFunction = _
   var scriptSyntheticValues: mutable.Set[ScSyntheticValue] = new mutable.HashSet[ScSyntheticValue]
   var all: mutable.Map[String, ScSyntheticClass] = new mutable.HashMap[String, ScSyntheticClass]
   var numeric: mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]

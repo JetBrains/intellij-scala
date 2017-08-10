@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 
 final class ScalaImportFilteringRule extends ImportFilteringRule {
 
-  def isVisible(usage: Usage): Boolean = usage match {
+  override def isVisible(usage: Usage): Boolean = usage match {
     case p: PsiElementUsage =>
       val element: PsiElement = p.getElement
       element.containingScalaFile match {

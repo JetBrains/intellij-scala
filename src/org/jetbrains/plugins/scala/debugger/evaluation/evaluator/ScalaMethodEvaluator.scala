@@ -23,13 +23,12 @@ import scala.util.{Success, Try}
 case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String, signature: JVMName,
                            argumentEvaluators: Seq[Evaluator], traitImplementation: Option[JVMName] = None,
                            methodPosition: Set[SourcePosition] = Set.empty, localMethodIndex: Int = -1) extends Evaluator {
-  def getModifier: Modifier = null
 
-  val methodName = DebuggerUtil.withoutBackticks(_methodName)
+  val methodName: String = DebuggerUtil.withoutBackticks(_methodName)
   private val localMethod = localMethodIndex > 0
   private val localMethodName = methodName + "$" + localMethodIndex
 
-  private var prevProcess: DebugProcess = null
+  private var prevProcess: DebugProcess = _
   private val jdiMethodsCache = mutable.HashMap[ReferenceType, Option[Method]]()
 
   private def initCache(process: DebugProcess): Unit = {

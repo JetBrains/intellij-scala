@@ -46,6 +46,7 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.{Seq, mutable}
+import scala.collection.JavaConverters._
 
 class ScalaPsiManager(val project: Project) {
   implicit def projectContext: ProjectContext = project
@@ -243,12 +244,11 @@ class ScalaPsiManager(val project: Project) {
                                             fullyQualifiedName: String,
                                             scope: GlobalSearchScope,
                                             clazz: Class[C]): Seq[C] = {
-    import scala.collection.JavaConversions._
     StubIndex.getElements(key,
       ScalaNamesUtil.cleanFqn(fullyQualifiedName),
       project,
       new ScalaSourceFilterScope(scope, project),
-      clazz).toSeq
+      clazz).asScala.toSeq
   }
 
   private def clearCaches(): Unit = {
@@ -322,8 +322,7 @@ class ScalaPsiManager(val project: Project) {
 
   def getStableTypeAliasesNames: Seq[String] = {
     val keys = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, project)
-    import scala.collection.JavaConversions._
-    keys.toSeq
+    keys.asScala.toSeq
   }
 
   object CacheInvalidator extends PsiTreeChangeAdapter {
@@ -397,11 +396,11 @@ object ScalaPsiManager {
   def instance(implicit ctx: ProjectContext): ScalaPsiManager =
     ctx.project.getComponent(classOf[ScalaPsiManagerComponent]).instance
 
-  private def subscribeToRootsChange(project: Project) = {
+  private def subscribeToRootsChange(project: Project): Unit = {
     project.getMessageBus.connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
-      def beforeRootsChange(event: ModuleRootEvent) {}
+      override def beforeRootsChange(event: ModuleRootEvent) {}
 
-      def rootsChanged(event: ModuleRootEvent) {
+      override def rootsChanged(event: ModuleRootEvent) {
         LOG.debug("Clear caches on root change")
         val manager = ScalaPsiManager.instance(project)
         manager.clearOnChange()
@@ -411,13 +410,11 @@ object ScalaPsiManager {
     })
   }
 
-  private def registerLowMemoryWatcher(project: Project) = {
-    LowMemoryWatcher.register(new Runnable {
-      def run(): Unit = {
-        LOG.debug("Clear caches on low memory")
-        val manager = ScalaPsiManager.instance(project)
-        manager.clearOnLowMemory()
-      }
+  private def registerLowMemoryWatcher(project: Project): Unit = {
+    LowMemoryWatcher.register(() => {
+      LOG.debug("Clear caches on low memory")
+      val manager = ScalaPsiManager.instance(project)
+      manager.clearOnLowMemory()
     }, project)
   }
 

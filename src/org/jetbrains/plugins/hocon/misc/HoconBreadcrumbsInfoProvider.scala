@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.hocon.misc
 
 import com.intellij.psi.PsiElement
-import com.intellij.xml.breadcrumbs.BreadcrumbsInfoProvider
+import com.intellij.ui.breadcrumbs.BreadcrumbsProvider
 import org.jetbrains.plugins.hocon.lang.HoconLanguage
 import org.jetbrains.plugins.hocon.psi.HKeyedField
 
-class HoconBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
-  def getElementTooltip(e: PsiElement) = null
+class HoconBreadcrumbsInfoProvider extends BreadcrumbsProvider {
 
   def getElementInfo(e: PsiElement): String = e match {
     case kf: HKeyedField => kf.key.map(_.stringValue).getOrElse("")

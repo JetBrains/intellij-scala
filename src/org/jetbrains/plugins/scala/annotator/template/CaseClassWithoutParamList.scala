@@ -42,30 +42,33 @@ object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
 }
 
 class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAction {
-  def getText: String = "Add empty parentheses"
 
-  def getFamilyName: String = getText
+  override def getText: String = "Add empty parentheses"
 
-  def startInWriteAction: Boolean = true
+  override def getFamilyName: String = getText
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = c.isValid && c.getManager.isInProject(file)
+  override def startInWriteAction: Boolean = true
 
-  def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
+    c.isValid && c.getManager.isInProject(file)
+
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
     c.clauses foreach {
       _.addClause(createClauseFromText("()")(c.getManager))
     }
 }
 
 class ConvertToObjectFix(c: ScClass) extends IntentionAction {
-  def getText: String = "Convert to object"
+  override def getText: String = "Convert to object"
 
-  def getFamilyName: String = getText
+  override def getFamilyName: String = getText
 
-  def startInWriteAction: Boolean = true
+  override def startInWriteAction: Boolean = true
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = c.isValid && c.getManager.isInProject(file)
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
+    c.isValid && c.getManager.isInProject(file)
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile) {
     val classKeywordTextRange = c.getClassToken.getTextRange
     val classTextRange = c.getTextRange
     val start = classKeywordTextRange.getStartOffset - classTextRange.getStartOffset

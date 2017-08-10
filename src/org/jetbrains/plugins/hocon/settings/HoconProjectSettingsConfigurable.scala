@@ -8,19 +8,17 @@ import com.intellij.openapi.project.Project
 class HoconProjectSettingsConfigurable(project: Project) extends Configurable {
   private var panel = new HoconProjectSettingsPanel(project)
 
-  def getDisplayName = "HOCON"
+  override def getDisplayName = "HOCON"
 
-  def getHelpTopic = null
+  override def isModified: Boolean = panel.isModified
 
-  def isModified: Boolean = panel.isModified
+  override def createComponent(): JComponent = panel.getMainComponent
 
-  def createComponent(): JComponent = panel.getMainComponent
-
-  def disposeUIResources(): Unit = {
+  override def disposeUIResources(): Unit = {
     panel = null
   }
 
-  def apply(): Unit = panel.apply()
+  override def apply(): Unit = panel.apply()
 
-  def reset(): Unit = panel.loadSettings()
+  override def reset(): Unit = panel.loadSettings()
 }

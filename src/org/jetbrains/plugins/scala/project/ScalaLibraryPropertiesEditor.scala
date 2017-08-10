@@ -9,17 +9,18 @@ import com.intellij.openapi.roots.libraries.ui.{LibraryEditorComponent, LibraryP
  * @author Pavel Fatin
  */
 private class ScalaLibraryPropertiesEditor(editorComponent: LibraryEditorComponent[ScalaLibraryProperties]) extends LibraryPropertiesEditor {
+
   private val form = new ScalaLibraryEditorForm()
 
-  def createComponent(): JComponent = form.getComponent
+  override def createComponent(): JComponent = form.getComponent
 
-  def isModified: Boolean = form.getState != properties.getState
+  override def isModified: Boolean = form.getState != properties.getState
 
-  def reset() {
+  override def reset(): Unit = {
     form.setState(properties.getState)
   }
 
-  def apply() {
+  override def apply(): Unit = {
     properties.loadState(form.getState)
   }
 

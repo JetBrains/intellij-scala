@@ -128,7 +128,7 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
     }
   }
 
-  def getModifier: Modifier = {
+  override def getModifier: Modifier = {
     var modifier: Modifier = null
     if (myEvaluatedVariable != null && myContext != null) {
       modifier = new Modifier {

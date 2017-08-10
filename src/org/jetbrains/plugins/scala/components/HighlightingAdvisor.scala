@@ -122,7 +122,7 @@ class HighlightingAdvisor(project: Project) extends AbstractProjectComponent(pro
 
   private def applicable = project.hasScala && !project.hasDotty
 
-  def enabled = settings.TYPE_AWARE_HIGHLIGHTING_ENABLED
+  def enabled: Boolean = settings.TYPE_AWARE_HIGHLIGHTING_ENABLED
 
   private def enabled_=(enabled: Boolean) {
     settings.SUGGEST_TYPE_AWARE_HIGHLIGHTING = false

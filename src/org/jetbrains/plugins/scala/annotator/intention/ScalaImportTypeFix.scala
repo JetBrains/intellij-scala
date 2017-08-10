@@ -147,15 +147,15 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
     else mixed
   }
 
-  def startInWriteAction(): Boolean = true
+  override def startInWriteAction(): Boolean = true
 
   class ScalaAddImportAction(editor: Editor, classes: Array[TypeToImport], ref: ScReferenceElement) extends QuestionAction {
     def addImportOrReference(clazz: TypeToImport) {
       ApplicationManager.getApplication.invokeLater(new Runnable() {
-        def run() {
+        override def run() {
           if (!ref.isValid || !FileModificationService.getInstance.prepareFileForWrite(ref.getContainingFile)) return
           ScalaUtils.runWriteAction(new Runnable {
-            def run() {
+            override def run() {
               PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
               if (!ref.isValid) return
 
@@ -179,7 +179,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
         ScalaBundle.message("import.package.chooser.title"),
         ScalaBundle.message("import.something.chooser.title")
       )
-      val popup = new BaseListPopupStep[TypeToImport](title, classes: _*) {
+      val popup: BaseListPopupStep[TypeToImport] = new BaseListPopupStep[TypeToImport](title, classes: _*) {
         override def getIconFor(aValue: TypeToImport): Icon = {
           aValue.getIcon
         }

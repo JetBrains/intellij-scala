@@ -55,11 +55,11 @@ object RelativeImportInspection {
 }
 
 private class EnableFullQualifiedImports extends LocalQuickFix {
-  def getName: String = getFamilyName
+  override def getName: String = getFamilyName
 
-  def getFamilyName: String = "Enable full qualified imports"
+  override def getFamilyName: String = "Enable full qualified imports"
 
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
+  override def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
     ScalaCodeStyleSettings.getInstance(project).setAddFullQualifiedImports(true)
   }
 }
@@ -67,7 +67,7 @@ private class EnableFullQualifiedImports extends LocalQuickFix {
 private class MakeFullQualifiedImportFix(q: ScStableCodeReferenceElement, fqn: String)
         extends AbstractFixOnPsiElement(ScalaBundle.message("make.import.fully.qualified"), q) {
 
-  def doApplyFix(project: Project) {
+  override def doApplyFix(project: Project): Unit = {
     val ref = getElement
     if (ref == null || !ref.isValid) return
     val newRef = createReferenceFromText(fqn, ref.getContext, ref)

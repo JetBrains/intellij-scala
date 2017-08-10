@@ -15,11 +15,11 @@ import com.intellij.openapi.project.Project
  */
 class ScaladocConfiguration(private val form: ScaladocConsoleRunConfigurationForm, private val project: Project,
                             private val scope: AnalysisScope) extends ModuleRunProfile {
-  def getModules: Array[Module] = {
+  override def getModules: Array[Module] = {
     Module.EMPTY_ARRAY
   }
 
-  def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
+  override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
     val state: ScaladocCommandLineState = new ScaladocCommandLineState(env, project)
     state.setAdditionalScaladocFlags(form.getAdditionalFlags)
     state.setScope(scope)
@@ -32,9 +32,8 @@ class ScaladocConfiguration(private val form: ScaladocConsoleRunConfigurationFor
     state
   }
 
-  def getName: String = "Generate Scaladoc"
+  override def getName: String = "Generate Scaladoc"
 
-  def getIcon: Icon = null
+  override def getIcon: Icon = null
 
-  def checkConfiguration() {}
 }

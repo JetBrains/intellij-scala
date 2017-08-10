@@ -4,6 +4,7 @@ package formatting
 package settings
 
 import com.intellij.application.options.{CodeStyleAbstractConfigurable, CodeStyleAbstractPanel}
+import com.intellij.lang.Language
 import com.intellij.openapi.options.Configurable
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CodeStyleSettingsProvider, DisplayPriority}
 
@@ -20,10 +21,6 @@ class ScalaCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
       protected def createPanel(settings: CodeStyleSettings): CodeStyleAbstractPanel = {
         new ScalaTabbedCodeStylePanel(getCurrentSettings, settings)
       }
-
-      def getHelpTopic: String = {
-        null
-      }
     }
   }
 
@@ -31,7 +28,7 @@ class ScalaCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
     DisplayPriority.COMMON_SETTINGS
   }
 
-  override def getLanguage = ScalaLanguage.INSTANCE
+  override def getLanguage: Language = ScalaLanguage.INSTANCE
 
   override def createCustomSettings(settings: CodeStyleSettings) = new ScalaCodeStyleSettings(settings)
 }

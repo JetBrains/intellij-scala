@@ -81,7 +81,9 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
 }
 
 object ScalaTestRunLineMarkerProvider {
-  val TOOLTIP_PROVIDER = new Function[PsiElement, String] {
+  val TOOLTIP_PROVIDER: Function[PsiElement, String] {
+    def fun(param: PsiElement): String
+  } = new Function[PsiElement, String] {
     override def fun(param: PsiElement): String = "Run Test"
   }
 }

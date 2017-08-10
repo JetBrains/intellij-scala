@@ -28,13 +28,11 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
   private val modelWrapper = new CollectionListModelWrapper(new CollectionListModel[String](new util.ArrayList[String]))
   private val resolvers = SbtModule.getResolversFrom(getModel.getModule).toSeq
 
-  def getDisplayName = SbtBundle("sbt.settings.sbtModuleSettings")
+  override def getDisplayName: String = SbtBundle("sbt.settings.sbtModuleSettings")
 
-  def getHelpTopic = null
+  override def saveData(): Unit = {}
 
-  def saveData() {}
-
-  def createComponentImpl(): JPanel = {
+  override def createComponentImpl(): JPanel = {
     myForm.sbtImportsList.setEmptyText(SbtBundle("sbt.settings.noImplicitImportsFound"))
     JListCompatibility.setModel(myForm.sbtImportsList, modelWrapper.getModelRaw)
 
@@ -48,7 +46,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
     myForm.mainPanel
   }
 
-  override def reset() {
+  override def reset(): Unit = {
     val moduleSettings = SbtSystemSettings.getInstance(state.getProject).getLinkedProjectSettings(getModel.getModule)
     myForm.sbtVersionTextField.setText(moduleSettings.map(_.sbtVersion).getOrElse(SbtBundle("sbt.settings.sbtVersionNotDetected")))
 
@@ -59,9 +57,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
     myForm.resolversTable.getColumnModel.getColumn(0).setPreferredWidth(50)
     myForm.resolversTable.getColumnModel.getColumn(1).setPreferredWidth(400)
     myForm.resolversTable.getColumnModel.getColumn(2).setPreferredWidth(30)
-    myForm.resolversTable.getSelectionModel.addListSelectionListener(new ListSelectionListener {
-      override def valueChanged(event: ListSelectionEvent) = setupUpdateButton()
-    })
+    myForm.resolversTable.getSelectionModel.addListSelectionListener((_: ListSelectionEvent) => setupUpdateButton())
     setupUpdateButton()
   }
 

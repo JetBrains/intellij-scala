@@ -36,7 +36,7 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
     s"$getFamilyName in $classKind ${td.name}"
   }
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (!td.isValid) return false
     td.getContainingFile match {
       case _: ScalaCodeFragment => false
@@ -45,7 +45,7 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
     }
   }
 
-  def startInWriteAction = false
+  override def startInWriteAction: Boolean = false
 
   protected def createEntity(block: ScExtendsBlock, text: String): PsiElement = {
     if (block.templateBody.isEmpty)
@@ -67,7 +67,7 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
 
   protected def addElementsToTemplate(method: ScFunction, builder: TemplateBuilder): Unit
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     PsiDocumentManager.getInstance(project).commitAllDocuments()
 
     if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
