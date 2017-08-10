@@ -504,8 +504,8 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
                                                     v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
     update(this, v, data) match {
       case (true, res, _) => res
-      case (_, _, _) =>
-        recursiveVarianceUpdateModifiableNoUpdate(data, update, v)
+      case (_, _, newData) =>
+        recursiveVarianceUpdateModifiableNoUpdate(newData, update, v)
     }
   }
 
