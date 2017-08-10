@@ -61,6 +61,6 @@ public class ConsoleRunner {
       buffer.$plus$eq(newArg);
     }
     settings.processArguments(buffer.toList(), true);
-    interpreterLoop.main(settings);
+    interpreterLoop.process(settings);
   }
 }

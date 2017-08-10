@@ -79,7 +79,7 @@ object ScTypePresentation {
   }
 
   def shouldExpand(ta: ScTypeAliasDefinition): Boolean = ta match {
-    case _: ScLightTypeAliasDefinition | childOf(_: ScRefinement) => true
+    case _: ScLightTypeAliasDefinition | childOf(_, _: ScRefinement) => true
     case _ =>
       ScalaPsiUtil.superTypeMembers(ta).exists(_.isInstanceOf[ScTypeAliasDeclaration])
   }
@@ -90,6 +90,6 @@ object ScTypePresentation {
 }
 
 case class ScTypeText(tp: ScType) {
-  val canonicalText = tp.canonicalText
-  val presentableText = tp.presentableText
+  val canonicalText: String = tp.canonicalText
+  val presentableText: String = tp.presentableText
 }
