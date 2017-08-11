@@ -1,5 +1,4 @@
-resolvers += Resolver.url("jetbrains-bintray",
-  url("http://dl.bintray.com/jetbrains/sbt-plugins/"))(Resolver.ivyStylePatterns)
+resolvers += BintrayJetbrains.Resolvers.jbSbtPlugins
 
 resolvers += Resolver.url("dancingrobot84-bintray",
   url("http://dl.bintray.com/dancingrobot84/sbt-plugins/"))(Resolver.ivyStylePatterns)
