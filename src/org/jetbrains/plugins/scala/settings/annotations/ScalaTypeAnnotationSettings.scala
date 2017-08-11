@@ -29,7 +29,7 @@ object ScalaTypeAnnotationSettings {
       {
         TYPE_ANNOTATION_IMPLICIT_MODIFIER && declaration.isImplicit ||
           TYPE_ANNOTATION_UNIT_TYPE && declaration.hasUnitType ||
-            implementation.exists(_.containsReturn)
+          declaration.entity == Entity.Method && implementation.exists(_.containsReturn)
       } || {
         if (declaration.entity == Entity.Parameter) TYPE_ANNOTATION_FUNCTION_PARAMETER
         if (declaration.entity == Entity.UnderscoreParameter) TYPE_ANNOTATION_UNDERSCORE_PARAMETER
