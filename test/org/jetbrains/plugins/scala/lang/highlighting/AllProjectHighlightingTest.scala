@@ -16,7 +16,7 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testFramework.IdeaTestUtil
-import org.jetbrains.SbtStructureSetup
+import org.jetbrains.SbtStructureSetup._
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -36,7 +36,7 @@ import scala.collection.JavaConverters._
  */
 
 @Category(Array(classOf[SlowTests]))
-class AllProjectHighlightingTest extends ExternalSystemImportingTestCase with SbtStructureSetup {
+class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
   implicit def projectContext: ProjectContext = myProject
 
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {

@@ -14,7 +14,7 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.platform.templates.github.ZipUtil
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScopesCore}
 import com.intellij.testFramework.{IdeaTestUtil, VfsTestUtil}
-import org.jetbrains.SbtStructureSetup
+import org.jetbrains.SbtStructureSetup._
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
@@ -28,7 +28,7 @@ import scala.collection.JavaConverters._
   * Author: Svyatoslav Ilinskiy
   * Date: 11/17/2015
   */
-abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTestCase with SbtStructureSetup {
+abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTestCase {
 
   implicit class IntExt(val i: Int) {
     def seconds: Int = i * 1000

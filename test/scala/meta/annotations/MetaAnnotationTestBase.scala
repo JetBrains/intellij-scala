@@ -16,7 +16,6 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{EdtTestUtil, PsiTestUtil, VfsTestUtil}
-import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
@@ -226,7 +225,9 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   protected def testClass: ScTypeDefinition = myFixture
     .getFile
     .getChildren
-    .collectFirst({case c: ScTypeDefinition if c.name == testClassName => c})
+    .collectFirst {
+      case c: ScTypeDefinition if c.name == testClassName => c
+    }
     .getOrElse{Assert.fail(s"Class $testClassName not found"); throw new RuntimeException}
 }
 
@@ -234,7 +235,7 @@ object MetaAnnotationTestBase {
 
   private case class MetaParadiseLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "paradise"
-    override protected val version: String = "3.0.0-M8"
+    override protected val version: String = "3.0.0-M8" // FIXME version from buildinfo
 
     override protected def folder(implicit version: ScalaVersion): String =
       s"${name}_${version.minor}"
