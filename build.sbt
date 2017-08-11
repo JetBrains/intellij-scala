@@ -155,7 +155,8 @@ lazy val sbtRuntimeDependencies = project
     libraryDependencies := DependencyGroups.sbtRuntime,
     managedScalaInstance := false,
     conflictManager := ConflictManager.all,
-    conflictWarning := ConflictWarning.disable
+    conflictWarning := ConflictWarning.disable,
+    resolvers += sbt.Classpaths.sbtPluginReleases
   )
 
 lazy val testDownloader =
@@ -331,13 +332,13 @@ updateIdea := {
   val build = ideaBuild.in(ThisBuild).value
 
   try {
-    updateIdeaTask(baseDir, IdeaEdition.Community, build, true, Seq.empty, streams.value)
+    updateIdeaTask(baseDir, IdeaEdition.Community, build, downloadSources = true, Seq.empty, streams.value)
   } catch {
     case e : sbt.TranslatedException if e.getCause.isInstanceOf[java.io.FileNotFoundException] =>
       val newBuild = build.split('.').init.mkString(".") + "-EAP-CANDIDATE-SNAPSHOT"
       streams.value.log.warn(s"Failed to download IDEA $build, trying $newBuild")
       IO.deleteIfEmpty(Set(baseDir))
-      updateIdeaTask(baseDir, IdeaEdition.Community, newBuild, true, Seq.empty, streams.value)
+      updateIdeaTask(baseDir, IdeaEdition.Community, newBuild, downloadSources = true, Seq.empty, streams.value)
   }
 }
 

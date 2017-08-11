@@ -16,11 +16,6 @@ object BintrayJetbrains {
     val metaBintray = Resolver.url("scalameta-bintray", url("https://dl.bintray.com/scalameta/maven"))(Resolver.ivyStylePatterns)
   }
 
-  object Patterns {
-    val structureExtractor012 = sbt.Patterns(false, "[organisation]/[module]/scala_2.9.2/sbt_0.12/[revision]/[type]s/[artifact](-[classifier]).[ext]")
-    val structureExtractor013 = sbt.Patterns(false, "[organisation]/[module]/scala_2.10/sbt_0.13/[revision]/[type]s/[artifact](-[classifier]).[ext]")
-  }
-
   val allResolvers = Seq(Resolvers.mavenPatched, Resolvers.metaBintray,
                          Resolvers.scalaTestFindersPatched, Resolvers.scalaPluginDeps, Resolvers.sonatypeReleases)
 }
