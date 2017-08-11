@@ -160,8 +160,9 @@ trait ScalaConformance extends api.Conformance {
 
     private def addBounds(parameterType: TypeParameterType, `type`: ScType) = {
       val name = parameterType.nameAndId
-      undefinedSubst = undefinedSubst.addLower(name, `type`, variance = 0)
-        .addUpper(name, `type`, variance = 0)
+      undefinedSubst = undefinedSubst
+        .addLower(name, `type`, variance = Invariant)
+        .addUpper(name, `type`, variance = Invariant)
     }
 
     /*
@@ -1591,10 +1592,10 @@ trait ScalaConformance extends api.Conformance {
   }
 
   def addParam(parameterType: TypeParameterType, bound: ScType, undefinedSubst: ScUndefinedSubstitutor): (Boolean, ScUndefinedSubstitutor) =
-    addArgedBound(parameterType, bound, undefinedSubst, variance = 0, addUpper = true, addLower = true)
+    addArgedBound(parameterType, bound, undefinedSubst, variance = Invariant, addUpper = true, addLower = true)
 
   def addArgedBound(parameterType: TypeParameterType, bound: ScType, undefinedSubst: ScUndefinedSubstitutor,
-                    variance: Int = 1, addUpper: Boolean = false, addLower: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
+                    variance: Variance = Covariant, addUpper: Boolean = false, addLower: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     if (!addUpper && !addLower) return (false, undefinedSubst)
     var res = undefinedSubst
     if (addUpper) res = res.addUpper(parameterType.nameAndId, bound, variance = variance)

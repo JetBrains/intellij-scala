@@ -236,8 +236,11 @@ object ScFunctionWrapper {
 
     val typeText = paramType.map(subst.subst) match {
       case Success(tp, _) if param.isCallByNameParameter =>
-        val psiTypeText = tp.toPsiType(noPrimitives = true).getCanonicalText
-        s"scala.Function0<$psiTypeText>"
+        val psiType = tp match {
+          case std: StdType => tp.typeSystem.stdToPsiType(std, noPrimitives = true)
+          case _ => tp.toPsiType
+        }
+        s"scala.Function0<${psiType.getCanonicalText}>"
       case Success(tp, _) =>
         JavaConversionUtil.typeText(tp)
       case _ => "java.lang.Object"

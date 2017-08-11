@@ -70,15 +70,15 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
     }
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                           variance: Int = 1, revertVariances: Boolean = false): ScType = {
-    update(this, variance, data) match {
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
+    update(this, v, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
         try {
-          ScAbstractType(parameterType.recursiveVarianceUpdateModifiable(newData, update, variance).asInstanceOf[TypeParameterType],
-            lower.recursiveVarianceUpdateModifiable(newData, update, -variance),
-            upper.recursiveVarianceUpdateModifiable(newData, update, variance))
+          ScAbstractType(parameterType.recursiveVarianceUpdateModifiable(newData, update, v).asInstanceOf[TypeParameterType],
+            lower.recursiveVarianceUpdateModifiable(newData, update, -v),
+            upper.recursiveVarianceUpdateModifiable(newData, update, v))
         }
         catch {
           case _: ClassCastException => throw new RecursiveUpdateException

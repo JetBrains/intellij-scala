@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -53,11 +53,9 @@ trait PsiTypeBridge {
     case _ => throw new IllegalArgumentException(s"psi type ${`type`} should not be converted to ${typeSystem.name} type")
   }
 
-  def toPsiType(`type`: ScType, noPrimitives: Boolean = false)
-               (implicit elementScope: ElementScope): PsiType
+  def toPsiType(`type`: ScType, noPrimitives: Boolean = false): PsiType
 
-  final def stdToPsiType(std: StdType, noPrimitives: Boolean = false)
-                        (implicit elementScope: ElementScope): PsiType = {
+  final def stdToPsiType(std: StdType, noPrimitives: Boolean = false): PsiType = {
     val stdTypes = std.projectContext.stdTypes
     import stdTypes._
 
@@ -89,22 +87,20 @@ trait PsiTypeBridge {
 
   protected def createType(psiClass: PsiClass,
                            substitutor: PsiSubstitutor = PsiSubstitutor.EMPTY,
-                           raw: Boolean = false)
-                          (implicit elementScope: ElementScope): PsiType = {
+                           raw: Boolean = false): PsiType = {
     val psiType = factory.createType(psiClass, substitutor)
     if (raw) psiType.rawType
     else psiType
   }
 
-  protected def createJavaObject(implicit elementScope: ElementScope): PsiType =
+  protected def createJavaObject: PsiType =
     createTypeByFqn("java.lang.Object")
 
-  private def createTypeByFqn(fqn: String)
-                             (implicit elementScope: ElementScope): PsiType =
-    factory.createTypeByFQClassName(fqn, elementScope.scope)
+  private def createTypeByFqn(fqn: String): PsiType =
+    factory.createTypeByFQClassName(fqn, GlobalSearchScope.allScope(projectContext))
 
-  protected def factory(implicit elementScope: ElementScope): PsiElementFactory =
-    JavaPsiFacade.getInstance(elementScope.project).getElementFactory
+  protected def factory: PsiElementFactory =
+    JavaPsiFacade.getInstance(projectContext).getElementFactory
 
 }
 

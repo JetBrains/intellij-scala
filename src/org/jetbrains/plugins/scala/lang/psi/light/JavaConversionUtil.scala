@@ -26,7 +26,7 @@ object JavaConversionUtil {
 
   def typeText(tp: ScType)
               (implicit elementScope: ElementScope): String =
-    tp.toPsiType().getCanonicalText
+    tp.toPsiType.getCanonicalText
 
   def annotationsAndModifiers(s: ScModifierListOwner, isStatic: Boolean): String = {
     val builder = new StringBuilder

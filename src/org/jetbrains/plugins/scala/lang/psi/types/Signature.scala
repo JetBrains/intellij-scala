@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter, TypeParameterType, Variance}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
@@ -35,7 +35,7 @@ case class TypeAliasSignature(name: String,
     ta)
     .copyWithCompoundBody
 
-  def updateTypesWithVariance(function: (ScType, Int) => ScType, variance: Int): TypeAliasSignature = TypeAliasSignature(name,
+  def updateTypesWithVariance(function: (ScType, Variance) => ScType, variance: Variance): TypeAliasSignature = TypeAliasSignature(name,
     typeParams.map(_.updateWithVariance(function, variance)),
     function(lowerBound, variance),
     function(upperBound, -variance),

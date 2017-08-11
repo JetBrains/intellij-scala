@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, Invariant, ParameterizedType, Variance}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 import scala.collection.JavaConverters._
 
@@ -63,17 +63,16 @@ object ComparingUtil {
     def isNeverSameType(tp1: ScType, tp2: ScType) = isNeverSubType(tp1, tp2, sameType = true)
 
     def isNeverSubArgs(tps1: Seq[ScType], tps2: Seq[ScType], tparams: Seq[PsiTypeParameter]): Boolean = {
-      def isNeverSubArg(t1: ScType, t2: ScType, variance: Int) = {
-        if (variance > 0) isNeverSubType(t2, t1)
-        else if (variance < 0) isNeverSubType(t1, t2)
-        else isNeverSameType(t1, t2)
+      def isNeverSubArg(t1: ScType, t2: ScType, variance: Variance) = {
+        variance match {
+          case Covariant     => isNeverSubType(t2, t1)
+          case Contravariant => isNeverSubType(t1, t2)
+          case Invariant     => isNeverSameType(t1, t2)
+        }
       }
       def getVariance(tp: PsiTypeParameter) = tp match {
-        case scParam: ScTypeParam =>
-          if (scParam.isCovariant) 1
-          else if (scParam.isContravariant) -1
-          else 0
-        case _ => 0
+        case scParam: ScTypeParam => scParam.variance
+        case _ => Invariant
       }
       tps1.zip(tps2).zip(tparams.map(getVariance)) exists {
         case ((t1, t2), vr) => isNeverSubArg(t1, t2, vr)

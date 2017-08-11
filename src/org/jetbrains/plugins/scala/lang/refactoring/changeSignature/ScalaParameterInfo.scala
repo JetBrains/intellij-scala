@@ -66,7 +66,7 @@ class ScalaParameterInfo(@BeanProperty var name: String,
     }
     else scType
 
-    resultType.toPsiType()
+    resultType.toPsiType
   }
 
   override def createType(context: PsiElement, manager: PsiManager): PsiType = psiType

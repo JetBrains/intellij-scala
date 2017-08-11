@@ -118,8 +118,8 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     )
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                           variance: Int = 1, revertVariances: Boolean = false): ScType = {
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                           variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
@@ -167,7 +167,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       var contraVariant = 0
       var coOrInVariant = 0
       internalType.recursiveVarianceUpdate {
-        case (typez: ScType, i: Int) =>
+        case (typez: ScType, v: Variance) =>
           val pair = typez match {
             case tp: TypeParameterType => tp.nameAndId
             case UndefinedType(tp, _) => tp.nameAndId
@@ -176,7 +176,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           }
           if (pair != null) {
             if (tp.nameAndId == pair) {
-              if (i == -1) contraVariant += 1
+              if (v == Contravariant) contraVariant += 1
               else coOrInVariant += 1
             }
           }
@@ -258,26 +258,26 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       typeParameters.map {
         case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
           TypeParameter(parameters, // TODO: ?
-            lowerType.v.recursiveUpdate(update, visited),
-            upperType.v.recursiveUpdate(update, visited),
+            lowerType.v.recursiveUpdate(update, visited, addToVisited = true),
+            upperType.v.recursiveUpdate(update, visited, addToVisited = true),
             psiTypeParameter)
       })
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                                    variance: Int = 1, revertVariances: Boolean = false): ScType = {
-    update(this, variance, data) match {
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
+    update(this, v, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
-        def innerUpdate(`type`: ScType, variance: Int) =
+        def innerUpdate(`type`: ScType, variance: Variance) =
           `type`.recursiveVarianceUpdateModifiable(newData, update, variance)
 
-        ScTypePolymorphicType(innerUpdate(internalType, variance),
+        ScTypePolymorphicType(innerUpdate(internalType, v),
           typeParameters.map {
             case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
               TypeParameter(parameters, // TODO: ?
-                innerUpdate(lowerType.v, -variance),
-                innerUpdate(upperType.v, variance),
+                innerUpdate(lowerType.v, -v),
+                innerUpdate(upperType.v, v),
                 psiTypeParameter)
           })
     }

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, Invariant, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -97,25 +97,27 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     }
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                           variance: Int = 1, revertVariances: Boolean = false): ScType = {
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                           variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
+
+    val argUpdateSign: Variance = variance match {
+      case Invariant | Covariant => Covariant.inverse(revertVariances)
+      case Contravariant => Contravariant.inverse(revertVariances)
+    }
+
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
         val des = designator.extractDesignated(expandAliases = false) match {
           case Some(n: ScTypeParametersOwner) =>
-            n.typeParameters.map {
-              case tp if tp.isContravariant => ScTypeParam.Contravariant
-              case tp if tp.isCovariant => ScTypeParam.Covariant
-              case _ => 0
-            }
+            n.typeParameters.map(_.variance)
           case _ => Seq.empty
         }
         ParameterizedType(designator.recursiveVarianceUpdateModifiable(newData, update, variance),
           typeArguments.zipWithIndex.map {
             case (ta, i) =>
-              val v = if (i < des.length) des(i) else 0
-              ta.recursiveVarianceUpdateModifiable(newData, update, v * (if (revertVariances) -1 else 1) * (variance + 1 - Math.abs(variance)))
+              val v = if (i < des.length) des(i) else Invariant
+              ta.recursiveVarianceUpdateModifiable(newData, update, v * argUpdateSign)
           })
     }
   }
