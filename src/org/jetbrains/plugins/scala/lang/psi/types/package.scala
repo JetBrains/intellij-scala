@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldE
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -74,8 +75,8 @@ package object types {
     }
 
     def removeUndefines(): ScType = scType.recursiveUpdate {
-      case _: UndefinedType => (true, stdTypes.Any)
-      case tp: ScType => (false, tp)
+      case _: UndefinedType => ReplaceWith(stdTypes.Any)
+      case _ => ProcessSubtypes
     }
 
     def toPsiType: PsiType = typeSystem.toPsiType(scType)
@@ -145,7 +146,7 @@ package object types {
         tp.recursiveUpdate {
           `type` => `type`.isAliasType match {
             case Some(AliasType(ta: ScTypeAliasDefinition, _, Failure(_, _))) if needExpand(ta) =>
-              (true, projectContext.stdTypes.Any)
+              ReplaceWith(projectContext.stdTypes.Any)
             case Some(AliasType(ta: ScTypeAliasDefinition, _, Success(upper, _))) if needExpand(ta) =>
               if (visited.contains(`type`)) throw RecursionException
               val updated =
@@ -155,8 +156,8 @@ package object types {
                     if (visited.nonEmpty) throw RecursionException
                     else `type`
                 }
-              (true, updated)
-            case _ => (false, `type`)
+              ReplaceWith(updated)
+            case _ => ProcessSubtypes
           }
         }
       }
@@ -170,6 +171,21 @@ package object types {
     }
 
     def tryExtractDesignatorSingleton: ScType = extractDesignatorSingleton.getOrElse(scType)
+
+    def hasRecursiveTypeParameters[T](nameAndIds: Set[(String, Long)]): Boolean = {
+      var found = false
+      scType.recursiveUpdate {
+        case tpt: TypeParameterType =>
+          if (nameAndIds.contains(tpt.nameAndId)) {
+            found = true
+            Stop
+          }
+          else ProcessSubtypes
+        case tp: ScType if found => Stop
+        case _ => ProcessSubtypes
+      }
+      found
+    }
   }
 
   implicit class ScTypesExt(val types: Seq[ScType]) extends AnyVal {

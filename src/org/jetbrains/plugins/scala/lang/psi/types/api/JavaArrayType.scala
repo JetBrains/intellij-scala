@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.Update
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScUndefinedSubstitutor, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -20,8 +21,8 @@ case class JavaArrayType(argument: ScType) extends ValueType {
 
   override def removeAbstracts = JavaArrayType(argument.removeAbstracts)
 
-  override def updateSubtypes(update: (ScType) => (Boolean, ScType), visited: Set[ScType]): JavaArrayType = {
-    JavaArrayType(argument.recursiveUpdate(update, visited))
+  override def updateSubtypes(update: Update, visited: Set[ScType]): JavaArrayType = {
+    JavaArrayType(argument.recursiveUpdateImpl(update, visited))
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T,

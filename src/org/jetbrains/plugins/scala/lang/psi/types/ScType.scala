@@ -6,6 +6,7 @@ package types
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeSystem, TypeVisitor, ValueType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.Update
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
 
@@ -73,30 +74,7 @@ trait ScType extends ProjectContextOwner {
     (false, uSubst)
   }
 
-  class RecursiveUpdateException extends Exception {
-    override def getMessage: String = "Type mismatch after update method"
-  }
-
-  /**
-   * use 'update' to replace appropriate type part with another type
-   * 'update' should return true if type changed, false otherwise.
-   * To just collect info about types (see collectAbstracts) always return false
-   *
-   * default implementation for types, which don't contain other types.
-   *
-   * addToVisited should true for lazily computed subtypes, in other cases we cannot have infinite recursion
-   */
-  final def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType] = Set.empty, addToVisited: Boolean = false): ScType = {
-    if (visited(this)) this
-    else update(this) match {
-      case (true, res) => res
-      case _ =>
-        val newVisited = if (addToVisited) visited + this else visited
-        updateSubtypes(update, newVisited)
-    }
-  }
-
-  def updateSubtypes(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = this
+  def updateSubtypes(update: Update, visited: Set[ScType]): ScType = this
 
   def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType), variance: Variance = Covariant): ScType = {
     recursiveVarianceUpdateModifiable[Unit]((), (tp, v, _) => {
@@ -121,6 +99,8 @@ trait ScType extends ProjectContextOwner {
 
   def canonicalText: String = typeSystem.canonicalText(this)
 }
+
+object ScType extends recursiveUpdate.Extensions
 
 trait NamedType extends ScType {
   val name: String
