@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.scala.ScExistentialLightTypePa
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
@@ -1187,12 +1188,12 @@ trait ScalaConformance extends api.Conformance {
                 val tpt = tptsMap.getOrElseUpdate(thatName,
                   TypeParameterType(args, lower, upper, new ScExistentialLightTypeParam(name))
                 )
-                (true, tpt)
-              case _ => (false, t)
+                ReplaceWith(tpt)
+              case _ => ProcessSubtypes
             }
           case ScExistentialType(innerQ, wilds) =>
-            (true, ScExistentialType(updateType(innerQ, rejected ++ wilds.map(_.name)), wilds))
-          case tp: ScType => (false, tp)
+            ReplaceWith(ScExistentialType(updateType(innerQ, rejected ++ wilds.map(_.name)), wilds))
+          case _ => ProcessSubtypes
         }
       }
       val q = updateType(e.quantified)

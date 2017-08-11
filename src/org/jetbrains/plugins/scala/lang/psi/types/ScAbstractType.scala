@@ -7,6 +7,7 @@ import java.util.Objects
 
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{RecursiveUpdateException, Update}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 
@@ -57,12 +58,12 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
 
   override def removeAbstracts: ScType = simplifyType
 
-  override def updateSubtypes(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScAbstractType = {
+  override def updateSubtypes(update: Update, visited: Set[ScType]): ScAbstractType = {
     try {
       ScAbstractType(
-        parameterType.recursiveUpdate(update, visited).asInstanceOf[TypeParameterType],
-        lower.recursiveUpdate(update, visited),
-        upper.recursiveUpdate(update, visited)
+        parameterType.recursiveUpdateImpl(update, visited).asInstanceOf[TypeParameterType],
+        lower.recursiveUpdateImpl(update, visited),
+        upper.recursiveUpdateImpl(update, visited)
       )
     }
     catch {

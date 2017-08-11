@@ -452,17 +452,13 @@ object ScalaPsiUtil {
       case tp@ScTypePolymorphicType(internal, typeParameters) =>
         def hasBadLinks(tp: ScType, ownerPtp: PsiTypeParameter): Option[ScType] = {
           var res: Option[ScType] = Some(tp)
-          tp.recursiveUpdate {
-            tp =>
-              tp match {
-                case t: TypeParameterType =>
-                  if (typeParameters.exists {
-                    case TypeParameter(_, _, _, ptp) if ptp == t.psiTypeParameter && ptp.getOwner != ownerPtp.getOwner => true
-                    case _ => false
-                  }) res = None
-                case _ =>
-              }
-              (false, tp)
+          tp.visitRecursively {
+            case t: TypeParameterType =>
+              if (typeParameters.exists {
+                case TypeParameter(_, _, _, ptp) if ptp == t.psiTypeParameter && ptp.getOwner != ownerPtp.getOwner => true
+                case _ => false
+              }) res = None
+            case _ =>
           }
           res
         }

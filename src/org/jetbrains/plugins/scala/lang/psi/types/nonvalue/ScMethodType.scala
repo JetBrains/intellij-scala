@@ -4,10 +4,11 @@ package lang.psi.types.nonvalue
 import com.intellij.psi.PsiParameter
 import org.jetbrains.plugins.scala.extensions.PsiParameterExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.Update
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -110,10 +111,10 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     params.map(p => p.copy(paramType = p.paramType.removeAbstracts)),
     isImplicit)
 
-  override def updateSubtypes(update: (ScType) => (Boolean, ScType), visited: Set[ScType]): ScMethodType = {
+  override def updateSubtypes(update: Update, visited: Set[ScType]): ScMethodType = {
     ScMethodType(
-      returnType.recursiveUpdate(update, visited),
-      params.map(p => p.copy(paramType = p.paramType.recursiveUpdate(update, visited))),
+      returnType.recursiveUpdateImpl(update, visited),
+      params.map(p => p.copy(paramType = p.paramType.recursiveUpdateImpl(update, visited))),
       isImplicit
     )
   }
@@ -189,20 +190,6 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }).toMap)
 
   def abstractTypeSubstitutor: ScSubstitutor = {
-    def hasRecursiveTypeParameters(typez: ScType): Boolean = {
-      var hasRecursiveTypeParameters = false
-      typez.recursiveUpdate {
-        case tpt: TypeParameterType =>
-          typeParameters.find(_.nameAndId == tpt.nameAndId) match {
-            case None => (true, tpt)
-            case _ =>
-              hasRecursiveTypeParameters = true
-              (true, tpt)
-          }
-        case tp: ScType => (hasRecursiveTypeParameters, tp)
-      }
-      hasRecursiveTypeParameters
-    }
     ScSubstitutor(typeParameters.map(tp => {
       val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType.v)) Nothing else tp.lowerType.v
       val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType.v)) Any else tp.upperType.v
@@ -211,20 +198,6 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   }
 
   def abstractOrLowerTypeSubstitutor: ScSubstitutor = {
-    def hasRecursiveTypeParameters(typez: ScType): Boolean = {
-      var hasRecursiveTypeParameters = false
-      typez.recursiveUpdate {
-        case tpt: TypeParameterType =>
-          typeParameters.find(_.nameAndId == tpt.nameAndId) match {
-            case None => (true, tpt)
-            case _ =>
-              hasRecursiveTypeParameters = true
-              (true, tpt)
-          }
-        case tp: ScType => (hasRecursiveTypeParameters, tp)
-      }
-      hasRecursiveTypeParameters
-    }
     ScSubstitutor(typeParameters.map(tp => {
       val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType.v)) Nothing else tp.lowerType.v
       val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType.v)) Any else tp.upperType.v
@@ -233,6 +206,10 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
         else lowerType)
     }).toMap)
   }
+
+  private lazy val nameAndIds = typeParameters.map(_.nameAndId).toSet
+
+  private def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
 
   def typeParameterTypeSubstitutor: ScSubstitutor =
     ScSubstitutor(typeParameters.map { tp =>
@@ -252,14 +229,14 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           psiTypeParameter)
     })
 
-  override def updateSubtypes(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
+  override def updateSubtypes(update: Update, visited: Set[ScType]): ScType = {
     ScTypePolymorphicType(
-      internalType.recursiveUpdate(update, visited),
+      internalType.recursiveUpdateImpl(update, visited),
       typeParameters.map {
         case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
           TypeParameter(parameters, // TODO: ?
-            lowerType.v.recursiveUpdate(update, visited, addToVisited = true),
-            upperType.v.recursiveUpdate(update, visited, addToVisited = true),
+            lowerType.v.recursiveUpdateImpl(update, visited, isLazySubtype = true),
+            upperType.v.recursiveUpdateImpl(update, visited, isLazySubtype = true),
             psiTypeParameter)
       })
   }

@@ -179,7 +179,7 @@ private case class ScUndefinedSubstitutorImpl(upperMap: Map[Name, Set[ScType]] =
     def solve(name: Name, visited: Set[Name]): Option[ScType] = {
 
       def checkRecursive(tp: ScType, needTvMap: Ref[Boolean]): Boolean = {
-        tp.recursiveUpdate {
+        tp.visitRecursively {
           case tpt: TypeParameterType =>
             val otherName = tpt.nameAndId
             if (additionalNames.contains(otherName)) {
@@ -189,7 +189,6 @@ private case class ScUndefinedSubstitutorImpl(upperMap: Map[Name, Set[ScType]] =
                 case _ =>
               }
             }
-            (false, tpt)
           case UndefinedType(tpt, _) =>
             val otherName = tpt.nameAndId
             if (names.contains(otherName)) {
@@ -199,8 +198,7 @@ private case class ScUndefinedSubstitutorImpl(upperMap: Map[Name, Set[ScType]] =
                 case _ =>
               }
             }
-            (false, tpt)
-          case tp: ScType => (false, tp)
+          case _: ScType =>
         }
         true
       }

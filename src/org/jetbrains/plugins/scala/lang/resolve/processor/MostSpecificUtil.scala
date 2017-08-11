@@ -200,20 +200,10 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           case ScTypePolymorphicType(_, typeParams) =>
             u.getSubstitutor match {
               case Some(uSubst) =>
-                def hasRecursiveTypeParameters(typez: ScType): Boolean = {
-                  var hasRecursiveTypeParameters = false
-                  typez.recursiveUpdate {
-                    case tpt: TypeParameterType =>
-                      typeParams.find(_.nameAndId == tpt.nameAndId) match {
-                        case None => (true, tpt)
-                        case _ =>
-                          hasRecursiveTypeParameters = true
-                          (true, tpt)
-                      }
-                    case tp: ScType => (hasRecursiveTypeParameters, tp)
-                  }
-                  hasRecursiveTypeParameters
-                }
+
+                val nameAndIds = typeParams.map(_.nameAndId).toSet
+                def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
+
                 typeParams.foreach(tp => {
                   if (tp.lowerType.v != Nothing) {
                     val substedLower = uSubst.subst(tp.lowerType.v)

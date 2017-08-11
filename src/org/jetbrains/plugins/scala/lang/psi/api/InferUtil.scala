@@ -385,20 +385,8 @@ object InferUtil {
                                             ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)]) = {
     implicit val projectContext = retType.projectContext
 
-    def hasRecursiveTypeParams(typez: ScType): Boolean = {
-      var hasRecursiveTypeParameters = false
-      typez.recursiveUpdate {
-        case tpt: TypeParameterType =>
-          typeParams.find(_.nameAndId == tpt.nameAndId) match {
-            case None => (true, tpt)
-            case _ =>
-              hasRecursiveTypeParameters = true
-              (true, tpt)
-          }
-        case tp: ScType => (hasRecursiveTypeParameters, tp)
-      }
-      hasRecursiveTypeParameters
-    }
+    val nameAndIds = typeParams.map(_.nameAndId).toSet
+    def hasRecursiveTypeParams(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
 
     // See SCL-3052, SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
