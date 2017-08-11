@@ -22,12 +22,12 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 object ScalaRenameUtil {
-  def filterAliasedReferences(allReferences: util.Collection[PsiReference]): util.ArrayList[PsiReference] = {
-    val filtered = allReferences.filterNot(isAliased)
-    new util.ArrayList(filtered)
+  def filterAliasedReferences(allReferences: util.Collection[PsiReference]): util.Collection[PsiReference] = {
+    val filtered = allReferences.asScala.filterNot(isAliased)
+    filtered.asJavaCollection
   }
 
   def isAliased(ref: PsiReference): Boolean = ref match {
@@ -48,12 +48,12 @@ object ScalaRenameUtil {
 
   def findReferences(element: PsiElement): util.ArrayList[PsiReference] = {
     val allRefs = ReferencesSearch.search(element, element.getUseScope).findAll()
-    val filtered = allRefs.filterNot(isAliased).filterNot(isIndirectReference(_, element))
-    new util.ArrayList[PsiReference](filtered)
+    val filtered = allRefs.asScala.filterNot(isAliased _).filterNot(isIndirectReference(_, element))
+    new util.ArrayList[PsiReference](filtered.asJavaCollection)
   }
 
   def replaceImportClassReferences(allReferences: util.Collection[PsiReference]): util.Collection[PsiReference] = {
-    val result = allReferences.map {
+    val result = allReferences.asScala.map {
       case ref: ScStableCodeReferenceElement =>
         val isInImport = PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) != null
         if (isInImport && ref.resolve() == null) {
@@ -82,7 +82,7 @@ object ScalaRenameUtil {
         } else ref
       case ref: PsiReference => ref
     }
-    result
+    result.asJavaCollection
   }
 
   def findSubstituteElement(elementToRename: PsiElement): PsiNamedElement = {

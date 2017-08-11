@@ -41,7 +41,7 @@ trait AnnotationExpr {
         }
         
         builder.advanceLexer() //Ate }
-        builder.enableNewlines
+        builder.enableNewlines()
         
         def foo() {
           while (nameValuePair.parse(builder)) {
@@ -56,8 +56,8 @@ trait AnnotationExpr {
           }
         }
         
-        ParserUtils.parseLoopUntilRBrace(builder, foo)
-        builder.restoreNewlinesState
+        ParserUtils.parseLoopUntilRBrace(builder, foo _)
+        builder.restoreNewlinesState()
         annotExprMarker.done(ScalaElementTypes.ANNOTATION_EXPR)
         
         true

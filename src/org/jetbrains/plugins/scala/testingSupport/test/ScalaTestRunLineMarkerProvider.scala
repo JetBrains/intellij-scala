@@ -68,9 +68,10 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude._
     val icon = Option(TestStateStorage.getInstance(project).getState(url))
       .map(state => TestIconMapper.getMagnitude(state.magnitude))
-      .map {
-        case ERROR_INDEX | FAILED_INDEX => AllIcons.RunConfigurations.TestState.Red2
-        case PASSED_INDEX | COMPLETE_INDEX => AllIcons.RunConfigurations.TestState.Green2
+      .flatMap {
+        case ERROR_INDEX | FAILED_INDEX => Some(AllIcons.RunConfigurations.TestState.Red2)
+        case PASSED_INDEX | COMPLETE_INDEX => Some(AllIcons.RunConfigurations.TestState.Green2)
+        case _ => None
       }.getOrElse(
         if (isClass) AllIcons.RunConfigurations.TestState.Run_run
         else AllIcons.RunConfigurations.TestState.Run

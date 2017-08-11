@@ -7,7 +7,7 @@ import javax.swing.event.HyperlinkEvent
 import com.intellij.CommonBundle
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.notification.impl.NotificationsConfigurationImpl
-import com.intellij.notification.{Notification, NotificationDisplayType, NotificationListener}
+import com.intellij.notification.{Notification, NotificationDisplayType}
 import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
@@ -23,6 +23,8 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.resolvers.indexes.IvyIndex
 import org.jetbrains.sbt.resolvers.{SbtMavenRepositoryProvider, SbtResolverUtils}
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -55,13 +57,20 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
     }
   }
 
-  val unindexedNotifier = new Consumer[util.List[MavenIndex]] {
+  val unindexedNotifier: Consumer[util.List[MavenIndex]] = new Consumer[util.List[MavenIndex]] {
     override def consume(mavenIndexes: util.List[MavenIndex]): Unit = {
-      import scala.collection.JavaConversions._
 
       if (project.isDisposed) return
-      val sbtRepos = (new SbtMavenRepositoryProvider).getRemoteRepositories(project).map(_.getUrl).toSet
-      val unindexedRepos = mavenIndexes.filter(idx => idx.getUpdateTimestamp == -1 && sbtRepos.contains(idx.getRepositoryPathOrUrl))
+      val sbtRepos = (new SbtMavenRepositoryProvider)
+        .getRemoteRepositories(project)
+        .asScala
+        .map(_.getUrl)
+        .toSet
+
+      val unindexedRepos = mavenIndexes
+        .asScala
+        .filter(idx => idx.getUpdateTimestamp == -1 && sbtRepos.contains(idx.getRepositoryPathOrUrl))
+
       if (unindexedRepos.isEmpty) return
       val title = s"<b>${unindexedRepos.length} Unindexed maven repositories found</b>"
       val message =
@@ -85,7 +94,7 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
   }
 
   private def notifyDisabledMavenPlugin(): Unit = {
-    val outdatedIvyIndexes = SbtResolverUtils.getProjectResolvers(project).toSet
+    val outdatedIvyIndexes = SbtResolverUtils.getProjectResolvers(project)
       .filter(i => i.getIndex(project).isInstanceOf[IvyIndex] && i.getIndex(project).getUpdateTimeStamp(project) == -1)
     if (outdatedIvyIndexes.isEmpty) return
     val title = s"<b>${outdatedIvyIndexes.size} Unindexed Ivy repositories found</b>"
@@ -107,33 +116,27 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
     notificationData.setBalloonNotification(true)
     notificationData.setBalloonGroup(SBT_MAVEN_NOTIFICATION_GROUP)
     notificationData.setListener(
-      "#open", new NotificationListener.Adapter {
-        protected def hyperlinkActivated(notification: Notification, e: HyperlinkEvent) {
-          val ui = ProjectStructureConfigurable.getInstance(project)
-          val editor = new SingleConfigurableEditor(project, ui)
-          val module = ui.getModulesConfig.getModules.find(ModuleType.get(_).isInstanceOf[SbtModuleType])
-          ui.select(module.get.getName, "SBT", false)
-          //Project Structure should be shown in a transaction
-          TransactionGuard.getInstance().submitTransactionAndWait(new Runnable {
-            def run(): Unit = editor.show()
-          })
-        }
+      "#open", (notification: Notification, e: HyperlinkEvent) => {
+        val ui = ProjectStructureConfigurable.getInstance(project)
+        val editor = new SingleConfigurableEditor(project, ui)
+        val module = ui.getModulesConfig.getModules.find(ModuleType.get(_).isInstanceOf[SbtModuleType])
+        ui.select(module.get.getName, "SBT", false)
+        //Project Structure should be shown in a transaction
+        TransactionGuard.getInstance().submitTransactionAndWait(() => editor.show())
       })
     notificationData.setListener(
-      "#disable", new NotificationListener.Adapter() {
-        protected def hyperlinkActivated(notification: Notification, e: HyperlinkEvent) {
-          val result: Int = Messages.showYesNoDialog(myProject,
-            s"""Notification will be disabled for all projects
-               |Settings | Appearance & Behavior | Notifications | $SBT_MAVEN_NOTIFICATION_GROUP
-               |can be used to configure the notification.""".stripMargin,
-            "Unindexed Maven Repositories SBT Detection",
-            "Disable Notification",
-            CommonBundle.getCancelButtonText,
-            Messages.getWarningIcon)
-          if (result == Messages.YES) {
-            NotificationsConfigurationImpl.getInstanceImpl.changeSettings(SBT_MAVEN_NOTIFICATION_GROUP, NotificationDisplayType.NONE, false, false)
-            notification.hideBalloon()
-          }
+      "#disable", (notification: Notification, e: HyperlinkEvent) => {
+        val result: Int = Messages.showYesNoDialog(myProject,
+          s"""Notification will be disabled for all projects
+Settings | Appearance & Behavior | Notifications | $SBT_MAVEN_NOTIFICATION_GROUP
+can be used to configure the notification.""".stripMargin,
+          "Unindexed Maven Repositories SBT Detection",
+          "Disable Notification",
+          CommonBundle.getCancelButtonText,
+          Messages.getWarningIcon)
+        if (result == Messages.YES) {
+          NotificationsConfigurationImpl.getInstanceImpl.changeSettings(SBT_MAVEN_NOTIFICATION_GROUP, NotificationDisplayType.NONE, false, false)
+          notification.hideBalloon()
         }
       })
     notificationData

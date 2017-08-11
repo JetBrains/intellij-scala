@@ -58,6 +58,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, Set, mutable}
+import scala.collection.JavaConverters._
 
 /**
   * User: Alexander Podkhalyuzin
@@ -186,7 +187,7 @@ object ScalaPsiUtil {
     * See SCL-2001, SCL-3485
     */
   def tuplizy(s: Seq[Expression], scope: GlobalSearchScope, manager: PsiManager, place: PsiElement): Option[Seq[Expression]] = {
-    implicit val project = manager.getProject
+    implicit val project: Project = manager.getProject
     s match {
       case Seq() =>
         // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
@@ -252,7 +253,7 @@ object ScalaPsiUtil {
                              noImplicitsForArgs: Boolean): Option[ImplicitResolveResult] = {
     implicit val ctx: ProjectContext = baseExpr
 
-    val exprType = ImplicitCollector.exprType(baseExpr, fromUnder = false) match {
+    val exprType: ScType = ImplicitCollector.exprType(baseExpr, fromUnder = false) match {
       case None => return None
       case Some(x) if x.equiv(Nothing) => return None //do not proceed with nothing type, due to performance problems.
       case Some(x) => x
@@ -270,7 +271,7 @@ object ScalaPsiUtil {
     def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
       val data = ExtensionConversionData(baseExpr, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
 
-      implicit val elementScope = baseExpr.elementScope
+      implicit val elementScope: ElementScope = baseExpr.elementScope
       new ImplicitCollector(
         baseExpr,
         FunctionType(Any, Seq(exprType)),
@@ -331,7 +332,7 @@ object ScalaPsiUtil {
 
   def processTypeForUpdateOrApplyCandidates(call: MethodInvocation, tp: ScType, isShape: Boolean,
                                             isDynamic: Boolean): Array[ScalaResolveResult] = {
-    implicit val projectContext = call.projectContext
+    implicit val projectContext: ProjectContext = call.projectContext
     val isUpdate = call.isUpdateCall
 
     val methodName =
@@ -521,14 +522,14 @@ object ScalaPsiUtil {
     val visited: mutable.HashSet[ScType] = new mutable.HashSet[ScType]()
     val parts: mutable.Queue[ScType] = new mutable.Queue[ScType]
 
-    def collectPartsIter(iterable: TraversableOnce[ScType]) = {
+    def collectPartsIter(iterable: TraversableOnce[ScType]): Unit = {
       val iterator = iterable.toIterator
       while(iterator.hasNext) {
         collectParts(iterator.next())
       }
     }
 
-    def collectPartsTr(option: TypeResult[ScType]) = {
+    def collectPartsTr(option: TypeResult[ScType]): Unit = {
       option match {
         case Success(t, _) => collectParts(t)
         case _ =>
@@ -914,7 +915,7 @@ object ScalaPsiUtil {
 
   def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[Signature] = {
     val empty = Seq.empty
-    val typed = x match {
+    val typed: ScTypedDefinition = x match {
       case x: ScTypedDefinition => x
       case _ => return empty
     }
@@ -1029,7 +1030,7 @@ object ScalaPsiUtil {
       case _ =>
         val PARAM_OPTIONS: Int = PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_TYPE | PsiFormatUtilBase.TYPE_AFTER
 
-        implicit val elementScope = method.elementScope
+        implicit val elementScope: ElementScope = method.elementScope
         PsiFormatUtil.formatMethod(method, getPsiSubstitutor(subst),
           PARAM_OPTIONS | PsiFormatUtilBase.SHOW_PARAMETERS, PARAM_OPTIONS)
     }
@@ -1792,7 +1793,7 @@ object ScalaPsiUtil {
   }
 
   def changeVisibility(member: ScModifierListOwner, newVisibility: String): Unit = {
-    implicit val projectContext = member.projectContext
+    implicit val projectContext: ProjectContext = member.projectContext
     val modifierList = member.getModifierList
     if (newVisibility == "" || newVisibility == "public") {
       modifierList.accessModifier.foreach(_.delete())
@@ -1829,11 +1830,8 @@ object ScalaPsiUtil {
   def kindProjectorPluginEnabled(p: Project): Boolean = {
     val modules = ModuleUtil.getModulesOfType(p, JavaModuleType.getModuleType)
 
-    import collection.JavaConversions._
-
-    modules.exists {
-      mod =>
-        mod.hasScala && mod.scalaCompilerSettings.plugins.exists(_.contains("kind-projector"))
+    modules.asScala.exists { mod =>
+      mod.hasScala && mod.scalaCompilerSettings.plugins.exists(_.contains("kind-projector"))
     }
   }
 
@@ -1863,7 +1861,7 @@ object ScalaPsiUtil {
     * @see https://github.com/scala/scala/pull/3018/
     */
   def toSAMType(expected: ScType, element: PsiElement): Option[ScType] = {
-    implicit val scalaScope = ElementScope(element)
+    implicit val scalaScope: ElementScope = ElementScope(element)
     val languageLevel = element.scalaLanguageLevelOrDefault
 
     def constructorValidForSAM(constructor: PsiMethod): Boolean = {

@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplat
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import scala.collection.JavaConverters._
 
 /**
   * User: Alexander Podkhalyuzin
@@ -51,8 +52,7 @@ abstract class AbstractNameSuggestionProvider extends NameSuggestionProvider {
   override final def getSuggestedNames(element: PsiElement, context: PsiElement, result: ju.Set[String]): SuggestedNameInfo = {
     val names = suggestedNames(element)
 
-    import scala.collection.JavaConversions._
-    result.addAll(names)
+    result.addAll(names.asJavaCollection)
 
     new SuggestedNameInfo(names.toArray) {}
   }

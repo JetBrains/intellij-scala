@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -23,10 +24,12 @@ object ComparingUtil {
     val twoNonTraitsOrInterfaces = !classes.exists(_.isInterface)
 
     def inheritorsInSameFile(clazz: PsiClass) = {
-      import scala.collection.JavaConversions._
-      ClassInheritorsSearch.search(clazz, new LocalSearchScope(clazz.getContainingFile), true).findAll().collect {
-        case x: ScTypeDefinition => x
-      }
+      ClassInheritorsSearch.search(clazz, new LocalSearchScope(clazz.getContainingFile), true)
+        .findAll()
+        .asScala
+        .collect {
+          case x: ScTypeDefinition => x
+        }
     }
 
     def sealedAndAllChildrenAreIrreconcilable = {

@@ -10,9 +10,9 @@ import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.impl.StartMarkAction
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.EditorColors
-import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, RangeHighlighter, TextAttributes}
+import com.intellij.openapi.editor.{Editor, SelectionModel}
+import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsScheme}
+import com.intellij.openapi.editor.markup._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
 import com.intellij.openapi.util.{Computable, Key}
@@ -34,6 +34,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DefaultListCellRendererAdapter, ScalaDirectoryService, ScalaRefactoringUtil}
 import org.jetbrains.plugins.scala.util.{JListCompatibility, ScalaUtils}
 
+import scala.collection.JavaConverters._
+
 /**
  * Created by Kate Ustyuzhanina
  * on 9/18/15
@@ -41,7 +43,7 @@ import org.jetbrains.plugins.scala.util.{JListCompatibility, ScalaUtils}
 trait IntroduceTypeAlias {
   this: ScalaIntroduceVariableHandler =>
 
-  val INTRODUCE_TYPEALIAS_REFACTORING_NAME = ScalaBundle.message("introduce.type.alias.title")
+  val INTRODUCE_TYPEALIAS_REFACTORING_NAME: String = ScalaBundle.message("introduce.type.alias.title")
 
   def invokeTypeElement(project: Project, editor: Editor, file: PsiFile, inTypeElement: ScTypeElement): Unit = {
     try {
@@ -111,50 +113,47 @@ trait IntroduceTypeAlias {
 
       // replace all occurrences, don't replace occurences available from companion object or inheritors
       // suggest to choose scope
-      def runInplace() = {
+      def runInplace(): Unit = {
         def handleScope(scopeItem: SimpleScopeItem, needReplacement: Boolean) {
           val replaceAllOccurrences = true
 
-          import scala.collection.JavaConversions._
           val suggestedNames = scopeItem.availableNames
 
           val allOccurrences = OccurrenceData(typeElement, replaceAllOccurrences, isReplaceOccurrenceIncompanionObject = false,
             isReplaceOccurrenceInInheritors = false, scopeItem)
 
           val introduceRunnable: Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] =
-            introduceTypeAlias(file, editor, typeElement, allOccurrences, suggestedNames.head, scopeItem)
+            introduceTypeAlias(file, editor, typeElement, allOccurrences, suggestedNames.iterator().next(), scopeItem)
 
-          CommandProcessor.getInstance.executeCommand(project, new Runnable {
-            def run() {
-              val computable = ApplicationManager.getApplication.runWriteAction(introduceRunnable)
+          CommandProcessor.getInstance.executeCommand(project, () => {
+            val computable = ApplicationManager.getApplication.runWriteAction(introduceRunnable)
 
-              val namedElement: ScNamedElement =
-                computable._1.getElement match {
-                  case typeAlias: ScTypeAliasDefinition =>
-                    typeAlias
-                  case _ => null
-                }
-
-              val mtypeElement = computable._2.getElement match {
-                case typeElement: ScTypeElement =>
-                  typeElement
+            val namedElement: ScNamedElement =
+              computable._1.getElement match {
+                case typeAlias: ScTypeAliasDefinition =>
+                  typeAlias
                 case _ => null
               }
 
-              if (mtypeElement != null && mtypeElement.isValid) {
-                editor.getCaretModel.moveToOffset(mtypeElement.getTextOffset)
-                editor.getSelectionModel.removeSelection()
-                if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
+            val mtypeElement = computable._2.getElement match {
+              case typeElement: ScTypeElement =>
+                typeElement
+              case _ => null
+            }
 
-                  PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-                  PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
+            if (mtypeElement != null && mtypeElement.isValid) {
+              editor.getCaretModel.moveToOffset(mtypeElement.getTextOffset)
+              editor.getSelectionModel.removeSelection()
+              if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
 
-                  val typeAliasIntroducer =
-                    ScalaInplaceTypeAliasIntroducer(namedElement, namedElement, editor, namedElement.getName,
-                      namedElement.getName, scopeItem)
+                PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+                PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
 
-                  typeAliasIntroducer.performInplaceRefactoring(new util.LinkedHashSet[String](suggestedNames))
-                }
+                val typeAliasIntroducer =
+                  ScalaInplaceTypeAliasIntroducer(namedElement, namedElement, editor, namedElement.getName,
+                    namedElement.getName, scopeItem)
+
+                typeAliasIntroducer.performInplaceRefactoring(new util.LinkedHashSet[String](suggestedNames))
               }
             }
           }, INTRODUCE_TYPEALIAS_REFACTORING_NAME, null)
@@ -168,7 +167,7 @@ trait IntroduceTypeAlias {
           val templateState: TemplateState = TemplateManagerImpl.getTemplateState(InjectedLanguageUtil.getTopLevelEditor(editor))
 
           if (templateState != null) {
-            templateState.cancelTemplate()
+            templateState.gotoEnd()
           }
 
           val enteredName = currentDataObject.getNamedElement.getName
@@ -282,9 +281,7 @@ trait IntroduceTypeAlias {
                                    typeName: String,
                                    scope: ScopeItem): Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] = {
 
-    new Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])]() {
-      def compute(): (SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement]) = runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, scope)
-    }
+    () => runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, scope)
   }
 
   def afterScopeChoosing(project: Project, editor: Editor, file: PsiFile, scopes: Array[ScopeItem],
@@ -327,14 +324,14 @@ trait IntroduceTypeAlias {
 
   def showTypeAliasChooser[T](editor: Editor, elements: Array[T], pass: T => Unit, title: String, elementName: T => String) {
     class Selection {
-      val selectionModel = editor.getSelectionModel
+      val selectionModel: SelectionModel = editor.getSelectionModel
       val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
-      val scheme = editor.getColorsScheme
+      val scheme: EditorColorsScheme = editor.getColorsScheme
       val textAttributes = new TextAttributes
       textAttributes.setForegroundColor(scheme.getColor(EditorColors.SELECTION_FOREGROUND_COLOR))
       textAttributes.setBackgroundColor(scheme.getColor(EditorColors.SELECTION_BACKGROUND_COLOR))
-      var selectionHighlighter: RangeHighlighter = null
-      val markupModel = editor.getMarkupModel
+      var selectionHighlighter: RangeHighlighter = _
+      val markupModel: MarkupModel = editor.getMarkupModel
 
       def addHighlighter(): Unit = if (selectionHighlighter == null) {
         selectionHighlighter = markupModel.addRangeHighlighter(start, end, HighlighterLayer.SELECTION + 1,

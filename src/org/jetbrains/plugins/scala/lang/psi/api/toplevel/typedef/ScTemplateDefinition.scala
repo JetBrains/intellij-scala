@@ -36,6 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.JavaConverters._
 
@@ -72,7 +73,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     if (eb != null) {
       val tp = eb.templateParents
 
-      implicit val elementScope = ElementScope(getProject)
+      implicit val elementScope: ElementScope = ElementScope(getProject)
       tp match {
         case Some(tp1) => (for (te <- tp1.allTypeElements;
                                 t = te.getType(TypingContext.empty).getOrAny;
@@ -131,16 +132,18 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
   override def findMethodsAndTheirSubstitutorsByName(name: String,
                                                      checkBases: Boolean): JList[IPair[PsiMethod, PsiSubstitutor]] = {
     //the reordering is a hack to enable 'go to test location' for junit test methods defined in traits
-    import scala.collection.JavaConversions._
-    PsiClassImplUtil.findMethodsAndTheirSubstitutorsByName(this, name, checkBases).toList.sortBy(myPair =>
-      myPair.first match {
-        case wrapper: ScFunctionWrapper if wrapper.delegate.isInstanceOf[ScFunctionDeclaration] => 1
-        case wrapper: ScFunctionWrapper if wrapper.delegate.isInstanceOf[ScFunctionDefinition] => wrapper.containingClass match {
-          case myClass: ScTemplateDefinition if myClass.members.contains(wrapper.delegate) => 0
+    PsiClassImplUtil.findMethodsAndTheirSubstitutorsByName(this, name, checkBases)
+      .asScala
+      .sortBy(myPair =>
+        myPair.first match {
+          case wrapper: ScFunctionWrapper if wrapper.delegate.isInstanceOf[ScFunctionDeclaration] => 1
+          case wrapper: ScFunctionWrapper if wrapper.delegate.isInstanceOf[ScFunctionDefinition] => wrapper.containingClass match {
+            case myClass: ScTemplateDefinition if myClass.members.contains(wrapper.delegate) => 0
+            case _ => 1
+          }
           case _ => 1
-        }
-        case _ => 1
       })
+      .asJava
   }
 
   override def getAllMethodsAndTheirSubstitutors: JList[IPair[PsiMethod, PsiSubstitutor]] = {
@@ -397,7 +400,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
   }
 
   def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
-    implicit val projectContext = member.projectContext
+    implicit val projectContext: ProjectContext = member.projectContext
     extendsBlock.templateBody.map {
       _.getNode
     }.map { node =>

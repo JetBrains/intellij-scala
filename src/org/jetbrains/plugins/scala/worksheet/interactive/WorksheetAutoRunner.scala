@@ -69,7 +69,7 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
     }
   }
 
-  private class MyDocumentAdapter(document: Document) extends DocumentAdapter {
+  private class MyDocumentAdapter(document: Document) extends DocumentListener {
     private val documentManager: PsiDocumentManager = PsiDocumentManager getInstance project
     private var lastProcessedOffset = 0
 

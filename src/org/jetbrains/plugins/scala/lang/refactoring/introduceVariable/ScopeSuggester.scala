@@ -5,6 +5,7 @@ import java.{util => ju}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopesCore, PsiSearchHelper}
@@ -23,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util._
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -99,7 +99,7 @@ object ScopeSuggester {
 
       val possibleNames = NameSuggester.suggestNamesByType(currentElement.calcType)(validator)
 
-      result += SimpleScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toSet[String])
+      result += SimpleScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toSet.asJava)
       parent = getParent(parent, isScriptFile)
     }
 
@@ -110,7 +110,7 @@ object ScopeSuggester {
       val allPackages = getAllAvailablePackages(scPackage.fullPackageName, currentElement)
       for ((resultPackage, resultDirectory) <- allPackages) {
         val suggested = NameSuggester.suggestNamesByType(currentElement.calcType).map(_.capitalize).head
-        result += PackageScopeItem(resultPackage.getQualifiedName, resultDirectory, needDirectoryCreating = false, Set(suggested))
+        result += PackageScopeItem(resultPackage.getQualifiedName, resultDirectory, needDirectoryCreating = false, Set(suggested).asJava)
       }
     }
 
@@ -218,7 +218,7 @@ object ScopeSuggester {
         words.foreach(oneRound(_, resultBuffer))
 
         var intersectionResult = resultBuffer(0)
-        def intersect(inBuffer: ArrayBuffer[ScalaFile]) = {
+        def intersect(inBuffer: ArrayBuffer[ScalaFile]): Unit = {
           intersectionResult = intersectionResult.intersect(inBuffer)
         }
 
@@ -279,7 +279,7 @@ object ScopeSuggester {
 
     val possibleName = validator.validateName(inputName)
 
-    val result = PackageScopeItem(inPackage.getName, fileEncloser, needNewDir, Set(possibleName))
+    val result = PackageScopeItem(inPackage.getName, fileEncloser, needNewDir, Set(possibleName).asJava)
 
     result.occurrences = occurrences
     result.validator = validator
@@ -300,23 +300,23 @@ case class SimpleScopeItem(override val name: String,
                            typeValidator: ScalaTypeValidator,
                            override val availableNames: ju.Set[String]) extends ScopeItem(name, availableNames) {
 
-  var occurrencesFromInheretors: Array[ScTypeElement] = Array[ScTypeElement]()
-  val usualOccurrencesRanges = usualOccurrences.map((x: ScTypeElement) => (x.getTextRange, x.getContainingFile))
-  val fileEncloserRange = (fileEncloser.getTextRange, fileEncloser.getContainingFile)
+  var occurrencesFromInheritors: Array[ScTypeElement] = Array[ScTypeElement]()
+  private val usualOccurrencesRanges: Array[(TextRange, PsiFile)] = usualOccurrences.map((x: ScTypeElement) => (x.getTextRange, x.getContainingFile))
+  private val fileEncloserRange: (TextRange, PsiFile) = (fileEncloser.getTextRange, fileEncloser.getContainingFile)
 
-  def setInheretedOccurrences(occurrences: Array[ScTypeElement]): Unit = {
+  def setInheritedOccurrences(occurrences: Array[ScTypeElement]): Unit = {
     if (occurrences != null) {
-      occurrencesFromInheretors = occurrences
+      occurrencesFromInheritors = occurrences
     }
   }
 
   def revalidate(newName: String): ScopeItem = {
     val revalidatedOccurrences = usualOccurrencesRanges.map {
-      case (range, containigFile) =>
-        PsiTreeUtil.findElementOfClassAtRange(containigFile, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
+      case (range, containingFile) =>
+        PsiTreeUtil.findElementOfClassAtRange(containingFile, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
     }
 
-    val newNames: mutable.Set[String] = availableNames ++ (newName match {
+    val newNames: Set[String] = availableNames.asScala.toSet ++ (newName match {
       case "" => Set.empty
       case n if availableNames.contains(n) => Set.empty
       case n => Set(n)
@@ -329,8 +329,8 @@ case class SimpleScopeItem(override val name: String,
 
     val updatedValidator = new ScalaTypeValidator(typeValidator.selectedElement, typeValidator.noOccurrences, updatedFileEncloser, updatedFileEncloser)
 
-    new SimpleScopeItem(name, updatedFileEncloser,
-      revalidatedOccurrences, occurrencesInCompanion, updatedValidator, newNames)
+    SimpleScopeItem(name, updatedFileEncloser,
+      revalidatedOccurrences, occurrencesInCompanion, updatedValidator, newNames.asJava)
   }
 
   def isTrait: Boolean = {
@@ -350,8 +350,8 @@ case class PackageScopeItem(override val name: String,
                             fileEncloser: PsiElement,
                             needDirectoryCreating: Boolean,
                             override val availableNames: ju.Set[String]) extends ScopeItem(name, availableNames) {
-  var occurrences = Array[ScTypeElement]()
-  var validator: ScalaCompositeTypeValidator = null
+  var occurrences: Array[ScTypeElement] = Array[ScTypeElement]()
+  var validator: ScalaCompositeTypeValidator = _
 
   override def toString: String = "package " + name
 }

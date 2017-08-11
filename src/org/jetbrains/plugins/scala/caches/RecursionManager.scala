@@ -8,6 +8,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Computable
 import com.intellij.util.containers.{ContainerUtil, SoftHashMap, SoftKeySoftValueHashMap}
 import gnu.trove.{THashMap, THashSet}
+import scala.collection.JavaConverters._
 
 /**
   * Nikolay.Tropin
@@ -171,8 +172,7 @@ object RecursionManager {
       if (!checkZero) throw new AssertionError("zero1")
       val loop: util.Set[MyKey[_]] = new THashSet[MyKey[_]]
       var inLoop: Boolean = false
-      import scala.collection.JavaConversions._
-      for (entry <- progressMap.entrySet) {
+      for (entry <- progressMap.entrySet.asScala) {
         if (inLoop) {
           entry.setValue(reentrancyCount)
           loop.add(entry.getKey)

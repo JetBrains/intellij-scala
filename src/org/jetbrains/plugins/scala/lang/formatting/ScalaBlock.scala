@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import scala.collection.JavaConverters._
 
 class ScalaBlock(val myParentBlock: ScalaBlock,
                  protected val myNode: ASTNode,
@@ -34,7 +35,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
                  val subBlocksContext: Option[SubBlocksContext] = None)
   extends Object with ScalaTokenTypes with ASTBlock {
 
-  protected var mySubBlocks: util.List[Block] = null
+  protected var mySubBlocks: util.List[Block] = _
 
   override def getNode: ASTNode = myNode
 
@@ -146,11 +147,13 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
   }
 
   def getSubBlocks: util.List[Block] = {
-    import scala.collection.JavaConversions._
     if (mySubBlocks == null) {
-      mySubBlocks = getDummyBlocks(myNode, myLastNode, this).filterNot {
-        _.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE
-      }
+      mySubBlocks = getDummyBlocks(myNode, myLastNode, this)
+        .asScala
+        .filterNot {
+          _.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE
+        }
+        .asJava
     }
     mySubBlocks
   }
@@ -177,7 +180,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
     isIncomplete(lastChild)
   }
 
-  private var _suggestedWrap: Wrap = null
+  private var _suggestedWrap: Wrap = _
 
   def suggestedWrap: Wrap = {
     if (_suggestedWrap == null) {

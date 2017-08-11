@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver.getAllResolveResult
+import scala.collection.JavaConverters._
 
 object DynamicResolveProcessor {
 
@@ -50,8 +51,7 @@ object DynamicResolveProcessor {
   }
 
   def resolveDynamic(reference: ScReferenceExpression): Seq[ResolveResult] = {
-    import scala.collection.JavaConversions._
-    getAllResolveResult(reference)
+    getAllResolveResult(reference).asScala
   }
 }
 

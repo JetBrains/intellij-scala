@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.UIFreezingGuard
 
@@ -41,7 +42,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   val name: String = if (_name != "this") escapeKeyword(_name) else _name
 } with LookupItem[PsiNamedElement](element, name) {
 
-  private implicit val project = element.projectContext
+  private implicit val project: ProjectContext = element.projectContext
 
   var isClassName: Boolean = false
   var isRenamed: Option[String] = None

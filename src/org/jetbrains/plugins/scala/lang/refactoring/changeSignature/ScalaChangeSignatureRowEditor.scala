@@ -6,7 +6,7 @@ import javax.swing.border.MatteBorder
 import javax.swing.{JComponent, JPanel, JTable}
 
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorFontType}
-import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent}
+import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.ui.EditorTextField
 import com.intellij.util.ui.table.JBTableRowEditor._
@@ -57,7 +57,7 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
 
   def addTypeEditor() {
     myTypeEditor.addDocumentListener(signatureUpdater)
-    myTypeEditor.addDocumentListener(new DocumentAdapter {
+    myTypeEditor.addDocumentListener(new DocumentListener {
       override def documentChanged(e: DocumentEvent): Unit = {
         item.typeText = myTypeEditor.getText
       }
@@ -79,7 +79,7 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
   def addDefaultValueEditor(additionalPanel: JPanel) {
     myDefaultValueEditor.setPreferredWidth(table.getWidth / 2)
     myDefaultValueEditor.addDocumentListener(new this.RowEditorChangeListener(2))
-    myDefaultValueEditor.addDocumentListener(new DocumentAdapter {
+    myDefaultValueEditor.addDocumentListener(new DocumentListener {
       override def documentChanged(e: DocumentEvent): Unit = {
         item.parameter.defaultValue = myDefaultValueEditor.getText.trim
       }
@@ -88,16 +88,10 @@ class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: 
   }
 
   def getValue: JBTableRow = {
-    new JBTableRow {
-      def getValueAt(column: Int): AnyRef = {
-        column match {
-          case 0 => myNameEditor.getText.trim
-          case 1 => myTypeEditor.getText.trim
-          case 2 => myDefaultValueEditor.getText.trim
-          case _ => null
-        }
-      }
-    }
+    case 0 => myNameEditor.getText.trim
+    case 1 => myTypeEditor.getText.trim
+    case 2 => myDefaultValueEditor.getText.trim
+    case _ => null
   }
 
   def getPreferredFocusedComponent: JComponent = {

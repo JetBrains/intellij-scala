@@ -290,7 +290,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       try {
         val paramNumber = defaultArgIndex.toInt - 1
         possiblePositions.find {
-          case e =>
+          e =>
             val scParameters = PsiTreeUtil.getParentOfType(e, classOf[ScParameters])
             if (scParameters != null) {
               val param = scParameters.params(paramNumber)
@@ -371,16 +371,15 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       val query: Query[VirtualFile] = directoryIndex.getDirectoriesByPackageName(packageName, true)
       val fileNameWithoutExtension = if (dotIndex > 0) qName.substring(dotIndex + 1) else qName
       val fileNames: util.Set[String] = new util.HashSet[String]
-      import scala.collection.JavaConversions._
-      for (extention <- ScalaLoader.SCALA_EXTENSIONS) {
-        fileNames.add(fileNameWithoutExtension + "." + extention)
+      for (extension <- ScalaLoader.SCALA_EXTENSIONS.asScala) {
+        fileNames.add(fileNameWithoutExtension + "." + extension)
       }
       val result = new Ref[PsiFile]
       query.forEach(new Processor[VirtualFile] {
         override def process(vDir: VirtualFile): Boolean = {
           var isFound = false
           for {
-            fileName <- fileNames
+            fileName <- fileNames.asScala
             if !isFound
             vFile <- vDir.findChild(fileName).toOption
           } {
@@ -649,11 +648,11 @@ object ScalaPositionManager {
   private val isCompiledWithIndyLambdasCache = mutable.HashMap[PsiFile, Boolean]()
 
   private val instances = mutable.HashMap[DebugProcess, ScalaPositionManager]()
-  private def cacheInstance(scPosManager: ScalaPositionManager) = {
+  private def cacheInstance(scPosManager: ScalaPositionManager): Unit = {
     val debugProcess = scPosManager.debugProcess
 
     instances.put(debugProcess, scPosManager)
-    debugProcess.addDebugProcessListener(new DebugProcessAdapter {
+    debugProcess.addDebugProcessListener(new DebugProcessListener {
       override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
         ScalaPositionManager.instances.remove(process)
         debugProcess.removeDebugProcessListener(this)
@@ -682,7 +681,7 @@ object ScalaPositionManager {
   def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     if (lineNumber < 0) return Seq.empty
 
-    val scFile = file match {
+    val scFile: ScalaFile = file match {
       case sf: ScalaFile => sf
       case _ => return Seq.empty
     }
@@ -900,7 +899,7 @@ object ScalaPositionManager {
         case _ => None
       }
     }
-    private var classJVMNameParts: Seq[String] = null
+    private var classJVMNameParts: Seq[String] = _
 
     private def computeClassJVMNameParts(elem: PsiElement): Seq[String] = {
       if (exactName.isDefined) Seq.empty
@@ -990,20 +989,22 @@ object ScalaPositionManager {
 
   private[debugger] class ScalaPositionManagerCaches(debugProcess: DebugProcess) {
 
-    debugProcess.addDebugProcessListener(new DebugProcessAdapter {
+    debugProcess.addDebugProcessListener(new DebugProcessListener {
       override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
         clear()
         process.removeDebugProcessListener(this)
       }
     })
 
-    val refTypeToFileCache = mutable.HashMap[ReferenceType, PsiFile]()
-    val refTypeToElementCache = mutable.HashMap[ReferenceType, Option[SmartPsiElementPointer[PsiElement]]]()
+    val refTypeToFileCache: mutable.HashMap[ReferenceType, PsiFile] =
+      mutable.HashMap[ReferenceType, PsiFile]()
+    val refTypeToElementCache: mutable.HashMap[ReferenceType, Option[SmartPsiElementPointer[PsiElement]]] =
+      mutable.HashMap[ReferenceType, Option[SmartPsiElementPointer[PsiElement]]]()
 
-    val customizedLocationsCache = mutable.HashMap[Location, Int]()
-    val lineToCustomizedLocationCache = mutable.HashMap[(ReferenceType, Int), Seq[Location]]()
-    val seenRefTypes = mutable.Set[ReferenceType]()
-    val sourceNames = mutable.HashMap[ReferenceType, Option[String]]()
+    val customizedLocationsCache: mutable.HashMap[Location, Int] = mutable.HashMap[Location, Int]()
+    val lineToCustomizedLocationCache: mutable.HashMap[(ReferenceType, Int), Seq[Location]] = mutable.HashMap[(ReferenceType, Int), Seq[Location]]()
+    val seenRefTypes: mutable.Set[ReferenceType] = mutable.Set[ReferenceType]()
+    val sourceNames: mutable.HashMap[ReferenceType, Option[String]] = mutable.HashMap[ReferenceType, Option[String]]()
 
     def cachedSourceName(refType: ReferenceType): Option[String] =
       sourceNames.getOrElseUpdate(refType, Try(refType.sourceName()).toOption)

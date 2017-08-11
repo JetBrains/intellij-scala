@@ -31,7 +31,7 @@ import org.scalatest.finders.AstNode;
 import org.scalatest.finders.Finder;
 import org.scalatest.finders.Selection;
 import scala.Option;
-import scala.collection.JavaConversions;
+import scala.collection.JavaConverters;
 import scala.collection.Seq;
 
 import java.io.File;
@@ -147,11 +147,11 @@ public class ScalaTestAstTransformer {
                     if (constructor != null) {
                         ScArgumentExprList args = constructor.args().isDefined() ? constructor.args().get() : null;
                         ScAnnotationExpr annotationExpr = styleAnnotation.annotationExpr();
-                        List<ScNameValuePair> valuePairs = JavaConversions.seqAsJavaList(annotationExpr.getAttributes());
+                        List<ScNameValuePair> valuePairs = JavaConverters.seqAsJavaList(annotationExpr.getAttributes());
                         if (args == null && !valuePairs.isEmpty()) {
                             finderClassName = valuePairs.get(0).getLiteralValue();
                         } else if (args != null) {
-                            List<ScExpression> exprs = JavaConversions.seqAsJavaList(args.exprs());
+                            List<ScExpression> exprs = JavaConverters.seqAsJavaList(args.exprs());
                             if (exprs.size() > 0) {
                                 ScExpression expr = exprs.get(0);
                                 if (expr instanceof ScAssignStmt) {
@@ -197,7 +197,7 @@ public class ScalaTestAstTransformer {
 
     public Finder getFinder(ScTypeDefinition clazz, Module module) throws MalformedURLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
         Seq<ScType> classes = MixinNodes.linearization(clazz);
-        List<ScType> list = JavaConversions.seqAsJavaList(classes);
+        List<ScType> list = JavaConverters.seqAsJavaList(classes);
         List<PsiClass> newList = new ArrayList<PsiClass>();
         for (ScType type : list) {
             PsiClass c = ExtractClass$.MODULE$.unapply(type, clazz.getProject()).get();
@@ -253,7 +253,10 @@ public class ScalaTestAstTransformer {
         public final PsiElement element;
 
         public StMethodDefinition(String pClassName, PsiElement element, String... pParamTypes) {
-            super(pClassName, null, new AstNode[0], TestConfigurationUtil.getStaticTestNameOrDefault(element, "", false), pParamTypes);
+            super(pClassName, null,
+                    new AstNode[0],
+                    TestConfigurationUtil.getStaticTestNameOrDefault(element, "", false),
+                    pParamTypes);
             this.pClassName = pClassName;
             this.element = element;
         }
@@ -452,7 +455,7 @@ public class ScalaTestAstTransformer {
     public StMethodInvocation getScalaTestMethodInvocation(MethodInvocation selected, MethodInvocation current,
                                                            List<ScExpression> currentParamsExpr, String className) {
         List<ScExpression> paramsExpr = new ArrayList<ScExpression>();
-        paramsExpr.addAll(JavaConversions.seqAsJavaList(current.argumentExpressions()));
+        paramsExpr.addAll(JavaConverters.seqAsJavaList(current.argumentExpressions()));
         paramsExpr.addAll(currentParamsExpr);
         if (current.getInvokedExpr() instanceof ScReferenceExpression) {
             AstNode target = getTarget(className, current, selected);
@@ -505,7 +508,7 @@ public class ScalaTestAstTransformer {
             String className = containingClass.qualifiedName();
             String name = methodDef.name();
             List<String> paramTypes = new ArrayList<String>();
-            for (ScParameter param : JavaConversions.seqAsJavaList(methodDef.parameters())) {
+            for (ScParameter param : JavaConverters.seqAsJavaList(methodDef.parameters())) {
                 paramTypes.add(param.getType().getCanonicalText());
             }
             String[] array = new String[paramTypes.size()];
@@ -543,24 +546,9 @@ public class ScalaTestAstTransformer {
         }
         if (finder != null) {
             AstNode selectedAst = getSelectedAstNode(clazz.qualifiedName(), element);
-            AstNode selectedAstOpt = (selectedAst == null) ? null : selectedAst;
-            if (selectedAstOpt != null) {
+            if (selectedAst != null) {
                 //TODO add logging here
-                /*selectedAst match {
-                  case org.scalatest.finders.MethodInvocation(className, target, parent, children, name, args) =>
-                    println("######parent: " + parent.getClass.getName)
-                  case _ =>
-                    println("######Other!!")
-                }*/
-                Selection selection = finder.find(selectedAstOpt);
-                /*selectionOpt match {
-                  case Some(selection) =>
-                    println("***Test Found, display name: " + selection.displayName() + ", test name(s):")
-                    selection.testNames.foreach(println(_))
-                  case None =>
-                    println("***Test Not Found!!")
-                }*/
-                return selection;
+                return finder.find(selectedAst);
             } else {
                 return null;
             }
@@ -598,8 +586,7 @@ public class ScalaTestAstTransformer {
         } else {
             List<PsiElement> nestedChildren = new ArrayList<PsiElement>();
             PsiElement[] children = element.getChildren();
-            for (int i = 0; i < children.length; i++) {
-                PsiElement child = children[i];
+            for (PsiElement child : children) {
                 if (child instanceof ScArgumentExprListImpl) {
                     ScArgumentExprListImpl argExprList = (ScArgumentExprListImpl) child;
                     PsiElement[] aelChildren = argExprList.getChildren();

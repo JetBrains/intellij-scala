@@ -30,7 +30,7 @@ object ExistentialClause {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer() //Ate {
-        builder.enableNewlines
+        builder.enableNewlines()
       case _ =>
         builder error ScalaBundle.message("existential.block.expected")
         existMarker.done(ScalaElementTypes.EXISTENTIAL_CLAUSE)
@@ -39,8 +39,8 @@ object ExistentialClause {
     def foo() {
       ExistentialDclSeq parse builder
     }
-    ParserUtils.parseLoopUntilRBrace(builder, foo)
-    builder.restoreNewlinesState
+    ParserUtils.parseLoopUntilRBrace(builder, foo _)
+    builder.restoreNewlinesState()
     existMarker.done(ScalaElementTypes.EXISTENTIAL_CLAUSE)
     true
   }

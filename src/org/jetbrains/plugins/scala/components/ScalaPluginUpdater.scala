@@ -11,10 +11,10 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.application.impl.ApplicationInfoImpl
-import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager}
+import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager, PermanentInstallationID}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent}
+import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.updateSettings.UpdateStrategyCustomization
@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
 
+import scala.collection.JavaConverters._
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 class InvalidRepoException(what: String) extends Exception(what)
@@ -40,7 +41,7 @@ object ScalaPluginUpdater {
 
   private val scalaPluginId = "1347"
 
-  val baseUrl = "https://plugins.jetbrains.com/plugins/%s/" + scalaPluginId
+  val baseUrl: String = "https://plugins.jetbrains.com/plugins/%s/" + scalaPluginId
 
   private var doneUpdating = false
 
@@ -69,7 +70,7 @@ object ScalaPluginUpdater {
     )
   )
 
-  val currentVersion = FOURTEEN_ONE
+  val currentVersion: String = FOURTEEN_ONE
 
   def currentRepo: Map[pluginBranch, String] = knownVersions(currentVersion)
 
@@ -80,7 +81,7 @@ object ScalaPluginUpdater {
   // save plugin version before patching to restore it when switching back
   var savedPluginVersion = ""
 
-  private val updateListener = new DocumentAdapter() {
+  private val updateListener = new DocumentListener {
     override def documentChanged(e: DocumentEvent): Unit = {
       val file = FileDocumentManager.getInstance().getFile(e.getDocument)
       if (file != null && file.getFileType == ScalaFileType.INSTANCE)
@@ -149,8 +150,7 @@ object ScalaPluginUpdater {
       PluginInstaller.prepareToUninstall(pluginId)
       val installedPlugins = InstalledPluginsState.getInstance().getInstalledPlugins
       val pluginIdString: String = pluginId.getIdString
-      import scala.collection.JavaConversions._
-      while (installedPlugins.exists(_.getPluginId.getIdString == pluginIdString)) {
+      while (installedPlugins.asScala.exists(_.getPluginId.getIdString == pluginIdString)) {
         installedPlugins.remove(pluginIdString)
       }
     }
@@ -214,7 +214,7 @@ object ScalaPluginUpdater {
 
   def postCheckIdeaCompatibility(): Unit = postCheckIdeaCompatibility(getScalaPluginBranch)
 
-  private def suggestIdeaUpdate(branch: String, suggestedVersion: String) = {
+  private def suggestIdeaUpdate(branch: String, suggestedVersion: String): Unit = {
     val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
     val appSettings = ScalaApplicationSettings.getInstance()
     def getPlatformUpdateResult = {
@@ -247,14 +247,12 @@ object ScalaPluginUpdater {
           "Scala Plugin Update Failed",
           message,
           NotificationType.WARNING,
-          new NotificationListener {
-            override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
-              notification.expire()
-              event.getDescription match {
-                case "No" => // do nothing, will ask next time
-                case "Yes" => UpdateSettings.getInstance().setUpdateChannelType("eap")
-                case "Ignore" => appSettings.ASK_PLATFORM_UPDATE = false
-              }
+          (notification: Notification, event: HyperlinkEvent) => {
+            notification.expire()
+            event.getDescription match {
+              case "No" => // do nothing, will ask next time
+              case "Yes" => UpdateSettings.getInstance().setSelectedChannelStatus(ChannelStatus.EAP)
+              case "Ignore" => appSettings.ASK_PLATFORM_UPDATE = false
             }
           }
         ))
@@ -278,14 +276,12 @@ object ScalaPluginUpdater {
           val buildNumber = ApplicationInfo.getInstance().getBuild.asString()
           val pluginVersion = pluginDescriptor.getVersion
           val os = URLEncoder.encode(SystemInfo.OS_NAME + " " + SystemInfo.OS_VERSION, CharsetToolkit.UTF8)
-          val uid = UpdateChecker.getInstallationUID(PropertiesComponent.getInstance())
+          val uid: String = PermanentInstallationID.get()
           val url = s"https://plugins.jetbrains.com/plugins/list?pluginId=$scalaPluginId&build=$buildNumber&pluginVersion=$pluginVersion&os=$os&uuid=$uid"
           PropertiesComponent.getInstance().setValue(key, System.currentTimeMillis().toString)
           doneUpdating = true
           try {
-            HttpRequests.request(url).connect(new HttpRequests.RequestProcessor[Unit] {
-              override def process(request: Request): Unit = JDOMUtil.load(request.getReader())
-            })
+            HttpRequests.request(url).connect((request: Request) => JDOMUtil.load(request.getReader()))
           } catch {
             case e: Throwable => LOG.warn(e)
           }
@@ -371,5 +367,5 @@ object ScalaPluginUpdater {
 
   def invokeLater(f: => Unit): Future[_] = ApplicationManager.getApplication.executeOnPooledThread(toRunnable(f))
 
-  def toRunnable(f: => Unit) = new Runnable { override def run(): Unit = f }
+  def toRunnable(f: => Unit): Runnable = () => f
 }

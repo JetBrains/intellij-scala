@@ -3,7 +3,7 @@ package util.macroDebug
 
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.editor.Document
-import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent}
+import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -40,7 +40,7 @@ class MacrosheetFileHook(private val project: Project) extends AbstractProjectCo
     }
   }
 
-  private class MacrosheetSourceAutocopy(document: Document) extends DocumentAdapter {
+  private class MacrosheetSourceAutocopy(document: Document) extends DocumentListener {
     private val myAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, project)
     private val RUN_DELAY_MS = 1400
 

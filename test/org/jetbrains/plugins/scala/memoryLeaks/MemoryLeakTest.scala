@@ -9,7 +9,7 @@ import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.ide.startup.impl.StartupManagerImpl
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.actionSystem.impl.ActionManagerImpl
-import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{DumbService, Project, ProjectManager}
@@ -44,7 +44,7 @@ class MemoryLeakTest extends PlatformTestCase {
   override protected def setUpProject(): Unit = {}
 
   private def loadAndSetupProject(): Project = {
-    implicit val project = ProjectManager.getInstance.loadAndOpenProject(projectPath.toString)
+    implicit val project: Project = ProjectManager.getInstance.loadAndOpenProject(projectPath.toString)
     assertNotNull(project)
 
     do {
@@ -74,7 +74,7 @@ class MemoryLeakTest extends PlatformTestCase {
   }
 
   private def librariesLoaders(implicit project: ProjectContext): Seq[LibraryLoader] = {
-    implicit val module = ModuleManager.getInstance(project).getModules()(0)
+    implicit val module: Module = ModuleManager.getInstance(project).getModules()(0)
     Seq(
       ScalaLibraryLoader(),
       JdkLoader()
@@ -90,7 +90,7 @@ class MemoryLeakTest extends PlatformTestCase {
   }
 
   def testLeaksAfterProjectDispose(): Unit = {
-    implicit val project = loadAndSetupProject()
+    implicit val project: Project = loadAndSetupProject()
 
     doSomeWork
     val allRoots = allRootsForProject
@@ -158,9 +158,8 @@ object MemoryLeakTest {
   }
 
   private[this] def createInspectionTools(implicit project: ProjectContext): Seq[InspectionToolWrapper[_, _]] = {
-    import scala.collection.JavaConversions._
-    createInspectionProfile.getAllEnabledInspectionTools(project)
-      .flatMap(_.getTools)
+    createInspectionProfile.getAllEnabledInspectionTools(project).asScala
+      .flatMap(_.getTools.asScala)
       .map(_.getTool)
   }
 

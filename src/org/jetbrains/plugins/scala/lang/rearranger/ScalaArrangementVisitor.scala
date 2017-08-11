@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile,
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 import scala.collection.mutable
+import scala.collection.JavaConverters._
 
 /**
  * @author Roman.Shein
@@ -167,8 +168,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
         })
       }
     }
-    import scala.collection.JavaConversions._
-    if (scalaAccessModifiersValues.intersect(entry.getModifiers).isEmpty) {
+    if (scalaAccessModifiersValues.intersect(entry.getModifiers.asScala).isEmpty) {
       entry addModifier PUBLIC
     }
   }

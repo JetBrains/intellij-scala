@@ -385,7 +385,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
                 inheritanceDataMap.put(selectedScope, inheritors);
             }
 
-            simpleScopeItem.setInheretedOccurrences(inheritors._1());
+            simpleScopeItem.setInheritedOccurrences(inheritors._1());
 
             for (ScalaTypeValidator validator : inheritors._2()) {
                 if (isConflictReported(validator)) {

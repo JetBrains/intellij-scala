@@ -18,8 +18,7 @@ import com.intellij.openapi.ui.Splitter
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-
-import scala.collection.convert.wrapAsJava
+import scala.collection.JavaConverters._
 
 /**
  * User: Dmitry.Naydanov
@@ -125,7 +124,9 @@ object WorksheetDiffSplitters {
 
     override def redrawDiffs(): Unit = getDivider.repaint()
 
-    override def createDivider() = new DividerImpl {
+    override def createDivider(): DividerImpl {
+      def paint(g: Graphics): Unit
+    } = new DividerImpl {
       override def paint(g: Graphics) {
         super.paint(g)
         val width = getWidth
@@ -154,7 +155,7 @@ object WorksheetDiffSplitters {
             )
         }
 
-        DividerPolygon.paintPolygons(new util.ArrayList[DividerPolygon](wrapAsJava asJavaCollection plainPolygons), gg, width)
+        DividerPolygon.paintPolygons(new util.ArrayList[DividerPolygon](plainPolygons.asJavaCollection), gg, width)
         gg.dispose()
       }
     }

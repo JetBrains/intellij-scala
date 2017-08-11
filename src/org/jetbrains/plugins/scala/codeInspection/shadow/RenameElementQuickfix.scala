@@ -13,6 +13,7 @@ import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.refactoring.actions.RenameElementAction
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.extensions._
+import scala.collection.JavaConverters._
 
 /**
  * User: Alefas
@@ -31,7 +32,6 @@ class RenameElementQuickfix(myRef: PsiElement, name: String) extends AbstractFix
   }
 
   private def actionEventForElement(project: Project, action: AnAction): AnActionEvent = {
-    import scala.collection.JavaConversions._
     import scala.collection.mutable
 
     val ref = getElement
@@ -46,7 +46,7 @@ class RenameElementQuickfix(myRef: PsiElement, name: String) extends AbstractFix
         editor, editor.getCaretModel.getCurrentCaret)
       map.put(CommonDataKeys.PSI_ELEMENT.getName, element)
     }
-    val dataContext = SimpleDataContext.getSimpleContext(map, DataManager.getInstance.getDataContext(editor.getComponent))
+    val dataContext = SimpleDataContext.getSimpleContext(map.asJava, DataManager.getInstance.getDataContext(editor.getComponent))
     new AnActionEvent(null, dataContext, "", action.getTemplatePresentation, ActionManager.getInstance, 0)
   }
 }

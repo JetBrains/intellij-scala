@@ -35,7 +35,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
 
   override def setUp(): Unit = {
     super.setUp()
-    myProject.getMessageBus.connect(getTestRootDisposable).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
+    myProject.getMessageBus.connect(getTestRootDisposable).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
       override def rootsChanged(event: ModuleRootEvent) {
         forceFSRescan()
       }

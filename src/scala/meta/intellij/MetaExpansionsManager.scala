@@ -27,6 +27,7 @@ import scala.meta.parsers.Parse
 import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
 import scala.meta.{Dialect, Tree}
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
+import scala.collection.JavaConverters._
 
 /**
   * @author Mikhail Mutcianko
@@ -36,7 +37,6 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
   import org.jetbrains.plugins.scala.project._
 
   import MetaExpansionsManager.META_MAJOR_VERSION
-  import scala.collection.convert.decorateAsScala._
 
   override def getComponentName = "MetaExpansionsManager"
 
@@ -60,11 +60,11 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
     }
   }
 
-  private def installCompilationListener() = {
+  private def installCompilationListener(): Unit = {
     CompilerManager.getInstance(project).addCompilationStatusListener(compilationStatusListener)
   }
 
-  private def uninstallCompilationListener() = {
+  private def uninstallCompilationListener(): Unit = {
     CompilerManager.getInstance(project).removeCompilationStatusListener(compilationStatusListener)
   }
 
@@ -127,7 +127,7 @@ object MetaExpansionsManager {
 
   class MetaWrappedException(val target: Throwable) extends Exception
 
-  def getInstance(project: Project): MetaExpansionsManager = project.getComponent(classOf[MetaExpansionsManager]).asInstanceOf[MetaExpansionsManager]
+  def getInstance(project: Project): MetaExpansionsManager = project.getComponent(classOf[MetaExpansionsManager])
 
   def getCompiledMetaAnnotClass(annot: ScAnnotation): Option[Class[_]] = getInstance(annot.getProject).getCompiledMetaAnnotClass(annot)
 
@@ -172,7 +172,6 @@ object MetaExpansionsManager {
         ProgressManager.checkCanceled()
         val errorOrTree = (maybeClass, maybeClass.map(_.getClassLoader)) match {
           case (Some(clazz), Some(cl: MetaClassLoader)) => Right(runAdapterString(clazz, compiledArgs))
-//        case (Some(clazz), Some(_:MetaClassLoader))   => Right(runAdapterBinary(clazz, compiledArgs))
           case (Some(clazz), _) => Right(runDirect(clazz, compiledArgs))
           case (None, _)        => Left("Meta annotation class could not be found")
         }

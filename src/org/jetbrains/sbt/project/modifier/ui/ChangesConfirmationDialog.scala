@@ -10,7 +10,7 @@ import com.intellij.openapi.util.Getter
 import com.intellij.openapi.vcs.changes.Change
 import com.intellij.openapi.vfs.VirtualFile
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 
@@ -29,15 +29,19 @@ class ChangesConfirmationDialog private (val project: IJProject, private val cha
   init()
 
   def selectedChanges: List[BuildFileChange] = {
-    myChangesBrowser.getViewer.getIncludedChanges.map(change =>
-      BuildFileChange.swap(change.asInstanceOf[BuildFileChange])).toList
+    myChangesBrowser
+      .getViewer
+      .getIncludedChanges
+      .asScala
+      .map(change => BuildFileChange.swap(change.asInstanceOf[BuildFileChange]))
+      .toList
   }
 
   override def createCenterPanel(): JComponent = {
     val rootPane: JPanel = new JPanel(new BorderLayout)
 
     val swappedChanges: java.util.ArrayList[Change] = new java.util.ArrayList[Change]()
-    swappedChanges.addAll(changes.map(BuildFileChange.swap))
+    swappedChanges.addAll(changes.map(BuildFileChange.swap).asJavaCollection)
     val changesBrowser = new BuildFileChangeBrowser(project, swappedChanges, canExcludeChanges, fileStatusMap)
     myChangesBrowser = changesBrowser
     changesBrowser.setChangesToDisplay(swappedChanges)

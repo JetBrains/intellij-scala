@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala.conversion.copy.plainText
 import com.intellij.codeInsight.daemon.impl.quickfix.ImportClassFix
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.{PsiElementFilter, PsiTreeUtil}
+import com.intellij.psi.util.PsiTreeUtil
 
-import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -21,12 +21,10 @@ class AdditionalImportsResolver(javaFile: PsiJavaFile, scope: GlobalSearchScope)
     val project = javaFile.getProject
 
     def unresolvedRefs: Seq[PsiJavaCodeReferenceElement] = {
-      PsiTreeUtil.collectElements(javaFile, new PsiElementFilter {
-        override def isAccepted(element: PsiElement): Boolean = {
-          Option(element).exists {
-            case javaref: PsiJavaCodeReferenceElement => javaref.resolve() == null
-            case _ => false
-          }
+      PsiTreeUtil.collectElements(javaFile, (element: PsiElement) => {
+        Option(element).exists {
+          case javaref: PsiJavaCodeReferenceElement => javaref.resolve() == null
+          case _ => false
         }
       }).collect { case javaRef: PsiJavaCodeReferenceElement => javaRef }
     }
@@ -47,7 +45,7 @@ class AdditionalImportsResolver(javaFile: PsiJavaFile, scope: GlobalSearchScope)
       val refName = reference.getReferenceName
       if (!(failedToResolveNames.contains(refName) || alreadyResolvedNames.contains(refName))) {
         val importClassFix = new ImportClassFix(reference)
-        val classesToImport = importClassFix.getClassesToImport.filter(isClassInScope)
+        val classesToImport = importClassFix.getClassesToImport.asScala.filter(isClassInScope)
         if (classesToImport.length == 1) {
           alreadyResolvedNames += refName
           allImports.add(createImportStatement(classesToImport.head))

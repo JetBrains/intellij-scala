@@ -69,8 +69,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
     if (manager.isInJavaPsiFacade) return Array.empty
     val otherClassNames = getClassNames(psiPackage, scope)
     val result: ArrayBuffer[PsiClass] = new ArrayBuffer[PsiClass]()
-    import scala.collection.JavaConversions._
-    for (clazzName <- otherClassNames) {
+    otherClassNames.forEach { clazzName =>
       val qualName = psiPackage.getQualifiedName + "." + clazzName
       result ++= manager.getCachedClasses(scope, qualName)
       result ++= findClasses(qualName, scope)

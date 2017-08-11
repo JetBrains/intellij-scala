@@ -351,11 +351,7 @@ trait TreeAdapter {
         m.Term.Placeholder()
       case t: ScTypedStmt =>
         m.Term.Ascribe(expression(t.expr), t.typeElement.map(toType).getOrElse(unreachable))
-      case t: ScTypedStmt if t.isSequenceArg=>
-        unreachable("can only be used as call arg")
       case t: ScConstrExpr =>
-        t ???
-      case t: ScInterpolatedStringLiteral =>
         t ???
       case t: ScXmlExpr =>
         t ???

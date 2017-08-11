@@ -169,14 +169,14 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
       case _: ScMethodLike => SuperMethodWarningUtil.checkSuperMethod(methodLike, RefactoringBundle.message("to.refactor"))
       case _ => methodLike
     }
-    val methodToSearchFor = superMethod match {
+    val methodToSearchFor: ScMethodLike = superMethod match {
       case m: ScMethodLike => m
       case _ => return None
     }
     if (!CommonRefactoringUtil.checkReadOnlyStatus(project, superMethod)) return None
 
     val suggestedName = {
-      implicit val validator = new ScalaVariableValidator(elems.head, false, methodLike, methodLike)
+      implicit val validator: ScalaVariableValidator = new ScalaVariableValidator(elems.head, false, methodLike, methodLike)
       val possibleNames = elems match {
         case Seq(expr: ScExpression) => NameSuggester.suggestNames(expr)
         case _ => NameSuggester.suggestNamesByType(types(0))

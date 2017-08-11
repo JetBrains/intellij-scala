@@ -19,8 +19,8 @@ import org.jetbrains.plugins.scala.lang.parser.util.{ParserPatcher, ParserUtils}
  *             | '{' Block '}'
  */
 object BlockExpr extends BlockExpr {
-  override protected def block = Block
-  override protected def caseClauses = CaseClauses
+  override protected def block: Block.type = Block
+  override protected def caseClauses: CaseClauses.type = CaseClauses
 }
 
 trait BlockExpr {
@@ -33,7 +33,7 @@ trait BlockExpr {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer()
-        builder.enableNewlines
+        builder.enableNewlines()
       case _ =>
         blockExprMarker.drop()
         return false
@@ -56,8 +56,8 @@ trait BlockExpr {
           block.parse(builder)
       }
     }
-    ParserUtils.parseLoopUntilRBrace(builder, loopFunction)
-    builder.restoreNewlinesState
+    ParserUtils.parseLoopUntilRBrace(builder, loopFunction _)
+    builder.restoreNewlinesState()
     blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
     true
   }

@@ -149,8 +149,7 @@ object ScalaI18nUtil {
     else {
       val propertiesFiles = propertiesFilesByBundleName(resourceBundleName, expression)
       var containedInPropertiesFile: Boolean = false
-      import scala.collection.JavaConversions._
-      for (propertiesFile <- propertiesFiles) {
+      propertiesFiles.forEach { propertiesFile =>
         containedInPropertiesFile |= propertiesFile.findPropertyByKey(key) != null
       }
       containedInPropertiesFile
@@ -311,8 +310,7 @@ object ScalaI18nUtil {
   }
 
   def createProperty(project: Project, propertiesFiles: java.util.Collection[PropertiesFile], key: String, value: String) {
-    import scala.collection.JavaConversions._
-    for (file <- propertiesFiles) {
+    propertiesFiles.forEach { file =>
       val documentManager: PsiDocumentManager = PsiDocumentManager.getInstance(project)
       documentManager.commitDocument(documentManager.getDocument(file.getContainingFile))
       val existingProperty: IProperty = file.findPropertyByKey(key)

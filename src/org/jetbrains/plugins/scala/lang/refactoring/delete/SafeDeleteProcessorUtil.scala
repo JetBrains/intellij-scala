@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * This is a port of the static, private mtehods in JavaSafeDeleteProcessor.
@@ -36,10 +36,8 @@ import scala.collection.JavaConversions._
  */
 object SafeDeleteProcessorUtil {
   def getUsageInsideDeletedFilter(allElementsToDelete: Array[PsiElement]): Condition[PsiElement] = {
-    new Condition[PsiElement] {
-      def value(usage: PsiElement): Boolean = {
-        !usage.isInstanceOf[PsiFile] && isInside(usage, allElementsToDelete)
-      }
+    (usage: PsiElement) => {
+      !usage.isInstanceOf[PsiFile] && isInside(usage, allElementsToDelete)
     }
   }
 
@@ -82,7 +80,7 @@ object SafeDeleteProcessorUtil {
             else Seq(new SafeDeleteReferenceJavaDeleteUsageInfo(element, psiClass, false)) // delete with review
           } else Seq() // don't delete
 
-          usages.addAll(usagesToAdd)
+          usages.addAll(usagesToAdd.asJava)
         }
         true
       }
@@ -120,7 +118,7 @@ object SafeDeleteProcessorUtil {
     }
     val overridingElements: Array[PsiNamedElement] = ScalaOverridingMemberSearcher.search(psiMethod)
     val overridingMethods: Array[PsiNamedElement] = overridingElements.filterNot(x => allElementsToDelete.contains(x))
-    for (reference <- references) {
+    references.forEach { reference =>
       val element: PsiElement = reference.getElement
       if (!isInside(element, allElementsToDelete) && !isInside(element, overridingMethods.map(x => x: PsiElement))) {
         val isReferenceInImport = PsiTreeUtil.getParentOfType(element, classOf[ScImportStmt]) != null
@@ -134,17 +132,14 @@ object SafeDeleteProcessorUtil {
     }
     val validOverriding: util.Set[PsiElement] = {
       // TODO
-//      validateOverridingMethods(psiMethod, references, Arrays.asList(overridingMethods : _*), methodToReferences, usages, allElementsToDelete)
-      overridingMethods.toSet[PsiElement]
+      overridingMethods.toSet[PsiElement].asJava
     }
-    for (method <- validOverriding) {
-      method match {
-        case `psiMethod` =>
-        case x: PsiMethod => usages.add(new SafeDeleteOverridingMethodUsageInfo(x, psiMethod))
-        case x: ScNamedElement =>
-          val info = new SafeDeleteUsageInfo(x, psiMethod) // TODO SafeDeleteOverridingMemberUsageInfo
-          usages.add(info)
-      }
+    validOverriding.forEach {
+      case `psiMethod` =>
+      case x: PsiMethod => usages.add(new SafeDeleteOverridingMethodUsageInfo(x, psiMethod))
+      case x: ScNamedElement =>
+        val info = new SafeDeleteUsageInfo(x, psiMethod) // TODO SafeDeleteOverridingMemberUsageInfo
+        usages.add(info)
     }
 
     new Condition[PsiElement] {
@@ -174,9 +169,9 @@ object SafeDeleteProcessorUtil {
     val passConstructors: util.HashSet[PsiMethod] = new util.HashSet[PsiMethod]
     do {
       passConstructors.clear()
-      for (method <- newConstructors) {
+      newConstructors.forEach { method =>
         val references: util.Collection[PsiReference] = constructorsToRefs.get(method)
-        for (reference <- references) {
+        references.forEach { reference =>
           val overridingConstructor: PsiMethod = getOverridingConstructorOfSuperCall(reference.getElement)
           if (overridingConstructor != null && !constructorsToRefs.containsKey(overridingConstructor)) {
             val overridingConstructorReferences: util.Collection[PsiReference] = referenceSearch(overridingConstructor).findAll
@@ -207,18 +202,18 @@ object SafeDeleteProcessorUtil {
   def validateOverridingMethods(originalMethod: PsiMethod, originalReferences: util.Collection[PsiReference],
                                 overridingMethods: util.Collection[PsiMethod], methodToReferences: util.HashMap[PsiMethod, util.Collection[PsiReference]],
                                 usages: util.List[UsageInfo], allElementsToDelete: Array[PsiElement]): util.Set[PsiMethod] = {
-    val validOverriding: util.Set[PsiMethod] = new LinkedHashSet[PsiMethod](overridingMethods)
+    val validOverriding: util.Set[PsiMethod] = new util.LinkedHashSet[PsiMethod](overridingMethods)
     val multipleInterfaceImplementations: util.Set[PsiMethod] = new util.HashSet[PsiMethod]
     var anyNewBadRefs: Boolean = false
     do {
       anyNewBadRefs = false
-      for (overridingMethod <- overridingMethods) {
+      overridingMethods.forEach { overridingMethod =>
         if (validOverriding.contains(overridingMethod)) {
           val overridingReferences: util.Collection[PsiReference] = methodToReferences.get(overridingMethod)
           var anyOverridingRefs: Boolean = false
           import scala.util.control.Breaks._
           breakable {
-            for (overridingReference <- overridingReferences) {
+            overridingReferences.forEach { overridingReference =>
               val element: PsiElement = overridingReference.getElement
               if (!isInside(element, allElementsToDelete) && !isInside(element, validOverriding)) {
                 anyOverridingRefs = true
@@ -233,7 +228,7 @@ object SafeDeleteProcessorUtil {
           if (anyOverridingRefs) {
             validOverriding.remove(overridingMethod)
             anyNewBadRefs = true
-            for (reference <- originalReferences) {
+            originalReferences.forEach { reference =>
               val element: PsiElement = reference.getElement
               if (!isInside(element, allElementsToDelete) && !isInside(element, overridingMethods)) {
                 usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(element, originalMethod, false))
@@ -244,12 +239,11 @@ object SafeDeleteProcessorUtil {
         }
       }
     } while (anyNewBadRefs && !validOverriding.isEmpty)
-    for (method <- validOverriding) {
-      if (method != originalMethod) {
+    validOverriding.forEach ( method =>
+      if (method != originalMethod)
         usages.add(new SafeDeleteOverridingMethodUsageInfo(method, originalMethod))
-      }
-    }
-    for (method <- overridingMethods) {
+    )
+    overridingMethods.forEach { method =>
       if (!validOverriding.contains(method) && !multipleInterfaceImplementations.contains(method)) {
         val methodCanBePrivate: Boolean = canBePrivate(method, methodToReferences.get(method), validOverriding, allElementsToDelete)
         if (methodCanBePrivate) {
@@ -306,12 +300,11 @@ object SafeDeleteProcessorUtil {
       privateModifierList.setModifierProperty(PsiModifier.PRIVATE, true)
     }
     catch {
-      case _: IncorrectOperationException => {
+      case _: IncorrectOperationException =>
         LOG.assertTrue(false)
         return false
-      }
     }
-    for (reference <- references) {
+    references.forEach { reference =>
       val element: PsiElement = reference.getElement
       if (!isInside(element, allElementsToDelete) && !isInside(element, deleted) && !facade.getResolveHelper.isAccessible(method, privateModifierList, element, null, null)) {
         return false
@@ -385,7 +378,7 @@ object SafeDeleteProcessorUtil {
               newText.append("/** @see #").append(method.name).append('(')
               val parameters: java.util.List[PsiParameter] = new util.ArrayList[PsiParameter](util.Arrays.asList(method.getParameterList.getParameters: _*))
               parameters.remove(parameter)
-              newText.append(parameters.map(_.getType.getCanonicalText).mkString(","))
+              newText.append(parameters.asScala.map(_.getType.getCanonicalText).mkString(","))
               newText.append(")*/")
               usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(element, parameter, true) {
                 override def deleteElement() {
@@ -435,7 +428,7 @@ object SafeDeleteProcessorUtil {
   }
 
   def isInside(place: PsiElement, ancestors: util.Collection[_ <: PsiElement]): Boolean = {
-    for (element <- ancestors) {
+    ancestors.forEach { element =>
       if (isInside(place, element)) return true
     }
     false

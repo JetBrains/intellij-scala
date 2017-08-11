@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala.testingSupport
 
-import java.util.{ArrayList, Collections, List}
+import java.util.Collections
 import java.util.regex.Pattern
 
 import com.intellij.codeInsight.TestFrameworks
 import com.intellij.openapi.util.Pair
-import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import com.intellij.testIntegration.{JavaTestFinder, TestFinderHelper}
 import com.intellij.util.containers.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+
 
 /**
  * @author Roman.Shein
@@ -27,8 +28,7 @@ class ScalaTestFinder extends JavaTestFinder {
         val scope: GlobalSearchScope = getSearchScope(obj, false)
         cache.getAllClassNames(names)
         val res = new java.util.ArrayList[Pair[_ <: PsiNamedElement, Integer]]()
-        import collection.JavaConversions._
-        for (testClassName <- names) {
+        names.forEach { testClassName =>
           if (pattern.matcher(testClassName).matches()) {
             for (testClass <- cache.getClassesByName(testClassName, scope)) {
               if (frameworks.isTestClass(testClass) || frameworks.isPotentialTestClass(testClass)) {
@@ -48,9 +48,10 @@ class ScalaTestFinder extends JavaTestFinder {
     if (klass == null) return Collections.emptySet[PsiElement]
     val scope: GlobalSearchScope = getSearchScope(element, true)
     val cache: PsiShortNamesCache = PsiShortNamesCache.getInstance(element.getProject)
-    val classesWithWeights: List[Pair[_ <: PsiNamedElement, Integer]] = new ArrayList[Pair[_ <: PsiNamedElement, Integer]]
-    import collection.JavaConversions._
-    for (nameWithWeight <- TestFinderHelper.collectPossibleClassNamesWithWeights(klass.getName)) {
+    val classesWithWeights: java.util.List[Pair[_ <: PsiNamedElement, Integer]] =
+      new java.util.ArrayList[Pair[_ <: PsiNamedElement, Integer]]()
+
+    TestFinderHelper.collectPossibleClassNamesWithWeights(klass.getName).forEach { nameWithWeight =>
       for (aClass <- cache.getClassesByName(nameWithWeight.first, scope)) {
         if (isTestSubjectClass(aClass)) classesWithWeights.add(Pair.create(aClass, nameWithWeight.second))
       }

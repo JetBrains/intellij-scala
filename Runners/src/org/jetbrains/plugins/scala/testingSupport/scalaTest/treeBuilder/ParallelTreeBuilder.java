@@ -18,7 +18,7 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeSt
  */
 public class ParallelTreeBuilder implements TreeBuilder {
   static List<Integer> getOrdinalList(Ordinal ordinal) {
-    List newOrdinalList = scala.collection.JavaConversions.seqAsJavaList(ordinal.toList());
+    List newOrdinalList = scala.collection.JavaConverters.seqAsJavaList(ordinal.toList());
     ArrayList<Integer> result = new ArrayList<Integer>(newOrdinalList.size());
     for (Object o : newOrdinalList) {
       result.add((Integer) o);
@@ -145,7 +145,7 @@ public class ParallelTreeBuilder implements TreeBuilder {
       return o instanceof SuiteTree && ((SuiteTree) o).id == id;
     }
 
-    public void openScope(String message, Ordinal ordinal, boolean isTestStarted) {
+    public void openScope(String message, boolean isTestStarted) {
       Stack<Integer> myIds = ids.get(this);
       Stack<String> myWaitingMessages = waitingScopeMessages.get(this);
       int parentNode = myIds.peek();
@@ -162,7 +162,7 @@ public class ParallelTreeBuilder implements TreeBuilder {
       }
     }
 
-    public void closePendingScope(String scopePendingMessage, Ordinal ordinal) {
+    public void closePendingScope(String scopePendingMessage) {
       Stack<Integer> myIds = ids.get(this);
       Stack<String> myWaitingMessages = waitingScopeMessages.get(this);
       if (myWaitingMessages.isEmpty()) {
@@ -178,7 +178,7 @@ public class ParallelTreeBuilder implements TreeBuilder {
       myIds.pop();
     }
 
-    public void closeScope(String message, Ordinal ordinal, boolean isTestFinished) {
+    public void closeScope(String message) {
       Stack<Integer> myIds = ids.get(this);
       Stack<String> myWaitingMessages = waitingScopeMessages.get(this);
       if (myWaitingMessages.isEmpty()) {
@@ -205,19 +205,19 @@ public class ParallelTreeBuilder implements TreeBuilder {
   @Override
   public void closePendingScope(String scopePendingMessage, Ordinal ordinal, String suiteId) {
     SuiteTree suite = getSuite(suiteId, ordinal);
-    suite.closePendingScope(scopePendingMessage, ordinal);
+    suite.closePendingScope(scopePendingMessage);
   }
 
   @Override
   public void openScope(String message, Ordinal ordinal, String suiteId, boolean isTestStarted) {
     SuiteTree suite = getSuite(suiteId, ordinal);
-    suite.openScope(message, ordinal, isTestStarted);
+    suite.openScope(message, isTestStarted);
   }
 
   @Override
   public void closeScope(String message, Ordinal ordinal, String suiteId, boolean isTestFinished) {
     SuiteTree suite = getSuite(suiteId, ordinal);
-    suite.closeScope(message, ordinal, isTestFinished);
+    suite.closeScope(message);
   }
 
   @Override

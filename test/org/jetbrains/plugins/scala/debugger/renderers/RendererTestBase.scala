@@ -12,6 +12,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.xdebugger.frame.{XDebuggerTreeNodeHyperlink, XValueChildrenList}
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+import scala.collection.JavaConverters._
 
 /**
   * Nikolay.Tropin
@@ -20,7 +21,6 @@ import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
   protected def renderLabelAndChildren(variableName: String, render: NodeDescriptor => String = _.getLabel): (String, List[String]) = {
-    import scala.collection.JavaConversions._
 
     val frameTree = new ThreadsDebuggerTree(getProject)
     Disposer.register(getTestRootDisposable, frameTree)
@@ -34,17 +34,17 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
       testVariable.updateRepresentation(context, DescriptorLabelListener.DUMMY_LISTENER)
       val value = testVariable.calcValue(context)
       renderer.buildChildren(value, new ChildrenBuilder {
-        def setChildren(children: util.List[DebuggerTreeNode]) {testVariableChildren = children}
+        override def setChildren(children: util.List[DebuggerTreeNode]) {testVariableChildren = children}
 
-        def getDescriptorManager: NodeDescriptorFactory = frameTree.getNodeFactory
+        override def getDescriptorManager: NodeDescriptorFactory = frameTree.getNodeFactory
 
-        def getNodeManager: NodeManager = frameTree.getNodeFactory
+        override def getNodeManager: NodeManager = frameTree.getNodeFactory
 
-        def setRemaining(remaining: Int) {}
+        override def setRemaining(remaining: Int): Unit = {}
 
-        def initChildrenArrayRenderer(renderer: ArrayRenderer) {}
+        override def initChildrenArrayRenderer(renderer: ArrayRenderer): Unit = {}
 
-        def getParentDescriptor: ValueDescriptor = testVariable
+        override def getParentDescriptor: ValueDescriptor = testVariable
 
         override def setErrorMessage(errorMessage: String): Unit = {}
 
@@ -64,7 +64,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
       testVariable
     }
 
-    managed{testVariableChildren map (_.getDescriptor) foreach {
+    managed{testVariableChildren.asScala map (_.getDescriptor) foreach {
       case impl: NodeDescriptorImpl =>
         impl.updateRepresentation(evaluationContext(), DescriptorLabelListener.DUMMY_LISTENER)
       case a => println(a)
@@ -75,7 +75,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
     //</magic>
 
     managed {
-      (render(testVariable), testVariableChildren.map(child => render(child.getDescriptor)).toList)
+      (render(testVariable), testVariableChildren.asScala.map(child => render(child.getDescriptor)).toList)
     }
   }
 

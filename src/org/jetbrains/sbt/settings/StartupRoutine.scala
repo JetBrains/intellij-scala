@@ -9,7 +9,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
   * @author Nikolay Obedin
   * @since 12/18/15.
   */
-class StartupRoutine extends ApplicationComponent.Adapter {
+class StartupRoutine extends ApplicationComponent {
   override def initComponent(): Unit = {
     setUpExternalSystemToPerformImportInIdeaProcess()
   }

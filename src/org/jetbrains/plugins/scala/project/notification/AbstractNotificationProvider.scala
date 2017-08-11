@@ -5,7 +5,7 @@ import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleUtilCore._
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ModuleRootAdapter, ModuleRootEvent}
+import com.intellij.openapi.roots.{ModuleRootAdapter, ModuleRootEvent, ModuleRootListener}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
@@ -20,7 +20,7 @@ abstract class AbstractNotificationProvider(project: Project, notifications: Edi
 
   import org.jetbrains.plugins.scala.ScalaLanguage
 
-  project.getMessageBus.connect(project).subscribe(PROJECT_ROOTS, new ModuleRootAdapter {
+  project.getMessageBus.connect(project).subscribe(PROJECT_ROOTS, new ModuleRootListener {
     override def rootsChanged(event: ModuleRootEvent) {
       notifications.updateAllNotifications()
     }

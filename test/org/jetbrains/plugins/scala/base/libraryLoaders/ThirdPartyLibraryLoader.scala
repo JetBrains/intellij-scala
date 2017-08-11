@@ -46,15 +46,15 @@ abstract class ScalaZBaseLoader(implicit module: Module) extends IvyLibraryLoade
   override protected val ivyType: IvyType = Bundles
 }
 
-case class ScalaZCoreLoader(implicit val module: Module) extends ScalaZBaseLoader {
+case class ScalaZCoreLoader()(implicit val module: Module) extends ScalaZBaseLoader {
   override protected val name: String = "scalaz-core"
 }
 
-case class ScalaZConcurrentLoader(implicit val module: Module) extends ScalaZBaseLoader {
+case class ScalaZConcurrentLoader()(implicit val module: Module) extends ScalaZBaseLoader {
   override protected val name: String = "scalaz-concurrent"
 }
 
-case class SlickLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+case class SlickLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override protected val name: String = "slick"
   override protected val vendor: String = "com.typesafe.slick"
   override protected val version: String = "3.2.0"
@@ -64,7 +64,7 @@ case class SlickLoader(implicit val module: Module) extends IvyLibraryLoaderAdap
     super.path(Scala_2_11)
 }
 
-case class SprayLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+case class SprayLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override protected val name: String = "spray-routing"
   override protected val vendor: String = "io.spray"
   override protected val version: String = "1.3.1"
@@ -74,7 +74,7 @@ case class SprayLoader(implicit val module: Module) extends IvyLibraryLoaderAdap
     super.path(Scala_2_11)
 }
 
-case class CatsLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+case class CatsLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override protected val name: String = "cats-core"
   override protected val vendor: String = "org.typelevel"
   override protected val version: String = "0.4.0"
@@ -92,7 +92,7 @@ case class Specs2Loader(override protected val version: String)
   override protected val name: String = "specs2"
 }
 
-case class ScalaCheckLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+case class ScalaCheckLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override protected val name: String = "scalacheck"
   override protected val vendor: String = "org.scalacheck"
   override protected val version: String = "1.12.5"
@@ -101,7 +101,7 @@ case class ScalaCheckLoader(implicit val module: Module) extends IvyLibraryLoade
     super.path(Scala_2_11)
 }
 
-case class PostgresLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+case class PostgresLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override protected val name: String = "postgresql"
   override protected val vendor: String = "com.wda.sdbc"
   override protected val version: String = "0.5"
@@ -117,7 +117,7 @@ case class ScalaTestLoader(override protected val version: String,
   override protected val vendor: String = "org.scalatest"
 }
 
-case class ScalaXmlLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+case class ScalaXmlLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override protected val name: String = "scala-xml"
   override protected val vendor: String = "org.scala-lang.modules"
   override protected val version: String = "1.0.1"
@@ -137,13 +137,13 @@ case class UTestLoader(override protected val version: String)
   override protected val vendor: String = "com.lihaoyi"
 }
 
-case class QuasiQuotesLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+case class QuasiQuotesLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override protected val name: String = "quasiquotes"
   override protected val vendor: String = "org.scalamacros"
   override protected val version: String = "2.0.0"
 }
 
-case class ScalaAsyncLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+case class ScalaAsyncLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override protected val name: String = "scala-async"
   override protected val vendor: String = "org.scala-lang.modules"
   override protected val version: String = "0.9.5"

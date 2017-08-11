@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import scala.collection.JavaConverters._
 
 /**
  * @author Nikolay.Tropin
@@ -30,50 +31,45 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
                           project: Project): Unit = {
 
     val packageNames: util.Set[String] = new util.HashSet[String]
-    import scala.collection.JavaConversions._
-    for (psiFile <- filesToMove) {
-      psiFile match {
-        case sf: ScalaFile =>
-          val (packObj, classes) = sf.typeDefinitions.partition {
-            case o: ScObject if o.isPackageObject => true
-            case _ => false
-          }
+    filesToMove.forEach {
+      case sf: ScalaFile =>
+        val (packObj, classes) = sf.typeDefinitions.partition {
+          case o: ScObject if o.isPackageObject => true
+          case _ => false
+        }
 
-          for {
-            aClass <- classes
-            usage <- MoveClassesOrPackagesUtil.findUsages(aClass, searchInComments, searchInNonJavaFiles, aClass.name)
-          } {
-            usages.add(usage)
-          }
+        for {
+          aClass <- classes
+          usage <- MoveClassesOrPackagesUtil.findUsages(aClass, searchInComments, searchInNonJavaFiles, aClass.name)
+        } {
+          usages.add(usage)
+        }
 
-          for {
-            obj <- packObj
-            named <- obj.namedElements
-            ref <- ReferencesSearch.search(named).findAll()
-          } {
-            val range = ref.getRangeInElement
-            usages.add(new MoveRenameUsageInfo(ref.getElement, ref, range.getStartOffset, range.getEndOffset, named, false))
-          }
+        for {
+          obj <- packObj
+          named <- obj.namedElements
+          ref <- ReferencesSearch.search(named).findAll().asScala
+        } {
+          val range = ref.getRangeInElement
+          usages.add(new MoveRenameUsageInfo(ref.getElement, ref, range.getStartOffset, range.getEndOffset, named, false))
+        }
 
-          packageNames.add(packageName(sf))
-        case _ =>
-      }
+        packageNames.add(packageName(sf))
+      case _ =>
     }
 
     val psiFacade: JavaPsiFacade = JavaPsiFacade.getInstance(project)
-    import scala.collection.JavaConversions._
-    for (packageName <- packageNames) {
+    packageNames.forEach { packageName =>
       val aPackage: PsiPackage = psiFacade.findPackage(packageName)
       if (aPackage != null) {
         val remainsNothing: Boolean = aPackage.getDirectories.exists(!isUnderRefactoring(_, directoriesToMove))
 
         if (remainsNothing) {
-          import scala.collection.JavaConversions._
-          for (reference <- ReferencesSearch.search(aPackage, GlobalSearchScope.projectScope(project)).findAll()) {
+          ReferencesSearch.search(aPackage, GlobalSearchScope.projectScope(project)).findAll().forEach { reference =>
             val element: PsiElement = reference.getElement
             val importStmt = PsiTreeUtil.getParentOfType(element, classOf[ScImportStmt])
             if (importStmt != null) {
-              usages.add(new ImportStatementToRemoveUsage(importStmt))
+              usages.add(ImportStatementToRemoveUsage(importStmt))
             }
           }
         }
@@ -141,7 +137,7 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
     }
   }
 
-  private def forClassesInFile(elem: PsiElement)(action: PsiClass => Unit) = {
+  private def forClassesInFile(elem: PsiElement)(action: PsiClass => Unit): Unit = {
     elem.getContainingFile match {
       case sf: ScalaFile => sf.typeDefinitions.foreach(action)
       case _ =>

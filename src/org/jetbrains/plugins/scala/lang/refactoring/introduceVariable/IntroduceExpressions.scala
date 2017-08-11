@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScalaUtils
+import scala.collection.JavaConverters._
 
 /**
  * Created by Kate Ustyuzhanina
@@ -37,7 +38,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtils
 trait IntroduceExpressions {
   this: ScalaIntroduceVariableHandler =>
 
-  val INTRODUCE_VARIABLE_REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
+  val INTRODUCE_VARIABLE_REFACTORING_NAME: String = ScalaBundle.message("introduce.variable.title")
 
   def invokeExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
     try {
@@ -52,7 +53,7 @@ trait IntroduceExpressions {
 
       val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
       val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
-      implicit val validator = ScalaVariableValidator(file, expr, occurrences)
+      implicit val validator: ScalaVariableValidator = ScalaVariableValidator(file, expr, occurrences)
 
       def runWithDialog() {
         val dialog = getDialog(project, editor, expr, types, occurrences, declareVariable = false)
@@ -80,34 +81,31 @@ trait IntroduceExpressions {
             val introduceRunnable: Computable[SmartPsiElementPointer[PsiElement]] =
               introduceVariable(startOffset, endOffset, file, editor, expr, occurrences, suggestedNames.head, selectedType,
                 replaceAll, asVar)
-            CommandProcessor.getInstance.executeCommand(project, new Runnable {
-              def run() {
-                val newDeclaration: PsiElement = ApplicationManager.getApplication.runWriteAction(introduceRunnable).getElement
-                val namedElement: PsiNamedElement = newDeclaration match {
-                  case holder: ScDeclaredElementsHolder =>
-                    holder.declaredElements.headOption.orNull
-                  case enum: ScEnumerator => enum.pattern.bindings.headOption.orNull
-                  case _ => null
-                }
-                val newExpr: ScExpression = newDeclaration match {
-                  case ScVariableDefinition.expr(x) => x
-                  case ScPatternDefinition.expr(x) => x
-                  case enum: ScEnumerator => enum.rvalue
-                  case _ => null
-                }
-                if (namedElement != null && namedElement.isValid) {
-                  editor.getCaretModel.moveToOffset(namedElement.getTextOffset)
-                  editor.getSelectionModel.removeSelection()
-                  if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
-                    PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-                    PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
-                    val variableIntroducer =
-                      new ScalaInplaceVariableIntroducer(project, editor, newExpr, types, namedElement,
-                        INTRODUCE_VARIABLE_REFACTORING_NAME, replaceAll, asVar, forceInferType(expr))
+            CommandProcessor.getInstance.executeCommand(project, () => {
+              val newDeclaration: PsiElement = ApplicationManager.getApplication.runWriteAction(introduceRunnable).getElement
+              val namedElement: PsiNamedElement = newDeclaration match {
+                case holder: ScDeclaredElementsHolder =>
+                  holder.declaredElements.headOption.orNull
+                case enum: ScEnumerator => enum.pattern.bindings.headOption.orNull
+                case _ => null
+              }
+              val newExpr: ScExpression = newDeclaration match {
+                case ScVariableDefinition.expr(x) => x
+                case ScPatternDefinition.expr(x) => x
+                case enum: ScEnumerator => enum.rvalue
+                case _ => null
+              }
+              if (namedElement != null && namedElement.isValid) {
+                editor.getCaretModel.moveToOffset(namedElement.getTextOffset)
+                editor.getSelectionModel.removeSelection()
+                if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
+                  PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+                  PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
+                  val variableIntroducer =
+                    new ScalaInplaceVariableIntroducer(project, editor, newExpr, types, namedElement,
+                      INTRODUCE_VARIABLE_REFACTORING_NAME, replaceAll, asVar, forceInferType(expr))
 
-                    import scala.collection.JavaConversions._
-                    variableIntroducer.performInplaceRefactoring(new util.LinkedHashSet[String](suggestedNames))
-                  }
+                  variableIntroducer.performInplaceRefactoring(new util.LinkedHashSet[String](suggestedNames.asJavaCollection))
                 }
               }
             }, INTRODUCE_VARIABLE_REFACTORING_NAME, null)
@@ -361,10 +359,8 @@ trait IntroduceExpressions {
                         occurrences_ : Array[TextRange], varName: String, varType: ScType,
                         replaceAllOccurrences: Boolean, isVariable: Boolean): Computable[SmartPsiElementPointer[PsiElement]] = {
 
-    new Computable[SmartPsiElementPointer[PsiElement]]() {
-      def compute(): SmartPsiElementPointer[PsiElement] = runRefactoringInside(startOffset, endOffset, file, editor, expression, occurrences_, varName,
-        varType, replaceAllOccurrences, isVariable)
-    }
+    () => runRefactoringInside(startOffset, endOffset, file, editor, expression, occurrences_, varName,
+      varType, replaceAllOccurrences, isVariable)
 
   }
 

@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 
 import scala.util.control.NonFatal
+import scala.collection.JavaConverters._
 
 /**
   * @author Mikhail Mutcianko
@@ -30,7 +31,6 @@ trait AllProjectHighlightingTest {
   implicit def projectContext: ProjectContext = getProject
 
   def doAllProjectHighlightingTest(): Unit = {
-    import scala.collection.JavaConversions._
 
     val reporter = ProgressReporter.getInstance
 
@@ -44,13 +44,13 @@ trait AllProjectHighlightingTest {
     var percent = 0
     val size: Int = files.size()
 
-    for ((file, index) <- files.zipWithIndex) {
+    for ((file, index) <- files.asScala.zipWithIndex) {
       val psiFile = fileManager.findFile(file)
 
       val mock = new AnnotatorHolderMock(psiFile){
         override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
           // almost always duplicates reports from method below
-//          reporter.reportError(file, range, message)
+          // reporter.reportError(file, range, message)
           super.createErrorAnnotation(range, message)
         }
 

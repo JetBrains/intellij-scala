@@ -12,9 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall,
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -76,7 +77,7 @@ object ImportMembersUtil {
           case _ =>
         }
       case _ =>
-        implicit val projectContext = oldRef.projectContext
+        implicit val projectContext: ProjectContext = oldRef.projectContext
         oldRef match {
           case _ childOf (inf @ ScInfixExpr(_: ScReferenceExpression, `oldRef`, _)) =>
             val call = createEquivMethodCall(inf)
@@ -118,7 +119,7 @@ object ImportMembersUtil {
     val lessThan: (PsiReference, PsiReference) => Boolean = { (ref1, ref2) =>
       PsiTreeUtil.isAncestor(actuallyReplaced(ref2), actuallyReplaced(ref1), true)
     }
-    usages.toSeq.sortWith(lessThan)
+    usages.asScala.toSeq.sortWith(lessThan)
   }
 
   object isQualifierFor {

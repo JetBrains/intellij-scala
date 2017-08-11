@@ -27,7 +27,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
 
   private val inspectionSuppressor = new ScalaInspectionSuppressor
 
-  private def profile = InspectionProjectProfileManager.getInstance(myProject).getInspectionProfile
+  private def profile = InspectionProjectProfileManager.getInstance(myProject).getCurrentProfile
 
   def isEnabled(element: PsiElement): Boolean = {
     profile.isToolEnabled(highlightKey, element) && !inspectionSuppressor.isSuppressedFor(element, inspection.getShortName)

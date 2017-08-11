@@ -22,6 +22,7 @@ object HoconHighlighterColors {
   final val KeyValueSeparator = key("HOCON_KEY_VALUE_SEPARATOR", DLHC.OPERATION_SIGN)
   final val Comma = key("HOCON_COMMA", DLHC.COMMA)
   final val Include = key("HOCON_INCLUDE", DLHC.KEYWORD)
+  // TODO create a language-specific highlight info type
   final val IncludeModifier = key("HOCON_INCLUDE_MODIFIER", HighlightInfoType.STATIC_METHOD.getAttributesKey)
   final val SubstitutionSign = key("HOCON_SUBSTITUTION_SIGN", DLHC.OPERATION_SIGN)
   final val OptionalSubstitutionSign = key("HOCON_OPTIONAL_SUBSTITUTION_SIGN", DLHC.OPERATION_SIGN)

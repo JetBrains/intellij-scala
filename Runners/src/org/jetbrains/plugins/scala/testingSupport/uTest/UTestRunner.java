@@ -133,7 +133,7 @@ public class UTestRunner {
       public BoxedUnit apply(Seq < String > seq, Result result) {
         synchronized(reporter) {
           //this is a temporary implementation
-          List<String> resSeq = scala.collection.JavaConversions.seqAsJavaList(seq);
+          List<String> resSeq = scala.collection.JavaConverters.seqAsJavaList(seq);
           UTestPath resTestPath = testPath.append(resSeq);
           boolean isLeafTest = leafTests.contains(resTestPath);
 
@@ -230,7 +230,7 @@ public class UTestRunner {
       }
 
       scala.Tuple2<Buffer<Object>, ?> resolveResult = treeSeq.resolve(testPath.getPath().isEmpty() ?
-          treeSeq.run$default$3() : scala.collection.JavaConversions.asScalaBuffer(testPath.getPath()).toList());
+          treeSeq.run$default$3() : scala.collection.JavaConverters.asScalaBuffer(testPath.getPath()).toList());
       Method getChildren = treeClass.getMethod("children");
       Method getValue = treeClass.getMethod("value");
       traverseTestTreeDown(resolveResult._2(), testPath, leafTests, getChildren, getValue);

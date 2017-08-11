@@ -33,11 +33,11 @@ class ReflectExpansionsCollector(project: Project) extends AbstractProjectCompon
     }
   }
 
-  private def installCompilationListener() = {
+  private def installCompilationListener(): Unit = {
     CompilerManager.getInstance(project).addCompilationStatusListener(compilationStatusListener)
   }
 
-  private def uninstallCompilationListener() = {
+  private def uninstallCompilationListener(): Unit = {
     CompilerManager.getInstance(project).removeCompilationStatusListener(compilationStatusListener)
   }
 

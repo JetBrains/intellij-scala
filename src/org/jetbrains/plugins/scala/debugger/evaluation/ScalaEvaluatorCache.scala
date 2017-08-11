@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package debugger.evaluation
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator}
-import com.intellij.debugger.impl.{DebuggerManagerAdapter, DebuggerSession}
+import com.intellij.debugger.engine.evaluation.expression.Evaluator
+import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
 import com.intellij.debugger.{DebuggerManagerEx, SourcePosition}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
@@ -20,7 +20,7 @@ class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(pro
   private val cachedEvaluators = mutable.HashMap[(PsiFile, Int), mutable.HashMap[PsiElement, Evaluator]]()
   private val cachedStamp = mutable.HashMap[PsiFile, Long]()
 
-  private val listener = new DebuggerManagerAdapter {
+  private val listener = new DebuggerManagerListener {
     override def sessionDetached(session: DebuggerSession): Unit = clear()
   }
 

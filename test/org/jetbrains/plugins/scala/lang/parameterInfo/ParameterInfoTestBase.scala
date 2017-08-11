@@ -111,7 +111,7 @@ object ParameterInfoTestBase {
       text
     }
 
-    def getDefaultParameterColor: Color = HintUtil.INFORMATION_COLOR
+    def getDefaultParameterColor: Color = HintUtil.getInformationColor
 
     def isUIComponentEnabled: Boolean = false
 

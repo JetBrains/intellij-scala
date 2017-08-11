@@ -3,14 +3,12 @@ package org.jetbrains.plugins.scala.lang.highlighting
 import java.io.File
 import java.util
 
-import com.intellij.codeInspection.InspectionManager
-import com.intellij.codeInspection.ex.InspectionManagerEx
 import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
+import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
-import com.intellij.openapi.projectRoots.{JavaSdkType, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
@@ -30,6 +28,8 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.experimental.categories.Category
 
+import scala.collection.JavaConverters._
+
 /**
  * @author Alefas
  * @since 12/11/14.
@@ -44,7 +44,6 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase with Sb
     val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
     val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17
     else internalSdk
-    val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
     settings.setJdk(sdk.getName)
     settings.setCreateEmptyContentRootDirectories(true)
     settings
@@ -87,7 +86,6 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase with Sb
   }
 
   def doRunHighlighting(): Unit = {
-    val inspectionManagerEx: InspectionManagerEx = InspectionManager.getInstance(myProject).asInstanceOf[InspectionManagerEx]
 
     val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, SourceFilterScope(myProject))
 
@@ -96,14 +94,11 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase with Sb
     val fileManager = PsiManager.getInstance(myProject).asInstanceOf[PsiManagerEx].getFileManager
     val annotator = ScalaAnnotator.forProject
 
-
-    import scala.collection.JavaConversions._
-
     var percent = 0
     var errorCount = 0
     val size: Int = files.size()
 
-    for ((file, index) <- files.zipWithIndex) {
+    for ((file, index) <- files.asScala.zipWithIndex) {
 
       if ((index + 1) * 100 >= (percent + 1) * size) {
         while ((index + 1) * 100 >= (percent + 1) * size) percent += 1

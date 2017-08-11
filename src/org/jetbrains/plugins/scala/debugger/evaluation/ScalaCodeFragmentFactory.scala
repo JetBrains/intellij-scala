@@ -74,7 +74,7 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
     val fragment = new ScalaCodeFragment(project, item.getText)
     fragment.setContext(context, null)
     fragment.addImportsFromString(item.getImports)
-    fragment.putUserData(DebuggerExpressionComboBox.KEY, "DebuggerComboBoxEditor.IS_DEBUGGER_EDITOR")
+    fragment.putUserData(DefaultCodeFragmentFactory.KEY, "DebuggerComboBoxEditor.IS_DEBUGGER_EDITOR")
     fragment
   }
 

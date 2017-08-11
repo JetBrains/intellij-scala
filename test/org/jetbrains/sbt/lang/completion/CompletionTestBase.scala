@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs._
 import com.intellij.testFramework.{LightVirtualFile, UsefulTestCase}
 import org.jetbrains.plugins.scala.lang.completion
 import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
+import scala.collection.JavaConverters._
 
 /**
  * @author Nikolay Obedin
@@ -50,9 +51,8 @@ abstract class CompletionTestBase extends completion.CompletionTestBase with Moc
   }
 
   override def checkResult(got: Array[String], _expected: String) {
-    import scala.collection.JavaConversions._
     val expected = _expected.split("\n")
-    UsefulTestCase.assertContainsElements[String](got.toSet.toSeq, expected.toSeq)
+    UsefulTestCase.assertContainsElements[String](got.toSeq.asJava, expected.toSeq.asJava)
   }
 
   override def setUp() {

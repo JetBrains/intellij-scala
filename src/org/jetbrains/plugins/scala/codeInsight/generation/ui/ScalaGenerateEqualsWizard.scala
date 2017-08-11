@@ -14,7 +14,7 @@ import com.intellij.util.containers.HashMap
 import org.jetbrains.plugins.scala.codeInsight.generation.GenerationUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -27,7 +27,7 @@ class ScalaGenerateEqualsWizard(project: Project, aClass: PsiClass, needEquals: 
 
   private def getSelectedFields(panel: AbstractMemberSelectionPanel[ScNamedElement, ScalaMemberInfo]): Seq[ScNamedElement] =
     if(panel == null) Seq.empty
-    else panel.getTable.getSelectedMemberInfos.map(_.getMember).toSeq
+    else panel.getTable.getSelectedMemberInfos.asScala.map(_.getMember).toSeq
 
   def getEqualsFields: Seq[ScNamedElement] = getSelectedFields(myEqualsPanel)
   def getHashCodeFields: Seq[ScNamedElement] = getSelectedFields(myHashCodePanel)
@@ -39,7 +39,7 @@ private class ScalaGenerateEqualsWizardBuilder(aClass: PsiClass, needEquals: Boo
   protected def getPsiClass: PsiClass = aClass
 
   private val classFields: util.List[ScalaMemberInfo] = extractFields
-  classFields.foreach {info =>
+  classFields.forEach {info =>
     if (GenerationUtil.isVar(info.getMember)) info.setChecked(false)
     else info.setChecked(true)
   }
@@ -67,26 +67,25 @@ private class ScalaGenerateEqualsWizardBuilder(aClass: PsiClass, needEquals: Boo
   }
   else null
 
-  protected def getClassFields = classFields
+  protected def getClassFields: util.List[ScalaMemberInfo] = classFields
   protected def getFieldsToHashCode: HashMap[ScNamedElement, ScalaMemberInfo] = fieldsToHashCode
   protected def getEqualsPanel: AbstractMemberSelectionPanel[ScNamedElement, ScalaMemberInfo] = equalsPanel
   protected def getHashCodePanel: AbstractMemberSelectionPanel[ScNamedElement, ScalaMemberInfo] = hashCodePanel
 
   protected def updateHashCodeMemberInfos(equalsMemberInfos: util.Collection[ScalaMemberInfo]) {
     if (hashCodePanel == null) return
-    val hashCodeFields = equalsMemberInfos.map(_.getMember).map(fieldsToHashCode.get(_))
-    hashCodePanel.getTable.setMemberInfos(hashCodeFields)
+    val hashCodeFields = equalsMemberInfos.asScala.map(_.getMember).map(fieldsToHashCode.get(_))
+    hashCodePanel.getTable.setMemberInfos(hashCodeFields.asJavaCollection)
   }
 
   protected def extractFields: util.List[ScalaMemberInfo] = {
-    GenerationUtil.getAllFields(aClass).map(new ScalaMemberInfo(_))
+    GenerationUtil.getAllFields(aClass).map(new ScalaMemberInfo(_)).asJava
   }
 
   private def createFieldToMemberInfoMap(checkedByDefault: Boolean): HashMap[ScNamedElement, ScalaMemberInfo] = {
     val memberInfos: util.Collection[ScalaMemberInfo] = extractFields
     val result: HashMap[ScNamedElement, ScalaMemberInfo] = new HashMap[ScNamedElement, ScalaMemberInfo]
-    import scala.collection.JavaConversions._
-    for (memberInfo <- memberInfos) {
+    for (memberInfo <- memberInfos.asScala) {
       memberInfo.setChecked(checkedByDefault)
       result.put(memberInfo.getMember, memberInfo)
     }
@@ -98,10 +97,6 @@ private class ScalaGenerateEqualsWizardBuilder(aClass: PsiClass, needEquals: Boo
   protected def updateNonNullMemberInfos(equalsMemberInfos: util.Collection[ScalaMemberInfo]) {}
 }
 
-private class ScalaHashCodeMemberInfoModel extends AbstractMemberInfoModel[ScNamedElement, ScalaMemberInfo] {
+private class ScalaHashCodeMemberInfoModel extends AbstractMemberInfoModel[ScNamedElement, ScalaMemberInfo]
 
-}
-
-private class ScalaEqualsMemberInfoModel extends AbstractMemberInfoModel[ScNamedElement, ScalaMemberInfo] {
-
-}
+private class ScalaEqualsMemberInfoModel extends AbstractMemberInfoModel[ScNamedElement, ScalaMemberInfo]

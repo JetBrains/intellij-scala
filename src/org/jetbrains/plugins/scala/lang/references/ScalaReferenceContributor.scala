@@ -23,8 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 
-import scala.collection.JavaConversions
-
 class ScalaReferenceContributor extends PsiReferenceContributor {
   def registerReferenceProviders(registrar: PsiReferenceRegistrar) {
     registrar.registerReferenceProvider(PlatformPatterns.psiElement(classOf[ScLiteral]), new FilePathReferenceProvider())
@@ -94,7 +92,7 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
         }
       }
     }
-    for (module <- JavaConversions.iterableAsScalaIterable(modules)) {
+    modules.forEach { module =>
       moduleRootManager = ModuleRootManager.getInstance(module)
       val sourceRoots: Array[VirtualFile] = moduleRootManager.getSourceRoots
       for (root <- sourceRoots) {
@@ -142,10 +140,8 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
       }
 
       protected override def getReferenceCompletionFilter: Condition[PsiFileSystemItem] = {
-        new Condition[PsiFileSystemItem] {
-          def value(element: PsiFileSystemItem): Boolean = {
-            isPsiElementAccepted(element)
-          }
+        (element: PsiFileSystemItem) => {
+          isPsiElementAccepted(element)
         }
       }
     }.getAllReferences.map(identity)

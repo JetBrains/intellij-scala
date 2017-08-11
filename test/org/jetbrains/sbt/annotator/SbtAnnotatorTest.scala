@@ -4,7 +4,6 @@ package annotator
 import java.io.File
 
 import com.intellij.ide.startup.impl.StartupManagerImpl
-import com.intellij.openapi.externalSystem.util.ExternalSystemConstants
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUtil}
@@ -86,7 +85,7 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
     projectSettings.setExternalProjectPath(getProject.getBasePath)
     projectSettings.setModules(java.util.Collections.singleton(getModule.getModuleFilePath))
     SbtSystemSettings.getInstance(getProject).linkProject(projectSettings)
-    getModule.setOption("external.root.project.path", getProject.getBasePath) // todo get rid of the deprecated method call
+    getModule.setOption("external.root.project.path", getProject.getBasePath) // TODO get rid of the deprecated method call
   }
 
   private def addTestFileToModuleSources(): Unit = {

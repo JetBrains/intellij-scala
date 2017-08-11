@@ -67,8 +67,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
                                     @NotNull propertiesFiles: util.List[PropertiesFile]): util.List[PropertiesFile] = {
       val fileIndex: ProjectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
       val result: util.List[PropertiesFile] = new util.ArrayList[PropertiesFile](propertiesFiles.size)
-      import scala.collection.JavaConversions._
-      for (file <- propertiesFiles) {
+      propertiesFiles.forEach { file =>
         if (!fileIndex.isInLibraryClasses(file.getVirtualFile) && !fileIndex.isInLibrarySource(file.getVirtualFile)) {
           result.add(file)
         }

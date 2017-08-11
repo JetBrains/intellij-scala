@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider
 import org.junit.Assert.{assertArrayEquals, assertNotNull}
+import scala.collection.JavaConverters._
 
 /**
   * Nikolay.Tropin
@@ -84,15 +85,12 @@ class NameSuggesterTest extends AbstractNameSuggesterTest {
 
 abstract class AbstractNameSuggesterTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  import scala.collection.{JavaConversions, mutable}
-
   protected def testNamesByElement(element: PsiElement, expected: Seq[String]): Unit = {
     assertNotNull(element)
 
-    val actual = mutable.LinkedHashSet.empty[String]
-    import JavaConversions._
+    val actual = new java.util.LinkedHashSet[String]
     new ScalaNameSuggestionProvider().getSuggestedNames(element, getFile, actual)
 
-    assertArrayEquals(expected.toArray[AnyRef], actual.toArray[AnyRef])
+    assertArrayEquals(expected.toArray[AnyRef], actual.asScala.toArray[AnyRef])
   }
 }

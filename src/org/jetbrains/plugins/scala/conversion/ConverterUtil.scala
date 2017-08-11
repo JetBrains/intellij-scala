@@ -173,7 +173,7 @@ object ConverterUtil {
   }
 
   def runInspections(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
-    def handleOneProblem(problem: ProblemDescriptor) = {
+    def handleOneProblem(problem: ProblemDescriptor): Unit = {
       val fixes = problem.getFixes.collect { case f: LocalQuickFixOnPsiElement => f }
       fixes.foreach(_.applyFix)
     }
@@ -198,8 +198,7 @@ object ConverterUtil {
       case el => intention.invoke(project, editor, el)
     })
 
-    import scala.collection.JavaConversions._
-    holder.getResults.foreach(handleOneProblem)
+    holder.getResults.forEach(handleOneProblem)
   }
 
   sealed trait Part

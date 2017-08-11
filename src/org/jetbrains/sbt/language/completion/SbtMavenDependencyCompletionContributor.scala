@@ -2,6 +2,7 @@ package org.jetbrains.sbt.language.completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
+import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns._
 import com.intellij.patterns.StandardPatterns._
 import com.intellij.util.ProcessingContext
@@ -43,11 +44,11 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
     override def addCompletions(params: CompletionParameters, context: ProcessingContext, results: CompletionResultSet): Unit = {
       import org.jetbrains.plugins.scala.project._
 
-      def addResult(result: String, addPercent: Boolean = false) = {
+      def addResult(result: String, addPercent: Boolean = false): Unit = {
         if (addPercent)
           results.addElement(new LookupElement {
             override def getLookupString: String = result
-            override def handleInsert(context: InsertionContext) = {
+            override def handleInsert(context: InsertionContext): Unit = {
               //gropus containig "scala" are more likely to undergo sbt's scalaVersion artifact substitution
               val postfix = if (result.contains("scala")) " %% \"\"" else " % \"\""
               context.getDocument.insertString(context.getTailOffset+1, postfix)
@@ -59,29 +60,18 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
       }
 
       val place = positionFromParameters(params)
-      implicit val p = place.getProject
+      implicit val p: Project = place.getProject
 
       val resolvers = SbtResolverUtils.getProjectResolversForFile(Option(ScalaPsiUtil.fileContext(place)))
 
-//      def completeMaven(query: String, field: MavenArtifactInfo => String, addPercent: Boolean = false) = {
-//        import scala.collection.JavaConversions._
-//
-//        val buffer = for {
-//          l <- (new MavenArtifactSearcher).search(place.getProject, query, MAX_ITEMS)
-//          i <- l.versions
-//        } yield field(i)
-//        for { result <- buffer.toSet[String] } addResult(result, addPercent)
-//        results.stopHere()
-//      }
-
-      def completeGroup(artifactId: String) = {
+      def completeGroup(artifactId: String): Unit = {
         for (resolver <- resolvers) {
           resolver.getIndex(p).searchGroup(artifactId).foreach(i=>addResult(i))
         }
         results.stopHere()
       }
 
-      def completeArtifact(groupId: String, stripVersion: Boolean) = {
+      def completeArtifact(groupId: String, stripVersion: Boolean): Unit = {
         for (resolver <- resolvers) {
           resolver.getIndex(p).searchArtifact(groupId).foreach { i =>
             if (stripVersion)
@@ -93,7 +83,7 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
         results.stopHere()
       }
 
-      def completeVersion(groupId: String, artifactId: String) = {
+      def completeVersion(groupId: String, artifactId: String): Unit = {
         for (resolver <- resolvers) {
           resolver.getIndex(p).searchVersion(groupId, artifactId).foreach(i=>addResult(i))
         }

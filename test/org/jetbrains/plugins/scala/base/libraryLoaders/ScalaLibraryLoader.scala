@@ -16,6 +16,8 @@ import org.jetbrains.plugins.scala.project.template.Artifact.ScalaCompiler.versi
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.TestUtils
 
+import scala.collection.JavaConverters._
+
 case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
                              (implicit val module: Module)
   extends LibraryLoader {
@@ -42,7 +44,7 @@ case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
     syntheticClassesLoader.clean()
   }
 
-  private def addScalaSdk(implicit version: ScalaVersion) = {
+  private def addScalaSdk(implicit version: ScalaVersion): Unit = {
     val loaders = Seq(ScalaCompilerLoader(), ScalaRuntimeLoader()) ++
       (if (isIncludeReflectLibrary) Seq(ScalaReflectLoader()) else Seq.empty)
 
@@ -51,8 +53,7 @@ case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
     val classRoots = loaders.flatMap(_.rootFiles)
     val srcRoots = ScalaRuntimeLoader(Sources).rootFiles
 
-    import scala.collection.JavaConversions._
-    library = PsiTestUtil.addProjectLibrary(module, "scala-sdk", classRoots, srcRoots)
+    library = PsiTestUtil.addProjectLibrary(module, "scala-sdk", classRoots.asJava, srcRoots.asJava)
 
     inWriteAction {
       library.convertToScalaSdkWith(languageLevel(files.head), files)
@@ -71,7 +72,7 @@ object ScalaLibraryLoader {
 
   ScalaLoader.loadScala()
 
-  private case class SyntheticClassesLoader(implicit val module: Module)
+  private case class SyntheticClassesLoader()(implicit val module: Module)
     extends LibraryLoader {
 
     def init(implicit version: ScalaVersion): Unit =
@@ -102,7 +103,7 @@ object ScalaLibraryLoader {
       s"$name-${version.minor}"
   }
 
-  case class ScalaCompilerLoader(implicit val module: Module)
+  case class ScalaCompilerLoader()(implicit val module: Module)
     extends ScalaLibraryLoaderAdapter {
 
     override protected val name: String = "scala-compiler"
@@ -123,7 +124,7 @@ object ScalaLibraryLoader {
     }
   }
 
-  case class ScalaReflectLoader(implicit val module: Module)
+  case class ScalaReflectLoader()(implicit val module: Module)
     extends ScalaLibraryLoaderAdapter {
 
     override protected val name: String = "scala-reflect"

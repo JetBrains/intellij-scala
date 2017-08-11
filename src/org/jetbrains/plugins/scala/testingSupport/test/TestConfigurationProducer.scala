@@ -19,6 +19,7 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.ui.components.JBList
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import scala.collection.JavaConverters._
 
 /**
  * @author Roman.Shein
@@ -86,13 +87,19 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
                                                   acceptAbstractCondition: Condition[PsiClass]): Boolean = {
               //TODO this is mostly copy-paste from InheritorChooser; get rid of this once we support pattern test runs
               if (containingClass == null) return false
-              import scala.collection.JavaConversions._
-              val classes = ClassInheritorsSearch.search(containingClass).filterNot{config.isInvalidSuite}.toList
+              val classes = ClassInheritorsSearch
+                .search(containingClass)
+                .asScala
+                .filterNot{config.isInvalidSuite}
+                .toList
+
               if (classes.isEmpty) return false
+
               if (classes.size == 1) {
                 runForClass(classes.head, psiMethod, context, performRunnable)
                 return true
               }
+
               val fileEditor = PlatformDataKeys.FILE_EDITOR.getData(context.getDataContext)
               fileEditor match {
                 case editor: TextEditor =>
@@ -111,7 +118,6 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
                 case _ =>
               }
               val renderer = new PsiClassListCellRenderer()
-              import scala.collection.JavaConversions._
               val classesSorted = classes.sorted(Ordering.comparatorToOrdering(renderer.getComparator))
               val jbList = new JBList(classesSorted:_*)
               //scala type system gets confused because someone forgot generics in PsiElementListCellRenderer definition
@@ -123,7 +129,7 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
                   val values = jbList.getSelectedValuesList
                   if (values == null) return
                   if (values.size == 1) {
-                    runForClass(values.head, psiMethod, context, performRunnable)
+                    runForClass(values.get(0), psiMethod, context, performRunnable)
                   }
                 }
               }).createPopup().showInBestPositionFor(context.getDataContext)
@@ -159,10 +165,14 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
   }
 
   protected def runPossibleFor(configuration: AbstractTestRunConfiguration, testElement: PsiElement): Boolean = {
-    import scala.collection.JavaConversions._
 
     testElement match {
-      case cl: PsiClass => !configuration.isInvalidSuite(cl) || ClassInheritorsSearch.search(cl).iterator().exists(!configuration.isInvalidSuite(_))
+      case cl: PsiClass =>
+        !configuration.isInvalidSuite(cl) ||
+        ClassInheritorsSearch
+          .search(cl)
+          .asScala
+          .exists(!configuration.isInvalidSuite(_))
       case _ => true
     }
   }

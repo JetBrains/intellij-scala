@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.codeInspection.unusedInspections.{Highlightin
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import scala.collection.JavaConverters._
 
 class VarCouldBeValInspection extends HighlightingPassInspection {
   override def isEnabledByDefault: Boolean = true
@@ -28,9 +29,8 @@ class VarCouldBeValInspection extends HighlightingPassInspection {
       }
       hasNoWriteUsages && used //has no write usages but is used
     } else {
-      import scala.collection.JavaConversions._
       val references = ReferencesSearch.search(elem, elem.getUseScope).findAll()
-      val hasNoWriteUsages = references.forall {
+      val hasNoWriteUsages = references.asScala.forall {
         !ScalaPsiUtil.isPossiblyAssignment(_)
       }
       hasNoWriteUsages && !references.isEmpty

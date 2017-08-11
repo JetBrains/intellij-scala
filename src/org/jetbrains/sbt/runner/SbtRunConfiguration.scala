@@ -21,9 +21,6 @@ import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.sbt.project.structure.SbtRunner
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
-import scala.collection.JavaConversions._
-import scala.collection.mutable
-
 /**
  * Run configuration of SBT tasks.
  */
@@ -43,13 +40,13 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   /**
    * Environment variables.
    */
-  private val environmentVariables: java.util.Map[String, String] = new mutable.HashMap[String, String]()
+  private val environmentVariables: java.util.Map[String, String] = new java.util.HashMap[String, String]()
 
   private var workingDirectory: String = defaultWorkingDirectory
 
   private def defaultWorkingDirectory = Option(project.getBaseDir).fold("")(_.getPath)
 
-  override def getValidModules: util.Collection[Module] = List()
+  override def getValidModules: util.Collection[Module] = new java.util.ArrayList
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
     val state: SbtComandLineState = new SbtComandLineState(this, env)

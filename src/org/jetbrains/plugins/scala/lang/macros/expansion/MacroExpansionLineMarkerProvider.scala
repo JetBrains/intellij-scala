@@ -16,17 +16,15 @@ import com.intellij.util.Function
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction.UndoExpansionData
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaMetaMode
 
-import scala.collection.JavaConversions._
 import scala.meta.intellij.MetaExpansionsManager
-import ScalaProjectSettings.ScalaMetaMode
-import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction.UndoExpansionData
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
 class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
@@ -65,7 +63,7 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
     newMarker(element, AllIcons.General.Help, ScalaBundle.message("scala.meta.recompile")) { elt =>
       CompilerManager.getInstance(elt.getProject).make(annot.constructor.reference.get.resolve().module.get,
         new CompileStatusNotification {
-          override def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext) = {
+          override def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext): Unit = {
             DaemonCodeAnalyzer.getInstance(elt.getProject).restart(elt.getContainingFile)
           }
         }
@@ -106,7 +104,7 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
         def fun(param: PsiElement): String = caption
       },
       new GutterIconNavigationHandler[PsiElement] {
-        def navigate(mouseEvent: MouseEvent, elt: PsiElement) = fun(elt)
+        def navigate(mouseEvent: MouseEvent, elt: PsiElement): Unit = fun(elt)
       },
       GutterIconRenderer.Alignment.RIGHT, util.Arrays.asList[GotoRelatedItem]())
   }

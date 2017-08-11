@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport
 
-import com.intellij.testFramework.{EdtTestUtil, UsefulTestCase}
-import com.intellij.util.concurrency.Semaphore
-import javax.swing.SwingUtilities
-
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.{PsiLocation, RunnerAndConfigurationSettings}
 import com.intellij.ide.util.treeView.AbstractTreeNode
@@ -11,7 +7,8 @@ import com.intellij.ide.util.treeView.smartTree.{TreeElement, TreeElementWrapper
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import com.intellij.util.ThrowableRunnable
+import com.intellij.testFramework.EdtTestUtil
+import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl.TestItemRepresentation
@@ -19,6 +16,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfigurat
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters._
 
 /**
   * @author Roman.Shein
@@ -47,7 +45,6 @@ trait IntegrationTest {
   protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String] = None, testStatus: Int = TestStructureViewElement.normalStatusId)
 
   protected def checkTestNodeInFileStructure(root: TreeElementWrapper, nodeName: String, parentName: Option[String], status: Int): Boolean = {
-    import scala.collection.JavaConversions._
 
     def helper(root: AbstractTreeNode[_], currentParentName: String): Boolean = {
       root.getValue.isInstanceOf[TestStructureViewElement] && {
@@ -56,14 +53,12 @@ trait IntegrationTest {
           presentation.asInstanceOf[TestItemRepresentation].testStatus == status &&
           parentName.forall(currentParentName == _)
       } ||
-        root.getChildren.toList.exists(helper(_, root.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText))
+        root.getChildren.asScala.exists(helper(_, root.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText))
     }
 
     var res = false
 
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      override def run(): Unit = res = helper(root, "")
-    })
+    EdtTestUtil.runInEdtAndWait(() => res = helper(root, ""))
     res
   }
 
@@ -97,12 +92,11 @@ trait IntegrationTest {
     checkResultTreeHasExactNamedPath(root, names)
 
   protected def checkResultTreeDoesNotHaveNodes(root: AbstractTestProxy, names: String*): Boolean =
-    checkResultTreeDoesNotHaveNodes(root, names)
+    checkResultTreeDoesNotHaveNodes(root, names.toVector)
 
-  protected def checkResultTreeDoesNotHaveNodes(root: AbstractTestProxy, names: Iterable[String]): Boolean = {
-    import scala.collection.JavaConversions._
+  protected def checkResultTreeDoesNotHaveNodes(root: AbstractTestProxy, names: Vector[String]): Boolean = {
     if (root.isLeaf && !names.contains(root.getName)) true
-    else !names.contains(root.getName) && root.getChildren.toList.forall(checkResultTreeDoesNotHaveNodes(_, names))
+    else !names.contains(root.getName) && root.getChildren.asScala.forall(checkResultTreeDoesNotHaveNodes(_, names))
   }
 
   protected def getExactNamePathFromResultTree(root: AbstractTestProxy, names: Iterable[String], allowTail: Boolean = false): Option[List[AbstractTestProxy]] = {
@@ -121,14 +115,13 @@ trait IntegrationTest {
   protected def getPathFromResultTree(root: AbstractTestProxy,
                                       conditions: Iterable[AbstractTestProxy => Boolean], allowTail: Boolean = false):
   Option[List[AbstractTestProxy]] = {
-    import scala.collection.JavaConversions._
     if (conditions.isEmpty) {
       if (allowTail) return Some(List()) else return None
     }
     if (conditions.head(root)) {
       val children = root.getChildren
       if (children.isEmpty && conditions.size == 1) Some(List(root))
-      else children.toList.map(getPathFromResultTree(_, conditions.tail, allowTail)).find(_.isDefined).
+      else children.asScala.map(getPathFromResultTree(_, conditions.tail, allowTail)).find(_.isDefined).
         flatten.map(tail => root :: tail)
     } else {
       None
@@ -146,7 +139,7 @@ trait IntegrationTest {
                         configurationCheck: RunnerAndConfigurationSettings => Boolean,
                         testTreeCheck: AbstractTestProxy => Boolean,
                         expectedText: String = "OK", debug: Boolean = false, duration: Int = 3000,
-                        checkOutputs: Boolean = false) = {
+                        checkOutputs: Boolean = false): Unit = {
 
     val runConfig = createTestFromLocation(lineNumber, offset, fileName)
 
@@ -156,7 +149,7 @@ trait IntegrationTest {
   def runTestByConfig(runConfig: RunnerAndConfigurationSettings, configurationCheck: RunnerAndConfigurationSettings => Boolean,
                       testTreeCheck: AbstractTestProxy => Boolean,
                       expectedText: String = "OK", debug: Boolean = false, duration: Int = 3000,
-                      checkOutputs: Boolean = false) = {
+                      checkOutputs: Boolean = false): Unit = {
     val (res, testTreeRoot) = runTestFromConfig(configurationCheck, runConfig, checkOutputs, duration, debug)
 
     val semaphore = new Semaphore
@@ -188,15 +181,13 @@ trait IntegrationTest {
 
   def runGoToSourceTest(lineNumber: Int, offset: Int, fileName: String,
                         configurationCheck: RunnerAndConfigurationSettings => Boolean, testNames: Iterable[String],
-                        sourceLine: Int) = {
+                        sourceLine: Int): Unit = {
     val runConfig = createTestFromLocation(lineNumber, offset, fileName)
 
     val (_, testTreeRoot) = runTestFromConfig(configurationCheck, runConfig)
 
     assert(testTreeRoot.isDefined)
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      override def run(): Unit = checkGoToSourceTest(testTreeRoot.get, testNames, fileName, sourceLine)
-    })
+    EdtTestUtil.runInEdtAndWait(() => checkGoToSourceTest(testTreeRoot.get, testNames, fileName, sourceLine))
   }
 
   private def checkGoToSourceTest(testRoot: AbstractTestProxy, testNames: Iterable[String], sourceFile: String, sourceLine: Int) {

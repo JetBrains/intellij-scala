@@ -37,55 +37,55 @@ object ScalaMetaLibrariesOwner {
       super.path(version)
   }
 
-  private case class MetaCommonLoader(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaCommonLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "common"
   }
 
-  private case class MetaDialectsLoader(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaDialectsLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "dialects"
   }
 
-  private case class MetaInlineLoader(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaInlineLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "inline"
   }
 
-  private case class MetaInputsLoader(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaInputsLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "inputs"
   }
 
-  private case class MetaParsersLoader(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaParsersLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "parsers"
   }
 
-  private case class MetaQuasiquotesLoader(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaQuasiquotesLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "quasiquotes"
   }
 
-  private case class MetaScalametaLoader(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaScalametaLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "scalameta"
   }
 
-  private case class MetaTokenizersLoader(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaTokenizersLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "tokenizers"
   }
 
-  private case class MetaTokensLoader(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaTokensLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "tokens"
   }
 
-  private case class MetaTransversersLoader(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaTransversersLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "transversers"
   }
 
-  private case class MetaTreesLoader(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaTreesLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "trees"
   }
 
-  private case class MetaSemanticLoader(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaSemanticLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "semantic"
   }
 
-  private case class MetaIOLoader(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaIOLoader()(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "io"
   }
 

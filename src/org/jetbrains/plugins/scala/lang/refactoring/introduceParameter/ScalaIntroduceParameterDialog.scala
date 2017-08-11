@@ -5,7 +5,7 @@ import java.awt.event.{ItemEvent, ItemListener}
 import java.util
 import javax.swing._
 
-import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent}
+import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{ComboBox, ValidationInfo}
 import com.intellij.refactoring.BaseRefactoringProcessor
@@ -119,7 +119,7 @@ class ScalaIntroduceParameterDialog(project: Project,
   private def createParamNamePanel(): JComponent = {
     paramNameField = new EditorTextField(introduceData.paramName)
     paramNameField.setPreferredWidth(150)
-    paramNameField.addDocumentListener(new DocumentAdapter {
+    paramNameField.addDocumentListener(new DocumentListener {
       override def documentChanged(e: DocumentEvent): Unit = {
         val newText: String = paramNameField.getText
         introducedParamTableItem.foreach(_.parameter.setName(newText))
@@ -176,7 +176,7 @@ class ScalaIntroduceParameterDialog(project: Project,
     panel.add(label, BorderLayout.NORTH)
     defaultForIntroducedTextField.setOneLineMode(false)
     defaultForIntroducedTextField.setEnabled(true)
-    defaultForIntroducedTextField.addDocumentListener(new DocumentAdapter {
+    defaultForIntroducedTextField.addDocumentListener(new DocumentListener {
       override def documentChanged(e: DocumentEvent): Unit = {
         introducedParamTableItem.foreach(_.parameter.defaultValue = defaultForIntroducedTextField.getText.trim)
       }

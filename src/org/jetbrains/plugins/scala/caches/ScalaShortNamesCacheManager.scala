@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.Predef._
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.JavaConverters._
 
 /**
  * User: Alefas
@@ -138,8 +139,7 @@ class ScalaShortNamesCacheManager(project: Project) extends AbstractProjectCompo
   }
 
   def getAllMethodNames: Seq[String] = {
-    import scala.collection.JavaConversions._
-    StubIndex.getInstance.getAllKeys(ScalaIndexKeys.METHOD_NAME_KEY, project).toSeq
+    StubIndex.getInstance.getAllKeys(ScalaIndexKeys.METHOD_NAME_KEY, project).asScala.toSeq
   }
 
   def getMethodsByName(name: String, scope: GlobalSearchScope): Seq[PsiMethod] = {
@@ -187,8 +187,7 @@ class ScalaShortNamesCacheManager(project: Project) extends AbstractProjectCompo
   }
 
   def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
-    import scala.collection.JavaConversions._
-    StubIndex.getElements(ScalaIndexKeys.SHORT_NAME_KEY, name, project, scope, classOf[PsiClass]).toSeq
+    StubIndex.getElements(ScalaIndexKeys.SHORT_NAME_KEY, name, project, scope, classOf[PsiClass]).asScala.toSeq
   }
 
   def getPackageObjectByName(fqn: String, scope: GlobalSearchScope): ScTypeDefinition = {

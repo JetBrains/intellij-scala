@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import scala.collection.JavaConverters._
 
 /**
  * @author Roman.Shein
@@ -35,10 +36,12 @@ class ScalaSubtypesMacro extends ScalaMacro {
       case scTypeRes: ScalaTypeResult =>
         scTypeRes.myType.extractClass match {
           case Some(x: ScTypeDefinition) =>
-            import scala.collection.JavaConversions._
-            ClassInheritorsSearch.search(x, GlobalSearchScope.projectScope(context.getProject), true).findAll().
-                    filter(_.isInstanceOf[ScTypeDefinition]).map(_.asInstanceOf[ScTypeDefinition].getType(TypingContext.empty)).
-                    flatMap(_.toOption).flatMap(MacroUtil.getTypeLookupItem(_, project)).toArray
+            ClassInheritorsSearch.search(x, GlobalSearchScope.projectScope(context.getProject), true)
+              .findAll().asScala
+              .filter(_.isInstanceOf[ScTypeDefinition]).map(_.asInstanceOf[ScTypeDefinition].getType(TypingContext.empty))
+              .flatMap(_.toOption)
+              .flatMap(MacroUtil.getTypeLookupItem(_, project))
+              .toArray
           case _ => Array[LookupElement]()
         }
       case _ => Array[LookupElement]()

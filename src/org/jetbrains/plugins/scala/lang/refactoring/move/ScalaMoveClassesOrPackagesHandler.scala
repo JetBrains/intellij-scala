@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.move
 
 import java.awt.BorderLayout
-import java.awt.event.{ActionEvent, ActionListener}
+import java.awt.event.ActionEvent
 import javax.swing._
 
 import com.intellij.openapi.project.Project
@@ -16,6 +16,8 @@ import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Alefas
@@ -57,8 +59,7 @@ class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler
                                           initialTargetElement: PsiElement,
                                           moveCallback: MoveCallback) {
 
-    import scala.collection.JavaConversions._
-    if (!CommonRefactoringUtil.checkReadOnlyStatusRecursively(project, adjustedElements.toSeq, true)) {
+    if (!CommonRefactoringUtil.checkReadOnlyStatusRecursively(project, adjustedElements.toSeq.asJavaCollection, true)) {
       return
     }
     val initialTargetPackageName: String = MoveClassesOrPackagesImpl.getInitialTargetPackageName(initialTargetElement, adjustedElements)
@@ -120,10 +121,8 @@ class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler
       if (panel != null) result.add(panel, BorderLayout.NORTH)
       val chbMoveCompanion = new JCheckBox(ScalaBundle.message("move.with.companion"))
       chbMoveCompanion.setSelected(ScalaApplicationSettings.getInstance().MOVE_COMPANION)
-      chbMoveCompanion.addActionListener(new ActionListener {
-        def actionPerformed(e: ActionEvent) {
-          ScalaApplicationSettings.getInstance().MOVE_COMPANION = chbMoveCompanion.isSelected
-        }
+      chbMoveCompanion.addActionListener((e: ActionEvent) => {
+        ScalaApplicationSettings.getInstance().MOVE_COMPANION = chbMoveCompanion.isSelected
       })
       chbMoveCompanion.setMnemonic('t')
       result.add(chbMoveCompanion, BorderLayout.WEST)

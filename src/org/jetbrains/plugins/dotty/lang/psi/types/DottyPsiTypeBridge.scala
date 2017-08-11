@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, StdType, arrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 
 /**
@@ -26,7 +26,7 @@ trait DottyPsiTypeBridge extends api.PsiTypeBridge {
     case _: PsiClassType => Any
     case _: PsiWildcardType => Any
     case disjunctionType: PsiDisjunctionType =>
-      DottyOrType(disjunctionType.getDisjunctions.map {
+      DottyOrType(disjunctionType.getDisjunctions.asScala.map {
         toScType(_, treatJavaObjectAsAny)
       })
     case _ => super.toScType(`type`, treatJavaObjectAsAny)

@@ -28,8 +28,6 @@ import org.jetbrains.plugins.scala.overrideImplement._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
-import scala.collection.JavaConversions._
-
 /**
 * Nikolay.Tropin
 * 2014-03-21
@@ -87,7 +85,12 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   private def methodBody(delegate: ClassMember, prototype: ScFunction): ScExpression = {
     def typeParameterUsedIn(parameter: ScTypeParam, elements: Seq[PsiElement]) = {
-      elements.exists(elem => ReferencesSearch.search(parameter, new LocalSearchScope(elem)).findAll().nonEmpty)
+      elements.exists(elem =>
+        !ReferencesSearch
+          .search(parameter, new LocalSearchScope(elem))
+          .findAll()
+          .isEmpty
+      )
     }
     val typeParamsForCall: String = {
       val typeParams = prototype.typeParameters
@@ -137,7 +140,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
       chooser.setTitle(CodeInsightBundle.message("generate.delegate.method.chooser.title"))
       chooser.show()
       if (chooser.getExitCode != DialogWrapper.OK_EXIT_CODE) return null
-      chooser.getSelectedElements.toBuffer.toArray
+      chooser.getSelectedElements.toArray(Array.empty[ScMethodMember])
     }
     else if (members.nonEmpty) Array(members.head) else Array()
   }

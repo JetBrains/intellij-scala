@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader.{ScalaCompilerLoader, ScalaLibraryLoaderAdapter, ScalaReflectLoader, ScalaRuntimeLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_10}
 import org.jetbrains.sbt.MockSbt._
+import scala.collection.JavaConverters._
 
 /**
   * @author Nikolay Obedin
@@ -29,8 +30,7 @@ trait MockSbt extends ScalaSdkOwner {
   override protected def setUpLibraries(): Unit = {
     val classPath = librariesLoaders.map(MockSbt.urlForLibraryRoot)
 
-    import scala.collection.JavaConversions._
-    ModuleRootModificationUtil.addModuleLibrary(module, "sbt", classPath, Seq.empty[String])
+    ModuleRootModificationUtil.addModuleLibrary(module, "sbt", classPath.asJava, List.empty[String].asJava)
 
     LibraryLoader.storePointers()
   }
@@ -51,47 +51,47 @@ object MockSbt {
       s"$name-${this.version}"
   }
 
-  private case class SbtCollectionsLoader(implicit override val version: String,
+  private case class SbtCollectionsLoader()(implicit override val version: String,
                                           override val module: Module) extends SbtBaseLoader {
     override protected val name: String = "collections"
   }
 
-  private case class SbtInterfaceLoader(implicit override val version: String,
+  private case class SbtInterfaceLoader()(implicit override val version: String,
                                         override val module: Module) extends SbtBaseLoader {
     override protected val name: String = "interface"
   }
 
-  private case class SbtIOLoader(implicit override val version: String,
+  private case class SbtIOLoader()(implicit override val version: String,
                                  override val module: Module) extends SbtBaseLoader {
     override protected val name: String = "io"
   }
 
-  private case class SbtIvyLoader(implicit override val version: String,
+  private case class SbtIvyLoader()(implicit override val version: String,
                                   override val module: Module) extends SbtBaseLoader {
     override protected val name: String = "ivy"
   }
 
-  private case class SbtLoggingLoader(implicit override val version: String,
+  private case class SbtLoggingLoader()(implicit override val version: String,
                                       override val module: Module) extends SbtBaseLoader {
     override protected val name: String = "logging"
   }
 
-  private case class SbtMainLoader(implicit override val version: String,
+  private case class SbtMainLoader()(implicit override val version: String,
                                    override val module: Module) extends SbtBaseLoader {
     override protected val name: String = "main"
   }
 
-  private case class SbtMainSettingsLoader(implicit override val version: String,
+  private case class SbtMainSettingsLoader()(implicit override val version: String,
                                            override val module: Module) extends SbtBaseLoader {
     override protected val name: String = "main-settings"
   }
 
-  private case class SbtProcessLoader(implicit implicit override val version: String,
+  private case class SbtProcessLoader()(implicit implicit override val version: String,
                                       override val module: Module) extends SbtBaseLoader {
     override protected val name: String = "process"
   }
 
-  private case class SbtLoader(implicit override val version: String,
+  private case class SbtLoader()(implicit override val version: String,
                                override val module: Module) extends SbtBaseLoader {
     override protected val name: String = "sbt"
   }

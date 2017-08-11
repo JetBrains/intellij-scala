@@ -16,17 +16,17 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
  */
 case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
                           classPrivateThisField: Boolean = false) extends Evaluator {
-  private var myEvaluatedQualifier: AnyRef = null
-  private var myEvaluatedField: Field = null
+  private var myEvaluatedQualifier: AnyRef = _
+  private var myEvaluatedField: Field = _
 
   private val fieldName = DebuggerUtil.withoutBackticks(_fieldName)
 
   private def fieldByName(t: ReferenceType, fieldName: String): Field = {
     if (classPrivateThisField) {
-      import scala.collection.JavaConversions._
-      for (field <- t.fields()) {
-        if (field.name().endsWith("$$" + fieldName)) return field
-      }
+      t.fields().forEach( field =>
+        if (field.name().endsWith("$$" + fieldName))
+          return field
+      )
     }
     var field = t.fieldByName(fieldName)
     if (field != null) {
@@ -36,10 +36,10 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
       field = t.fieldByName(fieldName + "$" + i)
       if (field != null) return field
     }
-    import scala.collection.JavaConversions._
-    for (field <- t.fields()) {
-      if (field.name().startsWith(fieldName + "$")) return field
-    }
+    t.fields().forEach( field =>
+      if (field.name().startsWith(fieldName + "$"))
+        return field
+    )
     null
   }
   
@@ -49,8 +49,7 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
         val foundInClass = fieldByName(cls, fieldName)
         if (foundInClass != null) return foundInClass
 
-        import scala.collection.JavaConversions._
-        for (interfaceType <- cls.interfaces) {
+        cls.interfaces.forEach { interfaceType =>
           val field: Field = findField(interfaceType, context)
           if (field != null) {
             return field
@@ -58,11 +57,10 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
         }
         return findField(cls.superclass, context)
       case iface: InterfaceType =>
-        val foundInInteface = fieldByName(iface, fieldName)
-        if (foundInInteface != null) return foundInInteface
+        val foundInInterface = fieldByName(iface, fieldName)
+        if (foundInInterface != null) return foundInInterface
 
-        import scala.collection.JavaConversions._
-        for (interfaceType <- iface.superinterfaces) {
+        iface.superinterfaces.forEach { interfaceType =>
           val field: Field = findField(interfaceType, context)
           if (field != null) {
             return field

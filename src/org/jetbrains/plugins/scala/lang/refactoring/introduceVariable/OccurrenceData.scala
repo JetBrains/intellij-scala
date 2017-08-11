@@ -22,7 +22,7 @@ object OccurrenceData {
     scopeItem match {
       case simpleScope: SimpleScopeItem =>
         new OccurrenceData(typeElement, simpleScope.usualOccurrences, isReplaceAllUsual, simpleScope.occurrencesInCompanion,
-          isReplaceOccurrenceIncompanionObject, simpleScope.occurrencesFromInheretors, isReplaceOccurrenceInInheritors)
+          isReplaceOccurrenceIncompanionObject, simpleScope.occurrencesFromInheritors, isReplaceOccurrenceInInheritors)
       case packageScope: PackageScopeItem =>
         new OccurrenceData(typeElement, packageScope.occurrences, isReplaceAllUsual, Array[ScTypeElement](),
           isReplaceOccurrenceIncompanionObject, Array[ScTypeElement](), isReplaceOccurrenceInInheritors)

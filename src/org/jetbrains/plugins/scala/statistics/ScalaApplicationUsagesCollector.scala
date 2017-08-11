@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.project._
 
 import scala.collection.mutable
+import scala.collection.JavaConverters._
 
 /**
  * @author Alefas
@@ -44,7 +45,7 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
       }
 
       scala_version.foreach {
-        case version: String => set += new UsageDescriptor(s"Scala: $version", 1)
+        version: String => set += new UsageDescriptor(s"Scala: $version", 1)
       }
 
       def checkLibrary(qual: String, library: String) {
@@ -99,15 +100,14 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
         checkLibrary("monocle", "Monocle")
 
         java_version.foreach {
-          case version: String => set += new UsageDescriptor(s"Java version: $version", 1)
+          version: String => set += new UsageDescriptor(s"Java version: $version", 1)
         }
       } else {
         checkLibrary("play.api.mvc", s"Play2 for Java|$isPlayInstalled")
         checkLibrary("akka.actor", "Akka for Java")
       }
 
-      import scala.collection.JavaConversions._
-      set
+      set.asJava
     }
   }
 

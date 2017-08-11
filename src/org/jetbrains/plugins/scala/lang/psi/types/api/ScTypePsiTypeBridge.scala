@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import scala.collection.JavaConverters._
 
 /**
   * @author adkozlov
@@ -36,8 +37,7 @@ trait PsiTypeBridge {
     case PsiType.NULL => Null
     case null => Any
     case diamondType: PsiDiamondType =>
-      import scala.collection.JavaConversions._
-      diamondType.resolveInferredTypes().getInferredTypes.toList map {
+      diamondType.resolveInferredTypes().getInferredTypes.asScala.toList.map {
         toScType(_, treatJavaObjectAsAny)
       } match {
         case Nil if paramTopLevel && treatJavaObjectAsAny => Any

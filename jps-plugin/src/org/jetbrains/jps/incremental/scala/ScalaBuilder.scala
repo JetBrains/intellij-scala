@@ -118,13 +118,11 @@ object ScalaBuilder {
   def isScalaProject(project: JpsProject): Boolean = hasScalaSdks(project.getModules)
   def hasScalaModules(chunk: ModuleChunk): Boolean = hasScalaSdks(chunk.getModules)
   private def hasScalaSdks(modules: util.Collection[JpsModule]): Boolean = {
-    import _root_.scala.collection.JavaConversions._
-    modules.exists(SettingsManager.hasScalaSdk)
+    modules.asScala.exists(SettingsManager.hasScalaSdk)
   }
 
   def hasBuildModules(chunk: ModuleChunk): Boolean = {
-    import _root_.scala.collection.JavaConversions._
-    chunk.getModules.exists(_.getName.endsWith("-build")) // gen-idea doesn't use the SBT module type
+    chunk.getModules.asScala.exists(_.getName.endsWith("-build")) // gen-idea doesn't use the SBT module type
   }
 
   def projectSettings(context: CompileContext): ProjectSettings = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
@@ -139,7 +137,7 @@ object ScalaBuilder {
     true
   }
 
-  val Log = JpsLogger.getInstance(ScalaBuilder.getClass.getName)
+  val Log: JpsLogger = JpsLogger.getInstance(ScalaBuilder.getClass.getName)
 
   // Cached local localServer
   private var cachedServer: Option[Server] = None

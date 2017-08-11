@@ -17,7 +17,7 @@ class HoconFormatterTest extends HoconFileSetTestCase("formatter") {
     val Seq(settingsXml, input) = data
 
     val settings = CodeStyleSettingsManager.getSettings(getProject)
-    settings.readExternal(JDOMUtil.loadDocument(settingsXml).getRootElement)
+    settings.readExternal(JDOMUtil.load(settingsXml))
 
     val psiFile = createPseudoPhysicalHoconFile(getProject, input)
 
