@@ -16,9 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScTypedStmt, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, TypeAdjuster}
-import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Implementation, Location, ScalaTypeAnnotationSettings}
+import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util._
 
 import scala.collection.mutable
@@ -52,15 +53,31 @@ object TypeAnnotationInspection {
                       implementation: Option[ScExpression])
                      (implicit holder: ProblemsHolder): Unit = {
 
-    if (ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
-      Declaration(element), Location(element), implementation.map(Implementation.Expression(_)))) {
+    val declaration = Declaration(element)
+    val location = Location(element)
 
-      holder.registerProblem(anchor, Description,
-        new AddTypeAnnotationQuickFix(anchor),
-        new LearnWhyQuickFix,
-        new ModifyCodeStyleQuickFix)
+    if (ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
+      declaration, location, implementation.map(Implementation.Expression(_)))) {
+
+      // TODO Create the general-purpose inspection
+      val canBePrivate = declaration.entity match {
+        case Entity.Method | Entity.Value | Entity.Variable if !location.isInLocalScope =>
+          declaration.visibility != Visibility.Private
+        case _ => false
+      }
+
+      val fixes =
+        canBePrivate.seq(new MakePrivateQuickFix(element.asInstanceOf[ScModifierListOwner])) ++
+          Seq(new AddTypeAnnotationQuickFix(anchor), new ModifyCodeStyleQuickFix(), new LearnWhyQuickFix())
+
+      holder.registerProblem(anchor, Description, fixes: _*)
     }
   }
+}
+
+private class MakePrivateQuickFix(element: ScModifierListOwner) extends AbstractFixOnPsiElement("Make private", element) {
+  override def doApplyFix(project: Project): Unit =
+    element.setModifierProperty("private", value = true)
 }
 
 class AddTypeAnnotationQuickFix(element: PsiElement)
