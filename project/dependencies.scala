@@ -15,6 +15,8 @@ object Versions {
   val httpComponentsVersion = "4.3.1"
   val scalaMetaVersion = "1.8.0"
   val paradiseVersion = "3.0.0-M10"
+  val monocleVersion = "1.4.0"
+  val scalazVersion = "7.1.0"
 
   object Scala {
     val binary_2_9 = "2.9.2"
@@ -165,9 +167,9 @@ object DependencyGroups {
 
     scalaXml,
     "com.chuusai" % "shapeless_2.11" % "2.0.0",
-    "com.github.julien-truffaut" %% "monocle-core" % "1.2.0",
-    "com.github.julien-truffaut" %% "monocle-generic" % "1.2.0",
-    "com.github.julien-truffaut" %% "monocle-macro" % "1.2.0",
+    "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
+    "com.github.julien-truffaut" %% "monocle-generic" % monocleVersion,
+    "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion,
     "com.lihaoyi" % "utest_2.10" % "0.3.1" % "provided",
     "com.lihaoyi" % "utest_2.10" % "0.4.3" % "provided",
     "com.lihaoyi" % "utest_2.11" % "0.4.3" % "provided",
@@ -175,14 +177,14 @@ object DependencyGroups {
     "com.typesafe.akka" % "akka-stream_2.11" % "2.4.19",
     "com.typesafe.play" % "play_2.10" % "2.4.10",
     "com.typesafe.slick" %% "slick" % "3.2.0",
-    "io.spray" %% "spray-routing" % "1.3.1",
+//    "io.spray" %% "spray-routing" % "1.3.4",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
     "org.specs2" % "specs2_2.10" % "2.4.6",
     "org.scala-js" % "scalajs-library_2.10" % "0.6.14",
-    "org.scalaz" % "scalaz-core_2.10" % "7.1.0",
-    "org.scalaz" % "scalaz-concurrent_2.10" % "7.1.0",
-    "org.scalaz" % "scalaz-core_2.11" % "7.1.0",
-    "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0",
+    "org.scalaz" % "scalaz-core_2.10" % scalazVersion,
+    "org.scalaz" % "scalaz-concurrent_2.10" % scalazVersion,
+    "org.scalaz" % "scalaz-core_2.11" % scalazVersion,
+    "org.scalaz" % "scalaz-concurrent_2.11" % scalazVersion,
     "org.scalaz.stream" % "scalaz-stream_2.11" % "0.6a",
     "org.specs2" % "specs2_2.11" % "2.4.15",
     "org.specs2" % "specs2-core_2.11" % "3.0.1",
@@ -200,7 +202,7 @@ object DependencyGroups {
 //    "org.scalatest" % "scalatest_2.12" % "3.0.1",
     "org.scalameta" % s"paradise_${Scala.latest_2_11}" % paradiseVersion exclude("org.scalameta", "scalameta_2.11"),
     "org.scalameta" % "scalameta_2.12" % scalaMetaVersion,
-    "org.typelevel" %% "cats" % "0.4.0"
+    "org.typelevel" %% "cats-core" % "1.0.0-MF"
   )
 
   val testScalaLibraryDownloader = Seq(
