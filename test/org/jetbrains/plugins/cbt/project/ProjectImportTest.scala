@@ -36,8 +36,7 @@ class ProjectImportTest {
     moduleType = ModuleType.Default,
     binaryDependencies = Seq(
       CbtProjectInfo.BinaryDependency("org.scala-lang:scala-library:2.11.8"),
-      CbtProjectInfo.BinaryDependency("CBT: cbtCore"),
-      CbtProjectInfo.BinaryDependency("CBT: cbtLib")
+      CbtProjectInfo.BinaryDependency("CBT")
     ),
     moduleDependencies = Seq.empty,
     classpath = Seq.empty,
@@ -49,20 +48,19 @@ class ProjectImportTest {
   )
   private val cbtLibs = Seq(
     Library(
-      name = "CBT: cbtCore",
+      name = "CBT",
       jars = Seq(
         LibraryJar(
-          jar = "ROOT/fake_cbt_cache/cbtCore.jar".toFile,
+          jar = "ROOT/fake_cbt_cache/cbt.jar".toFile,
           jarType = JarType.Binary
-        )
-      )
-    ),
-    Library(
-      name = "CBT: cbtLib",
-      jars = Seq(
+        ),
         LibraryJar(
           jar = "ROOT/fake_cbt_cache/cbtLib.jar".toFile,
           jarType = JarType.Binary
+        ),
+        LibraryJar(
+          jar = "ROOT/fake_cbt_cache/cbt-sources.jar".toFile,
+          jarType = JarType.Source
         )
       )
     )
@@ -123,7 +121,7 @@ class ProjectImportTest {
           .get
 
       def librariesEqual(): Unit = {
-        val actualLibraries = {
+        val actual = {
           val collector = new CollectProcessor[IdeaLibrary]
           ApplicationManager.getApplication.runReadAction(runnable {
               moduleRootManager.getModifiableModel.orderEntries().librariesOnly()
@@ -141,7 +139,7 @@ class ProjectImportTest {
             }
             .toSet
         }
-        val expectedLibraries = moudleInfo.binaryDependencies
+        val expected = moudleInfo.binaryDependencies
           .map { d =>
             val jars = (projectInfo.libraries ++ projectInfo.cbtLibraries)
               .find(_.name == d.name)
@@ -152,7 +150,7 @@ class ProjectImportTest {
             (d.name, jars)
           }
           .toSet
-        assertEquals(expectedLibraries, actualLibraries)
+        assertEquals(expected, actual)
       }
       def scalacOptionsEqual(): Unit = {
         val expected = moudleInfo.scalacOptions.toSet
