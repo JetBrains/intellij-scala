@@ -21,7 +21,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
 
     def iterateClasses(suffix: String)(fun: PsiClass => Unit) {
       if (!qualifiedName.endsWith(suffix)) return
-      val nameWithoutDollar = qualifiedName.substring(0, qualifiedName.length() - suffix.length)
+      val nameWithoutDollar = qualifiedName.substring(0, qualifiedName.length - suffix.length)
       val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(nameWithoutDollar, scope)
       classes.foreach(fun)
     }
