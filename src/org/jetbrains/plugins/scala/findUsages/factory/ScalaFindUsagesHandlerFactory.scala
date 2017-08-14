@@ -27,6 +27,8 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
 
   val typeDefinitionOptions = new ScalaTypeDefinitionFindUsagesOptions(project)
 
+  val implicitDefinitionOptions = new ScalaImplicitDefinitionFindUsagesOptions(project)
+
   val memberOptions = new ScalaMemberFindUsagesOptions(project)
 
   val localOptions = new ScalaLocalFindUsagesOptions(project)
