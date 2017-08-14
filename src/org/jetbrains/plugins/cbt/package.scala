@@ -4,15 +4,19 @@ import java.io.File
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
+import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.CbtSystemSettings
 
-import _root_.scala.util.Try
+import _root_.scala.collection.JavaConverters._
 import _root_.scala.language.implicitConversions
+import _root_.scala.util.Try
+
 
 package object cbt {
 
@@ -59,8 +63,29 @@ package object cbt {
   }
 
   implicit class ReachModule(val module: Module) {
-    def baseDir: String = //TODO get from data node
-      module.getModuleFile.getParent.getCanonicalPath
+    def baseDir: String = {
+      lazy val defaultPath =
+        module.getModuleFile.getParent.getCanonicalPath
+      val project = module.getProject
+      val projectNodes =
+        for {
+          projectInfo <- Option(
+            ProjectDataManager.getInstance
+              .getExternalProjectData(project, CbtProjectSystem.Id, project.getBasePath))
+          projectStructure <- Option(projectInfo.getExternalProjectStructure)
+        } yield projectStructure.getChildren.asScala
+      val pathOpt =
+        for {
+          nodes <- projectNodes.toSeq
+          node <- nodes
+          if node.getKey == ProjectKeys.MODULE &&
+            node.getData(ProjectKeys.MODULE).getExternalName == module.getName
+          childNode <- node.getChildren.asScala
+          if childNode.getKey == ProjectKeys.CONTENT_ROOT
+          contentRootData = childNode.getData(ProjectKeys.CONTENT_ROOT)
+        } yield contentRootData.getRootPath
+      pathOpt.headOption.getOrElse(defaultPath)
+    }
   }
 
   def runnable(action: => Unit): Runnable = new Runnable {
