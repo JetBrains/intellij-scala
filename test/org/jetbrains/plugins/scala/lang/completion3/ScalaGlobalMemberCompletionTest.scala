@@ -248,4 +248,213 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     )
     assertArrayEquals(expected.toArray[AnyRef], actual.toArray[AnyRef])
   }
+
+  def testCompanionObjectConversion(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Foo[T]
+         |
+         |class Bar[T] {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |class BarDouble {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |object Foo {
+         |  implicit def toBar[T](foo: Foo[T]): Bar[T] = new Bar[T]()
+         |
+         |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
+         |}
+         |
+         |val foo = new Foo[Boolean]()
+         |foo.$CARET
+       """.stripMargin,
+    resultText =
+      s"""
+         |class Foo[T]
+         |
+         |class Bar[T] {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |class BarDouble {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |object Foo {
+         |  implicit def toBar[T](foo: Foo[T]): Bar[T] = new Bar[T]()
+         |
+         |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
+         |}
+         |
+         |val foo = new Foo[Boolean]()
+         |foo.bar()$CARET
+       """.stripMargin,
+    item = "bar"
+  )
+
+  def testCompanionObjectConversion2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Foo[T]
+         |
+         |class Bar[T] {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |class BarDouble {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |object Foo {
+         |  implicit def toBar[T](foo: Foo[T]): Bar[T] = new Bar[T]()
+         |
+         |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
+         |}
+         |
+         |val foo = new Foo[Double]()
+         |foo.$CARET
+       """.stripMargin,
+    resultText =
+      s"""
+         |import Foo.toBar
+         |
+         |class Foo[T]
+         |
+         |class Bar[T] {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |class BarDouble {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |object Foo {
+         |  implicit def toBar[T](foo: Foo[T]): Bar[T] = new Bar[T]()
+         |
+         |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
+         |}
+         |
+         |val foo = new Foo[Double]()
+         |foo.bar()$CARET
+       """.stripMargin,
+    item = "bar",
+    time = 2
+  )
+
+  def testImportObjectConversion(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Foo[T]
+         |
+         |class Bar[T] {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |trait BarConversions {
+         |  implicit def toBar[T](foo: Foo[T]): Bar[T] = new Bar[T]()
+         |}
+         |
+         |class BarDouble {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |trait BarDoubleConversions {
+         |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
+         |}
+         |
+         |object Foo extends BarConversions with BarDoubleConversions
+         |
+         |val foo = new Foo[Boolean]()
+         |foo.$CARET
+       """.stripMargin,
+    resultText =
+      s"""
+         |import Foo.toBar
+         |
+         |class Foo[T]
+         |
+         |class Bar[T] {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |trait BarConversions {
+         |  implicit def toBar[T](foo: Foo[T]): Bar[T] = new Bar[T]()
+         |}
+         |
+         |class BarDouble {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |trait BarDoubleConversions {
+         |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
+         |}
+         |
+         |object Foo extends BarConversions with BarDoubleConversions
+         |
+         |val foo = new Foo[Boolean]()
+         |foo.bar()$CARET
+       """.stripMargin,
+    item = "bar",
+    time = 2
+  )
+
+  def testImportObjectConversion2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Foo[T]
+         |
+         |class Bar[T] {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |trait BarConversions {
+         |  implicit def toBar[T](foo: Foo[T]): Bar[T] = new Bar[T]()
+         |}
+         |
+         |class BarDouble {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |trait BarDoubleConversions {
+         |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
+         |}
+         |
+         |object Foo extends BarConversions with BarDoubleConversions
+         |
+         |val foo = new Foo[Double]()
+         |foo.$CARET
+       """.stripMargin,
+    resultText =
+      s"""
+         |import Foo.toBar
+         |
+         |class Foo[T]
+         |
+         |class Bar[T] {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |trait BarConversions {
+         |  implicit def toBar[T](foo: Foo[T]): Bar[T] = new Bar[T]()
+         |}
+         |
+         |class BarDouble {
+         |  def bar(): Unit = {}
+         |}
+         |
+         |trait BarDoubleConversions {
+         |  implicit def toBarDouble(foo: Foo[Double]): BarDouble = new BarDouble()
+         |}
+         |
+         |object Foo extends BarConversions with BarDoubleConversions
+         |
+         |val foo = new Foo[Double]()
+         |foo.bar()$CARET
+       """.stripMargin,
+    item = "bar",
+    time = 2
+  )
 }

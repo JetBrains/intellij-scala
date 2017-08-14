@@ -76,7 +76,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
       tp match {
         case Some(tp1) => (for (te <- tp1.allTypeElements;
                                 t = te.getType(TypingContext.empty).getOrAny;
-                                asPsi = t.toPsiType()
+                                asPsi = t.toPsiType
                                 if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
         case _ => PsiClassType.EMPTY_ARRAY
       }

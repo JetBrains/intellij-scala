@@ -323,7 +323,7 @@ object ScalaExtractMethodUtils {
 
   def isTypeAnnotationRequiredFor(settings: ScalaExtractMethodSettings, visibility: String): Boolean = {
     val implementation = Some(settings.elements) collect {
-      case Array(expression: ScExpression) => Implementation.of(expression)
+      case Array(expression: ScExpression) => Implementation.Expression(expression)
     }
 
     val element = settings.elements(0)

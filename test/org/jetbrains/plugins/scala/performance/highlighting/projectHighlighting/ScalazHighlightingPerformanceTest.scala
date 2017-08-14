@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.performance.highlighting.projectHighlighting
 
 import org.jetbrains.plugins.scala.SlowTests
+import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
 /**
   * Author: Svyatoslav Ilinskiy
   * Date: 10/25/15.
   */
+@Ignore
 @Category(Array(classOf[SlowTests]))
 class ScalazHighlightingPerformanceTest extends PerformanceSbtProjectHighlightingTestBase {
   override protected def getExternalSystemConfigFileName: String = "project/build.scala"

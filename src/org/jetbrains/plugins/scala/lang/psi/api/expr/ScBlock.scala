@@ -67,17 +67,17 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
           def removeVarianceAbstracts(scType: ScType) = {
             var index = 0
-            scType.recursiveVarianceUpdate((tp: ScType, i: Int) => {
+            scType.recursiveVarianceUpdate((tp: ScType, v: Variance) => {
               tp match {
                 case ScAbstractType(_, lower, upper) =>
-                  i match {
-                    case -1 => (true, lower)
-                    case 1 => (true, upper)
-                    case 0 => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, upper))
+                  v match {
+                    case Contravariant => (true, lower)
+                    case Covariant     => (true, upper)
+                    case Invariant     => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, upper))
                   }
                 case _ => (false, tp)
               }
-            }, 1).unpackedType
+            }, Covariant).unpackedType
           }
 
           return et match {

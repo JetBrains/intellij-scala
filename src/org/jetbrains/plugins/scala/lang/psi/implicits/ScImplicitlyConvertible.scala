@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
@@ -244,20 +245,8 @@ object ScImplicitlyConvertible {
     var uSubst = undefinedSubstitutor
     uSubst.getSubstitutor match {
       case Some(unSubst) =>
-        def hasRecursiveTypeParameters(`type`: ScType): Boolean = {
-          var result = false
-          `type`.recursiveUpdate {
-            case parameterType: TypeParameterType =>
-              function.typeParameters
-                .find(_.nameAndId == parameterType.nameAndId)
-                .foreach { _ =>
-                  result = true
-                }
-              (true, parameterType)
-            case updated => (result, updated)
-          }
-          result
-        }
+        val nameAndIds = function.typeParameters.map(_.nameAndId).toSet
+        def hasRecursiveTypeParameters(`type`: ScType): Boolean = `type`.hasRecursiveTypeParameters(nameAndIds)
 
         def substitute(maybeType: TypeResult[ScType]) = maybeType
           .map(substitutor.subst)
@@ -297,10 +286,11 @@ object ScImplicitlyConvertible {
                       t match {
                         case ScDesignatorType(p: ScParameter) if last.parameters.contains(p) =>
                           result = Some(last)
+                          Stop
                         case _ =>
                       }
-
-                      (result.isDefined, t)
+                      if (result.isDefined) Stop
+                      else ProcessSubtypes
                     }
 
                     result

@@ -15,59 +15,59 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[SlowTests]))
 abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
 
-  def testScalaTestSimpleTest() =
+  def testScalaTestSimpleTest(): Unit =
     runSingleTest(ScalaTestingTestCase.getScalaTestTemplateConfig(getProject), "test.scalaTest.SimpleScalaTest",
       "ScalaTest First test", "scalaTest", List("Marker: ScalaTest first test", "[info] - First test"),
       List("Marker: ScalaTest second test"))
 
-  def testSpecs2SimpleTest() =
+  def testSpecs2SimpleTest(): Unit =
     runSingleTest(ScalaTestingTestCase.getSpecs2TemplateConfig(getProject), "test.specs2.SimpleSpecs2", "First test",
       "specs2", List("Marker: Specs2 first test", "[info] Specs2 test should", "[info]   + First test"),
       List("Marker: Specs2 second test"))
 
-  def testUTestSimpleTest() =
+  def testUTestSimpleTest(): Unit =
     runSingleTest(ScalaTestingTestCase.getUTestTemplateConfig(getProject), "test.uTest.SimpleUTest", "tests\\First uTest",
       "uTest", List("Marker: uTest first test"), List("Marker: uTest second test", "Marker: uTest prefix test"))
 
-  def testScalaTestWholeSuite() =
+  def testScalaTestWholeSuite(): Unit =
     runWholeSuite(ScalaTestingTestCase.getScalaTestTemplateConfig(getProject), "test.scalaTest.SimpleScalaTest",
       "scalaTest", List("Marker: ScalaTest first test", "Marker: ScalaTest second test", "Marker: ScalaTest prefix test"))
 
-  def testSpecs2WholeSuite() =
+  def testSpecs2WholeSuite(): Unit =
     runWholeSuite(ScalaTestingTestCase.getSpecs2TemplateConfig(getProject), "test.specs2.SimpleSpecs2", "specs2",
       List("Marker: Specs2 first test", "Marker: Specs2 second test", "Marker: Specs2 prefix test"))
 
-  def testUTestWholeSuite() =
+  def testUTestWholeSuite(): Unit =
     runWholeSuite(ScalaTestingTestCase.getUTestTemplateConfig(getProject), "test.uTest.SimpleUTest", "uTest",
       List("Marker: uTest first test", "Marker: uTest second test", "Marker: uTest prefix test"))
 
-  def testScalaTestAllInPackage() =
+  def testScalaTestAllInPackage(): Unit =
     runPackage(ScalaTestingTestCase.getScalaTestTemplateConfig(getProject), "test.scalaTest", "scalaTest", inScalaTestPackage)
 
-  def testSpecs2AllInPackage() =
+  def testSpecs2AllInPackage(): Unit =
     runPackage(ScalaTestingTestCase.getSpecs2TemplateConfig(getProject), "test.specs2", "specs2",
       inSpecsPackage)
 
   //TODO: this test is not taking into aaccount tests in OtherUTest/otherTests because SBT test detection detects only 'test'
-  def testUTestAllInPackage() =
+  def testUTestAllInPackage(): Unit =
     runPackage(ScalaTestingTestCase.getUTestTemplateConfig(getProject), "test.uTest", "uTest",
       inUTestPackage)
 
-  def testSharedPackage() =
+  def testSharedPackage(): Unit =
     runPackage(ScalaTestingTestCase.getScalaTestTemplateConfig(getProject), "test", "scalaTest",
       inScalaTestPackage, inSpecsPackage ++ inUTestPackage)
 
-  def testScalaTestRegExp() =
+  def testScalaTestRegExp(): Unit =
     runRegexp(ScalaTestingTestCase.getScalaTestTemplateConfig(getProject), ".*ScalaTest", "ScalaTest First.*", "scalaTest",
       List("Marker: ScalaTest first test", "Marker: ScalaTest prefix test", "Marker: ScalaTest Other first test"),
       List("Marker: ScalaTest second test", "Marker: ScalaTest Other prefix test"))
 
-  def testUTestRegExp() =
+  def testUTestRegExp(): Unit =
     runRegexp(ScalaTestingTestCase.getUTestTemplateConfig(getProject), ".*UTest", "tests\\\\First.*", "uTest",
       List("Marker: uTest Other first test", "Marker: uTest prefix test", "Marker: uTest Other first test"),
       List("Marker: uTest second test"))
 
-  def testSpecs2RegExp() =
+  def testSpecs2RegExp(): Unit =
     runRegexp(ScalaTestingTestCase.getSpecs2TemplateConfig(getProject), ".*Specs2", "First.*", "specs2",
       List("Marker: Specs2 Other first test", "Marker: Specs2 prefix test", "Marker: Specs2 Other first test"),
       List("Marker: Specs2 second test", "Marker: Specs2 Other prefix test"))
@@ -83,12 +83,12 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
     "Marker: uTest Other first test")
 
   protected def runRegexp(config: AbstractTestRunConfiguration, classRegexp: String, testRegexp: String,
-                          moduleName: String, expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq(), exampleCount: Int = 3) =
+                          moduleName: String, expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq(), exampleCount: Int = 3): Unit =
     runRegexps(config, Array(classRegexp), Array(testRegexp), moduleName, expectedStrings, unexpectedStrings, exampleCount)
 
   protected def runRegexps(config: AbstractTestRunConfiguration, classRegexps: Array[String], testRegexps: Array[String],
                           moduleName: String, expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq(),
-                           exampleCount: Int = 3) = {
+                           exampleCount: Int = 3): Unit = {
     config.testKind = TestRunConfigurationForm.TestKind.REGEXP
     config.classRegexps = classRegexps
     config.testRegexps = testRegexps
@@ -97,7 +97,7 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
   }
 
   protected def runPackage(config: AbstractTestRunConfiguration, packageFqn: String, moduleName: String,
-                           expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()) = {
+                           expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit = {
     config.testKind = TestRunConfigurationForm.TestKind.ALL_IN_PACKAGE
     config.setTestPackagePath(packageFqn)
     config.setModule(ModuleManager.getInstance(getProject).findModuleByName(moduleName))
@@ -105,7 +105,7 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
   }
 
   protected def runWholeSuite(config: AbstractTestRunConfiguration, classFqn: String, moduleName: String,
-                              expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()) = {
+                              expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit = {
     config.testKind = TestRunConfigurationForm.TestKind.CLASS
     config.setTestClassPath(classFqn)
     config.setModule(ModuleManager.getInstance(getProject).findModuleByName(moduleName))
@@ -113,7 +113,7 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
   }
 
   protected def runSingleTest(config: AbstractTestRunConfiguration, classFqn: String, testName: String, moduleName: String,
-                    expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()) = {
+                    expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit = {
     config.testKind = TestRunConfigurationForm.TestKind.TEST_NAME
     config.testName = testName
     config.setTestClassPath(classFqn)
@@ -122,7 +122,7 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
   }
 
   protected def runConfig(config: AbstractTestRunConfiguration, expectedStrings: Seq[String],
-                          unexpectedStrings: Seq[String], commandsExpected: Int = 1) = {
+                          unexpectedStrings: Seq[String], commandsExpected: Int = 1): Unit = {
     config.useSbt = true
     val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(classOf[DefaultRunExecutor])
     val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =

@@ -20,10 +20,14 @@ object Packaging {
   }
 
   def packagePlugin(mappings: Seq[(File, String)], destination: File): Unit = {
-    IO.delete(destination)
     val (dirs, files) = mappings.partition(_._1.isDirectory)
-    dirs  foreach { case (from, to) => IO.copyDirectory(from, destination / to, overwrite = true) }
-    files foreach { case (from, to) => IO.copyFile(from, destination / to)}
+    val toRemove = destination.***.get.toSet -- files.map(_._1)
+    IO.delete(toRemove)
+
+    dirs.foreach { case (from, to) =>
+      IO.copyDirectory(from, destination / to, overwrite = false, preserveLastModified = true) }
+    files.foreach { case (from, to) =>
+      IO.copyFile(from, destination / to, preserveLastModified = true)}
   }
 
   def putInTempJar(file: File): File = {

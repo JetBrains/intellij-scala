@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, Unit, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
 
@@ -38,33 +38,33 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
 
     var undef = undefSubst
 
-    def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, variance: Int = 1): Boolean = {
+    def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, v: Variance = Covariant): Boolean = {
       tp1 match {
         case tp1: ScTypeParam =>
           if (tp1.typeParameters.length != tp2.typeParameters.length) return false
           val iter = tp1.typeParameters.zip(tp2.typeParameters).iterator
           while (iter.hasNext) {
             val (tp1, tp2) = iter.next()
-            if (!checkTypeParameters(tp1, tp2, -variance)) return false
+            if (!checkTypeParameters(tp1, tp2, -v)) return false
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
           val lower2 = substitutor.subst(tp2.lowerType.v)
-          var conformance = (if (variance == 1) lower1
-          else lower2).conforms(
-            if (variance == 1) lower2
-            else lower1, undef)
-          if (!conformance._1) return false
-          undef = conformance._2
+          val lowerConformance =
+            if (v == Covariant) lower1.conforms(lower2, undef)
+            else lower2.conforms(lower1, undef)
+
+          if (!lowerConformance._1) return false
+          undef = lowerConformance._2
 
           val upper1 = tp1.upperBound.getOrAny
           val upper2 = substitutor.subst(tp2.upperType.v)
-          conformance = (if (variance == 1) upper2
-          else upper1).conforms(
-            if (variance == 1) upper1
-            else upper2, undef)
-          if (!conformance._1) return false
-          undef = conformance._2
+          val upperConformance =
+            if (v == Covariant) upper2.conforms(upper1, undef)
+            else upper1.conforms(upper2, undef)
+
+          if (!upperConformance._1) return false
+          undef = upperConformance._2
 
           //todo: view?
           true
@@ -167,33 +167,33 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
 
     var undef = undefSubst
 
-    def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, variance: Int = 1): Boolean = {
+    def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, v: Variance = Covariant): Boolean = {
       tp1 match {
         case tp1: ScTypeParam =>
           if (tp1.typeParameters.length != tp2.typeParameters.length) return false
           val iter = tp1.typeParameters.zip(tp2.typeParameters).iterator
           while (iter.hasNext) {
             val (tp1, tp2) = iter.next()
-            if (!checkTypeParameters(tp1, tp2, -variance)) return false
+            if (!checkTypeParameters(tp1, tp2, -v)) return false
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
           val lower2 = substitutor.subst(tp2.lowerType.v)
-          var conformance = (if (variance == 1) lower1
-          else lower2).conforms(
-            if (variance == 1) lower2
-            else lower1, undef)
-          if (!conformance._1) return false
-          undef = conformance._2
+          val lowerConformance =
+            if (v == Covariant) lower1.conforms(lower2, undef)
+            else lower2.conforms(lower1, undef)
+
+          if (!lowerConformance._1) return false
+          undef = lowerConformance._2
 
           val upper1 = tp1.upperBound.getOrAny
           val upper2 = substitutor.subst(tp2.upperType.v)
-          conformance = (if (variance == 1) upper2
-          else upper1).conforms(
-            if (variance == 1) upper1
-            else upper2, undef)
-          if (!conformance._1) return false
-          undef = conformance._2
+          val upperConformance =
+            if (v == Covariant) upper2.conforms(upper1, undef)
+            else upper1.conforms(upper2, undef)
+
+          if (!upperConformance._1) return false
+          undef = upperConformance._2
 
           //todo: view?
           true

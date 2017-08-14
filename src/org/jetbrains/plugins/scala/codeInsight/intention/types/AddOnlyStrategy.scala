@@ -130,7 +130,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   }
 
   private def simplify(maybeExpression: Option[ScExpression]) = maybeExpression.collect {
-    case ScGenericCall(referenced, _) if Implementation.isFactoryMethod(referenced) =>
+    case ScGenericCall(referenced, _) if Implementation.isEmptyCollectionFactory(referenced) =>
       implicit val context = referenced.projectContext
       createExpressionFromText(referenced.getText)
   }

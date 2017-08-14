@@ -133,7 +133,7 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
           case _ => t
         }
 
-        tp.toPsiType() match {
+        tp.toPsiType match {
           case x: PsiClassType => Array(x)
           case _ => Array() // TODO
         }

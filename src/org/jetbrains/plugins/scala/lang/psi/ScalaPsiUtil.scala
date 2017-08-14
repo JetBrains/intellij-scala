@@ -452,17 +452,13 @@ object ScalaPsiUtil {
       case tp@ScTypePolymorphicType(internal, typeParameters) =>
         def hasBadLinks(tp: ScType, ownerPtp: PsiTypeParameter): Option[ScType] = {
           var res: Option[ScType] = Some(tp)
-          tp.recursiveUpdate {
-            tp =>
-              tp match {
-                case t: TypeParameterType =>
-                  if (typeParameters.exists {
-                    case TypeParameter(_, _, _, ptp) if ptp == t.psiTypeParameter && ptp.getOwner != ownerPtp.getOwner => true
-                    case _ => false
-                  }) res = None
-                case _ =>
-              }
-              (false, tp)
+          tp.visitRecursively {
+            case t: TypeParameterType =>
+              if (typeParameters.exists {
+                case TypeParameter(_, _, _, ptp) if ptp == t.psiTypeParameter && ptp.getOwner != ownerPtp.getOwner => true
+                case _ => false
+              }) res = None
+            case _ =>
           }
           res
         }
@@ -1035,11 +1031,6 @@ object ScalaPsiUtil {
     }
   }
 
-  def getModifiersPresentableText(modifiers: ScModifierList): String =
-    Option(modifiers)
-      .map(_.modifiers.mkString(" "))
-      .getOrElse("")
-
   def isLineTerminator(element: PsiElement): Boolean = {
     element match {
       case _: PsiWhiteSpace if element.getText.indexOf('\n') != -1 => true
@@ -1220,11 +1211,11 @@ object ScalaPsiUtil {
       def getSubstitutionMap: java.util.Map[PsiTypeParameter, PsiType] = new java.util.HashMap[PsiTypeParameter, PsiType]()
 
       def substitute(`type`: PsiType): PsiType = {
-        substitutor.subst(`type`.toScType()).toPsiType()
+        substitutor.subst(`type`.toScType()).toPsiType
       }
 
       def substitute(typeParameter: PsiTypeParameter): PsiType = {
-        substitutor.subst(TypeParameterType(typeParameter, Some(substitutor))).toPsiType()
+        substitutor.subst(TypeParameterType(typeParameter, Some(substitutor))).toPsiType
       }
 
       def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY
@@ -1457,7 +1448,7 @@ object ScalaPsiUtil {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
           case named: ScAssignStmt => parameterOf(named)
           case block: ScBlock if block.statements == Seq(exp) => parameterOf(block)
-          case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
+          case ie: ScInfixExpr if exp == ie.getArgExpr =>
             ie.operation match {
               case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(Parameter(_))
               case ResolvesTo(method: PsiMethod) =>
@@ -1985,7 +1976,7 @@ object ScalaPsiUtil {
       case ScExistentialType(ParameterizedType(_, _), wildcards) =>
         tp match {
           case FunctionType(retTp, params) =>
-            def convertParameter(tpArg: ScType, variance: Int): ScType = {
+            def convertParameter(tpArg: ScType, variance: Variance): ScType = {
               tpArg match {
                 case ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
                 case ScExistentialType(param: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
@@ -1999,8 +1990,8 @@ object ScalaPsiUtil {
                         // Earlier we converted with Any upper type, but then it was changed because of type incompatibility.
                         // Right now the simplest way is Bad Code is Green as otherwise we need to fix this inconsistency somehow.
                         // I has no idea how yet...
-                        case (lo, _) if variance == ScTypeParam.Contravariant => lo
-                        case (lo, hi) if lo.isNothing && variance == ScTypeParam.Covariant => hi
+                        case (lo, _) if variance == Contravariant => lo
+                        case (lo, hi) if lo.isNothing && variance == Covariant => hi
                         case _ => tpArg
                       }
                     case _ => tpArg
@@ -2009,8 +2000,8 @@ object ScalaPsiUtil {
             }
 
             //parameter clauses are contravariant positions, return types are covariant positions
-            val newParams = params.map(convertParameter(_, ScTypeParam.Contravariant))
-            val newRetTp = convertParameter(retTp, ScTypeParam.Covariant)
+            val newParams = params.map(convertParameter(_, Contravariant))
+            val newRetTp = convertParameter(retTp, Covariant)
             Some(FunctionType(newRetTp, newParams))
           case _ => None
         }

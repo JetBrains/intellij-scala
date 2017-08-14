@@ -16,22 +16,27 @@ object Versions  {
 
   val DefaultDottyVersion: String = Entity.Dotty.defaultVersion
 
-  val DefaultSbtVersion: String = Entity.Sbt.defaultVersion
+  val DefaultSbtVersion: String = Entity.Sbt1.defaultVersion
 
   def loadScalaVersions(platform: Platform): Array[String] = platform match {
     case Scala => loadVersionsOf(Entity.Scala)
     case Dotty => loadVersionsOf(Entity.Dotty)
   }
 
-  def loadSbtVersions: Array[String] = loadVersionsOf(Entity.Sbt)
+  def loadSbtVersions: Array[String] = loadVersionsOf(Entity.Sbt013, Entity.Sbt1)
 
-  private def loadVersionsOf(entity: Entity): Array[String] = {
-    loadVersionsFrom(entity.url, {
-      case entity.pattern(number) => number
-    })
+  private def loadVersionsOf(entities: Entity*): Array[String] = {
+    val allVersions = entities.flatMap { entity =>
+      val loaded = loadVersionsFrom(entity.url, {
+        case entity.pattern(number) => number
+      })
+
+    loaded
       .getOrElse(entity.hardcodedVersions)
       .map(Version(_))
       .filter(_ >= entity.minVersion)
+    }
+    allVersions
       .sortWith(_ >= _)
       .map(_.presentation)
       .toArray
@@ -61,9 +66,14 @@ object Versions  {
       Version("2.10.0"),
       Seq("2.10.6", "2.11.11", "2.12.2"))
 
-    val Sbt = Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
+    val Sbt013 = Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
       Version("0.13.5"),
+      Seq(BuildInfo.sbtLatestVersion))
+
+    val Sbt1 = Entity("https://dl.bintray.com/sbt/maven-releases/org/scala-sbt/sbt-launch/",
+      ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
+      Version("1.0.0"),
       Seq(BuildInfo.sbtLatestVersion))
 
     val Dotty = Entity("https://repo1.maven.org/maven2/ch/epfl/lamp/dotty_0.2/",

@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.scala.ScExistentialLightTypePa
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
@@ -160,8 +161,9 @@ trait ScalaConformance extends api.Conformance {
 
     private def addBounds(parameterType: TypeParameterType, `type`: ScType) = {
       val name = parameterType.nameAndId
-      undefinedSubst = undefinedSubst.addLower(name, `type`, variance = 0)
-        .addUpper(name, `type`, variance = 0)
+      undefinedSubst = undefinedSubst
+        .addLower(name, `type`, variance = Invariant)
+        .addUpper(name, `type`, variance = Invariant)
     }
 
     /*
@@ -1186,12 +1188,12 @@ trait ScalaConformance extends api.Conformance {
                 val tpt = tptsMap.getOrElseUpdate(thatName,
                   TypeParameterType(args, lower, upper, new ScExistentialLightTypeParam(name))
                 )
-                (true, tpt)
-              case _ => (false, t)
+                ReplaceWith(tpt)
+              case _ => ProcessSubtypes
             }
           case ScExistentialType(innerQ, wilds) =>
-            (true, ScExistentialType(updateType(innerQ, rejected ++ wilds.map(_.name)), wilds))
-          case tp: ScType => (false, tp)
+            ReplaceWith(ScExistentialType(updateType(innerQ, rejected ++ wilds.map(_.name)), wilds))
+          case _ => ProcessSubtypes
         }
       }
       val q = updateType(e.quantified)
@@ -1591,10 +1593,10 @@ trait ScalaConformance extends api.Conformance {
   }
 
   def addParam(parameterType: TypeParameterType, bound: ScType, undefinedSubst: ScUndefinedSubstitutor): (Boolean, ScUndefinedSubstitutor) =
-    addArgedBound(parameterType, bound, undefinedSubst, variance = 0, addUpper = true, addLower = true)
+    addArgedBound(parameterType, bound, undefinedSubst, variance = Invariant, addUpper = true, addLower = true)
 
   def addArgedBound(parameterType: TypeParameterType, bound: ScType, undefinedSubst: ScUndefinedSubstitutor,
-                    variance: Int = 1, addUpper: Boolean = false, addLower: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
+                    variance: Variance = Covariant, addUpper: Boolean = false, addLower: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     if (!addUpper && !addLower) return (false, undefinedSubst)
     var res = undefinedSubst
     if (addUpper) res = res.addUpper(parameterType.nameAndId, bound, variance = variance)

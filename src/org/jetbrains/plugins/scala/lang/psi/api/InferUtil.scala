@@ -283,20 +283,20 @@ object InferUtil {
 
     // interim fix for SCL-3905.
     def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType], fromSAM: Boolean = false,
-                                  fromMethodInvoaction: Boolean = false): ScType = {
+                                  fromMethodInvocation: Boolean = false): ScMethodType = {
       implicit val elementScope = mt.elementScope
       expr match {
-        case invocation: MethodInvocation if !fromMethodInvoaction =>
+        case _: MethodInvocation if !fromMethodInvocation =>
           mt.returnType match {
             case methodType: ScMethodType => mt.copy(
-              returnType = applyImplicitViewToResult(methodType, expectedType, fromSAM, fromMethodInvoaction = true)
+              returnType = applyImplicitViewToResult(methodType, expectedType, fromSAM, fromMethodInvocation = true)
             )
             case _ => mt
           }
         case _ =>
           expectedType match {
-            case Some(expectedType@FunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length
-              && !mt.returnType.conforms(expectedType) =>
+            case Some(expected) if mt.returnType.conforms(expected) => mt
+            case Some(FunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length =>
               if (expectedRet.equiv(Unit)) { //value discarding
                 ScMethodType(Unit, mt.params, mt.isImplicit)
               } else {
@@ -385,20 +385,8 @@ object InferUtil {
                                             ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)]) = {
     implicit val projectContext = retType.projectContext
 
-    def hasRecursiveTypeParams(typez: ScType): Boolean = {
-      var hasRecursiveTypeParameters = false
-      typez.recursiveUpdate {
-        case tpt: TypeParameterType =>
-          typeParams.find(_.nameAndId == tpt.nameAndId) match {
-            case None => (true, tpt)
-            case _ =>
-              hasRecursiveTypeParameters = true
-              (true, tpt)
-          }
-        case tp: ScType => (hasRecursiveTypeParameters, tp)
-      }
-      hasRecursiveTypeParameters
-    }
+    val nameAndIds = typeParams.map(_.nameAndId).toSet
+    def hasRecursiveTypeParams(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
 
     // See SCL-3052, SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`

@@ -118,7 +118,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public Set<String> TYPE_ANNOTATION_EXCLUDE_MEMBER_OF = asSet("scala.App", "junit.framework.TestCase");
   public Set<String> TYPE_ANNOTATION_EXCLUDE_ANNOTATED_WITH = asSet("junit.framework.Test", "org.junit.Test");
-  public Set<String> TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_MATCHES = asSet("slick.*");
+  public Set<String> TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_MATCHES = asSet("sbt.*", "slick.*");
 
   //scaladoc formatting
   public boolean ENABLE_SCALADOC_FORMATTING = true;

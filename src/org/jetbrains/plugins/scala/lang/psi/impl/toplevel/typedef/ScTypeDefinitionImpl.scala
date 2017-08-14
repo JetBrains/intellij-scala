@@ -73,7 +73,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   override def getSuperTypes: Array[PsiClassType] = {
     superTypes.flatMap {
       case tp =>
-        val psiType = tp.toPsiType()
+        val psiType = tp.toPsiType
         psiType match {
           case c: PsiClassType => Seq(c)
           case _ => Seq.empty

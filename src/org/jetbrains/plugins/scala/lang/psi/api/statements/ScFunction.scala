@@ -374,7 +374,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       case FunctionType(rt, _) => rt
       case tp => tp
     }
-    resultType.toPsiType()
+    resultType.toPsiType
   }
 
   def superMethods: Seq[PsiMethod] = {
@@ -486,7 +486,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
             _.getType(TypingContext.empty) match {
               case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass match {
                 case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
-                  arg.toPsiType() match {
+                  arg.toPsiType match {
                     case c: PsiClassType => Seq(c)
                     case _ => Seq.empty
                   }

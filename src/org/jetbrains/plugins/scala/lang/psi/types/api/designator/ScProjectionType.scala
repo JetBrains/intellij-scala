@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.Update
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
@@ -85,16 +86,16 @@ class ScProjectionType private(val projected: ScType,
 
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, superReference)
 
-  override def updateSubtypes(update: (ScType) => (Boolean, ScType), visited: Set[ScType]): ScType = {
-    ScProjectionType(projected.recursiveUpdate(update, visited), element, superReference)
+  override def updateSubtypes(update: Update, visited: Set[ScType]): ScType = {
+    ScProjectionType(projected.recursiveUpdateImpl(update, visited), element, superReference)
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                                    variance: Int = 1, revertVariances: Boolean = false): ScType = {
-    update(this, variance, data) match {
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
+    update(this, v, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
-        ScProjectionType(projected.recursiveVarianceUpdateModifiable(newData, update, 0), element, superReference)
+        ScProjectionType(projected.recursiveVarianceUpdateModifiable(newData, update, Invariant), element, superReference)
     }
   }
 

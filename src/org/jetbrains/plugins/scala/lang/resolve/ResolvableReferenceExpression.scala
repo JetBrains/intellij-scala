@@ -37,7 +37,5 @@ object ResolvableReferenceExpression {
         case _ => false
       }
     }
-
-    def rightAssoc: Boolean = ref.refName.endsWith(":")
   }
 }

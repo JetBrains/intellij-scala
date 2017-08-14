@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.settings.annotations
 
 import com.intellij.psi.{PsiElement, PsiModifierListOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -12,6 +14,8 @@ import scala.util.matching.Regex
   * @author Pavel Fatin
   */
 trait Declaration {
+  def entity: Entity
+
   def visibility: Visibility
 
   def isImplicit: Boolean
@@ -41,6 +45,14 @@ object Declaration {
     SyntheticDeclaration(visibility, isImplicit, isConstant, hasUnitType)
 
   private class PhysycalDeclaration(element: PsiElement) extends Declaration {
+    override def entity: Entity = element match {
+      case _: ScValue => Entity.Value
+      case _: ScVariable => Entity.Variable
+      case _: ScParameter => Entity.Parameter
+      case _: ScUnderscoreSection => Entity.UnderscoreParameter
+      case _ => Entity.Method
+    }
+
     override def visibility: Visibility = element match {
       case owner: ScModifierListOwner =>
         if (owner.hasModifierPropertyScala("private")) Visibility.Private
@@ -95,6 +107,9 @@ object Declaration {
                                           isImplicit: Boolean,
                                           isConstant: Boolean,
                                           hasUnitType: Boolean) extends Declaration {
+
+    override def entity: Entity = Entity.Method
+
     override def typeMatches(patterns: Set[String]): Boolean = false
 
     override def isAnnotatedWith(annotations: Set[String]): Boolean = false
