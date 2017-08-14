@@ -102,26 +102,33 @@ class ProjectImportTest {
     testProject("testSimple", projectInfo)
   }
 
-  private def projectEquals(project: IdeaProject, projectNode: DataNode[ProjectData], projectInfo: CbtProjectInfo.Project) = {
-    def moduleEquals(module: IdeaModule, moudleInfo: CbtProjectInfo.Module) = {
+  private def projectEquals(project: IdeaProject,
+                            projectNode: DataNode[ProjectData],
+                            projectInfo: CbtProjectInfo.Project): Unit = {
+    def moduleEquals(module: IdeaModule, moudleInfo: CbtProjectInfo.Module): Unit = {
       assertEquals(moudleInfo.name, module.getName)
       val moduleRootManager = ModuleRootManager.getInstance(module)
 
-      val actulaSourceDirs = moduleRootManager.getContentEntries.flatMap(_.getSourceFolders).map(_.getJpsElement.getFile).toSet
+      val actulaSourceDirs =
+        moduleRootManager.getContentEntries
+          .flatMap(_.getSourceFolders)
+          .map(_.getJpsElement.getFile)
+          .toSet
       assertEquals(moudleInfo.sourceDirs.toSet, actulaSourceDirs)
-      assertEquals(moudleInfo.moduleDependencies.map(_.name).toSet, moduleRootManager.getDependencies.map(_.getName).toSet)
+      assertEquals(moudleInfo.moduleDependencies.map(_.name).toSet,
+        moduleRootManager.getDependencies.map(_.getName).toSet)
 
       val moduleNode = projectNode.getChildren.asScala
           .collect{case md: DataNode[ModuleData] => md}
           .find(_.getData.getInternalName == moudleInfo.name)
           .get
 
-      def librariesEqual() = {
+      def librariesEqual(): Unit = {
         val actualLibraries = {
           val collector = new CollectProcessor[IdeaLibrary]
-          ApplicationManager.getApplication.runReadAction(new Runnable {
-            override def run(): Unit =
-              moduleRootManager.getModifiableModel.orderEntries().librariesOnly().forEachLibrary(collector)
+          ApplicationManager.getApplication.runReadAction(runnable {
+              moduleRootManager.getModifiableModel.orderEntries().librariesOnly()
+                .forEachLibrary(collector)
           })
           collector.getResults.asScala
             .map { l =>
@@ -148,11 +155,11 @@ class ProjectImportTest {
           .toSet
         assertEquals(expectedLibraries, actualLibraries)
       }
-      def scalacOptionsEqual() = {
+      def scalacOptionsEqual(): Unit = {
         val expected = moudleInfo.scalacOptions.toSet
         val actual = moduleNode.getChildren.asScala
           .find(_.getKey == CbtModuleExtData.Key)
-          .map(_.getData.asInstanceOf[CbtModuleExtData].scalacOptions)// {case d: DataNode[CbtModuleExtData] => d.getData.scalacOptions}
+          .map(_.getData.asInstanceOf[CbtModuleExtData].scalacOptions)
           .get
           .toSet
         assertEquals(expected, actual)
@@ -168,7 +175,9 @@ class ProjectImportTest {
     modules.zip(mouleInfos).foreach{case (m, mi) => moduleEquals(m, mi)}
   }
 
-  private def replacePaths(project: CbtProjectInfo.Project, name: String, path: String): CbtProjectInfo.Project = {
+  private def replacePaths(project: CbtProjectInfo.Project,
+                           name: String,
+                           path: String): CbtProjectInfo.Project = {
     import CbtProjectInfo._
     def replace(obj: AnyRef): AnyRef = obj match {
       case project: Project =>
@@ -188,29 +197,30 @@ class ProjectImportTest {
       case file: File =>
         file.getPath.replaceAllLiterally("NAME", name).replaceAllLiterally("ROOT", path).toFile
     }
-
     replace(project).asInstanceOf[Project]
   }
 
   private def createJarFiles(project: CbtProjectInfo.Project): Unit = {
-    for (l <- project.libraries ++ project.cbtLibraries; j <- l.jars) j match {
-      case CbtProjectInfo.LibraryJar(f, _) =>
-        Files.createDirectories(f.toPath.getParent)
-        f.createNewFile()
+    for (library <- project.libraries ++ project.cbtLibraries; jar <- library.jars) jar match {
+      case CbtProjectInfo.LibraryJar(file, _) =>
+        Files.createDirectories(file.toPath.getParent)
+        file.createNewFile()
     }
   }
 
   private def testProject(name: String, projectInfo: CbtProjectInfo.Project): Unit = {
-    val testFixture = IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(name).getFixture
+    val testFixture =
+      IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(name).getFixture
     testFixture.setUp()
     val project = testFixture.getProject
-    val settings = new CbtExecutionSettings(project.getBasePath, false, true, true, Seq.empty)
+    val settings =
+      new CbtExecutionSettings(project.getBasePath, false, true, true, Seq.empty)
     val projectInfoWithActualPaths = replacePaths(projectInfo, name, project.getBasePath)
     createJarFiles(projectInfoWithActualPaths)
     val projectNode = CbtProjectConverter(projectInfoWithActualPaths, settings)
-      .map { n =>
-        ServiceManager.getService(classOf[ProjectDataManager]).importData(n, project, true)
-        n
+      .map { node =>
+        ServiceManager.getService(classOf[ProjectDataManager]).importData(node, project, true)
+        node
       }
       .get
     projectEquals(project, projectNode,  projectInfoWithActualPaths)
