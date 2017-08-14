@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.util.reporter
 
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.vfs.VirtualFile
 
 /**
   * @author mutcianm
@@ -14,10 +12,10 @@ class TeamCityReporter extends ConsoleReporter {
 
   override def updateHighlightingProgress(percent: Int): Unit = progressMessage(s"Highlighting - $percent%")
 
-  override def reportError(file: VirtualFile, range: TextRange, message: String): Unit = {
+  override def reportError(file: String, range: TextRange, message: String): Unit = {
     totalErrors += 1
     val escaped = escapeTC(Option(message).getOrElse(""))
-    val testName = s"${getClass.getName}.${Option(file).map(_.getName).getOrElse("UNKNOWN")}${Option(range).map(_.toString).getOrElse("(UNKNOWN)")}"
+    val testName = s"${getClass.getName}.${Option(file).getOrElse("UNKNOWN")}${Option(range).map(_.toString).getOrElse("(UNKNOWN)")}"
     tcPrint(s"testStarted name='$testName'")
     tcPrint(s"testFailed name='$testName' message='Highlighting error' details='$escaped'")
     tcPrint(s"testFinished name='$testName'")

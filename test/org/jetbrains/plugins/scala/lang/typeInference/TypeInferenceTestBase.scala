@@ -7,21 +7,12 @@ import java.io.File
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.{CharsetToolkit, VfsUtil}
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.testFramework.LightPlatformTestCase
+import com.intellij.openapi.vfs.CharsetToolkit
+import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
-import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
-import org.jetbrains.plugins.scala.util.TestUtils
-import org.junit.Assert._
+import org.jetbrains.plugins.scala.util.{PsiFileTestUtil, TestUtils}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -51,18 +42,8 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
     getFileAdapter.asInstanceOf[ScalaFile]
   }
 
-  protected def addFileToProject(fileName: String, text: String): PsiFile = {
-    inWriteAction {
-      val vFile = LightPlatformTestCase.getSourceRoot.createChildData(null, fileName)
-      VfsUtil.saveText(vFile, text)
-      val psiFile = LightPlatformTestCase.getPsiManager.findFile(vFile)
-      assertNotNull("Can't create PsiFile for '" + fileName + "'. Unknown file type most probably.", vFile)
-      assertTrue(psiFile.isPhysical)
-      vFile.setCharset(CharsetToolkit.UTF8_CHARSET)
-      PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
-      psiFile
-    }
-  }
+  protected def addFileToProject(fileName: String, text: String): PsiFile =
+    PsiFileTestUtil.addFileToProject(fileName, text, getProjectAdapter)
 
   protected def doTest(): Unit = doTest(None, getTestName(false) + ".scala")
 }
