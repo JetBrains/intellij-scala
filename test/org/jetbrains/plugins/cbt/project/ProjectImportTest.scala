@@ -10,6 +10,7 @@ import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectDat
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.module.{ModuleManager, Module => IdeaModule}
 import com.intellij.openapi.project.{Project => IdeaProject}
+import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.{Library => IdeaLibrary}
 import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
@@ -257,27 +258,11 @@ class ProjectImportTest {
               .forEachLibrary(collector)
           })
           collector.getResults.asScala
-            .map { l =>
-              val binaryJars = l.getFiles(OrderRootType.CLASSES)
-                .map(j => (j.getCanonicalPath.stripSuffix("!/"), JarType.Binary))
-                .toSet
-              val sourceJars = l.getFiles(OrderRootType.SOURCES)
-                .map(j => (j.getCanonicalPath.stripSuffix("!/"), JarType.Source))
-                .toSet
-              (l.getName.stripPrefix("CBT: "), binaryJars ++ sourceJars)
-            }
+            .map (_.getName.stripPrefix("CBT: "))
             .toSet
         }
         val expected = moudleInfo.binaryDependencies
-          .map { d =>
-            val jars = (projectInfo.libraries ++ projectInfo.cbtLibraries)
-              .find(_.name == d.name)
-              .toSeq
-              .flatMap(_.jars)
-              .map(j => (j.jar.getCanonicalPath, j.jarType))
-              .toSet
-            (d.name, jars)
-          }
+          .map(_.name)
           .toSet
         expected safeEquals actual
       }
@@ -318,11 +303,36 @@ class ProjectImportTest {
       classpathEquals()
       scalaVersionsEquals()
     }
+    def librariesEquals(): Unit = {
+      def libraryEquals(library: IdeaLibrary, libraryInfo: CbtProjectInfo.Library): Unit = {
+        libraryInfo.name safeEquals library.getName.stripPrefix("CBT: ")
+        val actualJars = {
+          val binaryJars = library.getFiles(OrderRootType.CLASSES)
+            .map(j => (j.getCanonicalPath.stripSuffix("!/"), JarType.Binary))
+            .toSet
+          val sourceJars = library.getFiles(OrderRootType.SOURCES)
+            .map(j => (j.getCanonicalPath.stripSuffix("!/"), JarType.Source))
+            .toSet
+          binaryJars ++ sourceJars
+        }
+        val expectedJars = libraryInfo.jars
+          .map(j =>(j.jar.getCanonicalPath, j.jarType))
+          .toSet
+        expectedJars safeEquals actualJars
+      }
 
+      val libraries = ProjectLibraryTable.getInstance(project).getLibraries
+        .toList
+        .sortBy(_.getName)
+      libraries.length safeEquals projectInfo.libraries.length
+      libraries.zip(projectInfo.libraries.sortBy(_.name))
+        .foreach{ case (l, li) => libraryEquals(l, li) }
+    }
     val modules = ModuleManager.getInstance(project).getModules.toSeq.sortBy(_.getName)
     val mouleInfos = projectInfo.modules.sortBy(_.name)
     modules.length safeEquals mouleInfos.length
     modules.zip(mouleInfos).foreach { case (m, mi) => moduleEquals(m, mi) }
+    librariesEquals()
   }
 
   private def replacePaths(project: CbtProjectInfo.Project,
