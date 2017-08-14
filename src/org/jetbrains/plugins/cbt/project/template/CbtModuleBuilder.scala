@@ -107,7 +107,7 @@ class CbtModuleBuilder
     scalaVersions
   }
 
-  private def setupDefaults() = {
+  private def setupDefaults(): Unit = {
     if (selections.scalaVersion == null)
       selections.scalaVersion =
         loadedScalaVersions.headOption.getOrElse(Versions.DefaultScalaVersion)
@@ -141,6 +141,6 @@ class CbtModuleBuilder
   private class Selections(var scalaVersion: String = null,
                            var isCbt: Boolean = false,
                            var useCbtForInternalTasks: Boolean = true,
-                           var useDirect: Boolean = false)
+                           var useDirect: Boolean = false,)
 
 }
