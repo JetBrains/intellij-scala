@@ -15,7 +15,7 @@ import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
 import com.intellij.util.CommonProcessors.CollectProcessor
 import org.jetbrains.plugins.cbt._
-import org.jetbrains.plugins.cbt.project.model.CbtProjectInfo.{JarType, Library, LibraryJar, ModuleType}
+import org.jetbrains.plugins.cbt.project.model.CbtProjectInfo._
 import org.jetbrains.plugins.cbt.project.model.{CbtProjectConverter, CbtProjectInfo}
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
 import org.jetbrains.plugins.cbt.structure.CbtModuleExtData
@@ -30,6 +30,7 @@ class ProjectImportTest {
     root = "ROOT".toFile,
     sourceDirs = Seq("ROOT/src".toFile),
     scalaVersion = "2.11.8",
+
     target = "ROOT/target".toFile,
     moduleType = ModuleType.Default,
     binaryDependencies = Seq(
@@ -67,12 +68,30 @@ class ProjectImportTest {
       )
     )
   )
+  private val projectPrototype = Project(name = "NAME",
+    root = "ROOT".toFile,
+    modules = Seq.empty,
+    libraries = Seq(
+      Library(
+        name = "org.scala-lang:scala-library:2.11.8",
+        jars = Seq(
+          LibraryJar(
+            jar = "ROOT/fake_cbt_cache/scala-library-2.11.8.jar".toFile,
+            jarType = JarType.Binary
+          ),
+          LibraryJar(
+            jar = "ROOT/fake_cbt_cache/scala-library-2.11.8-sources.jar".toFile,
+            jarType = JarType.Source
+          )
+        )
+      )
+    ),
+    cbtLibraries = cbtLibs,
+    scalaCompilers = Seq.empty)
 
   @Test
   def testSimple(): Unit = {
-    import CbtProjectInfo._
-    val projectInfo = Project(name = "NAME",
-      root = "ROOT".toFile,
+    val projectInfo = projectPrototype.copy(
       modules = Seq(
         modulePrototype.copy(
           name = "rootModule",
@@ -81,26 +100,110 @@ class ProjectImportTest {
         modulePrototype.copy(
           name = "otherModule"
         )
+      )
+    )
+    testProject("testSimple", projectInfo)
+  }
+
+  @Test
+  def testMultipleModules(): Unit = {
+    val projectInfo = projectPrototype.copy(
+      modules = Seq(
+        modulePrototype.copy(
+          name = "module1",
+          moduleDependencies = Seq(CbtProjectInfo.ModuleDependency("module2"))
+        ),
+        modulePrototype.copy(
+          name = "module2",
+          moduleDependencies = Seq(
+            CbtProjectInfo.ModuleDependency("module3"),
+            CbtProjectInfo.ModuleDependency("module4")
+          )
+        ),
+        modulePrototype.copy(
+          name = "module3",
+          moduleDependencies = Seq(
+            CbtProjectInfo.ModuleDependency("module4")
+          )
+        ),
+        modulePrototype.copy(
+          name = "module4"
+        )
+      )
+    )
+    testProject("multipleModules", projectInfo)
+  }
+
+  @Test
+  def testMultipleLibraries(): Unit = {
+    val projectInfo = projectPrototype.copy(
+      modules = Seq(
+        modulePrototype.copy(
+          name = "rootModule",
+          binaryDependencies = modulePrototype.binaryDependencies ++
+            Seq(
+              BinaryDependency("lib1"),
+              BinaryDependency("lib2"),
+              BinaryDependency("lib3")
+            )
+        )
       ),
-      libraries = Seq(
-        Library(
-          name = "org.scala-lang:scala-library:2.11.8",
-          jars = Seq(
-            LibraryJar(
-              jar = "ROOT/fake_cbt_cache/scala-library-2.11.8.jar".toFile,
-              jarType = JarType.Binary
-            ),
-            LibraryJar(
-              jar = "ROOT/fake_cbt_cache/scala-library-2.11.8-sources.jar".toFile,
-              jarType = JarType.Source
+      libraries = projectPrototype.libraries ++
+        Seq(
+          Library(
+            name = "lib1",
+            jars = Seq(
+              LibraryJar(
+                jar = "ROOT/fake_cbt_cache/lib1.jar".toFile,
+                jarType = JarType.Binary
+              ),
+              LibraryJar(
+                jar = "ROOT/fake_cbt_cache/lib1_.jar".toFile,
+                jarType = JarType.Binary
+              ),
+              LibraryJar(
+                jar = "ROOT/fake_cbt_cache/lib1-sources.jar".toFile,
+                jarType = JarType.Source
+              )
+            )
+          ),
+          Library(
+            name = "lib2",
+            jars = Seq(
+              LibraryJar(
+                jar = "ROOT/fake_cbt_cache/lib2.jar".toFile,
+                jarType = JarType.Binary
+              ),
+              LibraryJar(
+                jar = "ROOT/fake_cbt_cache/lib2-sources.jar".toFile,
+                jarType = JarType.Source
+              )
+            )
+          ),
+          Library(
+            name = "lib3",
+            jars = Seq(
+              LibraryJar(
+                jar = "ROOT/fake_cbt_cache/lib3.jar".toFile,
+                jarType = JarType.Binary
+              ),
+              LibraryJar(
+                jar = "ROOT/fake_cbt_cache/lib3_.jar".toFile,
+                jarType = JarType.Binary
+              ),
+              LibraryJar(
+                jar = "ROOT/fake_cbt_cache/lib3-sources.jar".toFile,
+                jarType = JarType.Source
+              ),
+              LibraryJar(
+                jar = "ROOT/fake_cbt_cache/lib3-sources_.jar".toFile,
+                jarType = JarType.Source
+              )
             )
           )
         )
-      ),
-      cbtLibraries = cbtLibs,
-      scalaCompilers = Seq.empty)
-
-    testProject("testSimple", projectInfo)
+    )
+    testProject("multipleLibraries", projectInfo)
   }
 
   private def testProject(name: String, projectInfo: CbtProjectInfo.Project): Unit = {
@@ -206,6 +309,7 @@ class ProjectImportTest {
         val actual = extData.scalacClasspath.toSet
         expexted safeEquals actual
       }
+
       moudleInfo.name safeEquals module.getName
       contentRootsEquals()
       librariesEqual()
@@ -259,4 +363,5 @@ class ProjectImportTest {
     def safeEquals(actual: T): Unit =
       assertEquals(expected, actual)
   }
+
 }
