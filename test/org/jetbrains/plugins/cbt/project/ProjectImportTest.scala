@@ -37,7 +37,11 @@ class ProjectImportTest {
       CbtProjectInfo.BinaryDependency("CBT")
     ),
     moduleDependencies = Seq.empty,
-    classpath = Seq.empty,
+    classpath = Seq(
+      "ROOT/fake_cbt_cache/lib1.jar".toFile,
+      "ROOT/fake_cbt_cache/lib2.jar".toFile,
+      "ROOT/fake_cbt_cache/lib3.jar".toFile
+    ),
     parentBuild = None,
     scalacOptions = Seq(
       "-unchecked",
@@ -121,21 +125,26 @@ class ProjectImportTest {
                             projectNode: DataNode[ProjectData],
                             projectInfo: CbtProjectInfo.Project): Unit = {
     def moduleEquals(module: IdeaModule, moudleInfo: CbtProjectInfo.Module): Unit = {
-      moudleInfo.name safeEquals module.getName
       val moduleRootManager = ModuleRootManager.getInstance(module)
-      val actulaSourceDirs =
-        moduleRootManager.getContentEntries
-          .flatMap(_.getSourceFolders)
-          .map(_.getJpsElement.getFile)
-          .toSet
-      moudleInfo.sourceDirs.toSet safeEquals actulaSourceDirs
-      moudleInfo.moduleDependencies.map(_.name).toSet safeEquals
-        moduleRootManager.getDependencies.map(_.getName).toSet
-
       val moduleNode = projectNode.getChildren.asScala
         .collect { case md: DataNode[ModuleData] => md }
         .find(_.getData.getInternalName == moudleInfo.name)
         .get
+      val extData = moduleNode.getChildren.asScala
+        .find(_.getKey == CbtModuleExtData.Key)
+        .map(_.getData(CbtModuleExtData.Key))
+        .get
+
+      def contentRootsEquals(): Unit = {
+        val actulaSourceDirs =
+          moduleRootManager.getContentEntries
+            .flatMap(_.getSourceFolders)
+            .map(_.getJpsElement.getFile)
+            .toSet
+        moudleInfo.sourceDirs.toSet safeEquals actulaSourceDirs
+        moudleInfo.moduleDependencies.map(_.name).toSet safeEquals
+          moduleRootManager.getDependencies.map(_.getName).toSet
+      }
 
       def librariesEqual(): Unit = {
         val actual = {
@@ -172,11 +181,13 @@ class ProjectImportTest {
 
       def scalacOptionsEqual(): Unit = {
         val expected = moudleInfo.scalacOptions.toSet
-        val actual = moduleNode.getChildren.asScala
-          .find(_.getKey == CbtModuleExtData.Key)
-          .map(_.getData.asInstanceOf[CbtModuleExtData].scalacOptions)
-          .get
-          .toSet
+        val actual = extData.scalacOptions.toSet
+        expected safeEquals actual
+      }
+
+      def scalaVersionsEquals(): Unit = {
+        val expected = moudleInfo.scalaVersion
+        val actual = extData.scalaVersion.presentation
         expected safeEquals actual
       }
 
@@ -190,15 +201,23 @@ class ProjectImportTest {
         expected safeEquals actual
       }
 
+      def classpathEquals(): Unit = {
+        val expexted = moudleInfo.classpath.toSet
+        val actual = extData.scalacClasspath.toSet
+        expexted safeEquals actual
+      }
+      moudleInfo.name safeEquals module.getName
+      contentRootsEquals()
       librariesEqual()
       scalacOptionsEqual()
       moduleDependenciesEqual()
+      classpathEquals()
+      scalaVersionsEquals()
     }
-
 
     val modules = ModuleManager.getInstance(project).getModules.toSeq.sortBy(_.getName)
     val mouleInfos = projectInfo.modules.sortBy(_.name)
-    assertTrue(modules.length == mouleInfos.length)
+    modules.length safeEquals mouleInfos.length
     modules.zip(mouleInfos).foreach { case (m, mi) => moduleEquals(m, mi) }
   }
 
