@@ -108,7 +108,6 @@ class ProjectImportTest {
     def moduleEquals(module: IdeaModule, moudleInfo: CbtProjectInfo.Module): Unit = {
       assertEquals(moudleInfo.name, module.getName)
       val moduleRootManager = ModuleRootManager.getInstance(module)
-
       val actulaSourceDirs =
         moduleRootManager.getContentEntries
           .flatMap(_.getSourceFolders)
@@ -164,8 +163,18 @@ class ProjectImportTest {
           .toSet
         assertEquals(expected, actual)
       }
+      def moduleDependenciesEqual(): Unit = {
+        val expected = moudleInfo.moduleDependencies
+          .map(_.name)
+          .toSet
+        val actual = moduleRootManager.getDependencies
+          .map(_.getName)
+          .toSet
+        assertEquals(expected, actual)
+      }
       librariesEqual()
       scalacOptionsEqual()
+      moduleDependenciesEqual()
     }
 
 
