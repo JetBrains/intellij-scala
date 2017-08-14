@@ -71,7 +71,7 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
 
   private def buildTask(project: Project,
                         module: Module,
-                        callback: ProjectTaskNotification) = {
+                        callback: ProjectTaskNotification): Unit = {
     val listener = new CbtProcessListener {
       override def onComplete(): Unit =
         Option(callback)
@@ -104,7 +104,7 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
     }
     if (debug)
       CbtProjectTaskRunner.createDebugExecutionEnv(taskName, module,  project)
-     else
+    else
       CbtProjectTaskRunner.createExecutionEnv(taskName, module, project, CbtProcessListener.Dummy)
   }
 }

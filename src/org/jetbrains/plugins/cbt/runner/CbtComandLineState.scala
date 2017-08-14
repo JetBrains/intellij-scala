@@ -37,14 +37,14 @@ class CbtComandLineState(task: String,
       with AnsiEscapeDecoder.ColoredTextAcceptor {
     setShouldKillProcessSoftly(false)
 
-    final private val myColoredTextListeners =
+    private val myColoredTextListeners =
       ContainerUtil.newArrayList[AnsiEscapeDecoder.ColoredTextAcceptor]
     private val myAnsiEscapeDecoder =
       new AnsiEscapeDecoder
     private val cbtOutputListener =
       new CbtOutputListener(onOutput, Option(environment.getProject), NotificationSource.TASK_EXECUTION)
 
-    private def onOutput(text: String, stderr: Boolean) = {
+    private def onOutput(text: String, stderr: Boolean): Unit = {
       listener.onTextAvailable(text, stderr)
     }
 

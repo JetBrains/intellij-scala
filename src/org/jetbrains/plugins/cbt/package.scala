@@ -12,6 +12,7 @@ import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.CbtSystemSettings
 
 import _root_.scala.util.Try
+import _root_.scala.language.implicitConversions
 
 package object cbt {
 
@@ -49,7 +50,7 @@ package object cbt {
     }
 
     def isCbtProject: Boolean =
-      Try{
+      Try {
         CbtSystemSettings.getInstance(project)
           .getLinkedProjectSettings(project.getBasePath)
       }

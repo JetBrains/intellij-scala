@@ -2,6 +2,7 @@ package org.jetbrains.plugins.cbt.action
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys, Presentation}
 import org.jetbrains.plugins.cbt._
+import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 
 trait CbtProjectAction extends AnAction {
   override def update(e: AnActionEvent): Unit = {
@@ -16,15 +17,18 @@ trait CbtProjectAction extends AnAction {
     }
   }
 
-  protected def enable(presentation: Presentation) {
+  protected def enable(presentation: Presentation): Unit = {
     presentation.setEnabled(true)
     presentation.setVisible(true)
   }
 
-  protected def disable(presentation: Presentation) {
+  protected def disable(presentation: Presentation): Unit = {
     presentation.setEnabled(false)
     presentation.setVisible(false)
   }
+
+  protected def isModule(settings: CbtProjectSettings, path: String): Boolean =
+    settings.extraModules.contains(path)
 
   def enabled(e: AnActionEvent): Boolean
 }

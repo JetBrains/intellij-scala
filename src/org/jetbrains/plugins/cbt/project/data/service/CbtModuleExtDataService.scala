@@ -21,7 +21,7 @@ class CbtModuleExtDataService extends AbstractDataService[CbtModuleExtData, Libr
 
 object CbtModuleExtDataService {
 
-  private def showWarning(project: Project, warning: String) = {
+  private def showWarning(project: Project, warning: String): Unit = {
     val notification =
       new NotificationData("CBT project import",
         warning,
@@ -38,7 +38,7 @@ object CbtModuleExtDataService {
     extends AbstractImporter[CbtModuleExtData](toImport, projectData, project, modelsProvider) {
 
     override def importData(): Unit = {
-      dataToImport.foreach(node => doImport(node))
+      dataToImport.foreach(doImport)
     }
 
     def doImport(dataNode: DataNode[CbtModuleExtData]): Unit =
@@ -46,8 +46,8 @@ object CbtModuleExtDataService {
         val data = dataNode.getData
         module.configureScalaCompilerSettingsFrom("CBT", data.scalacOptions)
         val scalaLibraries = getScalaLibraries(module, Platform.Scala)
-        val default =
-          scalaLibraries.find(_.scalaVersion.exists(_.toLanguageLevel == data.scalaVersion.toLanguageLevel))
+        val default = scalaLibraries
+          .find(_.scalaVersion.exists(_.toLanguageLevel == data.scalaVersion.toLanguageLevel))
         val scalaLib = scalaLibraries
           .find(_.scalaVersion.contains(data.scalaVersion))
           .orElse(default)

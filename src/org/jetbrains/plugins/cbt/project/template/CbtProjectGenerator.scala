@@ -18,7 +18,7 @@ object BuildFileTemplate {
     s"""
        |import cbt._
        |
-      |class Build(val context: Context) extends BaseBuild {
+       |class Build(val context: Context) extends BaseBuild {
        |  override def defaultScalaVersion = "${scalaVersion.toString}"
        |}
     """.stripMargin

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.cbt
 
 import java.nio.file.Paths
+import javax.swing.Icon
 
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
@@ -10,7 +11,7 @@ import org.jetbrains.sbt.RichVirtualFile
 
 
 object CBT {
-  val Icon = Icons.CBT
+  val Icon: Icon = Icons.CBT
 
   def isCbtModuleDir(entry: VirtualFile): Boolean =
     entry.containsDirectory("build")

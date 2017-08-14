@@ -107,7 +107,7 @@ class CbtModuleBuilder
     scalaVersions
   }
 
-  private def setupDefaults() = {
+  private def setupDefaults(): Unit = {
     if (selections.scalaVersion == null)
       selections.scalaVersion =
         loadedScalaVersions.headOption.getOrElse(Versions.DefaultScalaVersion)
