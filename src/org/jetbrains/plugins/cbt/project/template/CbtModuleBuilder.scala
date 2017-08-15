@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{Platform, Versions}
 import org.jetbrains.sbt.project.template.SComboBox
 
-import scala.util.Failure
+import scala.util.{Failure, Try}
 
 class CbtModuleBuilder
   extends AbstractExternalModuleBuilder[CbtProjectSettings](CbtProjectSystem.Id, new CbtProjectSettings) {
@@ -37,32 +37,26 @@ class CbtModuleBuilder
   private var scalaVersions: Array[String] = Array.empty
 
   override def setupRootModel(model: ModifiableRootModel): Unit = {
-    val contentPath = getContentEntryPath
-    if (StringUtil.isEmpty(contentPath)) return
+    for {
+      contentPath <- Option(getContentEntryPath)
+      contentRootDir = new File(contentPath)
+      if Try(createDirectory(contentRootDir)).isSuccess
+      fileSystem = LocalFileSystem.getInstance
+      vContentRootDir <- Option(fileSystem.refreshAndFindFileByIoFile(contentRootDir))
+    } {
+      model.addContentEntry(vContentRootDir)
+      model.inheritSdk()
+      val settings =
+        ExternalSystemApiUtil.getSettings(model.getProject, CbtProjectSystem.Id).
+          asInstanceOf[AbstractExternalSystemSettings[_ <: AbstractExternalSystemSettings[_, CbtProjectSettings, _],
+          CbtProjectSettings, _ <: ExternalSystemSettingsListener[CbtProjectSettings]]]
 
-    val contentRootDir = new File(contentPath)
-    createDirectory(contentRootDir)
-
-    val fileSystem = LocalFileSystem.getInstance
-    val vContentRootDir = fileSystem.refreshAndFindFileByIoFile(contentRootDir)
-    if (vContentRootDir == null) return
-
-    model.addContentEntry(vContentRootDir)
-    model.inheritSdk()
-    val settings =
-      ExternalSystemApiUtil.getSettings(model.getProject, CbtProjectSystem.Id).
-        asInstanceOf[AbstractExternalSystemSettings[_ <: AbstractExternalSystemSettings[_, CbtProjectSettings, _],
-        CbtProjectSettings, _ <: ExternalSystemSettingsListener[CbtProjectSettings]]]
-
-    val externalProjectSettings = getExternalProjectSettings
-    externalProjectSettings.setExternalProjectPath(getContentEntryPath)
-    settings.linkProject(externalProjectSettings)
-
-
-    val project = model.getProject
-
-    generateTemplate(project,contentRootDir)
-
+      val externalProjectSettings = getExternalProjectSettings
+      externalProjectSettings.setExternalProjectPath(getContentEntryPath)
+      settings.linkProject(externalProjectSettings)
+      val project = model.getProject
+      generateTemplate(project,contentRootDir)
+    }
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
@@ -145,12 +139,9 @@ class CbtModuleBuilder
   }
 
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
-    val root = new File(getModuleFileDirectory)
     getExternalProjectSettings.isCbt = selections.isCbt
     getExternalProjectSettings.useCbtForInternalTasks = selections.useCbtForInternalTasks
     getExternalProjectSettings.useDirect = selections.useDirect
-
-
     super.createModule(moduleModel)
   }
 
@@ -167,11 +158,13 @@ class CbtModuleBuilder
               s"Could not create template due to \n ${e.getMessage}",
               NotificationSource.PROJECT_SYNC)
         case _ =>
+          Thread.sleep(500)// Wait to handle project resolving correctly
       }
     }
     val title = s"Applying template '${selections.template.name}'"
     //TODO find way to use a Task instead
-    progressManager.runProcessWithProgressAsynchronously(project, title, task, null, null, PerformInBackgroundOption.DEAF)
+    progressManager
+      .runProcessWithProgressAsynchronously(project, title, task, null, null, PerformInBackgroundOption.DEAF)
   }
 
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
