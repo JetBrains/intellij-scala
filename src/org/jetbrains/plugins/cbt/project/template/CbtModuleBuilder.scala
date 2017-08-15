@@ -105,7 +105,6 @@ class CbtModuleBuilder
     )
 
     val cbtSettingsPanel = applyTo(new JPanel(new GridLayout(3, 1)))(
-      _.add(templateComboBox),
       _.add(useCbtForInternalTasksCheckBox),
       _.add(useDirectCheckBox)
     )
@@ -113,6 +112,7 @@ class CbtModuleBuilder
     val step = sdkSettingsStep(settingsStep)
 
     settingsStep.addSettingsField("Scala:", scalaPanel)
+    settingsStep.addSettingsField("Template:", templateComboBox)
     settingsStep.addSettingsField("CBT:", cbtSettingsPanel)
     step
   }
