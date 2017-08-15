@@ -2,7 +2,7 @@ package org.jetbrains.plugins.cbt.project.template
 
 import java.awt.{FlowLayout, GridLayout}
 import java.io.File
-import javax.swing.{Box, JCheckBox, JPanel}
+import javax.swing._
 
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
@@ -11,6 +11,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil.createDirectory
 import com.intellij.openapi.util.text.StringUtil
@@ -19,9 +20,8 @@ import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.{Platform, Version, Versions}
+import org.jetbrains.plugins.scala.project.{Platform, Versions}
 import org.jetbrains.sbt.project.template.SComboBox
-
 
 class CbtModuleBuilder
   extends AbstractExternalModuleBuilder[CbtProjectSettings](CbtProjectSystem.Id, new CbtProjectSettings) {
@@ -71,6 +71,13 @@ class CbtModuleBuilder
         _.setSelected(selections.useDirect)
       )
 
+    val templateComboBox =
+      applyTo(new ComboBox[CbtTemplate]) { cb =>
+        val comboBoxModel = new DefaultComboBoxModel[CbtTemplate](CbtModuleBuilder.templates.toArray)
+        cb.setModel(comboBoxModel)
+      }
+
+
     scalaVersionComboBox.addActionListenerEx {
       selections.scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
     }
@@ -81,6 +88,10 @@ class CbtModuleBuilder
 
     useDirectCheckBox.addActionListenerEx {
       selections.useDirect = useDirectCheckBox.isSelected
+    }
+
+    templateComboBox.addActionListenerEx {
+      selections.template = templateComboBox.getSelectedItem.asInstanceOf[CbtTemplate]
     }
 
     val scalaPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
@@ -133,7 +144,7 @@ class CbtModuleBuilder
   }
 
   private def generateTemplate(root: File): Unit = {
-    CbtProjectGenerator(root, Version(selections.scalaVersion))
+    selections.template.generate(root, CbtTemplateSettings(selections.scalaVersion))
   }
 
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
@@ -141,6 +152,15 @@ class CbtModuleBuilder
   private class Selections(var scalaVersion: String = null,
                            var isCbt: Boolean = false,
                            var useCbtForInternalTasks: Boolean = true,
-                           var useDirect: Boolean = false,)
+                           var useDirect: Boolean = false,
+                           var template: CbtTemplate = CbtModuleBuilder.templates.head)
 
+}
+
+object CbtModuleBuilder {
+  val templates: Seq[CbtTemplate] =
+    Seq(
+      new DefaultCbtTemplate,
+      new Giter8CbtTemplate("darthorimar/cbt-seed.g8")
+    )
 }

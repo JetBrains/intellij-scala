@@ -2,8 +2,12 @@ package org.jetbrains.plugins.cbt.project.template
 
 import java.io.File
 
-trait ProjectTemplate {
-  def generate(root: File, settings: TemplateSettings): Unit
+import scala.util.Try
+
+trait CbtTemplate {
+  def generate(root: File, settings: CbtTemplateSettings): Try[String]
+
+  def name: String
 }
 
-case class TemplateSettings(scalaVersion: String)
+case class CbtTemplateSettings(scalaVersion: String)

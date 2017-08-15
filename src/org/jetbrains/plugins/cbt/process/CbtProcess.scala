@@ -6,7 +6,7 @@ import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, Ext
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationSource}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
-import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
+import org.jetbrains.plugins.cbt.project.settings.{CbtExecutionSettings, CbtProjectSettings}
 import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
 
 import scala.sys.process.{Process, ProcessLogger}
@@ -29,6 +29,9 @@ object CbtProcess {
       runAction("buildInfoXml" +: buildParams, settings.useDirect, root, projectOpt, taskListener)
     xml.map(XML.loadString)
   }
+
+  def generateGiter8Template(template: String, root: File): Try[String] =
+    runAction(Seq("tools", "g8", template), useDirect = true, root, None, None)
 
   def runAction(action: Seq[String],
                 useDirect: Boolean,

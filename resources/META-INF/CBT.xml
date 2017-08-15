@@ -12,7 +12,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.cbt.project.settings.CbtSystemSettings"/>
         <projectService serviceImplementation="org.jetbrains.plugins.cbt.project.settings.CbtLocalSettings"/>
         <externalSystemManager implementation="org.jetbrains.plugins.cbt.project.CbtExternalSystemManager"/>
-        <projectTemplatesFactory implementation="org.jetbrains.plugins.cbt.project.template.CbtProjectTemplateFactory"
+        <projectTemplatesFactory implementation="org.jetbrains.plugins.cbt.project.template.CbtIdeaProjectTemplateFactory"
                                  order="first"/>
 
         <projectImportProvider implementation="org.jetbrains.plugins.cbt.project.CbtProjectImportProvider"/>

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory
 
 
-class CbtProjectTemplateFactory extends ProjectTemplatesFactory {
+class CbtIdeaProjectTemplateFactory extends ProjectTemplatesFactory {
   override def getGroups = Array(ScalaProjectTemplatesFactory.Group)
 
   override def getGroupIcon(group: String) = Icons.SCALA_SMALL_LOGO
