@@ -186,7 +186,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScFunction => funIndent
       case _ if node.getElementType == ScalaTokenTypes.kDEF ||
         Option(node.getTreeParent).exists(p => Set[IElementType](FUNCTION_DECLARATION, FUNCTION_DEFINITION).
-          contains(p.getElementType)) && node.getElementType == MODIFIERS => funIndent
+          contains(p.getElementType)) && Set(MODIFIERS, ANNOTATIONS, tLINE_COMMENT).contains(node.getElementType) => funIndent
       case _: ScMethodCall => processMethodCall
       case arg: ScArgumentExprList if arg.isBraceArgs =>
         if (scalaSettings.INDENT_BRACED_FUNCTION_ARGS &&

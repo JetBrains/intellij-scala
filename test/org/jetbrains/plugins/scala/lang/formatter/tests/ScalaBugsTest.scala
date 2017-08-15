@@ -2579,5 +2579,31 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL12297(): Unit = {
+    val before =
+      """
+        |/**
+        |  * smth
+        |  */
+        |@throws(classOf[A])
+        |def myMethod(p1: Int, p2: String): A =
+        |  foo(p1, this)
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL12416(): Unit = {
+    val before =
+      """
+        |// single line comment
+        |// another single line comment
+        |def foo(x: Int): Int =
+        |  if (x > 5) x * 2
+        |  else if (x > 3) x
+        |  else -x
+      """.stripMargin
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
