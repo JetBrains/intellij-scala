@@ -5,10 +5,13 @@ import java.io.File
 import javax.swing._
 
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
+import com.intellij.openapi.externalSystem.service.notification.NotificationSource
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
+import com.intellij.openapi.progress._
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.ui.ComboBox
@@ -16,12 +19,16 @@ import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil.createDirectory
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
+import org.jetbrains.plugins.cbt._
+import org.jetbrains.plugins.cbt.process.CbtOutputListener
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{Platform, Versions}
 import org.jetbrains.sbt.project.template.SComboBox
+
+import scala.util.Failure
 
 class CbtModuleBuilder
   extends AbstractExternalModuleBuilder[CbtProjectSettings](CbtProjectSystem.Id, new CbtProjectSettings) {
@@ -50,6 +57,11 @@ class CbtModuleBuilder
     val externalProjectSettings = getExternalProjectSettings
     externalProjectSettings.setExternalProjectPath(getContentEntryPath)
     settings.linkProject(externalProjectSettings)
+
+
+    val project = model.getProject
+
+    generateTemplate(project,contentRootDir)
 
   }
 
@@ -98,7 +110,8 @@ class CbtModuleBuilder
       _.add(scalaVersionComboBox)
     )
 
-    val cbtSettingsPanel = applyTo(new JPanel(new GridLayout(2, 1)))(
+    val cbtSettingsPanel = applyTo(new JPanel(new GridLayout(3, 1)))(
+      _.add(templateComboBox),
       _.add(useCbtForInternalTasksCheckBox),
       _.add(useDirectCheckBox)
     )
@@ -137,14 +150,28 @@ class CbtModuleBuilder
     getExternalProjectSettings.useCbtForInternalTasks = selections.useCbtForInternalTasks
     getExternalProjectSettings.useDirect = selections.useDirect
 
-    if (root.exists()) {
-      generateTemplate(root)
-    }
+
     super.createModule(moduleModel)
   }
 
-  private def generateTemplate(root: File): Unit = {
-    selections.template.generate(root, CbtTemplateSettings(selections.scalaVersion))
+  private def generateTemplate(project: Project, root: File): Unit = {
+    val progressManager = ProgressManager.getInstance
+    val task = runnable {
+      progressManager.getProgressIndicator.setFraction(.5)
+      val result = selections.template
+        .generate(project, root, CbtTemplateSettings(selections.scalaVersion))
+      result match {
+        case Failure(e) =>
+          CbtOutputListener
+            .showError(project,
+              s"Could not create template due to \n ${e.getMessage}",
+              NotificationSource.PROJECT_SYNC)
+        case _ =>
+      }
+    }
+    val title = s"Applying template '${selections.template.name}'"
+    //TODO find way to use a Task instead
+    progressManager.runProcessWithProgressAsynchronously(project, title, task, null, null, PerformInBackgroundOption.DEAF)
   }
 
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
@@ -154,7 +181,6 @@ class CbtModuleBuilder
                            var useCbtForInternalTasks: Boolean = true,
                            var useDirect: Boolean = false,
                            var template: CbtTemplate = CbtModuleBuilder.templates.head)
-
 }
 
 object CbtModuleBuilder {

@@ -2,13 +2,14 @@ package org.jetbrains.plugins.cbt.project.template
 
 import java.io.File
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil.writeToFile
 import org.jetbrains.plugins.cbt._
 
 import scala.util.Try
 
 class DefaultCbtTemplate extends CbtTemplate {
-  override def generate(root: File, settings: CbtTemplateSettings): Try[String] =
+  override def generate(project: Project, root: File, settings: CbtTemplateSettings): Try[String] =
     Try {
       (root / "src").mkdirs()
       writeToFile(root / "build" / "build.scala", template(settings))
@@ -23,5 +24,5 @@ class DefaultCbtTemplate extends CbtTemplate {
        |}
     """.stripMargin
 
-  override def name = "Default Template"
+  override def name: String = "Default Template"
 }

@@ -30,8 +30,8 @@ object CbtProcess {
     xml.map(XML.loadString)
   }
 
-  def generateGiter8Template(template: String, root: File): Try[String] =
-    runAction(Seq("tools", "g8", template), useDirect = true, root, None, None)
+  def generateGiter8Template(template: String, project: Project, root: File): Try[String] =
+    runAction(Seq("tools", "g8", template), useDirect = true, root, Option(project), None)
 
   def runAction(action: Seq[String],
                 useDirect: Boolean,
