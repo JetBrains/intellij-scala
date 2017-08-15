@@ -675,7 +675,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       leftPsi.isInstanceOf[ScTypeAlias] || leftPsi.isInstanceOf[ScExpression]) {
       if (rightElementType != tSEMICOLON) {
         leftPsi.getParent match {
-          case b @ (_: ScEarlyDefinitions | _: ScTemplateBody | _: ScBlock) =>
+          case b @ (_: ScEarlyDefinitions | _: ScTemplateBody) =>
             val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
             val setting = leftPsi match {
               case _: ScFunction if p.isInstanceOf[ScTrait] => settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
@@ -693,6 +693,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               return COMMON_SPACING
             else
               return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+          case _: ScBlock =>
+            return Spacing.createSpacing(0, 0, 1, keepLineBreaks, keepBlankLinesInDeclarations)
           case _ =>
         }
       }
@@ -713,7 +715,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
                 case (_: ScFunction, _: ScTrait) => settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
                 case (_: ScFunction, _) => settings.BLANK_LINES_AROUND_METHOD
                 case (_, _: ScTrait) => settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE
-                case _ => settings.BLANK_LINES_AROUND_FIELD
+                case _ =>
+                  settings.BLANK_LINES_AROUND_FIELD
               }
             return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
           case _ =>
@@ -732,7 +735,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
             case (_: ScFunction, _: ScTrait) => settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
             case (_: ScFunction, _) => settings.BLANK_LINES_AROUND_METHOD
             case (_, _: ScTrait) => settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE
-            case _ => settings.BLANK_LINES_AROUND_FIELD
+            case _ =>
+              settings.BLANK_LINES_AROUND_FIELD
           }
           return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
         case _ =>

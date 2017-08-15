@@ -2605,5 +2605,125 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL12299(): Unit = {
+    val before =
+      """
+        |Nil.foreach { a =>
+        |}
+        |
+        |s"Hello, ${name.toString}"
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL12353(): Unit = {
+    getCommonSettings.BLANK_LINES_AROUND_FIELD = 1
+
+    val before =
+      """
+        |class A {
+        |  val x = 1
+        |
+        |  val y = 2
+        |
+        |  def foo = {
+        |    val a = 1
+        |    println(a)
+        |  }
+        |}
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL12353_1(): Unit = {
+    getCommonSettings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE = 1
+    getCommonSettings.BLANK_LINES_AROUND_FIELD = 1
+    getCommonSettings.BLANK_LINES_AROUND_METHOD = 1
+    getCommonSettings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE = 1
+    val before =
+      """
+        |class SCL12353 {
+        |  val x = 1
+        |  val y = 2
+        |  val z = 3
+        |  def foo = {
+        |    val a = 1
+        |    println(a)
+        |    val b = 1
+        |    def boo = 42
+        |    def goo = 22
+        |    val c = 1
+        |    val d = 1
+        |  }
+        |  def bar = 42
+        |  val y1 = 13
+        |  trait Inner {
+        |    val x = 1
+        |    val y = 2
+        |    val z = 3
+        |    def foo = {
+        |      val a = 1
+        |      println(a)
+        |      val b = 1
+        |      def boo = 42
+        |      def goo = 22
+        |      val c = 1
+        |      val d = 1
+        |    }
+        |    def bar = 42
+        |    val y1 = 13
+        |  }
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class SCL12353 {
+        |  val x = 1
+        |
+        |  val y = 2
+        |
+        |  val z = 3
+        |
+        |  def foo = {
+        |    val a = 1
+        |    println(a)
+        |    val b = 1
+        |    def boo = 42
+        |    def goo = 22
+        |    val c = 1
+        |    val d = 1
+        |  }
+        |
+        |  def bar = 42
+        |
+        |  val y1 = 13
+        |
+        |  trait Inner {
+        |    val x = 1
+        |
+        |    val y = 2
+        |
+        |    val z = 3
+        |
+        |    def foo = {
+        |      val a = 1
+        |      println(a)
+        |      val b = 1
+        |      def boo = 42
+        |      def goo = 22
+        |      val c = 1
+        |      val d = 1
+        |    }
+        |
+        |    def bar = 42
+        |
+        |    val y1 = 13
+        |  }
+        |
+        |}
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
