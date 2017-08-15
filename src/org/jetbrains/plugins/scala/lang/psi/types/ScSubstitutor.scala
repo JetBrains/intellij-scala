@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor.LazyDepMethodTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.annotation.tailrec
@@ -225,15 +226,14 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
       override def visitThisType(th: ScThisType): Unit = {
         val clazz = th.element
         def hasRecursiveThisType(tp: ScType): Boolean = {
-          var res = false
+          var found = false
           tp.recursiveUpdate {
-            case tpp if res => (true, tpp)
-            case tpp@ScThisType(`clazz`) =>
-              res = true
-              (true, tpp)
-            case tpp => (false, tpp)
+            case ScThisType(`clazz`) if !found =>
+              found = true
+              Stop
+            case _ => if (found) Stop else ProcessSubtypes
           }
-          res
+          found
         }
         result = updateThisType match {
           case Some(oldTp) if !hasRecursiveThisType(oldTp) => //todo: hack to avoid infinite recursion during type substitution

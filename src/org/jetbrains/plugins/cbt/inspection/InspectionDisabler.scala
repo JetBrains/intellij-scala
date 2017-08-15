@@ -12,7 +12,8 @@ class InspectionDisabler extends IntentionAvailabilityChecker {
     project.isCbtProject
   }
 
-  override def isInspectionAvailable(inspection: InspectionProfileEntry, psiElement: PsiElement): Boolean =
+  override def isInspectionAvailable(inspection: InspectionProfileEntry,
+                                     psiElement: PsiElement): Boolean =
     inspection.getShortName match {
       case "ScalaPackageName" => false
       case "ScalaFileName" =>

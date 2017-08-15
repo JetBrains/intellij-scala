@@ -17,7 +17,7 @@ class ConsiderAsCbtModule extends CbtProjectAction {
     val modulePath = moduleDir.getVirtualFile.getPath
     val project = CommonDataKeys.PROJECT.getData(dataContext)
     val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
-    if (!projectSettings.extraModules.contains(modulePath)) {
+    if (!isModule(projectSettings, modulePath)) {
       projectSettings.extraModules.add(modulePath)
     }
     project.refresh()
@@ -30,7 +30,7 @@ class ConsiderAsCbtModule extends CbtProjectAction {
 
     def moduleExists(dir: PsiDirectory) =
       projectSettings.getModules.asScala.map(_.toFile).map(_.getName).contains(dir.getName)
-  
+
     val enabledOpt = for {
       module <- Option(dataContext.getData(LangDataKeys.MODULE.getName).asInstanceOf[Module])
       if module.getModuleTypeName != CbtExtraModuleType.ID

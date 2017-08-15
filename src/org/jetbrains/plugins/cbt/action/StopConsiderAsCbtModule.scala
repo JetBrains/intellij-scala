@@ -16,19 +16,22 @@ class StopConsiderAsCbtModule extends CbtProjectAction {
     val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
 
     def moduleExists(dir: PsiDirectory) =
-      projectSettings.getModules.asScala.map(_.toFile).map(_.getName).contains(dir.getName)
+      projectSettings.getModules.asScala
+        .map(_.toFile.getName)
+        .contains(dir.getName)
 
-    val enabledOpt = for {
-      module <- Option(dataContext.getData(LangDataKeys.MODULE.getName).asInstanceOf[Module])
-      if module.getModuleTypeName == CbtExtraModuleType.ID
-      target <- Option(CommonDataKeys.PSI_ELEMENT.getData(dataContext))
-    } yield {
-      target match {
-        case dir: PsiDirectory
-          if moduleExists(dir) => true
-        case _ => false
+    val enabledOpt =
+      for {
+        module <- Option(dataContext.getData(LangDataKeys.MODULE.getName).asInstanceOf[Module])
+        if module.getModuleTypeName == CbtExtraModuleType.ID
+        target <- Option(CommonDataKeys.PSI_ELEMENT.getData(dataContext))
+      } yield {
+        target match {
+          case dir: PsiDirectory
+            if moduleExists(dir) => true
+          case _ => false
+        }
       }
-    }
     enabledOpt.getOrElse(false)
   }
 
@@ -38,7 +41,7 @@ class StopConsiderAsCbtModule extends CbtProjectAction {
     val modulePath = moduleDir.getVirtualFile.getPath
     val project = CommonDataKeys.PROJECT.getData(dataContext)
     val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
-    if (projectSettings.extraModules.contains(modulePath)) {
+    if (isModule(projectSettings, modulePath)) {
       projectSettings.extraModules.remove(modulePath)
     }
     project.refresh()

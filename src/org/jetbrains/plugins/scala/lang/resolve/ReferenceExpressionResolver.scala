@@ -64,7 +64,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         ContextInfo(Some(args), () => None, isUnderscore = false)
       case section: ScUnderscoreSection => ContextInfo(None, () => section.expectedType(), isUnderscore = true)
       case inf: ScInfixExpr if ref == inf.operation =>
-        ContextInfo(if (ref.rightAssoc) Some(Seq(inf.lOp)) else inf.rOp match {
+        ContextInfo(inf.getArgExpr match {
           case tuple: ScTuple => Some(tuple.exprs) // See SCL-2001
           case _: ScUnitExpr => Some(Nil) // See SCL-3485
           case e: ScParenthesisedExpr => e.expr match {

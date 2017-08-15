@@ -46,7 +46,10 @@ object IntentionUtils {
     }
 
     def matchedParamsAfter(): Seq[(ScExpression, Parameter)] = {
-      val sortedMatchedArgs = argList.matchedParameters.sortBy(_._1.getTextOffset)
+      val sortedMatchedArgs = argList.matchedParameters
+        .filter(pair => argList.isAncestorOf(pair._1))
+        .sortBy(_._1.getTextOffset)
+
       sortedMatchedArgs.dropWhile {
         case (e, _) => !PsiTreeUtil.isAncestor(e, element, /*strict =*/false)
         case _ => true

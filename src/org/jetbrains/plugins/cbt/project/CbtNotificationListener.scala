@@ -9,12 +9,14 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 class CbtNotificationListener extends ExternalSystemTaskNotificationListenerAdapter {
   override def onFailure(id: ExternalSystemTaskId, e: Exception): Unit = {
     if (id.getProjectSystemId == CbtProjectSystem.Id) {
-      e match {
+      val title = "CBT project importing failure"
+      val message = e match {
         case importEx: CbtProjectImporingException =>
-          val title = "CBT project importing failure"
-          val text = importEx.getMessage
-          Notifications.Bus.notify(new Notification(title, title, text, NotificationType.ERROR))
+          importEx.getMessage
+        case ex: Exception =>
+          s"Unknown error ocurred:\n ${ex.getMessage}"
       }
+      Notifications.Bus.notify(new Notification(title, title, message, NotificationType.ERROR))
     }
   }
 }

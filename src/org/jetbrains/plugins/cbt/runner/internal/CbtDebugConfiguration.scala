@@ -25,7 +25,7 @@ class CbtDebugConfiguration(task: String,
   SERVER_MODE = false
   USE_SOCKET_TRANSPORT = true
 
-  override def getBeforeRunTasks: util.List[BeforeRunTask[_ <: BeforeRunTask[_]]] = {
+  override def getBeforeRunTasks: util.List[BeforeRunTask[_]] = {
     val beforeRunTask = new RunCbtDebuggerBeforeRunTask(task, module)
     List(beforeRunTask)
   }

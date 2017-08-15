@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{RecursiveUpdateException, Update}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -45,10 +47,10 @@ case class ScExistentialType(quantified: ScType,
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
     wildcards.map(_.withoutAbstracts))
 
-  override def updateSubtypes(update: (ScType) => (Boolean, ScType), visited: Set[ScType]): ScExistentialType = {
+  override def updateSubtypes(update: Update, visited: Set[ScType]): ScExistentialType = {
     try {
       ScExistentialType(
-        quantified.recursiveUpdate(update, visited),
+        quantified.recursiveUpdateImpl(update, visited),
         wildcards.map(_.updateSubtypes(update, visited))
       )
     } catch {
@@ -56,8 +58,8 @@ case class ScExistentialType(quantified: ScType,
     }
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                           variance: Int = 1, revertVariances: Boolean = false): ScType = {
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                           variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
@@ -237,9 +239,9 @@ case class ScExistentialType(quantified: ScType,
   }
 
   //todo: use recursiveVarianceUpdateModifiable?
-  private def updateRecursive(tp: ScType, rejected: Set[String] = Set.empty, variance: Int = 1)
-                             (implicit update: (Int, ScExistentialArgument, ScType) => ScType): ScType = {
-    if (variance == 0) return tp //optimization
+  private def updateRecursive(tp: ScType, rejected: Set[String] = Set.empty, variance: Variance = Covariant)
+                             (implicit update: (Variance, ScExistentialArgument, ScType) => ScType): ScType = {
+    if (variance == Invariant) return tp //optimization
     tp match {
       case _: StdType => tp
       case ScCompoundType(components, signatureMap, typeMap) =>
@@ -386,22 +388,22 @@ case class ScExistentialType(quantified: ScType,
     var updated = false
     //fourth rule
     def hasWildcards(tp: ScType): Boolean = {
-      var res = false
+      var found = false
       tp.recursiveUpdate {
-        case tp@ScExistentialArgument(name, _, _, _) if wildcards.exists(_.name == name) =>
-          res = true
-          (res, tp)
-        case tp: ScType => (res, tp)
+        case ScExistentialArgument(name, _, _, _) if wildcards.exists(_.name == name) =>
+          found = true
+          Stop
+        case _ => if (found) Stop else ProcessSubtypes
       }
-      res
+      found
     }
-    val res = updateRecursive(this, Set.empty, 1) {
+    val res = updateRecursive(this, Set.empty, Covariant) {
       case (variance, arg, tp) =>
         variance match {
-          case 1 if !hasWildcards(arg.upper)=>
+          case Covariant if !hasWildcards(arg.upper)=>
             updated = true
             arg.upper
-          case -1 if !hasWildcards(arg.lower)=>
+          case Contravariant if !hasWildcards(arg.lower)=>
             updated = true
             arg.lower
           case _ => tp
@@ -452,12 +454,10 @@ object ScExistentialType {
 
   def existingWildcards(tp: ScType): Set[String] = {
     val existingWildcards = new mutable.HashSet[String]
-    tp.recursiveUpdate({
-      case ex: ScExistentialType =>
-        existingWildcards ++= ex.boundNames
-        (false, ex)
-      case t => (false, t)
-    })
+    tp.visitRecursively {
+      case ex: ScExistentialType => existingWildcards ++= ex.boundNames
+      case _ =>
+    }
     existingWildcards.toSet
   }
 
@@ -490,22 +490,22 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
 
   def withoutAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lower.removeAbstracts, upper.removeAbstracts)
 
-  override def updateSubtypes(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScExistentialArgument = {
-    ScExistentialArgument(name, args, lower.recursiveUpdate(update, visited), upper.recursiveUpdate(update, visited))
+  override def updateSubtypes(update: Update, visited: Set[ScType]): ScExistentialArgument = {
+    ScExistentialArgument(name, args, lower.recursiveUpdateImpl(update, visited), upper.recursiveUpdateImpl(update, visited))
   }
 
-  def recursiveVarianceUpdateModifiableNoUpdate[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                                            variance: Int = 1): ScExistentialArgument = {
+  def recursiveVarianceUpdateModifiableNoUpdate[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                                            variance: Variance = Covariant): ScExistentialArgument = {
     ScExistentialArgument(name, args, lower.recursiveVarianceUpdateModifiable(data, update, -variance),
       upper.recursiveVarianceUpdateModifiable(data, update, variance))
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                                    variance: Int = 1, revertVariances: Boolean = false): ScType = {
-    update(this, variance, data) match {
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
+    update(this, v, data) match {
       case (true, res, _) => res
-      case (_, _, _) =>
-        recursiveVarianceUpdateModifiableNoUpdate(data, update, variance)
+      case (_, _, newData) =>
+        recursiveVarianceUpdateModifiableNoUpdate(newData, update, v)
     }
   }
 

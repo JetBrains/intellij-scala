@@ -41,13 +41,13 @@ class CbtRunConfiguration(val project: Project,
 
   def getModule: Module = module
 
-  override def writeExternal(element: Element) {
+  override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)
     JDOMExternalizer.write(element, "task", task)
     JDOMExternalizer.write(element, "moduleName", module.getName)
   }
 
-  override def readExternal(element: Element) {
+  override def readExternal(element: Element): Unit = {
     super.readExternal(element)
     task = JDOMExternalizer.readString(element,"task")
     module = {

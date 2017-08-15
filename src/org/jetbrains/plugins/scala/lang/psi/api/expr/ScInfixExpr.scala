@@ -7,6 +7,7 @@ package expr
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
 * @author Alexander Podkhalyuzin
@@ -38,12 +39,12 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr {
     exprs.apply(2)
   }
 
-  def getBaseExpr: ScExpression = if (isLeftAssoc) rOp else lOp
+  def getBaseExpr: ScExpression = if (isRightAssoc) rOp else lOp
 
-  def getArgExpr: ScExpression = if (isLeftAssoc) lOp else rOp
+  def getArgExpr: ScExpression = if (isRightAssoc) lOp else rOp
 
-  def isLeftAssoc: Boolean = {
-    val opText = operation.getText
+  def isRightAssoc: Boolean = {
+    val opText = ScalaNamesUtil.clean(operation.refName)
     opText.endsWith(":")
   }
 

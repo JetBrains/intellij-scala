@@ -16,5 +16,5 @@ class CbtTaskManager extends ExternalSystemTaskManager[CbtExecutionSettings] {
                    debuggerSetup: String,
                    listener: ExternalSystemTaskNotificationListener): Unit = {}
 
-  def cancelTask(id: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener) = false
+  def cancelTask(id: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean = false
 }

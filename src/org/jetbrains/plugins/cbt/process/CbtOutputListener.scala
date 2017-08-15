@@ -42,17 +42,16 @@ class CbtOutputListener(onOutput: (String, Boolean) => Unit,
     warningsList
 
   private def handleErrorOrWarning(text: String): Unit = {
-    if (isError(text)) {
+    if (isError(text))
       errorBuilder.parserPart(text).foreach { res =>
         errorsList += res
         projectOpt.foreach(CbtOutputListener.showError(_, res, notificationSource))
       }
-    } else if (isWarning(text)) {
+    else if (isWarning(text))
       warningBuilder.parserPart(text).foreach { res =>
         warningsList += res
         projectOpt.foreach(CbtOutputListener.showWarning(_, res, notificationSource))
       }
-    }
   }
 
   private def isError(line: String) =
@@ -72,9 +71,7 @@ private class ErrorWarningBuilder(prefix: String) {
       val fullText = buffer.toString
       buffer.clear()
       Some(fullText)
-    } else {
-      None
-    }
+    } else None
   }
 }
 
@@ -105,11 +102,12 @@ object CbtOutputListener {
 }
 
 object AnsiCodesEscaper {
-  private val escapeCodes = Seq(Console.RESET,
-    Console.RED,
-    Console.GREEN,
-    Console.BLUE,
-    Console.YELLOW)
+  private val escapeCodes =
+    Seq(Console.RESET,
+      Console.RED,
+      Console.GREEN,
+      Console.BLUE,
+      Console.YELLOW)
 
   def escape(text: String): String =
     escapeCodes.fold(text)((t, c) => t.replaceAllLiterally(c, ""))

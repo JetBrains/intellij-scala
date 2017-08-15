@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, MostSpecificUtil}
@@ -370,8 +371,8 @@ class ImplicitCollector(place: PsiElement,
             typeParams.filter(tp => !tp.lowerType.v.equiv(Nothing) || !tp.upperType.v.equiv(Any))
           val newPolymorphicType = ScTypePolymorphicType(internalType, filteredTypeParams)
           val updated = newPolymorphicType.inferValueType.recursiveUpdate {
-            case u: UndefinedType => (true, u.parameterType)
-            case tp: ScType => (false, tp)
+            case u: UndefinedType => ReplaceWith(u.parameterType)
+            case _: ScType => ProcessSubtypes
           }
           (updated, typeParams)
         case _ => (tp.inferValueType, Seq.empty)
@@ -620,8 +621,8 @@ class ImplicitCollector(place: PsiElement,
 
   private def abstractsToUpper(tp: ScType): ScType = {
     val noAbstracts = tp.recursiveUpdate {
-      case ScAbstractType(_, _, upper) => (true, upper)
-      case t => (false, t)
+      case ScAbstractType(_, _, upper) => ReplaceWith(upper)
+      case _ => ProcessSubtypes
     }
 
     noAbstracts.removeAliasDefinitions()
@@ -631,8 +632,11 @@ class ImplicitCollector(place: PsiElement,
     tp match {
       case ScCompoundType(comps, _, _) => abstractsToUpper(ScCompoundType(comps, Map.empty, Map.empty)).removeUndefines()
       case ScExistentialType(quant, wilds) => abstractsToUpper(ScExistentialType(quant.recursiveUpdate {
-        case ScExistentialArgument(name, _, _, _) => wilds.find(_.name == name).map(w => (true, w.upper)).getOrElse((false, tp))
-        case other => (false, other)
+        case ScExistentialArgument(name, _, _, _) =>
+          wilds.find(_.name == name)
+            .map(w => ReplaceWith(w.upper))
+            .getOrElse(ProcessSubtypes)
+        case _ => ProcessSubtypes
       }, wilds)).removeUndefines()
       case _ => abstractsToUpper(tp).removeUndefines()
     }

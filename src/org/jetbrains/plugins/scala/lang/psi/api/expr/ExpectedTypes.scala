@@ -6,7 +6,7 @@ package expr
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiTypeExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
@@ -43,16 +43,27 @@ private[expr] object ExpectedTypes {
 
   def smartExpectedTypeEx(expr: ScExpression, fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] = {
     val types = expectedExprTypes(expr, withResolvedFunction = true, fromUnderscore = fromUnderscore)
-    types.length match {
-      case 1 => Some(types(0))
-      case _ => None
-    }
+
+    onlyOne(types)
   }
 
   def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] = {
     val types = expr.expectedTypesEx(fromUnderscore)
-    types.length match {
-      case 1 => Some(types(0))
+
+    onlyOne(types)
+  }
+
+  private def onlyOne(types: Seq[(ScType, Option[ScTypeElement])]): Option[(ScType, Option[ScTypeElement])] = {
+    val distinct =
+      types.sortBy {
+        case (_: ScAbstractType, _) => 1
+        case _ => 0
+      }.distinctBy {
+        case (ScAbstractType(_, lower, upper), _) if lower == upper => lower
+        case (t, _) => t
+      }
+    distinct match {
+      case Seq(tp) => Some(tp)
       case _ => None
     }
   }
@@ -87,24 +98,26 @@ private[expr] object ExpectedTypes {
       }
     }
 
+    val sameInContext = expr.getSameElementInContext
+
     val result: Array[(ScType, Option[ScTypeElement])] = expr.getContext match {
       case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore = false)
       //see SLS[6.11]
       case b: ScBlockExpr => b.lastExpr match {
-        case Some(e) if b.needCheckExpectedType && e == expr.getSameElementInContext => b.expectedTypesEx(fromUnderscore = true)
+        case Some(e) if b.needCheckExpectedType && e == sameInContext => b.expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
       }
       //see SLS[6.16]
-      case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((api.Boolean, None))
+      case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
       case cond: ScIfStmt if cond.elseBranch.isDefined => cond.expectedTypesEx(fromUnderscore = true)
       //see SLA[6.22]
       case tb: ScTryBlock => tb.lastExpr match {
         case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
       }
-      case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((api.Boolean, None))
+      case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
       case _: ScWhileStmt => Array((Unit, None))
-      case d: ScDoStmt if d.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((api.Boolean, None))
+      case d: ScDoStmt if d.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
       case _: ScDoStmt => Array((api.Unit, None))
       case _: ScFinallyBlock => Array((api.Unit, None))
       case _: ScCatchBlock => Array.empty
@@ -133,7 +146,7 @@ private[expr] object ExpectedTypes {
           case _ => Array.empty
         }
       //SLS[6.15]
-      case a: ScAssignStmt if a.getRExpression.getOrElse(null: ScExpression) == expr.getSameElementInContext =>
+      case a: ScAssignStmt if a.getRExpression.getOrElse(null: ScExpression) == sameInContext =>
         a.getLExpression match {
           case ref: ScReferenceExpression if (!a.getContext.isInstanceOf[ScArgumentExprList] && !(
             a.getContext.isInstanceOf[ScInfixArgumentExpression] && a.getContext.asInstanceOf[ScInfixArgumentExpression].isCall)) ||
@@ -208,8 +221,7 @@ private[expr] object ExpectedTypes {
           for (tp: ScType <- tuple.expectedTypes(fromUnderscore = true)) addType(tp)
         }
         buffer.toArray
-      case infix: ScInfixExpr if ((infix.isLeftAssoc && infix.lOp == expr.getSameElementInContext) ||
-              (!infix.isLeftAssoc && infix.rOp == expr.getSameElementInContext)) && !expr.isInstanceOf[ScTuple] =>
+      case infix: ScInfixExpr if infix.getArgExpr == sameInContext && !expr.isInstanceOf[ScTuple] =>
         val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
         val zExpr: ScExpression = expr match {
           case p: ScParenthesisedExpr => p.expr.getOrElse(return Array.empty)
@@ -227,12 +239,12 @@ private[expr] object ExpectedTypes {
         }
         res.toArray
       //SLS[4.1]
-      case v @ ScPatternDefinition.expr(expr) if expr == expr.getSameElementInContext =>
+      case v @ ScPatternDefinition.expr(expr) if expr == sameInContext =>
         v.typeElement match {
           case Some(te) => Array((v.getType(TypingContext.empty).getOrAny, Some(te)))
           case _ => Array.empty
         }
-      case v @ ScVariableDefinition.expr(expr) if expr == expr.getSameElementInContext =>
+      case v @ ScVariableDefinition.expr(expr) if expr == sameInContext =>
         v.typeElement match {
           case Some(te) => Array((v.getType(TypingContext.empty).getOrAny, Some(te)))
           case _ => Array.empty
@@ -240,7 +252,7 @@ private[expr] object ExpectedTypes {
       //SLS[4.6]
       case v: ScFunctionDefinition if (v.body match {
         case None => false
-        case Some(b) => b == expr.getSameElementInContext
+        case Some(b) => b == sameInContext
       }) =>
         v.returnTypeElement match {
           case Some(te) => v.returnType.toOption.map(x => (x, Some(te))).toArray
@@ -319,7 +331,7 @@ private[expr] object ExpectedTypes {
               || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock]
               || b.getContext.isInstanceOf[ScCaseClause]
               || b.getContext.isInstanceOf[ScFunctionExpr] => b.lastExpr match {
-        case Some(e) if expr.getSameElementInContext == e => b.expectedTypesEx(fromUnderscore = true)
+        case Some(e) if sameInContext == e => b.expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
       }
       case _ => Array.empty

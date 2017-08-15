@@ -7,11 +7,10 @@ package expr
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{ElementText, PsiElementExt, PsiNamedElementExt, StringExt}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIntLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitResolveResult, ScImplicitlyConvertible}
@@ -123,9 +122,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     def implicitFunction(element: ScalaPsiElement): Option[PsiNamedElement] = element.getParent match {
       case reference: ScReferenceExpression =>
         referenceImplicitFunction(reference)
-      case expression@ScInfixExpr(leftOperand, operation, rightOperand)
-        if (expression.isLeftAssoc && this == rightOperand) || (!expression.isLeftAssoc && this == leftOperand) =>
-        referenceImplicitFunction(operation)
+      case infix: ScInfixExpr if this == infix.getBaseExpr =>
+        referenceImplicitFunction(infix.operation)
       case call: ScMethodCall => call.getImplicitFunction
       case generator: ScGenerator => implicitFunction(generator)
       case _ =>
@@ -452,52 +450,32 @@ object ScExpression {
     }
 
     //numeric literal narrowing
-    private def isNarrowing(expected: ScType): Option[TypeResult[ScType]] = {
-      val integerLiteralValue: Option[Int] = try {
-        expr match {
-          case l: ScLiteral if l.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tINTEGER =>
-            l.getValue match {
-              case i: Integer => Some(i.intValue)
-              case _ => Some(scala.Int.MaxValue)
-            }
-          case p: ScPrefixExpr => p.operand match {
-            case l: ScLiteral
-              if l.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tINTEGER &&
-                Set("+", "-").contains(p.operation.getText) =>
+    def isNarrowing(expected: ScType): Option[TypeResult[ScType]] = {
+      import expr.projectContext
 
-              val mult = if (p.operation.getText == "-") -1 else 1
-              p.operand match {
-                case l: ScLiteral => l.getValue match {
-                  case i: Integer => Some(mult * i.intValue)
-                  case _ => Some(scala.Int.MaxValue)
-                }
-              }
-            case _ => None
-          }
-          case _ => None
-        }
-      } catch {
-        case _: NumberFormatException => None
-      }
-      if (integerLiteralValue.isEmpty) None
-      else {
-        val literalValue = integerLiteralValue.get
+      def isByte(v: Long)  = v >= scala.Byte.MinValue  && v <= scala.Byte.MaxValue
+      def isChar(v: Long)  = v >= scala.Char.MinValue  && v <= scala.Char.MaxValue
+      def isShort(v: Long) = v >= scala.Short.MinValue && v <= scala.Short.MaxValue
 
-        val stdTypes = project.stdTypes
-        import stdTypes._
+      def success(t: ScType) = Some(Success(t, Some(expr)))
 
-        expected.removeAbstracts match {
-          case Char if literalValue >= scala.Char.MinValue.toInt && literalValue <= scala.Char.MaxValue.toInt =>
-            Some(Success(Char, Some(expr)))
-          case Byte if literalValue >= scala.Byte.MinValue.toInt && literalValue <= scala.Byte.MaxValue.toInt =>
-            Some(Success(Byte, Some(expr)))
-          case Short if literalValue >= scala.Short.MinValue.toInt && literalValue <= scala.Short.MaxValue.toInt =>
-            Some(Success(Short, Some(expr)))
-          case _ => None
-        }
+      val intLiteralValue: Int = expr match {
+        case ScIntLiteral(value) => value
+        case ScPrefixExpr(op, ScIntLiteral(value)) if Set("+", "-").contains(op.refName) =>
+          val mult = if (op.refName == "-") -1 else 1
+          mult * value
+        case _ => return None
       }
 
+      val stdTypes = StdTypes.instance
+      import stdTypes._
 
+      expected.removeAbstracts match {
+        case Char  if isChar(intLiteralValue)  => success(Char)
+        case Byte  if isByte(intLiteralValue)  => success(Byte)
+        case Short if isShort(intLiteralValue) => success(Short)
+        case _ => None
+      }
     }
 
     //numeric widening

@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariab
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -161,19 +162,17 @@ object PatternAnnotator {
       scType.tryExtractDesignatorSingleton
     case _ =>
       scType.recursiveUpdate {
-        case ScAbstractType(_, _, upper) => (true, upper)
-        case TypeParameterType(_, _, upper, _) => (true, upper.v)
-        case tp => (false, tp)
+        case ScAbstractType(_, _, upper) => ReplaceWith(upper)
+        case TypeParameterType(_, _, upper, _) => ReplaceWith(upper.v)
+        case _ => ProcessSubtypes
       }
   }
 
   private def freeTypeParamsOfTerms(tp: ScType): Seq[ScType] = {
     val buffer = ArrayBuffer[ScType]()
-    tp.recursiveUpdate {
-      case tp: TypeParameterType =>
-        buffer += tp
-        (false, tp)
-      case _ => (false, tp)
+    tp.visitRecursively {
+      case tp: TypeParameterType => buffer += tp
+      case _ =>
     }
     buffer
   }
@@ -188,8 +187,9 @@ object PatternAnnotatorUtil {
       }
       val newVisited = visited + scType
       scType.recursiveUpdate {
-        case tp: TypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lowerType.v, newVisited), abstraction(tp.upperType.v, newVisited)))
-        case tpe => (false, tpe)
+        case tp: TypeParameterType =>
+          ReplaceWith(ScAbstractType(tp, abstraction(tp.lowerType.v, newVisited), abstraction(tp.upperType.v, newVisited)))
+        case _ => ProcessSubtypes
       }
     }
 

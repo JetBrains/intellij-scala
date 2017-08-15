@@ -35,16 +35,20 @@ object ScLiteral {
   def unapply(literal: ScLiteral) = Some(literal.getValue)
 }
 
-class ScLiteralValueExtractor[T](literalTypes: IElementType*)(f: AnyRef => T) {
+class ScLiteralValueExtractor[T](literalTypes: IElementType*)
+                                (f: AnyRef => T, textCondition: String => Boolean = Function.const(true)) {
   private val types = literalTypes.toSet
 
   def unapply(literal: ScLiteral): Option[T] = {
-    val literalType = literal.getFirstChild.getNode.getElementType
-    if (types.contains(literalType)) Some(f(literal.getValue)) else None
+    val node = literal.getFirstChild.getNode
+    val literalType = node.getElementType
+    if (types.contains(literalType) && textCondition(node.getText))
+      Some(f(literal.getValue))
+    else None
   }
 }
 
-object ScIntLiteral extends ScLiteralValueExtractor(tINTEGER)(_.asInstanceOf[java.lang.Integer].intValue)
+object ScIntLiteral extends ScLiteralValueExtractor(tINTEGER)(_.asInstanceOf[java.lang.Integer].intValue, _.last.isDigit)
 
 object ScFloatLiteral extends ScLiteralValueExtractor(tFLOAT)(_.asInstanceOf[java.lang.Float].floatValue)
 

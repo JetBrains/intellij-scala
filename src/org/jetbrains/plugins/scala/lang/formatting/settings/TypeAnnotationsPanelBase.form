@@ -121,7 +121,8 @@
             </constraints>
             <properties>
               <selected value="true"/>
-              <text value="Type is obvious"/>
+              <text value="Type is obvious*"/>
+              <toolTipText value="&lt;html&gt;&lt;body&gt;When right-hand side is:&lt;br&gt; Literal: &lt;code&gt;123&lt;/code&gt;, &lt;code&gt;&quot;string&quot;&lt;/code&gt;, etc. (excluding &lt;code&gt;null&lt;/code&gt;)&lt;br&gt; Object creation: &lt;code&gt;new Foo(...)&lt;/code&gt; (excluding one with refinement: &lt;code&gt;new Foo() {}&lt;/code&gt;)&lt;br&gt; Factory method call: &lt;code&gt;Foo(...)&lt;/code&gt; (calling &lt;code&gt;apply(...)&lt;/code&gt; on companion object)&lt;br&gt; Empty collection: &lt;code&gt;Seq.empty[Int]&lt;/code&gt;, &lt;code&gt;Map.empty[Int, String]&lt;/code&gt;, etc.&lt;br&gt; Java enum constant: &lt;code&gt;Enum.VALUE&lt;/code&gt;&lt;br&gt; An exception: &lt;code&gt;throw Exception()&lt;/code&gt; &lt;/body&gt;&lt;/html&gt;"/>
             </properties>
           </component>
           <hspacer id="49b13">
@@ -144,7 +145,8 @@
               <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="In script"/>
+              <text value="In script*"/>
+              <toolTipText value="In Scala script or in non-*.scala file (*.sc, *.sbt)"/>
             </properties>
           </component>
           <grid id="43d6d" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

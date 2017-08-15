@@ -6,8 +6,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 sealed trait ScUndefinedSubstitutor {
-  def addLower(name: Name, _lower: ScType, additional: Boolean = false, variance: Int = -1): ScUndefinedSubstitutor
-  def addUpper(name: Name, _upper: ScType, additional: Boolean = false, variance: Int = 1): ScUndefinedSubstitutor
+  def addLower(name: Name, _lower: ScType, additional: Boolean = false, variance: Variance = Contravariant): ScUndefinedSubstitutor
+  def addUpper(name: Name, _upper: ScType, additional: Boolean = false, variance: Variance = Covariant): ScUndefinedSubstitutor
   def getSubstitutor: Option[ScSubstitutor] = getSubstitutorWithBounds(nonable = true).map(_._1)
   def filter(fun: (((String, Long), Set[ScType])) => Boolean): ScUndefinedSubstitutor
   def addSubst(added: ScUndefinedSubstitutor): ScUndefinedSubstitutor
@@ -40,57 +40,57 @@ object ScUndefinedSubstitutor {
     }
   }
 
-  private[types] def computeLower(rawLower: ScType, variance: Int): ScType = {
+  private[types] def computeLower(rawLower: ScType, v: Variance): ScType = {
     var index = 0
     val updated = rawLower match {
       case ScAbstractType(_, absLower, _) =>
         absLower //upper will be added separately
       case _ =>
         rawLower.recursiveVarianceUpdateModifiable[Set[String]](Set.empty, {
-          case (ScAbstractType(_, absLower, upper), i, data) =>
-            i match {
-              case -1 => (true, absLower, data)
-              case 1 => (true, upper, data)
-              case 0 => (true, absLower /*ScExistentialArgument(s"_$$${index += 1; index}", Nil, absLower, upper)*/ , data) //todo: why this is right?
+          case (ScAbstractType(_, absLower, upper), variance, data) =>
+            variance match {
+              case Contravariant => (true, absLower, data)
+              case Covariant     => (true, upper, data)
+              case Invariant     => (true, absLower /*ScExistentialArgument(s"_$$${index += 1; index}", Nil, absLower, upper)*/ , data) //todo: why this is right?
             }
-          case (ScExistentialArgument(nm, _, skoLower, upper), i, data) if !data.contains(nm) =>
-            i match {
-              case -1 => (true, skoLower, data)
-              case 1 => (true, upper, data)
-              case 0 => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, skoLower, upper), data)
+          case (ScExistentialArgument(nm, _, skoLower, upper), variance, data) if !data.contains(nm) =>
+            variance match {
+              case Contravariant => (true, skoLower, data)
+              case Covariant     => (true, upper, data)
+              case Invariant     => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, skoLower, upper), data)
             }
           case (ex: ScExistentialType, _, data) => (false, ex, data ++ ex.boundNames)
           case (tp, _, data) => (false, tp, data)
-        }, variance, revertVariances = true)
+        }, v, revertVariances = true)
     }
     updated.unpackedType
   }
 
-  private[types] def computeUpper(rawUpper: ScType, variance: Int): ScType = {
+  private[types] def computeUpper(rawUpper: ScType, v: Variance): ScType = {
     import rawUpper.projectContext
 
     var index = 0
     val updated = rawUpper match {
-      case ScAbstractType(_, _, absUpper) if variance == 0 =>
+      case ScAbstractType(_, _, absUpper) if v == Invariant =>
         absUpper // lower will be added separately
-      case ScAbstractType(_, _, absUpper) if variance == 1 && absUpper.equiv(Any) => Any
+      case ScAbstractType(_, _, absUpper) if v == Covariant && absUpper.equiv(Any) => Any
       case _ =>
         rawUpper.recursiveVarianceUpdateModifiable[Set[String]](Set.empty, {
-          case (ScAbstractType(_, lower, absUpper), i, data) =>
-            i match {
-              case -1 => (true, lower, data)
-              case 1 => (true, absUpper, data)
-              case 0 => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, absUpper), data) //todo: why this is right?
+          case (ScAbstractType(_, lower, absUpper), variance, data) =>
+            variance match {
+              case Contravariant => (true, lower, data)
+              case Covariant     => (true, absUpper, data)
+              case Invariant     => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, absUpper), data) //todo: why this is right?
             }
-          case (ScExistentialArgument(nm, _, lower, skoUpper), i, data) if !data.contains(nm) =>
-            i match {
-              case -1 => (true, lower, data)
-              case 1 => (true, skoUpper, data)
-              case 0 => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, skoUpper), data)
+          case (ScExistentialArgument(nm, _, lower, skoUpper), variance, data) if !data.contains(nm) =>
+            variance match {
+              case Contravariant => (true, lower, data)
+              case Covariant     => (true, skoUpper, data)
+              case Invariant     => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, skoUpper), data)
             }
           case (ex: ScExistentialType, _, data) => (false, ex, data ++ ex.boundNames)
           case (tp, _, data) => (false, tp, data)
-        }, variance)
+        }, v)
     }
     updated.unpackedType
   }
@@ -134,14 +134,14 @@ private case class ScUndefinedSubstitutorImpl(upperMap: Map[Name, Set[ScType]] =
     }
   }
 
-  def addLower(name: Name, _lower: ScType, additional: Boolean = false, variance: Int = -1): ScUndefinedSubstitutor = {
+  def addLower(name: Name, _lower: ScType, additional: Boolean = false, variance: Variance = Contravariant): ScUndefinedSubstitutor = {
     val lower = computeLower(_lower, variance)
 
     if (equivNothing(lower)) this
     else addToMap(name, lower, toUpper = false, additional)
   }
 
-  def addUpper(name: Name, _upper: ScType, additional: Boolean = false, variance: Int = 1): ScUndefinedSubstitutor = {
+  def addUpper(name: Name, _upper: ScType, additional: Boolean = false, variance: Variance = Covariant): ScUndefinedSubstitutor = {
     val upper = computeUpper(_upper, variance)
 
     if (equivAny(upper)) this
@@ -179,7 +179,7 @@ private case class ScUndefinedSubstitutorImpl(upperMap: Map[Name, Set[ScType]] =
     def solve(name: Name, visited: Set[Name]): Option[ScType] = {
 
       def checkRecursive(tp: ScType, needTvMap: Ref[Boolean]): Boolean = {
-        tp.recursiveUpdate {
+        tp.visitRecursively {
           case tpt: TypeParameterType =>
             val otherName = tpt.nameAndId
             if (additionalNames.contains(otherName)) {
@@ -189,7 +189,6 @@ private case class ScUndefinedSubstitutorImpl(upperMap: Map[Name, Set[ScType]] =
                 case _ =>
               }
             }
-            (false, tpt)
           case UndefinedType(tpt, _) =>
             val otherName = tpt.nameAndId
             if (names.contains(otherName)) {
@@ -199,8 +198,7 @@ private case class ScUndefinedSubstitutorImpl(upperMap: Map[Name, Set[ScType]] =
                 case _ =>
               }
             }
-            (false, tpt)
-          case tp: ScType => (false, tp)
+          case _: ScType =>
         }
         true
       }
@@ -288,10 +286,10 @@ private case class ScUndefinedSubstitutorImpl(upperMap: Map[Name, Set[ScType]] =
 private case class ScMultiUndefinedSubstitutor(subs: Set[ScUndefinedSubstitutorImpl])(implicit project: ProjectContext)
   extends ScUndefinedSubstitutor {
 
-  override def addLower(name: (String, Long), _lower: ScType, additional: Boolean, variance: Int): ScUndefinedSubstitutor =
+  override def addLower(name: (String, Long), _lower: ScType, additional: Boolean, variance: Variance): ScUndefinedSubstitutor =
     multi(subs.map(_.addLower(name, _lower, additional, variance)))
 
-  override def addUpper(name: (String, Long), _upper: ScType, additional: Boolean, variance: Int): ScUndefinedSubstitutor =
+  override def addUpper(name: (String, Long), _upper: ScType, additional: Boolean, variance: Variance): ScUndefinedSubstitutor =
     multi(subs.map(_.addUpper(name, _upper, additional, variance)))
 
   override def getSubstitutorWithBounds(nonable: Boolean): Option[SubstitutorWithBounds] =

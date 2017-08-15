@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.settings.annotations
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiEnumConstant}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
   * @author Pavel Fatin
@@ -17,11 +18,13 @@ trait Implementation {
 
 object Implementation {
   private val TraversableClassNames =
-    Seq("Seq", "Array", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
+    Set("Seq", "Array", "List", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
 
   def apply(definition: PsiElement): Implementation = new Definition(definition)
 
-  def of(expression: PsiElement): Implementation = new Expression(expression)
+  object Expression {
+    def apply(expression: PsiElement): Implementation = new Expression(expression)
+  }
 
   private class Definition(element: PsiElement) extends Implementation {
     override def containsReturn: Boolean = element match {
@@ -36,18 +39,22 @@ object Implementation {
   }
 
   private class Expression(element: PsiElement) extends Implementation {
-    override def containsReturn: Boolean = false
+    override def containsReturn: Boolean = element.depthFirst().exists {
+      case _: ScReturnStmt => true
+      case _ => false
+    }
 
     override def isTypeObvious: Boolean = isSimple(element)
   }
 
   private def isSimple(expression: PsiElement): Boolean = expression match {
-    case _: ScLiteral => true
-    case _: ScNewTemplateDefinition => true
-    case ref: ScReferenceExpression if isObject(ref) => true // TODO Foo.Bar?
-    case ScGenericCall(referenced, _) if isFactoryMethod(referenced) => true
-    case ScMethodCall(invoked: ScReferenceExpression, _) if isObject(invoked) => true
+    case literal: ScLiteral => literal.getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL
     case _: ScThrowStmt => true
+    case it: ScNewTemplateDefinition if it.extendsBlock.templateBody.isEmpty => true
+    case ref: ScReferenceExpression if isApplyCall(ref) => true
+    case ScReferenceExpression(_: PsiEnumConstant) => true
+    case ScGenericCall(referenced, _) if isEmptyCollectionFactory(referenced) => true
+    case ScMethodCall(invoked: ScReferenceExpression, _) if isApplyCall(invoked) => true
     case _ => false
   }
 
@@ -58,19 +65,15 @@ object Implementation {
     case _ => None //support isSimple for JavaPsi
   }
 
-  private def isObject(reference: ScReferenceExpression): Boolean = {
-    def resolvedElement(result: ScalaResolveResult) =
-      result.innerResolveResult
-        .getOrElse(result).element
-
-    reference.bind().map(resolvedElement).exists {
+  private def isApplyCall(reference: ScReferenceExpression): Boolean = {
+    reference.bind().map(result => result.innerResolveResult.getOrElse(result).element).exists {
       case function: ScFunction => function.isApplyMethod
       case _ => false
     }
   }
 
   // TODO Restore encapsulation
-  def isFactoryMethod(referenced: ScReferenceExpression): Boolean = referenced match {
+  def isEmptyCollectionFactory(referenced: ScReferenceExpression): Boolean = referenced match {
     case ScReferenceExpression.withQualifier(qualifier: ScReferenceExpression) =>
       TraversableClassNames.contains(qualifier.refName) && referenced.refName == "empty"
     case _ => false

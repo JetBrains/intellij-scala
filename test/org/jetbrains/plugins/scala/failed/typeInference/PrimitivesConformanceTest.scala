@@ -10,13 +10,6 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class PrimitivesConformanceTest extends TypeConformanceTestBase{
-  def test3074() = doTest(
-    """
-      |val a: Array[Byte] = Array(1, 2, 3)
-      |
-      |/* True */
-    """.stripMargin)
-
   def testSCL5358() = doTest(
       """
         |final val x = 0

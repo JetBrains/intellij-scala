@@ -9,8 +9,7 @@ import scala.util.{Success, Try}
 import scala.xml.Node
 
 object CbtProjectImporter {
-  def importProject(buildInfo: Node, settings: CbtExecutionSettings): Try[DataNode[ProjectData]] = {
+  def importProject(buildInfo: Node, settings: CbtExecutionSettings): Try[DataNode[ProjectData]] =
     Success(CbtProjectInfo(buildInfo))
       .flatMap(CbtProjectConverter(_, settings))
-  }
 }

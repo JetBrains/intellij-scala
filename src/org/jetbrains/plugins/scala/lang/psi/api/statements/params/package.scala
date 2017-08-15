@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
+import scala.language.implicitConversions
+
 /**
   * @author adkozlov
   */

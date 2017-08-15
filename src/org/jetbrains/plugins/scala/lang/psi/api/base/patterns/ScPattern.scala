@@ -326,7 +326,7 @@ object ScPattern {
                 val parameters: Seq[ScTypeParam] = fun.typeParameters
                 tp.recursiveVarianceUpdate {
                   case (tp: TypeParameterType, variance) if parameters.contains(tp.psiTypeParameter) =>
-                    (true, if (variance == -1) substitutor.subst(tp.lowerType.v)
+                    (true, if (variance == Contravariant) substitutor.subst(tp.lowerType.v)
                     else substitutor.subst(tp.upperType.v))
                   case (typez, _) => (false, typez)
                 }
