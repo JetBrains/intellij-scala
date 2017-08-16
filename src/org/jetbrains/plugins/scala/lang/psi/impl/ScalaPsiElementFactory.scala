@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScIdList, ScModifierList, ScPatternList, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -773,6 +773,14 @@ object ScalaPsiElementFactory {
     }
 
     withContext(result, context, child)
+  }
+
+  def createEmptyModifierList(context: PsiElement): ScModifierList = {
+    val parseEmptyModifier: ScalaPsiBuilder => AnyVal = b => {
+      val marker = b.mark()
+      marker.done(ScalaElementTypes.MODIFIERS)
+    }
+    createElementWithContext[ScModifierList]("", context, context.getFirstChild, parseEmptyModifier).orNull
   }
 
   private def withContext[E <: ScalaPsiElement](maybeElement: Option[E],
