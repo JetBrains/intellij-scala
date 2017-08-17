@@ -139,8 +139,8 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                   def updateTypeParam: TypeParameter => TypeParameter = {
                     case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
                       TypeParameter(typeParameters.map(updateTypeParam),
-                        existize(lowerType.v, visitedWithT),
-                        existize(upperType.v, visitedWithT),
+                        existize(lowerType, visitedWithT),
+                        existize(upperType, visitedWithT),
                         psiTypeParameter)
                   }
 

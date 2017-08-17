@@ -215,8 +215,8 @@ trait TypeAdapter {
   }
 
   def toTypeParams(tp: TypeParameterType): m.Type.Param = {
-    val ubound = if (tp.upperType.v.isAny)      None else Some(toType(tp.upperType.v))
-    val lbound = if (tp.lowerType.v.isNothing)  None else Some(toType(tp.lowerType.v))
+    val ubound = if (tp.upperType.isAny)      None else Some(toType(tp.upperType))
+    val lbound = if (tp.lowerType.isNothing)  None else Some(toType(tp.lowerType))
     m.Type.Param(
       if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
       if (tp.name != "_") m.Type.Name(tp.name) else m.Name.Anonymous(),//.withAttrs(h.Denotation.None).setTypechecked,

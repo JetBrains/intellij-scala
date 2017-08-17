@@ -173,8 +173,8 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
             case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
               TypeParameter(
                 parameters, // todo: is it important here to update?
-                substInternal(lowerType.v),
-                substInternal(upperType.v),
+                substInternal(lowerType),
+                substInternal(upperType),
                 psiTypeParameter)
           })
       }
@@ -272,10 +272,10 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                   }
                 case Some(cl: PsiClass) =>
                   typez match {
-                    case t: TypeParameterType => return update(t.upperType.v)
+                    case t: TypeParameterType => return update(t.upperType)
                     case p@ParameterizedType(_, _) =>
                       p.designator match {
-                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper.v))
+                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper))
                         case _ =>
                       }
                     case _ =>
@@ -298,10 +298,10 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                           case _ =>
                         }
                       }
-                    case t: TypeParameterType => return update(t.upperType.v)
+                    case t: TypeParameterType => return update(t.upperType)
                     case p@ParameterizedType(_, _) =>
                       p.designator match {
-                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper.v))
+                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper))
                         case _ =>
                       }
                     case _ =>
@@ -419,8 +419,8 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(
               typeParameters.map(substTypeParam),
-              substInternal(lowerType.v),
-              substInternal(upperType.v),
+              substInternal(lowerType),
+              substInternal(upperType),
               psiTypeParameter)
         }
         val middleRes = ScCompoundType(comps.map(substInternal), signatureMap.map {

@@ -467,8 +467,8 @@ object ScalaPsiUtil {
           case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(
               clearBadLinks(parameters),
-              hasBadLinks(lowerType.v, psiTypeParameter).getOrElse(Nothing),
-              hasBadLinks(upperType.v, psiTypeParameter).getOrElse(Any),
+              hasBadLinks(lowerType, psiTypeParameter).getOrElse(Nothing),
+              hasBadLinks(upperType, psiTypeParameter).getOrElse(Any),
               psiTypeParameter)
         }
 
@@ -588,7 +588,7 @@ object ScalaPsiUtil {
         case ScAbstractType(_, _, upper) =>
           collectParts(upper)
         case ScExistentialType(quant, _) => collectParts(quant)
-        case TypeParameterType(_, _, upper, _) => collectParts(upper.v)
+        case TypeParameterType(_, _, upper, _) => collectParts(upper)
         case _ =>
           tp.extractClassType match {
             case Some((clazz, subst)) =>

@@ -65,8 +65,8 @@ case class ScCompoundType(components: Seq[ScType],
         def updateTypeParam: TypeParameter => TypeParameter = {
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(typeParameters.map(updateTypeParam),
-              lowerType.v.removeAbstracts,
-              upperType.v.removeAbstracts,
+              lowerType.removeAbstracts,
+              upperType.removeAbstracts,
               psiTypeParameter)
         }
 
@@ -89,8 +89,8 @@ case class ScCompoundType(components: Seq[ScType],
     def updateTypeParam: TypeParameter => TypeParameter = {
       case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
         TypeParameter(typeParameters.map(updateTypeParam),
-          lowerType.v.recursiveUpdateImpl(update, visited, isLazySubtype = true),
-          upperType.v.recursiveUpdateImpl(update, visited, isLazySubtype = true),
+          lowerType.recursiveUpdateImpl(update, visited, isLazySubtype = true),
+          upperType.recursiveUpdateImpl(update, visited, isLazySubtype = true),
           psiTypeParameter)
     }
 
@@ -123,8 +123,8 @@ case class ScCompoundType(components: Seq[ScType],
         def updateTypeParam: TypeParameter => TypeParameter = {
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(typeParameters.map(updateTypeParam),
-              lowerType.v.recursiveVarianceUpdateModifiable(newData, update, Covariant),
-              upperType.v.recursiveVarianceUpdateModifiable(newData, update, Covariant),
+              lowerType.recursiveVarianceUpdateModifiable(newData, update, Covariant),
+              upperType.recursiveVarianceUpdateModifiable(newData, update, Covariant),
               psiTypeParameter)
         }
         new ScCompoundType(components.map(_.recursiveVarianceUpdateModifiable(newData, update, v)), signatureMap.map {

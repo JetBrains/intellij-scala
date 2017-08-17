@@ -255,8 +255,8 @@ trait ScalaBounds extends api.Bounds {
             lub(t1, t.getType(TypingContext.empty).getOrAny, checkWeak)
           case (ex: ScExistentialType, _) => lubInner(ex.quantified, t2, checkWeak, stopAddingUpperBound).unpackedType
           case (_, ex: ScExistentialType) => lubInner(t1, ex.quantified, checkWeak, stopAddingUpperBound).unpackedType
-          case (TypeParameterType(Nil, _, upper, _), _) if !stopAddingUpperBound => lub(upper.v, t2, checkWeak)
-          case (_, TypeParameterType(Nil, _, upper, _)) if !stopAddingUpperBound => lub(t1, upper.v, checkWeak)
+          case (TypeParameterType(Nil, _, upper, _), _) if !stopAddingUpperBound => lub(upper, t2, checkWeak)
+          case (_, TypeParameterType(Nil, _, upper, _)) if !stopAddingUpperBound => lub(t1, upper, checkWeak)
           case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2))
             if !stopAddingUpperBound =>
             ScExistentialArgument(name, args, glb(lower, lower2, checkWeak), lub(upper, upper2, checkWeak))

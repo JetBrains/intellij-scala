@@ -184,23 +184,23 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           (false, typez)
       }
       if (coOrInVariant == 0 && contraVariant != 0)
-        (tp.nameAndId, tp.upperType.v.inferValueType)
+        (tp.nameAndId, tp.upperType.inferValueType)
       else
-        (tp.nameAndId, tp.lowerType.v.inferValueType)
+        (tp.nameAndId, tp.lowerType.inferValueType)
     }).toMap)
 
   def abstractTypeSubstitutor: ScSubstitutor = {
     ScSubstitutor(typeParameters.map(tp => {
-      val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType.v)) Nothing else tp.lowerType.v
-      val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType.v)) Any else tp.upperType.v
+      val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else tp.lowerType
+      val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType)) Any else tp.upperType
       (tp.nameAndId, ScAbstractType(TypeParameterType(tp.psiTypeParameter), lowerType, upperType))
     }).toMap)
   }
 
   def abstractOrLowerTypeSubstitutor: ScSubstitutor = {
     ScSubstitutor(typeParameters.map(tp => {
-      val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType.v)) Nothing else tp.lowerType.v
-      val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType.v)) Any else tp.upperType.v
+      val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else tp.lowerType
+      val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType)) Any else tp.upperType
       (tp.nameAndId,
         if (lowerType.equiv(Nothing)) ScAbstractType(TypeParameterType(tp.psiTypeParameter), lowerType, upperType)
         else lowerType)
@@ -224,8 +224,8 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     typeParameters.map {
       case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
         TypeParameter(parameters, // todo: ?
-          lowerType.v.removeAbstracts,
-          upperType.v.removeAbstracts,
+          lowerType.removeAbstracts,
+          upperType.removeAbstracts,
           psiTypeParameter)
     })
 
@@ -235,8 +235,8 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       typeParameters.map {
         case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
           TypeParameter(parameters, // TODO: ?
-            lowerType.v.recursiveUpdateImpl(update, visited, isLazySubtype = true),
-            upperType.v.recursiveUpdateImpl(update, visited, isLazySubtype = true),
+            lowerType.recursiveUpdateImpl(update, visited, isLazySubtype = true),
+            upperType.recursiveUpdateImpl(update, visited, isLazySubtype = true),
             psiTypeParameter)
       })
   }
@@ -253,8 +253,8 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           typeParameters.map {
             case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
               TypeParameter(parameters, // TODO: ?
-                innerUpdate(lowerType.v, -v),
-                innerUpdate(upperType.v, v),
+                innerUpdate(lowerType, -v),
+                innerUpdate(upperType, v),
                 psiTypeParameter)
           })
     }
@@ -267,10 +267,10 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
         if (typeParameters.length != p.typeParameters.length) return (false, undefinedSubst)
         var i = 0
         while (i < typeParameters.length) {
-          var t = typeParameters(i).lowerType.v.equiv(p.typeParameters(i).lowerType.v, undefinedSubst, falseUndef)
+          var t = typeParameters(i).lowerType.equiv(p.typeParameters(i).lowerType, undefinedSubst, falseUndef)
           if (!t._1) return (false,undefinedSubst)
           undefinedSubst = t._2
-          t = typeParameters(i).upperType.v.equiv(p.typeParameters(i).upperType.v, undefinedSubst, falseUndef)
+          t = typeParameters(i).upperType.equiv(p.typeParameters(i).upperType, undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
           i = i + 1
