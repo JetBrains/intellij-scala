@@ -34,6 +34,11 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
 
   override def setUp(): Unit = {
     super.setUp()
+
+    // uncomment to enable debugging of compile server in tests
+//    BuildManager.getInstance().setBuildProcessDebuggingEnabled(true)
+//    com.intellij.openapi.util.registry.Registry.get("compiler.process.debug.port").setValue(5006)
+
     myProject.getMessageBus.connect(getTestRootDisposable).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
       override def rootsChanged(event: ModuleRootEvent) {
         forceFSRescan()
