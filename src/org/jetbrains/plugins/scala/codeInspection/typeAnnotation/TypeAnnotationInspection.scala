@@ -35,7 +35,7 @@ class TypeAnnotationInspection extends AbstractInspection {
 }
 
 object TypeAnnotationInspection {
-  private[typeAnnotation] val Description = "Explicit type annotation required (according to Code Style settings)"
+  private[typeAnnotation] val DescriptionPrefix = "Type annotation required for "
 
   private def inspect(element: ScalaPsiElement,
                       anchor: PsiElement,
@@ -45,8 +45,8 @@ object TypeAnnotationInspection {
     val declaration = Declaration(element)
     val location = Location(element)
 
-    if (ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
-      declaration, location, implementation.map(Implementation.Expression(_)))) {
+    ScalaTypeAnnotationSettings(element.getProject).reasonForTypeAnnotationOn(
+      declaration, location, implementation.map(Implementation.Expression(_))).foreach { reason =>
 
       // TODO Create the general-purpose inspection
       val canBePrivate = declaration.entity match {
@@ -59,7 +59,7 @@ object TypeAnnotationInspection {
         canBePrivate.seq(new MakePrivateQuickFix(element.asInstanceOf[ScModifierListOwner])) ++
           Seq(new AddTypeAnnotationQuickFix(anchor), new ModifyCodeStyleQuickFix(), new LearnWhyQuickFix())
 
-      holder.registerProblem(anchor, Description, fixes: _*)
+      holder.registerProblem(anchor, DescriptionPrefix + reason, fixes: _*)
     }
   }
 
