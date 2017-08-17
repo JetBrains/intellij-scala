@@ -93,7 +93,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
 
   import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 
-  @Cached(modificationCount = ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def getTypedDefinitionWrapper(isStatic: Boolean, isInterface: Boolean, role: DefinitionRole,
                                 cClass: Option[PsiClass] = None): PsiTypedDefinitionWrapper = {
     new PsiTypedDefinitionWrapper(this, isStatic, isInterface, role, cClass)
