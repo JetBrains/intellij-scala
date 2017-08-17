@@ -2725,5 +2725,18 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL12347(): Unit = {
+    val before =
+      """
+        |foo[(String, Int)](
+        |  x,
+        |  { case (s, _) ⇒ s },
+        |  y,
+        |  { case (_, i) ⇒ i }
+        |)
+      """.stripMargin
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }

@@ -455,6 +455,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
                 else return WITHOUT_SPACING_DEPENDENT(range)
             }
           case _: ScBlock | _: ScEarlyDefinitions | _: ScTemplateBody if !rightPsi.getParent.isInstanceOf[ScTryBlock] => return ON_NEW_LINE
+          case _: ScArgumentExprList if rightPsi.isInstanceOf[ScBlock] => return WITH_SPACING //don't add/remove newlines for partial function arguments
           case parent =>
             settings.BRACE_STYLE match {
               case CommonCodeStyleSettings.NEXT_LINE => return ON_NEW_LINE
