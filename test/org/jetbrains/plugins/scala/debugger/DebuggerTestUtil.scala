@@ -53,13 +53,13 @@ object DebuggerTestUtil {
     "/Library/Java/JavaVirtualMachines" // mac style
   )
 
-  def discoverJRE18() = discoverJre(candidates, "8")
+  def discoverJRE18(): Option[String] = discoverJre(candidates, "8")
 
-  def discoverJRE16() = discoverJre(candidates, "6")
+  def discoverJRE16(): Option[String] = discoverJre(candidates, "6")
 
-  def discoverJDK18() = discoverJRE18().map(new File(_).getParent)
+  def discoverJDK18(): Option[String] = discoverJRE18().map(new File(_).getParent)
 
-  def discoverJDK16() = discoverJRE16().map(new File(_).getParent)
+  def discoverJDK16(): Option[String] = discoverJRE16().map(new File(_).getParent)
 
   def discoverJre(paths: Seq[String], versionMajor: String): Option[String] = {
     import java.io._

@@ -12,11 +12,11 @@ import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
  * Date: 2/24/14
  */
 class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
-  protected val address = InetAddress.getByName(null)
+  protected val address: InetAddress = InetAddress.getByName(null)
 
-  protected val port = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
+  protected val port: Int = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
 
-  def buildProcess(arguments: Seq[String], client: Client) = new CompilationProcess {
+  def buildProcess(arguments: Seq[String], client: Client): CompilationProcess = new CompilationProcess {
     val COUNT = 10
 
     var callbacks: Seq[() => Unit] = Seq.empty

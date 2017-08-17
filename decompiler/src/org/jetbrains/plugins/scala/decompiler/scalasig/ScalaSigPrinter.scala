@@ -108,7 +108,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
           indent()
           printClass(level, c)
         case m: MethodSymbol =>
-          printMethod(level, m, indent)
+          printMethod(level, m, indent _)
         case a: AliasSymbol =>
           indent()
           printAlias(level, a)
