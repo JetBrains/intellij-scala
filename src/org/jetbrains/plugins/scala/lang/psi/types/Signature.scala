@@ -76,9 +76,13 @@ object TypeAliasSignature {
     typeAlias)
 }
 
-class Signature(val name: String, private val typesEval: List[Seq[() => ScType]], val paramLength: List[Int],
-                private val tParams: Seq[TypeParameter], val substitutor: ScSubstitutor,
-                val namedElement: PsiNamedElement, val hasRepeatedParam: Seq[Int] = Seq.empty) extends ProjectContextOwner {
+class Signature(val name: String,
+                private val typesEval: List[Seq[() => ScType]],
+                val paramLength: List[Int],
+                private val tParams: Seq[TypeParameter],
+                val substitutor: ScSubstitutor,
+                val namedElement: PsiNamedElement,
+                val hasRepeatedParam: Seq[Int] = Seq.empty) extends ProjectContextOwner {
 
   override implicit def projectContext: ProjectContext = namedElement
 
@@ -220,7 +224,7 @@ object Signature {
   )
 
   def setter(definition: ScTypedDefinition) = new Signature(
-    s"$definition.name_=",
+    s"${definition.name}_=",
     Seq(() => definition.getType().getOrAny),
     1,
     ScSubstitutor.empty,
