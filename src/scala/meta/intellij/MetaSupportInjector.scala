@@ -35,6 +35,8 @@ class MetaSupportInjector extends SyntheticMembersInjector {
     * @return if this source requires companion object
     */
   override def needsCompanionObject(source: ScTypeDefinition): Boolean = {
-    ScalaPsiUtil.getMetaCompanionObject(source).isDefined
+    import scala.meta.intellij.psiExt._
+
+    source.getMetaCompanionObject.isDefined
   }
 }

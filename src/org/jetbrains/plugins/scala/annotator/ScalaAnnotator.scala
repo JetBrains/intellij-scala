@@ -433,8 +433,9 @@ abstract class ScalaAnnotator extends Annotator
   }
 
   private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Unit = {
+    import scala.meta.intellij.psiExt._
     import ScalaProjectSettings.ScalaMetaMode
-    if (annotation.isMetaAnnotation) {
+    if (annotation.isMetaMacro) {
       if (!MetaExpansionsManager.isUpToDate(annotation)) {
         val warning = holder.createWarningAnnotation(annotation, ScalaBundle.message("scala.meta.recompile"))
         warning.registerFix(new RecompileAnnotationAction(annotation))

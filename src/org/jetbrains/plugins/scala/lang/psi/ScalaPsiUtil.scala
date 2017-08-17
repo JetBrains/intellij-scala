@@ -1138,17 +1138,6 @@ object ScalaPsiUtil {
       case _ => None
   }
 
-  def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[scala.meta.Defn.Object] = {
-
-    import scala.{meta => m}
-
-    ah.getMetaExpansion match {
-      case Left(_) => None
-      case Right(m.Term.Block(Seq(_: m.Defn, obj: m.Defn.Object))) => Some(obj)
-      case Right(_) => None
-    }
-  }
-
   // determines if an element can access other elements in a synthetic subtree that shadows
   // element's original(physical) subtree - e.g. physical method of some class referencing
   // a synthetic method of the same class

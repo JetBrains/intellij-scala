@@ -102,7 +102,7 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
     val annotClass: Option[ScClass] = for {
       ref <- annot.constructor.reference
       resolved <- ref.bind()
-      parent = resolved.parentElement.asInstanceOf[ScClass]
+      parent <- resolved.parentElement.map(_.asInstanceOf[ScClass])
     } yield parent
     val metaModule = annotClass.flatMap(_.module)
     val classLoader = metaModule
@@ -123,7 +123,7 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
 
 object MetaExpansionsManager {
 
-  val META_MAJOR_VERSION = "1.7"
+  val META_MAJOR_VERSION = "1.8"
 
   class MetaWrappedException(val target: Throwable) extends Exception
 
