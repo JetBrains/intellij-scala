@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
 import java.io.File
-import java.nio.file.Files
 
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.projectHighlighting.SeveralFilesHighlightingTest
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter
 import org.junit.experimental.categories.Category
 
 import scala.reflect.NameTransformer
@@ -18,20 +16,34 @@ import scala.reflect.NameTransformer
   * Nikolay.Tropin
   * 14-Aug-17
   */
-@Category(Array(classOf[PerfCycleTests]))
-class FailedScalacTests extends ScalaLightCodeInsightFixtureTestAdapter with SeveralFilesHighlightingTest {
+abstract class FailedScalacTestsBase extends ScalaLightCodeInsightFixtureTestAdapter with SeveralFilesHighlightingTest {
 
   override def getProject = super.getProject
 
-  override def filesToHighlight: Array[File] = {
-    val testDataDir = TestUtils.getTestDataPath + "/scalacTests/failed/"
+  def testDataDir: String = s"${TestUtils.getTestDataPath}/scalacTests/$testDirName/"
 
-    val fileName = getTestName(/*lowercaseFirstLetter*/ false).stripPrefix("_") + ".scala"
+  def testDirName: String
+
+  override def filesToHighlight: Array[File] = {
+
+    val fileName = getTestName(/*lowercaseFirstLetter*/ false).stripPrefix("_")
     val decoded = NameTransformer.decode(fileName)
-    val file = new File(testDataDir + decoded)
-    assert(file.exists())
-    Array(file)
+    val dirPath = testDataDir + decoded
+    val dir = new File(dirPath)
+    val file = new File(dirPath + ".scala")
+
+    if (dir.exists())
+      Array(dir)
+    else if (file.exists())
+      Array(file)
+    else throw new RuntimeException("No file exists")
   }
+}
+
+@Category(Array(classOf[PerfCycleTests]))
+class FailedScalacTests extends FailedScalacTestsBase {
+
+  def testDirName = "failed"
 
   override def librariesLoaders = Seq(
     ScalaLibraryLoader(isIncludeReflectLibrary = true),
@@ -44,6 +56,17 @@ class FailedScalacTests extends ScalaLightCodeInsightFixtureTestAdapter with Sev
 
   //Delete test method and move corresponding .scala file or directory to testdata/scalacTests/pos/ after test passes
 
+  def test_t2956(): Unit = doTest()
+  def test_t3943(): Unit = doTest()
+  def test_t4365(): Unit = doTest()
+  def test_t5545(): Unit = doTest()
+  def test_t6169(): Unit = doTest()
+  def `test_t7046-2`(): Unit = doTest()
+  def test_t7232c(): Unit = doTest()
+  def test_t7364b(): Unit = doTest()
+  def test_t7377(): Unit = doTest()
+  def test_t7688(): Unit = doTest()
+  def test_t8497(): Unit = doTest()
   def test_arrays2(): Unit = doTest()
   def test_arrays3(): Unit = doTest()
   def test_channels(): Unit = doTest()
@@ -61,13 +84,10 @@ class FailedScalacTests extends ScalaLightCodeInsightFixtureTestAdapter with Sev
   def test_hkgadt(): Unit = doTest()
   def `test_implicits-new`(): Unit = doTest()
   def `test_implicits-old`(): Unit = doTest()
-  def test_infersingle(): Unit = doTest()
   def test_infer_override_def_args(): Unit = doTest()
+  def test_infersingle(): Unit = doTest()
   def `test_javaConversions-2.10-ambiguity`(): Unit = doTest()
   def `test_javaConversions-2.10-regression`(): Unit = doTest()
-  def `test_macro-bundle-disambiguate-bundle`(): Unit = doTest()
-  def `test_macro-bundle-disambiguate-nonbundle`(): Unit = doTest()
-  def `test_macro-implicit-invalidate-on-error`(): Unit = doTest()
   def test_matthias4(): Unit = doTest()
   def `test_native-warning`(): Unit = doTest()
   def test_optmatch(): Unit = doTest()
@@ -91,13 +111,20 @@ class FailedScalacTests extends ScalaLightCodeInsightFixtureTestAdapter with Sev
   def test_sammy_twice(): Unit = doTest()
   def `test_scala-singleton`(): Unit = doTest()
   def `test_strip-tvars-for-lubbasetypes`(): Unit = doTest()
+  def test_t267(): Unit = doTest()
+  def test_t389(): Unit = doTest()
   def test_t0438(): Unit = doTest()
+  def test_t482(): Unit = doTest()
+  def test_t694(): Unit = doTest()
+  def test_t697(): Unit = doTest()
+  def test_t762(): Unit = doTest()
+  def test_t802(): Unit = doTest()
+  def test_t845(): Unit = doTest()
   def test_t1085(): Unit = doTest()
   def test_t1279a(): Unit = doTest()
   def test_t1803(): Unit = doTest()
   def test_t1957(): Unit = doTest()
   def test_t2293(): Unit = doTest()
-  def test_t267(): Unit = doTest()
   def `test_t2712-5`(): Unit = doTest()
   def test_t2913(): Unit = doTest()
   def test_t3177(): Unit = doTest()
@@ -105,10 +132,8 @@ class FailedScalacTests extends ScalaLightCodeInsightFixtureTestAdapter with Sev
   def test_t3688(): Unit = doTest()
   def test_t3866(): Unit = doTest()
   def test_t3880(): Unit = doTest()
-  def test_t389(): Unit = doTest()
   def test_t3999b(): Unit = doTest()
   def test_t4273(): Unit = doTest()
-  def test_t482(): Unit = doTest()
   def test_t4853(): Unit = doTest()
   def test_t4957(): Unit = doTest()
   def test_t5294c(): Unit = doTest()
@@ -117,6 +142,8 @@ class FailedScalacTests extends ScalaLightCodeInsightFixtureTestAdapter with Sev
   def test_t5444(): Unit = doTest()
   def test_t5626(): Unit = doTest()
   def test_t5683(): Unit = doTest()
+  def test_t5692a(): Unit = doTest()
+  def test_t5692b(): Unit = doTest()
   def test_t5706(): Unit = doTest()
   def test_t5729(): Unit = doTest()
   def test_t5845(): Unit = doTest()
@@ -126,25 +153,17 @@ class FailedScalacTests extends ScalaLightCodeInsightFixtureTestAdapter with Sev
   def test_t6084(): Unit = doTest()
   def test_t6205(): Unit = doTest()
   def test_t6221(): Unit = doTest()
-  def test_t6447(): Unit = doTest()
-  def test_t6516(): Unit = doTest()
   def test_t6675(): Unit = doTest()
   def test_t6778(): Unit = doTest()
   def test_t6846(): Unit = doTest()
-  def test_t694(): Unit = doTest()
-  def test_t697(): Unit = doTest()
   def test_t7228(): Unit = doTest()
   def test_t7517(): Unit = doTest()
   def test_t7520(): Unit = doTest()
-  def test_t762(): Unit = doTest()
   def test_t7649(): Unit = doTest()
   def test_t7668(): Unit = doTest()
-  def test_t7688(): Unit = doTest()
   def test_t7704(): Unit = doTest()
-  def test_t7776(): Unit = doTest()
   def test_t7944(): Unit = doTest()
   def `test_t8002-nested-scope`(): Unit = doTest()
-  def test_t802(): Unit = doTest()
   def test_t8044(): Unit = doTest()
   def test_t8079b(): Unit = doTest()
   def test_t8128(): Unit = doTest()
@@ -154,9 +173,7 @@ class FailedScalacTests extends ScalaLightCodeInsightFixtureTestAdapter with Sev
   def test_t8267(): Unit = doTest()
   def test_t8310(): Unit = doTest()
   def test_t8429(): Unit = doTest()
-  def test_t845(): Unit = doTest()
   def test_t8498(): Unit = doTest()
-  def test_t8523(): Unit = doTest()
   def test_t9008(): Unit = doTest()
   def test_t9116(): Unit = doTest()
   def test_t9449(): Unit = doTest()
@@ -168,4 +185,40 @@ class FailedScalacTests extends ScalaLightCodeInsightFixtureTestAdapter with Sev
   def `test_typerep-stephane`(): Unit = doTest()
   def test_virtpatmat_gadt_array(): Unit = doTest()
   def test_z1720(): Unit = doTest()
+}
+
+@Category(Array(classOf[PerfCycleTests]))
+class MacrosFailedScalacTests extends FailedScalacTestsBase {
+  override def testDirName = "macros"
+
+  def `test_annotated-original`(): Unit = doTest()
+  def `test_annotated-treecopy`(): Unit = doTest()
+  def `test_attachments-typed-another-ident`(): Unit = doTest()
+  def `test_attachments-typed-ident`(): Unit = doTest()
+  def `test_macro-attachments`(): Unit = doTest()
+  def test_t5744(): Unit = doTest()
+  def test_t6485a(): Unit = doTest()
+  def test_t6485b(): Unit = doTest()
+  def test_t7461(): Unit = doTest()
+  def test_t7516(): Unit = doTest()
+  def test_t8001(): Unit = doTest()
+  def test_t8013(): Unit = doTest()
+  def test_t8064(): Unit = doTest()
+  def test_t8064b(): Unit = doTest()
+  def test_t8209a(): Unit = doTest()
+  def test_t8209b(): Unit = doTest()
+  def test_t8352(): Unit = doTest()
+  def test_t8411(): Unit = doTest()
+  def test_t8719(): Unit = doTest()
+  def test_t8781(): Unit = doTest()
+  def test_t8934a(): Unit = doTest()
+  def test_t8947(): Unit = doTest()
+  def test_t9392(): Unit = doTest()
+  def `test_macro-implicit-invalidate-on-error`(): Unit = doTest()
+  def `test_macro-bundle-disambiguate-bundle`(): Unit = doTest()
+  def `test_macro-bundle-disambiguate-nonbundle`(): Unit = doTest()
+  def test_t7776(): Unit = doTest()
+  def test_t6516(): Unit = doTest()
+  def test_t8523(): Unit = doTest()
+  def test_t6447(): Unit = doTest()
 }
