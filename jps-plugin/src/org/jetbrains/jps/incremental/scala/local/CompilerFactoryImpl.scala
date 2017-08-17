@@ -47,10 +47,10 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 
   def getScalac(sbtData: SbtData, compilerJars: Option[CompilerJars], client: Client): Option[AnalyzingCompiler] = {
     getScalaInstance(compilerJars).map { scala =>
-    val compiledIntefaceJar = getOrCompileInterfaceJar(sbtData.interfacesHome, sbtData.sourceJar,
+    val compiledInterfaceJar = getOrCompileInterfaceJar(sbtData.interfacesHome, sbtData.sourceJar,
         sbtData.interfaceJar, scala, sbtData.javaClassVersion, Option(client))
 
-      IC.newScalaCompiler(scala, compiledIntefaceJar, ClasspathOptions.javac(compiler = false))
+      IC.newScalaCompiler(scala, compiledInterfaceJar, ClasspathOptions.javac(compiler = false))
     }
   }
 

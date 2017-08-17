@@ -15,7 +15,6 @@ import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
 import com.intellij.testFramework.{EdtTestUtil, ModuleTestCase, PsiTestUtil, VfsTestUtil}
-import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders._
@@ -58,8 +57,6 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
       LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
     }
 
-    //  protected def addRoots() {
-
     inWriteAction {
       val srcRoot = getOrCreateChildDir("src")
       PsiTestUtil.addSourceRoot(getModule, srcRoot, false)
@@ -68,7 +65,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
     }
   }
 
-  private def setCompilerVmOptions(options: String) = {
+  private def setCompilerVmOptions(options: String): Unit = {
     if (useCompileServer)
       ScalaCompileServerSettings.getInstance().COMPILE_SERVER_JVM_PARAMETERS = options
     else
@@ -87,22 +84,20 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
 
   override protected def getTestProjectJdk: Sdk = DebuggerTestUtil.findJdk8()
 
-  protected def forceFSRescan() = BuildManager.getInstance.clearState(myProject)
+  protected def forceFSRescan(): Unit = BuildManager.getInstance.clearState(myProject)
 
   protected override def tearDown() {
     EdtTestUtil.runInEdtAndWait {
-      new ThrowableRunnable[Throwable] {
-        def run() {
-          CompilerTestUtil.disableExternalCompiler(myProject)
-          CompileServerLauncher.instance.stop()
-          val baseDir = getBaseDir
+      () => {
+        CompilerTestUtil.disableExternalCompiler(myProject)
+        CompileServerLauncher.instance.stop()
+        val baseDir = getBaseDir
 
-          tearDownLibraries()
+        tearDownLibraries()
 
-          ScalaCompilerTestBase.super.tearDown()
+        ScalaCompilerTestBase.super.tearDown()
 
-          if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
-        }
+        if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
       }
     }
   }
@@ -111,14 +106,12 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
     val semaphore: Semaphore = new Semaphore
     semaphore.down()
     val callback = new ErrorReportingCallback(semaphore)
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      def run() {
-        CompilerTestUtil.saveApplicationSettings()
-        val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
-        saveProject()
-        assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
-        CompilerManager.getInstance(getProject).rebuild(callback)
-      }
+    EdtTestUtil.runInEdtAndWait(() => {
+      CompilerTestUtil.saveApplicationSettings()
+      val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
+      saveProject()
+      assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
+      CompilerManager.getInstance(getProject).rebuild(callback)
     })
     val maxCompileTime = 6000
     var i = 0
