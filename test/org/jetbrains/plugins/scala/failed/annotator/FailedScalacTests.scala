@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.projectHighlighting.SeveralFilesHighlightingTest
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter
 import org.junit.experimental.categories.Category
 
 import scala.reflect.NameTransformer
@@ -19,6 +20,8 @@ import scala.reflect.NameTransformer
 abstract class FailedScalacTestsBase extends ScalaLightCodeInsightFixtureTestAdapter with SeveralFilesHighlightingTest {
 
   override def getProject = super.getProject
+
+  override val reporter = new ConsoleReporter
 
   def testDataDir: String = s"${TestUtils.getTestDataPath}/scalacTests/$testDirName/"
 

@@ -19,7 +19,7 @@ trait SeveralFilesHighlightingTest {
 
   def filesToHighlight: Array[File]
 
-  val reporter: ProgressReporter = new ConsoleReporter
+  val reporter: ProgressReporter
 
   def doTest(): Unit = {
     val files = filesToHighlight.filter(f => f.isDirectory || isScalaFile(f))
