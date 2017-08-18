@@ -257,11 +257,11 @@ case class ScExistentialType(quantified: ScType,
 
         new ScCompoundType(components, signatureMap.map {
           case (s, sctype) =>
-            val pTypes: List[Seq[() => ScType]] =
+            val pTypes: Seq[Seq[() => ScType]] =
               s.substitutedTypes.map(_.map(f => () => updateRecursive(f(), newSet, variance)))
             val tParams = s.typeParams.subst(updateTypeParam)
             val rt: ScType = updateRecursive(sctype, newSet, -variance)
-            (new Signature(s.name, pTypes, s.paramLength, tParams,
+            (new Signature(s.name, pTypes, tParams,
               ScSubstitutor.empty, s.namedElement match {
                 case fun: ScFunction =>
                   ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)

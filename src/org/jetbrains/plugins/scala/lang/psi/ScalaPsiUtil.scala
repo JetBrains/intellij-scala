@@ -906,7 +906,7 @@ object ScalaPsiUtil {
   }
 
   def namedElementSig(x: PsiNamedElement): Signature =
-    new Signature(x.name, Seq.empty, 0, ScSubstitutor.empty, x)
+    Signature(x.name, Seq.empty, ScSubstitutor.empty, x)
 
   def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[Signature] = {
     val empty = Seq.empty

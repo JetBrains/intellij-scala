@@ -143,7 +143,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
     }
   }
 
-  private def isEmpty: Boolean = (this eq ScSubstitutor.empty) || this == ScSubstitutor.empty
+  def isEmpty: Boolean = (this eq ScSubstitutor.empty) || this == ScSubstitutor.empty
 
   def subst(t: ScType): ScType = try {
     if (ScSubstitutor.cacheSubstitutions) ScSubstitutor.cache ++= this.tvMap
@@ -425,10 +425,10 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
         }
         val middleRes = ScCompoundType(comps.map(substInternal), signatureMap.map {
           case (s: Signature, tp: ScType) =>
-            val pTypes: List[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => substInternal(f())))
+            val pTypes: Seq[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => substInternal(f())))
             val tParams = s.typeParams.subst(substTypeParam)
             val rt: ScType = substInternal(tp)
-            (new Signature(s.name, pTypes, s.paramLength, tParams,
+            (new Signature(s.name, pTypes, tParams,
               ScSubstitutor.empty, s.namedElement match {
                 case fun: ScFunction =>
                   ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)

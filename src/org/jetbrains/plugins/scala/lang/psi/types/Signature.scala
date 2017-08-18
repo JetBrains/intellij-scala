@@ -77,8 +77,7 @@ object TypeAliasSignature {
 }
 
 class Signature(val name: String,
-                private val typesEval: List[Seq[() => ScType]],
-                val paramLength: List[Int],
+                private val typesEval: Seq[Seq[() => ScType]],
                 private val tParams: Seq[TypeParameter],
                 val substitutor: ScSubstitutor,
                 val namedElement: PsiNamedElement,
@@ -86,13 +85,9 @@ class Signature(val name: String,
 
   override implicit def projectContext: ProjectContext = namedElement
 
-  def this(name: String, stream: Seq[() => ScType], paramLength: Int, substitutor: ScSubstitutor,
-           namedElement: PsiNamedElement) =
-    this(name, List(stream), List(paramLength), Seq.empty, substitutor, namedElement)
+  val paramLength: Seq[Int] = typesEval.map(_.length)
 
-  private def types: List[Seq[() => ScType]] = typesEval
-
-  def substitutedTypes: List[Seq[() => ScType]] = types.map(_.map(f => () => substitutor.subst(f()).unpackedType))
+  def substitutedTypes: Seq[Seq[() => ScType]] = typesEval.map(_.map(f => () => substitutor.subst(f()).unpackedType))
 
   def typeParams: Seq[TypeParameter] = tParams.map(_.update(substitutor.subst))
 
@@ -205,29 +200,37 @@ class Signature(val name: String,
 }
 
 object Signature {
-  def apply(function: ScFunction) = new Signature(
-    function.name,
-    PhysicalSignature.typesEval(function),
-    PhysicalSignature.paramLength(function),
-    function.getTypeParameters.instantiate,
-    ScSubstitutor.empty,
-    function,
-    PhysicalSignature.hasRepeatedParam(function)
-  )
 
-  def getter(definition: ScTypedDefinition) = new Signature(
-    definition.name,
-    Seq.empty,
-    0,
-    ScSubstitutor.empty,
-    definition
-  )
+  def apply(name: String, paramTypes: Seq[() => ScType], substitutor: ScSubstitutor, namedElement: PsiNamedElement): Signature =
+    new Signature(name, List(paramTypes), Seq.empty, substitutor, namedElement)
 
-  def setter(definition: ScTypedDefinition) = new Signature(
+  def apply(definition: PsiNamedElement, substitutor: ScSubstitutor = ScSubstitutor.empty): Signature = definition match {
+    case function: ScFunction =>
+      new Signature(
+        function.name,
+        PhysicalSignature.typesEval(function),
+        function.getTypeParameters.instantiate,
+        substitutor,
+        function,
+        PhysicalSignature.hasRepeatedParam(function)
+      )
+    case _ =>
+      new Signature(
+        definition.name,
+        Seq.empty,
+        Seq.empty,
+        substitutor,
+        definition
+      )
+  }
+
+  def withoutParams(name: String, subst: ScSubstitutor, namedElement: PsiNamedElement): Signature =
+    Signature(name, Seq.empty, subst, namedElement)
+
+  def setter(definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty) = Signature(
     s"${definition.name}_=",
     Seq(() => definition.getType().getOrAny),
-    1,
-    ScSubstitutor.empty,
+    subst,
     definition
   )
 
@@ -255,11 +258,6 @@ object PhysicalSignature {
     }))
   }
 
-  def paramLength(method: PsiMethod): List[Int] = method match {
-    case fun: ScFunction => fun.effectiveParameterClauses.map(_.effectiveParameters.length).toList
-    case _ => List(method.getParameterList.getParametersCount)
-  }
-
   def hasRepeatedParam(method: PsiMethod): Seq[Int] = {
     method.getParameterList match {
       case p: ScParameters =>
@@ -285,7 +283,13 @@ object PhysicalSignature {
 }
 
 class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
-        extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
-          method.getTypeParameters.instantiate, substitutor, method, PhysicalSignature.hasRepeatedParam(method)) {
+        extends Signature(
+          method.name,
+          PhysicalSignature.typesEval(method),
+          method.getTypeParameters.instantiate,
+          substitutor,
+          method,
+          PhysicalSignature.hasRepeatedParam(method)) {
+
   override def isJava: Boolean = method.getLanguage == JavaFileType.INSTANCE.getLanguage
 }
