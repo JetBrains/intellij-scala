@@ -7,6 +7,7 @@ import com.intellij.formatting._
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiComment
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -227,7 +228,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNoneIndent
         }
       case _: ScBlock => Indent.getNoneIndent
-      case _: ScEnumerators => Indent.getNormalIndent
+      case enum: ScEnumerators => if (enum.getPrevSibling != null) Indent.getNoneIndent else Indent.getNormalIndent
       case _: ScExtendsBlock if child.getElementType != TEMPLATE_BODY => Indent.getContinuationIndent
       case _: ScExtendsBlock if settings.CLASS_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
         settings.CLASS_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
@@ -263,6 +264,9 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScDocComment => Indent.getNoneIndent
       case _ if node.getElementType == ScalaTokenTypes.kEXTENDS && child.getElementType != ScalaTokenTypes.kEXTENDS =>
         Indent.getContinuationIndent() //this is here to not break whatever processing there is before
+      case leaf: LeafPsiElement if (node.getElementType == ScalaTokenTypes.tLBRACE && child.getElementType != ScalaTokenTypes.tRBRACE ||
+        node.getElementType == ScalaTokenTypes.tLPARENTHESIS && child.getElementType != ScalaTokenTypes.tRPARENTHESIS) &&
+        leaf.getNextSiblingNotWhitespaceComment.isInstanceOf[ScEnumerators]  => Indent.getNormalIndent
       case _ => Indent.getNoneIndent
     }
   }

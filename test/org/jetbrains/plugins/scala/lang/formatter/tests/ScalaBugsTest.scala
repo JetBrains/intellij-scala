@@ -931,7 +931,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     val after =
       """
         |val x = for {
-        |//Comment
+        |  //Comment
         |  x <- Nil
         |} yield {
         |  x
@@ -2734,6 +2734,22 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  y,
         |  { case (_, i) ⇒ i }
         |)
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL12258(): Unit = {
+    val before =
+      """
+        |
+        |object Foo {
+        |  for {
+        |    // take first
+        |    fst <- Some(4)
+        |    // take second
+        |    snd <- Some(2)
+        |  } println(s"${fst}${snd}")
+        |}
       """.stripMargin
     doTextTest(before)
   }
