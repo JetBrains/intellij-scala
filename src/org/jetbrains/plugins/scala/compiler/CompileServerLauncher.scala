@@ -4,9 +4,11 @@ package compiler
 import java.io.{File, IOException}
 import javax.swing.event.HyperlinkEvent
 
+import com.intellij.ide.plugins.{PluginManager, IdeaPluginDescriptor}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
@@ -85,6 +87,14 @@ class CompileServerLauncher extends ApplicationComponent {
     }
   }
 
+  private def compilerServerAddtionalCP(): Seq[File] = for {
+    extension <- NailgunServerAdditionalCp.EP_NAME.getExtensions
+    filesPath <- extension.getClasspath.split(";")
+    pluginId: PluginId = extension.getPluginDescriptor.getPluginId
+    plugin: IdeaPluginDescriptor = PluginManager.getPlugin(pluginId)
+    pluginsLibs = new File(plugin.getPath, "lib")
+  } yield new File(pluginsLibs, filesPath)
+
   private def start(project: Project, jdk: JDK): Either[String, Process] = {
     import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.{compilerJars, jvmParameters}
 
@@ -95,7 +105,9 @@ class CompileServerLauncher extends ApplicationComponent {
         val bootclasspathArg =
           if (bootClassPathLibs.isEmpty) Nil
           else Seq("-Xbootclasspath/a:" + bootClassPathLibs.mkString(File.pathSeparator))
-        val classpath = (jdk.tools +: presentFiles).map(_.canonicalPath).mkString(File.pathSeparator)
+        val classpath = (jdk.tools +: (presentFiles ++ compilerServerAddtionalCP()))
+          .map(_.canonicalPath)
+          .mkString(File.pathSeparator)
         val settings = ScalaCompileServerSettings.getInstance
 
         val freePort = CompileServerLauncher.findFreePort
@@ -178,6 +190,7 @@ object CompileServerLauncher {
       utilJar,
       trove4jJar,
       new File(pluginRoot, "scala-library.jar"),
+      new File(pluginRoot, "scala-reflect.jar"),
       new File(pluginRoot, "scala-nailgun-runner.jar"),
       new File(pluginRoot, "compiler-settings.jar"),
       new File(jpsRoot, "nailgun.jar"),

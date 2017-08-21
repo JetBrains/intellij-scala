@@ -485,7 +485,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
       """
         |package inheritance
         |
-        |class Аf extends R
+        |class ?f extends R
       """.stripMargin
 
     val javaCode =

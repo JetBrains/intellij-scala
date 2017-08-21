@@ -14,10 +14,7 @@ import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.ui.AnActionButton;
-import com.intellij.ui.ColoredTreeCellRenderer;
-import com.intellij.ui.IdeBorderFactory;
-import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.*;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.treeStructure.Tree;
@@ -157,6 +154,9 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     JPanel settingsComponent = mySettingsPanel.getComponent();
     settingsComponent.setBorder(IdeBorderFactory.createEmptyBorder(0, 6, 0, 0));
     splitter.setSecondComponent(settingsComponent);
+
+    final TreeSpeedSearch search = new TreeSpeedSearch(myTree);
+    search.setComparator(new SpeedSearchComparator(false));
   }
 
   public void initProfiles(ScalaCompilerSettingsProfile defaultProfile, Collection<ScalaCompilerSettingsProfile> moduleProfiles) {

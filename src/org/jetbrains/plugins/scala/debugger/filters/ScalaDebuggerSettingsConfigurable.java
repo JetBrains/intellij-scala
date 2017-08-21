@@ -29,6 +29,8 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
   private JCheckBox dontShowRuntimeRefs;
   private JCheckBox doNotExpandStreamsCheckBox;
   private JCheckBox showOuterVariables;
+  private JCheckBox forceClassPrepareRequestsForNestedTypes;
+  private JCheckBox forcePositionLookupInNestedTypes;
   private boolean isModified = false;
   private final ScalaDebuggerSettings mySettings;
 
@@ -49,6 +51,8 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
       }
     });
     showOuterVariables.setSelected(settings.SHOW_VARIABLES_FROM_OUTER_SCOPES);
+    forceClassPrepareRequestsForNestedTypes.setSelected(settings.FORCE_CLASS_PREPARE_REQUESTS_FOR_NESTED_TYPES);
+    forcePositionLookupInNestedTypes.setSelected(settings.FORCE_POSITION_LOOKUP_IN_NESTED_TYPES);
   }
 
   @Nls
@@ -81,7 +85,9 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
         mySettings.DONT_SHOW_RUNTIME_REFS != dontShowRuntimeRefs.isSelected() ||
         mySettings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS != myIgnoreScalaMethods.isSelected() ||
         mySettings.DO_NOT_DISPLAY_STREAMS != doNotExpandStreamsCheckBox.isSelected() ||
-        mySettings.SHOW_VARIABLES_FROM_OUTER_SCOPES != showOuterVariables.isSelected();
+        mySettings.SHOW_VARIABLES_FROM_OUTER_SCOPES != showOuterVariables.isSelected() ||
+        mySettings.FORCE_CLASS_PREPARE_REQUESTS_FOR_NESTED_TYPES != forceClassPrepareRequestsForNestedTypes.isSelected() ||
+        mySettings.FORCE_POSITION_LOOKUP_IN_NESTED_TYPES != forcePositionLookupInNestedTypes.isSelected();
   }
 
   public void apply() throws ConfigurationException {
@@ -92,6 +98,8 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
     mySettings.COLLECTION_END_INDEX = (Integer) myEndIndexSpinner.getValue();
     mySettings.DO_NOT_DISPLAY_STREAMS = doNotExpandStreamsCheckBox.isSelected();
     mySettings.SHOW_VARIABLES_FROM_OUTER_SCOPES = showOuterVariables.isSelected();
+    mySettings.FORCE_CLASS_PREPARE_REQUESTS_FOR_NESTED_TYPES = forceClassPrepareRequestsForNestedTypes.isSelected();
+    mySettings.FORCE_POSITION_LOOKUP_IN_NESTED_TYPES = forcePositionLookupInNestedTypes.isSelected();
   }
 
   public void reset() {
@@ -118,13 +126,13 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
    */
   private void $$$setupUI$$$() {
     myPanel = new JPanel();
-    myPanel.setLayout(new GridLayoutManager(7, 3, new Insets(0, 0, 0, 0), -1, -1));
+    myPanel.setLayout(new GridLayoutManager(9, 3, new Insets(0, 0, 0, 0), -1, -1));
     myIgnoreScalaMethods = new JCheckBox();
     myIgnoreScalaMethods.setSelected(false);
     this.$$$loadButtonText$$$(myIgnoreScalaMethods, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.debug.disable.specific.methods"));
     myPanel.add(myIgnoreScalaMethods, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer1 = new Spacer();
-    myPanel.add(spacer1, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    myPanel.add(spacer1, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     friendlyDisplayOfScalaCheckBox = new JCheckBox();
     this.$$$loadButtonText$$$(friendlyDisplayOfScalaCheckBox, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("friendly.collection.display.enabled"));
     myPanel.add(friendlyDisplayOfScalaCheckBox, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -160,6 +168,12 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
     showOuterVariables = new JCheckBox();
     this.$$$loadButtonText$$$(showOuterVariables, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("show.variables.from.outer.scopes.in.variables.view"));
     myPanel.add(showOuterVariables, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    forceClassPrepareRequestsForNestedTypes = new JCheckBox();
+    this.$$$loadButtonText$$$(forceClassPrepareRequestsForNestedTypes, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("force.class.prepare.request.for.nested.types"));
+    myPanel.add(forceClassPrepareRequestsForNestedTypes, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    forcePositionLookupInNestedTypes = new JCheckBox();
+    this.$$$loadButtonText$$$(forcePositionLookupInNestedTypes, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("force.position.lookup.in.nested.types"));
+    myPanel.add(forcePositionLookupInNestedTypes, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
   }
 
   /**

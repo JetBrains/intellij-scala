@@ -30,6 +30,7 @@ object ScalaBuilder {
   def compile(context: CompileContext,
               chunk: ModuleChunk,
               sources: Seq[File],
+              allSources: Seq[File],
               modules: Set[JpsModule],
               client: Client): Either[String, ModuleLevelBuilder.ExitCode] = {
 
@@ -38,7 +39,7 @@ object ScalaBuilder {
     for {
       sbtData <-  sbtData
       compilerData <- CompilerData.from(context, chunk)
-      compilationData <- CompilationData.from(sources, context, chunk)
+      compilationData <- CompilationData.from(sources, allSources, context,  chunk)
     }
     yield {
       scalaLibraryWarning(modules, compilationData, client)
@@ -172,7 +173,9 @@ object ScalaBuilder {
     val hasScalaFacet = modules.exists(SettingsManager.hasScalaSdk)
     val hasScalaLibrary = compilationData.classpath.exists(_.getName.startsWith("scala-library"))
 
-    if (hasScalaFacet && !hasScalaLibrary) {
+    val hasScalaSources = compilationData.sources.exists(_.getName.endsWith(".scala"))
+
+    if (hasScalaFacet && !hasScalaLibrary && hasScalaSources) {
       val names = modules.map(_.getName).mkString(", ")
       client.warning("No 'scala-library*.jar' in module dependencies [%s]".format(names))
     }

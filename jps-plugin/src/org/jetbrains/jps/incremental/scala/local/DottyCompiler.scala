@@ -7,9 +7,8 @@ import com.martiansoftware.nailgun.ThreadLocalPrintStream
 import dotty.tools.dotc.interfaces._
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerJars}
-import sbt.ClasspathOptions
-import sbt.compiler.CompilerArguments
-import xsbti.compile.ScalaInstance
+import sbt.internal.inc.CompilerArguments
+import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
 
 import scala.collection.mutable
 import scala.language.implicitConversions
@@ -19,7 +18,7 @@ import scala.language.implicitConversions
   */
 class DottyCompiler(scalaInstance: ScalaInstance, compilerJars: CompilerJars) extends Compiler {
   override def compile(compilationData: CompilationData, client: Client): Unit = {
-    val cArgs = new CompilerArguments(scalaInstance, ClasspathOptions.javac(compiler = false))
+    val cArgs = new CompilerArguments(scalaInstance, ClasspathOptionsUtil.javac(/*compiler =*/ false))
     val args: Array[String] =
       cArgs(compilationData.sources, compilationData.classpath,
         Some(compilationData.output), compilationData.scalaOptions).toArray

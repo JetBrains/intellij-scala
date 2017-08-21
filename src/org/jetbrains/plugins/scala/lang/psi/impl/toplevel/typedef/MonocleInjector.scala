@@ -13,7 +13,7 @@ class MonocleInjector extends SyntheticMembersInjector {
       // Monocle lenses generation
       case obj: ScObject =>
         obj.fakeCompanionClassOrCompanionClass match {
-          case clazz: ScClass if clazz.findAnnotation("monocle.macros.Lenses") != null => mkLens(obj)
+          case clazz: ScClass if clazz.findAnnotationNoAliases("monocle.macros.Lenses") != null => mkLens(obj)
           case _ => Seq.empty
         }
       case _ => Seq.empty
@@ -24,7 +24,7 @@ class MonocleInjector extends SyntheticMembersInjector {
     val buffer = new ArrayBuffer[String]
     val clazz = obj.fakeCompanionClassOrCompanionClass.asInstanceOf[ScClass]
     val fields = clazz.allVals.collect({ case (f: ScClassParameterImpl, _) => f }).filter(_.isCaseClassVal)
-    val prefix = Option(clazz.findAnnotation("monocle.macros.Lenses").findAttributeValue("value")) match {
+    val prefix = Option(clazz.findAnnotationNoAliases("monocle.macros.Lenses").findAttributeValue("value")) match {
       case Some(literal: ScLiteralImpl) => literal.getValue.toString
       case _ => ""
     }

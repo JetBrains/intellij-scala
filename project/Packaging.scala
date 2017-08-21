@@ -52,7 +52,7 @@ object Packaging {
   }
 
   private def convertEntry(entry: PackageEntry, resolvedLibraries: Map[ModuleID, File]): (File, String) =
-    entry match {
+    try entry match {
       case Directory(source, destination) =>
         source -> destination
       case Artifact(source, destination) =>
@@ -62,6 +62,10 @@ object Packaging {
       case Library(libraryId, destination) =>
         val libKey = libraryId.organization % libraryId.name % libraryId.revision
         resolvedLibraries(libKey) -> destination
+    } catch {
+      case e =>
+        println(resolvedLibraries)
+        throw e
     }
 
   private def mergeIntoTemporaryJar(filesToMerge: File*): File =

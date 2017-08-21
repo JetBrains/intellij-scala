@@ -388,7 +388,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           vmParams = PathMacroManager.getInstance(module).expandPath(vmParams)
         }
 
-        params.setEnv(getEnvVariables)
+        val mutableEnvVariables = new mutable.HashMap[String, String]() ++ getEnvVariables
+        params.setEnv(mutableEnvVariables)
 
         //expand environment variables in vmParams
         for (entry <- params.getEnv.entrySet) {

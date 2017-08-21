@@ -72,21 +72,24 @@ object Dependencies {
   val scalariform_2_11 = "org.scalariform" % "scalariform_2.11" % "0.1.7"
   val macroParadise = "org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full
 
+  val zincVersion = "1.0.0"
+
   val nailgun = "org.jetbrains" % "nailgun-patched" % "1.0.0"
-  val compilerInterfaceSources = "org.jetbrains" % "compiler-interface-sources" % "1.0.0"
+  val compilerBridgeSources =  "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
   val bundledJline = "org.jetbrains" % "jline" % "1.0.0"
-  val incrementalCompiler = "org.jetbrains" % "incremental-compiler" % "1.0.0"
-  val sbtInterface = "org.jetbrains" % "sbt-interface" % "1.0.0"
+  val zinc = "org.scala-sbt" %% "zinc" % zincVersion
+  val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
+  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.0.0-M27"
 }
 
 object DependencyGroups {
   import Dependencies._
 
   val sbtBundled = Seq(
-    compilerInterfaceSources,
+    zinc,
+    zincInterface,
     bundledJline,
-    incrementalCompiler,
-    sbtInterface
+    compilerBridgeSources
   )
 
   val plexusContainer = Seq(
