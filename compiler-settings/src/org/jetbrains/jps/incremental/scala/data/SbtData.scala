@@ -11,7 +11,8 @@ import org.jetbrains.jps.incremental.scala._
 /**
  * @author Pavel Fatin
  */
-case class SbtData(interfaceJar: File,
+case class SbtData(sbtInterfaceJar: File,
+                   compilerInterfaceJar: File,
                    sourceJar: File,
                    interfacesHome: File,
                    javaClassVersion: String)
@@ -36,20 +37,25 @@ object SbtData {
 
         files.find(_.getName == "sbt-interface.jar")
           .toRight("No 'sbt-interface.jar' in SBT home directory")
-          .flatMap { interfaceJar =>
+          .flatMap { sbtInterfaceJar =>
 
-          files.find(_.getName == "compiler-interface-sources.jar")
-            .toRight("No 'compiler-interface-sources.jar' in SBT home directory")
-            .flatMap { sourceJar =>
+          files.find(_.getName == "compiler-interface.jar")
+            .toRight("No 'compiler-interface.jar' in SBT home directory")
+            .flatMap { compilerInterfaceJar =>
 
-            readSbtVersionFrom(classLoader)
-              .toRight("Unable to read SBT version from JVM classpath")
-              .map { sbtVersion =>
+            files.find(_.getName == "compiler-interface-sources.jar")
+              .toRight("No 'compiler-interface-sources.jar' in SBT home directory")
+              .flatMap { sourceJar =>
 
-              val checksum = DatatypeConverter.printHexBinary(md5(sourceJar))
-              val interfacesHome = new File(compilerInterfacesDir, sbtVersion + "-idea-" + checksum)
+              readSbtVersionFrom(classLoader)
+                .toRight("Unable to read SBT version from JVM classpath")
+                .map { sbtVersion =>
 
-              new SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
+                val checksum = DatatypeConverter.printHexBinary(md5(sourceJar))
+                val interfacesHome = new File(compilerInterfacesDir, sbtVersion + "-idea-" + checksum)
+
+                new SbtData(sbtInterfaceJar, compilerInterfaceJar, sourceJar, interfacesHome, javaClassVersion)
+              }
             }
           }
         }

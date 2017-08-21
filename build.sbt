@@ -254,10 +254,12 @@ lazy val pluginPackagerCommunity =
           "lib/jps/scala-jps-plugin.jar"),
         Library(nailgun,
           "lib/jps/nailgun.jar"),
-        Library(compilerInterfaceSources,
+        Library(Dependencies.compilerBridgeSources,
           "lib/jps/compiler-interface-sources.jar"),
-        Library(incrementalCompiler,
+        Artifact((assembly in repackagedZinc).value,
           "lib/jps/incremental-compiler.jar"),
+        Library(Dependencies.zincInterface,
+          "lib/jps/compiler-interface.jar"),
         Library(sbtInterface,
           "lib/jps/sbt-interface.jar"),
         Library(bundledJline,
@@ -326,6 +328,16 @@ lazy val pluginCompressorCommunity =
     }
   )
 
+lazy val repackagedZinc =
+  newProject("repackagedZinc")
+  .settings(
+    assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
+    libraryDependencies += Dependencies.zinc
+  )
+
+TaskKey[Unit]("buildDevPlugin") := {
+  (packageBin in (scalaDevPlugin, Compile)).value
+}
 
 updateIdea := {
   val baseDir = ideaBaseDirectory.value

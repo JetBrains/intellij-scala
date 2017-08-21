@@ -35,7 +35,7 @@ object Packaging {
     IO.zip(Seq((file, file.getName)), zipFile)
     zipFile
   }
-  
+
   def compressPackagedPlugin(source: File, destination: File): Unit =
     IO.zip((source.getParentFile ***) pair (relativeTo(source.getParentFile), false), destination)
 

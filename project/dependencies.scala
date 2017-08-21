@@ -4,6 +4,7 @@ object Versions {
   val scalaVersion: String = Scala.latest_2_11
   val scalaBinaryVersion: String = Scala.binary_2_11
   val sbtVersion: String = Sbt.latest
+  val zincVersion = "1.0.0"
   val ideaVersion = "172.3757.52"
   val sbtStructureVersion: String = "7.0.0+61-051fb9ba"
   val sbtIdeaShellVersion: String = "1.2+7-625c26bc"
@@ -94,11 +95,10 @@ object Dependencies {
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
-  val dottyInterface: ModuleID = "ch.epfl.lamp" % "dotty-interfaces" % "0.1.1-20170227-179a5d6-NIGHTLY"
-  val compilerInterfaceSources: ModuleID = "org.jetbrains" % "compiler-interface-sources" % "1.0.0"
-  val bundledJline: ModuleID = "org.jetbrains" % "jline" % "1.0.0"
-  val incrementalCompiler: ModuleID = "org.jetbrains" % "incremental-compiler" % "1.0.0"
-  val sbtInterface: ModuleID = "org.jetbrains" % "sbt-interface" % "1.0.0"
+  val compilerBridgeSources =  "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
+  val zinc = "org.scala-sbt" %% "zinc" % zincVersion
+  val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
+  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.0.0"
 
   private def sbtPluginDependency(module: ModuleID, sbtVersion: String): ModuleID =
     sbt.Defaults.sbtPluginExtra(module, sbtVersion, Sbt.scalaVersion(sbtVersion))
@@ -110,10 +110,9 @@ object DependencyGroups {
   import Versions._
 
   val sbtBundled = Seq(
-    compilerInterfaceSources,
-    bundledJline,
-    incrementalCompiler,
-    sbtInterface
+    zinc,
+    zincInterface,
+    compilerBridgeSources
   )
 
   val scalastyle: Seq[ModuleID] = Seq(

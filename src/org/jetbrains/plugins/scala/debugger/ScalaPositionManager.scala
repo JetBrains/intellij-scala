@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -52,6 +53,7 @@ import scala.util.Try
 class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager with LocationLineManager {
 
   protected[debugger] val caches = new ScalaPositionManagerCaches(debugProcess)
+  private val outerAndNestedTypePartsPattern = """([^\$]*)(\$.*)?""".r
   import caches._
 
   ScalaPositionManager.cacheInstance(this)
@@ -131,8 +133,12 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val foundWithPattern =
       if (namePatterns.isEmpty) Nil
       else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
+    val distinctExactClasses = exactClasses.distinct
+    val loadedNestedClasses = if (ScalaDebuggerSettings.getInstance().FORCE_POSITION_LOOKUP_IN_NESTED_TYPES)
+      getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
+    else Nil
 
-    (exactClasses ++ foundWithPattern).distinct.asJava
+    (distinctExactClasses ++ foundWithPattern ++ loadedNestedClasses).distinct.asJava
   }
 
   @NotNull
@@ -174,7 +180,22 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       notLocalEnclosingTypeDefinition(element)
     }
 
-    def createPrepareRequest(position: SourcePosition): ClassPrepareRequest = {
+    val forceForNestedTypes = ScalaDebuggerSettings.getInstance().FORCE_CLASS_PREPARE_REQUESTS_FOR_NESTED_TYPES
+    def createClassPrepareRequests(classPrepareRequestor: ClassPrepareRequestor,
+                                   classPreparePattern: String): Seq[ClassPrepareRequest] = {
+      val reqManager = debugProcess.getRequestsManager
+      val patternCoversNestedTypes = classPreparePattern.endsWith("*")
+      if (patternCoversNestedTypes || !forceForNestedTypes) {
+        List(reqManager.createClassPrepareRequest(classPrepareRequestor, classPreparePattern))
+      } else {
+        val nestedTypesSuffix = if (classPreparePattern.endsWith("$")) "*" else "$*"
+        val nestedTypesPattern = classPreparePattern + nestedTypesSuffix
+        List(reqManager.createClassPrepareRequest(classPrepareRequestor, classPreparePattern),
+          reqManager.createClassPrepareRequest(classPrepareRequestor, nestedTypesPattern))
+      }
+    }
+
+    def createPrepareRequests(position: SourcePosition): Seq[ClassPrepareRequest] = {
       val qName = new Ref[String](null)
       val waitRequestor = new Ref[ClassPrepareRequestor](null)
       inReadAction {
@@ -200,7 +221,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         waitRequestor.set(new ScalaPositionManager.MyClassPrepareRequestor(position, requestor))
       }
 
-      debugProcess.getRequestsManager.createClassPrepareRequest(waitRequestor.get, qName.get)
+      createClassPrepareRequests(waitRequestor.get, qName.get)
     }
 
     val file = position.getFile
@@ -209,7 +230,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val possiblePositions = inReadAction {
       positionsOnLine(file, position.getLine).map(SourcePosition.createFromElement)
     }
-    possiblePositions.map(createPrepareRequest).asJava
+    possiblePositions.flatMap(createPrepareRequests).asJava
   }
 
   private def throwIfNotScalaFile(file: PsiFile): Unit = {
@@ -638,6 +659,21 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
     val containingName = NameTransformer.encode(name.substring(0, index))
     classesByName(containingName).headOption.flatMap(findElementByReferenceType)
+  }
+
+  /**
+   * Retrieve potentially nested classes currently loaded to VM just by iterating all classes and taking into account
+   * the name mangling - instead of using VirtualMachineProxy's nestedTypes method (with caches etc.).
+   */
+  private def getNestedClasses(outerClasses: Seq[ReferenceType]) =
+    for {
+      outer <- outerClasses
+      nested <- debugProcess.getVirtualMachineProxy.allClasses().asScala
+      if outer != nested && extractOuterTypeName(nested.name) == outer.name
+    } yield nested
+
+  private def extractOuterTypeName(typeName: String) = typeName match {
+    case outerAndNestedTypePartsPattern(outerTypeName, _) => outerTypeName
   }
 }
 

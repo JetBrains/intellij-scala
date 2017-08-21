@@ -5,15 +5,18 @@ import java.io.{File, IOException}
 import java.util
 import java.util.Collections
 
-import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
+import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaModuleBuildTargetType}
 import org.jetbrains.jps.incremental.java.JavaBuilder
-import org.jetbrains.jps.incremental.scala.model.CompileOrder
+import org.jetbrains.jps.incremental.scala.model.{CompileOrder, CompilerSettings}
 import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
+import org.jetbrains.plugin.scala.compiler.NameHashing
 
 import scala.collection.JavaConverters._
+
+case class ZincData(allSources: Seq[File], compilationStartDate: Long, isCompile: Boolean)
 
 /**
  * @author Pavel Fatin
@@ -27,10 +30,14 @@ case class CompilationData(sources: Seq[File],
                            cacheFile: File,
                            outputToCacheMap: Map[File, File],
                            outputGroups: Seq[(File, File)],
-                           sbtIncOptions: Option[SbtIncrementalOptions])
+                           zincData: ZincData){
+  def allSourceFilesCount: Option[Int] = Some(zincData.allSources.size)
+}
 
 object CompilationData {
-  def from(sources: Seq[File], context: CompileContext, chunk: ModuleChunk): Either[String, CompilationData] = {
+  private val compilationStamp = System.nanoTime()
+
+  def from(sources: Seq[File], allSources: Seq[File], context: CompileContext, chunk: ModuleChunk): Either[String, CompilationData] = {
     val target = chunk.representativeTarget
     val module = target.getModule
 
@@ -43,8 +50,7 @@ object CompilationData {
 
     val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, true).asScala.toSeq
     val compilerSettings = SettingsManager.getProjectSettings(module.getProject).getCompilerSettings(chunk)
-    val noBootCp = if (CompilerData.needNoBootCp(chunk)) Nil else Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
-    val scalaOptions = noBootCp ++: compilerSettings.getCompilerOptions
+    val scalaOptions = scalaOptionsFor(compilerSettings, chunk)
     val order = compilerSettings.getCompileOrder
 
     createOutputToCacheMap(context).map { outputToCacheMap =>
@@ -71,8 +77,13 @@ object CompilationData {
 
       val canonicalSources = sources.map(_.getCanonicalFile)
 
+      val isCompile =
+        !JavaBuilderUtil.isCompileJavaIncrementally(context) &&
+          !JavaBuilderUtil.isForcedRecompilationAllJavaModules(context)
+
       CompilationData(canonicalSources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions,
-        order, cacheFile, relevantOutputToCacheMap, outputGroups, Some(compilerSettings.getSbtIncrementalOptions))
+        order, cacheFile, relevantOutputToCacheMap, outputGroups,
+        ZincData(allSources, compilationStamp, isCompile))
     }
   }
 
@@ -95,7 +106,13 @@ object CompilationData {
     }
   }
 
-  private def javaOptionsFor(context: CompileContext, chunk: ModuleChunk): Seq[String] = {
+  def scalaOptionsFor(compilerSettings: CompilerSettings, chunk: ModuleChunk): Array[String] = {
+    val noBootCp = if (CompilerData.needNoBootCp(chunk)) Nil else Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
+    val scalaOptions = noBootCp ++: compilerSettings.getCompilerOptions
+    scalaOptions
+  }
+
+  def javaOptionsFor(context: CompileContext, chunk: ModuleChunk): Seq[String] = {
     val compilerConfig = {
       val project = context.getProjectDescriptor.getProject
       JpsJavaExtensionService.getInstance.getOrCreateCompilerConfiguration(project)
@@ -144,7 +161,12 @@ object CompilationData {
       val paths = context.getProjectDescriptor.dataManager.getDataPaths
 
       for ((target, output) <- targetToOutput.toMap)
-      yield (output.getCanonicalFile, new File(paths.getTargetDataRoot(target).getCanonicalFile, "cache.dat"))
+      yield (
+        output.getCanonicalFile,
+        new File(
+          paths.getTargetDataRoot(target).getCanonicalFile,
+          s"cache-${target.getPresentableName}.zip")
+      )
     }
   }
 

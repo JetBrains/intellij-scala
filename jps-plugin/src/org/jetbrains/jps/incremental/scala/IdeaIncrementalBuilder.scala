@@ -87,7 +87,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     val scalaSources = sources.filter(_.getName.endsWith(".scala")).asJava
 
-    compile(context, chunk, sources, modules, client) match {
+    compile(context, chunk, sources, Seq.empty, modules, client) match {
       case Left(error) =>
         client.error(error)
         ExitCode.ABORT

@@ -5,6 +5,7 @@ import com.sun.jdi.{ClassType, ReferenceType}
 import org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.ui.ScalaFieldNameAdjuster.objectSuffix
+import org.jetbrains.plugins.scala.debugger.ui.ScalaFieldNameAdjuster.patternForTweakedNames
 
 import scala.collection.JavaConverters._
 
@@ -68,7 +69,7 @@ class ScalaFieldNameAdjuster extends NodeDescriptorNameAdjuster {
           name.takeWhile(_ != '$')
         else if (nameStartsWithFqn || isFieldFromTrait)
           lastPart(name)
-        else name
+        else name.stripSuffix("$impl")
     }
   }
 
