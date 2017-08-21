@@ -27,12 +27,12 @@ trait AllProjectHighlightingTest {
 
   def getProject: Project
 
+  protected def reporter: ProgressReporter
+
   implicit def projectContext: ProjectContext = getProject
 
   def doAllProjectHighlightingTest(): Unit = {
     import scala.collection.JavaConversions._
-
-    val reporter = ProgressReporter.newInstance
 
     val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, SourceFilterScope(getProject))
 

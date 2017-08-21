@@ -43,7 +43,7 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
     settings
   }
 
-  private val reporter = ProgressReporter.newInstance
+  protected val reporter = ProgressReporter.newInstance()
 
   override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 

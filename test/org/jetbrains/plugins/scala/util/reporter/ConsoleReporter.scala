@@ -5,6 +5,8 @@ import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.util.TextRange
 import org.junit.Assert
 
+import scala.collection.mutable.ArrayBuffer
+
 /**
   * @author mutcianm
   * @since 16.05.17.
@@ -33,11 +35,12 @@ class ConsoleReporter extends ProgressReporter {
     }
   }
 
-  protected var totalErrors = 0
+  protected val errorMessages = ArrayBuffer[String]()
 
   def reportError(fileName: String, range: TextRange, message: String) = {
-    totalErrors += 1
-    System.err.println(s"Error: $fileName${range.toString} - $message")
+    val errMessage = s"Error: $fileName${range.toString} - $message"
+    errorMessages += errMessage
+    System.err.println(errMessage)
   }
 
   def updateHighlightingProgress(percent: Int) = {
@@ -45,7 +48,9 @@ class ConsoleReporter extends ProgressReporter {
   }
 
   def reportResults() = {
-    Assert.assertTrue(s"Found $totalErrors errors", totalErrors == 0)
+    val totalErrors = errorMessages.size
+    val allMessages = errorMessages.mkString(s"Found $totalErrors errors\n\n", "\n", "")
+    Assert.assertTrue(allMessages, totalErrors == 0)
   }
 
   override val progressIndicator: ProgressIndicator = new TextBasedProgressIndicator
