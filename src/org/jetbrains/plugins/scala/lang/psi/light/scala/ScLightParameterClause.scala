@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
  * @author Alefas
  * @since 03/04/14.
  */
-class ScLightParameterClause(types: List[ScType], clause: ScParameterClause)
+class ScLightParameterClause(types: Seq[ScType], clause: ScParameterClause)
   extends LightElement(clause.getManager, clause.getLanguage) with ScParameterClause {
   override def isImplicit: Boolean = clause.isImplicit
 
