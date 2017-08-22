@@ -26,39 +26,23 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaMetaMode
 
 import scala.meta.intellij.MetaExpansionsManager
 
-class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
+abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
-  private type Marker = RelatedItemLineMarkerInfo[_ <: PsiElement]
-  private type Markers = util.Collection[_ >: Marker]
+  type Marker = RelatedItemLineMarkerInfo[_ <: PsiElement]
+  type Markers = util.Collection[_ >: Marker]
 
   override def collectNavigationMarkers(element: PsiElement, result: Markers): Unit = {
     if (ScalaProjectSettings.getInstance(element.getProject).getScalaMetaMode == ScalaMetaMode.Disabled) return
     if (element.getNode == null || element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER ) return
-    processElement(element).foreach(result.add)
-    createUndoExpansionMarkers(element, result)
+    getExpandMarker(element).foreach(result.add)
+    getUndoMarker(element).foreach(result.add)
   }
 
-  private def processElement(element: PsiElement): Option[Marker] = {
-    element.getParent match {
-      case holder: ScAnnotationsHolder =>
-        val metaAnnot: Option[ScAnnotation] = holder.annotations.find(_.isMetaAnnotation)
-        metaAnnot.map { annot =>
-          MetaExpansionsManager.getCompiledMetaAnnotClass(annot) match {
-            case Some(clazz) if MetaExpansionsManager.isUpToDate(annot, clazz) => createExpandLineMarker(annot.getFirstChild, annot)
-            case _                                                     => createNotCompiledLineMarker(annot.getFirstChild, annot)
-          }
-        }
-      case _ => None
-    }
-  }
+  protected def getExpandMarker(element: PsiElement): Option[Marker]
 
-  private def createExpandLineMarker(element: PsiElement, annot: ScAnnotation): Marker = {
-    newMarker(element, AllIcons.General.ExpandAllHover, ScalaBundle.message("scala.meta.expand")) { _=>
-      MacroExpandAction.expandMetaAnnotation(annot)
-    }
-  }
+  protected def getUndoMarker(element: PsiElement): Option[Marker]
 
-  private def createNotCompiledLineMarker(element: PsiElement, annot: ScAnnotation): Marker = {
+  protected def createNotCompiledLineMarker(element: PsiElement, annot: ScAnnotation): Marker = {
     import org.jetbrains.plugins.scala.project._
     newMarker(element, AllIcons.General.Help, ScalaBundle.message("scala.meta.recompile")) { elt =>
       CompilerManager.getInstance(elt.getProject).make(annot.constructor.reference.get.resolve().module.get,
@@ -71,7 +55,22 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
     }
   }
 
-  private def createUndoExpansionMarkers(element: PsiElement, result: Markers): Unit = {
+  protected def newMarker[T <: PsiElement, R](elem: T, icon: Icon, caption: String)(fun: T => R): Marker = {
+    new RelatedItemLineMarkerInfo[PsiElement](elem, new TextRange(elem.getTextRange.getStartOffset, elem.getTextRange.getStartOffset), icon, Pass.LINE_MARKERS,
+      new Function[PsiElement, String] {
+        def fun(param: PsiElement): String = caption
+      },
+      new GutterIconNavigationHandler[PsiElement] {
+        def navigate(mouseEvent: MouseEvent, elt: PsiElement): Unit = fun(elt.asInstanceOf[T])
+      },
+      GutterIconRenderer.Alignment.RIGHT, util.Arrays.asList[GotoRelatedItem]())
+  }
+
+  protected def newExpandMarker[T <: PsiElement, R](elem: T)(fun: T => R): Marker = {
+    newMarker(elem, AllIcons.General.ExpandAllHover, ScalaBundle.message("scala.meta.expand"))(fun)
+  }
+
+  protected def newUndoMarker[T](element: PsiElement): Marker = {
     val parent = element.getParent
 
     def undoExpansion(original: String, companion: Option[String] = None): Unit = {
@@ -86,26 +85,9 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
       parent.replace(newPsi)
 
     }
-
-    def mkUndoMarker(undoFunc: => Unit) = newMarker(element, AllIcons.Actions.Undo, "Undo macro expansion") { _ =>
-      inWriteAction(undoFunc)
+    val UndoExpansionData(original, savedCompanion) = parent.getCopyableUserData(MacroExpandAction.EXPANDED_KEY)
+    newMarker(element, AllIcons.Actions.Undo, "Undo macro expansion") { _ =>
+      inWriteAction(undoExpansion(original, savedCompanion))
     }
-
-    parent.getCopyableUserData(MacroExpandAction.EXPANDED_KEY) match {
-      case UndoExpansionData(original, savedCompanion) =>
-        result.add(mkUndoMarker(undoExpansion(original, savedCompanion)))
-      case _ =>
-    }
-  }
-
-  private def newMarker[T](elem: PsiElement, icon: Icon, caption: String)(fun: PsiElement => T): Marker = {
-    new RelatedItemLineMarkerInfo[PsiElement](elem, new TextRange(elem.getTextRange.getStartOffset, elem.getTextRange.getStartOffset), icon, Pass.LINE_MARKERS,
-      new Function[PsiElement, String] {
-        def fun(param: PsiElement): String = caption
-      },
-      new GutterIconNavigationHandler[PsiElement] {
-        def navigate(mouseEvent: MouseEvent, elt: PsiElement): Unit = fun(elt)
-      },
-      GutterIconRenderer.Alignment.RIGHT, util.Arrays.asList[GotoRelatedItem]())
   }
 }

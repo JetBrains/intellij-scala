@@ -65,15 +65,15 @@ case class ScCompoundType(components: Seq[ScType],
         def updateTypeParam: TypeParameter => TypeParameter = {
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(typeParameters.map(updateTypeParam),
-              lowerType.v.removeAbstracts,
-              upperType.v.removeAbstracts,
+              lowerType.removeAbstracts,
+              upperType.removeAbstracts,
               psiTypeParameter)
         }
 
-        val pTypes: List[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => f().removeAbstracts))
+        val pTypes: Seq[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => f().removeAbstracts))
         val tParams = s.typeParams.subst(updateTypeParam)
         val rt: ScType = tp.removeAbstracts
-        (new Signature(s.name, pTypes, s.paramLength, tParams,
+        (new Signature(s.name, pTypes, tParams,
           ScSubstitutor.empty, s.namedElement match {
             case fun: ScFunction =>
               ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)
@@ -89,20 +89,20 @@ case class ScCompoundType(components: Seq[ScType],
     def updateTypeParam: TypeParameter => TypeParameter = {
       case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
         TypeParameter(typeParameters.map(updateTypeParam),
-          lowerType.v.recursiveUpdateImpl(update, visited, isLazySubtype = true),
-          upperType.v.recursiveUpdateImpl(update, visited, isLazySubtype = true),
+          lowerType.recursiveUpdateImpl(update, visited, isLazySubtype = true),
+          upperType.recursiveUpdateImpl(update, visited, isLazySubtype = true),
           psiTypeParameter)
     }
 
     new ScCompoundType(components.map(_.recursiveUpdateImpl(update, visited)), signatureMap.map {
       case (s: Signature, tp) =>
 
-        val pTypes: List[Seq[() => ScType]] =
+        val pTypes: Seq[Seq[() => ScType]] =
           s.substitutedTypes.map(_.map(f => () => f().recursiveUpdateImpl(update, visited, isLazySubtype = true)))
         val tParams = s.typeParams.subst(updateTypeParam)
         val rt: ScType = tp.recursiveUpdateImpl(update, visited)
         (new Signature(
-          s.name, pTypes, s.paramLength, tParams, ScSubstitutor.empty, s.namedElement match {
+          s.name, pTypes, tParams, ScSubstitutor.empty, s.namedElement match {
             case fun: ScFunction =>
               ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)
             case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
@@ -123,18 +123,19 @@ case class ScCompoundType(components: Seq[ScType],
         def updateTypeParam: TypeParameter => TypeParameter = {
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(typeParameters.map(updateTypeParam),
-              lowerType.v.recursiveVarianceUpdateModifiable(newData, update, Covariant),
-              upperType.v.recursiveVarianceUpdateModifiable(newData, update, Covariant),
+              lowerType.recursiveVarianceUpdateModifiable(newData, update, Covariant),
+              upperType.recursiveVarianceUpdateModifiable(newData, update, Covariant),
               psiTypeParameter)
         }
-        new ScCompoundType(components.map(_.recursiveVarianceUpdateModifiable(newData, update, v)), signatureMap.map {
+
+        val updSignatureMap = signatureMap.map {
           case (s: Signature, tp) =>
             val tParams = s.typeParams.subst(updateTypeParam)
-            (new Signature(
-            s.name, s.substitutedTypes.map(_.map(f => () => f().recursiveVarianceUpdateModifiable(newData, update, Covariant))),
-            s.paramLength, tParams, ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam
-          ), tp.recursiveVarianceUpdateModifiable(newData, update, Covariant))
-        }, typesMap.map {
+            val paramTypes = s.substitutedTypes.map(_.map(f => () => f().recursiveVarianceUpdateModifiable(newData, update, Covariant)))
+            val updSignature = new Signature(s.name, paramTypes, tParams, ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam)
+            (updSignature, tp.recursiveVarianceUpdateModifiable(newData, update, Covariant))
+        }
+        new ScCompoundType(components.map(_.recursiveVarianceUpdateModifiable(newData, update, v)), updSignatureMap, typesMap.map {
           case (s, sign) => (s, sign.updateTypes(_.recursiveVarianceUpdateModifiable(newData, update, Covariant)))
         })
     }
@@ -225,14 +226,14 @@ object ScCompoundType {
         case fun: ScFunction => signatureMapVal += ((Signature(fun), fun.returnType.getOrAny))
         case varDecl: ScVariable =>
           signatureMapVal ++= varDecl.declaredElements.map {
-            e => (Signature.getter(e), e.getType().getOrAny)
+            e => (Signature(e), e.getType().getOrAny)
           }
           signatureMapVal ++= varDecl.declaredElements.map {
-            e => (Signature.setter(e), e.getType().getOrAny)
+            e => (Signature(e), e.getType().getOrAny)
           }
         case valDecl: ScValue =>
           signatureMapVal ++= valDecl.declaredElements.map {
-            e => (Signature.getter(e), e.getType().getOrAny)
+            e => (Signature(e), e.getType().getOrAny)
           }
       }
     }

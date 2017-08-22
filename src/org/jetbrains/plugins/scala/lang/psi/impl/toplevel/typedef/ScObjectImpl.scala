@@ -245,10 +245,11 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
   }
 
   override def desugaredElement: Option[ScTemplateDefinition] = {
+    import scala.meta.intellij.psiExt._
     import scala.meta.{Defn, Term, Tree}
 
     if (isDesugared) return None
-    val expansion: Option[Tree] = getMetaExpansion match {
+    val expansion: Option[Tree] = this.getMetaExpansion match {
       case Right(tree) => Some(tree)
       case _ => fakeCompanionClassOrCompanionClass match {
         case ah: ScAnnotationsHolder => ah.getMetaExpansion match {

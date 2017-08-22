@@ -468,8 +468,8 @@ object ScalaPsiUtil {
           case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(
               clearBadLinks(parameters),
-              hasBadLinks(lowerType.v, psiTypeParameter).getOrElse(Nothing),
-              hasBadLinks(upperType.v, psiTypeParameter).getOrElse(Any),
+              hasBadLinks(lowerType, psiTypeParameter).getOrElse(Nothing),
+              hasBadLinks(upperType, psiTypeParameter).getOrElse(Any),
               psiTypeParameter)
         }
 
@@ -589,7 +589,7 @@ object ScalaPsiUtil {
         case ScAbstractType(_, _, upper) =>
           collectParts(upper)
         case ScExistentialType(quant, _) => collectParts(quant)
-        case TypeParameterType(_, _, upper, _) => collectParts(upper.v)
+        case TypeParameterType(_, _, upper, _) => collectParts(upper)
         case _ =>
           tp.extractClassType match {
             case Some((clazz, subst)) =>
@@ -907,7 +907,7 @@ object ScalaPsiUtil {
   }
 
   def namedElementSig(x: PsiNamedElement): Signature =
-    new Signature(x.name, Seq.empty, 0, ScSubstitutor.empty, x)
+    Signature(x.name, Seq.empty, ScSubstitutor.empty, x)
 
   def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[Signature] = {
     val empty = Seq.empty
@@ -1137,17 +1137,6 @@ object ScalaPsiUtil {
       case definition: ScTypeDefinition =>
         definition.baseCompanionModule.orElse(definition.fakeCompanionModule)
       case _ => None
-  }
-
-  def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[scala.meta.Defn.Object] = {
-
-    import scala.{meta => m}
-
-    ah.getMetaExpansion match {
-      case Left(_) => None
-      case Right(m.Term.Block(Seq(_: m.Defn, obj: m.Defn.Object))) => Some(obj)
-      case Right(_) => None
-    }
   }
 
   // determines if an element can access other elements in a synthetic subtree that shadows

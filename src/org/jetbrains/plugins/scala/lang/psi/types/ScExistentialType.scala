@@ -156,9 +156,9 @@ case class ScExistentialType(quantified: ScType,
         var t = (true, undefinedSubst)
         while (iterator.hasNext) {
           val (w, tp) = iterator.next()
-          t = w.lower.equivInner(tp.lowerType.v, t._2, falseUndef)
+          t = w.lower.equivInner(tp.lowerType, t._2, falseUndef)
           if (!t._1) return (false, undefinedSubst)
-          t = w.upper.equivInner(tp.upperType.v, t._2, falseUndef)
+          t = w.upper.equivInner(tp.upperType, t._2, falseUndef)
           if (!t._1) return (false, undefinedSubst)
         }
         val polySubst = ScSubstitutor(poly.typeParameters.zip(wildcards).map{case (tp, wildcard) =>
@@ -223,8 +223,8 @@ case class ScExistentialType(quantified: ScType,
         case ScTypePolymorphicType(internalType, typeParameters) =>
           checkRecursive(internalType, rejected)
           typeParameters.foreach(tp => {
-            checkRecursive(tp.lowerType.v, rejected)
-            checkRecursive(tp.upperType.v, rejected)
+            checkRecursive(tp.lowerType, rejected)
+            checkRecursive(tp.upperType, rejected)
           })
         case _ =>
       }
@@ -250,18 +250,18 @@ case class ScExistentialType(quantified: ScType,
         def updateTypeParam: TypeParameter => TypeParameter = {
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(typeParameters.map(updateTypeParam),
-              updateRecursive(lowerType.v, newSet, variance),
-              updateRecursive(upperType.v, newSet, -variance),
+              updateRecursive(lowerType, newSet, variance),
+              updateRecursive(upperType, newSet, -variance),
               psiTypeParameter)
         }
 
         new ScCompoundType(components, signatureMap.map {
           case (s, sctype) =>
-            val pTypes: List[Seq[() => ScType]] =
+            val pTypes: Seq[Seq[() => ScType]] =
               s.substitutedTypes.map(_.map(f => () => updateRecursive(f(), newSet, variance)))
             val tParams = s.typeParams.subst(updateTypeParam)
             val rt: ScType = updateRecursive(sctype, newSet, -variance)
-            (new Signature(s.name, pTypes, s.paramLength, tParams,
+            (new Signature(s.name, pTypes, tParams,
               ScSubstitutor.empty, s.namedElement match {
                 case fun: ScFunction =>
                   ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)
@@ -346,8 +346,8 @@ case class ScExistentialType(quantified: ScType,
           typeParameters.map {
             case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
               TypeParameter(parameters, // todo: is it important here to update?
-                updateRecursive(lowerType.v, rejected, variance),
-                updateRecursive(upperType.v, rejected, variance),
+                updateRecursive(lowerType, rejected, variance),
+                updateRecursive(upperType, rejected, variance),
                 psiTypeParameter)
           })
       case _ => tp
@@ -426,7 +426,7 @@ case class ScExistentialType(quantified: ScType,
     def typeParamsDepth(typeParams: Seq[TypeParameterType]): Int = {
       typeParams.map {
         case typeParam =>
-          val boundsDepth = typeParam.lowerType.v.typeDepth.max(typeParam.upperType.v.typeDepth)
+          val boundsDepth = typeParam.lowerType.typeDepth.max(typeParam.upperType.typeDepth)
           if (typeParam.arguments.nonEmpty) {
             (typeParamsDepth(typeParam.arguments) + 1).max(boundsDepth)
           } else boundsDepth

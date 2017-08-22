@@ -11,9 +11,9 @@ import scala.collection.Seq
 sealed trait TypeParameterType extends ValueType with NamedType {
   val arguments: Seq[TypeParameterType]
 
-  val lowerType: Suspension
+  def lowerType: ScType
 
-  val upperType: Suspension
+  def upperType: ScType
 
   def psiTypeParameter: PsiTypeParameter
 
@@ -67,7 +67,7 @@ object TypeParameterType {
             upperType: ScType,
             psiTypeParameter: PsiTypeParameter): TypeParameterType = StrictTpt(arguments, lowerType, upperType, psiTypeParameter)
 
-  def unapply(tpt: TypeParameterType): Option[(Seq[TypeParameterType], Suspension, Suspension, PsiTypeParameter)] =
+  def unapply(tpt: TypeParameterType): Option[(Seq[TypeParameterType], ScType, ScType, PsiTypeParameter)] =
     Some(tpt.arguments, tpt.lowerType, tpt.upperType, tpt.psiTypeParameter)
 
 
@@ -76,25 +76,20 @@ object TypeParameterType {
 
     val arguments: Seq[TypeParameterType] = typeParameter.typeParameters.map(LazyTpt(_, maybeSubstitutor))
 
-    val lowerType: Suspension = lift(typeParameter.lowerType)
+    lazy val lowerType: ScType = lift(typeParameter.lowerType)
 
-    val upperType: Suspension = lift(typeParameter.upperType)
+    lazy val upperType: ScType = lift(typeParameter.upperType)
 
     def psiTypeParameter: PsiTypeParameter = typeParameter.psiTypeParameter
 
-    private def lift(s: Suspension): Suspension = maybeSubstitutor match {
-      case Some(substitutor) => Suspension(() => substitutor.subst(s.v))
-      case _ => s
+    private def lift(tp: ScType): ScType = maybeSubstitutor match {
+      case Some(s) => s.subst(tp)
+      case _ => tp
     }
   }
 
   private case class StrictTpt(arguments: Seq[TypeParameterType],
-                               lType: ScType,
-                               uType: ScType,
-                               psiTypeParameter: PsiTypeParameter) extends TypeParameterType {
-
-    override val lowerType: Suspension = Suspension(lType)
-
-    override val upperType: Suspension = Suspension(uType)
-  }
+                               override val lowerType: ScType,
+                               override val upperType: ScType,
+                               psiTypeParameter: PsiTypeParameter) extends TypeParameterType
 }

@@ -34,25 +34,4 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
   def constructor: ScConstructor = annotationExpr.constr
 
   def typeElement: ScTypeElement
-
-  def isMetaAnnotation: Boolean = {
-    def hasMetaAnnotation(results: Array[ResolveResult]) = results.map(_.getElement).exists {
-      case c: ScPrimaryConstructor => c.containingClass.isMetaAnnotatationImpl
-      case o: ScTypeDefinition => o.isMetaAnnotatationImpl
-      case _ => false
-    }
-    // do not resolve anything while the stubs are building to avoid deadlocks
-    if (ScStubElementType.isStubBuilding || DumbService.isDumb(getProject))
-      return false
-
-    constructor.reference.exists {
-      case stRef: ScStableCodeReferenceElementImpl =>
-        val processor = new ResolveProcessor(stRef.getKinds(incomplete = false), stRef, stRef.refName)
-        hasMetaAnnotation(stRef.doResolve(processor))
-      case _ => false
-    }
-  }
-
-  @volatile
-  var strip = false
 }

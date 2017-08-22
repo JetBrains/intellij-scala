@@ -6,6 +6,7 @@ import org.junit.Assert
 
 class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
   def testSCL10965(): Unit = {
+    import scala.meta.intellij.psiExt._
     compileMetaSource()
     myFixture.configureByText("Foo.scala",
       """
@@ -132,6 +133,7 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
   }
 
   def testSCL12104(): Unit = {
+    import scala.meta.intellij.psiExt._
     compileMetaSource(
       """
         |import scala.meta._

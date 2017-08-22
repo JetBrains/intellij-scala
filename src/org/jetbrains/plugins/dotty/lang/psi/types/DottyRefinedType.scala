@@ -28,8 +28,8 @@ object DottyRefinedType {
       case function: ScFunction => Seq(Signature(function))
       case variable: ScVariable =>
         val elements = variable.declaredElements
-        elements.map(Signature.getter) ++ elements.map(Signature.setter)
-      case value: ScValue => value.declaredElements.map(Signature.getter)
+        elements.map(Signature(_)) ++ elements.map(Signature.setter(_))
+      case value: ScValue => value.declaredElements.map(Signature(_))
     }.foldLeft(Set[Signature]())(_ ++ _)
 
     val typeAliasSignatures = refinement.types.map(TypeAliasSignature(_)).toSet

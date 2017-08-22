@@ -410,23 +410,23 @@ object InferUtil {
                 val nameAndId = tp.nameAndId
                 val lower = lMap.get(nameAndId) match {
                   case Some(_addLower) =>
-                    val substedLower = unSubst.subst(lowerType.v)
+                    val substedLower = unSubst.subst(lowerType)
                     val withParams = tryAddParameters(_addLower, typeParameters)
 
                     if (substedLower == _addLower || hasRecursiveTypeParams(substedLower)) withParams
                     else substedLower.lub(withParams)
                   case None =>
-                    unSubst.subst(lowerType.v)
+                    unSubst.subst(lowerType)
                 }
                 val upper = uMap.get(nameAndId) match {
                   case Some(_addUpper) =>
-                    val substedUpper = unSubst.subst(upperType.v)
+                    val substedUpper = unSubst.subst(upperType)
                     val withParams = tryAddParameters(_addUpper, typeParameters)
 
                     if (substedUpper == _addUpper || hasRecursiveTypeParams(substedUpper)) withParams
                     else substedUpper.glb(withParams)
                   case None =>
-                    unSubst.subst(upperType.v)
+                    unSubst.subst(upperType)
                 }
 
                 if (safeCheck && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
@@ -439,16 +439,16 @@ object InferUtil {
           } else {
             typeParams.foreach { tp =>
               val nameAndId = tp.nameAndId
-              if (un.names.contains(nameAndId) || tp.lowerType.v != Nothing) {
+              if (un.names.contains(nameAndId) || tp.lowerType != Nothing) {
                 //todo: add only one of them according to variance
-                if (tp.lowerType.v != Nothing) {
-                  val substedLowerType = unSubst.subst(tp.lowerType.v)
+                if (tp.lowerType != Nothing) {
+                  val substedLowerType = unSubst.subst(tp.lowerType)
                   if (!hasRecursiveTypeParams(substedLowerType)) {
                     un = un.addLower(nameAndId, substedLowerType, additional = true)
                   }
                 }
-                if (tp.upperType.v != Any) {
-                  val substedUpperType = unSubst.subst(tp.upperType.v)
+                if (tp.upperType != Any) {
+                  val substedUpperType = unSubst.subst(tp.upperType)
                   if (!hasRecursiveTypeParams(substedUpperType)) {
                     un = un.addUpper(nameAndId, substedUpperType, additional = true)
                   }
@@ -501,8 +501,8 @@ object InferUtil {
               }.map {
                 case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
                   TypeParameter(typeParameters, /* doesn't important here */
-                    sub.subst(lowerType.v),
-                    sub.subst(upperType.v),
+                    sub.subst(lowerType),
+                    sub.subst(upperType),
                     psiTypeParameter)
               })
             }

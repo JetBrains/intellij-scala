@@ -49,7 +49,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
-          val lower2 = substitutor.subst(tp2.lowerType.v)
+          val lower2 = substitutor.subst(tp2.lowerType)
           val lowerConformance =
             if (v == Covariant) lower1.conforms(lower2, undef)
             else lower2.conforms(lower1, undef)
@@ -58,7 +58,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
           undef = lowerConformance._2
 
           val upper1 = tp1.upperBound.getOrAny
-          val upper2 = substitutor.subst(tp2.upperType.v)
+          val upper2 = substitutor.subst(tp2.upperType)
           val upperConformance =
             if (v == Covariant) upper2.conforms(upper1, undef)
             else upper1.conforms(upper2, undef)
@@ -132,9 +132,10 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
         })
         val dcl: ScTypedDefinition = element.asInstanceOf[ScTypedDefinition]
         val isVar = dcl.isVar
-        if (!checkSignature(new Signature(dcl.name, Seq.empty, 0, subst, dcl), Array.empty, rt)) return false
-        if (isVar && !checkSignature(new Signature(dcl.name + "_=", Seq(() => rt), 1, subst, dcl),
-          Array.empty, Unit)) return false
+        if (!checkSignature(Signature(dcl, subst), Array.empty, rt))
+          return false
+        if (isVar && !checkSignature(Signature.setter(dcl, subst), Array.empty, Unit))
+          return false
       case method: PsiMethod =>
         val sign1 = new PhysicalSignature(method, subst)
         if (!checkSignature(sign1, method.getTypeParameters, method match {
@@ -178,7 +179,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
-          val lower2 = substitutor.subst(tp2.lowerType.v)
+          val lower2 = substitutor.subst(tp2.lowerType)
           val lowerConformance =
             if (v == Covariant) lower1.conforms(lower2, undef)
             else lower2.conforms(lower1, undef)
@@ -187,7 +188,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
           undef = lowerConformance._2
 
           val upper1 = tp1.upperBound.getOrAny
-          val upper2 = substitutor.subst(tp2.upperType.v)
+          val upper2 = substitutor.subst(tp2.upperType)
           val upperConformance =
             if (v == Covariant) upper2.conforms(upper1, undef)
             else upper1.conforms(upper2, undef)

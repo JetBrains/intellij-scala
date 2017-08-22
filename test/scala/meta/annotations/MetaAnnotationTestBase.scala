@@ -107,6 +107,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 
 
   protected def checkExpansionEquals(code: String, expectedExpansion: String): Unit = {
+    import scala.meta.intellij.psiExt._
     myFixture.configureByText(s"Usage${getTestName(false)}.scala", code)
     val holder = ScalaPsiUtil.getParentOfType(myFixture.getElementAtCaret, classOf[ScAnnotationsHolder]).asInstanceOf[ScAnnotationsHolder]
     holder.getMetaExpansion match {

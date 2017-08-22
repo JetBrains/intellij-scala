@@ -292,6 +292,7 @@ lazy val pluginPackagerCommunity =
             pack.in(scalaRunner, Compile).value),
           "lib/scala-plugin-runners.jar"),
         AllOrganisation("org.scalameta", "lib/scalameta120.jar"),
+        Library("com.lihaoyi" % "fastparse_2.11" % "0.4.3", "lib/fastparse.jar"),
         Library(scalaLibrary,
           "lib/scala-library.jar"),
         Library(bcel,

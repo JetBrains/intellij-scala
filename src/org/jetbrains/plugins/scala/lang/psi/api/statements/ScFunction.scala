@@ -667,7 +667,7 @@ object ScFunction {
   })
 
   @tailrec
-  def getCompoundCopy(pTypes: List[List[ScType]], tParams: List[TypeParameter], rt: ScType, fun: ScFunction): ScFunction = {
+  def getCompoundCopy(pTypes: Seq[Seq[ScType]], tParams: List[TypeParameter], rt: ScType, fun: ScFunction): ScFunction = {
     fun match {
       case light: ScLightFunctionDeclaration => getCompoundCopy(pTypes, tParams, rt, light.fun)
       case light: ScLightFunctionDefinition  => getCompoundCopy(pTypes, tParams, rt, light.fun)

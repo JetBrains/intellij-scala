@@ -511,11 +511,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
 
     collected - cachedPath
   }
-
-  def isMetaAnnotatationImpl: Boolean = {
-    members.exists(_.getModifierList.findChildrenByType(ScalaTokenTypes.kINLINE).nonEmpty) ||
-    members.exists({case ah: ScAnnotationsHolder => ah.hasAnnotation("scala.meta.internal.inline.inline")})
-  }
 }
 
 object ScTemplateDefinition {

@@ -776,10 +776,7 @@ object ScalaPsiElementFactory {
   }
 
   def createEmptyModifierList(context: PsiElement): ScModifierList = {
-    val parseEmptyModifier: ScalaPsiBuilder => AnyVal = b => {
-      val marker = b.mark()
-      marker.done(ScalaElementTypes.MODIFIERS)
-    }
+    val parseEmptyModifier = (_: ScalaPsiBuilder).mark.done(ScalaElementTypes.MODIFIERS)
     createElementWithContext[ScModifierList]("", context, context.getFirstChild, parseEmptyModifier).orNull
   }
 
