@@ -18,13 +18,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction.UndoExpansionData
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaMetaMode
-
-import scala.meta.intellij.MetaExpansionsManager
 
 abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
@@ -76,10 +73,12 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
     def undoExpansion(original: String, companion: Option[String] = None): Unit = {
       val newPsi = ScalaPsiElementFactory
         .createBlockExpressionWithoutBracesFromText(original.trim)(PsiManager.getInstance(element.getProject))
-      parent match {
-        case td: ScTypeDefinition if companion.isDefined =>
-          val definition = ScalaPsiElementFactory.createTypeDefinitionWithContext(companion.get.trim, parent.getContext, null)
+      (parent, companion) match {
+        case (td: ScTypeDefinition, Some(companionText)) =>
+          val definition = ScalaPsiElementFactory.createTypeDefinitionWithContext(companionText.trim, parent.getContext, null)
           td.baseCompanionModule.foreach(_.replace(definition))
+        case (td: ScTypeDefinition, None) =>
+          td.baseCompanionModule.foreach(c => c.getParent.getNode.removeChild(c.getNode))
         case _ => None
       }
       parent.replace(newPsi)
@@ -87,7 +86,7 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
     }
     val UndoExpansionData(original, savedCompanion) = parent.getCopyableUserData(MacroExpandAction.EXPANDED_KEY)
     newMarker(element, AllIcons.Actions.Undo, "Undo macro expansion") { _ =>
-      inWriteAction(undoExpansion(original, savedCompanion))
+      inWriteCommandAction(element.getProject)(undoExpansion(original, savedCompanion))
     }
   }
 }
