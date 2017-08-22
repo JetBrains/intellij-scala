@@ -41,7 +41,6 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           val getPlace: PsiElement,
                           val collectImplicits: Boolean = false,
                           forName: Option[String] = None,
-                          postProcess: ScalaResolveResult => Unit = _ => {},
                           val includePrefixImports: Boolean = true,
                           val isIncomplete: Boolean = true)
   extends BaseProcessor(kinds)(getPlace) with PrecedenceHelper[QualifiedName] {
@@ -49,6 +48,9 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
   private val precedence = new mutable.HashMap[QualifiedName, Int]()
 
   private val signatures = new mutable.HashMap[Signature, Boolean]()
+
+  protected def postProcess(result: ScalaResolveResult): Unit = {
+  }
 
   protected def getQualifiedName(result: ScalaResolveResult): QualifiedName =
     QualifiedName(result)
@@ -140,27 +142,29 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   override def changedLevel: Boolean = {
-    if (levelSet.isEmpty) return true
-    val iterator = levelSet.iterator()
-    while (iterator.hasNext) {
-      val next = iterator.next()
-      postProcess(next)
-      candidatesSet += next
+    collectResults(candidatesSet)
+
+    if (!levelSet.isEmpty) {
+      qualifiedNamesSet.addAll(levelQualifiedNamesSet)
+      levelSet.clear()
+      levelQualifiedNamesSet.clear()
     }
-    qualifiedNamesSet.addAll(levelQualifiedNamesSet)
-    levelSet.clear()
-    levelQualifiedNamesSet.clear()
-    true
+
+    super.changedLevel
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
-    val res = candidatesSet
+    collectResults(candidatesSet)
+    candidatesSet
+  }
+
+
+  private def collectResults(accumulator: mutable.HashSet[ScalaResolveResult]): Unit = {
     val iterator = levelSet.iterator()
     while (iterator.hasNext) {
       val next = iterator.next()
       postProcess(next)
-      res += next
+      accumulator.add(next)
     }
-    res
   }
 }
