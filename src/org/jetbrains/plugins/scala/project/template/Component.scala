@@ -46,8 +46,7 @@ object Artifact {
     ScalaReflect,
     DottyCompiler,
     DottyInterfaces,
-    DottyLibrary,
-    JLine
+    DottyLibrary
   )
 
   private def readProperty(file: File, resource: String, name: String): Option[String] = {
@@ -88,8 +87,6 @@ object Artifact {
   case object DottyLibrary extends Artifact("dotty-library_2.11")
 
   case object DottyInterfaces extends Artifact("dotty-interfaces")
-
-  case object JLine extends Artifact("jline")
 }
 
 sealed class Kind(regex: String) {
