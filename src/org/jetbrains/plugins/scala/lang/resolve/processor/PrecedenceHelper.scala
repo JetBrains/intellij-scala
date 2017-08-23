@@ -3,14 +3,16 @@ package lang.resolve.processor
 
 import java.util
 
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.psi.{PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+
+import scala.annotation.tailrec
 
 /**
   * User: Alexander Podkhalyuzin
@@ -19,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 //todo: logic is too complicated, too many connections between classes. Rewrite?
 trait PrecedenceHelper[T] {
   this: BaseProcessor =>
+
+  import PrecedenceHelper._
 
   def getPlace: PsiElement
 
@@ -36,20 +40,11 @@ trait PrecedenceHelper[T] {
 
   protected def getQualifiedName(result: ScalaResolveResult): T
 
-  private lazy val suspiciousPackages: Set[String] = {
-    def collectPackages(elem: PsiElement, res: Set[String] = Set.empty): Set[String] = {
-      PsiTreeUtil.getContextOfType(elem, true, classOf[ScPackaging]) match {
-        case null => res
-        case p: ScPackaging => collectPackages(p, res + p.fullPackageName)
-      }
-    }
-
-    Set("scala", "java.lang", "scala", "scala.Predef") ++ collectPackages(getPlace)
-  }
+  private lazy val suspiciousPackages: Set[String] = collectPackages(getPlace)
 
   protected def ignored(results: Seq[ScalaResolveResult]): Boolean =
-    results.headOption.flatMap(PrecedenceHelper.findQualifiedName)
-      .exists(suspiciousPackages.contains)
+    results.headOption.flatMap(findQualifiedName)
+      .exists((IgnoredPackages ++ suspiciousPackages).contains)
 
   /**
     * Returns highest precedence of all resolve results.
@@ -135,6 +130,20 @@ trait PrecedenceHelper[T] {
 
 object PrecedenceHelper {
 
+  private val IgnoredPackages: Set[String] =
+    Set("java.lang", "scala", "scala.Predef")
+
+  private def collectPackages(element: PsiElement): Set[String] = {
+    @tailrec
+    def collectPackages(element: PsiElement, result: Set[String] = Set.empty): Set[String] =
+      getContextOfType(element, true, classOf[ScPackaging]) match {
+        case packaging: ScPackaging => collectPackages(packaging, result + packaging.fullPackageName)
+        case null => result
+      }
+
+    collectPackages(element)
+  }
+
   private def findQualifiedName(result: ScalaResolveResult): Option[String] =
     findImportReference(result)
       .flatMap(_.bind())
@@ -149,7 +158,7 @@ object PrecedenceHelper {
       case Seq(head) =>
         val importExpression = head match {
           case ImportExprUsed(expr) => expr
-          case ImportSelectorUsed(selector) => PsiTreeUtil.getContextOfType(selector, true, classOf[ScImportExpr])
+          case ImportSelectorUsed(selector) => getContextOfType(selector, true, classOf[ScImportExpr])
           case ImportWildcardSelectorUsed(expr) => expr
         }
         Some(importExpression.qualifier)
