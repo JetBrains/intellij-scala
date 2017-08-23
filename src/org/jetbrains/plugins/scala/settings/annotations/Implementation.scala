@@ -49,6 +49,7 @@ object Implementation {
 
   private def isSimple(expression: PsiElement): Boolean = expression match {
     case literal: ScLiteral => literal.getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL
+    case _: ScUnitExpr => true
     case _: ScThrowStmt => true
     case it: ScNewTemplateDefinition if it.extendsBlock.templateBody.isEmpty => true
     case ref: ScReferenceExpression if isApplyCall(ref) => true
