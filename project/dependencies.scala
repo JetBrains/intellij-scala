@@ -239,7 +239,7 @@ object DependencyGroups {
 
   // required jars for MockSbt - it adds different versions to test module classpath
   val mockSbtDownloader: Seq[ModuleID] = {
-    val vs013 = Seq("0.13.1", "0.13.5", "0.13.7", Sbt.latest)
+    val vs013 = Seq("0.13.1", "0.13.5", "0.13.7", Sbt.latest_0_13)
     val vs012 = Seq(Sbt.latest_0_12)
 
     vs013.flatMap(sbt013Libs) ++ vs012.flatMap(sbt012Libs)
