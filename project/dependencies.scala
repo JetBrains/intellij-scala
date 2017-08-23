@@ -46,8 +46,8 @@ object Versions {
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.16"
-    val latest_1_0 = "1.0.0-RC3"
-    val latest: String = latest_0_13
+    val latest_1_0 = "1.0.0"
+    val latest: String = latest_1_0
 
     def binaryVersion(v: String): String = {
       if (v.startsWith(binary_0_12)) binary_0_12
