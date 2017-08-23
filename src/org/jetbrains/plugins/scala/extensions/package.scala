@@ -198,7 +198,7 @@ package object extensions {
 
     def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) Right(right) else Left(left)
 
-    def seq[A](a: A*): Seq[A] = if (b) Seq(a: _*) else Seq.empty
+    def seq[A](a: => A): Seq[A] = if (b) Seq(a) else Seq.empty
 
     // looks better withing expressions than { if (???) ??? else ??? } block
     def fold[T](ifTrue: => T, ifFalse: => T): T = if (b) ifTrue else ifFalse
