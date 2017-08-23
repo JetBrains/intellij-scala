@@ -1,4 +1,3 @@
-import Dependencies.scalastyle
 import sbt._
 
 object Versions {
@@ -96,6 +95,7 @@ object Dependencies {
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.2"
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
+  val fastparse: ModuleID = "com.lihaoyi" % s"fastparse_$scalaBinaryVersion" % "0.4.3" // transitive dependency of scalaMeta, needs explicit versioning
 
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
@@ -200,8 +200,8 @@ object DependencyGroups {
     "org.scalatest" % "scalatest_2.11" % "3.0.1",
     "org.scalactic" % "scalactic_2.11" % "3.0.1",
 //    "org.scalatest" % "scalatest_2.12" % "3.0.1",
-    "org.scalameta" % s"paradise_${Scala.latest_2_11}" % paradiseVersion exclude("org.scalameta", "scalameta_2.11"),
-    "org.scalameta" % "scalameta_2.12" % scalaMetaVersion,
+    "org.scalameta" % s"paradise_$scalaVersion" % paradiseVersion exclude("org.scalameta", s"scalameta_$scalaBinaryVersion"),
+    "org.scalameta" %% "scalameta" % scalaMetaVersion,
     "org.typelevel" %% "cats-core" % "1.0.0-MF"
   )
 
