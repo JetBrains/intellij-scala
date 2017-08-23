@@ -5,7 +5,6 @@ import com.sun.jdi.{ClassType, ReferenceType}
 import org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.ui.ScalaFieldNameAdjuster.objectSuffix
-import org.jetbrains.plugins.scala.debugger.ui.ScalaFieldNameAdjuster.patternForTweakedNames
 
 import scala.collection.JavaConverters._
 

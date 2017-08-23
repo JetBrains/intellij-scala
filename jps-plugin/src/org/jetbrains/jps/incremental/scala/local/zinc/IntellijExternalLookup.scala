@@ -17,9 +17,6 @@ case class IntellijExternalLookup(compilationData: CompilationData, client: Clie
   private val all = compilationData.zincData.allSources.toSet
   private val changedSources = compilationData.sources.toSet
 
-  override def hashClasspath(classpath: Array[File]): Optional[Array[FileHash]] =
-    Optional.of(classpath.map(f => FileHash.of(f, f.hashCode())))
-
   override def changedSources(previousAnalysis: CompileAnalysis): Option[Changes[File]] =
     if (isCached) None else {
     val previousSources = previousAnalysis.readStamps().getAllSourceStamps.keySet().asScala.toSet
