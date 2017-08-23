@@ -275,7 +275,8 @@
             </constraints>
             <properties>
               <selected value="true"/>
-              <text value="Unit type"/>
+              <text value="Unit type*"/>
+              <toolTipText value="Except for parameters"/>
             </properties>
           </component>
         </children>

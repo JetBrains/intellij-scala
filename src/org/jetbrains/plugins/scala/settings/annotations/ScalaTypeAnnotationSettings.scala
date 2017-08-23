@@ -22,17 +22,18 @@ object ScalaTypeAnnotationSettings {
 
   private class TypeAnnotationSettingsImpl(style: ScalaCodeStyleSettings) extends ScalaTypeAnnotationSettings {
     override def reasonForTypeAnnotationOn(declaration: Declaration, location: Location, implementation: Option[Implementation]): Option[String] = {
+      val entity = declaration.entity
       val isLocal = location.isInLocalScope
 
       import style._
 
       {
         (TYPE_ANNOTATION_IMPLICIT_MODIFIER && declaration.isImplicit).option("implicit definition")
-          .orElse((TYPE_ANNOTATION_UNIT_TYPE && declaration.hasUnitType).option("Unit type"))
-          .orElse((declaration.entity == Entity.Method && implementation.exists(_.containsReturn)).option("method with 'return'"))
+          .orElse((TYPE_ANNOTATION_UNIT_TYPE && !entity.isParameter && declaration.hasUnitType).option("Unit type"))
+          .orElse((entity == Entity.Method && implementation.exists(_.containsReturn)).option("method with 'return'"))
       } orElse {
-        if (declaration.entity == Entity.Parameter) TYPE_ANNOTATION_FUNCTION_PARAMETER.option("function parameter")
-        if (declaration.entity == Entity.UnderscoreParameter) TYPE_ANNOTATION_UNDERSCORE_PARAMETER.option("underscore parameter")
+        if (entity == Entity.Parameter) TYPE_ANNOTATION_FUNCTION_PARAMETER.option("function parameter")
+        if (entity == Entity.UnderscoreParameter) TYPE_ANNOTATION_UNDERSCORE_PARAMETER.option("underscore parameter")
         else if (isLocal) TYPE_ANNOTATION_LOCAL_DEFINITION.option("local definition")
         else declaration.visibility match {
           case Visibility.Private => TYPE_ANNOTATION_PRIVATE_MEMBER.option("private member")

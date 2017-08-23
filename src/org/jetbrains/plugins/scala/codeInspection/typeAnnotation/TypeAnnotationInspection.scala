@@ -49,11 +49,8 @@ object TypeAnnotationInspection {
       declaration, location, implementation.map(Implementation.Expression(_))).foreach { reason =>
 
       // TODO Create the general-purpose inspection
-      val canBePrivate = declaration.entity match {
-        case Entity.Method | Entity.Value | Entity.Variable if !location.isInLocalScope =>
-          declaration.visibility != Visibility.Private
-        case _ => false
-      }
+      val canBePrivate = !declaration.entity.isParameter &&
+        !location.isInLocalScope && declaration.visibility == Visibility.Default
 
       val fixes =
         canBePrivate.seq(new MakePrivateQuickFix(element.asInstanceOf[ScModifierListOwner])) ++
