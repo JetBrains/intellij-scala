@@ -75,7 +75,7 @@ lazy val jpsPlugin =
   .enablePlugins(SbtIdeaPlugin)
   .settings(
     libraryDependencies ++=
-      Seq(Dependencies.nailgun, Dependencies.dottyInterface) ++
+      Seq(Dependencies.nailgun) ++
         DependencyGroups.sbtBundled
   )
 
@@ -262,10 +262,6 @@ lazy val pluginPackagerCommunity =
           "lib/jps/compiler-interface.jar"),
         Library(sbtInterface,
           "lib/jps/sbt-interface.jar"),
-        Library(bundledJline,
-          "lib/jps/jline.jar"),
-        Library(dottyInterface,
-          "lib/jps/dotty-interfaces.jar"),
         Artifact(Packaging.putInTempJar(baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrapperImpl.scala" ),
           "lib/jps/repl-interface-sources.jar")
       )
@@ -334,10 +330,6 @@ lazy val repackagedZinc =
     assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
     libraryDependencies += Dependencies.zinc
   )
-
-TaskKey[Unit]("buildDevPlugin") := {
-  (packageBin in (scalaDevPlugin, Compile)).value
-}
 
 updateIdea := {
   val baseDir = ideaBaseDirectory.value

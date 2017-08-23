@@ -23,12 +23,6 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 
     val scalac: Option[AnalyzingCompiler] = getScalac(sbtData, compilerData.compilerJars, client)
 
-    compilerData.compilerJars match {
-      case Some(jars) if jars.dotty.isDefined =>
-        return new DottyCompiler(createScalaInstance(jars), jars)
-      case _ =>
-    }
-
     compilerData.incrementalType match {
       case IncrementalityType.SBT =>
         val javac = {
