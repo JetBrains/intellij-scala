@@ -1152,6 +1152,10 @@
                          displayName="Filter and contains to intersect or diff" groupPath="Scala,Collections" groupName="Simplifications: filter and exists"
                          shortName="FilterOtherContains" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsForallReplaceInspection"
+                       displayName="Negated exists and forall to non-negated counterparts" groupPath="Scala,Collections" groupName="Simplifications: forall and exists"
+                       shortName="ExistsForallReplace" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
         <!--simplifications: other-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection"
                          displayName="Simplifiable fold or reduce method" groupPath="Scala,Collections" groupName="Simplifications: other"
