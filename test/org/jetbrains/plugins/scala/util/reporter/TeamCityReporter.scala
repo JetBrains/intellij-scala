@@ -7,8 +7,10 @@ import com.intellij.openapi.util.TextRange
   * @author mutcianm
   * @since 16.05.17.
   */
-class TeamCityReporter extends ConsoleReporter {
+class TeamCityReporter(reportSuccess: Boolean) extends ConsoleReporter {
   import TeamCityReporter._
+
+  protected var totalErrors = 0
 
   override def updateHighlightingProgress(percent: Int): Unit = progressMessage(s"Highlighting - $percent%")
 
@@ -24,7 +26,7 @@ class TeamCityReporter extends ConsoleReporter {
   override def reportResults(): Unit = {
     if (totalErrors > 0)
       tcPrint(s"buildProblem description='Found $totalErrors errors while highlighting the project'")
-    else
+    else if (reportSuccess)
       tcPrint("buildStatus status='SUCCESS' text='No highlighting errors found in project'")
   }
 
