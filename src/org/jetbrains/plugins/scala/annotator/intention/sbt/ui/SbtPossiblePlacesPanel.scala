@@ -6,16 +6,23 @@ import javax.swing.tree.{TreeCellRenderer, TreeModel, TreePath, TreeSelectionMod
 import javax.swing.{JPanel, JTree, ScrollPaneConstants}
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsScheme}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
+import com.intellij.openapi.editor.impl.EditorFactoryImpl
+import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, TextAttributes}
 import com.intellij.openapi.editor.{Editor, EditorFactory, LogicalPosition, ScrollType}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.psi.PsiElement
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{ScrollPaneFactory, SimpleColoredComponent, SimpleTextAttributes}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.annotator.intention.sbt.FileLine
+import org.jetbrains.plugins.scala.annotator.intention.sbt.{AddSbtDependencyUtils, FileLine}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.sbt.resolvers.ArtifactInfo
 
 /**
   * Created by user on 7/19/17.
@@ -74,12 +81,11 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
     })
   }
 
-  def updateEditor(): Unit = {
+  private def updateEditor(): Unit = {
     if (myCurFileLine == null) {
       remove(myLayout.getLayoutComponent(BorderLayout.SOUTH))
       updateUI()
     } else {
-      // TODO: make a map to store editors
       val editor = createEditor(myCurFileLine.path)
       val editorHighlighter = EditorHighlighterFactory.getInstance.createEditorHighlighter(project, ScalaFileType.INSTANCE)
       editor.asInstanceOf[EditorEx].setHighlighter(editorHighlighter)
@@ -95,10 +101,24 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
     }
   }
 
-  def createEditor(path: String): Editor = {
+  private def createEditor(path: String): Editor = {
+    val document = FileDocumentManager.getInstance.getDocument(project.getBaseDir.findFileByRelativePath(path))
+    val tmpFile = ScalaPsiElementFactory.createScalaFileFromText(document.getText)(project)
+    var tmpElement = tmpFile.findElementAt(myCurFileLine.element.getTextOffset)
+    while (tmpElement.getTextRange != myCurFileLine.element.getTextRange)
+      tmpElement = tmpElement.getParent
+
+    val dep: PsiElement = AddSbtDependencyUtils.addDependency(tmpElement, wizard.resultArtifact.get)(project)
+
     val viewer = EditorFactory.getInstance.createViewer(
-      FileDocumentManager.getInstance.getDocument(project.getBaseDir.findFileByRelativePath(path))
+      EditorFactory.getInstance().createDocument(tmpFile.getText)
     )
+
+    val scheme = viewer.getColorsScheme
+    val attributes = scheme.getAttributes(CodeInsightColors.MATCHED_BRACE_ATTRIBUTES)
+
+    viewer.getMarkupModel.addRangeHighlighter(dep.getTextRange.getStartOffset, dep.getTextRange.getEndOffset, HighlighterLayer.SELECTION, attributes, HighlighterTargetArea.EXACT_RANGE)
+
     viewer.getComponent.setPreferredSize(new Dimension(600, 400))
     viewer.getComponent.updateUI()
 
