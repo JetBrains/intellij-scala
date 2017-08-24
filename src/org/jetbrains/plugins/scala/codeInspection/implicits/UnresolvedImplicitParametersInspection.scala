@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInspection.internal
+package org.jetbrains.plugins.scala.codeInspection.implicits
 
 import com.intellij.codeInspection._
 import com.intellij.psi.PsiElement
