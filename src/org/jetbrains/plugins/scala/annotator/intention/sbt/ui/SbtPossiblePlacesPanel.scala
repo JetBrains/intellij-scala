@@ -6,15 +6,13 @@ import javax.swing.tree.{TreeCellRenderer, TreeModel, TreePath, TreeSelectionMod
 import javax.swing.{JPanel, JTree, ScrollPaneConstants}
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsScheme}
+import com.intellij.openapi.editor.colors.CodeInsightColors
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
-import com.intellij.openapi.editor.impl.EditorFactoryImpl
-import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, TextAttributes}
-import com.intellij.openapi.editor.{Editor, EditorFactory, LogicalPosition, ScrollType}
+import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea}
+import com.intellij.openapi.editor.{Editor, EditorFactory, ScrollType}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiElement
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{ScrollPaneFactory, SimpleColoredComponent, SimpleTextAttributes}
@@ -22,7 +20,6 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.annotator.intention.sbt.{AddSbtDependencyUtils, FileLine}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.sbt.resolvers.ArtifactInfo
 
 /**
   * Created by user on 7/19/17.
@@ -175,6 +172,8 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
           myComponent.setIcon(AllIcons.Nodes.PpFile)
           myComponent.append(info.path + ":", SimpleTextAttributes.REGULAR_ATTRIBUTES)
           myComponent.append(info.line.toString, getGrayAttributes(selected))
+          if (info.affectedProjects.nonEmpty)
+            myComponent.append(" (" + info.affectedProjects.map(_.toString).mkString(", ") + ")", SimpleTextAttributes.REGULAR_ATTRIBUTES)
         case _ =>
       }
 

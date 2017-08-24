@@ -310,7 +310,7 @@ object AddSbtDependencyUtils {
   }
 
   def getTopLevelPlaceToAdd(psiFile: ScalaFile)(implicit project: Project): FileLine = {
-    FileLine(getRelativePath(psiFile), psiFile.getTextLength, psiFile)
+    FileLine(getRelativePath(psiFile), psiFile.getTextLength, psiFile, Seq())
   }
 
   def addDependencyToTypedSeq(typedSeq: ScTypedStmt, info: ArtifactInfo)(implicit project: Project): PsiElement = {
@@ -488,7 +488,7 @@ object AddSbtDependencyUtils {
     path.substring(project.getBasePath.length + 1)
   }
 
-  def toFileLine(elem: PsiElement)(implicit project: Project): FileLine = {
+  def toFileLine(elem: PsiElement, affectedProjects: Seq[String])(implicit project: Project): FileLine = {
     val offset =
       elem match {
         case call: ScMethodCall =>
@@ -499,6 +499,6 @@ object AddSbtDependencyUtils {
         case _ => elem.getTextOffset
       }
 
-    FileLine(getRelativePath(elem), offset, elem)
+    FileLine(getRelativePath(elem), offset, elem, affectedProjects)
   }
 }

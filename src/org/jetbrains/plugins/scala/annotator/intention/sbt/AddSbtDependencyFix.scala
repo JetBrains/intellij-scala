@@ -5,10 +5,11 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.module.ModuleUtilCore
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.module.{ModuleManager, ModuleUtilCore}
+import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiFile, PsiManager}
+import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.annotator.intention.sbt.AddSbtDependencyUtils._
 import org.jetbrains.plugins.scala.annotator.intention.sbt.ui.SbtArtifactSearchWizard
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -46,17 +47,31 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
 
       val libDeps: Seq[ScInfixExpr] = getTopLevelLibraryDependencies(psiSbtFile)
       res ++= libDeps
-        .map((elem: ScInfixExpr) => toFileLine(elem)(project))
+        .map((elem: ScInfixExpr) => toFileLine(elem, Seq())(project))
 
       val sbtProjects: Seq[ScPatternDefinition] = getTopLevelSbtProjects(psiSbtFile)
 
       val moduleName = ModuleUtilCore.findModuleForPsiElement(refElement).getName
       val containsModule: Map[ScPatternDefinition, Boolean] =
-        sbtProjects.map(t => t -> t.getText.contains("\"" + moduleName + "\"")).toMap
+        sbtProjects.map(proj => proj -> containsModuleName(proj, moduleName)).toMap
 
-      val sortedProjects = sbtProjects.sortWith(containsModule(_) && !containsModule(_))
+      val modules = ModuleManager.getInstance(project).getModules
+      val projToAffectedModules = sbtProjects.map(proj => proj -> modules.map(_.getName).filter(containsModuleName(proj, _))).toMap
 
-      res ++= sortedProjects.flatMap(getPossiblePlacesToAddFromProjectDefinition).map(f => toFileLine(f)(project))
+      val elemToAffectedProjects = collection.mutable.Map[PsiElement, Seq[String]]()
+      sbtProjects.foreach(proj => {
+        val places = getPossiblePlacesToAddFromProjectDefinition(proj)
+        places.foreach(elem => {
+          elemToAffectedProjects.update(elem, elemToAffectedProjects.getOrElse(elem, Seq()) ++ projToAffectedModules(proj))
+        })
+      })
+
+      res ++= elemToAffectedProjects.toList
+        .sortWith(_._2.toString < _._2.toString)
+        .sortWith(_._2.contains(moduleName) && !_._2.contains(moduleName))
+        .map(_._1)
+        .map(elem => toFileLine(elem, elemToAffectedProjects(elem))(project))
+
       res ++= Seq(getTopLevelPlaceToAdd(psiSbtFile)(project))
 
       res.distinct
@@ -83,6 +98,9 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
     FileDocumentManager.getInstance.saveAllDocuments()
     ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
   }
+
+  private def containsModuleName(proj: ScPatternDefinition, moduleName: String): Boolean =
+    proj.getText.contains("\"" + moduleName + "\"")
 
   private def getReferenceText: String = {
     var result = refElement
