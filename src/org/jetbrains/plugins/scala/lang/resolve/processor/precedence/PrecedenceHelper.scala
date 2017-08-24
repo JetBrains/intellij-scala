@@ -1,5 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang.resolve.processor
+package org.jetbrains.plugins.scala.lang
+package resolve
+package processor
+package precedence
 
 import java.util
 
@@ -10,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
 import scala.annotation.tailrec
 
@@ -122,7 +123,7 @@ trait PrecedenceHelper[T] {
   protected def getPrecedence(result: ScalaResolveResult): Int = {
     specialPriority match {
       case Some(priority) => priority
-      case None if result.prefixCompletion => PrecedenceHelper.PrecedenceTypes.PREFIX_COMPLETION
+      case None if result.prefixCompletion => PrecedenceTypes.PREFIX_COMPLETION
       case None => result.getPrecedence(getPlace, placePackageName)
     }
   }
@@ -164,19 +165,4 @@ object PrecedenceHelper {
         Some(importExpression.qualifier)
       case _ => None
     }
-
-  object PrecedenceTypes {
-    val PREFIX_COMPLETION = 0
-    val JAVA_LANG = 1
-    val SCALA = 2
-    val SCALA_PREDEF = 3
-    val PACKAGE_LOCAL_PACKAGE = 4
-    val WILDCARD_IMPORT_PACKAGE = 5
-    val IMPORT_PACKAGE = 6
-    val PACKAGE_LOCAL = 7
-    val WILDCARD_IMPORT = 8
-    val IMPORT = 9
-    val OTHER_MEMBERS = 10
-  }
-
 }

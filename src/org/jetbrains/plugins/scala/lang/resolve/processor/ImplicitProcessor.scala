@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala
-package lang.resolve.processor
+package lang
+package resolve
+package processor
 
 import java.util
 
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceHelper
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.Set
