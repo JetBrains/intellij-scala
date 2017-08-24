@@ -14,7 +14,8 @@ class SbtArtifactChooseDependencyStep(wizard: SbtArtifactSearchWizard, artifactI
 
   override def _init(): Unit = {
     wizard.setTitle("Sbt Artifact Search")
-    setPreferredSize(new Dimension(600, 900))
+    setPreferredSize(new Dimension(1600, 1200))
+    updateUI()
   }
 
   override def getIcon: Icon = null

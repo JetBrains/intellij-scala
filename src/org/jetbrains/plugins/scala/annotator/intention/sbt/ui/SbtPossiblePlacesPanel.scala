@@ -10,7 +10,7 @@ import com.intellij.openapi.editor.colors.CodeInsightColors
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea}
-import com.intellij.openapi.editor.{Editor, EditorFactory, ScrollType}
+import com.intellij.openapi.editor.{Editor, EditorFactory, LogicalPosition, ScrollType}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -31,6 +31,8 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
   var canGoNext: Boolean = false
 
   val myLayout = new BorderLayout()
+
+  val EDITOR_TOP_MARGIN = 7
 
   init()
 
@@ -87,7 +89,10 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
       val editorHighlighter = EditorHighlighterFactory.getInstance.createEditorHighlighter(project, ScalaFileType.INSTANCE)
       editor.asInstanceOf[EditorEx].setHighlighter(editorHighlighter)
       editor.getCaretModel.moveToOffset(myCurFileLine.line)
-      editor.getScrollingModel.scrollToCaret(ScrollType.CENTER)
+      val scrollingModel = editor.getScrollingModel
+      scrollingModel.scrollToCaret(ScrollType.CENTER)
+      val oldPos = editor.offsetToLogicalPosition(myCurFileLine.line)
+      scrollingModel.scrollTo(new LogicalPosition(oldPos.line - EDITOR_TOP_MARGIN, oldPos.column), ScrollType.CENTER)
 
       val prevSouthComponent = myLayout.getLayoutComponent(BorderLayout.SOUTH)
       if (prevSouthComponent != null)
@@ -116,7 +121,7 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
 
     viewer.getMarkupModel.addRangeHighlighter(dep.getTextRange.getStartOffset, dep.getTextRange.getEndOffset, HighlighterLayer.SELECTION, attributes, HighlighterTargetArea.EXACT_RANGE)
 
-    viewer.getComponent.setPreferredSize(new Dimension(600, 400))
+    viewer.getComponent.setPreferredSize(new Dimension(1600, 500))
     viewer.getComponent.updateUI()
 
     viewer
