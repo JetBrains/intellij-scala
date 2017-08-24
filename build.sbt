@@ -139,10 +139,10 @@ lazy val ideaRunner =
       "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005",
       "-Didea.is.internal=true",
       "-Didea.debug.mode=true",
-      "-Didea.system.path=/home/miha/.IdeaData/IDEA-14/scala/system",
-      "-Didea.config.path=/home/miha/.IdeaData/IDEA-14/scala/config",
+      s"-Didea.system.path=${System.getProperty("java.home")}/.IdeaData/IDEA-14/scala/system",
+      s"-Didea.config.path=${System.getProperty("java.home")}/.IdeaData/IDEA-14/scala/config",
       "-Dapple.laf.useScreenMenuBar=true",
-      s"-Dplugin.path=${baseDirectory.value.getParentFile}/out/plugin",
+      s"-Dplugin.path=${baseDirectory.value.getParentFile}/out/plugin/Scala",
       "-Didea.ProcessCanceledException=disabled"
     ),
     products in Compile := {
