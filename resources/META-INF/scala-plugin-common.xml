@@ -948,6 +948,10 @@
                         displayName="Annotator Based Error Inspection" groupPath="Scala" groupName="Internal" isInternal="true"
                         shortName="AnnotatorBasedErrorInspection" level="ERROR"
                         enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.UnresolvedImplicitParametersInspection"
+                        displayName="Unresolved Implicit Parameters Inspection" groupPath="Scala" groupName="Internal" isInternal="true"
+                        shortName="UnresolvedImplicitParametersInspection" level="ERROR"
+                        enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.bundled.BundledCompoundInspection"
                          displayName="Scala bundled inspections runner" groupPath="Scala" groupName="General"
                          shortName="ScalaBundledInsRunner" enabledByDefault="false" language="Scala"/>
