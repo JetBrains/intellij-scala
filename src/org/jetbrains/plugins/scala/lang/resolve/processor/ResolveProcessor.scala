@@ -206,6 +206,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   override protected def clear(): Unit = {
     ignoredSet.clear()
+    candidatesSet.clear()
     super.clear()
 
     fromHistory = true
