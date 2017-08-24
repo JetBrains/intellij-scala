@@ -198,19 +198,13 @@ object CompileServerLauncher {
       new File(jpsRoot, "nailgun.jar"),
       new File(jpsRoot, "sbt-interface.jar"),
       new File(jpsRoot, "incremental-compiler.jar"),
-      new File(jpsRoot, "scala-jps-plugin.jar"),
-      dottyInterfacesJar
+      new File(jpsRoot, "scala-jps-plugin.jar")
     )
   }
 
   def pluginPath: String = {
     if (ApplicationManager.getApplication.isUnitTestMode) new File(System.getProperty("plugin.path"), "lib").getCanonicalPath
     else new File(PathUtil.getJarPathForClass(getClass)).getParent
-  }
-
-  def dottyInterfacesJar: File = {
-    val jpsDir = new File(pluginPath, "jps")
-    new File(jpsDir, "dotty-interfaces.jar")
   }
 
   def bootClasspath(project: Project): Seq[File] = {

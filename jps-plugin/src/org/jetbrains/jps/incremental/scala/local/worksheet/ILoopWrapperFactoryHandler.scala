@@ -101,7 +101,7 @@ object ILoopWrapperFactoryHandler {
 
   private val JAVA_USER_CP_KEY = "java.class.path"
   private val STOP_WORDS = Set("scala-library.jar", "scala-nailgun-runner.jar", "nailgun.jar", "compiler-settings.jar",
-    "incremental-compiler.jar", "scala-jps-plugin.jar", "dotty-interfaces.jar")
+    "incremental-compiler.jar", "scala-jps-plugin.jar")
 
 
   private def withFilteredPath(action: => Unit) {

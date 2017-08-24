@@ -113,7 +113,7 @@ object ScalaSdkDescriptor {
                                       (implicit platform: Platform): Set[Artifact] =
     Set(ScalaLibrary, ScalaCompiler) ++ (platform match {
       case Scala if reflectRequired => Set(ScalaReflect)
-      case Dotty => Set(ScalaReflect, DottyCompiler, DottyInterfaces, DottyLibrary)
+      case Dotty => Set(ScalaReflect, DottyLibrary)
       case _ => Set.empty[Artifact]
     })
 

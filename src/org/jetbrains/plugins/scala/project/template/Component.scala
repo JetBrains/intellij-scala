@@ -45,7 +45,6 @@ object Artifact {
     ScalaCompiler,
     ScalaReflect,
     DottyCompiler,
-    DottyInterfaces,
     DottyLibrary
   )
 
@@ -86,7 +85,6 @@ object Artifact {
 
   case object DottyLibrary extends Artifact("dotty-library_2.11")
 
-  case object DottyInterfaces extends Artifact("dotty-interfaces")
 }
 
 sealed class Kind(regex: String) {

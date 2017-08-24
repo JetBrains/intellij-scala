@@ -125,7 +125,7 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
       val compilerComponent = patchedCompilers.maxBy(_.version.get)
 
       val dottyComponents = components.filter {
-        case Component(DottyInterfaces | DottyCompiler | DottyLibrary, _, Some(_), _) => true
+        case Component(DottyCompiler | DottyLibrary, _, Some(_), _) => true
         case _ => false
       }
 
