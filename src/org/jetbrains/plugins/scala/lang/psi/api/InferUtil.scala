@@ -84,8 +84,8 @@ object InferUtil {
         val coreTypes = params.map(p => fullAbstractSubstitutor.subst(p.paramType))
         implicit val elementScope = mt.elementScope
 
-        val splitMethodType = params.reverse.foldLeft(retType) {
-          case (tp: ScType, param: Parameter) => ScMethodType(tp, Seq(param), isImplicit = true)
+        val splitMethodType = params.foldRight(retType) {
+          (param: Parameter, tp: ScType) => ScMethodType(tp, Seq(param), isImplicit = true)
         }
         resInner = ScTypePolymorphicType(splitMethodType, typeParams)
         val paramsForInferBuffer = new ArrayBuffer[Parameter]()
@@ -457,47 +457,46 @@ object InferUtil {
             }
 
             def updateWithSubst(sub: ScSubstitutor): ScTypePolymorphicType = {
-              ScTypePolymorphicType(sub.subst(retType), typeParams.filter {
-                case tp =>
-                  val removeMe: Boolean = un.names.contains(tp.nameAndId)
-                  if (removeMe && safeCheck) {
-                    //let's check type parameter kinds
-                    def checkTypeParam(typeParam: ScTypeParam, tp: => ScType): Boolean = {
-                      val typeParams: Seq[ScTypeParam] = typeParam.typeParameters
-                      if (typeParams.isEmpty) return true
-                      tp match {
-                        case ParameterizedType(_, typeArgs) =>
-                          if (typeArgs.length != typeParams.length) return false
-                          typeArgs.zip(typeParams).forall {
-                            case (tp: ScType, typeParam: ScTypeParam) => checkTypeParam(typeParam, tp)
-                          }
-                        case _ =>
-                          def checkNamed(named: PsiNamedElement, typeParams: Seq[ScTypeParam]): Boolean = {
-                            named match {
-                              case t: ScTypeParametersOwner =>
-                                if (typeParams.length != t.typeParameters.length) return false
-                                typeParams.zip(t.typeParameters).forall {
-                                  case (p1: ScTypeParam, p2: ScTypeParam) =>
-                                    if (p1.typeParameters.nonEmpty) checkNamed(p2, p1.typeParameters)
-                                    else true
-                                }
-                              case p: PsiTypeParameterListOwner =>
-                                if (typeParams.length != p.getTypeParameters.length) return false
-                                typeParams.forall(_.typeParameters.isEmpty)
-                              case _ => false
-                            }
-                          }
-                          tp.extractDesignated(expandAliases = false).exists(checkNamed(_, typeParams))
-                      }
-                    }
-                    tp.psiTypeParameter match {
-                      case typeParam: ScTypeParam =>
-                        if (!checkTypeParam(typeParam, sub.subst(TypeParameterType(tp.psiTypeParameter))))
-                          throw new SafeCheckException
+              ScTypePolymorphicType(sub.subst(retType), typeParams.filter { tp =>
+                val removeMe: Boolean = un.names.contains(tp.nameAndId)
+                if (removeMe && safeCheck) {
+                  //let's check type parameter kinds
+                  def checkTypeParam(typeParam: ScTypeParam, tp: => ScType): Boolean = {
+                    val typeParams: Seq[ScTypeParam] = typeParam.typeParameters
+                    if (typeParams.isEmpty) return true
+                    tp match {
+                      case ParameterizedType(_, typeArgs) =>
+                        if (typeArgs.length != typeParams.length) return false
+                        typeArgs.zip(typeParams).forall {
+                          case (tp: ScType, typeParam: ScTypeParam) => checkTypeParam(typeParam, tp)
+                        }
                       case _ =>
+                        def checkNamed(named: PsiNamedElement, typeParams: Seq[ScTypeParam]): Boolean = {
+                          named match {
+                            case t: ScTypeParametersOwner =>
+                              if (typeParams.length != t.typeParameters.length) return false
+                              typeParams.zip(t.typeParameters).forall {
+                                case (p1: ScTypeParam, p2: ScTypeParam) =>
+                                  if (p1.typeParameters.nonEmpty) checkNamed(p2, p1.typeParameters)
+                                  else true
+                              }
+                            case p: PsiTypeParameterListOwner =>
+                              if (typeParams.length != p.getTypeParameters.length) return false
+                              typeParams.forall(_.typeParameters.isEmpty)
+                            case _ => false
+                          }
+                        }
+                        tp.extractDesignated(expandAliases = false).exists(checkNamed(_, typeParams))
                     }
                   }
-                  !removeMe
+                  tp.psiTypeParameter match {
+                    case typeParam: ScTypeParam =>
+                      if (!checkTypeParam(typeParam, sub.subst(TypeParameterType(tp.psiTypeParameter))))
+                        throw new SafeCheckException
+                    case _ =>
+                  }
+                }
+                !removeMe
               }.map {
                 case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
                   TypeParameter(typeParameters, /* doesn't important here */

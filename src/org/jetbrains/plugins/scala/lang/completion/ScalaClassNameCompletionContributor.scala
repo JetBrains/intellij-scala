@@ -156,7 +156,7 @@ object ScalaClassNameCompletionContributor {
       }
     }
 
-    val checkSynthetic = parameters.getOriginalFile.scalaLanguageLevel.map(_ < Scala_2_9).getOrElse(true)
+    val checkSynthetic = parameters.getOriginalFile.scalaLanguageLevel.forall(_ < Scala_2_9)
     val QualNameToType = project.stdTypes.QualNameToType
     for {
       clazz <- SyntheticClasses.get(project).all.valuesIterator

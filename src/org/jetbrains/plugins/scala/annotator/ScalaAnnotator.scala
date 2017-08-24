@@ -131,7 +131,7 @@ abstract class ScalaAnnotator extends Annotator
         super.visitParameterizedTypeElement(parameterized)
       }
 
-      override def visitExpression(expr: ScExpression) {
+      override def visitExpression(expr: ScExpression): Unit = {
         expressionPart(expr)
         super.visitExpression(expr)
       }
@@ -146,7 +146,7 @@ abstract class ScalaAnnotator extends Annotator
         visitExpression(ref)
       }
 
-      override def visitEnumerator(enum: ScEnumerator) {
+      override def visitEnumerator(enum: ScEnumerator): Unit = {
         enum.valKeyword match {
           case Some(valKeyword) =>
             val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("enumerator.val.keyword.deprecated"))
@@ -157,7 +157,7 @@ abstract class ScalaAnnotator extends Annotator
         super.visitEnumerator(enum)
       }
 
-      override def visitGenerator(gen: ScGenerator) {
+      override def visitGenerator(gen: ScGenerator): Unit = {
         gen.valKeyword match {
           case Some(valKeyword) =>
             val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("generator.val.keyword.removed"))
@@ -168,18 +168,18 @@ abstract class ScalaAnnotator extends Annotator
         super.visitGenerator(gen)
       }
 
-      override def visitGenericCallExpression(call: ScGenericCall) {
+      override def visitGenericCallExpression(call: ScGenericCall): Unit = {
         //todo: if (typeAware) checkGenericCallExpression(call, holder)
         super.visitGenericCallExpression(call)
       }
 
-      override def visitTypeElement(te: ScTypeElement) {
+      override def visitTypeElement(te: ScTypeElement): Unit = {
         checkTypeElementForm(te, holder)
         super.visitTypeElement(te)
       }
 
 
-      override def visitLiteral(l: ScLiteral) {
+      override def visitLiteral(l: ScLiteral): Unit = {
         l match {
           case interpolated: ScInterpolatedStringLiteral if l.getFirstChild != null =>
             highlightWrongInterpolatedString(interpolated, holder)
@@ -195,7 +195,7 @@ abstract class ScalaAnnotator extends Annotator
         super.visitLiteral(l)
       }
 
-      override def visitAnnotation(annotation: ScAnnotation) {
+      override def visitAnnotation(annotation: ScAnnotation): Unit = {
         checkAnnotationType(annotation, holder)
         checkMetaAnnotation(annotation, holder)
         PrivateBeanProperty.annotate(annotation, holder)
@@ -207,29 +207,29 @@ abstract class ScalaAnnotator extends Annotator
         super.visitForExpression(expr)
       }
 
-      override def visitVariableDefinition(varr: ScVariableDefinition) {
+      override def visitVariableDefinition(varr: ScVariableDefinition): Unit = {
         annotateVariableDefinition(varr, holder, typeAware)
         super.visitVariableDefinition(varr)
       }
 
-      override def visitVariableDeclaration(varr: ScVariableDeclaration) {
+      override def visitVariableDeclaration(varr: ScVariableDeclaration): Unit = {
         checkAbstractMemberPrivateModifier(varr, varr.declaredElements.map(_.nameId), holder)
         super.visitVariableDeclaration(varr)
       }
 
-      override def visitTypedStmt(stmt: ScTypedStmt) {
+      override def visitTypedStmt(stmt: ScTypedStmt): Unit = {
         annotateTypedStatement(stmt, holder, typeAware)
         super.visitTypedStmt(stmt)
       }
 
-      override def visitPatternDefinition(pat: ScPatternDefinition) {
+      override def visitPatternDefinition(pat: ScPatternDefinition): Unit = {
         if (!compiled) {
           annotatePatternDefinition(pat, holder, typeAware)
         }
         super.visitPatternDefinition(pat)
       }
 
-      override def visitPattern(pat: ScPattern) {
+      override def visitPattern(pat: ScPattern): Unit = {
         annotatePattern(pat, holder, typeAware)
         super.visitPattern(pat)
       }
@@ -245,38 +245,38 @@ abstract class ScalaAnnotator extends Annotator
         super.visitInfixExpression(infix)
       }
 
-      override def visitSelfInvocation(self: ScSelfInvocation) {
+      override def visitSelfInvocation(self: ScSelfInvocation): Unit = {
         checkSelfInvocation(self, holder)
         super.visitSelfInvocation(self)
       }
 
-      override def visitConstrBlock(constr: ScConstrBlock) {
+      override def visitConstrBlock(constr: ScConstrBlock): Unit = {
         annotateAuxiliaryConstructor(constr, holder)
         super.visitConstrBlock(constr)
       }
 
-      override def visitParameter(parameter: ScParameter) {
+      override def visitParameter(parameter: ScParameter): Unit = {
         annotateParameter(parameter, holder)
         super.visitParameter(parameter)
       }
 
-      override def visitCatchBlock(c: ScCatchBlock) {
+      override def visitCatchBlock(c: ScCatchBlock): Unit = {
         checkCatchBlockGeneralizedRule(c, holder, typeAware)
         super.visitCatchBlock(c)
       }
 
-      override def visitFunctionDefinition(fun: ScFunctionDefinition) {
+      override def visitFunctionDefinition(fun: ScFunctionDefinition): Unit = {
         if (!compiled && !fun.isConstructor)
           annotateFunction(fun, holder, typeAware)
         super.visitFunctionDefinition(fun)
       }
 
-      override def visitFunctionDeclaration(fun: ScFunctionDeclaration) {
+      override def visitFunctionDeclaration(fun: ScFunctionDeclaration): Unit = {
         checkAbstractMemberPrivateModifier(fun, Seq(fun.nameId), holder)
         super.visitFunctionDeclaration(fun)
       }
 
-      override def visitFunction(fun: ScFunction) {
+      override def visitFunction(fun: ScFunction): Unit = {
         if (typeAware && !compiled && fun.getParent.isInstanceOf[ScTemplateBody]) {
           checkOverrideMethods(fun, holder, isInSources)
         }
@@ -284,7 +284,7 @@ abstract class ScalaAnnotator extends Annotator
         super.visitFunction(fun)
       }
 
-      override def visitAssignmentStatement(stmt: ScAssignStmt) {
+      override def visitAssignmentStatement(stmt: ScAssignStmt): Unit = {
         annotateAssignment(stmt, holder, typeAware)
         super.visitAssignmentStatement(stmt)
       }
@@ -294,11 +294,11 @@ abstract class ScalaAnnotator extends Annotator
         visitTypeElement(proj)
       }
 
-      override def visitUnderscoreExpression(under: ScUnderscoreSection) {
+      override def visitUnderscoreExpression(under: ScUnderscoreSection): Unit = {
         checkUnboundUnderscore(under, holder)
       }
 
-      private def referencePart(ref: ScReferenceElement) {
+      private def referencePart(ref: ScReferenceElement): Unit = {
         if (typeAware) annotateReference(ref, holder)
         ref.qualifier match {
           case None => checkNotQualifiedReferenceElement(ref, holder)
@@ -306,38 +306,38 @@ abstract class ScalaAnnotator extends Annotator
         }
       }
 
-      override def visitReference(ref: ScReferenceElement) {
+      override def visitReference(ref: ScReferenceElement): Unit = {
         referencePart(ref)
         super.visitReference(ref)
       }
 
-      override def visitImportExpr(expr: ScImportExpr) {
+      override def visitImportExpr(expr: ScImportExpr): Unit = {
         checkImportExpr(expr, holder)
         super.visitImportExpr(expr)
       }
 
-      override def visitReturnStatement(ret: ScReturnStmt) {
+      override def visitReturnStatement(ret: ScReturnStmt): Unit = {
         checkExplicitTypeForReturnStatement(ret, holder)
         super.visitReturnStatement(ret)
       }
 
 
-      override def visitConstructor(constr: ScConstructor) {
+      override def visitConstructor(constr: ScConstructor): Unit = {
         if (typeAware) annotateConstructor(constr, holder)
         super.visitConstructor(constr)
       }
 
-      override def visitModifierList(modifierList: ScModifierList) {
+      override def visitModifierList(modifierList: ScModifierList): Unit = {
         ModifierChecker.checkModifiers(modifierList, holder)
         super.visitModifierList(modifierList)
       }
 
-      override def visitParameters(parameters: ScParameters) {
+      override def visitParameters(parameters: ScParameters): Unit = {
         annotateParameters(parameters, holder)
         super.visitParameters(parameters)
       }
 
-      override def visitTypeDefinition(typedef: ScTypeDefinition) {
+      override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
         super.visitTypeDefinition(typedef)
       }
 
@@ -346,7 +346,7 @@ abstract class ScalaAnnotator extends Annotator
         super.visitExistentialTypeElement(exist)
       }
 
-      override def visitTypeAlias(alias: ScTypeAlias) {
+      override def visitTypeAlias(alias: ScTypeAlias): Unit = {
         if (typeAware && !compiled && alias.getParent.isInstanceOf[ScTemplateBody]) {
           checkOverrideTypes(alias, holder)
         }
@@ -354,7 +354,7 @@ abstract class ScalaAnnotator extends Annotator
         super.visitTypeAlias(alias)
       }
 
-      override def visitVariable(varr: ScVariable) {
+      override def visitVariable(varr: ScVariable): Unit = {
         if (typeAware && !compiled && (varr.getParent.isInstanceOf[ScTemplateBody] ||
                 varr.getParent.isInstanceOf[ScEarlyDefinitions])) {
           checkOverrideVars(varr, holder, isInSources)
@@ -370,12 +370,12 @@ abstract class ScalaAnnotator extends Annotator
         super.visitVariable(varr)
       }
 
-      override def visitValueDeclaration(v: ScValueDeclaration) {
+      override def visitValueDeclaration(v: ScValueDeclaration): Unit = {
         checkAbstractMemberPrivateModifier(v, v.declaredElements.map(_.nameId), holder)
         super.visitValueDeclaration(v)
       }
 
-      override def visitValue(v: ScValue) {
+      override def visitValue(v: ScValue): Unit = {
         if (typeAware && !compiled && (v.getParent.isInstanceOf[ScTemplateBody] ||
                 v.getParent.isInstanceOf[ScEarlyDefinitions])) {
           checkOverrideVals(v, holder, isInSources)
@@ -390,7 +390,7 @@ abstract class ScalaAnnotator extends Annotator
         super.visitValue(v)
       }
 
-      override def visitClassParameter(parameter: ScClassParameter) {
+      override def visitClassParameter(parameter: ScClassParameter): Unit = {
         if (typeAware && !compiled) {
           checkOverrideClassParameters(parameter, holder)
         }
