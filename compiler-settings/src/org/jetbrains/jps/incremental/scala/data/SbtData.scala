@@ -3,6 +3,7 @@ package data
 
 import java.io._
 import java.security.MessageDigest
+import java.util.jar.JarFile
 import javax.xml.bind.DatatypeConverter
 
 import com.intellij.openapi.util.io.FileUtil
@@ -47,7 +48,7 @@ object SbtData {
               .toRight("No 'compiler-interface-sources.jar' in SBT home directory")
               .flatMap { sourceJar =>
 
-              readSbtVersionFrom(classLoader)
+              readSbtVersionFrom(sbtInterfaceJar)
                 .toRight("Unable to read SBT version from JVM classpath")
                 .map { sbtVersion =>
 
@@ -63,16 +64,9 @@ object SbtData {
     }
   }
 
-  private def readSbtVersionFrom(classLoader: ClassLoader): Option[String] = {
-    readProperty(classLoader, "xsbt.version.properties", "version").map { version =>
-      if (version.endsWith("-SNAPSHOT")) {
-        readProperty(getClass.getClassLoader, "xsbt.version.properties", "timestamp")
-          .map(timestamp => version + "-" + timestamp)
-          .getOrElse(version)
-      } else {
-        version
-      }
-    }
+  private def readSbtVersionFrom(sbtInterfaceJar: File): Option[String] = {
+    val manifest = new JarFile(sbtInterfaceJar).getManifest
+    Option(manifest.getMainAttributes.getValue("Implementation-Version"))
   }
 
   private def md5(file: File): Array[Byte] = {
