@@ -19,12 +19,8 @@ class StalactiteInjector extends SyntheticMembersInjector {
     source.findAnnotationNoAliases("stalactite.deriving") != null
 
   // slower, more correct
-  def stalactite(source: ScTypeDefinition): ScAnnotation = {
-    val candidates = source.annotations("stalactite.deriving")
-    if (candidates.size != 1)
-      throw new IllegalArgumentException("expected a single @deriving annotation")
-    candidates.head
-  }
+  def stalactite(source: ScTypeDefinition): ScAnnotation =
+    source.annotations("stalactite.deriving").head
 
   // so annotated sealed traits will generate a companion
   override def needsCompanionObject(source: ScTypeDefinition): Boolean =
