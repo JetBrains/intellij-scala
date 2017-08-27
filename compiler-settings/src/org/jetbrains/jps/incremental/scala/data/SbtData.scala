@@ -9,16 +9,21 @@ import javax.xml.bind.DatatypeConverter
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.scala._
 
+import scala.util.{Failure, Success, Try}
+
 /**
  * @author Pavel Fatin
  */
 case class SbtData(sbtInterfaceJar: File,
                    compilerInterfaceJar: File,
-                   sourceJar: File,
+                   sourceJars: SbtData.SourceJars,
                    interfacesHome: File,
                    javaClassVersion: String)
 
 object SbtData {
+
+  case class SourceJars(_2_10: File, _2_11: File)
+
   val compilerInterfacesKey = "scala.compiler.interfaces.dir"
 
   private def compilerInterfacesDir = {
@@ -36,37 +41,37 @@ object SbtData {
         .toRight("Invalid SBT home directory: " + sbtHome.getPath)
         .flatMap { files =>
 
-        files.find(_.getName == "sbt-interface.jar")
-          .toRight("No 'sbt-interface.jar' in SBT home directory")
-          .flatMap { sbtInterfaceJar =>
-
-          files.find(_.getName == "compiler-interface.jar")
-            .toRight("No 'compiler-interface.jar' in SBT home directory")
-            .flatMap { compilerInterfaceJar =>
-
-            files.find(_.getName == "compiler-interface-sources.jar")
-              .toRight("No 'compiler-interface-sources.jar' in SBT home directory")
-              .flatMap { sourceJar =>
-
-              readSbtVersionFrom(sbtInterfaceJar)
-                .toRight("Unable to read SBT version from JVM classpath")
-                .map { sbtVersion =>
-
-                val checksum = DatatypeConverter.printHexBinary(md5(sourceJar))
-                val interfacesHome = new File(compilerInterfacesDir, sbtVersion + "-idea-" + checksum)
-
-                new SbtData(sbtInterfaceJar, compilerInterfaceJar, sourceJar, interfacesHome, javaClassVersion)
-              }
-            }
+          def fileWithName(name: String): Either[String, File] = {
+            files.find(_.getName == name)
+              .toRight(s"No '$name' in SBT home directory")
           }
-        }
+
+          for {
+            sbtInterfaceJar      <- fileWithName("sbt-interface.jar")
+            compilerInterfaceJar <- fileWithName("compiler-interface.jar")
+            source_2_10          <- fileWithName("compiler-interface-sources-2.10.jar")
+            source_2_11          <- fileWithName("compiler-interface-sources-2.11.jar")
+            sbtVersion           <- readSbtVersionFrom(sbtInterfaceJar)
+          } yield {
+
+            val checksum = DatatypeConverter.printHexBinary(md5(source_2_10))
+            val interfacesHome = new File(compilerInterfacesDir, sbtVersion + "-idea-" + checksum)
+            val sources = SourceJars(source_2_10, source_2_11)
+
+            new SbtData(sbtInterfaceJar, compilerInterfaceJar, sources, interfacesHome, javaClassVersion)
+          }
       }
     }
   }
 
-  private def readSbtVersionFrom(sbtInterfaceJar: File): Option[String] = {
-    val manifest = new JarFile(sbtInterfaceJar).getManifest
-    Option(manifest.getMainAttributes.getValue("Implementation-Version"))
+  private def readSbtVersionFrom(sbtInterfaceJar: File): Either[String, String] = {
+    Try {
+      val manifest = new JarFile(sbtInterfaceJar).getManifest
+      manifest.getMainAttributes.getValue("Implementation-Version")
+    } match {
+      case Success(version) => Right(version)
+      case Failure(t) => Left(s"Unable to read SBT version from JVM classpath:\n$t")
+    }
   }
 
   private def md5(file: File): Array[Byte] = {

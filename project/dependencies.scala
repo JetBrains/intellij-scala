@@ -95,10 +95,12 @@ object Dependencies {
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
-  val compilerBridgeSources =  "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion
   val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
   val sbtInterface = "org.scala-sbt" % "util-interface" % "1.0.0"
+
+  val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
+  val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
 
   private def sbtPluginDependency(module: ModuleID, sbtVersion: String): ModuleID =
     sbt.Defaults.sbtPluginExtra(module, sbtVersion, Sbt.scalaVersion(sbtVersion))
@@ -111,8 +113,7 @@ object DependencyGroups {
 
   val sbtBundled = Seq(
     zinc,
-    zincInterface,
-    compilerBridgeSources
+    zincInterface
   )
 
   val scalastyle: Seq[ModuleID] = Seq(
@@ -242,6 +243,8 @@ object DependencyGroups {
     sbtLaunch,
     sbtStructureExtractor_012,
     sbtStructureExtractor_013,
-    sbtStructureExtractor_100
+    sbtStructureExtractor_100,
+    compilerBridgeSources_2_10,
+    compilerBridgeSources_2_11
   )
 }

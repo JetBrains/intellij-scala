@@ -29,7 +29,8 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
     Seq(
       fileToPath(sbtData.sbtInterfaceJar),
       fileToPath(sbtData.compilerInterfaceJar),
-      fileToPath(sbtData.sourceJar),
+      fileToPath(sbtData.sourceJars._2_10),
+      fileToPath(sbtData.sourceJars._2_11),
       fileToPath(sbtData.interfacesHome),
       sbtData.javaClassVersion,
       optionToString(compilerJarPaths),
@@ -62,7 +63,8 @@ object Arguments {
     case Seq(
       PathToFile(sbtInterfaceJar),
       PathToFile(compilerInterfaceJar),
-      PathToFile(sourceJar),
+      PathToFile(sourceJar_2_10),
+      PathToFile(sourceJar_2_11),
       PathToFile(interfacesHome),
       javaClassVersion,
       StringToOption(compilerJarPaths),
@@ -85,7 +87,8 @@ object Arguments {
       :+ StringToBoolean(isCompile)
      =>
 
-      val sbtData = SbtData(sbtInterfaceJar, compilerInterfaceJar, sourceJar, interfacesHome, javaClassVersion)
+      val sourceJars = SbtData.SourceJars(sourceJar_2_10, sourceJar_2_11)
+      val sbtData = SbtData(sbtInterfaceJar, compilerInterfaceJar, sourceJars, interfacesHome, javaClassVersion)
 
       val compilerJars = compilerJarPaths.map {
         case PathsToFiles(Seq(libraryJar, compilerJar, extraJars @ _*)) =>

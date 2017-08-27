@@ -67,7 +67,7 @@ class ILoopWrapperFactoryHandler {
     val interfaceJar = sbtData.compilerInterfaceJar
 
     val sourceJar = {
-      val f = sbtData.sourceJar
+      val f = sbtData.sourceJars._2_11
       new File(f.getParent, "repl-interface-sources.jar")
     }
 
