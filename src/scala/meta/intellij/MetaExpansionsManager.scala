@@ -111,7 +111,7 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
     try {
       annotClass.flatMap(clazz =>
         classLoader.map(  loader =>
-          loader.loadClass(clazz.asInstanceOf[ScTemplateDefinition].qualifiedName + "$inline$")
+          loader.loadClass((clazz.asInstanceOf[ScTemplateDefinition].qualifiedName + "$inline$").replaceAll("\\.", "\\$"))
         )
       )
     } catch {
