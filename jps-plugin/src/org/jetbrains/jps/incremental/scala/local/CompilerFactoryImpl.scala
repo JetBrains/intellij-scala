@@ -15,10 +15,10 @@ import sbt.internal.inc.javac.JavaTools
 import sbt.internal.inc.classpath.ClassLoaderCache
 
 /**
- * @author Pavel Fatin
- */
+  * @author Pavel Fatin
+  */
 class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
-  
+
   def createCompiler(compilerData: CompilerData, client: Client, fileToStore: File => AnalysisStore): Compiler = {
 
     val scalac: Option[AnalyzingCompiler] = getScalac(sbtData, compilerData.compilerJars, client)
@@ -27,12 +27,12 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
       case IncrementalityType.SBT =>
         val javac = {
           val scala = getScalaInstance(compilerData.compilerJars)
-                  .getOrElse(new ScalaInstance("stub", null, new File(""), new File(""), Array.empty, None))
+            .getOrElse(new ScalaInstance("stub", null, new File(""), new File(""), Array.empty, None))
           val classpathOptions = ClasspathOptionsUtil.javac(false)
           JavaTools.directOrFork(scala, classpathOptions, compilerData.javaHome)
         }
         new SbtCompiler(javac, scalac, fileToStore)
-        
+
       case IncrementalityType.IDEA =>
         if (scalac.isDefined) new IdeaIncrementalCompiler(scalac.get)
         else throw new IllegalStateException("Could not create scalac instance")
@@ -45,7 +45,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 
   def getScalac(sbtData: SbtData, compilerJars: Option[CompilerJars], client: Client): Option[AnalyzingCompiler] = {
     getScalaInstance(compilerJars).map { scala =>
-      val compiledInterfaceJar = getOrCompileInterfaceJar(sbtData.interfacesHome, sbtData.sourceJar,
+      val compiledInterfaceJar = getOrCompileInterfaceJar(sbtData.interfacesHome, sbtData.sourceJars,
         Seq(sbtData.sbtInterfaceJar, sbtData.compilerInterfaceJar), scala, sbtData.javaClassVersion, Option(client))
 
       new AnalyzingCompiler(scala,
@@ -90,13 +90,17 @@ object CompilerFactoryImpl {
     readProperty(classLoader, "compiler.properties", "version.number")
 
   def getOrCompileInterfaceJar(home: File,
-                                       sourceJar: File,
-                                       interfaceJars: Seq[File],
-                                       scalaInstance: ScalaInstance,
-                                       javaClassVersion: String,
-                                       client: Option[Client]): File = {
+                               sourceJars: SbtData.SourceJars,
+                               interfaceJars: Seq[File],
+                               scalaInstance: ScalaInstance,
+                               javaClassVersion: String,
+                               client: Option[Client]): File = {
 
     val scalaVersion = scalaInstance.actualVersion
+    val sourceJar =
+      if (isBefore_2_11(scalaVersion)) sourceJars._2_10
+      else sourceJars._2_11
+
     val interfaceId = "compiler-interface-" + scalaVersion + "-" + javaClassVersion
     val targetJar = new File(home, interfaceId + ".jar")
 
@@ -109,6 +113,8 @@ object CompilerFactoryImpl {
 
     targetJar
   }
+
+  def isBefore_2_11(version: String): Boolean = version.startsWith("2.10") || !version.startsWith("2.1")
 }
 
 object NullLogger extends Logger {

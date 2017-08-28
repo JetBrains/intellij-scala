@@ -76,34 +76,11 @@ abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[Fil
   implicit def files2paths(files: Iterable[File]): String = files map file2path mkString "\n"
   implicit def array2string(arr: Array[String]): String = arr mkString "\n"
 
-  /**
-   *     Seq(
-      fileToPath(sbtData.interfaceJar),
-      fileToPath(sbtData.sourceJar),
-      fileToPath(sbtData.interfacesHome),
-      sbtData.javaClassVersion,
-      optionToString(compilerJarPaths),
-      optionToString(javaHomePath),
-      filesToPaths(compilationData.sources),
-      filesToPaths(compilationData.classpath),
-      fileToPath(compilationData.output),
-      sequenceToString(compilationData.scalaOptions),
-      sequenceToString(compilationData.javaOptions),
-      compilationData.order.toString,
-      fileToPath(compilationData.cacheFile),
-      filesToPaths(outputs),
-      filesToPaths(caches),
-      incrementalType.name,
-      filesToPaths(sourceRoots),
-      filesToPaths(outputDirs),
-      sequenceToString(worksheetFiles),
-      nameHashing.name
-    )
-   */
   def arguments = Seq[String](
     sbtData.sbtInterfaceJar,
     sbtData.compilerInterfaceJar,
-    sbtData.sourceJar,
+    sbtData.sourceJars._2_10,
+    sbtData.sourceJars._2_11,
     sbtData.interfacesHome,
     sbtData.javaClassVersion,
     compilerClasspath,
@@ -121,7 +98,9 @@ abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[Fil
     sourceRoot,
     outputDir,
     worksheetArgs,
-    compilerSettings.sbtIncOptions.asString
+    "", //allSources, used in zinc only
+    "0", //timestamp, used in zinc only
+    "false" //isCompile
   )
   
   protected def configurationError(message: String) = throw new IllegalArgumentException(message)
