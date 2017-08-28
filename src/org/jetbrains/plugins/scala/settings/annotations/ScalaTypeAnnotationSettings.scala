@@ -28,8 +28,8 @@ object ScalaTypeAnnotationSettings {
       import style._
 
       {
-        (TYPE_ANNOTATION_IMPLICIT_MODIFIER && declaration.isImplicit).option("implicit definition")
-          .orElse((TYPE_ANNOTATION_UNIT_TYPE && !entity.isParameter && declaration.hasUnitType).option("Unit type"))
+        (TYPE_ANNOTATION_IMPLICIT_MODIFIER && !entity.isParameter && declaration.isImplicit).option("implicit definition")
+          .orElse((TYPE_ANNOTATION_UNIT_TYPE && !entity.isParameter && declaration.hasUnitType).option("Unit definition"))
           .orElse((entity == Entity.Method && implementation.exists(_.containsReturn)).option("method with 'return'"))
       } orElse {
         {
