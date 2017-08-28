@@ -195,6 +195,11 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("SPACE_INSIDE_SELF_TYPE_BRACES", "Self type braces", CodeStyleSettingsCustomizable.SPACES_WITHIN)
     }
 
+    if (settingsType == SettingsType.BLANK_LINES_SETTINGS) {
+      showCustomOption("BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES", "Around method in inner scopes", CodeStyleSettingsCustomizable.BLANK_LINES)
+      showCustomOption("BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES", "Around field in inner scopes", CodeStyleSettingsCustomizable.BLANK_LINES)
+    }
+
     if (settingsType == SettingsType.LANGUAGE_SPECIFIC) {
       showCustomOption("SD_ALIGN_PARAMETERS_COMMENTS", "Align parameter descriptions", ScalaDocFormattingPanel.ALIGNMENT_GROUP)
       showCustomOption("SD_ALIGN_EXCEPTION_COMMENTS", "Align throws exception descriptions", ScalaDocFormattingPanel.ALIGNMENT_GROUP)

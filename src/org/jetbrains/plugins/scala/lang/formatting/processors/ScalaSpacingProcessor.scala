@@ -678,24 +678,34 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         leftPsi.getParent match {
           case b @ (_: ScEarlyDefinitions | _: ScTemplateBody) =>
             val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
-            val setting = leftPsi match {
-              case _: ScFunction if p.isInstanceOf[ScTrait] => settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
-              case _: ScFunction => settings.BLANK_LINES_AROUND_METHOD
+            val setting = (leftPsi, rightPsi) match {
+              case (_: ScFunction, _: ScValueOrVariable) | (_: ScValueOrVariable, _: ScFunction) |
+                   (_: ScTypeAlias, _: ScFunction) | (_: ScFunction, _: ScTypeAlias) =>
+                if (p.isInstanceOf[ScTrait])
+                  math.max(settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE, settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE)
+                else
+                  math.max(settings.BLANK_LINES_AROUND_FIELD, settings.BLANK_LINES_AROUND_METHOD)
+              case (_: ScFunction, _) | (_, _: ScFunction) =>
+                if (p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
+                else settings.BLANK_LINES_AROUND_METHOD
               case _ =>
-                rightPsi match {
-                case _: ScFunction if p.isInstanceOf[ScTrait] => settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
-                case _: ScFunction => settings.BLANK_LINES_AROUND_METHOD
-                case _ if p.isInstanceOf[ScTrait] => settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE
-                case _ => settings.BLANK_LINES_AROUND_FIELD
-              }
+                if (p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE else settings.BLANK_LINES_AROUND_FIELD
             }
             if (rightPsi.isInstanceOf[PsiComment] && !fileText.
               substring(leftPsi.getTextRange.getEndOffset, rightPsi.getTextRange.getEndOffset).contains("\n"))
               return COMMON_SPACING
             else
               return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+          case _: ScBlock if rightPsi.isInstanceOf[PsiComment] =>
           case _: ScBlock =>
-            return Spacing.createSpacing(0, 0, 1, keepLineBreaks, keepBlankLinesInDeclarations)
+            val setting = (leftPsi, rightPsi) match {
+              case (_: ScFunction, _: ScValueOrVariable) | (_: ScValueOrVariable, _: ScFunction) |
+                   (_: ScTypeAlias, _: ScFunction) | (_: ScFunction, _: ScTypeAlias) =>
+                math.max(scalaSettings.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES, scalaSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES)
+              case (_: ScFunction, _) | (_, _: ScFunction) => scalaSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES
+              case _ => scalaSettings.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES
+            }
+            return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
           case _ =>
         }
       }

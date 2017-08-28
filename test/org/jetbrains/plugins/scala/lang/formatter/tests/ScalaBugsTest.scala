@@ -2635,12 +2635,113 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  private val SCL12353Before =
+    """
+      |class SCL12353 {
+      |  val x = 1
+      |  val y = 2
+      |  val z = 3
+      |  def foo = {
+      |    val a = 1
+      |    println(a)
+      |    val b = 1
+      |    def boo = 42
+      |    def goo = 22
+      |    val c = 1
+      |    val d = 1
+      |  }
+      |  def bar = 42
+      |  val y1 = 13
+      |  trait Inner {
+      |    val x = 1
+      |    val y = 2
+      |    val z = 3
+      |    def foo = {
+      |      val a = 1
+      |      println(a)
+      |      val b = 1
+      |      def boo = 42
+      |      def goo = 22
+      |      val c = 1
+      |      val d = 1
+      |    }
+      |    def bar = 42
+      |    val y1 = 13
+      |  }
+      |}
+    """.stripMargin
+
   def testSCL12353_1(): Unit = {
     getCommonSettings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE = 1
     getCommonSettings.BLANK_LINES_AROUND_FIELD = 1
     getCommonSettings.BLANK_LINES_AROUND_METHOD = 1
     getCommonSettings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE = 1
-    val before =
+
+    val after =
+      """
+        |class SCL12353 {
+        |  val x = 1
+        |
+        |  val y = 2
+        |
+        |  val z = 3
+        |
+        |  def foo = {
+        |    val a = 1
+        |    println(a)
+        |    val b = 1
+        |
+        |    def boo = 42
+        |
+        |    def goo = 22
+        |
+        |    val c = 1
+        |    val d = 1
+        |  }
+        |
+        |  def bar = 42
+        |
+        |  val y1 = 13
+        |
+        |  trait Inner {
+        |    val x = 1
+        |
+        |    val y = 2
+        |
+        |    val z = 3
+        |
+        |    def foo = {
+        |      val a = 1
+        |      println(a)
+        |      val b = 1
+        |
+        |      def boo = 42
+        |
+        |      def goo = 22
+        |
+        |      val c = 1
+        |      val d = 1
+        |    }
+        |
+        |    def bar = 42
+        |
+        |    val y1 = 13
+        |  }
+        |
+        |}
+      """.stripMargin
+    doTextTest(SCL12353Before, after)
+  }
+
+  def testSCL12353_2(): Unit = {
+    getScalaSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = 0
+    getScalaSettings.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES = 1
+    getCommonSettings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE = 0
+    getCommonSettings.BLANK_LINES_AROUND_FIELD = 0
+    getCommonSettings.BLANK_LINES_AROUND_METHOD = 0
+    getCommonSettings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE = 0
+
+    val after =
       """
         |class SCL12353 {
         |  val x = 1
@@ -2648,33 +2749,55 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  val z = 3
         |  def foo = {
         |    val a = 1
+        |
         |    println(a)
+        |
         |    val b = 1
+        |
         |    def boo = 42
         |    def goo = 22
+        |
         |    val c = 1
+        |
         |    val d = 1
         |  }
         |  def bar = 42
         |  val y1 = 13
+        |
         |  trait Inner {
         |    val x = 1
         |    val y = 2
         |    val z = 3
         |    def foo = {
         |      val a = 1
+        |
         |      println(a)
+        |
         |      val b = 1
+        |
         |      def boo = 42
         |      def goo = 22
+        |
         |      val c = 1
+        |
         |      val d = 1
         |    }
         |    def bar = 42
         |    val y1 = 13
         |  }
+        |
         |}
       """.stripMargin
+    doTextTest(SCL12353Before, after)
+  }
+
+  def testSCL12353_3(): Unit = {
+    getCommonSettings.BLANK_LINES_AROUND_FIELD = 1
+    getCommonSettings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE = 1
+    getCommonSettings.BLANK_LINES_AROUND_METHOD = 0
+    getCommonSettings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE = 0
+    getScalaSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = 0
+    getScalaSettings.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES = 0
     val after =
       """
         |class SCL12353 {
@@ -2693,7 +2816,6 @@ bars foreach {case (x, y) => list.add(x + y)}
         |    val c = 1
         |    val d = 1
         |  }
-        |
         |  def bar = 42
         |
         |  val y1 = 13
@@ -2714,7 +2836,6 @@ bars foreach {case (x, y) => list.add(x + y)}
         |      val c = 1
         |      val d = 1
         |    }
-        |
         |    def bar = 42
         |
         |    val y1 = 13
@@ -2722,7 +2843,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |
         |}
       """.stripMargin
-    doTextTest(before, after)
+    doTextTest(SCL12353Before, after)
   }
 
   def testSCL12347(): Unit = {

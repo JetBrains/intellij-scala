@@ -59,6 +59,10 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean INDENT_BRACED_FUNCTION_ARGS = true;
   public boolean DO_NOT_INDENT_CASE_CLAUSE_BODY = false;
 
+  //blank lines
+  public int BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = 1;
+  public int BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES = 0;
+
   //todo: add to spacing settings
   //spacing settings:
   public boolean SPACE_BEFORE_BRACE_METHOD_CALL = true;
