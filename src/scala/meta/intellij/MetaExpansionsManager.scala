@@ -84,7 +84,7 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
       .map(m => CompilerPaths.getModuleOutputPath(m, false)).filter(_ != null).toList
     def projectOutputDirs(project: Project) = project.scalaModules.flatMap(sm => outputDirs(sm)).distinct.toList
 
-    def classLoaderForModule(module: Module): URLClassLoader = {
+    def classLoaderForModule(module: Module)(contextCP: Seq[URL]): URLClassLoader = {
       annotationClassLoaders.getOrElseUpdate(module.getName, {
         val dependencyCP: List[URL] = OrderEnumerator.orderEntries(module).getClassesRoots.toList.map(toUrl)
         val outDirs: List[URL] = projectOutputDirs(module.getProject).map(str => new File(str).toURI.toURL)
@@ -105,10 +105,10 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
       parent <- resolved.parentElement.map(_.asInstanceOf[ScClass])
     } yield parent
     val metaModule = annotClass.flatMap(_.module)
-    val contextCP = annot.module
+    val contextCP = annot.module.map(m=>outputDirs(m).map(new File(_).toURI.toURL)).getOrElse(Nil)
     val classLoader = metaModule
-      .map(classLoaderForModule)  // try annotation's own module first - if it exists as a part of rhe codebase
-      .orElse(annot.module.map(classLoaderForModule)) // otherwise it's somewhere among current module dependencies
+      .map(classLoaderForModule(_)(contextCP))  // try annotation's own module first - if it exists as a part of rhe codebase
+      .orElse(annot.module.map(classLoaderForModule(_)(contextCP))) // otherwise it's somewhere among current module dependencies
     try {
       annotClass.flatMap(clazz =>
         classLoader.map(  loader =>
