@@ -3,10 +3,8 @@ package statistics
 
 import java.util
 
-import com.intellij.ide.plugins.PluginManager
-import com.intellij.internal.statistic.AbstractApplicationUsagesCollector
+import com.intellij.internal.statistic.AbstractProjectsUsagesCollector
 import com.intellij.internal.statistic.beans.{GroupDescriptor, UsageDescriptor}
-import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk
@@ -23,7 +21,7 @@ import scala.collection.JavaConverters._
  * @author Alefas
  * @since 03.03.14
  */
-class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector {
+class ScalaApplicationUsagesCollector extends AbstractProjectsUsagesCollector {
   override def getProjectUsages(project: Project): util.Set[UsageDescriptor] = {
     extensions.inReadAction {
       val set: mutable.HashSet[UsageDescriptor] = new mutable.HashSet[UsageDescriptor]

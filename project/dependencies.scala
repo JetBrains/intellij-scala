@@ -4,7 +4,7 @@ object Versions {
   val scalaVersion: String = Scala.latest_2_12
   val scalaBinaryVersion: String = Scala.binary_2_12
   val sbtVersion: String = Sbt.latest
-  val ideaVersion = "172.3544.35"
+  val ideaVersion = "173.1751"
   val sbtStructureVersion: String = "2017.2"
   val sbtIdeaShellVersion: String = "2017.2"
   val luceneVersion = "4.8.1"

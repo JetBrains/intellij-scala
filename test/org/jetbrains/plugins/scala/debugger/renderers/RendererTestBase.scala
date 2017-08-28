@@ -42,7 +42,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
         override def setRemaining(remaining: Int): Unit = {}
 
-        override def initChildrenArrayRenderer(renderer: ArrayRenderer): Unit = {}
+        override def initChildrenArrayRenderer(renderer: ArrayRenderer, arrayLength: Int): Unit = {}
 
         override def getParentDescriptor: ValueDescriptor = testVariable
 

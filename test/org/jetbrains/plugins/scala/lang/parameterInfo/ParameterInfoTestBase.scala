@@ -118,6 +118,8 @@ object ParameterInfoTestBase {
     def getCurrentParameterIndex: Int = 0
 
     def setUIComponentEnabled(enabled: Boolean): Unit = {}
+
+    override def isSingleParameterInfo = false
   }
 
   private def expectedSignatures(lastElement: PsiElement): Seq[Seq[String]] = {
