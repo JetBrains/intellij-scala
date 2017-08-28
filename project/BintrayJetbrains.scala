@@ -17,6 +17,7 @@ object BintrayJetbrains {
     val structureExtractor013 = jbSbtResolver("jb-structure-extractor-0.13", Patterns.structureExtractor013)
     val sonatypeReleases = Resolver.sonatypeRepo("releases")
     val metaBintray = Resolver.url("scalameta-bintray", url("https://dl.bintray.com/scalameta/maven"))(Resolver.ivyStylePatterns)
+    val macrosMaven = Resolver.bintrayRepo("scalamacros", "maven")
   }
 
   object Patterns {
@@ -26,5 +27,6 @@ object BintrayJetbrains {
 
   val allResolvers = Seq(Resolvers.mavenPatched, Resolvers.structureCore, Resolvers.metaBintray,
                          Resolvers.structureExtractor012, Resolvers.structureExtractor013,
-                         Resolvers.scalaTestFindersPatched, Resolvers.scalaPluginDeps, Resolvers.sonatypeReleases)
+                         Resolvers.scalaTestFindersPatched, Resolvers.scalaPluginDeps, Resolvers.sonatypeReleases,
+                         Resolvers.macrosMaven)
 }

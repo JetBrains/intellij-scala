@@ -14,6 +14,7 @@ object Versions {
   val httpComponentsVersion = "4.3.1"
   val scalaMetaVersion = "1.8.0"
   val paradiseVersion = "3.0.0-M8"
+  val ScalamacrosVersion = "2.0.0-94-f03bbf3a"
 
   object Scala {
     val binary_2_9 = "2.9.2"
@@ -90,6 +91,7 @@ object Dependencies {
   val scalariform_2_11: ModuleID = "org.scalariform" % "scalariform_2.11" % "0.1.7"
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
+  val scalaMacros2: ModuleID = "org.scalamacros" %% "scalamacros" % ScalamacrosVersion
 
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
@@ -126,6 +128,7 @@ object DependencyGroups {
     scalaReflect,
     scalaXml,
     scalaMetaCore,
+    scalaMacros2,
     scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
