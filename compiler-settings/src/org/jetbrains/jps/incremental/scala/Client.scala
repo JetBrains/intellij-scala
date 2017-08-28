@@ -39,5 +39,8 @@ trait Client {
   def worksheetOutput(text: String) {}
   
   def compilationEnd() {}
+
+  /** Used in sbt compile to invalidate every begined source - so after cancel there will be work to recomile */
+  def sourceStarted(source: String): Unit = {}
 }
 

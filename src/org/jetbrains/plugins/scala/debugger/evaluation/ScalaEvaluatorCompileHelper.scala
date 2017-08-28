@@ -75,7 +75,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
   }
 
   def compile(files: Seq[File], module: Module, outputDir: File): Array[(File, String)] = {
-    CompileServerLauncher.ensureServerRunning(project)
+    assert(CompileServerLauncher.ensureServerRunning(project))
     val connector = new ServerConnector(module, files, outputDir)
     try {
       connector.compile() match {

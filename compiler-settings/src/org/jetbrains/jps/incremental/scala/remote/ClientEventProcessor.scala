@@ -35,6 +35,9 @@ class ClientEventProcessor(client: Client) {
 
       case WorksheetOutputEvent(text) => 
         client.worksheetOutput(text)
+
+      case CompilationStartedInSbt(file) =>
+        client.sourceStarted(file)
     }
   }
 }

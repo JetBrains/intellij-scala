@@ -7,7 +7,8 @@ import java.util
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget}
-import org.jetbrains.jps.incremental.CompileContext
+import org.jetbrains.jps.incremental.fs.CompilationRound
+import org.jetbrains.jps.incremental.{FSOperations, CompileContext}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
 
 import scala.collection.JavaConverters._
@@ -57,5 +58,9 @@ class IdeClientSbt(compilerName: String,
         key.set(context, formsToCompile)
       }
     }
+  }
+
+  override def sourceStarted(source: String): Unit = {
+    FSOperations.markDirty(context, CompilationRound.NEXT, new File(source))
   }
 }

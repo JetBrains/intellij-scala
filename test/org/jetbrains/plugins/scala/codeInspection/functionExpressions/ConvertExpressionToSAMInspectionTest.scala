@@ -316,7 +316,7 @@ class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
 
   def testByNameAndDefaultParams(): Unit = {
     val code =
-      s"""trait SAM { def test(s: ⇒ String, x: Int = 0): Unit }
+      s"""trait SAM { def test(s: => String, x: Int = 0): Unit }
          |
          |val sm: SAM = ${START}new SAM $END{
          |  override def test(s: => String, x: Int = 1): Unit = println(s)
@@ -324,7 +324,7 @@ class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
       """.stripMargin
     checkTextHasError(code)
     val text =
-      """trait SAM { def test(s: ⇒ String, x: Int = 0): Unit }
+      """trait SAM { def test(s: => String, x: Int = 0): Unit }
         |
         |val sm: SAM = new SAM {
         |  override def test(s: => String, x: Int = 1): Unit = println(s)
@@ -332,7 +332,7 @@ class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
       """.stripMargin
 
     def res =
-      """trait SAM { def test(s: ⇒ String, x: Int = 0): Unit }
+      """trait SAM { def test(s: => String, x: Int = 0): Unit }
         |
         |val sm: SAM = (s: String, x: Int) => println(s)
       """.stripMargin

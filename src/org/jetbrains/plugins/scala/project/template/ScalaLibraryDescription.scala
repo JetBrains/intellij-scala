@@ -99,8 +99,7 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
 
     val dottyFiles = scalaFiles ++
       (root / "cache" / "me.d-d" / "scala-compiler").allFiles ++
-      (root / "cache" / "ch.epfl.lamp").allFiles ++
-      (root / "cache" / "jline").allFiles
+      (root / "cache" / "ch.epfl.lamp").allFiles
 
     scalaSdksIn(scalaFiles) ++ dottySdksIn(dottyFiles)
   }
@@ -126,13 +125,12 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
       val compilerComponent = patchedCompilers.maxBy(_.version.get)
 
       val dottyComponents = components.filter {
-        case Component(DottyInterfaces | DottyCompiler | DottyLibrary, _, Some(_), _) => true
+        case Component(DottyCompiler | DottyLibrary, _, Some(_), _) => true
         case _ => false
       }
 
       val otherComponents = components.filter {
         case Component(ScalaLibrary | ScalaReflect, _, Some(Version("2.11.5")), _) => true
-        case Component(JLine, _, Some(Version("2.12")), _) => true
         case _ => false
       }
 

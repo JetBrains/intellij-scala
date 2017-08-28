@@ -59,3 +59,7 @@ case class CompilationEndEvent() extends Event
 
 @SerialVersionUID(5572517354322649988L)
 case class WorksheetOutputEvent(text: String) extends Event
+
+@SerialVersionUID(1L)
+case class CompilationStartedInSbt(path: String) extends Event
+

@@ -12,7 +12,7 @@ import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
 
 /**
  * @author Pavel Fatin
- * @author Dmitry Naydanov         
+ * @author Dmitry Naydanov
  */
 object Main {
   private val Server = new LocalServer()
@@ -25,11 +25,11 @@ object Main {
     make(context.getArgs.toSeq, context.out, standalone = false)
     resetShutdownTimer(context)
   }
-  
+
   def main(args: Array[String]) {
     make(args, System.out, standalone = true)
   }
-  
+
   private def make(arguments: Seq[String], out: PrintStream, standalone: Boolean) {
     var hasErrors = false
 
@@ -54,30 +54,33 @@ object Main {
     val oldOut = System.out
     // Suppress any stdout data, interpret such data as error
     System.setOut(System.err)
-    
+
     try {
       val args = {
         val strings = arguments.map {
-          arg => 
+          arg =>
             val s = new String(Base64Converter.decode(arg.getBytes), "UTF-8")
             if (s == "#STUB#") "" else s
         }
         Arguments.from(strings)
       }
-      
+
       if (!worksheetServer.isRepl(args)) Server.compile(args.sbtData, args.compilerData, args.compilationData, client)
 
       if (!hasErrors) worksheetServer.loadAndRun(args, out, client, standalone)
     } catch {
-      case e: Throwable => 
+      case e: Throwable =>
         client.trace(e)
     } finally {
       System.setOut(oldOut)
     }
   }
 
-  private def cancelShutdown() = {
-    if (shutdownTimer != null) shutdownTimer.cancel()
+  private def cancelShutdown() = synchronized {
+    if (shutdownTimer != null) {
+      shutdownTimer.cancel()
+      shutdownTimer = null
+    }
   }
 
   private def resetShutdownTimer(context: NGContext) {
@@ -87,8 +90,12 @@ object Main {
       val shutdownTask = new TimerTask {
         override def run(): Unit = context.getNGServer.shutdown(true)
       }
-      shutdownTimer = new Timer()
-      shutdownTimer.schedule(shutdownTask, delayMs)
+
+      synchronized {
+        cancelShutdown()
+        shutdownTimer = new Timer()
+        shutdownTimer.schedule(shutdownTask, delayMs)
+      }
     }
   }
 }
