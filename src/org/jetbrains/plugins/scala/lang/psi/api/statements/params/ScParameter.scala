@@ -11,6 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.adapters.PsiParameterAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
@@ -30,7 +31,7 @@ import scala.annotation.tailrec
  */
 
 trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
-        PsiParameter with ScAnnotationsHolder with ScImportableDeclarationsOwner {
+        PsiParameterAdapter with ScAnnotationsHolder with ScImportableDeclarationsOwner {
   def getTypeElement: PsiTypeElement
 
   def isWildcard: Boolean = "_" == name

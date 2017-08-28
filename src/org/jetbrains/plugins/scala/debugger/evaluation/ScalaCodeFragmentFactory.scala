@@ -6,7 +6,6 @@ import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder
 import com.intellij.debugger.impl.DebuggerContextImpl
-import com.intellij.debugger.ui.DebuggerExpressionComboBox
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
@@ -46,7 +45,9 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
         val worker = new ScalaRuntimeTypeEvaluator(null, expr, debuggerContext, ProgressManager.getInstance.getProgressIndicator) {
           override def typeCalculationFinished(psiType: PsiType): Unit = {
             val psiClass = psiType match {
-              case tp: PsiClassType => tp.resolve()
+              case tp: PsiClassType =>
+                //noinspection ScalaRedundantCast
+                tp.resolve().asInstanceOf[PsiClass]
               case _ => null
             }
             nameRef.set(psiClass)

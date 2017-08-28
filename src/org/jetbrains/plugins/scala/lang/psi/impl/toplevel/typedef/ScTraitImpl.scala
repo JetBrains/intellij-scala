@@ -64,7 +64,7 @@ class ScTraitImpl private (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   override def isInterface: Boolean = true
 
-  override def getMethods: Array[PsiMethod] = {
+  override def psiMethods: Array[PsiMethod] = {
     getAllMethods.filter(_.containingClass == this)
   }
 

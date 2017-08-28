@@ -39,7 +39,7 @@ class ScLightTypeAliasDeclaration(s: TypeAliasSignature, val ta: ScTypeAliasDecl
 
   override def getModifierList: ScModifierList = ta.getModifierList
 
-  override def getAnnotations: Array[PsiAnnotation] = ta.getAnnotations
+  override def psiAnnotations: Array[PsiAnnotation] = ta.getAnnotations
 
   override def getApplicableAnnotations: Array[PsiAnnotation] = ta.getApplicableAnnotations
 

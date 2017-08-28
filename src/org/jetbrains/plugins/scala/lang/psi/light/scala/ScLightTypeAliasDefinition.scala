@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypeAliasSignature}
 
 /**
@@ -44,7 +44,7 @@ class ScLightTypeAliasDefinition(s: TypeAliasSignature, val ta: ScTypeAliasDefin
 
   override def getModifierList: ScModifierList = ta.getModifierList
 
-  override def getAnnotations: Array[PsiAnnotation] = ta.getAnnotations
+  override def psiAnnotations: Array[PsiAnnotation] = ta.getAnnotations
 
   override def getApplicableAnnotations: Array[PsiAnnotation] = ta.getApplicableAnnotations
 

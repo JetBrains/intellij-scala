@@ -97,7 +97,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   override def isCase: Boolean = hasModifierProperty("case")
 
-  override def getMethods: Array[PsiMethod] =
+  override def psiMethods: Array[PsiMethod] =
     getAllMethods.filter(_.containingClass == this)
 
   override def getAllMethods: Array[PsiMethod] = {
@@ -257,7 +257,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     } else None
   }
 
-  override def getFields: Array[PsiField] = {
+  override def psiFields: Array[PsiField] = {
     val fields = constructor match {
       case Some(constr) => constr.parameters.map { param =>
         param.getType(TypingContext.empty) match {
@@ -273,7 +273,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
       }
       case _ => Seq.empty
     }
-    super.getFields ++ fields.flatten
+    super.psiFields ++ fields.flatten
   }
 
   override def getTypeParameterList: PsiTypeParameterList = typeParametersClause.orNull

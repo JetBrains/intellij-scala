@@ -10,7 +10,8 @@ import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.{MethodSignatureBackedByPsiMethod, PsiTreeUtil}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.adapters.{PsiAnnotatedAdapter, PsiTypeParametersOwnerAdapter}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
@@ -33,7 +34,7 @@ class FakePsiMethod(
   val manager = navElement.getManager
   val language = navElement.getLanguage
   implicit val elementScope = navElement.elementScope
-} with LightElement(manager, language) with PsiMethod {
+} with LightElement(manager, language) with PsiMethod with PsiTypeParametersOwnerAdapter {
   def this(value: ScTypedDefinition, hasModifier: String => Boolean) = {
     this(value, value.name, Array.empty, value.getType(TypingContext.empty).getOrAny, hasModifier)
   }
@@ -59,7 +60,7 @@ class FakePsiMethod(
 
   def getTypeParameterList: PsiTypeParameterList = null
 
-  def getTypeParameters: Array[PsiTypeParameter] = PsiTypeParameter.EMPTY_ARRAY
+  def psiTypeParameters: Array[PsiTypeParameter] = PsiTypeParameter.EMPTY_ARRAY
 
   def hasTypeParameters: Boolean = false
 
@@ -129,7 +130,7 @@ class FakePsiMethod(
 }
 
 class FakePsiTypeElement(manager: PsiManager, language: Language, tp: ScType)
-        extends LightElement(manager, language) with PsiTypeElement {
+        extends LightElement(manager, language) with PsiTypeElement with PsiAnnotatedAdapter {
   def getTypeNoResolve(context: PsiElement): PsiType = PsiType.VOID //ScType.toPsi(tp, manager.getProject, GlobalSearchScope.allScope(manager.getProject))
 
   def getOwner(annotation: PsiAnnotation): PsiAnnotationOwner = null
@@ -144,7 +145,7 @@ class FakePsiTypeElement(manager: PsiManager, language: Language, tp: ScType)
 
   def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
 
-  def getAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
+  def psiAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
 
   override def getText: String = tp.toString
 
@@ -175,7 +176,7 @@ class FakePsiParameter(manager: PsiManager, language: Language, val parameter: P
 
   def isVarArgs: Boolean = false
 
-  def getAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
+  def psiAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
 
   override def getName: String = name
 

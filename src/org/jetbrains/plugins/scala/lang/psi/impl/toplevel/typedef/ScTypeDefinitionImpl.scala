@@ -316,7 +316,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     case _ => getParent.getNode.removeChild(getNode)
   }
 
-  override def getTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
+  override def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
 
   override def getSupers: Array[PsiClass] = extendsBlock.supers.filter(_ != this).toArray
 
@@ -357,7 +357,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
 
   override def isDeprecated: Boolean = byStubOrPsi(_.isDeprecated)(super[PsiClassFake].isDeprecated)
 
-  override def getInnerClasses: Array[PsiClass] = {
+  override def psiInnerClasses: Array[PsiClass] = {
     val inCompanionModule = baseCompanionModule.toSeq.flatMap {
       case o: ScObject =>
         o.members.flatMap {

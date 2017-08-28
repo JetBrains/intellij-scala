@@ -466,7 +466,8 @@ object MixinNodes {
               case td: ScTemplateDefinition => td.superTypes
               case clazz: PsiClass => clazz.getSuperTypes.map {
                 case ctp: PsiClassType =>
-                  val cl = ctp.resolve()
+                  //noinspection ScalaRedundantCast
+                  val cl = ctp.resolve().asInstanceOf[PsiClass]
                   if (cl != null && cl.qualifiedName == "java.lang.Object") ScDesignatorType(cl)
                   else ctp.toScType()
                 case ctp => ctp.toScType()

@@ -54,7 +54,7 @@ class ScLightFunctionDeclaration(pTypes: Seq[Seq[ScType]], tParams: Seq[TypePara
 
   override def hasAssign: Boolean = fun.hasAssign
 
-  override def getAnnotations: Array[PsiAnnotation] = fun.getAnnotations
+  override def psiAnnotations: Array[PsiAnnotation] = fun.getAnnotations
 
   override def getApplicableAnnotations: Array[PsiAnnotation] = fun.getApplicableAnnotations
 

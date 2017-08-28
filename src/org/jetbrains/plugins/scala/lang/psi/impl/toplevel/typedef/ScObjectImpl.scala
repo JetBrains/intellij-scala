@@ -185,7 +185,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     }
   }
 
-  override def getFields: Array[PsiField] = {
+  override def psiFields: Array[PsiField] = {
     getModuleField.toArray
   }
 
@@ -196,9 +196,9 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     }
   }
 
-  override def getInnerClasses: Array[PsiClass] = Array.empty
+  override def psiInnerClasses: Array[PsiClass] = Array.empty
 
-  override def getMethods: Array[PsiMethod] = {
+  override def psiMethods: Array[PsiMethod] = {
     getAllMethods.filter(_.containingClass == this)
   }
 

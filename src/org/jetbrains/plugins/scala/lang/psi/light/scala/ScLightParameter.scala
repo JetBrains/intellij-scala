@@ -49,7 +49,7 @@ class ScLightParameter(val param: ScParameter, tp: ScType, i: Int)
 
   override def hasFinalModifier: Boolean = param.hasFinalModifier
 
-  override def getAnnotations: Array[PsiAnnotation] = param.getAnnotations
+  override def psiAnnotations: Array[PsiAnnotation] = param.getAnnotations
 
   override def getApplicableAnnotations: Array[PsiAnnotation] = param.getApplicableAnnotations
 

@@ -41,7 +41,7 @@ class ScDelegatingLightTypeParam(t: TypeParameter, val tParam: ScTypeParam)
 
   override def getApplicableAnnotations: Array[PsiAnnotation] = tParam.getApplicableAnnotations
 
-  override def getAnnotations: Array[PsiAnnotation] = tParam.getAnnotations
+  override def psiAnnotations: Array[PsiAnnotation] = tParam.getAnnotations
 
   override def typeParameterText: String = tParam.typeParameterText
 

@@ -19,9 +19,9 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
+import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -43,7 +43,7 @@ import scala.collection.JavaConverters._
 /**
  * @author ven
  */
-trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
+trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Typeable {
   import com.intellij.psi.PsiMethod
   def qualifiedName: String = null
 

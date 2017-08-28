@@ -207,5 +207,5 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
     res.toArray
   }
 
-  override def getMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)
+  override def psiMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)
 }

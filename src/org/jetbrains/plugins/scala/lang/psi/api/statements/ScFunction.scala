@@ -302,7 +302,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     })
   }
 
-  def getTypeParameters: Array[PsiTypeParameter] = {
+  def psiTypeParameters: Array[PsiTypeParameter] = {
     val params = typeParameters
     val size = params.length
     val result = PsiTypeParameter.ARRAY_FACTORY.create(size)

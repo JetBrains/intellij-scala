@@ -18,6 +18,7 @@ import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTrait}
@@ -34,7 +35,7 @@ import _root_.scala.collection.mutable.ArrayBuffer
  */
 class PsiClassWrapper(val definition: ScTemplateDefinition,
                       private var qualName: String,
-                      private var name: String) extends LightElement(definition.getManager, definition.getLanguage) with PsiClass /*with SyntheticElement*/ {
+                      private var name: String) extends LightElement(definition.getManager, definition.getLanguage) with PsiClassAdapter /*with SyntheticElement*/ {
   override def hashCode(): Int = definition.hashCode()
 
   override def equals(obj: Any): Boolean = {
@@ -69,14 +70,14 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
 
   def getSuperTypes: Array[PsiClassType] = Array.empty
 
-  def getFields: Array[PsiField] = {
+  def psiFields: Array[PsiField] = {
     definition match {
       case _: ScObject => Array.empty
       case _ => definition.getFields //todo:
     }
   }
 
-  def getMethods: Array[PsiMethod] = {
+  def psiMethods: Array[PsiMethod] = {
     definition match {
       case obj: ScObject =>
         val res = new ArrayBuffer[PsiMethod]()
@@ -127,7 +128,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     Array(getEmptyConstructor)
   }
 
-  def getInnerClasses: Array[PsiClass] = {
+  override def psiInnerClasses: Array[PsiClass] = {
     definition match {
       case o: ScObject =>
         o.members.flatMap {
@@ -324,7 +325,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
 
   def getTypeParameterList: PsiTypeParameterList = null
 
-  def getTypeParameters: Array[PsiTypeParameter] = Array.empty
+  def psiTypeParameters: Array[PsiTypeParameter] = Array.empty
 
   override def isEquivalentTo(another: PsiElement): Boolean = {
     PsiClassImplUtil.isClassEquivalentTo(this, another)

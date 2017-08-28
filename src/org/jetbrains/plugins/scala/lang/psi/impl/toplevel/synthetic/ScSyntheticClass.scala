@@ -16,6 +16,7 @@ import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -83,7 +84,7 @@ class ScSyntheticTypeParameter(override val name: String, val owner: ScFun)
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
 sealed class ScSyntheticClass(val className: String, val stdType: StdType)
                              (implicit projectContext: ProjectContext)
-  extends SyntheticNamedElement(className) with PsiClass with PsiClassFake {
+  extends SyntheticNamedElement(className) with PsiClassAdapter with PsiClassFake {
   override def getPresentation: ItemPresentation = {
     new ItemPresentation {
       val This = ScSyntheticClass.this
@@ -96,6 +97,8 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
       def getIcon(open: Boolean): Icon = This.getIcon(0)
     }
   }
+
+  override def getNameIdentifier: PsiIdentifier = null
 
   override def toString = "Synthetic class"
 

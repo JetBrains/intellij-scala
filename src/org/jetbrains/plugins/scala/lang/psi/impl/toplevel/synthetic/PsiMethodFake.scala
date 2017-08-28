@@ -30,7 +30,7 @@ trait PsiMethodFake extends PsiMethod {
 
   def hasTypeParameters: Boolean = false
 
-  def getTypeParameters: Array[PsiTypeParameter] = null
+  def psiTypeParameters: Array[PsiTypeParameter] = null
 
   def getTypeParameterList: PsiTypeParameterList = null
 
