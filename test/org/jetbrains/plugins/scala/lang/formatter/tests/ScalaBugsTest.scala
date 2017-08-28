@@ -2860,6 +2860,7 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL12258(): Unit = {
+
     val before =
       """
         |
@@ -2871,6 +2872,40 @@ bars foreach {case (x, y) => list.add(x + y)}
         |    snd <- Some(2)
         |  } println(s"${fst}${snd}")
         |}
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL4290(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    val before =
+      """
+        |class SCL4290 {
+        |  super.getFoo()
+        |    .foo()
+        |    .getBar()
+        |    .bar()
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class SCL4290 {
+        |  super.getFoo()
+        |       .foo()
+        |       .getBar()
+        |       .bar()
+        |}
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testSCL4290_1(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    val before =
+      """
+        |val x = foo().
+        |        foo().
+        |        goo()
       """.stripMargin
     doTextTest(before)
   }
