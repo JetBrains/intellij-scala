@@ -55,58 +55,38 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   def emptyResultSet: Boolean = candidatesSet.isEmpty || levelSet.isEmpty
 
-  protected var precedence: Int = 0
+  override protected val holder: TopPrecedenceHolder[String] = new TopPrecedenceHolder[String] {
+
+    private[this] var precedence: Int = 0
+
+    override def apply(result: ScalaResolveResult): Int = precedence
+
+    override def update(result: ScalaResolveResult, i: Int): Unit = {
+      precedence = i
+    }
+
+    override implicit def toRepresentation(result: ScalaResolveResult): String =
+      ResolveProcessor.toStringRepresentation(result)
+  }
 
   /**
     * This method useful for resetting precednce if we dropped
     * all found candidates to seek implicit conversion candidates.
     */
   def resetPrecedence() {
-    precedence = 0
+    holder(null) = 0
   }
 
   import PrecedenceTypes._
 
-  def checkImports(): Boolean = precedence <= IMPORT
+  def checkImports(): Boolean = checkPrecedence(IMPORT)
 
-  def checkWildcardImports(): Boolean = precedence <= WILDCARD_IMPORT
+  def checkWildcardImports(): Boolean = checkPrecedence(WILDCARD_IMPORT)
 
-  def checkPredefinedClassesAndPackages(): Boolean = precedence <= SCALA_PREDEF
+  def checkPredefinedClassesAndPackages(): Boolean = checkPrecedence(SCALA_PREDEF)
 
-  override protected def getQualifiedName(result: ScalaResolveResult): String = {
-    def defaultForTypeAlias(t: ScTypeAlias): String = {
-      if (t.getParent.isInstanceOf[ScTemplateBody] && t.containingClass != null) {
-        "TypeAlias:" + t.containingClass.qualifiedName + "#" + t.name
-      } else null
-    }
-
-    result.getActualElement match {
-      case _: ScTypeParam => null
-      case c: ScObject => "Object:" + c.qualifiedName
-      case c: PsiClass => "Class:" + c.qualifiedName
-      case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
-        t.aliasedType match {
-          case Success(tp, _) =>
-            tp.extractClass match {
-              case Some(_: ScObject) => defaultForTypeAlias(t)
-              case Some(td: ScTypeDefinition) if td.typeParameters.isEmpty && ScalaPsiUtil.hasStablePath(td) =>
-                "Class:" + td.qualifiedName
-              case Some(c: PsiClass) if c.getTypeParameters.isEmpty => "Class:" + c.qualifiedName
-              case _ => defaultForTypeAlias(t)
-            }
-          case _ => defaultForTypeAlias(t)
-        }
-      case t: ScTypeAlias => defaultForTypeAlias(t)
-      case p: PsiPackage => "Package:" + p.getQualifiedName
-      case _ => null
-    }
-  }
-
-  protected def getTopPrecedence(result: ScalaResolveResult): Int = precedence
-
-  protected def setTopPrecedence(result: ScalaResolveResult, i: Int) {
-    precedence = i
-  }
+  private def checkPrecedence(i: Int) =
+    holder(null) <= i
 
   override def changedLevel: Boolean = {
     if (!fromHistory && !history.lastOption.contains(ChangedLevel)) {
@@ -125,7 +105,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     }
 
     if (levelSet.isEmpty) true
-    else if (precedence == OTHER_MEMBERS) update
+    else if (holder(null) == OTHER_MEMBERS) update
     else !update
   }
 
@@ -301,4 +281,33 @@ object ResolveProcessor {
     left.isInstanceOf[ScTypeAliasDefinition] &&
       right.isInstanceOf[PsiClass] &&
       left.asInstanceOf[ScTypeAliasDefinition].isExactAliasFor(right.asInstanceOf[PsiClass])
+
+  private def toStringRepresentation(result: ScalaResolveResult): String = {
+    def defaultForTypeAlias(t: ScTypeAlias): String = {
+      if (t.getParent.isInstanceOf[ScTemplateBody] && t.containingClass != null) {
+        "TypeAlias:" + t.containingClass.qualifiedName + "#" + t.name
+      } else null
+    }
+
+    result.getActualElement match {
+      case _: ScTypeParam => null
+      case c: ScObject => "Object:" + c.qualifiedName
+      case c: PsiClass => "Class:" + c.qualifiedName
+      case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
+        t.aliasedType match {
+          case Success(tp, _) =>
+            tp.extractClass match {
+              case Some(_: ScObject) => defaultForTypeAlias(t)
+              case Some(td: ScTypeDefinition) if td.typeParameters.isEmpty && ScalaPsiUtil.hasStablePath(td) =>
+                "Class:" + td.qualifiedName
+              case Some(c: PsiClass) if c.getTypeParameters.isEmpty => "Class:" + c.qualifiedName
+              case _ => defaultForTypeAlias(t)
+            }
+          case _ => defaultForTypeAlias(t)
+        }
+      case t: ScTypeAlias => defaultForTypeAlias(t)
+      case p: PsiPackage => "Package:" + p.getQualifiedName
+      case _ => null
+    }
+  }
 }
