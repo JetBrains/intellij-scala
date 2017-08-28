@@ -227,12 +227,12 @@ object CompileServerLauncher {
     xmx ++ otherParams
   }
 
-  def ensureServerRunning(project: Project) {
+  def ensureServerRunning(project: Project): Boolean = {
     val launcher = CompileServerLauncher.instance
 
     if (needRestart(project)) launcher.stop()
 
-    if (!launcher.running) launcher.tryToStart(project)
+    launcher.running || launcher.tryToStart(project)
   }
 
   def needRestart(project: Project): Boolean = {
