@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
@@ -105,13 +105,14 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
       parent <- resolved.parentElement.map(_.asInstanceOf[ScClass])
     } yield parent
     val metaModule = annotClass.flatMap(_.module)
+    val contextCP = annot.module
     val classLoader = metaModule
       .map(classLoaderForModule)  // try annotation's own module first - if it exists as a part of rhe codebase
       .orElse(annot.module.map(classLoaderForModule)) // otherwise it's somewhere among current module dependencies
     try {
       annotClass.flatMap(clazz =>
         classLoader.map(  loader =>
-          loader.loadClass((clazz.asInstanceOf[ScTemplateDefinition].qualifiedName + "$inline$").replaceAll("\\.", "\\$"))
+          loader.loadClass(clazz.asInstanceOf[ScTypeDefinition].getQualifiedNameForDebugger + "$inline$")
         )
       )
     } catch {
