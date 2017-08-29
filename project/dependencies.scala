@@ -43,19 +43,12 @@ object Versions {
   object Sbt {
     val binary_0_12 = "0.12"
     val binary_0_13 = "0.13"
-    val binary_1_0 = "1"
+    val binary_1_0 = "1.0"
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.16"
     val latest_1_0 = "1.0.1"
     val latest: String = latest_1_0
-
-    def binaryVersion(v: String): String = {
-      if (v.startsWith(binary_0_12)) binary_0_12
-      else if (v.startsWith(binary_0_13)) binary_0_13
-      else if (v.startsWith(binary_1_0)) binary_1_0
-      else throw new RuntimeException(s"Unknown sbt binary version: $v -- need to update dependencies.scala?")
-    }
 
     def scalaVersion(v: String): String =
       if (v.startsWith(Sbt.binary_0_12)) Scala.binary_2_9
