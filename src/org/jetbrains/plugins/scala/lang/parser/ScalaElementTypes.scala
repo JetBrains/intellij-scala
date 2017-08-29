@@ -57,7 +57,7 @@ object ScalaElementTypes {
   val EARLY_DEFINITIONS = new ScEarlyDefinitionsElementType
   val FUNCTION_DEFINITION = new ScFunctionDefinitionElementType
   val MACRO_DEFINITION = new ScMacroDefinitionElementType
-  val MODIFIERS = new ScModifiersElementType("moifiers")
+  val MODIFIERS = new ScModifiersElementType("modifiers")
   val ACCESS_MODIFIER = new ScAccessModifierElementType
   val ANNOTATION = new ScAnnotationElementType
   val ANNOTATIONS = new ScAnnotationsElementType
