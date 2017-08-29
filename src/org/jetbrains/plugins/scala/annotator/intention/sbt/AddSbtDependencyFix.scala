@@ -46,7 +46,7 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
 
       val libDeps: Seq[ScInfixExpr] = getTopLevelLibraryDependencies(psiSbtFile)
       res ++= libDeps
-        .map((elem: ScInfixExpr) => toFileLine(elem, Seq())(project))
+        .map((elem: ScInfixExpr) => toDependencyPlaceInfo(elem, Seq())(project))
 
       val sbtProjects: Seq[ScPatternDefinition] = getTopLevelSbtProjects(psiSbtFile)
 
@@ -67,7 +67,7 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
         .sortWith(_._2.toString < _._2.toString)
         .sortWith(_._2.contains(moduleName) && !_._2.contains(moduleName))
         .map(_._1)
-        .map(elem => toFileLine(elem, elemToAffectedProjects(elem))(project))
+        .map(elem => toDependencyPlaceInfo(elem, elemToAffectedProjects(elem))(project))
 
       res ++= Seq(getTopLevelPlaceToAdd(psiSbtFile)(project))
 
