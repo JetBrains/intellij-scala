@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
   * @author Ignat Loskutov
@@ -15,6 +16,9 @@ class ExistsForallReplaceInspection extends OperationOnCollectionInspection {
 private object NegatedPredicate {
   def unapply(arg: ScExpression): Option[ScExpression] = arg match {
     case `!`(pred) => Some(pred)
+    case fExpr @ ScFunctionExpr(_, Some(`!`(pred))) =>
+      val newText = s"${fExpr.params.getText} => ${pred.getText}"
+      Some(ScalaPsiElementFactory.createExpressionWithContextFromText(newText, arg.getContext, arg))
     case _ => None
   }
 }

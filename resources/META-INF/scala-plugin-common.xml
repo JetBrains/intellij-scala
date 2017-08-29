@@ -1153,7 +1153,7 @@
                          shortName="FilterOtherContains" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsForallReplaceInspection"
-                       displayName="Negated exists and forall to non-negated counterparts" groupPath="Scala,Collections" groupName="Simplifications: forall and exists"
+                       displayName="Double negation in forall and exists" groupPath="Scala,Collections" groupName="Simplifications: forall and exists"
                        shortName="ExistsForallReplace" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
         <!--simplifications: other-->

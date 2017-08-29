@@ -25,6 +25,14 @@ class ReplaceForallWithExistsTest extends ExistsForallReplaceTest {
     val result = """Seq("").exists(_.isEmpty)"""
     testQuickFix(text, result, hint)
   }
+
+  def test_2() {
+    val selected = s"""$START!Seq("").forall(!_.isEmpty)$END"""
+    checkTextHasError(selected)
+    val text = """!Seq("").forall(s => !s.isEmpty)"""
+    val result = """Seq("").exists(s => s.isEmpty)"""
+    testQuickFix(text, result, hint)
+  }
 }
 
 class ReplaceSmthWithNotContainsTest extends ExistsForallReplaceTest {
@@ -37,6 +45,14 @@ class ReplaceSmthWithNotContainsTest extends ExistsForallReplaceTest {
     checkTextHasError(selected)
     val text = """!Seq("").exists(!_.isEmpty)"""
     val result = """Seq("").forall(_.isEmpty)"""
+    testQuickFix(text, result, hint)
+  }
+
+  def test_2() {
+    val selected = s"""$START!Seq("").exists(!_.isEmpty)$END"""
+    checkTextHasError(selected)
+    val text = """!Seq("").exists((s: String) => !s.isEmpty)"""
+    val result = """Seq("").forall((s: String) => s.isEmpty)"""
     testQuickFix(text, result, hint)
   }
 }
