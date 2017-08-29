@@ -7,7 +7,7 @@ import com.intellij.ide.wizard.Step
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
 /**
-  * Created by user on 7/19/17.
+  * Created by afonichkin on 7/19/17.
   */
 class SbtArtifactChooseDependencyStep(wizard: SbtArtifactSearchWizard, artifactInfoSet: Set[ArtifactInfo])
   extends SbtArtifactSearchPanel(wizard, artifactInfoSet) with Step {

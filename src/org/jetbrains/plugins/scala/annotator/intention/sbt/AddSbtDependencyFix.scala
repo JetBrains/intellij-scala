@@ -41,8 +41,8 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
     // For the case when refElement.refName is fully quialified name
     val artifactInfoSet = ivyIndex.searchArtifactInfo(getReferenceText)
 
-    def findFileLines(): Seq[FileLine] = {
-      var res: Seq[FileLine] = List()
+    def getDependencyPlaces: Seq[DependencyPlaceInfo] = {
+      var res: Seq[DependencyPlaceInfo] = List()
 
       val libDeps: Seq[ScInfixExpr] = getTopLevelLibraryDependencies(psiSbtFile)
       res ++= libDeps
@@ -51,8 +51,6 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
       val sbtProjects: Seq[ScPatternDefinition] = getTopLevelSbtProjects(psiSbtFile)
 
       val moduleName = ModuleUtilCore.findModuleForPsiElement(refElement).getName
-      val containsModule: Map[ScPatternDefinition, Boolean] =
-        sbtProjects.map(proj => proj -> containsModuleName(proj, moduleName)).toMap
 
       val modules = ModuleManager.getInstance(project).getModules
       val projToAffectedModules = sbtProjects.map(proj => proj -> modules.map(_.getName).filter(containsModuleName(proj, _))).toMap
@@ -76,7 +74,7 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
       res.distinct
     }
 
-    val foundFileLines = findFileLines()
+    val foundFileLines = getDependencyPlaces
 
     val wizard = new SbtArtifactSearchWizard(project, artifactInfoSet, foundFileLines)
 

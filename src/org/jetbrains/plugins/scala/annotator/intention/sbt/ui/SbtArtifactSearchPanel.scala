@@ -12,7 +12,7 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
 /**
-  * Created by user on 7/13/17.
+  * Created by afonichkin on 7/13/17.
   */
 class SbtArtifactSearchPanel(wizard: SbtArtifactSearchWizard, artifactInfoSet: Set[ArtifactInfo]) extends JPanel {
   var canGoNext: Boolean = false

@@ -18,19 +18,20 @@ import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{ScrollPaneFactory, SimpleColoredComponent, SimpleTextAttributes}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.annotator.intention.sbt.{AddSbtDependencyUtils, FileLine}
+import org.jetbrains.plugins.scala.annotator.intention.sbt.{AddSbtDependencyUtils, DependencyPlaceInfo}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
-  * Created by user on 7/19/17.
+  * Created by afonichkin on 7/19/17.
   */
-class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, fileLines: Seq[FileLine]) extends JPanel {
+class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, fileLines: Seq[DependencyPlaceInfo]) extends JPanel {
   val myResultList: Tree = new Tree()
-  var myCurFileLine: FileLine = _
+  var myCurFileLine: DependencyPlaceInfo = _
 
   var canGoNext: Boolean = false
 
   val myLayout = new BorderLayout()
+  var myCurEditor: Editor = _
 
   val EDITOR_TOP_MARGIN = 7
 
@@ -68,7 +69,7 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
           updateEditor()
         } else {
           path.getLastPathComponent match {
-            case fileLine: FileLine if myCurFileLine != fileLine =>
+            case fileLine: DependencyPlaceInfo if myCurFileLine != fileLine =>
               canGoNext = true
               myCurFileLine = fileLine
               updateEditor()
@@ -92,15 +93,23 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
       val scrollingModel = editor.getScrollingModel
       scrollingModel.scrollToCaret(ScrollType.CENTER)
       val oldPos = editor.offsetToLogicalPosition(myCurFileLine.line)
-      scrollingModel.scrollTo(new LogicalPosition(oldPos.line - EDITOR_TOP_MARGIN, oldPos.column), ScrollType.CENTER)
+      scrollingModel.scrollTo(new LogicalPosition(math.max(1, oldPos.line - EDITOR_TOP_MARGIN), oldPos.column), ScrollType.CENTER)
 
-      val prevSouthComponent = myLayout.getLayoutComponent(BorderLayout.SOUTH)
-      if (prevSouthComponent != null)
-        remove(prevSouthComponent)
+      releaseEditor()
+      myCurEditor = editor
 
       add(editor.getComponent, BorderLayout.SOUTH)
       updateUI()
     }
+  }
+
+  def releaseEditor(): Unit = {
+    val prevSouthComponent = myLayout.getLayoutComponent(BorderLayout.SOUTH)
+    if (prevSouthComponent != null)
+      remove(prevSouthComponent)
+
+    if (myCurEditor != null)
+      EditorFactory.getInstance.releaseEditor(myCurEditor)
   }
 
   private def createEditor(path: String): Editor = {
@@ -127,17 +136,17 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
     viewer
   }
 
-  def getResult: Option[FileLine] = {
+  def getResult: Option[DependencyPlaceInfo] = {
     for (path: TreePath <- myResultList.getSelectionPaths) {
       path.getLastPathComponent match {
-        case info: FileLine => return Some(info)
+        case info: DependencyPlaceInfo => return Some(info)
         case _ =>
       }
     }
     None
   }
 
-  private class MyTreeModel(elements: Seq[FileLine]) extends TreeModel {
+  private class MyTreeModel(elements: Seq[DependencyPlaceInfo]) extends TreeModel {
     override def getIndexOfChild(parent: scala.Any, child: scala.Any): Int = elements.indexOf(child)
 
     override def valueForPathChanged(treePath: TreePath, o: scala.Any): Unit = {}
@@ -173,7 +182,7 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
       setBackground(if (selected) UIUtil.getTreeSelectionBackground else tree.getBackground)
 
       value match {
-        case info: FileLine =>
+        case info: DependencyPlaceInfo =>
           myComponent.setIcon(AllIcons.Nodes.PpFile)
           myComponent.append(info.path + ":", SimpleTextAttributes.REGULAR_ATTRIBUTES)
           myComponent.append(info.line.toString, getGrayAttributes(selected))

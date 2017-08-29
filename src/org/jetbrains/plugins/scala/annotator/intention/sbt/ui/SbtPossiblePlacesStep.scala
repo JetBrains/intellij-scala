@@ -5,12 +5,12 @@ import javax.swing.{Icon, JComponent}
 
 import com.intellij.ide.wizard.Step
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.annotator.intention.sbt.FileLine
+import org.jetbrains.plugins.scala.annotator.intention.sbt.DependencyPlaceInfo
 
 /**
-  * Created by user on 7/19/17.
+  * Created by afonichkin on 7/19/17.
   */
-class SbtPossiblePlacesStep(wizard: SbtArtifactSearchWizard, project: Project, fileLines: Seq[FileLine])
+class SbtPossiblePlacesStep(wizard: SbtArtifactSearchWizard, project: Project, fileLines: Seq[DependencyPlaceInfo])
   extends SbtPossiblePlacesPanel(project, wizard, fileLines) with Step {
 
   override def _init(): Unit = {
@@ -22,8 +22,11 @@ class SbtPossiblePlacesStep(wizard: SbtArtifactSearchWizard, project: Project, f
   override def getComponent: JComponent = this
 
   override def _commit(finishChosen: Boolean): Unit = {
-    if (finishChosen)
+    if (finishChosen) {
       wizard.resultFileLine = getResult
+    }
+
+    releaseEditor()
   }
 
   override def getIcon: Icon = null
