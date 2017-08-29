@@ -85,6 +85,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
               val paramExpectedType = params(index)
               val param1 = param.getParent match {
                 case x: ScParameterClause if x.parameters.length == 1 =>
+                  // TODO Move this transformation to AddOnlyStrategy.addActualType
                   // ensure  that the parameter is wrapped in parentheses before we add the type annotation.
                   val clause: PsiElement = x.replace(createClauseForFunctionExprFromText(param.getText.parenthesize(true))(param.getManager))
                   clause.asInstanceOf[ScParameterClause].parameters.head
@@ -141,13 +142,20 @@ object AddOnlyStrategy {
   def addActualType(annotation: ScTypeElement, anchor: PsiElement): PsiElement = {
     implicit val ctx: ProjectContext = anchor
 
-    val parent = anchor.getParent
-    val added = parent.addAfter(annotation, anchor)
-
-    parent.addAfter(createWhitespace, anchor)
-    parent.addAfter(createColon, anchor)
-
-    added
+    anchor match {
+      case parameter: ScParameter =>
+        val identifier = parameter.nameId
+        val added = parameter.addAfter(createParameterTypeFromText(annotation.getText), identifier)
+        parameter.addAfter(createWhitespace, identifier)
+        parameter.addAfter(createColon, identifier)
+        added
+      case _ =>
+        val parent = anchor.getParent
+        val added = parent.addAfter(annotation, anchor)
+        parent.addAfter(createWhitespace, anchor)
+        parent.addAfter(createColon, anchor)
+        added
+    }
   }
 
   def annotationFor(`type`: ScType, anchor: PsiElement): Option[ScTypeElement] =

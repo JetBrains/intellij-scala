@@ -825,6 +825,10 @@ object ScalaPsiElementFactory {
       throw new IncorrectOperationException(s"wrong type element to parse: $text")
     }
 
+  def createParameterTypeFromText(text: String)(implicit ctx: ProjectContext): ScParameterType =
+    createScalaFileFromText(s"(_: $text) => ())")
+      .getFirstChild.asInstanceOf[ScFunctionExpr].parameters.head.paramType.get
+
   def createColon(implicit ctx: ProjectContext): PsiElement =
     createElementFromText("var f: Int", classOf[ScalaPsiElement]).findChildrenByType(ScalaTokenTypes.tCOLON).head
 
