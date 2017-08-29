@@ -31,7 +31,7 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
-  .dependsOn(compilerSettings, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
+  .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
@@ -71,7 +71,7 @@ lazy val scalaCommunity: sbt.Project =
 
 lazy val jpsPlugin =
   newProject("jpsPlugin", file("jps-plugin"))
-  .dependsOn(compilerSettings)
+  .dependsOn(jpsShared)
   .enablePlugins(SbtIdeaPlugin)
   .settings(
     libraryDependencies ++=
@@ -79,8 +79,8 @@ lazy val jpsPlugin =
         DependencyGroups.sbtBundled
   )
 
-lazy val compilerSettings =
-  newProject("compilerSettings", file("compiler-settings"))
+lazy val jpsShared =
+  newProject("jpsShared", file("jpsShared"))
   .enablePlugins(SbtIdeaPlugin)
   .settings(libraryDependencies += Dependencies.nailgun)
 
@@ -122,7 +122,7 @@ lazy val macroAnnotations =
 
 lazy val ideaRunner =
   newProject("ideaRunner", file("idea-runner"))
-  .dependsOn(Seq(compilerSettings, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, decompiler).map(_ % Provided): _*)
+  .dependsOn(Seq(jpsShared, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, decompiler).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
     unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value,
@@ -283,8 +283,8 @@ lazy val pluginPackagerCommunity =
           "lib/scala-plugin.jar"),
         Artifact(pack.in(decompiler, Compile).value,
           "lib/scalap.jar"),
-        Artifact(pack.in(compilerSettings, Compile).value,
-          "lib/compiler-settings.jar"),
+        Artifact(pack.in(jpsShared, Compile).value,
+          "lib/jpsShared.jar"),
         Artifact(pack.in(nailgunRunners, Compile).value,
           "lib/scala-nailgun-runner.jar"),
         MergedArtifact(Seq(

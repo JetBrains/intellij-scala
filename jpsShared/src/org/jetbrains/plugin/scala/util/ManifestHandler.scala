@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.util
+package org.jetbrains.plugin.scala.util
 
 import java.util.jar.{JarFile, Manifest}
 

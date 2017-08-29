@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.project.migration.store
 import java.io.File
 
 import org.jetbrains.plugins.scala.project.migration.store.ManifestAttributes._
-import org.jetbrains.plugins.scala.util.ManifestHandler
+import org.jetbrains.plugin.scala.util.ManifestHandler
 
 /**
   * User: Dmitry.Naydanov
