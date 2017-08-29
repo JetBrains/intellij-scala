@@ -33,8 +33,8 @@ object ScalaTypeAnnotationSettings {
           .orElse((entity == Entity.Method && implementation.exists(_.containsReturn)).option("method with 'return'"))
       } orElse {
         {
-          if (entity == Entity.Parameter) TYPE_ANNOTATION_FUNCTION_PARAMETER.option("function parameter")
-          if (entity == Entity.UnderscoreParameter) TYPE_ANNOTATION_UNDERSCORE_PARAMETER.option("underscore parameter")
+          if (entity == Entity.Parameter) TYPE_ANNOTATION_FUNCTION_PARAMETER.option("function literal parameter")
+          else if (entity == Entity.UnderscoreParameter) TYPE_ANNOTATION_UNDERSCORE_PARAMETER.option("underscore parameter")
           else if (isLocal) TYPE_ANNOTATION_LOCAL_DEFINITION.option("local definition")
           else declaration.visibility match {
             case Visibility.Private => TYPE_ANNOTATION_PRIVATE_MEMBER.option("private member")
