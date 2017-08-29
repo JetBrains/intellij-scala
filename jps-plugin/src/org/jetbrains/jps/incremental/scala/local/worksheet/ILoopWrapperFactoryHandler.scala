@@ -100,7 +100,7 @@ object ILoopWrapperFactoryHandler {
   private val REPL_FQN = "org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory"
 
   private val JAVA_USER_CP_KEY = "java.class.path"
-  private val STOP_WORDS = Set("scala-library.jar", "scala-nailgun-runner.jar", "nailgun.jar", "compiler-settings.jar",
+  private val STOP_WORDS = Set("scala-library.jar", "scala-nailgun-runner.jar", "nailgun.jar", "jpsShared.jar",
     "incremental-compiler.jar", "scala-jps-plugin.jar")
 
 

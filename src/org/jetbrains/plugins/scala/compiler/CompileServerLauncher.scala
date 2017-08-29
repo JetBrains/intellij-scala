@@ -190,7 +190,7 @@ object CompileServerLauncher {
       new File(pluginRoot, "scala-library.jar"),
       new File(pluginRoot, "scala-reflect.jar"),
       new File(pluginRoot, "scala-nailgun-runner.jar"),
-      new File(pluginRoot, "compiler-settings.jar"),
+      new File(pluginRoot, "jpsShared.jar"),
       new File(jpsRoot, "nailgun.jar"),
       new File(jpsRoot, "sbt-interface.jar"),
       new File(jpsRoot, "incremental-compiler.jar"),

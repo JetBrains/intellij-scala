@@ -56,7 +56,7 @@ abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[Fil
 
   private val compilerClasspath = scalaSdk.compilerClasspath
 
-  private val compilerSettingsJar = new File(libCanonicalPath, "compiler-settings.jar")
+  private val compilerSettingsJar = new File(libCanonicalPath, "jpsShared.jar")
   
   protected val runnersJar = new File(libCanonicalPath, "scala-plugin-runners.jar")
 
