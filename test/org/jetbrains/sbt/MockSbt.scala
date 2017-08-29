@@ -56,14 +56,15 @@ trait MockSbt_0_13 extends MockSbtBase {
 trait MockSbt_1_0 extends MockSbtBase {
   override implicit val version: ScalaVersion = Scala_2_12
 
-  private val sbt_1_0_modules = Seq(
-    "actions", "collections", "command", "completion", "core-macros", "io", "librarymanagement-core", "librarymanagement-ivy",
-    "logic", "main-settings", "main", "protocol", "run", /*"sbinary",*/ "task-system", "tasks", "testing", "util-cache",
-    "util-control", "util-logging", "util-position", "util-relation", "util-tracking", "zinc-apiinfo", "zinc-classfile",
-    "zinc-classpath", "zinc-compile-core", "zinc-compile", "zinc-core", "zinc-ivy-integration", "zinc-persist", "zinc")
+  private val sbt_1_0_modules = Seq("sbt", "util-interface", "test-agent")
+
+  private val sbt_1_0_modules_cross = Seq(
+    "main","logic","collections","util-position","util-relation","actions","completion","io",
+    "util-control","run","util-logging","task-system","tasks","util-cache",
+    "testing","util-tracking","main-settings","command","protocol","core-macros")
 
   override protected def librariesLoaders: Seq[IvyLibraryLoader] =
-    scalaLoaders ++ Seq(sbtLoader("sbt")) ++ sbt_1_0_modules.map(sbtLoader_1_0)
+    scalaLoaders ++ sbt_1_0_modules.map(sbtLoader) ++ sbt_1_0_modules_cross.map(sbtLoader_cross)
 }
 
 private[sbt] object MockSbt {
@@ -82,9 +83,9 @@ private[sbt] object MockSbt {
       s"$name-${this.version}"
   }
 
-  abstract class SbtBaseLoader_1_0(implicit val version: String, val module: Module) extends IvyLibraryLoaderAdapter {
+  /** Loads library with cross-versioning. */
+  abstract class SbtBaseLoader_Cross(implicit val version: String, val module: Module) extends IvyLibraryLoaderAdapter {
     override val vendor: String = "org.scala-sbt"
-    override def path(implicit version: ScalaVersion): String = super.path
   }
 
   def sbtLoader(libraryName: String)(implicit version: String, module: Module): SbtBaseLoader =
@@ -92,8 +93,8 @@ private[sbt] object MockSbt {
       override val name: String = libraryName
     }
 
-  def sbtLoader_1_0(libraryName: String)(implicit version: String, module: Module): SbtBaseLoader_1_0 =
-    new SbtBaseLoader_1_0() {
+  def sbtLoader_cross(libraryName: String)(implicit version: String, module: Module): SbtBaseLoader_Cross =
+    new SbtBaseLoader_Cross() {
       override val name: String = libraryName
     }
 

@@ -213,29 +213,42 @@ object DependencyGroups {
     "org.scala-lang" % "scala-compiler" % Scala.latest_2_12
   )
 
+  val sbtOrg = "org.scala-sbt"
 
   def sbt012Libs(v: String) = Seq(
-    "org.scala-sbt" % "collections" % v,
-    "org.scala-sbt" % "interface" % v,
-    "org.scala-sbt" % "io" % v,
-    "org.scala-sbt" % "ivy" % v,
-    "org.scala-sbt" % "logging" % v,
-    "org.scala-sbt" % "main" % v,
-    "org.scala-sbt" % "process" % v,
-    "org.scala-sbt" % "sbt" % v
+    sbtOrg % "collections" % v,
+    sbtOrg % "interface" % v,
+    sbtOrg % "io" % v,
+    sbtOrg % "ivy" % v,
+    sbtOrg % "logging" % v,
+    sbtOrg % "main" % v,
+    sbtOrg % "process" % v,
+    sbtOrg % "sbt" % v
   )
 
   def sbt013Libs(v: String): Seq[ModuleID] =
     sbt012Libs(v) ++ Seq(
-      "org.scala-sbt" % "main-settings" % v
+      sbtOrg % "main-settings" % v
     )
+
+  val sbt1CrossScala: CrossVersion = CrossVersion.fullMapped(_ => Scala.binary_2_12)
+  def sbt100Libs(v:String): Seq[ModuleID] =
+    // these are not cross-versioned
+    Seq("sbt", "util-interface", "test-agent").map(lib => sbtOrg % lib % v) ++
+    // all of these are published cross-versioned for scala 2.12
+    Seq(
+      "main","logic","collections","util-position","util-relation","actions","completion","io",
+      "util-control","run","util-logging","task-system","tasks","util-cache",
+      "testing","util-tracking","main-settings","command","protocol","core-macros"
+    ).map(lib => (sbtOrg % lib % v).withCrossVersion(sbt1CrossScala))
 
   // required jars for MockSbt - it adds different versions to test module classpath
   val mockSbtDownloader: Seq[ModuleID] = {
+    val vs100 = Seq(Sbt.latest_1_0)
     val vs013 = Seq("0.13.1", "0.13.5", "0.13.7", Sbt.latest_0_13)
     val vs012 = Seq(Sbt.latest_0_12)
 
-    vs013.flatMap(sbt013Libs) ++ vs012.flatMap(sbt012Libs)
+    vs100.flatMap(sbt100Libs) ++ vs013.flatMap(sbt013Libs) ++ vs012.flatMap(sbt012Libs)
   }
 
   val sbtRuntime: Seq[ModuleID] = Seq(
