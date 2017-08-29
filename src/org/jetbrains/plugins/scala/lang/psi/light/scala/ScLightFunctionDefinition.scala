@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
  * @author Alefas
  * @since 03/04/14.
  */
-class ScLightFunctionDefinition(pTypes: List[List[ScType]], tParams: List[TypeParameter], rt: ScType,
+class ScLightFunctionDefinition(pTypes: Seq[Seq[ScType]], tParams: Seq[TypeParameter], rt: ScType,
                                 val fun: ScFunctionDefinition)
   extends LightElement(fun.getManager, fun.getLanguage) with ScFunctionDefinition {
   setNavigationElement(fun)

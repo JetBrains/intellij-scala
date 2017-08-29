@@ -190,8 +190,12 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
           def completionProcessor(ref: ScReferenceElement,
                                   collectImplicit: Boolean = false,
-                                  postProcess: ScalaResolveResult => Unit = postProcessMethod): CompletionProcessor =
-            new CompletionProcessor(ref.getKinds(incomplete = false, completion = true), ref, collectImplicit, postProcess = postProcess)
+                                  postProcessImpl: ScalaResolveResult => Unit = postProcessMethod): CompletionProcessor =
+            new CompletionProcessor(ref.getKinds(incomplete = false, completion = true), ref, collectImplicit) {
+
+              override protected def postProcess(result: ScalaResolveResult): Unit =
+                postProcessImpl(result)
+            }
 
           @tailrec
           def addThisAndSuper(elem: PsiElement): Unit = {

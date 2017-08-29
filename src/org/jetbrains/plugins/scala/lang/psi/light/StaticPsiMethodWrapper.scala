@@ -46,11 +46,11 @@ class StaticPsiMethodWrapper private(val method: PsiMethod, containingClass: Psi
 
   override protected def parameterListText: String = ???
 
-  override lazy val getReturnType: PsiType = method.getReturnType
+  override def getReturnType: PsiType = method.getReturnType
 
-  override lazy val getReturnTypeElement: PsiTypeElement = method.getReturnTypeElement
+  override def getReturnTypeElement: PsiTypeElement = method.getReturnTypeElement
 
-  override lazy val getParameterList: PsiParameterList = method.getParameterList
+  override def getParameterList: PsiParameterList = method.getParameterList
 }
 
 object StaticPsiMethodWrapper {

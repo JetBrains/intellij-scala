@@ -4,15 +4,15 @@ object Versions {
   val scalaVersion: String = Scala.latest_2_11
   val scalaBinaryVersion: String = Scala.binary_2_11
   val sbtVersion: String = Sbt.latest
-  val ideaVersion = "172.3317.6"
-  val sbtStructureVersion: String = "7.0.0+54-18d3848c"
+  val ideaVersion = "172.3757.52"
+  val sbtStructureVersion: String = "7.0.0+61-051fb9ba"
   val sbtIdeaShellVersion: String = "1.2+7-625c26bc"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
   val wagonVersion = "2.6"
   val httpComponentsVersion = "4.3.1"
-  val scalaMetaVersion = "1.7.0"
+  val scalaMetaVersion = "1.8.0"
   val paradiseVersion = "3.0.0-M8"
 
   object Scala {
@@ -43,7 +43,7 @@ object Versions {
     val binary_1_0 = "1.0"
 
     val latest_0_12 = "0.12.4"
-    val latest_0_13 = "0.13.15"
+    val latest_0_13 = "0.13.16"
     val latest_1_0 = "1.0.0-RC2"
     val latest: String = latest_0_13
 
@@ -91,6 +91,7 @@ object Dependencies {
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
 
+  val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val dottyInterface: ModuleID = "ch.epfl.lamp" % "dotty-interfaces" % "0.1.1-20170227-179a5d6-NIGHTLY"
@@ -137,7 +138,8 @@ object DependencyGroups {
     scalaLibrary,
     scalaReflect,
     scalaCompiler,
-    commonsLang
+    commonsLang,
+    bcel
   )
 
   val scalaRunner = Seq(
@@ -154,7 +156,7 @@ object DependencyGroups {
     Seq("0.12.4", "0.13.0", "0.13.1", "0.13.2",
         "0.13.5", "0.13.6", "0.13.7", "0.13.8",
         "0.13.9", "0.13.11", "0.13.12", "0.13.13",
-        "0.13.15")
+        "0.13.15", "0.13.16")
       .map(v => "org.scala-sbt" % "sbt-launch" % v)
 
   val testDownloader = Seq(
@@ -189,8 +191,8 @@ object DependencyGroups {
     "com.typesafe.slick" %% "slick" % "3.2.0",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
     "org.typelevel" %% "cats" % "0.4.0",
-    "org.scalameta" % "paradise_2.11.11" % paradiseVersion exclude("org.scalameta", "scalameta_2.11"),
     "org.scalameta" % "scalameta_2.12" % scalaMetaVersion,
+    "org.scalameta" % "paradise_2.11.11" % paradiseVersion exclude("org.scalameta", "scalameta_2.11"),
     "org.scala-js" % "scalajs-library_2.10" % "0.6.14",
     "com.typesafe.play" % "play_2.10" % "2.4.10",
     "com.typesafe.akka" % "akka-actor_2.11" % "2.4.19",

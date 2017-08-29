@@ -28,6 +28,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean COPY_SCALADOC = true;
 
+  // TODO See the comment above
   public enum ReturnTypeLevel {ADD, REMOVE, BY_CODE_STYLE}
   public ReturnTypeLevel SPECIFY_RETURN_TYPE_EXPLICITLY = ReturnTypeLevel.BY_CODE_STYLE;
 

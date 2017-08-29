@@ -11,7 +11,10 @@ abstract class TypeAnnotationInspectionTest extends ScalaQuickFixTestBase {
     classOf[TypeAnnotationInspection]
 
   override protected val description: String =
-    TypeAnnotationInspection.Description
+    TypeAnnotationInspection.DescriptionPrefix
+
+  override protected def descriptionMatches(s: String): Boolean =
+    Option(s).exists(_.startsWith(description))
 
   protected def testQuickFix(text: String, expected: String): Unit =
     testQuickFix(text, expected, AddTypeAnnotationQuickFix.Name)
@@ -82,8 +85,6 @@ class MembersTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
        |
        |  private def fooImpl(): Foo = new Foo
        |}
-       |
-       |new Bar
      """.stripMargin
 }
 
@@ -115,8 +116,6 @@ class LocalTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
        |}
        |
        |object Foo
-       |
-       |new Foo
      """.stripMargin
 }
 
@@ -170,8 +169,6 @@ class SimpleTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
        |
        |  $text = new Foo
        |}
-       |
-       |new Foo
      """.stripMargin
 }
 
@@ -239,7 +236,5 @@ class ObjectTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
        |}
        |
        |object Foo
-       |
-       |new Foo
      """.stripMargin
 }

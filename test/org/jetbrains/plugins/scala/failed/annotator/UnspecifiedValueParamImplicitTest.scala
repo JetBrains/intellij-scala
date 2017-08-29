@@ -63,4 +63,25 @@ class UnspecifiedValueParamImplicitTest extends ScalaLightCodeInsightFixtureTest
         |}
       """.stripMargin)
   }
+
+  def testSCL12375(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |class MyRootClass {
+        |  def apply(a: Int): Int = 0
+        |}
+        |
+        |object MyRootClass {
+        |  implicit class MyClassWithApply(val c: MyRootClass) {
+        |    def apply(): Int = 0
+        |  }
+        |}
+        |
+        |object MyObject extends MyRootClass
+        |
+        |object Test {
+        |  MyObject()
+        |}
+      """.stripMargin)
+  }
 }

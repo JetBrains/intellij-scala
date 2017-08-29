@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
+import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinter
@@ -57,7 +57,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       processor.execute(new ScSyntheticClass("-?", Any), state)
     }
 
-    val scope = place.getResolveScope
+    val scope = place.resolveScope
 
     place match {
       case ref: ScStableCodeReferenceElement if ref.refName == "_root_" && ref.qualifier.isEmpty =>

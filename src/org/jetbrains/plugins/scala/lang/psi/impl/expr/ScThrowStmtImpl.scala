@@ -8,8 +8,9 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin, ilyas
@@ -25,7 +26,7 @@ class ScThrowStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTh
 
   override def toString: String = "ThrowStatement"
 
-  protected override def innerType(ctx: TypingContext) = Success(Nothing, Some(this))
+  protected override def innerType: TypeResult[ScType] = Success(Nothing, Some(this))
 
   def body: Option[ScExpression] = findChild(classOf[ScExpression])
 }

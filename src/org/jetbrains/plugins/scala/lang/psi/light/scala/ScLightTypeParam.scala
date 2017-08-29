@@ -26,9 +26,9 @@ class ScDelegatingLightTypeParam(t: TypeParameter, val tParam: ScTypeParam)
 
   override val typeParamId: Long = tParam.typeParamId
 
-  override def upperBound: TypeResult[ScType] = Success(t.upperType.v, Some(this))
+  override def upperBound: TypeResult[ScType] = Success(t.upperType, Some(this))
 
-  override def lowerBound: TypeResult[ScType] = Success(t.lowerType.v, Some(this))
+  override def lowerBound: TypeResult[ScType] = Success(t.lowerType, Some(this))
 
   override def getIndex: Int = tParam.getIndex
 
@@ -80,6 +80,10 @@ class ScExistentialLightTypeParam(override val name: String)(implicit pc: Projec
   override def isContravariant: Boolean = false
 
   override def getOffsetInFile: Int = -1
+
+  override def typeParameters: Seq[ScTypeParam] = Seq.empty
+
+  override def hasTypeParameters = false
 
   override def getContainingFileName: String = "No containing file"
 

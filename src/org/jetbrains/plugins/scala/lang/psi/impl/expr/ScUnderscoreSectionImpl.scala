@@ -25,11 +25,11 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScUnderscoreSection {
   override def toString: String = "UnderscoreSection"
 
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  protected override def innerType: TypeResult[ScType] = {
     bindingExpr match {
       case Some(ref: ScReferenceExpression) =>
         def fun(): TypeResult[ScType] = {
-          ref.getNonValueType(TypingContext.empty).map {
+          ref.getNonValueType().map {
             case ScTypePolymorphicType(internalType, typeParameters) =>
               ScTypePolymorphicType(ScMethodType(internalType, Nil, isImplicit = false), typeParameters)
             case tp: ScType => ScMethodType(tp, Nil, isImplicit = false)
@@ -42,12 +42,12 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             b.nameContext match {
               case _: ScValue | _: ScVariable if b.isClassMember => fun()
               case v: ScValue if v.hasModifierPropertyScala("lazy") => fun()
-              case _ => ref.getNonValueType(TypingContext.empty)
+              case _ => ref.getNonValueType()
             }
           case Some(ScalaResolveResult(p: ScParameter, _)) if p.isCallByNameParameter => fun()
-          case _ => ref.getNonValueType(TypingContext.empty)
+          case _ => ref.getNonValueType()
         }
-      case Some(expr) => expr.getNonValueType(TypingContext.empty)
+      case Some(expr) => expr.getNonValueType()
       case None =>
         getContext match {
           case typed: ScTypedStmt =>

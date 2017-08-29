@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
 import com.intellij.mock.MockPsiManager
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiModificationTrackerImpl
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 
@@ -11,10 +13,10 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 abstract class CachedTestBase extends ScalaFixtureTestCase {
 
   trait Managed {
-    val getManager = new MockPsiManager(getProject) {
-      override def getModificationTracker: PsiModificationTrackerImpl = {
-        super.getModificationTracker.asInstanceOf[PsiModificationTrackerImpl]
-      }
-    }
+    def getProject: Project    = myFixture.getProject
+    def getManager: PsiManager = PsiManager.getInstance(getProject)
+
+    def getModTracker: PsiModificationTrackerImpl =
+      getManager.getModificationTracker.asInstanceOf[PsiModificationTrackerImpl]
   }
 }

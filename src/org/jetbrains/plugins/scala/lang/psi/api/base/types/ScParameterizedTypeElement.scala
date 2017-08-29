@@ -35,9 +35,11 @@ object ScParameterizedTypeElement {
 }
 
 trait ScDesugarizableToParametrizedTypeElement extends ScDesugarizableTypeElement {
-  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
-  override final def computeDesugarizedType: Option[ScParameterizedTypeElement] = super.computeDesugarizedType match {
-    case Some(typeElement: ScParameterizedTypeElement) => Some(typeElement)
-    case _ => None
+  @Cached(ModCount.getBlockModificationCount, this)
+  override final def computeDesugarizedType: Option[ScParameterizedTypeElement] = {
+    super.computeDesugarizedType match {
+      case Some(typeElement: ScParameterizedTypeElement) => Some(typeElement)
+      case _ => None
+    }
   }
 }

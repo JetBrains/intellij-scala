@@ -453,7 +453,7 @@ object ResolveUtils {
     processor match {
       case b: BaseProcessor if b.isImplicitProcessor =>
         val objectsIterator = ScalaPsiManager.instance(pack.getProject).
-          getPackageImplicitObjects(pack.getQualifiedName, place.getResolveScope).iterator
+          getPackageImplicitObjects(pack.getQualifiedName, place.resolveScope).iterator
         while (objectsIterator.hasNext) {
           val obj = objectsIterator.next()
           if (!processor.execute(obj, state)) return false
@@ -474,7 +474,7 @@ object ResolveUtils {
                 val fqn = if (qName.length() > 0) qName + "." + name else name
                 val scope = base match {
                   case r: ResolveProcessor => r.getResolveScope
-                  case _ => place.getResolveScope
+                  case _ => place.resolveScope
                 }
                 val classes = manager.getCachedClasses(scope, fqn).iterator
                 var stop = false
@@ -511,7 +511,7 @@ object ResolveUtils {
               val manager = ScalaPsiManager.instance(pack.getProject)
               val scope = base match {
                 case r: ResolveProcessor => r.getResolveScope
-                case _ => place.getResolveScope
+                case _ => place.resolveScope
               }
               val iterator = manager.getClasses(pack, scope).iterator
               while (iterator.hasNext) {

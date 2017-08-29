@@ -17,14 +17,14 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
   def testIfElse() {
     doTest(
       "if (false) 42 else 0",
-      Term.If(Lit.Boolean(value = false), Lit.Int(42), Lit(0))
+      Term.If(Lit.Boolean(value = false), Lit.Int(42), Lit.Int(0))
     )
   }
 
   def testIfElseIfElse() {
     doTest(
       "if (true) 42 else if (false) 999 else 0",
-      Term.If(Lit.Boolean(value = true), Lit.Int(42), Term.If(Lit.Boolean(value = false), Lit(999), Lit(0)))
+      Term.If(Lit.Boolean(value = true), Lit.Int(42), Term.If(Lit.Boolean(value = false), Lit.Int(999), Lit.Int(0)))
     )
   }
 
@@ -73,7 +73,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
       """class Foo(a:Int)(b:String)
         |//start
         |new Foo(42)("")""".stripMargin,
-      Term.New(Template(Nil, List(Term.Apply(Term.Apply(Ctor.Ref.Name("Foo"), List(Lit.Int(42))), List(Lit("")))), Term.Param(Nil, Name.Anonymous(), None, None), None))
+      Term.New(Template(Nil, List(Term.Apply(Term.Apply(Ctor.Ref.Name("Foo"), List(Lit.Int(42))), List(Lit.String("")))), Term.Param(Nil, Name.Anonymous(), None, None), None))
     )
   }
 
@@ -95,9 +95,9 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
         |  case _ => ()
         |}
         |finally { () }""".stripMargin,
-      Term.TryWithCases(Term.Block(List(Lit(()))), List(Case(Pat.Typed(Pat.Var.Term(Term.Name("e")),
-        Type.Name("Exception")), None, Term.Block(List(Lit(())))), Case(Pat.Wildcard(), None,
-        Term.Block(List(Lit(()))))), Some(Term.Block(List(Lit(())))))
+      Term.TryWithCases(Term.Block(List(Lit.Unit(()))), List(Case(Pat.Typed(Pat.Var.Term(Term.Name("e")),
+        Type.Name("Exception")), None, Term.Block(List(Lit.Unit(())))), Case(Pat.Wildcard(), None,
+        Term.Block(List(Lit.Unit(()))))), Some(Term.Block(List(Lit.Unit(())))))
     )
   }
 
@@ -112,14 +112,14 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
   def testDoWhile() {
     doTest(
       "do {()} while (true)",
-      Term.Do(Term.Block(List(Lit(()))), Lit(true))
+      Term.Do(Term.Block(List(Lit.Unit(()))), Lit.Boolean(true))
     )
   }
 
   def testWhile() {
     doTest(
       "while(true) {()}",
-      Term.While(Lit(true), Term.Block(List(Lit(()))))
+      Term.While(Lit.Boolean(true), Term.Block(List(Lit.Unit(()))))
     )
   }
 
@@ -127,7 +127,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     doTest(
       "for(s <- Seq(1)) {42}",
       Term.For(List(Enumerator.Generator(Pat.Var.Term(Term.Name("s")),
-        Term.Apply(Term.Name("Seq"), List(Lit(1))))), Term.Block(List(Lit.Int(42))))
+        Term.Apply(Term.Name("Seq"), List(Lit.Int(1))))), Term.Block(List(Lit.Int(42))))
     )
   }
 
@@ -135,8 +135,8 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     doTest(
       "for (s: Int <- Seq(1); y <- Seq(3) if y == s; z = (s, y)) {}",
       Term.For(List(
-        Enumerator.Generator(Pat.Typed(Pat.Var.Term(Term.Name("s")), Type.Name("Int")), Term.Apply(Term.Name("Seq"), List(Lit(1)))),
-        Enumerator.Generator(Pat.Var.Term(Term.Name("y")), Term.Apply(Term.Name("Seq"), List(Lit(3)))),
+        Enumerator.Generator(Pat.Typed(Pat.Var.Term(Term.Name("s")), Type.Name("Int")), Term.Apply(Term.Name("Seq"), List(Lit.Int(1)))),
+        Enumerator.Generator(Pat.Var.Term(Term.Name("y")), Term.Apply(Term.Name("Seq"), List(Lit.Int(3)))),
         Enumerator.Guard(Term.ApplyInfix(Term.Name("y"), Term.Name("=="), Nil, List(Term.Name("s")))),
         Enumerator.Val(Pat.Var.Term(Term.Name("z")), Term.Tuple(List(Term.Name("s"), Term.Name("y"))))),
         Term.Block(Nil))
@@ -188,6 +188,20 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     doTest(
       "someVar = value",
       Term.Assign(Term.Name("someVar"), Term.Name("value"))
+    )
+  }
+
+  def testTypedExpr(): Unit = {
+    doTest(
+      "foo(arg: Tpe)",
+      Term.Apply(Term.Name("foo"), Seq(Term.Ascribe(Term.Name("arg"), Type.Name("Tpe"))))
+    )
+  }
+
+  def testRepeatedTyped(): Unit = {
+    doTest(
+      "foo(args: _*)",
+      Term.Apply(Term.Name("foo"), Seq(Term.Arg.Repeated(Term.Name("args"))))
     )
   }
 

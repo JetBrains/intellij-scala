@@ -35,14 +35,13 @@ class ImplicitCollectorCache(project: Project) {
   def typeParametersOwners(tp: ScType): Set[ScTypeParametersOwner] = {
     def collectOwners: Set[ScTypeParametersOwner] = {
       var result = Set[ScTypeParametersOwner]()
-      tp.recursiveUpdate {
+      tp.visitRecursively {
         case TypeParameterType(_, _, _, psiTP) =>
           psiTP.getOwner match {
             case f: ScFunction => result += f
             case _ =>
           }
-          (false, tp)
-        case _ => (false, tp)
+        case _ =>
       }
       result
     }

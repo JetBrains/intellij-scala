@@ -17,23 +17,34 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
-import scala.collection.Set
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Set, mutable}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
                        val name: String) extends BaseProcessor(kinds)(ref) with PrecedenceHelper[String] {
 
+  import ResolveProcessor._
+
   @volatile
   private var resolveScope: GlobalSearchScope = null
+
+  private val history = new ArrayBuffer[HistoryEvent]
+  private var fromHistory: Boolean = false
+
   def getResolveScope: GlobalSearchScope = {
     if (resolveScope == null) {
-      resolveScope = ref.getResolveScope
+      resolveScope = ref.resolveScope
     }
     resolveScope
   }
+
+  private val ignoredSet = new mutable.HashSet[ScalaResolveResult]()
 
   def getPlace: PsiElement = ref
 
@@ -47,16 +58,17 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   protected var precedence: Int = 0
 
   /**
-   * This method useful for resetting precednce if we dropped
-   * all found candidates to seek implicit conversion candidates.
-   */
+    * This method useful for resetting precednce if we dropped
+    * all found candidates to seek implicit conversion candidates.
+    */
   def resetPrecedence() {
     precedence = 0
   }
 
-  import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes._
+  import PrecedenceTypes._
+
   def checkImports(): Boolean = precedence <= IMPORT
-  
+
   def checkWildcardImports(): Boolean = precedence <= WILDCARD_IMPORT
 
   def checkPredefinedClassesAndPackages(): Boolean = precedence <= SCALA_PREDEF
@@ -96,10 +108,10 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     precedence = i
   }
 
-  override def isUpdateHistory: Boolean = true
-
   override def changedLevel: Boolean = {
-    addChangedLevelToHistory()
+    if (!fromHistory && !history.lastOption.contains(ChangedLevel)) {
+      history += ChangedLevel
+    }
 
     def update: Boolean = {
       val iterator = levelSet.iterator()
@@ -111,6 +123,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       levelQualifiedNamesSet.clear()
       false
     }
+
     if (levelSet.isEmpty) true
     else if (precedence == OTHER_MEMBERS) update
     else !update
@@ -131,6 +144,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
+
     def nameShadow: Option[String] = Option(state.get(ResolverEnv.nameKey))
 
     if (nameAndKindMatch(named, state)) {
@@ -138,7 +152,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       if (accessibility && !accessible) return true
       named match {
         case o: ScObject if o.isPackageObject && JavaPsiFacade.getInstance(element.getProject).
-                findPackage(o.qualifiedName) != null =>
+          findPackage(o.qualifiedName) != null =>
         case pack: PsiPackage =>
           val resolveResult: ScalaResolveResult =
             new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state), nameShadow, isAccessible = accessible)
@@ -163,7 +177,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       if (name == null) return false
       if (name == "") return false
       name
-    } else  nameSet
+    } else nameSet
     val nameMatches = ScalaNamesUtil.equivalent(elName, name)
     nameMatches && kindMatches(named)
   }
@@ -175,15 +189,46 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     }
   }
 
+  override protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
+    if (!fromHistory) history += AddResult(results)
+    super.addResults(results)
+  }
+
+  override protected def ignored(results: Seq[ScalaResolveResult]): Boolean = {
+    val result = !fromHistory && super.ignored(results)
+
+    if (result) {
+      ignoredSet ++= results
+    }
+
+    result
+  }
+
+  override protected def clear(): Unit = {
+    ignoredSet.clear()
+    super.clear()
+
+    fromHistory = true
+    try {
+      history.foreach {
+        case ChangedLevel => changedLevel
+        case AddResult(results) => addResults(results)
+      }
+    }
+    finally {
+      fromHistory = false
+    }
+  }
+
   override def candidatesS: Set[ScalaResolveResult] = {
     var res = candidatesSet
     val iterator = levelSet.iterator()
     while (iterator.hasNext) {
       res += iterator.next()
     }
-    if (!compareWithIgnoredSet(res)) {
+    if (!ResolveProcessor.compare(ignoredSet, res)) {
       res.clear()
-      restartFromHistory()
+      clear()
       //now let's add everything again
       res = candidatesSet
       val iterator = levelSet.iterator()
@@ -225,4 +270,34 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   override def toString = s"ResolveProcessor($name)"
+}
+
+object ResolveProcessor {
+
+  private sealed trait HistoryEvent
+
+  private case object ChangedLevel extends HistoryEvent
+
+  private case class AddResult(results: Seq[ScalaResolveResult]) extends HistoryEvent
+
+  private def compare(ignoredSet: mutable.HashSet[ScalaResolveResult],
+                      set: mutable.HashSet[ScalaResolveResult]): Boolean = {
+    if (ignoredSet.nonEmpty && set.isEmpty) return false
+
+    val ignoredElements = ignoredSet.map(_.getActualElement)
+    val elements = set.map(_.getActualElement)
+
+    ignoredElements.forall { result =>
+      elements.forall(areEquivalent(result, _))
+    }
+  }
+
+  private[this] def areEquivalent(left: PsiNamedElement, right: PsiNamedElement): Boolean =
+    ScEquivalenceUtil.smartEquivalence(left, right) ||
+      isExactAliasFor(left, right) || isExactAliasFor(right, left)
+
+  private[this] def isExactAliasFor(left: PsiNamedElement, right: PsiNamedElement): Boolean =
+    left.isInstanceOf[ScTypeAliasDefinition] &&
+      right.isInstanceOf[PsiClass] &&
+      left.asInstanceOf[ScTypeAliasDefinition].isExactAliasFor(right.asInstanceOf[PsiClass])
 }

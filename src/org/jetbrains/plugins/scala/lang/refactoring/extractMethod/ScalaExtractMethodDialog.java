@@ -92,7 +92,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     myInput = input;
     myOutput = output;
     myLastMeaningful = lastMeaningful;
-      mySignaturePreview = new MethodSignatureComponent("", project, ScalaFileType.INSTANCE);
+    mySignaturePreview = new MethodSignatureComponent("", project, ScalaFileType.INSTANCE);
     mySignaturePreview.setMinimumSize(new Dimension(500, 70));
 
     setModal(true);
@@ -129,8 +129,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private void updateOkStatus() {
     setOKActionEnabled(MODULE$.isIdentifier(getMethodName()) &&
-            (isPublic() || getVisibilityEncloser().equals("") || MODULE$.isIdentifier(getVisibilityEncloser())) &&
-            (isTuple() || MODULE$.isIdentifier(getMultipleOutputEncloser())));
+        (isPublic() || getVisibilityEncloser().equals("") || MODULE$.isIdentifier(getVisibilityEncloser())) &&
+        (isTuple() || MODULE$.isIdentifier(getMultipleOutputEncloser())));
   }
 
   private String getVisibilityEncloser() {
@@ -280,36 +280,36 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private boolean isInnerClass() {
     return multipleOutputCombobox.getSelectedItem() != null
-            && multipleOutputCombobox.getSelectedItem().equals("Inner case class");
+        && multipleOutputCombobox.getSelectedItem().equals("Inner case class");
   }
 
   private boolean isCaseClass() {
     return multipleOutputCombobox.getSelectedItem() != null
-            && multipleOutputCombobox.getSelectedItem().equals("Inner class");
+        && multipleOutputCombobox.getSelectedItem().equals("Inner class");
   }
 
   private boolean isPublic() {
     return visibilityComboBox.getSelectedItem() != null
-            && visibilityComboBox.getSelectedItem().equals("Public");
+        && visibilityComboBox.getSelectedItem().equals("Public");
   }
 
   private boolean isTuple() {
     return multipleOutputCombobox.getSelectedItem() != null
-            && multipleOutputCombobox.getSelectedItem().equals("Tuple");
+        && multipleOutputCombobox.getSelectedItem().equals("Tuple");
   }
 
   private void updateSettings() {
     boolean createClass = isInnerClass() || isCaseClass();
     InnerClassSettings ics = new InnerClassSettings(createClass, getClassName(), getReturns(), isCaseClass());
     ScalaApplicationSettings.ReturnTypeLevel addReturnType = mySpecifyTypeChb.isSelected() ?
-            ScalaApplicationSettings.ReturnTypeLevel.ADD : ScalaApplicationSettings.ReturnTypeLevel.REMOVE;
+        ScalaApplicationSettings.ReturnTypeLevel.ADD : ScalaApplicationSettings.ReturnTypeLevel.REMOVE;
 
     settings = new ScalaExtractMethodSettings(getMethodName(), getParameters(), getReturns(),
-            getVisibility(), mySibling, myElements, myHasReturn, addReturnType, myLastReturn, myLastMeaningful, ics);
+        getVisibility(), mySibling, myElements, myHasReturn, addReturnType, myLastReturn, myLastMeaningful, ics);
   }
 
   private void setUpTypeChb() {
-    mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings, getVisibility()));
+    mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.isTypeAnnotationRequiredFor(settings, getVisibility()));
 
     mySpecifyTypeChb.addActionListener(new ActionListener() {
       @Override
@@ -321,7 +321,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     visibilityComboBox.addItemListener(new ItemListener() {
       @Override
       public void itemStateChanged(ItemEvent e) {
-        mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings, getVisibility()));
+        mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.isTypeAnnotationRequiredFor(settings, getVisibility()));
       }
     });
   }
@@ -338,7 +338,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
         ApplicationManager.getApplication().invokeLater(new Runnable() {
           @Override
           public void run() {
-            mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings, getVisibility()));
+            mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.isTypeAnnotationRequiredFor(settings, getVisibility()));
             updateSignature();
           }
         });
@@ -459,7 +459,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     mySpecifyTypeChb.setHorizontalTextPosition(11);
     mySpecifyTypeChb.setInheritsPopupMenu(false);
     mySpecifyTypeChb.setMargin(new Insets(0, 0, 0, 0));
-    mySpecifyTypeChb.setText("Specify return type");
+    mySpecifyTypeChb.setText("Specify result type");
     mySpecifyTypeChb.setMnemonic('T');
     mySpecifyTypeChb.setDisplayedMnemonicIndex(15);
     panel2.add(mySpecifyTypeChb);

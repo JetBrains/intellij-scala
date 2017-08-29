@@ -11,6 +11,7 @@ import scala.util.{Failure, Try}
 /**
   * @author Nikolay.Tropin
   */
+@Ignore
 @Category(Array(classOf[SlowTests]))
 class StreamzRehighlightingPerformanceTest extends RehighlightingPerformanceTypingTestBase {
 
@@ -23,7 +24,6 @@ class StreamzRehighlightingPerformanceTest extends RehighlightingPerformanceTypi
 
   def revision: String = "559aa356291e1760e72f59816df70bdcf169d089"
 
-  @Ignore
   def testTypingCamelPackageObj(): Unit = {
     val fileName = "streamz-akka-camel/src/main/scala/streamz/akka/camel/package.scala"
     val tries = ArrayBuffer[Try[Unit]]()

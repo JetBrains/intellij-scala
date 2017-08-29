@@ -67,8 +67,8 @@ class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
   override def toString: String = "ScMacroDefinition: " + ifReadAllowed(name)("")
 
   def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
-    case None => Success(doGetType(), Some(this)) // TODO look up type from the macro impl.
     case Some(rte: ScTypeElement) => rte.getType(TypingContext.empty)
+    case None => Success(Any, Some(this)) // TODO look up type from the macro impl.
   }
 
   def body: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
@@ -83,12 +83,6 @@ class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
     super.getType(ctx)
   }
 
-  def doGetType(): ScType = {
-    name match {
-      case "doMacro" => createTypeElementFromText("(Int, String)").getType().get
-      case _ => Any
-    }
-  }
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case s: ScalaElementVisitor => s.visitMacroDefinition(this)
@@ -96,5 +90,4 @@ class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
     }
   }
 
-  override def expand(args: Seq[ScExpression]): ScalaPsiElement = this
 }

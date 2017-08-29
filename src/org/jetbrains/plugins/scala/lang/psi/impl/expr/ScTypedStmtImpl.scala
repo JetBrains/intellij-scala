@@ -19,10 +19,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, T
 class ScTypedStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypedStmt {
   override def toString: String = "TypedStatement"
 
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  protected override def innerType: TypeResult[ScType] = {
     typeElement match {
-      case Some(te) => te.getType(ctx)
-      case None if !expr.isInstanceOf[ScUnderscoreSection] => expr.getType(ctx)
+      case Some(te) => te.getType(TypingContext.empty)
+      case None if !expr.isInstanceOf[ScUnderscoreSection] => expr.getType(TypingContext.empty)
       case _ => Failure("Typed statement is not complete for underscore section", Some(this))
     }
   }

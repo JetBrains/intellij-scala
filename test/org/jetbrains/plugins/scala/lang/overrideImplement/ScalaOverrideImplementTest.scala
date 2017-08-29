@@ -863,7 +863,6 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  //don't add return type for override public
   def testNoExplicitReturn() {
     val fileText =
       """
@@ -882,7 +881,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |}
         |
         |class B extends A {
-        |  override def foo(x: Int) = <selection>super.foo(x)</selection>
+        |  override def foo(x: Int): Int = <selection>super.foo(x)</selection>
         |}
       """
     val methodName: String = "foo"
@@ -890,8 +889,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
     val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
    
-    runTest(methodName, fileText, expectedText, isImplement,
-      settings = TypeAnnotationSettings.noTypeAnnotationForPublic(TypeAnnotationSettings.noTypeAnnotationForOverride(settings)))
+    runTest(methodName, fileText, expectedText, isImplement, settings)
   }
 
   def testImplicitParams() {

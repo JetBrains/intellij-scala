@@ -104,7 +104,7 @@ object TypeDefinitionMembers {
       }
 
       for (field <- clazz.getFields if nonBridge(place, field) && !field.hasModifierProperty("static")) {
-        val sig = new Signature(field.getName, Seq.empty, 0, subst, field)
+        val sig = Signature(field.getName, Seq.empty, subst, field)
         map addToMap (sig, new Node(sig, subst))
       }
     }
@@ -119,7 +119,7 @@ object TypeDefinitionMembers {
 
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
-        val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.getResolveScope, "java.lang.Object")
+        val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.resolveScope, "java.lang.Object")
         obj.map { obj =>
           for (method <- obj.getMethods) {
             method.getName match {
@@ -131,34 +131,39 @@ object TypeDefinitionMembers {
         }
       }
 
+      for (method <- template.syntheticMethodsWithOverride if method.getParameterList.getParametersCount == 0) {
+        val sig = new PhysicalSignature(method, subst)
+        addSignature(sig)
+      }
+
       for (member <- template.members) {
         member match {
           case _var: ScVariable if nonBridge(place, _var) =>
             for (dcl <- _var.declaredElements) {
-              addSignature(new Signature(dcl.name, Seq.empty, 0, subst, dcl))
+              addSignature(Signature(dcl, subst))
               dcl.nameContext match {
                 case s: ScAnnotationsHolder =>
                   val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
                   val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
                   if (beanProperty) {
-                    addSignature(new Signature("get" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
+                    addSignature(Signature.withoutParams("get" + dcl.name.capitalize, subst, dcl))
                   } else if (booleanBeanProperty) {
-                    addSignature(new Signature("is" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
+                    addSignature(Signature.withoutParams("is" + dcl.name.capitalize, subst, dcl))
                   }
                 case _ =>
               }
             }
           case _val: ScValue if nonBridge(place, _val) =>
             for (dcl <- _val.declaredElements) {
-              addSignature(new Signature(dcl.name, Seq.empty, 0, subst, dcl))
+              addSignature(Signature(dcl, subst))
               dcl.nameContext match {
                 case s: ScAnnotationsHolder =>
                   val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
                   val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
                   if (beanProperty) {
-                    addSignature(new Signature("get" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
+                    addSignature(Signature.withoutParams("get" + dcl.name.capitalize, subst, dcl))
                   } else if (booleanBeanProperty) {
-                    addSignature(new Signature("is" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
+                    addSignature(Signature.withoutParams("is" + dcl.name.capitalize, subst, dcl))
                   }
                 case _ =>
               }
@@ -166,37 +171,32 @@ object TypeDefinitionMembers {
           case constr: ScPrimaryConstructor =>
             val parameters = constr.parameters
             for (param <- parameters if nonBridge(place, param)) {
-               addSignature(new Signature(param.name, Seq.empty, 0, subst, param))
+               addSignature(Signature(param, subst))
               val beanProperty = ScalaPsiUtil.isBeanProperty(param, noResolve = true)
               val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(param, noResolve = true)
               if (beanProperty) {
-                addSignature(new Signature("get" + param.name.capitalize, Seq.empty, 0, subst, param))
+                addSignature(Signature.withoutParams("get" + param.name.capitalize, subst, param))
               } else if (booleanBeanProperty) {
-                addSignature(new Signature("is" + param.name.capitalize, Seq.empty, 0, subst, param))
+                addSignature(Signature.withoutParams("is" + param.name.capitalize, subst, param))
               }
             }
           case f: ScFunction if nonBridge(place, f) && !f.isConstructor && f.parameters.isEmpty =>
             addSignature(new PhysicalSignature(f, subst))
           case o: ScObject if nonBridge(place, o) =>
-            addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
+            addSignature(Signature(o, subst))
           case c: ScTypeDefinition if c.fakeCompanionModule.isDefined && nonBridge(place, c) =>
             val o = c.fakeCompanionModule.get
-            addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
+            addSignature(Signature(o, subst))
           case _ =>
         }
       }
 
-      for (method <- template.syntheticMethodsWithOverride if method.getParameterList.getParametersCount == 0) {
-        val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
-      }
-
       for (td <- template.syntheticTypeDefinitions) {
         td match {
-          case obj: ScObject => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+          case obj: ScObject => addSignature(Signature(obj, subst))
           case td: ScTypeDefinition =>
             td.fakeCompanionModule match {
-              case Some(obj) => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+              case Some(obj) => addSignature(Signature(obj, subst))
               case _ =>
             }
           case _ =>
@@ -345,7 +345,7 @@ object TypeDefinitionMembers {
       }
 
       for (field <- clazz.getFields if nonBridge(place, field) && !field.hasModifierProperty("static")) {
-        val sig = new Signature(field.getName, Seq.empty, 0, subst, field)
+        val sig = Signature.withoutParams(field.getName, subst, field)
         map addToMap (sig, new Node(sig, subst))
       }
     }
@@ -360,7 +360,7 @@ object TypeDefinitionMembers {
 
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
-        val obj = ScalaPsiManager.instance.getCachedClass(template.getResolveScope, "java.lang.Object")
+        val obj = ScalaPsiManager.instance.getCachedClass(template.resolveScope, "java.lang.Object")
         obj.map { obj =>
           for (method <- obj.getMethods) {
             method.getName match {
@@ -372,40 +372,44 @@ object TypeDefinitionMembers {
         }
       }
 
+      for (method <- template.syntheticMethodsWithOverride) {
+        val sig = new PhysicalSignature(method, subst)
+        addSignature(sig)
+      }
+
       for (member <- template.members) {
         member match {
           case _var: ScVariable if nonBridge(place, _var) =>
             for (dcl <- _var.declaredElements) {
               lazy val t = dcl.getType(TypingContext.empty).getOrAny
-              addSignature(new Signature(dcl.name, Seq.empty, 0, subst, dcl))
-              addSignature(new Signature(dcl.name + "_=", Seq(() => t), 1, subst, dcl))
+              addSignature(Signature(dcl, subst))
+              addSignature(Signature.setter(dcl, subst))
               dcl.nameContext match {
                 case s: ScAnnotationsHolder =>
                   val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
                   val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
                   if (beanProperty) {
-                    addSignature(new Signature("get" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
+                    addSignature(Signature.withoutParams("get" + dcl.name.capitalize, subst, dcl))
                   } else if (booleanBeanProperty) {
-                    addSignature(new Signature("is" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
+                    addSignature(Signature.withoutParams("is" + dcl.name.capitalize, subst, dcl))
                   }
                   if (beanProperty || booleanBeanProperty) {
-                    addSignature(new Signature("set" + dcl.name.capitalize, Seq(() => t), 1,
-                      subst, dcl))
+                    addSignature(Signature("set" + dcl.name.capitalize, Seq(() => t), subst, dcl))
                   }
                 case _ =>
               }
             }
           case _val: ScValue if nonBridge(place, _val) =>
             for (dcl <- _val.declaredElements) {
-              addSignature(new Signature(dcl.name, Seq.empty, 0, subst, dcl))
+              addSignature(Signature(dcl, subst))
               dcl.nameContext match {
                 case s: ScAnnotationsHolder =>
                   val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
                   val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
                   if (beanProperty) {
-                    addSignature(new Signature("get" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
+                    addSignature(Signature.withoutParams("get" + dcl.name.capitalize, subst, dcl))
                   } else if (booleanBeanProperty) {
-                    addSignature(new Signature("is" + dcl.name.capitalize, Seq.empty, 0, subst, dcl))
+                    addSignature(Signature.withoutParams("is" + dcl.name.capitalize, subst, dcl))
                   }
                 case _ =>
               }
@@ -414,33 +418,30 @@ object TypeDefinitionMembers {
             val parameters = constr.parameters
             for (param <- parameters if nonBridge(place, param)) {
               lazy val t = param.getType(TypingContext.empty).getOrAny
-              addSignature(new Signature(param.name, Seq.empty, 0, subst, param))
-              if (!param.isStable) addSignature(new Signature(param.name + "_=", Seq(() => t), 1, subst,
-                param))
+              addSignature(Signature(param, subst))
+              if (!param.isStable) addSignature(Signature(param.name + "_=", Seq(() => t), subst, param))
               val beanProperty = ScalaPsiUtil.isBeanProperty(param, noResolve = true)
               val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(param, noResolve = true)
               if (beanProperty) {
-                addSignature(new Signature("get" + param.name.capitalize, Seq.empty, 0, subst, param))
+                addSignature(Signature.withoutParams("get" + param.name.capitalize, subst, param))
                 if (!param.isStable) {
-                  addSignature(new Signature("set" + param.name.capitalize, Seq(() => t), 1,
-                    subst, param))
+                  addSignature(Signature("set" + param.name.capitalize, Seq(() => t), subst, param))
                 }
               } else if (booleanBeanProperty) {
-                addSignature(new Signature("is" + param.name.capitalize, Seq.empty, 0, subst, param))
+                addSignature(Signature.withoutParams("is" + param.name.capitalize, subst, param))
                 if (!param.isStable) {
-                  addSignature(new Signature("set" + param.name.capitalize, Seq(() => t), 1,
-                    subst, param))
+                  addSignature(Signature("set" + param.name.capitalize, Seq(() => t), subst, param))
                 }
               }
             }
           case f: ScFunction if nonBridge(place, f) && !f.isConstructor =>
             addSignature(new PhysicalSignature(f, subst))
           case o: ScObject if nonBridge(place, o) =>
-            addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
+            addSignature(Signature(o, subst))
           case c: ScTypeDefinition =>
             if (c.fakeCompanionModule.isDefined && nonBridge(place, c)) {
               val o = c.fakeCompanionModule.get
-              addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
+              addSignature(Signature(o, subst))
             }
             c match {
               case c: ScClass if c.hasModifierProperty("implicit") =>
@@ -455,17 +456,12 @@ object TypeDefinitionMembers {
         }
       }
 
-      for (method <- template.syntheticMethodsWithOverride) {
-        val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
-      }
-
       for (td <- template.syntheticTypeDefinitions) {
         td match {
-          case obj: ScObject => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+          case obj: ScObject => addSignature(Signature(obj, subst))
           case td: ScTypeDefinition =>
             td.fakeCompanionModule match {
-              case Some(obj) => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+              case Some(obj) => addSignature(Signature(obj, subst))
               case _ =>
             }
           case _ =>
@@ -507,7 +503,7 @@ object TypeDefinitionMembers {
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 
   def getParameterlessSignatures(clazz: PsiClass): PMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def inner(): PMap = ParameterlessNodes.build(clazz)
 
     inner()
@@ -515,14 +511,14 @@ object TypeDefinitionMembers {
 
   def getTypes(clazz: PsiClass): TMap = {
 
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def inner(): TMap =TypeNodes.build(clazz)
 
     inner()
   }
 
   def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None): SMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def buildNodesClass(): SMap = SignatureNodes.build(clazz)
 
     val ans = buildNodesClass()
@@ -539,7 +535,7 @@ object TypeDefinitionMembers {
             c match {
               case o: ScObject =>
                 if (allowedNames.contains(o.name)) {
-                  @CachedInsidePsiElement(o, CachesUtil.getDependentItem(o)())
+                  @CachedInsidePsiElement(o, CachesUtil.libraryAwareModTracker(o))
                   def buildNodesObject(): SMap = SignatureNodes.build(o)
 
                   val add = buildNodesObject()
@@ -547,7 +543,7 @@ object TypeDefinitionMembers {
                 }
               case c: ScClass =>
                 if (allowedNames.contains(c.name)) {
-                  @CachedInsidePsiElement(c, CachesUtil.getDependentItem(c)())
+                  @CachedInsidePsiElement(c, CachesUtil.libraryAwareModTracker(c))
                   def buildNodesClass2(): SMap = SignatureNodes.build(c)
 
                   val add = buildNodesClass2()
@@ -576,7 +572,7 @@ object TypeDefinitionMembers {
 
   def getSelfTypeSignatures(clazz: PsiClass): SMap = {
 
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareModTracker(clazz))
     def selfTypeSignaturesInner(): SMap = {
       implicit val ctx: ProjectContext = clazz
 

@@ -7,7 +7,7 @@ import java.util.concurrent.{Callable, Future}
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationUtil}
+import com.intellij.openapi.application.ex.ApplicationUtil
 import com.intellij.openapi.application.{ApplicationManager, Result, TransactionGuard}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
@@ -17,6 +17,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.SharedImplUtil
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
@@ -104,10 +105,10 @@ package object extensions {
   }
 
   object PsiMethodExt {
-    val AccessorNamePattern =
+    val AccessorNamePattern: Regex =
       """(?-i)(?:get|is|can|could|has|have|to)\p{Lu}.*""".r
 
-    val MutatorNamePattern =
+    val MutatorNamePattern: Regex =
       """(?-i)(?:do|set|add|remove|insert|delete|aquire|release|update)(?:\p{Lu}.*)""".r
   }
 
@@ -197,7 +198,7 @@ package object extensions {
 
     def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) Right(right) else Left(left)
 
-    def seq[A](a: A*): Seq[A] = if (b) Seq(a: _*) else Seq.empty
+    def seq[A](a: => A): Seq[A] = if (b) Seq(a) else Seq.empty
 
     // looks better withing expressions than { if (???) ??? else ??? } block
     def fold[T](ifTrue: => T, ifFalse: => T): T = if (b) ifTrue else ifFalse
@@ -332,6 +333,10 @@ package object extensions {
         next = next.getNextSibling
       next
     }
+
+    def resolveScope: GlobalSearchScope =
+      if (element.isValid) element.getResolveScope
+      else GlobalSearchScope.EMPTY_SCOPE
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
@@ -651,9 +656,14 @@ package object extensions {
     }
   }
 
+  //use only for defining toString method
   def ifReadAllowed[T](body: => T)(default: => T): T = {
     try {
-      ApplicationUtil.tryRunReadAction(body)
+      val ref: Ref[T] = Ref.create()
+      ProgressManager.getInstance().executeNonCancelableSection {
+        ref.set(ApplicationUtil.tryRunReadAction(body))
+      }
+      ref.get()
     } catch {
       case _: ProcessCanceledException => default
     }
@@ -700,7 +710,7 @@ package object extensions {
     }
   }
 
-  def invokeLater[T](body: => T) {
+  def invokeLater[T](body: => T): Unit = {
     ApplicationManager.getApplication.invokeLater(new Runnable {
       def run() {
         body
@@ -708,7 +718,7 @@ package object extensions {
     })
   }
 
-  def invokeAndWait[T](body: => Unit) {
+  def invokeAndWait[T](body: => T): Unit = {
     preservingControlFlow {
       ApplicationManager.getApplication.invokeAndWait(new Runnable {
         def run() {
@@ -885,5 +895,5 @@ package object extensions {
     v
   }
 
-  val ChildOf = Parent
+  val ChildOf: Parent.type = Parent
 }

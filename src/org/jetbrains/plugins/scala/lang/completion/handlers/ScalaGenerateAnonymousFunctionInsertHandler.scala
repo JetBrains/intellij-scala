@@ -28,13 +28,10 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
     def collectAbstracts(`type`: ScType): Seq[ScAbstractType] = {
       val set: mutable.HashSet[ScAbstractType] = new mutable.HashSet[ScAbstractType]
 
-      `type`.recursiveUpdate(tp => {
-        tp match {
-          case a: ScAbstractType => set += a
-          case _ =>
-        }
-        (false, tp)
-      })
+      `type`.visitRecursively {
+        case a: ScAbstractType => set += a
+        case _ =>
+      }
 
       set.toSeq
     }

@@ -28,7 +28,7 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
 
   override def toString: String = "Parameters"
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   def clauses: Seq[ScParameterClause] = {
     getStubOrPsiChildren(ScalaElementTypes.PARAM_CLAUSE, JavaArrayFactoryUtil.ScParameterClauseFactory).toSeq
   }

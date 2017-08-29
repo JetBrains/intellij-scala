@@ -22,7 +22,7 @@ import _root_.scala.collection.mutable.ListBuffer
 */
 
 class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExistentialTypeElement {
-  protected def innerType(): TypeResult[ScType] = {
+  protected def innerType: TypeResult[ScType] = {
     val q = quantified.getType()
     val problems: ListBuffer[TypeResult[ScType]] = new ListBuffer
     problems += q

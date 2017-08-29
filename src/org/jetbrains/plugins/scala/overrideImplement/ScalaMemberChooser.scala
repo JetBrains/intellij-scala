@@ -10,10 +10,9 @@ import com.intellij.psi._
 import com.intellij.ui.{HyperlinkLabel, NonFocusableCheckBox}
 import com.intellij.util.ui.ThreeStateCheckBox
 import com.intellij.util.ui.ThreeStateCheckBox.State
-import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, TypeAnnotationPolicy, TypeAnnotationRequirement}
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Location, ScalaTypeAnnotationSettings}
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil._
 
 import scala.collection.mutable
@@ -131,39 +130,9 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
       State.NOT_SELECTED
   }
 
-  private def typeAnnotationNeeded(element: PsiElement): Boolean = {
-    val isOverriding = !element.isInstanceOf[ScTypedDeclaration]
-    val simple = isSimple(element)
-
-    implicit val pair = (isOverriding, simple)
-
-    def default = isTypeAnnotationNeeded(
-      TypeAnnotationRequirement.Preferred.ordinal(),
-      TypeAnnotationPolicy.Regular.ordinal,
-      TypeAnnotationPolicy.Optional.ordinal
-    )
-
-    implicit val settings = ScalaCodeStyleSettings.getInstance(element.getProject)
-
-    element match {
-      case _: ScPatternDefinition | _: ScVariableDefinition |
-           _: ScVariableDeclaration | _: ScValueDeclaration =>
-        isTypeAnnotationNeededProperty(element.asInstanceOf[ScMember])
-      case _: ScFunctionDeclaration | _: ScFunctionDefinition =>
-        isTypeAnnotationNeededMethod(element.asInstanceOf[ScMember])
-      case modifierListOwner: PsiModifierListOwner =>
-        val visibility = Visibility(modifierListOwner)
-
-        modifierListOwner match {
-          case _: PsiMethod =>
-            isTypeAnnotationNeededMethod(visibility)
-          case _: PsiField =>
-            isTypeAnnotationNeededProperty(visibility)
-          case _ => default
-        }
-      case _ => default
-    }
-  }
+  private def typeAnnotationNeeded(element: PsiElement): Boolean =
+    ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
+      Declaration(element), Location(targetClass), implementation = None)
 }
 
 object ScalaMemberChooser {

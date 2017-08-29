@@ -5,6 +5,7 @@ import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.junit.JavaRuntimeConfigurationProducerBase
 import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -57,7 +58,7 @@ object TestConfigurationUtil {
   }
 
   def isInheritor(clazz: ScTemplateDefinition, fqn: String): Boolean = {
-    val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.getResolveScope, fqn)
+    val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.resolveScope, fqn)
     suiteClazz.fold(false)(ScalaPsiUtil.isInheritorDeep(clazz, _))
   }
 

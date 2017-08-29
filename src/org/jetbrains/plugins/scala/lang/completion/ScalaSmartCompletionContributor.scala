@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaConstructorInsertHandler, ScalaGenerateAnonymousFunctionInsertHandler}
+import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager.getLookupElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaChainLookupElement, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi._
@@ -87,17 +88,16 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               }
             }
             if (!elementAdded && chainCompletion && secondCompletion) {
-              val processor = new CompletionProcessor(StdKinds.refExprLastRef, place, false, postProcess = {
-                r => {
-                  r match {
-                    case r: ScalaResolveResult if !r.isNamedParameter =>
-                      val qualifier = r.fromType.getOrElse(Nothing)
-                      val newElem = LookupElementManager.getLookupElement(r, qualifierType = qualifier).head
+              val processor = new CompletionProcessor(StdKinds.refExprLastRef, place, false) {
+
+                override protected def postProcess(result: ScalaResolveResult): Unit = {
+                  if (!result.isNamedParameter) {
+                    val qualifier = result.fromType.getOrElse(Nothing)
+                    val newElem = getLookupElement(result, qualifierType = qualifier).head
                       applyVariant(new ScalaChainLookupElement(scalaLookupItem, newElem))
-                    case _ =>
                   }
                 }
-              })
+              }
               processor.processType(scalaLookupItem.substitutor.subst(_tp), place)
               processor.candidatesS
             }
@@ -160,26 +160,26 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           def checkObject(o: ScObject) {
             o.members.foreach {
               case function: ScFunction =>
-                val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(function), isClassName = true
+                val lookup = getLookupElement(new ScalaResolveResult(function), isClassName = true
                   , shouldImport = true).head
                 lookup.addLookupStrings(o.name + "." + function.name)
                 applyVariant(lookup)
               case v: ScValue =>
                 v.declaredElements.foreach(td => {
-                  val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(td), isClassName = true
+                  val lookup = getLookupElement(new ScalaResolveResult(td), isClassName = true
                     , shouldImport = true).head
                   lookup.addLookupStrings(o.name + "." + td.name)
                   applyVariant(lookup)
                 })
               case v: ScVariable =>
                 v.declaredElements.foreach(td => {
-                  val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(td), isClassName = true
+                  val lookup = getLookupElement(new ScalaResolveResult(td), isClassName = true
                     , shouldImport = true).head
                   lookup.addLookupStrings(o.name + "." + td.name)
                   applyVariant(lookup)
                 })
               case obj: ScObject =>
-                val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(obj), isClassName = true
+                val lookup = getLookupElement(new ScalaResolveResult(obj), isClassName = true
                   , shouldImport = true).head
                 lookup.addLookupStrings(o.name + "." + obj.name)
                 applyVariant(lookup)
@@ -214,7 +214,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               case Some(p: PsiClass) if ResolveUtils.isAccessible(p, place, forCompletion = true) =>
                 p.getAllMethods.foreach(method => {
                   if (method.hasModifierProperty("static") && ResolveUtils.isAccessible(method, place, forCompletion = true)) {
-                    val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(method), isClassName = true
+                    val lookup = getLookupElement(new ScalaResolveResult(method), isClassName = true
                       , shouldImport = true).head
                     lookup.addLookupStrings(p.getName + "." + method.getName)
                     applyVariant(lookup)
@@ -222,7 +222,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                 })
                 p.getFields.foreach(field => {
                   if (field.hasModifierProperty("static") && ResolveUtils.isAccessible(field, place, forCompletion = true)) {
-                    val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(field), isClassName = true
+                    val lookup = getLookupElement(new ScalaResolveResult(field), isClassName = true
                       , shouldImport = true).head
                     lookup.addLookupStrings(p.getName + "." + field.getName)
                     applyVariant(lookup)
@@ -298,7 +298,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
             case _: ScExpression =>
               //we can expect that the type is same for left and right parts.
               acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-                ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
+                ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
           }
         } else {
           //so it's left expression
@@ -318,7 +318,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                        result: CompletionResultSet) {
       val element = positionFromParameters(parameters)
       extractReference[PsiElement](element).foreach { case ReferenceWithElement(ref, _) =>
-        acceptTypes(ref.expectedType().toList, ref.getVariants, result, ref.getResolveScope,
+        acceptTypes(ref.expectedType().toList, ref.getVariants, result, ref.resolveScope,
           parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
       }
     }
@@ -334,7 +334,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
          val fun: ScFunction = PsiTreeUtil.getContextOfType(ref, classOf[ScFunction])
           if (fun == null) return
           acceptTypes(Seq[ScType](fun.returnType.getOrAny), ref.getVariants, result,
-            ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
+            ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
       }
     }
   })
@@ -438,7 +438,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
       val element = positionFromParameters(parameters)
       extractReference[ScArgumentExprList](element).foreach { case ReferenceWithElement(referenceExpression, _) =>
         acceptTypes(referenceExpression.expectedTypes(), referenceExpression.getVariants, result,
-          referenceExpression.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(referenceExpression),
+          referenceExpression.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(referenceExpression),
           element, parameters.getOriginalPosition)
       }
     }
@@ -457,9 +457,9 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         extractReference[ScIfStmt](element).foreach { case ReferenceWithElement(ref, ifStmt) =>
           if (ifStmt.condition.getOrElse(null: ScExpression) == ref)
             acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-            ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
+            ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
           else acceptTypes(ifStmt.expectedTypes(), ref.getVariants, result,
-            ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
+            ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
         }
       }
     })
@@ -476,9 +476,9 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         extractReference[ScWhileStmt](element).foreach { case ReferenceWithElement(ref, whileStmt) =>
           if (whileStmt.condition.getOrElse(null: ScExpression) == ref)
             acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-              ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
+              ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
           else acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-            ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
+            ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
         }
       }
     })
@@ -495,9 +495,9 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         extractReference[ScDoStmt](element).foreach { case ReferenceWithElement(ref, doStmt) =>
           if (doStmt.condition.getOrElse(null: ScExpression) == ref)
             acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-              ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
+              ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
           else acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-            ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
+            ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
         }
       }
     })
@@ -524,7 +524,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               typez ++= ref.expectedTypes()
             }
           }
-          acceptTypes(typez, ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1,
+          acceptTypes(typez, ref.getVariants, result, ref.resolveScope, parameters.getInvocationCount > 1,
             ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
         }
       }
@@ -538,7 +538,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                        result: CompletionResultSet) {
       val element = positionFromParameters(parameters)
       extractReference[ScTryBlock](element).foreach { case ReferenceWithElement(ref, _) =>
-        acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1,
+        acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.resolveScope, parameters.getInvocationCount > 1,
           ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
       }
     }
@@ -552,7 +552,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                        result: CompletionResultSet) {
       val element = positionFromParameters(parameters)
       extractReference[ScBlockExpr](element).foreach { case ReferenceWithElement(ref, _) =>
-        acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1,
+        acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.resolveScope, parameters.getInvocationCount > 1,
           ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
       }
     }
@@ -566,7 +566,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                        result: CompletionResultSet) {
       val element = positionFromParameters(parameters)
       extractReference[ScFinallyBlock](element).foreach { case ReferenceWithElement(ref, _) =>
-        acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1,
+        acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.resolveScope, parameters.getInvocationCount > 1,
           ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
       }
     }
@@ -579,7 +579,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       val element = positionFromParameters(parameters)
       extractReference[ScFunctionExpr](element).foreach { case ReferenceWithElement(ref, _) =>
-        acceptTypes(ref.expectedType().toList, ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1,
+        acceptTypes(ref.expectedType().toList, ref.getVariants, result, ref.resolveScope, parameters.getInvocationCount > 1,
           ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
       }
     }
@@ -592,7 +592,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       val element = positionFromParameters(parameters)
       extractReference[ScFunctionDefinition](element).foreach { case ReferenceWithElement(ref, _) =>
-        acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1,
+        acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.resolveScope, parameters.getInvocationCount > 1,
           ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
       }
     }
@@ -605,7 +605,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       val element = positionFromParameters(parameters)
       extractReference[ScParameter](element).foreach { case ReferenceWithElement(ref, _) =>
-        acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1,
+        acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.resolveScope, parameters.getInvocationCount > 1,
           ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
       }
     }

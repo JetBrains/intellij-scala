@@ -23,7 +23,8 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
   override def toString: String = "InfixExpression"
 
   override def argumentExpressions: Seq[ScExpression] = {
-    if (isLeftAssoc) Seq(lOp) else rOp match {
+    if (isRightAssoc) Seq(lOp)
+    else rOp match {
       case tuple: ScTuple => tuple.exprs
       case t: ScParenthesisedExpr => t.expr match {
         case Some(expr) => Seq(expr)
@@ -34,17 +35,17 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
     }
   }
 
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  protected override def innerType: TypeResult[ScType] = {
     operation.bind() match {
       //this is assignment statement: x += 1 equals to x = x + 1
       case Some(r) if r.element.name + "=" == operation.refName =>
-        super.innerType(ctx)
+        super.innerType
         val lText = lOp.getText
         val rText = rOp.getText
         val exprText = s"$lText = $lText ${r.element.name} $rText"
         val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, getContext, this)
         newExpr.getType(TypingContext.empty)
-      case _ => super.innerType(ctx)
+      case _ => super.innerType
     }
   }
 

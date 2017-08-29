@@ -13,6 +13,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 28.07.2008
@@ -95,21 +99,26 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public static final int MULTILINE_STRING_ALL = 2;
 
   //type annotations
-  public int PUBLIC_PROPERTY_TYPE_ANNOTATION = TypeAnnotationRequirement.Required.ordinal();
-  public int PROTECTED_PROPERTY_TYPE_ANNOTATION = TypeAnnotationRequirement.Required.ordinal();
-  public int PRIVATE_PROPERTY_TYPE_ANNOTATION = TypeAnnotationRequirement.Optional.ordinal();
-  public int LOCAL_PROPERTY_TYPE_ANNOTATION = TypeAnnotationRequirement.Optional.ordinal();
-  public int IMPLICIT_PROPERTY_TYPE_ANNOTATION = TypeAnnotationRequirement.Required.ordinal();
-  public int OVERRIDING_PROPERTY_TYPE_ANNOTATION = TypeAnnotationPolicy.Regular.ordinal();
-  public int SIMPLE_PROPERTY_TYPE_ANNOTATION = TypeAnnotationPolicy.Optional.ordinal();
+  public boolean TYPE_ANNOTATION_PUBLIC_MEMBER = true;
+  public boolean TYPE_ANNOTATION_PROTECTED_MEMBER = true;
+  public boolean TYPE_ANNOTATION_PRIVATE_MEMBER = false;
+  public boolean TYPE_ANNOTATION_LOCAL_DEFINITION = false;
+  public boolean TYPE_ANNOTATION_FUNCTION_PARAMETER = false;
+  public boolean TYPE_ANNOTATION_UNDERSCORE_PARAMETER = false;
 
-  public int PUBLIC_METHOD_TYPE_ANNOTATION = TypeAnnotationRequirement.Required.ordinal();
-  public int PROTECTED_METHOD_TYPE_ANNOTATION = TypeAnnotationRequirement.Required.ordinal();
-  public int PRIVATE_METHOD_TYPE_ANNOTATION = TypeAnnotationRequirement.Optional.ordinal();
-  public int LOCAL_METHOD_TYPE_ANNOTATION = TypeAnnotationRequirement.Optional.ordinal();
-  public int IMPLICIT_METHOD_TYPE_ANNOTATION = TypeAnnotationRequirement.Required.ordinal();
-  public int OVERRIDING_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Regular.ordinal();
-  public int SIMPLE_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Optional.ordinal();
+  public boolean TYPE_ANNOTATION_IMPLICIT_MODIFIER = true;
+  public boolean TYPE_ANNOTATION_UNIT_TYPE = true;
+
+  public boolean TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_ANONYMOUS_CLASS = false;
+  public boolean TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_PRIVATE_CLASS = false;
+  public boolean TYPE_ANNOTATION_EXCLUDE_CONSTANT = true;
+  public boolean TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS = true;
+  public boolean TYPE_ANNOTATION_EXCLUDE_IN_SCRIPT = true;
+  public boolean TYPE_ANNOTATION_EXCLUDE_IN_TEST_SOURCES = false;
+
+  public Set<String> TYPE_ANNOTATION_EXCLUDE_MEMBER_OF = asSet("scala.App", "junit.framework.TestCase");
+  public Set<String> TYPE_ANNOTATION_EXCLUDE_ANNOTATED_WITH = asSet("junit.framework.Test", "org.junit.Test");
+  public Set<String> TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_MATCHES = asSet("sbt.*", "slick.*");
 
   //scaladoc formatting
   public boolean ENABLE_SCALADOC_FORMATTING = true;
@@ -151,6 +160,11 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     if (scalaCodeStyleSettings.getChildren().isEmpty()) {
       parentElement.removeChild("ScalaCodeStyleSettings");
     }
+  }
+
+  @NotNull
+  private static HashSet<String> asSet(String... strings) {
+    return new HashSet<String>(Arrays.asList(strings));
   }
 
   //import

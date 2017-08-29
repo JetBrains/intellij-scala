@@ -4,13 +4,11 @@ package refactoring.changeSignature
 import java.io.File
 
 import com.intellij.openapi.util.io.FileUtilRt
-import com.intellij.openapi.vfs.{CharsetToolkit, VfsUtil}
+import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.refactoring.changeSignature._
-import com.intellij.testFramework.LightPlatformTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -19,7 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.{TypeAnnotationSettings, TypeAnnotationUtil}
+import org.jetbrains.plugins.scala.settings.annotations
+import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Implementation, Location, Visibility}
+import org.jetbrains.plugins.scala.util._
 import org.junit.Assert._
 
 /**
@@ -85,18 +85,8 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
     }
   }
 
-  protected def addFileToProject(fileName: String, text: String): PsiFile = {
-    inWriteAction {
-      val vFile = LightPlatformTestCase.getSourceRoot.createChildData(null, fileName)
-      VfsUtil.saveText(vFile, text)
-      val psiFile = LightPlatformTestCase.getPsiManager.findFile(vFile)
-      assertNotNull("Can't create PsiFile for '" + fileName + "'. Unknown file type most probably.", vFile)
-      assertTrue(psiFile.isPhysical)
-      vFile.setCharset(CharsetToolkit.UTF8_CHARSET)
-      PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
-      psiFile
-    }
-  }
+  protected def addFileToProject(fileName: String, text: String): PsiFile =
+    PsiFileTestUtil.addFileToProject(fileName, text, getProjectAdapter)
 
   protected def getTextFromTestData(fileName: String) = {
     val file = new File(getTestDataPath + fileName)
@@ -139,7 +129,9 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
     }
 
     val params = newParams.map(_.map(_.asInstanceOf[ScalaParameterInfo]))
-    val annotationNeeded = TypeAnnotationUtil.isTypeAnnotationNeededMethod(targetMethod, newVisibility)()
+    // TODO Having this repeated separately somehow defies the purpose of testing
+    val annotationNeeded = annotations.ScalaTypeAnnotationSettings(targetMethod.getProject).isTypeAnnotationRequiredFor(
+      Declaration(targetMethod, Visibility(newVisibility)), Location(targetMethod), Some(Implementation(targetMethod)))
 
     val changeInfo =
       new ScalaChangeInfo(newVisibility, targetMethod.asInstanceOf[ScMethodLike], newName, maybeReturnType.getOrElse(Any), params,

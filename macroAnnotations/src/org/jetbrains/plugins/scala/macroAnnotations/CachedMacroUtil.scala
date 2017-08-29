@@ -35,6 +35,11 @@ object CachedMacroUtil {
     tq"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped"
   }
 
+  def atomicReferenceTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    tq"_root_.java.util.concurrent.atomic.AtomicReference"
+  }
+
   def defaultValue(c: whitebox.Context)(tp: c.universe.Tree): c.universe.Tree = {
     import c.universe.Quasiquote
     tp match {
@@ -163,9 +168,9 @@ object CachedMacroUtil {
             q"$cachesUtilFQN.enclosingModificationOwner($psiElement)"
           case Some(ModCount.getOutOfCodeBlockModificationCount) =>
             q"$scalaPsiManagerFQN.instance($psiElement.getProject).getModificationTracker"
-          case Some(ModCount.getModificationCount) => q"$psiModificationTrackerFQN.MODIFICATION_COUNT"
+          case Some(ModCount.getModificationCount) => q"$psiModificationTrackerFQN.SERVICE.getInstance($psiElement.getProject)"
           case Some(ModCount.getJavaStructureModificationCount) =>
-            q"$psiModificationTrackerFQN.JAVA_STRUCTURE_MODIFICATION_COUNT"
+            q"$psiModificationTrackerFQN.SERVICE.getInstance($psiElement.getProject).getJavaStructureModificationTracker"
           case Some(ModCount.`anyScalaPsiModificationCount`) =>
             q"$scalaPsiManagerFQN.AnyScalaPsiModificationTracker"
           case _ => tree

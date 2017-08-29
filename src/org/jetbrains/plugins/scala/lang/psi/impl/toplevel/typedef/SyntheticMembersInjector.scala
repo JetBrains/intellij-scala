@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.extensions.ExtensionPointName
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
@@ -107,6 +108,7 @@ object SyntheticMembersInjector {
       function.setSyntheticContainingClass(source)
       if (withOverride ^ !function.hasModifierProperty("override")) buffer += function
     } catch {
+      case p: ProcessCanceledException => throw p
       case e: Throwable =>
         logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }
@@ -138,6 +140,7 @@ object SyntheticMembersInjector {
       updateSynthetic(td, context)
       buffer += td
     } catch {
+      case p: ProcessCanceledException => throw p
       case e: Throwable =>
         logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }
@@ -161,6 +164,7 @@ object SyntheticMembersInjector {
       }
       buffer += ScalaPsiElementFactory.createTypeElementFromText(supers, context, source)
     } catch {
+      case p: ProcessCanceledException => throw p
       case e: Throwable =>
         logError(s"Error during parsing type element from injector: ${injector.getClass.getName}", e)
     }
@@ -195,6 +199,7 @@ object SyntheticMembersInjector {
       updateSynthetic(member, context)
       if (!member.hasModifierProperty("override")) buffer += member
     } catch {
+      case p: ProcessCanceledException => throw p
       case e: Throwable =>
         logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }

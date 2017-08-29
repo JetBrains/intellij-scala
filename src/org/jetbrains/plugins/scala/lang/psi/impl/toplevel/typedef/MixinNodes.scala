@@ -442,7 +442,7 @@ abstract class MixinNodes {
 
 object MixinNodes {
   def linearization(clazz: PsiClass): Seq[ScType] = {
-    @CachedWithRecursionGuard(clazz, Seq.empty, CachesUtil.getDependentItem(clazz)())
+    @CachedWithRecursionGuard(clazz, Seq.empty, CachesUtil.libraryAwareModTracker(clazz))
     def inner(): Seq[ScType] = {
       implicit val ctx: ProjectContext = clazz
 
@@ -540,7 +540,7 @@ object MixinNodes {
           case _ =>
             tp match {
               case ex: ScExistentialType => ex.quantified
-              case tpt: TypeParameterType => tpt.upperType.v
+              case tpt: TypeParameterType => tpt.upperType
               case _ => tp
             }
         }

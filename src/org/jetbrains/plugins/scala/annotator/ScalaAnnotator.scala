@@ -12,7 +12,8 @@ import com.intellij.openapi.util.{Condition, Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
-import org.jetbrains.plugins.scala.annotator.importsTracker._
+import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.annotator.intention.sbt.AddSbtDependencyFix
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
@@ -58,7 +59,6 @@ import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
 import scala.meta.intellij.MetaExpansionsManager
-import scala.util.Try
 
 /**
  * User: Alexander Podkhalyuzin
@@ -204,7 +204,7 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitForExpression(expr: ScForStatement) {
-        checkForStmtUsedTypes(expr, holder)
+        registerUsedImports(expr, ScalaPsiUtil.getExprImports(expr))
         super.visitForExpression(expr)
       }
 
@@ -236,7 +236,7 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitMethodCallExpression(call: ScMethodCall) {
-        checkMethodCallImplicitConversion(call, holder)
+        registerUsedImports(call, call.getImportsUsed)
         if (typeAware) annotateMethodInvocation(call, holder)
         super.visitMethodCallExpression(call)
       }
@@ -365,8 +365,8 @@ abstract class ScalaAnnotator extends Annotator
           case _ =>
         }
         if (!childHasAnnotation(varr.typeElement, "uncheckedVariance")) {
-          checkValueAndVariableVariance(varr, ScTypeParam.Covariant, varr.declaredElements, holder)
-          checkValueAndVariableVariance(varr, ScTypeParam.Contravariant, varr.declaredElements, holder)
+          checkValueAndVariableVariance(varr, Covariant, varr.declaredElements, holder)
+          checkValueAndVariableVariance(varr, Contravariant, varr.declaredElements, holder)
         }
         super.visitVariable(varr)
       }
@@ -386,7 +386,7 @@ abstract class ScalaAnnotator extends Annotator
           case _ =>
         }
         if (!childHasAnnotation(v.typeElement, "uncheckedVariance")) {
-          checkValueAndVariableVariance(v, ScTypeParam.Covariant, v.declaredElements, holder)
+          checkValueAndVariableVariance(v, Covariant, v.declaredElements, holder)
         }
         super.visitValue(v)
       }
@@ -409,7 +409,7 @@ abstract class ScalaAnnotator extends Annotator
 
     element match {
       case templateDefinition: ScTemplateDefinition =>
-        checkBoundsVariance(templateDefinition, holder, templateDefinition.nameId, templateDefinition.nameId, ScTypeParam.Covariant)
+        checkBoundsVariance(templateDefinition, holder, templateDefinition.nameId, templateDefinition.nameId, Covariant)
         val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
           MultipleInheritance, NeedsToBeAbstract, NeedsToBeMixin, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
         tdParts.foreach(_.annotate(templateDefinition, holder, typeAware))
@@ -433,9 +433,10 @@ abstract class ScalaAnnotator extends Annotator
     //todo: super[ControlFlowInspections].annotate(element, holder)
   }
 
-  private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Any = {
+  private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Unit = {
+    import scala.meta.intellij.psiExt._
     import ScalaProjectSettings.ScalaMetaMode
-    if (annotation.isMetaAnnotation) {
+    if (annotation.isMetaMacro) {
       if (!MetaExpansionsManager.isUpToDate(annotation)) {
         val warning = holder.createWarningAnnotation(annotation, ScalaBundle.message("scala.meta.recompile"))
         warning.registerFix(new RecompileAnnotationAction(annotation))
@@ -494,7 +495,7 @@ abstract class ScalaAnnotator extends Annotator
     block.expression match {
       case Some(expr) =>
         val tp = expr.getType(TypingContext.empty).getOrAny
-        val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.getResolveScope, "java.lang.Throwable").orNull
+        val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.resolveScope, "java.lang.Throwable").orNull
         if (throwable == null) return
         val throwableType = ScDesignatorType(throwable)
         def checkMember(memberName: String, checkReturnTypeIsBoolean: Boolean) {
@@ -600,23 +601,23 @@ abstract class ScalaAnnotator extends Annotator
   }
 
   def checkBoundsVariance(toCheck: PsiElement, holder: AnnotationHolder, toHighlight: PsiElement, checkParentOf: PsiElement,
-                          varianceOfUpper: Int = ScTypeParam.Covariant, checkTypeDeclaredSameBracket: Boolean = true, insideParameterized: Boolean = false) {
+                          upperV: Variance = Covariant, checkTypeDeclaredSameBracket: Boolean = true, insideParameterized: Boolean = false) {
     toCheck match {
       case boundOwner: ScTypeBoundsOwner =>
-        checkAndHighlightBounds(boundOwner.upperTypeElement, varianceOfUpper)
-        checkAndHighlightBounds(boundOwner.lowerTypeElement, varianceOfUpper * -1)
+        checkAndHighlightBounds(boundOwner.upperTypeElement, upperV)
+        checkAndHighlightBounds(boundOwner.lowerTypeElement, -upperV)
       case _ =>
     }
     toCheck match {
       case paramOwner: ScTypeParametersOwner =>
         val inParameterized = if (paramOwner.isInstanceOf[ScTemplateDefinition]) false else true
         for (param <- paramOwner.typeParameters) {
-          checkBoundsVariance(param, holder, param.nameId, checkParentOf, varianceOfUpper * -1, insideParameterized = inParameterized)
+          checkBoundsVariance(param, holder, param.nameId, checkParentOf, -upperV, insideParameterized = inParameterized)
         }
       case _ =>
     }
 
-    def checkAndHighlightBounds(boundOption: Option[ScTypeElement], expectedVariance: Int) {
+    def checkAndHighlightBounds(boundOption: Option[ScTypeElement], expectedVariance: Variance) {
       boundOption match {
         case Some(bound) if !childHasAnnotation(Some(bound), "uncheckedVariance") =>
           checkVariance(bound.calcType, expectedVariance, toHighlight, checkParentOf, holder, checkTypeDeclaredSameBracket, insideParameterized)
@@ -754,7 +755,7 @@ abstract class ScalaAnnotator extends Annotator
           resolveResult.implicitFunction match {
             case Some(fun) =>
               val inf = e.getParent.asInstanceOf[ScInfixExpr]
-              val expr = if (inf.isLeftAssoc) inf.rOp else inf.lOp
+              val expr = inf.getBaseExpr
               highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
             case _ =>
           }
@@ -942,24 +943,12 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  private def registerUsedImports(element: PsiElement, result: ScalaResolveResult) {
-    ImportTracker.getInstance(element.getProject).
-            registerUsedImports(element.getContainingFile.asInstanceOf[ScalaFile], result.importsUsed)
-  }
-
-  private def checkMethodCallImplicitConversion(call: ScMethodCall, holder: AnnotationHolder) {
-    val importUsed = call.getImportsUsed
-    ImportTracker.getInstance(call.getProject).
-            registerUsedImports(call.getContainingFile.asInstanceOf[ScalaFile], importUsed)
-  }
-
-  private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
+  private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean): Unit = {
     def checkExpressionTypeInner(fromUnderscore: Boolean) {
       val ExpressionTypeResult(exprType, importUsed, implicitFunction) =
-        expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(fromUnderscore),
-          fromUnderscore = fromUnderscore)
-      ImportTracker.getInstance(expr.getProject).
-              registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
+        expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(fromUnderscore), fromUnderscore = fromUnderscore)
+
+      registerUsedImports(expr, importUsed)
 
       expr match {
         case _: ScMatchStmt =>
@@ -1051,12 +1040,9 @@ abstract class ScalaAnnotator extends Annotator
   private def checkExpressionImplicitParameters(expr: ScExpression, holder: AnnotationHolder) {
     expr.findImplicitParameters match {
       case Some(seq) =>
-        for (resolveResult <- seq) {
-          if (resolveResult != null) {
-            ImportTracker.getInstance(expr.getProject).registerUsedImports(
-              expr.getContainingFile.asInstanceOf[ScalaFile], resolveResult.importsUsed)
-            registerUsedElement(expr, resolveResult, checkWrite = false)
-          }
+        for (resolveResult <- seq if resolveResult != null) {
+          registerUsedImports(expr, resolveResult)
+          registerUsedElement(expr, resolveResult, checkWrite = false)
         }
       case _ =>
     }
@@ -1107,15 +1093,10 @@ abstract class ScalaAnnotator extends Annotator
             _.importsUsed
           }
 
-          ImportTracker.getInstance(ret.getProject).registerUsedImports(ret.getContainingFile.asInstanceOf[ScalaFile], importUsed)
+          registerUsedImports(ret, importUsed)
         case _ =>
       }
     }
-  }
-
-  private def checkForStmtUsedTypes(f: ScForStatement, holder: AnnotationHolder) {
-    ImportTracker.getInstance(f.getProject).registerUsedImports(f.getContainingFile.asInstanceOf[ScalaFile],
-      ScalaPsiUtil.getExprImports(f))
   }
 
   private def checkImportExpr(impExpr: ScImportExpr, holder: AnnotationHolder) {
@@ -1134,10 +1115,8 @@ abstract class ScalaAnnotator extends Annotator
 
         simpleTypeElement.findImplicitParameters match {
           case Some(parameters) =>
-            parameters.foreach {
-              case r: ScalaResolveResult =>
-                registerUsedImports(typeElement, r)
-              case null =>
+            for (r <- parameters if r != null) {
+              registerUsedImports(typeElement, r)
             }
           case _ =>
         }
@@ -1212,7 +1191,7 @@ abstract class ScalaAnnotator extends Annotator
       if (!childHasAnnotation(fun.returnTypeElement, "uncheckedVariance")) {
         fun.returnType match {
           case Success(returnType, _) =>
-            checkVariance(ScalaType.expandAliases(returnType).getOrType(returnType), ScTypeParam.Covariant, fun.nameId,
+            checkVariance(ScalaType.expandAliases(returnType).getOrType(returnType), Covariant, fun.nameId,
               fun.getParent, holder)
           case _ =>
         }
@@ -1220,7 +1199,7 @@ abstract class ScalaAnnotator extends Annotator
       for (parameter <- fun.parameters) {
         parameter.typeElement match {
           case Some(te) if !childHasAnnotation(Some(te), "uncheckedVariance") =>
-            checkVariance(ScalaType.expandAliases(te.calcType).getOrType(te.calcType), ScTypeParam.Contravariant,
+            checkVariance(ScalaType.expandAliases(te.calcType).getOrType(te.calcType), Contravariant,
               parameter.nameId, fun.getParent, holder)
           case _ =>
         }
@@ -1228,7 +1207,7 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  def checkValueAndVariableVariance(toCheck: ScDeclaredElementsHolder, variance: Int,
+  def checkValueAndVariableVariance(toCheck: ScDeclaredElementsHolder, variance: Variance,
                                     declaredElements: Seq[Typeable with ScNamedElement], holder: AnnotationHolder) {
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {
@@ -1261,29 +1240,24 @@ abstract class ScalaAnnotator extends Annotator
   }
 
   //fix for SCL-807
-  private def checkVariance(typeParam: ScType, variance: Int, toHighlight: PsiElement, checkParentOf: PsiElement,
+  private def checkVariance(typeParam: ScType, variance: Variance, toHighlight: PsiElement, checkParentOf: PsiElement,
                             holder: AnnotationHolder, checkIfTypeIsInSameBrackets: Boolean = false, insideParameterized: Boolean = false) = {
 
-    def highlightVarianceError(varianceOfElement: Int, varianceOfPosition: Int, name: String) = {
-      if (varianceOfPosition != varianceOfElement && varianceOfElement != ScTypeParam.Invariant) {
+    def highlightVarianceError(elementV: Variance, positionV: Variance, name: String) = {
+      if (positionV != elementV && elementV != Invariant) {
         val pos =
           if (toHighlight.isInstanceOf[ScVariable]) toHighlight.getText + "_="
           else toHighlight.getText
         val place = if (toHighlight.isInstanceOf[ScFunction]) "method" else "value"
-        val elementVariance =
-          if (varianceOfElement == 1) "covariant"
-          else "contravariant"
-        val posVariance =
-          if (varianceOfPosition == 1) "covariant"
-          else if (varianceOfPosition == -1) "contravariant"
-          else "invariant"
+        val elementVariance = elementV.name
+        val posVariance = positionV.name
         val annotation = holder.createErrorAnnotation(toHighlight,
           ScalaBundle.message(s"$elementVariance.type.$posVariance.position.of.$place", name, typeParam.toString, pos))
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
       }
     }
 
-    def functionToSendIn(tp: ScType, i: Int) = {
+    def functionToSendIn(tp: ScType, v: Variance) = {
       tp match {
         case paramType: TypeParameterType =>
           paramType.psiTypeParameter match {
@@ -1294,14 +1268,14 @@ abstract class ScalaAnnotator extends Annotator
               parentIt.find(e => e == compareTo || e.isInstanceOf[ScFunction]) match {
                 case Some(_: ScFunction) =>
                 case _ =>
-                  def findVariance: Int = {
-                    if (!checkIfTypeIsInSameBrackets) return i
+                  def findVariance: Variance = {
+                    if (!checkIfTypeIsInSameBrackets) return v
                     if (PsiTreeUtil.isAncestor(scTypeParam.getParent, toHighlight, false))
                     //we do not highlight element if it was declared inside parameterized type.
                       if (!scTypeParam.getParent.getParent.isInstanceOf[ScTemplateDefinition]) return scTypeParam.variance
-                      else return i * -1
-                    if (toHighlight.getParent == scTypeParam.getParent.getParent) return i * -1
-                    i
+                      else return -v
+                    if (toHighlight.getParent == scTypeParam.getParent.getParent) return -v
+                    v
                   }
                   highlightVarianceError(scTypeParam.variance, findVariance, paramType.name)
               }
@@ -1454,4 +1428,6 @@ object ScalaAnnotator {
   def forProject(implicit ctx: ProjectContext): ScalaAnnotator = new ScalaAnnotator {
     override implicit def projectContext: ProjectContext = ctx
   }
+
+
 }

@@ -62,7 +62,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
 
   def desugaredElement: Option[ScTemplateDefinition] = None
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   def physicalExtendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementTypes.EXTENDS_BLOCK).orNull
 
   def extendsBlock: ScExtendsBlock = desugaredElement.map(_.extendsBlock).getOrElse(physicalExtendsBlock)
@@ -76,7 +76,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
       tp match {
         case Some(tp1) => (for (te <- tp1.allTypeElements;
                                 t = te.getType(TypingContext.empty).getOrAny;
-                                asPsi = t.toPsiType()
+                                asPsi = t.toPsiType
                                 if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
         case _ => PsiClassType.EMPTY_ARRAY
       }
@@ -147,7 +147,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     PsiClassImplUtil.getAllWithSubstitutorsByMap(this, MemberType.METHOD)
   }
 
-  @CachedInsidePsiElement(this, CachesUtil.getDependentItem(this)())
+  @CachedInsidePsiElement(this, CachesUtil.libraryAwareModTracker(this))
   override def getVisibleSignatures: JCollection[HierarchicalMethodSignature] = {
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
   }
@@ -453,7 +453,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     else superPaths.contains(basePath)
   }
 
-  @Cached(synchronized = false, ModCount.getModificationCount, this)
+  @Cached(ModCount.getModificationCount, this)
   def cachedPath: Path = {
     val kind = this match {
       case _: ScTrait => Kind.ScTrait
@@ -466,14 +466,14 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     Path(name, Option(qualifiedName), kind)
   }
 
-  @Cached(synchronized = false, ModCount.getModificationCount, this)
+  @Cached(ModCount.getModificationCount, this)
   private def superPaths: Set[Path] = {
     if (DumbService.getInstance(getProject).isDumb) return Set.empty //to prevent failing during indexes
 
     supers.map(Path.of).toSet
   }
 
-  @Cached(synchronized = false, ModCount.getModificationCount, this)
+  @Cached(ModCount.getModificationCount, this)
   private def superPathsDeep: Set[Path] = {
     if (DumbService.getInstance(getProject).isDumb) return Set.empty //to prevent failing during indexes
 
@@ -507,11 +507,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     addForClass(this)
 
     collected - cachedPath
-  }
-
-  def isMetaAnnotatationImpl: Boolean = {
-    members.exists(_.getModifierList.findChildrenByType(ScalaTokenTypes.kINLINE).nonEmpty) ||
-    members.exists({case ah: ScAnnotationsHolder => ah.hasAnnotation("scala.meta.internal.inline.inline")})
   }
 }
 

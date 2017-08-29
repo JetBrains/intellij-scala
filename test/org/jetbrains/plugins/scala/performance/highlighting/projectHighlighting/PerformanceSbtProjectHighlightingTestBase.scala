@@ -37,7 +37,7 @@ abstract class PerformanceSbtProjectHighlightingTestBase extends DownloadingAndI
         psiFile.accept(visitor)
         fileManager.cleanupForNextTest()
       }
-    }).cpuBound().assertTiming()
+    }).assertTiming()
   }
 
   override protected def getExternalSystemConfigFileName = "build.sbt"

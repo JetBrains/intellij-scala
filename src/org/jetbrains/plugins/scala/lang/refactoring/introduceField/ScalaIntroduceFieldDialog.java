@@ -17,14 +17,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ValidationReporter;
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
+import org.jetbrains.plugins.scala.settings.*;
+import org.jetbrains.plugins.scala.settings.annotations.*;
+import org.jetbrains.plugins.scala.util.*;
+import scala.Some$;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -68,6 +70,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   private int occurrencesCount;
   private ValidationReporter reporter;
   private IntroduceFieldSettings mySettings;
+  private ScTemplateDefinition myClass;
 
   private LinkedHashMap<String, ScType> myTypeMap = null;
   private EventListenerList myListenerList = new EventListenerList();
@@ -81,6 +84,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     this.occurrencesCount = ifc.occurrences().length;
     this.reporter = ifc.reporter();
     this.mySettings = settings;
+    this.myClass = ifc.aClass();
 
     ScExpression expression = ScalaRefactoringUtil.expressionToIntroduce(ifc.element());
 
@@ -308,14 +312,9 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   }
 
   private boolean needsTypeAnnotation(ScExpression expression) {
-    return TypeAnnotationUtil.isTypeAnnotationNeededProperty(
-            expression,
-            getVisibility(),
-            false, //can't declare in local scope
-            false,
-            TypeAnnotationUtil.isSimple(expression),
-            ScalaCodeStyleSettings.getInstance(project)
-    );
+    return ScalaTypeAnnotationSettings$.MODULE$.apply(expression.getProject()).isTypeAnnotationRequiredFor(
+        Declaration$.MODULE$.apply(Visibility$.MODULE$.apply(getVisibility()), false, false, false),
+        Location$.MODULE$.apply(myClass), Some$.MODULE$.apply(Implementation$.MODULE$.apply(expression)));
   }
 
   private void setUpTypeComboBox(final ScExpression expression) {

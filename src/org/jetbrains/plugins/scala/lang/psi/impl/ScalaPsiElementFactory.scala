@@ -6,6 +6,7 @@ package impl
 import java.util
 
 import com.intellij.lang.{ASTNode, PsiBuilderFactory}
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
 import com.intellij.pom.java.LanguageLevel
@@ -33,7 +34,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScIdList, ScModifierList, ScPatternList, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -146,6 +147,7 @@ object ScalaPsiElementFactory {
     try {
       createExpressionWithContextFromText(text, context, context)
     } catch {
+      case p: ProcessCanceledException => throw p
       case e: Throwable => throw new IncorrectOperationException(s"Cannot create expression from text $text with context ${context.getText}", e)
     }
   }
@@ -286,6 +288,7 @@ object ScalaPsiElementFactory {
         .getLastChildNode.getLastChildNode.getLastChildNode
     }
     catch {
+      case p: ProcessCanceledException => throw p
       case _: Throwable => throw new IllegalArgumentException(s"Cannot create identifier from text $name")
     }
   }
@@ -310,6 +313,7 @@ object ScalaPsiElementFactory {
       importStatement.importExprs.head.reference.orNull
     }
     catch {
+      case p: ProcessCanceledException => throw p
       case _: Throwable => throw new IllegalArgumentException(s"Cannot create reference with text $name")
     }
   }
@@ -682,6 +686,7 @@ object ScalaPsiElementFactory {
           s"$overrideText${alias.getModifierList.getText} type ${alias.name} = this.type"
       }
     } catch {
+      case p: ProcessCanceledException => throw p
       case e: Exception =>
         e.printStackTrace()
         ""
@@ -768,6 +773,11 @@ object ScalaPsiElementFactory {
     }
 
     withContext(result, context, child)
+  }
+
+  def createEmptyModifierList(context: PsiElement): ScModifierList = {
+    val parseEmptyModifier = (_: ScalaPsiBuilder).mark.done(ScalaElementTypes.MODIFIERS)
+    createElementWithContext[ScModifierList]("", context, context.getFirstChild, parseEmptyModifier).orNull
   }
 
   private def withContext[E <: ScalaPsiElement](maybeElement: Option[E],

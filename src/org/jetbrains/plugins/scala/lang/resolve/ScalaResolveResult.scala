@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.{ImplicitResult, ImplicitState, NoResult}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
 import scala.annotation.tailrec
@@ -140,10 +141,10 @@ class ScalaResolveResult(val element: PsiNamedElement,
   private var precedence = -1
 
   /**
-   * See [[org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes]]
-   */
+    * See [[org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes]]
+    */
   def getPrecedence(place: PsiElement, placePackageName: => String): Int = {
-    import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes._
+    import PrecedenceTypes._
     def getPrecedenceInner: Int = {
       def getPackagePrecedence(qualifier: String): Int = {
         if (qualifier == null) return OTHER_MEMBERS

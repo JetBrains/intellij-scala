@@ -103,7 +103,7 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
         //todo: making lazy next two definitions leads to compiler failure
         val poOpt = () => exprQual.bind() match {
           case Some(ScalaResolveResult(p: PsiPackage, _)) =>
-            Option(ScalaShortNamesCacheManager.getInstance(getProject).getPackageObjectByName(p.getQualifiedName, getResolveScope))
+            Option(ScalaShortNamesCacheManager.getInstance(getProject).getPackageObjectByName(p.getQualifiedName, this.resolveScope))
           case _ => None
         }
 

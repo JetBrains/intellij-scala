@@ -268,7 +268,7 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
   //for now, support only constants and arrays of constants
   lazy val annotArgArray  = 44 -~ (oneOf(constantRef, constAnnotArgRef)*).map(_.toArray)
   lazy val constAnnotArgRef:  Rule2[Any, String] = oneOf(constantRef, refTo(annotArgArray))
-  lazy val attributeInfo = 40 -~ symbolRef ~ typeRef ~ (constAnnotArgRef?) ~ (nameRef ~ constAnnotArgRef*) ^~~~^ AttributeInfo // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
+  lazy val attributeInfo = 40 -~ symbolRef ~ typeRef ~ (constAnnotArgRef*) ~ (nameRef ~ constAnnotArgRef*) ^~~~^ AttributeInfo // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
   lazy val children = 41 -~ (nat*) ^^ Children //sym_Ref {sym_Ref}
   lazy val annotInfo = 43 -~ (nat*) ^^ AnnotInfo // attarg_Ref {constant_Ref attarg_Ref}
 
@@ -282,7 +282,7 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
   def isTopLevelClass (symbol : Symbol): Boolean = !symbol.isModule && isTopLevel(symbol)
 }
 
-  case class AttributeInfo(symbol : Symbol, typeRef : Type, value : Option[Any], values : Seq[String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
+  case class AttributeInfo(symbol : Symbol, typeRef : Type, args : Seq[Any], namedArgs : Seq[String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
   case class Children(symbolRefs : Seq[Int]) //sym_Ref {sym_Ref}
 
   case class AnnotInfo(refs : Seq[Int]) // attarg_Ref {constant_Ref attarg_Ref}

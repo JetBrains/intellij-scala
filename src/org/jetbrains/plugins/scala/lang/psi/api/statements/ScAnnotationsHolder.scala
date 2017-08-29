@@ -28,7 +28,7 @@ import scala.meta.intellij.MetaExpansionsManager
 
 trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
 
-  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  @Cached(ModCount.anyScalaPsiModificationCount, this)
   def annotations: Seq[ScAnnotation] = this.stubOrPsiChild(ScalaElementTypes.ANNOTATIONS) match {
     case Some(ann) => ann.getAnnotations.toSeq
     case _ => Seq.empty
@@ -92,26 +92,6 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     } orNull
   }
 
-  def getMetaExpansion: Either[String, scala.meta.Tree] = {
-
-    @CachedWithRecursionGuard(this, Left("Recursive meta expansion"), ModCount.getBlockModificationCount)
-    def getMetaExpansionCached: Either[String, Tree] = {
-      import ScalaProjectSettings.ScalaMetaMode
-      if (ScalaProjectSettings.getInstance(getProject).getScalaMetaMode == ScalaMetaMode.Enabled) {
-        val metaAnnotation = annotations.find(_.isMetaAnnotation)
-        metaAnnotation match {
-          case Some(annot) => MetaExpansionsManager.runMetaAnnotation(annot)
-          case None => Left("No meta annotation")
-        }
-      } else Left("Meta expansions disabled in settings")
-    }
-
-    // no annotations must run or any non-physical PSI generated while stubs are building
-    if (ScStubElementType.isStubBuilding)
-      Left("")
-    else
-      getMetaExpansionCached
-  }
 
   def getApplicableAnnotations: Array[PsiAnnotation] = getAnnotations //todo: understatnd and fix
 

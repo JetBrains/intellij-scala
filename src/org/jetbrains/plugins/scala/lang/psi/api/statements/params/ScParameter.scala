@@ -110,7 +110,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     specificScope.intersectWith(super.getUseScope)
   }
 
-  def getType: PsiType = getRealParameterType(TypingContext.empty).getOrNothing.toPsiType()
+  def getType: PsiType = getRealParameterType(TypingContext.empty).getOrNothing.toPsiType
 
   def isAnonymousParameter: Boolean = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {
@@ -158,7 +158,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def getTypeNoResolve: PsiType = PsiType.VOID
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def isDefaultParam: Boolean = calcIsDefaultParam(this, Set.empty)
 
 

@@ -101,4 +101,22 @@ class StructuralsTest extends TypeInferenceTestBase {
     """.stripMargin.trim
   }
 
+  def testSCL12125(): Unit = doTest {
+    """
+      |trait A {
+      |  type X
+      |  def getX: X
+      |  def printX(x: X): String
+      |}
+      |
+      |object B {
+      |  def printProxy(a: A): String = {
+      |    a.printX(/*start*/getProxy(a)/*end*/) // Type mismatch, expected: a.X, actual: A#X
+      |  }
+      |  def getProxy(a: A): a.X = a.getX
+      |}
+      |//a.X
+    """.stripMargin.trim
+  }
+
 }

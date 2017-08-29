@@ -29,7 +29,7 @@ object CachedInsidePsiElement {
     }
 
     //annotation parameters
-    val (elem, dependencyItem) = parameters
+    val (elem, modTracker) = parameters
 
     annottees.toList match {
       case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
@@ -61,9 +61,9 @@ object CachedInsidePsiElement {
         val dataValue = if (hasParams) q"(..$parameterNames)" else q"()"
         val getOrCreateCachedHolder =
           if (hasParams)
-            q"$cachesUtilFQN.getOrCreateCachedMap[$psiElementType, $dataType, $resultType]($elemName, $keyVarName, () => $dependencyItem)"
+            q"$cachesUtilFQN.getOrCreateCachedMap[$psiElementType, $dataType, $resultType]($elemName, $keyVarName, () => $modTracker)"
           else
-            q"$cachesUtilFQN.getOrCreateCachedRef[$psiElementType, $resultType]($elemName, $keyVarName, () => $dependencyItem)"
+            q"$cachesUtilFQN.getOrCreateCachedRef[$psiElementType, $resultType]($elemName, $keyVarName, () => $modTracker)"
 
         val getFromHolder =
           if (hasParams) q"$holderName.get($dataName)"

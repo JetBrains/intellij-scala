@@ -5,7 +5,8 @@ package types
 
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeSystem, TypeVisitor, ValueType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.Update
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
 
@@ -73,36 +74,17 @@ trait ScType extends ProjectContextOwner {
     (false, uSubst)
   }
 
-  class RecursiveUpdateException extends Exception {
-    override def getMessage: String = "Type mismatch after update method"
-  }
+  def updateSubtypes(update: Update, visited: Set[ScType]): ScType = this
 
-  /**
-   * use 'update' to replace appropriate type part with another type
-   * 'update' should return true if type changed, false otherwise.
-   * To just collect info about types (see collectAbstracts) always return false
-   *
-   * default implementation for types, which don't contain other types.
-   */
-  final def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType] = Set.empty): ScType = {
-    update(this) match {
-      case (true, res) => res
-      case _ if visited.contains(this) => this
-      case _ => updateSubtypes(update, visited + this)
-    }
-  }
-
-  def updateSubtypes(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = this
-
-  def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int = 1): ScType = {
+  def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType), variance: Variance = Covariant): ScType = {
     recursiveVarianceUpdateModifiable[Unit]((), (tp, v, _) => {
       val (newTp, newV) = update(tp, v)
       (newTp, newV, ())
     }, variance)
   }
 
-  def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                           variance: Int = 1, revertVariances: Boolean = false): ScType = {
+  def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
+                                           variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case _ => this
@@ -117,6 +99,8 @@ trait ScType extends ProjectContextOwner {
 
   def canonicalText: String = typeSystem.canonicalText(this)
 }
+
+object ScType extends recursiveUpdate.Extensions
 
 trait NamedType extends ScType {
   val name: String

@@ -8,6 +8,7 @@ import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
+import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerProjectExtension, ModuleRootAdapter, ModuleRootEvent}
@@ -24,9 +25,9 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.debugger.{DebuggerTestUtil, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -108,6 +109,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 
 
   protected def checkExpansionEquals(code: String, expectedExpansion: String): Unit = {
+    import scala.meta.intellij.psiExt._
     myFixture.configureByText(s"Usage${getTestName(false)}.scala", code)
     val holder = ScalaPsiUtil.getParentOfType(myFixture.getElementAtCaret, classOf[ScAnnotationsHolder]).asInstanceOf[ScAnnotationsHolder]
     holder.getMetaExpansion match {
@@ -115,6 +117,12 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
       case Left(reason) if reason.nonEmpty => Assert.fail(reason)
       case Left("") => Assert.fail("Expansion was empty - did annotation even run?")
     }
+  }
+
+  protected def getGutter: GutterIconRenderer = {
+    val gutters = myFixture.findAllGutters()
+    Assert.assertEquals("Wrong number of gutters", 1, gutters.size())
+    gutters.get(0).asInstanceOf[GutterIconRenderer]
   }
 
   private def setUpCompiler(implicit module: Module): Unit = {
@@ -230,6 +238,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     .getChildren
     .collectFirst({case c: ScTypeDefinition if c.name == testClassName => c})
     .getOrElse{Assert.fail(s"Class $testClassName not found"); throw new RuntimeException}
+  protected val tq = "\"\"\""
 }
 
 object MetaAnnotationTestBase {

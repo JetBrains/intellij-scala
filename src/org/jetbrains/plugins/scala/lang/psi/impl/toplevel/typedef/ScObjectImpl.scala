@@ -9,6 +9,7 @@ import javax.swing.Icon
 
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.lexer.JavaLexer
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
@@ -74,7 +75,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     }
   }
 
-  override def toString: String = (if (isPackageObject) "ScPackageObject: " else "ScObject: ") + name
+  override def toString: String = (if (isPackageObject) "ScPackageObject: " else "ScObject: ") + ifReadAllowed(name)("")
 
   override def getIconInner: Icon = if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
 
@@ -146,6 +147,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
             res += method
           }
           catch {
+            case p: ProcessCanceledException => throw p
             case _: Exception => //do not add methods with wrong signature
           }
         })
@@ -157,7 +159,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = SyntheticMembersInjector.inject(this, withOverride = false)
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   def fakeCompanionClass: Option[PsiClass] = getCompanionModule(this) match {
     case Some(_) => None
     case None =>
@@ -171,7 +173,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     case _ => getCompanionModule(this).get
   }
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   private def getModuleField: Option[PsiField] = {
     if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this)))) None
     else {
@@ -219,7 +221,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     res.toArray
   }
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   override def getConstructors: Array[PsiMethod] = Array(new EmptyPrivateConstructor(this))
 
   override def isPhysical: Boolean = {
@@ -236,17 +238,18 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     getSupers.filter(_.isInterface)
   }
 
-  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
+  @Cached(ModCount.getBlockModificationCount, this)
   private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition = {
     ScalaPsiElementFactory.createObjectWithContext(tree.toString(), getContext, this)
       .setDesugared(actualElement = this)
   }
 
   override def desugaredElement: Option[ScTemplateDefinition] = {
+    import scala.meta.intellij.psiExt._
     import scala.meta.{Defn, Term, Tree}
 
     if (isDesugared) return None
-    val expansion: Option[Tree] = getMetaExpansion match {
+    val expansion: Option[Tree] = this.getMetaExpansion match {
       case Right(tree) => Some(tree)
       case _ => fakeCompanionClassOrCompanionClass match {
         case ah: ScAnnotationsHolder => ah.getMetaExpansion match {

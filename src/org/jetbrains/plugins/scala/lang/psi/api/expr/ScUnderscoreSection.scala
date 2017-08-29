@@ -26,7 +26,7 @@ trait ScUnderscoreSection extends ScExpression {
   }
 
   def overExpr: Option[ScExpression] = {
-    if (bindingExpr != None) return Some(this)
+    if (bindingExpr.isDefined) return Some(this)
 
     @tailrec
     def go(expr: PsiElement, calcArguments: Boolean = true): Option[ScExpression] = {
@@ -106,7 +106,7 @@ object ScUnderScoreSectionUtil {
     }
   }
 
-  def isUnderscoreFunction(expr: PsiElement): Boolean = underscores(expr).length > 0
+  def isUnderscoreFunction(expr: PsiElement): Boolean = underscores(expr).nonEmpty
 
   def underscores(expr: PsiElement): Seq[ScUnderscoreSection] = {
     if (expr.getText.indexOf('_') == -1) return Seq.empty
@@ -117,26 +117,13 @@ object ScUnderScoreSectionUtil {
             case Some(_) => return Seq.empty
             case _ =>
           }
-          val over = under.overExpr
-          over match {
+          under.overExpr match {
             case Some(e) if expr == e =>
               Seq(under)
             case _ => Seq.empty
           }
         case _ =>
-          val res = new ListBuffer[ScUnderscoreSection]
-          val children = innerExpr.getChildren
-          var i = 0
-          while (i < children.length) {
-            val in = inner(children(i))
-            if (in.length > 1) {
-              res ++= in
-            } else if (in.length == 1) {
-              res += in(0)
-            }
-            i += 1
-          }
-          res.toSeq
+          innerExpr.getChildren.flatMap(inner)
       }
     }
     inner(expr)

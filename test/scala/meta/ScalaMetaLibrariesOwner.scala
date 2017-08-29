@@ -23,14 +23,15 @@ trait ScalaMetaLibrariesOwner extends ScalaSdkOwner {
     MetaTransversersLoader(),
     MetaTreesLoader(),
     MetaSemanticLoader(),
-    MetaIOLoader()
+    MetaIOLoader(),
+    FastParseLoader()
   )
 }
 
 object ScalaMetaLibrariesOwner {
 
   abstract class MetaBaseLoader(implicit module: Module) extends IvyLibraryLoaderAdapter {
-    override protected val version: String = "1.7.0"
+    override protected val version: String = "1.8.0"
     override protected val vendor: String = "org.scalameta"
 
     override protected def path(implicit version: ScalaVersion): String =
@@ -87,6 +88,12 @@ object ScalaMetaLibrariesOwner {
 
   private case class MetaIOLoader(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "io"
+  }
+
+  private case class FastParseLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+    override protected val version: String = "0.4.3"
+    override protected val name: String = "fastparse"
+    override protected val vendor: String = "com.lihaoyi"
   }
 
 }

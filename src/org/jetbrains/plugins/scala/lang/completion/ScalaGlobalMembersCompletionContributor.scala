@@ -18,7 +18,6 @@ import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.PredefinedConversionsProvider.findConversionProvider
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager.getLookupElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
@@ -30,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.implicits.CollectImplicitsProcessor
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.{ImplicitMapResult, forMap}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.getClassInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
@@ -151,7 +151,7 @@ object ScalaGlobalMembersCompletionContributor {
       ScalaIndexKeys.IMPLICITS_KEY,
       "implicit",
       reference.getContainingFile.getProject,
-      reference.getResolveScope,
+      reference.resolveScope,
       classOf[ScMember]
     ).asScala
   }
@@ -163,17 +163,20 @@ object ScalaGlobalMembersCompletionContributor {
       .flatMap(ImplicitMapResult.unapply)
 
   private def implicitCandidates(reference: ScReferenceExpression): Seq[ScalaResolveResult] = {
-    implicit val processor = new CollectImplicitsProcessor(reference, true)
+    val processor = new CollectImplicitsProcessor(reference, true)
     val processedObjects = mutable.HashSet.empty[String]
 
     def processElements(elements: Seq[PsiNamedElement]): Unit = elements
       .filter(isStatic)
       .foreach(processor.execute(_, initial()))
 
+    def processType(`type`: ScType): Unit =
+      processor.processType(`type`, processor.getPlace)
+
     def findInheritor(definition: ScTemplateDefinition): Option[ScObject] =
-      ClassInheritorsSearch.search(definition, false).asScala.collectFirst {
+      getClassInheritors(definition, definition.resolveScope).collect {
         case o: ScObject if o.isStatic => o
-      }.filter { o =>
+      }.find { o =>
         processedObjects.add(o.qualifiedName)
       }
 
@@ -187,10 +190,10 @@ object ScalaGlobalMembersCompletionContributor {
       case (_: ScObject, elements) =>
         processElements(elements())
       case (definition, _) =>
-        findConversionProvider(definition)
-          .foreach { provider =>
-            findInheritor(definition).foreach(provider.process)
-          }
+        val maybeObject = findInheritor(definition)
+        maybeObject
+          .flatMap(_.getType().toOption)
+          .foreach(processType)
     }
 
     processor.candidates.toSeq

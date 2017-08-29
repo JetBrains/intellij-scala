@@ -326,8 +326,8 @@ object ScPattern {
                 val parameters: Seq[ScTypeParam] = fun.typeParameters
                 tp.recursiveVarianceUpdate {
                   case (tp: TypeParameterType, variance) if parameters.contains(tp.psiTypeParameter) =>
-                    (true, if (variance == -1) substitutor.subst(tp.lowerType.v)
-                    else substitutor.subst(tp.upperType.v))
+                    (true, if (variance == Contravariant) substitutor.subst(tp.lowerType)
+                    else substitutor.subst(tp.upperType))
                   case (typez, _) => (false, typez)
                 }
               }
@@ -467,7 +467,7 @@ object ScPattern {
                   else {
                     val productFqn = "scala.Product" + productChance.length
                     (for {
-                      productClass <- ScalaPsiManager.instance.getCachedClass(place.getResolveScope, productFqn)
+                      productClass <- ScalaPsiManager.instance.getCachedClass(place.resolveScope, productFqn)
                       clazz <- tp.extractClass
                     } yield clazz == productClass || clazz.isInheritor(productClass, true)).
                       filter(identity).fold(Seq(tp))(_ => productChance)
