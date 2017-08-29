@@ -85,7 +85,7 @@ object ScalaLibraryLoader {
   abstract class ScalaLibraryLoaderAdapter(implicit module: Module)
     extends IvyLibraryLoader {
 
-    override protected val vendor: String = "org.scala-lang"
+    override val vendor: String = "org.scala-lang"
 
     override def path(implicit version: ScalaVersion): String = super.path
 
@@ -96,26 +96,26 @@ object ScalaLibraryLoader {
 
     override def init(implicit version: ScalaVersion): Unit = {}
 
-    override protected def folder(implicit version: ScalaVersion): String =
+    override def folder(implicit version: ScalaVersion): String =
       name
 
-    override protected def fileName(implicit version: ScalaVersion): String =
+    override def fileName(implicit version: ScalaVersion): String =
       s"$name-${version.minor}"
   }
 
   case class ScalaCompilerLoader()(implicit val module: Module)
     extends ScalaLibraryLoaderAdapter {
 
-    override protected val name: String = "scala-compiler"
+    override val name: String = "scala-compiler"
   }
 
-  case class ScalaRuntimeLoader(protected override val ivyType: IvyType = Jars)
+  case class ScalaRuntimeLoader(override val ivyType: IvyType = Jars)
                                (implicit val module: Module)
     extends ScalaLibraryLoaderAdapter {
 
-    override protected val name: String = "scala-library"
+    override val name: String = "scala-library"
 
-    override protected def fileName(implicit version: ScalaVersion): String = {
+    override def fileName(implicit version: ScalaVersion): String = {
       val suffix = ivyType match {
         case Sources => "-sources"
         case _ => ""
@@ -127,7 +127,7 @@ object ScalaLibraryLoader {
   case class ScalaReflectLoader()(implicit val module: Module)
     extends ScalaLibraryLoaderAdapter {
 
-    override protected val name: String = "scala-reflect"
+    override val name: String = "scala-reflect"
   }
 
 }

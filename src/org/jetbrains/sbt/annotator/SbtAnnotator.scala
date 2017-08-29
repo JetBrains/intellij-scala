@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, Version}
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
@@ -31,24 +31,25 @@ class SbtAnnotator extends Annotator {
           .getLinkedProjectSettings(file)
           .safeMap(_.sbtVersion)
           .getOrElse(Sbt.LatestVersion)
-      new Worker(file.children.toVector, sbtVersion, holder)(project).annotate()
+      new Worker(file.children.toVector, Version(sbtVersion), holder)(project).annotate()
     case _ =>
   }
 
-  private class Worker(sbtFileElements: Seq[PsiElement], sbtVersion: String, holder: AnnotationHolder)
+  private class Worker(sbtFileElements: Seq[PsiElement], sbtVersion: Version, holder: AnnotationHolder)
                       (implicit project: ProjectContext) {
 
     private val allowedTypes: List[String] =
-      if (sbtVersionLessThan("0.13.0")) AllowedTypes012
-      else if (sbtVersionLessThan("0.13.6")) AllowedTypes013
-      else AllowedTypes0136
+      if (sbtVersion < Version("0.13.0")) AllowedTypes_0_12
+      else if (sbtVersion < Version("0.13.6")) AllowedTypes_0_13
+      else if (sbtVersion < Version("1.0.0")) AllowedTypes_0_13_6
+      else AllowedTypes_1_0
 
     private val expectedExpressionType: String =
-      if (sbtVersionLessThan("0.13.6")) SbtBundle("sbt.annotation.expectedExpressionType")
+      if (sbtVersion < Version("0.13.6")) SbtBundle("sbt.annotation.expectedExpressionType")
       else SbtBundle("sbt.annotation.expectedExpressionTypeSbt0136")
 
     private def expressionMustConform(expressionType: ScType) =
-      if (sbtVersionLessThan("0.13.6")) SbtBundle("sbt.annotation.expressionMustConform", expressionType)
+      if (sbtVersion < Version("0.13.6")) SbtBundle("sbt.annotation.expressionMustConform", expressionType)
       else SbtBundle("sbt.annotation.expressionMustConformSbt0136", expressionType)
 
     def annotate(): Unit = {
@@ -56,17 +57,17 @@ class SbtAnnotator extends Annotator {
         case exp: ScExpression => annotateTypeMismatch(exp)
         case element => annotateNonExpression(element)
       }
-      if (sbtVersionLessThan("0.13.7"))
+      if (sbtVersion < Version("0.13.7"))
         annotateMissingBlankLines()
     }
 
     private def annotateNonExpression(element: PsiElement): Unit = element match {
-      case _: SbtFileImpl | _: ScImportStmt | _: PsiComment | _: PsiWhiteSpace =>
-      case _: ScFunctionDefinition | _: ScPatternDefinition if !sbtVersionLessThan("0.13.0") =>
+      case _: SbtFileImpl | _: ScImportStmt | _: PsiComment | _: PsiWhiteSpace => // no error
+      case _: ScFunctionDefinition | _: ScPatternDefinition if sbtVersion > Version("0.13.0") => // no error
       case other => holder.createErrorAnnotation(other, SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
     }
 
-    private def annotateTypeMismatch(expression: ScExpression) =
+    private def annotateTypeMismatch(expression: ScExpression): Unit =
       for {
         expressionType <- expression.getType(TypingContext.empty).toOption
         message <-
@@ -87,23 +88,27 @@ class SbtAnnotator extends Annotator {
       }
 
     private def sbtVersionLessThan(version: String): Boolean =
-      StringUtil.compareVersionNumbers(sbtVersion, version) < 0
+      sbtVersion < Version(version)
 
   }
 }
 
 object SbtAnnotator {
-  val AllowedTypes012 = List("Seq[Project.Setting[_]]", "Project.Setting[_]")
-  val AllowedTypes013 = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
-  val AllowedTypes0136 = List("sbt.internals.DslEntry")
+  val AllowedTypes_0_12 = List("Seq[Project.Setting[_]]", "Project.Setting[_]")
+  val AllowedTypes_0_13 = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
+  val AllowedTypes_0_13_6 = List("sbt.internals.DslEntry")
+  val AllowedTypes_1_0 = List("sbt.internal.DslEntry")
 
   def isTypeAllowed(expression: ScExpression, expressionType: ScType, allowedTypes: Seq[String]): Boolean = {
 
-    allowedTypes.flatMap { typeName =>
-      createTypeFromText(typeName, expression.getContext, expression)
-    }.exists { expectedType =>
+    (for {
+      typeName <- allowedTypes
+      expectedType <- createTypeFromText(typeName, expression.getContext, expression)
+    } yield {
+      assert(!expectedType.isAny, s"created type was Any, expected $typeName")
       lazy val typeAfterImplicits = expression.getTypeAfterImplicitConversion(expectedOption = Option(expectedType)).tr.getOrNothing
       expressionType.conforms(expectedType) || typeAfterImplicits.conforms(expectedType)
-    }
+    }).exists(identity)
+
   }
 }

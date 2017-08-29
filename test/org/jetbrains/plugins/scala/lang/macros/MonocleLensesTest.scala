@@ -103,20 +103,20 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 object MonocleLensesTest {
 
   private abstract class MonocleBaseLoader()(implicit module: Module) extends IvyLibraryLoaderAdapter {
-    override protected val version: String = "1.2.0"
-    override protected val vendor: String = "com.github.julien-truffaut"
+    override val version: String = "1.2.0"
+    override val vendor: String = "com.github.julien-truffaut"
   }
 
   private case class MonocleCoreLoader()(implicit val module: Module) extends MonocleBaseLoader {
-    override protected val name: String = "monocle-core"
+    override val name: String = "monocle-core"
   }
 
   private case class MonocleMacroLoader()(implicit val module: Module) extends MonocleBaseLoader {
-    override protected val name: String = "monocle-macro"
+    override val name: String = "monocle-macro"
   }
 
   private case class MonocleGeneric()(implicit val module: Module) extends MonocleBaseLoader {
-    override protected val name: String = "monocle-generic"
+    override val name: String = "monocle-generic"
   }
 
 }

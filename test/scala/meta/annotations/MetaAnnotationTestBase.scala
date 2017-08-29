@@ -243,8 +243,8 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 object MetaAnnotationTestBase {
 
   private case class MetaParadiseLoader()(implicit val module: Module) extends MetaBaseLoader {
-    override protected val name: String = "paradise"
-    override protected val version: String = "3.0.0-M8" // FIXME version from buildinfo
+    override val name: String = "paradise"
+    override val version: String = "3.0.0-M8" // FIXME version from buildinfo
 
     override protected def folder(implicit version: ScalaVersion): String =
       s"${name}_${version.minor}"

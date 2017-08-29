@@ -18,7 +18,7 @@ import scala.collection.JavaConverters._
  * @since 7/17/14.
  */
 
-abstract class CompletionTestBase extends completion.CompletionTestBase with MockSbt {
+abstract class CompletionTestBase extends completion.CompletionTestBase with MockSbt_1_0 {
 
   override val sbtVersion = Sbt.LatestVersion
 

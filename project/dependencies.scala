@@ -43,11 +43,11 @@ object Versions {
   object Sbt {
     val binary_0_12 = "0.12"
     val binary_0_13 = "0.13"
-    val binary_1_0 = "1.0"
+    val binary_1_0 = "1"
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.16"
-    val latest_1_0 = "1.0.0"
+    val latest_1_0 = "1.0.1"
     val latest: String = latest_1_0
 
     def binaryVersion(v: String): String = {

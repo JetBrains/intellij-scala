@@ -10,11 +10,11 @@ trait IvyLibraryLoader extends LibraryLoader {
 
   import IvyLibraryLoader._
 
-  protected val name: String
-  protected val vendor: String
+  val name: String
+  val vendor: String
   protected val ivyType: IvyType = Jars
 
-  protected def path(implicit version: ScalaVersion): String =
+  def path(implicit version: ScalaVersion): String =
     s"$getIvyCachePath/$vendor/$folder/$ivyType/$fileName.jar"
 
   protected def folder(implicit version: ScalaVersion): String
