@@ -2910,5 +2910,25 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL12066(): Unit = {
+    getCommonSettings.WRAP_LONG_LINES = true
+    val before = "import com.google.cloud.bigquery.{BigQueryOptions, DatasetId, FormatOptions, Job, JobInfo, LoadJobConfiguration, StandardTableDefinition, TableId, TableInfo, ViewDefinition}"
+    val after =
+      """
+        |import com.google.cloud.bigquery.{BigQueryOptions, DatasetId, FormatOptions, Job, JobInfo, LoadJobConfiguration,
+        |  StandardTableDefinition, TableId, TableInfo, ViewDefinition}
+      """.stripMargin
+    doTextTest(before, after)
+    //TODO formatting engine is not able to first wrap, and then calculate spacings in a single pass
+    val after2 =
+      """
+        |import com.google.cloud.bigquery.{
+        |  BigQueryOptions, DatasetId, FormatOptions, Job, JobInfo, LoadJobConfiguration,
+        |  StandardTableDefinition, TableId, TableInfo, ViewDefinition
+        |}
+      """.stripMargin
+    doTextTest(after, after2)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }

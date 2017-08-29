@@ -600,7 +600,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
           return Spacing.createDependentLFSpacing(spaces, spaces, block.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
         case _: ScImportSelectors =>
-          return if (scalaSettings.SPACES_IN_IMPORTS) WITH_SPACING else WITHOUT_SPACING
+          val refRange = leftNode.getTreeParent.getTextRange
+          return if (scalaSettings.SPACES_IN_IMPORTS) WITH_SPACING_DEPENDENT(refRange) else WITHOUT_SPACING_DEPENDENT(refRange)
         case _ => return Spacing.createSpacing(0, 0, 0, keepLineBreaks, keepBlankLinesBeforeRBrace)
       }
     }
@@ -660,7 +661,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
             return ON_NEW_LINE
           }
         case _: ScImportSelectors =>
-          return if (scalaSettings.SPACES_IN_IMPORTS) WITH_SPACING else WITHOUT_SPACING
+          val refRange = leftNode.getTreeParent.getTextRange
+          return if (scalaSettings.SPACES_IN_IMPORTS) WITH_SPACING_DEPENDENT(refRange) else WITHOUT_SPACING_DEPENDENT(refRange)
         case _ => return Spacing.createSpacing(0, 0, 0, keepLineBreaks, keepBlankLinesBeforeRBrace)
       }
     }

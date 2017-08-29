@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
@@ -267,6 +268,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case leaf: LeafPsiElement if (node.getElementType == ScalaTokenTypes.tLBRACE && child.getElementType != ScalaTokenTypes.tRBRACE ||
         node.getElementType == ScalaTokenTypes.tLPARENTHESIS && child.getElementType != ScalaTokenTypes.tRPARENTHESIS) &&
         leaf.getNextSiblingNotWhitespaceComment.isInstanceOf[ScEnumerators]  => Indent.getNormalIndent
+      case _: ScImportSelectors if child.getElementType != ScalaTokenTypes.tRBRACE &&
+        child.getElementType != ScalaTokenTypes.tLBRACE => Indent.getNormalIndent
       case _ => Indent.getNoneIndent
     }
   }
