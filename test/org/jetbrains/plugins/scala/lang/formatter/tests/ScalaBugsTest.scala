@@ -2930,5 +2930,56 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(after, after2)
   }
 
+  private val beforeSCL3536 =
+    """
+      |class A extends B
+      |with C
+    """.stripMargin
+  def testSCL3536(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_EXTENDS_LIST = true
+    getScalaSettings.ALIGN_EXTENDS_WITH = ScalaCodeStyleSettings.ON_FIRST_TOKEN
+    val after =
+      """
+        |class A extends B
+        |                with C
+      """.stripMargin
+    doTextTest(beforeSCL3536, after)
+  }
+// TODO temporarily disabled untile formatter engine has a way to produce desired alignment
+//  def testSCL3536_1(): Unit = {
+//    getScalaSettings.ALIGN_EXTENDS_WITH = ScalaCodeStyleSettings.ON_FIRST_ANCESTOR
+//    val after =
+//      """
+//        |class A extends B
+//        |           with C
+//      """.stripMargin
+//
+//    doTextTest(beforeSCL3536, after)
+//  }
+  def testSCL3536_2(): Unit = {
+    getScalaSettings.ALIGN_EXTENDS_WITH = ScalaCodeStyleSettings.ALIGN_TO_EXTENDS
+    val after =
+      """
+        |class A extends B
+        |        with C
+      """.stripMargin
+    doTextTest(beforeSCL3536, after)
+  }
+  def testSCL3536_3(): Unit = {
+    getScalaSettings.ALIGN_EXTENDS_WITH = ScalaCodeStyleSettings.ON_FIRST_TOKEN
+    val before =
+      """
+        |class A extends B with
+        |C
+      """.stripMargin
+    val after =
+      """
+        |class A extends B with
+        |                C
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }

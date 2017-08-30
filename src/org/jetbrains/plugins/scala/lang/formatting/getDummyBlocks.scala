@@ -562,14 +562,20 @@ object getDummyBlocks {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val subBlocks = new util.ArrayList[Block]
     val children = node.getChildren(null)
-    val alignment = if (mustAlignment(node, settings))
-      Alignment.createAlignment(true)
-    else null
+    val alignSetting = scalaSettings.ALIGN_EXTENDS_WITH
+    import ScalaCodeStyleSettings._
+    val alignment = if (alignSetting == ALIGN_TO_EXTENDS) block.getAlignment else Alignment.createAlignment(true)
     for (child <- children) {
       if (isCorrectBlock(child)) {
         val indent = ScalaIndentProcessor.getChildIndent(block, child)
         val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
-        subBlocks.add(new ScalaBlock(block, child, block.getChildBlockLastNode(child), alignment, indent, childWrap,
+        val actualAlignment = child.getElementType match {
+          case _ if alignSetting == DO_NOT_ALIGN => null
+          case ScalaTokenTypes.kWITH | ScalaTokenTypes.kEXTENDS =>
+            if (alignSetting != ON_FIRST_ANCESTOR) alignment else null
+          case _ => alignment
+        }
+        subBlocks.add(new ScalaBlock(block, child, block.getChildBlockLastNode(child), actualAlignment, indent, childWrap,
           settings, block.subBlocksContext.flatMap(_.childrenAdditionalContexts.get(child))))
       }
     }
@@ -592,7 +598,8 @@ object getDummyBlocks {
     if (last != null) {
       val indent = ScalaIndentProcessor.getChildIndent(block, first.getNode)
       val childWrap = arrangeSuggestedWrapForChild(block, first.getNode, settings, block.suggestedWrap)
-      subBlocks.add(new ScalaBlock(block, first.getNode, last.getNode, null, indent, childWrap, block.getSettings))
+      val alignment = if (settings.ALIGN_EXTENDS_WITH == ScalaCodeStyleSettings.ALIGN_TO_EXTENDS) Alignment.createAlignment(false) else null
+      subBlocks.add(new ScalaBlock(block, first.getNode, last.getNode, alignment, indent, childWrap, block.getSettings))
     }
 
     tempBody match {
@@ -866,7 +873,6 @@ object getDummyBlocks {
       case _: ScXmlEmptyTag => true   //todo:
       case _: ScParameters if mySettings.ALIGN_MULTILINE_PARAMETERS => true
       case _: ScParameterClause if mySettings.ALIGN_MULTILINE_PARAMETERS => true
-      case _: ScTemplateParents if mySettings.ALIGN_MULTILINE_EXTENDS_LIST => true
       case _: ScArgumentExprList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS  ||
               mySettings.ALIGN_MULTILINE_METHOD_BRACKETS => true
       case _: ScPatternArgumentList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS ||

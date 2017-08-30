@@ -37,6 +37,17 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean PLACE_SELF_TYPE_ON_NEW_LINE = true;
   public boolean SPACE_INSIDE_SELF_TYPE_BRACES = true;
   public boolean ALIGN_IF_ELSE = false;
+
+  public static final int DO_NOT_ALIGN = 0;
+  public static final int ON_FIRST_TOKEN = 1;
+  public static final int ON_FIRST_ANCESTOR = 2;
+  public static final int ALIGN_TO_EXTENDS = 3;
+  public static final int[] EXTENDS_ALIGN_VALUES =
+          new int[]{DO_NOT_ALIGN, ON_FIRST_TOKEN, ALIGN_TO_EXTENDS};
+  public static final String[] EXTENDS_ALIGN_STRING =
+          new String[]{"Do not align", "On first token", "Align to 'extends'"};
+  public int ALIGN_EXTENDS_WITH = DO_NOT_ALIGN;
+
   //indents
   public boolean NOT_CONTINUATION_INDENT_FOR_PARAMS = false;
   public boolean ALIGN_IN_COLUMNS_CASE_BRANCH = false;
@@ -81,11 +92,11 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = false;
   public boolean KEEP_COMMENTS_ON_SAME_LINE = true;
   public boolean SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = false;
-  public int CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = 0;
 
   public static final int NO_NEW_LINE = 0;
   public static final int NEW_LINE_ALWAYS = 1;
   public static final int NEW_LINE_FOR_MULTIPLE_ARGUMENTS = 2;
+  public int CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = NO_NEW_LINE;
 
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;
