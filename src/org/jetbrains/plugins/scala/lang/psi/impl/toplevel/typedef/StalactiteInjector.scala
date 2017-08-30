@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, ResolvesTo}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 
 /**
  * Support for https://github.com/fommil/stalactite
@@ -19,8 +21,8 @@ class StalactiteInjector extends SyntheticMembersInjector {
     source.findAnnotationNoAliases("stalactite.deriving") != null
 
   // slower, more correct
-  def stalactite(source: ScTypeDefinition): ScAnnotation =
-    source.annotations("stalactite.deriving").head
+  def stalactite(source: ScTypeDefinition): Option[ScAnnotation] =
+    source.annotations("stalactite.deriving").headOption
 
   // so annotated sealed traits will generate a companion
   override def needsCompanionObject(source: ScTypeDefinition): Boolean =
@@ -40,14 +42,20 @@ class StalactiteInjector extends SyntheticMembersInjector {
       case _ => Nil
     }
 
-  def genImplicits(clazz: String, stalactite: ScAnnotation) = {
-    stalactite
-      .annotationExpr
-      .getAnnotationParameters
-      .map { param =>
-        val typeclass = param.getText
-        val gen = param.getText // would be more correct to use the FQN
-        s"implicit def `$gen`: $typeclass[${clazz}] = _root_.scala.Predef.???"
-      }
+  private def genImplicits(clazz: String, stalactite: Option[ScAnnotation]): Seq[String] = {
+    for {
+      stalactiteAnnotation <- stalactite.toSeq
+      param <- stalactiteAnnotation.annotationExpr.getAnnotationParameters
+      typeClassFqn <- fqn(param)
+    } yield {
+      s"implicit def `$typeClassFqn`: $typeClassFqn[$clazz] = _root_.scala.Predef.???"
+    }
+  }
+
+  private def fqn(annotParam: ScExpression): Option[String] = {
+    annotParam match {
+      case ResolvesTo(c: PsiClass) => Option(c.qualifiedName).map("_root_." + _)
+      case _ => None
+    }
   }
 }
