@@ -39,7 +39,6 @@ import scala.util.{Failure, Success, Try}
  * User: Alefas
  * Date: 13.10.11
  */
-
 abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   protected val bp = "<breakpoint>"
@@ -65,14 +64,17 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       }, runner)
     })
 
-    callback
+    try {
+      callback
+    } finally {
 
-    EdtTestUtil.runInEdtAndWait(() => {
-      clearXBreakpoints()
-      getDebugProcess.stop(true)
-      processHandler.destroyProcess()
+      EdtTestUtil.runInEdtAndWait(() => {
+        clearXBreakpoints()
+        getDebugProcess.stop(true)
+        processHandler.destroyProcess()
+      })
     }
-    )
+
   }
 
   override def invokeTestRunnable(runnable: Runnable): Unit = UIUtil.invokeAndWaitIfNeeded(runnable)
@@ -210,11 +212,16 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
         val value = Try {
           val evaluator = inReadAction(evaluatorBuilder.build(codeFragment, currentSourcePosition))
-          evaluator.evaluate(ctx)
+          inSuspendContextCommand(ctx) {
+            evaluator.evaluate(ctx)
+          }
         }
         val res = value match {
           case Success(v: VoidValue) => "undefined"
-          case Success(v) => DebuggerUtils.getValueAsString(ctx, v)
+          case Success(v) =>
+            inSuspendContextCommand(ctx) {
+              DebuggerUtils.getValueAsString(ctx, v)
+            }
           case Failure(e: EvaluateException) => e.getMessage
           case Failure(e: Throwable) => "Other error: " + e.getMessage
         }
@@ -277,6 +284,14 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     breakpointLines.foreach(addBreakpoint(_, path))
   }
 
+  protected def inSuspendContextCommand[T](ctx: EvaluationContextImpl)(body: => T): T = {
+    val suspendContext = ctx.getSuspendContext
+    suspendContext.myInProgress = true
+    try body
+    finally {
+      suspendContext.myInProgress = false
+    }
+  }
 }
 
 case class Loc(className: String, methodName: String, line: Int)
