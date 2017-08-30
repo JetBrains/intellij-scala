@@ -195,11 +195,11 @@ lazy val jmhBenchmarks =
 // Testing keys and settings
 import TestCategory._
 
-addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOpt")
+addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOptTests")
 
 addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTests")
 
-addCommandAlias("runHighlightingTests", s"testOnly -- --include-categories=$highlighting")
+addCommandAlias("runHighlightingTests", s"testOnly -- --include-categories=$highlightingTests")
 
 addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTests " +
                                             s"--exclude-categories=$perfOptTests " +
