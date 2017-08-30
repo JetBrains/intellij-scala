@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScGenericCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
@@ -34,6 +34,8 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   override def patternWithType(pattern: ScTypedPattern): Boolean = true
 
   override def parameterWithType(param: ScParameter): Boolean = true
+
+  override def underscoreSectionWithType(underscore: ScUnderscoreSection) = true
 
   override def functionWithoutType(function: ScFunctionDefinition): Boolean = {
     function.returnType.foreach {
@@ -88,6 +90,14 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
           case _ =>
         }
       case _ =>
+    }
+
+    true
+  }
+
+  override def underscoreSectionWithoutType(underscore: ScUnderscoreSection): Boolean = {
+    underscore.getType().foreach {
+      addTypeAnnotation(_, underscore.getParent, underscore)
     }
 
     true
@@ -150,6 +160,14 @@ object AddOnlyStrategy {
         parameter.addAfter(createWhitespace, identifier)
         parameter.addAfter(createColon, identifier)
         added
+
+      case underscore: ScUnderscoreSection =>
+        val needsParentheses = underscore.getParent match {
+          case ScParenthesisedExpr(content) if content == underscore => false
+          case _ => true
+        }
+        val e = createScalaFileFromText(s"(_: ${annotation.getText})").getFirstChild.asInstanceOf[ScParenthesisedExpr]
+        underscore.replace(if (needsParentheses) e else e.expr.get)
 
       case _ =>
         val parent = anchor.getParent
