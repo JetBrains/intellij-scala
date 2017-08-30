@@ -29,7 +29,7 @@ class TypeAnnotationInspection extends AbstractInspection {
       inspect(method, method.nameId, method.body)
     case (parameter: ScParameter) && Parent(Parent(Parent(_: ScFunctionExpr))) if parameter.typeElement.isEmpty =>
       inspect(parameter, parameter.nameId, implementation = None)
-    case (underscore: ScUnderscoreSection) && Parent(parent) if !parent.isInstanceOf[ScTypedStmt] =>
+    case (underscore: ScUnderscoreSection) && Parent(parent) if underscore.getTextRange.getLength == 1 && !parent.isInstanceOf[ScTypedStmt] =>
       inspect(underscore, underscore, implementation = None)
   }
 }
