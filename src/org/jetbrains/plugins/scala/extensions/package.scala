@@ -337,6 +337,16 @@ package object extensions {
     def resolveScope: GlobalSearchScope =
       if (element.isValid) element.getResolveScope
       else GlobalSearchScope.EMPTY_SCOPE
+
+    def prependSiblings(elements: PsiElement*): Seq[PsiElement] = {
+      val parent = element.getParent
+      elements.foldLeft(Seq.empty[PsiElement])(_ :+ parent.addBefore(_, element))
+    }
+
+    def appendSiblings(elements: PsiElement*): Seq[PsiElement] = {
+      val parent = element.getParent
+      elements.foldRight(List.empty[PsiElement])(parent.addAfter(_, element) :: _)
+    }
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
