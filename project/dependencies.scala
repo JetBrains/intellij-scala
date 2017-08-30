@@ -153,7 +153,8 @@ object DependencyGroups {
     Seq("0.12.4", "0.13.0", "0.13.1", "0.13.2",
         "0.13.5", "0.13.6", "0.13.7", "0.13.8",
         "0.13.9", "0.13.11", "0.13.12", "0.13.13",
-        "0.13.15", "0.13.16")
+        "0.13.15", "0.13.16", Sbt.latest_0_13, Sbt.latest_1_0)
+      .distinct
       .map(v => "org.scala-sbt" % "sbt-launch" % v)
 
   val testDownloader = Seq(
@@ -199,6 +200,9 @@ object DependencyGroups {
   )
 
   val testScalaLibraryDownloader = Seq(
+
+    "org.scala-lang" % "scala-library" % Scala.latest_2_9 withSources(),
+    "org.scala-lang" % "scala-compiler" % Scala.latest_2_10,
 
     "org.scala-lang" % "scala-library" % Scala.latest_2_10 withSources(),
     "org.scala-lang" % "scala-reflect" % Scala.latest_2_10,
