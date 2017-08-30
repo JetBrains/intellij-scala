@@ -83,14 +83,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
           case Some(FunctionType(_, params)) =>
             if (index >= 0 && index < params.length) {
               val paramExpectedType = params(index)
-              val param1 = param.getParent match {
-                case x: ScParameterClause if x.parameters.length == 1 =>
-                  // ensure  that the parameter is wrapped in parentheses before we add the type annotation.
-                  val clause: PsiElement = x.replace(createClauseForFunctionExprFromText(param.getText.parenthesize(true))(param.getManager))
-                  clause.asInstanceOf[ScParameterClause].parameters.head
-                case _ => param
-              }
-              addTypeAnnotation(paramExpectedType, param1.getParent, param1)
+              addTypeAnnotation(paramExpectedType, param.getParent, param)
             }
           case _ =>
         }
@@ -130,7 +123,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   }
 
   private def simplify(maybeExpression: Option[ScExpression]) = maybeExpression.collect {
-    case ScGenericCall(referenced, _) if Implementation.isFactoryMethod(referenced) =>
+    case ScGenericCall(referenced, _) if Implementation.isEmptyCollectionFactory(referenced) =>
       implicit val context = referenced.projectContext
       createExpressionFromText(referenced.getText)
   }
@@ -141,13 +134,30 @@ object AddOnlyStrategy {
   def addActualType(annotation: ScTypeElement, anchor: PsiElement): PsiElement = {
     implicit val ctx: ProjectContext = anchor
 
-    val parent = anchor.getParent
-    val added = parent.addAfter(annotation, anchor)
+    anchor match {
+      case p: ScParameter =>
+        val parameter = p.getParent match {
+          // TODO we can omit the parentheses in { _ => ??? }
+          // ensure  that the parameter is wrapped in parentheses before we add the type annotation.
+          case clause: ScParameterClause if clause.parameters.length == 1 =>
+            clause.replace(createClauseForFunctionExprFromText(p.getText.parenthesize(true)))
+              .asInstanceOf[ScParameterClause].parameters.head
+          case _ => p
+        }
 
-    parent.addAfter(createWhitespace, anchor)
-    parent.addAfter(createColon, anchor)
+        val identifier = parameter.nameId
+        val added = parameter.addAfter(createParameterTypeFromText(annotation.getText), identifier)
+        parameter.addAfter(createWhitespace, identifier)
+        parameter.addAfter(createColon, identifier)
+        added
 
-    added
+      case _ =>
+        val parent = anchor.getParent
+        val added = parent.addAfter(annotation, anchor)
+        parent.addAfter(createWhitespace, anchor)
+        parent.addAfter(createColon, anchor)
+        added
+    }
   }
 
   def annotationFor(`type`: ScType, anchor: PsiElement): Option[ScTypeElement] =

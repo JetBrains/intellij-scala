@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaConstructorInsertHandler, ScalaGenerateAnonymousFunctionInsertHandler}
+import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager.getLookupElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaChainLookupElement, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi._
@@ -87,17 +88,16 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               }
             }
             if (!elementAdded && chainCompletion && secondCompletion) {
-              val processor = new CompletionProcessor(StdKinds.refExprLastRef, place, false, postProcess = {
-                r => {
-                  r match {
-                    case r: ScalaResolveResult if !r.isNamedParameter =>
-                      val qualifier = r.fromType.getOrElse(Nothing)
-                      val newElem = LookupElementManager.getLookupElement(r, qualifierType = qualifier).head
+              val processor = new CompletionProcessor(StdKinds.refExprLastRef, place, false) {
+
+                override protected def postProcess(result: ScalaResolveResult): Unit = {
+                  if (!result.isNamedParameter) {
+                    val qualifier = result.fromType.getOrElse(Nothing)
+                    val newElem = getLookupElement(result, qualifierType = qualifier).head
                       applyVariant(new ScalaChainLookupElement(scalaLookupItem, newElem))
-                    case _ =>
                   }
                 }
-              })
+              }
               processor.processType(scalaLookupItem.substitutor.subst(_tp), place)
               processor.candidatesS
             }
@@ -160,26 +160,26 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           def checkObject(o: ScObject) {
             o.members.foreach {
               case function: ScFunction =>
-                val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(function), isClassName = true
+                val lookup = getLookupElement(new ScalaResolveResult(function), isClassName = true
                   , shouldImport = true).head
                 lookup.addLookupStrings(o.name + "." + function.name)
                 applyVariant(lookup)
               case v: ScValue =>
                 v.declaredElements.foreach(td => {
-                  val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(td), isClassName = true
+                  val lookup = getLookupElement(new ScalaResolveResult(td), isClassName = true
                     , shouldImport = true).head
                   lookup.addLookupStrings(o.name + "." + td.name)
                   applyVariant(lookup)
                 })
               case v: ScVariable =>
                 v.declaredElements.foreach(td => {
-                  val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(td), isClassName = true
+                  val lookup = getLookupElement(new ScalaResolveResult(td), isClassName = true
                     , shouldImport = true).head
                   lookup.addLookupStrings(o.name + "." + td.name)
                   applyVariant(lookup)
                 })
               case obj: ScObject =>
-                val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(obj), isClassName = true
+                val lookup = getLookupElement(new ScalaResolveResult(obj), isClassName = true
                   , shouldImport = true).head
                 lookup.addLookupStrings(o.name + "." + obj.name)
                 applyVariant(lookup)
@@ -214,7 +214,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               case Some(p: PsiClass) if ResolveUtils.isAccessible(p, place, forCompletion = true) =>
                 p.getAllMethods.foreach(method => {
                   if (method.hasModifierProperty("static") && ResolveUtils.isAccessible(method, place, forCompletion = true)) {
-                    val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(method), isClassName = true
+                    val lookup = getLookupElement(new ScalaResolveResult(method), isClassName = true
                       , shouldImport = true).head
                     lookup.addLookupStrings(p.getName + "." + method.getName)
                     applyVariant(lookup)
@@ -222,7 +222,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                 })
                 p.getFields.foreach(field => {
                   if (field.hasModifierProperty("static") && ResolveUtils.isAccessible(field, place, forCompletion = true)) {
-                    val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(field), isClassName = true
+                    val lookup = getLookupElement(new ScalaResolveResult(field), isClassName = true
                       , shouldImport = true).head
                     lookup.addLookupStrings(p.getName + "." + field.getName)
                     applyVariant(lookup)

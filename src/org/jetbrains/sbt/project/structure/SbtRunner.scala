@@ -83,7 +83,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   private def dumpFromShell(shell: SbtShellCommunication, structureFilePath: String, options: Seq[String]): Try[String] = {
 
     val optString = options.mkString(" ")
-    val setCmd = s"""set org.jetbrains.sbt.StructureKeys.sbtStructureOptions in Global := "$optString""""
+    val setCmd = s"""set _root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions in Global := "$optString""""
     val cmd = s";reload; $setCmd ;*/*:dumpStructureTo $structureFilePath"
     val output =
       shell.command(cmd, new StringBuilder, messageAggregator(id, statusUpdate), showShell = true)
@@ -156,7 +156,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   private def handle(process: Process, statusUpdate: String=>Unit): Try[String] = {
     val output = StringBuilder.newBuilder
 
-    def update(textRaw: String) = {
+    def update(textRaw: String): Unit = {
       val text = textRaw.trim
       output.append("\n").append(text)
       if (text.nonEmpty) statusUpdate(text)

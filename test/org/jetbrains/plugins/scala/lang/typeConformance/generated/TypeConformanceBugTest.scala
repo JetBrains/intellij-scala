@@ -49,4 +49,11 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
   def testSCL12202(): Unit = doTest()
 
   def testSCL11320() {doTest(checkEquivalence = true)}
+
+  def test3074(): Unit = doTest(
+    """
+      |val a: Array[Byte] = Array(1, 2, 3)
+      |
+      |/* True */
+    """.stripMargin)
 }

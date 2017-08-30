@@ -6,7 +6,6 @@ import java.net.URL
 
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerManager, CompilerPaths}
 import com.intellij.openapi.components.AbstractProjectComponent
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
@@ -18,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
@@ -85,13 +84,13 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
       .map(m => CompilerPaths.getModuleOutputPath(m, false)).filter(_ != null).toList
     def projectOutputDirs(project: Project) = project.scalaModules.flatMap(sm => outputDirs(sm)).distinct.toList
 
-    def classLoaderForModule(module: Module): URLClassLoader = {
+    def classLoaderForModule(module: Module)(contextCP: Seq[URL]): URLClassLoader = {
       annotationClassLoaders.getOrElseUpdate(module.getName, {
-        val cp: List[URL] = OrderEnumerator.orderEntries(module).getClassesRoots.toList.map(toUrl)
+        val dependencyCP: List[URL] = OrderEnumerator.orderEntries(module).getClassesRoots.toList.map(toUrl)
         val outDirs: List[URL] = projectOutputDirs(module.getProject).map(str => new File(str).toURI.toURL)
-        val fullCP: immutable.Seq[URL] = outDirs ++ cp :+ pluginCP
+        val fullCP: immutable.Seq[URL] = outDirs ++ dependencyCP :+ pluginCP
         // a quick way to test for compatible meta version - check jar name in classpath
-        if (annot.scalaLanguageLevelOrDefault == Scala_2_11 && cp.exists(_.toString.contains(s"trees_2.11-$META_MAJOR_VERSION")))
+        if (annot.scalaLanguageLevelOrDefault == Scala_2_11 && dependencyCP.exists(_.toString.contains(s"trees_2.11-$META_MAJOR_VERSION")))
           new URLClassLoader(fullCP, getClass.getClassLoader)
         else if (annot.scalaLanguageLevelOrDefault == Scala_2_11)
           new MetaClassLoader(fullCP)
@@ -100,16 +99,20 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
       })
     }
 
-    val annotClass = annot.constructor.reference
-      .flatMap(_.bind().flatMap(_.parentElement.map(_.asInstanceOf[ScClass])))
+    val annotClass: Option[ScClass] = for {
+      ref <- annot.constructor.reference
+      resolved <- ref.bind()
+      parent <- resolved.parentElement.map(_.asInstanceOf[ScClass])
+    } yield parent
     val metaModule = annotClass.flatMap(_.module)
+    val contextCP = annot.module.map(m=>outputDirs(m).map(new File(_).toURI.toURL)).getOrElse(Nil)
     val classLoader = metaModule
-      .map(classLoaderForModule)  // try annotation's own module first - if it exists as a part of rhe codebase
-      .orElse(annot.module.map(classLoaderForModule)) // otherwise it's somwere among current module dependencies
+      .map(classLoaderForModule(_)(contextCP))  // try annotation's own module first - if it exists as a part of rhe codebase
+      .orElse(annot.module.map(classLoaderForModule(_)(contextCP))) // otherwise it's somewhere among current module dependencies
     try {
       annotClass.flatMap(clazz =>
         classLoader.map(  loader =>
-          loader.loadClass(clazz.asInstanceOf[ScTemplateDefinition].qualifiedName + "$inline$")
+          loader.loadClass(clazz.asInstanceOf[ScTypeDefinition].getQualifiedNameForDebugger + "$inline$")
         )
       )
     } catch {
@@ -121,9 +124,7 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
 
 object MetaExpansionsManager {
 
-  val META_MAJOR_VERSION = "1.7"
-
-  private val LOG = Logger.getInstance(getClass)
+  val META_MAJOR_VERSION = "1.8"
 
   class MetaWrappedException(val target: Throwable) extends Exception
 

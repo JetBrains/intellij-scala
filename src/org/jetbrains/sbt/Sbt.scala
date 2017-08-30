@@ -1,6 +1,7 @@
 package org.jetbrains.sbt
 
 import java.io.File
+import javax.swing.Icon
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.NotNull
@@ -52,9 +53,9 @@ object Sbt {
 
   val LatestVersion: String = BuildInfo.sbtLatestVersion
 
-  lazy val Icon = Icons.SBT
+  lazy val Icon: Icon = Icons.SBT
 
-  lazy val FileIcon = Icons.SBT_FILE
+  lazy val FileIcon: Icon = Icons.SBT_FILE
 
   def isProjectDefinitionFile(project: Project, file: File): Boolean = {
     val baseDir = new File(project.getBasePath)

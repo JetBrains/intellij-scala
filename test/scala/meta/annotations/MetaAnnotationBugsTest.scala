@@ -5,7 +5,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.junit.Assert
 
 class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
+  import MetaAnnotationTestBase._
+
   def testSCL10965(): Unit = {
+    import scala.meta.intellij.psiExt._
     compileMetaSource()
     myFixture.configureByText("Foo.scala",
       """
@@ -132,6 +135,7 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
   }
 
   def testSCL12104(): Unit = {
+    import scala.meta.intellij.psiExt._
     compileMetaSource(
       """
         |import scala.meta._
@@ -145,6 +149,31 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
       |@AnnotationWithType[Unit]
       |class $testClassName
     """.stripMargin
+    )
+
+    testClass.getMetaExpansion match {
+      case Left(error)  => Assert.fail(s"Expansion failed: $error")
+      case _ =>
+    }
+  }
+
+  // SCL-12385 Macro fails to expand if embedded inside an object
+  def testSCL12385(): Unit = {
+    import scala.meta.intellij.psiExt._
+    compileMetaSource(
+      s"""
+        |import scala.meta._
+        |object Foo {
+        |  class Argument(arg: Int) extends scala.annotation.StaticAnnotation {
+        |    inline def apply(defn: Any): Any = meta {  q"class $testClassName { def bar = 42 }"  }
+        |  }
+        |}
+      """.stripMargin)
+
+    createFile(
+      s"""
+        |@Foo.Argument(2) class $testClassName
+      """.stripMargin
     )
 
     testClass.getMetaExpansion match {

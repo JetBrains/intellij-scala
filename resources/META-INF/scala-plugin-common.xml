@@ -18,8 +18,6 @@
         <extensionPoint name="parameterInfoEnhancer" interface="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaParameterInfoEnhancer"/>
         <extensionPoint name="scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver"/>
         <extensionPoint name="genericTypeNamesProvider" interface="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.GenericTypeNamesProvider"/>
-        <extensionPoint name="predefinedConversionsProvider"
-                        interface="org.jetbrains.plugins.scala.lang.completion.PredefinedConversionsProvider"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -41,14 +39,6 @@
               implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.FunctionTypeNamesProvider"/>
       <genericTypeNamesProvider
               implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TupleTypeNamesProvider"/>
-        <predefinedConversionsProvider
-                implementation="org.jetbrains.plugins.scala.lang.completion.DecorateAsJavaConversionsProvider"/>
-        <predefinedConversionsProvider
-                implementation="org.jetbrains.plugins.scala.lang.completion.DecorateAsScalaConversionsProvider"/>
-        <predefinedConversionsProvider
-                implementation="org.jetbrains.plugins.scala.lang.completion.WrapAsJavaConversionsProvider"/>
-        <predefinedConversionsProvider
-                implementation="org.jetbrains.plugins.scala.lang.completion.WrapAsScalaConversionsProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -215,7 +205,8 @@
         <classInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaLocalInheritorsSearcher"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetLineMarkerProvider"/>
-        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpansionLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.meta.intellij.editor.MetaExpansionLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.macros.intellij.editor.Macros2ExpansionLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <declarationRangeHandler order="first" key="org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction"
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScFunctionDeclarationRangeHandler"/>
@@ -892,7 +883,7 @@
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.booleans.DoubleNegationInspection"
                          displayName="Double negation" groupPath="Scala" groupName="General"
-                         shortName="DoubleNegation" level="WARNING"
+                         shortName="DoubleNegationScala" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanInspection"
                          displayName="Simplify boolean expression" groupPath="Scala" groupName="General"
@@ -1161,6 +1152,10 @@
                          displayName="Filter and contains to intersect or diff" groupPath="Scala,Collections" groupName="Simplifications: filter and exists"
                          shortName="FilterOtherContains" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsForallReplaceInspection"
+                       displayName="Double negation in forall and exists" groupPath="Scala,Collections" groupName="Simplifications: forall and exists"
+                       shortName="ExistsForallReplace" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
         <!--simplifications: other-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection"
                          displayName="Simplifiable fold or reduce method" groupPath="Scala,Collections" groupName="Simplifications: other"

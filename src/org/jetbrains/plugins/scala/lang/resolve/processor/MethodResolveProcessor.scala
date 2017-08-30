@@ -427,30 +427,18 @@ object MethodResolveProcessor {
         case None =>
           result.copy(problems = Seq(WrongTypeParameterInferred))
         case Some(unSubst) =>
-          def hasRecursiveTypeParameters(typez: ScType): Boolean = {
+          val nameAndIds = typeParameters.map(_.nameAndId).toSet
+          def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
 
-            var hasRecursiveTypeParameters = false
-            typez.recursiveUpdate {
-              case tpt: TypeParameterType =>
-                typeParameters.find(_.nameAndId == tpt.nameAndId) match {
-                  case None => (true, tpt)
-                  case _ =>
-                    hasRecursiveTypeParameters = true
-                    (true, tpt)
-                }
-              case tp: ScType => (hasRecursiveTypeParameters, tp)
-            }
-            hasRecursiveTypeParameters
-          }
           for (TypeParameter(_, lowerType, upperType, tParam) <- typeParameters) {
-            if (lowerType.v != Nothing) {
-              val substedLower = s.subst(unSubst.subst(lowerType.v))
+            if (lowerType != Nothing) {
+              val substedLower = s.subst(unSubst.subst(lowerType))
               if (!hasRecursiveTypeParameters(substedLower)) {
                 uSubst = uSubst.addLower(tParam.nameAndId, substedLower, additional = true)
               }
             }
-            if (upperType.v != Any) {
-              val substedUpper = s.subst(unSubst.subst(upperType.v))
+            if (upperType != Any) {
+              val substedUpper = s.subst(unSubst.subst(upperType))
               if (!hasRecursiveTypeParameters(substedUpper)) {
                 uSubst = uSubst.addUpper(tParam.nameAndId, substedUpper, additional = true)
               }

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScConstructor, ScPrimaryConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScConstructor, ScModifierList, ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
@@ -934,7 +934,7 @@ object ScalaDocumentationProvider {
     val length = locationString.length
     if (length > 1) buffer.append(locationString.substring(1, length - 1))
     if (buffer.nonEmpty) buffer.append("\n")
-    buffer.append(ScalaPsiUtil.getModifiersPresentableText(clazz.getModifierList))
+    buffer.append(getModifiersPresentableText(clazz.getModifierList))
     buffer.append(clazz match {
       case _: ScObject => "object "
       case _: ScClass => "class "
@@ -968,7 +968,7 @@ object ScalaDocumentationProvider {
     buffer.append(getMemberHeader(function))
     val list = function.getModifierList
     if (list != null) {
-      buffer.append(ScalaPsiUtil.getModifiersPresentableText(list))
+      buffer.append(getModifiersPresentableText(list))
     }
     buffer.append("def ")
     buffer.append(ScalaPsiUtil.getMethodPresentableText(function, subst))
@@ -982,7 +982,7 @@ object ScalaDocumentationProvider {
     }
     val buffer = new StringBuilder
     buffer.append(getMemberHeader(member))
-    buffer.append(ScalaPsiUtil.getModifiersPresentableText(member.getModifierList))
+    buffer.append(getModifiersPresentableText(member.getModifierList))
     member match {
       case value: ScValue =>
         buffer.append("val ")
@@ -1061,5 +1061,13 @@ object ScalaDocumentationProvider {
           ": " + subst.subst(clParameter.getType(TypingContext.empty).getOrAny).presentableText
       case _ => defaultText}) +
         (if (parameter.isRepeatedParameter) "*" else "")
+  }
+
+  private def getModifiersPresentableText(modifiers: ScModifierList): String = {
+    val explicitModifiers =
+      Option(modifiers).toSeq
+        .flatMap(_.modifiers)
+        .filterNot(_ == "public")
+    explicitModifiers.map(_ + " ").mkString
   }
 }

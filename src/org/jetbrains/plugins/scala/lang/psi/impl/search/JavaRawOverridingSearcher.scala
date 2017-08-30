@@ -7,13 +7,13 @@ import com.intellij.psi.impl.source.PsiMethodImpl
 import com.intellij.psi.search.searches.{AllOverridingMethodsSearch, OverridingMethodsSearch}
 import com.intellij.psi.util.PsiUtil
 import com.intellij.util.{Processor, QueryExecutor}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt, PsiMemberExt, PsiTypeExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMemberExt, PsiTypeExt, inReadAction}
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.search.JavaRawOverridingSearcher._
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiMethodWrapper, ScFunctionWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 /**
@@ -113,8 +113,9 @@ private[search] object JavaRawOverridingSearcher {
     val paramType: PsiType = p.getType
     if (!isRaw(paramType)) return p.getText
 
-    implicit val pc: ElementScope = p.elementScope
-    val asViewedFromScala = paramType.toScType().toPsiType()
+    implicit val pc: ProjectContext = p.projectContext
+
+    val asViewedFromScala = paramType.toScType().toPsiType
     val typeText = asViewedFromScala.getCanonicalText
     s"$typeText ${p.getName}"
   }

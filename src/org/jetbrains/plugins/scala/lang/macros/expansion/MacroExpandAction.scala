@@ -10,6 +10,7 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -52,7 +53,7 @@ class MacroExpandAction extends AnAction {
     //    expandSerialized(e, sourceEditor, psiFile)
   }
 
-  def expandMacroUnderCursor(expansion: ResolvedMacroExpansion)(implicit e: AnActionEvent) = {
+  def expandMacroUnderCursor(expansion: ResolvedMacroExpansion)(implicit e: AnActionEvent): Project = {
     inWriteCommandAction(e.getProject) {
       try {
         applyExpansion(expansion)
@@ -64,26 +65,11 @@ class MacroExpandAction extends AnAction {
     }
   }
 
-  def expandAllMacroInCurrentFile(expansions: Seq[ResolvedMacroExpansion])(implicit e: AnActionEvent) = {
+  def expandAllMacroInCurrentFile(expansions: Seq[ResolvedMacroExpansion])(implicit e: AnActionEvent): Project = {
     inWriteCommandAction(e.getProject) {
       applyExpansions(expansions.toList)
       e.getProject
     }
-  }
-
-  def findCandidatesInFile(file: ScalaFile): Seq[ScalaPsiElement] = {
-    val buffer = scala.collection.mutable.ListBuffer[ScalaPsiElement]()
-    val visitor = new ScalaRecursiveElementVisitor {
-      override def visitAnnotation(annotation: ScAnnotation) = {
-        // TODO
-      }
-
-      override def visitMethodCallExpression(call: ScMethodCall) = {
-        // TODO
-      }
-    }
-    file.accept(visitor)
-    buffer.toSeq
   }
 
   @throws[UnresolvedExpansion]
@@ -121,7 +107,7 @@ class MacroExpandAction extends AnAction {
     }
   }
 
-  def expandMacroCall(call: ScMethodCall, expansion: MacroExpansion)(implicit e: AnActionEvent) = {
+  def expandMacroCall(call: ScMethodCall, expansion: MacroExpansion)(implicit e: AnActionEvent): PsiElement = {
     val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansion.body)(PsiManager.getInstance(e.getProject))
     val element = call.getParent.addAfter(blockImpl, call)
     element match {
@@ -242,7 +228,7 @@ class MacroExpandAction extends AnAction {
   }
 
   private def expandSerialized(e: AnActionEvent, sourceEditor: Editor, psiFile: PsiFile): Unit = {
-    implicit val currentEvent = e
+    implicit val currentEvent: AnActionEvent = e
     suggestUsingCompilerFlag(e, psiFile)
 
     val expansions = deserializeExpansions(e)
@@ -255,8 +241,7 @@ class MacroExpandAction extends AnAction {
     // if macro is under cursor, expand it, otherwise expand all macros in current file
     resolved
       .find(_.expansion.place.line == sourceEditor.getCaretModel.getLogicalPosition.line + 1)
-      .map(expandMacroUnderCursor)
-      .getOrElse(expandAllMacroInCurrentFile(resolved))
+      .fold(expandAllMacroInCurrentFile(resolved))(expandMacroUnderCursor)
   }
 
   case class ResolvedMacroExpansion(expansion: MacroExpansion, psiElement: Option[SmartPsiElementPointer[PsiElement]])
@@ -272,10 +257,10 @@ object MacroExpandAction {
   val EXPANDED_KEY = new Key[UndoExpansionData]("MACRO_EXPANDED_KEY")
 
   private val LOG = Logger.getInstance(getClass)
-  val windowGroup = NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.PROJECT_VIEW)
-  val messageGroup = NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.MESSAGES_WINDOW)
+  val windowGroup: NotificationGroup = NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.PROJECT_VIEW)
+  val messageGroup: NotificationGroup = NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.MESSAGES_WINDOW)
 
-  def expandMetaAnnotation(annot: ScAnnotation) = {
+  def expandMetaAnnotation(annot: ScAnnotation): Unit = {
     import scala.meta._
     val result = MetaExpansionsManager.runMetaAnnotation(annot)
     result match {
@@ -288,7 +273,7 @@ object MacroExpandAction {
           case _ => false
         }
         inWriteCommandAction(annot.getProject) {
-          expandAnnotation(annot, MacroExpansion(null, tree.toString, removeCompanionObject))
+          expandAnnotation(annot, MacroExpansion(null, tree.toString.trim, removeCompanionObject))
         }
       case Left(errorMsg) =>
         messageGroup.createNotification(
@@ -297,9 +282,10 @@ object MacroExpandAction {
     }
   }
 
-  def expandAnnotation(place: ScAnnotation, expansion: MacroExpansion) = {
+  def expandAnnotation(place: ScAnnotation, expansion: MacroExpansion): Unit = {
     import place.projectContext
 
+    def filter(elt: PsiElement) = elt.isInstanceOf[LeafPsiElement]
     // we can only macro-annotate scala code
     place.getParent.getParent match {
       case holder: ScAnnotationsHolder =>
@@ -308,7 +294,7 @@ object MacroExpandAction {
         reformatCode(newPsi)
         newPsi.firstChild match {
           case Some(block: ScBlock) => // insert content of block expression(annotation can generate >1 expression)
-            val children = block.getChildren
+            val children = block.getChildren.dropWhile(filter).reverse.dropWhile(filter).reverse
             val savedCompanion = if (expansion.removeCompanionObject) {
               val companion = holder match {
                 case td: ScTypeDefinition => td.baseCompanionModule
@@ -324,7 +310,7 @@ object MacroExpandAction {
               .foreach { p =>
                 p.putCopyableUserData(EXPANDED_KEY, UndoExpansionData(holder.getText, savedCompanion))
               }
-            holder.getParent.addRangeAfter(children.tail.head, children.dropRight(1).last, holder)
+            holder.getParent.addRangeAfter(children.head, children.last, holder)
             holder.getParent.getNode.removeChild(holder.getNode)
           case Some(psi: PsiElement) => // defns/method bodies/etc...
             val result = holder.replace(psi)
@@ -339,7 +325,7 @@ object MacroExpandAction {
     val res = CodeStyleManager.getInstance(psi.getProject).reformat(psi)
     val tobeDeleted = new ArrayBuffer[PsiElement]
     val v = new PsiElementVisitor {
-      override def visitElement(element: PsiElement) = {
+      override def visitElement(element: PsiElement): Unit = {
         if (element.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
           val file = element.getContainingFile
           val nextLeaf = file.findElementAt(element.getTextRange.getEndOffset)

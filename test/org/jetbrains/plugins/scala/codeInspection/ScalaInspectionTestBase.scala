@@ -21,6 +21,7 @@ abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestA
 
   protected val classOfInspection: Class[_ <: LocalInspectionTool]
   protected val description: String
+  protected def descriptionMatches(s: String): Boolean = s == normalize(description)
 
   protected override final def checkTextHasNoErrors(text: String): Unit = {
     val ranges = configureByText(text).map(_._2)
@@ -43,11 +44,9 @@ abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestA
     fixture.configureByText("dummy.scala", normalizedText)
     fixture.enableInspections(classOfInspection)
 
-    val description = normalize(this.description)
-
     import scala.collection.JavaConversions._
     fixture.doHighlighting()
-      .filter(_.getDescription == description)
+      .filter(it => descriptionMatches(it.getDescription))
       .map(info => (info, highlightedRange(info)))
       .filter(checkOffset(_, offset))
   }

@@ -7,21 +7,20 @@ package params
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPolymorphicElement, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
 trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiTypeParameter with ScAnnotationsHolder {
-  import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam._
-
   val typeParamId: Long
 
   def isCovariant: Boolean
 
   def isContravariant: Boolean
 
-  def variance: Int = if (isCovariant) Covariant else if (isContravariant) Contravariant else Invariant
+  def variance: Variance = if (isCovariant) Covariant else if (isContravariant) Contravariant else Invariant
 
   def owner: ScTypeParametersOwner
 
@@ -32,10 +31,4 @@ trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiType
   def typeParameterText: String
 
   def isHigherKindedTypeParameter: Boolean
-}
-
-object ScTypeParam {
-  val Covariant = 1
-  val Invariant = 0
-  val Contravariant = -1
 }

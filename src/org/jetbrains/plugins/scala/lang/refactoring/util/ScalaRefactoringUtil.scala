@@ -11,7 +11,7 @@ import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, RangeHighlighter, TextAttributes}
 import com.intellij.openapi.editor.{Editor, RangeMarker, VisualPosition}
@@ -42,6 +42,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
@@ -129,7 +130,8 @@ object ScalaRefactoringUtil {
   }
 
   def replaceSingletonTypes(scType: ScType): ScType = scType.recursiveUpdate {
-    case tp => (tp.isInstanceOf[DesignatorOwner], tp.tryExtractDesignatorSingleton)
+    case tp: DesignatorOwner => ReplaceWith(tp.tryExtractDesignatorSingleton)
+    case _ => ProcessSubtypes
   }
 
   def inTemplateParents(typeElement: ScTypeElement): Boolean = {

@@ -161,4 +161,14 @@ class PatternsTest extends TypeInferenceTestBase {
          |//Nothing
       """.stripMargin)
   }
+
+  def testSCL12174(): Unit = {
+    doTest(
+      s"""
+         |def foo = (_:String).split(":") match {
+         |    case x => ${START}x$END
+         |}
+         |//(String) => Array[String]
+      """.stripMargin)
+  }
 }

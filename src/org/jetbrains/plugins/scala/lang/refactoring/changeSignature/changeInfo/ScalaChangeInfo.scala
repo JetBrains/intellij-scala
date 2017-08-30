@@ -41,7 +41,7 @@ case class ScalaChangeInfo(newVisibility: String,
 
   override def getNewReturnType: Type =
     Option(newType).map {
-      _.toPsiType()
+      _.toPsiType
     }.map {
       CanonicalTypes.createTypeWrapper
     }.orNull
