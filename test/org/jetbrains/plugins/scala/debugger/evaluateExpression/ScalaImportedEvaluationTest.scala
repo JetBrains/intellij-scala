@@ -2,16 +2,18 @@ package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
 import org.jetbrains.plugins.scala.debugger._
+import org.junit.experimental.categories.Category
 
 /**
   * Nikolay.Tropin
   * 12/9/13
   */
-
+@Category(Array(classOf[DebuggerTests]))
 class ScalaImportedEvaluationTest extends ScalaImportedEvaluationTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
 
+@Category(Array(classOf[DebuggerTests]))
 class ScalaImportedEvaluationTest_212 extends ScalaImportedEvaluationTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }

@@ -1,15 +1,18 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
 import org.jetbrains.plugins.scala.debugger._
+import org.junit.experimental.categories.Category
 
 /**
  * @author Nikolay.Tropin
  */
-
+@Category(Array(classOf[DebuggerTests]))
 class CodeFragmentEvaluationTest extends CodeFragmentEvaluationTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
 
+@Category(Array(classOf[DebuggerTests]))
 class CodeFragmentEvaluationTest_212 extends CodeFragmentEvaluationTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }

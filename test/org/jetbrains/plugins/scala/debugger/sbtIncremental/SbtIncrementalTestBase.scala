@@ -4,6 +4,12 @@ package sbtIncremental
 
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.junit.experimental.categories.Category
+
+@Category(Array(classOf[DebuggerTests]))
+class SbtIncrementalTest extends SbtIncrementalTestBase {
+  override implicit val version: ScalaVersion = Scala_2_11
+}
 
 abstract class SbtIncrementalTestBase extends ScalaDebuggerTestBase {
   protected def addOtherLibraries(): Unit = {}
@@ -23,8 +29,4 @@ abstract class SbtIncrementalTestBase extends ScalaDebuggerTestBase {
   def testSimple() {
     make()
   }
-}
-
-class SbtIncrementalTest extends SbtIncrementalTestBase {
-  override implicit val version: ScalaVersion = Scala_2_11
 }

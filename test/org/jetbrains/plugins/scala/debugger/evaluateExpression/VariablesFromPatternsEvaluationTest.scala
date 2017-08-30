@@ -2,15 +2,17 @@ package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
 import org.jetbrains.plugins.scala.debugger._
+import org.junit.experimental.categories.Category
 
 /**
  * Nikolay.Tropin
  * 8/5/13
  */
+@Category(Array(classOf[DebuggerTests]))
 class VariablesFromPatternsEvaluationTest extends VariablesFromPatternsEvaluationTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
-
+@Category(Array(classOf[DebuggerTests]))
 class VariablesFromPatternsEvaluationTest_212 extends VariablesFromPatternsEvaluationTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }

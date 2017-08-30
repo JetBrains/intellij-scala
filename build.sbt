@@ -193,16 +193,19 @@ lazy val jmhBenchmarks =
     .enablePlugins(JmhPlugin)
 
 // Testing keys and settings
+import TestCategory._
 
-addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOptCategory")
+addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOpt")
 
-addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTestsCategory")
+addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTests")
 
-addCommandAlias("runHighlightingTests", s"testOnly -- --include-categories=$highlightingCategory")
+addCommandAlias("runHighlightingTests", s"testOnly -- --include-categories=$highlighting")
 
-addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTestsCategory " +
-                                            s"--exclude-categories=$perfOptCategory " +
-                                            s"--exclude-categories=$highlightingCategory ")
+addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTests " +
+                                            s"--exclude-categories=$perfOpt " +
+                                            s"--exclude-categories=$highlighting " +
+                                            s"--exclude-categories=$debugger"
+)
 
 lazy val setUpTestEnvironment = taskKey[Unit]("Set up proper environment for running tests")
 
