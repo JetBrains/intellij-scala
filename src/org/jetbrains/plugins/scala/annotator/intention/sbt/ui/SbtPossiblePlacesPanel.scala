@@ -13,6 +13,7 @@ import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetAr
 import com.intellij.openapi.editor.{Editor, EditorFactory, LogicalPosition, ScrollType}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{ScrollPaneFactory, SimpleColoredComponent, SimpleTextAttributes}
@@ -89,10 +90,10 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
       val editor = createEditor(myCurFileLine.path)
       val editorHighlighter = EditorHighlighterFactory.getInstance.createEditorHighlighter(project, ScalaFileType.INSTANCE)
       editor.asInstanceOf[EditorEx].setHighlighter(editorHighlighter)
-      editor.getCaretModel.moveToOffset(myCurFileLine.line)
+      editor.getCaretModel.moveToOffset(myCurFileLine.offset)
       val scrollingModel = editor.getScrollingModel
       scrollingModel.scrollToCaret(ScrollType.CENTER)
-      val oldPos = editor.offsetToLogicalPosition(myCurFileLine.line)
+      val oldPos = editor.offsetToLogicalPosition(myCurFileLine.offset)
       scrollingModel.scrollTo(new LogicalPosition(math.max(1, oldPos.line - EDITOR_TOP_MARGIN), oldPos.column), ScrollType.CENTER)
 
       releaseEditor()

@@ -74,9 +74,8 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
       res.distinct
     }
 
-    val foundFileLines = getDependencyPlaces
-
-    val wizard = new SbtArtifactSearchWizard(project, artifactInfoSet, foundFileLines)
+    val depPlaces = getDependencyPlaces
+    val wizard = new SbtArtifactSearchWizard(project, artifactInfoSet, depPlaces)
 
     val (infoOption, fileLineOption) = wizard.search()
     if (infoOption.isEmpty || fileLineOption.isEmpty)

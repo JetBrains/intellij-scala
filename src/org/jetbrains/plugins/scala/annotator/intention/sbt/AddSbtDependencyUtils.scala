@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator.intention.sbt
 import com.intellij.openapi.application.Result
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.intention.sbt.SbtDependenciesVisitor._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -39,8 +40,7 @@ object AddSbtDependencyUtils {
           }
         case settings: ScMethodCall if isAddableSettings(settings) =>
           settings.getEffectiveInvokedExpr match {
-            case expr: ScReferenceExpression if expr.refName == SETTINGS =>
-              res ++= Seq(settings)
+            case expr: ScReferenceExpression if expr.refName == SETTINGS => res ++= Seq(settings)
             case _ =>
           }
         case _ =>
@@ -86,7 +86,8 @@ object AddSbtDependencyUtils {
   }
 
   def getTopLevelPlaceToAdd(psiFile: ScalaFile)(implicit project: Project): DependencyPlaceInfo = {
-    DependencyPlaceInfo(getRelativePath(psiFile), psiFile.getTextLength, psiFile, Seq())
+    val line: Int = StringUtil.offsetToLineNumber(psiFile.getText, psiFile.getTextLength) + 1
+    DependencyPlaceInfo(getRelativePath(psiFile), psiFile.getTextLength, line, psiFile, Seq())
   }
 
   def addDependency(expr: PsiElement, info: ArtifactInfo)(implicit project: Project): PsiElement = {
@@ -222,7 +223,7 @@ object AddSbtDependencyUtils {
       return true
     } else if (libDeps.operation.refName == "++=") {
       libDeps.rOp match {
-          // In this case we return false, because of not to repeat it several times
+        // In this case we return false, because of not to repeat it several times
         case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => return false
         case _ =>
       }
@@ -272,6 +273,8 @@ object AddSbtDependencyUtils {
         case _ => elem.getTextOffset
       }
 
-    DependencyPlaceInfo(getRelativePath(elem), offset, elem, affectedProjects)
+    val line: Int = StringUtil.offsetToLineNumber(elem.getContainingFile.getText, offset) + 1
+
+    DependencyPlaceInfo(getRelativePath(elem), offset, line, elem, affectedProjects)
   }
 }
