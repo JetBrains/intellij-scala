@@ -155,11 +155,7 @@ object AddOnlyStrategy {
           case _ => p
         }
 
-        val identifier = parameter.nameId
-        val added = parameter.addAfter(createParameterTypeFromText(annotation.getText), identifier)
-        parameter.addAfter(createWhitespace, identifier)
-        parameter.addAfter(createColon, identifier)
-        added
+        parameter.nameId.appendSiblings(createColon, createWhitespace, createParameterTypeFromText(annotation.getText)).last
 
       case underscore: ScUnderscoreSection =>
         val needsParentheses = underscore.getParent match {
@@ -170,11 +166,7 @@ object AddOnlyStrategy {
         underscore.replace(if (needsParentheses) e else e.expr.get)
 
       case _ =>
-        val parent = anchor.getParent
-        val added = parent.addAfter(annotation, anchor)
-        parent.addAfter(createWhitespace, anchor)
-        parent.addAfter(createColon, anchor)
-        added
+        anchor.appendSiblings(createColon, createWhitespace, annotation).last
     }
   }
 
