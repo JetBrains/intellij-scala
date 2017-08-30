@@ -34,9 +34,9 @@ object Common {
     private def cat(name: String) = s"$pkg.$name"
 
     val slowTests: String = cat("SlowTests")
-    val perfOpt: String = cat("PerfCycleTests")
-    val highlighting: String = cat("HighlightingTests")
-    val debugger: String = cat("Debugger")
+    val perfOptTests: String = cat("PerfCycleTests")
+    val highlightingTests: String = cat("HighlightingTests")
+    val debuggerTests: String = cat("DebuggerTests")
   }
 
 
