@@ -26,7 +26,7 @@ object Versions {
 
     // ATTENTION: When changing any of these versions,
     // they currently need to be updated in org.jetbrains.plugins.scala.debugger.ScalaVersion
-    val latest_2_9 = "2.9.2"
+    val latest_2_9 = "2.9.3"
     val latest_2_10 = "2.10.6"
     val latest_2_11 = "2.11.11"
     val latest_2_12 = "2.12.3"
@@ -199,7 +199,7 @@ object DependencyGroups {
   val testScalaLibraryDownloader = Seq(
 
     "org.scala-lang" % "scala-library" % Scala.latest_2_9 withSources(),
-    "org.scala-lang" % "scala-compiler" % Scala.latest_2_10,
+    "org.scala-lang" % "scala-compiler" % Scala.latest_2_9,
 
     "org.scala-lang" % "scala-library" % Scala.latest_2_10 withSources(),
     "org.scala-lang" % "scala-reflect" % Scala.latest_2_10,
