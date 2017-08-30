@@ -40,7 +40,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       (result, result.isNamedParameter)
   }
 
-  private val signatures = new mutable.HashMap[Signature, Boolean]()
+  private val signatures = mutable.HashSet[Signature]()
 
   protected def postProcess(result: ScalaResolveResult): Unit = {
   }
@@ -66,40 +66,37 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
     val importsUsed: Set[ImportUsed] = Option(state.get(ImportUsed.key)).getOrElse(Set.empty)
     val prefixCompletion: Boolean = Option(state.get(ScalaCompletionUtil.PREFIX_COMPLETION_KEY)).getOrElse(false)
 
-    def _addResult(result: ScalaResolveResult) {
-      val signature: Option[Signature] = getSignature(named, substitutor)
-      val forImplicit = implFunction.isDefined
+    val elementSignature = getSignature(named, substitutor)
 
-      def doAdd() = if (levelSet.contains(result)) {
-        if (result.prefixCompletion) {
-          levelSet.remove(result)
-          addResult(result)
-        }
-      } else addResult(result)
+    def _addResult(result: ScalaResolveResult): Unit = {
+      elementSignature match {
+        case Some(signature) if implFunction.isDefined =>
+          signatures.add(signature) match {
+            case false if result.implicitFunction.isDefined =>
+              val iterator = levelSet.iterator()
+              while (iterator.hasNext) {
+                val next = iterator.next()
+                val ScalaResolveResult(nextElement, nextSubstitutor) = next
 
-      if (!forImplicit) {
-        doAdd()
-        signature.foreach(sign => signatures += ((sign, forImplicit)))
-      } else {
-        signature match {
-          case Some(sign) =>
-            signatures.get(sign) match {
-              case Some(true) =>
-                val iterator = levelSet.iterator()
-                while (iterator.hasNext) {
-                  val next = iterator.next()
-                  if (holder.representationsAreEqual(next, result) && next.element != result.element &&
-                    signature == getSignature(next.element, next.substitutor)) {
-                    iterator.remove()
-                  }
+                if (holder.representationsAreEqual(next, result) &&
+                  nextElement != result.element &&
+                  getSignature(nextElement, nextSubstitutor).contains(signature)) {
+                  iterator.remove()
                 }
-              case Some(false) => //do nothing
-              case None =>
-                addResult(result)
-                signatures += ((sign, forImplicit))
+              }
+            case false => //do nothing
+            case true =>
+              addResult(result)
+          }
+        case maybeSignature =>
+          if (levelSet.contains(result)) {
+            if (result.prefixCompletion) {
+              levelSet.remove(result)
+              addResult(result)
             }
-          case _ => doAdd()
-        }
+          } else addResult(result)
+
+          maybeSignature.foreach(signatures.+=)
       }
     }
 
