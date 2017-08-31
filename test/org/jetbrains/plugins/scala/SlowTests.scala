@@ -6,3 +6,5 @@ trait SlowTests { }
 trait PerfCycleTests { }
 
 trait HighlightingTests { }
+
+trait ScalacTests
