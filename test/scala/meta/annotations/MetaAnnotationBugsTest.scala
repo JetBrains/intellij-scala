@@ -181,4 +181,23 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
       case _ =>
     }
   }
+
+  def testSCL12371(): Unit = {
+    import scala.meta.intellij.psiExt._
+
+    val newMethodName = "bar"
+    compileMetaSource(mkAnnot(annotName, s"""q"class $testClassName { def $newMethodName = 42 }" """))
+    createFile(
+      s"""
+        |object Bla {
+        |  @$annotName class $testClassName
+        |  val ex = new $testClassName
+        |  val ret = ex.$newMethodName<caret> //cannot resolve symbol bar (error does not appear when macro is expanded)
+        |}
+      """.stripMargin
+    )
+    val exp = testClass.getMetaExpansion
+    Assert.assertTrue("Synthetic method not injected", testClass.members.exists(_.getName == newMethodName))
+  }
+
 }
