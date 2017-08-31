@@ -7,6 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.dependency.Dependency.DependencyProcessor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
@@ -183,7 +184,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       val context = ref.getContext
       val contextElement = (context, processor) match {
         case (x: ScAssignStmt, _) if x.getLExpression == ref => Some(context)
-        case (_, cp: CompletionProcessor) if cp.isIncomplete => Some(ref)
+        case (_, _: DependencyProcessor) => None
+        case (_, _: CompletionProcessor) => Some(ref)
         case _ => None
       }
 

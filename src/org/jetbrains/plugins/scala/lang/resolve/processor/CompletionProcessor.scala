@@ -49,11 +49,10 @@ object CompletionProcessor {
 }
 
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
-                          val getPlace: PsiElement,
+                          override val getPlace: PsiElement,
                           val collectImplicits: Boolean = false,
-                          forName: Option[String] = None,
-                          val includePrefixImports: Boolean = true,
-                          val isIncomplete: Boolean = true)
+                          protected val forName: Option[String] = None,
+                          val includePrefixImports: Boolean = true)
   extends BaseProcessor(kinds)(getPlace) with PrecedenceHelper[(String, Boolean)] {
 
   override protected val holder: TopPrecedenceHolder[(String, Boolean)] = new TopPrecedenceHolderImpl[(String, Boolean)] {
