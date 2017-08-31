@@ -28,7 +28,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
   private val groupToArtifactMap = createPersistentMap(indexDir / Paths.GROUP_TO_ARTIFACT_FILE)
   private val groupArtifactToVersionMap = createPersistentMap(indexDir / Paths.GROUP_ARTIFACT_TO_VERSION_FILE)
   private val fqNameToGroupArtifactVersionMap = createPersistentMap(indexDir / Paths.FQ_NAME_TO_GROUP_ARTIFACT_VERSION_FILE)
-  private var (_, _, innerTimestamp, _) = loadProps()
+  private var (_, _, innerTimestamp, currentVersion) = loadProps()
 
   private def checkStorage(): Unit = {
     if (artifactToGroupMap.isCorrupted ||
@@ -201,7 +201,9 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     var fqNameToArtfiacts: mutable.Map[String, mutable.Set[ArtifactInfo]] = mutable.Map.empty
 
     private val ivyFileFilter = new FileFilter {
-      override def accept(file: File): Boolean = file.name.endsWith(".xml") && file.lastModified() > innerTimestamp
+      override def accept(file: File): Boolean =
+        file.name.endsWith(".xml") &&
+          (file.lastModified() > innerTimestamp || currentVersion.toInt < CURRENT_INDEX_VERSION.toInt)
     }
 
     private def fqNamesFromJarFile(file: File): Stream[String] = {

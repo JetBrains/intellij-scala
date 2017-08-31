@@ -13,7 +13,6 @@ import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetAr
 import com.intellij.openapi.editor.{Editor, EditorFactory, LogicalPosition, ScrollType}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{ScrollPaneFactory, SimpleColoredComponent, SimpleTextAttributes}
