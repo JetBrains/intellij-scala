@@ -50,7 +50,6 @@ object CompletionProcessor {
 
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           override val getPlace: PsiElement,
-                          protected val forName: Option[String] = None,
                           val includePrefixImports: Boolean = true)
   extends BaseProcessor(kinds)(getPlace) with PrecedenceHelper[(String, Boolean)] {
 
@@ -61,6 +60,8 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   private val signatures = mutable.HashSet[Signature]()
+
+  protected val forName: Option[String] = None
 
   protected def postProcess(result: ScalaResolveResult): Unit = {
   }

@@ -462,7 +462,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
           def collectForType(typez: ScType): Unit = {
             def process(functionName: String): Unit = {
               val i = if (functionName == "update") -1 else 0
-              val processor = new ImplicitCompletionProcessor(StdKinds.refExprQualRef, call, Some(functionName))
+              val processor = new ImplicitCompletionProcessor(StdKinds.refExprQualRef, call) {
+
+                override protected val forName = Some(functionName)
+              }
               processor.processType(typez, call)
               val variants: Array[ScalaResolveResult] = processor.candidates
               for {

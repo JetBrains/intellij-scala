@@ -166,7 +166,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
   }
 
   def getSameNameVariants: Array[ResolveResult] = this.doResolve(
-    new ImplicitCompletionProcessor(getKinds(incomplete = true), this, Some(refName)))
+    new ImplicitCompletionProcessor(getKinds(incomplete = true), this) {
+
+      override protected val forName = Some(refName)
+    })
 
   def getKinds(incomplete: Boolean, completion: Boolean = false): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = {
     getContext match {

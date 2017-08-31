@@ -403,7 +403,10 @@ object ScPattern {
   }
 
   private def findMember(name: String, tp: ScType, place: PsiElement): Option[ScType] = {
-    val cp = new CompletionProcessor(StdKinds.methodRef, place, forName = Some(name))
+    val cp = new CompletionProcessor(StdKinds.methodRef, place) {
+
+      override protected val forName = Some(name)
+    }
     cp.processType(tp, place)
     cp.candidatesS.flatMap {
       case ScalaResolveResult(fun: ScFunction, subst) if fun.parameters.isEmpty && fun.name == name =>

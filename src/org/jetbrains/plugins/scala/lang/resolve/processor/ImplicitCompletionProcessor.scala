@@ -9,6 +9,5 @@ import scala.collection.Set
 
 class ImplicitCompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                                   override val getPlace: PsiElement,
-                                  override protected val forName: Option[String] = None,
                                   override val includePrefixImports: Boolean = true)
-  extends CompletionProcessor(kinds, getPlace, forName, includePrefixImports)
+  extends CompletionProcessor(kinds, getPlace, includePrefixImports)

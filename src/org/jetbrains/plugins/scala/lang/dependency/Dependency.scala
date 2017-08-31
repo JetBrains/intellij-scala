@@ -35,7 +35,7 @@ case class Dependency(kind: DependencyKind, target: PsiElement, path: Path) {
 
 object Dependency {
 
-  class DependencyProcessor(ref: ScReferenceElement) extends CompletionProcessor(ref.getKinds(incomplete = false), ref, forName = Some(ref.refName)) {
+  class DependencyProcessor(ref: ScReferenceElement) extends CompletionProcessor(ref.getKinds(incomplete = false), ref) {
     override def changedLevel: Boolean = {
       val superRes = super.changedLevel
 
@@ -43,8 +43,10 @@ object Dependency {
       else superRes
     }
 
+    override protected val forName = Some(ref.refName)
+
     private val nameHint = new NameHint {
-      override def getName(state: ResolveState): String = forName.orNull
+      override def getName(state: ResolveState): String = forName.get
     }
 
     override def getHint[T](hintKey: Key[T]): T = hintKey match {

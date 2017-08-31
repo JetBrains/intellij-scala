@@ -122,8 +122,8 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           var filterText = "withFilter"
           var filterFound = false
           val tp = gen.rvalue.getType(TypingContext.empty).getOrAny
-          val processor =
-            new ImplicitCompletionProcessor(StdKinds.methodRef, this, forName = Some("withFilter")) {
+          val processor = new ImplicitCompletionProcessor(StdKinds.methodRef, this) {
+
               override def execute(element: PsiElement, state: ResolveState): Boolean = {
                 super.execute(element, state)
                 if (!levelSet.isEmpty) {
@@ -131,6 +131,8 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                   false
                 } else true
               }
+
+            override protected val forName = Some("withFilter")
             }
           processor.processType(tp, this)
           if (!filterFound) filterText = "filter"
