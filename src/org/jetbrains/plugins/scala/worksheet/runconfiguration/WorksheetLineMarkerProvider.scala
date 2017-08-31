@@ -7,6 +7,7 @@ import com.intellij.codeInsight.daemon.{LineMarkerInfo, LineMarkerProvider}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import com.intellij.util.NullableFunction
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.PrevSiblignsIterator
@@ -61,7 +62,8 @@ class WorksheetLineMarkerProvider extends LineMarkerProvider {
                                       collection: util.Collection[LineMarkerInfo[_ <: PsiElement]]): Unit = {}
 
   private def createArrowMarker(psiElement: PsiElement) = {
-    new LineMarkerInfo[PsiElement](psiElement, psiElement.getTextRange, AllIcons.Diff.CurrentLine, Pass.LINE_MARKERS,
+    val leaf = Option(PsiTreeUtil.firstChild(psiElement)).getOrElse(psiElement)
+    new LineMarkerInfo[PsiElement](leaf, leaf.getTextRange, AllIcons.Diff.CurrentLine, Pass.LINE_MARKERS,
       NullableFunction.NULL.asInstanceOf[com.intellij.util.Function[PsiElement, String]], null, GutterIconRenderer.Alignment.RIGHT)
   }
 }

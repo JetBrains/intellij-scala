@@ -14,6 +14,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.NullableFunction
 import org.jetbrains.plugins.scala.annotator.gutter.GutterIcons._
 import org.jetbrains.plugins.scala.extensions._
@@ -54,10 +55,11 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
   }
 
   def createMarkerInfo(element: PsiElement): LineMarkerInfo[PsiElement] = {
+    val leaf = Option(PsiTreeUtil.firstChild(element)).getOrElse(element)
     new LineMarkerInfo[PsiElement](
-            element, element.getTextRange, null, Pass.UPDATE_ALL,
-            NullableFunction.NULL.asInstanceOf[com.intellij.util.Function[PsiElement,String]],
-            null, GutterIconRenderer.Alignment.RIGHT)
+      leaf, leaf.getTextRange, null, Pass.UPDATE_ALL,
+      NullableFunction.NULL.asInstanceOf[com.intellij.util.Function[PsiElement,String]],
+      null, GutterIconRenderer.Alignment.RIGHT)
   }
 
   def addSeparatorInfo(info: LineMarkerInfo[_ <: PsiElement]): LineMarkerInfo[_ <: PsiElement] = {
