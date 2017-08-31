@@ -49,8 +49,7 @@ object CompletionProcessor {
 }
 
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
-                          override val getPlace: PsiElement,
-                          val includePrefixImports: Boolean = true)
+                          override val getPlace: PsiElement)
   extends BaseProcessor(kinds)(getPlace) with PrecedenceHelper[(String, Boolean)] {
 
   override protected val holder: TopPrecedenceHolder[(String, Boolean)] = new TopPrecedenceHolderImpl[(String, Boolean)] {
@@ -60,6 +59,8 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   private val signatures = mutable.HashSet[Signature]()
+
+  val includePrefixImports: Boolean = true
 
   protected val forName: Option[String] = None
 

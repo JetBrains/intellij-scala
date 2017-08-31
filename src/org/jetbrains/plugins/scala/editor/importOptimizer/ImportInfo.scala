@@ -309,7 +309,9 @@ object ImportInfo {
     val refText = qualifier + ".someIdentifier"
     val reference = ScalaPsiElementFactory.createReferenceFromText(refText, place.getContext, place)
       .asInstanceOf[ScStableCodeReferenceElementImpl]
-    val processor = new ImplicitCompletionProcessor(StdKinds.stableImportSelector, reference, includePrefixImports = false)
+    val processor = new ImplicitCompletionProcessor(StdKinds.stableImportSelector, reference) {
+      override val includePrefixImports = false
+    }
 
     reference.doResolve(processor).foreach {
       case rr: ScalaResolveResult if shouldAddName(rr) =>

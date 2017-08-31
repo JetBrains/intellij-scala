@@ -151,7 +151,7 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
             case r: ResolveResult => (r.getElement, Set[ImportUsed](), ScSubstitutor.empty)
           }
           (elem, processor) match {
-            case (pack: PsiPackage, complProc: CompletionProcessor) if complProc.includePrefixImports =>
+            case (pack: PsiPackage, completionProcessor: CompletionProcessor) if completionProcessor.includePrefixImports =>
               val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(getProject)
               val prefixImports = settings.getImportsWithPrefix.filter(s =>
                 !s.startsWith(ScalaCodeStyleSettings.EXCLUDE_PREFIX) &&
@@ -180,11 +180,12 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
               val importsProcessor = new BaseProcessor(StdKinds.stableImportSelector) {
                 def execute(element: PsiElement, state: ResolveState): Boolean = {
                   element match {
-                    case elem: PsiNamedElement if isOK(elem.name) => processor.execute(element, state)
+                    case elem: PsiNamedElement if isOK(elem.name) => completionProcessor.execute(element, state)
                     case _ => true
                   }
                 }
-                override def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
+
+                override def getHint[T](hintKey: Key[T]): T = completionProcessor.getHint(hintKey)
               }
 
               elem.processDeclarations(importsProcessor, newState, this, place)
