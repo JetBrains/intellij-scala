@@ -203,13 +203,16 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
     val contentDescriptor: AtomicReference[RunContentDescriptor] = new AtomicReference[RunContentDescriptor]
     runner.execute(executionEnvironmentBuilder.build, (descriptor: RunContentDescriptor) => {
       System.setProperty("idea.dynamic.classpath", useDynamicClassPath.toString)
+      val handler: ProcessHandler = descriptor.getProcessHandler
+      assert(handler != null)
       disposeOnTearDown(new Disposable {
         def dispose() {
+          if (!handler.isProcessTerminated) {
+            handler.destroyProcess()
+          }
           descriptor.dispose()
         }
       })
-      val handler: ProcessHandler = descriptor.getProcessHandler
-      assert(handler != null)
       handler.addProcessListener(listener)
       processHandler.set(handler)
       contentDescriptor.set(descriptor)
