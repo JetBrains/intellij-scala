@@ -499,8 +499,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
 
       if (candidates.isEmpty || (!shape && candidates.forall(!_.isApplicable())) ||
-        (processor.isInstanceOf[CompletionProcessor] &&
-          processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
+        processor.isInstanceOf[ImplicitCompletionProcessor]) {
         processor match {
           case rp: ResolveProcessor =>
             rp.resetPrecedence() //do not clear candidate set, we want wrong resolve, if don't found anything

@@ -268,7 +268,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
          |$contextText""".stripMargin)
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this, false, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this, Some(refName)))
 
   override def delete() {
     getContext match {

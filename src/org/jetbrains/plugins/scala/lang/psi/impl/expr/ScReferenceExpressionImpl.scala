@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, DynamicResolveProcessor, MethodResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -154,18 +154,19 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
   }
 
   def getSimpleVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[ResolveResult] = {
-    doResolve(new CompletionProcessor(getKinds(incomplete = true), this, implicits)).filter(r => {
-      if (filterNotNamedVariants) {
-        r match {
-          case res: ScalaResolveResult => res.isNamedParameter
-          case _ => false
-        }
-      } else true
-    })
+    val kinds = getKinds(incomplete = true)
+    val processor = if (implicits) new ImplicitCompletionProcessor(kinds, this)
+    else new CompletionProcessor(kinds, this)
+
+    doResolve(processor).filter {
+      case _ if !filterNotNamedVariants => true
+      case res: ScalaResolveResult => res.isNamedParameter
+      case _ => false
+    }
   }
 
   def getSameNameVariants: Array[ResolveResult] = this.doResolve(
-    new CompletionProcessor(getKinds(incomplete = true), this, true, Some(refName)))
+    new ImplicitCompletionProcessor(getKinds(incomplete = true), this, Some(refName)))
 
   def getKinds(incomplete: Boolean, completion: Boolean = false): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = {
     getContext match {

@@ -127,7 +127,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val tBody = aClass.extendsBlock.templateBody.get
     val place = createExpressionWithContextFromText(delegateText(delegate), tBody, tBody.getFirstChild)
     if (aClass == null) return null
-    val processor = new CompletionProcessor(StdKinds.methodRef, place, false)
+    val processor = new CompletionProcessor(StdKinds.methodRef, place)
     processor.processType(delegateType, place)
     val candidates = processor.candidatesS
     val members = toMethodMembers(candidates, place)

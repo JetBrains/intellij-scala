@@ -50,7 +50,6 @@ object CompletionProcessor {
 
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           override val getPlace: PsiElement,
-                          val collectImplicits: Boolean = false,
                           protected val forName: Option[String] = None,
                           val includePrefixImports: Boolean = true)
   extends BaseProcessor(kinds)(getPlace) with PrecedenceHelper[(String, Boolean)] {

@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaLookupItem}
+import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager.getLookupElement
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaCompletionSorting
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -33,7 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
-import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ImplicitCompletionProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
@@ -179,7 +180,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           def postProcessMethod(resolveResult: ScalaResolveResult) {
             val probablyContinigClass = Option(PsiTreeUtil.getContextOfType(position, classOf[PsiClass]))
             val qualifierType = resolveResult.fromType.getOrElse(Nothing)
-            val lookupItems: Seq[ScalaLookupItem] = LookupElementManager.getLookupElement(
+            val lookupItems: Seq[ScalaLookupItem] = getLookupElement(
               resolveResult,
               isInImport = isInImport,
               qualifierType = qualifierType,
@@ -188,13 +189,13 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
             lookupItems.foreach(applyVariant(_))
           }
 
-          def completionProcessor(ref: ScReferenceElement,
-                                  collectImplicit: Boolean = false,
-                                  postProcessImpl: ScalaResolveResult => Unit = postProcessMethod): CompletionProcessor =
-            new CompletionProcessor(ref.getKinds(incomplete = false, completion = true), ref, collectImplicit) {
+          def kinds(ref: ScReferenceElement) = ref.getKinds(incomplete = false, completion = true)
+
+          def completionProcessor(ref: ScReferenceElement): CompletionProcessor =
+            new CompletionProcessor(kinds(ref), ref) {
 
               override protected def postProcess(result: ScalaResolveResult): Unit =
-                postProcessImpl(result)
+                postProcessMethod(result)
             }
 
           @tailrec
@@ -213,7 +214,13 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           ref match {
             case refImpl: ScStableCodeReferenceElementImpl => refImpl.doResolve(completionProcessor(refImpl))
             case refImpl: ScReferenceExpressionImpl =>
-              refImpl.doResolve(completionProcessor(refImpl, collectImplicit = true))
+              val processor = new ImplicitCompletionProcessor(kinds(ref), ref) {
+
+                override protected def postProcess(result: ScalaResolveResult): Unit =
+                  postProcessMethod(result)
+              }
+
+              refImpl.doResolve(processor)
               if (ScalaCompletionUtil.completeThis(refImpl))
                 addThisAndSuper(refImpl)
             case refImpl: ScTypeProjectionImpl => refImpl.doResolve(completionProcessor(refImpl))
@@ -238,23 +245,25 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                 addedElements += elem.getLookupString
               }
             }
-            def postProcess(resolveResult: ScalaResolveResult): Unit = {
-              val lookupItems: Seq[ScalaLookupItem] = LookupElementManager.getLookupElement(
-                resolveResult,
-                isInImport = isInImport,
-                qualifierType = runtimeQualifierType,
-                isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement],
-                isInSimpleString = inString,
-                isInInterpolatedString = inInterpolatedString
-              )
-              val decorator = castDecorator(runtimeQualifierType.canonicalText)
-              lookupItems.foreach(item => applyVariant(item, addElementWithDecorator(_, decorator)))
-            }
 
-            val newRef = createReferenceWithQualifierType(runtimeQualifierType, ref.getContext, ref)
-            newRef match {
+            createReferenceWithQualifierType(runtimeQualifierType, ref.getContext, ref) match {
               case refImpl: ScReferenceExpressionImpl =>
-                refImpl.doResolve(completionProcessor(refImpl, collectImplicit = true, postProcess))
+                val processor = new ImplicitCompletionProcessor(kinds(refImpl), refImpl) {
+
+                  override protected def postProcess(result: ScalaResolveResult): Unit = {
+                    val lookupItems = getLookupElement(
+                      result,
+                      isInImport = isInImport,
+                      qualifierType = runtimeQualifierType,
+                      isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement],
+                      isInSimpleString = inString,
+                      isInInterpolatedString = inInterpolatedString
+                    )
+                    val decorator = castDecorator(runtimeQualifierType.canonicalText)
+                    lookupItems.foreach(item => applyVariant(item, addElementWithDecorator(_, decorator)))
+                  }
+                }
+                refImpl.doResolve(processor)
               case _ =>
             }
           }
