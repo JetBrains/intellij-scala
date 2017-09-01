@@ -1,12 +1,9 @@
 package scala.meta.annotations
 
 import java.io.File
-import java.security.MessageDigest
-import javax.xml.bind.DatatypeConverter
 
 import com.intellij.ProjectTopics
 import com.intellij.compiler.server.BuildManager
-import com.intellij.openapi.compiler.CompilerPaths
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
@@ -15,10 +12,9 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
-import org.apache.commons.io.filefilter.SuffixFileFilter
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
-import org.jetbrains.plugins.scala.debugger.ScalaVersion
+import org.jetbrains.plugins.scala.debugger.{CompilationCache, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -77,45 +73,14 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     }
   }
 
-  private def tryLoadFromCache(module: Module, hash: String): Boolean = {
-    val cacheRoot = testCacheRoot(hash)
-    if (cacheRoot.list(new SuffixFileFilter(".class")).nonEmpty) {
-      val outputDir = new File(CompilerPaths.getModuleOutputPath(module, false))
-      outputDir.mkdirs()
-      FileUtil.copyDirContent(cacheRoot, outputDir)
-      val timestamp = System.currentTimeMillis()
-      outputDir.listFiles().foreach(_.setLastModified(timestamp)) // to avoid out-of-date class errors
-      refreshVfs(outputDir.getAbsolutePath)
-      true
-    } else false
-  }
-
-  private def saveToCache(module: Module, hash: String): Unit = {
-    val testRoot = testCacheRoot(hash)
-    FileUtil.copyDirContent(new File(CompilerPaths.getModuleOutputPath(module, false)), testRoot)
-  }
-
-  private def testCacheRoot(hash: String) = {
-    val cacheRoot = new File(sys.props("user.home"), ".cache/IJ_scala_tests_cache/")
-    val testRoot = new File(cacheRoot, s"$hash/")
-    testRoot.mkdirs()
-    testRoot
-  }
-
   protected def compileMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): List[String] = {
     addMetaSource(source)
-    val md5 = MessageDigest.getInstance("MD5")
-    md5.update(source.getBytes)
-    md5.update(version.major.getBytes)
-    md5.update(ScalaMetaLibrariesOwner.metaVersion.getBytes)
-    val hashStr = DatatypeConverter.printHexBinary(md5.digest())
-    if (!tryLoadFromCache(module, hashStr)) {
-      setUpCompiler(module)
+    val cache = new CompilationCache(module, Seq(version.major, ScalaMetaLibrariesOwner.metaVersion))
+    cache.withModuleOutputCache(List[String]()) {
+      setUpCompiler
       enableParadisePlugin()
-      val messages = runMake()
-      saveToCache(module, hashStr)
-      messages
-    } else List.empty
+      runMake()
+    }
   }
 
   protected def addMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): Unit = {
