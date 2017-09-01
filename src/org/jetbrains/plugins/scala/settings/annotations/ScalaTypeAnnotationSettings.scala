@@ -27,32 +27,35 @@ object ScalaTypeAnnotationSettings {
 
       import style._
 
-      {
+      def reasonToEnforce =
         (TYPE_ANNOTATION_IMPLICIT_MODIFIER && !entity.isParameter && declaration.isImplicit).option("implicit definition")
           .orElse((TYPE_ANNOTATION_UNIT_TYPE && !entity.isParameter && declaration.hasUnitType).option("Unit definition"))
           .orElse((entity == Entity.Method && implementation.exists(_.containsReturn)).option("method with 'return'"))
-      } orElse {
-        {
-          if (entity == Entity.Parameter) TYPE_ANNOTATION_FUNCTION_PARAMETER.option("function literal parameter")
-          else if (entity == Entity.UnderscoreParameter) TYPE_ANNOTATION_UNDERSCORE_PARAMETER.option("underscore parameter")
-          else if (isLocal) TYPE_ANNOTATION_LOCAL_DEFINITION.option("local definition")
+
+      def reasonToUse = entity match {
+        case Entity.Parameter => TYPE_ANNOTATION_FUNCTION_PARAMETER.option("function literal parameter")
+        case Entity.UnderscoreParameter => TYPE_ANNOTATION_UNDERSCORE_PARAMETER.option("underscore parameter")
+        case _ =>
+          if (isLocal) TYPE_ANNOTATION_LOCAL_DEFINITION.option("local definition")
           else declaration.visibility match {
             case Visibility.Private => TYPE_ANNOTATION_PRIVATE_MEMBER.option("private member")
             case Visibility.Protected => TYPE_ANNOTATION_PROTECTED_MEMBER.option("protected member")
             case Visibility.Default => TYPE_ANNOTATION_PUBLIC_MEMBER.option("public memeber")
           }
-        } filterNot { _ =>
-          TYPE_ANNOTATION_EXCLUDE_CONSTANT && declaration.isConstant ||
-            TYPE_ANNOTATION_EXCLUDE_IN_SCRIPT && location.isInScript ||
-            TYPE_ANNOTATION_EXCLUDE_IN_TEST_SOURCES && location.isInTestSources ||
-            !isLocal && TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_PRIVATE_CLASS && location.isInsidePrivateClass ||
-            !isLocal && TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_ANONYMOUS_CLASS && location.isInsideAnonymousClass ||
-            TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS && implementation.exists(_.isTypeObvious) ||
-            !isLocal && location.isInsideOf(TYPE_ANNOTATION_EXCLUDE_MEMBER_OF.asScala.toSet) ||
-            declaration.isAnnotatedWith(TYPE_ANNOTATION_EXCLUDE_ANNOTATED_WITH.asScala.toSet) ||
-            declaration.typeMatches(TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_MATCHES.asScala.toSet)
-        }
       }
+
+      def isExcluded =
+        TYPE_ANNOTATION_EXCLUDE_CONSTANT && declaration.isConstant ||
+        TYPE_ANNOTATION_EXCLUDE_IN_SCRIPT && location.isInScript ||
+        TYPE_ANNOTATION_EXCLUDE_IN_TEST_SOURCES && location.isInTestSources ||
+        TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_PRIVATE_CLASS && !isLocal && location.isInsidePrivateClass ||
+        TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_ANONYMOUS_CLASS && !isLocal && location.isInsideAnonymousClass ||
+        TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS && implementation.exists(_.isTypeObvious) ||
+        !isLocal && location.isInsideOf(TYPE_ANNOTATION_EXCLUDE_MEMBER_OF.asScala.toSet) ||
+        declaration.isAnnotatedWith(TYPE_ANNOTATION_EXCLUDE_ANNOTATED_WITH.asScala.toSet) ||
+        declaration.typeMatches(TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_MATCHES.asScala.toSet)
+
+      reasonToEnforce.orElse(reasonToUse.filterNot(_ => isExcluded))
     }
   }
 }
