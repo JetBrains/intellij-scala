@@ -160,6 +160,7 @@ object AddOnlyStrategy {
       case underscore: ScUnderscoreSection =>
         val needsParentheses = underscore.getParent match {
           case ScParenthesisedExpr(content) if content == underscore => false
+          case _: ScArgumentExprList => false
           case _ => true
         }
         val e = createScalaFileFromText(s"(_: ${annotation.getText})").getFirstChild.asInstanceOf[ScParenthesisedExpr]
