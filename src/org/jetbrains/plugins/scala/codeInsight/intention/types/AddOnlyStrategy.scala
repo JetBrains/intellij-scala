@@ -147,7 +147,7 @@ object AddOnlyStrategy {
     anchor match {
       case p: ScParameter =>
         val parameter = p.getParent match {
-          // TODO we can omit the parentheses in { _ => ??? }
+          case Parent(Parent(Parent(_: ScBlockExpr))) => p
           // ensure  that the parameter is wrapped in parentheses before we add the type annotation.
           case clause: ScParameterClause if clause.parameters.length == 1 =>
             clause.replace(createClauseForFunctionExprFromText(p.getText.parenthesize(true)))
