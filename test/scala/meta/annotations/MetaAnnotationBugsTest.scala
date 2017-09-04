@@ -190,7 +190,7 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
     import scala.meta.intellij.psiExt._
 
     val newMethodName = "bar"
-    compileMetaSource(mkAnnot(annotName, s"""q"class $testClassName { def $newMethodName = 42 }" """))
+    compileAnnotBody(s"""q"class $testClassName { def $newMethodName = 42 }" """)
     createFile(
       s"""
         |object Bla {
@@ -205,17 +205,23 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
   }
 
   def testSCL12509(): Unit = {
-    compileMetaSource(mkAnnot(annotName,
+    compileAnnotBody(
       """
         |val q"class $className" = defn
         |q"final class $className(val value : Int) extends AnyVal"
       """.stripMargin.trim
-    ))
+    )
     createFile(s"@$annotName class $testClassName\nnew $testClassName(42).value<caret>")
     val errors = myFixture.doHighlighting(HighlightSeverity.ERROR)
     val errorStr = ScalaBundle.message("value.class.can.have.only.one.parameter")
     Assert.assertFalse("Value class constructor not resolved", !errors.isEmpty && errors.exists(_.getDescription == errorStr))
     Assert.assertTrue("Value class field not resolved", myFixture.getElementAtCaret != null)
+  }
+
+  // Redundant parentheses in macro expansion
+  def testSCL12465(): Unit = {
+    compileAnnotBody("defn")
+    checkExpansionEquals(s"@$annotName trait<caret> Foo extends Bar", "trait Foo extends Bar")
   }
 
 }

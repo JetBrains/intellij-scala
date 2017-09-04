@@ -83,6 +83,8 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     }
   }
 
+  protected def compileAnnotBody(body: String) = compileMetaSource(mkAnnot(annotName, body))
+
   protected def addMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): Unit = {
     VfsTestUtil.createFile(metaDirectory, "meta.scala", source)
   }
@@ -98,7 +100,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   protected def checkExpansionEquals(code: String, expectedExpansion: String): Unit = {
     import scala.meta.intellij.psiExt._
     myFixture.configureByText(s"Usage${getTestName(false)}.scala", code)
-    val holder = ScalaPsiUtil.getParentOfType(myFixture.getElementAtCaret, classOf[ScAnnotationsHolder]).asInstanceOf[ScAnnotationsHolder]
+    val holder = ScalaPsiUtil.getParentOfType(elementAtCaret, classOf[ScAnnotationsHolder]).asInstanceOf[ScAnnotationsHolder]
     holder.getMetaExpansion match {
       case Right(tree) => Assert.assertEquals(expectedExpansion, tree.toString())
       case Left(reason) if reason.nonEmpty => Assert.fail(reason)
