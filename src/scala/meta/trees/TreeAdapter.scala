@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types =>
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
-//import scala.meta.internal.ast.Term
-//import scala.meta.internal.ast.Term.Param
-import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
 import scala.{meta => m, Seq => _}
 
@@ -68,7 +65,7 @@ trait TreeAdapter {
     m.Defn.Def(convertMods(t), toTermName(t),
       Seq(t.typeParameters map toTypeParams: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
-      t.returnTypeElement.map(toType(_)),
+      t.returnTypeElement.map(toType),
       expression(t.body).getOrElse(m.Term.Block(Nil))
     )
   }
@@ -86,7 +83,7 @@ trait TreeAdapter {
   def toFunDecl(t: ScFunctionDeclaration): m.Decl.Def = {
     m.Decl.Def(convertMods(t), toTermName(t), Seq(t.typeParameters map toTypeParams: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
-      t.typeElement.map(toType(_)).getOrElse(toStdTypeName(ptype.api.Unit(t.projectContext))))
+      t.typeElement.map(toType).getOrElse(toStdTypeName(ptype.api.Unit(t.projectContext))))
   }
 
   def toTypeDefn(t: ScTypeAliasDefinition): m.Defn.Type = {
@@ -489,14 +486,10 @@ trait TreeAdapter {
   }
 
   def toPatternDefinition(t: ScPatternDefinition): m.Tree = {
-    def pattern(bp: patterns.ScBindingPattern): m.Pat = {
-      m.Pat.Var.Term(toTermName(bp))
-    }
-
     if(t.bindings.exists(_.isVal))
-      m.Defn.Val(convertMods(t), Seq(t.bindings.map(pattern):_*), t.typeElement.map(toType), expression(t.expr).get)
+      m.Defn.Val(convertMods(t), Seq(t.pList.patterns.map(pattern):_*), t.typeElement.map(toType), expression(t.expr).get)
     else if(t.bindings.exists(_.isVar))
-      m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern):_*), t.typeElement.map(toType), expression(t.expr))
+      m.Defn.Var(convertMods(t), Seq(t.pList.patterns.map(pattern):_*), t.typeElement.map(toType), expression(t.expr))
     else unreachable
   }
 

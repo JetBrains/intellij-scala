@@ -56,4 +56,13 @@ class TreeConverterTestBugs extends TreeConverterTestBaseWithLibrary {
         Some(Seq(Defn.Def(Nil, Term.Name("apply"), Nil, Seq(Seq()), None, Lit.Int(42))))))
     )
   }
+
+  // Meta annotation expansion improperly handles destructuring
+  def testSCL12523(): Unit = {
+    doTest(
+      "val (a, b) = (42, 1337)",
+      Defn.Val(Nil, Seq(Pat.Tuple(Seq(Pat.Var.Term(Term.Name("a")), Pat.Var.Term(Term.Name("b"))))),
+        None, Term.Tuple(Seq(Lit.Int(42), Lit.Int(1337))))
+    )
+  }
 }
