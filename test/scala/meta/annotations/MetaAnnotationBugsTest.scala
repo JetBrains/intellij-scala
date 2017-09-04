@@ -1,8 +1,12 @@
 package scala.meta.annotations
 
+import com.intellij.lang.annotation.HighlightSeverity
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.junit.Assert
+
+import scala.collection.JavaConversions.iterableAsScalaIterable
 
 class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
   import MetaAnnotationTestBase._
@@ -198,6 +202,20 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
     )
     val exp = testClass.getMetaExpansion
     Assert.assertTrue("Synthetic method not injected", testClass.members.exists(_.getName == newMethodName))
+  }
+
+  def testSCL12509(): Unit = {
+    compileMetaSource(mkAnnot(annotName,
+      """
+        |val q"class $className" = defn
+        |q"final class $className(val value : Int) extends AnyVal"
+      """.stripMargin.trim
+    ))
+    createFile(s"@$annotName class $testClassName\nnew $testClassName(42).value<caret>")
+    val errors = myFixture.doHighlighting(HighlightSeverity.ERROR)
+    val errorStr = ScalaBundle.message("value.class.can.have.only.one.parameter")
+    Assert.assertFalse("Value class constructor not resolved", !errors.isEmpty && errors.exists(_.getDescription == errorStr))
+    Assert.assertTrue("Value class field not resolved", myFixture.getElementAtCaret != null)
   }
 
 }
