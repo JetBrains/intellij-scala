@@ -163,6 +163,7 @@ object DependencyGroups {
     "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion,
     "com.lihaoyi" % "utest_2.10" % "0.3.1" % "provided",
     "com.lihaoyi" % "utest_2.10" % "0.4.3" % "provided",
+    "com.lihaoyi" % "utest_2.11" % "0.3.1" % "provided",
     "com.lihaoyi" % "utest_2.11" % "0.4.3" % "provided",
     "com.typesafe.akka" % "akka-actor_2.11" % "2.4.19",
     "com.typesafe.akka" % "akka-stream_2.11" % "2.4.19",
@@ -192,7 +193,8 @@ object DependencyGroups {
     "org.scalactic" % "scalactic_2.11" % "3.0.1",
 //    "org.scalatest" % "scalatest_2.12" % "3.0.1",
     "org.scalameta" % s"paradise_$scalaVersion" % paradiseVersion exclude("org.scalameta", s"scalameta_$scalaBinaryVersion"),
-    "org.scalameta" %% "scalameta" % scalaMetaVersion,
+    "org.scalameta" % "scalameta_2.11" % scalaMetaVersion,
+    "org.scalameta" % "scalameta_2.12" % scalaMetaVersion,
     "org.typelevel" %% "cats-core" % "1.0.0-MF"
   )
 

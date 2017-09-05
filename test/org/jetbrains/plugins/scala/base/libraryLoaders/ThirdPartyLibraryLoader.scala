@@ -4,7 +4,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyLibraryLoader._
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11, Scala_2_12}
 import org.jetbrains.plugins.scala.project.ModuleExt
 
 /**
@@ -77,10 +77,10 @@ case class SprayLoader()(implicit val module: Module) extends IvyLibraryLoaderAd
 case class CatsLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override val name: String = "cats-core"
   override val vendor: String = "org.typelevel"
-  override val version: String = "0.4.0"
+  override val version: String = "1.0.0-MF"
 
   override def path(implicit version: ScalaVersion): String =
-    super.path(Scala_2_11)
+    super.path(Scala_2_12)
 }
 
 abstract class Specs2BaseLoader(implicit module: Module) extends IvyLibraryLoaderAdapter {

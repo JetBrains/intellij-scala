@@ -4,7 +4,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyLibraryLoaderAdapter, ThirdPartyLibraryLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -14,18 +14,18 @@ import org.junit.Assert._
 
 class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
-  override implicit val version: ScalaVersion = Scala_2_11
+  override implicit val version: ScalaVersion = Scala_2_12
 
   override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] = {
     import MonocleLensesTest._
 
-    implicit val module = getModuleAdapter
+    implicit val module: Module = getModuleAdapter
     Array(MonocleCoreLoader(), MonocleMacroLoader(), MonocleGeneric())
   }
 
   protected def folderPath: String = TestUtils.getTestDataPath
 
-  def doTest(text: String, methodName: String, expectedType: String) = {
+  def doTest(text: String, methodName: String, expectedType: String): Unit = {
     val caretPos = text.indexOf("<caret>")
     configureFromFileTextAdapter("dummy.scala", text.replace("<caret>", ""))
     val exp = PsiTreeUtil.findElementOfClassAtOffset(getFileAdapter, caretPos, classOf[ScalaPsiElement], false).asInstanceOf[ScObject]
@@ -38,7 +38,7 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     }
   }
 
-  def testSimple() = {
+  def testSimple(): Unit = {
     val fileText: String =
       """
         |import monocle.macros.Lenses
@@ -60,7 +60,7 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     doTest(fileText, "age", "monocle.Lens[Main.Person, Int]")
   }
 
-  def testTypeArgs() = {
+  def testTypeArgs(): Unit = {
     val fileText =
       """
         |import monocle.macros.Lenses
@@ -77,7 +77,7 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     doTest(fileText, "q", "monocle.Lens[Main.Foo[A, B], Map[(A, B), Double]]")
   }
 
-  def testRecursion() = {
+  def testRecursion(): Unit = {
     //SCL-9420
     val fileText =
       """
@@ -103,7 +103,7 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 object MonocleLensesTest {
 
   private abstract class MonocleBaseLoader()(implicit module: Module) extends IvyLibraryLoaderAdapter {
-    override val version: String = "1.2.0"
+    override val version: String = "1.4.0"
     override val vendor: String = "com.github.julien-truffaut"
   }
 
