@@ -51,6 +51,12 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
     byPsiOrStub(Option(annotationExpr.constr.typeElement))(_.typeElement).orNull
 
 
+  override def canNavigateToSource: Boolean = super.canNavigateToSource
+
+  override def canNavigate: Boolean = super.canNavigate
+
+  override def navigate(requestFocus: Boolean): Unit = super.navigate(requestFocus)
+
   def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
     constructor.args match {
       case Some(args) => args.exprs.map {
