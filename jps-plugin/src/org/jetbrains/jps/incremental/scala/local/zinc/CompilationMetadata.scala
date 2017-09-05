@@ -13,6 +13,7 @@ import Utils._
 
 import scala.util.Try
 import scala.util.control.NonFatal
+import scala.collection.JavaConverters._
 
 case class CompilationMetadata(previousAnalysis: Analysis,
                                previousSetup: Option[MiniSetup],
@@ -20,9 +21,7 @@ case class CompilationMetadata(previousAnalysis: Analysis,
                               )(providers: Seq[CachedCompilationProvider]) {
   val zincLogFilter: ZincLogFilter = {
     val filters = providers.flatMap(_.zincLogFilter())
-    new ZincLogFilter {
-      override def shouldLog(serverity: Kind, msg: String): Boolean = filters.forall(_.shouldLog(serverity, msg))
-    }
+    (severity: Kind, msg: String) => filters.forall(_.shouldLog(severity, msg))
   }
 
   def compilationFinished(compilationData: CompilationData,
@@ -34,11 +33,9 @@ case class CompilationMetadata(previousAnalysis: Analysis,
 
 object CompilationMetadata {
 
-  import collection.JavaConversions._
-
   private val cachedCompilationServices: List[CachedCompilationService] =
     ServiceLoader.load(classOf[CachedCompilationService])
-      .iterator().toList
+      .iterator().asScala.toList
 
   def load(localStore: AnalysisStore, client: Client, compilationData: CompilationData): CompilationMetadata = {
     val analysisFromLocalStore = localStore.get()

@@ -3,15 +3,17 @@ package local
 
 import java.io.File
 import java.nio.file.Path
-import java.util.{EnumSet, Optional}
-import java.lang.reflect.InvocationTargetException
+import java.util
+import java.util.Optional
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.data.CompilationData
-import sbt.internal.inc.{AnalyzingCompiler, CompileOutput, CompilerArguments, CompilerCache}
+import sbt.internal.inc.{AnalyzingCompiler, CompileOutput, CompilerArguments}
 import xsbti._
 import xsbti.api.{ClassLike, DependencyContext}
 import xsbti.compile.{CompilerCache, DependencyChanges}
+
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -56,8 +58,8 @@ private class ClientCallback(client: Client, output: Path) extends ClientCallbac
     val classFilePath = classFile.toPath
     if(classFilePath.startsWith(output)){
       val relative = output.relativize(classFilePath)
-      import collection.JavaConversions._
-      val binaryClassName = relative.iterator().mkString(".").dropRight(".class".length)
+
+      val binaryClassName = relative.iterator().asScala.mkString(".").dropRight(".class".length)
       client.generated(source, classFile, binaryClassName)
     }
   }
@@ -80,7 +82,7 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
 
   override def startSource(source: File): Unit = {}
 
-  override def usedName(className: String, name: String, useScopes: EnumSet[xsbti.UseScope]): Unit = {}
+  override def usedName(className: String, name: String, useScopes: util.EnumSet[xsbti.UseScope]): Unit = {}
 
   override def apiPhaseCompleted(): Unit = {}
 
