@@ -18,11 +18,9 @@ abstract class ProjectDataServiceTestCase extends PlatformTestCase {
   def importProjectData(projectData: DataNode[ProjectData]): Unit =
     ExternalSystemApiUtil.executeProjectChangeAction(true, new DisposeAwareProjectChange(getProject) {
       override def execute(): Unit =
-        ProjectRootManagerEx.getInstanceEx(getProject).mergeRootsChangesDuring(new Runnable() {
-          override def run(): Unit = {
-            val projectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
-            projectDataManager.importData(projectData, getProject, new IdeModifiableModelsProviderImpl(getProject), true)
-          }
+        ProjectRootManagerEx.getInstanceEx(getProject).mergeRootsChangesDuring(() => {
+          val projectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
+          projectDataManager.importData(projectData, getProject, new IdeModifiableModelsProviderImpl(getProject), true)
         })
     })
 }

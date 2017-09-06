@@ -19,6 +19,7 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
 import org.junit.Assert._
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * @author Nikolay Obedin
@@ -31,6 +32,11 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
   override def setUp(): Unit = {
     super.setUp()
     setUpJdks()
+  }
+
+  override def tearDown(): Unit = {
+    tearDownJdks()
+    super.tearDown()
   }
 
   def testEmptyBasePackages(): Unit =
@@ -107,16 +113,17 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType)
   }
 
-  private def setUpJdks(): Unit = {
-    ApplicationManagerEx.getApplicationEx.runWriteAction(new Runnable {
-      def run(): Unit = {
-        val projectJdkTable = ProjectJdkTable.getInstance()
-        projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
-        projectJdkTable.addJdk(IdeaTestUtil.getMockJdk17)
-        projectJdkTable.addJdk(IdeaTestUtil.getMockJdk18)
-      }
-    })
+  private def setUpJdks(): Unit = inWriteAction {
+    val projectJdkTable = ProjectJdkTable.getInstance()
+    projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
+    projectJdkTable.addJdk(IdeaTestUtil.getMockJdk17)
+    projectJdkTable.addJdk(IdeaTestUtil.getMockJdk18)
     // TODO: find a way to create mock Android SDK
+  }
+
+  private def tearDownJdks(): Unit = inWriteAction {
+    val projectJdkTable = ProjectJdkTable.getInstance()
+    projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
   }
 
   private def generateProject(basePackages: Seq[String], jdk: Option[data.Sdk], javacOptions: Seq[String], sbtVersion: String): DataNode[ProjectData] =
