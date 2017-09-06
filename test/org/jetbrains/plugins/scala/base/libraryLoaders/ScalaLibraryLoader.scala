@@ -3,10 +3,11 @@ package org.jetbrains.plugins.scala.base.libraryLoaders
 import java.io.File
 
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaLoader
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyLibraryLoader._
 import org.jetbrains.plugins.scala.debugger.ScalaVersion
@@ -135,7 +136,15 @@ object ScalaLibraryLoader {
 case class JdkLoader(jdk: Sdk = TestUtils.createJdk())
                     (implicit val module: Module) extends LibraryLoader {
 
-  def init(implicit version: ScalaVersion): Unit = {
+  override def init(implicit version: ScalaVersion): Unit = {
+    commitSdk(jdk)
+  }
+
+  override def clean(): Unit = {
+    commitSdk(null)
+  }
+
+  private def commitSdk(@Nullable jdk: Sdk): Unit = {
     val model = module.modifiableModel
     model.setSdk(jdk)
     inWriteAction {

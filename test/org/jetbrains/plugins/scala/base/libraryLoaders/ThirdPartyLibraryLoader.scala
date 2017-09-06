@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.base.libraryLoaders
 
+import java.io.File
+
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.PsiTestUtil
@@ -17,6 +19,8 @@ trait ThirdPartyLibraryLoader extends LibraryLoader {
     if (alreadyExistsInModule) return
 
     val path = this.path
+    val file = new File(path).getCanonicalFile
+    assert(file.exists(), s"library root for $name does not exist at $file")
     VfsRootAccess.allowRootAccess(path)
     PsiTestUtil.addLibrary(module, path)
 
