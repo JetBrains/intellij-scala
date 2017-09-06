@@ -91,20 +91,17 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
 
   protected def forceFSRescan(): Unit = BuildManager.getInstance.clearState(myProject)
 
-  protected override def tearDown() {
-    EdtTestUtil.runInEdtAndWait {
-      () => {
-        CompilerTestUtil.disableExternalCompiler(myProject)
-        CompileServerLauncher.instance.stop()
-        val baseDir = getBaseDir
+  protected override def tearDown(): Unit =
+    EdtTestUtil.runInEdtAndWait { () =>
+      CompilerTestUtil.disableExternalCompiler(myProject)
+      CompileServerLauncher.instance.stop()
+      val baseDir = getBaseDir
 
-        tearDownLibraries()
+      tearDownLibraries()
 
-        ScalaCompilerTestBase.super.tearDown()
+      ScalaCompilerTestBase.super.tearDown()
 
-        if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
-      }
-    }
+      if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
   }
 
   protected def make(): List[String] = {
