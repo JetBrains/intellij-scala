@@ -62,7 +62,8 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
   override protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit = {
     val structureViewRoot = buildFileStructure(testClassName + ".scala")
     for (test <- tests) {
-      assert(checkTestNodeInFileStructure(structureViewRoot, test, None, status))
+      assert(checkTestNodeInFileStructure(structureViewRoot, test, None, status),
+        s"test node for test '$test' was not in file structure for root '$structureViewRoot'")
     }
   }
 
@@ -71,7 +72,8 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
   override protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String],
                                                   testStatus: Int = TestStructureViewElement.normalStatusId): Unit = {
     val structureViewRoot = buildFileStructure(testClassName + ".scala")
-    assert(checkTestNodeInFileStructure(structureViewRoot, testName, parentTestName, testStatus))
+    assert(checkTestNodeInFileStructure(structureViewRoot, testName, parentTestName, testStatus),
+      s"test node for test '$testName' with parent '$parentTestName' was not in file structure for root '$structureViewRoot'")
   }
 
   override protected def buildFileStructure(fileName: String): TreeElementWrapper = {
@@ -157,8 +159,8 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
                                            duration: Int = 3000,
                                            debug: Boolean = false
                                           ): (String, Option[AbstractTestProxy]) = {
-    assert(configurationCheck(runConfig))
-    assert(runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration])
+    assert(configurationCheck(runConfig), s"config check failed for ${runConfig.getName}")
+    assert(runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration], "runConfig not instance of AbstractRunConfiguration")
     runConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration].setupIntegrationTestClassPath()
     val testResultListener = new TestResultListener(runConfig.getName)
     var testTreeRoot: Option[AbstractTestProxy] = None

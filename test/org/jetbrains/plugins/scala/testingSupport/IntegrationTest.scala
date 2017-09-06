@@ -159,11 +159,11 @@ trait IntegrationTest {
 
     semaphore.waitFor()
 
-    assert(testTreeRoot.isDefined)
-    assert(testTreeCheck(testTreeRoot.get))
+    assert(testTreeRoot.isDefined, s"testTreeRoot not defined")
+    assert(testTreeCheck(testTreeRoot.get), s"testTreeCheck failed for root ${testTreeRoot.get}")
 
     if (checkOutputs) {
-      assert(res == expectedText)
+      assert(res == expectedText, s"output was '$res' expected '$expectedText'")
     }
   }
 
@@ -192,7 +192,7 @@ trait IntegrationTest {
 
   private def checkGoToSourceTest(testRoot: AbstractTestProxy, testNames: Iterable[String], sourceFile: String, sourceLine: Int) {
     val testPathOpt = getExactNamePathFromResultTree(testRoot, testNames, allowTail = true)
-    assert(testPathOpt.isDefined)
+    assert(testPathOpt.isDefined, s"no test path found under ${testRoot.getName} for test names ${testNames.mkString(", ")}")
     val test = testPathOpt.get.last
     val project = getProject
     val location = test.getLocation(project, GlobalSearchScope.projectScope(project))
