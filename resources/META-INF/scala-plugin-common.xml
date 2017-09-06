@@ -884,7 +884,7 @@
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.booleans.DoubleNegationInspection"
                          displayName="Double negation" groupPath="Scala" groupName="General"
-                         shortName="DoubleNegation" level="WARNING"
+                         shortName="DoubleNegationScala" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanInspection"
                          displayName="Simplify boolean expression" groupPath="Scala" groupName="General"
