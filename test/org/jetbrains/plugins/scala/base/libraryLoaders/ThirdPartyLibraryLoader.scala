@@ -77,10 +77,10 @@ case class SprayLoader()(implicit val module: Module) extends IvyLibraryLoaderAd
 case class CatsLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override val name: String = "cats-core"
   override val vendor: String = "org.typelevel"
-  override val version: String = "1.0.0-MF"
+  override val version: String = "0.4.0"
 
   override def path(implicit version: ScalaVersion): String =
-    super.path(Scala_2_12)
+    super.path(Scala_2_11)
 }
 
 abstract class Specs2BaseLoader(implicit module: Module) extends IvyLibraryLoaderAdapter {

@@ -195,7 +195,7 @@ object DependencyGroups {
     "org.scalameta" % s"paradise_$scalaVersion" % paradiseVersion exclude("org.scalameta", s"scalameta_$scalaBinaryVersion"),
     "org.scalameta" % "scalameta_2.11" % scalaMetaVersion,
     "org.scalameta" % "scalameta_2.12" % scalaMetaVersion,
-    "org.typelevel" %% "cats-core" % "1.0.0-MF"
+    "org.typelevel" % "cats_2.11" % "0.4.0"
   )
 
   val testScalaLibraryDownloader = Seq(
