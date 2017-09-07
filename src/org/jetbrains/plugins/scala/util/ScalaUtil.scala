@@ -5,6 +5,9 @@ import java.io.File
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiFile
+import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.PathUtil
 import org.jetbrains.jps.incremental.scala.Client
 
@@ -43,5 +46,12 @@ object ScalaUtil {
     tmpDir.delete()
     tmpDir.mkdir()
     tmpDir
+  }
+  
+  def findVirtualFile(psiFile: PsiFile): Option[VirtualFile] = {
+    Option(psiFile.getVirtualFile).orElse(Option(psiFile.getViewProvider.getVirtualFile).flatMap {
+      case light: LightVirtualFile => Option(light.getOriginalFile)
+      case _ => None
+    })
   }
 }
