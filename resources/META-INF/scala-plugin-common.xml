@@ -215,6 +215,7 @@
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScTemplateDeclarationRangeHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.actions.WorksheetGotoResNHandler" order="first"/>
+        <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteGotoHandler" order="first"/>
         <debuggerClassFilterProvider implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerClassFilterProvider"/>
         <xdebugger.settings implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings"/>
         <debugger.jvmSmartStepIntoHandler implementation="org.jetbrains.plugins.scala.debugger.smartStepInto.ScalaSmartStepIntoHandler"/>
@@ -1301,6 +1302,12 @@
                          level="WARNING" enabledByDefault="true" language="Scala" />
       <!-- end of scaladoc inspections -->
 
+      <!-- Util ammonite inspection -->
+      <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUnresolvedLibraryInspection" 
+                       displayName="Ammonite unresolved import" groupPath="Scala" shortName="AmmoniteUnresolvedLibraryInspection" 
+                       level="WARNING" enabledByDefault="true" language="Scala" groupName="Other"/>
+      <!---->
+      
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.specs2.BuiltinMatcherExistsInspection"
                          displayName="Specs2 Matchers" shortName="Specs2Matchers" groupName="Specs2" groupPath="Scala,Specs2"
                          level="WARNING" enabledByDefault="true" language="Scala" />
@@ -1416,6 +1423,9 @@
         <component>
           <implementation-class>org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes</implementation-class>
         </component>
+      <component>
+        <implementation-class>org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder</implementation-class>
+      </component>
     </project-components>
 
     <actions>
