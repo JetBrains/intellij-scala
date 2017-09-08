@@ -39,11 +39,13 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
 //    BuildManager.getInstance().setBuildProcessDebuggingEnabled(true)
 //    com.intellij.openapi.util.registry.Registry.get("compiler.process.debug.port").setValue(5006)
 
-    myProject.getMessageBus.connect(getTestRootDisposable).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
-      override def rootsChanged(event: ModuleRootEvent) {
-        forceFSRescan()
-      }
-    })
+    myProject.getMessageBus
+      .connect(getTestRootDisposable)
+      .subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
+        override def rootsChanged(event: ModuleRootEvent) {
+          forceFSRescan()
+        }
+      })
 
     addRoots()
     compilerVmOptions.foreach(setCompilerVmOptions)
@@ -93,15 +95,17 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
 
   protected override def tearDown(): Unit =
     EdtTestUtil.runInEdtAndWait { () =>
-      CompilerTestUtil.disableExternalCompiler(myProject)
-      CompileServerLauncher.instance.stop()
       val baseDir = getBaseDir
+      try {
+        CompilerTestUtil.disableExternalCompiler(myProject)
+        CompileServerLauncher.instance.stop()
 
-      tearDownLibraries()
+        tearDownLibraries()
 
-      ScalaCompilerTestBase.super.tearDown()
-
-      if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
+      } finally {
+        ScalaCompilerTestBase.super.tearDown()
+        if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
+      }
   }
 
   protected def make(): List[String] = {
