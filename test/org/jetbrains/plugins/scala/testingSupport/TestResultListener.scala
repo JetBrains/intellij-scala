@@ -14,11 +14,11 @@ class TestResultListener(private val testConfigurationName: String) extends Proc
     var i = 0
     while (i < duration && (!terminated)) {
       Thread.sleep(10)
-      i += 1
+      i += 10
     }
 
-    assert(terminated, "test " + testConfigurationName + " did not terminate correctly; captured outputs:\n" + builder.toString())
-    builder.toString()
+    assert(terminated, s"test $testConfigurationName did not terminate correctly after $duration ms; captured outputs:\n${builder.toString}")
+    builder.toString
   }
 
   private val builder = new StringBuilder

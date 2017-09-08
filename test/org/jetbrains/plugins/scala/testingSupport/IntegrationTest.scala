@@ -138,7 +138,7 @@ trait IntegrationTest {
   def runTestByLocation(lineNumber: Int, offset: Int, fileName: String,
                         configurationCheck: RunnerAndConfigurationSettings => Boolean,
                         testTreeCheck: AbstractTestProxy => Boolean,
-                        expectedText: String = "OK", debug: Boolean = false, duration: Int = 3000,
+                        expectedText: String = "OK", debug: Boolean = false, duration: Int = 10000,
                         checkOutputs: Boolean = false): Unit = {
 
     val runConfig = createTestFromLocation(lineNumber, offset, fileName)
@@ -148,7 +148,7 @@ trait IntegrationTest {
 
   def runTestByConfig(runConfig: RunnerAndConfigurationSettings, configurationCheck: RunnerAndConfigurationSettings => Boolean,
                       testTreeCheck: AbstractTestProxy => Boolean,
-                      expectedText: String = "OK", debug: Boolean = false, duration: Int = 3000,
+                      expectedText: String = "OK", debug: Boolean = false, duration: Int = 10000,
                       checkOutputs: Boolean = false): Unit = {
     val (res, testTreeRoot) = runTestFromConfig(configurationCheck, runConfig, checkOutputs, duration, debug)
 
