@@ -18,7 +18,7 @@ import scala.collection.JavaConverters._
  * @since 7/17/14.
  */
 
-abstract class CompletionTestBase extends completion.CompletionTestBase with MockSbt_1_0 {
+abstract class SbtCompletionTestBase extends completion.CompletionTestBase with MockSbt_1_0 {
 
   override val sbtVersion = Sbt.LatestVersion
 
@@ -50,9 +50,10 @@ abstract class CompletionTestBase extends completion.CompletionTestBase with Moc
     fileText
   }
 
-  override def checkResult(got: Array[String], _expected: String) {
-    val expected = _expected.split("\n")
-    UsefulTestCase.assertContainsElements[String](got.toSeq.asJava, expected.toSeq.asJava)
+  override def checkResult(_got: Array[String], _expected: String) {
+    val got = _got.distinct.toSeq.asJava
+    val expected = _expected.split("\n").distinct.toSeq.asJava
+    UsefulTestCase.assertContainsElements[String](got, expected)
   }
 
   override def setUp() {
@@ -71,4 +72,3 @@ abstract class CompletionTestBase extends completion.CompletionTestBase with Moc
     FileUtil.delete(ResolverIndex.DEFAULT_INDEXES_DIR)
   }
 }
-

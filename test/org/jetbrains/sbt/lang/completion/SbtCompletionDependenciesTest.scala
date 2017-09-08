@@ -10,7 +10,7 @@ import org.jetbrains.sbt.resolvers.SbtIvyResolver
  * @author Nikolay Obedin
  * @since 8/1/14.
  */
-class CompletionDependenciesTest extends CompletionTestBase {
+class SbtCompletionDependenciesTest extends SbtCompletionTestBase {
 
   val testResolver = new SbtIvyResolver("Test repo", "/%s/sbt/resolvers/testIvyCache" format TestUtils.getTestDataPath)
 
