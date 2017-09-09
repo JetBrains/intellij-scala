@@ -431,14 +431,14 @@ object MethodResolveProcessor {
           def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
 
           for (TypeParameter(_, lowerType, upperType, tParam) <- typeParameters) {
-            if (lowerType.v != Nothing) {
-              val substedLower = s.subst(unSubst.subst(lowerType.v))
+            if (lowerType != Nothing) {
+              val substedLower = s.subst(unSubst.subst(lowerType))
               if (!hasRecursiveTypeParameters(substedLower)) {
                 uSubst = uSubst.addLower(tParam.nameAndId, substedLower, additional = true)
               }
             }
-            if (upperType.v != Any) {
-              val substedUpper = s.subst(unSubst.subst(upperType.v))
+            if (upperType != Any) {
+              val substedUpper = s.subst(unSubst.subst(upperType))
               if (!hasRecursiveTypeParameters(substedUpper)) {
                 uSubst = uSubst.addUpper(tParam.nameAndId, substedUpper, additional = true)
               }

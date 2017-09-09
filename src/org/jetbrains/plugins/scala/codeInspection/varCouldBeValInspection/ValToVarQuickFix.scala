@@ -11,15 +11,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createVarFromValDeclaration
 
 class ValToVarQuickFix(valDef: ScValue) extends IntentionAction {
-  def startInWriteAction: Boolean = true
 
-  def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+  override def startInWriteAction: Boolean = true
+
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     valDef.replace(createVarFromValDeclaration(valDef)(valDef.getManager))
   }
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = file.isInstanceOf[ScalaFile]
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
+    file.isInstanceOf[ScalaFile]
 
-  def getFamilyName: String = getText
+  override def getFamilyName: String = getText
 
-  def getText: String = "Convert 'val' to 'var'"
+  override def getText: String = "Convert 'val' to 'var'"
 }

@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.parser.ErrMsg
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-import scala.collection.JavaConversions.iterableAsScalaIterable
 import scala.collection.mutable
+import scala.collection.JavaConverters._
 
 /**
   * Created by Kate Ustyuzhanina on 12/27/16.
@@ -46,7 +46,7 @@ object PlainTextCopyUtil {
       ErrMsg("rbrace.expected"), ErrMsg("semi.expected"))
 
     def handleFile(errors: mutable.HashSet[String]) = {
-      !SyntaxTraverser.psiTraverser(file).traverse.exists {
+      !SyntaxTraverser.psiTraverser(file).traverse.asScala.exists {
         case err: PsiErrorElement if errors.contains(err.getErrorDescription) => false
         case _: PsiErrorElement => true
         case _ => false

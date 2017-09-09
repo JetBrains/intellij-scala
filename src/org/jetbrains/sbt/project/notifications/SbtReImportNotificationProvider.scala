@@ -13,13 +13,13 @@ import org.jetbrains.sbt.project.settings.SbtLocalSettings
  * @since 3/24/15.
  */
 object SbtReImportNotificationProvider {
-  val ProviderKey = Key.create[EditorNotificationPanel](this.getClass.getName)
+  val ProviderKey: Key[EditorNotificationPanel] = Key.create[EditorNotificationPanel](this.getClass.getName)
 }
 
 class SbtReImportNotificationProvider(project: Project, notifications: EditorNotifications)
         extends SbtImportNotificationProvider(project, notifications) {
 
-  private val fileChangeListener = new VirtualFileAdapter {
+  private val fileChangeListener = new VirtualFileListener {
     override def contentsChanged(event: VirtualFileEvent): Unit =
       notifications.updateNotifications(event.getFile)
   }

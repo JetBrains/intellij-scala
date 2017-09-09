@@ -4,6 +4,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection
 import org.junit.experimental.categories.Category
 
 /**
@@ -15,7 +16,7 @@ class OverridingAnnotatorTest3 extends ScalaInspectionTestBase {
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
-    classOf[LocalInspectionTool]
+    classOf[AnnotatorBasedErrorInspection]
 
   override protected val description: String =
     "overriding variable name in class Abs of type String"

@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.debugger.stepOver
 
+import org.jetbrains.plugins.scala.DebuggerTests
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
+import org.junit.experimental.categories.Category
 
 
 /**
  * @author Nikolay.Tropin
  */
-
+@Category(Array(classOf[DebuggerTests]))
 class StepOverTest_2_11 extends StepOverTest {
   override implicit val version: ScalaVersion = Scala_2_11
 }

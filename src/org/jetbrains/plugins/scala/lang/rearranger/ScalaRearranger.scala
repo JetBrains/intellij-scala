@@ -19,8 +19,8 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens._
 import com.intellij.psi.codeStyle.arrangement.std._
 import com.intellij.psi.codeStyle.arrangement.{ArrangementSettings, _}
 
-import scala.collection.JavaConversions._
 import scala.collection.{immutable, mutable}
+import scala.collection.JavaConverters._
 
 /**
  * @author Roman.Shein
@@ -33,14 +33,14 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
     val groupingRules = getGroupingRules(settings)
 
     val existingInfo = new ScalaArrangementParseInfo
-    root.accept(new ScalaArrangementVisitor(existingInfo, document, collectionAsScalaIterable(ranges), groupingRules))
+    root.accept(new ScalaArrangementVisitor(existingInfo, document, ranges.asScala, groupingRules))
 
     val newInfo = new ScalaArrangementParseInfo
     element.accept(new ScalaArrangementVisitor(newInfo, document, Iterable(element.getTextRange), groupingRules))
     if (newInfo.entries.size != 1) {
       null
     } else {
-      Pair.create(newInfo.entries.head, existingInfo.entries)
+      Pair.create(newInfo.entries.head, existingInfo.entries.asJava)
     }
   }
 
@@ -48,9 +48,9 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
                               ranges: java.util.Collection[TextRange], settings: ArrangementSettings): util.List[ScalaArrangementEntry] = {
     UsageTrigger.trigger(ScalaRearranger.featureId)
     val info = new ScalaArrangementParseInfo
-    root.accept(new ScalaArrangementVisitor(info, document, ranges, getGroupingRules(settings)))
+    root.accept(new ScalaArrangementVisitor(info, document, ranges.asScala, getGroupingRules(settings)))
     if (settings != null) {
-      for (rule <- settings.getGroupings) {
+      settings.getGroupings.forEach { rule =>
         if (DEPENDENT_METHODS == rule.getGroupingType) {
           setupUtilityMethods(info, rule.getOrderType)
         } else if (JAVA_GETTERS_AND_SETTERS == rule.getGroupingType) {
@@ -60,7 +60,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
         }
       }
     }
-    info.entries
+    info.entries.asJava
   }
 
   override def getBlankLines(settings: CodeStyleSettings, parent: ScalaArrangementEntry, previous:
@@ -86,7 +86,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
   private def getGroupingRules(settings: ArrangementSettings) = {
     var result = immutable.HashSet[ArrangementSettingsToken]()
     if (settings != null) {
-      for (rule <- settings.getGroupings) {
+      settings.getGroupings.forEach { rule =>
         result = result + rule.getGroupingType
       }
     }
@@ -95,7 +95,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
 
   override def getDefaultSettings: StdArrangementSettings = ScalaRearranger.defaultSettings
 
-  override def getSerializer = ScalaRearranger.SETTINGS_SERIALIZER
+  override def getSerializer: ArrangementSettingsSerializer = ScalaRearranger.SETTINGS_SERIALIZER
 
   override def getSupportedGroupingTokens: util.List[CompositeArrangementSettingsToken] =
     seqAsJavaList(immutable.List(new CompositeArrangementSettingsToken(DEPENDENT_METHODS, BREADTH_FIRST, DEPTH_FIRST),
@@ -106,9 +106,10 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
     ))
 
   override def getSupportedMatchingTokens: util.List[CompositeArrangementSettingsToken] =
-    seqAsJavaList(immutable.List(new CompositeArrangementSettingsToken(General.TYPE,
-      scalaTypesValues.toList), new CompositeArrangementSettingsToken(General.MODIFIER, scalaModifiers.toList),
-      new CompositeArrangementSettingsToken(General.ORDER, Order.KEEP, Order.BY_NAME)))
+    immutable.List(
+      new CompositeArrangementSettingsToken(General.TYPE, scalaTypesValues.asJavaCollection),
+      new CompositeArrangementSettingsToken(General.MODIFIER, scalaModifiers.asJavaCollection),
+      new CompositeArrangementSettingsToken(General.ORDER, Order.KEEP, Order.BY_NAME)).asJava
 
   override def isEnabled(token: ArrangementSettingsToken, current: ArrangementMatchCondition): Boolean =
     (scalaTypesValues.contains(token) || supportedOrders.contains(token)) ||
@@ -125,7 +126,8 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
 
   override def buildMatcher(condition: ArrangementMatchCondition) = throw new IllegalArgumentException("Can't build a matcher for condition " + condition)
 
-  override def getMutexes: util.List[util.Set[ArrangementSettingsToken]] = seqAsJavaList(immutable.List(scalaAccessModifiersValues, scalaTypesValues))
+  override def getMutexes: util.List[util.Set[ArrangementSettingsToken]] =
+    immutable.List(scalaAccessModifiersValues.asJava, scalaTypesValues.asJava).asJava
 
   private def setupUtilityMethods(info: ScalaArrangementParseInfo, orderType: ArrangementSettingsToken) {
     if (DEPTH_FIRST == orderType) {
@@ -168,9 +170,11 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
     }
   }
 
-  private def setupJavaGettersAndSetters(info: ScalaArrangementParseInfo) = setupGettersAndSetters(info.javaProperties)
+  private def setupJavaGettersAndSetters(info: ScalaArrangementParseInfo): Unit =
+    setupGettersAndSetters(info.javaProperties)
 
-  private def setupScalaGettersAndSetters(info: ScalaArrangementParseInfo) = setupGettersAndSetters(info.scalaProperties)
+  private def setupScalaGettersAndSetters(info: ScalaArrangementParseInfo): Unit =
+    setupGettersAndSetters(info.scalaProperties)
 
   private def setupGettersAndSetters(properties: Iterable[ScalaPropertyInfo]) {
     for (propertyInfo <- properties) {
@@ -279,7 +283,7 @@ object ScalaRearranger {
     }
     //TODO: Is 'override' ok for macros?
 
-    new StdArrangementSettings(groupingRules, matchRules.reverse)
+    new StdArrangementSettings(groupingRules.asJava, matchRules.reverse.asJava)
   }
 
   private val defaultSettings = getDefaultSettings

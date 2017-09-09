@@ -4,8 +4,8 @@ package local
 import java.io.File
 
 import org.jetbrains.jps.incremental.scala.data.{CompilerData, CompilerJars, SbtData}
-import sbt.compiler.AnalyzingCompiler
-import sbt.inc.AnalysisStore
+import sbt.internal.inc.AnalyzingCompiler
+import xsbti.compile.AnalysisStore
 
 /**
  * @author Pavel Fatin

@@ -22,7 +22,7 @@ class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
         val checkIcon: Icon = PlatformIcons.CHECK_ICON
         val icon: Icon =
           if (!elem.shouldImport) checkIcon
-          else new EmptyIcon(checkIcon.getIconWidth, checkIcon.getIconHeight)
+          else EmptyIcon.create(checkIcon.getIconWidth, checkIcon.getIconHeight)
         consumer.consume(new LookupElementAction(icon, "Import method") {
           def performLookupAction: LookupElementAction.Result = {
             elem.usedImportStaticQuickfix = true

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
-import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Evaluator, Modifier}
+import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Evaluator}
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, JVMName}
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.{DebuggerBundle, SourcePosition}
@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions.inReadAction
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.util.{Success, Try}
 
@@ -23,13 +23,12 @@ import scala.util.{Success, Try}
 case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String, signature: JVMName,
                            argumentEvaluators: Seq[Evaluator], traitImplementation: Option[JVMName] = None,
                            methodPosition: Set[SourcePosition] = Set.empty, localMethodIndex: Int = -1) extends Evaluator {
-  def getModifier: Modifier = null
 
-  val methodName = DebuggerUtil.withoutBackticks(_methodName)
+  val methodName: String = DebuggerUtil.withoutBackticks(_methodName)
   private val localMethod = localMethodIndex > 0
   private val localMethodName = methodName + "$" + localMethodIndex
 
-  private var prevProcess: DebugProcess = null
+  private var prevProcess: DebugProcess = _
   private val jdiMethodsCache = mutable.HashMap[ReferenceType, Option[Method]]()
 
   private def initCache(process: DebugProcess): Unit = {
@@ -67,13 +66,16 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
       def findMethod(referenceType: ReferenceType): Option[Method] = {
         lazy val sortedMethodCandidates: List[Method] = {
           val allMethods = referenceType.allMethods()
-          allMethods.toList.collect {
+          allMethods.asScala.collect {
             case method if !localMethod && method.name() == methodName => (method, 1)
             case method if !localMethod && method.name().endsWith("$$" + methodName) => (method, 1) //private method, maybe from parent class
             case method if localMethod && method.name() == localMethodName => (method, 1)
             case method if localMethod && method.name.startsWith(methodName + "$") => (method, 2)
             case method if localMethod && method.name.contains(methodName + "$") => (method, 3)
-          }.sortBy(_._2).map(_._1)
+          }
+            .sortBy(_._2)
+            .map(_._1)
+            .toList
         }
         def concreteMethodByName(mName: String, signature: JVMName): Option[Method] = {
           val sgn = signature.getName(debugProcess)
@@ -81,7 +83,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
             case classType: ClassType =>
               Option(classType.concreteMethodByName(mName, sgn))
             case it: InterfaceType =>
-              it.methodsByName(mName, sgn).find(_.isInstanceOf[ConcreteMethodImpl])
+              it.methodsByName(mName, sgn).asScala.find(_.isInstanceOf[ConcreteMethodImpl])
           }
         }
         def findWithSignature(): Option[Method] = {
@@ -109,7 +111,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
           def linesIntersects(m: Method): Boolean = inReadAction {
             Try {
               val lines = methodPosition.map(_.getLine)
-              m.allLineLocations().exists(l => lines.contains(ScalaPositionManager.checkedLineNumber(l)))
+              m.allLineLocations().asScala.exists(l => lines.contains(ScalaPositionManager.checkedLineNumber(l)))
             }.getOrElse(true)
           }
 
@@ -148,25 +150,25 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
 
         referenceType match {
           case ct: ClassType =>
-            debugProcess.invokeMethod(context, ct, jdiMethod, fixArguments())
+            debugProcess.invokeMethod(context, ct, jdiMethod, fixArguments().asJava)
           case it: InterfaceType =>
-            debugProcess.invokeMethod(context, it, jdiMethod, fixArguments())
+            debugProcess.invokeMethod(context, it, jdiMethod, fixArguments().asJava)
         }
       }
 
       def invokeConstructor(referenceType: ReferenceType, method: Method): AnyRef = {
         referenceType match {
           case ct: ClassType if methodName == "<init>" =>
-            debugProcess.newInstance(context, ct, method, unwrappedArgs(args, method))
+            debugProcess.newInstance(context, ct, method, unwrappedArgs(args, method).asJava)
           case _ => throw EvaluationException(s"Couldn't found appropriate constructor for ${referenceType.name()}")
         }
       }
 
       def invokeInstanceMethod(objRef: ObjectReference, jdiMethod: Method): AnyRef = {
         if (requiresSuperObject)
-          debugProcess.invokeInstanceMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod), ObjectReference.INVOKE_NONVIRTUAL)
+          debugProcess.invokeInstanceMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod).asJava, ObjectReference.INVOKE_NONVIRTUAL)
         else
-          debugProcess.invokeMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod))
+          debugProcess.invokeMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod).asJava)
       }
 
       def invokeInterfaceMethod(objRef: ObjectReference, jdiMethod: Method): AnyRef = {
@@ -191,11 +193,11 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
         //see SCL-10132
         if (!jdiMethod.isDefault && jdiMethod.isPrivate) {
           togglePrivate(jdiMethod)
-          val result = debugProcess.invokeInstanceMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod), ObjectReference.INVOKE_NONVIRTUAL)
+          val result = debugProcess.invokeInstanceMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod).asJava, ObjectReference.INVOKE_NONVIRTUAL)
           togglePrivate(jdiMethod)
           result
         } else {
-          debugProcess.invokeMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod))
+          debugProcess.invokeMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod).asJava)
         }
       }
 

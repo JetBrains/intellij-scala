@@ -13,7 +13,7 @@ import org.jetbrains.sbt.UsefulTestCaseHelper
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
-import org.jetbrains.sbt.project.data.service.{ExternalSystemDataDsl, ProjectDataServiceTestCase}
+import org.jetbrains.sbt.project.data.service.ProjectDataServiceTestCase
 
 import scala.collection.JavaConverters._
 
@@ -31,7 +31,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
 
-      val scalaLibrary = scalaVersion.map { version =>
+      val scalaLibrary: Option[library] = scalaVersion.map { version =>
         new library { name := "org.scala-lang:scala-library:" + version }
       }
 

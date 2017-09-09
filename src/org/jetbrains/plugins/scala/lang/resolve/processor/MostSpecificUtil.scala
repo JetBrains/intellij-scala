@@ -128,10 +128,10 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT(tp.nameAndId,
-                      ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType.v, tp.upperType.v))
+                      ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType, tp.upperType))
                 }
                 val arguments = typeParams.toList.map(tp =>
-                  ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType.v), s.subst(tp.upperType.v)))
+                  ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType)))
                 Left(params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType), arguments))))
               }
             case ScTypePolymorphicType(internal, typeParams) =>
@@ -146,10 +146,10 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT(tp.nameAndId,
-                      ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType.v, tp.upperType.v))
+                      ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType, tp.upperType))
                 }
                 val arguments = typeParams.toList.map(tp =>
-                  ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType.v), s.subst(tp.upperType.v)))
+                  ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType)))
                 Right(ScExistentialType(s.subst(internal), arguments))
               }
             case _ => Right(tp)
@@ -205,15 +205,15 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
 
                 typeParams.foreach(tp => {
-                  if (tp.lowerType.v != Nothing) {
-                    val substedLower = uSubst.subst(tp.lowerType.v)
-                    if (!hasRecursiveTypeParameters(tp.lowerType.v)) {
+                  if (tp.lowerType != Nothing) {
+                    val substedLower = uSubst.subst(tp.lowerType)
+                    if (!hasRecursiveTypeParameters(tp.lowerType)) {
                       u = u.addLower(tp.nameAndId, substedLower, additional = true)
                     }
                   }
-                  if (tp.upperType.v != Any) {
-                    val substedUpper = uSubst.subst(tp.upperType.v)
-                    if (!hasRecursiveTypeParameters(tp.upperType.v)) {
+                  if (tp.upperType != Any) {
+                    val substedUpper = uSubst.subst(tp.upperType)
+                    if (!hasRecursiveTypeParameters(tp.upperType)) {
                       u = u.addUpper(tp.nameAndId, substedUpper, additional = true)
                     }
                   }

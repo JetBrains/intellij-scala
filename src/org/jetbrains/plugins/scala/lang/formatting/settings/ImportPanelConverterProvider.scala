@@ -10,6 +10,7 @@ import com.intellij.conversion.impl.{ComponentManagerSettingsImpl, ConversionCon
 import com.intellij.openapi.util.JDOMUtil
 import com.intellij.util.SystemProperties
 import org.jdom.Document
+import scala.collection.JavaConverters._
 
 /**
  * @author Alefas
@@ -40,11 +41,10 @@ class ImportPanelConverterProvider extends ConverterProvider("ImportPanelConvert
           context match {
             case context: ConversionContextImpl =>
               val settings = new ComponentManagerSettingsImpl(file, context) {}
-              val children = settings.getRootElement.getChildren
-              import scala.collection.JavaConversions._
+              val children = settings.getRootElement.getChildren.asScala
               children.find(_.getName == "component") match {
                 case Some(componentChild) =>
-                  componentChild.getChildren.filter { elem =>
+                  componentChild.getChildren.asScala.filter { elem =>
                     elem.getName == "option" && elem.getAttribute("name") != null &&
                       actualSettingsSet.contains(elem.getAttribute("name").getValue)
                   }

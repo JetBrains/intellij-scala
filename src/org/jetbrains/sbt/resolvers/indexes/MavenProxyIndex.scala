@@ -4,7 +4,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.idea.maven.indices.{MavenIndex, MavenProjectIndicesManager}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
   * @author Mikhail Mutcianko
@@ -16,7 +16,10 @@ class MavenProxyIndex(val root: String, val name: String) extends ResolverIndex 
 
   override def doUpdate(progressIndicator: Option[ProgressIndicator] = None)(implicit project: ProjectContext): Unit = {
     findPlatformMavenResolver
-      .foreach(i=>MavenProjectIndicesManager.getInstance(project).scheduleUpdate(List(i)))
+      .foreach(i =>
+        MavenProjectIndicesManager.getInstance(project)
+          .scheduleUpdate(List(i).asJava)
+      )
   }
 
   override def getUpdateTimeStamp(implicit project: ProjectContext): Long = {
@@ -28,27 +31,29 @@ class MavenProxyIndex(val root: String, val name: String) extends ResolverIndex 
   override def searchGroup(artifactId: String)(implicit project: ProjectContext): Set[String] = {
     findPlatformMavenResolver.map { r =>
       if (artifactId != "")
-        r.getGroupIds.filter(r.hasArtifactId(_, artifactId)).toSet
+        r.getGroupIds.asScala.filter(r.hasArtifactId(_, artifactId)).toSet
       else
-        r.getGroupIds.toSet
+        r.getGroupIds.asScala.toSet
     }.getOrElse(Set.empty)
   }
 
   override def searchArtifact(groupId: String)(implicit project: ProjectContext): Set[String] = {
     findPlatformMavenResolver.map {
-      _.getArtifactIds(groupId).toSet
+      _.getArtifactIds(groupId).asScala.toSet
     }.getOrElse(Set.empty)
   }
 
   override def searchVersion(groupId: String, artifactId: String)(implicit project: ProjectContext): Set[String] = {
     findPlatformMavenResolver.map {
-      _.getVersions(groupId, artifactId).toSet
+      _.getVersions(groupId, artifactId).asScala.toSet
     }.getOrElse(Set.empty)
   }
 
   private def findPlatformMavenResolver(implicit project: ProjectContext): Option[MavenIndex] = {
     MavenProjectIndicesManager.getInstance(project)
-      .getIndices.find(_.getRepositoryPathOrUrl == MavenIndex.normalizePathOrUrl(root))
+      .getIndices
+      .asScala
+      .find(_.getRepositoryPathOrUrl == MavenIndex.normalizePathOrUrl(root))
   }
 }
 

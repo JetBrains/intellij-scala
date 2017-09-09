@@ -19,11 +19,12 @@ abstract class SbtEntityData extends AbstractExternalEntityData(SbtProjectSystem
     case data: SbtEntityData =>
       //noinspection CorrespondsUnsorted
       this.canEqual(data) &&
-      runtime.ScalaRunTime._equals(this, data)
+        (this.productIterator sameElements data.productIterator)
     case _ => false
   }
 
   override def hashCode(): Int = runtime.ScalaRunTime._hashCode(this)
+
 }
 object SbtEntityData {
   def datakey[T](clazz: Class[T],

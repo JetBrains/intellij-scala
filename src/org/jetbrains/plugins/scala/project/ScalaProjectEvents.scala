@@ -4,7 +4,7 @@ package project
 import com.intellij.ProjectTopics
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ModuleRootAdapter, ModuleRootEvent}
+import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 
 /**
  * @author Pavel Fatin
@@ -15,7 +15,7 @@ class ScalaProjectEvents(project: Project) extends AbstractProjectComponent(proj
   private val connection = project.getMessageBus.connect()
 
   override def projectOpened(): Unit = {
-    connection.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
+    connection.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
       override def rootsChanged(event: ModuleRootEvent) {
         listeners.foreach(_.onScalaProjectChanged())
       }

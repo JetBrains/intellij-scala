@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert.{assertFalse, assertTrue, fail}
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
   * @author Ksenia.Sautina
@@ -45,7 +45,7 @@ abstract class ScalaIntentionTestBase extends ScalaLightCodeInsightFixtureTestAd
 
   private def findIntention(text: String): Option[IntentionAction] = {
     getFixture.configureByText(ScalaFileType.INSTANCE, normalize(text))
-    getFixture.getAvailableIntentions
+    getFixture.getAvailableIntentions.asScala
       .find(_.getFamilyName == familyName)
   }
 

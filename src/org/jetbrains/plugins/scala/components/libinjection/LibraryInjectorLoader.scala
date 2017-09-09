@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.NonFatal
@@ -98,7 +99,7 @@ class LibraryInjectorLoader(val project: Project) extends AbstractProjectCompone
 
   // reset cache if plugin has been updated
   // cache: jarFilePath -> jarManifest
-  private var jarCache: InjectorPersistentCache = null
+  private var jarCache: InjectorPersistentCache = _
   def getJarCache: InjectorPersistentCache = jarCache
   private val loadedInjectors: mutable.HashMap[Class[_], mutable.HashSet[String]] = mutable.HashMap()
 
@@ -159,7 +160,7 @@ class LibraryInjectorLoader(val project: Project) extends AbstractProjectCompone
 
   @inline def invokeLater(f: => Unit): Unit = ApplicationManager.getApplication.invokeLater(toRunnable(f))
 
-  @inline def toRunnable(f: => Unit) = new Runnable { override def run(): Unit = f }
+  @inline def toRunnable(f: => Unit): Runnable = new Runnable { override def run(): Unit = f }
 
   @inline def inReadAction(f: => Unit): Unit = ApplicationManager.getApplication.runReadAction(toRunnable(f))
 
@@ -239,10 +240,9 @@ class LibraryInjectorLoader(val project: Project) extends AbstractProjectCompone
   }
 
 
-  private def loadCachedInjectors() = {
-    import scala.collection.JavaConversions._
+  private def loadCachedInjectors(): Unit = {
     val allProjectJars = getAllJarsWithManifest.map(_.getPath).toSet
-    val cachedProjectJars = jarCache.cache.filter(cacheItem => allProjectJars.contains(s"${cacheItem._1}!/")).values
+    val cachedProjectJars = jarCache.cache.asScala.filter(cacheItem => allProjectJars.contains(s"${cacheItem._1}!/")).values
     var numLoaded = 0
     for (manifest <- cachedProjectJars if !manifest.isBlackListed) {
       if (isJarCacheUpToDate(manifest)) {
@@ -258,7 +258,7 @@ class LibraryInjectorLoader(val project: Project) extends AbstractProjectCompone
     LOG.trace(s"Loaded injectors from $numLoaded jars (${cachedProjectJars.size - numLoaded} filtered)")
   }
 
-  private def rescanAllJars() = {
+  private def rescanAllJars(): Unit = {
     val parsedManifests = getAllJarsWithManifest.flatMap(f=>extractLibraryManifest(f))
       .filterNot(jarCache.cache.values().contains)
     val validManifests = parsedManifests.flatMap(verifyManifest)
@@ -304,7 +304,7 @@ class LibraryInjectorLoader(val project: Project) extends AbstractProjectCompone
     }
   }
 
-  private def loadInjector(jarManifest: JarManifest, injectorDescriptor: InjectorDescriptor) = {
+  private def loadInjector(jarManifest: JarManifest, injectorDescriptor: InjectorDescriptor): Unit = {
     myClassLoader.addUrl(getInjectorCacheDir(jarManifest)(injectorDescriptor).toURI.toURL)
     val injectors = findMatchingInjectors(jarManifest)
     for (injector <- injectors) {
@@ -359,7 +359,7 @@ class LibraryInjectorLoader(val project: Project) extends AbstractProjectCompone
     }
   }
 
-  private def askUser(candidates: ManifestToDescriptors) = {
+  private def askUser(candidates: ManifestToDescriptors): Unit = {
     ackProvider.askGlobalInjectorEnable(acceptCallback = compile(showReviewDialogAndFilter(candidates)))
   }
 
@@ -429,14 +429,13 @@ class LibraryInjectorLoader(val project: Project) extends AbstractProjectCompone
   }
 
   private def collectPlatformJars(): Seq[File] = {
-    import scala.collection.JavaConversions._
 
     val buffer: ArrayBuffer[File] = mutable.ArrayBuffer()
 
     // these are actually different classes calling different methods which are surprisingly called the same
     this.getClass.getClassLoader match {
       case cl: PluginClassLoader =>
-        buffer ++= cl.getUrls.map(u => new File(u.getFile))
+        buffer ++= cl.getUrls.asScala.map(u => new File(u.getFile))
       case cl: java.net.URLClassLoader =>
         buffer ++= cl.getURLs.map(u => new File(u.getFile))
     }
@@ -448,14 +447,28 @@ class LibraryInjectorLoader(val project: Project) extends AbstractProjectCompone
             .asInstanceOf[Array[URL]].map(u => new File(u.getFile))).getOrElse(Array())
         buffer ++= v
       case cl: com.intellij.util.lang.UrlClassLoader =>
-        val v = cl.getClass.getMethods.find(_.getName == "getUrls")
-          .map(_.invoke(ApplicationManager.getApplication.getClass.getClassLoader)
-            .asInstanceOf[java.util.List[URL]].map(u => new File(u.getFile))).getOrElse(Seq.empty)
+        val v = cl.getClass.getMethods
+          .find(_.getName == "getUrls")
+          .map { method =>
+            method.invoke(ApplicationManager.getApplication.getClass.getClassLoader)
+              .asInstanceOf[java.util.List[URL]]
+              .asScala
+              .map(url => new File(url.getFile))
+          }
+          .getOrElse(Seq.empty)
         buffer ++= v
       case other =>
-          val v = other.getClass.getMethods.find(_.getName == "getUrls")
-            .map(_.invoke(ApplicationManager.getApplication.getClass.getClassLoader)
-              .asInstanceOf[java.util.List[URL]].map(u => new File(u.getFile))).getOrElse(Seq.empty)
+          val v =
+            other.getClass.getMethods
+              .find(_.getName == "getUrls")
+              .map { method =>
+                method
+                  .invoke(ApplicationManager.getApplication.getClass.getClassLoader)
+                  .asInstanceOf[java.util.List[URL]]
+                  .asScala
+                  .map(url => new File(url.getFile))
+              }
+              .getOrElse(Seq.empty)
         buffer ++= v
     }
     buffer
@@ -474,7 +487,7 @@ class LibraryInjectorLoader(val project: Project) extends AbstractProjectCompone
     module
   }
 
-  private def removeIdeaModule() = {
+  private def removeIdeaModule(): Unit = {
     val model = project.modifiableModel
     val module = model.findModuleByName(INJECTOR_MODULE_NAME.replaceAll("\\.iml$", ""))
     if (module != null) {
@@ -485,7 +498,7 @@ class LibraryInjectorLoader(val project: Project) extends AbstractProjectCompone
     }
   }
 
-  private def runWithHelperModule[T](f: Module => T) = {
+  private def runWithHelperModule[T](f: Module => T): Unit = {
     inWriteAction {
       val module = createIdeaModule()
       try {

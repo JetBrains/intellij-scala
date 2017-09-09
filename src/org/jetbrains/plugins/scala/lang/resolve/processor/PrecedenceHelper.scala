@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.JavaConverters._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -39,9 +40,8 @@ trait PrecedenceHelper[T] {
   private var fromHistory: Boolean = false
 
   protected def compareWithIgnoredSet(set: mutable.HashSet[ScalaResolveResult]): Boolean = {
-    import scala.collection.JavaConversions._
-    if (ignoredSet.nonEmpty && set.isEmpty) return false
-    ignoredSet.forall { result =>
+    if (!ignoredSet.isEmpty && set.isEmpty) return false
+    ignoredSet.asScala.forall { result =>
       set.forall { otherResult =>
         if (!ScEquivalenceUtil.smartEquivalence(result.getActualElement, otherResult.getActualElement)) {
           (result.getActualElement, otherResult.getActualElement) match {

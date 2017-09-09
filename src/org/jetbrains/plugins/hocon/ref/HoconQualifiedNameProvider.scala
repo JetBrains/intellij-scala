@@ -20,7 +20,7 @@ class HoconQualifiedNameProvider extends QualifiedNameProvider {
     case _ => null
   }
 
-  def insertQualifiedName(fqn: String, element: PsiElement, editor: Editor, project: Project): Unit =
+  override def insertQualifiedName(fqn: String, element: PsiElement, editor: Editor, project: Project): Unit =
     EditorModificationUtil.insertStringAtCaret(editor, fqn)
 
   def qualifiedNameToElement(fqn: String, project: Project): PsiElement = null

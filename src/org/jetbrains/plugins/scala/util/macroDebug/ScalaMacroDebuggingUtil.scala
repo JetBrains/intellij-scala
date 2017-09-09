@@ -30,8 +30,8 @@ object ScalaMacroDebuggingUtil {
   private[this] val MACRO_DEBUG_ENABLE_PROPERTY = "scala.macro.debug.enabled"
 
   val MACRO_SIGN_PREFIX = "<[[macro:" //=\
-  val needFixCarriageReturn = SystemInfo.isWindows
-  val isEnabled = System.getProperty(MACRO_DEBUG_ENABLE_PROPERTY) != null
+  val needFixCarriageReturn: Boolean = SystemInfo.isWindows
+  val isEnabled: Boolean = System.getProperty(MACRO_DEBUG_ENABLE_PROPERTY) != null
 
   private[this] val SOURCE_FILE_NAME = new FileAttribute("PreimageFileName", 1, false)
   private[this] val SYNTHETIC_SOURCE_ATTRIBUTE = new FileAttribute("SyntheticMacroCode", 1, false)
@@ -45,13 +45,12 @@ object ScalaMacroDebuggingUtil {
   val allMacroCalls = new mutable.HashSet[PsiElement]()
 
   def saveCode(fileName: String, code: java.util.ArrayList[String]) {
-    import scala.collection.JavaConversions._
 
     if (!isEnabled) return
     val file = VfsUtil.findFileByIoFile(new File(fileName stripPrefix MACRO_SIGN_PREFIX), true)
 
     val dataStream = SYNTHETIC_SOURCE_ATTRIBUTE writeAttribute file
-    code foreach (dataStream writeUTF _.stripPrefix(MACRO_SIGN_PREFIX))
+    code forEach (dataStream writeUTF _.stripPrefix(MACRO_SIGN_PREFIX))
     dataStream flush()
     dataStream close()
 
@@ -80,7 +79,7 @@ object ScalaMacroDebuggingUtil {
       val offsets = ListBuffer.empty[(Int, Int, Int)]
       @inline def parse(s: String) = Integer parseInt s
       line split '|' foreach {
-        case s =>
+        s =>
           val nums = s split ","
           if (nums.length == 3) {
             offsets.append((parse(nums(0)), parse(nums(1)), parse(nums(2))))
@@ -101,7 +100,7 @@ object ScalaMacroDebuggingUtil {
       synFile
     }
 
-    if (force || UPDATE_QUEUE.remove(canonicalPath)) createFile() else SOURCE_CACHE get canonicalPath getOrElse createFile()
+    if (force || UPDATE_QUEUE.remove(canonicalPath)) createFile() else SOURCE_CACHE.getOrElse(canonicalPath, createFile())
   }
 
   def readPreimageName(file: PsiFile): Option[String] =
@@ -115,7 +114,7 @@ object ScalaMacroDebuggingUtil {
   }
 
   def tryToLoad(file: PsiFile): Boolean = !file.getVirtualFile.isInstanceOf[LightVirtualFile] &&
-          (isLoaded(file) || loadCode(file, false) != null)
+          (isLoaded(file) || loadCode(file, force = false) != null)
 
   def getOffsets(file: PsiFile): Option[List[(Int, Int, Int)]] = SYNTHETIC_OFFSETS_MAP get file.getVirtualFile.getCanonicalPath
 
@@ -153,7 +152,7 @@ object ScalaMacroDebuggingUtil {
   def expandMacros(project: Project) {
     val sourceEditor = FileEditorManager.getInstance(project).getSelectedTextEditor
     
-    val scalaPsiFile = PsiDocumentManager.getInstance(project).getPsiFile(sourceEditor.getDocument) match {
+    val scalaPsiFile: ScalaFile = PsiDocumentManager.getInstance(project).getPsiFile(sourceEditor.getDocument) match {
       case sc: ScalaFile => sc
       case _ => return 
     }

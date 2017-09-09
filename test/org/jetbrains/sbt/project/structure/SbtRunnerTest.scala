@@ -23,38 +23,18 @@ class SbtRunnerTest extends UsefulTestCase {
   def testSbtLaunch_0_13_0(): Unit =
     doTestSbtLauncherVersionDetection("0.13.0")
 
-  def testSbtLaunch_0_13_1(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.1")
-
-  def testSbtLaunch_0_13_2(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.2")
-
   def testSbtLaunch_0_13_5(): Unit =
     doTestSbtLauncherVersionDetection("0.13.5")
-
-  def testSbtLaunch_0_13_6(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.6")
-
-  def testSbtLaunch_0_13_7(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.7")
-
-  def testSbtLaunch_0_13_8(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.8")
 
   def testSbtLaunch_0_13_9(): Unit =
     doTestSbtLauncherVersionDetection("0.13.9")
 
-  def testSbtLaunch_0_13_11(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.11")
-
-  def testSbtLaunch_0_13_13(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.13")
-
-  def testSbtLaunch_0_13_15(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.15")
-
   def testSbtLaunch_0_13_16(): Unit =
     doTestSbtLauncherVersionDetection("0.13.16")
+
+  def testSbtLaunch_latest(): Unit =
+    doTestSbtLauncherVersionDetection(Sbt.LatestVersion)
+
 
   def testMockLauncherWithoutSbtBootProperties(): Unit = {
     val expectedVersion = "1.0.0"

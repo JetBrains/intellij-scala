@@ -69,7 +69,7 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
 
 object LibraryInjectorTest {
 
-  case class InjectorLibraryLoader(implicit val module: Module) extends ThirdPartyLibraryLoader {
+  case class InjectorLibraryLoader()(implicit val module: Module) extends ThirdPartyLibraryLoader {
     override protected val name: String = "injector"
 
     override protected def path(implicit sdkVersion: ScalaVersion): String = {

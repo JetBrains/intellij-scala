@@ -586,37 +586,21 @@ package object extensions {
 
   import scala.language.implicitConversions
 
-  implicit def toIdeaFunction[A, B](f: Function[A, B]): com.intellij.util.Function[A, B] = new com.intellij.util.Function[A, B] {
-    override def fun(param: A): B = f(param)
-  }
+  implicit def toIdeaFunction[A, B](f: Function[A, B]): com.intellij.util.Function[A, B] = (param: A) => f(param)
 
-  implicit def toProcessor[T](action: T => Boolean): Processor[T] = new Processor[T] {
-    override def process(t: T): Boolean = action(t)
-  }
+  implicit def toProcessor[T](action: T => Boolean): Processor[T] = (t: T) => action(t)
 
-  implicit def toRunnable(action: => Any): Runnable = new Runnable {
-    override def run(): Unit = action
-  }
+  implicit def toRunnable(action: => Any): Runnable = () => action
 
-  implicit def toComputable[T](action: => T): Computable[T] = new Computable[T] {
-    override def compute(): T = action
-  }
+  implicit def toComputable[T](action: => T): Computable[T] = () => action
 
-  implicit def toCallable[T](action: => T): Callable[T] = new Callable[T] {
-    override def call(): T = action
-  }
+  implicit def toCallable[T](action: => T): Callable[T] = () => action
 
   def startCommand(project: Project, runnable: Runnable, commandName: String): Unit =
     CommandProcessor.getInstance().executeCommand(project, runnable, commandName, null)
 
   def startCommand(project: Project, commandName: String = "")(body: => Unit): Unit = {
-    startCommand(project, new Runnable {
-      def run(): Unit = {
-        inWriteAction {
-          body
-        }
-      }
-    }, commandName)
+    startCommand(project, () => inWriteAction(body), commandName)
   }
 
   def inWriteAction[T](body: => T): T = {
@@ -696,37 +680,19 @@ package object extensions {
     }
   }
 
-  def postponeFormattingWithin[T](project: Project)(body: => T): T = {
-    PostprocessReformattingAspect.getInstance(project).postponeFormattingInside(new Computable[T] {
-      def compute(): T = body
-    })
-  }
+  def postponeFormattingWithin[T](project: Project)(body: => T): T =
+    PostprocessReformattingAspect.getInstance(project).postponeFormattingInside(body)
 
-  def withDisabledPostprocessFormatting[T](project: Project)(body: => T): T = {
-    PostprocessReformattingAspect.getInstance(project).disablePostprocessFormattingInside {
-      new Computable[T] {
-        override def compute(): T = body
-      }
-    }
-  }
+  def withDisabledPostprocessFormatting[T](project: Project)(body: => T): T =
+    PostprocessReformattingAspect.getInstance(project).disablePostprocessFormattingInside(body)
 
-  def invokeLater[T](body: => T): Unit = {
-    ApplicationManager.getApplication.invokeLater(new Runnable {
-      def run() {
-        body
-      }
-    })
-  }
+  def invokeLater[T](body: => T): Unit =
+    ApplicationManager.getApplication.invokeLater(() => body)
 
-  def invokeAndWait[T](body: => T): Unit = {
+  def invokeAndWait[T](body: => T): Unit =
     preservingControlFlow {
-      ApplicationManager.getApplication.invokeAndWait(new Runnable {
-        def run() {
-          body
-        }
-      })
+      ApplicationManager.getApplication.invokeAndWait(() => body)
     }
-  }
 
   def inTransactionLater(disposable: Disposable)(body: => Unit): Runnable = {
     TransactionGuard.getInstance().submitTransactionLater(disposable, body)
@@ -744,7 +710,7 @@ package object extensions {
   }
 
   /** Create a PartialFunction from a sequence of cases. Workaround for pattern matcher bug */
-  def pf[A, B](cases: PartialFunction[A, B]*) = new PartialFunction[A, B] {
+  def pf[A, B](cases: PartialFunction[A, B]*): PartialFunction[A, B] = new PartialFunction[A, B] {
     def isDefinedAt(x: A): Boolean = cases.exists(_.isDefinedAt(x))
 
     def apply(v1: A): B = {

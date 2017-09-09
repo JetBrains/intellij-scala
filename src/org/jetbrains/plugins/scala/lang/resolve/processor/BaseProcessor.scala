@@ -214,7 +214,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case ScDesignatorType(e) =>
         processElement(e, ScSubstitutor.empty, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
       case TypeParameterType(Nil, _, upper, _) =>
-        processType(upper.v, place, state, updateWithProjectionSubst = false, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
+        processType(upper, place, state, updateWithProjectionSubst = false, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
       case j: JavaArrayType =>
         implicit val elementScope = place.elementScope
         processType(j.getParameterizedType.getOrElse(return true),
@@ -223,7 +223,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         designator match {
           case tpt@TypeParameterType(_, _, upper, _) =>
             if (visitedTypeParameter.contains(tpt)) return true
-            processType(p.substitutor.subst(ParameterizedType(upper.v, typeArgs)), place,
+            processType(p.substitutor.subst(ParameterizedType(upper, typeArgs)), place,
               state.put(ScSubstitutor.key, ScSubstitutor(p)), visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter + tpt)
           case _ => p.extractDesignatedType(expandAliases = false) match {
             case Some((designator, subst)) =>

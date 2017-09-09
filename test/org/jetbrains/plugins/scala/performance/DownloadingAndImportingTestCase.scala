@@ -14,7 +14,7 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.platform.templates.github.ZipUtil
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScopesCore}
 import com.intellij.testFramework.{IdeaTestUtil, VfsTestUtil}
-import org.jetbrains.SbtStructureSetup
+import org.jetbrains.SbtStructureSetup._
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
@@ -22,12 +22,13 @@ import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert
+import scala.collection.JavaConverters._
 
 /**
   * Author: Svyatoslav Ilinskiy
   * Date: 11/17/2015
   */
-abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTestCase with SbtStructureSetup {
+abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTestCase {
 
   implicit class IntExt(val i: Int) {
     def seconds: Int = i * 1000
@@ -43,7 +44,7 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
     settings
   }
 
-  private val reporter = ProgressReporter.getInstance
+  protected val reporter = ProgressReporter.newInstance()
 
   override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
@@ -95,12 +96,11 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
   }
 
   def findFile(filename: String): VirtualFile = {
-    import scala.collection.JavaConversions._
 
     val searchScope = SourceFilterScope(myProject, GlobalSearchScopesCore.directoryScope(myProject, myProjectRoot, true))
 
     val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, searchScope)
-    val file = files.filter(_.getName == filename).toList match {
+    val file = files.asScala.filter(_.getName == filename).toList match {
       case vf :: Nil => vf
       case Nil => // is this a file path?
         val file = VfsTestUtil.findFileByCaseSensitivePath(s"$projectDirPath/$filename")

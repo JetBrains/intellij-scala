@@ -5,6 +5,7 @@ package api
 package base
 
 import com.intellij.psi.PsiMethod
+import org.jetbrains.plugins.scala.lang.psi.adapters.PsiTypeParametersOwnerAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createClauseFromText, createTypeParameterClauseFromTextWithContext}
@@ -14,7 +15,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, Mod
 /**
  * A member that can be converted to a ScMethodType, ie a method or a constructor.
  */
-trait ScMethodLike extends ScMember with PsiMethod {
+trait ScMethodLike extends ScMember with PsiMethod with PsiTypeParametersOwnerAdapter {
   def methodType: ScType = methodType(None)
   def methodType(result: Option[ScType]): ScType
 

@@ -163,7 +163,7 @@ object PatternAnnotator {
     case _ =>
       scType.recursiveUpdate {
         case ScAbstractType(_, _, upper) => ReplaceWith(upper)
-        case TypeParameterType(_, _, upper, _) => ReplaceWith(upper.v)
+        case TypeParameterType(_, _, upper, _) => ReplaceWith(upper)
         case _ => ProcessSubtypes
       }
   }
@@ -188,7 +188,7 @@ object PatternAnnotatorUtil {
       val newVisited = visited + scType
       scType.recursiveUpdate {
         case tp: TypeParameterType =>
-          ReplaceWith(ScAbstractType(tp, abstraction(tp.lowerType.v, newVisited), abstraction(tp.upperType.v, newVisited)))
+          ReplaceWith(ScAbstractType(tp, abstraction(tp.lowerType, newVisited), abstraction(tp.upperType, newVisited)))
         case _ => ProcessSubtypes
       }
     }

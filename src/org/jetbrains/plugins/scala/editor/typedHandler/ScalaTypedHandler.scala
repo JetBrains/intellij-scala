@@ -265,7 +265,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     if (offset < 3 || text.length <= offset) return null
     
     text.charAt(offset) match {
-      case ' '|'\n'|'\t'|'\r'|''' =>
+      case ' ' | '\n' | '\t' | '\r' | '\'' =>
       case _ => return null
     }
 

@@ -8,7 +8,7 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileAdapter, VirtualFileEvent}
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileAdapter, VirtualFileEvent, VirtualFileListener}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.settings.SbtSystemSettings
 import org.jetbrains.plugins.scala.extensions
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.extensions
  * @author Nikolay Obedin
  * @since 3/23/15.
  */
-class SbtAutoImportListener(project: Project) extends VirtualFileAdapter {
+class SbtAutoImportListener(project: Project) extends VirtualFileListener {
   override def contentsChanged(event: VirtualFileEvent): Unit =
     reimportIfNeeded(event.getFile)
 

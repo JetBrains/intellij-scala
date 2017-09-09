@@ -15,13 +15,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
  */
 
 class AddModifierQuickFix(method: ScModifierListOwner, modifier: String) extends IntentionAction {
-  def getText: String = ScalaBundle.message("add.modifier.fix", modifier)
 
-  def startInWriteAction: Boolean = true
+  override def getText: String = ScalaBundle.message("add.modifier.fix", modifier)
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = method.isValid && method.getManager.isInProject(file)
+  override def startInWriteAction: Boolean = true
 
-  def invoke(project: Project, editor: Editor, file: PsiFile): Unit = method.setModifierProperty(modifier, value = true)
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
+    method.isValid && method.getManager.isInProject(file)
 
-  def getFamilyName: String = ScalaBundle.message("add.modifier.fix", modifier)
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
+    method.setModifierProperty(modifier, value = true)
+
+  override def getFamilyName: String =
+    ScalaBundle.message("add.modifier.fix", modifier)
 }

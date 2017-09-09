@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
  */
 
 class ScalaEqEvaluator(left: Evaluator, right: Evaluator) extends Evaluator {
+
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     val leftResult = left.evaluate(context).asInstanceOf[Value]
     val rightResult = right.evaluate(context).asInstanceOf[Value]
@@ -36,6 +37,4 @@ class ScalaEqEvaluator(left: Evaluator, right: Evaluator) extends Evaluator {
         throw EvaluationException(DebuggerBundle.message("evaluation.error.incompatible.types", "=="))
     }
   }
-
-  def getModifier: Modifier = null
 }

@@ -8,7 +8,7 @@ import com.intellij.util.Processor
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.impl.TargetOutputIndexImpl
 import org.jetbrains.jps.builders.java.{JavaModuleBuildTargetType, JavaSourceRootDescriptor, ResourceRootDescriptor, ResourcesTargetType}
-import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget, DirtyFilesHolder}
+import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget, DirtyFilesHolder, FileProcessor}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.java.JavaBuilder
@@ -16,6 +16,7 @@ import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
 import org.jetbrains.jps.incremental.scala.local.IdeClientSbt
 import org.jetbrains.jps.incremental.scala.model.IncrementalityType
+import org.jetbrains.jps.incremental.scala.sbtzinc.{CompilerOptionsStore, ModulesFedToZincStore}
 import org.jetbrains.jps.model.JpsProject
 
 import _root_.scala.collection.JavaConverters._
@@ -42,29 +43,45 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     checkIncrementalTypeChange(context)
 
-    if (!hasDirtyFilesOrDependencies(context, chunk, dirtyFilesHolder))
-      return ExitCode.NOTHING_DONE
-
     updateSharedResources(context, chunk)
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
+
+    val dirtyFilesFromIntellij = collection.mutable.Buffer.empty[File]
+
+    dirtyFilesHolder.processDirtyFiles(new FileProcessor[JavaSourceRootDescriptor, ModuleBuildTarget] {
+      def apply(target: ModuleBuildTarget, file: File, root: JavaSourceRootDescriptor) = {
+        dirtyFilesFromIntellij += file
+        true
+      }
+    })
+
+    val modules = chunk.getModules.asScala.toSet
+    val moduleNames = modules.map(_.getName).toSeq
+
+    val compilerOptionsChanged = CompilerOptionsStore.updateCompilerOptionsCache(context, chunk, moduleNames)
+
+    if (dirtyFilesFromIntellij.isEmpty &&
+      !ModulesFedToZincStore.checkIfAnyModuleDependencyWasFedToZinc(context, chunk) &&
+      !compilerOptionsChanged
+    ) {
+      return ExitCode.NOTHING_DONE
+    }
 
     val filesToCompile = collectCompilableFiles(context, chunk)
     if (filesToCompile.isEmpty)
       return ExitCode.NOTHING_DONE
 
-    // Delete dirty class files (to handle force builds and form changes)
-    BuildOperations.cleanOutputsCorrespondingToChangedFiles(context, dirtyFilesHolder)
-
     val sources = filesToCompile.keySet.toSeq
 
-    val modules = chunk.getModules.asScala.toSet
-
-    val client = new IdeClientSbt("scala", context, modules.map(_.getName).toSeq, outputConsumer, filesToCompile.get)
+    val client = new IdeClientSbt("scala", context, moduleNames, outputConsumer, filesToCompile.get)
 
     logCustomSbtIncOptions(context, chunk, client)
 
-    compile(context, chunk, sources, modules, client) match {
+    // assume Zinc will be used after we reach this point
+    ModulesFedToZincStore.add(context, moduleNames)
+
+    compile(context, chunk, dirtyFilesFromIntellij, sources, modules, client) match {
       case Left(error) =>
         client.error(error)
         ExitCode.ABORT
@@ -118,38 +135,6 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
   private def isDisabled(context: CompileContext): Boolean = {
     projectSettings(context).getIncrementalityType != IncrementalityType.SBT || !isScalaProject(context.getProjectDescriptor.getProject)
-  }
-
-  private def hasDirtyFilesOrDependencies(context: CompileContext, chunk: ModuleChunk,
-                                          dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Boolean = {
-
-    val representativeTarget = chunk.representativeTarget()
-
-    val timestamps = new TargetTimestamps(context)
-
-    val targetTimestamp = timestamps.get(representativeTarget)
-
-    val hasDirtyDependencies = {
-      val dependencies = moduleDependenciesIn(context, representativeTarget)
-
-      targetTimestamp.map { thisTimestamp =>
-        dependencies.exists { dependency =>
-          val thatTimestamp = timestamps.get(dependency)
-          thatTimestamp.map(_ > thisTimestamp).getOrElse(true)
-        }
-      } getOrElse {
-        dependencies.nonEmpty
-      }
-    }
-
-    if (!hasDirtyDependencies && !dirtyFilesHolder.hasDirtyFiles && !dirtyFilesHolder.hasRemovedFiles) {
-      if (targetTimestamp.isEmpty)
-        timestamps.set(representativeTarget, context.getCompilationStartStamp(representativeTarget))
-      return false
-    }
-
-    timestamps.set(representativeTarget, context.getCompilationStartStamp(representativeTarget))
-    true
   }
 
   private def collectCompilableFiles(context: CompileContext,chunk: ModuleChunk): Map[File, BuildTarget[_ <: BuildRootDescriptor]] = {

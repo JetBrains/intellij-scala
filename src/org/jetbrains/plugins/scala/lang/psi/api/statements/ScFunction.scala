@@ -302,7 +302,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     })
   }
 
-  def getTypeParameters: Array[PsiTypeParameter] = {
+  def psiTypeParameters: Array[PsiTypeParameter] = {
     val params = typeParameters
     val size = params.length
     val result = PsiTypeParameter.ARRAY_FACTORY.create(size)
@@ -667,7 +667,7 @@ object ScFunction {
   })
 
   @tailrec
-  def getCompoundCopy(pTypes: List[List[ScType]], tParams: List[TypeParameter], rt: ScType, fun: ScFunction): ScFunction = {
+  def getCompoundCopy(pTypes: Seq[Seq[ScType]], tParams: List[TypeParameter], rt: ScType, fun: ScFunction): ScFunction = {
     fun match {
       case light: ScLightFunctionDeclaration => getCompoundCopy(pTypes, tParams, rt, light.fun)
       case light: ScLightFunctionDefinition  => getCompoundCopy(pTypes, tParams, rt, light.fun)

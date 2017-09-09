@@ -2,17 +2,20 @@ package org.jetbrains.plugins.scala.debugger.renderers
 
 import com.intellij.debugger.ui.impl.watch.ValueDescriptorImpl
 import com.intellij.debugger.ui.tree.{FieldDescriptor, NodeDescriptor}
+import org.jetbrains.plugins.scala.DebuggerTests
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11, Scala_2_12}
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
 /**
   * Nikolay.Tropin
   * 14-Mar-17
   */
+@Category(Array(classOf[DebuggerTests]))
 class SpecializedRenderer_211 extends SpecializedRendererTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
-
+@Category(Array(classOf[DebuggerTests]))
 class SpecializedRenderer_212 extends SpecializedRendererTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }

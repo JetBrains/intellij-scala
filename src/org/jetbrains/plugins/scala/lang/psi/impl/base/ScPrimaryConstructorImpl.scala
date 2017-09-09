@@ -73,7 +73,7 @@ class ScPrimaryConstructorImpl private(stub: ScPrimaryConstructorStub, node: AST
 
   def getSignature(substitutor: PsiSubstitutor): MethodSignatureBackedByPsiMethod = MethodSignatureBackedByPsiMethod.create(this, substitutor)
 
-  def getTypeParameters = PsiTypeParameter.EMPTY_ARRAY
+  def psiTypeParameters = PsiTypeParameter.EMPTY_ARRAY
 
   //todo implement me!
   def isVarArgs = false

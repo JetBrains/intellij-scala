@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.io.Source
 
 /**
@@ -26,12 +26,12 @@ abstract class LineMarkerTestBase extends LightCodeInsightFixtureTestCase {
   protected override def getBasePath = TestUtils.getTestDataPath + "/methodSeparator/"
 
 
-  override def setUp() = {
+  override def setUp(): Unit = {
     super.setUp()
     myFixture.setTestDataPath(getBasePath)
   }
 
-  def doTest() = {
+  def doTest(): Unit = {
     val path = getBasePath + getTestName(false) + ".test"
     val input = Source.fromFile(new File(path)).getLines().mkString("\n")
     myFixture.configureByText(ScalaFileType.INSTANCE, input.replaceAll(marker, ""))
@@ -50,10 +50,13 @@ abstract class LineMarkerTestBase extends LightCodeInsightFixtureTestCase {
   }
 
   def getSeparatorsFrom(editor: Editor, project: Project) = {
-    val separators = for{each <- DaemonCodeAnalyzerImpl.getLineMarkers(editor.getDocument, project)
-                         if each.separatorPlacement == SeparatorPlacement.TOP
-                         index = editor.getDocument.getLineNumber(each.getElement.getTextRange.getStartOffset)}
-                     yield index + 1
+    val separators =
+      for{
+        each <- DaemonCodeAnalyzerImpl.getLineMarkers(editor.getDocument, project).asScala
+        if each.separatorPlacement == SeparatorPlacement.TOP
+        index = editor.getDocument.getLineNumber(each.getElement.getTextRange.getStartOffset)
+      } yield index + 1
+
     separators.sortWith(_ < _)
   }
 }

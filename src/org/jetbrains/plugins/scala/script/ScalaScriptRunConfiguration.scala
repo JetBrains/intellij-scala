@@ -17,7 +17,7 @@ import org.jdom.Element
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -95,8 +95,6 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
         params.setWorkingDirectory(getWorkingDirectory)
-//        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
-//        params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
         params.getVMParametersList.add(CLASSPATH)
         params.getVMParametersList.add(EMACS)
 
@@ -105,7 +103,12 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         params.getProgramParametersList.add("-classpath")
         params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
         params.getProgramParametersList.add(params.getClassPath.getPathsString)
-        params.getClassPath.addAllFiles(module.scalaSdk.map(_.compilerClasspath).getOrElse(Seq.empty))
+        params.getClassPath.addAllFiles(
+          module.scalaSdk
+            .map(_.compilerClasspath)
+            .getOrElse(Seq.empty)
+            .asJava
+        )
         val array = getConsoleArgs.trim.split("\\s+").filter(!_.trim().isEmpty)
         params.getProgramParametersList.addAll(array: _*)
         params.getProgramParametersList.add(scriptPath)
@@ -133,7 +136,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     module
   }
 
-  def getValidModules: java.util.List[Module] = getProject.modulesWithScala
+  def getValidModules: java.util.List[Module] = getProject.modulesWithScala.asJava
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptRunConfigurationEditor(project, this)
 
@@ -160,25 +163,23 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
 
   private def getFilter(file: VirtualFile): Filter = {
     import com.intellij.execution.filters.Filter._
-    new Filter {
-      def applyFilter(line: String, entireLength: Int): Result = {
-        val start = entireLength - line.length
-        var end = entireLength - line.length
-        if (line.startsWith("(fragment of ")) {
-          try {
-            var cache = line.replaceFirst("[(][f][r][a][g][m][e][n][t][ ][o][f][ ]", "")
-            cache = cache.replaceFirst("[^)]*[)][:]", "")
-            val lineNumber = Integer.parseInt(cache.substring(0, cache.indexOf(":")))
-            cache = cache.replaceFirst("[^:]", "")
-            end += line.length - cache.length
-            val hyperlink = new OpenFileHyperlinkInfo(getProject, file, lineNumber-1)
-            new Result(start, end, hyperlink)
-          }
-          catch {
-            case _: Exception => return null
-          }
-        } else null
-      }
+    (line: String, entireLength: Int) => {
+      val start = entireLength - line.length
+      var end = entireLength - line.length
+      if (line.startsWith("(fragment of ")) {
+        try {
+          var cache = line.replaceFirst("[(][f][r][a][g][m][e][n][t][ ][o][f][ ]", "")
+          cache = cache.replaceFirst("[^)]*[)][:]", "")
+          val lineNumber = Integer.parseInt(cache.substring(0, cache.indexOf(":")))
+          cache = cache.replaceFirst("[^:]", "")
+          end += line.length - cache.length
+          val hyperlink = new OpenFileHyperlinkInfo(getProject, file, lineNumber - 1)
+          new Result(start, end, hyperlink)
+        }
+        catch {
+          case _: Exception => null
+        }
+      } else null
     }
   }
 

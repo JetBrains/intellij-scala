@@ -10,15 +10,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 class AddLToLongLiteralFix(literal: ScLiteral) extends IntentionAction {
-  val getText: String = "add L to Long number"
 
-  def getFamilyName: String = "Change ScLiteral"
+  override val getText: String = "add L to Long number"
 
-  def startInWriteAction: Boolean = true
+  override def getFamilyName: String = "Change ScLiteral"
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = literal.isValid && literal.getManager.isInProject(file)
+  override def startInWriteAction: Boolean = true
 
-  def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
+    literal.isValid && literal.getManager.isInProject(file)
+
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (!literal.isValid) return
     literal.replace(createExpressionFromText(literal.getText + "L")(literal.getManager))
   }

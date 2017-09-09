@@ -11,7 +11,8 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
  */
 
 class ScalaDoStmtEvaluator(cond: Evaluator, expr: Evaluator) extends Evaluator {
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
     expr.evaluate(context)
     var condition: Boolean = cond.evaluate(context) match {
       case b: BooleanValue => b.value()
@@ -26,6 +27,4 @@ class ScalaDoStmtEvaluator(cond: Evaluator, expr: Evaluator) extends Evaluator {
     }
     context.getDebugProcess.getVirtualMachineProxy.mirrorOfVoid()
   }
-
-  def getModifier: Modifier = null
 }

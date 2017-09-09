@@ -14,7 +14,6 @@ import com.intellij.openapi.util.EmptyRunnable
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.Processor
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
@@ -34,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{immutable, mutable}
 
@@ -69,7 +68,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       (holders, users)
     }
 
-    val scalaFile = file match {
+    val scalaFile: ScalaFile = file match {
       case scFile: ScalaFile => scFile
       case multiRootFile: PsiFile if multiRootFile.getViewProvider.getLanguages.contains(ScalaLanguage.INSTANCE) =>
         multiRootFile.getViewProvider.getPsi(ScalaLanguage.INSTANCE).asInstanceOf[ScalaFile]
@@ -97,15 +96,13 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val counter = new AtomicInteger(0)
 
     def processAllElementsConcurrentlyUnderProgress[T <: PsiElement](elements: util.List[T])(action: T => Unit) = {
-      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(elements, indicator, true, false, new Processor[T] {
-        override def process(element: T): Boolean = {
-          val count: Int = counter.getAndIncrement
-          if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
+      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(elements, indicator, true, false, (element: T) => {
+        val count: Int = counter.getAndIncrement
+        if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
 
-          action(element)
+        action(element)
 
-          true
-        }
+        true
       })
     }
 
@@ -119,10 +116,10 @@ class ScalaImportOptimizer extends ImportOptimizer {
       val importsInfo = ContainerUtil.newConcurrentSet[RangeInfo]()
       processAllElementsConcurrentlyUnderProgress(importHolders) {
         case holder: ScImportsHolder =>
-          importsInfo.addAll(collectImportRanges(holder, createInfo, usedImportedNames.toSet))
+          importsInfo.addAll(collectImportRanges(holder, createInfo, usedImportedNames.asScala.toSet).asJava)
         case _ =>
       }
-      importsInfo.toSeq.sortBy(_.startOffset)
+      importsInfo.asScala.toSeq.sortBy(_.startOffset)
     }
 
     val importsSettings = settings(project)
@@ -540,7 +537,7 @@ object ScalaImportOptimizer {
       }
     }
 
-    def replace(oldInfos: Seq[ImportInfo], newInfos: Seq[ImportInfo], buffer: ArrayBuffer[ImportInfo]) = {
+    def replace(oldInfos: Seq[ImportInfo], newInfos: Seq[ImportInfo], buffer: ArrayBuffer[ImportInfo]): Unit = {
       val oldIndices = oldInfos.map(buffer.indexOf).filter(_ >= 0).sorted(Ordering[Int].reverse)
       if (oldIndices.nonEmpty) {
         val minIndex = oldIndices.last
@@ -772,7 +769,7 @@ object ScalaImportOptimizer {
     def addResult(srr: ScalaResolveResult, fromElem: PsiElement) = {
       val importsUsed = srr.importsUsed
       if (importsUsed.nonEmpty || implicitlyImported(srr)) {
-        imports.addAll(importsUsed)
+        imports.addAll(importsUsed.asJava)
         names.add(UsedName(srr.name, fromElem.getTextRange.getStartOffset))
       }
     }
@@ -780,12 +777,12 @@ object ScalaImportOptimizer {
     def addFromExpression(expr: ScExpression): Unit = {
       val afterImplicitConversion = expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType())
 
-      imports.addAll(afterImplicitConversion.importsUsed)
+      imports.addAll(afterImplicitConversion.importsUsed.asJava)
       afterImplicitConversion.implicitFunction.foreach(f => names.add(UsedName(f.name, expr.getTextRange.getStartOffset)))
 
       expr match {
-        case call: ScMethodCall => imports.addAll(call.getImportsUsed)
-        case f: ScForStatement => imports.addAll(ScalaPsiUtil.getExprImports(f))
+        case call: ScMethodCall => imports.addAll(call.getImportsUsed.asJava)
+        case f: ScForStatement => imports.addAll(ScalaPsiUtil.getExprImports(f).asJava)
         case _ =>
       }
 
@@ -841,7 +838,7 @@ object ScalaImportOptimizer {
       case ImportUser(elem) => collectImportsUsed(elem, imports, names)
       case _ =>
     }
-    names.toSet.map((x: UsedName) => x.name)
+    names.asScala.toSet.map((x: UsedName) => x.name)
   }
 
 

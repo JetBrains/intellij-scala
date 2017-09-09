@@ -19,8 +19,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter._
-
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -141,7 +140,7 @@ private object ScalaMavenImporter {
     }
 
     private def standardLibrary: Option[MavenArtifact] =
-      project.findDependencies("org.scala-lang", "scala-library").headOption
+      project.findDependencies("org.scala-lang", "scala-library").asScala.headOption
 
     // An implied scala-library dependency when there's no explicit scala-library dependency, but scalaVersion is given.
     def implicitScalaLibrary: Option[MavenId] = Some(compilerVersionProperty, standardLibrary) collect  {
@@ -178,7 +177,7 @@ private object ScalaMavenImporter {
       element(root).toSeq.flatMap(elements(_, name))
 
     private def elements(root: Element, name: String): Seq[Element] =
-      root.getChildren(name)
+      root.getChildren(name).asScala
 
     private def element(name: String): Option[Element] =
       compilerConfigurations.flatMap(_.getChild(name).toOption.toSeq).headOption

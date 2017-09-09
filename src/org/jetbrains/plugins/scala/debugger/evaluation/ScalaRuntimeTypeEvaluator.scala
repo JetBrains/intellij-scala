@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -74,8 +75,10 @@ object ScalaRuntimeTypeEvaluator {
             return psiClass
           }
         }
-        import scala.collection.JavaConversions._
-        classType.interfaces.map(findPsiClass(project, _)).find(_ != null).orNull
+        classType.interfaces.asScala
+          .map(findPsiClass(project, _))
+          .find(_ != null)
+          .orNull
       case _ => null
     }
   }

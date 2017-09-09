@@ -25,13 +25,14 @@ class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends Intenti
     s"Change type '$oldTypeDescripton' to '$newTypeDescription'"
   }
 
-  def getFamilyName: String = "Change Type"
+  override def getFamilyName: String = "Change Type"
 
-  def startInWriteAction: Boolean = true
+  override def startInWriteAction: Boolean = true
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = typeElement.isValid && typeElement.getManager.isInProject(file)
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
+    typeElement.isValid && typeElement.getManager.isInProject(file)
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (!typeElement.isValid) return
     if (!FileModificationService.getInstance.prepareFileForWrite(typeElement.getContainingFile)) return
     if (typeElement.getParent == null || typeElement.getParent.getNode == null) return

@@ -24,31 +24,33 @@ class RemoveValQuickFix(param: ScClassParameter)
 }
 
 class RemoveValFromEnumeratorIntentionAction(enum: ScEnumerator) extends IntentionAction {
-  def getText = "Remove unnecessary 'val'"
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile) = true
+  override def getText: String = "Remove unnecessary 'val'"
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
+
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (!enum.isValid) return
     enum.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
   }
 
-  def startInWriteAction() = true
+  override def startInWriteAction(): Boolean = true
 
-  def getFamilyName: String = "Remove 'val' from enumerator"
+  override def getFamilyName: String = "Remove 'val' from enumerator"
 }
 
 class RemoveValFromGeneratorIntentionAction(enum: ScGenerator) extends IntentionAction {
-  def getText = "Remove unnecessary 'val'"
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile) = true
+  override def getText: String = "Remove unnecessary 'val'"
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
+
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (!enum.isValid) return
     enum.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
   }
 
-  def startInWriteAction() = true
+  override def startInWriteAction() = true
 
-  def getFamilyName: String = "Remove 'val' from generator"
+  override def getFamilyName: String = "Remove 'val' from generator"
 }

@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.JavaConverters._
 
 /**
  * @author Ksenia.Sautina
@@ -59,12 +60,12 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
     val buf = new StringBuilder
     val underscores = ScUnderScoreSectionUtil.underscores(expr)
     val parentStartOffset =
-      if (ApplicationManager.getApplication.isUnitTestMode) underscores(0).getTextRange.getStartOffset
+      if (ApplicationManager.getApplication.isUnitTestMode) underscores.head.getTextRange.getStartOffset
       else expr.getTextRange.getStartOffset
     val parentEndOffset =
       if (ApplicationManager.getApplication.isUnitTestMode) {
-        if (underscores.nonEmpty) underscores(underscores.size - 1).getTextRange.getEndOffset
-        else underscores(0).getTextRange.getEndOffset
+        if (underscores.nonEmpty) underscores.last.getTextRange.getEndOffset
+        else underscores.head.getTextRange.getEndOffset
       } else expr.getTextRange.getEndOffset
 
     val underscoreToParam: mutable.HashMap[ScUnderscoreSection, ScParameter] =
@@ -83,7 +84,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
       if (needComma) buf.append(",")
       if (underscores.size > 1) needComma = true
 
-      val names = NameSuggester.suggestNames(u)(
+      val names: Seq[String] = NameSuggester.suggestNames(u)(
         new ScalaVariableValidator(u, false, expr.getContext, expr.getContext) {
           override def validateName(name: String): String = {
             var res = super.validateName(name)
@@ -202,9 +203,9 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
         private def addHighlights(ranges: mutable.HashMap[TextRange, TextAttributes], editor: Editor,
                                   highlighters: ArrayBuffer[RangeHighlighter], highlightManager: HighlightManager) {
           for ((range, attributes) <- ranges) {
-            import scala.collection.JavaConversions._
-            highlightManager.addOccurrenceHighlight(editor, range.getStartOffset, range.getEndOffset,
-              attributes, 0, highlighters, null)
+            highlightManager.addOccurrenceHighlight(
+              editor, range.getStartOffset, range.getEndOffset,
+              attributes, 0, highlighters.asJava, null)
           }
           for (highlighter <- highlighters) {
             highlighter.setGreedyToLeft(true)
@@ -221,10 +222,10 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
             val segmentOffset: TextRange = templateState.getSegmentRange(i)
             val name: String = template.getSegmentName(i)
             var attributes: TextAttributes = null
-            if (name == params.get(index).get) {
+            if (name == params(index)) {
               attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.WRITE_SEARCH_RESULT_ATTRIBUTES)
             }
-            else if (name == depends.get(index).get) {
+            else if (name == depends(index)) {
               attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
             }
             if (attributes != null) rangesToHighlight.put(segmentOffset, attributes)

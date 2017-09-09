@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.hocon
 
-import scala.collection.JavaConversions
 import scala.collection.convert.{DecorateAsJava, DecorateAsScala}
 
 object JavaInterop extends DecorateAsJava with DecorateAsScala {
@@ -24,7 +23,7 @@ object JavaInterop extends DecorateAsJava with DecorateAsScala {
 
   object JList {
     def apply[A](values: A*): JList[A] =
-      JavaConversions.seqAsJavaList(values)
+      values.asJava
   }
 
 }

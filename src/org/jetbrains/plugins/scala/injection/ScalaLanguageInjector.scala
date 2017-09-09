@@ -23,9 +23,9 @@ import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
 import scala.collection.immutable.WrappedString
 import scala.collection.mutable
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -33,7 +33,7 @@ import scala.collection.mutable
  */
 
 class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends MultiHostInjector {
-  override def elementsToInjectIn = List(classOf[ScLiteral], classOf[ScInfixExpr])
+  override def elementsToInjectIn: util.List[Class[_ <: PsiElement]] = List[Class[_ <: PsiElement]](classOf[ScLiteral], classOf[ScInfixExpr]).asJava
 
   override def getLanguagesToInject(registrar: MultiHostRegistrar, host: PsiElement) {
     val literals = literalsOf(host)
@@ -121,7 +121,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
 
   def injectUsingPatterns(registrar: MultiHostRegistrar, host: PsiElement, literals: scala.Seq[ScLiteral]): Boolean = {
     ScalaLanguageInjector withInjectionSupport { support =>
-      val injections = myInjectionConfiguration.getInjections(support.getId).toIterator
+      val injections = myInjectionConfiguration.getInjections(support.getId).iterator()
 
       var done = false
 
@@ -235,7 +235,8 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
           ref.resolve().toOption match {
             case Some(f: ScFunction) =>
               val parameters = f.parameters
-              if (parameters.isEmpty) None else Some(parameters.get(index.min(parameters.size - 1)))
+              if (parameters.isEmpty) None
+              else Some(parameters(index.min(parameters.size - 1)))
             case Some(m: PsiMethod) =>
               val parameters = m.parameters
               if (parameters.isEmpty) None else parameters(index.min(parameters.size - 1)).getModifierList.toOption
@@ -302,7 +303,7 @@ object ScalaLanguageInjector {
         extractMultiLineStringRanges(multiLineString) foreach {
           range => list add Trinity.create(multiLineString, language, range)
         }
-      case scLiteral => currentInjection getInjectedArea scLiteral foreach {
+      case scLiteral => currentInjection getInjectedArea scLiteral forEach {
         range => list add Trinity.create(scLiteral, language, range)
       }
     }

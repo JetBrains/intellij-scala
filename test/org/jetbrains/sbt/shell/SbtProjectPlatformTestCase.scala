@@ -15,6 +15,7 @@ import com.intellij.testFramework.{PlatformTestCase, ThreadTracker}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.plugins.scala.extensions._
 
 /**
   * Created by Roman.Shein on 27.03.2017.
@@ -23,7 +24,6 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
   override def setUpProject(): Unit = {
     //projectFile is the sbt file for the root project
     val project = ProjectUtil.openOrImport(getSbtRootFile.getAbsolutePath, null, false)
-    import org.jetbrains.plugins.scala.extensions._
     val sdk = TestUtils.createJdk()
     inWriteAction {
       ProjectJdkTable.getInstance.addJdk(sdk)
@@ -54,7 +54,12 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
     myRunner.getProcessHandler.addProcessListener(logger)
   }
 
-  override def tearDown(): Unit = {
+  override def tearDown(): Unit = try {
+    inWriteAction {
+      val jdkTable = ProjectJdkTable.getInstance()
+      jdkTable.getAllJdks.foreach(jdkTable.removeJdk)
+    }
+
     myRunner.getConsoleView.dispose()
     Disposer.dispose(myRunner.getConsoleView)
     UIUtil.dispatchAllInvocationEvents()
@@ -65,6 +70,7 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
       Thread.sleep(100)
     }
     ProjectManager.getInstance().closeProject(myProject)
+  } finally {
     super.tearDown()
     //remove links so that we don't leak the project
     myProject = null

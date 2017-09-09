@@ -13,7 +13,7 @@ import com.intellij.util.Function
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * User: Dmitry Naydanov
@@ -33,11 +33,11 @@ class GoToExpandedMacroCallProviderExt extends LineMarkerProvider {
       case _ => None
     }
 
-    val macrosFound = elements filter ScalaMacroDebuggingUtil.isMacroCall
+    val macrosFound = elements.asScala.filter(ScalaMacroDebuggingUtil.isMacroCall _)
     if (macrosFound.isEmpty) return
 
     macrosFound foreach {
-      case macroCall =>
+      macroCall =>
         val markerInfo = new RelatedItemLineMarkerInfo[PsiElement](macroCall, macroCall.getTextRange, Icons.NO_SCALA_SDK,
           Pass.LINE_MARKERS, new Function[PsiElement, String] {
             def fun(param: PsiElement): String = {

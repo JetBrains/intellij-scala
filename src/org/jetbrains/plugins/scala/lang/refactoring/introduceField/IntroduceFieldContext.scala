@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduc
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.IntroduceException
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -32,7 +33,7 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
     case _ => null
   }
 
-  private implicit val validator = ScalaVariableValidator(file, element, occurrences)
+  private implicit val validator: ScalaVariableValidator = ScalaVariableValidator(file, element, occurrences)
 
   val reporter: ValidationReporter = new ValidationReporter(project, new DialogConflictsReporter {})
 
@@ -43,8 +44,7 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
 
   val possibleNames: ju.Set[String] = element match {
     case expr: ScExpression =>
-      import scala.collection.JavaConversions._
-      NameSuggester.suggestNames(expr).toSet[String]
+      NameSuggester.suggestNames(expr).toSet[String].asJava
     case _ => throw new IntroduceException
   }
 

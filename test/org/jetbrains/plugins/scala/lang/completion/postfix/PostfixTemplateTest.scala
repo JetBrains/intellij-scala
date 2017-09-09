@@ -2,9 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion.postfix
 
 import java.io.File
 
-import com.intellij.codeInsight.template.postfix.templates.{PostfixLiveTemplate, PostfixTemplate}
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.CommandProcessor
+import com.intellij.codeInsight.template.postfix.templates.PostfixTemplate
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -16,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.completion.postfix.templates.ScalaPostfi
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
+import scala.collection.JavaConverters._
 
 /**
  * @author Roman.Shein
@@ -37,18 +36,16 @@ abstract class PostfixTemplateTest extends ScalaLightCodeInsightFixtureTestAdapt
   }
 
   protected def getExprAndTemplate(inputText: String): (PostfixTemplate, Int, Int, String) = {
-    import scala.collection.JavaConversions._
     val startMarker = "<start>"
     val nameMarker = "<"
     val startOffset = inputText.indexOf(startMarker)
     val nameIndex = inputText.indexOf(nameMarker, startOffset + 7)
     val name = inputText.substring(nameIndex + 1, inputText.indexOf('>', nameIndex))
-    val template: PostfixTemplate = ScalaPostfixTemplateProvider.templates.find(_.getKey == "." + name).
-      get
+    val template: PostfixTemplate = ScalaPostfixTemplateProvider.templates.asScala.find(_.getKey == "." + name).get
     (template, startOffset, nameIndex - 7, inputText.replace("<start>", "").replace(s"<$name>", ""))
   }
 
-  protected def doTest() = {
+  protected def doTest(): Unit = {
     val (expectedResult, template, end, expr) = prepareTest()
     assert(template.isApplicable(expr, getFile.getViewProvider.getDocument, end))
     import org.jetbrains.plugins.scala.extensions._
@@ -57,7 +54,7 @@ abstract class PostfixTemplateTest extends ScalaLightCodeInsightFixtureTestAdapt
     assertEquals(expectedResult, getFile.getText)
   }
 
-  protected def doNotApplicableTest() = {
+  protected def doNotApplicableTest(): Unit = {
     val (_, template, end, expr) = prepareTest()
 
     assert(!template.isApplicable(expr, getFile.getViewProvider.getDocument, end))

@@ -23,7 +23,6 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiManager}
 import com.intellij.testFramework.EdtTestUtil
-import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -35,6 +34,8 @@ import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfigura
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
+
+import scala.collection.JavaConverters._
 
 /**
   * @author Roman.Shein
@@ -48,11 +49,9 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
   override def runInDispatchThread(): Boolean = false
 
-  override protected def addFileToProject(fileName: String, fileText: String) = {
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      override def run(): Unit = {
-        ScalaTestingTestCase.super.addFileToProject(fileName, fileText)
-      }
+  override protected def addFileToProject(fileName: String, fileText: String): Unit = {
+    EdtTestUtil.runInEdtAndWait(() => {
+      ScalaTestingTestCase.super.addFileToProject(fileName, fileText)
     })
   }
 
@@ -60,39 +59,39 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
   protected val useDynamicClassPath = false
 
-  override protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*) = {
+  override protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit = {
     val structureViewRoot = buildFileStructure(testClassName + ".scala")
     for (test <- tests) {
-      assert(checkTestNodeInFileStructure(structureViewRoot, test, None, status))
+      assert(checkTestNodeInFileStructure(structureViewRoot, test, None, status),
+        s"test node for test '$test' was not in file structure for root '$structureViewRoot'")
     }
   }
 
   override def invokeTestRunnable(runnable: Runnable): Unit = runnable.run()
 
   override protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String],
-                                                  testStatus: Int = TestStructureViewElement.normalStatusId) = {
+                                                  testStatus: Int = TestStructureViewElement.normalStatusId): Unit = {
     val structureViewRoot = buildFileStructure(testClassName + ".scala")
-    assert(checkTestNodeInFileStructure(structureViewRoot, testName, parentTestName, testStatus))
+    assert(checkTestNodeInFileStructure(structureViewRoot, testName, parentTestName, testStatus),
+      s"test node for test '$testName' with parent '$parentTestName' was not in file structure for root '$structureViewRoot'")
   }
 
   override protected def buildFileStructure(fileName: String): TreeElementWrapper = {
     val ioFile = new java.io.File(srcDir, fileName)
     var wrapper: StructureViewComponent.StructureViewTreeElementWrapper = null
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      override def run(): Unit = {
-        val file = PsiManager.getInstance(getProject).findFile(getVirtualFile(ioFile))
-        val treeViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]) {
-          override def isEnabled(provider: NodeProvider[_ <: TreeElement]): Boolean = provider.isInstanceOf[TestNodeProvider]
-        }
-        wrapper = new StructureViewComponent.StructureViewTreeElementWrapper(getProject, treeViewModel.getRoot, treeViewModel)
-
-        def initTree(wrapper: StructureViewComponent.StructureViewTreeElementWrapper) {
-          import scala.collection.JavaConversions._
-          wrapper.initChildren()
-          wrapper.getChildren.toList.foreach(node => initTree(node.asInstanceOf[StructureViewComponent.StructureViewTreeElementWrapper]))
-        }
-        initTree(wrapper)
+    EdtTestUtil.runInEdtAndWait(() => {
+      val file = PsiManager.getInstance(getProject).findFile(getVirtualFile(ioFile))
+      val treeViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]) {
+        override def isEnabled(provider: NodeProvider[_ <: TreeElement]): Boolean = provider.isInstanceOf[TestNodeProvider]
       }
+      wrapper = new StructureViewComponent.StructureViewTreeElementWrapper(getProject, treeViewModel.getRoot, treeViewModel)
+
+      def initTree(wrapper: StructureViewComponent.StructureViewTreeElementWrapper) {
+        wrapper.initChildren()
+        wrapper.getChildren.asScala.foreach(node => initTree(node.asInstanceOf[StructureViewComponent.StructureViewTreeElementWrapper]))
+      }
+
+      initTree(wrapper)
     })
     wrapper
   }
@@ -108,12 +107,10 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
     var psiElement: PsiElement = null
 
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      override def run(): Unit = {
-        val psiFile = myManager.findViewProvider(file).getPsi(ScalaLanguage.INSTANCE)
-        psiElement = psiFile.findElementAt(FileDocumentManager.getInstance().getDocument(file).
-          getLineStartOffset(lineNumber) + offset)
-      }
+    EdtTestUtil.runInEdtAndWait(() => {
+      val psiFile = myManager.findViewProvider(file).getPsi(ScalaLanguage.INSTANCE)
+      psiElement = psiFile.findElementAt(FileDocumentManager.getInstance().getDocument(file).
+        getLineStartOffset(lineNumber) + offset)
     })
 
     new PsiLocation(project, myModule, psiElement)
@@ -126,12 +123,10 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
   override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings = {
     var res: RunnerAndConfigurationSettings = null
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      override def run(): Unit = {
-        res = configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName)).map(_._2) match {
-          case Some(testConfig) => testConfig
-          case _ => throw new RuntimeException(failedConfigMessage(fileName, lineNumber, offset))
-        }
+    EdtTestUtil.runInEdtAndWait(() => {
+      res = configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName)).map(_._2) match {
+        case Some(testConfig) => testConfig
+        case _ => throw new RuntimeException(failedConfigMessage(fileName, lineNumber, offset))
       }
     })
     res
@@ -147,10 +142,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
   override protected def createTestFromModule(moduleName: String): RunnerAndConfigurationSettings = {
     var module: Module = null
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      override def run(): Unit =
-        module = ModuleManager.getInstance(ScalaTestingTestCase.this.getProject).findModuleByName(moduleName)
-    })
+    EdtTestUtil.runInEdtAndWait(() => module = ModuleManager.getInstance(ScalaTestingTestCase.this.getProject).findModuleByName(moduleName))
     createTestFromDirectory(PsiDirectoryFactory.getInstance(getProject).
       createDirectory(ModuleRootManager.getInstance(module).getContentRoots.head))
   }
@@ -167,34 +159,32 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
                                            duration: Int = 3000,
                                            debug: Boolean = false
                                           ): (String, Option[AbstractTestProxy]) = {
-    assert(configurationCheck(runConfig))
-    assert(runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration])
+    assert(configurationCheck(runConfig), s"config check failed for ${runConfig.getName}")
+    assert(runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration], "runConfig not instance of AbstractRunConfiguration")
     runConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration].setupIntegrationTestClassPath()
     val testResultListener = new TestResultListener(runConfig.getName)
     var testTreeRoot: Option[AbstractTestProxy] = None
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      def run() {
-        if (needMake) {
-          make()
-          saveChecksums()
-        }
-        val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find {
-          _.getClass == classOf[DefaultJavaProgramRunner]
-        }.get
-        val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], new ProcessAdapter {
-          override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
-            val text = event.getText
-            if (debug) print(text)
-          }
-        }, runner)
-
-        runContentDescriptor.getExecutionConsole match {
-          case descriptor: SMTRunnerConsoleView =>
-            testTreeRoot = Some(descriptor.getResultsViewer.getRoot)
-          case _ =>
-        }
-        handler.addProcessListener(testResultListener)
+    EdtTestUtil.runInEdtAndWait(() => {
+      if (needMake) {
+        make()
+        saveChecksums()
       }
+      val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find {
+        _.getClass == classOf[DefaultJavaProgramRunner]
+      }.get
+      val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], new ProcessAdapter {
+        override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
+          val text = event.getText
+          if (debug) print(text)
+        }
+      }, runner)
+
+      runContentDescriptor.getExecutionConsole match {
+        case descriptor: SMTRunnerConsoleView =>
+          testTreeRoot = Some(descriptor.getResultsViewer.getRoot)
+        case _ =>
+      }
+      handler.addProcessListener(testResultListener)
     })
 
     (testResultListener.waitForTestEnd(duration), testTreeRoot)
@@ -213,21 +203,22 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
     semaphore.down()
     val processHandler: AtomicReference[ProcessHandler] = new AtomicReference[ProcessHandler]
     val contentDescriptor: AtomicReference[RunContentDescriptor] = new AtomicReference[RunContentDescriptor]
-    runner.execute(executionEnvironmentBuilder.build, new ProgramRunner.Callback {
-      def processStarted(descriptor: RunContentDescriptor) {
-        System.setProperty("idea.dynamic.classpath", useDynamicClassPath.toString)
-        disposeOnTearDown(new Disposable {
-          def dispose() {
-            descriptor.dispose()
+    runner.execute(executionEnvironmentBuilder.build, (descriptor: RunContentDescriptor) => {
+      System.setProperty("idea.dynamic.classpath", useDynamicClassPath.toString)
+      val handler: ProcessHandler = descriptor.getProcessHandler
+      assert(handler != null)
+      disposeOnTearDown(new Disposable {
+        def dispose() {
+          if (!handler.isProcessTerminated) {
+            handler.destroyProcess()
           }
-        })
-        val handler: ProcessHandler = descriptor.getProcessHandler
-        assert(handler != null)
-        handler.addProcessListener(listener)
-        processHandler.set(handler)
-        contentDescriptor.set(descriptor)
-        semaphore.up()
-      }
+          descriptor.dispose()
+        }
+      })
+      handler.addProcessListener(listener)
+      processHandler.set(handler)
+      contentDescriptor.set(descriptor)
+      semaphore.up()
     })
     semaphore.waitFor()
     (processHandler.get, contentDescriptor.get)

@@ -6,7 +6,7 @@ import com.intellij.openapi.vcs.changes.Change
 import com.intellij.openapi.vcs.changes.actions.diff.{ShowDiffAction, ShowDiffContext}
 import com.intellij.openapi.vcs.changes.ui.ChangesBrowser
 import com.intellij.openapi.vfs.VirtualFile
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 /**
@@ -21,7 +21,7 @@ ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, Chan
   override def afterDiffRefresh() {
     val updatedChanges = new java.util.ArrayList[Change]
     updatedChanges.addAll(
-      getSelectedChanges map {
+      getSelectedChanges.asScala.map {
         myChange => {
           val changeSwapped = BuildFileChange.swap(myChange.asInstanceOf[BuildFileChange])
           fileChangesMap.get(changeSwapped.getVirtualFile).map {
@@ -37,7 +37,7 @@ ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, Chan
             case _ => myChange
           }.getOrElse(myChange)
         }
-      }
+      }.asJava
     )
 
     setChangesToDisplay(updatedChanges)
@@ -48,6 +48,6 @@ ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, Chan
     val changesArraySwapped: Array[Change] = for (change <- changesArray)
     yield BuildFileChange.swap(change.asInstanceOf[BuildFileChange])
 
-    ShowDiffAction.showDiffForChange(myProject, changesArraySwapped.toSeq, indexInSelection, context)
+    ShowDiffAction.showDiffForChange(myProject, changesArraySwapped.toSeq.asJava, indexInSelection, context)
   }
 }

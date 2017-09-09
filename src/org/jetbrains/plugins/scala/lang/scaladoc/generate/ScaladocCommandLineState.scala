@@ -21,7 +21,7 @@ import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
 
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
@@ -38,7 +38,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
   private var outputDir: String = ""
   private var showInBrowser: Boolean = false
   private var additionalScaladocFlags: String = ""
-  private var scope: AnalysisScope = null
+  private var scope: AnalysisScope = _
   private var verbose: Boolean = false
   private var docTitle: String = ""
   private var maxHeapSize: String = ""
@@ -151,7 +151,6 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
   }
 
   def createJavaParameters(): JavaParameters = {
-    import scala.collection.JavaConversions._
     val MutableHashSet = collection.mutable.HashSet
 
     val jp = new JavaParameters
@@ -266,8 +265,8 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     paramListSimple += "-doc-title"
     paramListSimple += docTitle
 
-    if (additionalScaladocFlags.length() > 0) {
-      paramListSimple.addAll(processAdditionalParams(additionalScaladocFlags))
+    if (additionalScaladocFlags.nonEmpty) {
+      paramListSimple ++= processAdditionalParams(additionalScaladocFlags)
     }
 
     paramListSimple ++= documentableFilesList
@@ -293,7 +292,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
         case e: IOException => throw new ExecutionException("I/O Error", e)
       }
     } else {
-      paramList.addAll(paramListSimple)
+      paramList.addAll(paramListSimple.asJava)
     }
 
     jp

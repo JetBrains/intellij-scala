@@ -22,10 +22,10 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
 
   private val myName: String = DebuggerUtil.withoutBackticks(name)
   private val mySourceName: String = DebuggerUtil.withoutBackticks(sourceName)
-  private var myContext: EvaluationContextImpl = null
-  private var myEvaluatedVariable: LocalVariableProxyImpl = null
+  private var myContext: EvaluationContextImpl = _
+  private var myEvaluatedVariable: LocalVariableProxyImpl = _
   private var myParameterIndex: Int = -1
-  private var myMethodName: String = null
+  private var myMethodName: String = _
 
   def setParameterIndex(parameterIndex: Int) {
     myParameterIndex = parameterIndex
@@ -86,10 +86,10 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
         if (local != null) return saveContextAndGetValue(frameProxy, local)
       }
       val locals = frameProxy.visibleVariables()
-      import scala.collection.JavaConversions._
-      for (local <- locals) {
-        if (local.name().startsWith(myName + "$")) return saveContextAndGetValue(frameProxy, local)
-      }
+      locals.forEach(local =>
+        if (local.name().startsWith(myName + "$"))
+          return saveContextAndGetValue(frameProxy, local)
+      )
       None
     }
 
@@ -128,7 +128,7 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
     }
   }
 
-  def getModifier: Modifier = {
+  override def getModifier: Modifier = {
     var modifier: Modifier = null
     if (myEvaluatedVariable != null && myContext != null) {
       modifier = new Modifier {

@@ -5,7 +5,8 @@ import java.io.File
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.local.JavacOutputParsing._
-import xsbti.{F0, Logger}
+import xsbti.Logger
+import java.util.function.Supplier
 
 /**
  * @author Pavel Fatin
@@ -18,12 +19,12 @@ trait JavacOutputParsing extends Logger {
 
   protected def client: Client
 
-  abstract override def error(msg: F0[String]) {
-    process(msg(), Kind.ERROR)
+  abstract override def error(msg: Supplier[String]) {
+    process(msg.get(), Kind.ERROR)
   }
 
-  abstract override def warn(msg: F0[String]) {
-    process(msg(), Kind.PROGRESS)
+  abstract override def warn(msg: Supplier[String]) {
+    process(msg.get(), Kind.PROGRESS)
   }
 
   // Move Javac output parsing to SBT compiler

@@ -3,7 +3,6 @@ package org.jetbrains.sbt.project.data.service
 import java.io.File
 
 import com.intellij.compiler.CompilerConfiguration
-import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.notification.{NotificationCategory, NotificationSource}
@@ -13,6 +12,7 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModuleRootManager}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{DebuggingInfoLevel, Version}
 import org.jetbrains.sbt.UsefulTestCaseHelper
@@ -23,6 +23,7 @@ import org.junit.Assert._
 
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Try}
+
 
 /**
  * @author Nikolay Obedin
@@ -35,6 +36,11 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
   override def setUp(): Unit = {
     super.setUp()
     setUpJdks()
+  }
+
+  override def tearDown(): Unit = {
+    tearDownJdks()
+    super.tearDown()
   }
 
   def testWithoutScalaLibrary(): Unit =
@@ -176,8 +182,8 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
       linkedProjectPath := getProject.getBasePath
       arbitraryNodes += new SbtProjectNode(SbtProjectData(Seq.empty, None, Seq.empty, "", getProject.getBasePath))
 
-      val evictedScalaLibrary = new library { name := s"org.scala-lang:scala-library:$evictedVersion" }
-      val newScalaLibrary = new library { name := s"org.scala-lang:scala-library:$newVersion" }
+      val evictedScalaLibrary: library = new library { name := s"org.scala-lang:scala-library:$evictedVersion" }
+      val newScalaLibrary: library = new library { name := s"org.scala-lang:scala-library:$newVersion" }
       libraries ++= Seq(evictedScalaLibrary, newScalaLibrary)
 
       modules += new javaModule {
@@ -250,16 +256,17 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
     }
   }
 
-  private def setUpJdks(): Unit = {
-    ApplicationManagerEx.getApplicationEx.runWriteAction(new Runnable {
-      def run(): Unit = {
-        val projectJdkTable = ProjectJdkTable.getInstance()
-        projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
-        projectJdkTable.addJdk(IdeaTestUtil.getMockJdk17)
-        projectJdkTable.addJdk(IdeaTestUtil.getMockJdk18)
-      }
-    })
+  private def setUpJdks(): Unit = inWriteAction {
+    val projectJdkTable = ProjectJdkTable.getInstance()
+    projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
+    projectJdkTable.addJdk(IdeaTestUtil.getMockJdk17)
+    projectJdkTable.addJdk(IdeaTestUtil.getMockJdk18)
     // TODO: find a way to create mock Android SDK
+  }
+
+  private def tearDownJdks(): Unit = inWriteAction {
+    val projectJdkTable = ProjectJdkTable.getInstance()
+    projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
   }
 
   private def defaultJdk: projectRoots.Sdk =

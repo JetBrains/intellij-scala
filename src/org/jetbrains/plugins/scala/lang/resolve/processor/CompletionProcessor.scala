@@ -64,7 +64,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       case method: PsiMethod => Some(new PhysicalSignature(method, substitutor))
       case _: ScTypeAlias => None
       case _: PsiClass => None
-      case _ => Some(new Signature(element.name, Seq.empty, 0, substitutor, element))
+      case _ => Some(Signature(element, substitutor))
     }
   }
 

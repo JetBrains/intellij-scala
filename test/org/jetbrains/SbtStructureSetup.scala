@@ -9,26 +9,31 @@ import com.intellij.openapi.project.Project
 import plugins.scala.buildinfo.BuildInfo
 
 /**
- * Mixin to use with tests involving setup of sbt-launch or/and sbt-structure
+ * Utility to use with tests involving setup of sbt-launch or/and sbt-structure
  * @author Nikolay Obedin
  * @since 10/19/15.
  */
-trait SbtStructureSetup {
+object SbtStructureSetup {
 
   val IvyCacheDir: File = new File(TestUtils.getIvyCachePath)
 
   def setUpSbtLauncherAndStructure(project: Project): Unit = {
+    val sbtVersion = "0.13.16" // hardcode latest version of sbt 0.13, still need to make test 1.0-capable
+    val launcherVersion: String = BuildInfo.sbtLatestVersion
+    val sbtStructureVersion = BuildInfo.sbtStructureVersion
+    val customSbtLauncher = IvyCacheDir / "org.scala-sbt" / "sbt-launch" / "jars" / s"sbt-launch-$launcherVersion.jar"
+    val customSbtStructure = IvyCacheDir / "scala_2.10" / "sbt_0.13" / "org.jetbrains" / "sbt-structure-extractor" / "jars" / s"sbt-structure-extractor-$sbtStructureVersion.jar"
+
+    assert(customSbtLauncher.isFile, s"sbt launcher not found at $customSbtLauncher")
+    assert(customSbtStructure.isFile, s"sbt-structure not found at $customSbtStructure")
+
     val systemSettings = SbtSystemSettings.getInstance(project)
     systemSettings.setCustomLauncherEnabled(true)
-    systemSettings.setCustomLauncherPath(CustomSbtLauncher.canonicalPath)
-    systemSettings.setCustomSbtStructurePath(CustomSbtStructure.canonicalPath)
+    systemSettings.setCustomLauncherPath(customSbtLauncher.canonicalPath)
+    systemSettings.setCustomSbtStructurePath(customSbtStructure.canonicalPath)
+    systemSettings.vmParameters += s" -Dsbt.version=$sbtVersion"
     Option(System.getProperty("sbt.ivy.home")).foreach { ivyHome =>
       systemSettings.vmParameters += s" -Dsbt.ivy.home=$ivyHome"
     }
   }
-
-  private val LauncherVersion = BuildInfo.sbtLatestVersion
-  private val SbtStructureVersion = BuildInfo.sbtStructureVersion
-  private val CustomSbtLauncher = IvyCacheDir / "org.scala-sbt" / "sbt-launch" / "jars" / s"sbt-launch-$LauncherVersion.jar"
-  private val CustomSbtStructure = IvyCacheDir / "scala_2.10" / "sbt_0.13" / "org.jetbrains" / "sbt-structure-extractor" / "jars" / s"sbt-structure-extractor-$SbtStructureVersion.jar"
 }

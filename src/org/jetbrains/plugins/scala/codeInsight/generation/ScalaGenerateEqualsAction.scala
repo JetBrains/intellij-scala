@@ -147,7 +147,7 @@ class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
     if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
 
     try {
-      val aClass = classAtCaret(editor, file).getOrElse(return)
+      val aClass: ScClass = classAtCaret(editor, file).getOrElse(return)
       val isOk = chooseOriginalMembers(aClass, project, editor)
       if (!isOk) return
 

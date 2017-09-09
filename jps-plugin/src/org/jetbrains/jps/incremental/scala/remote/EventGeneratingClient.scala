@@ -8,7 +8,11 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 /**
  * @author Pavel Fatin
  */
-class EventGeneratingClient(listener: Event => Unit, canceled: => Boolean) extends Client {
+class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) extends Client {
+
+  private val eventGenerator = new AsynchEventGenerator(writeEvent)
+  import eventGenerator.listener
+
   def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
     listener(MessageEvent(kind, text, source, line, column))
   }
@@ -46,9 +50,12 @@ class EventGeneratingClient(listener: Event => Unit, canceled: => Boolean) exten
 
   override def compilationEnd() {
     listener(CompilationEndEvent())
+    eventGenerator.complete()
   }
 
   override def worksheetOutput(text: String) {
     listener(WorksheetOutputEvent(text))
   }
+
+  override def sourceStarted(source: String): Unit = listener(CompilationStartedInSbt(source))
 }

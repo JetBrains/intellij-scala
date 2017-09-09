@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.debugger.Scala_2_10$;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
-import scala.collection.JavaConversions$;
+import scala.collection.JavaConverters;
 import scala.collection.Seq;
 
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class IntroduceVariableTest extends AbstractIntroduceVariableTestBase imp
 
     @Override
     public Seq<LibraryLoader> librariesLoaders() {
-        return JavaConversions$.MODULE$.asScalaBuffer(libraryLoadersAdapter());
+        return JavaConverters.asScalaBuffer(libraryLoadersAdapter());
     }
 
     private List<LibraryLoader> libraryLoadersAdapter() {

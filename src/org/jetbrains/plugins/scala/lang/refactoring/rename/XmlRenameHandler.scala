@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename
 
+import java.util
 import java.util.ArrayList
 
 import com.intellij.codeInsight.daemon.impl.quickfix.EmptyExpression
@@ -50,17 +51,16 @@ class XmlRenameHandler extends RenameHandler {
   }
 
   def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {
-    import scala.collection.JavaConversions._
 
     if (!isRenaming(dataContext) || elements == null || elements.length != 1) return
 
-    val element = if (elements(0) == null || !elements(0).getParent.isInstanceOf[ScXmlPairedTag]) return else
+    val element: ScXmlPairedTag = if (elements(0) == null || !elements(0).getParent.isInstanceOf[ScXmlPairedTag]) return else
       elements(0).getParent.asInstanceOf[ScXmlPairedTag]
     if (element.getMatchedTag == null || element.getTagNameElement == null || element.getMatchedTag.getTagNameElement == null) return
 
     val editor = CommonDataKeys.EDITOR.getData(dataContext)
     val elementStartName = element.getTagName
-    val rangeHighlighters = new ArrayList[RangeHighlighter]()
+    val rangeHighlighters = new util.ArrayList[RangeHighlighter]()
     val matchedRange = element.getMatchedTag.getTagNameElement.getTextRange
 
     def highlightMatched() {
@@ -70,7 +70,7 @@ class XmlRenameHandler extends RenameHandler {
       HighlightManager.getInstance(editor.getProject).addOccurrenceHighlight(editor, matchedRange.getStartOffset,
         matchedRange.getEndOffset, attributes, 0, rangeHighlighters, null)
 
-      rangeHighlighters.foreach {a =>
+      rangeHighlighters.forEach { a =>
         a.setGreedyToLeft(true)
         a.setGreedyToRight(true)
       }
@@ -91,7 +91,7 @@ class XmlRenameHandler extends RenameHandler {
 
               override def templateCancelled(template: Template) {
                 val highlightManager = HighlightManager.getInstance(project)
-                rangeHighlighters.foreach{a => highlightManager.removeSegmentHighlighter(editor, a)}
+                rangeHighlighters.forEach { a => highlightManager.removeSegmentHighlighter(editor, a) }
               }
             },
               new PairProcessor[String, String] {

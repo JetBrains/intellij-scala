@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.sbt._
 import org.jetbrains.sbt.resolvers._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.xml.XML
 
@@ -43,9 +43,9 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
   override def searchGroup(artifactId: String)(implicit project: ProjectContext): Set[String] = {
     withStorageCheck {
       if (artifactId.isEmpty)
-        Option(groupToArtifactMap.getAllKeysWithExistingMapping) map {
-          _.toSet
-        } getOrElse Set.empty
+        Option(groupToArtifactMap.getAllKeysWithExistingMapping)
+          .map {_.asScala.toSet}
+          .getOrElse(Set.empty)
       else
         Option(artifactToGroupMap.get(artifactId)).getOrElse(Set.empty)
     }
@@ -54,9 +54,9 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
   override def searchArtifact(groupId: String)(implicit project: ProjectContext): Set[String] = {
     withStorageCheck {
       if (groupId.isEmpty)
-        Option(artifactToGroupMap.getAllKeysWithExistingMapping) map {
-          _.toSet
-        } getOrElse Set.empty
+        Option(artifactToGroupMap.getAllKeysWithExistingMapping)
+        .map {_.asScala.toSet}
+        .getOrElse (Set.empty)
       else
         Option(groupToArtifactMap.get(groupId)).getOrElse(Set.empty)
     }
@@ -92,7 +92,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
 
   override def getUpdateTimeStamp(implicit project: ProjectContext): Long = innerTimestamp
 
-  private def deleteIndex() = SbtIndexesManager.cleanUpCorruptedIndex(indexDir)
+  private def deleteIndex(): Unit = SbtIndexesManager.cleanUpCorruptedIndex(indexDir)
 
   private def store(): Unit = {
     ensureIndexDir()
@@ -129,7 +129,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     )
   }
 
-  private def storeProps() = {
+  private def storeProps(): Unit = {
     ensureIndexDir()
 
     val props = new Properties()

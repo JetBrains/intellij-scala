@@ -69,6 +69,7 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
     errors.head match {
       case Error(_, message) =>
         Assert.assertEquals(message, "Pattern type is incompatible with expected type, found: Int, required: String")
+      case err => Assert.fail(s"unexpected message: $err" )
     }
   }
 

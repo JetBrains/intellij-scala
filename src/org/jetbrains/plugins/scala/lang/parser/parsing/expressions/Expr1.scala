@@ -37,12 +37,12 @@ import org.jetbrains.plugins.scala.lang.parser.util.{ParserPatcher, ParserUtils}
  *                | Path
  */
 object Expr1 extends Expr1 {
-  override protected def block = Block
-  override protected def caseClauses = CaseClauses
-  override protected def expr = Expr
-  override protected def postfixExpr = PostfixExpr
-  override protected def enumerators = Enumerators
-  override protected def ascription = Ascription
+  override protected def block: Block.type = Block
+  override protected def caseClauses: CaseClauses.type = CaseClauses
+  override protected def expr: Expr.type = Expr
+  override protected def postfixExpr: PostfixExpr.type = PostfixExpr
+  override protected def enumerators: Enumerators.type = Enumerators
+  override protected def ascription: Ascription.type = Ascription
 }
 
 trait Expr1 {
@@ -62,7 +62,7 @@ trait Expr1 {
         builder.getTokenType match {
           case ScalaTokenTypes.tLPARENTHESIS =>
             builder.advanceLexer() //Ate (
-            builder.disableNewlines
+            builder.disableNewlines()
             if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
             builder.getTokenType match {
               case ScalaTokenTypes.tRPARENTHESIS =>
@@ -70,7 +70,7 @@ trait Expr1 {
               case _ =>
                 builder error ErrMsg("rparenthesis.expected")
             }
-            builder.restoreNewlinesState
+            builder.restoreNewlinesState()
           case _ =>
             builder error ErrMsg("condition.expected")
         }
@@ -102,7 +102,7 @@ trait Expr1 {
         builder.getTokenType match {
           case ScalaTokenTypes.tLPARENTHESIS =>
             builder.advanceLexer() //Ate (
-            builder.disableNewlines
+            builder.disableNewlines()
             if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
             builder.getTokenType match {
               case ScalaTokenTypes.tRPARENTHESIS =>
@@ -110,7 +110,7 @@ trait Expr1 {
               case _ =>
                 builder error ErrMsg("rparenthesis.expected")
             }
-            builder.restoreNewlinesState
+            builder.restoreNewlinesState()
           case _ =>
             builder error ErrMsg("condition.expected")
         }
@@ -126,14 +126,14 @@ trait Expr1 {
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE =>
             builder.advanceLexer() //Ate {
-            builder.enableNewlines
+            builder.enableNewlines()
             def foo() {
               if (!block.parse(builder, hasBrace = false)) {
                 builder error ErrMsg("block.expected")
               }
             }
-            ParserUtils.parseLoopUntilRBrace(builder, foo)
-            builder.restoreNewlinesState
+            ParserUtils.parseLoopUntilRBrace(builder, foo _)
+            builder.restoreNewlinesState()
           case _ =>
             if (!block.parse(builder, hasBrace = false)) {
               builder error ErrMsg("block.expected")
@@ -179,7 +179,7 @@ trait Expr1 {
             builder.getTokenType match {
               case ScalaTokenTypes.tLPARENTHESIS =>
                 builder.advanceLexer() //Ate (
-                builder.disableNewlines
+                builder.disableNewlines()
                 if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
                 builder.getTokenType match {
                   case ScalaTokenTypes.tRPARENTHESIS =>
@@ -187,7 +187,7 @@ trait Expr1 {
                   case _ =>
                     builder error ErrMsg("rparenthesis.expected")
                 }
-                builder.restoreNewlinesState
+                builder.restoreNewlinesState()
               case _ =>
                 builder error ErrMsg("condition.expected")
             }
@@ -202,17 +202,17 @@ trait Expr1 {
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE =>
             builder.advanceLexer() //Ate {
-            builder.enableNewlines
+            builder.enableNewlines()
             def foo() {
               if (!enumerators.parse(builder)) {
                 builder error ErrMsg("enumerators.expected")
               }
             }
-            ParserUtils.parseLoopUntilRBrace(builder, foo)
-            builder.restoreNewlinesState
+            ParserUtils.parseLoopUntilRBrace(builder, foo _)
+            builder.restoreNewlinesState()
           case ScalaTokenTypes.tLPARENTHESIS =>
             builder.advanceLexer() //Ate (
-            builder.disableNewlines
+            builder.disableNewlines()
             if (!enumerators.parse(builder)) {
               builder error ErrMsg("enumerators.expected")
             }
@@ -220,7 +220,7 @@ trait Expr1 {
               case ScalaTokenTypes.tRPARENTHESIS => builder.advanceLexer()
               case _ => builder error ErrMsg("rparenthesis.expected")
             }
-            builder.restoreNewlinesState
+            builder.restoreNewlinesState()
           case _ =>
             builder error ErrMsg("enumerators.expected")
         }
@@ -302,14 +302,14 @@ trait Expr1 {
             builder.getTokenType match {
               case ScalaTokenTypes.tLBRACE =>
                 builder.advanceLexer() //Ate {
-                builder.enableNewlines
+                builder.enableNewlines()
                 def foo() {
                   if (!caseClauses.parse(builder)) {
                     builder error ErrMsg("case.clauses.expected")
                   }
                 }
-                ParserUtils.parseLoopUntilRBrace(builder, foo)
-                builder.restoreNewlinesState
+                ParserUtils.parseLoopUntilRBrace(builder, foo _)
+                builder.restoreNewlinesState()
               case _ => builder error ErrMsg("case.clauses.expected")
             }
             exprMarker.done(ScalaElementTypes.MATCH_STMT)

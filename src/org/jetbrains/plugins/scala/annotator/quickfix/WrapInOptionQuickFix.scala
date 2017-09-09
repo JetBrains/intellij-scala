@@ -17,26 +17,28 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
  * 6/27/13
  */
 class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult[ScType], exprType: TypeResult[ScType]) extends IntentionAction {
-  def getText: String = ScalaBundle.message("wrap.in.option.hint")
 
-  def getFamilyName: String = ScalaBundle.message("wrap.in.option.name")
+  override def getText: String = ScalaBundle.message("wrap.in.option.hint")
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+  override def getFamilyName: String = ScalaBundle.message("wrap.in.option.name")
+
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     WrapInOptionQuickFix.isAvailable(expr, expectedType, exprType)
   }
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (expr.isValid) {
       val newText = "Option(" + expr.getText + ")"
       expr.replaceExpression(createExpressionFromText(newText)(expr.getManager), removeParenthesis = true)
     }
   }
 
-  def startInWriteAction(): Boolean = true
+  override def startInWriteAction(): Boolean = true
 
 }
 
 object WrapInOptionQuickFix {
+
   def isAvailable(expr: ScExpression, expectedType: TypeResult[ScType], exprType: TypeResult[ScType]): Boolean = {
     var result = false
     for {

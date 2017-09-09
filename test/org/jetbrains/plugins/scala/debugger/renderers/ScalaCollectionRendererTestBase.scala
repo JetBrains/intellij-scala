@@ -9,17 +9,20 @@ import com.intellij.debugger.ui.impl.watch._
 import com.intellij.debugger.ui.tree.render._
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptorFactory, NodeManager, ValueDescriptor}
 import com.intellij.openapi.util.Disposer
+import org.jetbrains.plugins.scala.DebuggerTests
 import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer
+import org.junit.experimental.categories.Category
 
 /**
  * User: Dmitry Naydanov
  * Date: 9/5/12
  */
+@Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_211 extends ScalaCollectionRendererTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
-
+@Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_212 extends ScalaCollectionRendererTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }

@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
+import scala.collection.JavaConverters._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,9 +25,9 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
 
   def order: Int = 0
 
-  private var myHolder: HighlightInfoHolder = null
-  private var myRefCountHolder: ScalaRefCountHolder = null
-  private var myAnnotationHolder: AnnotationHolderImpl = null
+  private var myHolder: HighlightInfoHolder = _
+  private var myRefCountHolder: ScalaRefCountHolder = _
+  private var myAnnotationHolder: AnnotationHolderImpl = _
 
   override def suitableForFile(file: PsiFile): Boolean = file match {
     case _: ScalaFile => true
@@ -84,8 +85,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
     }
     ScalaAnnotator.forProject.annotate(element, myAnnotationHolder)
     if (myAnnotationHolder.hasAnnotations) {
-      import scala.collection.JavaConversions._
-      for (annotation <- myAnnotationHolder) {
+      myAnnotationHolder.forEach { annotation =>
         myHolder.add(HighlightInfo.fromAnnotation(annotation))
       }
       myAnnotationHolder.clear()

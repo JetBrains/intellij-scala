@@ -3,26 +3,22 @@ package project
 
 import java.io.File
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
-import com.intellij.openapi.externalSystem.util.ExternalSystemConstants
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.LocalFileSystem
-import org.jetbrains.SbtStructureSetup
+import org.jetbrains.SbtStructureSetup._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.settings.SbtSystemSettings
 
 /**
  * @author Nikolay Obedin
  * @since 8/4/15.
  */
-abstract class ImportingTestCase extends ExternalSystemImportingTestCase with ProjectStructureMatcher with SbtStructureSetup {
+abstract class ImportingTestCase extends ExternalSystemImportingTestCase with ProjectStructureMatcher {
 
   val Log = Logger.getInstance(this.getClass)
 

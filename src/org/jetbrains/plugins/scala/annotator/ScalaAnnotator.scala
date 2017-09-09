@@ -58,7 +58,6 @@ import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
 import scala.meta.intellij.MetaExpansionsManager
-import scala.util.Try
 
 /**
  * User: Alexander Podkhalyuzin
@@ -433,9 +432,10 @@ abstract class ScalaAnnotator extends Annotator
     //todo: super[ControlFlowInspections].annotate(element, holder)
   }
 
-  private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Any = {
+  private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Unit = {
+    import scala.meta.intellij.psiExt._
     import ScalaProjectSettings.ScalaMetaMode
-    if (annotation.isMetaAnnotation) {
+    if (annotation.isMetaMacro) {
       if (!MetaExpansionsManager.isUpToDate(annotation)) {
         val warning = holder.createWarningAnnotation(annotation, ScalaBundle.message("scala.meta.recompile"))
         warning.registerFix(new RecompileAnnotationAction(annotation))

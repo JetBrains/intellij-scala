@@ -10,14 +10,15 @@ import com.intellij.openapi.util.Pair
 import com.intellij.psi.PsiReferenceList.Role
 import com.intellij.psi._
 import com.intellij.psi.meta.PsiMetaData
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner;
+import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 
 
 /**
  * @author ilyas
  */
 
-trait PsiClassFake extends PsiClass with PsiReferenceList with ScDocCommentOwner {
+trait PsiClassFake extends PsiClassAdapter with PsiReferenceList with ScDocCommentOwner {
   //todo: this methods from PsiReferenceList to avoid NPE. It's possible for asking different roles, so we can
   //todo: have problems for simple implementation of them
   def getRole: Role = Role.EXTENDS_LIST
@@ -46,11 +47,11 @@ trait PsiClassFake extends PsiClass with PsiReferenceList with ScDocCommentOwner
 
   def getSuperTypes: Array[PsiClassType] = PsiClassType.EMPTY_ARRAY
 
-  def getFields: Array[PsiField] = PsiField.EMPTY_ARRAY // todo
+  def psiFields: Array[PsiField] = PsiField.EMPTY_ARRAY // todo
 
   def getConstructors: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY // todo
 
-  def getInnerClasses: Array[PsiClass] = PsiClass.EMPTY_ARRAY // todo
+  def psiInnerClasses: Array[PsiClass] = PsiClass.EMPTY_ARRAY // todo
 
   def getInitializers: Array[PsiClassInitializer] = PsiClassInitializer.EMPTY_ARRAY
 
@@ -98,11 +99,11 @@ trait PsiClassFake extends PsiClass with PsiReferenceList with ScDocCommentOwner
 
   def getTypeParameterList: PsiTypeParameterList = null
 
-  def getTypeParameters: Array[PsiTypeParameter] = PsiTypeParameter.EMPTY_ARRAY
+  def psiTypeParameters: Array[PsiTypeParameter] = PsiTypeParameter.EMPTY_ARRAY
 
   def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = Array[PsiMethod]()
 
-  def getMethods: Array[PsiMethod] = Array[PsiMethod]()
+  def psiMethods: Array[PsiMethod] = Array[PsiMethod]()
 
   def getQualifiedName: String = null
 

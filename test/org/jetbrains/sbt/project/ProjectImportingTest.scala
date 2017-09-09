@@ -4,15 +4,16 @@ package project
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.junit.experimental.categories.Category
+import org.jetbrains.SbtStructureSetup._
 
 @Category(Array(classOf[SlowTests]))
 class ProjectImportingTest extends ImportingTestCase with InexactMatch {
 
   private val scalaVersion = org.jetbrains.plugins.scala.debugger.Scala_2_11.minor
 
-  def testSimple() = runTest(
+  def testSimple(): Unit = runTest(
     new project("simple") {
-      lazy val scalaLibrary = new library(s"SBT: org.scala-lang:scala-library:$scalaVersion:jar") {
+      lazy val scalaLibrary: library = new library(s"SBT: org.scala-lang:scala-library:$scalaVersion:jar") {
         classes += (IvyCacheDir / "org.scala-lang" / "scala-library" / "jars" / s"scala-library-$scalaVersion.jar").getAbsolutePath
       }
 
@@ -34,9 +35,9 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
       }
     })
 
-  def testMultiModule() = runTest(
+  def testMultiModule(): Unit = runTest(
     new project("multiModule") {
-      lazy val foo = new module("foo") {
+      lazy val foo: module = new module("foo") {
         moduleDependencies += new dependency(bar) {
           isExported := true
         }
@@ -48,10 +49,10 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
       modules := Seq(root, foo, bar)
     })
 
-  def testUnmanagedDependency() = runTest(
+  def testUnmanagedDependency(): Unit = runTest(
     new project("unmanagedDependency") {
       modules += new module("unmanagedDependency") {
-        lazy val unmanagedLibrary = new library("SBT: unmanaged-jars") {
+        lazy val unmanagedLibrary: library = new library("SBT: unmanaged-jars") {
           classes += (testProjectDir / "lib" / "unmanaged.jar").getAbsolutePath
         }
         libraries += unmanagedLibrary
@@ -60,18 +61,18 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
     }
   )
 
-  def testSharedSources() = runTest(
+  def testSharedSources(): Unit = runTest(
     new project("sharedSources") {
-      lazy val sharedSourcesModule = new module("sharedSources-sources") {
+      lazy val sharedSourcesModule: module = new module("sharedSources-sources") {
         contentRoots += getProjectPath + "/shared"
         ProjectStructureDsl.sources += "src/main/scala"
       }
 
-      lazy val foo = new module("foo") {
+      lazy val foo: module = new module("foo") {
         moduleDependencies += sharedSourcesModule
       }
 
-      lazy val bar = new module("bar") {
+      lazy val bar: module = new module("bar") {
         moduleDependencies += sharedSourcesModule
       }
 
@@ -79,7 +80,7 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
     }
   )
 
-  def testExcludedDirectories() = runTest(
+  def testExcludedDirectories(): Unit = runTest(
     new project("root") {
       modules += new module("root") {
         excluded := Seq(

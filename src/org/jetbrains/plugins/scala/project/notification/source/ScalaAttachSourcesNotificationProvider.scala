@@ -61,8 +61,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     val actions: util.List[AttachSourcesProvider.AttachSourcesAction] = new util.ArrayList[AttachSourcesProvider.AttachSourcesAction]
     var hasNonLightAction: Boolean = false
     for (each <- Extensions.getExtensions(EXTENSION_POINT_NAME)) {
-      import scala.collection.JavaConversions._
-      for (action <- each.getActions(libraries, psiFile)) {
+      each.getActions(libraries, psiFile).forEach { action =>
         if (hasNonLightAction) {
           if (!action.isInstanceOf[AttachSourcesProvider.LightAttachSourcesAction]) {
             actions.add(action)
@@ -76,10 +75,8 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
         }
       }
     }
-    Collections.sort(actions, new Comparator[AttachSourcesProvider.AttachSourcesAction] {
-      def compare(o1: AttachSourcesProvider.AttachSourcesAction, o2: AttachSourcesProvider.AttachSourcesAction): Int = {
-        o1.getName.compareToIgnoreCase(o2.getName)
-      }
+    Collections.sort(actions, (o1: AttachSourcesProvider.AttachSourcesAction, o2: AttachSourcesProvider.AttachSourcesAction) => {
+      o1.getName.compareToIgnoreCase(o2.getName)
     })
 
     actions.add(defaultAction)
@@ -94,10 +91,8 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
             return
           }
           panel.setText(each.getBusyText)
-          val onFinish: Runnable = new Runnable {
-            def run() {
-              invokeLater(panel.setText(ScalaBundle.message("library.sources.not.found")))
-            }
+          val onFinish: Runnable = () => {
+            invokeLater(panel.setText(ScalaBundle.message("library.sources.not.found")))
           }
           val callback: ActionCallback = each.perform(findOrderEntriesContainingFile(file))
           callback.doWhenRejected(onFinish)
@@ -111,13 +106,10 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
   private def findOrderEntriesContainingFile(file: VirtualFile): util.List[LibraryOrderEntry] = {
     val libs: util.List[LibraryOrderEntry] = new util.ArrayList[LibraryOrderEntry]
     val entries: util.List[OrderEntry] = ProjectRootManager.getInstance(myProject).getFileIndex.getOrderEntriesForFile(file)
-    import scala.collection.JavaConversions._
-    for (entry <- entries) {
-      entry match {
-        case entry: LibraryOrderEntry =>
-          libs.add(entry)
-        case _ =>
-      }
+    entries.forEach {
+      case entry: LibraryOrderEntry =>
+        libs.add(entry)
+      case _ =>
     }
     if (libs.isEmpty) null else libs
   }

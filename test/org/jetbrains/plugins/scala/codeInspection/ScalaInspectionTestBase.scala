@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, normalize}
 import org.jetbrains.plugins.scala.extensions.startCommand
 import org.junit.Assert._
+import scala.collection.JavaConverters._
+import scala.collection.JavaConverters._
 
 /**
   * Nikolay.Tropin
@@ -45,8 +47,7 @@ abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestA
 
     val description = normalize(this.description)
 
-    import scala.collection.JavaConversions._
-    fixture.doHighlighting()
+    fixture.doHighlighting().asScala
       .filter(_.getDescription == description)
       .map(info => (info, highlightedRange(info)))
       .filter(checkOffset(_, offset))
@@ -91,8 +92,7 @@ abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase {
 
 object ScalaQuickFixTestBase {
   private def quickFixes(info: HighlightInfo): Seq[IntentionAction] = {
-    import scala.collection.JavaConversions._
-    Option(info.quickFixActionRanges).toSeq.flatten
+    Option(info.quickFixActionRanges.asScala).toSeq.flatten
       .flatMap(pair => Option(pair))
       .map(_.getFirst.getAction)
   }

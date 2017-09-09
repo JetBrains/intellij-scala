@@ -8,7 +8,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.FileTypeIndex
-import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 
 import scala.util.control.NonFatal
+import scala.collection.JavaConverters._
 
 /**
   * @author Mikhail Mutcianko
@@ -27,12 +28,11 @@ trait AllProjectHighlightingTest {
 
   def getProject: Project
 
+  protected def reporter: ProgressReporter
+
   implicit def projectContext: ProjectContext = getProject
 
   def doAllProjectHighlightingTest(): Unit = {
-    import scala.collection.JavaConversions._
-
-    val reporter = ProgressReporter.getInstance
 
     val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, SourceFilterScope(getProject))
 
@@ -44,40 +44,49 @@ trait AllProjectHighlightingTest {
     var percent = 0
     val size: Int = files.size()
 
-    for ((file, index) <- files.zipWithIndex) {
+    for ((file, index) <- files.asScala.zipWithIndex) {
       val psiFile = fileManager.findFile(file)
-
-      val mock = new AnnotatorHolderMock(psiFile){
-        override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
-          // almost always duplicates reports from method below
-//          reporter.reportError(file, range, message)
-          super.createErrorAnnotation(range, message)
-        }
-
-        override def createErrorAnnotation(elt: PsiElement, message: String): Annotation = {
-          reporter.reportError(file, elt.getTextRange, message)
-          super.createErrorAnnotation(elt, message)
-        }
-      }
 
       if ((index + 1) * 100 >= (percent + 1) * size) {
         while ((index + 1) * 100 >= (percent + 1) * size) percent += 1
         reporter.updateHighlightingProgress(percent)
       }
 
-      val visitor = new ScalaRecursiveElementVisitor {
-        override def visitElement(element: ScalaPsiElement) {
-          try {
-            annotator.annotate(element, mock)
-          } catch {
-            case NonFatal(t) => reporter.reportError(file, element.getTextRange, s"Exception while highlighting: $t")
-          }
-          super.visitElement(element)
-        }
-      }
-      psiFile.accept(visitor)
+      AllProjectHighlightingTest.annotateFile(psiFile, reporter)
     }
 
     reporter.reportResults()
+  }
+}
+
+object AllProjectHighlightingTest {
+
+  def annotateFile(psiFile: PsiFile, reporter: ProgressReporter): Unit = {
+    val fileName = psiFile.getName
+    val mock = new AnnotatorHolderMock(psiFile){
+      override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
+        reporter.reportError(fileName, range, message)
+        super.createErrorAnnotation(range, message)
+      }
+
+      override def createErrorAnnotation(elt: PsiElement, message: String): Annotation = {
+        createErrorAnnotation(elt.getTextRange, message)
+      }
+    }
+
+    val annotator = ScalaAnnotator.forProject(psiFile)
+
+    val visitor = new ScalaRecursiveElementVisitor {
+      override def visitElement(element: ScalaPsiElement) {
+        try {
+          annotator.annotate(element, mock)
+        } catch {
+          case NonFatal(t) => reporter.reportError(fileName, element.getTextRange, s"Exception while highlighting: $t")
+        }
+        super.visitElement(element)
+      }
+    }
+
+    psiFile.accept(visitor)
   }
 }

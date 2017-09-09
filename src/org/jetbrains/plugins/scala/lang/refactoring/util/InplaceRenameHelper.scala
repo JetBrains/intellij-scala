@@ -8,8 +8,9 @@ import com.intellij.codeInsight.template.impl.{TemplateImpl, TemplateManagerImpl
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{RangeHighlighter, TextAttributes}
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory, RangeMarker}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.MyLookupExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
@@ -27,10 +28,10 @@ class InplaceRenameHelper(parent: PsiElement) {
   private val primaries = mutable.ArrayBuffer[PsiElement]()
   private val primaryNames = mutable.HashMap[PsiElement, String]()
   private val dependentNames = mutable.HashMap[PsiElement, Seq[String]]()
-  val project = parent.getProject
-  val file = parent.getContainingFile
+  val project: Project = parent.getProject
+  val file: PsiFile = parent.getContainingFile
   val document: Document = PsiDocumentManager.getInstance(project).getDocument(file)
-  val editor = EditorFactory.getInstance.getEditors(document)(0)
+  val editor: Editor = EditorFactory.getInstance.getEditors(document)(0)
 
   def addGroup(primary: PsiElement, newName: String,
                dependentsWithRanges: Seq[(PsiElement, TextRange)], suggestedNames: Seq[String]) {
@@ -44,7 +45,7 @@ class InplaceRenameHelper(parent: PsiElement) {
     builder.replaceElement(primary, newName, lookupExpr, true)
 
     val depNames = mutable.ArrayBuffer[String]()
-    for (index <- 0 until dependentsWithRanges.size) {
+    for (index <- dependentsWithRanges.indices) {
       val dependentName: String = newName + "_" + index
       depNames += dependentName
       val (depElem, depRange) = dependentsWithRanges(index)
@@ -96,9 +97,8 @@ class InplaceRenameHelper(parent: PsiElement) {
       private def addHighlights(ranges: mutable.HashMap[RangeMarker, TextAttributes], editor: Editor,
                         highlighters: ArrayBuffer[RangeHighlighter], highlightManager: HighlightManager) {
         for ((range, attributes) <- ranges) {
-          import scala.collection.JavaConversions._
           highlightManager.addOccurrenceHighlight(editor, range.getStartOffset, range.getEndOffset,
-            attributes, 0, highlighters, null)
+            attributes, 0, highlighters.asJavaCollection, null)
         }
         for (highlighter <- highlighters) {
           highlighter.setGreedyToLeft(true)

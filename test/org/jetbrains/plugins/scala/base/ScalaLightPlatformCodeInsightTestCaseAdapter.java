@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.debugger.ScalaSdkOwner;
 import org.jetbrains.plugins.scala.debugger.ScalaVersion;
 import org.jetbrains.plugins.scala.debugger.Scala_2_10$;
 import org.jetbrains.plugins.scala.util.TestUtils;
-import scala.collection.JavaConversions$;
 import scala.collection.Seq;
 
 import java.io.IOException;
@@ -68,7 +67,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     @Override
     public Seq<LibraryLoader> librariesLoaders() {
-        return JavaConversions$.MODULE$.asScalaBuffer(librariesLoadersAdapter());
+        return scala.collection.JavaConverters.asScalaBuffer(librariesLoadersAdapter());
     }
 
     private List<LibraryLoader> librariesLoadersAdapter() {

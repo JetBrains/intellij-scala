@@ -4,7 +4,7 @@ package debugger.evaluation
 import java.io.File
 
 import com.intellij.debugger.DebuggerManagerEx
-import com.intellij.debugger.impl.{DebuggerManagerAdapter, DebuggerSession}
+import com.intellij.debugger.impl.{DebuggerManagerAdapter, DebuggerManagerListener, DebuggerSession}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.module.Module
@@ -27,7 +27,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
 
   private val tempFiles = mutable.Set[File]()
 
-  private val listener = new DebuggerManagerAdapter {
+  private val listener = new DebuggerManagerListener {
     override def sessionAttached(session: DebuggerSession): Unit = {
       if (EvaluatorCompileHelper.needCompileServer && project.hasScala) {
         CompileServerLauncher.ensureServerRunning(project)
@@ -53,7 +53,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
     DebuggerManagerEx.getInstanceEx(project).removeDebuggerManagerListener(listener)
   }
 
-  private def clearTempFiles() = {
+  private def clearTempFiles(): Unit = {
     tempFiles.foreach(FileUtil.delete)
     tempFiles.clear()
   }
@@ -75,7 +75,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
   }
 
   def compile(files: Seq[File], module: Module, outputDir: File): Array[(File, String)] = {
-    CompileServerLauncher.ensureServerRunning(project)
+    assert(CompileServerLauncher.ensureServerRunning(project))
     val connector = new ServerConnector(module, files, outputDir)
     try {
       connector.compile() match {
@@ -107,9 +107,9 @@ object ScalaEvaluatorCompileHelper {
 private class ServerConnector(module: Module, filesToCompile: Seq[File], outputDir: File)
   extends RemoteServerConnectorBase(module, filesToCompile, outputDir) {
 
-  val errors = ListBuffer[String]()
+  private val errors: ListBuffer[String] = ListBuffer[String]()
 
-  val client = new Client {
+  private val client: Client = new Client {
     override def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]): Unit = {
       if (kind == Kind.ERROR) errors += text
     }

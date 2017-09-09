@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Location, 
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil._
 
 import scala.collection.mutable
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -85,9 +86,7 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
   private def setUpHyperLink(): HyperlinkLabel = {
     val link = createTypeAnnotationsHLink(targetClass.getProject, ScalaBundle.message("default.ta.settings"))
 
-    link.addHyperlinkListener(new HyperlinkListener {
-      override def hyperlinkUpdate(e: HyperlinkEvent): Unit = extensions.invokeLater(updateSpecifyTypeChb())
-    })
+    link.addHyperlinkListener((e: HyperlinkEvent) => extensions.invokeLater(updateSpecifyTypeChb()))
 
     link
   }
@@ -111,11 +110,11 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
   }
 
   private def computeCheckBoxState: ThreeStateCheckBox.State = {
-    import scala.collection.JavaConversions._
 
-    if (mySelectedElements == null) return State.DONT_CARE
+    if (mySelectedElements == null)
+      return State.DONT_CARE
 
-    val elements = mySelectedElements.collect {
+    val elements = mySelectedElements.asScala.collect {
       case m: ClassMember => m.getElement
     }
 

@@ -12,13 +12,15 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOverrideImplementVariableWithClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
-import scala.collection.JavaConversions
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -41,7 +43,7 @@ object ScalaOIUtil {
           case x: ScVariable => Some(new ScVariableMember(x, typedDefinition, subst, !isImplement))
           case x: ScClassParameter if x.isVal =>
             def createMember(isVal: Boolean, parameter: ScClassParameter, subst: ScSubstitutor): ScMember = {
-              implicit val projectContext = parameter.projectContext
+              implicit val projectContext: ProjectContext = parameter.projectContext
 
               createOverrideImplementVariableWithClass(
                 variable = parameter,
@@ -86,7 +88,7 @@ object ScalaOIUtil {
       chooser.show()
 
       val elements = chooser.getSelectedElements
-      if (elements != null) selectedMembers ++= JavaConversions.asScalaBuffer(elements)
+      if (elements != null) selectedMembers ++= elements.asScala
       if (selectedMembers.isEmpty) return
     } else {
       selectedMembers ++= classMembers.find {
@@ -101,15 +103,12 @@ object ScalaOIUtil {
 
   def runAction(selectedMembers: Seq[ClassMember],
                isImplement: Boolean, clazz: ScTemplateDefinition, editor: Editor) {
-    ScalaUtils.runWriteAction(new Runnable {
-      def run() {
-        import scala.collection.JavaConversions._
-        val sortedMembers = ScalaMemberChooser.sorted(selectedMembers, clazz)
-        val genInfos = sortedMembers.map(new ScalaGenerationInfo(_))
-        val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)
-        val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.orNull, genInfos.reverse)
-        inserted.headOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
-      }
+    ScalaUtils.runWriteAction(() => {
+      val sortedMembers = ScalaMemberChooser.sorted(selectedMembers, clazz)
+      val genInfos = sortedMembers.map(new ScalaGenerationInfo(_))
+      val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)
+      val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.orNull, genInfos.reverse.asJava).asScala
+      inserted.headOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
     }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
   }
 
@@ -244,7 +243,7 @@ object ScalaOIUtil {
   }
 
   def getAnchor(offset: Int, clazz: ScTemplateDefinition) : Option[ScMember] = {
-    val body = clazz.extendsBlock.templateBody match {
+    val body: ScTemplateBody = clazz.extendsBlock.templateBody match {
       case Some(x) => x
       case None => return None
     }

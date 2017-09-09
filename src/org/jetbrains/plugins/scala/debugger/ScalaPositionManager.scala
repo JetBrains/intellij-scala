@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -52,6 +53,7 @@ import scala.util.Try
 class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager with LocationLineManager {
 
   protected[debugger] val caches = new ScalaPositionManagerCaches(debugProcess)
+  private val outerAndNestedTypePartsPattern = """([^\$]*)(\$.*)?""".r
   import caches._
 
   ScalaPositionManager.cacheInstance(this)
@@ -131,8 +133,12 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val foundWithPattern =
       if (namePatterns.isEmpty) Nil
       else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
+    val distinctExactClasses = exactClasses.distinct
+    val loadedNestedClasses = if (ScalaDebuggerSettings.getInstance().FORCE_POSITION_LOOKUP_IN_NESTED_TYPES)
+      getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
+    else Nil
 
-    (exactClasses ++ foundWithPattern).distinct.asJava
+    (distinctExactClasses ++ foundWithPattern ++ loadedNestedClasses).distinct.asJava
   }
 
   @NotNull
@@ -174,7 +180,22 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       notLocalEnclosingTypeDefinition(element)
     }
 
-    def createPrepareRequest(position: SourcePosition): ClassPrepareRequest = {
+    val forceForNestedTypes = ScalaDebuggerSettings.getInstance().FORCE_CLASS_PREPARE_REQUESTS_FOR_NESTED_TYPES
+    def createClassPrepareRequests(classPrepareRequestor: ClassPrepareRequestor,
+                                   classPreparePattern: String): Seq[ClassPrepareRequest] = {
+      val reqManager = debugProcess.getRequestsManager
+      val patternCoversNestedTypes = classPreparePattern.endsWith("*")
+      if (patternCoversNestedTypes || !forceForNestedTypes) {
+        List(reqManager.createClassPrepareRequest(classPrepareRequestor, classPreparePattern))
+      } else {
+        val nestedTypesSuffix = if (classPreparePattern.endsWith("$")) "*" else "$*"
+        val nestedTypesPattern = classPreparePattern + nestedTypesSuffix
+        List(reqManager.createClassPrepareRequest(classPrepareRequestor, classPreparePattern),
+          reqManager.createClassPrepareRequest(classPrepareRequestor, nestedTypesPattern))
+      }
+    }
+
+    def createPrepareRequests(position: SourcePosition): Seq[ClassPrepareRequest] = {
       val qName = new Ref[String](null)
       val waitRequestor = new Ref[ClassPrepareRequestor](null)
       inReadAction {
@@ -200,7 +221,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         waitRequestor.set(new ScalaPositionManager.MyClassPrepareRequestor(position, requestor))
       }
 
-      debugProcess.getRequestsManager.createClassPrepareRequest(waitRequestor.get, qName.get)
+      createClassPrepareRequests(waitRequestor.get, qName.get)
     }
 
     val file = position.getFile
@@ -209,7 +230,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val possiblePositions = inReadAction {
       positionsOnLine(file, position.getLine).map(SourcePosition.createFromElement)
     }
-    possiblePositions.map(createPrepareRequest).asJava
+    possiblePositions.flatMap(createPrepareRequests).asJava
   }
 
   private def throwIfNotScalaFile(file: PsiFile): Unit = {
@@ -290,7 +311,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       try {
         val paramNumber = defaultArgIndex.toInt - 1
         possiblePositions.find {
-          case e =>
+          e =>
             val scParameters = PsiTreeUtil.getParentOfType(e, classOf[ScParameters])
             if (scParameters != null) {
               val param = scParameters.params(paramNumber)
@@ -371,16 +392,15 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       val query: Query[VirtualFile] = directoryIndex.getDirectoriesByPackageName(packageName, true)
       val fileNameWithoutExtension = if (dotIndex > 0) qName.substring(dotIndex + 1) else qName
       val fileNames: util.Set[String] = new util.HashSet[String]
-      import scala.collection.JavaConversions._
-      for (extention <- ScalaLoader.SCALA_EXTENSIONS) {
-        fileNames.add(fileNameWithoutExtension + "." + extention)
+      for (extension <- ScalaLoader.SCALA_EXTENSIONS.asScala) {
+        fileNames.add(fileNameWithoutExtension + "." + extension)
       }
       val result = new Ref[PsiFile]
       query.forEach(new Processor[VirtualFile] {
         override def process(vDir: VirtualFile): Boolean = {
           var isFound = false
           for {
-            fileName <- fileNames
+            fileName <- fileNames.asScala
             if !isFound
             vFile <- vDir.findChild(fileName).toOption
           } {
@@ -639,6 +659,21 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val containingName = NameTransformer.encode(name.substring(0, index))
     classesByName(containingName).headOption.flatMap(findElementByReferenceType)
   }
+
+  /**
+   * Retrieve potentially nested classes currently loaded to VM just by iterating all classes and taking into account
+   * the name mangling - instead of using VirtualMachineProxy's nestedTypes method (with caches etc.).
+   */
+  private def getNestedClasses(outerClasses: Seq[ReferenceType]) =
+    for {
+      outer <- outerClasses
+      nested <- debugProcess.getVirtualMachineProxy.allClasses().asScala
+      if outer != nested && extractOuterTypeName(nested.name) == outer.name
+    } yield nested
+
+  private def extractOuterTypeName(typeName: String) = typeName match {
+    case outerAndNestedTypePartsPattern(outerTypeName, _) => outerTypeName
+  }
 }
 
 object ScalaPositionManager {
@@ -649,11 +684,11 @@ object ScalaPositionManager {
   private val isCompiledWithIndyLambdasCache = mutable.HashMap[PsiFile, Boolean]()
 
   private val instances = mutable.HashMap[DebugProcess, ScalaPositionManager]()
-  private def cacheInstance(scPosManager: ScalaPositionManager) = {
+  private def cacheInstance(scPosManager: ScalaPositionManager): Unit = {
     val debugProcess = scPosManager.debugProcess
 
     instances.put(debugProcess, scPosManager)
-    debugProcess.addDebugProcessListener(new DebugProcessAdapter {
+    debugProcess.addDebugProcessListener(new DebugProcessListener {
       override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
         ScalaPositionManager.instances.remove(process)
         debugProcess.removeDebugProcessListener(this)
@@ -682,7 +717,7 @@ object ScalaPositionManager {
   def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     if (lineNumber < 0) return Seq.empty
 
-    val scFile = file match {
+    val scFile: ScalaFile = file match {
       case sf: ScalaFile => sf
       case _ => return Seq.empty
     }
@@ -900,7 +935,7 @@ object ScalaPositionManager {
         case _ => None
       }
     }
-    private var classJVMNameParts: Seq[String] = null
+    private var classJVMNameParts: Seq[String] = _
 
     private def computeClassJVMNameParts(elem: PsiElement): Seq[String] = {
       if (exactName.isDefined) Seq.empty
@@ -990,20 +1025,22 @@ object ScalaPositionManager {
 
   private[debugger] class ScalaPositionManagerCaches(debugProcess: DebugProcess) {
 
-    debugProcess.addDebugProcessListener(new DebugProcessAdapter {
+    debugProcess.addDebugProcessListener(new DebugProcessListener {
       override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
         clear()
         process.removeDebugProcessListener(this)
       }
     })
 
-    val refTypeToFileCache = mutable.HashMap[ReferenceType, PsiFile]()
-    val refTypeToElementCache = mutable.HashMap[ReferenceType, Option[SmartPsiElementPointer[PsiElement]]]()
+    val refTypeToFileCache: mutable.HashMap[ReferenceType, PsiFile] =
+      mutable.HashMap[ReferenceType, PsiFile]()
+    val refTypeToElementCache: mutable.HashMap[ReferenceType, Option[SmartPsiElementPointer[PsiElement]]] =
+      mutable.HashMap[ReferenceType, Option[SmartPsiElementPointer[PsiElement]]]()
 
-    val customizedLocationsCache = mutable.HashMap[Location, Int]()
-    val lineToCustomizedLocationCache = mutable.HashMap[(ReferenceType, Int), Seq[Location]]()
-    val seenRefTypes = mutable.Set[ReferenceType]()
-    val sourceNames = mutable.HashMap[ReferenceType, Option[String]]()
+    val customizedLocationsCache: mutable.HashMap[Location, Int] = mutable.HashMap[Location, Int]()
+    val lineToCustomizedLocationCache: mutable.HashMap[(ReferenceType, Int), Seq[Location]] = mutable.HashMap[(ReferenceType, Int), Seq[Location]]()
+    val seenRefTypes: mutable.Set[ReferenceType] = mutable.Set[ReferenceType]()
+    val sourceNames: mutable.HashMap[ReferenceType, Option[String]] = mutable.HashMap[ReferenceType, Option[String]]()
 
     def cachedSourceName(refType: ReferenceType): Option[String] =
       sourceNames.getOrElseUpdate(refType, Try(refType.sourceName()).toOption)

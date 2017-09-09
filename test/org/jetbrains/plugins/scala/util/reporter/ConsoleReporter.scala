@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.util.reporter
 
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.util.{CommandLineProgress, ProgressIndicatorBase}
+import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.util.reporter.TeamCityReporter.tcPrint
 import org.junit.Assert
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * @author mutcianm
@@ -35,11 +35,12 @@ class ConsoleReporter extends ProgressReporter {
     }
   }
 
-  protected var totalErrors = 0
+  protected val errorMessages = ArrayBuffer[String]()
 
-  def reportError(file: VirtualFile, range: TextRange, message: String) = {
-    totalErrors += 1
-    println(s"Error: ${file.getName}${range.toString} - $message")
+  def reportError(fileName: String, range: TextRange, message: String) = {
+    val errMessage = s"Error: $fileName${range.toString} - $message"
+    errorMessages += errMessage
+    System.err.println(errMessage)
   }
 
   def updateHighlightingProgress(percent: Int) = {
@@ -47,7 +48,9 @@ class ConsoleReporter extends ProgressReporter {
   }
 
   def reportResults() = {
-    Assert.assertTrue(s"Found $totalErrors errors while highlighting the project", totalErrors == 0)
+    val totalErrors = errorMessages.size
+    val allMessages = errorMessages.mkString(s"Found $totalErrors errors\n\n", "\n", "")
+    Assert.assertTrue(allMessages, totalErrors == 0)
   }
 
   override val progressIndicator: ProgressIndicator = new TextBasedProgressIndicator

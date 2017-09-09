@@ -6,7 +6,6 @@ import java.net.URL
 
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerManager, CompilerPaths}
 import com.intellij.openapi.components.AbstractProjectComponent
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
@@ -27,6 +26,7 @@ import scala.meta.parsers.Parse
 import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
 import scala.meta.{Dialect, Tree}
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
+import scala.collection.JavaConverters._
 
 /**
   * @author Mikhail Mutcianko
@@ -36,7 +36,6 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
   import org.jetbrains.plugins.scala.project._
 
   import MetaExpansionsManager.META_MAJOR_VERSION
-  import scala.collection.convert.decorateAsScala._
 
   override def getComponentName = "MetaExpansionsManager"
 
@@ -60,11 +59,11 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
     }
   }
 
-  private def installCompilationListener() = {
+  private def installCompilationListener(): Unit = {
     CompilerManager.getInstance(project).addCompilationStatusListener(compilationStatusListener)
   }
 
-  private def uninstallCompilationListener() = {
+  private def uninstallCompilationListener(): Unit = {
     CompilerManager.getInstance(project).removeCompilationStatusListener(compilationStatusListener)
   }
 
@@ -87,11 +86,11 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
 
     def classLoaderForModule(module: Module): URLClassLoader = {
       annotationClassLoaders.getOrElseUpdate(module.getName, {
-        val cp: List[URL] = OrderEnumerator.orderEntries(module).getClassesRoots.toList.map(toUrl)
+        val dependencyCP: List[URL] = OrderEnumerator.orderEntries(module).getClassesRoots.toList.map(toUrl)
         val outDirs: List[URL] = projectOutputDirs(module.getProject).map(str => new File(str).toURI.toURL)
-        val fullCP: immutable.Seq[URL] = outDirs ++ cp :+ pluginCP
+        val fullCP: immutable.Seq[URL] = outDirs ++ dependencyCP :+ pluginCP
         // a quick way to test for compatible meta version - check jar name in classpath
-        if (annot.scalaLanguageLevelOrDefault == Scala_2_11 && cp.exists(_.toString.contains(s"trees_2.11-$META_MAJOR_VERSION")))
+        if (annot.scalaLanguageLevelOrDefault == Scala_2_11 && dependencyCP.exists(_.toString.contains(s"trees_2.11-$META_MAJOR_VERSION")))
           new URLClassLoader(fullCP, getClass.getClassLoader)
         else if (annot.scalaLanguageLevelOrDefault == Scala_2_11)
           new MetaClassLoader(fullCP)
@@ -100,12 +99,15 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
       })
     }
 
-    val annotClass = annot.constructor.reference
-      .flatMap(_.bind().flatMap(_.parentElement.map(_.asInstanceOf[ScClass])))
+    val annotClass: Option[ScClass] = for {
+      ref <- annot.constructor.reference
+      resolved <- ref.bind()
+      parent <- resolved.parentElement.map(_.asInstanceOf[ScClass])
+    } yield parent
     val metaModule = annotClass.flatMap(_.module)
     val classLoader = metaModule
       .map(classLoaderForModule)  // try annotation's own module first - if it exists as a part of rhe codebase
-      .orElse(annot.module.map(classLoaderForModule)) // otherwise it's somwere among current module dependencies
+      .orElse(annot.module.map(classLoaderForModule)) // otherwise it's somewhere among current module dependencies
     try {
       annotClass.flatMap(clazz =>
         classLoader.map(  loader =>
@@ -121,13 +123,11 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
 
 object MetaExpansionsManager {
 
-  val META_MAJOR_VERSION = "1.7"
-
-  private val LOG = Logger.getInstance(getClass)
+  val META_MAJOR_VERSION = "1.8"
 
   class MetaWrappedException(val target: Throwable) extends Exception
 
-  def getInstance(project: Project): MetaExpansionsManager = project.getComponent(classOf[MetaExpansionsManager]).asInstanceOf[MetaExpansionsManager]
+  def getInstance(project: Project): MetaExpansionsManager = project.getComponent(classOf[MetaExpansionsManager])
 
   def getCompiledMetaAnnotClass(annot: ScAnnotation): Option[Class[_]] = getInstance(annot.getProject).getCompiledMetaAnnotClass(annot)
 
@@ -172,7 +172,6 @@ object MetaExpansionsManager {
         ProgressManager.checkCanceled()
         val errorOrTree = (maybeClass, maybeClass.map(_.getClassLoader)) match {
           case (Some(clazz), Some(cl: MetaClassLoader)) => Right(runAdapterString(clazz, compiledArgs))
-//        case (Some(clazz), Some(_:MetaClassLoader))   => Right(runAdapterBinary(clazz, compiledArgs))
           case (Some(clazz), _) => Right(runDirect(clazz, compiledArgs))
           case (None, _)        => Left("Meta annotation class could not be found")
         }

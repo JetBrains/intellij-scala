@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
  * Date: 08.11.11
  */
 class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluator: Evaluator) extends Evaluator {
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
     myEvaluatedIndex = 0
     myEvaluatedArrayReference = null
     val indexValue: Value = indexEvaluator.evaluate(context).asInstanceOf[Value]
@@ -36,7 +37,7 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
     }
   }
 
-  def getModifier: Modifier = {
+  override def getModifier: Modifier = {
     var modifier: Modifier = null
     if (myEvaluatedArrayReference != null) {
       modifier = new Modifier {

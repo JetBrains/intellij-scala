@@ -8,15 +8,15 @@ import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
+import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{CompilerProjectExtension, ModuleRootAdapter, ModuleRootEvent}
+import com.intellij.openapi.roots.{CompilerProjectExtension, ModuleRootEvent, ModuleRootListener}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{EdtTestUtil, PsiTestUtil, VfsTestUtil}
-import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
@@ -24,9 +24,9 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.debugger.{DebuggerTestUtil, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -64,7 +64,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     val project = getProject
     project.getMessageBus
       .connect(getTestRootDisposable)
-      .subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
+      .subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
         override def rootsChanged(event: ModuleRootEvent) {
           BuildManager.getInstance.clearState(project)
         }
@@ -108,6 +108,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 
 
   protected def checkExpansionEquals(code: String, expectedExpansion: String): Unit = {
+    import scala.meta.intellij.psiExt._
     myFixture.configureByText(s"Usage${getTestName(false)}.scala", code)
     val holder = ScalaPsiUtil.getParentOfType(myFixture.getElementAtCaret, classOf[ScAnnotationsHolder]).asInstanceOf[ScAnnotationsHolder]
     holder.getMetaExpansion match {
@@ -115,6 +116,12 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
       case Left(reason) if reason.nonEmpty => Assert.fail(reason)
       case Left("") => Assert.fail("Expansion was empty - did annotation even run?")
     }
+  }
+
+  protected def getGutter: GutterIconRenderer = {
+    val gutters = myFixture.findAllGutters()
+    Assert.assertEquals("Wrong number of gutters", 1, gutters.size())
+    gutters.get(0).asInstanceOf[GutterIconRenderer]
   }
 
   private def setUpCompiler(implicit module: Module): Unit = {
@@ -153,12 +160,10 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     val semaphore: Semaphore = new Semaphore
     semaphore.down()
     val callback = new ErrorReportingCallback(semaphore)
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      def run() {
-        CompilerTestUtil.saveApplicationSettings()
-        saveProject()
-        CompilerManager.getInstance(getProject).rebuild(callback)
-      }
+    EdtTestUtil.runInEdtAndWait(() => {
+      CompilerTestUtil.saveApplicationSettings()
+      saveProject()
+      CompilerManager.getInstance(getProject).rebuild(callback)
     })
     val maxCompileTime = 6000
     var i = 0
@@ -228,15 +233,18 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   protected def testClass: ScTypeDefinition = myFixture
     .getFile
     .getChildren
-    .collectFirst({case c: ScTypeDefinition if c.name == testClassName => c})
+    .collectFirst {
+      case c: ScTypeDefinition if c.name == testClassName => c
+    }
     .getOrElse{Assert.fail(s"Class $testClassName not found"); throw new RuntimeException}
+  protected val tq = "\"\"\""
 }
 
 object MetaAnnotationTestBase {
 
-  private case class MetaParadiseLoader(implicit val module: Module) extends MetaBaseLoader {
-    override protected val name: String = "paradise"
-    override protected val version: String = "3.0.0-M8"
+  private case class MetaParadiseLoader()(implicit val module: Module) extends MetaBaseLoader {
+    override val name: String = "paradise"
+    override val version: String = "3.0.0-M10" // FIXME version from buildinfo
 
     override protected def folder(implicit version: ScalaVersion): String =
       s"${name}_${version.minor}"

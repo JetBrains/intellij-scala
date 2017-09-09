@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 object ScalaKeywordLookupItem {
   def getLookupElement(keyword: String, project: Project): LookupElement = {
     val keywordPsi: PsiElement = ScalaLightKeyword(PsiManager.getInstance(project), keyword)
-    LookupElementBuilder.create(keywordPsi, keyword).withBoldness(true).withIcon(new EmptyIcon(16, 16)).
+    LookupElementBuilder.create(keywordPsi, keyword).withBoldness(true).withIcon(EmptyIcon.create(16, 16)).
       withInsertHandler(new KeywordInsertHandler(keyword))
   }
 

@@ -138,7 +138,7 @@ private class BaseTypesIterator(tp: ScType) extends Iterator[ScType] {
         case ScThisType(clazz) =>
           clazz.getTypeWithProjections(TypingContext.empty).toOption
         case TypeParameterType(Nil, _, upper, _) =>
-          Some(upper.v)
+          Some(upper)
         case ScExistentialArgument(_, Nil, _, upper) =>
           Some(upper)
         case ex: ScExistentialType =>

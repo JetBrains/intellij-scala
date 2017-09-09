@@ -50,7 +50,6 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
   def typeElement: ScTypeElement =
     byPsiOrStub(Option(annotationExpr.constr.typeElement))(_.typeElement).orNull
 
-
   def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
     constructor.args match {
       case Some(args) => args.exprs.map {
@@ -134,14 +133,18 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
       }
       else {
         val args: Seq[ScArgumentExprList] = annotationExpr.constr.arguments
-        if (args.length == 0) {
+        if (args.isEmpty) {
           return null.asInstanceOf[T] //todo: ?
         }
         val params: Seq[ScExpression] = args.flatMap(arg => arg.exprs)
-        if (params.length == 1 && !params(0).isInstanceOf[ScAssignStmt]) {
-          params(0).replace(createExpressionFromText(PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME + " = " + params(0).getText)(params(0).getManager))
+        if (params.length == 1 && !params.head.isInstanceOf[ScAssignStmt]) {
+          params.head.replace(
+            createExpressionFromText
+              (PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME + " = " + params.head.getText)
+              (params.head.getManager)
+          )
         }
-        var allowNoName: Boolean = params.length == 0 &&
+        var allowNoName: Boolean = params.isEmpty &&
           (PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME.equals(attributeName) || null == attributeName)
         var namePrefix: String = null
         if (allowNoName) {
@@ -151,7 +154,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
           namePrefix = attributeName + " = "
         }
 
-        args(0).addBefore(createExpressionFromText(namePrefix + value.getText)(value.getManager), null)
+        args.head.addBefore(createExpressionFromText(namePrefix + value.getText)(value.getManager), null)
       }
     }
     findDeclaredAttributeValue(attributeName).asInstanceOf[T]
@@ -167,4 +170,14 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
       case _ => super.accept(visitor)
     }
   }
+
+  override def canNavigate: Boolean =
+    super[ScalaStubBasedElementImpl].canNavigate
+
+  override def canNavigateToSource: Boolean =
+    super[ScalaStubBasedElementImpl].canNavigateToSource
+
+  override def navigate(requestFocus: Boolean): Unit =
+    super[ScalaStubBasedElementImpl].navigate(requestFocus)
+
 }

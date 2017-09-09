@@ -13,11 +13,12 @@ import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.impl.source.PsiFileImpl
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.collection.Seq
 
@@ -26,7 +27,7 @@ import scala.collection.Seq
  */
 
 trait ScTypeDefinition extends ScTemplateDefinition with ScMember
-    with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable with ScDocCommentOwner
+    with NavigationItem with PsiClassAdapter with ScTypeParametersOwner with Iconable with ScDocCommentOwner
     with ScAnnotationsHolder with ScCommentOwner {
 
   override def extendsBlock = super.extendsBlock

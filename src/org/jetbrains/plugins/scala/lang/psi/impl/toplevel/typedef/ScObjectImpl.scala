@@ -185,7 +185,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     }
   }
 
-  override def getFields: Array[PsiField] = {
+  override def psiFields: Array[PsiField] = {
     getModuleField.toArray
   }
 
@@ -196,9 +196,9 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     }
   }
 
-  override def getInnerClasses: Array[PsiClass] = Array.empty
+  override def psiInnerClasses: Array[PsiClass] = Array.empty
 
-  override def getMethods: Array[PsiMethod] = {
+  override def psiMethods: Array[PsiMethod] = {
     getAllMethods.filter(_.containingClass == this)
   }
 
@@ -245,10 +245,11 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
   }
 
   override def desugaredElement: Option[ScTemplateDefinition] = {
+    import scala.meta.intellij.psiExt._
     import scala.meta.{Defn, Term, Tree}
 
     if (isDesugared) return None
-    val expansion: Option[Tree] = getMetaExpansion match {
+    val expansion: Option[Tree] = this.getMetaExpansion match {
       case Right(tree) => Some(tree)
       case _ => fakeCompanionClassOrCompanionClass match {
         case ah: ScAnnotationsHolder => ah.getMetaExpansion match {

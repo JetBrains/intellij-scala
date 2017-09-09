@@ -29,14 +29,16 @@ object Common {
   def filterTestClasspath(classpath: Def.Classpath): Def.Classpath =
     classpath.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))
 
-  val slowTestsCategory: String =
-    "org.jetbrains.plugins.scala.SlowTests"
+  object TestCategory {
+    private val pkg = "org.jetbrains.plugins.scala"
+    private def cat(name: String) = s"$pkg.$name"
 
-  val perfOptCategory: String =
-    "org.jetbrains.plugins.scala.PerfCycleTests"
+    val slowTests: String = cat("SlowTests")
+    val perfOptTests: String = cat("PerfCycleTests")
+    val highlightingTests: String = cat("HighlightingTests")
+    val debuggerTests: String = cat("DebuggerTests")
+  }
 
-  val highlightingCategory =
-    "org.jetbrains.plugins.scala.HighlightingTests"
 
   val testConfigDir: File =
     Path.userHome / ".IdeaData" / "IDEA-15" / "scala" / "test-config"

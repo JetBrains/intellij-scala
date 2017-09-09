@@ -5,9 +5,11 @@ import java.io.{File, IOException}
 import javax.swing.event.HyperlinkEvent
 
 import com.intellij.compiler.server.BuildManager
+import com.intellij.ide.plugins.{PluginManager, IdeaPluginDescriptor}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
@@ -31,9 +33,7 @@ import scala.util.control.Exception._
 class CompileServerLauncher extends ApplicationComponent {
    private var serverInstance: Option[ServerInstance] = None
 
-   def initComponent() {}
-
-   def disposeComponent() {
+  override def disposeComponent(): Unit = {
      if (running) stop()
    }
 
@@ -68,6 +68,14 @@ class CompileServerLauncher extends ApplicationComponent {
     }
   }
 
+  private def compilerServerAddtionalCP(): Seq[File] = for {
+    extension <- NailgunServerAdditionalCp.EP_NAME.getExtensions
+    filesPath <- extension.getClasspath.split(";")
+    pluginId: PluginId = extension.getPluginDescriptor.getPluginId
+    plugin: IdeaPluginDescriptor = PluginManager.getPlugin(pluginId)
+    pluginsLibs = new File(plugin.getPath, "lib")
+  } yield new File(pluginsLibs, filesPath)
+
   private def start(project: Project, jdk: JDK): Either[String, Process] = {
     import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.{compilerJars, jvmParameters}
 
@@ -82,7 +90,9 @@ class CompileServerLauncher extends ApplicationComponent {
         val bootclasspathArg =
           if (bootClassPathLibs.isEmpty) Nil
           else Seq("-Xbootclasspath/a:" + bootClassPathLibs.mkString(File.pathSeparator))
-        val classpath = (jdk.tools +: presentFiles).map(_.canonicalPath).mkString(File.pathSeparator)
+        val classpath = (jdk.tools +: (presentFiles ++ compilerServerAddtionalCP()))
+          .map(_.canonicalPath)
+          .mkString(File.pathSeparator)
 
         val freePort = CompileServerLauncher.findFreePort
         if (settings.COMPILE_SERVER_PORT != freePort) {
@@ -131,11 +141,9 @@ class CompileServerLauncher extends ApplicationComponent {
   def stop(project: Project) {
     stop()
 
-    ApplicationManager.getApplication invokeLater new Runnable {
-      override def run() {
-        CompileServerManager.configureWidget(project)
-      }
-    }
+    ApplicationManager.getApplication invokeLater (() => {
+      CompileServerManager.configureWidget(project)
+    })
   }
 
   def running: Boolean = serverInstance.exists(_.running)
@@ -144,7 +152,7 @@ class CompileServerLauncher extends ApplicationComponent {
 
   def port: Option[Int] = serverInstance.map(_.port)
 
-  def getComponentName: String = getClass.getSimpleName
+  override def getComponentName: String = getClass.getSimpleName
 }
 
 object CompileServerLauncher {
@@ -180,24 +188,19 @@ object CompileServerLauncher {
       utilJar,
       trove4jJar,
       new File(pluginRoot, "scala-library.jar"),
+      new File(pluginRoot, "scala-reflect.jar"),
       new File(pluginRoot, "scala-nailgun-runner.jar"),
-      new File(pluginRoot, "compiler-settings.jar"),
+      new File(pluginRoot, "jpsShared.jar"),
       new File(jpsRoot, "nailgun.jar"),
       new File(jpsRoot, "sbt-interface.jar"),
       new File(jpsRoot, "incremental-compiler.jar"),
-      new File(jpsRoot, "scala-jps-plugin.jar"),
-      dottyInterfacesJar
+      new File(jpsRoot, "scala-jps-plugin.jar")
     )
   }
 
   def pluginPath: String = {
     if (ApplicationManager.getApplication.isUnitTestMode) new File(System.getProperty("plugin.path"), "lib").getCanonicalPath
     else new File(PathUtil.getJarPathForClass(getClass)).getParent
-  }
-
-  def dottyInterfacesJar: File = {
-    val jpsDir = new File(pluginPath, "jps")
-    new File(jpsDir, "dotty-interfaces.jar")
   }
 
   def bootClasspath(project: Project): Seq[File] = {
@@ -215,17 +218,17 @@ object CompileServerLauncher {
       if (size.isEmpty) Nil else List("-Xmx%sm".format(size))
     }
 
-    val (userMaxPermSize, otherParams) = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").partition(_.contains("-XX:MaxPermSize"))
+    val (_, otherParams) = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").partition(_.contains("-XX:MaxPermSize"))
 
     xmx ++ otherParams
   }
 
-  def ensureServerRunning(project: Project) {
+  def ensureServerRunning(project: Project): Boolean = {
     val launcher = CompileServerLauncher.instance
 
     if (needRestart(project)) launcher.stop()
 
-    if (!launcher.running) launcher.tryToStart(project)
+    launcher.running || launcher.tryToStart(project)
   }
 
   def needRestart(project: Project): Boolean = {

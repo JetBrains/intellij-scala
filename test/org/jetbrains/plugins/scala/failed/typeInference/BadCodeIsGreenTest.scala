@@ -4,19 +4,20 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection
 import org.junit.experimental.categories.Category
 
 /**
   * User: Dmitry.Naydanov
   * Date: 22.03.16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 abstract class BadCodeIsGreenTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
-    classOf[LocalInspectionTool]
+    classOf[AnnotatorBasedErrorInspection]
 }
 
+@Category(Array(classOf[PerfCycleTests]))
 class Test1 extends BadCodeIsGreenTest {
 
   override protected val description: String =
@@ -37,6 +38,7 @@ class Test1 extends BadCodeIsGreenTest {
   }
 }
 
+@Category(Array(classOf[PerfCycleTests]))
 class Test2 extends BadCodeIsGreenTest {
 
   override protected val description: String =
@@ -54,6 +56,7 @@ class Test2 extends BadCodeIsGreenTest {
   }
 }
 
+@Category(Array(classOf[PerfCycleTests]))
 class Test3 extends BadCodeIsGreenTest {
 
   override protected val description: String =
@@ -73,6 +76,7 @@ class Test3 extends BadCodeIsGreenTest {
   }
 }
 
+@Category(Array(classOf[PerfCycleTests]))
 class Test4 extends BadCodeIsGreenTest {
 
   override protected val description: String =
@@ -90,6 +94,7 @@ class Test4 extends BadCodeIsGreenTest {
   }
 }
 
+@Category(Array(classOf[PerfCycleTests]))
 class Test5 extends BadCodeIsGreenTest {
 
   override protected val description: String =
@@ -118,6 +123,7 @@ class Test5 extends BadCodeIsGreenTest {
   }
 }
 
+@Category(Array(classOf[PerfCycleTests]))
 class Test6 extends BadCodeIsGreenTest {
 
   override protected val description: String =
@@ -141,6 +147,7 @@ class Test6 extends BadCodeIsGreenTest {
   }
 }
 
+@Category(Array(classOf[PerfCycleTests]))
 class Test7 extends BadCodeIsGreenTest {
 
   override protected val description: String =
@@ -164,6 +171,7 @@ class Test7 extends BadCodeIsGreenTest {
   }
 }
 
+@Category(Array(classOf[PerfCycleTests]))
 class Test8 extends BadCodeIsGreenTest {
 
   override protected val description: String =
@@ -179,6 +187,7 @@ class Test8 extends BadCodeIsGreenTest {
   }
 }
 
+@Category(Array(classOf[PerfCycleTests]))
 class Test9 extends BadCodeIsGreenTest {
 
   override protected val description: String =
@@ -192,6 +201,7 @@ class Test9 extends BadCodeIsGreenTest {
   }
 }
 
+@Category(Array(classOf[PerfCycleTests]))
 class Test10 extends BadCodeIsGreenTest {
 
   override protected val description: String =

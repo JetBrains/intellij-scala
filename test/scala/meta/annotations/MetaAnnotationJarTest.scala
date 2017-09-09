@@ -2,6 +2,7 @@ package scala.meta.annotations
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.markup.GutterIconRenderer
+import com.intellij.openapi.module.Module
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, TestActionEvent}
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -24,17 +25,18 @@ class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMet
 
   protected lazy val testJarPath = s"/addFoo_${version.major}_$paradiseVersion.jar"
 
-  override implicit protected def module = myModule
+  override implicit protected def module: Module = myModule
 
-  private val paradiseVersion = "3.0.0-M8"
+  private val paradiseVersion = "3.0.0-M10"
 
-  override def setUp() = {
+  override def setUp(): Unit = {
     super.setUp()
     setUpLibraries()
     PsiTestUtil.addLibrary(myModule, getTestDataPath + testJarPath)
   }
 
   def testLoadAnnotationFromJar(): Unit = {
+    import scala.meta.intellij.psiExt._
     val source =
       """
         |@addFoo
@@ -77,7 +79,7 @@ class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMet
     myFixture.configureByText("foo.scala", source)
     val errors = myFixture.doHighlighting(HighlightSeverity.ERROR)
     assertEquals("Wrong number of reported expansion errors", 1, errors.size())
-    val expected = "Meta expansion failed: scala.MatchError: trait foo (of class scala.meta.Defn$Trait$DefnTraitImpl)"
+    val expected = "Macro expansion failed: scala.MatchError: trait foo (of class scala.meta.Defn$Trait$DefnTraitImpl)"
     assertEquals("Wrong expansion error message", expected, errors.get(0).getDescription)
   }
 }

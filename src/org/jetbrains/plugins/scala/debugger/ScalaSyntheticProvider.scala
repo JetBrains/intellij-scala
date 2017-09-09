@@ -8,8 +8,8 @@ import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 
-import scala.collection.JavaConversions._
 import scala.util.Try
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -55,8 +55,8 @@ object ScalaSyntheticProvider {
     def checkSignature(cand: TypeComponent) = tc.signature() == cand.signature()
 
     tc match {
-      case _: Method => referenceType.methods().exists(c => checkName(c) && checkSignature(c))
-      case _: Field => referenceType.allFields().exists(checkName)
+      case _: Method => referenceType.methods().asScala.exists(c => checkName(c) && checkSignature(c))
+      case _: Field => referenceType.allFields().asScala.exists(checkName)
       case _ => false
     }
   }
@@ -89,6 +89,7 @@ object ScalaSyntheticProvider {
       val methods = m.declaringType().methods()
       val lines =
         methods
+          .asScala
           .flatMap(m => Option(m.location()))
           .map(_.lineNumber())
           .filter(_ >= 0)
@@ -105,7 +106,7 @@ object ScalaSyntheticProvider {
   }
 
   private def onlyInvokesStatic(m: Method): Boolean = {
-    val bytecodes =
+    val bytecodes: Array[Byte] =
       try m.bytecodes()
       catch {case _: Throwable => return false}
 
@@ -132,17 +133,17 @@ object ScalaSyntheticProvider {
         else {
           val typeNames = m.argumentTypeNames()
           val argCount = typeNames.size
-          implMethods.exists { impl =>
+          implMethods.asScala.exists { impl =>
             val implTypeNames = impl.argumentTypeNames()
             val implArgCount = implTypeNames.size
-            implArgCount == argCount + 1 && implTypeNames.tail == typeNames ||
+            implArgCount == argCount + 1 && implTypeNames.asScala.tail == typeNames ||
               implArgCount == argCount && implTypeNames == typeNames
           }
         }
       case ct: ClassType =>
-        val interfaces = ct.allInterfaces()
+        val interfaces = ct.allInterfaces().asScala
         val vm = ct.virtualMachine()
-        val allTraitImpls = vm.allClasses().filter(_.name().endsWith("$class"))
+        val allTraitImpls = vm.allClasses().asScala.filter(_.name().endsWith("$class"))
         for {
           interface <- interfaces
           traitImpl <- allTraitImpls
@@ -159,7 +160,7 @@ object ScalaSyntheticProvider {
     val simpleName = m.name.stripSuffix("_$eq")
     m.declaringType() match {
       case ct: ClassType if ct.fieldByName(simpleName) != null =>
-        ct.allInterfaces().exists(_.name() == "scala.DelayedInit")
+        ct.allInterfaces().asScala.exists(_.name() == "scala.DelayedInit")
       case _ => false
     }
   }

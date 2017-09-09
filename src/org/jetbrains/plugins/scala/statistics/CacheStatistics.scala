@@ -9,6 +9,7 @@ import org.github.jamm.MemoryMeter
 
 import scala.collection.mutable
 import scala.ref.WeakReference
+import scala.collection.JavaConverters._
 
 /**
 *  Author: Svyatoslav Ilinskiy
@@ -49,9 +50,8 @@ class CacheStatistics private(id: String, name: String) {
   }
 
   def removeCacheObject(obj: Any): Boolean = {
-    import scala.collection.JavaConversions._
     var res = false
-    objectsToKeepTrackOf.foreach {
+    objectsToKeepTrackOf.forEach {
       case WeakReference(el) if el.equals(obj) => res = objectsToKeepTrackOf.remove(el)
       case WeakReference(_) =>
       case t => objectsToKeepTrackOf.remove(t) //weak refernce has expired
@@ -60,31 +60,15 @@ class CacheStatistics private(id: String, name: String) {
   }
 
   def objectsToKeepTrackOfNormalReferences: mutable.Set[Any] = {
-    import scala.collection.JavaConversions._
-    objectsToKeepTrackOf.collect {
+    objectsToKeepTrackOf.asScala.collect {
       case WeakReference(ref) => ref
     }
   }
 
-  //this method may take a while time to run
-  def spaceTakenByCache: Long = {
-    -1 //turned off counting space taken by cache, it causes errors to happen and doesn't work overall
-    /*try {
-      objectsToKeepTrackOfNormalReferences.map(memoryMeter.measureDeep).sum
-    } catch {
-      case e@(_: AssertionError | _: IllegalStateException) =>
-        println(e.getMessage) //message is probably: Instrumentation is not set; Jamm must be set as -javaagent
-        print("Not counting size of cache")
-        -1
-    }*/
-
-  }
-
   override def toString: String = {
-    import scala.collection.JavaConversions._
-    val calcTimes: Set[Long] = calculationTimes.toSet //efficient because not conccurent
+    val calcTimes: Set[Long] = calculationTimes.asScala.toSet //efficient because not concurrent
 
-    if (calculationTimes.nonEmpty) {
+    if (!calculationTimes.isEmpty) {
       val (maxTime, minTime, averageTime) = (calcTimes.max, calcTimes.min, calcTimes.sum.toDouble / calcTimes.size)
 
       val timeSaved = hits * averageTime

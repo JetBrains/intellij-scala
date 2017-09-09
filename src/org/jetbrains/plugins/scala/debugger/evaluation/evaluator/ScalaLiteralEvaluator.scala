@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  */
 
 class ScalaLiteralEvaluator(value: AnyRef, tp: ScType) extends Evaluator {
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
     if (value == null) return null
     val vm = context.getDebugProcess.getVirtualMachineProxy
     value match {
@@ -26,8 +26,6 @@ class ScalaLiteralEvaluator(value: AnyRef, tp: ScType) extends Evaluator {
       case _ => throw EvaluationException("unknown type of literal")
     }
   }
-
-  def getModifier: Modifier = null
 }
 
 object ScalaLiteralEvaluator {

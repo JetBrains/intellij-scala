@@ -16,9 +16,9 @@ import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.util.CommonProcessors.CollectProcessor
 import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
-import org.jetbrains.plugins.scala.project.{DottyLibraryName, Platform, ScalaLanguageLevel, ScalaLibraryName, ScalaLibraryProperties, ScalaLibraryType, ScalaSdk}
+import org.jetbrains.plugins.scala.project.{DottyLibraryName, Platform, ScalaLanguageLevel, ScalaLibraryName, ScalaLibraryProperties, ScalaLibraryType}
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -36,7 +36,7 @@ abstract class AbstractDataService[E, I](key: Key[E]) extends AbstractProjectDat
                                 projectData: ProjectData,
                                 project: Project,
                                 modelsProvider: IdeModifiableModelsProvider): Unit =
-    createImporter(toImport.toSeq, projectData, project, modelsProvider).importData()
+    createImporter(toImport.asScala.toSeq, projectData, project, modelsProvider).importData()
 }
 
 /**
@@ -97,7 +97,9 @@ trait Importer[E] {
     }
     val collector = new CollectProcessor[Library]()
     getModifiableRootModel(module).orderEntries().librariesOnly().forEachLibrary(collector)
-    collector.getResults.toSet.filter(l => Option(l.getName).exists(_.contains(libraryName)))
+    collector.getResults.asScala
+      .toSet
+      .filter(l => Option(l.getName).exists(_.contains(libraryName)))
   }
 
   def executeProjectChangeAction(action: => Unit): Unit =

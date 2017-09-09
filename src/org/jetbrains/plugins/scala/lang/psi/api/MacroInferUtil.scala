@@ -47,9 +47,9 @@ object MacroInferUtil {
         }.map {
           new Checker(_)
         }.map {
-          _.withCheck("product", "Generic", calcProduct)
+          _.withCheck("product", "Generic", calcProduct _)
         }.map {
-          _.withCheck("apply", "LowPriorityGeneric", calcProduct)
+          _.withCheck("apply", "LowPriorityGeneric", calcProduct _)
         }.flatMap {
           _.check()
         }

@@ -21,7 +21,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
-import scala.collection.mutable.HashSet
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /**
  * @author ilyas
@@ -31,21 +32,21 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
 
   def handleQualifiedNameChange(newQualifiedName: String) {
   }
-  def getDirectories = PsiDirectory.EMPTY_ARRAY
+  def getDirectories: Array[PsiDirectory] = PsiDirectory.EMPTY_ARRAY
   def checkSetName(s: String) {
     throw new IncorrectOperationException("cannot set name: nonphysical element")
   }
   override def getText = ""
   override def toString: String = "Scala Synthetic Package " + getQualifiedName
-  def getDirectories(scope: GlobalSearchScope) = PsiDirectory.EMPTY_ARRAY
-  def getModifierList: PsiModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
-  def hasModifierProperty(s: String) = false
-  def getAnnotationList = null
+  override def getDirectories(scope: GlobalSearchScope): Array[PsiDirectory] = PsiDirectory.EMPTY_ARRAY
+  override def getModifierList: PsiModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
+  override def hasModifierProperty(s: String) = false
+  override def getAnnotationList: PsiModifierList = null
   override def getName: String = name
-  def setName(newName: String) = throw new IncorrectOperationException("cannot set name: nonphysical element")
+  override def setName(newName: String) = throw new IncorrectOperationException("cannot set name: nonphysical element")
   override def copy = throw new IncorrectOperationException("cannot copy: nonphysical element")
   override def getContainingFile: PsiFile = SyntheticClasses.get(manager.getProject).file
-  def occursInPackagePrefixes = VirtualFile.EMPTY_ARRAY
+  override def occursInPackagePrefixes: Array[VirtualFile] = VirtualFile.EMPTY_ARRAY
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
@@ -80,16 +81,16 @@ object ScSyntheticPackage {
 
     import com.intellij.psi.stubs.StubIndex
 
-    import scala.collection.JavaConversions._
     val packages = StubIndex.getElements(
       ScalaIndexKeys.PACKAGE_FQN_KEY.asInstanceOf[StubIndexKey[Any, ScPackaging]],
-      cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[ScPackaging]).toSeq
+      cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[ScPackaging]).asScala
 
     if (packages.isEmpty) {
       StubIndex.getElements(
         ScalaIndexKeys.PACKAGE_OBJECT_KEY.asInstanceOf[StubIndexKey[Any, PsiClass]],
-        cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[PsiClass]).toSeq.
-        find(pc => {
+        cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[PsiClass])
+          .asScala
+          .find(pc => {
           ScalaNamesUtil.equivalentFqn(pc.qualifiedName, fqn)
       }) match {
         case Some(_) =>
@@ -129,14 +130,14 @@ object ScSyntheticPackage {
           def getQualifiedName: String = fqn
 
           def getClasses: Array[PsiClass] = {
-            Array(pkgs.flatMap(p =>
+            pkgs.flatMap(p =>
               if (ScalaNamesUtil.cleanFqn(p.fullPackageName).length == cleanName.length)
                 p.typeDefs.flatMap {
                   case td@(c: ScTypeDefinition) if c.fakeCompanionModule.isDefined =>
                     Seq(td, c.fakeCompanionModule.get)
                   case td => Seq(td)
                 }
-              else Seq.empty): _*)
+              else Seq.empty).toArray
           }
 
           def getClasses(scope: GlobalSearchScope): Array[PsiClass] =
@@ -148,7 +149,7 @@ object ScSyntheticPackage {
           def getParentPackage: ScPackageImpl = ScPackageImpl.findPackage(project, pname)
 
           def getSubPackages: Array[PsiPackage] = {
-            val buff = new HashSet[PsiPackage]
+            val buff = new mutable.HashSet[PsiPackage]
             pkgs.foreach{
               p =>
               def addPackage(tail : String) {

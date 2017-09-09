@@ -9,6 +9,7 @@ import com.intellij.util.{EmptyQuery, Query}
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import scala.collection.JavaConverters._
 
 /**
  * @author Roman.Shein
@@ -49,11 +50,16 @@ class ScalaAnnotatedMacro extends Macro {
     val outerClass: Option[PsiClass] = Option(secondParamName).flatMap { secondParamName =>
       ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), secondParamName)
     }
-    import collection.JavaConversions._
-    getAnnotatedMembers(params, context).findAll().filter(outerClass.isDefined && outerClass.contains(_)).map{
-      case psiClass: PsiClass if !isShortName => psiClass.getQualifiedName
-      case notClass => notClass.getName
-    }.toSet[String].map(LookupElementBuilder.create).toArray
+    getAnnotatedMembers(params, context).findAll()
+      .asScala
+      .filter(outerClass.isDefined && outerClass.contains(_))
+      .map {
+        case psiClass: PsiClass if !isShortName => psiClass.getQualifiedName
+        case notClass => notClass.getName
+      }
+      .toSet[String]
+      .map(LookupElementBuilder.create)
+      .toArray
   }
 
   override def isAcceptableInContext(context: TemplateContextType): Boolean = context.isInstanceOf[ScalaCodeContextType]

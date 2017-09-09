@@ -11,8 +11,7 @@ import com.intellij.refactoring.ui.{AbstractMemberSelectionPanel, AbstractMember
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * Wizard dialog to select class members for generation of toString method.
@@ -36,7 +35,8 @@ class ScalaGenerateToStringWizard(project: Project, classMembers: Seq[ScNamedEle
     result
   }
 
-  def getToStringFields: Seq[ScNamedElement] = toStringPanel.getTable.getSelectedMemberInfos.map(_.getMember).toSeq
+  def getToStringFields: Seq[ScNamedElement] =
+    toStringPanel.getTable.getSelectedMemberInfos.asScala.map(_.getMember).toSeq
   def withFieldNames: Boolean = toStringPanel.checkBox.isSelected
 
   /**
@@ -48,7 +48,7 @@ class ScalaGenerateToStringWizard(project: Project, classMembers: Seq[ScNamedEle
   private lazy val toStringPanel = {
     val allFields =  classMembers.map(new ScalaMemberInfo(_))
     val panel = new ScalaToStringMemberSelectionPanel(
-      ScalaBundle.message("org.jetbrains.plugins.scala.codeInsight.generation.ui.toString.fields"), allFields, null)
+      ScalaBundle.message("org.jetbrains.plugins.scala.codeInsight.generation.ui.toString.fields"), allFields.asJava, null)
     panel.getTable.setMemberInfoModel(new ScalaToStringMemberInfoModel)
     panel
   }

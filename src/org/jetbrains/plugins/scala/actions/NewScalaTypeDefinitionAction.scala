@@ -151,7 +151,7 @@ object NewScalaTypeDefinitionAction {
     }
     catch {
       case e: Exception =>
-        throw new RuntimeException("Unable to load template for " + FileTemplateManager.getInstance.internalTemplateToSubject(templateName), e)
+        throw new RuntimeException("Unable to load template for " + FileTemplateManager.getInstance(project).internalTemplateToSubject(templateName), e)
     }
     val factory: PsiFileFactory = PsiFileFactory.getInstance(project)
     val scalaFileType = ScalaFileType.INSTANCE

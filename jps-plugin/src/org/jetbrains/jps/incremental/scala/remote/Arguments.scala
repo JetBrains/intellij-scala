@@ -7,6 +7,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.scala.data._
 import org.jetbrains.jps.incremental.scala.model.{CompileOrder, IncrementalityType}
 import org.jetbrains.jps.incremental.scala.remote.Arguments._
+import org.jetbrains.plugin.scala.compiler.NameHashing
 
 /**
  * @author Pavel Fatin
@@ -25,11 +26,11 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
 
     val incrementalType = compilerData.incrementalType
 
-    val sbtIncOptions = compilationData.sbtIncOptions.map(_.asString).getOrElse("")
-
     Seq(
-      fileToPath(sbtData.interfaceJar),
-      fileToPath(sbtData.sourceJar),
+      fileToPath(sbtData.sbtInterfaceJar),
+      fileToPath(sbtData.compilerInterfaceJar),
+      fileToPath(sbtData.sourceJars._2_10),
+      fileToPath(sbtData.sourceJars._2_11),
       fileToPath(sbtData.interfacesHome),
       sbtData.javaClassVersion,
       optionToString(compilerJarPaths),
@@ -47,7 +48,10 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
       filesToPaths(sourceRoots),
       filesToPaths(outputDirs), 
       sequenceToString(worksheetFiles),
-      sbtIncOptions
+      //sbtIncOptions
+      filesToPaths(compilationData.zincData.allSources),
+      compilationData.zincData.compilationStartDate.toString,
+      compilationData.zincData.isCompile.toString
     )
   }
 }
@@ -57,28 +61,34 @@ object Arguments {
 
   def from(strings: Seq[String]): Arguments = strings match {
     case Seq(
-    PathToFile(interfaceJar),
-    PathToFile(sourceJar),
-    PathToFile(interfacesHome),
-    javaClassVersion,
-    StringToOption(compilerJarPaths),
-    StringToOption(javaHomePath),
-    PathsToFiles(sources),
-    PathsToFiles(classpath),
-    PathToFile(output),
-    StringToSequence(scalaOptions),
-    StringToSequence(javaOptions),
-    order,
-    PathToFile(cacheFile),
-    PathsToFiles(outputs),
-    PathsToFiles(caches),
-    incrementalTypeName,
-    PathsToFiles(sourceRoots),
-    PathsToFiles(outputDirs), 
-    StringToSequence(worksheetClass),
-    sbtIncOptionsString) =>
+      PathToFile(sbtInterfaceJar),
+      PathToFile(compilerInterfaceJar),
+      PathToFile(sourceJar_2_10),
+      PathToFile(sourceJar_2_11),
+      PathToFile(interfacesHome),
+      javaClassVersion,
+      StringToOption(compilerJarPaths),
+      StringToOption(javaHomePath),
+      PathsToFiles(sources),
+      PathsToFiles(classpath),
+      PathToFile(output),
+      StringToSequence(scalaOptions),
+      StringToSequence(javaOptions),
+      order,
+      PathToFile(cacheFile),
+      PathsToFiles(outputs),
+      PathsToFiles(caches),
+      incrementalTypeName,
+      PathsToFiles(sourceRoots),
+      PathsToFiles(outputDirs),
+      StringToSequence(worksheetClass)
+    ) :+ PathsToFiles(allSources)
+      :+ startDate
+      :+ StringToBoolean(isCompile)
+     =>
 
-      val sbtData = SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
+      val sourceJars = SbtData.SourceJars(sourceJar_2_10, sourceJar_2_11)
+      val sbtData = SbtData(sbtInterfaceJar, compilerInterfaceJar, sourceJars, interfacesHome, javaClassVersion)
 
       val compilerJars = compilerJarPaths.map {
         case PathsToFiles(Seq(libraryJar, compilerJar, extraJars @ _*)) =>
@@ -97,10 +107,9 @@ object Arguments {
 
       val outputGroups = sourceRoots zip outputDirs
 
-      val sbtIncOptions = SbtIncrementalOptions.fromString(sbtIncOptionsString)
+      val zincData = ZincData(allSources, startDate.toLong, isCompile)
 
-      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions,
-        CompileOrder.valueOf(order), cacheFile, outputToCacheMap, outputGroups, sbtIncOptions)
+      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, CompileOrder.valueOf(order), cacheFile, outputToCacheMap, outputGroups, zincData)
 
       Arguments(sbtData, compilerData, compilationData, worksheetClass)
   }
@@ -127,5 +136,9 @@ object Arguments {
 
   private val StringToSequence = extractor[String, Seq[String]] { s: String =>
     if (s.isEmpty) Seq.empty else s.split(Delimiter).toSeq
+  }
+
+  private val StringToBoolean = extractor[String, Boolean] { s: String =>
+    s.toBoolean
   }
 }

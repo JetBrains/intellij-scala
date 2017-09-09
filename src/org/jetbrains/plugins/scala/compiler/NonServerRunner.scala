@@ -76,7 +76,7 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
   }
   
   private class MyBase64StreamReader(private val reader: Reader, listener: String => Unit) extends BaseDataReader(null) {
-    start()
+    start(project.getName)
     
     private val charBuffer = new Array[Char](8192)
     private val text = new StringBuilder

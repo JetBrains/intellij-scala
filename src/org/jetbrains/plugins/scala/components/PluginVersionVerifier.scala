@@ -76,9 +76,9 @@ object ScalaPluginVersionVerifierApplicationComponent {
 class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponent {
   import ScalaPluginVersionVerifier._
 
-  def getComponentName: String = "ScalaPluginVersionVerifierApplicationComponent"
+  override def getComponentName: String = "ScalaPluginVersionVerifierApplicationComponent"
 
-  def initComponent() {
+  override def initComponent(): Unit = {
 
     def checkVersion() {
       ScalaPluginVersionVerifier.getPluginVersion match {
@@ -152,5 +152,4 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
     }
   }
 
-  def disposeComponent() {}
 }

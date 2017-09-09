@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.{isBackticked, isOpCharacter}
+import scala.collection.JavaConverters._
 
 /**
   * Nikolay.Tropin
@@ -41,7 +42,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
       }
     }
     toProcess.foreach { case (elem, name) =>
-      val processor = new TextOccurenceProcessor {
+      val processor: TextOccurenceProcessor = new TextOccurenceProcessor {
         def execute(element: PsiElement, offsetInElement: Int): Boolean = {
           val references = inReadAction(element.getReferences)
           for (ref <- references if ref.getRangeInElement.contains(offsetInElement)) {
@@ -79,8 +80,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
         def value(integer: Integer): Boolean = (integer.intValue & searchContext) != 0
       }
       inReadAction {
-        import scala.collection.JavaConversions._
-        FileBasedIndex.getInstance.processFilesContainingAllKeys(IdIndex.NAME, entries, scope, checker, collectProcessor)
+        FileBasedIndex.getInstance.processFilesContainingAllKeys(IdIndex.NAME, entries.asJava, scope, checker, collectProcessor)
       }
       val index: FileIndexFacade = FileIndexFacade.getInstance(manager.getProject)
       ContainerUtil.process(collectProcessor.getResults, new ReadActionProcessor[VirtualFile] {

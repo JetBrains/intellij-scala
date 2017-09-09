@@ -88,7 +88,7 @@ abstract class CompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseA
   }
 
   protected def checkResult(got: Array[String], expected: String) {
-    import junit.framework.Assert._
+    import org.junit.Assert.assertEquals
     val res = got.sortWith(_ < _).mkString("\n")
     assertEquals(expected, res.trim)
   }

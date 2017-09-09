@@ -1,7 +1,5 @@
 package scala.meta.annotations
 
-import com.intellij.codeInsight.completion.CompletionType
-import com.intellij.openapi.editor.markup.GutterIconRenderer
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -43,17 +41,6 @@ class MetaAnnotationsTest extends MetaAnnotationTestBase {
   }
 
   def testOutOfDateGutterIcon(): Unit = {
-    def getGutter: GutterIconRenderer = {
-      val gutters = myFixture.findAllGutters()
-      Assert.assertEquals("Wrong number of gutters", 1, gutters.size())
-      gutters.get(0).asInstanceOf[GutterIconRenderer]
-    }
-
-    def typeInAnnotationFile() = {
-      myFixture.openFileInEditor(myFixture.findClass("main").getContainingFile.getVirtualFile)
-      myFixture.`type`("\n\n\n")
-      myFixture.openFileInEditor(myFixture.findClass("Foo").getContainingFile.getVirtualFile)
-    }
 
     addMetaSource(
       """

@@ -10,8 +10,10 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.{CompilerJars, SbtData}
 import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogger}
 import org.jetbrains.jps.incremental.scala.remote.{Arguments, WorksheetOutputEvent}
-import sbt.{Path, ScalaInstance}
-import sbt.compiler.{AnalyzingCompiler, RawCompiler}
+import sbt.internal.inc.classpath.ClasspathUtilities
+import sbt.internal.inc.{AnalyzingCompiler, RawCompiler}
+import sbt.io.Path
+import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
 
 /**
   * User: Dmitry.Naydanov
@@ -62,10 +64,10 @@ class ILoopWrapperFactoryHandler {
   
   protected def getOrCompileReplLoopFile(sbtData: SbtData, scalaInstance: ScalaInstance, client: Option[Client]): File = {
     val home = sbtData.interfacesHome
-    val interfaceJar = sbtData.interfaceJar
+    val interfaceJar = sbtData.compilerInterfaceJar
 
     val sourceJar = {
-      val f = sbtData.sourceJar
+      val f = sbtData.sourceJars._2_11
       new File(f.getParent, "repl-interface-sources.jar")
     }
 
@@ -83,7 +85,7 @@ class ILoopWrapperFactoryHandler {
 
           AnalyzingCompiler.compileSources(
             Seq(sourceJar), targetFile, Seq(interfaceJar, thisJar), replLabel,
-            new RawCompiler(scalaInstance, sbt.ClasspathOptions.auto, log), log
+            new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto(), log), log
           )
       }
     }
@@ -98,8 +100,8 @@ object ILoopWrapperFactoryHandler {
   private val REPL_FQN = "org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory"
 
   private val JAVA_USER_CP_KEY = "java.class.path"
-  private val STOP_WORDS = Set("scala-library.jar", "scala-nailgun-runner.jar", "nailgun.jar", "compiler-settings.jar",
-    "incremental-compiler.jar", "scala-jps-plugin.jar", "dotty-interfaces.jar")
+  private val STOP_WORDS = Set("scala-library.jar", "scala-nailgun-runner.jar", "nailgun.jar", "jpsShared.jar",
+    "incremental-compiler.jar", "scala-jps-plugin.jar")
 
 
   private def withFilteredPath(action: => Unit) {
@@ -156,7 +158,7 @@ object ILoopWrapperFactoryHandler {
   }
 
   private def createIsolatingClassLoader(fromJars: Seq[File]): URLClassLoader = {
-    new URLClassLoader(Path.toURLs(fromJars), sbt.classpath.ClasspathUtilities.rootLoader)
+    new URLClassLoader(Path.toURLs(fromJars), ClasspathUtilities.rootLoader)
   }
 
   //We need this method as scala std lib converts scala collections to its own wrappers with asJava method

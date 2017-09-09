@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleScheme
 import com.intellij.psi.impl.source.codeStyle.CodeStyleSchemesImpl
 import org.jetbrains.plugins.scala.ScalaLanguage
+import scala.collection.JavaConverters._
 
 /**
   * @author Roman.Shein
@@ -13,8 +14,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 class LegacyCodeStyleSettingsComponent(project: Project) extends AbstractProjectComponent(project) {
 
   override def projectOpened(): Unit = {
-    import collection.JavaConversions._
-    for (scheme: CodeStyleScheme <- CodeStyleSchemesImpl.getSchemeManager.getAllSchemes) {
+    CodeStyleSchemesImpl.getSchemeManager.getAllSchemes.forEach { scheme =>
       val scalaSettings = scheme.getCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
       val commonSettings = scheme.getCodeStyleSettings.getCommonSettings(ScalaLanguage.INSTANCE)
       if (scalaSettings.CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN == ScalaCodeStyleSettings.NO_NEW_LINE &&

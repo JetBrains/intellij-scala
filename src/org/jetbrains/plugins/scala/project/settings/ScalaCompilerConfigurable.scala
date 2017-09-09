@@ -13,22 +13,23 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerConfiguration) extends AbstractConfigurable("Scala Compiler")  {
+
   private val form = new ScalaCompilerConfigurationPanel(project)
   
   private val profiles = form.getProfilesPanel
 
-  def createComponent(): JPanel = form.getContentPanel
+  override def createComponent(): JPanel = form.getContentPanel
 
-  def isModified: Boolean = form.getIncrementalityType != configuration.incrementalityType ||
+  override def isModified: Boolean = form.getIncrementalityType != configuration.incrementalityType ||
           profiles.getDefaultProfile.getSettings.getState != configuration.defaultProfile.getSettings.getState ||
           !profiles.getModuleProfiles.asScala.corresponds(configuration.customProfiles)(_.getSettings.getState == _.getSettings.getState)
 
-  def reset() {
+  override def reset(): Unit = {
     form.setIncrementalityType(configuration.incrementalityType)
     profiles.initProfiles(configuration.defaultProfile, configuration.customProfiles.asJava)
   }
 
-  def apply() {
+  override def apply(): Unit = {
     configuration.incrementalityType = form.getIncrementalityType
     configuration.defaultProfile = profiles.getDefaultProfile
     configuration.customProfiles = profiles.getModuleProfiles.asScala

@@ -10,7 +10,7 @@ import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.components._
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.StatusBarWidget.PlatformType
+import com.intellij.openapi.wm.StatusBarWidget.{PlatformType, WidgetPresentation}
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.util.{Consumer, FileContentUtil}
 import org.intellij.lang.annotations.Language
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.NotificationUtil
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 @State(
   name = "HighlightingAdvisor", storages = Array(
@@ -122,7 +122,7 @@ class HighlightingAdvisor(project: Project) extends AbstractProjectComponent(pro
 
   private def applicable = project.hasScala && !project.hasDotty
 
-  def enabled = settings.TYPE_AWARE_HIGHLIGHTING_ENABLED
+  def enabled: Boolean = settings.TYPE_AWARE_HIGHLIGHTING_ENABLED
 
   private def enabled_=(enabled: Boolean) {
     settings.SUGGEST_TYPE_AWARE_HIGHLIGHTING = false
@@ -151,7 +151,7 @@ class HighlightingAdvisor(project: Project) extends AbstractProjectComponent(pro
       override def consume(dataContext: DataContext): Unit = {
         CommonDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(dataContext) match {
           case editor: EditorEx =>
-            FileContentUtil.reparseFiles(project, Seq(editor.getVirtualFile), true)
+            FileContentUtil.reparseFiles(project, Seq(editor.getVirtualFile).asJavaCollection, true)
           case _ => // do nothing
         }
       }
@@ -164,18 +164,19 @@ class HighlightingAdvisor(project: Project) extends AbstractProjectComponent(pro
   private object Widget extends StatusBarWidget {
     def ID = "TypeAwareHighlighting"
 
-    def getPresentation(platformType: PlatformType) = Presentation
+    override def getPresentation(platformType: PlatformType): WidgetPresentation = Presentation
 
-    def install(statusBar: StatusBar) {}
+    override def install(statusBar: StatusBar): Unit = {}
 
-    def dispose() {}
+    override def dispose() {}
 
     object Presentation extends StatusBarWidget.IconPresentation {
       def getIcon: Icon = if (enabled) Icons.TYPED else Icons.UNTYPED
 
-      def getClickConsumer = ClickConsumer
+      override def getClickConsumer: Consumer[MouseEvent] = ClickConsumer
 
-      def getTooltipText = s"$status (click to ${if (enabled) "disable" else "enable"}, or press Ctrl+Shift+Alt+E)"
+      override def getTooltipText =
+        s"$status (click to ${if (enabled) "disable" else "enable"}, or press Ctrl+Shift+Alt+E)"
 
       object ClickConsumer extends Consumer[MouseEvent] {
         def consume(t: MouseEvent): Unit = toggle()

@@ -14,9 +14,10 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
  * Tries to use first evaluator first. If gets exception or null, uses second one.
  */
 case class ScalaDuplexEvaluator(first: Evaluator, second: Evaluator) extends Evaluator {
-  private var myModifier: Modifier = null
 
-  def evaluate(context: EvaluationContextImpl): AnyRef = {
+  private var myModifier: Modifier = _
+
+  override def evaluate(context: EvaluationContextImpl): AnyRef = {
     var result: AnyRef = null
     try {
       result = first.evaluate(context)
@@ -36,5 +37,5 @@ case class ScalaDuplexEvaluator(first: Evaluator, second: Evaluator) extends Eva
     result
   }
 
-  def getModifier: Modifier = myModifier
+  override def getModifier: Modifier = myModifier
 }

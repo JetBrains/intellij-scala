@@ -12,11 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types =>
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
-//import scala.meta.internal.ast.Term
-//import scala.meta.internal.ast.Term.Param
-import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
-import scala.{meta => m, Seq => _}
+import scala.{meta => m}
 
 trait TreeAdapter {
   self: TreeConverter =>
@@ -68,7 +65,7 @@ trait TreeAdapter {
     m.Defn.Def(convertMods(t), toTermName(t),
       Seq(t.typeParameters map toTypeParams: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
-      t.returnTypeElement.map(toType(_)),
+      t.returnTypeElement.map(toType),
       expression(t.body).getOrElse(m.Term.Block(Nil))
     )
   }
@@ -86,7 +83,7 @@ trait TreeAdapter {
   def toFunDecl(t: ScFunctionDeclaration): m.Decl.Def = {
     m.Decl.Def(convertMods(t), toTermName(t), Seq(t.typeParameters map toTypeParams: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
-      t.typeElement.map(toType(_)).getOrElse(toStdTypeName(ptype.api.Unit(t.projectContext))))
+      t.typeElement.map(toType).getOrElse(toStdTypeName(ptype.api.Unit(t.projectContext))))
   }
 
   def toTypeDefn(t: ScTypeAliasDefinition): m.Defn.Type = {
@@ -105,7 +102,7 @@ trait TreeAdapter {
     m.Decl.Val(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it)) }: _*), toType(t.typeElement.get))
   }
 
-  def toTrait(t: ScTrait) = {
+  def toTrait(t: ScTrait): m.Tree = {
     val defn = m.Defn.Trait(
       convertMods(t),
       toTypeName(t),
@@ -119,7 +116,7 @@ trait TreeAdapter {
     }
   }
 
-  def toClass(c: ScClass) = {
+  def toClass(c: ScClass): m.Tree = {
     val defn = m.Defn.Class(
       convertMods(c),
       toTypeName(c),
@@ -174,8 +171,8 @@ trait TreeAdapter {
     }
     // WHY??(((
     def arg(pt: patterns.ScPattern): m.Pat.Arg = pt match {
-      case t: ScSeqWildcard       =>  Arg.SeqWildcard()
-      case t: ScWildcardPattern   =>  Wildcard()
+      case _: ScSeqWildcard       =>  Arg.SeqWildcard()
+      case _: ScWildcardPattern   =>  Wildcard()
       case t: ScStableReferenceElementPattern => toTermName(t.refElement.get)
       case t: ScPattern           => pattern(t)
     }
@@ -183,7 +180,7 @@ trait TreeAdapter {
       case t: ScReferencePattern  =>  Var.Term(toTermName(t))
       case t: ScConstructorPattern=>  Extract(toTermName(t.ref), Nil, Seq(t.args.patterns.map(arg):_*))
       case t: ScNamingPattern     =>  Bind(Var.Term(toTermName(t)), arg(t.named))
-      case t@ ScTypedPattern(te: types.ScWildcardTypeElement) => Typed(if (t.isWildcard) Wildcard() else Var.Term(toTermName(t)), Type.Wildcard())
+      case t@ ScTypedPattern(_: types.ScWildcardTypeElement) => Typed(if (t.isWildcard) Wildcard() else Var.Term(toTermName(t)), Type.Wildcard())
       case t@ ScTypedPattern(te)  =>  Typed(if (t.isWildcard) Wildcard() else Var.Term(toTermName(t)), toType(te).patTpe)
       case t: ScLiteralPattern    =>  literal(t.getLiteral)
       case t: ScTuplePattern      =>  Tuple(Seq(t.patternList.get.patterns.map(pattern):_*))
@@ -277,7 +274,7 @@ trait TreeAdapter {
         m.Term.Apply(m.Term.Select(m.Term.Name("scala"), m.Term.Name("Symbol")), Seq(literal(t)))
       case t: ScLiteral =>
         literal(t)
-      case t: ScUnitExpr =>
+      case _: ScUnitExpr =>
         m.Lit.Unit(())
       case t: ScReturnStmt =>
         m.Term.Return(expression(t.expr).getOrElse(m.Lit.Unit(())))
@@ -350,15 +347,11 @@ trait TreeAdapter {
         t.expr.map(expression).getOrElse(unreachable)
       case t: ScAssignStmt =>
         m.Term.Assign(expression(t.getLExpression).asInstanceOf[m.Term.Ref], expression(t.getRExpression.get))
-      case t: ScUnderscoreSection =>
+      case _: ScUnderscoreSection =>
         m.Term.Placeholder()
       case t: ScTypedStmt =>
         m.Term.Ascribe(expression(t.expr), t.typeElement.map(toType).getOrElse(unreachable))
-      case t: ScTypedStmt if t.isSequenceArg=>
-        unreachable("can only be used as call arg")
       case t: ScConstrExpr =>
-        t ???
-      case t: ScInterpolatedStringLiteral =>
         t ???
       case t: ScXmlExpr =>
         t ???
@@ -390,13 +383,9 @@ trait TreeAdapter {
     Seq(en.children.filter(elem => elem.isInstanceOf[ScGuard] || elem.isInstanceOf[ScPatterned]).map(toEnumerator).toSeq:_*)
   }
 
-//  def callParams(e: ScExpression): m.Term.Param = {
-//    m.Term.Param()
-//  }
-
   def toParams(argss: Seq[ScArgumentExprList]): Seq[Seq[m.Term.Param]] = {
     argss.toStream map { args =>
-      args.matchedParameters.toStream map { case (expr, param) =>
+      args.matchedParameters.toStream map { case (_, param) =>
         m.Term.Param(param.psiParam.map(p => convertMods(p.getModifierList)).getOrElse(Seq.empty), toParamName(param), Some(toType(param.paramType)), None)
       }
     }
@@ -412,9 +401,9 @@ trait TreeAdapter {
 
   def getQualifier(q: ScStableCodeReferenceElement): m.Term.Ref = {
     q.pathQualifier match {
-      case Some(parent: ScSuperReference) =>
+      case Some(_: ScSuperReference) =>
         m.Term.Select(m.Term.Super(m.Name.Anonymous(), m.Name.Anonymous()), toTermName(q))
-      case Some(parent: ScThisReference) =>
+      case Some(_: ScThisReference) =>
         m.Term.Select(m.Term.This(m.Name.Anonymous()), toTermName(q))
       case Some(parent:ScStableCodeReferenceElement) =>
         m.Term.Select(getQualifier(parent), toTermName(q))
@@ -433,9 +422,9 @@ trait TreeAdapter {
   // TODO: WHY?!
   def getCtorRef(q: ScStableCodeReferenceElement): m.Ctor.Ref = {
     q.pathQualifier match {
-      case Some(parent: ScSuperReference) =>
+      case Some(_: ScSuperReference) =>
         m.Ctor.Ref.Select(m.Term.Super(m.Name.Anonymous(), m.Name.Anonymous()), toCtorName(q))
-      case Some(parent: ScThisReference) =>
+      case Some(_: ScThisReference) =>
         m.Ctor.Ref.Select(m.Term.This(m.Name.Anonymous()), toCtorName(q))
       case Some(parent:ScStableCodeReferenceElement) =>
         m.Ctor.Ref.Select(getQualifier(parent), toCtorName(q))

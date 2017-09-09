@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ExtractSuperUtil
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestConfigurationUtil}
+import scala.collection.JavaConverters._
 
 class ScalaTestGenerator extends TestGenerator {
   def generateTest(project: Project, d: CreateTestDialog): PsiElement = {
@@ -114,14 +115,12 @@ class ScalaTestGenerator extends TestGenerator {
     import TestConfigurationUtil.isInheritor
     import typeDef.projectContext
 
-    import collection.JavaConversions._
-
-    implicit val normalIndent = FormatterUtil.getNormalIndentString(projectContext)
+    implicit val normalIndent: String = FormatterUtil.getNormalIndentString(projectContext)
 
     import ScalaTestGenerator._
     templateBody match {
       case Some(body) =>
-        val methodsList = methods.toList
+        val methodsList = methods.asScala.toList
         if (isInheritor(typeDef, "org.scalatest.FeatureSpecLike") ||
           isInheritor(typeDef, "org.scalatest.fixture.FeatureSpecLike")) {
           generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef)
@@ -175,7 +174,7 @@ object ScalaTestGenerator {
 
   private def withAnnotation(annotation: String, typeDef: ScTypeDefinition, body: ScTemplateBody)
                             (generateMethods: PsiElement => Unit)
-                            (implicit elementScope: ElementScope) =
+                            (implicit elementScope: ElementScope): Unit =
     elementScope.getCachedClass(annotation).collect {
       case definition: ScTypeDefinition => definition
     }.foreach { clazz =>

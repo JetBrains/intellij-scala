@@ -11,31 +11,32 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
  */
 
 class ScalaAutoImportOptionsProvider extends AutoImportOptionsProvider {
-  private var form: ScalaAutoImportOptionsProviderForm = null
 
-  def createComponent(): JComponent = {
+  private var form: ScalaAutoImportOptionsProviderForm = _
+
+  override def createComponent(): JComponent = {
     form = new ScalaAutoImportOptionsProviderForm()
     form.getComponent
   }
 
-  def isModified: Boolean = {
+  override def isModified: Boolean = {
     if (ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY != form.isAddUnambiguous) return true
     if (ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE != form.getImportOnPasteOption) return true
     if (ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY != form.isOptimizeImports) return true
     false
   }
 
-  def apply() {
+  override def apply(): Unit = {
     ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY = form.isAddUnambiguous
     ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE = form.getImportOnPasteOption
     ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY = form.isOptimizeImports
   }
 
-  def reset() {
+  override def reset(): Unit = {
     form.setAddUnambiguous(ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY)
     form.setImportOnPasteOption(ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE)
     form.setOptimizeImports(ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY)
   }
 
-  def disposeUIResources() {}
+  override def disposeUIResources(): Unit = {}
 }

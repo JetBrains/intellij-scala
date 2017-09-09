@@ -2,10 +2,14 @@ package org.jetbrains.jps.incremental.scala
 package local
 
 import java.io.File
+import java.util.function.Supplier
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import xsbti._
-import xsbti.compile.ExtendedCompileProgress
+import xsbti.compile._
+import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
+
+import scala.collection.mutable
 
 /**
  * Nikolay.Tropin
@@ -13,44 +17,41 @@ import xsbti.compile.ExtendedCompileProgress
  */
 abstract class AbstractCompiler extends Compiler {
 
+
   def getReporter(client: Client): Reporter = new ClientReporter(client)
 
-  def getLogger(client: Client): Logger = new ClientLogger(client) with JavacOutputParsing
+  def getLogger(client: Client, zincLogFilter: ZincLogFilter): Logger = new ClientLogger(client, zincLogFilter) with JavacOutputParsing
 
-  def getProgress(client: Client): ExtendedCompileProgress = new ClientProgress(client)
+  def getProgress(client: Client): ClientProgress = new ClientProgress(client)
 
-  private class ClientLogger(val client: Client) extends Logger {
-    def error(msg: F0[String]) {
-      client.error(msg())
+  private class ClientLogger(val client: Client, logFilter: ZincLogFilter) extends Logger {
+    def error(msg: Supplier[String]) {
+      val txt = msg.get()
+      if (logFilter.shouldLog(Kind.ERROR, txt)) client.error(txt)
     }
 
-    def warn(msg: F0[String]) {
-      client.warning(msg())
+    def warn(msg: Supplier[String]) {
+      val txt = msg.get()
+      if (logFilter.shouldLog(Kind.WARNING, txt)) client.warning(txt)
     }
 
-    def info(msg: F0[String]) {
-      client.progress(msg())
+    def info(msg: Supplier[String]) {
+      val txt = msg.get()
+      if (logFilter.shouldLog(Kind.INFO, txt)) client.info(txt)
     }
 
-    def debug(msg: F0[String]) {
-      val lines = msg().trim.split('\n')
-      client.debug("\n\n" + lines.mkString("\n") + "\n")
+    def debug(msg: Supplier[String]) {
+      val txt = msg.get()
+      if (logFilter.shouldLog(Kind.PROGRESS, txt)) client.debug(txt)
     }
 
-    def trace(exception: F0[Throwable]) {
-      client.trace(exception())
+    def trace(exception: Supplier[Throwable]) {
+      client.trace(exception.get())
     }
   }
 
-  private class ClientProgress(client: Client) extends ExtendedCompileProgress {
-    def generated(source: File, module: File, name: String) {
-      client.progress("Generated " + module.getName)
-      client.generated(source, module, name)
-    }
+  class ClientProgress(client: Client) extends CompileProgress {
 
-    def deleted(module: File) {
-      client.deleted(module)
-    }
 
     def startUnit(phase: String, unitPath: String) {
       val unitName = new File(unitPath).getName
@@ -61,53 +62,65 @@ abstract class AbstractCompiler extends Compiler {
       client.progress("", Some(current.toFloat / total.toFloat))
       !client.isCanceled
     }
+
+    def generated(source: File, module: File, name: String): Unit = {
+      client.generated(source, module, name)
+    }
+
+    def deleted(module: File) {
+      client.deleted(module)
+    }
   }
 
   private class ClientReporter(client: Client) extends Reporter {
-    private var entries: List[Problem] = Nil
+    private val entries: mutable.Buffer[Problem] = mutable.Buffer.empty
+    private var errorSeen = false
+    private var warningSeen = false
 
     def reset() {
-      entries = Nil
+      entries.clear()
+      errorSeen = false
+      warningSeen = false
     }
 
-    def hasErrors: Boolean = entries.exists(_.severity == Severity.Error)
+    override def hasErrors(): Boolean = errorSeen
 
-    def hasWarnings: Boolean = entries.exists(_.severity == Severity.Warn)
+    override def hasWarnings(): Boolean = warningSeen
 
-    def printSummary() {}
+    override def printSummary(): Unit = {} // Not needed in Intellij-zinc integration
 
-    def problems: Array[Problem] = entries.reverse.toArray
+    override def problems: Array[Problem] = entries.reverse.toArray
 
-    def log(pos: Position, msg: String, sev: Severity) {
-      entries ::= new Problem {
-        val category = ""
-        val position = pos
-        val message = msg
-        val severity = sev
+    override def comment(position: Position, msg: String): Unit = logInClient(msg, position, Kind.PROGRESS)
+
+    override def log(problem: Problem): Unit = {
+      entries += problem
+
+      val kind = problem.severity() match {
+        case Severity.Info =>
+          Kind.INFO
+        case Severity.Warn =>
+          warningSeen = true
+          Kind.WARNING
+        case Severity.Error =>
+          errorSeen = true
+          Kind.ERROR
       }
-
-      val kind = sev match {
-        case Severity.Info => Kind.INFO
-        case Severity.Warn => Kind.WARNING
-        case Severity.Error => Kind.ERROR
-      }
-
-      val source = toOption(pos.sourcePath).map(new File(_))
-      val line = toOption(pos.line).map(_.toLong)
-      val column = toOption(pos.pointer).map(_.toLong + 1L)
 
       val messageWithLineAndPointer = {
-        val indent = toOption(pos.pointerSpace)
-        msg + "\n" + pos.lineContent + indent.map("\n" + _ + "^").getOrElse("")
+        val pos = problem.position()
+        val indent = pos.pointerSpace.toOption.map("\n" + _ + "^").getOrElse("")
+        s"${problem.message()}\n${pos.lineContent}\n$indent"
       }
-
-      client.message(kind, messageWithLineAndPointer, source, line, column)
+      logInClient(messageWithLineAndPointer, problem.position(), kind)
     }
 
-    def toOption[T](value: Maybe[T]): Option[T] = if (value.isDefined) Some(value.get) else None
-
-    def comment(p1: Position, p2: String) {} // TODO
+    private def logInClient(msg: String, pos: Position, kind: Kind): Unit = {
+      val source = pos.sourceFile.toOption
+      val line = pos.line.toOption.map(_.toLong)
+      val column = pos.pointer.toOption.map(_.toLong + 1L)
+      client.message(kind, msg, source, line, column)
+    }
   }
-
 }
 

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.DebuggerBundle
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
-import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
+import com.intellij.debugger.engine.evaluation.expression.Evaluator
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.jdi.{LocalVariableProxyImpl, StackFrameProxyImpl}
 import com.sun.jdi._
@@ -20,8 +20,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
     if (objRef == null) {
       return null
     }
-    val list = objRef.referenceType.fields
-    import scala.collection.JavaConversions._
+    val list = objRef.referenceType.fields.asScala
     for (field <- list) {
       val name: String = field.name
       if (name != null && name.startsWith("$outer")) {
@@ -33,8 +32,6 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
     }
     null
   }
-
-  def getModifier: Modifier = null
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     lazy val frameProxy: StackFrameProxyImpl = context.getFrameProxy

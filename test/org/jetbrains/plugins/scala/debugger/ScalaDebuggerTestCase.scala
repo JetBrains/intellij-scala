@@ -8,7 +8,6 @@ import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.engine._
 import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder
-import com.intellij.debugger.engine.events.DebuggerContextCommandImpl
 import com.intellij.debugger.impl._
 import com.intellij.execution.Executor
 import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationType}
@@ -21,8 +20,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiCodeFragment
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.testFramework.{EdtTestUtil, UsefulTestCase}
-import com.intellij.util.ThrowableRunnable
+import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import com.intellij.xdebugger.XDebuggerManager
@@ -41,7 +39,6 @@ import scala.util.{Failure, Success, Try}
  * User: Alefas
  * Date: 13.10.11
  */
-
 abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   protected val bp = "<breakpoint>"
@@ -50,33 +47,34 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   protected def runDebugger(mainClass: String = mainClassName, debug: Boolean = false)(callback: => Unit) {
     var processHandler: ProcessHandler = null
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      def run() {
-        if (needMake) {
-          make()
-          saveChecksums()
-        }
-        addBreakpoints()
-        val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find { _.getClass == classOf[GenericDebuggerRunner] }.get
-        processHandler = runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
-          override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
-            val text = event.getText
-            if (debug) print(text)
-          }
-        }, runner)
+    EdtTestUtil.runInEdtAndWait(() => {
+      if (needMake) {
+        make()
+        saveChecksums()
       }
+      addBreakpoints()
+      val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find {
+        _.getClass == classOf[GenericDebuggerRunner]
+      }.get
+      processHandler = runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
+        override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
+          val text = event.getText
+          if (debug) print(text)
+        }
+      }, runner)
     })
 
-    callback
+    try {
+      callback
+    } finally {
 
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-        override def run(): Unit = {
-          clearXBreakpoints()
-          getDebugProcess.stop(true)
-          processHandler.destroyProcess()
-        }
-      }
-    )
+      EdtTestUtil.runInEdtAndWait(() => {
+        clearXBreakpoints()
+        getDebugProcess.stop(true)
+        processHandler.destroyProcess()
+      })
+    }
+
   }
 
   override def invokeTestRunnable(runnable: Runnable): Unit = UIUtil.invokeAndWaitIfNeeded(runnable)
@@ -95,14 +93,12 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     val semaphore: Semaphore = new Semaphore
     semaphore.down()
     val processHandler: AtomicReference[ProcessHandler] = new AtomicReference[ProcessHandler]
-    runner.execute(executionEnvironmentBuilder.build, new ProgramRunner.Callback {
-      def processStarted(descriptor: RunContentDescriptor) {
-        val handler: ProcessHandler = descriptor.getProcessHandler
-        assert(handler != null)
-        handler.addProcessListener(listener)
-        processHandler.set(handler)
-        semaphore.up()
-      }
+    runner.execute(executionEnvironmentBuilder.build, (descriptor: RunContentDescriptor) => {
+      val handler: ProcessHandler = descriptor.getProcessHandler
+      assert(handler != null)
+      handler.addProcessListener(listener)
+      processHandler.set(handler)
+      semaphore.up()
     })
     semaphore.waitFor()
     processHandler.get
@@ -125,7 +121,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     breakpoints += ((fileName, line, lambdaOrdinal))
   }
 
-  protected def clearBreakpoints() = breakpoints.clear()
+  protected def clearBreakpoints(): Unit = breakpoints.clear()
 
   private def addBreakpoints() {
     breakpoints.foreach {
@@ -142,12 +138,10 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   }
 
   private def clearXBreakpoints(): Unit = {
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      def run() {
-        val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
-        inWriteAction {
-          xBreakpointManager.getAllBreakpoints.foreach(xBreakpointManager.removeBreakpoint)
-        }
+    EdtTestUtil.runInEdtAndWait(() => {
+      val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
+      inWriteAction {
+        xBreakpointManager.getAllBreakpoints.foreach(xBreakpointManager.removeBreakpoint)
       }
     })
   }
@@ -181,11 +175,9 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     def ctx = DebuggerContextUtil.createDebuggerContext(getDebugSession, suspendContext)
     val semaphore = new Semaphore()
     semaphore.down()
-    getDebugProcess.getManagerThread.invokeAndWait(new DebuggerContextCommandImpl(ctx) {
-      override def threadAction() {
-        result = callback
-        semaphore.up()
-      }
+    getDebugProcess.getManagerThread.invokeAndWait(() => {
+      result = callback
+      semaphore.up()
     })
     def finished = semaphore.waitFor(20000)
     assert(finished, "Too long debugger action")
@@ -220,11 +212,16 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
         val value = Try {
           val evaluator = inReadAction(evaluatorBuilder.build(codeFragment, currentSourcePosition))
-          evaluator.evaluate(ctx)
+          inSuspendContextCommand(ctx) {
+            evaluator.evaluate(ctx)
+          }
         }
         val res = value match {
           case Success(v: VoidValue) => "undefined"
-          case Success(v) => DebuggerUtils.getValueAsString(ctx, v)
+          case Success(v) =>
+            inSuspendContextCommand(ctx) {
+              DebuggerUtils.getValueAsString(ctx, v)
+            }
           case Failure(e: EvaluateException) => e.getMessage
           case Failure(e: Throwable) => "Other error: " + e.getMessage
         }
@@ -254,13 +251,13 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     }
   }
 
-  def atNextBreakpoint(action: => Unit) = {
+  def atNextBreakpoint(action: => Unit): Unit = {
     resume()
     waitForBreakpoint()
     action
   }
 
-  protected def addOtherLibraries() = {}
+  protected def addOtherLibraries(): Unit = {}
 
   def checkLocation(source: String, methodName: String, lineNumber: Int): Unit = {
     def format(s: String, mn: String, ln: Int) = s"$s:$mn:$ln"
@@ -287,6 +284,14 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     breakpointLines.foreach(addBreakpoint(_, path))
   }
 
+  protected def inSuspendContextCommand[T](ctx: EvaluationContextImpl)(body: => T): T = {
+    val suspendContext = ctx.getSuspendContext
+    suspendContext.myInProgress = true
+    try body
+    finally {
+      suspendContext.myInProgress = false
+    }
+  }
 }
 
 case class Loc(className: String, methodName: String, line: Int)

@@ -31,13 +31,13 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
-  .dependsOn(compilerSettings, scalap % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
+  .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
     ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
-    javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
-    scalacOptions in Global += "-target:jvm-1.6",
+    javacOptions in Global ++= Seq("-source", "1.8", "-target", "1.8"),
+    scalacOptions in Global ++= Seq("-target:jvm-1.8", "-deprecation"),
     //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
@@ -71,16 +71,16 @@ lazy val scalaCommunity: sbt.Project =
 
 lazy val jpsPlugin =
   newProject("jpsPlugin", file("jps-plugin"))
-  .dependsOn(compilerSettings)
+  .dependsOn(jpsShared)
   .enablePlugins(SbtIdeaPlugin)
   .settings(
     libraryDependencies ++=
-      Seq(Dependencies.nailgun, Dependencies.dottyInterface) ++
+      Seq(Dependencies.nailgun) ++
         DependencyGroups.sbtBundled
   )
 
-lazy val compilerSettings =
-  newProject("compilerSettings", file("compiler-settings"))
+lazy val jpsShared =
+  newProject("jpsShared", file("jpsShared"))
   .enablePlugins(SbtIdeaPlugin)
   .settings(libraryDependencies += Dependencies.nailgun)
 
@@ -106,10 +106,10 @@ lazy val nailgunRunners =
   .dependsOn(scalaRunner)
   .settings(libraryDependencies += Dependencies.nailgun)
 
-lazy val scalap =
-  newProject("scalap", file("scalap"))
+lazy val decompiler =
+  newProject("decompiler", file("decompiler"))
     .settings(commonTestSettings(packagedPluginDir):_*)
-    .settings(libraryDependencies ++= DependencyGroups.scalap)
+    .settings(libraryDependencies ++= DependencyGroups.decompiler)
 
 lazy val macroAnnotations =
   newProject("macroAnnotations", file("macroAnnotations"))
@@ -122,7 +122,7 @@ lazy val macroAnnotations =
 
 lazy val ideaRunner =
   newProject("ideaRunner", file("idea-runner"))
-  .dependsOn(Seq(compilerSettings, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, scalap).map(_ % Provided): _*)
+  .dependsOn(Seq(jpsShared, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, decompiler).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
     unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value,
@@ -155,7 +155,8 @@ lazy val sbtRuntimeDependencies = project
     libraryDependencies := DependencyGroups.sbtRuntime,
     managedScalaInstance := false,
     conflictManager := ConflictManager.all,
-    conflictWarning := ConflictWarning.disable
+    conflictWarning := ConflictWarning.disable,
+    resolvers += sbt.Classpaths.sbtPluginReleases
   )
 
 lazy val testDownloader =
@@ -192,16 +193,18 @@ lazy val jmhBenchmarks =
     .enablePlugins(JmhPlugin)
 
 // Testing keys and settings
+import TestCategory._
 
-addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOptCategory")
+addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOptTests")
 
-addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTestsCategory")
+addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTests")
 
-addCommandAlias("runHighlightingTests", s"testOnly -- --include-categories=$highlightingCategory")
+addCommandAlias("runHighlightingTests", s"testOnly -- --include-categories=$highlightingTests")
 
-addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTestsCategory " +
-                                            s"--exclude-categories=$perfOptCategory " +
-                                            s"--exclude-categories=$highlightingCategory ")
+addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTests " +
+                                            s"--exclude-categories=$perfOptTests " +
+                                            s"--exclude-categories=$highlightingTests "
+)
 
 lazy val setUpTestEnvironment = taskKey[Unit]("Set up proper environment for running tests")
 
@@ -254,16 +257,16 @@ lazy val pluginPackagerCommunity =
           "lib/jps/scala-jps-plugin.jar"),
         Library(nailgun,
           "lib/jps/nailgun.jar"),
-        Library(compilerInterfaceSources,
-          "lib/jps/compiler-interface-sources.jar"),
-        Library(incrementalCompiler,
+        Library(Dependencies.compilerBridgeSources_2_10,
+          "lib/jps/compiler-interface-sources-2.10.jar"),
+        Library(Dependencies.compilerBridgeSources_2_11,
+          "lib/jps/compiler-interface-sources-2.11.jar"),
+        Artifact((assembly in repackagedZinc).value,
           "lib/jps/incremental-compiler.jar"),
+        Library(Dependencies.zincInterface,
+          "lib/jps/compiler-interface.jar"),
         Library(sbtInterface,
           "lib/jps/sbt-interface.jar"),
-        Library(bundledJline,
-          "lib/jps/jline.jar"),
-        Library(dottyInterface,
-          "lib/jps/dotty-interfaces.jar"),
         Artifact(Packaging.putInTempJar(baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrapperImpl.scala" ),
           "lib/jps/repl-interface-sources.jar")
       )
@@ -280,10 +283,10 @@ lazy val pluginPackagerCommunity =
       val lib = Seq(
         Artifact(pack.in(scalaCommunity, Compile).value,
           "lib/scala-plugin.jar"),
-        Artifact(pack.in(scalap, Compile).value,
+        Artifact(pack.in(decompiler, Compile).value,
           "lib/scalap.jar"),
-        Artifact(pack.in(compilerSettings, Compile).value,
-          "lib/compiler-settings.jar"),
+        Artifact(pack.in(jpsShared, Compile).value,
+          "lib/jpsShared.jar"),
         Artifact(pack.in(nailgunRunners, Compile).value,
           "lib/scala-nailgun-runner.jar"),
         MergedArtifact(Seq(
@@ -291,6 +294,8 @@ lazy val pluginPackagerCommunity =
             pack.in(scalaRunner, Compile).value),
           "lib/scala-plugin-runners.jar"),
         AllOrganisation("org.scalameta", "lib/scalameta120.jar"),
+        Library(fastparse,
+          "lib/fastparse.jar"),
         Library(scalaLibrary,
           "lib/scala-library.jar"),
         Library(bcel,
@@ -325,19 +330,25 @@ lazy val pluginCompressorCommunity =
     }
   )
 
+lazy val repackagedZinc =
+  newProject("repackagedZinc")
+  .settings(
+    assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
+    libraryDependencies += Dependencies.zinc
+  )
 
 updateIdea := {
   val baseDir = ideaBaseDirectory.value
   val build = ideaBuild.in(ThisBuild).value
 
   try {
-    updateIdeaTask(baseDir, IdeaEdition.Community, build, true, Seq.empty, streams.value)
+    updateIdeaTask(baseDir, IdeaEdition.Community, build, downloadSources = true, Seq.empty, streams.value)
   } catch {
     case e : sbt.TranslatedException if e.getCause.isInstanceOf[java.io.FileNotFoundException] =>
       val newBuild = build.split('.').init.mkString(".") + "-EAP-CANDIDATE-SNAPSHOT"
       streams.value.log.warn(s"Failed to download IDEA $build, trying $newBuild")
       IO.deleteIfEmpty(Set(baseDir))
-      updateIdeaTask(baseDir, IdeaEdition.Community, newBuild, true, Seq.empty, streams.value)
+      updateIdeaTask(baseDir, IdeaEdition.Community, newBuild, downloadSources = true, Seq.empty, streams.value)
   }
 }
 

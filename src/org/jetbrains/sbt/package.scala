@@ -34,7 +34,8 @@ package object sbt {
     def fun(pair: IdeaPair[A, B]): C = f(pair.getFirst, pair.getSecond)
   }
 
-  implicit class RichFile(val file: File) extends AnyVal {
+  implicit class RichFile(val file: File) {
+
     def /(path: String): File = new File(file, path)
 
     def `<<`: File = << (1)

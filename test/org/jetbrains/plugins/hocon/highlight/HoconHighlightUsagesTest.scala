@@ -24,7 +24,7 @@ class HoconHighlightUsagesTest extends LightPlatformCodeInsightFixtureTestCase {
     assertEquals(expectedHighlights.toSet, actualHighlights.toSet)
   }
 
-  def testSimple() = testUsages(
+  def testSimple(): Unit = testUsages(
     (0, 0, 3),
     (1, 0, 3),
     (2, 0, 3),
@@ -34,18 +34,18 @@ class HoconHighlightUsagesTest extends LightPlatformCodeInsightFixtureTestCase {
     (9, 12, 3)
   )
 
-  def testNested() = testUsages(
+  def testNested(): Unit = testUsages(
     (4, 2, 3),
     (7, 4, 3),
     (10, 16, 3)
   )
 
-  def testInArrayElement() = testUsages(
+  def testInArrayElement(): Unit = testUsages(
     (6, 3, 3),
     (6, 13, 3)
   )
 
-  def testDifferentTexts() = testUsages(
+  def testDifferentTexts(): Unit = testUsages(
     (0, 0, 3),
     (1, 0, 5),
     (2, 0, 5),
@@ -53,5 +53,5 @@ class HoconHighlightUsagesTest extends LightPlatformCodeInsightFixtureTestCase {
     (4, 10, 7)
   )
 
-  def testSingle() = testUsages()
+  def testSingle(): Unit = testUsages()
 }

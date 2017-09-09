@@ -5,95 +5,98 @@ import java.io.File
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.vfs.VfsUtil
-import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader.{ScalaCompilerLoader, ScalaLibraryLoaderAdapter, ScalaReflectLoader, ScalaRuntimeLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_10}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyLibraryLoader, IvyLibraryLoaderAdapter, LibraryLoader}
+import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.sbt.MockSbt._
+
+import scala.collection.JavaConverters._
 
 /**
   * @author Nikolay Obedin
   * @since 7/27/15.
   */
-trait MockSbt extends ScalaSdkOwner {
+trait MockSbtBase extends ScalaSdkOwner {
 
   implicit val sbtVersion: String
 
-  override implicit val version: ScalaVersion = Scala_2_10
+  protected def scalaLoaders = Seq(ScalaCompilerLoader(), ScalaRuntimeLoader(), ScalaReflectLoader())
 
-  override protected def librariesLoaders: Seq[ScalaLibraryLoaderAdapter] = Seq(
-    ScalaCompilerLoader(), ScalaRuntimeLoader(), ScalaReflectLoader(),
-    SbtCollectionsLoader(), SbtInterfaceLoader(), SbtIOLoader(), SbtIvyLoader(), SbtLoggingLoader(),
-    SbtMainLoader(), SbtMainSettingsLoader(), SbtProcessLoader(), SbtLoader()
-  )
+  override protected def librariesLoaders: Seq[IvyLibraryLoader]
 
   override protected def setUpLibraries(): Unit = {
-    val classPath = librariesLoaders.map(MockSbt.urlForLibraryRoot)
+    val classPath = librariesLoaders.map(urlForLibraryRoot)
 
-    import scala.collection.JavaConversions._
-    ModuleRootModificationUtil.addModuleLibrary(module, "sbt", classPath, Seq.empty[String])
+    ModuleRootModificationUtil.addModuleLibrary(module, "sbt", classPath.asJava, List.empty[String].asJava)
 
     LibraryLoader.storePointers()
   }
 }
 
-object MockSbt {
+trait MockSbt_0_12 extends MockSbtBase {
+  override implicit val version: ScalaVersion = Scala_2_9
 
-  private def urlForLibraryRoot(loader: ScalaLibraryLoaderAdapter)
-                               (implicit version: ScalaVersion): String = {
+  private val sbt_0_12_modules =
+    Seq("sbt","collections","interface","io","ivy","logging","main","process")
+
+  override protected def librariesLoaders: Seq[ScalaLibraryLoaderAdapter] =
+    Seq(ScalaCompilerLoader(), ScalaRuntimeLoader()) ++ sbt_0_12_modules.map(sbtLoader)
+}
+
+trait MockSbt_0_13 extends MockSbtBase {
+  override implicit val version: ScalaVersion = Scala_2_10
+
+  private val sbt_0_13_modules =
+    Seq("sbt", "collections", "interface", "io", "ivy", "logging", "main", "main-settings", "process")
+
+  override protected def librariesLoaders: Seq[ScalaLibraryLoaderAdapter] =
+    scalaLoaders ++ sbt_0_13_modules.map(sbtLoader)
+}
+
+trait MockSbt_1_0 extends MockSbtBase {
+  override implicit val version: ScalaVersion = Scala_2_12
+
+  private val sbt_1_0_modules = Seq("sbt", "util-interface", "test-agent")
+
+  private val sbt_1_0_modules_cross = Seq(
+    "main","logic","collections","util-position","util-relation","actions","completion","io",
+    "util-control","run","util-logging","task-system","tasks","util-cache",
+    "testing","util-tracking","main-settings","command","protocol","core-macros")
+
+  override protected def librariesLoaders: Seq[IvyLibraryLoader] =
+    scalaLoaders ++ sbt_1_0_modules.map(sbtLoader) ++ sbt_1_0_modules_cross.map(sbtLoader_cross)
+}
+
+private[sbt] object MockSbt {
+
+  def urlForLibraryRoot(loader: IvyLibraryLoader)
+                       (implicit version: ScalaVersion): String = {
     val file = new File(loader.path)
+    assert(file.exists(), s"library root for ${loader.name} does not exist at $file")
     VfsUtil.getUrlForLibraryRoot(file)
   }
 
-  private abstract class SbtBaseLoader(implicit val version: String, val module: Module) extends ScalaLibraryLoaderAdapter {
-    override protected val vendor: String = "org.scala-sbt"
+  abstract class SbtBaseLoader(implicit val version: String, val module: Module) extends ScalaLibraryLoaderAdapter {
+    override val vendor: String = "org.scala-sbt"
 
-    override protected def fileName(implicit version: ScalaVersion): String =
+    override def fileName(implicit version: ScalaVersion): String =
       s"$name-${this.version}"
   }
 
-  private case class SbtCollectionsLoader(implicit override val version: String,
-                                          override val module: Module) extends SbtBaseLoader {
-    override protected val name: String = "collections"
+  /** Loads library with cross-versioning. */
+  abstract class SbtBaseLoader_Cross(implicit val version: String, val module: Module) extends IvyLibraryLoaderAdapter {
+    override val vendor: String = "org.scala-sbt"
   }
 
-  private case class SbtInterfaceLoader(implicit override val version: String,
-                                        override val module: Module) extends SbtBaseLoader {
-    override protected val name: String = "interface"
-  }
+  def sbtLoader(libraryName: String)(implicit version: String, module: Module): SbtBaseLoader =
+    new SbtBaseLoader() {
+      override val name: String = libraryName
+    }
 
-  private case class SbtIOLoader(implicit override val version: String,
-                                 override val module: Module) extends SbtBaseLoader {
-    override protected val name: String = "io"
-  }
+  def sbtLoader_cross(libraryName: String)(implicit version: String, module: Module): SbtBaseLoader_Cross =
+    new SbtBaseLoader_Cross() {
+      override val name: String = libraryName
+    }
 
-  private case class SbtIvyLoader(implicit override val version: String,
-                                  override val module: Module) extends SbtBaseLoader {
-    override protected val name: String = "ivy"
-  }
-
-  private case class SbtLoggingLoader(implicit override val version: String,
-                                      override val module: Module) extends SbtBaseLoader {
-    override protected val name: String = "logging"
-  }
-
-  private case class SbtMainLoader(implicit override val version: String,
-                                   override val module: Module) extends SbtBaseLoader {
-    override protected val name: String = "main"
-  }
-
-  private case class SbtMainSettingsLoader(implicit override val version: String,
-                                           override val module: Module) extends SbtBaseLoader {
-    override protected val name: String = "main-settings"
-  }
-
-  private case class SbtProcessLoader(implicit implicit override val version: String,
-                                      override val module: Module) extends SbtBaseLoader {
-    override protected val name: String = "process"
-  }
-
-  private case class SbtLoader(implicit override val version: String,
-                               override val module: Module) extends SbtBaseLoader {
-    override protected val name: String = "sbt"
-  }
 
 }

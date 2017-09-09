@@ -1,11 +1,15 @@
 package org.jetbrains.plugins.scala.codeInsight.template.macros
 
+import java.util
+
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.template._
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+
+import scala.collection.JavaConverters._
 
 /**
   * @author Roman.Shein
@@ -21,10 +25,11 @@ class ScalaMethodParametersMacro extends Macro {
       .map(_.getName)
       .map(new TextResult(_))
 
-    import scala.collection.JavaConversions._
     textResults match {
       case Seq() => null
-      case seq => new ListResult(seq)
+      case seq =>
+        // ListResult won't accept seq.asJava because invariance
+        new ListResult(seq.asInstanceOf[Seq[Result]].asJava)
     }
   }
 

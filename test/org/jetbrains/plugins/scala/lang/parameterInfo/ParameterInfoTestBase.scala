@@ -111,13 +111,15 @@ object ParameterInfoTestBase {
       text
     }
 
-    def getDefaultParameterColor: Color = HintUtil.INFORMATION_COLOR
+    def getDefaultParameterColor: Color = HintUtil.getInformationColor
 
     def isUIComponentEnabled: Boolean = false
 
     def getCurrentParameterIndex: Int = 0
 
     def setUIComponentEnabled(enabled: Boolean): Unit = {}
+
+    override def isSingleParameterInfo = false
   }
 
   private def expectedSignatures(lastElement: PsiElement): Seq[Seq[String]] = {

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
-import java.awt.event.{AdjustmentEvent, AdjustmentListener}
+import java.awt.event.AdjustmentEvent
 import java.awt.{BorderLayout, Dimension}
 import javax.swing.{JComponent, JLayeredPane}
 
@@ -10,7 +10,7 @@ import com.intellij.openapi.actionSystem.{CommonDataKeys, DataProvider}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diff.impl.EditingSides
 import com.intellij.openapi.diff.impl.util.SyncScrollSupport
-import com.intellij.openapi.editor.event.{CaretAdapter, CaretEvent}
+import com.intellij.openapi.editor.event.{CaretEvent, CaretListener}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.editor.impl.EditorImpl
@@ -50,7 +50,7 @@ object WorksheetEditorPrinterFactory {
   def synch(originalEditor: Editor, worksheetViewer: Editor,
             diffSplitter: Option[WorksheetDiffSplitters.SimpleWorksheetSplitter] = None,
             foldGroup: Option[WorksheetFoldGroup] = None) {
-    class MyCaretAdapterBase extends CaretAdapter {
+    class MyCaretAdapterBase extends CaretListener {
       override def equals(obj: Any): Boolean = obj match {
         case _: MyCaretAdapterBase => true
         case _ => false
@@ -59,15 +59,15 @@ object WorksheetEditorPrinterFactory {
       override def hashCode(): Int = 12345
     }
 
-    def createListener(recipient: Editor, don: Editor) = foldGroup map {
-      group => new CaretAdapter {
+    def createListener(recipient: Editor, don: Editor): CaretListener = foldGroup map {
+      group => new CaretListener {
         override def caretPositionChanged(e: CaretEvent) {
           if (!e.getEditor.asInstanceOf[EditorImpl].getContentComponent.hasFocus) return
           recipient.getCaretModel.moveToVisualPosition(
             new VisualPosition(Math.min(group left2rightOffset don.getCaretModel.getVisualPosition.getLine, recipient.getDocument.getLineCount), 0))
         }
       }
-    } getOrElse new CaretAdapter {
+    } getOrElse new CaretListener {
       override def caretPositionChanged(e: CaretEvent) {
         if (!e.getEditor.asInstanceOf[EditorImpl].getContentComponent.hasFocus) return
         recipient.getCaretModel.moveToVisualPosition(don.getCaretModel.getVisualPosition)
@@ -90,28 +90,23 @@ object WorksheetEditorPrinterFactory {
 
     (originalEditor, worksheetViewer) match {
       case (originalImpl: EditorImpl, viewerImpl: EditorImpl) =>
-        ApplicationManager.getApplication invokeLater new Runnable {
-          override def run() {
-            checkAndAdd(originalImpl, viewerImpl)
-            //            checkAndAdd(viewerImpl, originalImpl)
+        ApplicationManager.getApplication invokeLater (() => {
+          checkAndAdd(originalImpl, viewerImpl)
 
-            viewerImpl.getCaretModel.moveToVisualPosition(
-              new VisualPosition(Math.min(originalImpl.getCaretModel.getVisualPosition.line, viewerImpl.getDocument.getLineCount), 0)
-            )
+          viewerImpl.getCaretModel.moveToVisualPosition(
+            new VisualPosition(Math.min(originalImpl.getCaretModel.getVisualPosition.line, viewerImpl.getDocument.getLineCount), 0)
+          )
 
-            val syncSupport = new SyncScrollSupport
-            syncSupport.install(Array[EditingSides](new WorksheetDiffSplitters.WorksheetEditingSides(originalEditor, worksheetViewer, foldGroup)))
+          val syncSupport = new SyncScrollSupport
+          syncSupport.install(Array[EditingSides](new WorksheetDiffSplitters.WorksheetEditingSides(originalEditor, worksheetViewer, foldGroup)))
 
-            originalEditor.putUserData(DIFF_SYNC_SUPPORT, syncSupport)
+          originalEditor.putUserData(DIFF_SYNC_SUPPORT, syncSupport)
 
-            diffSplitter foreach {
-              splitter =>
-                viewerImpl.getScrollPane.getVerticalScrollBar.addAdjustmentListener(new AdjustmentListener {
-                  override def adjustmentValueChanged(e: AdjustmentEvent): Unit = splitter.redrawDiffs()
-                })
-            }
+          diffSplitter foreach {
+            splitter =>
+              viewerImpl.getScrollPane.getVerticalScrollBar.addAdjustmentListener((e: AdjustmentEvent) => splitter.redrawDiffs())
           }
-        }
+        })
       case _ =>
     }
   }

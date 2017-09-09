@@ -223,7 +223,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       members.filter(!_.isInstanceOf[EnumConstruction]).foreach(visit)
     }
 
-    printBodyWithCurlyBracketes(e, visitEnumBody)
+    printBodyWithCurlyBracketes(e, visitEnumBody _)
   }
 
   def visitArrayAccess(expression: IntermediateNode, idxExpression: IntermediateNode): PrettyPrinter = {

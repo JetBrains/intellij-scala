@@ -9,7 +9,7 @@ import com.intellij.psi.stubs.StubIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -19,7 +19,7 @@ class ScalaGoToClassContributor extends ChooseByNameContributor {
   def getNames(project: Project, includeNonProjectItems: Boolean): Array[String] = {
     val classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, project)
     val packageObjectNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, project)
-    (classNames ++ packageObjectNames).toArray
+    (classNames.asScala ++ packageObjectNames.asScala).toArray
   }
 
   def getItemsByName(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Array[NavigationItem] = {
@@ -27,6 +27,6 @@ class ScalaGoToClassContributor extends ChooseByNameContributor {
     val cleanName = ScalaNamesUtil.cleanFqn(name)
     val classes = StubIndex.getElements(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, cleanName, project, scope, classOf[PsiClass])
     val packageObjects = StubIndex.getElements(ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, cleanName, project, scope, classOf[PsiClass])
-    (classes ++ packageObjects).toArray
+    (classes.asScala ++ packageObjects.asScala).toArray
   }
 }

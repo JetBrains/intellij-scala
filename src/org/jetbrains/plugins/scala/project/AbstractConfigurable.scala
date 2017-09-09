@@ -8,8 +8,4 @@ import com.intellij.openapi.options.Configurable
  */
 abstract class AbstractConfigurable(name: String) extends Configurable with Configurable.NoScroll {
   def getDisplayName: String = name
-
-  def getHelpTopic = null
-
-  def disposeUIResources() {}
 }

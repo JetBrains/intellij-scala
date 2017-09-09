@@ -14,9 +14,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
  */
 
 class ScalaQualifiedNameProvider extends QualifiedNameProvider {
-  def adjustElementToCopy(element: PsiElement) = null
 
-  def getQualifiedName(element: PsiElement): String = {
+  override def adjustElementToCopy(element: PsiElement): PsiElement = null
+
+  override def getQualifiedName(element: PsiElement): String = {
     element match {
       case clazz: ScTypeDefinition => clazz.qualifiedName
       case named: ScNamedElement =>
@@ -33,11 +34,11 @@ class ScalaQualifiedNameProvider extends QualifiedNameProvider {
     }
   }
 
-  def qualifiedNameToElement(fqn: String, project: Project): PsiElement = {
-    new JavaQualifiedNameProvider().qualifiedNameToElement(fqn, project) //todo:
+  override def qualifiedNameToElement(fqn: String, project: Project): PsiElement = {
+    new JavaQualifiedNameProvider().qualifiedNameToElement(fqn, project) // TODO:
   }
 
-  def insertQualifiedName(fqn: String, element: PsiElement, editor: Editor, project: Project) {
-    new JavaQualifiedNameProvider().insertQualifiedName(fqn, element, editor, project) //todo:
+  override def insertQualifiedName(fqn: String, element: PsiElement, editor: Editor, project: Project) {
+    new JavaQualifiedNameProvider().insertQualifiedName(fqn, element, editor, project) // TODO
   }
 }

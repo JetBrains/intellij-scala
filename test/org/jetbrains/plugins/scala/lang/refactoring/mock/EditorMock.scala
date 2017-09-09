@@ -23,6 +23,8 @@ class EditorMock(text: String, offset: Int) extends EditorStub {
 
     override def addInlineElement(i: Int, editorCustomElementRenderer: EditorCustomElementRenderer): Inlay = null
 
+    override def addInlineElement(offset: Int, relatesToPrecedingText: Boolean, renderer: EditorCustomElementRenderer): Inlay = null
+
     override def addListener(listener: Listener, disposable: Disposable): Unit = {}
 
     override def getInlineElementsInRange(i: Int, i1: Int): util.List[Inlay] = util.Arrays.asList()

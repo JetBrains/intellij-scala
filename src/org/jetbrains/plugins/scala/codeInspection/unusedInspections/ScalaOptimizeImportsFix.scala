@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,15 +24,16 @@ import scala.collection.JavaConversions._
  */
 
 class ScalaOptimizeImportsFix extends IntentionAction with HighPriorityAction {
-  def getText: String = QuickFixBundle.message("optimize.imports.fix")
 
-  def startInWriteAction: Boolean = true
+  override def getText: String = QuickFixBundle.message("optimize.imports.fix")
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+  override def startInWriteAction: Boolean = true
+
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     file.getManager.isInProject(file) && (file.isInstanceOf[ScalaFile] || ScalaLanguageDerivative.hasDerivativeOnFile(file))
   }
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
 
     file match {
@@ -41,19 +42,20 @@ class ScalaOptimizeImportsFix extends IntentionAction with HighPriorityAction {
     }
   }
 
-  def getFamilyName: String = QuickFixBundle.message("optimize.imports.fix")
+  override def getFamilyName: String = QuickFixBundle.message("optimize.imports.fix")
 }
 
 class ScalaEnableOptimizeImportsOnTheFlyFix extends IntentionAction {
-  def getText: String = QuickFixBundle.message("enable.optimize.imports.on.the.fly")
 
-  def startInWriteAction: Boolean = true
+  override def getText: String = QuickFixBundle.message("enable.optimize.imports.on.the.fly")
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+  override def startInWriteAction: Boolean = true
+
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     !ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY
   }
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY = true
     if (file.getManager.isInProject(file) && (file.isInstanceOf[ScalaFile] || ScalaLanguageDerivative.hasDerivativeOnFile(file))) {
       if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
@@ -65,23 +67,24 @@ class ScalaEnableOptimizeImportsOnTheFlyFix extends IntentionAction {
     }
   }
 
-  def getFamilyName: String = QuickFixBundle.message("enable.optimize.imports.on.the.fly")
+  override def getFamilyName: String = QuickFixBundle.message("enable.optimize.imports.on.the.fly")
 }
 
 class MarkImportAsAlwaysUsed(importText: String) extends IntentionAction with LowPriorityAction {
-  def getText: String = "Mark import as always used in this project"
 
-  def startInWriteAction: Boolean = true
+  override def getText: String = "Mark import as always used in this project"
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+  override def startInWriteAction: Boolean = true
+
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     importText.contains(".") && !ScalaCodeStyleSettings.getInstance(project).isAlwaysUsedImport(importText)
   }
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     val settings = ScalaCodeStyleSettings.getInstance(project)
     settings.setAlwaysUsedImports((settings.getAlwaysUsedImports ++ Array(importText)).sorted)
-    FileContentUtil.reparseFiles(project, Seq(file.getVirtualFile), true)
+    FileContentUtil.reparseFiles(project, Seq(file.getVirtualFile).asJava, true)
   }
 
-  def getFamilyName: String = "Mark import as always used in this project"
+  override def getFamilyName: String = "Mark import as always used in this project"
 }

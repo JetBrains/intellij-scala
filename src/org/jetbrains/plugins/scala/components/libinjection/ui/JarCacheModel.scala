@@ -9,8 +9,7 @@ import org.jetbrains.plugins.scala.components.libinjection.{InjectorPersistentCa
   * @since 15.04.16.
   */
 class JarCacheModel(val cache: InjectorPersistentCache) extends AbstractListModel[JarManifest] {
-  import scala.collection.JavaConversions._
-  override def getElementAt(i: Int): JarManifest = cache.cache.values().toSeq.get(i)
+  override def getElementAt(i: Int): JarManifest = cache.cache.values().toArray(Array.empty[JarManifest]).apply(i)
 
   var modified = false
 
@@ -26,10 +25,10 @@ class JarCacheModel(val cache: InjectorPersistentCache) extends AbstractListMode
   def setIgnored(o: Any, idx: Int): Unit = {
     modified = true
     val manifest = o.asInstanceOf[JarManifest]
-    cache.cache.update(manifest.jarPath, manifest.copy()(isBlackListed = !manifest.isBlackListed, isLoaded = manifest.isLoaded))
+    cache.cache.put(manifest.jarPath, manifest.copy()(isBlackListed = !manifest.isBlackListed, isLoaded = manifest.isLoaded))
     fireContentsChanged(o, idx, idx)
   }
 
-  def commit() = cache.saveJarCache
+  def commit(): Unit = cache.saveJarCache()
 
 }
