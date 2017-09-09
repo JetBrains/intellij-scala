@@ -7,7 +7,7 @@ import com.intellij.openapi.externalSystem.task.ExternalSystemTaskManager
 import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
 
 class CbtTaskManager extends ExternalSystemTaskManager[CbtExecutionSettings] {
-  def executeTasks(id: ExternalSystemTaskId,
+  override def executeTasks(id: ExternalSystemTaskId,
                    taskNames: util.List[String],
                    projectPath: String,
                    settings: CbtExecutionSettings,
@@ -16,5 +16,5 @@ class CbtTaskManager extends ExternalSystemTaskManager[CbtExecutionSettings] {
                    debuggerSetup: String,
                    listener: ExternalSystemTaskNotificationListener): Unit = {}
 
-  def cancelTask(id: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean = false
+  override def cancelTask(id: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean = false
 }
