@@ -110,13 +110,11 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       } else designator
   }
 
-  override def toPsiType(`type`: ScType, noPrimitives: Boolean)
-                        (implicit elementScope: ElementScope): PsiType = toPsiTypeInner(`type`, noPrimitives)
+  override def toPsiType(`type`: ScType, noPrimitives: Boolean): PsiType = toPsiTypeInner(`type`, noPrimitives)
 
   private def toPsiTypeInner(`type`: ScType,
                              noPrimitives: Boolean = false,
-                             visitedAliases: Set[ScTypeAliasDefinition] = Set.empty)
-                            (implicit elementScope: ElementScope): PsiType = {
+                             visitedAliases: Set[ScTypeAliasDefinition] = Set.empty): PsiType = {
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
       proj.projected.extractClass match {
@@ -129,7 +127,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     if (t.isInstanceOf[NonValueType]) return toPsiTypeInner(t.inferValueType)
 
     def javaObject = createJavaObject
-    val qualNameToType = elementScope.projectContext.stdTypes.QualNameToType
+    val qualNameToType = projectContext.stdTypes.QualNameToType
 
     t match {
       case ScCompoundType(Seq(typez, _*), _, _) => toPsiTypeInner(typez)
@@ -184,7 +182,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       case ex: ScExistentialType => toPsiTypeInner(ex.quantified, noPrimitives)
       case argument: ScExistentialArgument =>
         val upper = argument.upper
-        val manager = PsiManager.getInstance(elementScope.project)
+        val manager: PsiManager = projectContext
         if (upper.equiv(Any)) {
           val lower = argument.lower
           if (lower.equiv(Nothing)) PsiWildcardType.createUnbounded(manager)

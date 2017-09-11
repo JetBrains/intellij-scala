@@ -540,7 +540,7 @@ object MixinNodes {
           case _ =>
             tp match {
               case ex: ScExistentialType => ex.quantified
-              case tpt: TypeParameterType => tpt.upperType.v
+              case tpt: TypeParameterType => tpt.upperType
               case _ => tp
             }
         }

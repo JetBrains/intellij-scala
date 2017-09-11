@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor.LazyDepMethodTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.annotation.tailrec
@@ -142,7 +143,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
     }
   }
 
-  private def isEmpty: Boolean = (this eq ScSubstitutor.empty) || this == ScSubstitutor.empty
+  def isEmpty: Boolean = (this eq ScSubstitutor.empty) || this == ScSubstitutor.empty
 
   def subst(t: ScType): ScType = try {
     if (ScSubstitutor.cacheSubstitutions) ScSubstitutor.cache ++= this.tvMap
@@ -172,8 +173,8 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
             case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
               TypeParameter(
                 parameters, // todo: is it important here to update?
-                substInternal(lowerType.v),
-                substInternal(upperType.v),
+                substInternal(lowerType),
+                substInternal(upperType),
                 psiTypeParameter)
           })
       }
@@ -225,15 +226,14 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
       override def visitThisType(th: ScThisType): Unit = {
         val clazz = th.element
         def hasRecursiveThisType(tp: ScType): Boolean = {
-          var res = false
+          var found = false
           tp.recursiveUpdate {
-            case tpp if res => (true, tpp)
-            case tpp@ScThisType(`clazz`) =>
-              res = true
-              (true, tpp)
-            case tpp => (false, tpp)
+            case ScThisType(`clazz`) if !found =>
+              found = true
+              Stop
+            case _ => if (found) Stop else ProcessSubtypes
           }
-          res
+          found
         }
         result = updateThisType match {
           case Some(oldTp) if !hasRecursiveThisType(oldTp) => //todo: hack to avoid infinite recursion during type substitution
@@ -272,10 +272,10 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                   }
                 case Some(cl: PsiClass) =>
                   typez match {
-                    case t: TypeParameterType => return update(t.upperType.v)
+                    case t: TypeParameterType => return update(t.upperType)
                     case p@ParameterizedType(_, _) =>
                       p.designator match {
-                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper.v))
+                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper))
                         case _ =>
                       }
                     case _ =>
@@ -298,10 +298,10 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                           case _ =>
                         }
                       }
-                    case t: TypeParameterType => return update(t.upperType.v)
+                    case t: TypeParameterType => return update(t.upperType)
                     case p@ParameterizedType(_, _) =>
                       p.designator match {
-                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper.v))
+                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper))
                         case _ =>
                       }
                     case _ =>
@@ -419,16 +419,16 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(
               typeParameters.map(substTypeParam),
-              substInternal(lowerType.v),
-              substInternal(upperType.v),
+              substInternal(lowerType),
+              substInternal(upperType),
               psiTypeParameter)
         }
         val middleRes = ScCompoundType(comps.map(substInternal), signatureMap.map {
           case (s: Signature, tp: ScType) =>
-            val pTypes: List[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => substInternal(f())))
+            val pTypes: Seq[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => substInternal(f())))
             val tParams = s.typeParams.subst(substTypeParam)
             val rt: ScType = substInternal(tp)
-            (new Signature(s.name, pTypes, s.paramLength, tParams,
+            (new Signature(s.name, pTypes, tParams,
               ScSubstitutor.empty, s.namedElement match {
                 case fun: ScFunction =>
                   ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)

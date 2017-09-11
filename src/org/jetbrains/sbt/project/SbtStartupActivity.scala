@@ -20,7 +20,7 @@ class SbtStartupActivity extends StartupActivity {
 
   val ImportDescription = "import"
 
-  private def showNotificationForUnlinkedSbtProject(project: Project) =
+  private def showNotificationForUnlinkedSbtProject(project: Project): Unit =
     if (SbtSystemSettings.getInstance(project).getLinkedProjectsSettings.isEmpty &&
       project.getUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT) != java.lang.Boolean.TRUE &&
       SbtProjectImportProvider.canImport(project.getBaseDir)

@@ -23,10 +23,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, Type
 class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScThisReference {
   override def toString: String = "ThisReference"
 
-  protected override def innerType: TypeResult[ScType] = refTemplate match {
-    case Some(td) if td.isMetaAnnotatationImpl => TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText("scala.meta.Stat", this, null))
-    case Some(td) => ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this)
-    case _ => Failure("Cannot infer type", Some(this))
+  protected override def innerType: TypeResult[ScType] = {
+    import scala.meta.intellij.psiExt.TemplateDefExt
+    refTemplate match {
+      case Some(td) if td.isMetaAnnotatationImpl => TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText("scala.meta.Stat", this, null))
+      case Some(td) => ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this)
+      case _ => Failure("Cannot infer type", Some(this))
+    }
   }
 
   def refTemplate: Option[ScTemplateDefinition] = reference match {

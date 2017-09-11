@@ -10,13 +10,13 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
 
-import scala.meta.semantic.IDEAContext
+import scala.meta.intellij.IDEAContext
 
 trait TreeConverterTestUtils {
 
   def fixture: CodeInsightTestFixture // we need to go deeper
 
-  val semanticContext: IDEAContext
+  val context: IDEAContext
 
   val startToken = "//start"
 
@@ -55,24 +55,17 @@ trait TreeConverterTestUtils {
   }
 
   def doTest(text: String, tree: Tree) = {
-//    try {
       val converted = convert(text)
       if (!structuralEquals(converted, tree)) {
         org.junit.Assert.assertEquals("Trees not equal", tree.toString(), converted.toString())
         org.junit.Assert.assertTrue(false)
       }
       org.junit.Assert.assertEquals("Text comparison failure", tree.toString(), converted.toString())
-//    }
-//    catch {
-//      case ex: Exception =>
-//        ex.printStackTrace()
-//        org.junit.Assert.fail(ex.getMessage)
-//    }
   }
 
   protected def convert(text: String): Tree = {
     val psi = psiFromText(text)
-    semanticContext.ideaToMeta(psi)
+    context.ideaToMeta(psi)
   }
 
   def parseTextToFile(@Language("Scala") str: String): ScalaFile = {
@@ -86,6 +79,5 @@ trait TreeConverterTestUtils {
       """.stripMargin
     else str
     fixture.configureByText(ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
-//    fixture.checkHighlighting()
   }
 }

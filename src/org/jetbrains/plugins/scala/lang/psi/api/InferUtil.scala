@@ -283,20 +283,20 @@ object InferUtil {
 
     // interim fix for SCL-3905.
     def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType], fromSAM: Boolean = false,
-                                  fromMethodInvoaction: Boolean = false): ScType = {
+                                  fromMethodInvocation: Boolean = false): ScMethodType = {
       implicit val elementScope = mt.elementScope
       expr match {
-        case invocation: MethodInvocation if !fromMethodInvoaction =>
+        case _: MethodInvocation if !fromMethodInvocation =>
           mt.returnType match {
             case methodType: ScMethodType => mt.copy(
-              returnType = applyImplicitViewToResult(methodType, expectedType, fromSAM, fromMethodInvoaction = true)
+              returnType = applyImplicitViewToResult(methodType, expectedType, fromSAM, fromMethodInvocation = true)
             )
             case _ => mt
           }
         case _ =>
           expectedType match {
-            case Some(expectedType@FunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length
-              && !mt.returnType.conforms(expectedType) =>
+            case Some(expected) if mt.returnType.conforms(expected) => mt
+            case Some(FunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length =>
               if (expectedRet.equiv(Unit)) { //value discarding
                 ScMethodType(Unit, mt.params, mt.isImplicit)
               } else {
@@ -385,20 +385,8 @@ object InferUtil {
                                             ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)]) = {
     implicit val projectContext = retType.projectContext
 
-    def hasRecursiveTypeParams(typez: ScType): Boolean = {
-      var hasRecursiveTypeParameters = false
-      typez.recursiveUpdate {
-        case tpt: TypeParameterType =>
-          typeParams.find(_.nameAndId == tpt.nameAndId) match {
-            case None => (true, tpt)
-            case _ =>
-              hasRecursiveTypeParameters = true
-              (true, tpt)
-          }
-        case tp: ScType => (hasRecursiveTypeParameters, tp)
-      }
-      hasRecursiveTypeParameters
-    }
+    val nameAndIds = typeParams.map(_.nameAndId).toSet
+    def hasRecursiveTypeParams(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
 
     // See SCL-3052, SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
@@ -422,23 +410,23 @@ object InferUtil {
                 val nameAndId = tp.nameAndId
                 val lower = lMap.get(nameAndId) match {
                   case Some(_addLower) =>
-                    val substedLower = unSubst.subst(lowerType.v)
+                    val substedLower = unSubst.subst(lowerType)
                     val withParams = tryAddParameters(_addLower, typeParameters)
 
                     if (substedLower == _addLower || hasRecursiveTypeParams(substedLower)) withParams
                     else substedLower.lub(withParams)
                   case None =>
-                    unSubst.subst(lowerType.v)
+                    unSubst.subst(lowerType)
                 }
                 val upper = uMap.get(nameAndId) match {
                   case Some(_addUpper) =>
-                    val substedUpper = unSubst.subst(upperType.v)
+                    val substedUpper = unSubst.subst(upperType)
                     val withParams = tryAddParameters(_addUpper, typeParameters)
 
                     if (substedUpper == _addUpper || hasRecursiveTypeParams(substedUpper)) withParams
                     else substedUpper.glb(withParams)
                   case None =>
-                    unSubst.subst(upperType.v)
+                    unSubst.subst(upperType)
                 }
 
                 if (safeCheck && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
@@ -451,16 +439,16 @@ object InferUtil {
           } else {
             typeParams.foreach { tp =>
               val nameAndId = tp.nameAndId
-              if (un.names.contains(nameAndId) || tp.lowerType.v != Nothing) {
+              if (un.names.contains(nameAndId) || tp.lowerType != Nothing) {
                 //todo: add only one of them according to variance
-                if (tp.lowerType.v != Nothing) {
-                  val substedLowerType = unSubst.subst(tp.lowerType.v)
+                if (tp.lowerType != Nothing) {
+                  val substedLowerType = unSubst.subst(tp.lowerType)
                   if (!hasRecursiveTypeParams(substedLowerType)) {
                     un = un.addLower(nameAndId, substedLowerType, additional = true)
                   }
                 }
-                if (tp.upperType.v != Any) {
-                  val substedUpperType = unSubst.subst(tp.upperType.v)
+                if (tp.upperType != Any) {
+                  val substedUpperType = unSubst.subst(tp.upperType)
                   if (!hasRecursiveTypeParams(substedUpperType)) {
                     un = un.addUpper(nameAndId, substedUpperType, additional = true)
                   }
@@ -513,8 +501,8 @@ object InferUtil {
               }.map {
                 case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
                   TypeParameter(typeParameters, /* doesn't important here */
-                    sub.subst(lowerType.v),
-                    sub.subst(upperType.v),
+                    sub.subst(lowerType),
+                    sub.subst(upperType),
                     psiTypeParameter)
               })
             }

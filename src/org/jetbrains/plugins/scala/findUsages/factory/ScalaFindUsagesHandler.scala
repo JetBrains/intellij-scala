@@ -12,15 +12,14 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.findUsages.ScalaUsageTypeProvider
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator, ScNewTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 import org.jetbrains.plugins.scala.lang.psi.light._
@@ -38,7 +37,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
 
   override def getPrimaryElements: Array[PsiElement] = {
     def applyFactoryMethods(c: ScClass) = {
-      val companion = ScalaPsiUtil.getCompanionModule(c)
+      val companion = getCompanionModule(c)
       val applyMethods = companion.toSeq.flatMap(_.functionsByName("apply"))
       applyMethods.filter {
         case f: ScFunctionDefinition if f.isSyntheticApply => true
@@ -80,15 +79,15 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
       case named: PsiNamedElement =>
         val name = named.name
         result.add(name)
-        ScalaPsiUtil.nameContext(named) match {
-          case v: ScValue if ScalaPsiUtil.isBeanProperty(v) =>
+        nameContext(named) match {
+          case v: ScValue if isBeanProperty(v) =>
             result.add("get" + StringUtil.capitalize(name))
-          case v: ScVariable if ScalaPsiUtil.isBeanProperty(v) =>
+          case v: ScVariable if isBeanProperty(v) =>
             result.add("get" + StringUtil.capitalize(name))
             result.add("set" + StringUtil.capitalize(name))
-          case v: ScValue if ScalaPsiUtil.isBooleanBeanProperty(v) =>
+          case v: ScValue if isBooleanBeanProperty(v) =>
             result.add("is" + StringUtil.capitalize(name))
-          case v: ScVariable if ScalaPsiUtil.isBooleanBeanProperty(v) =>
+          case v: ScVariable if isBooleanBeanProperty(v) =>
             result.add("is" + StringUtil.capitalize(name))
             result.add("set" + StringUtil.capitalize(name))
           case _ =>
@@ -101,9 +100,9 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
   override def getFindUsagesOptions(dataContext: DataContext): FindUsagesOptions = {
     element match {
       case _: ScTypeDefinition => factory.typeDefinitionOptions
-      case ScalaPsiUtil.inNameContext(m: ScMember) if !m.isLocal => factory.memberOptions
+      case inNameContext(m: ScMember) if !m.isLocal => factory.memberOptions
       case _: ScParameter | _: ScTypeParam |
-           ScalaPsiUtil.inNameContext(_: ScMember | _: ScCaseClause | _: ScGenerator | _: ScEnumerator ) => factory.localOptions
+           inNameContext(_: ScMember | _: ScCaseClause | _: ScGenerator | _: ScEnumerator ) => factory.localOptions
       case _ => super.getFindUsagesOptions(dataContext)
     }
   }
@@ -124,10 +123,10 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
       case t: ScTypedDefinition =>
         t.getBeanMethods.toArray ++ {
           val a: Array[DefinitionRole] = t.nameContext match {
-            case v: ScValue if ScalaPsiUtil.isBeanProperty(v) => Array(GETTER)
-            case v: ScVariable if ScalaPsiUtil.isBeanProperty(v) => Array(GETTER, SETTER)
-            case v: ScValue if ScalaPsiUtil.isBooleanBeanProperty(v) => Array(IS_GETTER)
-            case v: ScVariable if ScalaPsiUtil.isBooleanBeanProperty(v) => Array(IS_GETTER, SETTER)
+            case v: ScValue if isBeanProperty(v) => Array(GETTER)
+            case v: ScVariable if isBeanProperty(v) => Array(GETTER, SETTER)
+            case v: ScValue if isBooleanBeanProperty(v) => Array(IS_GETTER)
+            case v: ScVariable if isBooleanBeanProperty(v) => Array(IS_GETTER, SETTER)
             case _ => Array.empty
           }
           a.map(role => t.getTypedDefinitionWrapper(isStatic = false, isInterface = false, role = role, cClass = None))
@@ -218,8 +217,8 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
 
     inReadAction {
       element match {
-        case function: ScFunction if !function.isLocal =>
-          for (elem <- ScalaOverridingMemberSearcher.search(function, deep = true)) {
+        case Both(named: ScNamedElement, inNameContext(member: ScMember)) if !member.isLocal =>
+          for (elem <- ScalaOverridingMemberSearcher.search(named, deep = true)) {
             val processed = super.processElementUsages(elem, processor, options)
             if (!processed) return false
           }

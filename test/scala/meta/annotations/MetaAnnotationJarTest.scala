@@ -35,6 +35,7 @@ class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMet
   }
 
   def testLoadAnnotationFromJar(): Unit = {
+    import scala.meta.intellij.psiExt._
     val source =
       """
         |@addFoo
@@ -77,7 +78,7 @@ class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMet
     myFixture.configureByText("foo.scala", source)
     val errors = myFixture.doHighlighting(HighlightSeverity.ERROR)
     assertEquals("Wrong number of reported expansion errors", 1, errors.size())
-    val expected = "Meta expansion failed: scala.MatchError: trait foo (of class scala.meta.Defn$Trait$DefnTraitImpl)"
+    val expected = "Macro expansion failed: scala.MatchError: trait foo (of class scala.meta.Defn$Trait$DefnTraitImpl)"
     assertEquals("Wrong expansion error message", expected, errors.get(0).getDescription)
   }
 }

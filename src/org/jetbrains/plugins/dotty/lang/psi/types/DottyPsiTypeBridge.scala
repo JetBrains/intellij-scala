@@ -2,7 +2,6 @@ package org.jetbrains.plugins.dotty.lang.psi.types
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -32,8 +31,7 @@ trait DottyPsiTypeBridge extends api.PsiTypeBridge {
     case _ => super.toScType(`type`, treatJavaObjectAsAny)
   }
 
-  override def toPsiType(`type`: ScType, noPrimitives: Boolean)
-                        (implicit elementScope: ElementScope): PsiType = {
+  override def toPsiType(`type`: ScType, noPrimitives: Boolean): PsiType = {
     def createComponent: ScType => PsiType =
       toPsiType(_, noPrimitives)
 

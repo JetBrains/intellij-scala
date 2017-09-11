@@ -67,17 +67,17 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
           def removeVarianceAbstracts(scType: ScType) = {
             var index = 0
-            scType.recursiveVarianceUpdate((tp: ScType, i: Int) => {
+            scType.recursiveVarianceUpdate((tp: ScType, v: Variance) => {
               tp match {
                 case ScAbstractType(_, lower, upper) =>
-                  i match {
-                    case -1 => (true, lower)
-                    case 1 => (true, upper)
-                    case 0 => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, upper))
+                  v match {
+                    case Contravariant => (true, lower)
+                    case Covariant     => (true, upper)
+                    case Invariant     => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, upper))
                   }
                 case _ => (false, tp)
               }
-            }, 1).unpackedType
+            }, Covariant).unpackedType
           }
 
           return et match {
@@ -139,19 +139,19 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                   def updateTypeParam: TypeParameter => TypeParameter = {
                     case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
                       TypeParameter(typeParameters.map(updateTypeParam),
-                        existize(lowerType.v, visitedWithT),
-                        existize(upperType.v, visitedWithT),
+                        existize(lowerType, visitedWithT),
+                        existize(upperType, visitedWithT),
                         psiTypeParameter)
                   }
 
-                  val pTypes: List[Seq[() => ScType]] =
+                  val pTypes: Seq[Seq[() => ScType]] =
                     s.substitutedTypes.map(_.map(f => () => existize(f(), visitedWithT)))
                   val tParams = s.typeParams.subst(updateTypeParam)
                   val rt: ScType = existize(tp, visitedWithT)
-                  (new Signature(s.name, pTypes, s.paramLength, tParams,
+                  (new Signature(s.name, pTypes, tParams,
                     ScSubstitutor.empty, s.namedElement match {
                       case fun: ScFunction =>
-                        ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)
+                        ScFunction.getCompoundCopy(pTypes.map(_.map(_())), tParams.toList, rt, fun)
                       case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                       case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                       case named => named

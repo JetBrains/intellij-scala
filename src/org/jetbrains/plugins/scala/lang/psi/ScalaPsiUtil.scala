@@ -452,17 +452,13 @@ object ScalaPsiUtil {
       case tp@ScTypePolymorphicType(internal, typeParameters) =>
         def hasBadLinks(tp: ScType, ownerPtp: PsiTypeParameter): Option[ScType] = {
           var res: Option[ScType] = Some(tp)
-          tp.recursiveUpdate {
-            tp =>
-              tp match {
-                case t: TypeParameterType =>
-                  if (typeParameters.exists {
-                    case TypeParameter(_, _, _, ptp) if ptp == t.psiTypeParameter && ptp.getOwner != ownerPtp.getOwner => true
-                    case _ => false
-                  }) res = None
-                case _ =>
-              }
-              (false, tp)
+          tp.visitRecursively {
+            case t: TypeParameterType =>
+              if (typeParameters.exists {
+                case TypeParameter(_, _, _, ptp) if ptp == t.psiTypeParameter && ptp.getOwner != ownerPtp.getOwner => true
+                case _ => false
+              }) res = None
+            case _ =>
           }
           res
         }
@@ -471,8 +467,8 @@ object ScalaPsiUtil {
           case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(
               clearBadLinks(parameters),
-              hasBadLinks(lowerType.v, psiTypeParameter).getOrElse(Nothing),
-              hasBadLinks(upperType.v, psiTypeParameter).getOrElse(Any),
+              hasBadLinks(lowerType, psiTypeParameter).getOrElse(Nothing),
+              hasBadLinks(upperType, psiTypeParameter).getOrElse(Any),
               psiTypeParameter)
         }
 
@@ -592,7 +588,7 @@ object ScalaPsiUtil {
         case ScAbstractType(_, _, upper) =>
           collectParts(upper)
         case ScExistentialType(quant, _) => collectParts(quant)
-        case TypeParameterType(_, _, upper, _) => collectParts(upper.v)
+        case TypeParameterType(_, _, upper, _) => collectParts(upper)
         case _ =>
           tp.extractClassType match {
             case Some((clazz, subst)) =>
@@ -910,7 +906,7 @@ object ScalaPsiUtil {
   }
 
   def namedElementSig(x: PsiNamedElement): Signature =
-    new Signature(x.name, Seq.empty, 0, ScSubstitutor.empty, x)
+    Signature(x.name, Seq.empty, ScSubstitutor.empty, x)
 
   def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[Signature] = {
     val empty = Seq.empty
@@ -1035,11 +1031,6 @@ object ScalaPsiUtil {
     }
   }
 
-  def getModifiersPresentableText(modifiers: ScModifierList): String =
-    Option(modifiers)
-      .map(_.modifiers.mkString(" "))
-      .getOrElse("")
-
   def isLineTerminator(element: PsiElement): Boolean = {
     element match {
       case _: PsiWhiteSpace if element.getText.indexOf('\n') != -1 => true
@@ -1147,17 +1138,6 @@ object ScalaPsiUtil {
       case _ => None
   }
 
-  def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[scala.meta.Defn.Object] = {
-
-    import scala.{meta => m}
-
-    ah.getMetaExpansion match {
-      case Left(_) => None
-      case Right(m.Term.Block(Seq(_: m.Defn, obj: m.Defn.Object))) => Some(obj)
-      case Right(_) => None
-    }
-  }
-
   // determines if an element can access other elements in a synthetic subtree that shadows
   // element's original(physical) subtree - e.g. physical method of some class referencing
   // a synthetic method of the same class
@@ -1220,11 +1200,11 @@ object ScalaPsiUtil {
       def getSubstitutionMap: java.util.Map[PsiTypeParameter, PsiType] = new java.util.HashMap[PsiTypeParameter, PsiType]()
 
       def substitute(`type`: PsiType): PsiType = {
-        substitutor.subst(`type`.toScType()).toPsiType()
+        substitutor.subst(`type`.toScType()).toPsiType
       }
 
       def substitute(typeParameter: PsiTypeParameter): PsiType = {
-        substitutor.subst(TypeParameterType(typeParameter, Some(substitutor))).toPsiType()
+        substitutor.subst(TypeParameterType(typeParameter, Some(substitutor))).toPsiType
       }
 
       def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY
@@ -1457,7 +1437,7 @@ object ScalaPsiUtil {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
           case named: ScAssignStmt => parameterOf(named)
           case block: ScBlock if block.statements == Seq(exp) => parameterOf(block)
-          case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
+          case ie: ScInfixExpr if exp == ie.getArgExpr =>
             ie.operation match {
               case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(Parameter(_))
               case ResolvesTo(method: PsiMethod) =>
@@ -1985,7 +1965,7 @@ object ScalaPsiUtil {
       case ScExistentialType(ParameterizedType(_, _), wildcards) =>
         tp match {
           case FunctionType(retTp, params) =>
-            def convertParameter(tpArg: ScType, variance: Int): ScType = {
+            def convertParameter(tpArg: ScType, variance: Variance): ScType = {
               tpArg match {
                 case ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
                 case ScExistentialType(param: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
@@ -1999,8 +1979,8 @@ object ScalaPsiUtil {
                         // Earlier we converted with Any upper type, but then it was changed because of type incompatibility.
                         // Right now the simplest way is Bad Code is Green as otherwise we need to fix this inconsistency somehow.
                         // I has no idea how yet...
-                        case (lo, _) if variance == ScTypeParam.Contravariant => lo
-                        case (lo, hi) if lo.isNothing && variance == ScTypeParam.Covariant => hi
+                        case (lo, _) if variance == Contravariant => lo
+                        case (lo, hi) if lo.isNothing && variance == Covariant => hi
                         case _ => tpArg
                       }
                     case _ => tpArg
@@ -2009,8 +1989,8 @@ object ScalaPsiUtil {
             }
 
             //parameter clauses are contravariant positions, return types are covariant positions
-            val newParams = params.map(convertParameter(_, ScTypeParam.Contravariant))
-            val newRetTp = convertParameter(retTp, ScTypeParam.Covariant)
+            val newParams = params.map(convertParameter(_, Contravariant))
+            val newRetTp = convertParameter(retTp, Covariant)
             Some(FunctionType(newRetTp, newParams))
           case _ => None
         }

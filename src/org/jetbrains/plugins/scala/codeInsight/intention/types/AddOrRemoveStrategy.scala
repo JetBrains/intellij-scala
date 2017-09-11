@@ -9,7 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -62,6 +62,12 @@ class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy
     }
 
     element.replace(replacement)
+
+    true
+  }
+
+  override def underscoreSectionWithType(underscore: ScUnderscoreSection): Boolean = {
+    underscore.getParent.getParent.replace(underscore)
 
     true
   }

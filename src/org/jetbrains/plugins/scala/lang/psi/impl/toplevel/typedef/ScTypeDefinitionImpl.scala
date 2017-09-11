@@ -73,7 +73,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   override def getSuperTypes: Array[PsiClassType] = {
     superTypes.flatMap {
       case tp =>
-        val psiType = tp.toPsiType()
+        val psiType = tp.toPsiType
         psiType match {
           case c: PsiClassType => Seq(c)
           case _ => Seq.empty
@@ -397,9 +397,10 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   }
 
   override def desugaredElement: Option[ScTemplateDefinition] = {
+    import scala.meta.intellij.psiExt._
     import scala.meta.{Defn, Term}
 
-    val defn = getMetaExpansion match {
+    val defn = this.getMetaExpansion match {
       case Right(templ: Defn.Class) => Some(templ)
       case Right(templ: Defn.Trait) => Some(templ)
       case Right(templ: Defn.Object) => Some(templ)

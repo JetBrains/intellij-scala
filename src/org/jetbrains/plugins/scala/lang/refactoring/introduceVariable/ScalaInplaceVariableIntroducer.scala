@@ -416,6 +416,6 @@ object ScalaInplaceVariableIntroducer {
       if (expression == null || !expression.isValid) false
       else if (fromDialogMode) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE
       else ScalaTypeAnnotationSettings(anchor.getProject).isTypeAnnotationRequiredFor(
-        Declaration(Visibility.Default), Location(anchor), Some(Implementation.of(expression)))
+        Declaration(Visibility.Default), Location(anchor), Some(Implementation.Expression(expression)))
     } else true
 }

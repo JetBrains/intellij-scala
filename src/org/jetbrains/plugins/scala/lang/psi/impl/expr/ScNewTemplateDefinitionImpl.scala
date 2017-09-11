@@ -88,7 +88,7 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
     }
 
     val (holders, aliases) : (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = extendsBlock.templateBody match {
-      case Some(b: ScTemplateBody) => (b.holders.toSeq ++ earlyHolders, b.aliases.toSeq)
+      case Some(b: ScTemplateBody) => (b.holders ++ earlyHolders, b.aliases)
       case None => (earlyHolders, Seq.empty)
     }
 
@@ -99,7 +99,7 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
 
 
     if (superTypes.length > 1 || holders.nonEmpty || aliases.nonEmpty) {
-      new Success(ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList), Some(this))
+      Success(ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList), Some(this))
     } else {
       extendsBlock.templateParents match {
         case Some(tp) if tp.allTypeElements.length == 1 =>

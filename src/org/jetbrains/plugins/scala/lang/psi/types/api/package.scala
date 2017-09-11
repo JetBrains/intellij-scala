@@ -18,7 +18,7 @@ package object api {
     def subst(function: TypeParameter => TypeParameter): Seq[TypeParameter] = typeParameters.map(function)
 
     def depth: Int = {
-      def depth(tp: TypeParameter): Int = Seq(tp.lowerType.v.typeDepth, tp.upperType.v.typeDepth, tp.typeParameters.depth).max
+      def depth(tp: TypeParameter): Int = Seq(tp.lowerType.typeDepth, tp.upperType.typeDepth, tp.typeParameters.depth).max
 
       val maxDepth = if (typeParameters.isEmpty) 0 else typeParameters.map(depth).max
       1 + maxDepth

@@ -1,47 +1,39 @@
 package scala.meta.annotations
 
 import java.io.File
-import javax.swing.SwingUtilities
 
 import com.intellij.ProjectTopics
-import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
-import com.intellij.openapi.application.ex.ApplicationManagerEx
-import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
+import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{CompilerProjectExtension, ModuleRootAdapter, ModuleRootEvent}
+import com.intellij.openapi.roots.{ModuleRootAdapter, ModuleRootEvent}
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
-import com.intellij.testFramework.{EdtTestUtil, PsiTestUtil, VfsTestUtil}
-import com.intellij.util.ThrowableRunnable
-import com.intellij.util.concurrency.Semaphore
-import com.intellij.util.ui.UIUtil
+import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
-import org.jetbrains.plugins.scala.debugger.{DebuggerTestUtil, ScalaVersion}
+import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
-import scala.meta.ScalaMetaLibrariesOwner
 import scala.meta.ScalaMetaLibrariesOwner.MetaBaseLoader
+import scala.meta.{Compilable, ScalaMetaLibrariesOwner}
 
-abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaLibrariesOwner {
+abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaLibrariesOwner with Compilable {
 
   import MetaAnnotationTestBase._
 
-  private var deleteProjectAtTearDown = false
-
   override implicit lazy val project: Project = getProject
+  override def rootProject = getProject
+  override def rootModule = myModule
 
   private lazy val metaDirectory = inWriteAction {
     val baseDir = project.getBaseDir
@@ -86,14 +78,6 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     runMake()
   }
 
-  protected def runMake(): List[String] = {
-    try {
-      make()
-    } finally {
-      shutdownCompiler()
-    }
-  }
-
   protected def addMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): Unit = {
     VfsTestUtil.createFile(metaDirectory, "meta.scala", source)
   }
@@ -108,6 +92,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 
 
   protected def checkExpansionEquals(code: String, expectedExpansion: String): Unit = {
+    import scala.meta.intellij.psiExt._
     myFixture.configureByText(s"Usage${getTestName(false)}.scala", code)
     val holder = ScalaPsiUtil.getParentOfType(myFixture.getElementAtCaret, classOf[ScAnnotationsHolder]).asInstanceOf[ScAnnotationsHolder]
     holder.getMetaExpansion match {
@@ -117,109 +102,13 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     }
   }
 
-  private def setUpCompiler(implicit module: Module): Unit = {
-    CompilerTestUtil.enableExternalCompiler()
-    DebuggerTestUtil.enableCompileServer(true)
-    addRoots
-    DebuggerTestUtil.forceJdk8ForBuildProcess()
+  protected def getGutter: GutterIconRenderer = {
+    val gutters = myFixture.findAllGutters()
+    Assert.assertEquals("Wrong number of gutters", 1, gutters.size())
+    gutters.get(0).asInstanceOf[GutterIconRenderer]
   }
 
-  private def shutdownCompiler(): Unit = {
-    CompilerTestUtil.disableExternalCompiler(getProject)
-    CompileServerLauncher.instance.stop()
-  }
-
-  private def addRoots(implicit module: Module) {
-    inWriteAction {
-      val srcRoot = getOrCreateChildDir("src")
-      PsiTestUtil.addSourceRoot(module, srcRoot, false)
-      val output = getOrCreateChildDir("out")
-
-      CompilerProjectExtension.getInstance(getProject).setCompilerOutputUrl(output.getUrl)
-    }
-  }
-
-  private def getOrCreateChildDir(name: String): VirtualFile = {
-    val baseDir = getProject.getBaseDir
-    Assert.assertNotNull(baseDir)
-
-    val file = new File(baseDir.getCanonicalPath, name)
-    if (!file.exists()) file.mkdir()
-
-    LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
-  }
-
-  private def make(): List[String] = {
-    val semaphore: Semaphore = new Semaphore
-    semaphore.down()
-    val callback = new ErrorReportingCallback(semaphore)
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      def run() {
-        CompilerTestUtil.saveApplicationSettings()
-        saveProject()
-        CompilerManager.getInstance(getProject).rebuild(callback)
-      }
-    })
-    val maxCompileTime = 6000
-    var i = 0
-    while (!semaphore.waitFor(100) && i < maxCompileTime) {
-      if (SwingUtilities.isEventDispatchThread) {
-        UIUtil.dispatchAllInvocationEvents()
-      }
-      i += 1
-    }
-    Assert.assertTrue(s"Too long compilation of test data for ${getClass.getSimpleName}", i < maxCompileTime)
-    if (callback.hasError) {
-      deleteProjectAtTearDown = true
-      callback.throwException()
-    }
-    callback.getMessages
-  }
-
-  private class ErrorReportingCallback(semaphore: Semaphore) extends CompileStatusNotification {
-    private var myError: Option[Throwable] = None
-    private var myMessages: List[String] = List.empty
-
-    def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext): Unit = {
-      try {
-        myMessages = (for {
-          category <- CompilerMessageCategory.values
-          message <- compileContext.getMessages(category)
-          msg = message.getMessage
-          if category != CompilerMessageCategory.INFORMATION || !msg.startsWith("Compilation completed successfully")
-        } yield
-          category + ": " + msg).toList
-
-        if (errors > 0) {
-          Assert.fail("Compiler errors occurred! " + myMessages.mkString("\n"))
-        }
-        Assert.assertFalse("Code did not compile!", aborted)
-      } catch {
-        case t: Throwable => myError = Option(t)
-      } finally {
-        semaphore.up()
-      }
-    }
-
-    def hasError: Boolean = myError != null
-
-    def throwException() {
-      myError.foreach(e => throw new RuntimeException(e))
-    }
-
-    def getMessages: List[String] = myMessages
-  }
-
-  private def saveProject(): Unit = {
-    refreshVfs(getProject.getProjectFilePath)
-    refreshVfs(myModule.getModuleFilePath)
-    val applicationEx = ApplicationManagerEx.getApplicationEx
-    val setting = applicationEx.isDoNotSave
-    applicationEx.doNotSave(false)
-    getProject.save()
-    applicationEx.doNotSave(setting)
-    CompilerTestUtil.saveApplicationSettings()
-  }
+  def createFile(text: String): Unit = myFixture.configureByText(s"$testClassName.scala", text)
 
   // because getElementAtCaret from fixture forces resolve
   protected def elementAtCaret = PsiTreeUtil.getParentOfType(myFixture.getFile.findElementAt(myFixture.getCaretOffset-1), classOf[ScalaPsiElement])
@@ -230,6 +119,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     .getChildren
     .collectFirst({case c: ScTypeDefinition if c.name == testClassName => c})
     .getOrElse{Assert.fail(s"Class $testClassName not found"); throw new RuntimeException}
+  protected val tq = "\"\"\""
 }
 
 object MetaAnnotationTestBase {
@@ -246,13 +136,6 @@ object MetaAnnotationTestBase {
     override def init(implicit version: ScalaVersion): Unit = {}
   }
 
-  private def refreshVfs(path: String): Unit = {
-    LocalFileSystem.getInstance.refreshAndFindFileByIoFile(new File(path)) match {
-      case null =>
-      case file => file.refresh(false, false)
-    }
-  }
-
   def mkAnnot(name: String, body: String): String = {
     s"""
        |import scala.meta._
@@ -263,4 +146,6 @@ object MetaAnnotationTestBase {
        |}
      """.stripMargin
   }
+
+
 }

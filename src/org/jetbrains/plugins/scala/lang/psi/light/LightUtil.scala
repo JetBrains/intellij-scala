@@ -32,7 +32,7 @@ object LightUtil {
           _.getType(TypingContext.empty) match {
             case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass match {
               case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
-                arg.toPsiType() match {
+                arg.toPsiType match {
                   case c: PsiClassType =>
                     c.resolve() match {
                       case clazz: PsiClass => Seq(clazz.getQualifiedName)
@@ -49,7 +49,7 @@ object LightUtil {
           annotation.constructor.typeArgList match {
             case Some(args) =>
               val classes = args.typeArgs.map(_.getType(TypingContext.empty)).filter(_.isDefined).map(_.get).flatMap {
-                _.toPsiType() match {
+                _.toPsiType match {
                   case c: PsiClassType =>
                     c.resolve() match {
                       case clazz: PsiClass => Seq(clazz.getQualifiedName)

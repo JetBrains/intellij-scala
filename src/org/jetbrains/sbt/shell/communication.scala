@@ -56,7 +56,7 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
     })
   }
 
-  private def nextQueuedCommand(timeout: Duration) = {
+  private def nextQueuedCommand(timeout: Duration): Unit = {
     // TODO exception handling
     if (shellQueueReady.tryAcquire(timeout.toMillis, TimeUnit.MILLISECONDS)) {
       val next = commands.poll(timeout.toMillis, TimeUnit.MILLISECONDS)
@@ -125,7 +125,7 @@ private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[
   private val promise = Promise[A]()
   private var a: A = default
 
-  private def aggregate(event: ShellEvent) = {
+  private def aggregate(event: ShellEvent): Unit = {
     a = aggregator(a, event)
   }
 
@@ -201,7 +201,7 @@ private[shell] abstract class LineListener extends ProcessAdapter with AnsiEscap
   override def coloredTextAvailable(text: String, attributes: Key[_]): Unit =
     updateLine(text)
 
-  private def updateLine(text: String) = {
+  private def updateLine(text: String): Unit = {
     text match {
       case "\n" =>
         lineDone()
@@ -215,7 +215,7 @@ private[shell] abstract class LineListener extends ProcessAdapter with AnsiEscap
     }
   }
 
-  private def lineDone() = {
+  private def lineDone(): Unit = {
     val line = builder.result()
     builder.clear()
     onLine(line)

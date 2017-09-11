@@ -1,6 +1,8 @@
 package org.jetbrains.sbt
 package project
 
+import javax.swing.Icon
+
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalProjectImportProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -11,11 +13,11 @@ import com.intellij.openapi.vfs.VirtualFile
 class SbtProjectImportProvider(builder: SbtProjectImportBuilder)
   extends AbstractExternalProjectImportProvider(builder, SbtProjectSystem.Id) {
 
-  override def getId = Sbt.Name
+  override def getId: String = Sbt.Name
 
-  override def getName = Sbt.Name
+  override def getName: String = Sbt.Name
 
-  override def getIcon = Sbt.Icon
+  override def getIcon: Icon = Sbt.Icon
 
   override def canImport(entry: VirtualFile, project: Project): Boolean =
     SbtProjectImportProvider.canImport(entry)
@@ -25,17 +27,27 @@ class SbtProjectImportProvider(builder: SbtProjectImportBuilder)
 }
 
 object SbtProjectImportProvider {
+
   def canImport(entry: VirtualFile): Boolean = {
     if (entry.isDirectory) {
       entry.getName == Sbt.ProjectDirectory ||
-              entry.containsDirectory(Sbt.ProjectDirectory) ||
-              entry.containsFile(Sbt.BuildFile)
+        containsSbtProjectDirectory(entry) ||
+        containsSbtBuildFile(entry)
 
     } else {
-      entry.getName == Sbt.BuildFile ||
-        Sbt.isSbtFile(entry.getName)
+      Sbt.isSbtFile(entry.getName)
     }
   }
+
+  private def containsSbtProjectDirectory(file: VirtualFile) =
+    Option(file.findChild(Sbt.ProjectDirectory))
+      .exists { projectDir =>
+        projectDir.containsFile(Sbt.PropertiesFile) ||
+        containsSbtBuildFile(projectDir)
+      }
+
+  private def containsSbtBuildFile(dir: VirtualFile) =
+    dir.getChildren.exists(child => Sbt.isSbtFile(child.getName))
 
   def projectRootOf(entry: VirtualFile): VirtualFile = {
     if (entry.isDirectory) {

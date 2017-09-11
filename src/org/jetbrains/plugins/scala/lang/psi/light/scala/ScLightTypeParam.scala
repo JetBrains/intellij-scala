@@ -26,9 +26,9 @@ class ScDelegatingLightTypeParam(t: TypeParameter, val tParam: ScTypeParam)
 
   override val typeParamId: Long = tParam.typeParamId
 
-  override def upperBound: TypeResult[ScType] = Success(t.upperType.v, Some(this))
+  override def upperBound: TypeResult[ScType] = Success(t.upperType, Some(this))
 
-  override def lowerBound: TypeResult[ScType] = Success(t.lowerType.v, Some(this))
+  override def lowerBound: TypeResult[ScType] = Success(t.lowerType, Some(this))
 
   override def getIndex: Int = tParam.getIndex
 

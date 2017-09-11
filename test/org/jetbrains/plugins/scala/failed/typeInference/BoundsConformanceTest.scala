@@ -56,4 +56,18 @@ class BoundsConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     )
   }
+
+  def testSCL12287(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |  trait IdOf[+T]
+        |
+        |  class RichAnyRef[T](val x: T) extends AnyVal {
+        |    def getId: IdOf[T] = ???
+        |  }
+        |  implicit def toRichAnyRef(x: AnyRef): RichAnyRef[x.type] = new RichAnyRef[x.type](x)
+        |  val y: IdOf[String] = "".getId
+      """.stripMargin
+    )
+  }
 }
