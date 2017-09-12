@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.intention.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 
@@ -33,4 +34,8 @@ trait Strategy {
   def parameterWithoutType(param: ScParameter): Boolean = true
 
   def parameterWithType(param: ScParameter): Boolean = true
+
+  def underscoreSectionWithoutType(underscore: ScUnderscoreSection): Boolean = true
+
+  def underscoreSectionWithType(underscore: ScUnderscoreSection): Boolean = true
 }

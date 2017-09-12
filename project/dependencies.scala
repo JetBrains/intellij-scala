@@ -17,6 +17,7 @@ object Versions {
   val paradiseVersion = "3.0.0-M10"
   val monocleVersion = "1.4.0"
   val scalazVersion = "7.1.0"
+  val ScalamacrosVersion = "2.0.0-94-f03bbf3a"
 
   object Scala {
     val binary_2_9 = "2.9.2"
@@ -90,6 +91,7 @@ object Dependencies {
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
   val fastparse: ModuleID = "com.lihaoyi" % s"fastparse_$scalaBinaryVersion" % "0.4.3" // transitive dependency of scalaMeta, needs explicit versioning
+  val scalaMacros2: ModuleID = "org.scalamacros" %% "scalamacros" % ScalamacrosVersion
 
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
@@ -120,6 +122,7 @@ object DependencyGroups {
     scalaReflect,
     scalaXml,
     scalaMetaCore,
+    scalaMacros2,
     scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
@@ -158,9 +161,11 @@ object DependencyGroups {
 
     scalaXml,
     "com.chuusai" % "shapeless_2.11" % "2.0.0",
+    "com.fommil" % "stalactite_2.11" % "0.0.3",
     "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
     "com.github.julien-truffaut" %% "monocle-generic" % monocleVersion,
     "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion,
+    "com.github.mpilquist" % "simulacrum_2.11" % "0.10.0",
     "com.lihaoyi" % "utest_2.10" % "0.3.1" % "provided",
     "com.lihaoyi" % "utest_2.10" % "0.4.3" % "provided",
     "com.lihaoyi" % "utest_2.11" % "0.3.1" % "provided",

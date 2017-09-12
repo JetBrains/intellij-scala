@@ -205,7 +205,6 @@ trait TreeAdapter {
       case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None)
       case None => m.Term.Param(Nil, m.Name.Anonymous(), None, None)
     }
-    m.Ctor.Ref.Function
     // FIXME: preserve expression and member order
     val stats = (exprs, members) match {
       case (Some(exp), Some(hld)) => Some(hld ++ exp)
@@ -251,15 +250,18 @@ trait TreeAdapter {
   }
 
   private def toCtor(tp: m.Type): m.Term.Apply = {
-    def doConvert(tp: m.Type): m.Term = tp match {
+    val ctor = toCtorRef(tp)
+    m.Term.Apply(ctor, Nil)
+  }
+
+  private def toCtorRef(tp: m.Type): m.Ctor.Call = {
+    tp match {
       case m.Type.Name(value) => m.Ctor.Ref.Name(value)
       case m.Type.Select(qual, name) => m.Ctor.Ref.Select(qual, m.Ctor.Ref.Name(name.value))
       case m.Type.Project(qual, name) => m.Ctor.Ref.Project(qual, m.Ctor.Ref.Name(name.value))
-      case m.Type.Apply(tpe, args) => m.Term.ApplyType(doConvert(tpe), args)
+      case m.Type.Apply(tpe, args) => m.Term.ApplyType(toCtorRef(tpe), args)
       case other => unreachable(s"Unexpected type in constructor type element - $other")
     }
-    val ctor = doConvert(tp)
-    m.Term.Apply(ctor, Nil)
   }
 
   def toAnnot(annot: ScAnnotation): m.Mod.Annot = {
@@ -478,14 +480,10 @@ trait TreeAdapter {
   }
 
   def toPatternDefinition(t: ScPatternDefinition): m.Tree = {
-    def pattern(bp: patterns.ScBindingPattern): m.Pat = {
-      m.Pat.Var.Term(toTermName(bp))
-    }
-
     if(t.bindings.exists(_.isVal))
-      m.Defn.Val(convertMods(t), Seq(t.bindings.map(pattern):_*), t.typeElement.map(toType), expression(t.expr).get)
+      m.Defn.Val(convertMods(t), Seq(t.pList.patterns.map(pattern):_*), t.typeElement.map(toType), expression(t.expr).get)
     else if(t.bindings.exists(_.isVar))
-      m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern):_*), t.typeElement.map(toType), expression(t.expr))
+      m.Defn.Var(convertMods(t), Seq(t.pList.patterns.map(pattern):_*), t.typeElement.map(toType), expression(t.expr))
     else unreachable
   }
 

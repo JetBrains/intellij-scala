@@ -1,0 +1,23 @@
+<html>
+<body>
+Removes double negation from `exists` or `forall` calls.
+
+<p>
+    Before:
+<pre>
+!seq.forall(x => !condition(x))
+!seq.exists(x => !condition(x))
+</pre>
+</p>
+<p>
+
+    <br>
+    After:
+<pre>
+seq.exists(x => condition(x))
+seq.forall(x => condition(x))
+</pre>
+</p>
+
+</body>
+</html>

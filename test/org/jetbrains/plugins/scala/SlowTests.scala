@@ -8,3 +8,5 @@ trait PerfCycleTests
 trait HighlightingTests
 
 trait DebuggerTests
+
+trait ScalacTests

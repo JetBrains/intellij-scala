@@ -40,6 +40,9 @@ object Common {
   }
 
 
+  val scalacTestsCategory =
+    "org.jetbrains.plugins.scala.ScalacTests"
+
   val testConfigDir: File =
     Path.userHome / ".IdeaData" / "IDEA-15" / "scala" / "test-config"
 

@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.{Set, mutable}
@@ -55,22 +54,6 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   def isImplicitProcessor: Boolean = false
 
   def changedLevel: Boolean = true
-
-  private var knownPriority: Option[Int] = None
-
-  def definePriority(p: Int)(body: => Unit) {
-    val oldPriority = knownPriority
-    knownPriority = Some(p)
-    try {
-      body
-    } finally {
-      knownPriority = oldPriority
-    }
-  }
-
-  def isPredefPriority: Boolean = knownPriority.contains(PrecedenceTypes.SCALA_PREDEF)
-
-  def specialPriority: Option[Int] = knownPriority
 
   protected var accessibility = true
   def doNotCheckAccessibility() {accessibility = false}

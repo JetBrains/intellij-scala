@@ -1,10 +1,16 @@
 package scala.meta.annotations
 
+import com.intellij.lang.annotation.HighlightSeverity
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.junit.Assert
 
+import scala.collection.JavaConversions.iterableAsScalaIterable
+
 class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
+  import MetaAnnotationTestBase._
+
   def testSCL10965(): Unit = {
     import scala.meta.intellij.psiExt._
     compileMetaSource()
@@ -154,4 +160,68 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
       case _ =>
     }
   }
+
+  // SCL-12385 Macro fails to expand if embedded inside an object
+  def testSCL12385(): Unit = {
+    import scala.meta.intellij.psiExt._
+    compileMetaSource(
+      s"""
+        |import scala.meta._
+        |object Foo {
+        |  class Argument(arg: Int) extends scala.annotation.StaticAnnotation {
+        |    inline def apply(defn: Any): Any = meta {  q"class $testClassName { def bar = 42 }"  }
+        |  }
+        |}
+      """.stripMargin)
+
+    createFile(
+      s"""
+        |@Foo.Argument(2) class $testClassName
+      """.stripMargin
+    )
+
+    testClass.getMetaExpansion match {
+      case Left(error)  => Assert.fail(s"Expansion failed: $error")
+      case _ =>
+    }
+  }
+
+  def testSCL12371(): Unit = {
+    import scala.meta.intellij.psiExt._
+
+    val newMethodName = "bar"
+    compileAnnotBody(s"""q"class $testClassName { def $newMethodName = 42 }" """)
+    createFile(
+      s"""
+        |object Bla {
+        |  @$annotName class $testClassName
+        |  val ex = new $testClassName
+        |  val ret = ex.$newMethodName<caret> //cannot resolve symbol bar (error does not appear when macro is expanded)
+        |}
+      """.stripMargin
+    )
+    val exp = testClass.getMetaExpansion
+    Assert.assertTrue("Synthetic method not injected", testClass.members.exists(_.getName == newMethodName))
+  }
+
+  def testSCL12509(): Unit = {
+    compileAnnotBody(
+      """
+        |val q"class $className" = defn
+        |q"final class $className(val value : Int) extends AnyVal"
+      """.stripMargin.trim
+    )
+    createFile(s"@$annotName class $testClassName\nnew $testClassName(42).value<caret>")
+    val errors = myFixture.doHighlighting(HighlightSeverity.ERROR)
+    val errorStr = ScalaBundle.message("value.class.can.have.only.one.parameter")
+    Assert.assertFalse("Value class constructor not resolved", !errors.isEmpty && errors.exists(_.getDescription == errorStr))
+    Assert.assertTrue("Value class field not resolved", myFixture.getElementAtCaret != null)
+  }
+
+  // Redundant parentheses in macro expansion
+  def testSCL12465(): Unit = {
+    compileAnnotBody("defn")
+    checkExpansionEquals(s"@$annotName trait<caret> Foo extends Bar", "trait Foo extends Bar")
+  }
+
 }

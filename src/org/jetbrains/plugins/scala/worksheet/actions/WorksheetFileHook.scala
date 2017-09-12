@@ -21,6 +21,7 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.components.StopWorksheetAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterFactory, WorksheetFoldGroup, WorksheetUiConstructor}
 
@@ -119,7 +120,7 @@ class WorksheetFileHook(private val project: Project) extends AbstractProjectCom
 
   private object WorksheetEditorListener extends FileEditorManagerListener {
     private def isPluggable(file: VirtualFile): Boolean = {
-      if (ScalaFileType.WORKSHEET_EXTENSION == file.getExtension) return true
+      if (ScalaFileType.WORKSHEET_EXTENSION == file.getExtension && !ScalaProjectSettings.getInstance(project).isTreatScAsAmmonite) return true
       if (!file.isValid) return false
       
       PsiManager.getInstance(project).findFile(file) match {
@@ -196,7 +197,7 @@ object WorksheetFileHook {
     
     override def equals(obj: Any): Boolean = obj.isInstanceOf[MyPanel]
 
-    override def hashCode() = Integer.MAX_VALUE
+    override def hashCode(): Int = Integer.MAX_VALUE
   }
   
   private def getAndRemovePanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel.remove(file))

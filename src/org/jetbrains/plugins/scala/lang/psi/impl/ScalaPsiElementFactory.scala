@@ -188,6 +188,13 @@ object ScalaPsiElementFactory {
     function.parameters.head
   }
 
+  // Supports "_" parameter name
+  def createFunctionParameterFromText(paramText: String)
+                                     (implicit ctx: ProjectContext): ScParameter = {
+    val function = createScalaFileFromText(s"($paramText) =>").getFirstChild.asInstanceOf[ScFunctionExpr]
+    function.parameters.head
+  }
+
   def createPatternFromText(patternText: String)
                            (implicit ctx: ProjectContext): ScPattern = {
     val matchStatement = createElementFromText(s"x match { case $patternText => }", classOf[ScMatchStmt])
@@ -824,6 +831,10 @@ object ScalaPsiElementFactory {
     }.getOrElse {
       throw new IncorrectOperationException(s"wrong type element to parse: $text")
     }
+
+  def createParameterTypeFromText(text: String)(implicit ctx: ProjectContext): ScParameterType =
+    createScalaFileFromText(s"(_: $text) => ())")
+      .getFirstChild.asInstanceOf[ScFunctionExpr].parameters.head.paramType.get
 
   def createColon(implicit ctx: ProjectContext): PsiElement =
     createElementFromText("var f: Int", classOf[ScalaPsiElement]).findChildrenByType(ScalaTokenTypes.tCOLON).head

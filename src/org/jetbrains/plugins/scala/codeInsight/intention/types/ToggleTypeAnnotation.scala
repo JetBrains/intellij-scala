@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.ScalaBundle.message
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
@@ -86,6 +87,18 @@ class ToggleTypeAnnotation extends AbstractTypeAnnotationIntention {
 
     override def parameterWithType(param: ScParameter): Boolean = {
       setText(message("intention.type.annotation.parameter.remove.text"))
+
+      true
+    }
+
+    override def underscoreSectionWithoutType(underscore: ScUnderscoreSection): Boolean ={
+      setText(message("intention.type.annotation.underscore.add.text"))
+
+      true
+    }
+
+    override def underscoreSectionWithType(underscore: ScUnderscoreSection): Boolean = {
+      setText(message("intention.type.annotation.underscore.remove.text"))
 
       true
     }

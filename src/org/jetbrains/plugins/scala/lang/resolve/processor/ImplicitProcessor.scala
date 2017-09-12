@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala
-package lang.resolve.processor
+package lang
+package resolve
+package processor
 
 import java.util
 
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.Set
@@ -17,29 +19,22 @@ import scala.collection.Set
  * This class mark processor that only implicit object important among all PsiClasses
  */
 abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean)
-                                (implicit projectContext: ProjectContext) extends BaseProcessor(kinds) with PrecedenceHelper[String] {
-  protected val precedence: util.HashMap[String, Int] = new util.HashMap[String, Int]()
+                                (implicit projectContext: ProjectContext) extends BaseProcessor(kinds) with SubstitutablePrecedenceHelper[String] {
+
+  override protected val holder: TopPrecedenceHolder[String] = new TopPrecedenceHolderImpl[String] {
+
+    override def toRepresentation(result: ScalaResolveResult): String = result
+  }
+
   protected val levelMap: util.HashMap[String, util.HashSet[ScalaResolveResult]] = new util.HashMap[String, util.HashSet[ScalaResolveResult]]()
-
-  protected def getQualifiedName(result: ScalaResolveResult): String = {
-    result.isRenamed match {
-      case Some(str) => str
-      case None => result.name
-    }
-  }
-
-  protected def getTopPrecedence(result: ScalaResolveResult): Int = Option(precedence.get(getQualifiedName(result))).getOrElse(0)
-
-  protected def setTopPrecedence(result: ScalaResolveResult, i: Int) {
-    precedence.put(getQualifiedName(result), i)
-  }
 
   override protected def clearLevelQualifiedSet(result: ScalaResolveResult) {
     //optimisation, do nothing
   }
 
   override protected def getLevelSet(result: ScalaResolveResult): util.HashSet[ScalaResolveResult] = {
-    val qualifiedName = getQualifiedName(result)
+    import holder.toRepresentation
+    val qualifiedName: String = result
     var levelSet = levelMap.get(qualifiedName)
     if (levelSet == null) {
       levelSet = new util.HashSet[ScalaResolveResult]
@@ -80,10 +75,6 @@ abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean)
       }
     }
     res
-  }
-
-  override protected def filterNot(p: ScalaResolveResult, n: ScalaResolveResult): Boolean = {
-    getQualifiedName(p) == getQualifiedName(n) && super.filterNot(p, n)
   }
 
   override protected def isCheckForEqualPrecedence = false

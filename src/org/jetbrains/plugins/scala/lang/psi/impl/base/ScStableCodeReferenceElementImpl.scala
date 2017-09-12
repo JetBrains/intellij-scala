@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Comple
 import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceElementResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -268,7 +269,10 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
          |$contextText""".stripMargin)
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this, false, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
+
+    override protected val forName = Some(refName)
+  })
 
   override def delete() {
     getContext match {
@@ -408,6 +412,26 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
       }
     }
 
+    getContainingFile match {
+      case ammoniteScript: ScalaFile if AmmoniteUtil.isAmmoniteFile(ammoniteScript) =>
+        def psi2result(psiElement: PsiNamedElement): Array[ResolveResult] = Array(new ScalaResolveResult(psiElement))
+        
+        val fsi = AmmoniteUtil.scriptResolveQualifier(this)
+
+        (fsi, fsi.flatMap(AmmoniteUtil.file2Object)) match {
+          case (_, Some(obj)) => 
+            return psi2result(obj)
+          case (Some(dir), _) => 
+            return psi2result(dir)
+          case _ => 
+            AmmoniteUtil.scriptResolveSbtDependency(this) match {
+              case Some(dir) => return psi2result(dir)
+              case _ => 
+            }
+        }
+      case _ =>
+    }
+    
     val importStmt = PsiTreeUtil.getContextOfType(this, true, classOf[ScImportStmt])
 
     if (importStmt != null) {

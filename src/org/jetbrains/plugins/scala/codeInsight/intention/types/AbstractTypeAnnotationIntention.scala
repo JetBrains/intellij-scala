@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern, ScTypedPattern, ScWildcardPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScTypedStmt, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
@@ -60,6 +60,13 @@ object AbstractTypeAnnotationIntention {
       if variable.bindings.size == 1
     } yield variable
 
+  private[types] def underscoreSectionParent(element: PsiElement): Option[ScUnderscoreSection] = {
+    element.withParentsInFile.collectFirst {
+      case underscore: ScUnderscoreSection => underscore
+      case (_: ScTypedStmt) && FirstChild(underscore: ScUnderscoreSection) => underscore
+    }
+  }
+
   def complete(element: PsiElement,
                strategy: Strategy = new AddOnlyStrategy): Boolean = {
     functionParent(element).foreach { function =>
@@ -87,6 +94,13 @@ object AbstractTypeAnnotationIntention {
         case _ =>
           strategy.variableWithoutType(variable)
       }
+    }
+
+    underscoreSectionParent(element).foreach { underscore =>
+      return if (underscore.getParent.isInstanceOf[ScTypedStmt])
+        strategy.underscoreSectionWithType(underscore)
+      else
+        strategy.underscoreSectionWithoutType(underscore)
     }
 
     for {

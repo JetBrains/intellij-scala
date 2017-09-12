@@ -119,7 +119,7 @@ class ImplicitCollector(place: PsiElement,
 
         val firstCandidates = compatible(visibleNamesCandidates())
         val result =
-          if (firstCandidates.nonEmpty && !firstCandidates.forall(!_.isApplicable())) firstCandidates
+          if (firstCandidates.exists(_.isApplicable())) firstCandidates
           else {
             val secondCandidates = compatible(fromTypeCandidates())
             if (secondCandidates.nonEmpty) secondCandidates else firstCandidates

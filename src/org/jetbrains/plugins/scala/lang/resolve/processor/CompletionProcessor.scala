@@ -3,189 +3,179 @@ package lang
 package resolve
 package processor
 
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor, ScType, Signature}
-import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor.QualifiedName
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor, Signature}
+import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceHelper, TopPrecedenceHolder, TopPrecedenceHolderImpl}
 
 import scala.collection.{Set, mutable}
 
 object CompletionProcessor {
-  case class QualifiedName(name: String, isNamedParameter: Boolean)
 
-  def getQualifiedName(result: ScalaResolveResult): QualifiedName = {
-    val name = result.isRenamed match {
-      case Some(str) => str
-      case None => result.name
+  private def getSignature(element: PsiNamedElement, substitutor: ScSubstitutor): Option[Signature] = element match {
+    case method: PsiMethod => Some(new PhysicalSignature(method, substitutor))
+    case _: ScTypeAlias |
+         _: PsiClass => None
+    case _ => Some(Signature(element, substitutor))
+  }
+
+  private def findByKey[T](key: Key[T])
+                          (implicit state: ResolveState): Option[T] =
+    Option(state.get(key))
+
+  private def createResolveResults(candidates: Seq[(PsiNamedElement, Boolean)],
+                                   substitutor: ScSubstitutor,
+                                   implicitFunction: Option[PsiNamedElement])
+                                  (implicit state: ResolveState): Seq[ScalaResolveResult] = {
+    val isRenamed = findByKey(ResolverEnv.nameKey)
+    val fromType = findByKey(BaseProcessor.FROM_TYPE_KEY)
+    val importsUsed = findByKey(ImportUsed.key).getOrElse(Set.empty)
+    val prefixCompletion = findByKey(ScalaCompletionUtil.PREFIX_COMPLETION_KEY).getOrElse(false)
+
+    candidates.map {
+      case (element, isNamedParameter) => new ScalaResolveResult(element, substitutor,
+        nameShadow = isRenamed, implicitFunction = implicitFunction,
+        isNamedParameter = isNamedParameter, fromType = fromType,
+        importsUsed = importsUsed, prefixCompletion = prefixCompletion)
     }
-    val isNamedParameter = result.isNamedParameter
-
-    QualifiedName(name, isNamedParameter)
   }
 }
 
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
-                          val place: PsiElement,
-                          val collectImplicits: Boolean = false,
-                          forName: Option[String] = None,
-                          postProcess: ScalaResolveResult => Unit = _ => {},
-                          val includePrefixImports: Boolean = true,
-                          val isIncomplete: Boolean = true)
-  extends BaseProcessor(kinds)(place) with PrecedenceHelper[QualifiedName] {
-  protected val precedence: mutable.HashMap[QualifiedName, Int] = new mutable.HashMap[QualifiedName, Int]()
+                          override val getPlace: PsiElement)
+  extends BaseProcessor(kinds)(getPlace) with PrecedenceHelper[(String, Boolean)] {
 
-  protected val signatures: mutable.HashMap[Signature, Boolean] = new mutable.HashMap[Signature, Boolean]()
+  override protected val holder: TopPrecedenceHolder[(String, Boolean)] = new TopPrecedenceHolderImpl[(String, Boolean)] {
 
-  def getPlace: PsiElement = place
+    override implicit def toRepresentation(result: ScalaResolveResult): (String, Boolean) =
+      (result, result.isNamedParameter)
+  }
 
-  protected def getQualifiedName(result: ScalaResolveResult): QualifiedName = CompletionProcessor.getQualifiedName(result)
+  private val signatures = mutable.HashSet[Signature]()
+
+  val includePrefixImports: Boolean = true
+
+  protected val forName: Option[String] = None
+
+  protected def postProcess(result: ScalaResolveResult): Unit = {
+  }
 
   override protected def isCheckForEqualPrecedence = false
 
-  protected def getTopPrecedence(result: ScalaResolveResult): Int = precedence.getOrElse(getQualifiedName(result), 0)
+  import CompletionProcessor._
 
-  protected def setTopPrecedence(result: ScalaResolveResult, i: Int) {
-    precedence.put(getQualifiedName(result), i)
-  }
-
-  override protected def filterNot(p: ScalaResolveResult, n: ScalaResolveResult): Boolean = {
-    getQualifiedName(p) == getQualifiedName(n) && super.filterNot(p, n)
-  }
-
-  def getSignature(element: PsiNamedElement, substitutor: => ScSubstitutor): Option[Signature] = {
+  def execute(element: PsiElement, state: ResolveState): Boolean =
     element match {
-      case method: PsiMethod => Some(new PhysicalSignature(method, substitutor))
-      case _: ScTypeAlias => None
-      case _: PsiClass => None
-      case _ => Some(Signature(element, substitutor))
+      case namedElement: PsiNamedElement =>
+        forName match {
+          case Some(name) if namedElement.name != name =>
+          case _ => execute(namedElement)(state)
+        }
+
+        true
+      case _ => false
     }
+
+  private def execute(namedElement: PsiNamedElement)
+                     (implicit state: ResolveState): Unit = {
+    val candidates = findCandidates(namedElement)
+    if (candidates.isEmpty) return
+
+    val substitutor = findByKey(ScSubstitutor.key).getOrElse(ScSubstitutor.empty)
+    val implicitFunction = findByKey(CachesUtil.IMPLICIT_FUNCTION)
+
+    val resolveResults = createResolveResults(candidates, substitutor, implicitFunction)
+    val maybeSignature = getSignature(namedElement, substitutor)
+
+    resolveResults.filter {
+      case result if implicitFunction.isDefined && maybeSignature.isDefined => implicitCase(result, maybeSignature.get)
+      case result => regularCase(result, maybeSignature)
+    }.foreach(addResult)
   }
 
-  def execute(_element: PsiElement, state: ResolveState): Boolean = {
-    if (!_element.isInstanceOf[PsiElement]) return false
-    val element = _element.asInstanceOf[PsiNamedElement]
-    forName match {
-      case Some(name) if element.name != name => return true
+  private def findCandidates(namedElement: PsiNamedElement)
+                            (implicit state: ResolveState): Seq[(PsiNamedElement, Boolean)] = {
+    val results = namedElement match {
+      case function: ScFunction if function.isConstructor =>
+        Seq.empty // do not add constructor
+      case definition: ScTypeDefinition =>
+        (Seq(definition) ++ getCompanionModule(definition)).map((_, false))
       case _ =>
+        val isNamedParameter = findByKey(CachesUtil.NAMED_PARAM_KEY).exists(_.booleanValue())
+        Seq((namedElement, isNamedParameter))
     }
 
-    lazy val substitutor: ScSubstitutor = Option(state.get(ScSubstitutor.key)).getOrElse(ScSubstitutor.empty)
-    lazy val isRenamed: Option[String] = Option(state.get(ResolverEnv.nameKey))
-    lazy val implFunction: Option[PsiNamedElement] = Option(state.get(CachesUtil.IMPLICIT_FUNCTION))
-    lazy val isNamedParameter: Boolean = Option(state.get(CachesUtil.NAMED_PARAM_KEY)).exists(_.booleanValue())
-    val fromType: Option[ScType] = Option(state.get(BaseProcessor.FROM_TYPE_KEY))
-    val importsUsed: Set[ImportUsed] = Option(state.get(ImportUsed.key)).getOrElse(Set.empty)
-    val prefixCompletion: Boolean = Option(state.get(ScalaCompletionUtil.PREFIX_COMPLETION_KEY)).getOrElse(false)
-
-    def _addResult(result: ScalaResolveResult) {
-      val signature: Option[Signature] = getSignature(element, substitutor)
-      val forImplicit = implFunction.isDefined
-      if (!forImplicit) {
-        if (levelSet.contains(result)) {
-          if (result.prefixCompletion) {
-            levelSet.remove(result)
-            addResult(result)
-          }
-        } else addResult(result)
-        signature.foreach(sign => signatures += ((sign, forImplicit)))
-      } else {
-        signature match {
-          case Some(sign) =>
-            signatures.get(sign) match {
-              case Some(true) =>
-                val iterator = levelSet.iterator()
-                while (iterator.hasNext) {
-                  val next = iterator.next()
-                  if (getQualifiedName(next) == getQualifiedName(result) && next.element != result.element &&
-                    signature == getSignature(next.element, next.substitutor)) {
-                    iterator.remove()
-                  }
-                }
-              case Some(false) => //do nothing
-              case None =>
-                addResult(result)
-                signature.foreach(sign => signatures += ((sign, forImplicit)))
-            }
-          case _ =>
-            if (levelSet.contains(result)) {
-              if (result.prefixCompletion) {
-                levelSet.remove(result)
-                addResult(result)
-              }
-            } else addResult(result)
-        }
-      }
+    results.filter {
+      case (e, _) => kindMatches(e)
     }
-
-    element match {
-      case fun: ScFunction if fun.isConstructor => return true //do not add constructor
-      case td: ScTypeDefinition =>
-        if (kindMatches(td)) {
-          val result = new ScalaResolveResult(td, substitutor, nameShadow = isRenamed,
-            implicitFunction = implFunction, fromType = fromType, importsUsed = importsUsed, prefixCompletion = prefixCompletion)
-          _addResult(result)
-        }
-        ScalaPsiUtil.getCompanionModule(td) match {
-          case Some(td: ScTypeDefinition) if kindMatches(td) =>
-            val result = new ScalaResolveResult(td, substitutor,
-              nameShadow = isRenamed, implicitFunction = implFunction, fromType = fromType, importsUsed = importsUsed,
-              prefixCompletion = prefixCompletion)
-            _addResult(result)
-          case _ =>
-        }
-      case named: PsiNamedElement =>
-        if (kindMatches(element)) {
-          element match {
-            case _: PsiMethod =>
-              val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
-                implicitFunction = implFunction, isNamedParameter = isNamedParameter, fromType = fromType,
-                importsUsed = importsUsed, prefixCompletion = prefixCompletion)
-              _addResult(result)
-            case _: ScBindingPattern =>
-              val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
-                implicitFunction = implFunction, isNamedParameter = isNamedParameter, fromType = fromType,
-                importsUsed = importsUsed, prefixCompletion = prefixCompletion)
-              _addResult(result)
-            case _ =>
-              val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
-                implicitFunction = implFunction, isNamedParameter = isNamedParameter, fromType = fromType,
-                importsUsed = importsUsed, prefixCompletion = prefixCompletion)
-              _addResult(result)
-          }
-        }
-    }
-    true
   }
 
   override def changedLevel: Boolean = {
-    if (levelSet.isEmpty) return true
-    val iterator = levelSet.iterator()
-    while (iterator.hasNext) {
-      val next = iterator.next()
-      postProcess(next)
-      candidatesSet += next
+    collectResults(candidatesSet)
+
+    if (!levelSet.isEmpty) {
+      qualifiedNamesSet.addAll(levelQualifiedNamesSet)
+      levelSet.clear()
+      levelQualifiedNamesSet.clear()
     }
-    qualifiedNamesSet.addAll(levelQualifiedNamesSet)
-    levelSet.clear()
-    levelQualifiedNamesSet.clear()
-    true
+
+    super.changedLevel
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
-    val res = candidatesSet
+    collectResults(candidatesSet)
+    candidatesSet
+  }
+
+
+  private def collectResults(accumulator: mutable.HashSet[ScalaResolveResult]): Unit = {
     val iterator = levelSet.iterator()
     while (iterator.hasNext) {
       val next = iterator.next()
       postProcess(next)
-      res += next
+      accumulator.add(next)
     }
-    res
+  }
+
+  private def regularCase(result: ScalaResolveResult,
+                          maybeSignature: Option[Signature]): Boolean = {
+    signatures ++= maybeSignature
+
+    if (result.prefixCompletion) {
+      levelSet.remove(result)
+    }
+
+    !levelSet.contains(result)
+  }
+
+  private def implicitCase(result: ScalaResolveResult,
+                           signature: Signature): Boolean =
+    signatures.add(signature) match {
+      case false if result.implicitFunction.isDefined =>
+        removeImplicitsCollision(result, signature)
+        false
+      case added => added
+    }
+
+  private def removeImplicitsCollision(result: ScalaResolveResult,
+                                       signature: Signature): Unit = {
+    val iterator = levelSet.iterator()
+    while (iterator.hasNext) {
+      val next = iterator.next()
+      val ScalaResolveResult(nextElement, nextSubstitutor) = next
+
+      if (holder.representationsAreEqual(next, result) &&
+        nextElement != result.element &&
+        getSignature(nextElement, nextSubstitutor).contains(signature)) {
+        iterator.remove()
+      }
+    }
   }
 }

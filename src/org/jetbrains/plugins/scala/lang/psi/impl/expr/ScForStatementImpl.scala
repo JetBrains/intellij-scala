@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
-import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitCompletionProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.annotation.tailrec
@@ -122,15 +122,17 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           var filterText = "withFilter"
           var filterFound = false
           val tp = gen.rvalue.getType(TypingContext.empty).getOrAny
-          val processor =
-            new CompletionProcessor(StdKinds.methodRef, this, collectImplicits = true, forName = Some("withFilter")) {
-              override def execute(_element: PsiElement, state: ResolveState): Boolean = {
-                super.execute(_element, state)
+          val processor = new ImplicitCompletionProcessor(StdKinds.methodRef, this) {
+
+              override def execute(element: PsiElement, state: ResolveState): Boolean = {
+                super.execute(element, state)
                 if (!levelSet.isEmpty) {
                   filterFound = true
                   false
                 } else true
               }
+
+            override protected val forName = Some("withFilter")
             }
           processor.processType(tp, this)
           if (!filterFound) filterText = "filter"

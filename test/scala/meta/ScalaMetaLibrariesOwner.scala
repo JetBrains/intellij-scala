@@ -30,8 +30,10 @@ trait ScalaMetaLibrariesOwner extends ScalaSdkOwner {
 
 object ScalaMetaLibrariesOwner {
 
+  val metaVersion = "1.8.0"
+
   abstract class MetaBaseLoader(implicit module: Module) extends IvyLibraryLoaderAdapter {
-    override protected val version: String = "1.8.0"
+    override protected val version: String = metaVersion
     override val vendor: String = "org.scalameta"
 
     override def path(implicit version: ScalaVersion): String =

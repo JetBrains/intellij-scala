@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScGenericCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
@@ -34,6 +34,8 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   override def patternWithType(pattern: ScTypedPattern): Boolean = true
 
   override def parameterWithType(param: ScParameter): Boolean = true
+
+  override def underscoreSectionWithType(underscore: ScUnderscoreSection) = true
 
   override def functionWithoutType(function: ScFunctionDefinition): Boolean = {
     function.returnType.foreach {
@@ -83,18 +85,19 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
           case Some(FunctionType(_, params)) =>
             if (index >= 0 && index < params.length) {
               val paramExpectedType = params(index)
-              val param1 = param.getParent match {
-                case x: ScParameterClause if x.parameters.length == 1 =>
-                  // ensure  that the parameter is wrapped in parentheses before we add the type annotation.
-                  val clause: PsiElement = x.replace(createClauseForFunctionExprFromText(param.getText.parenthesize(true))(param.getManager))
-                  clause.asInstanceOf[ScParameterClause].parameters.head
-                case _ => param
-              }
-              addTypeAnnotation(paramExpectedType, param1.getParent, param1)
+              addTypeAnnotation(paramExpectedType, param.getParent, param)
             }
           case _ =>
         }
       case _ =>
+    }
+
+    true
+  }
+
+  override def underscoreSectionWithoutType(underscore: ScUnderscoreSection): Boolean = {
+    underscore.getType().foreach {
+      addTypeAnnotation(_, underscore.getParent, underscore)
     }
 
     true
@@ -141,13 +144,31 @@ object AddOnlyStrategy {
   def addActualType(annotation: ScTypeElement, anchor: PsiElement): PsiElement = {
     implicit val ctx: ProjectContext = anchor
 
-    val parent = anchor.getParent
-    val added = parent.addAfter(annotation, anchor)
+    anchor match {
+      case p: ScParameter =>
+        val parameter = p.getParent match {
+          case Parent(Parent(Parent(_: ScBlockExpr))) => p
+          // ensure  that the parameter is wrapped in parentheses before we add the type annotation.
+          case clause: ScParameterClause if clause.parameters.length == 1 =>
+            clause.replace(createClauseForFunctionExprFromText(p.getText.parenthesize(true)))
+              .asInstanceOf[ScParameterClause].parameters.head
+          case _ => p
+        }
 
-    parent.addAfter(createWhitespace, anchor)
-    parent.addAfter(createColon, anchor)
+        parameter.nameId.appendSiblings(createColon, createWhitespace, createParameterTypeFromText(annotation.getText)).last
 
-    added
+      case underscore: ScUnderscoreSection =>
+        val needsParentheses = underscore.getParent match {
+          case ScParenthesisedExpr(content) if content == underscore => false
+          case _: ScArgumentExprList => false
+          case _ => true
+        }
+        val e = createScalaFileFromText(s"(_: ${annotation.getText})").getFirstChild.asInstanceOf[ScParenthesisedExpr]
+        underscore.replace(if (needsParentheses) e else e.expr.get)
+
+      case _ =>
+        anchor.appendSiblings(createColon, createWhitespace, annotation).last
+    }
   }
 
   def annotationFor(`type`: ScType, anchor: PsiElement): Option[ScTypeElement] =
