@@ -3,7 +3,6 @@ package lang
 package refactoring
 package introduceParameter
 
-
 import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
@@ -15,8 +14,8 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.refactoring.{RefactoringActionHandler, RefactoringBundle}
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.IntroduceImplicitParameterIntention
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -41,11 +40,13 @@ import scala.collection.mutable.ArrayBuffer
  * User: Alexander Podkhalyuzin
  * Date: 11.06.2009
  */
-class ScalaIntroduceParameterHandler extends RefactoringActionHandler with DialogConflictsReporter {
+class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with DialogConflictsReporter {
 
   private var occurrenceHighlighters = Seq.empty[RangeHighlighter]
 
-  def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
+
+  override def invoke(file: PsiFile)
+                     (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     if (!file.isInstanceOf[ScalaFile]) return
     if (!ScalaRefactoringUtil.ensureFileWritable(project, file)) {
       showErrorHint(ScalaBundle.message("file.is.not.writable"), project, editor, REFACTORING_NAME)
@@ -203,10 +204,6 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     val data = ScalaIntroduceParameterData(methodLike, methodToSearchFor, elems,
       suggestedName, types, types(0), occurrences, mainOcc, replaceAll = false, argText, Some(argClauseText))
     Some(data)
-  }
-
-  def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {
-    /*do nothing*/
   }
 
   private def getEnclosingMethods(expr: PsiElement): Seq[ScMethodLike] = {

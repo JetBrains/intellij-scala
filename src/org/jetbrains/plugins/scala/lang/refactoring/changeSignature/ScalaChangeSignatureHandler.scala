@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package lang.refactoring.changeSignature
+package lang
+package refactoring
+package changeSignature
 
 import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.internal.statistic.UsageTrigger
@@ -23,7 +25,7 @@ import scala.annotation.tailrec
  * Nikolay.Tropin
  * 2014-08-29
  */
-class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
+class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefactoringActionHandler {
 
   def invokeWithDialog(project: Project, fun: ScMethodLike) {
     UsageTrigger.trigger(ScalaChangeSignatureHandler.id)
@@ -85,7 +87,8 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
     }
   }
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
+  override def invoke(file: PsiFile)
+                     (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     val element = Option(findTargetMember(file, editor))
             .getOrElse(CommonDataKeys.PSI_ELEMENT.getData(dataContext))
@@ -93,7 +96,9 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
     invokeOnElement(project, editor, element)
   }
 
-  override def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext): Unit = {
+
+  override def invoke(elements: Array[PsiElement])
+                     (implicit project: Project, dataContext: DataContext): Unit = {
     if (elements.length != 1) return
     val editor: Editor = if (dataContext == null) null else CommonDataKeys.EDITOR.getData(dataContext)
     invokeOnElement(project, editor, elements(0))

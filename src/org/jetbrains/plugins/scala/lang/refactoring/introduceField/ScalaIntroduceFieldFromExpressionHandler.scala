@@ -53,16 +53,14 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     }
   }
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
+
+  override def invoke(file: PsiFile)
+                     (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     val canBeIntroduced: (ScExpression) => Boolean = checkCanBeIntroduced(_)
     afterExpressionChoosing(project, editor, file, dataContext, REFACTORING_NAME, canBeIntroduced) {
       trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
-  }
-
-  override def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {
-    //nothing
   }
 
   def convertExpressionToField(ifc: IntroduceFieldContext[ScExpression]) {

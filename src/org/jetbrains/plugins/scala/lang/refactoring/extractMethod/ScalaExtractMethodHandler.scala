@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang
-package refactoring.extractMethod
+package refactoring
+package extractMethod
 
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
@@ -10,7 +11,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.refactoring.RefactoringActionHandler
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -39,12 +39,11 @@ import scala.collection.mutable.ArrayBuffer
  * User: Alexander Podkhalyuzin
  * Date: 11.01.2010
  */
-class ScalaExtractMethodHandler extends RefactoringActionHandler {
+class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
   private val REFACTORING_NAME: String = ScalaBundle.message("extract.method.title")
 
-  def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {/*do nothing*/}
-
-  def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
+  override def invoke(file: PsiFile)
+                     (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     if (!file.isInstanceOf[ScalaFile]) return
 
