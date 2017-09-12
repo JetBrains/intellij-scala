@@ -7,7 +7,7 @@ import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.internal.statistic.UsageTrigger
-import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.impl.StartMarkAction
 import com.intellij.openapi.editor.Editor
@@ -43,15 +43,16 @@ trait IntroduceTypeAlias {
 
   val INTRODUCE_TYPEALIAS_REFACTORING_NAME = ScalaBundle.message("introduce.type.alias.title")
 
-  def invokeTypeElement(project: Project, editor: Editor, file: PsiFile, inTypeElement: ScTypeElement): Unit = {
+  def invokeTypeElement(file: PsiFile, inTypeElement: ScTypeElement)
+                       (implicit project: Project, editor: Editor): Unit = {
     try {
       UsageTrigger.trigger(ScalaBundle.message("introduce.type.alias.id"))
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
-      ScalaRefactoringUtil.checkFile(file, project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
+      writableScalaFile(file, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
 
       val typeElement: ScTypeElement = ScalaRefactoringUtil.checkTypeElement(inTypeElement).
-        getOrElse(showErrorMessageWithException(ScalaBundle.message("cannot.refactor.not.valid.type"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME))
+        getOrElse(showErrorHintWithException(ScalaBundle.message("cannot.refactor.not.valid.type"), INTRODUCE_TYPEALIAS_REFACTORING_NAME))
 
       val currentDataObject = editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO)
 
@@ -60,9 +61,8 @@ trait IntroduceTypeAlias {
       }
 
       if (currentDataObject.possibleScopes.isEmpty) {
-        showErrorMessageWithException(ScalaBundle.message("cannot.refactor.scope.not.found"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
+        showErrorHintWithException(ScalaBundle.message("cannot.refactor.scope.not.found"), INTRODUCE_TYPEALIAS_REFACTORING_NAME)
       }
-
 
       def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem, enteredName: String = "") {
         val typeElementHelper = if (fromInplace && mainScope.isInstanceOf[SimpleScopeItem]) {

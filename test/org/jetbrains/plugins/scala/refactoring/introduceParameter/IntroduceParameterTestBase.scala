@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala.refactoring.introduceParameter
 
 import java.io.File
 
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
@@ -36,7 +38,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
 
   protected def doTest() {
     import _root_.junit.framework.Assert._
-    implicit val project = getProjectAdapter
+    implicit val project: Project = getProjectAdapter
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
@@ -50,7 +52,8 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
 
     val fileEditorManager = FileEditorManager.getInstance(project)
-    val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(project, file, startOffset), false)
+    implicit val editor: Editor = fileEditorManager
+      .openTextEditor(new OpenFileDescriptor(project, file, startOffset), false)
 
     var res: String = null
 
@@ -79,7 +82,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
             ScalaRefactoringUtil.trimSpacesAndComments(editor, scalaFile)
             PsiDocumentManager.getInstance(project).commitAllDocuments()
             val handler = new ScalaIntroduceParameterHandler()
-            val (exprWithTypes, elems) = handler.selectedElements(scalaFile, project, editor) match {
+            val (exprWithTypes, elems) = handler.selectedElements(scalaFile) match {
               case Some((x, y)) => (x, y)
               case None => return
             }

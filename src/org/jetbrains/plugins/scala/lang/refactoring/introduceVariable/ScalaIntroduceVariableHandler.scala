@@ -12,9 +12,9 @@ import com.intellij.openapi.util._
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.HelpID
-import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.showErrorHint
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil}
 
 /**
@@ -64,7 +64,7 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
 
     if (hasSelection && selectedElement.isEmpty) {
       val message = ScalaBundle.message("cannot.refactor.not.expression.nor.type")
-      CommonRefactoringUtil.showErrorHint(project, editor, message, INTRODUCE_VARIABLE_REFACTORING_NAME, HelpID.INTRODUCE_VARIABLE)
+      showErrorHint(message, INTRODUCE_VARIABLE_REFACTORING_NAME, HelpID.INTRODUCE_VARIABLE)
       return
     }
 
@@ -81,17 +81,17 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
 
     if (typeElement.isDefined) {
       if (editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).isData) {
-        invokeTypeElement(project, editor, file, typeElement.get)
+        invokeTypeElement(file, typeElement.get)
       } else {
         ScalaRefactoringUtil.afterTypeElementChoosing(project, editor, file, dataContext, typeElement.get, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
           typeElement =>
-            invokeTypeElement(project, editor, file, typeElement)
+            invokeTypeElement(file, typeElement)
         }
       }
     } else {
       val canBeIntroduced: ScExpression => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
       ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, INTRODUCE_VARIABLE_REFACTORING_NAME, canBeIntroduced) {
-        invokeExpression(project, editor, file, selectionStart, selectionEnd)
+        invokeExpression(file, selectionStart, selectionEnd)
       }
     }
   }

@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
 import scala.annotation.tailrec
 
@@ -33,11 +34,11 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
     dialog.show()
   }
 
-  private def invokeOnElement(project: Project, editor: Editor, element: PsiElement): Unit = {
-    def showErrorHint(message: String) = {
-      val name = ChangeSignatureHandler.REFACTORING_NAME
-      CommonRefactoringUtil.showErrorHint(project, editor, message, name, HelpID.CHANGE_SIGNATURE)
-    }
+  private def invokeOnElement(element: PsiElement)
+                             (implicit project: Project, editor: Editor): Unit = {
+    def showErrorHint =
+      ScalaRefactoringUtil.showErrorHint(_: String, ChangeSignatureHandler.REFACTORING_NAME, HelpID.CHANGE_SIGNATURE)
+
     def isSupportedFor(fun: ScMethodLike): Boolean = {
       fun match {
         case fun: ScFunction if fun.paramClauses.clauses.exists(_.isImplicit) =>
@@ -93,16 +94,19 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
     val element = Option(findTargetMember(file, editor))
             .getOrElse(CommonDataKeys.PSI_ELEMENT.getData(dataContext))
 
-    invokeOnElement(project, editor, element)
+    invokeOnElement(element)
   }
 
 
   override def invoke(elements: Array[PsiElement])
-                     (implicit project: Project, dataContext: DataContext): Unit = {
-    if (elements.length != 1) return
-    val editor: Editor = if (dataContext == null) null else CommonDataKeys.EDITOR.getData(dataContext)
-    invokeOnElement(project, editor, elements(0))
-  }
+                     (implicit project: Project, dataContext: DataContext): Unit =
+    elements match {
+      case Array(head) =>
+        implicit val editor: Editor = if (dataContext != null) CommonDataKeys.EDITOR.getData(dataContext)
+        else null
+        invokeOnElement(head)
+      case _ =>
+    }
 
   override def getTargetNotFoundMessage: String = ScalaBundle.message("error.wrong.caret.position.method.name")
 

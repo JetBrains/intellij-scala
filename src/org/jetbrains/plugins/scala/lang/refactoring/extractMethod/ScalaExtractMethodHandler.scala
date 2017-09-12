@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.showErrorHint
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{maybeWritableScalaFile, showErrorHint, showNotPossibleWarnings}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
@@ -50,22 +50,21 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     UsageTrigger.trigger(ScalaBundle.message("extract.method.id"))
 
     ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, REFACTORING_NAME, ScalaRefactoringUtil.checkCanBeIntroduced(_)) {
-      invokeOnEditor(project, editor, file.asInstanceOf[ScalaFile], dataContext)
+      invokeOnEditor(file)
     }
   }
 
-  private def invokeOnEditor(project: Project, editor: Editor, file: ScalaFile, dataContext: DataContext) {
+  private def invokeOnEditor(file: PsiFile)
+                            (implicit project: Project, editor: Editor, dataContext: DataContext) {
     implicit val ctx: ProjectContext = project
 
-    if (!ScalaRefactoringUtil.ensureFileWritable(project, file)) {
-      showErrorHint(ScalaBundle.message("file.is.not.writable"), project, editor, REFACTORING_NAME)
-      return
-    }
-    if (!editor.getSelectionModel.hasSelection) return
-    val elements: Seq[PsiElement] = ScalaRefactoringUtil.selectedElements(editor, file, trimComments = false)
+    val scalaFile = maybeWritableScalaFile(file, REFACTORING_NAME)
+      .getOrElse(return)
 
-    val hasWarnings = ScalaRefactoringUtil.showNotPossibleWarnings(elements, project, editor, REFACTORING_NAME)
-    if (hasWarnings) return
+    if (!editor.getSelectionModel.hasSelection) return
+    val elements: Seq[PsiElement] = ScalaRefactoringUtil.selectedElements(editor, scalaFile, trimComments = false)
+
+    if (showNotPossibleWarnings(elements, REFACTORING_NAME)) return
 
     def checkLastReturn(elem: PsiElement): Boolean = {
       elem match {
@@ -105,21 +104,20 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     val stopAtScope: PsiElement = findScopeBound(elements).getOrElse(file)
     val siblings: Array[PsiElement] = getSiblings(elements.head, stopAtScope)
     if (siblings.length == 0) {
-      showErrorHint(ScalaBundle.message("extract.method.cannot.find.possible.scope"), project, editor, REFACTORING_NAME)
+      showErrorHint(ScalaBundle.message("extract.method.cannot.find.possible.scope"), REFACTORING_NAME)
       return
     }
     val array = elements.toArray
     if (ApplicationManager.getApplication.isUnitTestMode && siblings.length > 0) {
-      invokeDialog(project, editor, array, hasReturn, lastReturn, siblings(0), siblings.length == 1,
-        lastExprType)
+      invokeDialog(array, hasReturn, lastReturn, siblings(0), siblings.length == 1, lastExprType)
     } else if (siblings.length > 1) {
       ScalaRefactoringUtil.showChooser(editor, siblings, {(selectedValue: PsiElement) =>
-        invokeDialog(project, editor, array, hasReturn, lastReturn, selectedValue,
+        invokeDialog(array, hasReturn, lastReturn, selectedValue,
           siblings(siblings.length - 1) == selectedValue, lastExprType)
       }, "Choose level for Extract Method", getTextForElement, (e: PsiElement) => e.getParent)
     }
     else if (siblings.length == 1) {
-      invokeDialog(project, editor, array, hasReturn, lastReturn, siblings(0), smallestScope = true, lastExprType)
+      invokeDialog(array, hasReturn, lastReturn, siblings(0), smallestScope = true, lastExprType)
     }
   }
 
@@ -205,16 +203,17 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
   }
 
 
-  private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Option[ScType],
+  private def invokeDialog(elements: Array[PsiElement], hasReturn: Option[ScType],
                            lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean,
-                           lastExprType: Option[ScType]) {
+                           lastExprType: Option[ScType])
+                          (implicit project: Project, editor: Editor): Unit = {
 
     val info = ReachingDefintionsCollector.collectVariableInfo(elements, sibling)
 
     val input = info.inputVariables
     val output = info.outputVariables
     if (output.exists(_.element.isInstanceOf[ScFunctionDefinition])) {
-      showErrorHint(ScalaBundle.message("cannot.extract.used.function.definition"), project, editor, REFACTORING_NAME)
+      showErrorHint(ScalaBundle.message("cannot.extract.used.function.definition"), REFACTORING_NAME)
       return
     }
     val settings: ScalaExtractMethodSettings =
