@@ -208,7 +208,7 @@ object ScExpression {
   }
 
   implicit class Ext(val expr: ScExpression) extends AnyVal {
-    private implicit def elementScope = expr.elementScope
+    private implicit def elementScope: ElementScope = expr.elementScope
     private def project = elementScope.projectContext
 
     def expectedType(fromUnderscore: Boolean = true): Option[ScType] =
