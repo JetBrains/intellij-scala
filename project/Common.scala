@@ -37,11 +37,8 @@ object Common {
     val perfOptTests: String = cat("PerfCycleTests")
     val highlightingTests: String = cat("HighlightingTests")
     val debuggerTests: String = cat("DebuggerTests")
+    val scalacTests: String = cat("ScalacTests")
   }
-
-
-  val scalacTestsCategory =
-    "org.jetbrains.plugins.scala.ScalacTests"
 
   val testConfigDir: File =
     Path.userHome / ".IdeaData" / "IDEA-15" / "scala" / "test-config"

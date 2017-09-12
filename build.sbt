@@ -201,11 +201,11 @@ addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTests")
 
 addCommandAlias("runHighlightingTests", s"testOnly -- --include-categories=$highlightingTests")
 
-addCommandAlias("runScalacTests", s"testOnly -- --include-categories=$scalacTestsCategory")
+addCommandAlias("runScalacTests", s"testOnly -- --include-categories=$scalacTests")
 
 addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTests " +
                                             s"--exclude-categories=$perfOptTests " +
-                                            s"--exclude-categories=$scalacTestsCategory " +
+                                            s"--exclude-categories=$scalacTests " +
                                             s"--exclude-categories=$highlightingTests "
 )
 

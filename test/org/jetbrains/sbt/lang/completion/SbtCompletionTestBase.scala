@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs._
 import com.intellij.testFramework.{LightVirtualFile, UsefulTestCase}
 import org.jetbrains.plugins.scala.lang.completion
 import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
+
 import scala.collection.JavaConverters._
 
 /**
