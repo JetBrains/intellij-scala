@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<idea-plugin>
+    <application-components>
+        <component>
+            <implementation-class>org.jetbrains.plugins.cbt.settings.StartupRoutine</implementation-class>
+        </component>
+    </application-components>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <configurationType implementation="org.jetbrains.plugins.cbt.runner.CbtConfigurationType"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.cbt.project.settings.CbtSystemSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.cbt.project.settings.CbtLocalSettings"/>
+        <externalSystemManager implementation="org.jetbrains.plugins.cbt.project.CbtExternalSystemManager"/>
+        <projectTemplatesFactory implementation="org.jetbrains.plugins.cbt.project.template.CbtIdeaProjectTemplateFactory"
+                                 order="first"/>
+
+        <projectImportProvider implementation="org.jetbrains.plugins.cbt.project.CbtProjectImportProvider"/>
+        <projectImportBuilder implementation="org.jetbrains.plugins.cbt.project.CbtProjectImportBuilder"/>
+        <projectConfigurable groupId="build.tools" displayName="CBT"
+                             instance="org.jetbrains.plugins.cbt.settings.CbtExternalSystemConfigurable"/>
+        <moduleType id="CBT_EXTRA_MODULE" implementationClass="org.jetbrains.plugins.cbt.project.CbtExtraModuleType"/>
+        <moduleType id="CBT_TEST_MODULE" implementationClass="org.jetbrains.plugins.cbt.project.CbtTestModuleType"/>
+
+        <externalProjectDataService
+                implementation="org.jetbrains.plugins.cbt.project.data.service.CbtProjectDataService"/>
+        <externalProjectDataService
+                implementation="org.jetbrains.plugins.cbt.project.data.service.CbtModuleExtDataService"/>
+        <internalFileTemplate name="CBT Build Class"/>
+        <externalSystemTaskNotificationListener
+                implementation="org.jetbrains.plugins.cbt.project.CbtNotificationListener"/>
+        <projectTaskRunner implementation="org.jetbrains.plugins.cbt.runner.CbtProjectTaskRunner"/>
+        <stepsBeforeRunProvider implementation="org.jetbrains.plugins.cbt.runner.RunCbtDebuggerBeforeRunProvider" />
+        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.cbt.annotator.CbtLineMarkerProvider" language="Scala" />
+
+
+        <toolWindow id="CBT" anchor="right"
+                    icon="/org/jetbrains/plugins/scala/images/sbt.png"
+                    factoryClass="org.jetbrains.plugins.cbt.project.CbtTooolWindowFactory"
+                    conditionClass="org.jetbrains.plugins.cbt.project.CbtToolWindowFactoryCondition"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <scalaIntentionAvailabilityChecker implementation="org.jetbrains.plugins.cbt.inspection.InspectionDisabler"/>
+    </extensions>
+    <actions>
+        <action id="ConsiderAsCbtModule" class="org.jetbrains.plugins.cbt.action.ConsiderAsCbtModule"
+                text="Consider as CBT module">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+        </action>
+         <action id="StopConsiderAsCbtModule" class="org.jetbrains.plugins.cbt.action.StopConsiderAsCbtModule"
+                text="Stop consider as CBT module">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+        </action>
+        <action id="NewCbtBuildFile" class="org.jetbrains.plugins.cbt.action.NewCbtBuildFileAction"
+                text="CBT build file">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Scala.NewClass"/>
+        </action>
+    </actions>
+</idea-plugin>
