@@ -37,10 +37,10 @@
                 implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.FromTypeToTypeNamesProvider"/>
         <genericTypeNamesProvider
                 implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.MonadicTypeNamesProvider"/>
-      <genericTypeNamesProvider
-              implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.FunctionTypeNamesProvider"/>
-      <genericTypeNamesProvider
-              implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TupleTypeNamesProvider"/>
+        <genericTypeNamesProvider
+                implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.FunctionTypeNamesProvider"/>
+        <genericTypeNamesProvider
+                implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TupleTypeNamesProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
