@@ -57,7 +57,7 @@ class MetaAnnotationsTest extends MetaAnnotationTestBase {
          |class Foo
       """.stripMargin)
     Assert.assertEquals("Wrong tooltip text: out of date not detected", ScalaBundle.message("scala.meta.recompile"), getGutter.getTooltipText)
-    setUpCompiler(module)
+    setUpCompiler(metaModule)
     enableParadisePlugin()
     runMake()
     Assert.assertEquals("Wrong tooltip text: compiled class not detected", ScalaBundle.message("scala.meta.expand"), getGutter.getTooltipText)
