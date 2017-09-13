@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntro
  * @author Roman.Shein
  * @since 11.09.2015.
  */
-class ScalaIntorduceVariablePostfixTemplate extends PostfixTemplateWithExpressionSelector("var", "val name = expr",
+class ScalaIntroduceVariablePostfixTemplate extends PostfixTemplateWithExpressionSelector("var", "val name = expr",
   new AncestorSelector(SelectorConditions.ANY_EXPR, All)) {
 
   override def expandForChooseExpression(expression: PsiElement, editor: Editor): Unit = {
