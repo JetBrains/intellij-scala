@@ -6,10 +6,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.junit.Assert
 
-import scala.collection.JavaConversions.iterableAsScalaIterable
+import scala.collection.JavaConverters._
 
 class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
-  import MetaAnnotationTestBase._
 
   def testSCL10965(): Unit = {
     import scala.meta.intellij.psiExt._
@@ -214,7 +213,7 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
     createFile(s"@$annotName class $testClassName\nnew $testClassName(42).value<caret>")
     val errors = myFixture.doHighlighting(HighlightSeverity.ERROR)
     val errorStr = ScalaBundle.message("value.class.can.have.only.one.parameter")
-    Assert.assertFalse("Value class constructor not resolved", !errors.isEmpty && errors.exists(_.getDescription == errorStr))
+    Assert.assertFalse("Value class constructor not resolved", !errors.isEmpty && errors.asScala.exists(_.getDescription == errorStr))
     Assert.assertTrue("Value class field not resolved", myFixture.getElementAtCaret != null)
   }
 
