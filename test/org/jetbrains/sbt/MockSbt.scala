@@ -61,10 +61,18 @@ trait MockSbt_1_0 extends MockSbtBase {
   private val sbt_1_0_modules_cross = Seq(
     "main","logic","collections","util-position","util-relation","actions","completion","io",
     "util-control","run","util-logging","task-system","tasks","util-cache",
-    "testing","util-tracking","main-settings","command","protocol","core-macros")
+    "testing","util-tracking","main-settings","command","protocol","core-macros", "librarymanagement-core")
+
+  private def sbt_1_0_compiler_interface(implicit module: Module) = new SbtBaseLoader() {
+    override val name: String = "compiler-interface"
+    override val version = "1.0.0"
+  }
 
   override protected def librariesLoaders: Seq[IvyLibraryLoader] =
-    scalaLoaders ++ sbt_1_0_modules.map(sbtLoader) ++ sbt_1_0_modules_cross.map(sbtLoader_cross)
+    scalaLoaders ++
+      sbt_1_0_modules.map(sbtLoader) ++
+      sbt_1_0_modules_cross.map(sbtLoader_cross) :+
+      sbt_1_0_compiler_interface
 }
 
 private[sbt] object MockSbt {

@@ -65,7 +65,8 @@ lazy val scalaCommunity: sbt.Project =
       name, version, scalaVersion, sbtVersion,
       BuildInfoKey.constant("sbtLatestVersion", Versions.sbtVersion),
       BuildInfoKey.constant("sbtStructureVersion", Versions.sbtStructureVersion),
-      BuildInfoKey.constant("sbtIdeaShellVersion", Versions.sbtIdeaShellVersion)
+      BuildInfoKey.constant("sbtIdeaShellVersion", Versions.sbtIdeaShellVersion),
+      BuildInfoKey.constant("sbtLatest_0_13", Versions.Sbt.latest_0_13)
     )
   )
 

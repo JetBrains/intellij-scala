@@ -53,6 +53,8 @@ object Sbt {
 
   val LatestVersion: String = BuildInfo.sbtLatestVersion
 
+  val Latest_0_13: String = BuildInfo.sbtLatest_0_13
+
   lazy val Icon: Icon = Icons.SBT
 
   lazy val FileIcon: Icon = Icons.SBT_FILE
