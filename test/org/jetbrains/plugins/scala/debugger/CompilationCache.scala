@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger
 
-import java.io.File
+import java.io.{File, FilenameFilter}
 import java.security.MessageDigest
 
 import com.intellij.openapi.compiler.CompilerPaths
@@ -9,9 +9,8 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import org.apache.commons.codec.binary.Hex
-import org.apache.commons.io.filefilter.SuffixFileFilter
 
-class CompilationCache(private val module: Module, private val additionalKeys: Seq[String] = Seq.empty) {
+class CompilationCache(private val module: Module, additionalKeys: Seq[String] = Seq.empty) {
   private val cacheRoot = new File(sys.props("user.home"), ".cache/IJ_scala_tests_cache/")
   private lazy val hash = computeHash()
 
@@ -32,7 +31,8 @@ class CompilationCache(private val module: Module, private val additionalKeys: S
 
   private def tryLoadFromCache(): Boolean = {
     val cacheRoot = testCacheRoot(hash)
-    if (cacheRoot.list(new SuffixFileFilter(".class")).nonEmpty) {
+    val filter = new FilenameFilter { override def accept(file: File, s: String): Boolean = s.endsWith(".class") }
+    if (cacheRoot.list(filter).nonEmpty) {
       val outputDir = new File(CompilerPaths.getModuleOutputPath(module, false))
       outputDir.mkdirs()
       FileUtil.copyDirContent(cacheRoot, outputDir)
