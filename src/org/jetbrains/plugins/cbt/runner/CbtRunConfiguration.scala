@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.cbt.runner
 
 import java.util
+import java.util.Collections
 
 import com.intellij.execution.{BeforeRunTask, Executor}
 import com.intellij.execution.configurations._
@@ -10,10 +11,9 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizer
+import com.intellij.ui.ListUtil
 import org.jdom.Element
 import org.jetbrains.plugins.cbt._
-
-import scala.collection.JavaConversions._
 
 
 class CbtRunConfiguration(val project: Project,
@@ -29,13 +29,13 @@ class CbtRunConfiguration(val project: Project,
 
   override def getModules: Array[Module] = Array(module)
 
-  override def getValidModules: util.Collection[Module] = getModules.toList
+  override def getValidModules: util.Collection[Module] = util.Arrays.asList(getModules:_*)
 
   override def getConfigurationEditor: SettingsEditor[CbtRunConfiguration] =
     new CbtRunConfigurationEditor(project, this)
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState =
-    new CbtComandLineState(task, false, module.baseDir, CbtProcessListener.Dummy, environment)
+    new CbtCommandLineState(task, false, module.baseDir, CbtProcessListener.Dummy, environment)
 
   def getTask: String = task
 
@@ -60,7 +60,7 @@ class CbtRunConfiguration(val project: Project,
 
   override def getBeforeRunTasks: util.List[BeforeRunTask[_]] = {
     val unknownTask = new UnknownBeforeRunTaskProvider("unknown").createTask(this)
-    List(unknownTask)
+    Collections.singletonList(unknownTask)
   }
   def apply(params: CbtRunConfigurationForm): Unit = {
     task = params.getTask

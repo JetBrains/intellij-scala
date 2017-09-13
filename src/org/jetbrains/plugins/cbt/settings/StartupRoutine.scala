@@ -5,7 +5,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemConstants
 import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 
-class StartupRoutine extends ApplicationComponent.Adapter {
+class StartupRoutine extends ApplicationComponent {
   override def initComponent(): Unit = {
     setUpExternalSystemToPerformImportInIdeaProcess()
   }

@@ -11,12 +11,12 @@ import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 
 import scala.collection.JavaConverters._
 
-class CbtComandLineState(task: String,
-                         useDirect: Boolean,
-                         workingDir: String,
-                         listener: CbtProcessListener,
-                         environment: ExecutionEnvironment,
-                         options: Seq[String] = Seq.empty)
+class CbtCommandLineState(task: String,
+                          useDirect: Boolean,
+                          workingDir: String,
+                          listener: CbtProcessListener,
+                          environment: ExecutionEnvironment,
+                          options: Seq[String] = Seq.empty)
   extends CommandLineState(environment) {
 
   override def startProcess(): ProcessHandler = {
@@ -65,8 +65,7 @@ class CbtComandLineState(task: String,
     }
 
     protected def notifyColoredListeners(text: String, attributes: Key[_]): Unit = {
-      import scala.collection.JavaConversions._
-      for (listener <- myColoredTextListeners) {
+      for (listener <- myColoredTextListeners.asScala) {
         listener.coloredTextAvailable(text, attributes)
       }
     }

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.cbt.runner.internal
 
 import java.util
+import java.util.Collections
 
 import com.intellij.execution.configurations._
 import com.intellij.execution.impl.UnknownBeforeRunTaskProvider
@@ -9,10 +10,8 @@ import com.intellij.execution.{BeforeRunTask, Executor}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.cbt.runner.{CbtComandLineState, CbtProcessListener}
+import org.jetbrains.plugins.cbt.runner.{CbtCommandLineState, CbtProcessListener}
 import org.jetbrains.plugins.cbt._
-
-import scala.collection.JavaConversions._
 
 
 class CbtBuildConfiguration(val task: String,
@@ -29,13 +28,13 @@ class CbtBuildConfiguration(val task: String,
   override def getBeforeRunTasks: util.List[BeforeRunTask[_]] = {
     // For not adding default buildTask
     val unknownTask = new UnknownBeforeRunTaskProvider("unknown").createTask(this)
-    List(unknownTask)
+    Collections.singletonList(unknownTask)
   }
 
-  override def getValidModules: util.Collection[Module] = List()
+  override def getValidModules: util.Collection[Module] = Collections.emptyList()
 
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = null
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState =
-    new CbtComandLineState(task, useDirect, module.baseDir, listener, environment, options)
+    new CbtCommandLineState(task, useDirect, module.baseDir, listener, environment, options)
 }
