@@ -13,6 +13,7 @@ import com.intellij.openapi.project.{Project => IdeaProject}
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.{Library => IdeaLibrary}
 import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
 import com.intellij.util.CommonProcessors.CollectProcessor
@@ -315,19 +316,21 @@ class ProjectImportTest {
       scalaVersionsEquals()
     }
     def librariesEquals(): Unit = {
+      def toPath(vFile: VirtualFile) = Paths.get(vFile.getCanonicalPath.stripSuffix("!/"))
+
       def libraryEquals(library: IdeaLibrary, libraryInfo: CbtProjectInfo.Library): Unit = {
         libraryInfo.name safeEquals library.getName.stripPrefix("CBT: ")
         val actualJars = {
           val binaryJars = library.getFiles(OrderRootType.CLASSES)
-            .map(j => (j.getCanonicalPath.stripSuffix("!/"), JarType.Binary))
+            .map(j => (toPath(j), JarType.Binary))
             .toSet
           val sourceJars = library.getFiles(OrderRootType.SOURCES)
-            .map(j => (j.getCanonicalPath.stripSuffix("!/"), JarType.Source))
+            .map(j => (toPath(j), JarType.Source))
             .toSet
           binaryJars ++ sourceJars
         }
         val expectedJars = libraryInfo.jars
-          .map(j =>(j.jar.getCanonicalPath, j.jarType))
+          .map(j =>(j.jar.getCanonicalFile.toPath, j.jarType))
           .toSet
         expectedJars safeEquals actualJars
       }
@@ -340,9 +343,9 @@ class ProjectImportTest {
         .foreach{ case (l, li) => libraryEquals(l, li) }
     }
     val modules = ModuleManager.getInstance(project).getModules.toSeq.sortBy(_.getName)
-    val mouleInfos = projectInfo.modules.sortBy(_.name)
-    modules.length safeEquals mouleInfos.length
-    modules.zip(mouleInfos).foreach { case (m, mi) => moduleEquals(m, mi) }
+    val moduleInfos = projectInfo.modules.sortBy(_.name)
+    modules.length safeEquals moduleInfos.length
+    modules.zip(moduleInfos).foreach { case (m, mi) => moduleEquals(m, mi) }
     librariesEquals()
   }
 
