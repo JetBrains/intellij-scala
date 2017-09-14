@@ -249,4 +249,20 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
     assertTrue("Imported member doesn't resolve", refAtCaret.bind().isDefined)
   }
 
+  // scala.meta macro expansion fails when pattern matching on annotation constructor with Symbol*
+  def testSCL11401(): Unit = {
+    compileMetaSource(
+      s"""import scala.meta._
+        |class $annotName(fields: scala.Symbol*) extends scala.annotation.StaticAnnotation {
+        |  inline def apply(defn: Any): Any = meta {
+        |    this match { case q"new $$_(..$$xs)" => xs.map { case ctor"$$_($${Lit(x: String)})" => x } }
+        |    defn
+        |  }
+        |}""".stripMargin
+    )
+    createFile(s"@$annotName('abc) class $testClassName")
+    val errors = myFixture.doHighlighting(HighlightSeverity.ERROR)
+    assertTrue(s"Symbol in annotation causes error: ${errors.headOption.getOrElse("")}", errors.isEmpty)
+  }
+
 }

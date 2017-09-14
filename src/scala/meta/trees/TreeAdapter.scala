@@ -481,6 +481,7 @@ trait TreeAdapter {
       case ScLiteral(b: java.lang.Byte)       => Lit.Byte(b)
       case ScLiteral(s: String)               => Lit.String(s)
       case ScLiteral(null)                    => Lit.Null()
+      case _ if l.isSymbol && paradiseCompatibilityHacks => Lit.String(l.getValue.toString) // apparently, Lit.Symbol is no more in paradise
       case _ if l.isSymbol                    => Lit.Symbol(l.getValue.asInstanceOf[Symbol]) // symbol literals in meta contain a string as their value
       case other => other ?!
     }
