@@ -28,17 +28,13 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
       case task: ModuleBuildTask =>
         Some(task.getModule.getProject)
       case task: ExecuteRunConfigurationTaskImpl =>
-        val taskSupported = task.getRunProfile match {
-          case _: ApplicationConfiguration => true
-          case _: CbtRunConfiguration
-            if task.getRunnerSettings.isInstanceOf[GenericDebuggerRunnerSettings] =>
-            true
-          case _ => false
+        task.getRunProfile match {
+          case app: ApplicationConfiguration =>
+            Some(app.getProject)
+          case cbtConf: CbtRunConfiguration if task.getRunnerSettings.isInstanceOf[GenericDebuggerRunnerSettings] =>
+            Some(cbtConf.project)
+          case _ => None
         }
-        if (taskSupported)
-          Some(task.getSettings.getConfiguration.getProject)
-        else
-          None
       case _ => None
     }.exists { project =>
       val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
