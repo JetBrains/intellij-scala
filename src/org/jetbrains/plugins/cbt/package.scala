@@ -20,12 +20,12 @@ import _root_.scala.util.Try
 
 package object cbt {
 
-  implicit class ReachXml(val xml: _root_.scala.xml.NodeSeq) {
+  implicit class RichXml(val xml: _root_.scala.xml.NodeSeq) {
     def value: String =
       xml.text.trim
   }
 
-  implicit class ReachString(val str: String) {
+  implicit class RichString(val str: String) {
     def toFile: File =
       new File(str)
 
@@ -33,7 +33,7 @@ package object cbt {
       str.replaceAll("\\s+$", "")
   }
 
-  implicit class ReachBoolean(val bool: Boolean) {
+  implicit class RichBoolean(val bool: Boolean) {
     def option[A](a: A): Option[A] =
       if (bool) Some(a) else None
   }
@@ -42,7 +42,7 @@ package object cbt {
     def / (path: String): File = new File(file, path)
   }
 
-  implicit class ReachProject(val project: Project) {
+  implicit class RichProject(val project: Project) {
     def refresh(): Unit = {
       ApplicationManager.getApplication.invokeLater(runnable {
         ExternalSystemUtil.refreshProjects(
@@ -62,7 +62,7 @@ package object cbt {
         .exists(_ != null)
   }
 
-  implicit class ReachModule(val module: Module) {
+  implicit class RichModule(val module: Module) {
     def baseDir: String = {
       lazy val defaultPath =
         module.getModuleFile.getParent.getCanonicalPath
@@ -95,14 +95,8 @@ package object cbt {
   def runReadAction(action: => Unit): Unit =
     ApplicationManager.getApplication.runReadAction(runnable(action))
 
-  implicit def scalaFunction1ToIdeaOne[A, B](f: A => B): com.intellij.util.Function[A, B] =
-    new com.intellij.util.Function[A, B]() {
-      override def fun(x: A): B = f(x)
-    }
+  implicit def scalaFunction1ToIdeaOne[A, B](f: A => B): com.intellij.util.Function[A, B] = (x: A) => f(x)
 
   implicit def scalaFunction2ToIdeaOne[A, B, C](f: (A, B) => C): com.intellij.util.Function[com.intellij.openapi.util.Pair[A, B], C] =
-    new com.intellij.util.Function[com.intellij.openapi.util.Pair[A, B], C] () {
-      override def fun(x: com.intellij.openapi.util.Pair[A, B]): C =
-        f(x.first, x.second)
-    }
+    (x: com.intellij.openapi.util.Pair[A, B]) => f(x.first, x.second)
 }
