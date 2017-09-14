@@ -120,6 +120,8 @@ object ParameterInfoTestBase {
     def setUIComponentEnabled(enabled: Boolean): Unit = {}
 
     override def isSingleParameterInfo = false
+
+    override def isSingleOverload = false
   }
 
   private def expectedSignatures(lastElement: PsiElement): Seq[Seq[String]] = {
