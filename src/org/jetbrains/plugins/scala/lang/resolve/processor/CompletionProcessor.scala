@@ -95,7 +95,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
     val maybeSignature = getSignature(namedElement, substitutor)
 
     resolveResults.filter {
-      case result if implicitFunction.isDefined && maybeSignature.isDefined => implicitCase(result, maybeSignature.get)
+      case _ if implicitFunction.isDefined && maybeSignature.isDefined => implicitCase(maybeSignature.get)
       case result => regularCase(result, maybeSignature)
     }.foreach(addResult)
   }
@@ -155,27 +155,6 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
     !levelSet.contains(result)
   }
 
-  private def implicitCase(result: ScalaResolveResult,
-                           signature: Signature): Boolean =
-    signatures.add(signature) match {
-      case false if result.implicitFunction.isDefined =>
-        removeImplicitsCollision(result, signature)
-        false
-      case added => added
-    }
-
-  private def removeImplicitsCollision(result: ScalaResolveResult,
-                                       signature: Signature): Unit = {
-    val iterator = levelSet.iterator()
-    while (iterator.hasNext) {
-      val next = iterator.next()
-      val ScalaResolveResult(nextElement, nextSubstitutor) = next
-
-      if (holder.representationsAreEqual(next, result) &&
-        nextElement != result.element &&
-        getSignature(nextElement, nextSubstitutor).contains(signature)) {
-        iterator.remove()
-      }
-    }
-  }
+  private def implicitCase(signature: Signature): Boolean =
+    signatures.add(signature)
 }
