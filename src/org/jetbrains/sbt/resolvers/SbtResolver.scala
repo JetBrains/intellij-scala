@@ -14,7 +14,7 @@ import org.jetbrains.sbt.resolvers.indexes.{FakeMavenIndex, MavenProxyIndex, Res
 trait SbtResolver extends Serializable {
   def name: String
   def root: String
-  def getIndex(project: Project): ResolverIndex
+  def getIndex(project: Project): Option[ResolverIndex]
   override def hashCode(): Int = toString.hashCode
   override def equals(o: scala.Any): Boolean = toString == o.toString
 }
@@ -36,18 +36,20 @@ object SbtResolver {
 }
 
 class SbtMavenResolver(val name: String, val root: String) extends SbtResolver {
-  override def getIndex(project: Project): ResolverIndex = try {
+  override def getIndex(project: Project): Option[ResolverIndex] = try {
       MavenIndicesManager.getInstance()
-      new MavenProxyIndex(root, name)
+      Some(new MavenProxyIndex(root, name))
     } catch {
       case e:NoClassDefFoundError if e.getMessage.contains("MavenIndicesManager") =>
-        new FakeMavenIndex(root, name)
+        Some(new FakeMavenIndex(root, name))
     }
 
   override def toString = s"$root|maven|$name"
 }
 
 class SbtIvyResolver(val name: String, val root: String) extends SbtResolver {
-  override def getIndex(project: Project): ResolverIndex = SbtIndexesManager.getInstance(project).getIvyIndex(name, root)
+  override def getIndex(project: Project): Option[ResolverIndex] =
+    SbtIndexesManager.getInstance(project).map(_.getIvyIndex(name, root))
+
   override def toString = s"$root|ivy|$name"
 }

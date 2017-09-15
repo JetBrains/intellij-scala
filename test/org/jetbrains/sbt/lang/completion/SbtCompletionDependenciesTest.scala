@@ -16,7 +16,7 @@ class SbtCompletionDependenciesTest extends SbtCompletionTestBase {
 
   override def setUp(): Unit = {
     super.setUp()
-    testResolver.getIndex(getProjectAdapter).doUpdate()(getProjectAdapter)
+    testResolver.getIndex(getProjectAdapter).get.doUpdate()(getProjectAdapter)
     val moduleManager = Option(ModuleManager.getInstance(getProjectAdapter))
     moduleManager.foreach { manager =>
       manager.getModules.toSeq.foreach { module =>

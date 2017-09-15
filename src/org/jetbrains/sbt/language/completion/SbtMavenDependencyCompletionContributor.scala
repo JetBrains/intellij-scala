@@ -65,28 +65,34 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
       val resolvers = SbtResolverUtils.getProjectResolversForFile(Option(ScalaPsiUtil.fileContext(place)))
 
       def completeGroup(artifactId: String): Unit = {
-        for (resolver <- resolvers) {
-          resolver.getIndex(p).searchGroup(artifactId).foreach(i=>addResult(i))
-        }
+        for {
+          resolver <- resolvers
+          index <- resolver.getIndex(p)
+        } index.searchGroup(artifactId).foreach(i=>addResult(i))
         results.stopHere()
       }
 
       def completeArtifact(groupId: String, stripVersion: Boolean): Unit = {
-        for (resolver <- resolvers) {
-          resolver.getIndex(p).searchArtifact(groupId).foreach { i =>
-            if (stripVersion)
-              addResult(i.replaceAll("_\\d\\.\\d+.*$", ""))
-            else
-              addResult(i)
-          }
+        for {
+          resolver <- resolvers
+          index <- resolver.getIndex(p)
+          i <- index.searchArtifact(groupId)
+        } {
+          if (stripVersion)
+            addResult(i.replaceAll("_\\d\\.\\d+.*$", ""))
+          else
+            addResult(i)
         }
         results.stopHere()
       }
 
       def completeVersion(groupId: String, artifactId: String): Unit = {
-        for (resolver <- resolvers) {
-          resolver.getIndex(p).searchVersion(groupId, artifactId).foreach(i=>addResult(i))
-        }
+        for {
+          resolver <- resolvers
+          index <- resolver.getIndex(p)
+          i <- index.searchVersion(groupId, artifactId)
+        } addResult(i)
+
         results.stopHere()
       }
 

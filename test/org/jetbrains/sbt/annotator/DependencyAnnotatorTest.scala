@@ -50,7 +50,8 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
         SbtModule.setResolversTo(module, resolvers + testResolver)
       }
     }
-    testResolver.getIndex(myProject).doUpdate()(getProject)
+    testResolver.getIndex(myProject)
+      .foreach(_.doUpdate()(getProject))
   }
 
   override def tearDown(): Unit = {

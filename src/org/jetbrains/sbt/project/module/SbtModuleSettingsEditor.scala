@@ -36,11 +36,9 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
     myForm.sbtImportsList.setEmptyText(SbtBundle("sbt.settings.noImplicitImportsFound"))
     JListCompatibility.setModel(myForm.sbtImportsList, modelWrapper.getModelRaw)
 
-    myForm.updateButton.addActionListener(new ActionListener {
-      override def actionPerformed(e: ActionEvent): Unit = {
-        val resolversToUpdate: Seq[SbtResolver] = myForm.resolversTable.getSelectedRows map (resolvers(_))
-        SbtIndexesManager.getInstance(state.getProject).updateWithProgress(resolversToUpdate)
-      }
+    myForm.updateButton.addActionListener((e: ActionEvent) => {
+      val resolversToUpdate: Seq[SbtResolver] = myForm.resolversTable.getSelectedRows map (resolvers(_))
+      SbtIndexesManager.getInstance(state.getProject).foreach(_.updateWithProgress(resolversToUpdate))
     })
 
     myForm.mainPanel
@@ -87,20 +85,25 @@ private class ResolversModel(val resolvers: Seq[SbtResolver], val project:Projec
 
   override def getColumnName(columnIndex: Int): String = columns(columnIndex)
 
-  def getValueAt(rowIndex: Int, columnIndex: Int): String = try {
-    columnIndex match {
-      case 0 => resolvers(rowIndex).name
-      case 1 => resolvers(rowIndex).root
+  def getValueAt(rowIndex: Int, columnIndex: Int): String = {
+    val valueOpt = columnIndex match {
+      case 0 => resolvers.lift(rowIndex).map(_.name)
+      case 1 => resolvers.lift(rowIndex).map(_.root)
       case 2 =>
-        val ts: Long = resolvers(rowIndex).getIndex(project).getUpdateTimeStamp(project)
-        if (ts == ResolverIndex.NO_TIMESTAMP)
-          SbtBundle("sbt.settings.resolvers.neverUpdated")
-        else if (ts == ResolverIndex.MAVEN_UNAVALIABLE)
-          SbtBundle("sbt.settings.resolvers.mavenUnavailable")
-        else
-          DateFormatUtil.formatDate(ts)
+        for {
+          resolver <- resolvers.lift(rowIndex)
+          index <- resolver.getIndex(project)
+        } yield {
+          val ts = index.getUpdateTimeStamp(project)
+          if (ts == ResolverIndex.NO_TIMESTAMP)
+            SbtBundle("sbt.settings.resolvers.neverUpdated")
+          else if (ts == ResolverIndex.MAVEN_UNAVALIABLE)
+            SbtBundle("sbt.settings.resolvers.mavenUnavailable")
+          else
+            DateFormatUtil.formatDate(ts)
+        }
+
     }
-  } catch {
-    case _: IndexOutOfBoundsException => "???"
+    valueOpt.getOrElse("???")
   }
 }

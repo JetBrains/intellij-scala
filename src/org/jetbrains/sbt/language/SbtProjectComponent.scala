@@ -95,7 +95,10 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
 
   private def notifyDisabledMavenPlugin(): Unit = {
     val outdatedIvyIndexes = SbtResolverUtils.getProjectResolvers(project)
-      .filter(i => i.getIndex(project).isInstanceOf[IvyIndex] && i.getIndex(project).getUpdateTimeStamp(project) == -1)
+      .flatMap(_.getIndex(project))
+      .filter { index =>
+        index.isInstanceOf[IvyIndex] && index.getUpdateTimeStamp(project) == -1
+      }
     if (outdatedIvyIndexes.isEmpty) return
     val title = s"<b>${outdatedIvyIndexes.size} Unindexed Ivy repositories found</b>"
     val message =

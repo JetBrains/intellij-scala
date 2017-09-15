@@ -6,6 +6,7 @@ import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.sbt.SbtBundle
@@ -40,9 +41,11 @@ class SbtIndexesManager(val project: Project) extends AbstractProjectComponent(p
     }
   }
 
-  def updateWithProgress(resolvers: Seq[SbtResolver]): Unit = {
-    resolvers.foreach(r => doUpdateResolverIndexWithProgress(r.name, r.getIndex(project)))
-  }
+  def updateWithProgress(resolvers: Seq[SbtResolver]): Unit =
+  for {
+    resolver <- resolvers
+    index <- resolver.getIndex(project)
+  } doUpdateResolverIndexWithProgress(resolver.name, index)
 
   def getIvyIndex(name: String, root: String): ResolverIndex = {
     indexes.getOrElseUpdate(root, createNewIvyIndex(name, root))
@@ -61,7 +64,7 @@ class SbtIndexesManager(val project: Project) extends AbstractProjectComponent(p
   }
 
   private var updateScheduled = false
-  def scheduleLocalIvyIndexUpdate(resolver: SbtResolver) = {
+  def scheduleLocalIvyIndexUpdate(resolver: SbtResolver): Unit = {
     if (!updateScheduled) {
       updateScheduled = true
       extensions.invokeLater {
@@ -75,7 +78,8 @@ class SbtIndexesManager(val project: Project) extends AbstractProjectComponent(p
 }
 
 object SbtIndexesManager {
-  def getInstance(project: Project): SbtIndexesManager = project.getComponent(classOf[SbtIndexesManager])
+
+  def getInstance(project: Project): Option[SbtIndexesManager] = Option(project.getComponent(classOf[SbtIndexesManager]))
 
   def cleanUpCorruptedIndex(indexDir: File): Unit = {
     try {
