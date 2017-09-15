@@ -7,7 +7,7 @@ class a {
 ------
 class a {
   def foo = {
-    val value: (Any) => Boolean = x
+    val value: Any => Boolean = x
     value("balletik")
   }
   val x: (Any => Boolean) = _.isInstanceOf[String]

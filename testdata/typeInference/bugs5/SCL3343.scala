@@ -4,4 +4,4 @@ class Omg[A] {
     wtf { /*start*/_ == "sumfing"/*end*/ }
   }
 }
-//(A) => Unit
+//A => Unit

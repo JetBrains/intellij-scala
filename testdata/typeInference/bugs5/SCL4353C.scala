@@ -3,4 +3,4 @@ object SCL4353C {
   implicit def goo(x: Int): String = "text"
   val x: Int => Int => String = /*start*/foo _/*end*/
 }
-//(Int) => (Int) => String
+//Int => Int => String

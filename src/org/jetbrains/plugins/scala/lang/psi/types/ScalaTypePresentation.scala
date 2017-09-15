@@ -210,9 +210,14 @@ trait ScalaTypePresentation extends api.TypePresentation {
       t match {
         case namedType: NamedType => namedType.name
         case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
-        case f@FunctionType(ret, params) if t.isAliasType.isEmpty =>
+        case FunctionType(ret, params) if t.isAliasType.isEmpty =>
+          val paramsText = params match {
+            case Seq(param) if !FunctionType.isFunctionType(param) => innerTypeText(param)
+            case _ => typeSeqText(params, "(", ", ", ")")
+          }
           val arrow = ScalaPsiUtil.functionArrow
-          typeSeqText(params, "(", ", ", s") $arrow ") + innerTypeText(ret)
+          val retType = innerTypeText(ret)
+          s"$paramsText $arrow $retType"
         case ScThisType(clazz: ScTypeDefinition) =>
           clazz.name + ".this" + typeTail(needDotType)
         case ScThisType(_) =>

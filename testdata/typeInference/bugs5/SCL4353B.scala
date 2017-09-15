@@ -4,4 +4,4 @@ object SCL4353B {
   def foo(x: Int): Int = x + 1
   val x: String = goo(/*start*/foo _/*end*/)
 }
-//(Int) => String
+//Int => String

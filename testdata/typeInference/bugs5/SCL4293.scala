@@ -24,4 +24,4 @@ object Repro extends App {
 
 }
 }
-//(SCL4293.foo) => SCL4293.bar
+//SCL4293.foo => SCL4293.bar

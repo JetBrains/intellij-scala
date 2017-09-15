@@ -3,4 +3,4 @@ object LongCalls {
 
   foo(/*start*/_.substring(1).concat("556")/*end*/)
 }
-//(String) => String
+//String => String

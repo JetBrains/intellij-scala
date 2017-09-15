@@ -5,4 +5,4 @@ class A {
 }
 
 val a: A => A = /*start*/_.foo/*end*/
-//(A) => A
+//A => A
