@@ -151,7 +151,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   }
 
   private def getMembers(templateDefinition: ScTemplateDefinition): Iterable[ClassMember] = {
-    ScalaOIUtil.getMembersToOverride(templateDefinition, withSelfType = true) ++
+    ScalaOIUtil.getMembersToOverride(templateDefinition) ++
       ScalaOIUtil.getMembersToImplement(templateDefinition, withSelfType = true)
   }
 

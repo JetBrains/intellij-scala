@@ -38,7 +38,8 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   type ClassMember = overrideImplement.ClassMember
 
-  override def isValidFor(editor: Editor, file: PsiFile): Boolean = hasTargetElements(file, editor)
+  override def isValidFor(editor: Editor, file: PsiFile): Boolean =
+    targetElements(file, editor).nonEmpty
 
   override def invoke(@NotNull project: Project, @NotNull editor: Editor, @NotNull file: PsiFile) {
     if (!CodeInsightUtilBase.prepareEditorForWrite(editor)) return
@@ -165,45 +166,32 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   @Nullable
   private def chooseTarget(file: PsiFile, editor: Editor, project: Project): ClassMember = {
-    val elements: Array[ClassMember] = targetElements(file, editor)
-    if (elements == null || elements.length == 0) return null
-    if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val chooser = new ScalaMemberChooser(elements, false, false, false, false, false, classAtOffset(editor.getCaretModel.getOffset, file))
+    val elements = targetElements(file, editor)
+    if (elements.isEmpty) null
+    else if (ApplicationManager.getApplication.isUnitTestMode) elements.head
+    else {
+      val chooser = new ScalaMemberChooser(elements.toArray, false, false, false, false, false, classAtOffset(editor.getCaretModel.getOffset, file))
       chooser.setTitle(CodeInsightBundle.message("generate.delegate.target.chooser.title"))
       chooser.show()
+
       if (chooser.getExitCode != DialogWrapper.OK_EXIT_CODE) return null
       val selectedElements = chooser.getSelectedElements
-      if (selectedElements != null && selectedElements.size > 0) return selectedElements.get(0)
+      if (selectedElements != null && selectedElements.size > 0) selectedElements.get(0)
+      else null
     }
-    else {
-      return elements(0)
-    }
-    null
   }
 
-  private def targetElements(file: PsiFile, editor: Editor): Array[ClassMember] = {
-    parentClasses(file, editor).flatMap(targetsIn).toArray
-  }
-
-  private def hasTargetElements(file: PsiFile, editor: Editor): Boolean = {
-    parentClasses(file, editor).exists(hasTargetsIn)
-  }
+  private def targetElements(file: PsiFile, editor: Editor): Seq[ClassMember] =
+    parentClasses(file, editor).flatMap(targetsIn)
 
   private def targetsIn(clazz: ScTemplateDefinition): Seq[ClassMember] = {
-    //todo add ScObjectMember for targets
-    val allMembers = ScalaOIUtil.allMembers(clazz, withSelfType = true)
-            .flatMap(ScalaOIUtil.toClassMember(_, isImplement = false))
-    allMembers.toSeq.filter(canBeTargetInClass(_, clazz))
-  }
+    import ScalaOIUtil.{allMembers, toClassMember}
 
-  private def hasTargetsIn(clazz: ScTemplateDefinition): Boolean = {
-    for {
-      m <- ScalaOIUtil.allMembers(clazz, withSelfType = true)
-      cm <- ScalaOIUtil.toClassMember(m, isImplement = false)
-    } {
-      if (canBeTargetInClass(cm, clazz)) return true
-    }
-    false
+    //todo add ScObjectMember for targets
+    allMembers(clazz, withSelfType = true)
+      .flatMap(toClassMember(_, isImplement = false))
+      .filter(canBeTargetInClass(_, clazz))
+      .toSeq
   }
 
   private def canBeTargetInClass(member: ClassMember, clazz: ScTemplateDefinition): Boolean = member match {
