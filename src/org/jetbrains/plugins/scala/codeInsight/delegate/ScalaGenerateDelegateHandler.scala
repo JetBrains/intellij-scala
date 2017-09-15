@@ -184,15 +184,10 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   private def targetElements(file: PsiFile, editor: Editor): Seq[ClassMember] =
     parentClasses(file, editor).flatMap(targetsIn)
 
-  private def targetsIn(clazz: ScTemplateDefinition): Seq[ClassMember] = {
-    import ScalaOIUtil.{allMembers, toClassMember}
-
-    //todo add ScObjectMember for targets
-    allMembers(clazz, withSelfType = true)
-      .flatMap(toClassMember(_, isImplement = false))
+  // todo add ScObjectMember for targets
+  private def targetsIn(clazz: ScTemplateDefinition): Iterable[ClassMember] =
+    ScalaOIUtil.getAllMembersToOverride(clazz)
       .filter(canBeTargetInClass(_, clazz))
-      .toSeq
-  }
 
   private def canBeTargetInClass(member: ClassMember, clazz: ScTemplateDefinition): Boolean = member match {
     case _: ScAliasMember => false

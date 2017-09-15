@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
+import scala.Function.const
 import scala.collection.{JavaConverters, mutable}
 
 /**
@@ -27,17 +28,23 @@ import scala.collection.{JavaConverters, mutable}
 
 object ScalaOIUtil {
 
-  def toClassMember(candidate: AnyRef, isImplement: Boolean): Option[ClassMember] = {
-    candidate match {
-      case sign: PhysicalSignature =>
-        val method = sign.method
-        assert(method.containingClass != null, "Containing Class is null: " + method.getText)
-        Some(new ScMethodMember(sign, !isImplement))
-      case (typedDefinition: ScTypedDefinition, subst: ScSubstitutor) =>
+  private[this] type Signature = (PsiNamedElement, ScSubstitutor)
+
+  private[this] def toClassMember(signature: PhysicalSignature, isImplement: Boolean): ClassMember = {
+    val method = signature.method
+    assert(method.containingClass != null, s"Containing Class is null: ${method.getText}")
+    new ScMethodMember(signature, !isImplement)
+  }
+
+  private[this] def toClassMember(signature: Signature, isImplement: Boolean): Option[ClassMember] = {
+    val (named, substitutor) = signature
+
+    named match {
+      case typedDefinition: ScTypedDefinition =>
         typedDefinition.nameContext match {
           case x: ScTemplateDefinition if x.containingClass == null => None
-          case x: ScValue => Some(new ScValueMember(x, typedDefinition, subst, !isImplement))
-          case x: ScVariable => Some(new ScVariableMember(x, typedDefinition, subst, !isImplement))
+          case x: ScValue => Some(new ScValueMember(x, typedDefinition, substitutor, !isImplement))
+          case x: ScVariable => Some(new ScVariableMember(x, typedDefinition, substitutor, !isImplement))
           case x: ScClassParameter if x.isVal =>
             def createMember(isVal: Boolean, parameter: ScClassParameter, subst: ScSubstitutor): ScMember = {
               implicit val projectContext: ProjectContext = parameter.projectContext
@@ -51,17 +58,16 @@ object ScalaOIUtil {
               )
             }
 
-            createMember(isVal = true, x, subst).asOptionOf[ScValue]
-              .map(new ScValueMember(_, typedDefinition, subst, !isImplement))
+            createMember(isVal = true, x, substitutor).asOptionOf[ScValue]
+              .map(new ScValueMember(_, typedDefinition, substitutor, !isImplement))
           case _ => None
         }
-      case (named: PsiNamedElement, subst: ScSubstitutor)=>
+      case _ =>
         named.nameContext match {
-          case x: ScTypeAlias if x.containingClass != null => Some(new ScAliasMember(x, subst, !isImplement))
-          case x: PsiField => Some(new JavaFieldMember(x, subst))
+          case x: ScTypeAlias if x.containingClass != null => Some(new ScAliasMember(x, substitutor, !isImplement))
+          case x: PsiField => Some(new JavaFieldMember(x, substitutor))
           case _ => None
         }
-      case _ => None
     }
   }
 
@@ -113,21 +119,30 @@ object ScalaOIUtil {
     }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
   }
 
-  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Iterable[ClassMember] = {
-    allMembers(clazz, withSelfType).filter {
-      case sign: PhysicalSignature => needImplement(sign, clazz, withOwn)
-      case (named: PsiNamedElement, _: ScSubstitutor) => needImplement(named, clazz, withOwn)
-      case _ => false
-    }.flatMap(toClassMember(_, isImplement = true))
-  }
+  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Iterable[ClassMember] =
+    classMembersWithFilter(clazz, withSelfType, isImplement = true)(needImplement(_, clazz, withOwn), needImplement(_, clazz, withOwn))
 
+  def getAllMembersToOverride(clazz: ScTemplateDefinition): Iterable[ClassMember] =
+    classMembersWithFilter(clazz, withSelfType = true, isImplement = false)()
 
-  def getMembersToOverride(clazz: ScTemplateDefinition): Iterable[ClassMember] = {
-    allMembers(clazz, withSelfType = true).filter {
-      case sign: PhysicalSignature => needOverride(sign, clazz)
-      case (named: PsiNamedElement, _: ScSubstitutor) => needOverride(named, clazz)
-      case _ => false
-    }.flatMap(toClassMember(_, isImplement = false))
+  def getMembersToOverride(clazz: ScTemplateDefinition): Iterable[ClassMember] =
+    classMembersWithFilter(clazz, withSelfType = true, isImplement = false)(needOverride(_, clazz), needOverride(_, clazz))
+
+  private[this] def classMembersWithFilter(clazz: ScTemplateDefinition,
+                                           withSelfType: Boolean,
+                                           isImplement: Boolean)
+                                          (f1: PhysicalSignature => Boolean = const(true),
+                                           f2: PsiNamedElement => Boolean = const(true)): Iterable[ClassMember] = {
+    val methods = (if (withSelfType) clazz.allMethodsIncludingSelfType
+    else clazz.allMethods).filter(f1)
+
+    val aliasesAndValues = (if (withSelfType) clazz.allTypeAliasesIncludingSelfType ++ clazz.allValsIncludingSelfType
+    else clazz.allTypeAliases ++ clazz.allVals).filter {
+      case (named, _) => f2(named)
+    }
+
+    methods.map(toClassMember(_, isImplement)) ++
+      aliasesAndValues.flatMap(toClassMember(_, isImplement))
   }
 
   def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass,
@@ -153,12 +168,6 @@ object ScalaOIUtil {
         }
       case _ => false
     }
-  }
-
-
-  def allMembers(clazz: ScTemplateDefinition, withSelfType: Boolean): Iterable[Object] = {
-    if (withSelfType) clazz.allMethodsIncludingSelfType ++ clazz.allTypeAliasesIncludingSelfType ++ clazz.allValsIncludingSelfType
-    else clazz.allMethods ++ clazz.allTypeAliases ++ clazz.allVals
   }
 
   private def needOverride(sign: PhysicalSignature, clazz: ScTemplateDefinition): Boolean = {
