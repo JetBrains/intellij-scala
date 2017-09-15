@@ -61,7 +61,7 @@ object ScalaOIUtil {
         }
       case _ =>
         maybeContext.collect {
-          case x: ScTypeAlias if x.containingClass != null => new ScAliasMember(x, substitutor, isOverride)
+          case x: ScTypeAlias if x.containingClass != null => ScAliasMember(x, substitutor, isOverride)
           case x: PsiField => new JavaFieldMember(x, substitutor)
         }
     }

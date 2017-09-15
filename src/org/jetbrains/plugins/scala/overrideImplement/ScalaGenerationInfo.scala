@@ -49,10 +49,8 @@ class ScalaGenerationInfo(classMember: ClassMember)
 
     classMember match {
       case member: ScMethodMember => myMember = insertMethod(member, templDef, anchor)
-      case member: ScAliasMember =>
-        val alias = member.getElement
-        val substitutor = member.substitutor
-        val needsOverride = member.isOverride || toAddOverrideToImplemented
+      case ScAliasMember(alias, substitutor, isOverride) =>
+        val needsOverride = isOverride || toAddOverrideToImplemented
         val m = createOverrideImplementType(alias, substitutor, needsOverride, comment)(alias.getManager)
 
         val added = templDef.addMember(m, Option(anchor))

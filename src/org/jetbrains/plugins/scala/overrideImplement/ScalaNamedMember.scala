@@ -23,10 +23,13 @@ trait ScalaTypedMember {
   def scType: ScType
 }
 
-class ScAliasMember(member: ScTypeAlias, val substitutor: ScSubstitutor, val isOverride: Boolean)
-        extends {
-          val name: String = member.name
-        } with PsiElementClassMember[ScTypeAlias](member, name) with ScalaNamedMember
+case class ScAliasMember(override val getElement: ScTypeAlias,
+                         substitutor: ScSubstitutor,
+                         isOverride: Boolean)
+  extends PsiElementClassMember[ScTypeAlias](getElement, getElement.name) with ScalaNamedMember {
+
+  override val name: String = getText
+}
 
 class ScMethodMember(val sign: PhysicalSignature, val isOverride: Boolean)
         extends {
