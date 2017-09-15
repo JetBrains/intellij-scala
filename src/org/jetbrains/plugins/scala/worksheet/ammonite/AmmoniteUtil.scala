@@ -39,10 +39,10 @@ object AmmoniteUtil {
     ScalaProjectSettings.getInstance(file.getProject).isTreatScAsAmmonite && 
       ScalaUtil.findVirtualFile(file).exists(_.getExtension == AMMONITE_EXTENSION)
 
-  def findAllIvyImports(file: ScalaFile): Array[String] = {
+  def findAllIvyImports(file: ScalaFile): Seq[LibInfo] = {
     file.getChildren.flatMap {
       case imp: ScImportStmt =>
-        imp.importExprs.filter(_.getText.startsWith(ROOT_IVY)).flatMap(_.reference.map(_.refName))
+        imp.importExprs.filter(_.getText.startsWith(ROOT_IVY)).flatMap(_.reference.flatMap(extractLibInfo))
       case _ => Seq.empty
     }
   }
@@ -160,11 +160,22 @@ object AmmoniteUtil {
     val name = ref.refName.stripPrefix("`").stripSuffix("`")
     val result = ArrayBuffer[String]()
 
+    var scalaVersion: Option[String] = None
+    
     name.split(':').foreach {
-      p => if (p.nonEmpty) result += p
+      p => if (p.nonEmpty) {
+        if (p contains "_") {
+          p.split('_') match {
+            case Array(prefix, suffix@("2.10" | "2.11" | "2.12")) =>
+              scalaVersion = Option(suffix)
+              result += prefix
+            case _ => result += p
+          }
+        } else result += p
+      }
     }
 
-    if (result.length == 3) Some(LibInfo(result.head, result(1), result(2), getScalaVersion(ref))) else None 
+    if (result.length == 3) Some(LibInfo(result.head, result(1), result(2), scalaVersion getOrElse getScalaVersion(ref))) else None 
   }
 
   def getDefaultCachePath: String = System.getProperty("user.home") + "/.ivy2/cache".replace('/', File.separatorChar)
