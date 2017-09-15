@@ -105,8 +105,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
             .map(_.presentableText)
 
           (member.name, maybeAliasTypeText.getOrElse(""))
-        case _: ScAliasMember =>
-          (member.name, "")
+        case _ => (member.name, "")
       }
 
       presentation.setTypeText(tailText)

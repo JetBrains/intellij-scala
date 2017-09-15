@@ -110,7 +110,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   private def delegateText(delegate: ClassMember): String = {
     val delegateText = delegate match {
-      case field@(_: ScValueMember | _: ScVariableMember | _: JavaFieldMember) => field.asInstanceOf[ScalaNamedMember].name
+      case field: ScalaFieldMember => field.name
       case methMember: ScMethodMember =>
         methMember.sign.method match {
           case m: PsiMethod if m.isAccessor => m.getName
@@ -195,12 +195,11 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     case method: ScMethodMember =>
       method.getElement match {
         case m: PsiMethod if {val cl = m.getContainingClass; cl != null && cl.getQualifiedName == CommonClassNames.JAVA_LANG_OBJECT} => false
-        case f: ScFunction => (f.isParameterless || f.isEmptyParen) && ResolveUtils.isAccessible(f, clazz, forCompletion = false)
-        case m: PsiMethod => m.isAccessor && ResolveUtils.isAccessible(m, clazz, forCompletion = false)
+        case f: ScFunction => (f.isParameterless || f.isEmptyParen) && ResolveUtils.isAccessible(f, clazz)
+        case m: PsiMethod => m.isAccessor && ResolveUtils.isAccessible(m, clazz)
         case _ => false
       }
-    case v @ (_: ScValueMember | _: ScVariableMember | _: JavaFieldMember)
-      if ResolveUtils.isAccessible(v.getElement, clazz, forCompletion = false) => true
+    case fieldMember: ScalaFieldMember => ResolveUtils.isAccessible(fieldMember.getElement, clazz)
     case _ => false
   }
 
