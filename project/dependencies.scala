@@ -173,7 +173,7 @@ object DependencyGroups {
     "com.typesafe.akka" % "akka-actor_2.11" % "2.4.19",
     "com.typesafe.akka" % "akka-stream_2.11" % "2.4.19",
     "com.typesafe.play" % "play_2.10" % "2.4.10",
-    "com.typesafe.slick" %% "slick" % "3.2.0",
+    "com.typesafe.slick" % "slick_2.11" % "3.2.1",
 //    "io.spray" %% "spray-routing" % "1.3.4",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
     "org.specs2" % "specs2_2.10" % "2.4.6",

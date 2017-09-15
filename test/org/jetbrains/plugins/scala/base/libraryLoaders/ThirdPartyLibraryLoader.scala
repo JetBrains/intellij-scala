@@ -61,7 +61,7 @@ case class ScalaZConcurrentLoader()(implicit val module: Module) extends ScalaZB
 case class SlickLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override val name: String = "slick"
   override val vendor: String = "com.typesafe.slick"
-  override val version: String = "3.2.0"
+  override val version: String = "3.2.1"
   override val ivyType: IvyType = Bundles
 
   override def path(implicit version: ScalaVersion): String =
