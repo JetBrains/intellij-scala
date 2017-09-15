@@ -7,12 +7,12 @@ import org.junit.experimental.categories.Category
 /**
  * @author Nikolay.Tropin
  */
-@Category(Array(classOf[DebuggerTests]))
+@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
 class CodeFragmentEvaluationTest extends CodeFragmentEvaluationTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
 
-@Category(Array(classOf[DebuggerTests]))
+@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
 class CodeFragmentEvaluationTest_212 extends CodeFragmentEvaluationTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }

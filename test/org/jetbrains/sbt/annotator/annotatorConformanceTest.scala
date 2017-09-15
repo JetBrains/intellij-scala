@@ -1,11 +1,13 @@
 package org.jetbrains.sbt.annotator
 
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.sbt.{MockSbt_0_12, MockSbt_0_13, MockSbt_1_0, Sbt}
 import org.jetbrains.sbt.annotator.SbtAnnotator.isTypeAllowed
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.junit.Assert.assertTrue
+import org.junit.experimental.categories.Category
 
 abstract class SbtAnnotatorConformanceTestBase extends SbtAnnotatorTestBase {
 
@@ -30,6 +32,7 @@ abstract class SbtAnnotatorConformanceTestBase extends SbtAnnotatorTestBase {
   }
 }
 
+@Category(Array(classOf[SlowTests]))
 class SbtAnnotatorConformanceTest_0_12_4 extends SbtAnnotatorConformanceTestBase with MockSbt_0_12 {
   override implicit val sbtVersion: String = "0.12.4"
 
@@ -37,6 +40,7 @@ class SbtAnnotatorConformanceTest_0_12_4 extends SbtAnnotatorConformanceTestBase
   def testSeqSettings(): Unit = doConformanceTest(seqSettings, "Seq[Project.Setting[_]]")
 }
 
+@Category(Array(classOf[SlowTests]))
 class SbtAnnotatorConformanceTest_0_13_1 extends SbtAnnotatorConformanceTestBase with MockSbt_0_13 {
   override implicit val sbtVersion: String = "0.13.1"
 
@@ -44,6 +48,7 @@ class SbtAnnotatorConformanceTest_0_13_1 extends SbtAnnotatorConformanceTestBase
   def testSeqSettings(): Unit = doConformanceTest(seqSettings, "Seq[Def.SettingsDefinition]")
 }
 
+@Category(Array(classOf[SlowTests]))
 class SbtAnnotatorConformanceTest_0_13_7 extends SbtAnnotatorConformanceTestBase with MockSbt_0_13 {
   override implicit val sbtVersion: String = "0.13.7"
 
@@ -51,6 +56,7 @@ class SbtAnnotatorConformanceTest_0_13_7 extends SbtAnnotatorConformanceTestBase
   def testSeqSettings(): Unit = doConformanceTest(seqSettings, "sbt.internals.DslEntry")
 }
 
+@Category(Array(classOf[SlowTests]))
 class SbtAnnotatorConformanceTest_latest extends SbtAnnotatorConformanceTestBase with MockSbt_1_0 {
   override implicit val sbtVersion: String = Sbt.LatestVersion
 
