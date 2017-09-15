@@ -7,6 +7,7 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.{AutoPopupController, CodeInsightSettings}
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -15,6 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
@@ -302,6 +305,18 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
           insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
           //do not add () or {} in this case, use will choose what he want later
         }
+      case _: ScTypeDefinition =>
+        if (context.getCompletionChar != '[') {
+          //add space between the added element and the '{' in extends block when necessary
+          val documentText = document.getText
+          if (PsiTreeUtil.getParentOfType(element, classOf[ScClassParents], false, classOf[ScExtendsBlock]) != null &&
+            documentText.charAt(endOffset) == '{') {
+            document.insertString(endOffset, " ")
+            endOffset += 1
+            editor.getCaretModel.moveToOffset(endOffset)
+          }
+        }
+        moveCaretIfNeeded()
       case _ => moveCaretIfNeeded()
     }
 

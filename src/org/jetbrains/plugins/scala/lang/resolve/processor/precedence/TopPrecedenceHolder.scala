@@ -27,10 +27,6 @@ trait TopPrecedenceHolder[Repr] {
   protected implicit def toStringRepresentation(result: ScalaResolveResult): String =
     result.isRenamed
       .getOrElse(result.name)
-
-  def representationsAreEqual(left: ScalaResolveResult,
-                              right: ScalaResolveResult): Boolean =
-    (left: Repr) == (right: Repr)
 }
 
 abstract class TopPrecedenceHolderImpl[Repr] extends TopPrecedenceHolder[Repr] {
@@ -48,6 +44,6 @@ abstract class TopPrecedenceHolderImpl[Repr] extends TopPrecedenceHolder[Repr] {
   override def filterNot(left: ScalaResolveResult,
                          right: ScalaResolveResult)
                         (precedence: ScalaResolveResult => Int): Boolean =
-    representationsAreEqual(left, right) &&
+    (left: Repr) == (right: Repr) &&
       super.filterNot(left, right)(precedence)
 }

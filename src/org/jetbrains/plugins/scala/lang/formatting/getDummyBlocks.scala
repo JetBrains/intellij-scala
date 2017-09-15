@@ -562,14 +562,20 @@ object getDummyBlocks {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val subBlocks = new util.ArrayList[Block]
     val children = node.getChildren(null)
-    val alignment = if (mustAlignment(node, settings))
-      Alignment.createAlignment(true)
-    else null
+    val alignSetting = scalaSettings.ALIGN_EXTENDS_WITH
+    import ScalaCodeStyleSettings._
+    val alignment = if (alignSetting == ALIGN_TO_EXTENDS) block.getAlignment else Alignment.createAlignment(true)
     for (child <- children) {
       if (isCorrectBlock(child)) {
         val indent = ScalaIndentProcessor.getChildIndent(block, child)
         val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
-        subBlocks.add(new ScalaBlock(block, child, block.getChildBlockLastNode(child), alignment, indent, childWrap,
+        val actualAlignment = child.getElementType match {
+          case _ if alignSetting == DO_NOT_ALIGN => null
+          case ScalaTokenTypes.kWITH | ScalaTokenTypes.kEXTENDS =>
+            if (alignSetting != ON_FIRST_ANCESTOR) alignment else null
+          case _ => alignment
+        }
+        subBlocks.add(new ScalaBlock(block, child, block.getChildBlockLastNode(child), actualAlignment, indent, childWrap,
           settings, block.subBlocksContext.flatMap(_.childrenAdditionalContexts.get(child))))
       }
     }
@@ -592,7 +598,8 @@ object getDummyBlocks {
     if (last != null) {
       val indent = ScalaIndentProcessor.getChildIndent(block, first.getNode)
       val childWrap = arrangeSuggestedWrapForChild(block, first.getNode, settings, block.suggestedWrap)
-      subBlocks.add(new ScalaBlock(block, first.getNode, last.getNode, null, indent, childWrap, block.getSettings))
+      val alignment = if (settings.ALIGN_EXTENDS_WITH == ScalaCodeStyleSettings.ALIGN_TO_EXTENDS) Alignment.createAlignment(false) else null
+      subBlocks.add(new ScalaBlock(block, first.getNode, last.getNode, alignment, indent, childWrap, block.getSettings))
     }
 
     tempBody match {
@@ -802,40 +809,53 @@ object getDummyBlocks {
     subBlocks
   }
 
-  def getMethodCallOrRefExprSubBlocks(node: ASTNode, block: ScalaBlock, parentAlignment: Alignment = null,
-                                       delegatedChildren: List[ASTNode] = List()): util.ArrayList[Block] = {
+  def getMethodCallOrRefExprSubBlocks(node: ASTNode, block: ScalaBlock,
+                                      delegatedChildren: List[ASTNode] = List()): util.ArrayList[Block] = {
     val settings = block.getSettings
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val subBlocks = new util.ArrayList[Block]
-    val alignment = if (parentAlignment != null)
-      parentAlignment
-    else if (mustAlignment(node, settings))
+    val alignment = if (mustAlignment(node, settings))
       Alignment.createAlignment
     else null
-    def addSubBlock(node: ASTNode, lastNode: ASTNode, context: Option[SubBlocksContext] = None): Unit = {
+    val elementTypes: Set[IElementType] = Set(ScalaElementTypes.METHOD_CALL, ScalaElementTypes.REFERENCE_EXPRESSION)
+    def extractParentAlignment: Option[Alignment] =
+      Option(block.myParentBlock).map(_.getNode.getElementType) match {
+        case Some(elemType) if elementTypes.contains(elemType) => //chained method call, extract alignments
+          import scala.collection.JavaConversions._
+          block.myParentBlock.getSubBlocks.toList match {
+            case _ :: (dotToArgsBlock: ScalaBlock) :: Nil
+              if dotToArgsBlock.getNode.getElementType == ScalaTokenTypes.tDOT =>
+              Some(dotToArgsBlock.getAlignment)
+            case _ => None
+          }
+        case _ => None
+      }
+    def addSubBlock(node: ASTNode, lastNode: ASTNode, alignment: Alignment, context: Option[SubBlocksContext] = None): Unit = {
       val indent = ScalaIndentProcessor.getChildIndent(block, node)
       val wrap = arrangeSuggestedWrapForChild(block, node, scalaSettings, block.suggestedWrap)
       subBlocks.add(new ScalaBlock(block, node, lastNode, alignment, indent, wrap, settings, context))
     }
+
     val children = node.getChildren(null).filter(isCorrectBlock).toList
+    val dotAlignment = extractParentAlignment.getOrElse(alignment)
     children match {
       //don't check for element types other then absolutely required - they do not matter
       case caller :: args :: Nil if args.getPsi.isInstanceOf[ScArgumentExprList] =>
-        subBlocks.addAll(getMethodCallOrRefExprSubBlocks(caller, block, parentAlignment, args :: delegatedChildren))
+        subBlocks.addAll(getMethodCallOrRefExprSubBlocks(caller, block, args :: delegatedChildren))
       case expr :: dot :: id :: Nil  if dot.getElementType == ScalaTokenTypes.tDOT =>
-        addSubBlock(expr, null)
+        addSubBlock(expr, null, alignment = null)
         addSubBlock(dot, (id::delegatedChildren).sortBy(_.getTextRange.getStartOffset).lastOption.orNull,
-          Some(SubBlocksContext(id, alignment, delegatedChildren)))
+          dotAlignment, Some(SubBlocksContext(id, dotAlignment, delegatedChildren)))
       case expr :: typeArgs :: Nil if typeArgs.getPsi.isInstanceOf[ScTypeArgs] =>
         addSubBlock(expr, (typeArgs::delegatedChildren).sortBy(_.getTextRange.getStartOffset).lastOption.orNull,
-          Some(SubBlocksContext(typeArgs, alignment, delegatedChildren)))
+          dotAlignment, Some(SubBlocksContext(typeArgs, dotAlignment, delegatedChildren)))
       case expr :: Nil =>
         addSubBlock(expr, delegatedChildren.sortBy(_.getTextRange.getStartOffset).lastOption.orNull,
-          Some(SubBlocksContext(expr, alignment, delegatedChildren)))
+          dotAlignment, Some(SubBlocksContext(expr, alignment, delegatedChildren)))
 
       case _ =>
         for (child <- (children ++ delegatedChildren).filter(isCorrectBlock)) {
-          addSubBlock(child, null)
+          addSubBlock(child, null, dotAlignment)
         }
     }
     subBlocks
@@ -853,7 +873,6 @@ object getDummyBlocks {
       case _: ScXmlEmptyTag => true   //todo:
       case _: ScParameters if mySettings.ALIGN_MULTILINE_PARAMETERS => true
       case _: ScParameterClause if mySettings.ALIGN_MULTILINE_PARAMETERS => true
-      case _: ScTemplateParents if mySettings.ALIGN_MULTILINE_EXTENDS_LIST => true
       case _: ScArgumentExprList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS  ||
               mySettings.ALIGN_MULTILINE_METHOD_BRACKETS => true
       case _: ScPatternArgumentList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS ||

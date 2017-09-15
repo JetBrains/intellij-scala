@@ -307,7 +307,7 @@ private[expr] object ExpectedTypes {
           callOption.foreach(call => tps = tps.map { case (r, isDynamicNamed) =>
             (call.updateAccordingToExpectedType(r), isDynamicNamed)
           })
-          tps.foreach { case (r, isDynamicNamed) =>
+          tps.filterNot(_._1.exists(_.equiv(Nothing)))foreach { case (r, isDynamicNamed) =>
             processArgsExpected(res, expr, i, r, exprs, callOption, isDynamicNamed = isDynamicNamed)
           }
         } else {

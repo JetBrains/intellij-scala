@@ -169,6 +169,20 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
     item = "foo",
     time = 2
   )
+
+  def testSpaceInClassParents(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Foo
+         |class Bar extends $CARET{}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class Foo
+         |class Bar extends Foo {}
+      """.stripMargin,
+    item = "Foo"
+  )
 }
 
 class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {

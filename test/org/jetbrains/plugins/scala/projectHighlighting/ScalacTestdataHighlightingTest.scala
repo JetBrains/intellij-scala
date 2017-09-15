@@ -16,11 +16,7 @@ import org.junit.experimental.categories.Category
   */
 
 @Category(Array(classOf[ScalacTests]))
-class ScalacTestdataHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter with SeveralFilesHighlightingTest {
-
-  override implicit val version: ScalaVersion = Scala_2_12
-
-  override def getProject = super.getProject
+class ScalacTestdataHighlightingTest extends ScalacTestdataHighlightingTestBase {
 
   override val reporter = ProgressReporter.newInstance(reportSuccess = false)
 
@@ -31,11 +27,19 @@ class ScalacTestdataHighlightingTest extends ScalaLightCodeInsightFixtureTestAda
     dir.listFiles()
   }
 
+  def testScalacTests(): Unit = doTest()
+
+}
+
+abstract class ScalacTestdataHighlightingTestBase
+  extends ScalaLightCodeInsightFixtureTestAdapter with SeveralFilesHighlightingTest  {
+
+  override def getProject = super.getProject
+
+  override implicit val version: ScalaVersion = Scala_2_12
+
   override def librariesLoaders = Seq(
     ScalaLibraryLoader(isIncludeReflectLibrary = true),
     JdkLoader()
   )
-
-  def testScalacTests(): Unit = doTest()
-
 }

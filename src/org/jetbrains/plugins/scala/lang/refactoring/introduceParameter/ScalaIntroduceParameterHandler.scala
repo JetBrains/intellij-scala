@@ -3,7 +3,6 @@ package lang
 package refactoring
 package introduceParameter
 
-
 import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
@@ -15,8 +14,8 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.refactoring.{RefactoringActionHandler, RefactoringBundle}
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.IntroduceImplicitParameterIntention
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -32,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaMethodDescriptor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{IntroduceException, showErrorHint}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator}
 
 import scala.collection.mutable.ArrayBuffer
@@ -41,21 +40,20 @@ import scala.collection.mutable.ArrayBuffer
  * User: Alexander Podkhalyuzin
  * Date: 11.06.2009
  */
-class ScalaIntroduceParameterHandler extends RefactoringActionHandler with DialogConflictsReporter {
+class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with DialogConflictsReporter {
 
   private var occurrenceHighlighters = Seq.empty[RangeHighlighter]
 
-  def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
-    if (!file.isInstanceOf[ScalaFile]) return
-    if (!ScalaRefactoringUtil.ensureFileWritable(project, file)) {
-      showErrorHint(ScalaBundle.message("file.is.not.writable"), project, editor, REFACTORING_NAME)
-      return
-    }
+
+  override def invoke(file: PsiFile)
+                     (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
+    val scalaFile = maybeWritableScalaFile(file, REFACTORING_NAME)
+      .getOrElse(return)
 
     val canBeIntroduced: (ScExpression) => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
     ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, "Introduce Parameter", canBeIntroduced) {
       UsageTrigger.trigger(ScalaBundle.message("introduce.parameter.id"))
-      invoke(project, editor, file)
+      invoke(scalaFile)
     }
   }
 
@@ -90,16 +88,17 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     (CodeStyleManager.getInstance(project).reformat(toReturn).asInstanceOf[ScExpression], expr.getNonValueType().getOrAny)
   }
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  private def invoke(file: ScalaFile)
+                    (implicit project: Project, editor: Editor): Unit = {
     ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
     PsiDocumentManager.getInstance(project).commitAllDocuments()
 
-    val (exprWithTypes, elems) = selectedElements(file, project, editor) match {
+    val (exprWithTypes, elems) = selectedElements(file) match {
       case Some((x, y)) => (x, y)
       case None => return
     }
 
-    afterMethodChoosing(elems.head, editor) { methodLike =>
+    afterMethodChoosing(elems.head) { methodLike =>
       val data = collectData(exprWithTypes, elems, methodLike, editor)
 
       data.foreach { d =>
@@ -118,24 +117,26 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
   }
 
   private type ExprWithTypes = Option[(ScExpression, Array[ScType])]
-  def selectedElements(file: PsiFile, project: Project, editor: Editor): Option[(ExprWithTypes, Seq[PsiElement])] = {
+
+  def selectedElements(file: PsiFile)
+                      (implicit project: Project, editor: Editor): Option[(ExprWithTypes, Seq[PsiElement])] = {
     try {
       val selModel: SelectionModel = editor.getSelectionModel
       if (!selModel.hasSelection) return None
 
       val (startOffset, endOffset) = (selModel.getSelectionStart, selModel.getSelectionEnd)
-      ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
+      val scalaFile = writableScalaFile(file, REFACTORING_NAME)
 
-      val exprWithTypes = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset)
+      val exprWithTypes = ScalaRefactoringUtil.getExpression(project, editor, scalaFile, startOffset, endOffset)
       val elems = exprWithTypes match {
         case Some((e, _)) => Seq(e)
-        case None => ScalaRefactoringUtil.selectedElements(editor, file.asInstanceOf[ScalaFile], trimComments = false)
+        case None => ScalaRefactoringUtil.selectedElements(editor, scalaFile, trimComments = false)
       }
 
-      val hasWarnings = ScalaRefactoringUtil.showNotPossibleWarnings(elems, project, editor, REFACTORING_NAME)
-      if (hasWarnings) return None
+      if (showNotPossibleWarnings(elems, REFACTORING_NAME)) return None
+
       if (haveReturnStmts(elems)) {
-        showErrorHint("Refactoring is not supported: selection contains return statement", project, editor, REFACTORING_NAME)
+        showErrorHint("Refactoring is not supported: selection contains return statement", REFACTORING_NAME)
         return None
       }
 
@@ -205,10 +206,6 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     Some(data)
   }
 
-  def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {
-    /*do nothing*/
-  }
-
   private def getEnclosingMethods(expr: PsiElement): Seq[ScMethodLike] = {
     var enclosingMethods = new ArrayBuffer[ScMethodLike]
     var elem: PsiElement = expr
@@ -270,8 +267,10 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     case _ => e
   }
 
-  def afterMethodChoosing(elem: PsiElement, editor: Editor)(action: ScMethodLike => Unit): Unit = {
-    val validEnclosingMethods: Seq[ScMethodLike] = getEnclosingMethods(elem)
+  private def afterMethodChoosing(element: PsiElement)
+                                 (action: ScMethodLike => Unit)
+                                 (implicit project: Project = element.getProject, editor: Editor): Unit = {
+    val validEnclosingMethods: Seq[ScMethodLike] = getEnclosingMethods(element)
     if (validEnclosingMethods.size > 1 && !ApplicationManager.getApplication.isUnitTestMode) {
       ScalaRefactoringUtil.showChooser[ScMethodLike](editor, validEnclosingMethods.toArray, action,
         s"Choose function for $REFACTORING_NAME", getTextForElement, toHighlight)
@@ -279,7 +278,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     else if (validEnclosingMethods.size == 1 || ApplicationManager.getApplication.isUnitTestMode) {
       action(validEnclosingMethods.head)
     } else {
-      showErrorHint(ScalaBundle.message("cannot.refactor.no.function"), elem.getProject, editor, REFACTORING_NAME)
+      showErrorHint(ScalaBundle.message("cannot.refactor.no.function"), REFACTORING_NAME)
     }
   }
 

@@ -40,16 +40,17 @@ trait IntroduceExpressions {
 
   val INTRODUCE_VARIABLE_REFACTORING_NAME: String = ScalaBundle.message("introduce.variable.title")
 
-  def invokeExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
+  def invokeExpression(file: PsiFile, startOffset: Int, endOffset: Int)
+                      (implicit project: Project, editor: Editor): Unit = {
     try {
       UsageTrigger.trigger(ScalaBundle.message("introduce.variable.id"))
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
-      ScalaRefactoringUtil.checkFile(file, project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME)
+      ScalaRefactoringUtil.writableScalaFile(file, INTRODUCE_VARIABLE_REFACTORING_NAME)
       val (expr: ScExpression, types: Array[ScType]) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
-        getOrElse(showErrorMessageWithException(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME))
+        getOrElse(showErrorHintWithException(ScalaBundle.message("cannot.refactor.not.expression"), INTRODUCE_VARIABLE_REFACTORING_NAME))
 
-      ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessageWithException(_, project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME))
+      ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorHintWithException(_, INTRODUCE_VARIABLE_REFACTORING_NAME))
 
       val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
       val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
@@ -384,19 +385,5 @@ trait IntroduceExpressions {
     }
 
     dialog
-  }
-
-  def runTest(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int, replaceAll: Boolean) {
-    PsiDocumentManager.getInstance(project).commitAllDocuments()
-    ScalaRefactoringUtil.checkFile(file, project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME)
-
-    val (expr: ScExpression, types: Array[ScType]) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
-      getOrElse(showErrorMessageWithException(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME))
-
-    ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessageWithException(_, project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME))
-
-    val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
-    val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
-    runRefactoring(startOffset, endOffset, file, editor, expr, occurrences, "value", types(0), replaceAll, isVariable = false)
   }
 }
