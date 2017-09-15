@@ -190,15 +190,13 @@ object ScalaGenerationInfo {
 
   def insertMethod(member: ScMethodMember, td: ScTemplateDefinition, anchor: PsiElement): ScFunction = {
     val method: PsiMethod = member.getElement
-    val sign = member.sign
+    val ScMethodMember(signature, isOverride) = member
 
-    val isImplement = !member.isOverride
+    val body = getMethodBody(member, td, !isOverride)
 
-    val body = getMethodBody(member, td, isImplement)
+    val needsOverride = isOverride || toAddOverrideToImplemented
 
-    val needsOverride = !isImplement || toAddOverrideToImplemented
-
-    val m = createOverrideImplementMethod(sign, needsOverride, body,
+    val m = createOverrideImplementMethod(signature, needsOverride, body,
       withComment = ScalaApplicationSettings.getInstance().COPY_SCALADOC, withAnnotation = false)(method.getManager)
 
     TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m, typeAnnotationsPolicy)

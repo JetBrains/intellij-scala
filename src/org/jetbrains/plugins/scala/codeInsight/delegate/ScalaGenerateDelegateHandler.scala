@@ -57,11 +57,12 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
       try {
         val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
         val generatedMethods = for (member <- candidates) yield {
+          val ScMethodMember(signature, isOverride) = member
           val prototype: ScFunctionDefinition =
-            createMethodFromSignature(member.sign, needsInferType = true, body = "???")(aClass.getManager)
+            createMethodFromSignature(signature, needsInferType = true, body = "???")(aClass.getManager)
                   .asInstanceOf[ScFunctionDefinition]
           TypeAnnotationUtil.removeTypeAnnotationIfNeeded(prototype, ScalaGenerationInfo.typeAnnotationsPolicy)
-          prototype.setModifierProperty("override", value = member.isOverride)
+          prototype.setModifierProperty("override", value = isOverride)
           val body = methodBody(target, prototype)
           prototype.body.foreach(_.replace(body))
           val genInfo = new ScalaGenerationInfo(member)
@@ -111,8 +112,8 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   private def delegateText(delegate: ClassMember): String = {
     val delegateText = delegate match {
       case field: ScalaFieldMember => field.name
-      case methMember: ScMethodMember =>
-        methMember.sign.method match {
+      case ScMethodMember(PhysicalSignature(method, _), _) =>
+        method match {
           case m: PsiMethod if m.isAccessor => m.getName
           case f: ScFunction if f.isEmptyParen => f.name + "()"
           case f: ScFunction if f.isParameterless => f.name
@@ -144,24 +145,21 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   }
 
   private def toMethodMembers(candidates: Iterable[ScalaResolveResult], place: PsiElement): Seq[ScMethodMember] = {
-    object isSuitable {
-      def unapply(srr: ScalaResolveResult): Option[PhysicalSignature] = {
-        implicit val ctx: ProjectContext = srr.element
+    def toMember(srr: ScalaResolveResult): Option[ScMethodMember] = {
+      val ScalaResolveResult(element, subst) = srr
+      implicit val ctx: ProjectContext = element
 
-        if (srr.implicitConversionClass.nonEmpty || srr.implicitFunction.nonEmpty) return None
-        srr.getElement match {
-          case meth: PsiMethod if meth.isConstructor || meth.getContainingClass == null => None
-          case meth: PsiMethod if meth.getContainingClass.getQualifiedName == CommonClassNames.JAVA_LANG_OBJECT => None
-          case meth: PsiMethod if !ResolveUtils.isAccessible(meth, place, forCompletion = true) => None
-          case meth: PsiMethod => Some(new PhysicalSignature(meth, srr.substitutor))
-          case _ => None
-        }
+      if (srr.implicitConversionClass.nonEmpty || srr.implicitFunction.nonEmpty) return None
+      element match {
+        case method: PsiMethod if method.isConstructor || method.getContainingClass == null => None
+        case method: PsiMethod if method.getContainingClass.getQualifiedName == CommonClassNames.JAVA_LANG_OBJECT => None
+        case method: PsiMethod if !ResolveUtils.isAccessible(method, place, forCompletion = true) => None
+        case method: PsiMethod => Some(ScMethodMember(method, subst))
+        case _ => None
       }
     }
 
-    candidates.toSeq.collect {
-      case isSuitable(sign) => new ScMethodMember(sign, isOverride = false)
-    }
+    candidates.flatMap(toMember).toSeq
   }
 
   @Nullable
@@ -192,8 +190,8 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   private def canBeTargetInClass(member: ClassMember, clazz: ScTemplateDefinition): Boolean = member match {
     case _: ScAliasMember => false
     case typed: ScalaTypedMember if typed.scType.isUnit => false
-    case method: ScMethodMember =>
-      method.getElement match {
+    case ScMethodMember(PhysicalSignature(method, _), _) =>
+      method match {
         case m: PsiMethod if {val cl = m.getContainingClass; cl != null && cl.getQualifiedName == CommonClassNames.JAVA_LANG_OBJECT} => false
         case f: ScFunction => (f.isParameterless || f.isEmptyParen) && ResolveUtils.isAccessible(f, clazz)
         case m: PsiMethod => m.isAccessor && ResolveUtils.isAccessible(m, clazz)

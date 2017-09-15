@@ -93,8 +93,8 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       element.getDelegate.renderElement(presentation)
 
       val (resultText, tailText) = member match {
-        case mm: ScMethodMember =>
-          (mm.text + " = {...}", mm.scType.presentableText)
+        case methodMember: ScMethodMember =>
+          (methodMember.getText + " = {...}", methodMember.scType.presentableText)
         case mVal: ScValueMember =>
           (mVal.name, mVal.scType.presentableText)
         case mVar: ScVariableMember =>
@@ -175,13 +175,13 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     import td.projectContext
 
     val text: String = classMember match {
-      case mm: ScMethodMember =>
-        val mBody = if (mm.isOverride) ScalaGenerationInfo.getMethodBody(mm, td, isImplement = false) else "???"
+      case member@ScMethodMember(signature, isOverride) =>
+        val mBody = if (isOverride) ScalaGenerationInfo.getMethodBody(member, td, isImplement = false) else "???"
         val fun =
           if (full)
-            createOverrideImplementMethod(mm.sign, needsOverrideModifier = true, mBody, withComment = false, withAnnotation = false)
+            createOverrideImplementMethod(signature, needsOverrideModifier = true, mBody, withComment = false, withAnnotation = false)
           else
-            createMethodFromSignature(mm.sign, needsInferType = true, mBody, withComment = false, withAnnotation = false)
+            createMethodFromSignature(signature, needsInferType = true, mBody, withComment = false, withAnnotation = false)
 
         TypeAnnotationUtil.removeTypeAnnotationIfNeeded(fun)
         fun.getText

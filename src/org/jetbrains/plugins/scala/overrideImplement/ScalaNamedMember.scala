@@ -5,7 +5,7 @@ import com.intellij.codeInsight.generation.PsiElementClassMember
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getMethodPresentableText
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -20,6 +20,7 @@ sealed trait ScalaNamedMember {
 }
 
 sealed trait ScalaTypedMember extends ScalaNamedMember {
+  val substitutor: ScSubstitutor
   val scType: ScType
 }
 
@@ -31,18 +32,29 @@ case class ScAliasMember(override val getElement: ScTypeAlias,
   override val name: String = getText
 }
 
-class ScMethodMember(val sign: PhysicalSignature, val isOverride: Boolean)
-        extends {
-          val name: String = sign.name
-          val scType: ScType = sign.method match {
-            case fun: ScFunction => sign.substitutor.subst(fun.returnType.getOrAny)
-            case method: PsiMethod =>
-              val psiType = Option(method.getReturnType).getOrElse(PsiType.VOID)
-              val fromPsiType = psiType.toScType()(sign.projectContext)
-              sign.substitutor.subst(fromPsiType)
-          }
-          val text = ScalaPsiUtil.getMethodPresentableText(sign.method)
-        } with PsiElementClassMember[PsiMethod](sign.method, text) with ScalaNamedMember with ScalaTypedMember
+case class ScMethodMember(signature: PhysicalSignature, isOverride: Boolean)
+  extends PsiElementClassMember[PsiMethod](signature.method, getMethodPresentableText(signature.method)) with ScalaTypedMember {
+
+  override val name: String = signature.name
+
+  override val substitutor: ScSubstitutor = signature.substitutor
+
+  override val scType: ScType = {
+    val returnType = getElement match {
+      case fun: ScFunction => fun.returnType.getOrAny
+      case method: PsiMethod =>
+        val psiType = Option(method.getReturnType).getOrElse(PsiType.VOID)
+        psiType.toScType()(signature.projectContext)
+    }
+    substitutor.subst(returnType)
+  }
+}
+
+object ScMethodMember {
+
+  def apply(method: PsiMethod, substitutor: ScSubstitutor = ScSubstitutor.empty, isOverride: Boolean = false): ScMethodMember =
+    ScMethodMember(new PhysicalSignature(method, substitutor), isOverride)
+}
 
 sealed trait ScalaFieldMember extends ScalaTypedMember
 
@@ -61,7 +73,8 @@ class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, val s
         } with PsiElementClassMember[ScVariable](member, text) with ScalaFieldMember
 
 class JavaFieldMember private(override val getElement: PsiField,
-                              text: String, val scType: ScType)
+                              text: String, val scType: ScType,
+                              val substitutor: ScSubstitutor)
   extends PsiElementClassMember[PsiField](getElement, text) with ScalaFieldMember {
 
   override val name: String = getElement.getName
@@ -75,6 +88,6 @@ object JavaFieldMember {
     val scType = substitutor.subst(fieldType)
 
     val text = s"${field.getName}: ${scType.presentableText}"
-    new JavaFieldMember(field, text, scType)
+    new JavaFieldMember(field, text, scType, substitutor)
   }
 }

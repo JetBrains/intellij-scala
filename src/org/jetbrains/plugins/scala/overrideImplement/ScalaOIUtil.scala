@@ -33,7 +33,7 @@ object ScalaOIUtil {
   private[this] def toClassMember(signature: PhysicalSignature, isOverride: Boolean): ClassMember = {
     val method = signature.method
     assert(method.containingClass != null, s"Containing Class is null: ${method.getText}")
-    new ScMethodMember(signature, isOverride)
+    ScMethodMember(signature, isOverride)
   }
 
   private[this] def toClassMember(signature: Signature, isOverride: Boolean): Option[ClassMember] = {
