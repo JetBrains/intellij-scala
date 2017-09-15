@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructur
  */
 abstract class Specs2FileStructureViewTest extends Specs2TestCase {
 
-  private def prepareAndRunTestInner(status: Int, tests: String*) = {
+  private def prepareAndRunTestInner(status: Int, tests: String*): Unit = {
     runFileStructureViewTest("SpecsFileStrctureViewTest", status, tests:_*)
   }
 

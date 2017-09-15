@@ -33,7 +33,7 @@ abstract class Specs2RegExpTestNameTest extends Specs2TestCase {
       |}
     """.stripMargin.trim)
 
-  def testInnerMost() = {
+  def testInnerMost(): Unit = {
     runTestByLocation(8, 10, regExpFileName,
       checkConfigAndSettings(_, regExpClassName, "test"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", regExpClassName, "The RegExpTest should", "test") &&
@@ -41,14 +41,14 @@ abstract class Specs2RegExpTestNameTest extends Specs2TestCase {
     )
   }
 
-  def testMiddle() = {
+  def testMiddle(): Unit = {
     runTestByLocation(10, 10, regExpFileName,
       checkConfigAndSettings(_, regExpClassName, "testtest"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", regExpClassName, "The RegExpTest should", "testtest") &&
         checkResultTreeDoesNotHaveNodes(root, "test", "testtesttest"))
   }
 
-  def testOuterMost() = {
+  def testOuterMost(): Unit = {
     runTestByLocation(4, 10, regExpFileName,
       checkConfigAndSettings(_, regExpClassName, "testtesttest"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", regExpClassName, "The RegExpTest should", "testtesttest") &&
@@ -56,7 +56,7 @@ abstract class Specs2RegExpTestNameTest extends Specs2TestCase {
   }
 
   //TODO: enable the test once I find a way to run different tests with same description in specs2
-  def __IGNORE_testDifferentScopes() = {
+  def __IGNORE_testDifferentScopes(): Unit = {
     runTestByLocation(14, 10, regExpFileName,
       checkConfigAndSettings(_, regExpClassName, "run"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", regExpClassName, "First should", "run") &&

@@ -42,7 +42,7 @@ trait UTestStaticStringTest extends UTestTestCase {
        |}
       """.stripMargin)
 
-  protected def checkTest(lineNumber: Int, position: Int, expectedName: String) = {
+  protected def checkTest(lineNumber: Int, position: Int, expectedName: String): Unit = {
     assert(checkConfigAndSettings(createTestFromLocation(lineNumber, position, staticStringTestFileName),
         staticStringTestName, "tests" + (if (expectedName.isEmpty) "" else "\\" + expectedName)))
   }
@@ -61,27 +61,27 @@ trait UTestStaticStringTest extends UTestTestCase {
       staticStringTestName))
   }
 
-  def testTrim() = {
+  def testTrim(): Unit = {
     checkTest(13, 10, "testTrim1")
   }
 
-  def testToLowerCase() = {
+  def testToLowerCase(): Unit = {
     checkTest(15, 13, "lowercase")
   }
 
-  def testSuffix() = {
+  def testSuffix(): Unit = {
     checkTest(17, 10, "prefix")
   }
 
-  def testPrefix() = {
+  def testPrefix(): Unit = {
     checkTest(19, 10, "suffix")
   }
 
-  def testSubString1() = {
+  def testSubString1(): Unit = {
     checkTest(21, 10, "Test1")
   }
 
-  def testSubString2() = {
+  def testSubString2(): Unit = {
     checkTest(23, 10, "Test2")
   }
 

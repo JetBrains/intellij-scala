@@ -30,9 +30,9 @@ class GoToFailureLocationTest extends Scalatest2_10_2_2_1_Base {
     val filter = new ScalaTestFailureLocationFilter(projectScope)
     val errorLocationString = "ScalaTestFailureLocation: FailureLocationTest at (FailureLocationTest.scala:6)"
     var filterRes: Filter.Result = null
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      override def run(): Unit = filterRes = filter.applyFilter(errorLocationString, errorLocationString.length)
-    })
+    EdtTestUtil.runInEdtAndWait(() =>
+      filterRes = filter.applyFilter(errorLocationString, errorLocationString.length)
+    )
     assert(filterRes != null)
     assert(filterRes.getFirstHyperlinkInfo != null)
   }

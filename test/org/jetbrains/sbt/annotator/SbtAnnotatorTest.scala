@@ -14,11 +14,13 @@ import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.annotator.{Error, _}
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.junit.experimental.categories.Category
 
 import scala.collection.JavaConverters._
 
@@ -100,25 +102,28 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
   }
 }
 
-
+@Category(Array(classOf[SlowTests]))
 class SbtAnnotatorTest_0_12_4 extends SbtAnnotatorTestBase with MockSbt_0_12 {
   override implicit val sbtVersion: String = "0.12.4"
 
   def test(): Unit = runTest(sbtVersion, Expectations.sbt_0_12)
 }
 
+@Category(Array(classOf[SlowTests]))
 class SbtAnnotatorTest_0_13_1 extends SbtAnnotatorTestBase with MockSbt_0_13 {
   override implicit val sbtVersion: String = "0.13.1"
 
   def test(): Unit = runTest(sbtVersion, Expectations.sbt_0_13(sbtVersion))
 }
 
+@Category(Array(classOf[SlowTests]))
 class SbtAnnotatorTest_0_13_7 extends SbtAnnotatorTestBase with MockSbt_0_13 {
   override implicit val sbtVersion: String = "0.13.7"
 
   def test(): Unit = runTest(sbtVersion, Expectations.sbt_0_13_7)
 }
 
+@Category(Array(classOf[SlowTests]))
 class SbtAnnotatorTest_latest extends SbtAnnotatorTestBase with MockSbt_1_0 {
   override implicit val sbtVersion: String = Sbt.LatestVersion
 
