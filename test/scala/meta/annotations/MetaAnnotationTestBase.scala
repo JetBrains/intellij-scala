@@ -7,6 +7,7 @@ import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.util.PsiTreeUtil
@@ -71,6 +72,17 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
       modifiableRootModel.addModuleOrderEntry(module)
       modifiableRootModel.commit()
     }
+  }
+
+  override def tearDown(): Unit = try {
+    tearDownLibraries()
+
+    inWriteAction {
+      val jdkTable = ProjectJdkTable.getInstance()
+      jdkTable.getAllJdks.foreach(jdkTable.removeJdk)
+    }
+  } finally {
+    super.tearDown()
   }
 
   protected def compileMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): List[String] = {
