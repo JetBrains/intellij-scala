@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
+import scala.collection.JavaConverters._
 
 trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
   typeSystem: api.TypeSystem =>
@@ -68,9 +69,8 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
 
             val scSubst = substitutor match {
               case impl: PsiSubstitutorImpl =>
-                import scala.collection.JavaConversions._
                 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-                ScSubstitutor(impl.getSubstitutionMap.toMap.filter{case (key,_) => key.isInstanceOf[PsiTypeParameter]}.map {
+                ScSubstitutor(impl.getSubstitutionMap.asScala.toMap.filter{case (key,_) => key.isInstanceOf[PsiTypeParameter]}.map {
                   case (key: PsiTypeParameter, value) => (key.nameAndId, value.toScType(visitedRawTypes))
                 })
               case _ => ScSubstitutor.empty

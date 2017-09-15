@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.util.MultilineStringUtil
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.JavaConverters._
 
 
 object getDummyBlocks {
@@ -821,8 +822,7 @@ object getDummyBlocks {
     def extractParentAlignment: Option[Alignment] =
       Option(block.myParentBlock).map(_.getNode.getElementType) match {
         case Some(elemType) if elementTypes.contains(elemType) => //chained method call, extract alignments
-          import scala.collection.JavaConversions._
-          block.myParentBlock.getSubBlocks.toList match {
+          block.myParentBlock.getSubBlocks.asScala.toList match {
             case _ :: (dotToArgsBlock: ScalaBlock) :: Nil
               if dotToArgsBlock.getNode.getElementType == ScalaTokenTypes.tDOT =>
               Some(dotToArgsBlock.getAlignment)
