@@ -40,7 +40,7 @@ object ScalaTypeAnnotationSettings {
           else declaration.visibility match {
             case Visibility.Private => TYPE_ANNOTATION_PRIVATE_MEMBER.option("private member")
             case Visibility.Protected => TYPE_ANNOTATION_PROTECTED_MEMBER.option("protected member")
-            case Visibility.Default => TYPE_ANNOTATION_PUBLIC_MEMBER.option("public memeber")
+            case Visibility.Default => TYPE_ANNOTATION_PUBLIC_MEMBER.option("public member")
           }
       }
 
