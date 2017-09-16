@@ -5,6 +5,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.scala.SlowTests;
 import org.jetbrains.plugins.scala.base.libraryLoaders.JdkLoader;
 import org.jetbrains.plugins.scala.base.libraryLoaders.JdkLoader$;
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader;
@@ -13,6 +14,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaSdkOwner;
 import org.jetbrains.plugins.scala.debugger.ScalaVersion;
 import org.jetbrains.plugins.scala.debugger.Scala_2_10$;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 import scala.collection.JavaConverters;
@@ -25,6 +27,7 @@ import java.util.List;
  * @author Alexander Podkhalyuzin
  */
 @RunWith(AllTests.class)
+@Category(SlowTests.class)
 public class IntroduceVariableTest extends AbstractIntroduceVariableTestBase implements ScalaSdkOwner {
     @NonNls
     private static final String DATA_PATH = "/introduceVariable/data";

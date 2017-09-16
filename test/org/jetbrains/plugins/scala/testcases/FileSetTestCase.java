@@ -34,10 +34,9 @@ import java.util.List;
 /**
  * Created by IntelliJ IDEA.
  *
- * @author: oleg
- * @date: Oct 11, 2006
+ * @author oleg
+ * @date Oct 11, 2006
  */
-@Category(SlowTests.class)
 public abstract class FileSetTestCase extends TestSuite {
   @NonNls
   protected static final String TEST_FILE_PATTERN = "(.*)\\.test";
