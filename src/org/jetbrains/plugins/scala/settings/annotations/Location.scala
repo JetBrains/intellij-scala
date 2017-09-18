@@ -54,12 +54,12 @@ object Location {
     }
 
     override def isInsideAnonymousClass: Boolean = element match {
-      case memeber: ScMember => memeber.getContainingClass.isInstanceOf[ScNewTemplateDefinition]
+      case member: ScMember => member.getContainingClass.isInstanceOf[ScNewTemplateDefinition]
       case _ => false
     }
 
     override def isInsidePrivateClass: Boolean = element match {
-      case memeber: ScMember => memeber.getContainingClass match {
+      case member: ScMember => member.getContainingClass match {
         case owner: ScModifierListOwner => owner.hasModifierPropertyScala(PsiModifier.PRIVATE)
         case _ => false
       }
