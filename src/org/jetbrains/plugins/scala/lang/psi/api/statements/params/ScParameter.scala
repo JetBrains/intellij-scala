@@ -78,7 +78,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     }
   }
 
-  def getDeclarationScope: ScalaPsiElement = PsiTreeUtil.getParentOfType(this, classOf[ScParameterOwner], classOf[ScFunctionExpr])
+  def getDeclarationScope: ScalaPsiElement = PsiTreeUtil.getContextOfType(this, classOf[ScParameterOwner], classOf[ScFunctionExpr])
 
   def deprecatedName: Option[String]
 
