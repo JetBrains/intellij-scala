@@ -16,6 +16,8 @@ import org.jetbrains.plugins.scala.worksheet.GotoOriginalHandlerUtil
   */
 class AmmoniteGotoHandler extends GotoDeclarationHandler {
   override def getGotoDeclarationTargets(sourceElement: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
+    if (sourceElement == null) return PsiElement.EMPTY_ARRAY
+    
     sourceElement.getContainingFile match {
       case ammoniteFile: ScalaFile if AmmoniteUtil.isAmmoniteFile(ammoniteFile) =>
       case _ => return PsiElement.EMPTY_ARRAY 
