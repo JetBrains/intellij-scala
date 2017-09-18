@@ -7,8 +7,8 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.Assert
 
 /**
- * Created by Ignat Loskutov on 10.07.17.
- */
+  * Created by Ignat Loskutov on 10.07.17.
+  */
 class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testNoUsages(): Unit = {
@@ -88,7 +88,7 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
       s"""
          |object AAA {
          |  implicit val theAn${CARET}swer: Int = 42
-         |  def apply(s: String)(implicit suffix: Int): String = s + suffix
+         |  def apply(i: Int)(implicit suffix: Int): Int = i + suffix
          |  this(0)
          |}
       """.stripMargin
@@ -124,6 +124,106 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
       """.stripMargin
     doTest(code, Seq("implicitly[Semigroup[T]]"))
   }
+
+  def testContextBoundsColon2(): Unit = {
+    val code =
+      s"""
+         |trait Semigroup[T] {
+         |  def op(a: T, b: T): T
+         |}
+         |
+         |implicit val intSemigroup: Semigroup[Int] = (a: Int, b: Int) => a + b
+         |
+         |def double[T:$CARET Semigroup](t: T) = implicitly[Semigroup[T]].op(t, t)
+      """.stripMargin
+    doTest(code, Seq("implicitly[Semigroup[T]]"))
+  }
+
+  def testImplicitClass(): Unit = {
+    val code =
+      s"""
+         |object Test {
+         |  implicit class ${CARET}StringExt(val s: String) {
+         |    def twice: String = s + s
+         |  }
+         |  val string = "a"
+         |  string.twice
+         |}
+       """.stripMargin
+    doTest(code, Seq("string"))
+  }
+
+  def testConstructorParameter(): Unit = {
+    val code =
+      s"""
+         |object Test {
+         |  implicit val ${CARET}theAnswer: Int = 42
+         |
+         |  class AB(i: Int)(implicit j: Int) {
+         |    def this(ints: Array[Int])(implicit j: Int) = this(ints(0))
+         |  }
+         |
+         |  new AB(1)
+         |  new AB(Array(1))
+         |}
+       """.stripMargin
+    doTest(code, Seq("new AB(1)", "new AB(Array(1))"))
+  }
+
+  def testTypeClasses1(): Unit = {
+    val code =
+      s"""
+         |object Test {
+         |  trait Ordering[T]
+         |
+         |  implicit def seqDerivedOrdering[CC[X] <: scala.collection.Seq[X], T](implicit ord: Ordering[T]): Ordering[CC[T]] = ???
+         |  implicit def tuple2Ordering[T1, T2](implicit ord1: Ordering[T1], ord2: Ordering[T2]): Ordering[(T1, T2)] = ???
+         |
+         |  implicit object ${CARET}BooleanOrdering extends Ordering[Boolean]
+         |  implicit object IntOrdering extends Ordering[Int]
+         |
+         |  def sort[T](t: Seq[T])(implicit ordering: Ordering[T]) = ???
+         |
+         |  sort(Seq((Seq(12), (true, Seq(false)))))
+         |  sort(Seq((Seq(12), false)))
+         |  sort(Seq(false))
+         |  sort(Seq((Seq(12), (1, Seq(2)))))
+         |}
+        """.stripMargin
+
+    doTest(code, Seq(
+      "sort(Seq((Seq(12), (true, Seq(false)))))",
+      "sort(Seq((Seq(12), false)))",
+      "sort(Seq(false))"))
+  }
+
+  def testTypeClasses2(): Unit = {
+    val code =
+      s"""
+         |object Test {
+         |  trait Ordering[T]
+         |
+         |  implicit def seqDerivedOrdering[CC[X] <: scala.collection.Seq[X], T](implicit ord: Ordering[T]): Ordering[CC[T]] = ???
+         |  implicit def ${CARET}tuple2Ordering[T1, T2](implicit ord1: Ordering[T1], ord2: Ordering[T2]): Ordering[(T1, T2)] = ???
+         |
+         |  implicit object BooleanOrdering extends Ordering[Boolean]
+         |  implicit object IntOrdering extends Ordering[Int]
+         |
+         |  def sort[T](t: Seq[T])(implicit ordering: Ordering[T]) = ???
+         |
+         |  sort(Seq((Seq(12), (true, Seq(false)))))
+         |  sort(Seq((Seq(12), false)))
+         |  sort(Seq(false))
+         |  sort(Seq((Seq(12), (1, Seq(2)))))
+         |}
+        """.stripMargin
+
+    doTest(code, Seq(
+      "sort(Seq((Seq(12), (true, Seq(false)))))",
+      "sort(Seq((Seq(12), false)))",
+      "sort(Seq((Seq(12), (1, Seq(2)))))"))
+  }
+
 
   def doTest(fileText: String, expected: Seq[String]): Unit = {
     import scala.collection.JavaConversions._
