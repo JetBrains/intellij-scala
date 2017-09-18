@@ -35,20 +35,30 @@ object ScLiteral {
   def unapply(literal: ScLiteral) = Some(literal.getValue)
 }
 
-class ScLiteralValueExtractor[T](literalTypes: IElementType*)
-                                (f: AnyRef => T, textCondition: String => Boolean = Function.const(true)) {
+sealed class ScLiteralValueExtractor[T](literalTypes: IElementType*)(cast: AnyRef => T) {
   private val types = literalTypes.toSet
 
   def unapply(literal: ScLiteral): Option[T] = {
     val node = literal.getFirstChild.getNode
     val literalType = node.getElementType
-    if (types.contains(literalType) && textCondition(node.getText))
-      Some(f(literal.getValue))
+    if (types.contains(literalType) && isAvailableFor(literal))
+      Some(cast(literal.getValue))
     else None
+  }
+
+  def isAvailableFor(literal: ScLiteral): Boolean = true
+}
+
+object ScLongLiteral extends ScLiteralValueExtractor(tINTEGER)(_.asInstanceOf[java.lang.Long].longValue) {
+  override def isAvailableFor(literal: ScLiteral): Boolean = {
+    val text = literal.getText
+    text.endsWith("L") || text.endsWith("l")
   }
 }
 
-object ScIntLiteral extends ScLiteralValueExtractor(tINTEGER)(_.asInstanceOf[java.lang.Integer].intValue, _.last.isDigit)
+object ScIntLiteral extends ScLiteralValueExtractor(tINTEGER)(_.asInstanceOf[java.lang.Integer].intValue) {
+  override def isAvailableFor(literal: ScLiteral): Boolean = literal.getText.forall(_.isDigit)
+}
 
 object ScFloatLiteral extends ScLiteralValueExtractor(tFLOAT)(_.asInstanceOf[java.lang.Float].floatValue)
 
