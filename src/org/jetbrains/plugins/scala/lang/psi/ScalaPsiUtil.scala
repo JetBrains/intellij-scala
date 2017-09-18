@@ -20,6 +20,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -2015,7 +2016,7 @@ object ScalaPsiUtil {
   }
 
   def isImplicit(modifierListOwner: ScModifierListOwner): Boolean =
-    modifierListOwner.hasModifierProperty("implicit")
+    modifierListOwner.hasModifierPropertyScala(ScalaKeyword.IMPLICIT)
 
   def replaceBracesWithParentheses(element: ScalaPsiElement): Unit = {
     import element.projectContext
