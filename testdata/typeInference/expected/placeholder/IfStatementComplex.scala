@@ -3,4 +3,4 @@ object IfStatementComplex {
 
   foo(if (_) /*start*/_.concat("3")/*end*/ else _.concat("6"))
 }
-//(String) => String
+//String => String

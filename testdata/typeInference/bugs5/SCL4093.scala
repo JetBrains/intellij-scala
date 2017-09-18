@@ -23,4 +23,4 @@ object SCL4093 {
     var id: String = _
   }
 }
-//(String) => Unit
+//String => Unit

@@ -465,7 +465,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |}
         |
         |class Substituting extends A[Float] {
-        |  override def foo(x: (Float) => Float, y: (Float, Int) => Float): Double = <selection>super.foo(x, y)</selection>
+        |  override def foo(x: Float => Float, y: (Float, Int) => Float): Double = <selection>super.foo(x, y)</selection>
         |}
       """
     val methodName: String = "foo"

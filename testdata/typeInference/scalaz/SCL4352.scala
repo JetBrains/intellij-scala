@@ -15,4 +15,4 @@ class BindStopTest {
   } yield j1 *> j2/*end*/
 
 }
-//(Int) => Option[Int]
+//Int => Option[Int]

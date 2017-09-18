@@ -8,7 +8,7 @@ class a {
 ------
 class a {
   def foo = {
-    val value: (Int) => Int = (x: Int) => {
+    val value: Int => Int = (x: Int) => {
       val y = x * x
       y + 1
     }
