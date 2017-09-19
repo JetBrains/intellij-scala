@@ -74,6 +74,12 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
                                                   lastParent: PsiElement,
                                                   place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
+
+    desugaredElement match {
+      case Some(td) => return td.processDeclarationsForTemplateBody(processor, state, getLastChild, place)
+      case _ =>
+    }
+
     if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
 
     constructor match {
