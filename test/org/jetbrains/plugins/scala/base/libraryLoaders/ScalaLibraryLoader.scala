@@ -77,10 +77,10 @@ object ScalaLibraryLoader {
     extends LibraryLoader {
 
     def init(implicit version: ScalaVersion): Unit =
-      module.getProject.getComponent(classOf[SyntheticClasses]) match {
-        case classes if !classes.isClassesRegistered => classes.registerClasses()
-        case _ =>
-      }
+      Some(module.getProject)
+        .map(_.getComponent(classOf[SyntheticClasses]))
+        .filterNot(_.isClassesRegistered)
+        .foreach(_.registerClasses())
   }
 
   abstract class ScalaLibraryLoaderAdapter(implicit module: Module)
