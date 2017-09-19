@@ -108,7 +108,7 @@ trait TreeAdapter {
       toTypeName(t),
       Seq(t.typeParameters map toTypeParams: _*),
       m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
-      template(t.extendsBlock)
+      template(t.physicalExtendsBlock)
     )
     t.baseCompanionModule match {
       case Some(obj: ScObject) => m.Term.Block(Seq(defn, toObject(obj)))
@@ -122,7 +122,7 @@ trait TreeAdapter {
       toTypeName(c),
       Seq(c.typeParameters map toTypeParams: _*),
       ctor(c.constructor),
-      template(c.extendsBlock)
+      template(c.physicalExtendsBlock)
     )
     c.baseCompanionModule match {
       case Some(obj: ScObject) => m.Term.Block(Seq(defn, toObject(obj)))
@@ -141,7 +141,7 @@ trait TreeAdapter {
   def toObject(o: ScObject) = m.Defn.Object(
     convertMods(o),
     toTermName(o),
-    template(o.extendsBlock)
+    template(o.physicalExtendsBlock)
   )
 
   def ctor(pc: Option[ScPrimaryConstructor]): m.Ctor.Primary = {
