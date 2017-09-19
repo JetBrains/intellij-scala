@@ -3,10 +3,12 @@ package scala.meta.annotations
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, TestActionEvent}
 import org.jetbrains.plugins.scala.{ScalaBundle, SlowTests}
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
@@ -35,6 +37,16 @@ class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMet
     super.setUp()
     setUpLibraries()
     PsiTestUtil.addLibrary(myModule, getTestDataPath + testJarPath)
+  }
+
+  override def tearDown(): Unit = try {
+    tearDownLibraries()
+  } finally {
+    inWriteAction {
+      val projectJdkTable = ProjectJdkTable.getInstance()
+      projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
+    }
+    super.tearDown()
   }
 
   def testLoadAnnotationFromJar(): Unit = {
