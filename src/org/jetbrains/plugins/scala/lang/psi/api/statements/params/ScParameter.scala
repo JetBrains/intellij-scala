@@ -33,19 +33,19 @@ import scala.annotation.tailrec
 
 trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
         PsiParameterAdapter with ScAnnotationsHolder with ScImportableDeclarationsOwner {
-  def getTypeElement: PsiTypeElement
+  override def getTypeElement: PsiTypeElement
 
   def isWildcard: Boolean = "_" == name
 
-  def isVarArgs: Boolean = isRepeatedParameter
+  override def isVarArgs: Boolean = isRepeatedParameter
 
-  def computeConstantValue = null
+  override def computeConstantValue: Object = null
 
-  def normalizeDeclaration() {}
+  override def normalizeDeclaration(): Unit = {}
 
-  def hasInitializer = false
+  override def hasInitializer: Boolean = false
 
-  def getInitializer = null
+  override def getInitializer: PsiExpression = null
 
   def typeElement: Option[ScTypeElement]
 
@@ -79,7 +79,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     }
   }
 
-  def getDeclarationScope: ScalaPsiElement = PsiTreeUtil.getContextOfType(this, classOf[ScParameterOwner], classOf[ScFunctionExpr])
+  override def getDeclarationScope: ScalaPsiElement = PsiTreeUtil.getContextOfType(this, classOf[ScParameterOwner], classOf[ScFunctionExpr])
 
   def deprecatedName: Option[String]
 

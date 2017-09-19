@@ -36,10 +36,11 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
     val context = new ShowParameterInfoContext(getEditor, getProject, file, offset, -1)
     val handler = createHandler
 
-    val actual = handleUI(handler, context)
+    val actual: Seq[String] = handleUI(handler, context)
+    val expected: Seq[Seq[String]] = expectedSignatures(lastElement())
 
-    val expected = expectedSignatures(lastElement())
-    assertTrue(expected.contains(actual))
+    assertNotNull(expected)
+    assertTrue(s"expected signatures: ${expected.mkString(",")}, actual: ${actual.mkString(",")}", expected.contains(actual))
 
     if (testUpdate) {
       //todo test correct parameter index after moving caret

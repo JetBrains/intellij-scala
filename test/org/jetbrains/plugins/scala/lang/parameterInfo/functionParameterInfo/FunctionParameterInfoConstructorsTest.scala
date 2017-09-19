@@ -5,27 +5,27 @@ class FunctionParameterInfoConstructorsTest extends FunctionParameterInfoTestBas
   override def getTestDataPath: String =
     s"${super.getTestDataPath}constructors/"
 
-  def testAnnotations() = doTest()
+  def testAnnotations(): Unit = doTest()
 
-  def testGenericScalaConstructor() = doTest()
+  def testGenericScalaConstructor(): Unit = doTest()
 
-  def testJavaConstructor() = doTest()
+  def testJavaConstructor(): Unit = doTest()
 
-  def testNamingCaseClass() = doTest()
+  def testNamingCaseClass(): Unit = doTest()
 
-  def testScalaConstructor() = doTest()
+  def testScalaConstructor(): Unit = doTest()
 
-  def testScalaConstructorA() = doTest()
+  def testScalaConstructorA(): Unit = doTest()
 
-  def testScalaConstructorB() = doTest()
+  def testScalaConstructorB(): Unit = doTest()
   
-  def testScalaConstructorC() = doTest()
+  def testScalaConstructorC(): Unit = doTest()
 
-  def testScalaConstructorD() = doTest()
+  def testScalaConstructorD(): Unit = doTest()
 
-  def testSelfInvocation() = doTest()
+  def testSelfInvocation(): Unit = doTest()
 
-  def testThisScalaConstructor() = doTest()
+  def testThisScalaConstructor(): Unit = doTest()
 
-  def testAliasedConstructor() = doTest()
+  def testAliasedConstructor(): Unit = doTest()
 }

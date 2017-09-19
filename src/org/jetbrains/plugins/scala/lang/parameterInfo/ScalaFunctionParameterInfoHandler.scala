@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitCompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.collection.Seq
@@ -127,7 +128,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: PsiElement =>
-        implicit val project = args.projectContext
+        implicit val project: ProjectContext = args.projectContext
         val color: Color = context.getDefaultParameterColor
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
@@ -433,7 +434,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
 
   def elementsForParameterInfo(args: Invocation): Seq[Object] = {
-    implicit val project = args.element.projectContext
+    implicit val project: ProjectContext = args.element.projectContext
     args.parent match {
       case call: MethodInvocation =>
         val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
@@ -644,7 +645,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     val argsOption: Option[Invocation] = findArgs(element)
     if (argsOption.isEmpty) return null
     val args = argsOption.get
-    implicit val project = file.projectContext
+    implicit val project: ProjectContext = file.projectContext
     context match {
       case context: CreateParameterInfoContext =>
         context.setItemsToShow(elementsForParameterInfo(args).toArray)
