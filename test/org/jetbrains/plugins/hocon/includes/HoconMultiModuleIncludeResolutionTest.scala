@@ -10,9 +10,10 @@ import com.intellij.testFramework.UsefulTestCase
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.fixtures._
 import org.jetbrains.jps.model.java.JavaSourceRootType
-import org.jetbrains.plugins.hocon.JavaInterop._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ModuleExt
+
+import scala.collection.JavaConverters.mapAsJavaMapConverter
 
 /**
  * @author ghik
