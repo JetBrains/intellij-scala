@@ -23,7 +23,7 @@ sealed case class ScalaLanguageLevel(ordinal: Int, version: String) extends Name
 object ScalaLanguageLevel {
   val Values = Array(Snapshot, Scala_2_8, Scala_2_9, Scala_2_10, Scala_2_11, Scala_2_12)
 
-  val Default = Scala_2_11
+  val Default: ScalaLanguageLevel = Scala_2_12
 
   // We have to rely on the Java's enumeration for library property serialization
   private val LevelToProxy = Map(
