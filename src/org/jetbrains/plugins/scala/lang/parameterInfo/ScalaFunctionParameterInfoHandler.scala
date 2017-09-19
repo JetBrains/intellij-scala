@@ -143,6 +143,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
           if (parameters.nonEmpty) {
             var k = 0
             val exprs: Seq[ScExpression] = getActualParameters(args)
+            if (isImplicit) buffer.append("implicit ")
             val used = new Array[Boolean](parameters.length)
             while (k < parameters.length) {
               val namedPrefix = "["
