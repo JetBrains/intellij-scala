@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.hocon.highlight
 
+import java.{util => ju}
+
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandlerBase, HighlightUsagesHandlerFactoryBase}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.Consumer
-import org.jetbrains.plugins.hocon.JavaInterop._
 import org.jetbrains.plugins.hocon.psi._
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters.asScalaIteratorConverter
 
 class HoconHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactoryBase {
   def createHighlightUsagesHandler(editor: Editor, file: PsiFile, target: PsiElement): HoconHighlightKeyUsagesHandler =
@@ -22,7 +24,7 @@ class HoconHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactoryBa
 class HoconHighlightKeyUsagesHandler(editor: Editor, psiFile: PsiFile, hkey: HKey)
   extends HighlightUsagesHandlerBase[HKey](editor, psiFile) {
 
-  def computeUsages(targets: JList[HKey]): Unit = {
+  def computeUsages(targets: ju.List[HKey]): Unit = {
     def findPaths(el: PsiElement): Iterator[HPath] = el match {
       case path: HPath => Iterator(path)
       case hoconFile: HoconPsiFile => findPaths(hoconFile.toplevelEntries)
@@ -68,8 +70,8 @@ class HoconHighlightKeyUsagesHandler(editor: Editor, psiFile: PsiFile, hkey: HKe
     }
   }
 
-  def getTargets = JList(hkey)
+  def getTargets: ju.List[HKey] = ju.Collections.singletonList(hkey)
 
-  def selectTargets(targets: JList[HKey], selectionConsumer: Consumer[JList[HKey]]): Unit =
+  def selectTargets(targets: ju.List[HKey], selectionConsumer: Consumer[ju.List[HKey]]): Unit =
     selectionConsumer.consume(targets)
 }
