@@ -156,7 +156,7 @@ public class ScalaProjectSettingsPanel {
         }
         if (injectionPrefixTable == null) injectionPrefixTable = new ScalaUiWithDependency.NullComponentWithSettings();
 
-        scTypeSelectionCombobox.setModel(new DefaultComboBoxModel(new String[]{"Worksheet file", "Ammonite file"}));
+        scTypeSelectionCombobox.setModel(new EnumComboBoxModel(ScalaProjectSettings.ScFileMode.class));
 
         autoRunDelaySlider.setMaximum(WorksheetAutoRunner$.MODULE$.RUN_DELAY_MS_MAXIMUM());
         autoRunDelaySlider.setMinimum(WorksheetAutoRunner$.MODULE$.RUN_DELAY_MS_MINIMUM());
@@ -232,7 +232,7 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setMetaTrimMethodBodies(metaTrimBodies.isSelected());
 
         scalaProjectSettings.setTrailingCommasEnabled(trailingCommasEnabledCheckBox.isSelected());
-        scalaProjectSettings.setTreatScAsAmmonite(scTypeSelectionCombobox.getSelectedIndex() == 1);
+        scalaProjectSettings.setScFileMode(ScalaProjectSettings.ScFileMode.valueOf(scTypeSelectionCombobox.getSelectedItem().toString()));
 
         if (myProject != null && myProject.isDefault())
             ((JarCacheModel) librariesList.getModel()).commit();
@@ -347,7 +347,7 @@ public class ScalaProjectSettingsPanel {
         if (!scalaProjectSettings.getScalaMetaMode().equals(scalaMetaMode.getModel().getSelectedItem())) return true;
         if (scalaProjectSettings.isMetaTrimMethodBodies() != metaTrimBodies.isSelected()) return true;
 
-        if (scalaProjectSettings.isTreatScAsAmmonite() ^ (scTypeSelectionCombobox.getSelectedIndex() == 1)) return true;
+        if (scalaProjectSettings.getScFileMode() != scTypeSelectionCombobox.getSelectedItem()) return true;
 
         if (scalaProjectSettings.isTrailingCommasEnabled() != trailingCommasEnabledCheckBox.isSelected()) return true;
 
@@ -413,7 +413,7 @@ public class ScalaProjectSettingsPanel {
 
         setValue(trailingCommasEnabledCheckBox, scalaProjectSettings.isTrailingCommasEnabled());
 
-        setValue(scTypeSelectionCombobox, scalaProjectSettings.isTreatScAsAmmonite() ? 1 : 0);
+        scTypeSelectionCombobox.setSelectedItem(scalaProjectSettings.getScFileMode());
 
         injectionPrefixTable.loadSettings(scalaProjectSettings);
 

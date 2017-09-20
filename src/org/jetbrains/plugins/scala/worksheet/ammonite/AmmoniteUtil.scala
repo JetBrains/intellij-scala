@@ -9,6 +9,8 @@ import com.intellij.openapi.roots.{OrderRootType, ProjectRootManager}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiUtilCore
+import com.intellij.util.containers.ContainerUtilRt
+import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
@@ -35,9 +37,21 @@ object AmmoniteUtil {
   private val ROOT_IVY = "$ivy"
   private val PARENT_FILE = "^"
 
-  def isAmmoniteFile(file: ScalaFile): Boolean = 
-    ScalaProjectSettings.getInstance(file.getProject).isTreatScAsAmmonite && 
-      ScalaUtil.findVirtualFile(file).exists(_.getExtension == AMMONITE_EXTENSION)
+  def isAmmoniteFile(file: ScalaFile): Boolean = {
+    ScalaUtil.findVirtualFile(file) match {
+      case Some(vFile) => isAmmoniteFile(vFile, file.getProject)
+      case _ => false
+    }
+  }
+  
+  def isAmmoniteFile(virtualFile: VirtualFile, project: Project): Boolean = {
+    virtualFile.getExtension == AMMONITE_EXTENSION && (ScalaProjectSettings.getInstance(project).getScFileMode match {
+      case ScalaProjectSettings.ScFileMode.Ammonite => true
+      case ScalaProjectSettings.ScFileMode.Worksheet => false
+      case ScalaProjectSettings.ScFileMode.Auto => 
+        ProjectRootManager.getInstance(project).getFileIndex.isUnderSourceRootOfType(virtualFile, ContainerUtilRt.newHashSet(JavaSourceRootType.TEST_SOURCE))
+    })
+  }
 
   def findAllIvyImports(file: ScalaFile): Seq[LibInfo] = {
     file.getChildren.flatMap {
