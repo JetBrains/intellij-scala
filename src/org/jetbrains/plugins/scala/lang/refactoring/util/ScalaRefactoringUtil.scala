@@ -13,7 +13,7 @@ import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, RangeHighlighter, TextAttributes}
-import com.intellij.openapi.editor.{Editor, RangeMarker, VisualPosition}
+import com.intellij.openapi.editor.{Editor, RangeMarker, SelectionModel, VisualPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
 import com.intellij.openapi.util.TextRange
@@ -734,34 +734,13 @@ object ScalaRefactoringUtil {
   def afterExpressionChoosing(file: PsiFile,
                               refactoringName: String, filterExpressions: Boolean = true)
                              (invokesNext: => Unit)
-                             (implicit project: Project, editor: Editor): Unit = {
-
-    if (!editor.getSelectionModel.hasSelection) {
-      val expressions = getExpressionsAtOffset(file, editor.getCaretModel.getOffset).filter {
+                             (implicit project: Project, editor: Editor): Unit =
+    invokeOnSelected("choose.expression.for", refactoringName)(invokesNext, (_: ScExpression) => invokesNext) {
+      getExpressionsAtOffset(file, editor.getCaretModel.getOffset).filter {
         case e if filterExpressions => checkCanBeIntroduced(e).isEmpty
         case _ => true
-      }
-
-      def chooseExpression(expr: ScExpression) {
-        editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset, expr.getTextRange.getEndOffset)
-        invokesNext
-      }
-
-      if (expressions.isEmpty)
-        editor.getSelectionModel.selectLineAtCaret()
-      else if (expressions.length == 1) {
-        chooseExpression(expressions.head)
-        return
-      } else {
-        showChooser(editor, expressions.toArray, (elem: ScExpression) =>
-          chooseExpression(elem), ScalaBundle.message("choose.expression.for", refactoringName), (expr: ScExpression) => {
-          getShortText(expr)
-        })
-        return
-      }
+      }.toArray
     }
-    invokesNext
-  }
 
   private[this] def getTypeElements(selectedElement: ScTypeElement): Seq[ScTypeElement] = {
     val result = mutable.ArrayBuffer[ScTypeElement]()
@@ -780,32 +759,37 @@ object ScalaRefactoringUtil {
     result
   }
 
-
-  def afterTypeElementChoosing(file: PsiFile,
-                               currentSelectedElement: ScTypeElement, refactoringName: String)
+  def afterTypeElementChoosing(selectedElement: ScTypeElement, refactoringName: String)
                               (invokesNext: ScTypeElement => Unit)
-                              (implicit project: Project, editor: Editor): Unit = {
+                              (implicit project: Project, editor: Editor): Unit =
+    invokeOnSelected("choose.type.element.for", refactoringName)(invokesNext(selectedElement), invokesNext) {
+      getTypeElements(selectedElement).toArray
+    }
 
-    if (!editor.getSelectionModel.hasSelection) {
-      val typeElements = getTypeElements(currentSelectedElement)
+  private[this] def invokeOnSelected[T <: ScalaPsiElement](messageKey: String,
+                                                           refactoringName: String)
+                                                          (default: => Unit, consumer: T => Unit)
+                                                          (elements: => Array[T])
+                                                          (implicit editor: Editor): Unit = {
+    implicit val selectionModel: SelectionModel = editor.getSelectionModel
 
-      def chooseTypeElement(typeElement: ScTypeElement) {
-        editor.getSelectionModel.setSelection(typeElement.getTextRange.getStartOffset, typeElement.getTextRange.getEndOffset)
-        invokesNext(typeElement)
+    if (selectionModel.hasSelection) default
+    else {
+      def onElement(element: T): Unit = {
+        val textRange = element.getTextRange
+        selectionModel.setSelection(textRange.getStartOffset, textRange.getEndOffset)
+
+        consumer(element)
       }
 
-      if (typeElements.isEmpty) {
-        editor.getSelectionModel.selectLineAtCaret()
-      }
-      else if (typeElements.length == 1) {
-        chooseTypeElement(typeElements.head)
-        return
-      } else {
-        showChooser(editor, typeElements.toArray, chooseTypeElement, ScalaBundle.message("choose.type.element.for", refactoringName), getShortText)
-        return
+      elements match {
+        case Array() =>
+          selectionModel.selectLineAtCaret()
+          default
+        case Array(head) => onElement(head)
+        case array => showChooser(editor, array, onElement, ScalaBundle.message(messageKey, refactoringName), getShortText)
       }
     }
-    invokesNext(currentSelectedElement)
   }
 
   def fileEncloser(startOffset: Int, file: PsiFile): PsiElement = {
