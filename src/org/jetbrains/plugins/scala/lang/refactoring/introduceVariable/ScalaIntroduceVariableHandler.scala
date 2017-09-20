@@ -34,7 +34,7 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
 
     trimSpacesAndComments(editor, file)
 
-    val maybeSelectedElement = getTypeElement(project, editor, file, selectionStart, selectionEnd)
+    val maybeSelectedElement = getTypeElement(file, selectionStart, selectionEnd)
       .orElse(getExpression(project, editor, file, selectionStart, selectionEnd).map(_._1))
 
 

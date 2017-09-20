@@ -21,7 +21,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inTransactionLater}
+import org.jetbrains.plugins.scala.extensions.inTransactionLater
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -51,13 +51,14 @@ trait IntroduceTypeAlias {
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       writableScalaFile(file, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
 
-      val typeElement: ScTypeElement = ScalaRefactoringUtil.checkTypeElement(inTypeElement).
-        getOrElse(showErrorHintWithException(ScalaBundle.message("cannot.refactor.not.valid.type"), INTRODUCE_TYPEALIAS_REFACTORING_NAME))
+      if (isInvalid(inTypeElement)) {
+        showErrorHintWithException(ScalaBundle.message("cannot.refactor.not.valid.type"), INTRODUCE_TYPEALIAS_REFACTORING_NAME)
+      }
 
       val currentDataObject = editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO)
 
       if (currentDataObject.possibleScopes == null) {
-        currentDataObject.setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, typeElement))
+        currentDataObject.setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, inTypeElement))
       }
 
       if (currentDataObject.possibleScopes.isEmpty) {
@@ -67,20 +68,11 @@ trait IntroduceTypeAlias {
       def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem, enteredName: String = "") {
         val typeElementHelper = if (fromInplace && mainScope.isInstanceOf[SimpleScopeItem]) {
           val range = currentDataObject.initialTypeElement
-          PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
-          match {
-            case simpleType: ScSimpleTypeElement =>
-              if (simpleType.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs]) {
-                PsiTreeUtil.getParentOfType(simpleType, classOf[ScParameterizedTypeElement])
-              } else {
-                simpleType
-              }
-            case typeElement: ScTypeElement =>
-              typeElement
+          PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement]) match {
+            case simpleType: ScSimpleTypeElement if isInvalid(simpleType) => PsiTreeUtil.getParentOfType(simpleType, classOf[ScParameterizedTypeElement])
+            case typeElement: ScTypeElement => typeElement
           }
-        } else {
-          typeElement
-        }
+        } else inTypeElement
 
         val updatedMainScope = mainScope match {
           case simpleScope: SimpleScopeItem if fromInplace =>
@@ -118,11 +110,11 @@ trait IntroduceTypeAlias {
           import scala.collection.JavaConversions._
           val suggestedNames = scopeItem.availableNames
 
-          val allOccurrences = OccurrenceData(typeElement, replaceAllOccurrences, isReplaceOccurrenceIncompanionObject = false,
+          val allOccurrences = OccurrenceData(inTypeElement, replaceAllOccurrences, isReplaceOccurrenceIncompanionObject = false,
             isReplaceOccurrenceInInheritors = false, scopeItem)
 
           val introduceRunnable: Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] =
-            introduceTypeAlias(file, editor, typeElement, allOccurrences, suggestedNames.head, scopeItem)
+            introduceTypeAlias(file, editor, inTypeElement, allOccurrences, suggestedNames.head, scopeItem)
 
           CommandProcessor.getInstance.executeCommand(project, new Runnable {
             def run() {

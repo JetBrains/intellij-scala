@@ -52,8 +52,10 @@ trait IntroduceExpressions {
       checkCanBeIntroduced(expr)
         .foreach(showErrorHintWithException(_, INTRODUCE_VARIABLE_REFACTORING_NAME))
 
-      val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
-      val occurrences: Array[TextRange] = getOccurrenceRanges(unparExpr(expr), fileEncloser)
+      val occurrences: Array[TextRange] = fileEncloser(file, startOffset).toArray.flatMap {
+        getOccurrenceRanges(unparExpr(expr), _)
+      }
+
       implicit val validator = ScalaVariableValidator(file, expr, occurrences)
 
       def runWithDialog() {

@@ -60,10 +60,9 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String) extends 
     myEditor.getSelectionModel.setSelection(startOffset, endOffset)
 
     try {
-      val validator = getValidator(myFile)(getProject, myEditor)
-      val typeName = getName(fileText)
-
-      validator.findConflicts(typeName, replaceAllOccurrences)
+      val maybeValidator = getValidator(myFile)(getProject, myEditor)
+      maybeValidator.toSeq
+        .flatMap(_.findConflicts(getName(fileText), replaceAllOccurrences))
         .map(_._2)
         .toSet[String]
         .mkString("\n")
@@ -80,7 +79,7 @@ object AbstractIntroduceVariableValidatorTestBase {
   private val ALL_MARKER = "<all>"
 
   def getValidator(file: PsiFile)
-                  (implicit project: Project, editor: Editor): ScalaValidator = {
+                  (implicit project: Project, editor: Editor): Option[ScalaValidator] = {
     implicit val selectionModel: SelectionModel = editor.getSelectionModel
 
     val startOffset = selectionModel.getSelectionStart
@@ -88,12 +87,11 @@ object AbstractIntroduceVariableValidatorTestBase {
 
     PsiTreeUtil.getParentOfType(file.findElementAt(startOffset), classOf[ScExpression], classOf[ScTypeElement]) match {
       case _: ScExpression =>
-        val (expression, _) = getExpression(project, editor, file, startOffset, endOffset).get
-        getVariableValidator(expression, file)
-      case _: ScTypeElement =>
-        val typeElement = getTypeElement(project, editor, file, startOffset, endOffset).get
-        getTypeValidator(typeElement, file)
-      case _ => null
+        getExpression(project, editor, file, startOffset, endOffset).map {
+          case (expression, _) => getVariableValidator(expression, file)
+        }
+      case _: ScTypeElement => getTypeElement(file).map(getTypeValidator(_, file))
+      case _ => None
     }
   }
 

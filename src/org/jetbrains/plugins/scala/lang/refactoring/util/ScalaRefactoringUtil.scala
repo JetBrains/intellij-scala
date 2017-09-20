@@ -22,7 +22,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.PsiTreeUtil.getParentOfType
+import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOfType}
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -138,17 +138,20 @@ object ScalaRefactoringUtil {
     getParentOfType(typeElement, classOf[ScTemplateParents]) != null
   }
 
-  def checkTypeElement(element: ScTypeElement): Option[ScTypeElement] = {
-    Option(element).filter {
-      case e if e.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] => false
-      case _ => true
+  def isInvalid(typeElement: ScTypeElement): Boolean =
+    typeElement.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs]
+
+  def getTypeElement(file: PsiFile)
+                    (implicit selectionModel: SelectionModel): Option[ScTypeElement] =
+    getTypeElement(file, selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
+
+  def getTypeElement(file: PsiFile, startOffset: Int, endOffset: Int): Option[ScTypeElement] = {
+    val maybeTypeElement = Option(findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScTypeElement]))
+
+    maybeTypeElement.filter { typeElement =>
+      typeElement.getTextRange.getEndOffset == endOffset &&
+        !isInvalid(typeElement)
     }
-  }
-
-  def getTypeElement(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScTypeElement] = {
-    val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScTypeElement])
-
-    Option(element).filter(_.getTextRange.getEndOffset == endOffset).flatMap(checkTypeElement)
   }
 
   def getOwner(typeElement: PsiElement): ScTypeParametersOwner = PsiTreeUtil.getParentOfType(typeElement, classOf[ScTypeParametersOwner], true)
@@ -265,7 +268,7 @@ object ScalaRefactoringUtil {
       }
     }
 
-    val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScExpression])
+    val element = findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScExpression])
 
     if (element == null || element.getTextRange.getEndOffset != endOffset) {
       return selectedInfixExpr() orElse partOfStringLiteral()
@@ -747,7 +750,7 @@ object ScalaRefactoringUtil {
     var parent = selectedElement
     while (parent != null) {
       parent match {
-        case simpleType: ScSimpleTypeElement if simpleType.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] =>
+        case simpleType: ScSimpleTypeElement if isInvalid(simpleType) =>
         case ScParenthesisedTypeElement(typeElement) =>
           if (!result.contains(typeElement)) {
             result += typeElement
@@ -794,10 +797,12 @@ object ScalaRefactoringUtil {
 
   def fileEncloser(file: PsiFile)
                   (implicit selectionModel: SelectionModel): Option[PsiElement] =
+    fileEncloser(file, selectionModel.getSelectionStart)
+
+  def fileEncloser(file: PsiFile, startOffset: Int): Option[PsiElement] =
     file match {
       case scalaFile: ScalaFile if scalaFile.isScriptFile => Some(file)
       case _ =>
-        val startOffset = selectionModel.getSelectionStart
         val maybeElement = Option(file.findElementAt(startOffset))
           .flatMap(element => Option(getParentOfType(element, classOf[ScExtendsBlock], classOf[PsiFile])))
 
@@ -959,7 +964,7 @@ object ScalaRefactoringUtil {
     documentManager.commitDocument(document)
     val newStart = start + shift
     val newEnd = newStart + newString.length
-    val newExpr = PsiTreeUtil.findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
+    val newExpr = findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
     val newPattern = PsiTreeUtil.findElementOfClassAtOffset(file, newStart, classOf[ScPattern], true)
     Option(newExpr).orElse(Option(newPattern))
       .map(elem => document.createRangeMarker(elem.getTextRange))
