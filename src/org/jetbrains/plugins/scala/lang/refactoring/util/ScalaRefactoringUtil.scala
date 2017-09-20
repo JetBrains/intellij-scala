@@ -792,20 +792,19 @@ object ScalaRefactoringUtil {
     }
   }
 
-  def fileEncloser(startOffset: Int, file: PsiFile): PsiElement = {
-    if (file.asInstanceOf[ScalaFile].isScriptFile) file
-    else {
-      val elem = file.findElementAt(startOffset)
-      val result = ScalaPsiUtil.getParentOfType(elem, classOf[ScExtendsBlock], classOf[PsiFile])
-      if (result == null) {
-        for (child <- file.getChildren) {
-          val textRange: TextRange = child.getTextRange
-          if (textRange.contains(startOffset)) return child
+  def fileEncloser(file: PsiFile)
+                  (implicit selectionModel: SelectionModel): Option[PsiElement] =
+    file match {
+      case scalaFile: ScalaFile if scalaFile.isScriptFile => Some(file)
+      case _ =>
+        val startOffset = selectionModel.getSelectionStart
+        val maybeElement = Option(file.findElementAt(startOffset))
+          .flatMap(element => Option(getParentOfType(element, classOf[ScExtendsBlock], classOf[PsiFile])))
+
+        maybeElement.orElse {
+          file.getChildren.find(_.getTextRange.contains(startOffset))
         }
-      }
-      result
     }
-  }
 
   def isInplaceAvailable(editor: Editor): Boolean =
     editor.getSettings.isVariableInplaceRenameEnabled && !ApplicationManager.getApplication.isUnitTestMode
