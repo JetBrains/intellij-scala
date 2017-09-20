@@ -22,6 +22,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -134,7 +135,7 @@ object ScalaRefactoringUtil {
   }
 
   def inTemplateParents(typeElement: ScTypeElement): Boolean = {
-    PsiTreeUtil.getParentOfType(typeElement, classOf[ScTemplateParents]) != null
+    getParentOfType(typeElement, classOf[ScTemplateParents]) != null
   }
 
   def checkTypeElement(element: ScTypeElement): Option[ScTypeElement] = {
@@ -708,17 +709,26 @@ object ScalaRefactoringUtil {
     editor.getDocument.getText.substring(start, end)
   }
 
-  def getExpressions(element: PsiElement): Array[ScExpression] = {
-    val res = new ArrayBuffer[ScExpression]
-    var parent = element
+  def getExpressionsAtOffset(file: PsiFile, offset: Int): Seq[ScExpression] = {
+    val selectedElement = file.findElementAt(offset) match {
+      case whiteSpace: PsiWhiteSpace if whiteSpace.getTextRange.getStartOffset == offset &&
+        whiteSpace.getText.contains("\n") => file.findElementAt(offset - 1)
+      case element => element
+    }
+    getExpressions(selectedElement)
+  }
+
+  private[this] def getExpressions(selectedElement: PsiElement): Seq[ScExpression] = {
+    val result = mutable.ArrayBuffer[ScExpression]()
+    var parent = selectedElement
     while (parent != null && !parent.getText.contains("\n")) {
       parent match {
-        case expr: ScExpression => res += expr
+        case expression: ScExpression => result += expression
         case _ =>
       }
       parent = parent.getParent
     }
-    res.toArray
+    result
   }
 
   def afterExpressionChoosing(file: PsiFile,
@@ -727,14 +737,7 @@ object ScalaRefactoringUtil {
                              (implicit project: Project, editor: Editor): Unit = {
 
     if (!editor.getSelectionModel.hasSelection) {
-      val offset = editor.getCaretModel.getOffset
-      val element: PsiElement = file.findElementAt(offset) match {
-        case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
-          w.getText.contains("\n") => file.findElementAt(offset - 1)
-        case p => p
-      }
-
-      val expressions = getExpressions(element).filter {
+      val expressions = getExpressionsAtOffset(file, editor.getCaretModel.getOffset).filter {
         case e if filterExpressions => checkCanBeIntroduced(e).isEmpty
         case _ => true
       }
@@ -743,13 +746,14 @@ object ScalaRefactoringUtil {
         editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset, expr.getTextRange.getEndOffset)
         invokesNext
       }
-      if (expressions.length == 0)
+
+      if (expressions.isEmpty)
         editor.getSelectionModel.selectLineAtCaret()
       else if (expressions.length == 1) {
-        chooseExpression(expressions(0))
+        chooseExpression(expressions.head)
         return
       } else {
-        showChooser(editor, expressions, (elem: ScExpression) =>
+        showChooser(editor, expressions.toArray, (elem: ScExpression) =>
           chooseExpression(elem), ScalaBundle.message("choose.expression.for", refactoringName), (expr: ScExpression) => {
           getShortText(expr)
         })
@@ -759,51 +763,45 @@ object ScalaRefactoringUtil {
     invokesNext
   }
 
+  private[this] def getTypeElements(selectedElement: ScTypeElement): Seq[ScTypeElement] = {
+    val result = mutable.ArrayBuffer[ScTypeElement]()
+    var parent = selectedElement
+    while (parent != null) {
+      parent match {
+        case simpleType: ScSimpleTypeElement if simpleType.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] =>
+        case ScParenthesisedTypeElement(typeElement) =>
+          if (!result.contains(typeElement)) {
+            result += typeElement
+          }
+        case typeElement => result += typeElement
+      }
+      parent = getParentOfType(parent, classOf[ScTypeElement])
+    }
+    result
+  }
+
+
   def afterTypeElementChoosing(file: PsiFile,
                                currentSelectedElement: ScTypeElement, refactoringName: String)
                               (invokesNext: ScTypeElement => Unit)
                               (implicit project: Project, editor: Editor): Unit = {
 
     if (!editor.getSelectionModel.hasSelection) {
-      val element: PsiElement = currentSelectedElement
-
-      def getTypeElement: Array[ScTypeElement] = {
-        val res = new ArrayBuffer[ScTypeElement]
-        var parent = element
-        while (parent != null) {
-          parent match {
-            case simpleType: ScSimpleTypeElement if simpleType.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] =>
-            case typeInParenthesis: ScParenthesisedTypeElement =>
-              val inType = typeInParenthesis.typeElement
-              if (inType.isDefined && !res.contains(typeInParenthesis.typeElement.get)) {
-                res += typeInParenthesis.typeElement.get
-              }
-            case typeElement: ScTypeElement =>
-              res += typeElement
-            case _ =>
-          }
-          parent = PsiTreeUtil.getParentOfType(parent, classOf[ScTypeElement])
-        }
-        res.toArray
-      }
-
-      val typeElement = getTypeElement
+      val typeElements = getTypeElements(currentSelectedElement)
 
       def chooseTypeElement(typeElement: ScTypeElement) {
         editor.getSelectionModel.setSelection(typeElement.getTextRange.getStartOffset, typeElement.getTextRange.getEndOffset)
         invokesNext(typeElement)
       }
-      if (typeElement.length == 0) {
+
+      if (typeElements.isEmpty) {
         editor.getSelectionModel.selectLineAtCaret()
       }
-      else if (typeElement.length == 1) {
-        chooseTypeElement(typeElement(0))
+      else if (typeElements.length == 1) {
+        chooseTypeElement(typeElements.head)
         return
       } else {
-        showChooser(editor, typeElement, (elem: ScTypeElement) =>
-          chooseTypeElement(elem), ScalaBundle.message("choose.type.element.for", refactoringName), (value: ScTypeElement) => {
-          getShortText(value)
-        })
+        showChooser(editor, typeElements.toArray, chooseTypeElement, ScalaBundle.message("choose.type.element.for", refactoringName), getShortText)
         return
       }
     }
@@ -842,7 +840,7 @@ object ScalaRefactoringUtil {
 
   def isLiteralPattern(file: PsiFile, textRange: TextRange): Boolean = {
     val parent = ScalaRefactoringUtil.commonParent(file, textRange)
-    val literalPattern = PsiTreeUtil.getParentOfType(parent, classOf[ScLiteralPattern])
+    val literalPattern = getParentOfType(parent, classOf[ScLiteralPattern])
     literalPattern != null && literalPattern.getTextRange == textRange
   }
 
@@ -890,7 +888,7 @@ object ScalaRefactoringUtil {
       case _ =>
     }
 
-    val guard: ScGuard = PsiTreeUtil.getParentOfType(expr, classOf[ScGuard])
+    val guard: ScGuard = getParentOfType(expr, classOf[ScGuard])
     if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) {
       return Some(ScalaBundle.message("refactoring.is.not.supported.in.guard"))
     }
@@ -1094,7 +1092,7 @@ object ScalaRefactoringUtil {
       val candidate = ScalaPsiUtil.getParentOfType(element, false, classOf[ScalaFile], classOf[ScBlock],
         classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
 
-      val funDef = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition])
+      val funDef = getParentOfType(element, classOf[ScFunctionDefinition])
 
       val isCaseClausesBlock = candidate match {
         case b: ScBlock if b.hasCaseClauses => true
