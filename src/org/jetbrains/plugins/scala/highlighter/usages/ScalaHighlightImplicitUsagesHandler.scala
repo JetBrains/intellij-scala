@@ -5,29 +5,34 @@ import java.util
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.search.{LocalSearchScope, SearchScope}
+import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
-class ScalaHighlightImplicitUsagesHandler(editor: Editor, file: PsiFile, target: ScNamedElement)
+class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data: T)
+                                            (implicit kind: TargetKind[T])
     extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
 
-  override def getTargets: util.List[PsiElement] = util.Collections.singletonList(target)
+  override def getTargets: util.List[PsiElement] = kind.targets(data).asJava
 
   override def selectTargets(targets: util.List[PsiElement], selectionConsumer: Consumer[util.List[PsiElement]]): Unit =
     selectionConsumer.consume(targets)
@@ -44,6 +49,56 @@ class ScalaHighlightImplicitUsagesHandler(editor: Editor, file: PsiFile, target:
 }
 
 object ScalaHighlightImplicitUsagesHandler {
+  trait TargetKind[T] {
+    def targets(t: T): Seq[PsiElement]
+  }
+
+  object TargetKind {
+    implicit val namedKind: TargetKind[ScNamedElement] = targets(_)
+
+    implicit val refKind: TargetKind[ScReferenceElement] = ref => ref.resolve match {
+      case named: ScNamedElement => targets(named)
+      case _ => Seq.empty
+    }
+
+    implicit val contextBoundKind: TargetKind[(ScTypeParam, ScTypeElement)] = {
+      case (typeParam, typeElem) => contextBoundImplicitTarget(typeParam, typeElem)
+    }
+
+    private def targets(named: ScNamedElement): Seq[PsiElement] = {
+      if (!named.isValid) return Seq.empty
+
+      named match {
+        case c: ScClass => c.getSyntheticImplicitMethod.toSeq
+        case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) => Seq(n)
+        case n => Seq.empty
+      }
+    }
+
+    private def contextBoundImplicitTarget(typeParam: ScTypeParam, typeElem: ScTypeElement): Seq[ScParameter] = {
+      if (!typeElem.isValid) return Seq.empty
+
+      val typeParam = typeElem.getParent.asInstanceOf[ScTypeParam]
+      val methodLike = typeParam.getOwner match {
+        case fun: ScFunction => Some(fun)
+        case c: ScClass => c.constructor
+        case _ => None
+      }
+      def implicitParams(ml: ScMethodLike) =
+        ml.effectiveParameterClauses
+          .filter(_.isImplicit)
+          .flatMap(_.effectiveParameters)
+
+      val implicits = methodLike.map(implicitParams).getOrElse(Seq.empty)
+      implicits.filter { param =>
+        (param.typeElement, typeElem.analog) match {
+          case (Some(t1), Some(t2)) if t1.calcType == t2.calcType => true
+          case _                                                  => false
+        }
+      }
+    }
+  }
+
   private implicit class ImplicitTarget(target: PsiElement) {
 
     private def isTarget(named: PsiNamedElement): Boolean = named match {
@@ -67,7 +122,7 @@ object ScalaHighlightImplicitUsagesHandler {
     }
   }
 
-  def findUsages(file: PsiFile, target: PsiElement): Seq[PsiElement] = {
+  private def findUsages(file: PsiFile, target: PsiElement): Seq[PsiElement] = {
     val useScope = target.getUseScope
     if (!useScope.contains(file.getVirtualFile)) return Seq.empty
 
