@@ -14,6 +14,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.debugger.{CompilationCache, ScalaVersion}
@@ -26,10 +27,12 @@ import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
 import scala.meta.ScalaMetaLibrariesOwner.MetaBaseLoader
 import scala.meta.{Compilable, ScalaMetaLibrariesOwner}
 
+@Category(Array(classOf[SlowTests]))
 abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaLibrariesOwner with Compilable {
 
   import MetaAnnotationTestBase._

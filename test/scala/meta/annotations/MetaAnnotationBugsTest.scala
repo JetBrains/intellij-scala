@@ -1,14 +1,16 @@
 package scala.meta.annotations
 
 import com.intellij.lang.annotation.HighlightSeverity
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{ScalaBundle, SlowTests}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue, fail}
+import org.junit.experimental.categories.Category
 
 import scala.collection.JavaConverters._
 
+@Category(Array(classOf[SlowTests]))
 class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
 
   def testSCL10965(): Unit = {
