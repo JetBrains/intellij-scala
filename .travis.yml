@@ -33,7 +33,7 @@ cache:
   directories:
     - $HOME/.m2/repository
     - $HOME/.ivy2/cache
-    - $HOME/.sbt/boot/
+    - $HOME/.sbt
     - $IDEA_SDK
 
 before_cache:
