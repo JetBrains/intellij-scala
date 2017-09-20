@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package language.completion
 
 import com.intellij.codeInsight.completion._
-import com.intellij.patterns.PlatformPatterns
+import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
 import com.intellij.psi._
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 class SbtCompletionContributor extends ScalaCompletionContributor {
 
-  val afterInfixOperator = PlatformPatterns.psiElement().withSuperParent(2, classOf[ScInfixExpr])
+  val afterInfixOperator: PsiElementPattern.Capture[PsiElement] = PlatformPatterns.psiElement().withSuperParent(2, classOf[ScInfixExpr])
 
 
   extend(CompletionType.BASIC, afterInfixOperator, new CompletionProvider[CompletionParameters] {
@@ -75,8 +75,11 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
         }
       }
 
+      val refType = parentRef.expectedType()
+        .filterNot(_.isInstanceOf[NonValueType])
+
       val expectedTypes = Seq(
-        parentRef.expectedType().filterNot(_.isInstanceOf[NonValueType]),
+        refType,
         extractSeqType,
         getScopeType
       ).flatten

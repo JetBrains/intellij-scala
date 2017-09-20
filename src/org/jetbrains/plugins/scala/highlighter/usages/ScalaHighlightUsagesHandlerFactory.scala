@@ -4,13 +4,19 @@ import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandlerBase, HighlightUsagesHandlerFactory}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -21,7 +27,10 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
   def createHighlightUsagesHandler(editor: Editor, file: PsiFile): HighlightUsagesHandlerBase[_ <: PsiElement] = {
     if (!file.isInstanceOf[ScalaFile]) return null
     val offset = TargetElementUtil.adjustOffset(file, editor.getDocument, editor.getCaretModel.getOffset)
-    val element: PsiElement = file.findElementAt(offset)
+    val element: PsiElement = file.findElementAt(offset) match {
+      case ws: PsiWhiteSpace => file.findElementAt(offset - 1)
+      case elem => elem
+    }
     if (element == null || element.getNode == null) return null
     element.getNode.getElementType match {
       case ScalaTokenTypes.kRETURN =>
@@ -92,8 +101,48 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
         if (templateDef != null) {
           return new ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef, editor, file, element)
         }
+      case ScalaTokenTypes.tIDENTIFIER =>
+        def implicitTarget(elem: PsiElement): ScNamedElement = elem match {
+          case c: ScClass => c.getSyntheticImplicitMethod.orNull
+          case named: ScNamedElement if ScalaPsiUtil.isImplicit(named) => named
+          case ref: ScReferenceElement => implicitTarget(ref.resolve())
+          case _ => null
+        }
+
+        val target = implicitTarget(element.getParent)
+        if (target != null)
+          return new ScalaHighlightImplicitUsagesHandler(editor, file, target)
+
+      //to highlight usages of implicit parameter from context bound
+      case ScalaTokenTypes.tCOLON if element.getParent.isInstanceOf[ScTypeParam] =>
+        val target = (element.getParent, element.getNextSiblingNotWhitespaceComment) match {
+          case (tp: ScTypeParam, te: ScTypeElement) => contextBoundImplicitTarget(tp, te).orNull
+          case _ => null
+        }
+        if (target != null)
+          return new ScalaHighlightImplicitUsagesHandler(editor, file, target)
       case _ =>
     }
     null
+  }
+
+  private def contextBoundImplicitTarget(typeParam: ScTypeParam, typeElem: ScTypeElement): Option[ScParameter] = {
+    val methodLike = typeParam.getOwner match {
+      case fun: ScFunction => Some(fun)
+      case c: ScClass => c.constructor
+      case _ => None
+    }
+    def implicitParams(ml: ScMethodLike) =
+      ml.effectiveParameterClauses
+        .filter(_.isImplicit)
+        .flatMap(_.effectiveParameters)
+
+    val implicits = methodLike.map(implicitParams).getOrElse(Seq.empty)
+    implicits.find { param =>
+      (param.typeElement, typeElem.analog) match {
+        case (Some(t1), Some(t2)) if t1.calcType == t2.calcType => true
+        case _                                                  => false
+      }
+    }
   }
 }

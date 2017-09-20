@@ -5,7 +5,7 @@ object Versions {
   val scalaBinaryVersion: String = Scala.binary_2_12
   val sbtVersion: String = Sbt.latest
   val zincVersion = "1.0.0"
-  val ideaVersion = "173.2099.10"
+  val ideaVersion = "173.2290.1"
   val sbtStructureVersion: String = "2017.2"
   val sbtIdeaShellVersion: String = "2017.2"
   val luceneVersion = "4.8.1"
@@ -17,6 +17,7 @@ object Versions {
   val paradiseVersion = "3.0.0-M10"
   val monocleVersion = "1.4.0"
   val scalazVersion = "7.1.0"
+  val ScalamacrosVersion = "2.0.0-94-f03bbf3a"
 
   object Scala {
     val binary_2_9 = "2.9.2"
@@ -90,6 +91,7 @@ object Dependencies {
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
   val fastparse: ModuleID = "com.lihaoyi" % s"fastparse_$scalaBinaryVersion" % "0.4.3" // transitive dependency of scalaMeta, needs explicit versioning
+  val scalaMacros2: ModuleID = "org.scalamacros" %% "scalamacros" % ScalamacrosVersion
 
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
@@ -120,6 +122,7 @@ object DependencyGroups {
     scalaReflect,
     scalaXml,
     scalaMetaCore,
+    scalaMacros2,
     scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
@@ -158,9 +161,11 @@ object DependencyGroups {
 
     scalaXml,
     "com.chuusai" % "shapeless_2.11" % "2.0.0",
+    "com.fommil" % "stalactite_2.11" % "0.0.3",
     "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
     "com.github.julien-truffaut" %% "monocle-generic" % monocleVersion,
     "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion,
+    "com.github.mpilquist" % "simulacrum_2.11" % "0.10.0",
     "com.lihaoyi" % "utest_2.10" % "0.3.1" % "provided",
     "com.lihaoyi" % "utest_2.10" % "0.4.3" % "provided",
     "com.lihaoyi" % "utest_2.11" % "0.3.1" % "provided",
@@ -168,7 +173,7 @@ object DependencyGroups {
     "com.typesafe.akka" % "akka-actor_2.11" % "2.4.19",
     "com.typesafe.akka" % "akka-stream_2.11" % "2.4.19",
     "com.typesafe.play" % "play_2.10" % "2.4.10",
-    "com.typesafe.slick" %% "slick" % "3.2.0",
+    "com.typesafe.slick" % "slick_2.11" % "3.2.1",
 //    "io.spray" %% "spray-routing" % "1.3.4",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
     "org.specs2" % "specs2_2.10" % "2.4.6",
@@ -238,11 +243,13 @@ object DependencyGroups {
   def sbt100Libs(v:String): Seq[ModuleID] =
     // these are not cross-versioned
     Seq("sbt", "util-interface", "test-agent").map(lib => sbtOrg % lib % v) ++
+    // this has separate versioning
+    Seq(sbtOrg % "compiler-interface" % "1.0.0") ++
     // all of these are published cross-versioned for scala 2.12
     Seq(
       "main","logic","collections","util-position","util-relation","actions","completion","io",
       "util-control","run","util-logging","task-system","tasks","util-cache",
-      "testing","util-tracking","main-settings","command","protocol","core-macros"
+      "testing","util-tracking","main-settings","command","protocol","core-macros", "librarymanagement-core"
     ).map(lib => (sbtOrg % lib % v).withCrossVersion(sbt1CrossScala))
 
   // required jars for MockSbt - it adds different versions to test module classpath

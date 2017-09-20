@@ -1,11 +1,14 @@
 package org.jetbrains.plugins.scala.lang.worksheet
 
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
+import org.junit.experimental.categories.Category
 
 /**
   * User: Dmitry.Naydanov
   * Date: 12.07.16.
   */
+@Category(Array(classOf[SlowTests]))
 class WorksheetCompileTest extends WorksheetProcessorTestBase {
 
   override implicit val version: ScalaVersion = Scala_2_11

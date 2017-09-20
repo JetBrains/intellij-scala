@@ -14,7 +14,7 @@ trait Specs2_2_11_3_1_M_Base extends Specs2TestCase {
   override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = {
     import Specs2_2_11_3_1_M_Base._
 
-    implicit val module = getModule
+    implicit val module: Module = getModule
     Seq(Specs2CommonLoader(), Specs2CoreLoader(), Specs2MatcherLoader(),
       ScalaZCoreLoader(), ScalaZConcurrentLoader(), ScalaZEffectLoader(), ScalaZStreamLoader(),
       ScalaXmlLoader(),

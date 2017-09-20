@@ -257,8 +257,12 @@ object MacroExpandAction {
   val EXPANDED_KEY = new Key[UndoExpansionData]("MACRO_EXPANDED_KEY")
 
   private val LOG = Logger.getInstance(getClass)
-  val windowGroup: NotificationGroup = NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.PROJECT_VIEW)
-  val messageGroup: NotificationGroup = NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.MESSAGES_WINDOW)
+
+  private lazy val windowGroup: NotificationGroup =
+    NotificationGroup.toolWindowGroup("macroexpand_projectView", ToolWindowId.PROJECT_VIEW)
+
+  private lazy val messageGroup: NotificationGroup =
+    NotificationGroup.toolWindowGroup("macroexpand_messages", ToolWindowId.MESSAGES_WINDOW)
 
   def expandMetaAnnotation(annot: ScAnnotation): Unit = {
     import scala.meta._

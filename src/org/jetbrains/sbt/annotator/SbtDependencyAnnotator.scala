@@ -54,7 +54,7 @@ class SbtDependencyAnnotator extends Annotator {
 
     def findDependencyOrAnnotate(info: ArtifactInfo): Unit = {
       val resolversToUse = SbtResolverUtils.getProjectResolversForFile(Option(ScalaPsiUtil.fileContext(element)))
-      val indexes = resolversToUse.map(_.getIndex(p))
+      val indexes = resolversToUse.flatMap(_.getIndex(p))
       if (indexes.isEmpty) return
 
       val isInRepo = {

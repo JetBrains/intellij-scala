@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.DebuggerTests
+import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
 import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
@@ -9,12 +9,12 @@ import org.junit.experimental.categories.Category
  * Date: 19.10.11
  */
 
-@Category(Array(classOf[DebuggerTests]))
+@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
 class ScalaExpressionsEvaluator extends ScalaExpressionsEvaluatorBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
 
-@Category(Array(classOf[DebuggerTests]))
+@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
 class ScalaExpressionsEvaluator_212 extends ScalaExpressionsEvaluatorBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }

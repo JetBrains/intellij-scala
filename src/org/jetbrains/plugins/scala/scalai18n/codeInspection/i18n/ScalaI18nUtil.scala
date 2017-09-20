@@ -62,7 +62,7 @@ object ScalaI18nUtil {
     def isForbiddenInKey(c: Char) = c == '=' || c == ':' || Character.isWhitespace(c)
 
     literal match {
-      case ScStringLiteral(value) if value != null => !value.exists(isForbiddenInKey)
+      case ScStringLiteral(value) => !value.exists(isForbiddenInKey)
       case _ => false
     }
   }

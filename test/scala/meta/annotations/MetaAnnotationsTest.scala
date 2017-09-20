@@ -3,13 +3,15 @@ package scala.meta.annotations
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType, SlowTests}
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
 /**
   * @author mutcianm
   * @since 31.10.16.
   */
+@Category(Array(classOf[SlowTests]))
 class MetaAnnotationsTest extends MetaAnnotationTestBase {
   import MetaAnnotationTestBase._
 
@@ -57,6 +59,8 @@ class MetaAnnotationsTest extends MetaAnnotationTestBase {
          |class Foo
       """.stripMargin)
     Assert.assertEquals("Wrong tooltip text: out of date not detected", ScalaBundle.message("scala.meta.recompile"), getGutter.getTooltipText)
+    setUpCompiler(metaModule)
+    enableParadisePlugin()
     runMake()
     Assert.assertEquals("Wrong tooltip text: compiled class not detected", ScalaBundle.message("scala.meta.expand"), getGutter.getTooltipText)
 //    typeInAnnotationFile()

@@ -1,16 +1,13 @@
 package org.jetbrains.sbt
 package lang.completion
 
-import java.io.File
-
 import com.intellij.ide.startup.impl.StartupManagerImpl
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs._
-import com.intellij.testFramework.{LightVirtualFile, UsefulTestCase}
+import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.lang.completion
 import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
+
 import scala.collection.JavaConverters._
 
 /**
@@ -18,37 +15,10 @@ import scala.collection.JavaConverters._
  * @since 7/17/14.
  */
 
-abstract class SbtCompletionTestBase extends completion.CompletionTestBase with MockSbt_1_0 {
-
-  override val sbtVersion = Sbt.LatestVersion
+abstract class SbtCompletionTestBase extends completion.CompletionTestBase {
 
   override def folderPath: String = super.folderPath + "Sbt/"
   override def testFileExt = ".sbt"
-
-
-  /**
-   * @inheritdoc
-   * Instead of using original file copy its contents into
-   * mock file prepending implicit SBT imports
-   */
-  override def loadFile: (String, LightVirtualFile) = {
-    val fileName = getTestName(false) + testFileExt
-    val filePath = folderPath + fileName
-    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
-    assert(file != null, "file " + filePath + " not found")
-    val fileText =
-      Sbt.DefaultImplicitImports.map("import " + _).mkString("\n") + "\n" +
-      StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    val mockFile = new LightVirtualFile(fileName, fileText)
-    assert(mockFile != null, "Mock file can not be created")
-    (fileName, mockFile)
-  }
-
-  override def loadAndSetFileText(filePath: String, file: VirtualFile): String = {
-    val fileText = new String(file.contentsToByteArray())
-    configureFromFileTextAdapter (filePath, fileText)
-    fileText
-  }
 
   override def checkResult(_got: Array[String], _expected: String) {
     val got = _got.distinct.toSeq.asJava

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.smartStepInto
 
 import com.intellij.debugger.actions.SmartStepTarget
-import org.jetbrains.plugins.scala.DebuggerTests
+import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
 import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
@@ -12,12 +12,12 @@ import scala.collection.JavaConverters._
 /**
  * @author Nikolay.Tropin
  */
-@Category(Array(classOf[DebuggerTests]))
+@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
 class SmartStepIntoTest extends SmartStepIntoTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
 
-@Category(Array(classOf[DebuggerTests]))
+@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
 class SmartStepIntoTest_212 extends SmartStepIntoTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 

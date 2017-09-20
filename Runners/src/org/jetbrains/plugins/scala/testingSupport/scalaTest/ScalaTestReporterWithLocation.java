@@ -23,7 +23,6 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatTi
  * @author Alexander Podkhalyuzin
  */
 public class ScalaTestReporterWithLocation implements Reporter {
-    //  private TreeBuilder treeBuilder = new SequentialTreeBuilder();
     private TreeBuilder treeBuilder = new ParallelTreeBuilder();
 
     private String getStackTraceString(Throwable throwable) {

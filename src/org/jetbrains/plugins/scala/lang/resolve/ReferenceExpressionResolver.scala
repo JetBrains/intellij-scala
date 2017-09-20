@@ -7,6 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.dependency.Dependency.DependencyProcessor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
@@ -18,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createParameterFromText}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult.ResolverStateBuilder
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitResolveResult, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -140,7 +141,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         // so shape resolve return this wrong result
         // however there is implicit conversion with right argument
         // this is ugly, but it can improve performance
-        result = doResolve(reference, processor(smartProcessor = false))
+        result = doResolve(reference, processor(smartProcessor = false), tryThisQualifier = true)
       } else {
         result = candidatesS.toArray
       }
@@ -155,7 +156,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     }
   }
 
-  def doResolve(ref: ScReferenceExpression, processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult] = {
+  def doResolve(ref: ScReferenceExpression, processor: BaseProcessor, accessibilityCheck: Boolean = true,
+                tryThisQualifier: Boolean = false): Array[ResolveResult] = {
     def resolveUnqalified(processor: BaseProcessor): BaseProcessor = {
       ref.getContext match {
         case ScSugarCallExpr(operand, operation, _) if ref == operation =>
@@ -170,9 +172,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       @tailrec
       def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
         if (place == null) return
-        if (!place.processDeclarations(processor,
-          ResolveState.initial(),
-          lastParent, ref)) return
+        if (!place.processDeclarations(processor, ResolveState.initial(), lastParent, ref)) return
         place match {
           case (_: ScTemplateBody | _: ScExtendsBlock) => //template body and inherited members are at the same level
           case _ => if (!processor.changedLevel) return
@@ -183,7 +183,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       val context = ref.getContext
       val contextElement = (context, processor) match {
         case (x: ScAssignStmt, _) if x.getLExpression == ref => Some(context)
-        case (_, cp: CompletionProcessor) if cp.isIncomplete => Some(ref)
+        case (_, _: DependencyProcessor) => None
+        case (_, _: CompletionProcessor) => Some(ref)
         case _ => None
       }
 
@@ -497,8 +498,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
 
       if (candidates.isEmpty || (!shape && candidates.forall(!_.isApplicable())) ||
-        (processor.isInstanceOf[CompletionProcessor] &&
-          processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
+        processor.isInstanceOf[ImplicitCompletionProcessor]) {
         processor match {
           case rp: ResolveProcessor =>
             rp.resetPrecedence() //do not clear candidate set, we want wrong resolve, if don't found anything
@@ -592,8 +592,14 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       case Some(q) =>
         processTypes(q, processor)
     }
-    val res = actualProcessor.rrcandidates
-    if (accessibilityCheck && res.length == 0) return doResolve(ref, processor, accessibilityCheck = false)
+    var res = actualProcessor.rrcandidates
+    if (accessibilityCheck && res.length == 0) {
+      res = doResolve(ref, processor, accessibilityCheck = false)
+    }
+    if (res.nonEmpty && res.forall(!_.isValidResult) && ref.qualifier.isEmpty && tryThisQualifier) {
+      val thisExpr = ScalaPsiElementFactory.createExpressionFromText("this." + ref.getText, ref.getContext)
+      res = doResolve(thisExpr.asInstanceOf[ScReferenceExpression], processor, accessibilityCheck)
+    }
     res
   }
 

@@ -97,7 +97,7 @@ abstract class CompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     val (filePath, file) = loadFile
     val fileText = loadAndSetFileText(filePath, file)
     val offset = extractCaretOffset(fileText)
-    val items = getCompletionItems(file, offset)
+    val items = getCompletionItems(getVFileAdapter, offset)
     val expected = getExpectedResult
     checkResult(items, expected)
   }

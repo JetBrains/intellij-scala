@@ -1,2 +1,2 @@
 /*start*/{ (x: Int) =>  }/*end*/
-// (Int) => Unit
+// Int => Unit

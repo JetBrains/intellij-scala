@@ -7,7 +7,6 @@ import java.util.jar.JarFile
 import javax.xml.bind.DatatypeConverter
 
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.jps.incremental.scala._
 
 import scala.util.{Failure, Success, Try}
 

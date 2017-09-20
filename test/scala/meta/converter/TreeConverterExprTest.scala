@@ -1,10 +1,14 @@
 package scala.meta.converter
 
-import scala.meta.{TreeConverterTestBaseWithLibrary, TreeConverterTestBaseNoLibrary}
+import org.jetbrains.plugins.scala.SlowTests
+import org.junit.experimental.categories.Category
+
+import scala.meta.{TreeConverterTestBaseNoLibrary, TreeConverterTestBaseWithLibrary}
 import scala.meta._
 import scala.collection.immutable.Seq
 import scala.{Seq => _}
 
+@Category(Array(classOf[SlowTests]))
 class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
 
   def testIf() {

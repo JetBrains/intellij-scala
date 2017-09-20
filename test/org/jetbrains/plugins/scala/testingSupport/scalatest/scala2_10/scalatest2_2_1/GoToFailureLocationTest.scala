@@ -2,14 +2,16 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.scala2_10.scalatest
 
 import com.intellij.execution.filters.Filter
 import com.intellij.psi.search.ProjectScope
-import com.intellij.testFramework.{EdtTestUtil, UsefulTestCase}
-import com.intellij.util.ThrowableRunnable
+import com.intellij.testFramework.EdtTestUtil
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.testingSupport.util.scalatest.ScalaTestFailureLocationFilter
+import org.junit.experimental.categories.Category
 
 /**
  * @author Roman.Shein
  * @since 31.01.2015.
  */
+@Category(Array(classOf[SlowTests]))
 class GoToFailureLocationTest extends Scalatest2_10_2_2_1_Base {
   addSourceFile("FailureLocationTest.scala",
     """
@@ -30,9 +32,9 @@ class GoToFailureLocationTest extends Scalatest2_10_2_2_1_Base {
     val filter = new ScalaTestFailureLocationFilter(projectScope)
     val errorLocationString = "ScalaTestFailureLocation: FailureLocationTest at (FailureLocationTest.scala:6)"
     var filterRes: Filter.Result = null
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      override def run(): Unit = filterRes = filter.applyFilter(errorLocationString, errorLocationString.length)
-    })
+    EdtTestUtil.runInEdtAndWait(() =>
+      filterRes = filter.applyFilter(errorLocationString, errorLocationString.length)
+    )
     assert(filterRes != null)
     assert(filterRes.getFirstHyperlinkInfo != null)
   }

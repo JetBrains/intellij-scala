@@ -1,6 +1,8 @@
 package org.jetbrains.sbt
 package language
 
+import javax.swing.Icon
+
 import com.intellij.openapi.fileTypes.LanguageFileType
 import org.jetbrains.plugins.scala.ScalaLanguage
 
@@ -8,11 +10,11 @@ import org.jetbrains.plugins.scala.ScalaLanguage
  * @author Pavel Fatin
  */
 object SbtFileType extends LanguageFileType(ScalaLanguage.INSTANCE) {
-  def getName = Sbt.Name
+  def getName: String = Sbt.Name
 
-  def getDescription = Sbt.FileDescription
+  def getDescription: String = Sbt.FileDescription
 
-  def getDefaultExtension = Sbt.FileExtension
+  def getDefaultExtension: String = Sbt.FileExtension
 
-  def getIcon = Sbt.FileIcon
+  def getIcon: Icon = Sbt.FileIcon
 }

@@ -64,7 +64,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled()
 
-    if (ScUnderScoreSectionUtil.underscores(this).nonEmpty) {
+    if (ScUnderScoreSectionUtil.isUnderscoreFunction(this)) {
       this.getTypeWithoutImplicits(fromUnderscore = true) //to update implicitParametersFromUnder
       implicitParametersFromUnder
     } else {
@@ -208,7 +208,7 @@ object ScExpression {
   }
 
   implicit class Ext(val expr: ScExpression) extends AnyVal {
-    private implicit def elementScope = expr.elementScope
+    private implicit def elementScope: ElementScope = expr.elementScope
     private def project = elementScope.projectContext
 
     def expectedType(fromUnderscore: Boolean = true): Option[ScType] =
@@ -421,7 +421,7 @@ object ScExpression {
       var cand = applyProc.candidates
       if (cand.length == 0 && call.isDefined) {
         val expr = call.get.getEffectiveInvokedExpr
-        ScalaPsiUtil.findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false).foreach { result =>
+        ScalaPsiUtil.findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false, Some(tp)).foreach { result =>
           val builder = new ImplicitResolveResult.ResolverStateBuilder(result).withImplicitFunction
           applyProc.processType(result.typeWithDependentSubstitutor, expr, builder.state)
           cand = applyProc.candidates

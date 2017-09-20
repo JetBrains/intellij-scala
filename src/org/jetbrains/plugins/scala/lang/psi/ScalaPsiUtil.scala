@@ -20,6 +20,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -250,12 +251,16 @@ object ScalaPsiUtil {
   }
 
   def findImplicitConversion(baseExpr: ScExpression, refName: String, ref: ScExpression, processor: BaseProcessor,
-                             noImplicitsForArgs: Boolean): Option[ImplicitResolveResult] = {
+                             noImplicitsForArgs: Boolean, precalcType: Option[ScType] = None): Option[ImplicitResolveResult] = {
     implicit val ctx: ProjectContext = baseExpr
 
-    val exprType: ScType = ImplicitCollector.exprType(baseExpr, fromUnder = false) match {
-      case None => return None
-      case Some(x) if x.equiv(Nothing) => return None //do not proceed with nothing type, due to performance problems.
+    val exprType: ScType = precalcType match {
+      case None => ImplicitCollector.exprType(baseExpr, fromUnder = false) match {
+        case None => return None
+        case Some(x) if x.equiv(Nothing) => return None //do not proceed with nothing type, due to performance problems.
+        case Some(x) => x
+      }
+      case Some(x) if x.equiv(Nothing) => return None
       case Some(x) => x
     }
     val args = processor match {
@@ -2011,7 +2016,7 @@ object ScalaPsiUtil {
   }
 
   def isImplicit(modifierListOwner: ScModifierListOwner): Boolean =
-    modifierListOwner.hasModifierProperty("implicit")
+    modifierListOwner.hasModifierPropertyScala(ScalaKeyword.IMPLICIT)
 
   def replaceBracesWithParentheses(element: ScalaPsiElement): Unit = {
     import element.projectContext

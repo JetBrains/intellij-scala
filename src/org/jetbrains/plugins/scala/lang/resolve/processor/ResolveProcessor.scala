@@ -17,23 +17,34 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
-import scala.collection.Set
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Set, mutable}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
                        val name: String) extends BaseProcessor(kinds)(ref) with PrecedenceHelper[String] {
 
+  import ResolveProcessor._
+
   @volatile
   private var resolveScope: GlobalSearchScope = null
+
+  private val history = new ArrayBuffer[HistoryEvent]
+  private var fromHistory: Boolean = false
+
   def getResolveScope: GlobalSearchScope = {
     if (resolveScope == null) {
       resolveScope = ref.resolveScope
     }
     resolveScope
   }
+
+  private val ignoredSet = new mutable.HashSet[ScalaResolveResult]()
 
   def getPlace: PsiElement = ref
 
@@ -44,62 +55,43 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   def emptyResultSet: Boolean = candidatesSet.isEmpty || levelSet.isEmpty
 
-  protected var precedence: Int = 0
+  override protected val holder: TopPrecedenceHolder[String] = new TopPrecedenceHolder[String] {
+
+    private[this] var precedence: Int = 0
+
+    override def apply(result: ScalaResolveResult): Int = precedence
+
+    override def update(result: ScalaResolveResult, i: Int): Unit = {
+      precedence = i
+    }
+
+    override implicit def toRepresentation(result: ScalaResolveResult): String =
+      ResolveProcessor.toStringRepresentation(result)
+  }
 
   /**
-   * This method useful for resetting precednce if we dropped
-   * all found candidates to seek implicit conversion candidates.
-   */
+    * This method useful for resetting precednce if we dropped
+    * all found candidates to seek implicit conversion candidates.
+    */
   def resetPrecedence() {
-    precedence = 0
+    holder(null) = 0
   }
 
-  import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes._
-  def checkImports(): Boolean = precedence <= IMPORT
-  
-  def checkWildcardImports(): Boolean = precedence <= WILDCARD_IMPORT
+  import PrecedenceTypes._
 
-  def checkPredefinedClassesAndPackages(): Boolean = precedence <= SCALA_PREDEF
+  def checkImports(): Boolean = checkPrecedence(IMPORT)
 
-  override protected def getQualifiedName(result: ScalaResolveResult): String = {
-    def defaultForTypeAlias(t: ScTypeAlias): String = {
-      if (t.getParent.isInstanceOf[ScTemplateBody] && t.containingClass != null) {
-        "TypeAlias:" + t.containingClass.qualifiedName + "#" + t.name
-      } else null
-    }
+  def checkWildcardImports(): Boolean = checkPrecedence(WILDCARD_IMPORT)
 
-    result.getActualElement match {
-      case _: ScTypeParam => null
-      case c: ScObject => "Object:" + c.qualifiedName
-      case c: PsiClass => "Class:" + c.qualifiedName
-      case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
-        t.aliasedType match {
-          case Success(tp, _) =>
-            tp.extractClass match {
-              case Some(_: ScObject) => defaultForTypeAlias(t)
-              case Some(td: ScTypeDefinition) if td.typeParameters.isEmpty && ScalaPsiUtil.hasStablePath(td) =>
-                "Class:" + td.qualifiedName
-              case Some(c: PsiClass) if c.getTypeParameters.isEmpty => "Class:" + c.qualifiedName
-              case _ => defaultForTypeAlias(t)
-            }
-          case _ => defaultForTypeAlias(t)
-        }
-      case t: ScTypeAlias => defaultForTypeAlias(t)
-      case p: PsiPackage => "Package:" + p.getQualifiedName
-      case _ => null
-    }
-  }
+  def checkPredefinedClassesAndPackages(): Boolean = checkPrecedence(SCALA_PREDEF)
 
-  protected def getTopPrecedence(result: ScalaResolveResult): Int = precedence
-
-  protected def setTopPrecedence(result: ScalaResolveResult, i: Int) {
-    precedence = i
-  }
-
-  override def isUpdateHistory: Boolean = true
+  private def checkPrecedence(i: Int) =
+    holder(null) <= i
 
   override def changedLevel: Boolean = {
-    addChangedLevelToHistory()
+    if (!fromHistory && !history.lastOption.contains(ChangedLevel)) {
+      history += ChangedLevel
+    }
 
     def update: Boolean = {
       val iterator = levelSet.iterator()
@@ -111,8 +103,9 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       levelQualifiedNamesSet.clear()
       false
     }
+
     if (levelSet.isEmpty) true
-    else if (precedence == OTHER_MEMBERS) update
+    else if (holder(null) == OTHER_MEMBERS) update
     else !update
   }
 
@@ -131,6 +124,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
+
     def nameShadow: Option[String] = Option(state.get(ResolverEnv.nameKey))
 
     if (nameAndKindMatch(named, state)) {
@@ -138,7 +132,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       if (accessibility && !accessible) return true
       named match {
         case o: ScObject if o.isPackageObject && JavaPsiFacade.getInstance(element.getProject).
-                findPackage(o.qualifiedName) != null =>
+          findPackage(o.qualifiedName) != null =>
         case pack: PsiPackage =>
           val resolveResult: ScalaResolveResult =
             new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state), nameShadow, isAccessible = accessible)
@@ -163,7 +157,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       if (name == null) return false
       if (name == "") return false
       name
-    } else  nameSet
+    } else nameSet
     val nameMatches = ScalaNamesUtil.equivalent(elName, name)
     nameMatches && kindMatches(named)
   }
@@ -175,15 +169,47 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     }
   }
 
+  override protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
+    if (!fromHistory) history += AddResult(results)
+    super.addResults(results)
+  }
+
+  override protected def ignored(results: Seq[ScalaResolveResult]): Boolean = {
+    val result = !fromHistory && super.ignored(results)
+
+    if (result) {
+      ignoredSet ++= results
+    }
+
+    result
+  }
+
+  override protected def clear(): Unit = {
+    ignoredSet.clear()
+    candidatesSet.clear()
+    super.clear()
+
+    fromHistory = true
+    try {
+      history.foreach {
+        case ChangedLevel => changedLevel
+        case AddResult(results) => addResults(results)
+      }
+    }
+    finally {
+      fromHistory = false
+    }
+  }
+
   override def candidatesS: Set[ScalaResolveResult] = {
     var res = candidatesSet
     val iterator = levelSet.iterator()
     while (iterator.hasNext) {
       res += iterator.next()
     }
-    if (!compareWithIgnoredSet(res)) {
+    if (!ResolveProcessor.compare(ignoredSet, res)) {
       res.clear()
-      restartFromHistory()
+      clear()
       //now let's add everything again
       res = candidatesSet
       val iterator = levelSet.iterator()
@@ -225,4 +251,63 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   override def toString = s"ResolveProcessor($name)"
+}
+
+object ResolveProcessor {
+
+  private sealed trait HistoryEvent
+
+  private case object ChangedLevel extends HistoryEvent
+
+  private case class AddResult(results: Seq[ScalaResolveResult]) extends HistoryEvent
+
+  private def compare(ignoredSet: mutable.HashSet[ScalaResolveResult],
+                      set: mutable.HashSet[ScalaResolveResult]): Boolean = {
+    if (ignoredSet.nonEmpty && set.isEmpty) return false
+
+    val ignoredElements = ignoredSet.map(_.getActualElement)
+    val elements = set.map(_.getActualElement)
+
+    ignoredElements.forall { result =>
+      elements.forall(areEquivalent(result, _))
+    }
+  }
+
+  private[this] def areEquivalent(left: PsiNamedElement, right: PsiNamedElement): Boolean =
+    ScEquivalenceUtil.smartEquivalence(left, right) ||
+      isExactAliasFor(left, right) || isExactAliasFor(right, left)
+
+  private[this] def isExactAliasFor(left: PsiNamedElement, right: PsiNamedElement): Boolean =
+    left.isInstanceOf[ScTypeAliasDefinition] &&
+      right.isInstanceOf[PsiClass] &&
+      left.asInstanceOf[ScTypeAliasDefinition].isExactAliasFor(right.asInstanceOf[PsiClass])
+
+  private def toStringRepresentation(result: ScalaResolveResult): String = {
+    def defaultForTypeAlias(t: ScTypeAlias): String = {
+      if (t.getParent.isInstanceOf[ScTemplateBody] && t.containingClass != null) {
+        "TypeAlias:" + t.containingClass.qualifiedName + "#" + t.name
+      } else null
+    }
+
+    result.getActualElement match {
+      case _: ScTypeParam => null
+      case c: ScObject => "Object:" + c.qualifiedName
+      case c: PsiClass => "Class:" + c.qualifiedName
+      case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
+        t.aliasedType match {
+          case Success(tp, _) =>
+            tp.extractClass match {
+              case Some(_: ScObject) => defaultForTypeAlias(t)
+              case Some(td: ScTypeDefinition) if td.typeParameters.isEmpty && ScalaPsiUtil.hasStablePath(td) =>
+                "Class:" + td.qualifiedName
+              case Some(c: PsiClass) if c.getTypeParameters.isEmpty => "Class:" + c.qualifiedName
+              case _ => defaultForTypeAlias(t)
+            }
+          case _ => defaultForTypeAlias(t)
+        }
+      case t: ScTypeAlias => defaultForTypeAlias(t)
+      case p: PsiPackage => "Package:" + p.getQualifiedName
+      case _ => null
+    }
+  }
 }

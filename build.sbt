@@ -65,7 +65,8 @@ lazy val scalaCommunity: sbt.Project =
       name, version, scalaVersion, sbtVersion,
       BuildInfoKey.constant("sbtLatestVersion", Versions.sbtVersion),
       BuildInfoKey.constant("sbtStructureVersion", Versions.sbtStructureVersion),
-      BuildInfoKey.constant("sbtIdeaShellVersion", Versions.sbtIdeaShellVersion)
+      BuildInfoKey.constant("sbtIdeaShellVersion", Versions.sbtIdeaShellVersion),
+      BuildInfoKey.constant("sbtLatest_0_13", Versions.Sbt.latest_0_13)
     )
   )
 
@@ -139,10 +140,10 @@ lazy val ideaRunner =
       "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005",
       "-Didea.is.internal=true",
       "-Didea.debug.mode=true",
-      "-Didea.system.path=/home/miha/.IdeaData/IDEA-14/scala/system",
-      "-Didea.config.path=/home/miha/.IdeaData/IDEA-14/scala/config",
+      s"-Didea.system.path=${System.getProperty("user.home")}/.IdeaData/IDEA-14/scala/system",
+      s"-Didea.config.path=${System.getProperty("user.home")}/.IdeaData/IDEA-14/scala/config",
       "-Dapple.laf.useScreenMenuBar=true",
-      s"-Dplugin.path=${baseDirectory.value.getParentFile}/out/plugin",
+      s"-Dplugin.path=${baseDirectory.value.getParentFile}/out/plugin/Scala",
       "-Didea.ProcessCanceledException=disabled"
     ),
     products in Compile := {
@@ -201,8 +202,11 @@ addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTests")
 
 addCommandAlias("runHighlightingTests", s"testOnly -- --include-categories=$highlightingTests")
 
+addCommandAlias("runScalacTests", s"testOnly -- --include-categories=$scalacTests")
+
 addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTests " +
                                             s"--exclude-categories=$perfOptTests " +
+                                            s"--exclude-categories=$scalacTests " +
                                             s"--exclude-categories=$highlightingTests "
 )
 

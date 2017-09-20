@@ -9,24 +9,24 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util._
+import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{xml => _, _}
-import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
+import com.intellij.refactoring.HelpID
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.showErrorHint
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil}
-
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 23.06.2008
  */
+class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with DialogConflictsReporter with IntroduceExpressions with IntroduceTypeAlias {
 
-class ScalaIntroduceVariableHandler extends RefactoringActionHandler with DialogConflictsReporter with IntroduceExpressions with IntroduceTypeAlias {
   var occurrenceHighlighters = Seq.empty[RangeHighlighter]
 
-  def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
+  override def invoke(file: PsiFile)
+                     (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     val offset = editor.getCaretModel.getOffset
     def hasSelection = editor.getSelectionModel.hasSelection
     def selectionStart = editor.getSelectionModel.getSelectionStart
@@ -64,7 +64,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
 
     if (hasSelection && selectedElement.isEmpty) {
       val message = ScalaBundle.message("cannot.refactor.not.expression.nor.type")
-      CommonRefactoringUtil.showErrorHint(project, editor, message, INTRODUCE_VARIABLE_REFACTORING_NAME, HelpID.INTRODUCE_VARIABLE)
+      showErrorHint(message, INTRODUCE_VARIABLE_REFACTORING_NAME, HelpID.INTRODUCE_VARIABLE)
       return
     }
 
@@ -81,23 +81,19 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
 
     if (typeElement.isDefined) {
       if (editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).isData) {
-        invokeTypeElement(project, editor, file, typeElement.get)
+        invokeTypeElement(file, typeElement.get)
       } else {
         ScalaRefactoringUtil.afterTypeElementChoosing(project, editor, file, dataContext, typeElement.get, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
           typeElement =>
-            invokeTypeElement(project, editor, file, typeElement)
+            invokeTypeElement(file, typeElement)
         }
       }
     } else {
       val canBeIntroduced: ScExpression => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
       ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, INTRODUCE_VARIABLE_REFACTORING_NAME, canBeIntroduced) {
-        invokeExpression(project, editor, file, selectionStart, selectionEnd)
+        invokeExpression(file, selectionStart, selectionEnd)
       }
     }
-  }
-
-  def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {
-    //nothing to do
   }
 }
 

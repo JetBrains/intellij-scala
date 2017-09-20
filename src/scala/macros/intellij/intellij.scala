@@ -2,7 +2,7 @@ package scala.macros
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerator
-import com.intellij.openapi.roots.libraries.{Library, LibraryUtil}
+import com.intellij.openapi.roots.libraries.Library
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
@@ -31,11 +31,13 @@ package object intellij {
     implicit class AnnotExt(val annotation: ScAnnotation) extends AnyVal {
       def isMacro2: Boolean = {
         def isApplyMacro(m: ScMember) = m.isInstanceOf[ScMacroDefinition] && m.getName == "apply"
+
         IdeaUtil.safeAnnotationResolve(annotation).exists {
           case ScalaResolveResult(c: ScPrimaryConstructor, _) =>
             c.containingClass.members.exists(isApplyMacro)
           case ScalaResolveResult(o: ScTypeDefinition, _) =>
             o.members.exists(isApplyMacro)
+          case _ => false
         }
       }
     }

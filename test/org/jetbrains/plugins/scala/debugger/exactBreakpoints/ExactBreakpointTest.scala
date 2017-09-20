@@ -5,7 +5,7 @@ import com.intellij.debugger.engine.SourcePositionHighlighter
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.util.DocumentUtil
 import com.intellij.xdebugger.XDebuggerUtil
-import org.jetbrains.plugins.scala.DebuggerTests
+import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
 import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
@@ -16,11 +16,11 @@ import scala.collection.JavaConverters._
 /**
  * @author Nikolay.Tropin
  */
-@Category(Array(classOf[DebuggerTests]))
+@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
 class ExactBreakpointTest extends ExactBreakpointTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
-@Category(Array(classOf[DebuggerTests]))
+@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
 class ExactBreakpointTest_212 extends ExactBreakpointTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }

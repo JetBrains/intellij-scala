@@ -21,7 +21,7 @@ abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
 
   implicit def ctx: ProjectContext = fixture.getProject
 
-  override def setUp() {
+  override def setUp(): Unit = {
     super.setUp()
     val fixtureBuilder: TestFixtureBuilder[IdeaProjectTestFixture] =
       IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder("SimpleTestCase")
@@ -30,8 +30,9 @@ abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
     fixture.setUp()
   }
 
-  override def tearDown() {
+  override def tearDown(): Unit = try {
     fixture.tearDown()
+  } finally {
     fixture = null
     super.tearDown()
   }

@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.debugger.stepInto
 
 import com.intellij.debugger.settings.DebuggerSettings
-import org.jetbrains.plugins.scala.DebuggerTests
+import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
 import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
 /**
   * @author Nikolay.Tropin
   */
-@Category(Array(classOf[DebuggerTests]))
+@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
 class StepIntoTest extends StepIntoTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 
@@ -21,7 +21,7 @@ class StepIntoTest extends StepIntoTestBase {
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
+@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
 class StepIntoTest_212 extends StepIntoTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }

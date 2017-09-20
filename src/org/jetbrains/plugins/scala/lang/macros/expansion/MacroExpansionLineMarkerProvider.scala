@@ -45,7 +45,8 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
       CompilerManager.getInstance(elt.getProject).make(annot.constructor.reference.get.resolve().module.get,
         new CompileStatusNotification {
           override def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext): Unit = {
-            DaemonCodeAnalyzer.getInstance(elt.getProject).restart(elt.getContainingFile)
+            if (!compileContext.getProject.isDisposed)
+              DaemonCodeAnalyzer.getInstance(elt.getProject).restart(elt.getContainingFile)
           }
         }
       )

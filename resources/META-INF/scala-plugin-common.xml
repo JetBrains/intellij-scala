@@ -1,4 +1,4 @@
-<idea-plugin version="2">
+<idea-plugin>
     <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
     <extensionPoints>
@@ -24,6 +24,7 @@
     <extensions defaultExtensionNs="org.intellij.scala">
         <!--<syntheticMemberInjector implementation="scala.meta.MetaAnnotationInjector"/>-->
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MonocleInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.StalactiteInjector"/>
         <syntheticMemberInjector implementation="scala.meta.intellij.MetaSupportInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.QuasiQuotesInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum.SimulacrumInjection"/>
@@ -36,10 +37,10 @@
                 implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.FromTypeToTypeNamesProvider"/>
         <genericTypeNamesProvider
                 implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.MonadicTypeNamesProvider"/>
-      <genericTypeNamesProvider
-              implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.FunctionTypeNamesProvider"/>
-      <genericTypeNamesProvider
-              implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TupleTypeNamesProvider"/>
+        <genericTypeNamesProvider
+                implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.FunctionTypeNamesProvider"/>
+        <genericTypeNamesProvider
+                implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TupleTypeNamesProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -88,6 +89,7 @@
         <editorSmartKeysConfigurable instance="org.jetbrains.plugins.scala.settings.ScalaEditorSmartKeysConfigurable"/>
         <codeFoldingOptionsProvider instance="org.jetbrains.plugins.scala.editor.codeFolding.ScalaCodeFoldingOptionsProvider"/>
         <langCodeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider"/>
+        <lang.lineWrapStrategy language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.formatting.ScalaLineWrapPositionStrategy"/>
         <projectConfigurable groupId="language" displayName="Scala" instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
         <applicationConfigurable groupId="language" displayName="Scala Compile Server" instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
@@ -1154,6 +1156,10 @@
                          displayName="Filter and contains to intersect or diff" groupPath="Scala,Collections" groupName="Simplifications: filter and exists"
                          shortName="FilterOtherContains" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsForallReplaceInspection"
+                       displayName="Double negation in forall and exists" groupPath="Scala,Collections" groupName="Simplifications: forall and exists"
+                       shortName="ExistsForallReplace" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
         <!--simplifications: other-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection"
                          displayName="Simplifiable fold or reduce method" groupPath="Scala,Collections" groupName="Simplifications: other"

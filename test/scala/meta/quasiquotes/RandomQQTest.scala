@@ -1,9 +1,13 @@
 package scala.meta.quasiquotes
 
+import org.jetbrains.plugins.scala.SlowTests
+import org.junit.experimental.categories.Category
+
 /**
   * @author mutcianm
   * @since 28.10.16.
   */
+@Category(Array(classOf[SlowTests]))
 class RandomQQTest extends QuasiQuoteTypeInferenceTestBase {
 
   def testPatVarTermApply() = doTest(

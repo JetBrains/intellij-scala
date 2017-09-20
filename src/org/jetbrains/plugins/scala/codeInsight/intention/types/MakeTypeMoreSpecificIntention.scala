@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.ScalaBundle.message
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -78,6 +79,10 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
     override def parameterWithoutType(param: ScParameter): Boolean = false
 
     override def parameterWithType(param: ScParameter): Boolean = false
+
+    override def underscoreSectionWithoutType(underscore: ScUnderscoreSection) = false
+
+    override def underscoreSectionWithType(underscore: ScUnderscoreSection) = false
   }
 
   override protected def invocationStrategy(maybeEditor: Option[Editor]): Strategy = new Strategy {

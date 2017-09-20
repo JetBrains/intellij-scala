@@ -41,8 +41,10 @@ object SbtBuildModuleDataService {
 
     private def setResolvers(module: Module, resolvers: Set[SbtResolver]): Unit = {
       SbtModule.setResolversTo(module, resolvers)
-      val localIvyResolver = resolvers.find(_.name == "Local cache")
-      localIvyResolver.foreach(SbtIndexesManager.getInstance(module.getProject).scheduleLocalIvyIndexUpdate)
+      for {
+        localIvyResolver <- resolvers.find(_.name == "Local cache")
+        indexesManager <- SbtIndexesManager.getInstance(module.getProject)
+      } indexesManager.scheduleLocalIvyIndexUpdate(localIvyResolver)
     }
 
   }

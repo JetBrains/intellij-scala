@@ -60,7 +60,8 @@ trait UTestPackageTest extends UTestTestCase {
         checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "tests", "test2") &&
         checkResultTreeHasExactNamedPath(root, "[root]", "Test2", "tests", "test1") &&
         checkResultTreeHasExactNamedPath(root, "[root]", "Test2", "tests", "test2") &&
-        checkResultTreeDoesNotHaveNodes(root, "test"))
+        checkResultTreeDoesNotHaveNodes(root, "test"),
+      debug=true)
   }
 
   def testModuleTestRun(): Unit = {

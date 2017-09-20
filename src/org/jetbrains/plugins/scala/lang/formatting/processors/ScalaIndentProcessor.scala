@@ -7,6 +7,7 @@ import com.intellij.formatting._
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiComment
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -20,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
@@ -186,7 +188,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScFunction => funIndent
       case _ if node.getElementType == ScalaTokenTypes.kDEF ||
         Option(node.getTreeParent).exists(p => Set[IElementType](FUNCTION_DECLARATION, FUNCTION_DEFINITION).
-          contains(p.getElementType)) && node.getElementType == MODIFIERS => funIndent
+          contains(p.getElementType)) && Set(MODIFIERS, ANNOTATIONS, tLINE_COMMENT).contains(node.getElementType) => funIndent
       case _: ScMethodCall => processMethodCall
       case arg: ScArgumentExprList if arg.isBraceArgs =>
         if (scalaSettings.INDENT_BRACED_FUNCTION_ARGS &&
@@ -227,7 +229,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNoneIndent
         }
       case _: ScBlock => Indent.getNoneIndent
-      case _: ScEnumerators => Indent.getNormalIndent
+      case enum: ScEnumerators => if (enum.getPrevSibling != null) Indent.getNoneIndent else Indent.getNormalIndent
       case _: ScExtendsBlock if child.getElementType != TEMPLATE_BODY => Indent.getContinuationIndent
       case _: ScExtendsBlock if settings.CLASS_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
         settings.CLASS_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
@@ -263,6 +265,11 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScDocComment => Indent.getNoneIndent
       case _ if node.getElementType == ScalaTokenTypes.kEXTENDS && child.getElementType != ScalaTokenTypes.kEXTENDS =>
         Indent.getContinuationIndent() //this is here to not break whatever processing there is before
+      case leaf: LeafPsiElement if (node.getElementType == ScalaTokenTypes.tLBRACE && child.getElementType != ScalaTokenTypes.tRBRACE ||
+        node.getElementType == ScalaTokenTypes.tLPARENTHESIS && child.getElementType != ScalaTokenTypes.tRPARENTHESIS) &&
+        leaf.getNextSiblingNotWhitespaceComment.isInstanceOf[ScEnumerators]  => Indent.getNormalIndent
+      case _: ScImportSelectors if child.getElementType != ScalaTokenTypes.tRBRACE &&
+        child.getElementType != ScalaTokenTypes.tLBRACE => Indent.getNormalIndent
       case _ => Indent.getNoneIndent
     }
   }

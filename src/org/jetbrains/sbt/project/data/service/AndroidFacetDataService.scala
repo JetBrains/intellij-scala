@@ -55,7 +55,7 @@ object AndroidFacetDataService {
       facet
     }
 
-    private def configureFacet(module: Module, facet: AndroidFacet, data: AndroidFacetData) = {
+    private def configureFacet(module: Module, facet: AndroidFacet, data: AndroidFacetData): Unit = {
       val configuration = facet.getConfiguration.getState
 
       val base = AndroidRootUtil.getModuleDirPath(module)

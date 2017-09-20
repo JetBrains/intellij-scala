@@ -466,12 +466,6 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     time = 0
   )
 
-  def testHidingImplicits(): Unit = checkNoCompletion(
-    fileText = "\"\"." + CARET,
-    item = "x",
-    time = 0
-  )
-
   def testBasicRenamed(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -991,5 +985,17 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin,
     item = "ScalaClass"
+  )
+
+  def testPredefinedConversion(): Unit = doCompletionTest(
+    fileText = s""""1".he$CARET""",
+    resultText = s""""1".headOption$CARET""",
+    item = "headOption"
+  )
+
+  def testPredefinedConversionsCollision(): Unit = doCompletionTest(
+    fileText = s"1.toBin$CARET",
+    resultText = s"1.toBinaryString$CARET",
+    item = "toBinaryString"
   )
 }

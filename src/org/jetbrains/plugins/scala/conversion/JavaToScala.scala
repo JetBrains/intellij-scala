@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package conversion
 
-
 import java.util.regex.Pattern
 
 import com.intellij.codeInsight.AnnotationUtil
@@ -13,7 +12,6 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.intellij.psi.{PsiLambdaExpression, _}
-import org.jetbrains.plugins.hocon.JavaInterop.collectionAsScalaIterableConverter
 import org.jetbrains.plugins.scala.conversion.ast.ClassConstruction.ClassType
 import org.jetbrains.plugins.scala.conversion.ast._
 import org.jetbrains.plugins.scala.conversion.copy.AssociationHelper
@@ -26,8 +24,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.language.postfixOps
 
 /**
@@ -95,7 +93,7 @@ object JavaToScala {
   case class WithReferenceExpression(yep: Boolean) extends ExternalProperties
 
   def convertTypePsiToIntermediate(`type`: PsiType, psiElement: PsiElement, project: Project)
-                                  (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
+                                  (implicit associations: mutable.ListBuffer[AssociationHelper] = mutable.ListBuffer(),
                                    refs: Seq[ReferenceData] = Seq.empty,
                                    usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement](),
                                    textMode: Boolean = false): IntermediateNode = {
@@ -113,7 +111,7 @@ object JavaToScala {
   }
 
   def convertPsiToIntermdeiate(element: PsiElement, externalProperties: ExternalProperties)
-                              (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
+                              (implicit associations: mutable.ListBuffer[AssociationHelper] = mutable.ListBuffer(),
                                refs: Seq[ReferenceData] = Seq.empty,
                                usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement](),
                                textMode: Boolean = false): IntermediateNode = {
@@ -387,7 +385,7 @@ object JavaToScala {
         }
 
         val attributes = annot.getParameterList.getAttributes
-        val attrResult = new ArrayBuffer[(Option[IntermediateNode], Option[IntermediateNode])]()
+        val attrResult = mutable.ArrayBuffer[(Option[IntermediateNode], Option[IntermediateNode])]()
         for (attribute <- attributes) {
           val value = Option(attribute.getValue) match {
             case Some(v: PsiAnnotationMemberValue) if isArrayAnnotationParameter(attribute) =>
@@ -444,7 +442,7 @@ object JavaToScala {
           NewExpression(iType, argList, withArrayInitalizer = false)
         }
       case t: PsiTryStatement =>
-        val resourcesVariables = new ArrayBuffer[(String, IntermediateNode)]()
+        val resourcesVariables = mutable.ArrayBuffer[(String, IntermediateNode)]()
         Option(t.getResourceList).foreach { resourceList =>
           val it = resourceList.iterator
           while (it.hasNext) {
@@ -495,7 +493,7 @@ object JavaToScala {
 
 
   def handleAssociations(element: PsiElement, result: IntermediateNode)
-                        (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
+                        (implicit associations: mutable.ListBuffer[AssociationHelper] = mutable.ListBuffer(),
                          refs: Seq[ReferenceData] = Seq.empty,
                          usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): Unit = {
     // TODO: eliminate amout of call
@@ -515,7 +513,7 @@ object JavaToScala {
   }
 
   def associationFor(optRange: Option[TextRange], result: IntermediateNode)
-                    (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
+                    (implicit associations: mutable.ListBuffer[AssociationHelper] = mutable.ListBuffer(),
                      refs: Seq[ReferenceData] = Seq.empty,
                      usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): Option[AssociationHelper] = {
     optRange.flatMap { range =>
@@ -535,21 +533,21 @@ object JavaToScala {
   val fieldParameterMap = new mutable.HashMap[String, String]()
 
   def createClass(inClass: PsiClass, externalProperties: ExternalProperties)
-                 (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
+                 (implicit associations: mutable.ListBuffer[AssociationHelper] = mutable.ListBuffer(),
                   refs: Seq[ReferenceData] = Seq.empty,
                   usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement](),
                   textMode: Boolean = false): IntermediateNode = {
 
     def extendList: Seq[(PsiClassType, PsiJavaCodeReferenceElement)] = {
-      val typez = new ArrayBuffer[(PsiClassType, PsiJavaCodeReferenceElement)]
+      val typez = mutable.ArrayBuffer[(PsiClassType, PsiJavaCodeReferenceElement)]()
       if (inClass.getExtendsList != null) typez ++= inClass.getExtendsList.getReferencedTypes.zip(inClass.getExtendsList.getReferenceElements)
       if (inClass.getImplementsList != null) typez ++= inClass.getImplementsList.getReferencedTypes.zip(inClass.getImplementsList.getReferenceElements)
       typez
     }
 
     def collectClassObjectMembers(): (Seq[PsiMember], Seq[PsiMember]) = {
-      var forClass = new ArrayBuffer[PsiMember]()
-      var forObject = new ArrayBuffer[PsiMember]()
+      var forClass = mutable.ArrayBuffer[PsiMember]()
+      var forObject = mutable.ArrayBuffer[PsiMember]()
       for (method <- inClass.getMethods) {
         if (method.hasModifierProperty("static") || inClass.isEnum) forObject += method else forClass += method
       }
@@ -750,11 +748,11 @@ object JavaToScala {
 
   //primary constructor may apply only when there is one constructor with params
   def handlePrimaryConstructor(constructors: Seq[PsiMethod])
-                              (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
+                              (implicit associations: mutable.ListBuffer[AssociationHelper] = mutable.ListBuffer(),
                                refs: Seq[ReferenceData] = Seq.empty,
                                usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): (Option[Seq[PsiMember]], Option[PrimaryConstruction]) = {
 
-    val dropFields = new ArrayBuffer[PsiField]()
+    val dropFields = mutable.ArrayBuffer[PsiField]()
 
     def createPrimaryConstructor(constructor: PsiMethod): PrimaryConstruction = {
       def notContains(statement: PsiStatement, where: Seq[PsiExpressionStatement]): Boolean = {
@@ -762,7 +760,7 @@ object JavaToScala {
           (statement.isInstanceOf[PsiExpressionStatement] && !where.contains(statement))
       }
 
-      def getSuperCall(dropStatements: ArrayBuffer[PsiExpressionStatement]): IntermediateNode = {
+      def getSuperCall(dropStatements: mutable.ArrayBuffer[PsiExpressionStatement]): IntermediateNode = {
         val firstStatement = getFirstStatement(constructor)
         val maybeSuperCall: Option[PsiMethodCallExpression] = firstStatement.map(_.getExpression).flatMap {
           case mc: PsiMethodCallExpression if mc.getMethodExpression.getQualifiedName == "super" => Some(mc)
@@ -776,7 +774,7 @@ object JavaToScala {
       }
 
       def getCorrespondedFieldInfo(param: PsiParameter): Seq[(PsiField, PsiExpressionStatement)] = {
-        val dropInfo = new ArrayBuffer[(PsiField, PsiExpressionStatement)]()
+        val dropInfo = mutable.ArrayBuffer[(PsiField, PsiExpressionStatement)]()
 
         findVariableUsage(param, Option(constructor.getBody)).foreach { usage =>
           val parent = Option(usage.getParent)
@@ -805,8 +803,8 @@ object JavaToScala {
 
       def createContructor: PrimaryConstruction = {
         val params = constructor.parameters
-        val updatedParams = new ArrayBuffer[IntermediateNode]()
-        val dropStatements = new ArrayBuffer[PsiExpressionStatement]()
+        val updatedParams = mutable.ArrayBuffer[IntermediateNode]()
+        val dropStatements = mutable.ArrayBuffer[PsiExpressionStatement]()
         for (param <- params) {
           val fieldInfo = getCorrespondedFieldInfo(param)
           val updatedField = if (fieldInfo.isEmpty) {
@@ -886,7 +884,7 @@ object JavaToScala {
   )
 
   def handleModifierList(owner: PsiModifierListOwner)
-                        (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
+                        (implicit associations: mutable.ListBuffer[AssociationHelper] = mutable.ListBuffer(),
                          refs: Seq[ReferenceData] = Seq.empty,
                          usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): IntermediateNode = {
 
@@ -894,7 +892,7 @@ object JavaToScala {
       "org.jetbrains.annotations.NotNull", "org.jetbrains.annotations.NonNls")
 
     def handleAnnotations: Seq[IntermediateNode] = {
-      val annotations = new ArrayBuffer[IntermediateNode]()
+      val annotations = mutable.ArrayBuffer[IntermediateNode]()
       for {
         a <- owner.getModifierList.getAnnotations
         optValue = Option(a.getQualifiedName).map(annotationDropList.contains(_))
@@ -906,7 +904,7 @@ object JavaToScala {
     }
 
     def handleModifiers: Seq[IntermediateNode] = {
-      val modifiers = new ArrayBuffer[IntermediateNode]()
+      val modifiers = mutable.ArrayBuffer[IntermediateNode]()
 
       val simpleList = SIMPLE_MODIFIERS_MAP.filter {
         case (psiType, _) => owner.hasModifierProperty(psiType)
@@ -970,7 +968,7 @@ object JavaToScala {
                         dropElements: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement](), textMode: Boolean = false): String = {
     val resultNode = new MainConstruction
     for (part <- elements) {
-      resultNode.addChild(convertPsiToIntermdeiate(part, null)(new ListBuffer(), Seq.empty, dropElements, textMode = textMode))
+      resultNode.addChild(convertPsiToIntermdeiate(part, null)(mutable.ListBuffer(), Seq.empty, dropElements, textMode = textMode))
     }
     val visitor = new PrintWithComments
     visitor.visit(resultNode)

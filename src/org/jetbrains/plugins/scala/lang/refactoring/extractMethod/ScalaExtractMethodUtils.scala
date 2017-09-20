@@ -367,7 +367,9 @@ object ScalaExtractMethodUtils {
     implicit val projectContext = settings.projectContext
 
     val element = elements.find(elem => elem.isInstanceOf[ScalaPsiElement]).getOrElse(return)
-    val processor = new CompletionProcessor(StdKinds.refExprLastRef, element, includePrefixImports = false)
+    val processor = new CompletionProcessor(StdKinds.refExprLastRef, element) {
+      override val includePrefixImports: Boolean = false
+    }
     PsiTreeUtil.treeWalkUp(processor, element, null, ResolveState.initial)
     val allNames = new mutable.HashSet[String]()
     allNames ++= processor.candidatesS.map(rr => rr.element.name)

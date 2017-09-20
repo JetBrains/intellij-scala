@@ -12,22 +12,30 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
+  * @author Alexander Podkhalyuzin
+  *         Date: 22.02.2008
+  */
 
 trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHost {
   /**
-   * This method works only for null literal (to avoid possibly dangerous usage)
-   * @param tp type, which should be returned by method getTypeWithouImplicits
-   */
+    * This method works only for null literal (to avoid possibly dangerous usage)
+    *
+    * @param tp type, which should be returned by method getTypeWithouImplicits
+    */
   def setTypeForNullWithoutImplicits(tp: Option[ScType])
+
   def getTypeForNullWithoutImplicits: Option[ScType]
+
   def isString: Boolean
+
   def isMultiLineString: Boolean
+
   def getAnnotationOwner(annotationOwnerLookUp: ScLiteral => Option[PsiAnnotationOwner with PsiElement]): Option[PsiAnnotationOwner]
+
   def isSymbol: Boolean
+
   def isChar: Boolean
+
   def contentRange: TextRange
 }
 
@@ -35,25 +43,42 @@ object ScLiteral {
   def unapply(literal: ScLiteral) = Some(literal.getValue)
 }
 
-class ScLiteralValueExtractor[T](literalTypes: IElementType*)
-                                (f: AnyRef => T, textCondition: String => Boolean = Function.const(true)) {
+sealed abstract class ScLiteralValueExtractor[T](literalTypes: IElementType*) {
+
   private val types = literalTypes.toSet
 
+  protected def cast(value: AnyRef): T
+
   def unapply(literal: ScLiteral): Option[T] = {
-    val node = literal.getFirstChild.getNode
-    val literalType = node.getElementType
-    if (types.contains(literalType) && textCondition(node.getText))
-      Some(f(literal.getValue))
+    val elementType = literal.getFirstChild.getNode.getElementType
+    val value = if (isAvailableFor(literal) && types(elementType)) Option(literal.getValue)
     else None
+    value.map(cast)
+  }
+
+  protected def isAvailableFor(literal: ScLiteral): Boolean = true
+}
+
+object ScIntLiteral extends ScLiteralValueExtractor[Int](tINTEGER) {
+
+  override protected def cast(value: AnyRef): Int = value match {
+    case integer: java.lang.Integer => integer.intValue()
+  }
+
+  override protected def isAvailableFor(literal: ScLiteral): Boolean =
+    literal.getText.last.isDigit
+}
+
+object ScBooleanLiteral extends ScLiteralValueExtractor[Boolean](kTRUE, kFALSE) {
+
+  override protected def cast(value: AnyRef): Boolean = value match {
+    case boolean: java.lang.Boolean => boolean.booleanValue()
   }
 }
 
-object ScIntLiteral extends ScLiteralValueExtractor(tINTEGER)(_.asInstanceOf[java.lang.Integer].intValue, _.last.isDigit)
+object ScStringLiteral extends ScLiteralValueExtractor[String](tSTRING, tWRONG_STRING, tMULTILINE_STRING) {
 
-object ScFloatLiteral extends ScLiteralValueExtractor(tFLOAT)(_.asInstanceOf[java.lang.Float].floatValue)
-
-object ScCharLiteral extends ScLiteralValueExtractor(tCHAR)(_.asInstanceOf[java.lang.Character].charValue)
-
-object ScBooleanLiteral extends ScLiteralValueExtractor(kTRUE, kFALSE)(_.asInstanceOf[java.lang.Boolean].booleanValue)
-
-object ScStringLiteral extends ScLiteralValueExtractor(tSTRING, tWRONG_STRING, tMULTILINE_STRING)(_.asInstanceOf[String])
+  override protected def cast(value: AnyRef): String = value match {
+    case string: String => string
+  }
+}

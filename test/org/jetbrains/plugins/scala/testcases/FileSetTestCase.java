@@ -20,8 +20,11 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.testFramework.LightIdeaTestCase;
 import junit.framework.TestSuite;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.FileScanner;
+import org.jetbrains.plugins.scala.SlowTests;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,8 +34,8 @@ import java.util.List;
 /**
  * Created by IntelliJ IDEA.
  *
- * @author: oleg
- * @date: Oct 11, 2006
+ * @author oleg
+ * @date Oct 11, 2006
  */
 public abstract class FileSetTestCase extends TestSuite {
   @NonNls
@@ -48,7 +51,7 @@ public abstract class FileSetTestCase extends TestSuite {
     try {
       myFileList = FileScanner.scan(path, getSearchPattern(), false);
     } catch (FileNotFoundException e) {
-      myFileList = new ArrayList<File>();
+      myFileList = new ArrayList<>();
     }
     myFiles = myFileList.toArray(new File[myFileList.size()]);
     addAllTests();
@@ -68,11 +71,6 @@ public abstract class FileSetTestCase extends TestSuite {
         addFileTest(f);
       }
     }
-  }
-
-  protected FileSetTestCase(File[] files) {
-    myFiles = files;
-    addAllTests();
   }
 
   public String getName() {
@@ -96,6 +94,7 @@ public abstract class FileSetTestCase extends TestSuite {
   private class ActualTest extends LightIdeaTestCase {
     private File myTestFile;
 
+    @NotNull
     @Override
     protected String getTestName(boolean lowercaseFirstLetter) {
       return "";

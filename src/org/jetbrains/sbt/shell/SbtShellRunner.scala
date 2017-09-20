@@ -109,7 +109,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
   override def showConsole(defaultExecutor: Executor, contentDescriptor: RunContentDescriptor): Unit = {
     val twm = ToolWindowManager.getInstance(getProject)
     val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
-    twm.getFocusManager.requestFocusInProject(toolWindow.getComponent,project)
+    twm.getFocusManager.requestFocusInProject(toolWindow.getComponent, project)
   }
 
   def openShell(focus: Boolean): Unit = {

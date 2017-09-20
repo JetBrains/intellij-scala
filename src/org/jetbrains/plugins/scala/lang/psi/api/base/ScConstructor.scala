@@ -62,8 +62,4 @@ object ScConstructor {
       }
     }
   }
-  
-  new A(i = 1)(s = "A")
 }
-
-class A(i: Int)(s: String)

@@ -96,6 +96,7 @@ class ScalaApplicationUsagesCollector extends AbstractProjectsUsagesCollector {
         checkLibrary("net.liftweb", "Lift Framework")
         checkLibrary("spray", "Spray")
         checkLibrary("monocle", "Monocle")
+        checkLibrary("stalactite", "Stalactite")
 
         java_version.foreach {
           version: String => set += new UsageDescriptor(s"Java version: $version", 1)

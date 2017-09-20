@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.conversion.copy
 import java.awt.datatransfer.Transferable
 
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.codeInsight.daemon.impl.CollectHighlightsUtil.getElementsInRange
 import com.intellij.diagnostic.LogMessageEx
 import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.openapi.editor.richcopy.settings.RichCopySettings
@@ -88,9 +87,18 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
   }
 
   protected def extractTransferableData0(content: Transferable): Associations = {
+    def extractAssociations = content.getTransferData(Associations.Flavor).asInstanceOf[Associations]
+
     content.isDataFlavorSupported(Associations.Flavor)
-            .option(content.getTransferData(Associations.Flavor).asInstanceOf[Associations])
-            .orNull
+           .option(logError(extractAssociations))
+           .orNull
+  }
+
+  private def logError[T >: Null](action: => T): T = {
+    try action
+    catch {
+      case e: Exception => Log.error(e); null
+    }
   }
 
   protected def processTransferableData0(project: Project, editor: Editor, bounds: RangeMarker,

@@ -98,7 +98,7 @@ class InplaceRenameHelper(parent: PsiElement) {
                         highlighters: ArrayBuffer[RangeHighlighter], highlightManager: HighlightManager) {
         for ((range, attributes) <- ranges) {
           highlightManager.addOccurrenceHighlight(editor, range.getStartOffset, range.getEndOffset,
-            attributes, 0, highlighters.asJavaCollection, null)
+            attributes, 0, highlighters.asJava, null)
         }
         for (highlighter <- highlighters) {
           highlighter.setGreedyToLeft(true)
