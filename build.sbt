@@ -197,19 +197,23 @@ lazy val jmhBenchmarks =
 import TestCategory._
 
 addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOptTests")
-
 addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTests")
-
 addCommandAlias("runHighlightingTests", s"testOnly -- --include-categories=$highlightingTests")
-
 addCommandAlias("runScalacTests", s"testOnly -- --include-categories=$scalacTests")
+addCommandAlias("runTypeInferenceTests", s"testOnly org.jetbrains.plugins.scala.lang.typeInference.*")
 
-addCommandAlias("runFastTests", s"testOnly -- -v -s -a +c +q" +
-                                            s"--exclude-categories=$slowTests " +
-                                            s"--exclude-categories=$perfOptTests " +
-                                            s"--exclude-categories=$scalacTests " +
-                                            s"--exclude-categories=$highlightingTests "
-)
+val fastTestOptions = "-v -s -a +c +q" +
+  s"--exclude-categories=$slowTests " +
+  s"--exclude-categories=$perfOptTests " +
+  s"--exclude-categories=$scalacTests " +
+  s"--exclude-categories=$highlightingTests"
+
+addCommandAlias("runFastTests", s"testOnly -- $fastTestOptions")
+// subsets of tests to split the complete test run into smaller chunks
+addCommandAlias("runFastTestsComIntelliJ", s"testOnly com.intellij.* -- $fastTestOptions")
+addCommandAlias("runFastTestsOrgJetbrains", s"testOnly org.jetbrains.* -- $fastTestOptions")
+addCommandAlias("runFastTestsScala", s"testOnly scala.* -- $fastTestOptions")
+
 
 lazy val setUpTestEnvironment = taskKey[Unit]("Set up proper environment for running tests")
 
