@@ -13,9 +13,8 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.HelpID
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.showErrorHint
-import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.util.DialogConflictsReporter
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -32,11 +31,11 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
     def selectionStart = editor.getSelectionModel.getSelectionStart
     def selectionEnd = editor.getSelectionModel.getSelectionEnd
 
-    ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
+    trimSpacesAndComments(editor, file)
 
     val selectedElement: Option[PsiElement] = {
-      val typeElem = ScalaRefactoringUtil.getTypeElement(project, editor, file, selectionStart, selectionEnd)
-      val expr = ScalaRefactoringUtil.getExpression(project, editor, file, selectionStart, selectionEnd).map(_._1)
+      val typeElem = getTypeElement(project, editor, file, selectionStart, selectionEnd)
+      val expr = getExpression(project, editor, file, selectionStart, selectionEnd).map(_._1)
       typeElem.orElse(expr)
     }
 
@@ -47,7 +46,7 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
             w.getText.contains("\n") => file.findElementAt(offset - 1)
           case p => p
         }
-        ScalaRefactoringUtil.getExpressions(element).nonEmpty
+        getExpressions(element).nonEmpty
       }
 
       def findTypeElement(offset: Int) =
@@ -83,14 +82,12 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
       if (editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).isData) {
         invokeTypeElement(file, typeElement.get)
       } else {
-        ScalaRefactoringUtil.afterTypeElementChoosing(project, editor, file, dataContext, typeElement.get, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
-          typeElement =>
-            invokeTypeElement(file, typeElement)
+        afterTypeElementChoosing(file, typeElement.get, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
+          invokeTypeElement(file, _)
         }
       }
     } else {
-      val canBeIntroduced: ScExpression => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
-      ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, INTRODUCE_VARIABLE_REFACTORING_NAME, canBeIntroduced) {
+      afterExpressionChoosing(file, INTRODUCE_VARIABLE_REFACTORING_NAME) {
         invokeExpression(file, selectionStart, selectionEnd)
       }
     }
@@ -98,5 +95,5 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
 }
 
 object ScalaIntroduceVariableHandler {
-  val REVERT_INFO: Key[ScalaRefactoringUtil.RevertInfo] = new Key("RevertInfo")
+  val REVERT_INFO: Key[RevertInfo] = new Key("RevertInfo")
 }

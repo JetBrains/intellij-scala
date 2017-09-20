@@ -36,6 +36,8 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
             (implicit project: Project, editor: Editor): Unit = {
     try {
       UsageTrigger.trigger(ScalaBundle.message("introduce.field.id"))
+
+      trimSpacesAndComments(editor, file)
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       writableScalaFile(file, REFACTORING_NAME)
 
@@ -58,9 +60,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
 
   override def invoke(file: PsiFile)
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
-    val canBeIntroduced: (ScExpression) => Boolean = checkCanBeIntroduced(_)
-    afterExpressionChoosing(project, editor, file, dataContext, REFACTORING_NAME, canBeIntroduced) {
-      trimSpacesAndComments(editor, file)
+    afterExpressionChoosing(file, REFACTORING_NAME) {
       invoke(file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
   }
@@ -69,22 +69,18 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     implicit val project: Project = ifc.project
     implicit val editor: Editor = ifc.editor
 
-    val possiblePlace = checkCanBeIntroduced(ifc.element, showErrorHint)
-    if (!possiblePlace) return
-
-    def runWithDialog() {
-      val settings = new IntroduceFieldSettings(ifc)
-      if (!settings.canBeInitInDeclaration && !settings.canBeInitLocally) {
-        showErrorHint("Cannot create field from this expression")
-      } else {
-        val dialog = getDialog(ifc, settings)
-        if (dialog.isOK) {
-          runRefactoring(ifc, settings)
+    checkCanBeIntroduced(ifc.element) match {
+      case Some(message) => showErrorHint(message)
+      case _ =>
+        val settings = new IntroduceFieldSettings(ifc)
+        if (settings.canBeInitInDeclaration || settings.canBeInitLocally) {
+          if (getDialog(ifc, settings).isOK) {
+            runRefactoring(ifc, settings)
+          }
+        } else {
+          showErrorHint("Cannot create field from this expression")
         }
-      }
     }
-
-    runWithDialog()
   }
 
   private def runRefactoringInside(ifc: IntroduceFieldContext[ScExpression], settings: IntroduceFieldSettings[ScExpression]) {

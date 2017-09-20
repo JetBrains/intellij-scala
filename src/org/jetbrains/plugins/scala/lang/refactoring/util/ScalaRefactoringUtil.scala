@@ -10,7 +10,6 @@ import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
-import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, RangeHighlighter, TextAttributes}
@@ -722,8 +721,10 @@ object ScalaRefactoringUtil {
     res.toArray
   }
 
-  def afterExpressionChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
-                              refactoringName: String, exprFilter: (ScExpression) => Boolean = _ => true)(invokesNext: => Unit) {
+  def afterExpressionChoosing(file: PsiFile,
+                              refactoringName: String, filterExpressions: Boolean = true)
+                             (invokesNext: => Unit)
+                             (implicit project: Project, editor: Editor): Unit = {
 
     if (!editor.getSelectionModel.hasSelection) {
       val offset = editor.getCaretModel.getOffset
@@ -732,7 +733,12 @@ object ScalaRefactoringUtil {
           w.getText.contains("\n") => file.findElementAt(offset - 1)
         case p => p
       }
-      val expressions = getExpressions(element).filter(exprFilter)
+
+      val expressions = getExpressions(element).filter {
+        case e if filterExpressions => checkCanBeIntroduced(e).isEmpty
+        case _ => true
+      }
+
       def chooseExpression(expr: ScExpression) {
         editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset, expr.getTextRange.getEndOffset)
         invokesNext
@@ -753,8 +759,10 @@ object ScalaRefactoringUtil {
     invokesNext
   }
 
-  def afterTypeElementChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
-                               currentSelectedElement: ScTypeElement, refactoringName: String)(invokesNext: (ScTypeElement) => Unit) {
+  def afterTypeElementChoosing(file: PsiFile,
+                               currentSelectedElement: ScTypeElement, refactoringName: String)
+                              (invokesNext: ScTypeElement => Unit)
+                              (implicit project: Project, editor: Editor): Unit = {
 
     if (!editor.getSelectionModel.hasSelection) {
       val element: PsiElement = currentSelectedElement
@@ -871,31 +879,31 @@ object ScalaRefactoringUtil {
       case _ => None
     }
 
-  def checkCanBeIntroduced(expr: ScExpression, action: (String) => Unit = _ => {}): Boolean = {
-    var errorMessage: String = null
+  def checkCanBeIntroduced(expr: ScExpression): Option[String] = {
     ScalaPsiUtil.getParentOfType(expr, classOf[ScConstrBlock]) match {
       case block: ScConstrBlock =>
         for {
           selfInv <- block.selfInvocation
           args <- selfInv.args
           if args.isAncestorOf(expr)
-        } errorMessage = ScalaBundle.message("cannot.refactor.arg.in.self.invocation.of.constructor")
+        } return Some(ScalaBundle.message("cannot.refactor.arg.in.self.invocation.of.constructor"))
       case _ =>
     }
 
     val guard: ScGuard = PsiTreeUtil.getParentOfType(expr, classOf[ScGuard])
-    if (guard != null && guard.getParent.isInstanceOf[ScCaseClause])
-      errorMessage = ScalaBundle.message("refactoring.is.not.supported.in.guard")
+    if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) {
+      return Some(ScalaBundle.message("refactoring.is.not.supported.in.guard"))
+    }
 
     expr match {
       case block: ScBlock if !block.hasRBrace && block.statements.size != 1 =>
-        errorMessage = ScalaBundle.message("cannot.refactor.not.expression")
+        return Some(ScalaBundle.message("cannot.refactor.not.expression"))
       case _ =>
     }
 
-    if (errorMessage == null) errorMessage = expr.getParent match {
-      case inf: ScInfixExpr if inf.operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
-      case post: ScPostfixExpr if post.operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
+    val errorMessage = expr.getParent match {
+      case ScInfixExpr(_, operation, _) if operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
+      case ScPostfixExpr(_, operation) if operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
       case _: ScGenericCall => ScalaBundle.message("cannot.refactor.under.generic.call")
       case _ if expr.isInstanceOf[ScConstrExpr] => ScalaBundle.message("cannot.refactor.constr.expression")
       case _: ScArgumentExprList if expr.isInstanceOf[ScAssignStmt] => ScalaBundle.message("cannot.refactor.named.arg")
@@ -907,8 +915,8 @@ object ScalaRefactoringUtil {
         }
       case _ => null
     }
-    if (errorMessage != null) action(errorMessage)
-    errorMessage == null
+
+    Option(errorMessage)
   }
 
   def replaceOccurence(textRange: TextRange, newString: String, file: PsiFile): RangeMarker = {

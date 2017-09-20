@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaMethodDescriptor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{afterExpressionChoosing, trimSpacesAndComments}
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
@@ -78,14 +78,11 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
       ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
         def run() {
           editor.getSelectionModel.setSelection(startOffset, endOffset)
-          ScalaRefactoringUtil.afterExpressionChoosing(project, editor, scalaFile, null, "Introduce Variable") {
-            ScalaRefactoringUtil.trimSpacesAndComments(editor, scalaFile)
+          afterExpressionChoosing(scalaFile, "Introduce Variable", filterExpressions = false) {
+            trimSpacesAndComments(editor, scalaFile)
             PsiDocumentManager.getInstance(project).commitAllDocuments()
             val handler = new ScalaIntroduceParameterHandler()
-            val (exprWithTypes, elems) = handler.selectedElements(scalaFile) match {
-              case Some((x, y)) => (x, y)
-              case None => return
-            }
+            val (exprWithTypes, elems) = handler.selectedElementsInFile(scalaFile).getOrElse(return)
 
             val (methodLike: ScMethodLike, returnType) =
               if (toPrimaryConstructor)
