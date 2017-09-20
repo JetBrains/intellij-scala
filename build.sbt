@@ -204,7 +204,8 @@ addCommandAlias("runHighlightingTests", s"testOnly -- --include-categories=$high
 
 addCommandAlias("runScalacTests", s"testOnly -- --include-categories=$scalacTests")
 
-addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTests " +
+addCommandAlias("runFastTests", s"testOnly -- -v -s -a +c +q" +
+                                            s"--exclude-categories=$slowTests " +
                                             s"--exclude-categories=$perfOptTests " +
                                             s"--exclude-categories=$scalacTests " +
                                             s"--exclude-categories=$highlightingTests "

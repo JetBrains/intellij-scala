@@ -52,6 +52,7 @@ object Common {
   def commonTestSettings(packagedPluginDir: SettingKey[File]): Seq[Setting[_]] = Seq(
     fork in Test := true,
     parallelExecution := false,
+    logBuffered := false,
     javaOptions in Test := Seq(
       "-Xms128m",
       "-Xmx4096m",
