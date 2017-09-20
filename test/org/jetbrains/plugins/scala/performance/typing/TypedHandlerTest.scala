@@ -1,9 +1,13 @@
 package org.jetbrains.plugins.scala.performance.typing
 
+import org.jetbrains.plugins.scala.SlowTests
+import org.junit.experimental.categories.Category
+
 /**
   * @author Roman.Shein
   *         Date: 15.12.2015
   */
+@Category(Array(classOf[SlowTests]))
 class TypedHandlerTest extends TypingTestWithPerformanceTestBase {
 
   val typingTimeout = 200
@@ -12,13 +16,13 @@ class TypedHandlerTest extends TypingTestWithPerformanceTestBase {
 
   def doTest(stringsToType: String*): Unit = doTest(stringsToType.toList, typingTimeout)
 
-  def testCase() = doTest("case _")
+  def testCase(): Unit = doTest("case _")
 
-  def testDotAfterNewline() = doTest(".")
+  def testDotAfterNewline(): Unit = doTest(".")
 
-  def testDotBeforeNewline() = doTest("a")
+  def testDotBeforeNewline(): Unit = doTest("a")
 
-  def testDefinitionAssignBeforeNewline() = doTest("a")
+  def testDefinitionAssignBeforeNewline(): Unit = doTest("a")
 
-  def testParametersComaBeforeNewline() = doTest("a")
+  def testParametersComaBeforeNewline(): Unit = doTest("a")
 }
