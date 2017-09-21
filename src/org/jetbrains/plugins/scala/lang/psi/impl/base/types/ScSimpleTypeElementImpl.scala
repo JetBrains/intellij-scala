@@ -166,28 +166,29 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
       findConstructor match {
         case Some(c) =>
-          var nonValueType = ScTypePolymorphicType(res, typeParameters)
-          var i = 0
-          //We need to update type info for generics in the following order:
-          //1. All clauses without last params clause or last arguments clause
-          //2. According to expected type
-          //3. Last argument clause
-          //4. Implicit clauses if applicable
-          //5. In case of SafeCheckException return to 3 to complete update without expected type
-          while (i < params.length - 1 && i < c.arguments.length - 1) {
-            nonValueType = InferUtil.localTypeInference(nonValueType.internalType, params(i),
-              c.arguments(i).exprs.map(new Expression(_)), nonValueType.typeParameters)
-            i += 1
+          def updateWithClause(nonValueType: ScTypePolymorphicType, clauseIdx: Int, safeCheck: Boolean) = {
+            InferUtil.localTypeInference(nonValueType.internalType, params(clauseIdx),
+              c.arguments(clauseIdx).exprs.map(new Expression(_)), nonValueType.typeParameters, safeCheck = safeCheck)
           }
 
-          def lastClause(withExpected: Boolean) {
-            c.expectedType match {
+          def withoutLastClause(): ScTypePolymorphicType = {
+            var i = 0
+            var result = ScTypePolymorphicType(res, typeParameters)
+            while (i < params.length - 1 && i < c.arguments.length - 1) {
+              result = updateWithClause(result, i, safeCheck = false)
+              i += 1
+            }
+            result
+          }
+
+          def lastClauseAndImplicits(previous: ScTypePolymorphicType, withExpected: Boolean): ScTypePolymorphicType = {
+            val fromExpected = c.expectedType match {
               case Some(expected) if withExpected =>
-                def updateRes(expected: ScType) {
-                  nonValueType = InferUtil.localTypeInference(nonValueType.internalType,
+                def updateRes(expected: ScType): ScTypePolymorphicType = {
+                  InferUtil.localTypeInference(previous.internalType,
                     Seq(Parameter(expected, isRepeated = false, index = 0)),
-                      Seq(new Expression(InferUtil.undefineSubstitutor(nonValueType.typeParameters).subst(res.inferValueType))),
-                    nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false) //here should work in different way:
+                      Seq(new Expression(InferUtil.undefineSubstitutor(previous.typeParameters).subst(res.inferValueType))),
+                    previous.typeParameters, shouldUndefineParameters = false, filterTypeParams = false) //here should work in different way:
                 }
                 val fromUnderscore = c.newTemplate match {
                   case Some(n) => ScUnderScoreSectionUtil.underscores(n).nonEmpty
@@ -198,36 +199,46 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 } else {
                   expected match {
                     case FunctionType(retType, _) => updateRes(retType)
-                    case _ => //do not update res, we haven't expected type
+                    case _ => previous //do not update res, we haven't expected type
                   }
                 }
-              case _ =>
+              case _ => previous
             }
 
             //last clause after expected types
-            if (i < params.length && i < c.arguments.length) {
-              nonValueType = InferUtil.localTypeInference(nonValueType.internalType, params(i),
-                c.arguments(i).exprs.map(new Expression(_)), nonValueType.typeParameters, safeCheck = withExpected)
-              i += 1
-            }
+            val lastClauseIdx = c.arguments.length - 1
+            val withLastClause =
+              if (lastClauseIdx >= 0 && lastClauseIdx < params.length) {
+                updateWithClause(fromExpected, lastClauseIdx, safeCheck = withExpected)
+              }
+              else fromExpected
 
-            if (lastImplicit && i < params.length) {
+            if (lastImplicit && c.arguments.length < params.length) {
               //Let's add implicit parameters
-              updateImplicits(nonValueType, withExpected, params, lastImplicit) match {
-                case t: ScTypePolymorphicType => nonValueType = t
-                case _ =>
+              updateImplicits(withLastClause, withExpected, params, lastImplicit) match {
+                case t: ScTypePolymorphicType => t
+                case _ => withLastClause
               }
             }
+            else withLastClause
           }
 
-          val oldNonValueType = nonValueType
-          try {
-            lastClause(withExpected = true)
-          } catch {
-            case _: SafeCheckException =>
-              nonValueType = oldNonValueType
-              lastClause(withExpected = false)
-          }
+
+          //We need to update type info for generics in the following order:
+          //1. All clauses without last params clause or last arguments clause
+          //2. According to expected type
+          //3. Last argument clause
+          //4. Implicit clauses if applicable
+          //5. In case of SafeCheckException return to 3 to complete update without expected type
+
+          val withoutLast = withoutLastClause()
+
+          val nonValueType =
+            try lastClauseAndImplicits(withoutLast, withExpected = true)
+            catch {
+              case _: SafeCheckException =>
+                lastClauseAndImplicits(withoutLast, withExpected = false)
+            }
 
           if (inferValueType) {
             val pts = nonValueType match {
