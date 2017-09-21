@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
+import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
 
 import scala.meta.ScalaMetaLibrariesOwner.MetaBaseLoader
@@ -124,6 +125,14 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
       case Right(tree) => Assert.assertEquals(expectedExpansion, tree.toString())
       case Left(reason) if reason.nonEmpty => Assert.fail(reason)
       case Left("") => Assert.fail("Expansion was empty - did annotation even run?")
+    }
+  }
+
+  protected def checkExpandsNoError(): Unit = {
+    import scala.meta.intellij.psiExt._
+    testClass.getMetaExpansion match {
+      case Left(error)  => fail(s"Expansion failed: $error")
+      case _ =>
     }
   }
 

@@ -52,6 +52,11 @@ class ScTraitImpl private (stub: ScTemplateDefinitionStub, node: ASTNode)
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
+
+    desugaredElement match {
+      case Some(td) => return td.processDeclarationsForTemplateBody(processor, state, getLastChild, place)
+      case _ =>
+    }
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place) &&
     super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)
   }

@@ -11,7 +11,6 @@ import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiParameterAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -92,13 +91,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
     if (clause == null) return false
     clause.isImplicit
-  }
-
-  override def hasModifierPropertyScala(name: String): Boolean = {
-    if (name == ScalaKeyword.IMPLICIT)
-      isImplicitParameter
-    else
-      super.hasModifierPropertyScala(name)
   }
 
   def index: Int = getParent.getParent match {

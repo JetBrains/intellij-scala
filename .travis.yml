@@ -12,14 +12,20 @@ addons:
       - oracle-java8-installer
 
 env:
-  - IDEA_SDK=$TRAVIS_BUILD_DIR/SDK/ideaSDK
+  global:
+    - IDEA_SDK=$TRAVIS_BUILD_DIR/SDK/ideaSDK
+  # split up tests into several subsets to avoid 50m timeout
+#  matrix:
+#    - COMMAND=runFastTestsComIntelliJ
+#    - COMMAND=runFastTestsOrgJetbrains
+#    - COMMAND=runFastTestsScala
+
+before_script:
+  # relies on travis supporting sbt-extras launcher
+  - sbt -jvm-opts travis/package.jvmopts packagePluginCommunity test:compile setUpTestEnvironment
 
 script:
-  # relies on travis supporting sbt-extras launcher
-  - sbt -jvm-opts travis/package.jvmopts packagePluginCommunity test:compile
-  # run only a typeInference tests because "fast" tests cause travis to timeout
-  # - sbt -jvm-opts travis/fastTests.jvmopts runFastTests
-  - sbt -jvm-opts travis/fastTests.jvmopts '- $HOME/.m2/repository'
+  - sbt -jvm-opts travis/fastTests.jvmopts runTypeInferenceTests
 
 
 # These directories are cached to S3 at the end of the build
@@ -27,7 +33,7 @@ cache:
   directories:
     - $HOME/.m2/repository
     - $HOME/.ivy2/cache
-    - $HOME/.sbt/boot/
+    - $HOME/.sbt
     - $IDEA_SDK
 
 before_cache:

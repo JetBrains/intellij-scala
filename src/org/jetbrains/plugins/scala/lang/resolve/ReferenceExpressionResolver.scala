@@ -113,7 +113,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
     val prevInfoTypeParams = reference.getPrevTypeInfoParams
 
-    def processor(smartProcessor: Boolean): MethodResolveProcessor =
+    def processor(smartProcessor: Boolean, name: String = name): MethodResolveProcessor =
       new MethodResolveProcessor(reference, name, info.arguments.toList,
         getTypeArgs(reference), prevInfoTypeParams, kinds(reference, reference, incomplete), expectedOption,
         info.isUnderscore, shapesOnly, enableTupling = true) {
@@ -129,30 +129,58 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         }
       }
 
-    var result: Array[ResolveResult] = Array.empty
-    if (shapesOnly) {
-      result = doResolve(reference, processor(smartProcessor = false))
-    } else {
-      val candidatesS = processor(smartProcessor = true).candidatesS //let's try to avoid treeWalkUp
-      if (candidatesS.isEmpty || candidatesS.forall(!_.isApplicable())) {
-        // it has another resolve only in one case:
-        // clazz.ref(expr)
-        // clazz has method ref with one argument, but it's not ok
-        // so shape resolve return this wrong result
-        // however there is implicit conversion with right argument
-        // this is ugly, but it can improve performance
-        result = doResolve(reference, processor(smartProcessor = false), tryThisQualifier = true)
-      } else {
-        result = candidatesS.toArray
+    def smartResolve(): Array[ScalaResolveResult] = processor(smartProcessor = true).candidates
+
+    def fallbackResolve(found: Array[ScalaResolveResult]): Array[ResolveResult] = {
+      // it has another resolve only in one case:
+      // clazz.ref(expr)
+      // clazz has method ref with one argument, but it's not ok
+      // so shape resolve return this wrong result
+      // however there is implicit conversion with right argument
+      // this is ugly, but it can improve performance
+
+      val applyName = "apply"
+      val isApplySugarCall = reference.refName != applyName && found.exists(_.name == applyName)
+
+      if (isApplySugarCall) {
+        val applyRef = createRef(reference, _ + s".$applyName")
+        doResolve(applyRef, processor(smartProcessor = false, applyName))
+      }
+      else {
+        doResolve(reference, processor(smartProcessor = false), tryThisQualifier = true)
       }
     }
+
+    def assignmentResolve() = {
+      val assignProcessor = new MethodResolveProcessor(
+        reference,
+        reference.refName.init,
+        List(argumentsOf(reference)),
+        Nil,
+        prevInfoTypeParams,
+        isShapeResolve = shapesOnly,
+        enableTupling = true)
+
+      doResolve(reference, assignProcessor)
+        .collect {
+          case r: ScalaResolveResult => r.copy(isAssignment = true): ResolveResult
+        }
+    }
+
+    val result =
+      if (shapesOnly) {
+        doResolve(reference, processor(smartProcessor = false))
+      } else {
+        val smartResult = smartResolve()
+
+        if (smartResult.exists(_.isApplicable())) smartResult
+        else fallbackResolve(smartResult)
+      }
+
     if (result.isEmpty && reference.isAssignmentOperator) {
-      val assignProcessor = new MethodResolveProcessor(reference, reference.refName.init, List(argumentsOf(reference)),
-        Nil, prevInfoTypeParams, isShapeResolve = shapesOnly, enableTupling = true)
-      result = doResolve(reference, assignProcessor)
-      result.map(r => r.asInstanceOf[ScalaResolveResult].copy(isAssignment = true): ResolveResult)
+      assignmentResolve()
     } else {
-      result
+      result.toArray
     }
   }
 
@@ -597,11 +625,15 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       res = doResolve(ref, processor, accessibilityCheck = false)
     }
     if (res.nonEmpty && res.forall(!_.isValidResult) && ref.qualifier.isEmpty && tryThisQualifier) {
-      val thisExpr = ScalaPsiElementFactory.createExpressionFromText("this." + ref.getText, ref.getContext)
-      res = doResolve(thisExpr.asInstanceOf[ScReferenceExpression], processor, accessibilityCheck)
+      val thisExpr = createRef(ref, "this." + _)
+      res = doResolve(thisExpr, processor, accessibilityCheck)
     }
     res
   }
 
-
+  private def createRef(ref: ScReferenceExpression, textUpdate: String => String): ScReferenceExpression = {
+    val newText = textUpdate(ref.getText)
+    ScalaPsiElementFactory.createExpressionFromText(newText, ref.getContext)
+      .asInstanceOf[ScReferenceExpression]
+  }
 }

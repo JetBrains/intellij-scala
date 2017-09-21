@@ -4,10 +4,12 @@ package completion3
 
 import com.intellij.codeInsight.completion.CompletionType.SMART
 import com.intellij.testFramework.EditorTestUtil
+import org.junit.experimental.categories.Category
 
 /**
   * @author Alexander Podkhalyuzin
   */
+@Category(Array(classOf[SlowTests]))
 class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase {
 
   import EditorTestUtil.{CARET_TAG => CARET}

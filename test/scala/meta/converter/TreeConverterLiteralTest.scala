@@ -66,7 +66,7 @@ class TreeConverterLiteralTest extends  TreeConverterTestBaseNoLibrary {
   def testSymbol() {
     doTest(
       "'foo'",
-      Term.Apply(Term.Select(Term.Name("scala"), Term.Name("Symbol")), Seq(Lit.Symbol('foo)))
+      Term.Apply(Term.Select(Term.Name("scala"), Term.Name("Symbol")), Seq(Lit.String("'foo")))
     )
   }
   

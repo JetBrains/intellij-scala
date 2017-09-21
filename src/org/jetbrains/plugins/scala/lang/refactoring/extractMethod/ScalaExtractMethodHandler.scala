@@ -28,8 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{maybeWritableScalaFile, showErrorHint, showNotPossibleWarnings}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
@@ -49,7 +48,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
 
     UsageTrigger.trigger(ScalaBundle.message("extract.method.id"))
 
-    ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, REFACTORING_NAME, ScalaRefactoringUtil.checkCanBeIntroduced(_)) {
+    afterExpressionChoosing(file, REFACTORING_NAME) {
       invokeOnEditor(file)
     }
   }
@@ -62,7 +61,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       .getOrElse(return)
 
     if (!editor.getSelectionModel.hasSelection) return
-    val elements: Seq[PsiElement] = ScalaRefactoringUtil.selectedElements(editor, scalaFile, trimComments = false)
+    val elements: Seq[PsiElement] = selectedElements(editor, scalaFile, trimComments = false)
 
     if (showNotPossibleWarnings(elements, REFACTORING_NAME)) return
 
@@ -111,7 +110,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     if (ApplicationManager.getApplication.isUnitTestMode && siblings.length > 0) {
       invokeDialog(array, hasReturn, lastReturn, siblings(0), siblings.length == 1, lastExprType)
     } else if (siblings.length > 1) {
-      ScalaRefactoringUtil.showChooser(editor, siblings, {(selectedValue: PsiElement) =>
+      showChooser(editor, siblings, { (selectedValue: PsiElement) =>
         invokeDialog(array, hasReturn, lastReturn, selectedValue,
           siblings(siblings.length - 1) == selectedValue, lastExprType)
       }, "Choose level for Extract Method", getTextForElement, (e: PsiElement) => e.getParent)

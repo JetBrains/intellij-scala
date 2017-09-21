@@ -12,6 +12,7 @@ import org.apache.commons.codec.binary.Hex
 
 class CompilationCache(private val module: Module, additionalKeys: Seq[String] = Seq.empty) {
   private val cacheRoot = new File(sys.props("user.home"), ".cache/IJ_scala_tests_cache/")
+  private val cacheDebug = sys.props.get("IJ_scala_tests_cache.debug").nonEmpty
   private lazy val hash = computeHash()
 
   def withModuleOutputCache[T](defaultValue: T)(fun: => T): T = {
@@ -39,6 +40,7 @@ class CompilationCache(private val module: Module, additionalKeys: Seq[String] =
       val timestamp = System.currentTimeMillis()
       outputDir.listFiles().foreach(_.setLastModified(timestamp)) // to avoid out-of-date class errors
       refreshVfs(outputDir.getAbsolutePath)
+      if (cacheDebug) println(s"Loaded cache from: ${cacheRoot.getAbsolutePath}")
       true
     } else false
   }

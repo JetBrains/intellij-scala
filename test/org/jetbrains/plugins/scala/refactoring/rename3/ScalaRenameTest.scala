@@ -1,59 +1,62 @@
 package org.jetbrains .plugins.scala
 package refactoring.rename3
 
+import org.junit.experimental.categories.Category
+
 /**
  * Nikolay.Tropin
  * 9/13/13
  */
+@Category(Array(classOf[SlowTests]))
 class ScalaRenameTest extends ScalaRenameTestBase {
 
-  def testObjectAndTraitToOpChars() = doTest("+++")
+  def testObjectAndTraitToOpChars(): Unit = doTest("+++")
 
-  def testObjectAndTrait() = doTest()
+  def testObjectAndTrait(): Unit = doTest()
 
-  def testObjectAndClass() = doTest()
+  def testObjectAndClass(): Unit = doTest()
 
-  def testObjectAndClassToOpChars() = doTest("+++")
+  def testObjectAndClassToOpChars(): Unit = doTest("+++")
 
-  def testObjectAndClassToBackticked() = doTest("`a`")
+  def testObjectAndClassToBackticked(): Unit = doTest("`a`")
 
-  def testValInClass() = doTest()
+  def testValInClass(): Unit = doTest()
 
-  def testValInTrait() = doTest()
+  def testValInTrait(): Unit = doTest()
 
-  def testVarAndSetters() = doTest()
+  def testVarAndSetters(): Unit = doTest()
 
-  def testSettersWithoutVar() = {
+  def testSettersWithoutVar(): Unit = {
       try {doTest()}
       catch {
         case e: RuntimeException if e.getMessage endsWith "is not an identifier." =>
       }
     }
 
-  def testSettersWithoutVar2() = {
+  def testSettersWithoutVar2(): Unit = {
     try {doTest("NameAfterRename_=")}
     catch {
       case e: RuntimeException if e.getMessage endsWith "is not an identifier." =>
     }
   }
 
-  def testOverridenVal() = doTest()
+  def testOverridenVal(): Unit = doTest()
 
-  def testOverridenClassParameter() = doTest()
+  def testOverridenClassParameter(): Unit = doTest()
 
-  def testOverrideDef() = doTest()
+  def testOverrideDef(): Unit = doTest()
 
-  def testMethodArgument() = doTest()
+  def testMethodArgument(): Unit = doTest()
 
-  def testMultipleBaseMembers() = doTest()
+  def testMultipleBaseMembers(): Unit = doTest()
 
-  def testTypeAlias() = doTest()
+  def testTypeAlias(): Unit = doTest()
 
-  def testOverridenFromJava() = doTest()
+  def testOverridenFromJava(): Unit = doTest()
 
-  def testMethodSameAsJavaKeyword() = doTest()
+  def testMethodSameAsJavaKeyword(): Unit = doTest()
 
-  def testParamSameAsJavaKeyword() = doTest()
+  def testParamSameAsJavaKeyword(): Unit = doTest()
   
-  def testObjectImport() = doTest()
+  def testObjectImport(): Unit = doTest()
 }
