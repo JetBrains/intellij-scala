@@ -150,8 +150,8 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
         TextRange[] occurrences = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(selectedExpr), myFile);
         String varName = "value";
 
-        introduceVariableHandler.runRefactoring(startOffset, endOffset, myFile, myEditor, selectedExpr,
-                occurrences, varName, types[0], replaceAllOccurences, false);
+        introduceVariableHandler.runRefactoring(startOffset, endOffset, myFile, selectedExpr,
+                occurrences, varName, types[0], replaceAllOccurences, false, myEditor);
 
         result = myEditor.getDocument().getText();
       } else if (element instanceof ScTypeElement){
