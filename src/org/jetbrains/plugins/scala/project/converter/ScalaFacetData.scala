@@ -40,7 +40,7 @@ private object ScalaFacetData {
     }
 
     new ScalaFacetData(
-      languageLevel = properties.string("languageLevel", "SCALA_2_11"),
+      languageLevel = properties.string("languageLevel", "Scala_2_12"),
       basePackage = properties.option("basePackage"),
       fscEnabled = properties.boolean("fsc"),
       compilerLibraryId,

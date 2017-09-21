@@ -34,4 +34,9 @@ class OverloadingTest extends ResolveTestBase {
   def testTooMuchImplicits() = doTest()
   def testWeakResolve() = doTest()
   def testWrong() {doTest()}
+
+  //SCL-12375
+  def testApplyFromImplicit() = doTest()
+  //SCL-12452
+  def testApplyFromImplicit2() = doTest()
 }

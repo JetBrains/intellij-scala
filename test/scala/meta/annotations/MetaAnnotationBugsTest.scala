@@ -141,7 +141,6 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
   }
 
   def testSCL12104(): Unit = {
-    import scala.meta.intellij.psiExt._
     compileMetaSource(
       """
         |import scala.meta._
@@ -156,16 +155,11 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
       |class $testClassName
     """.stripMargin
     )
-
-    testClass.getMetaExpansion match {
-      case Left(error)  => fail(s"Expansion failed: $error")
-      case _ =>
-    }
+    checkExpandsNoError()
   }
 
   // SCL-12385 Macro fails to expand if embedded inside an object
   def testSCL12385(): Unit = {
-    import scala.meta.intellij.psiExt._
     compileMetaSource(
       s"""
         |import scala.meta._
@@ -181,11 +175,7 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
         |@Foo.Argument(2) class $testClassName
       """.stripMargin
     )
-
-    testClass.getMetaExpansion match {
-      case Left(error)  => fail(s"Expansion failed: $error")
-      case _ =>
-    }
+    checkExpandsNoError()
   }
 
   def testSCL12371(): Unit = {
@@ -248,6 +238,33 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
     )
 
     assertTrue("Imported member doesn't resolve", refAtCaret.bind().isDefined)
+  }
+
+  // scala.meta macro expansion fails when pattern matching on annotation constructor with Symbol*
+  def testSCL11401(): Unit = {
+    compileMetaSource(
+      s"""import scala.meta._
+        |class $annotName(fields: scala.Symbol*) extends scala.annotation.StaticAnnotation {
+        |  inline def apply(defn: Any): Any = meta {
+        |    this match { case q"new $$_(..$$xs)" => xs.map { case ctor"$$_($${Lit(x: String)})" => x } }
+        |    defn
+        |  }
+        |}""".stripMargin
+    )
+    createFile(s"@$annotName('abc) class $testClassName")
+    val errors = myFixture.doHighlighting(HighlightSeverity.ERROR)
+    assertTrue(s"Symbol in annotation causes error: ${errors.headOption.getOrElse("")}", errors.isEmpty)
+  }
+
+  // Type parameters resolve to both synthetic and physical elements if target is present in both
+  def testSCL12582(): Unit = {
+    compileAnnotBody("defn")
+    createFile(s"@$annotName class $testClassName[T] { type K = T<caret> }")
+    val resClass = refAtCaret.multiResolve(false)
+    assertEquals("Reference should resolve to single element in class", 1, resClass.size)
+    createFile(s"@$annotName trait $testClassName[T] { type K = T<caret> }")
+    val resTrait = refAtCaret.multiResolve(false)
+    assertEquals("Reference should resolve to single element in trait", 1, resTrait.size)
   }
 
 }

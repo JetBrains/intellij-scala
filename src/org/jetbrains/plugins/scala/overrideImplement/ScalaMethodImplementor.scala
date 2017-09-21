@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOverrideImplementMethod
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable
@@ -30,10 +30,12 @@ class ScalaMethodImplementor extends MethodImplementor {
   def createImplementationPrototypes(inClass: PsiClass, method: PsiMethod): Array[PsiMethod] = {
     (for {
       td <- inClass.asOptionOf[ScTemplateDefinition].toSeq
-      member <- ScalaOIUtil.getMembersToImplement(td).collect {case mm: ScMethodMember if mm.getElement == method => mm}
+      member <- ScalaOIUtil.getMembersToImplement(td).collect {
+        case member@ScMethodMember(PhysicalSignature(element, _), _) if element == method => member
+      }
     } yield {
       val body = ScalaGenerationInfo.defaultValue(member.scType, inClass.getContainingFile)
-      val prototype = createOverrideImplementMethod(member.sign, needsOverrideModifier = true, body)(inClass.getManager)
+      val prototype = createOverrideImplementMethod(member.signature, needsOverrideModifier = true, body)(inClass.getManager)
       TypeAnnotationUtil.removeTypeAnnotationIfNeeded(prototype)
       prototypeToBaseMethod += (prototype -> method)
       prototype
@@ -58,10 +60,7 @@ private class ScalaPsiMethodGenerationInfo(method: PsiMethod, baseMethod: PsiMet
   override def insert(aClass: PsiClass, anchor: PsiElement, before: Boolean) {
     aClass match {
       case td: ScTemplateDefinition =>
-        val sign = new PhysicalSignature(method, ScSubstitutor.empty)
-        val methodMember = new ScMethodMember(sign, isOverride = false)
-
-        member = ScalaGenerationInfo.insertMethod(methodMember, td, findAnchor(td, baseMethod))
+        member = ScalaGenerationInfo.insertMethod(ScMethodMember(method), td, findAnchor(td, baseMethod))
       case _ => super.insert(aClass, anchor, before)
     }
   }
