@@ -167,8 +167,13 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       findConstructor match {
         case Some(c) =>
           def updateWithClause(nonValueType: ScTypePolymorphicType, clauseIdx: Int, safeCheck: Boolean) = {
-            InferUtil.localTypeInference(nonValueType.internalType, params(clauseIdx),
-              c.arguments(clauseIdx).exprs.map(new Expression(_)), nonValueType.typeParameters, safeCheck = safeCheck)
+            InferUtil.localTypeInference(
+              nonValueType.internalType,
+              params(clauseIdx),
+              c.arguments(clauseIdx).exprs.map(new Expression(_)),
+              nonValueType.typeParameters,
+              safeCheck = safeCheck,
+              filterTypeParams = false)
           }
 
           def withoutLastClause(): ScTypePolymorphicType = {
