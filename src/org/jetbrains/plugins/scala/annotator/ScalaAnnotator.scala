@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker._
 import org.jetbrains.plugins.scala.annotator.intention._
+import org.jetbrains.plugins.scala.annotator.intention.sbt.AddSbtDependencyFix
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.annotator.quickfix._
 import org.jetbrains.plugins.scala.annotator.template._
@@ -625,6 +626,8 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
+
+
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     refElement match {
       case _: ScInterpolatedStringPartReference =>
@@ -632,7 +635,7 @@ abstract class ScalaAnnotator extends Annotator
       case _ =>
     }
 
-    def getFix: Seq[IntentionAction] = {
+    def getFixes: Seq[IntentionAction] = {
       val classes = ScalaImportTypeFix.getTypesToImport(refElement, refElement.getProject)
       if (classes.length == 0) return Seq.empty
       Seq[IntentionAction](new ScalaImportTypeFix(classes, refElement))
@@ -646,7 +649,7 @@ abstract class ScalaAnnotator extends Annotator
         val error = ScalaBundle.message("cannot.resolve", refElement.refName)
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-        registerAddImportFix(refElement, annotation, fixes: _*)
+        registerAddFixes(refElement, annotation, fixes: _*)
         annotation.registerFix(ReportHighlightingErrorQuickFix)
         registerCreateFromUsageFixesFor(refElement, annotation)
       }
@@ -674,12 +677,12 @@ abstract class ScalaAnnotator extends Annotator
                 e.getParent.asInstanceOf[ScPrefixExpr].operation == e => //todo: this is hide !(Not Boolean)
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
                 e.getParent.asInstanceOf[ScInfixExpr].operation == e => //todo: this is hide A op B
-        case _: ScReferenceExpression => processError(countError = false, fixes = getFix)
+        case _: ScReferenceExpression => processError(countError = false, fixes = getFixes)
         case e: ScStableCodeReferenceElement if e.getParent.isInstanceOf[ScInfixPattern] &&
                 e.getParent.asInstanceOf[ScInfixPattern].reference == e => //todo: this is hide A op B in patterns
         case _ => refElement.getParent match {
           case _: ScImportSelector if resolve.length > 0 =>
-          case _ => processError(countError = true, fixes = getFix)
+          case _ => processError(countError = true, fixes = getFixes)
         }
       }
     } else {
@@ -796,6 +799,7 @@ abstract class ScalaAnnotator extends Annotator
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
+      annotation.registerFix(new AddSbtDependencyFix(refElement))
     }
   }
 
@@ -865,6 +869,7 @@ abstract class ScalaAnnotator extends Annotator
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
+      annotation.registerFix(new AddSbtDependencyFix(refElement))
     }
   }
 
@@ -932,7 +937,7 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  private def registerAddImportFix(refElement: ScReferenceElement, annotation: Annotation, actions: IntentionAction*) {
+  private def registerAddFixes(refElement: ScReferenceElement, annotation: Annotation, actions: IntentionAction*) {
     for (action <- actions) {
       annotation.registerFix(action)
     }
