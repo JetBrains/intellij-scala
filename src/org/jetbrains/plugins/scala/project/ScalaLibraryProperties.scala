@@ -19,17 +19,20 @@ class ScalaLibraryProperties extends LibraryProperties[ScalaLibraryPropertiesSta
   loadState(new ScalaLibraryPropertiesState())
 
   def loadState(state: ScalaLibraryPropertiesState) {
-    platform = Platform.from(state.platform)
-    languageLevel = ScalaLanguageLevel.from(state.languageLevel)
-    compilerClasspath = state.compilerClasspath.map(path => new File(urlToPath(path)))
+    platform = state.getPlatform
+    languageLevel = state.getLanguageLevel
+    compilerClasspath = state.compilerClasspath
+      .map(urlToPath)
+      .map(new File(_))
   }
 
   def getState: ScalaLibraryPropertiesState = {
-    val state = new ScalaLibraryPropertiesState()
-    state.platform = platform.proxy
-    state.languageLevel = languageLevel.proxy
-    state.compilerClasspath = compilerClasspath.map(file => pathToUrl(toCanonicalPath(file.getAbsolutePath))).toArray
-    state
+    val compilerClasspath = this.compilerClasspath
+      .map(_.getAbsolutePath)
+      .map(toCanonicalPath)
+      .map(pathToUrl)
+      .toArray
+    new ScalaLibraryPropertiesState(platform, languageLevel, compilerClasspath)
   }
 
   override def equals(obj: scala.Any): Boolean = obj match {

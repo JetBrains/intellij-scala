@@ -32,16 +32,15 @@ public class ScalaLibraryEditorForm {
   }
 
   public ScalaLibraryPropertiesState getState() {
-    ScalaLibraryPropertiesState state = new ScalaLibraryPropertiesState();
-    state.platform = ((Platform) myPlatform.getSelectedItem()).proxy();
-    state.languageLevel = ((ScalaLanguageLevel) myLanguageLevel.getSelectedItem()).proxy();
-    state.compilerClasspath = myClasspathEditor.getPaths();
-    return state;
+    Platform platform = (Platform) myPlatform.getSelectedItem();
+    ScalaLanguageLevel languageLevel = (ScalaLanguageLevel) myLanguageLevel.getSelectedItem();
+    String[] compilerClasspath = myClasspathEditor.getPaths();
+    return new ScalaLibraryPropertiesState(platform, languageLevel, compilerClasspath);
   }
 
   public void setState(ScalaLibraryPropertiesState state) {
-    myPlatform.setSelectedItem(Platform.from(state.platform));
-    myLanguageLevel.setSelectedItem(ScalaLanguageLevel.from(state.languageLevel));
+    myPlatform.setSelectedItem(state.getPlatform());
+    myLanguageLevel.setSelectedItem(state.getLanguageLevel());
     myClasspathEditor.setPaths(state.compilerClasspath);
   }
 
