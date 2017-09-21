@@ -205,7 +205,18 @@ object ScalaRefactoringUtil {
     PsiTreeUtil.findCommonParent(filtered: _*)
   }
 
-  def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {
+  def getExpression(file: PsiFile)
+                   (implicit project: Project, editor: Editor): Option[ScExpression] =
+    getExpressionWithTypes(file).map(_._1)
+
+  def getExpressionWithTypes(file: PsiFile)
+                            (implicit project: Project, editor: Editor): Option[(ScExpression, Array[ScType])] = {
+    val selectionModel = editor.getSelectionModel
+    getExpressionWithTypes(file, selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
+  }
+
+  def getExpressionWithTypes(file: PsiFile, startOffset: Int, endOffset: Int)
+                            (implicit project: Project, editor: Editor): Option[(ScExpression, Array[ScType])] = {
     implicit val ctx: ProjectContext = project
 
     val rangeText = file.getText.substring(startOffset, endOffset)
@@ -223,7 +234,7 @@ object ScalaRefactoringUtil {
               document.insertString(startOffset, "(")
               val documentManager: PsiDocumentManager = PsiDocumentManager.getInstance(project)
               documentManager.commitDocument(document)
-              val newOpt = getExpression(project, editor, file, startOffset, endOffset + 2)
+              val newOpt = getExpressionWithTypes(file, startOffset, endOffset + 2)
               newOpt match {
                 case Some((expression: ScExpression, typez)) =>
                   expression.getParent match {

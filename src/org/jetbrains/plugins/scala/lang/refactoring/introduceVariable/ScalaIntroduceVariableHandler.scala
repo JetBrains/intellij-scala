@@ -5,8 +5,8 @@ package introduceVariable
 
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.command.impl.StartMarkAction
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util._
 import com.intellij.psi._
@@ -27,32 +27,26 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
 
   override def invoke(file: PsiFile)
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
-    val offset = editor.getCaretModel.getOffset
-    def hasSelection = editor.getSelectionModel.hasSelection
-    def selectionStart = editor.getSelectionModel.getSelectionStart
-    def selectionEnd = editor.getSelectionModel.getSelectionEnd
-
     trimSpacesAndComments(editor, file)
 
-    val maybeSelectedElement = getTypeElement(file, selectionStart, selectionEnd)
-      .orElse(getExpression(project, editor, file, selectionStart, selectionEnd).map(_._1))
-
+    implicit val selectionModel: SelectionModel = editor.getSelectionModel
+    val maybeSelectedElement = getTypeElement(file).orElse(getExpression(file))
 
     def getTypeElementAtOffset = {
+      val offset = editor.getCaretModel.getOffset
       val diff = file.findElementAt(offset) match {
         case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset => 1
         case _ => 0
       }
 
       val realOffset = offset - diff
-      if (!hasSelection && getExpressionsAtOffset(file, realOffset).isEmpty)
+      if (getExpressionsAtOffset(file, realOffset).isEmpty)
         Option(findElementOfClassAtOffset(file, realOffset, classOf[ScTypeElement], false))
       else None
     }
 
-    if (hasSelection && maybeSelectedElement.isEmpty) {
-      val message = ScalaBundle.message("cannot.refactor.not.expression.nor.type")
-      showErrorHint(message, INTRODUCE_VARIABLE_REFACTORING_NAME, HelpID.INTRODUCE_VARIABLE)
+    if (selectionModel.hasSelection && maybeSelectedElement.isEmpty) {
+      showErrorHint(ScalaBundle.message("cannot.refactor.not.expression.nor.type"), INTRODUCE_VARIABLE_REFACTORING_NAME, HelpID.INTRODUCE_VARIABLE)
       return
     }
 
@@ -62,8 +56,9 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
     }
 
     val maybeTypeElement = maybeSelectedElement match {
-      case Some(te: ScTypeElement) => Option(te)
-      case _ => getTypeElementAtOffset
+      case Some(typeElement: ScTypeElement) => Some(typeElement)
+      case _ if !selectionModel.hasSelection => getTypeElementAtOffset
+      case _ => None
     }
 
     maybeTypeElement match {
@@ -75,7 +70,7 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
         }
       case _ =>
         afterExpressionChoosing(file, INTRODUCE_VARIABLE_REFACTORING_NAME) {
-          invokeExpression(file, selectionStart, selectionEnd)
+          invokeExpression(file, selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
         }
     }
   }

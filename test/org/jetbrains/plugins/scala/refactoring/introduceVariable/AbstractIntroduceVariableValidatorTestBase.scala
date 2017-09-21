@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.refactoring.introduceVariable
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.PsiTreeUtil.findCommonParent
+import com.intellij.psi.util.PsiTreeUtil.{findCommonParent, getParentOfType}
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -82,14 +81,8 @@ object AbstractIntroduceVariableValidatorTestBase {
                   (implicit project: Project, editor: Editor): Option[ScalaValidator] = {
     implicit val selectionModel: SelectionModel = editor.getSelectionModel
 
-    val startOffset = selectionModel.getSelectionStart
-    val endOffset = selectionModel.getSelectionEnd
-
-    PsiTreeUtil.getParentOfType(file.findElementAt(startOffset), classOf[ScExpression], classOf[ScTypeElement]) match {
-      case _: ScExpression =>
-        getExpression(project, editor, file, startOffset, endOffset).map {
-          case (expression, _) => getVariableValidator(expression, file)
-        }
+    getParentOfType(file.findElementAt(selectionModel.getSelectionStart), classOf[ScExpression], classOf[ScTypeElement]) match {
+      case _: ScExpression => getExpression(file).map(getVariableValidator(_, file))
       case _: ScTypeElement => getTypeElement(file).map(getTypeValidator(_, file))
       case _ => None
     }

@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -91,9 +92,10 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
 
   def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
-    val project = CommonDataKeys.PROJECT.getData(context)
-    val editor = CommonDataKeys.EDITOR.getData(context)
+    implicit val project: Project = CommonDataKeys.PROJECT.getData(context)
+    implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
     if (editor == null) return
+
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
     if (!file.isInstanceOf[ScalaFile]) return
 
@@ -107,14 +109,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
     }
 
     if (editor.getSelectionModel.hasSelection) {
-      val selectionStart = editor.getSelectionModel.getSelectionStart
-      val selectionEnd = editor.getSelectionModel.getSelectionEnd
-      val opt = ScalaRefactoringUtil.getExpression(project, editor, file, selectionStart, selectionEnd)
-      opt match {
-        case Some((expr, _)) =>
-          forExpr(expr)
-        case _ =>
-      }
+      getExpression(file).foreach(forExpr)
     } else {
       val offset = editor.getCaretModel.getOffset
       val element: PsiElement = file.findElementAt(offset) match {

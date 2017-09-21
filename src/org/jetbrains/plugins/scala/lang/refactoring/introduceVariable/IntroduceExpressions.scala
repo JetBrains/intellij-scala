@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScalaUtils
+
 import scala.collection.JavaConverters._
 
 /**
@@ -47,7 +48,7 @@ trait IntroduceExpressions {
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       writableScalaFile(file, INTRODUCE_VARIABLE_REFACTORING_NAME)
-      val (expr: ScExpression, types: Array[ScType]) = getExpression(project, editor, file, startOffset, endOffset).
+      val (expr, types) = getExpressionWithTypes(file, startOffset, endOffset).
         getOrElse(showErrorHintWithException(ScalaBundle.message("cannot.refactor.not.expression"), INTRODUCE_VARIABLE_REFACTORING_NAME))
 
       checkCanBeIntroduced(expr)
