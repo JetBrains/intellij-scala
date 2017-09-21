@@ -42,6 +42,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
+import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
@@ -181,7 +182,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   override def isWorksheetFile: Boolean = {
     ScalaUtil.findVirtualFile(this).exists {
       vFile => 
-        vFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION && !ScalaProjectSettings.getInstance(getProject).isTreatScAsAmmonite ||
+        vFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION && !AmmoniteUtil.isAmmoniteFile(vFile, getProject) ||
           ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
           ScalaProjectSettings.getInstance(getProject).isTreatScratchFilesAsWorksheet
     }
