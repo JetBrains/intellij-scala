@@ -3,16 +3,14 @@ package org.jetbrains.plugins.scala.base.libraryLoaders
 import java.io.File
 
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
+import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaLoader
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyLibraryLoader._
 import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.project.template.Artifact.ScalaCompiler.versionOf
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -26,13 +24,9 @@ case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
   import ScalaLibraryLoader._
 
   private var library: Library = _
-  private val syntheticClassesLoader = SyntheticClassesLoader()
 
   def init(implicit version: ScalaVersion): Unit = {
-    syntheticClassesLoader.init
-
     addScalaSdk
-    LibraryLoader.storePointers()
   }
 
   override def clean(): Unit = {
@@ -41,8 +35,6 @@ case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
         module.detach(library)
       }
     }
-
-    syntheticClassesLoader.clean()
   }
 
   private def addScalaSdk(implicit version: ScalaVersion): Unit = {
@@ -72,16 +64,6 @@ case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
 object ScalaLibraryLoader {
 
   ScalaLoader.loadScala()
-
-  private case class SyntheticClassesLoader()(implicit val module: Module)
-    extends LibraryLoader {
-
-    def init(implicit version: ScalaVersion): Unit =
-      Some(module.getProject)
-        .map(_.getComponent(classOf[SyntheticClasses]))
-        .filterNot(_.isClassesRegistered)
-        .foreach(_.registerClasses())
-  }
 
   abstract class ScalaLibraryLoaderAdapter(implicit module: Module)
     extends IvyLibraryLoader {

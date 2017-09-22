@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala
 package base
 
 import com.intellij.codeInsight.folding.CodeFoldingManager
+import com.intellij.openapi.application.WriteAction
+import com.intellij.openapi.project.Project
+import com.intellij.testFramework.LightProjectDescriptor
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
 import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader}
@@ -29,14 +32,25 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
 
   override protected def setUp(): Unit = {
     super.setUp()
+  }
 
+  override protected def getProjectDescriptor = new DelegatingProjectDescriptor(super.getProjectDescriptor) {
+    override def setUpProject(project: Project, handler: LightProjectDescriptor.SetupHandler) = {
+      super.setUpProject(project, handler)
+      WriteAction.run(() => {
+        afterSetUpProject()
+      })
+    }
+  }
+
+  protected def afterSetUpProject(): Unit = {
     if (loadScalaLibrary) {
       getFixture.allowTreeAccessForAllFiles()
       setUpLibraries()
     }
   }
 
-  protected override def tearDown(): Unit = {
+  protected override def tearDown() = {
     tearDownLibraries()
     super.tearDown()
   }

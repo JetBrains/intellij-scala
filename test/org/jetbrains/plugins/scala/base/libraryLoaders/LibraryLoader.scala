@@ -15,11 +15,3 @@ trait LibraryLoader {
 
   def clean(): Unit = {}
 }
-
-object LibraryLoader {
-  def storePointers(): Unit =
-    VirtualFilePointerManager.getInstance match {
-      case manager: VirtualFilePointerManagerImpl => manager.storePointers()
-    }
-}
-

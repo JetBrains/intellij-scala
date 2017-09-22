@@ -23,8 +23,6 @@ trait ThirdPartyLibraryLoader extends LibraryLoader {
     assert(file.exists(), s"library root for $name does not exist at $file")
     VfsRootAccess.allowRootAccess(path)
     PsiTestUtil.addLibrary(module, path)
-
-    LibraryLoader.storePointers()
   }
 
   protected def path(implicit version: ScalaVersion): String

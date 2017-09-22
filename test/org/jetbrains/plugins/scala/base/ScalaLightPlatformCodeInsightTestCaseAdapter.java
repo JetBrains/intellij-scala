@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.base;
 
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -10,7 +11,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
+import com.intellij.testFramework.LightProjectDescriptor;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.DelegatingProjectDescriptor;
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader;
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader;
 import org.jetbrains.plugins.scala.base.libraryLoaders.SourcesLoader;
@@ -86,11 +90,22 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         return result;
     }
 
+    @NotNull
     @Override
-    public void setUpLibraries() {
-        for (LibraryLoader libraryLoader : librariesLoadersAdapter()) {
-            libraryLoader.init(version());
-        }
+    protected LightProjectDescriptor getProjectDescriptor() {
+        return new DelegatingProjectDescriptor(super.getProjectDescriptor()) {
+            @Override
+            public void setUpProject(Project project, SetupHandler handler) {
+                super.setUpProject(project, handler);
+                WriteAction.run(() -> {
+                    afterSetUpProject();
+                });
+            }
+        };
+    }
+
+    protected void afterSetUpProject() {
+        setUpLibraries();
     }
 
     @Override
@@ -103,7 +118,6 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        setUpLibraries();
 
         TestUtils.disableTimerThread();
         //libLoader.clean();

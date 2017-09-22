@@ -82,8 +82,6 @@ object WorksheetProcessorTestBase {
       assertNotNull(s"Cannot find $url. Vfs file is null", rootFile)
 
       PsiTestUtil.addProjectLibrary(module, name, rootFile)
-
-      LibraryLoader.storePointers()
     }
 
     override protected def path(implicit version: ScalaVersion): String =

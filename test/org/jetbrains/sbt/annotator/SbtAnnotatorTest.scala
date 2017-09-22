@@ -97,8 +97,6 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
         model.addContentEntry(testdataUrl).addSourceFolder(testdataUrl, false)
       }
     })
-
-    LibraryLoader.storePointers()
   }
 }
 

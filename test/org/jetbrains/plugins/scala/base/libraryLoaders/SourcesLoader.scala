@@ -17,8 +17,6 @@ case class SourcesLoader(rootPath: String)
   override def init(implicit version: ScalaVersion): Unit = {
     FileUtil.createIfDoesntExist(new File(rootPath))
     PsiTestUtil.addSourceRoot(module, rootFile)
-
-    LibraryLoader.storePointers()
   }
 
   override def clean(): Unit = {

@@ -37,10 +37,13 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
   private def rootBefore = (folderPath + getTestName(true) + "/before").replace(File.separatorChar, '/')
   private def rootAfter = (folderPath + getTestName(true) + "/after").replace(File.separatorChar, '/')
 
+  override protected def afterSetUpProject() = {
+    super.afterSetUpProject()
+    myDirectory = PsiTestUtil.createTestProjectStructure(projectAdapter, moduleAdapter, rootBefore, new util.HashSet[File]())
+  }
+
   protected def doTest(newName: String = "NameAfterRename") {
     LocalFileSystem.getInstance().refresh(false)
-    myDirectory = PsiTestUtil.createTestProjectStructure(projectAdapter, moduleAdapter, rootBefore, new util.HashSet[File]())
-    VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
     val filesBefore =
       VfsUtil.collectChildrenRecursively(myDirectory.findChild("tests")).asScala
         .filter(!_.isDirectory)

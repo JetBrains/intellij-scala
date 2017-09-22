@@ -27,8 +27,7 @@ abstract class SbtCompletionTestBase extends completion.CompletionTestBase {
   }
 
   override def setUp() {
-    super.setUpWithoutScalaLib()
-    setUpLibraries()
+    super.setUp()
     inWriteAction {
       StartupManager.getInstance(project) match {
         case manager: StartupManagerImpl => manager.startCacheUpdate()

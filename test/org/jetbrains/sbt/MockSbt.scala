@@ -28,8 +28,6 @@ trait MockSbtBase extends ScalaSdkOwner {
     val classPath = librariesLoaders.map(urlForLibraryRoot)
 
     ModuleRootModificationUtil.addModuleLibrary(module, "sbt", classPath.asJava, List.empty[String].asJava)
-
-    LibraryLoader.storePointers()
   }
 }
 

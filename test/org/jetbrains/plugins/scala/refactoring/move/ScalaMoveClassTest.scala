@@ -4,8 +4,6 @@ package refactoring.move
 import java.io.File
 import java.util
 
-import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
-import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
@@ -27,64 +25,64 @@ import scala.collection.mutable.ArrayBuffer
  */
 class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   def testPackageObject() {
-    doTest("packageObject", Array("com.`package`"), "org")
+    doTest(Array("com.`package`"), "org")
   }
 
   def testPackageObject2() {
-    doTest("packageObject2", Array("com"), "org")
+    doTest(Array("com"), "org")
   }
 
   def testSimple() {
-    doTest("simple", Array("com.A"), "org")
+    doTest(Array("com.A"), "org")
   }
 
   def testSCL2625() {
-    doTest("scl2625", Array("somepackage.Dummy", "somepackage.MoreBusiness", "somepackage.Business", "somepackage.AnotherEnum"), "dest")
+    doTest(Array("somepackage.Dummy", "somepackage.MoreBusiness", "somepackage.Business", "somepackage.AnotherEnum"), "dest")
   }
 
   def testSCL4623() {
-    doTest("scl4623", Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
+    doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
   def testSCL4613() {
-    doTest("scl4613", Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
+    doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
   def testSCL4621() {
-    doTest("scl4621", Array("moveRefactoring.foo.O"), "moveRefactoring.bar")
+    doTest(Array("moveRefactoring.foo.O"), "moveRefactoring.bar")
   }
 
   def testSCL4619() {
-    doTest("scl4619", Array("foo.B"), "bar")
+    doTest(Array("foo.B"), "bar")
   }
 
   def testSCL4875() {
-    doTest("scl4875", Array("com.A"), "org")
+    doTest(Array("com.A"), "org")
   }
 
   def testSCL4878() {
-    doTest("scl4878", Array("org.B"), "com")
+    doTest(Array("org.B"), "com")
   }
 
   def testSCL4894() {
-    doTest("scl4894", Array("moveRefactoring.foo.B", "moveRefactoring.foo.BB"), "moveRefactoring.bar")
+    doTest(Array("moveRefactoring.foo.B", "moveRefactoring.foo.BB"), "moveRefactoring.bar")
   }
 
   def testSCL4972() {
-    doTest("scl4972", Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
+    doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
   def testSCL5456 () {
-    doTest("scl5456", Array("com.A"), "org", Kinds.onlyClasses)
+    doTest(Array("com.A"), "org", Kinds.onlyClasses)
   }
 
   def testWithCompanion() {
-    doTest("withCompanion", Array("source.A"), "target", Kinds.onlyClasses)
+    doTest(Array("source.A"), "target", Kinds.onlyClasses)
   }
 
 
   def testBothJavaAndScala() {
-    doTest("bothJavaAndScala", Array("org.A", "org.J"), "com")
+    doTest(Array("org.A", "org.J"), "com")
   }
 
 
@@ -93,35 +91,38 @@ class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 //    doTest("withoutCompanion", Array("source.A"), "target", Kinds.onlyObjects, moveCompanion = false)
 //  }
 
+  private def findAndRefreshVFile(path: String) = {
+    val vFile = LocalFileSystem.getInstance.findFileByPath(path.replace(File.separatorChar, '/'))
+    VfsUtil.markDirtyAndRefresh(/*async = */false, /*recursive =*/ true, /*reloadChildren =*/true, vFile)
+    vFile
+  }
 
+  private def root = TestUtils.getTestDataPath + "/move/" + getTestName(true)
 
-  def doTest(testName: String, classNames: Array[String], newPackageName: String, mode: Kinds.Value = Kinds.all, moveCompanion: Boolean = true) {
-    def findAndRefreshVFile(path: String) = {
-      val vFile = LocalFileSystem.getInstance.findFileByPath(path.replace(File.separatorChar, '/'))
-      VfsUtil.markDirtyAndRefresh(/*async = */false, /*recursive =*/ true, /*reloadChildren =*/true, vFile)
-      vFile
-    }
+  private var rootDirBefore: VirtualFile = _
+  private var rootDirAfter: VirtualFile = _
 
-    val root: String = TestUtils.getTestDataPath + "/move/" + testName
-    val rootBefore: String = root + "/before"
+  override protected def afterSetUpProject() = {
+    super.afterSetUpProject()
+    val rootBefore = root + "/before"
+    val rootAfter  = root + "/after"
     findAndRefreshVFile(rootBefore)
+    rootDirBefore = PsiTestUtil.createTestProjectStructure(getProjectAdapter, getModuleAdapter, rootBefore, new util.HashSet[File]())
+    rootDirAfter = findAndRefreshVFile(rootAfter)
+  }
 
-    val rootDir: VirtualFile = PsiTestUtil.createTestProjectStructure(getProjectAdapter, getModuleAdapter, rootBefore, new util.HashSet[File]())
-    VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
+  def doTest(classNames: Array[String], newPackageName: String, mode: Kinds.Value = Kinds.all, moveCompanion: Boolean = true) {
     val settings = ScalaApplicationSettings.getInstance()
     val moveCompanionOld = settings.MOVE_COMPANION
     settings.MOVE_COMPANION = moveCompanion
     try {
       performAction(classNames, newPackageName, mode)
     } finally {
-      PsiTestUtil.removeSourceRoot(getModuleAdapter, rootDir)
+      PsiTestUtil.removeSourceRoot(getModuleAdapter, rootDirBefore)
     }
     settings.MOVE_COMPANION = moveCompanionOld
-    val rootAfter: String = root + "/after"
-    val rootDir2: VirtualFile = findAndRefreshVFile(rootAfter)
-    VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
     getProjectAdapter.getComponent(classOf[PostprocessReformattingAspect]).doPostponedFormatting()
-    PlatformTestUtil.assertDirectoriesEqual(rootDir2, rootDir)
+    PlatformTestUtil.assertDirectoriesEqual(rootDirAfter, rootDirBefore)
   }
 
   private def performAction(classNames: Array[String], newPackageName: String, mode: Kinds.Value) {

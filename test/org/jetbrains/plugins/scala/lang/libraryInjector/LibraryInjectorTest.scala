@@ -58,8 +58,6 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
   }
 
   def testSimple() {
-    LibraryLoader.storePointers()
-
     val injectorLoader = LibraryInjectorLoader.getInstance(getProject)
     val classes = injectorLoader.getInjectorClasses(classOf[SyntheticMembersInjector])
 
