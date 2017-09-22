@@ -21,7 +21,7 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.components.StopWorksheetAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterFactory, WorksheetFoldGroup, WorksheetUiConstructor}
 
@@ -120,8 +120,8 @@ class WorksheetFileHook(private val project: Project) extends AbstractProjectCom
 
   private object WorksheetEditorListener extends FileEditorManagerListener {
     private def isPluggable(file: VirtualFile): Boolean = {
-      if (ScalaFileType.WORKSHEET_EXTENSION == file.getExtension && !ScalaProjectSettings.getInstance(project).isTreatScAsAmmonite) return true
       if (!file.isValid) return false
+      if (ScalaFileType.WORKSHEET_EXTENSION == file.getExtension && !AmmoniteUtil.isAmmoniteFile(file, project)) return true
       
       PsiManager.getInstance(project).findFile(file) match {
         case _: ScalaFile if ScratchFileService.getInstance().getRootType(file).isInstanceOf[ScratchRootType] => true

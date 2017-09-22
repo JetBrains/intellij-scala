@@ -10,27 +10,42 @@ import java.util.Arrays;
  */
 public class ScalaLibraryPropertiesState {
   // We have to rely on the Java's enumeration for serialization
-  public PlatformProxy platform = null;
+  private final PlatformProxy platform;
 
   // We have to rely on the Java's enumeration for serialization
-  public ScalaLanguageLevelProxy languageLevel = null;
+  private final ScalaLanguageLevelProxy languageLevel;
 
   public ScalaLibraryPropertiesState() {
-    this(PlatformProxy.Scala, ScalaLanguageLevel.Default().proxy());
+    this.platform = PlatformProxy.Scala;
+    this.languageLevel = ScalaLanguageLevel.Default().proxy();
+    this.compilerClasspath = new String[0];
   }
 
-  public ScalaLibraryPropertiesState(PlatformProxy platform, ScalaLanguageLevelProxy languageLevel) {
-    this.platform = platform;
-    this.languageLevel = languageLevel;
+  public ScalaLibraryPropertiesState(Platform platform, ScalaLanguageLevel languageLevel, String[] compilerClasspath) {
+    this.platform = platform.proxy();
+    this.languageLevel = languageLevel.proxy();
+    this.compilerClasspath = compilerClasspath;
+  }
+
+  public Platform getPlatform() {
+    return Platform.from(platform);
+  }
+
+  public ScalaLanguageLevel getLanguageLevel() {
+    return ScalaLanguageLevel.from(languageLevel);
   }
 
   @Tag("compiler-classpath")
   @AbstractCollection(surroundWithTag = false, elementTag = "root", elementValueAttribute = "url")
-  public String[] compilerClasspath = new String[]{};
+  public final String[] compilerClasspath;
 
   @Override
   public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
+
     ScalaLibraryPropertiesState that = (ScalaLibraryPropertiesState) obj;
-    return languageLevel == that.languageLevel && Arrays.equals(compilerClasspath, that.compilerClasspath);
+    return languageLevel == that.languageLevel &&
+            Arrays.equals(compilerClasspath, that.compilerClasspath);
   }
 }

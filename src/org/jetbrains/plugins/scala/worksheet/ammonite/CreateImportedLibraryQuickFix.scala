@@ -53,8 +53,11 @@ class CreateImportedLibraryQuickFix(private val myPsi: PsiElement) extends Local
                   moduleModel.addLibraryEntry(lib)
                   moduleModel.commit()
 
-                  val context = ModuleStructureConfigurable.getInstance(project).getContext
-                  context.getDaemonAnalyzer.queueUpdate(new ModuleProjectStructureElement(context, module))
+                  Option(ModuleStructureConfigurable.getInstance(project).getContext).foreach (
+                    context => Option(context.getDaemonAnalyzer).foreach(
+                      _.queueUpdate(new ModuleProjectStructureElement(context, module))
+                    )
+                  )
               }
             }
             

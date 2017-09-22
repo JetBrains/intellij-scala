@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.IntroduceExpressions.OccurrencesInFile;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceData;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeItem;
@@ -139,7 +140,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
         ScType[] types = null;
 
         Option<Tuple2<ScExpression, ScType[]>> maybeExpression =
-                ScalaRefactoringUtil.getExpression(project, myEditor, myFile, startOffset, endOffset);
+                ScalaRefactoringUtil.getExpressionWithTypes(myFile, startOffset, endOffset, project, myEditor);
         if (maybeExpression.isDefined()) {
           Tuple2<ScExpression, ScType[]> tuple2 = maybeExpression.get();
           selectedExpr = tuple2._1();
@@ -147,11 +148,8 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
         }
         Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 
-        TextRange[] occurrences = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(selectedExpr), myFile);
-        String varName = "value";
-
-        introduceVariableHandler.runRefactoring(startOffset, endOffset, myFile, myEditor, selectedExpr,
-                occurrences, varName, types[0], replaceAllOccurences, false);
+        OccurrencesInFile occurrencesInFile = new OccurrencesInFile(myFile, new TextRange(startOffset, endOffset), ScalaRefactoringUtil.getOccurrenceRanges(selectedExpr, myFile));
+          introduceVariableHandler.runRefactoring(occurrencesInFile, selectedExpr, "value", types[0], replaceAllOccurences, false, myEditor);
 
         result = myEditor.getDocument().getText();
       } else if (element instanceof ScTypeElement){

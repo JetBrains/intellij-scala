@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala
-package lang.refactoring.introduceVariable
+package lang
+package refactoring
+package introduceVariable
 
 import java.awt._
-import java.awt.event.{ActionEvent, ActionListener, ItemEvent, ItemListener}
+import java.awt.event.{ActionEvent, ItemEvent}
 import javax.swing._
 import javax.swing.event.HyperlinkEvent
 
@@ -45,16 +47,13 @@ import scala.collection.mutable
   * 6/3/13
   */
 
-class ScalaInplaceVariableIntroducer(project: Project,
-                                     editor: Editor,
-                                     expr: ScExpression,
-                                     types: Array[ScType],
+class ScalaInplaceVariableIntroducer(expr: ScExpression,
+                                     maybeSelectedType: Option[ScType],
                                      namedElement: PsiNamedElement,
-                                     title: String,
                                      replaceAll: Boolean,
-                                     asVar: Boolean,
                                      forceInferType: Boolean)
-  extends InplaceVariableIntroducer[ScExpression](namedElement, editor, project, title, Array.empty[ScExpression], expr) {
+                                    (implicit project: Project, editor: Editor)
+  extends InplaceVariableIntroducer[ScExpression](namedElement, editor, project, ScalaBundle.message("introduce.variable.title"), Array.empty, expr) {
 
   implicit def projectContext: ProjectContext = project
 
@@ -133,7 +132,6 @@ class ScalaInplaceVariableIntroducer(project: Project,
   override def getInitialName: String = initialName
 
   protected override def getComponent: JComponent = {
-
     if (!isEnumerator) {
       myVarCheckbox = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.declare.as.var"))
       myVarCheckbox.setMnemonic('v')
@@ -161,91 +159,91 @@ class ScalaInplaceVariableIntroducer(project: Project,
       })
     }
 
-    if (types.nonEmpty && !forceInferType) {
-      val selectedType = types(0)
-      mySpecifyTypeChb = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.specify.type.explicitly"))
-      mySpecifyTypeChb.setSelected(needTypeDefault)
-      mySpecifyTypeChb.setMnemonic('t')
-      mySpecifyTypeChb.addItemListener((e: ItemEvent) => {
-        val greedyToRight = mutable.WeakHashMap[RangeHighlighter, Boolean]()
+    maybeSelectedType.foreach {
+      case selectedType if !forceInferType =>
+        mySpecifyTypeChb = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.specify.type.explicitly"))
+        mySpecifyTypeChb.setSelected(needTypeDefault)
+        mySpecifyTypeChb.setMnemonic('t')
+        mySpecifyTypeChb.addItemListener((e: ItemEvent) => {
+          val greedyToRight = mutable.WeakHashMap[RangeHighlighter, Boolean]()
 
-        def setGreedyToRightToFalse(): Unit = {
-          val highlighters: Array[RangeHighlighter] = myEditor.getMarkupModel.getAllHighlighters
-          for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
-            greedyToRight += (highlighter -> highlighter.isGreedyToRight)
-        }
+          def setGreedyToRightToFalse(): Unit = {
+            val highlighters: Array[RangeHighlighter] = myEditor.getMarkupModel.getAllHighlighters
+            for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
+              greedyToRight += (highlighter -> highlighter.isGreedyToRight)
+          }
 
-        def resetGreedyToRightBack(): Unit = {
-          val highlighters: Array[RangeHighlighter] = myEditor.getMarkupModel.getAllHighlighters
-          for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
-            highlighter.setGreedyToRight(greedyToRight(highlighter))
-        }
+          def resetGreedyToRightBack(): Unit = {
+            val highlighters: Array[RangeHighlighter] = myEditor.getMarkupModel.getAllHighlighters
+            for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
+              highlighter.setGreedyToRight(greedyToRight(highlighter))
+          }
 
-        def checkRange(start: Int, end: Int): Boolean = {
-          val named: Option[ScNamedElement] = namedElement(getDeclaration)
-          if (named.isDefined) {
-            val nameRange = named.get.getNameIdentifier.getTextRange
-            nameRange.getStartOffset == start && nameRange.getEndOffset <= end
-          } else false
-        }
+          def checkRange(start: Int, end: Int): Boolean = {
+            val named: Option[ScNamedElement] = namedElement(getDeclaration)
+            if (named.isDefined) {
+              val nameRange = named.get.getNameIdentifier.getTextRange
+              nameRange.getStartOffset == start && nameRange.getEndOffset <= end
+            } else false
+          }
 
-        val writeAction = new WriteCommandAction[Unit](myProject, getCommandName, getCommandName) {
-          private def addTypeAnnotation(selectedType: ScType): Unit = {
-            val declaration = getDeclaration
-            declaration match {
-              case _: ScDeclaredElementsHolder | _: ScEnumerator =>
-                val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
-                val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
-                val first = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
-                val last = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN)
-                val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN)
-                declarationCopy.addRangeAfter(first, last, assign)
-                assign.delete()
-                val replaced = getDeclaration.replace(declarationCopy)
-                ScalaPsiUtil.adjustTypes(replaced)
-                setDeclaration(replaced)
-                commitDocument()
-              case _ =>
+          val writeAction = new WriteCommandAction[Unit](myProject, getCommandName, getCommandName) {
+            private def addTypeAnnotation(selectedType: ScType): Unit = {
+              val declaration = getDeclaration
+              declaration match {
+                case _: ScDeclaredElementsHolder | _: ScEnumerator =>
+                  val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
+                  val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
+                  val first = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
+                  val last = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN)
+                  val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN)
+                  declarationCopy.addRangeAfter(first, last, assign)
+                  assign.delete()
+                  val replaced = getDeclaration.replace(declarationCopy)
+                  ScalaPsiUtil.adjustTypes(replaced)
+                  setDeclaration(replaced)
+                  commitDocument()
+                case _ =>
+              }
+            }
+
+            private def removeTypeAnnotation(): Unit = {
+              getDeclaration match {
+                case holder: ScDeclaredElementsHolder =>
+                  val colon = holder.findFirstChildByType(ScalaTokenTypes.tCOLON)
+                  val assign = holder.findFirstChildByType(ScalaTokenTypes.tASSIGN)
+                  implicit val manager = myFile.getManager
+                  val whiteSpace = createExpressionFromText("1 + 1").findElementAt(1)
+                  val newWhiteSpace = holder.addBefore(whiteSpace, assign)
+                  holder.getNode.removeRange(colon.getNode, newWhiteSpace.getNode)
+                  setDeclaration(holder)
+                  commitDocument()
+                case enum: ScEnumerator if enum.pattern.isInstanceOf[ScTypedPattern] =>
+                  val colon = enum.pattern.findFirstChildByType(ScalaTokenTypes.tCOLON)
+                  enum.pattern.getNode.removeRange(colon.getNode, null)
+                  setDeclaration(enum)
+                  commitDocument()
+                case _ =>
+              }
+            }
+
+            protected def run(result: Result[Unit]): Unit = {
+              commitDocument()
+              setGreedyToRightToFalse()
+              if (needInferType) {
+                addTypeAnnotation(selectedType)
+              } else {
+                removeTypeAnnotation()
+              }
             }
           }
-
-          private def removeTypeAnnotation(): Unit = {
-            getDeclaration match {
-              case holder: ScDeclaredElementsHolder =>
-                val colon = holder.findFirstChildByType(ScalaTokenTypes.tCOLON)
-                val assign = holder.findFirstChildByType(ScalaTokenTypes.tASSIGN)
-                implicit val manager = myFile.getManager
-                val whiteSpace = createExpressionFromText("1 + 1").findElementAt(1)
-                val newWhiteSpace = holder.addBefore(whiteSpace, assign)
-                holder.getNode.removeRange(colon.getNode, newWhiteSpace.getNode)
-                setDeclaration(holder)
-                commitDocument()
-              case enum: ScEnumerator if enum.pattern.isInstanceOf[ScTypedPattern] =>
-                val colon = enum.pattern.findFirstChildByType(ScalaTokenTypes.tCOLON)
-                enum.pattern.getNode.removeRange(colon.getNode, null)
-                setDeclaration(enum)
-                commitDocument()
-              case _ =>
+          writeAction.execute()
+          ApplicationManager.getApplication.runReadAction(new Runnable {
+            def run(): Unit = {
+              if (needTypeDefault) resetGreedyToRightBack()
             }
-          }
-
-          protected def run(result: Result[Unit]): Unit = {
-            commitDocument()
-            setGreedyToRightToFalse()
-            if (needInferType) {
-              addTypeAnnotation(selectedType)
-            } else {
-              removeTypeAnnotation()
-            }
-          }
-        }
-        writeAction.execute()
-        ApplicationManager.getApplication.runReadAction(new Runnable {
-          def run(): Unit = {
-            if (needTypeDefault) resetGreedyToRightBack()
-          }
+          })
         })
-      })
     }
 
     myCheckIdentifierListener = Some(checkIdentifierListener())

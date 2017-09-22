@@ -19,18 +19,15 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 class ScalaIntroduceParameterUsageProcessor extends ChangeSignatureUsageProcessor {
 
   override def findUsages(info: ChangeInfo): Array[UsageInfo] = info match {
-    case isIntroduceParameter(data) if data.replaceAll =>
-      for {
-        occ <- data.occurrences
-      } yield {
+    case isIntroduceParameter(data) =>
+      def toUsageInfo(range: TextRange) = {
         val file = data.methodToSearchFor.getContainingFile
         val doc = PsiDocumentManager.getInstance(data.getProject).getDocument(file)
-        TextRangeUsageInfo(file, doc.createRangeMarker(occ))
+        TextRangeUsageInfo(file, doc.createRangeMarker(range))
       }
-    case isIntroduceParameter(data) =>
-      val file = data.methodToSearchFor.getContainingFile
-      val doc = PsiDocumentManager.getInstance(data.getProject).getDocument(file)
-      Array(TextRangeUsageInfo(file, doc.createRangeMarker(data.mainOcc)))
+
+      val occurrences = if (data.replaceAll) data.occurrences else Seq(data.mainOcc)
+      occurrences.map(toUsageInfo).toArray
     case _ => Array.empty
   }
 

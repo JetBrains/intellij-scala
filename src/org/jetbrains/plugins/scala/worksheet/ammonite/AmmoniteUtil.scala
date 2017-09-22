@@ -9,6 +9,8 @@ import com.intellij.openapi.roots.{OrderRootType, ProjectRootManager}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiUtilCore
+import com.intellij.util.containers.ContainerUtilRt
+import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
@@ -35,14 +37,26 @@ object AmmoniteUtil {
   private val ROOT_IVY = "$ivy"
   private val PARENT_FILE = "^"
 
-  def isAmmoniteFile(file: ScalaFile): Boolean = 
-    ScalaProjectSettings.getInstance(file.getProject).isTreatScAsAmmonite && 
-      ScalaUtil.findVirtualFile(file).exists(_.getExtension == AMMONITE_EXTENSION)
+  def isAmmoniteFile(file: ScalaFile): Boolean = {
+    ScalaUtil.findVirtualFile(file) match {
+      case Some(vFile) => isAmmoniteFile(vFile, file.getProject)
+      case _ => false
+    }
+  }
+  
+  def isAmmoniteFile(virtualFile: VirtualFile, project: Project): Boolean = {
+    virtualFile.getExtension == AMMONITE_EXTENSION && (ScalaProjectSettings.getInstance(project).getScFileMode match {
+      case ScalaProjectSettings.ScFileMode.Ammonite => true
+      case ScalaProjectSettings.ScFileMode.Worksheet => false
+      case ScalaProjectSettings.ScFileMode.Auto => 
+        ProjectRootManager.getInstance(project).getFileIndex.isUnderSourceRootOfType(virtualFile, ContainerUtilRt.newHashSet(JavaSourceRootType.TEST_SOURCE))
+    })
+  }
 
-  def findAllIvyImports(file: ScalaFile): Array[String] = {
+  def findAllIvyImports(file: ScalaFile): Seq[LibInfo] = {
     file.getChildren.flatMap {
       case imp: ScImportStmt =>
-        imp.importExprs.filter(_.getText.startsWith(ROOT_IVY)).flatMap(_.reference.map(_.refName))
+        imp.importExprs.filter(_.getText.startsWith(ROOT_IVY)).flatMap(_.reference.flatMap(extractLibInfo))
       case _ => Seq.empty
     }
   }
@@ -160,11 +174,22 @@ object AmmoniteUtil {
     val name = ref.refName.stripPrefix("`").stripSuffix("`")
     val result = ArrayBuffer[String]()
 
+    var scalaVersion: Option[String] = None
+    
     name.split(':').foreach {
-      p => if (p.nonEmpty) result += p
+      p => if (p.nonEmpty) {
+        if (p contains "_") {
+          p.split('_') match {
+            case Array(prefix, suffix@("2.10" | "2.11" | "2.12")) =>
+              scalaVersion = Option(suffix)
+              result += prefix
+            case _ => result += p
+          }
+        } else result += p
+      }
     }
 
-    if (result.length == 3) Some(LibInfo(result.head, result(1), result(2), getScalaVersion(ref))) else None 
+    if (result.length == 3) Some(LibInfo(result.head, result(1), result(2), scalaVersion getOrElse getScalaVersion(ref))) else None 
   }
 
   def getDefaultCachePath: String = System.getProperty("user.home") + "/.ivy2/cache".replace('/', File.separatorChar)

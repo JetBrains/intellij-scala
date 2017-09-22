@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitFunctionListCellRenderer
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
 import org.jetbrains.plugins.scala.util.IntentionUtils.showMakeExplicitPopup
 import org.jetbrains.plugins.scala.util.{IntentionUtils, JListCompatibility}
 
@@ -52,9 +53,10 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
 
   def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
-    val project = CommonDataKeys.PROJECT.getData(context)
-    val editor = CommonDataKeys.EDITOR.getData(context)
+    implicit val project: Project = CommonDataKeys.PROJECT.getData(context)
+    implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
     if (project == null || editor == null) return
+
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
     if (!file.isInstanceOf[ScalaFile]) return
 
@@ -134,14 +136,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
     }
 
     if (editor.getSelectionModel.hasSelection) {
-      val selectionStart = editor.getSelectionModel.getSelectionStart
-      val selectionEnd = editor.getSelectionModel.getSelectionEnd
-      val opt = ScalaRefactoringUtil.getExpression(project, editor, file, selectionStart, selectionEnd)
-      opt match {
-        case Some((expr, _)) =>
-          if (forExpr(expr)) return
-        case _ =>
-      }
+      getExpression(file).foreach(forExpr)
     } else {
       val offset = editor.getCaretModel.getOffset
       val element: PsiElement = file.findElementAt(offset) match {

@@ -7,10 +7,9 @@ import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.RangeHighlighter
-import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
@@ -121,13 +120,11 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
   def selectedElementsInFile(file: PsiFile)
                             (implicit project: Project, editor: Editor): Option[(ExprWithTypes, Seq[PsiElement])] = {
     try {
-      val selModel: SelectionModel = editor.getSelectionModel
-      if (!selModel.hasSelection) return None
+      if (!editor.getSelectionModel.hasSelection) return None
 
-      val (startOffset, endOffset) = (selModel.getSelectionStart, selModel.getSelectionEnd)
       val scalaFile = writableScalaFile(file, REFACTORING_NAME)
 
-      val exprWithTypes = getExpression(project, editor, scalaFile, startOffset, endOffset)
+      val exprWithTypes = getExpressionWithTypes(scalaFile)
       val elems = exprWithTypes match {
         case Some((e, _)) => Seq(e)
         case None => selectedElements(editor, scalaFile, trimComments = false)
@@ -192,12 +189,12 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
           case _ => methodLike
         }
 
-        val occurrences = getOccurrenceRanges(unparExpr(expr), occurrencesScope)
+        val occurrences = getOccurrenceRanges(expr, occurrencesScope)
         if (occurrences.length > 1)
           occurrenceHighlighters = highlightOccurrences(project, occurrences, editor)
 
         (occurrences, expr.getTextRange)
-      case _ => (Array.empty[TextRange], elems.head.getTextRange.union(elems.last.getTextRange))
+      case _ => (Seq.empty, elems.head.getTextRange.union(elems.last.getTextRange))
 
     }
     val data = ScalaIntroduceParameterData(methodLike, methodToSearchFor, elems,

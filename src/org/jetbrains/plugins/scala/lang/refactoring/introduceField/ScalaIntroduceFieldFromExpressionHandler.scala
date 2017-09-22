@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldHandlerBase._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
@@ -41,11 +40,9 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       writableScalaFile(file, REFACTORING_NAME)
 
-      val (expr: ScExpression, types: Array[ScType]) = getExpression(project, editor, file, startOffset, endOffset) match {
-        case Some((e, tps)) => (e, tps)
-        case None =>
-          showErrorHint(ScalaBundle.message("cannot.refactor.not.expression"))
-          return
+      val (expr, types) = getExpressionWithTypes(file, startOffset, endOffset).getOrElse {
+        showErrorHint(ScalaBundle.message("cannot.refactor.not.expression"))
+        return
       }
 
       afterClassChoosing[ScExpression](expr, types, project, editor, file, "Choose class for Introduce Field") {

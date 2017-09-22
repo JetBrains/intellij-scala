@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.worksheet.GotoOriginalHandlerUtil
 
 /**
@@ -16,13 +16,15 @@ import org.jetbrains.plugins.scala.worksheet.GotoOriginalHandlerUtil
   */
 class AmmoniteGotoHandler extends GotoDeclarationHandler {
   override def getGotoDeclarationTargets(sourceElement: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
+    if (sourceElement == null) return PsiElement.EMPTY_ARRAY
+    
     sourceElement.getContainingFile match {
       case ammoniteFile: ScalaFile if AmmoniteUtil.isAmmoniteFile(ammoniteFile) =>
       case _ => return PsiElement.EMPTY_ARRAY 
     }
     
     sourceElement.getParent match {
-      case ref: ScReferenceExpression => 
+      case ref: ScReferenceElement => 
         ref.resolve() match {
           case scalaPsi: ScalaPsiElement if GotoOriginalHandlerUtil.findPsi(scalaPsi.getContainingFile).isDefined => 
             new ParentsIterator(scalaPsi, false).collectFirst {

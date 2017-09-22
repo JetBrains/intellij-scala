@@ -25,8 +25,8 @@ object ScalaVariableValidator {
 
   def empty = new ScalaVariableValidator(null, true, null, null)
 
-  def apply(file: PsiFile, element: PsiElement, occurrences: Array[TextRange]): ScalaVariableValidator = {
-    val container = enclosingContainer(commonParent(file, occurrences: _*))
+  def apply(file: PsiFile, element: PsiElement, occurrences: Seq[TextRange]): ScalaVariableValidator = {
+    val container = enclosingContainer(commonParent(file, occurrences))
     val containerOne = enclosingContainer(element)
 
     new ScalaVariableValidator(element, occurrences.isEmpty, container, containerOne)

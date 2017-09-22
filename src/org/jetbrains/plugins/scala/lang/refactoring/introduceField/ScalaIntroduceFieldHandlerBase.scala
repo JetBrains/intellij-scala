@@ -58,8 +58,8 @@ abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHand
     }
   }
 
-  protected def anchorForNewDeclaration(expr: ScExpression, occurrences: Array[TextRange], aClass: ScTemplateDefinition): PsiElement = {
-    val commonParent = ScalaRefactoringUtil.commonParent(aClass.getContainingFile, occurrences: _*)
+  protected def anchorForNewDeclaration(expr: ScExpression, occurrences: Seq[TextRange], aClass: ScTemplateDefinition): PsiElement = {
+    val commonParent = ScalaRefactoringUtil.commonParent(aClass.getContainingFile, occurrences)
     val firstOccOffset = occurrences.map(_.getStartOffset).min
     val anchor = ScalaRefactoringUtil.statementsAndMembersInClass(aClass).find(_.getTextRange.getEndOffset >= firstOccOffset)
     anchor.getOrElse {
@@ -84,8 +84,8 @@ object ScalaIntroduceFieldHandlerBase {
   }
 
   def canBeInitInLocalScope[T <: PsiElement](ifc: IntroduceFieldContext[T], replaceAll: Boolean): Boolean = {
-    val occurrences = if (replaceAll) ifc.occurrences else Array(ifc.element.getTextRange)
-    val parExpr: ScExpression = ScalaRefactoringUtil.findParentExpr(ScalaRefactoringUtil.commonParent(ifc.file, occurrences: _*))
+    val occurrences = if (replaceAll) ifc.occurrences else Seq(ifc.element.getTextRange)
+    val parExpr: ScExpression = ScalaRefactoringUtil.findParentExpr(ScalaRefactoringUtil.commonParent(ifc.file, occurrences))
     val container = ScalaRefactoringUtil.container(parExpr, ifc.file)
     val stmtsAndMmbrs = ScalaRefactoringUtil.statementsAndMembersInClass(ifc.aClass)
     val containerIsLocal = container.withParentsInFile.exists(stmtsAndMmbrs.contains(_))
@@ -98,9 +98,9 @@ object ScalaIntroduceFieldHandlerBase {
     }
   }
 
-  def anchorForInitializer(occurences: Array[TextRange], file: PsiFile): Option[PsiElement] = {
-    var firstRange = occurences(0)
-    val commonParent = ScalaRefactoringUtil.commonParent(file, occurences: _*)
+  def anchorForInitializer(occurrences: Seq[TextRange], file: PsiFile): Option[PsiElement] = {
+    var firstRange = occurrences.head
+    val commonParent = ScalaRefactoringUtil.commonParent(file, occurrences)
 
     val parExpr = ScalaRefactoringUtil.findParentExpr(commonParent)
     if (parExpr == null) return None

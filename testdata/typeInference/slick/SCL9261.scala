@@ -29,4 +29,4 @@ object SCL9261 extends App {
 
   /*start*/Q.map(t => t.value)/*end*/
 }
-//Query[Unit, Unit, Seq]
+//Query[Rep[String], String, Seq]
