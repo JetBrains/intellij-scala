@@ -1,20 +1,20 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.internal.statistic.UsageTrigger
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Computable, Pass, TextRange}
+import com.intellij.openapi.util.{Pass, TextRange}
 import com.intellij.openapi.wm.WindowManager
+import com.intellij.psi.PsiModifier.PRIVATE
 import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.findElementOfClassAtOffset
 import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf, startCommand}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf, inWriteAction, startCommand}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -28,8 +28,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.project.ProjectContext
-
-import scala.collection.JavaConverters._
 
 /**
   * Created by Kate Ustyuzhanina
@@ -49,11 +47,16 @@ trait IntroduceExpressions {
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       writableScalaFile(file, INTRODUCE_VARIABLE_REFACTORING_NAME)
-      val (expr, types) = getExpressionWithTypes(file, startOffset, endOffset).
-        getOrElse(showErrorHintWithException(ScalaBundle.message("cannot.refactor.not.expression"), INTRODUCE_VARIABLE_REFACTORING_NAME))
 
-      checkCanBeIntroduced(expr)
-        .foreach(showErrorHintWithException(_, INTRODUCE_VARIABLE_REFACTORING_NAME))
+      val (expr, types) = getExpressionWithTypes(file, startOffset, endOffset).getOrElse {
+        showErrorHint(ScalaBundle.message("cannot.refactor.not.expression"), INTRODUCE_VARIABLE_REFACTORING_NAME)
+        return
+      }
+
+      checkCanBeIntroduced(expr).foreach { message =>
+        showErrorHint(message, INTRODUCE_VARIABLE_REFACTORING_NAME)
+        return
+      }
 
       val occurrences: Array[TextRange] = fileEncloser(file, startOffset).toArray.flatMap {
         getOccurrenceRanges(unparExpr(expr), _)
@@ -61,73 +64,11 @@ trait IntroduceExpressions {
 
       implicit val validator: ScalaVariableValidator = ScalaVariableValidator(file, expr, occurrences)
 
-      def runWithDialog() {
-        val dialog = getDialog(project, editor, expr, types, occurrences, declareVariable = false)
-        if (!dialog.isOK) {
-          occurrenceHighlighters.foreach(_.dispose())
-          occurrenceHighlighters = Seq.empty
-          return
-        }
-        val varName: String = dialog.getEnteredName
-        val varType: ScType = dialog.getSelectedType
-        val isVariable: Boolean = dialog.isDeclareVariable
-        val replaceAllOccurrences: Boolean = dialog.isReplaceAllOccurrences
-        runRefactoring(startOffset, endOffset, file, expr, occurrences, varName, varType, replaceAllOccurrences, isVariable)
-      }
+      val suggestedNames = SuggestedNames(expr, types)
+      val occurrencesInFile = OccurrencesInFile(file, new TextRange(startOffset, endOffset), occurrences)
 
-      def runInplace() {
-
-        val callback = new Pass[OccurrencesChooser.ReplaceChoice] {
-          def pass(replaceChoice: OccurrencesChooser.ReplaceChoice) {
-            val replaceAll = OccurrencesChooser.ReplaceChoice.NO != replaceChoice
-            val suggestedNames = NameSuggester.suggestNames(expr)
-
-            val introduceRunnable: Computable[SmartPsiElementPointer[PsiElement]] = () =>
-              runRefactoringInside(startOffset, endOffset, file, expr, occurrences, suggestedNames.head, types.head, replaceAll, isVariable = false, fromDialogMode = false)
-            CommandProcessor.getInstance.executeCommand(project, () => {
-              val newDeclaration: PsiElement = ApplicationManager.getApplication.runWriteAction(introduceRunnable).getElement
-              val namedElement: PsiNamedElement = newDeclaration match {
-                case holder: ScDeclaredElementsHolder =>
-                  holder.declaredElements.headOption.orNull
-                case enum: ScEnumerator => enum.pattern.bindings.headOption.orNull
-                case _ => null
-              }
-              val newExpr: ScExpression = newDeclaration match {
-                case ScVariableDefinition.expr(x) => x
-                case ScPatternDefinition.expr(x) => x
-                case enum: ScEnumerator => enum.rvalue
-                case _ => null
-              }
-              if (namedElement != null && namedElement.isValid) {
-                editor.getCaretModel.moveToOffset(namedElement.getTextOffset)
-                editor.getSelectionModel.removeSelection()
-                if (isInplaceAvailable(editor)) {
-                  PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-                  PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
-                  val variableIntroducer =
-                    new ScalaInplaceVariableIntroducer(project, editor, newExpr, types, namedElement,
-                      INTRODUCE_VARIABLE_REFACTORING_NAME, replaceAll, asVar = false, forceInferType(expr))
-
-                  variableIntroducer.performInplaceRefactoring(new util.LinkedHashSet[String](suggestedNames.asJavaCollection))
-                }
-              }
-            }, INTRODUCE_VARIABLE_REFACTORING_NAME, null)
-          }
-        }
-
-        val chooser = new OccurrencesChooser[TextRange](editor) {
-          override def getOccurrenceRange(occurrence: TextRange): TextRange = occurrence
-        }
-
-        if (occurrences.isEmpty) {
-          callback.pass(OccurrencesChooser.ReplaceChoice.NO)
-        } else {
-          chooser.showChooser(new TextRange(startOffset, endOffset), occurrences.toList.asJava, callback)
-        }
-      }
-
-      if (isInplaceAvailable(editor)) runInplace()
-      else runWithDialog()
+      if (isInplaceAvailable(editor)) runInplace(suggestedNames, occurrencesInFile)
+      else runWithDialog(suggestedNames, occurrencesInFile)
     }
 
     catch {
@@ -135,34 +76,73 @@ trait IntroduceExpressions {
     }
   }
 
-  def runRefactoring(startOffset: Int, endOffset: Int, file: PsiFile, expression: ScExpression,
-                     occurrences_ : Array[TextRange], varName: String, varType: ScType,
+  def runRefactoring(occurrences: OccurrencesInFile, expression: ScExpression, varName: String, varType: ScType,
                      replaceAllOccurrences: Boolean, isVariable: Boolean)
                     (implicit editor: Editor): Unit = {
     startCommand(editor.getProject, INTRODUCE_VARIABLE_REFACTORING_NAME) {
-      runRefactoringInside(startOffset, endOffset, file, expression, occurrences_, varName,
-        varType, replaceAllOccurrences, isVariable, fromDialogMode = true) //this for better debug
+      runRefactoringInside(occurrences, expression, varName, varType, replaceAllOccurrences, isVariable, fromDialogMode = true) // this for better debug
     }
     editor.getSelectionModel.removeSelection()
   }
 
-  protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: Array[ScType],
-                          occurrences: Array[TextRange], declareVariable: Boolean)
-                         (implicit validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
-    // Add occurrences highlighting
-    if (occurrences.length > 1)
-      occurrenceHighlighters = highlightOccurrences(project, occurrences, editor)
+  private def runInplace(suggestedNames: SuggestedNames, occurrences: OccurrencesInFile)
+                        (implicit project: Project, editor: Editor): Unit = {
+    import OccurrencesChooser.ReplaceChoice
 
-    val possibleNames = NameSuggester.suggestNames(expr).toArray
-    val reporter = new ValidationReporter(project, this)
+    val callback: Pass[ReplaceChoice] = (replaceChoice: ReplaceChoice) => {
+      val replaceAll = ReplaceChoice.NO != replaceChoice
 
-    val dialog = new ScalaIntroduceVariableDialog(project, typez, occurrences.length, reporter, possibleNames, expr)
-    dialog.show()
-    if (!dialog.isOK) {
-      if (occurrences.length > 1) {
-        WindowManager.getInstance.getStatusBar(project).
-          setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
+      startCommand(project, INTRODUCE_VARIABLE_REFACTORING_NAME) {
+        val SuggestedNames(expression, types, names) = suggestedNames
+        val reference = inWriteAction {
+          runRefactoringInside(occurrences, expression, names.head, types.head, replaceAll, isVariable = false, fromDialogMode = false)
+        }
+        performInplaceRefactoring(reference.getElement, types.headOption, replaceAll, forceInferType(expression), names)
       }
+    }
+
+    val OccurrencesInFile(_, mainRange, occurrences_) = occurrences
+    if (occurrences_.isEmpty) {
+      callback.pass(ReplaceChoice.NO)
+    } else {
+      val chooser = new OccurrencesChooser[TextRange](editor) {
+        override def getOccurrenceRange(occurrence: TextRange): TextRange = occurrence
+      }
+
+      chooser.showChooser(mainRange, ju.Arrays.asList(occurrences_ : _*), callback)
+    }
+  }
+
+  private def runWithDialog(suggestedNames: SuggestedNames, occurrences: OccurrencesInFile)
+                           (implicit project: Project, editor: Editor, validator: ScalaVariableValidator): Unit = {
+    // Add occurrences highlighting
+    val occurrences_ = occurrences.occurrences
+    val length = occurrences_.length
+    if (length > 1) {
+      occurrenceHighlighters = highlightOccurrences(project, occurrences_, editor)
+    }
+
+    showDialog(suggestedNames, length) match {
+      case dialog if dialog.isOK => runRefactoring(occurrences, suggestedNames.expression,
+        varName = dialog.getEnteredName,
+        varType = dialog.getSelectedType,
+        replaceAllOccurrences = dialog.isReplaceAllOccurrences,
+        isVariable = dialog.isDeclareVariable
+      )
+      case _ =>
+        occurrenceHighlighters.foreach(_.dispose())
+        occurrenceHighlighters = Seq.empty
+    }
+  }
+
+  private def showDialog(suggestedNames: SuggestedNames, length: Int)
+                        (implicit project: Project, editor: Editor, validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
+    val SuggestedNames(expression, types, names) = suggestedNames
+    val dialog = new ScalaIntroduceVariableDialog(project, types, length, new ValidationReporter(project, this), names, expression)
+
+    dialog.show()
+    if (!dialog.isOK && length > 1) {
+      WindowManager.getInstance.getStatusBar(project).setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
     }
 
     dialog
@@ -171,20 +151,71 @@ trait IntroduceExpressions {
 
 object IntroduceExpressions {
 
+  private class SuggestedNames(val expression: ScExpression, val types: Array[ScType]) {
+
+    def names: Array[String] = NameSuggester.suggestNames(expression).toArray
+  }
+
+  private object SuggestedNames {
+
+    def apply(expression: ScExpression, types: Array[ScType]): SuggestedNames =
+      new SuggestedNames(expression, types)
+
+    def unapply(names: SuggestedNames): Option[(ScExpression, Array[ScType], Array[String])] =
+      Some(names.expression, names.types, names.names)
+  }
+
+  case class OccurrencesInFile(file: PsiFile, mainRange: TextRange, occurrences: Array[TextRange])
+
+  private def performInplaceRefactoring(newDeclaration: PsiElement,
+                                        maybeType: Option[ScType],
+                                        replaceAll: Boolean,
+                                        forceType: Boolean,
+                                        suggestedNames: Array[String])
+                                       (implicit project: Project, editor: Editor): Unit = {
+    val maybeNamedElement = newDeclaration match {
+      case holder: ScDeclaredElementsHolder => holder.declaredElements.headOption
+      case enum: ScEnumerator => enum.pattern.bindings.headOption
+      case _ => None
+    }
+
+    val newExpr = newDeclaration match {
+      case ScVariableDefinition.expr(x) => x
+      case ScPatternDefinition.expr(x) => x
+      case enum: ScEnumerator => enum.rvalue
+      case _ => null
+    }
+
+    maybeNamedElement.filter(_.isValid).foreach { named =>
+      editor.getCaretModel.moveToOffset(named.getTextOffset)
+      editor.getSelectionModel.removeSelection()
+
+      if (isInplaceAvailable(editor)) {
+        (editor.getDocument, PsiDocumentManager.getInstance(project)) match {
+          case (document, manager) =>
+            manager.commitDocument(document)
+            manager.doPostponedOperationsAndUnblockDocument(document)
+        }
+
+        new ScalaInplaceVariableIntroducer(newExpr, maybeType, named, replaceAll, forceType)
+          .performInplaceRefactoring(new ju.LinkedHashSet(ju.Arrays.asList(suggestedNames: _*)))
+      }
+    }
+  }
+
   private def forceInferType(expression: ScExpression) = expression.isInstanceOf[ScFunctionExpr]
 
   //returns smart pointer to ScDeclaredElementsHolder or ScEnumerator
-  private def runRefactoringInside(startOffset: Int, endOffset: Int,
-                                   file: PsiFile,
+  private def runRefactoringInside(occurrencesInFile: OccurrencesInFile,
                                    expression: ScExpression,
-                                   occurrences_ : Array[TextRange],
                                    varName: String,
                                    varType: ScType,
                                    replaceAllOccurrences: Boolean,
                                    isVariable: Boolean,
                                    fromDialogMode: Boolean)
                                   (implicit editor: Editor): SmartPsiElementPointer[PsiElement] = {
-    val mainRange = new TextRange(startOffset, endOffset)
+    val OccurrencesInFile(file, mainRange, occurrences_) = occurrencesInFile
+
     val occurrences = if (replaceAllOccurrences) occurrences_ else Array(mainRange)
     val mainOccurence = occurrences.indexWhere(range => range.contains(mainRange) || mainRange.contains(range))
 
@@ -214,48 +245,6 @@ object IntroduceExpressions {
                                         (implicit editor: Editor): SmartPsiElementPointer[PsiElement] = {
     implicit val projectContext: ProjectContext = file
 
-    def isIntroduceEnumerator(parExpr: PsiElement, prev: PsiElement, firstOccurenceOffset: Int): Option[ScForStatement] = {
-      val result = prev match {
-        case forSt: ScForStatement if forSt.body.orNull == parExpr => None
-        case forSt: ScForStatement => Some(forSt)
-        case _: ScEnumerator | _: ScGenerator => Option(prev.getParent.getParent.asInstanceOf[ScForStatement])
-        case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => Option(prev.getParent.getParent.asInstanceOf[ScForStatement])
-        case _ =>
-          parExpr match {
-            case forSt: ScForStatement => Some(forSt) //there are occurrences both in body and in enumerators
-            case _ => None
-          }
-      }
-      for {
-      //check that first occurence is after first generator
-        forSt <- result
-        enums <- forSt.enumerators
-        generator = enums.generators.head
-        if firstOccurenceOffset > generator.getTextRange.getEndOffset
-      } yield forSt
-    }
-
-    def addPrivateIfNotLocal(declaration: PsiElement) {
-      declaration match {
-        case member: ScMember if !member.isLocal =>
-          member.setModifierProperty("private", value = true)
-        case _ =>
-      }
-    }
-
-    def replaceRangeByDeclaration(range: TextRange, element: PsiElement): PsiElement = {
-      val (start, end) = (range.getStartOffset, range.getEndOffset)
-      val text: String = element.getText
-      val document = editor.getDocument
-      document.replaceString(start, end, text)
-      PsiDocumentManager.getInstance(element.getProject).commitDocument(document)
-      val newEnd = start + text.length
-      editor.getCaretModel.moveToOffset(newEnd)
-      val decl = PsiTreeUtil.findElementOfClassAtOffset(file, start, classOf[ScMember], /*strictStart =*/ false)
-      lazy val enum = PsiTreeUtil.findElementOfClassAtOffset(file, start, classOf[ScEnumerator], /*strictStart =*/ false)
-      Option(decl).getOrElse(enum)
-    }
-
     object inExtendsBlock {
       def unapply(e: PsiElement): Option[ScExtendsBlock] = {
         e match {
@@ -276,7 +265,6 @@ object IntroduceExpressions {
       val model = editor.getSelectionModel
       val document = editor.getDocument
       val selectedText = model.getSelectedText
-      val lineNumber = document.getLineNumber(model.getSelectionStart)
 
       val oneLineSelected = selectedText != null && lineText != null && selectedText.trim == lineText.trim
 
@@ -284,8 +272,11 @@ object IntroduceExpressions {
       var parent = element
 
       def atSameLine(elem: PsiElement) = {
-        val offsets = Seq(elem.getTextRange.getStartOffset, elem.getTextRange.getEndOffset)
-        offsets.forall(document.getLineNumber(_) == lineNumber)
+        val textRange = elem.getTextRange
+        val lineNumbers = Seq(model.getSelectionStart, textRange.getStartOffset, textRange.getEndOffset)
+          .map(document.getLineNumber)
+
+        lineNumbers.distinct.size == 1
       }
 
       while (parent != null && !parent.isInstanceOf[PsiFile] && atSameLine(parent)) {
@@ -307,7 +298,7 @@ object IntroduceExpressions {
     val replacedOccurences = replaceOccurences(occurrences, varName, file)
 
     //only Psi-operations after this moment
-    var firstRange = replacedOccurences(0)
+    var firstRange = replacedOccurences.head
     val firstElement = findParentExpr(file, firstRange)
     val parentExprs =
       if (occurrences.length == 1)
@@ -356,7 +347,12 @@ object IntroduceExpressions {
 
     def createVariableDefinition(): PsiElement = {
       if (fastDefinition) {
-        replaceRangeByDeclaration(replacedOccurences(0), createDeclaration(varName, typeTextIfNeeded(firstElement), isVariable, expression))
+        val declaration = createDeclaration(varName, typeTextIfNeeded(firstElement), isVariable, expression)
+        replaceRangeByDeclaration(declaration.getText, firstRange)(declaration.getProject, editor)
+
+        val start = firstRange.getStartOffset
+        Option(findElementOfClassAtOffset(file, start, classOf[ScMember], /*strictStart =*/ false))
+          .getOrElse(findElementOfClassAtOffset(file, start, classOf[ScEnumerator], /*strictStart =*/ false))
       } else {
         var needFormatting = false
         val parent = commonParent match {
@@ -385,13 +381,47 @@ object IntroduceExpressions {
       }
     }
 
-    val createdDeclaration: PsiElement = isIntroduceEnumerator(commonParent, nextParentInFile, firstRange.getStartOffset) match {
+    val createdDeclaration: PsiElement = isIntroduceEnumerator(commonParent, nextParentInFile, firstRange) match {
       case Some(forStmt) => createEnumeratorIn(forStmt)
       case _ => createVariableDefinition()
     }
 
-    addPrivateIfNotLocal(createdDeclaration)
+    setPrivateModifier(createdDeclaration)
     ScalaPsiUtil.adjustTypes(createdDeclaration)
     SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(createdDeclaration)
   }
+
+  private[this] def replaceRangeByDeclaration(text: String, range: TextRange)
+                                             (implicit project: Project, editor: Editor): Unit = {
+    val startOffset = range.getStartOffset
+
+    val document = editor.getDocument
+    document.replaceString(startOffset, range.getEndOffset, text)
+    PsiDocumentManager.getInstance(project).commitDocument(document)
+
+    editor.getCaretModel.moveToOffset(startOffset + text.length)
+  }
+
+  private[this] def isIntroduceEnumerator(parent: PsiElement, element: PsiElement, range: TextRange): Option[ScForStatement] = {
+    val maybeParent = element match {
+      case statement: ScForStatement if statement.body.contains(parent) => None
+      case statement: ScForStatement => Some(statement)
+      case _: ScEnumerator | _: ScGenerator => Option(element.getParent.getParent)
+      case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => Option(element.getParent.getParent)
+      case _ => Some(parent)
+    }
+
+    maybeParent.collect {
+      case statement: ScForStatement => statement
+    }.filter(_.enumerators.exists(isAfterFirstGenerator(_, range)))
+  }
+
+  private[this] def setPrivateModifier(declaration: PsiElement): Unit = declaration match {
+    case member: ScMember if !member.isLocal => member.setModifierProperty(PRIVATE, value = true)
+    case _ =>
+  }
+
+  private[this] def isAfterFirstGenerator(enumerators: ScEnumerators, range: TextRange): Boolean =
+    enumerators.generators.headOption
+      .exists(_.getTextRange.getEndOffset < range.getStartOffset)
 }
