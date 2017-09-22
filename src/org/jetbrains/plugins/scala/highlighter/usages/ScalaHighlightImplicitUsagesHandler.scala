@@ -16,13 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike, ScReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -107,19 +105,20 @@ object ScalaHighlightImplicitUsagesHandler {
       case _                                                                 => false
     }
 
-    def isImplicitConversionOf(e: ScExpression): Boolean = {
-      e.getTypeAfterImplicitConversion() match {
-        case ExpressionTypeResult(Success(_, _), _, Some(implicitFunction)) => isTarget(implicitFunction)
-        case _ => e.implicitElement().exists(isTarget)
-      }
+    private def matches(srr: ScalaResolveResult): Boolean = {
+      isTarget(srr.element) ||
+        srr.implicitParameters.exists(matches) ||
+        srr.implicitConversion.exists(matches)
     }
 
-    def isImplicitParameterOf(e: ImplicitParametersOwner): Boolean = {
-      def matches(srrs: Seq[ScalaResolveResult]): Boolean = srrs.exists(
-        srr => srr.element.getNavigationElement == target.getNavigationElement || matches(srr.implicitParameters)
-      )
-      matches(e.findImplicitParameters.getOrElse(Seq.empty))
+    def isImplicitConversionOrParameter(e: ScExpression): Boolean = {
+      e.implicitConversion().exists(matches) || isImplicitParameterOf(e)
     }
+
+    def isImplicitParameterOf(e: ImplicitParametersOwner): Boolean =
+      e.findImplicitParameters
+        .getOrElse(Seq.empty)
+        .exists(matches)
   }
 
   private def findUsages(file: PsiFile, target: PsiElement): Seq[PsiElement] = {
@@ -132,7 +131,7 @@ object ScalaHighlightImplicitUsagesHandler {
     }
 
     def containsImplicitRef(elem: PsiElement): Boolean = elem match {
-      case e: ScExpression if target.isImplicitParameterOf(e) || target.isImplicitConversionOf(e) => true
+      case e: ScExpression if target.isImplicitConversionOrParameter(e) => true
       case st: ScSimpleTypeElement if target.isImplicitParameterOf(st) => true
       case _ => false
     }
