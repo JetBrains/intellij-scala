@@ -14,6 +14,5 @@
     <buildFile url="file://$PROJECT_DIR$/test/org/jetbrains/plugins/scala/lang/resolve/testAllResolve/TestAllResolveTestsGenerator.xml" />
     <buildFile url="file://$PROJECT_DIR$/test/org/jetbrains/plugins/scala/refactoring/rename/ScalaRenameTestsGenerator.xml" />
     <buildFile url="file://$PROJECT_DIR$/test/org/jetbrains/plugins/scala/refactoring/extractMethod/ExtractMethodTestsGenerator.xml" />
-    <buildFile url="file://$PROJECT_DIR$/buildutils.xml" />
   </component>
 </project>

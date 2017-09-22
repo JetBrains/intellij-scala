@@ -735,7 +735,7 @@ object ScalaPsiElementFactory {
   def createTypeFromText(text: String, context: PsiElement, child: PsiElement): Option[ScType] = {
     val typeElement = createTypeElementFromText(text, context, child)
     Option(typeElement).map {
-      _.getType().getOrAny
+      _.getType().getOrAny // FIXME this should probably be a None instead of Some(Any)
     }
   }
 
