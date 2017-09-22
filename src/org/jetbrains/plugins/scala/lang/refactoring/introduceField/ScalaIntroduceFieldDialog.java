@@ -23,9 +23,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ValidationReporter;
-import org.jetbrains.plugins.scala.settings.*;
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.settings.annotations.*;
-import org.jetbrains.plugins.scala.util.*;
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 import scala.Some$;
 
 import javax.swing.*;
@@ -81,7 +81,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     super(ifc.project(), true);
     this.project = ifc.project();
     this.myTypes = ifc.types();
-    this.occurrencesCount = ifc.occurrences().length;
+    this.occurrencesCount = ifc.occurrences().size();
     this.reporter = ifc.reporter();
     this.mySettings = settings;
     this.myClass = ifc.aClass();

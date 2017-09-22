@@ -59,7 +59,7 @@ trait IntroduceExpressions {
       }
 
       val occurrences: Array[TextRange] = fileEncloser(file, startOffset).toArray.flatMap {
-        getOccurrenceRanges(unparExpr(expr), _)
+        getOccurrenceRanges(expr, _)
       }
 
       implicit val validator: ScalaVariableValidator = ScalaVariableValidator(file, expr, occurrences)
@@ -165,7 +165,7 @@ object IntroduceExpressions {
       Some(names.expression, names.types, names.names)
   }
 
-  case class OccurrencesInFile(file: PsiFile, mainRange: TextRange, occurrences: Array[TextRange])
+  case class OccurrencesInFile(file: PsiFile, mainRange: TextRange, occurrences: Seq[TextRange])
 
   private def performInplaceRefactoring(newDeclaration: PsiElement,
                                         maybeType: Option[ScType],
@@ -216,7 +216,7 @@ object IntroduceExpressions {
                                   (implicit editor: Editor): SmartPsiElementPointer[PsiElement] = {
     val OccurrencesInFile(file, mainRange, occurrences_) = occurrencesInFile
 
-    val occurrences = if (replaceAllOccurrences) occurrences_ else Array(mainRange)
+    val occurrences = if (replaceAllOccurrences) occurrences_ else Seq(mainRange)
     val mainOccurence = occurrences.indexWhere(range => range.contains(mainRange) || mainRange.contains(range))
 
     val copy = expressionToIntroduce(expression)
@@ -236,7 +236,7 @@ object IntroduceExpressions {
 
   private[this] def runRefactoringInside(file: PsiFile,
                                          expression: ScExpression,
-                                         occurrences: Array[TextRange],
+                                         occurrences: Seq[TextRange],
                                          mainOccurence: Int,
                                          varName: String,
                                          isVariable: Boolean,

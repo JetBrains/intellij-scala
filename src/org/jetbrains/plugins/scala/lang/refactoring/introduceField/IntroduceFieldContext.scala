@@ -12,8 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldHandlerBase._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.IntroduceException
-import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{IntroduceException, getOccurrenceRanges}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaVariableValidator, ValidationReporter}
+
 import scala.collection.JavaConverters._
 
 /**
@@ -27,9 +28,8 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
                                              val types: Array[ScType],
                                              val aClass: ScTemplateDefinition) {
 
-  val occurrences: Array[TextRange] = element match {
-    case expr: ScExpression =>
-      ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), aClass.extendsBlock)
+  val occurrences: Seq[TextRange] = element match {
+    case expr: ScExpression => getOccurrenceRanges(expr, aClass.extendsBlock)
     case _ => null
   }
 

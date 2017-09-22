@@ -4,7 +4,7 @@ package refactoring
 package util
 
 import java.awt.Component
-import java.util
+import java.{util => ju}
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
@@ -326,7 +326,9 @@ object ScalaRefactoringUtil {
     !operationStatus.hasReadonlyFiles
   }
 
-  def getOccurrenceRanges(element: PsiElement, enclosingContainer: PsiElement): Array[TextRange] = {
+  def getOccurrenceRanges(expression: ScExpression, enclosingContainer: PsiElement): Seq[TextRange] = {
+    val element = unparExpr(expression)
+
     def collectOccurrencesInLiteral(literal: ScLiteral, text: String, result: ArrayBuffer[TextRange]) {
       if (text.isEmpty) return
 
@@ -344,8 +346,9 @@ object ScalaRefactoringUtil {
         }
       }
     }
-    def getTextOccurrenceInLiterals(text: String, enclosingContainer: PsiElement, filter: ScLiteral => Boolean): Array[TextRange] = {
-      val result = ArrayBuffer[TextRange]()
+
+    def getTextOccurrenceInLiterals(text: String, enclosingContainer: PsiElement, filter: ScLiteral => Boolean): Seq[TextRange] = {
+      val result = mutable.ArrayBuffer[TextRange]()
       for (child <- enclosingContainer.getChildren) {
         child match {
           case toCheck: ScLiteral if PsiEquivalenceUtil.areElementsEquivalent(element, toCheck) =>
@@ -354,7 +357,7 @@ object ScalaRefactoringUtil {
           case _ => result ++= getTextOccurrenceInLiterals(text, child, filter)
         }
       }
-      result.toArray
+      result
     }
     element match {
       case intrp: ScInterpolatedStringLiteral =>
@@ -386,8 +389,8 @@ object ScalaRefactoringUtil {
     }
   }
 
-  def getExprOccurrences(element: PsiElement, enclosingContainer: PsiElement): Array[ScExpression] = {
-    val occurrences: ArrayBuffer[ScExpression] = new ArrayBuffer[ScExpression]()
+  private[this] def getExprOccurrences(element: PsiElement, enclosingContainer: PsiElement): Seq[ScExpression] = {
+    val occurrences = mutable.ArrayBuffer[ScExpression]()
     if (enclosingContainer == element) occurrences += enclosingContainer.asInstanceOf[ScExpression]
     else
       for (child <- enclosingContainer.getChildren) {
@@ -404,7 +407,7 @@ object ScalaRefactoringUtil {
           occurrences ++= getExprOccurrences(element, child)
         }
       }
-    occurrences.toArray
+    occurrences
   }
 
   def getTypeElementOccurrences(inElement: ScTypeElement, inEnclosingContainer: PsiElement): Array[ScTypeElement] = {
@@ -465,15 +468,9 @@ object ScalaRefactoringUtil {
   }
 
 
-  def unparExpr(expr: ScExpression): ScExpression = {
-    expr match {
-      case x: ScParenthesisedExpr =>
-        x.expr match {
-          case Some(e) => e
-          case _ => x
-        }
-      case _ => expr
-    }
+  def unparExpr(expression: ScExpression): ScExpression = expression match {
+    case ScParenthesisedExpr(innerExpression) => innerExpression
+    case _ => expression
   }
 
   def hasNltoken(e: PsiElement): Boolean = {
@@ -487,30 +484,31 @@ object ScalaRefactoringUtil {
     hasNlToken
   }
 
-  def getCompatibleTypeNames(myTypes: Array[ScType]): util.LinkedHashMap[String, ScType] = {
-    val map = new util.LinkedHashMap[String, ScType]
+  def getCompatibleTypeNames(myTypes: Array[ScType]): ju.LinkedHashMap[String, ScType] = {
+    val map = new ju.LinkedHashMap[String, ScType]
     myTypes.foreach(myType => map.put(myType.presentableText, myType))
     map
   }
 
-  def highlightOccurrences(project: Project, occurrences: Array[TextRange], editor: Editor): Seq[RangeHighlighter] = {
-    val highlighters = new java.util.ArrayList[RangeHighlighter]
-    var highlightManager: HighlightManager = null
+  def highlightOccurrences(project: Project, occurrences: Seq[TextRange], editor: Editor): Seq[RangeHighlighter] = {
+    val highlighters = new ju.ArrayList[RangeHighlighter]
+
     if (editor != null) {
-      highlightManager = HighlightManager.getInstance(project)
-      val colorsManager = EditorColorsManager.getInstance
-      val attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
-      for (occurence <- occurrences)
-        highlightManager.addRangeHighlight(editor, occurence.getStartOffset, occurence.getEndOffset, attributes, true, highlighters)
+      val highlightManager = HighlightManager.getInstance(project)
+      val colorsScheme = EditorColorsManager.getInstance.getGlobalScheme
+      val attributes = colorsScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
+
+      occurrences.foreach { occurrence =>
+        highlightManager.addRangeHighlight(editor, occurrence.getStartOffset, occurrence.getEndOffset, attributes, true, highlighters)
+      }
     }
+
     highlighters.asScala
   }
 
-  def highlightOccurrences(project: Project, occurrences: Array[PsiElement], editor: Editor): Seq[RangeHighlighter] = {
-    highlightOccurrences(project, occurrences.map({
-      el: PsiElement => el.getTextRange
-    }), editor)
-  }
+  def highlightOccurrences(occurrences: Seq[PsiElement])
+                          (implicit project: Project, editor: Editor): Seq[RangeHighlighter] =
+    highlightOccurrences(project, occurrences.map(_.getTextRange), editor)
 
   def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: T => Unit, title: String,
                                    elementName: T => String, toHighlight: T => PsiElement = (t: T) => t.asInstanceOf[PsiElement]) {
@@ -556,9 +554,9 @@ object ScalaRefactoringUtil {
         val index: Int = list.getSelectedIndex
         if (index < 0) return
         val element: T = model.get(index).asInstanceOf[T]
-        val toExtract: util.ArrayList[PsiElement] = new util.ArrayList[PsiElement]
-        toExtract.add(toHighlight(element))
-        highlighter.highlight(toHighlight(element), toExtract)
+
+        val psiElement = toHighlight(element)
+        highlighter.highlight(psiElement, ju.Collections.singletonList(psiElement))
       }
     })
 
@@ -831,16 +829,21 @@ object ScalaRefactoringUtil {
             .flatMap(_.scopes.toStream.headOption).orNull
   }
 
-  def commonParent(file: PsiFile, textRanges: TextRange*): PsiElement = {
-    val elemSeq = (for (occurence <- textRanges) yield file.findElementAt(occurence.getStartOffset)) ++
-      (for (occurence <- textRanges) yield file.findElementAt(occurence.getEndOffset - 1))
-    PsiTreeUtil.findCommonParent(elemSeq: _*)
+  def commonParent(file: PsiFile, textRange: TextRange): PsiElement =
+    commonParent(file, Seq(textRange))
+
+  def commonParent(file: PsiFile, textRanges: Seq[TextRange]): PsiElement = {
+    val offsets = textRanges.map(_.getStartOffset) ++ textRanges.map(_.getEndOffset - 1)
+    PsiTreeUtil.findCommonParent(offsets.map(file.findElementAt): _*)
   }
 
   def isLiteralPattern(file: PsiFile, textRange: TextRange): Boolean = {
-    val parent = ScalaRefactoringUtil.commonParent(file, textRange)
-    val literalPattern = getParentOfType(parent, classOf[ScLiteralPattern])
-    literalPattern != null && literalPattern.getTextRange == textRange
+    val maybeParent = Option(commonParent(file, textRange))
+    val maybePattern = maybeParent.flatMap(element => Option(getParentOfType(element, classOf[ScLiteralPattern])))
+
+    maybePattern
+      .map(_.getTextRange)
+      .contains(textRange)
   }
 
   def showErrorHintWithException(message: String,
@@ -983,8 +986,8 @@ object ScalaRefactoringUtil {
   }
 
 
-  def replaceOccurences(occurences: Array[TextRange], newString: String, file: PsiFile): Array[TextRange] = {
-    val revercedRangeMarkers = occurences.reverseMap(replaceOccurence(_, newString, file))
+  def replaceOccurences(occurrences: Seq[TextRange], newString: String, file: PsiFile): Seq[TextRange] = {
+    val revercedRangeMarkers = occurrences.reverseMap(replaceOccurence(_, newString, file))
     revercedRangeMarkers.reverseMap(rm => new TextRange(rm.getStartOffset, rm.getEndOffset))
   }
 
@@ -1021,10 +1024,8 @@ object ScalaRefactoringUtil {
     }
   }
 
-  def findParentExpr(file: PsiFile, range: TextRange): ScExpression = {
-    val elem = commonParent(file, range)
-    findParentExpr(elem)
-  }
+  def findParentExpr(file: PsiFile, range: TextRange): ScExpression =
+    findParentExpr(commonParent(file, range))
 
   def nextParent(expr: PsiElement, file: PsiFile): PsiElement = {
     if (expr == null) file

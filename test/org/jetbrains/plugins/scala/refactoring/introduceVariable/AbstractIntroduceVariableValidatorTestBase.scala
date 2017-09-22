@@ -101,10 +101,10 @@ object AbstractIntroduceVariableValidatorTestBase {
 
   private[this] def getVariableValidator(expression: ScExpression, file: PsiFile)
                                         (implicit selectionModel: SelectionModel): ScalaVariableValidator = {
-    val occurrences = getOccurrenceRanges(unparExpr(expression), fileEncloser(file).orNull)
+    val occurrences = getOccurrenceRanges(expression, fileEncloser(file).orNull)
     val containerOne = getContainerOne(file, occurrences.length)
 
-    val parent = commonParent(file, occurrences: _*)
+    val parent = commonParent(file, occurrences)
     new ScalaVariableValidator(expression, occurrences.isEmpty, enclosingContainer(parent), containerOne)
   }
 

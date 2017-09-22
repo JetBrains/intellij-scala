@@ -10,7 +10,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
@@ -190,12 +189,12 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
           case _ => methodLike
         }
 
-        val occurrences = getOccurrenceRanges(unparExpr(expr), occurrencesScope)
+        val occurrences = getOccurrenceRanges(expr, occurrencesScope)
         if (occurrences.length > 1)
           occurrenceHighlighters = highlightOccurrences(project, occurrences, editor)
 
         (occurrences, expr.getTextRange)
-      case _ => (Array.empty[TextRange], elems.head.getTextRange.union(elems.last.getTextRange))
+      case _ => (Seq.empty, elems.head.getTextRange.union(elems.last.getTextRange))
 
     }
     val data = ScalaIntroduceParameterData(methodLike, methodToSearchFor, elems,

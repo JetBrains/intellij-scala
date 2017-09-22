@@ -148,9 +148,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
         }
         Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 
-        TextRange[] occurrences = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(selectedExpr), myFile);
-
-        OccurrencesInFile occurrencesInFile = new OccurrencesInFile(myFile, new TextRange(startOffset, endOffset), occurrences);
+        OccurrencesInFile occurrencesInFile = new OccurrencesInFile(myFile, new TextRange(startOffset, endOffset), ScalaRefactoringUtil.getOccurrenceRanges(selectedExpr, myFile));
           introduceVariableHandler.runRefactoring(occurrencesInFile, selectedExpr, "value", types[0], replaceAllOccurences, false, myEditor);
 
         result = myEditor.getDocument().getText();

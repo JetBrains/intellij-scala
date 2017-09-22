@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -60,10 +59,8 @@ object IntroduceImplicitParameterIntention {
     def isValidExpr(expr: ScExpression, paramCount: Int): Boolean = {
       if (ScUnderScoreSectionUtil.underscores(expr).length == paramCount) return true
       expr match {
-        case e: ScBlockExpr if e.exprs.size == 1 =>
-          isValidExpr(e.exprs(0), paramCount)
-        case e: ScParenthesisedExpr =>
-          isValidExpr(ScalaRefactoringUtil.unparExpr(e), paramCount)
+        case ScBlockExpr.Expressions(head) => isValidExpr(head, paramCount)
+        case ScParenthesisedExpr(e) => isValidExpr(e, paramCount)
         case _ => false
       }
     }
