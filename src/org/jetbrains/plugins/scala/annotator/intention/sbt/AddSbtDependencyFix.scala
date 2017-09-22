@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator.intention.sbt
 import com.intellij.codeInsight.intention.{IntentionAction, LowPriorityAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
-import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
+import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.annotator.intention.sbt.AddSbtDependencyUtils._
 import org.jetbrains.plugins.scala.annotator.intention.sbt.ui.SbtArtifactSearchWizard
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
@@ -23,70 +24,77 @@ import org.jetbrains.sbt.resolvers.SbtResolver
   * Created by afonichkin on 7/7/17.
   */
 class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionAction with LowPriorityAction {
-  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+    refElement.isValid &&
+    file != null &&
+    file.isInstanceOf[ScalaFile] &&
+    refElement.getManager.isInProject(file) &&
+    ! file.isInstanceOf[ScalaCodeFragment]
+  }
 
   override def getText: String = "Add SBT dependency..."
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     val baseDir: VirtualFile = project.getBaseDir
-    val sbtFile: VirtualFile = baseDir.findChild(Sbt.BuildFile)
-
-    if (!sbtFile.exists())
-      return
-
-    val psiSbtFile: ScalaFile = PsiManager.getInstance(project).findFile(sbtFile).asInstanceOf[ScalaFile]
-
-    val resolver: SbtResolver = SbtResolver.localCacheResolver(None)
-    val ivyIndex = resolver.getIndex(project)
-    // For the case when refElement.refName is fully quialified name
-    val artifactInfoSet = ivyIndex.searchArtifactInfo(getReferenceText)
-
-    def getDependencyPlaces: Seq[DependencyPlaceInfo] = {
-      var res: Seq[DependencyPlaceInfo] = List()
-
-      val libDeps: Seq[ScInfixExpr] = getTopLevelLibraryDependencies(psiSbtFile)
-      res ++= libDeps
-        .map((elem: ScInfixExpr) => toDependencyPlaceInfo(elem, Seq())(project))
-
-      val sbtProjects: Seq[ScPatternDefinition] = getTopLevelSbtProjects(psiSbtFile)
-
-      val moduleName = ModuleUtilCore.findModuleForPsiElement(refElement).getName
-
-      val modules = ModuleManager.getInstance(project).getModules
-      val projToAffectedModules = sbtProjects.map(proj => proj -> modules.map(_.getName).filter(containsModuleName(proj, _))).toMap
-
-      val elemToAffectedProjects = collection.mutable.Map[PsiElement, Seq[String]]()
-      sbtProjects.foreach(proj => {
-        val places = getPossiblePlacesToAddFromProjectDefinition(proj)
-        places.foreach(elem => {
-          elemToAffectedProjects.update(elem, elemToAffectedProjects.getOrElse(elem, Seq()) ++ projToAffectedModules(proj))
-        })
-      })
-
-      res ++= elemToAffectedProjects.toList
-        .sortWith(_._2.toString < _._2.toString)
-        .sortWith(_._2.contains(moduleName) && !_._2.contains(moduleName))
-        .map(_._1)
-        .map(elem => toDependencyPlaceInfo(elem, elemToAffectedProjects(elem))(project))
-
-      res ++= Seq(getTopLevelPlaceToAdd(psiSbtFile)(project))
-
-      res.distinct
+    val sbtFileOpt: Option[VirtualFile] = {
+      val buildSbt = baseDir.findChild(Sbt.BuildFile)
+      if (buildSbt.exists())
+        Some(buildSbt)
+      else
+        baseDir.getChildren.find(vf => Sbt.isSbtFile(vf.getPath))
     }
 
-    val depPlaces = getDependencyPlaces
-    val wizard = new SbtArtifactSearchWizard(project, artifactInfoSet, depPlaces)
+    val resolver: SbtResolver = SbtResolver.localCacheResolver(None)
 
-    val (infoOption, fileLineOption) = wizard.search()
-    if (infoOption.isEmpty || fileLineOption.isEmpty)
-      return
+    for {
+      sbtFile <- sbtFileOpt
+      module <- refElement.module
+      if ExternalSystemApiUtil.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
+      ivyIndex <- resolver.getIndex(project)
+      artifactInfoSet = ivyIndex.searchArtifactInfo(getReferenceText)
+      psiSbtFile: ScalaFile = PsiManager.getInstance(project).findFile(sbtFile).asInstanceOf[ScalaFile]
+      depPlaces = getDependencyPlaces(project, psiSbtFile)
+      wizard = new SbtArtifactSearchWizard(project, artifactInfoSet, depPlaces)
+      (infoOption, fileLineOption) = wizard.search()
+      artifactInfo <- infoOption
+      fileLine <- fileLineOption
+    } {
+      addDependency(fileLine.element, artifactInfo)(project)
+      refresh(project)
+    }
+  }
 
-    val artifactInfo = infoOption.get
-    val fileLine = fileLineOption.get
+  private def getDependencyPlaces(project: Project, psiSbtFile: ScalaFile): Seq[DependencyPlaceInfo] = {
+    var res: List[DependencyPlaceInfo] = List()
 
-    addDependency(fileLine.element, artifactInfo)(project)
+    val libDeps: Seq[ScInfixExpr] = getTopLevelLibraryDependencies(psiSbtFile)
+    res ++= libDeps
+      .flatMap((elem: ScInfixExpr) => toDependencyPlaceInfo(elem, Seq())(project))
 
-    refresh(project)
+    val sbtProjects: Seq[ScPatternDefinition] = getTopLevelSbtProjects(psiSbtFile)
+
+    val moduleName = ModuleUtilCore.findModuleForPsiElement(refElement).getName
+
+    val modules = ModuleManager.getInstance(project).getModules
+    val projToAffectedModules = sbtProjects.map(proj => proj -> modules.map(_.getName).filter(containsModuleName(proj, _))).toMap
+
+    val elemToAffectedProjects = collection.mutable.Map[PsiElement, Seq[String]]()
+    sbtProjects.foreach(proj => {
+      val places = getPossiblePlacesToAddFromProjectDefinition(proj)
+      places.foreach(elem => {
+        elemToAffectedProjects.update(elem, elemToAffectedProjects.getOrElse(elem, Seq()) ++ projToAffectedModules(proj))
+      })
+    })
+
+    res ++= elemToAffectedProjects.toList
+      .sortWith(_._2.toString < _._2.toString)
+      .sortWith(_._2.contains(moduleName) && !_._2.contains(moduleName))
+      .map(_._1)
+      .flatMap(elem => toDependencyPlaceInfo(elem, elemToAffectedProjects(elem))(project))
+
+    res ++= getTopLevelPlaceToAdd(psiSbtFile)(project).toList
+
+    res.distinct
   }
 
   private def refresh(project: Project): Unit = {

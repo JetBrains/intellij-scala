@@ -14,7 +14,7 @@ import org.jetbrains.sbt.resolvers.ArtifactInfo
 /**
   * Created by afonichkin on 8/29/17.
   */
-class AddSbtDependencyTestBase extends PlatformTestCase {
+abstract class AddSbtDependencyTestBase extends PlatformTestCase {
   def toArtifactInfo(s: String) = {
     val parts = s.replaceAll("\"", "").split("%").map(_.trim)
     ArtifactInfo(parts(0), parts(1), parts(2))

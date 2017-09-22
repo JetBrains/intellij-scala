@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.annotator.intention.sbt
 
-import com.intellij.openapi.application.Result
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.intention.sbt.SbtDependenciesVisitor._
+import org.jetbrains.plugins.scala.extensions.Typed
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
@@ -85,12 +85,14 @@ object AddSbtDependencyUtils {
     res
   }
 
-  def getTopLevelPlaceToAdd(psiFile: ScalaFile)(implicit project: Project): DependencyPlaceInfo = {
+  def getTopLevelPlaceToAdd(psiFile: ScalaFile)(implicit project: Project): Option[DependencyPlaceInfo] = {
     val line: Int = StringUtil.offsetToLineNumber(psiFile.getText, psiFile.getTextLength) + 1
-    DependencyPlaceInfo(getRelativePath(psiFile), psiFile.getTextLength, line, psiFile, Seq())
+    getRelativePath(psiFile).map { relpath =>
+      DependencyPlaceInfo(relpath, psiFile.getTextLength, line, psiFile, Seq())
+    }
   }
 
-  def addDependency(expr: PsiElement, info: ArtifactInfo)(implicit project: Project): PsiElement = {
+  def addDependency(expr: PsiElement, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] = {
     expr match {
       case e: ScInfixExpr if e.lOp.getText == LIBRARY_DEPENDENCIES => addDependencyToLibraryDependencies(e, info)
       case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => addDependencyToSeq(call, info)
@@ -98,90 +100,71 @@ object AddSbtDependencyUtils {
       case settings: ScMethodCall if isAddableSettings(settings) =>
         settings.getEffectiveInvokedExpr match {
           case expr: ScReferenceExpression if expr.refName == SETTINGS =>
-            addDependencyToSettings(settings, info)(project)
-          case _ => null
+            Option(addDependencyToSettings(settings, info)(project))
+          case _ => None
         }
-      case file: PsiFile => addDependencyToFile(file, info)(project)
-      case _ => null
+      case file: PsiFile =>
+        Option(addDependencyToFile(file, info)(project))
+      case _ => None
     }
   }
 
-  def addDependencyToLibraryDependencies(infix: ScInfixExpr, info: ArtifactInfo)(implicit project: Project): PsiElement = {
-    var res: PsiElement = null
+  def addDependencyToLibraryDependencies(infix: ScInfixExpr, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] = {
+
     val psiFile = infix.getContainingFile
-    val opName = infix.operation.refName
 
-    if (opName == "+=") {
-      val dependency: ScExpression = infix.rOp
-      val seqCall: ScMethodCall = generateSeqPsiMethodCall(info)(project)
+    infix.operation.refName match {
+      case "+=" =>
+        val dependency: ScExpression = infix.rOp
+        val seqCall: ScMethodCall = generateSeqPsiMethodCall(info)(project)
 
-      doInSbtWriteCommandAction({
-        seqCall.args.addExpr(dependency.copy().asInstanceOf[ScExpression])
-        seqCall.args.addExpr(generateArtifactPsiExpression(info)(project))
-        infix.operation.replace(ScalaPsiElementFactory.createElementFromText("++=")(project))
-        dependency.replace(seqCall)
-      }, psiFile)(project)
+        doInSbtWriteCommandAction({
+          seqCall.args.addExpr(dependency.copy().asInstanceOf[ScExpression])
+          seqCall.args.addExpr(generateArtifactPsiExpression(info)(project))
+          infix.operation.replace(ScalaPsiElementFactory.createElementFromText("++=")(project))
+          dependency.replace(seqCall)
+        }, psiFile)(project)
 
-      res = infix.rOp
-    } else if (opName == "++=") {
-      val dependencies: ScExpression = infix.rOp
-      dependencies match {
-        case call: ScMethodCall =>
-          val text = call.deepestInvokedExpr.getText
-          if (text == SEQ) {
+        Option(infix.rOp)
+
+      case "++=" =>
+        val dependencies: ScExpression = infix.rOp
+        dependencies match {
+          case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ=>
             val addedExpr = generateArtifactPsiExpression(info)(project)
-            doInSbtWriteCommandAction({
-              call.args.addExpr(addedExpr)
-            }, psiFile)(project)
-
-            res = addedExpr
-          }
-        case _ =>
-      }
-    }
-
-    res
-  }
-
-  def addDependencyToSeq(seqCall: ScMethodCall, info: ArtifactInfo)(implicit project: Project): PsiElement = {
-    val formalSeq: ScType = ScalaPsiElementFactory.createTypeFromText(SBT_SEQ_TYPE, seqCall, seqCall).get
-    val formalSetting: ScType = ScalaPsiElementFactory.createTypeFromText(SBT_SETTING_TYPE, seqCall, seqCall).get
-
-    seqCall.getType().get match {
-      case parameterized: ScParameterizedType if parameterized.designator.equiv(formalSeq) =>
-        val args = parameterized.typeArguments
-        if (args.length == 1) {
-          args.head match {
-            case parameterized: ScParameterizedType if parameterized.designator.equiv(formalSetting) =>
-              val addedExpr: ScInfixExpr = generateLibraryDependency(info)
-              doInSbtWriteCommandAction({
-                seqCall.args.addExpr(addedExpr)
-              }, seqCall.getContainingFile)
-              return addedExpr
-            case _ =>
-          }
+            doInSbtWriteCommandAction(call.args.addExpr(addedExpr), psiFile)(project)
+            Option(addedExpr)
+          case _ => None
         }
+
+      case _ => None
     }
-
-    val addedExpr = generateArtifactPsiExpression(info)
-    doInSbtWriteCommandAction({
-      seqCall.args.addExpr(addedExpr)
-    }, seqCall.getContainingFile)
-
-    addedExpr
   }
 
-  def addDependencyToTypedSeq(typedSeq: ScTypedStmt, info: ArtifactInfo)(implicit project: Project): PsiElement = {
+  def addDependencyToSeq(seqCall: ScMethodCall, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] =
+    for {
+      formalSeq <- ScalaPsiElementFactory.createTypeFromText(SBT_SEQ_TYPE, seqCall, seqCall)
+      formalSetting <- ScalaPsiElementFactory.createTypeFromText(SBT_SETTING_TYPE, seqCall, seqCall)
+      Typed(parameterized: ScParameterizedType) <- seqCall.getType().toOption
+      if parameterized.designator.equiv(formalSeq)
+      Typed(argsParameterized: ScParameterizedType) <- parameterized.asInstanceOf[ScParameterizedType].typeArguments.headOption
+      if argsParameterized.designator.equiv(formalSetting)
+    } yield {
+      val addedExpr: ScInfixExpr = generateLibraryDependency(info)
+      doInSbtWriteCommandAction(seqCall.args.addExpr(addedExpr), seqCall.getContainingFile)
+      addedExpr
+    }
+
+  def addDependencyToTypedSeq(typedSeq: ScTypedStmt, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] =
     typedSeq.expr match {
       case seqCall: ScMethodCall =>
         val addedExpr = generateLibraryDependency(info)(project)
         doInSbtWriteCommandAction({
           seqCall.args.addExpr(addedExpr)
         }, seqCall.getContainingFile)
-        addedExpr
-      case _ => null
+        Option(addedExpr)
+      case _ => None
     }
-  }
 
   def addDependencyToFile(file: PsiFile, info: ArtifactInfo)(implicit project: Project): PsiElement = {
     var addedExpr: PsiElement = null
@@ -213,32 +196,24 @@ object AddSbtDependencyUtils {
           }
         case _ => true
       }
-    } else {
-      true
-    }
+    } else true
   }
 
-  def isAddableLibraryDependencies(libDeps: ScInfixExpr): Boolean = {
-    if (libDeps.operation.refName == "+=") {
-      return true
-    } else if (libDeps.operation.refName == "++=") {
-      libDeps.rOp match {
-        // In this case we return false, because of not to repeat it several times
-        case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => return false
-        case _ =>
+  def isAddableLibraryDependencies(libDeps: ScInfixExpr): Boolean =
+    libDeps.operation.refName match {
+      case "+=" => true
+      case "++=" =>  libDeps.rOp match {
+        // In this case we return false to not repeat it several times
+        case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => false
+        case _ => true
       }
+      case _ => false
     }
 
-    false
-  }
-
-  private def doInSbtWriteCommandAction(f: => Unit, psiSbtFile: PsiFile)(implicit project: ProjectContext): Unit = {
-    new WriteCommandAction[Unit](project, psiSbtFile) {
-      override def run(result: Result[Unit]): Unit = {
-        f
-      }
-    }.execute()
-  }
+  private def doInSbtWriteCommandAction[T](f: => T, psiSbtFile: PsiFile)(implicit project: ProjectContext): T =
+    WriteCommandAction
+      .writeCommandAction(psiSbtFile)
+      .compute(() => f)
 
   private def generateSeqPsiMethodCall(info: ArtifactInfo)(implicit ctx: ProjectContext): ScMethodCall =
     ScalaPsiElementFactory.createElementFromText(s"$SEQ()").asInstanceOf[ScMethodCall]
@@ -252,17 +227,16 @@ object AddSbtDependencyUtils {
   private def generateNewLine(implicit ctx: ProjectContext): PsiElement = ScalaPsiElementFactory.createElementFromText("\n")
 
   private def generateArtifactText(info: ArtifactInfo): String =
-    "\"" + s"${info.groupId}" + "\" % \"" + s"${info.artifactId}" + "\" % \"" + s"${info.version}" + "\""
+    s""""${info.groupId}" % "${info.artifactId}" % "${info.version}""""
 
-  def getRelativePath(elem: PsiElement)(implicit project: Project): String = {
-    val path = elem.getContainingFile.getVirtualFile.getCanonicalPath
-    if (!path.startsWith(project.getBasePath))
-      return null
+  def getRelativePath(elem: PsiElement)(implicit project: ProjectContext): Option[String] =
+    for {
+      path <- Option(elem.getContainingFile.getVirtualFile.getCanonicalPath)
+      if !path.startsWith(project.getBasePath)
+    } yield
+      path.substring(project.getBasePath.length + 1)
 
-    path.substring(project.getBasePath.length + 1)
-  }
-
-  def toDependencyPlaceInfo(elem: PsiElement, affectedProjects: Seq[String])(implicit project: Project): DependencyPlaceInfo = {
+  def toDependencyPlaceInfo(elem: PsiElement, affectedProjects: Seq[String])(implicit ctx: ProjectContext): Option[DependencyPlaceInfo] = {
     val offset =
       elem match {
         case call: ScMethodCall =>
@@ -275,6 +249,9 @@ object AddSbtDependencyUtils {
 
     val line: Int = StringUtil.offsetToLineNumber(elem.getContainingFile.getText, offset) + 1
 
-    DependencyPlaceInfo(getRelativePath(elem), offset, line, elem, affectedProjects)
+    getRelativePath(elem).map { relpath =>
+      DependencyPlaceInfo(relpath, offset, line, elem, affectedProjects)
+    }
   }
+
 }

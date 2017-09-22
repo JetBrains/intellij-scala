@@ -25,15 +25,17 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
   * Created by afonichkin on 7/19/17.
   */
 class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, fileLines: Seq[DependencyPlaceInfo]) extends JPanel {
-  val myResultList: Tree = new Tree()
-  var myCurFileLine: DependencyPlaceInfo = _
+
+  private val EDITOR_TOP_MARGIN = 7
+
+  private val myResultList: Tree = new Tree()
+  private val myLayout = new BorderLayout()
+
+  private var myCurFileLine: DependencyPlaceInfo = _
+  private var myCurEditor: Editor = _
 
   var canGoNext: Boolean = false
 
-  val myLayout = new BorderLayout()
-  var myCurEditor: Editor = _
-
-  val EDITOR_TOP_MARGIN = 7
 
   init()
 
@@ -85,8 +87,7 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
     if (myCurFileLine == null) {
       remove(myLayout.getLayoutComponent(BorderLayout.SOUTH))
       updateUI()
-    } else {
-      val editor = createEditor(myCurFileLine.path)
+    } else for (editor <- createEditor(myCurFileLine.path)) {
       val editorHighlighter = EditorHighlighterFactory.getInstance.createEditorHighlighter(project, ScalaFileType.INSTANCE)
       editor.asInstanceOf[EditorEx].setHighlighter(editorHighlighter)
       editor.getCaretModel.moveToOffset(myCurFileLine.offset)
@@ -112,14 +113,13 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
       EditorFactory.getInstance.releaseEditor(myCurEditor)
   }
 
-  private def createEditor(path: String): Editor = {
+  private def createEditor(path: String): Option[Editor] = {
     val document = FileDocumentManager.getInstance.getDocument(project.getBaseDir.findFileByRelativePath(path))
     val tmpFile = ScalaPsiElementFactory.createScalaFileFromText(document.getText)(project)
     var tmpElement = tmpFile.findElementAt(myCurFileLine.element.getTextOffset)
     while (tmpElement.getTextRange != myCurFileLine.element.getTextRange)
       tmpElement = tmpElement.getParent
 
-    val dep: PsiElement = AddSbtDependencyUtils.addDependency(tmpElement, wizard.resultArtifact.get)(project)
 
     val viewer = EditorFactory.getInstance.createViewer(
       EditorFactory.getInstance().createDocument(tmpFile.getText)
@@ -128,23 +128,22 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
     val scheme = viewer.getColorsScheme
     val attributes = scheme.getAttributes(CodeInsightColors.MATCHED_BRACE_ATTRIBUTES)
 
-    viewer.getMarkupModel.addRangeHighlighter(dep.getTextRange.getStartOffset, dep.getTextRange.getEndOffset, HighlighterLayer.SELECTION, attributes, HighlighterTargetArea.EXACT_RANGE)
+    for {dep: PsiElement <- AddSbtDependencyUtils.addDependency(tmpElement, wizard.resultArtifact.get)(project)} yield {
 
-    viewer.getComponent.setPreferredSize(new Dimension(1600, 500))
-    viewer.getComponent.updateUI()
+      viewer.getMarkupModel.addRangeHighlighter(dep.getTextRange.getStartOffset, dep.getTextRange.getEndOffset, HighlighterLayer.SELECTION, attributes, HighlighterTargetArea.EXACT_RANGE)
 
-    viewer
-  }
+      viewer.getComponent.setPreferredSize(new Dimension(1600, 500))
+      viewer.getComponent.updateUI()
 
-  def getResult: Option[DependencyPlaceInfo] = {
-    for (path: TreePath <- myResultList.getSelectionPaths) {
-      path.getLastPathComponent match {
-        case info: DependencyPlaceInfo => return Some(info)
-        case _ =>
-      }
+      viewer
     }
-    None
   }
+
+  def getResult: Option[DependencyPlaceInfo] =
+    myResultList.getSelectionPaths.collectFirst {
+      case path if path.getLastPathComponent.isInstanceOf[DependencyPlaceInfo] =>
+        path.getLastPathComponent.asInstanceOf[DependencyPlaceInfo]
+    }
 
   private class MyTreeModel(elements: Seq[DependencyPlaceInfo]) extends TreeModel {
     override def getIndexOfChild(parent: scala.Any, child: scala.Any): Int = elements.indexOf(child)

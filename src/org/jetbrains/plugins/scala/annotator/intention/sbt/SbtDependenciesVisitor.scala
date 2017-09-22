@@ -36,44 +36,43 @@ object SbtDependenciesVisitor {
     }
 
     if (call.deepestInvokedExpr.getText == SEQ) {
-      val formalSeq: ScType = ScalaPsiElementFactory.createTypeFromText(SBT_SEQ_TYPE, call, call).get
-      val formalSetting: ScType = ScalaPsiElementFactory.createTypeFromText(SBT_SETTING_TYPE, call, call).get
-
-      call.getType().get match {
+      for {
+        callType <- call.getType().toOption
+        formalSeq <- ScalaPsiElementFactory.createTypeFromText(SBT_SEQ_TYPE, call, call)
+        formalSetting <- ScalaPsiElementFactory.createTypeFromText(SBT_SETTING_TYPE, call, call)
+      } yield callType match {
         case parameterized: ScParameterizedType if parameterized.designator.equiv(formalSeq) =>
           val args = parameterized.typeArguments
           if (args.length == 1) {
             args.head match {
-              case parameterized: ScParameterizedType if parameterized.designator.equiv(formalSetting) =>
+              case parameterizedArg: ScParameterizedType if parameterizedArg.designator.equiv(formalSetting) =>
                 processSettings(call)
               case _ =>
             }
           }
-        case _ =>
       }
-    } else {
+    } else
       call.getEffectiveInvokedExpr match {
         case expr: ScReferenceExpression if expr.refName == SETTINGS =>
           processSettings(call)
         case _ =>
       }
-
-    }
   }
 
   def processPatternDefinition(patternDefinition: ScPatternDefinition)(f: PsiElement => Unit): Unit = {
+
     f(patternDefinition)
 
-    if (patternDefinition.getType().get.canonicalText == SBT_PROJECT_TYPE) {
-      val settings = getSettings(patternDefinition)
-      settings.foreach(processMethodCall(_)(f))
-    } else {
-      if (patternDefinition.expr.isEmpty)
-        return
+    val processed = patternDefinition.getType()
+      .filter(_.canonicalText == SBT_PROJECT_TYPE)
+      .map { _ =>
+        getSettings(patternDefinition).foreach(processMethodCall(_)(f))
+      }
 
-      patternDefinition.expr.get match {
-        case call: ScMethodCall => processMethodCall(call)(f)
-        case infix: ScInfixExpr => processInfix(infix)(f)
+    processed.getOrElse {
+      patternDefinition.expr match {
+        case Some(call: ScMethodCall) => processMethodCall(call)(f)
+        case Some(infix: ScInfixExpr) => processInfix(infix)(f)
         case _ =>
       }
     }
