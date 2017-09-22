@@ -32,7 +32,7 @@ object CompletionProcessor {
 
   private def createResolveResults(candidates: Seq[(PsiNamedElement, Boolean)],
                                    substitutor: ScSubstitutor,
-                                   implicitFunction: Option[PsiNamedElement])
+                                   implcitConversion: Option[ScalaResolveResult])
                                   (implicit state: ResolveState): Seq[ScalaResolveResult] = {
     val isRenamed = findByKey(ResolverEnv.nameKey)
     val fromType = findByKey(BaseProcessor.FROM_TYPE_KEY)
@@ -41,7 +41,7 @@ object CompletionProcessor {
 
     candidates.map {
       case (element, isNamedParameter) => new ScalaResolveResult(element, substitutor,
-        nameShadow = isRenamed, implicitFunction = implicitFunction,
+        nameShadow = isRenamed, implicitConversion = implcitConversion,
         isNamedParameter = isNamedParameter, fromType = fromType,
         importsUsed = importsUsed, prefixCompletion = prefixCompletion)
     }

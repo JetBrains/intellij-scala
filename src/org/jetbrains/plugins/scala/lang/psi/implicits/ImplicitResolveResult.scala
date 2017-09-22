@@ -65,7 +65,7 @@ object ImplicitResolveResult {
     }
 
     def withImplicitFunction: ResolverStateBuilder = {
-      innerState = innerState.put(IMPLICIT_FUNCTION, result.element)
+      innerState = innerState.put(IMPLICIT_FUNCTION, result.resolveResult)
       elementParent.foreach { parent =>
         innerState = innerState.put(IMPLICIT_RESOLUTION, parent)
       }

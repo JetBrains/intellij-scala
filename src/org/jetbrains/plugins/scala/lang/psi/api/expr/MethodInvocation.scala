@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api.expr
 
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation.UpdateApplyData
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -13,10 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
@@ -99,7 +101,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     *
     * @return actual conversion element
     */
-  def getImplicitFunction: Option[PsiNamedElement] = {
+  def getImplicitFunction: Option[ScalaResolveResult] = {
     getType()
     implicitFunctionVar
   }
@@ -140,7 +142,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     var problemsLocal: Seq[ApplicabilityProblem] = Seq.empty
     var matchedParamsLocal: Seq[(Parameter, ScExpression)] = Seq.empty
     var importsUsedLocal: collection.Set[ImportUsed] = collection.Set.empty
-    var implicitFunctionLocal: Option[PsiNamedElement] = None
+    var implicitFunctionLocal: Option[ScalaResolveResult] = None
     var applyOrUpdateElemLocal: Option[ScalaResolveResult] = None
 
     def updateCacheFields(): Unit = {
@@ -291,9 +293,9 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     val res: ScType = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed)) match {
       case Some(s) => s
       case None =>
-        var (processedType, importsUsed, implicitFunction, applyOrUpdateResult) =
-          ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
-            (Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
+        var UpdateApplyData(processedType, importsUsed, implicitFunction, applyOrUpdateResult) =
+          MethodInvocation.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
+            UpdateApplyData(Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
           }
         if (useExpectedType) {
           this.updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
@@ -323,7 +325,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   @volatile private var problemsVar: Seq[ApplicabilityProblem] = Seq.empty
   @volatile private var matchedParamsVar: Seq[(Parameter, ScExpression)] = Seq.empty
   @volatile private var importsUsedVar: collection.Set[ImportUsed] = collection.Set.empty
-  @volatile private var implicitFunctionVar: Option[PsiNamedElement] = None
+  @volatile private var implicitFunctionVar: Option[ScalaResolveResult] = None
   @volatile private var applyOrUpdateElemVar: Option[ScalaResolveResult] = None
 
   //used in Play
@@ -356,5 +358,45 @@ object MethodInvocation {
     }
 
   }
+
+  private case class UpdateApplyData(processedType: ScType,
+                                importsUsed: collection.Set[ImportUsed],
+                                implicitFunction: Option[ScalaResolveResult],
+                                applyOrUpdateResult: Option[ScalaResolveResult])
+
+  private def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation, isShape: Boolean): Option[UpdateApplyData] = {
+    implicit val ctx: ProjectContext = call
+
+    def checkCandidates(withDynamic: Boolean = false): Option[UpdateApplyData] = {
+      val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, isDynamic = withDynamic)
+      PartialFunction.condOpt(candidates) {
+        case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
+          def update(tp: ScType): ScType = {
+            if (r.isDynamic) DynamicResolveProcessor.getDynamicReturn(tp)
+            else tp
+          }
+
+          val res = fun match {
+            case fun: ScFun => UpdateApplyData(update(s.subst(fun.polymorphicType)), r.importsUsed, r.implicitConversion, Some(r))
+            case fun: ScFunction => UpdateApplyData(update(s.subst(fun.polymorphicType())), r.importsUsed, r.implicitConversion, Some(r))
+            case meth: PsiMethod => UpdateApplyData(update(ResolveUtils.javaPolymorphicType(meth, s, call.resolveScope)),
+              r.importsUsed, r.implicitConversion, Some(r))
+          }
+          call.getInvokedExpr.getNonValueType() match {
+            case Success(ScTypePolymorphicType(_, typeParams), _) =>
+              val fixedType = res.processedType match {
+                case ScTypePolymorphicType(internal, typeParams2) =>
+                  ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2))
+                case _ => ScTypePolymorphicType(res.processedType, typeParams)
+              }
+              res.copy(processedType = fixedType)
+            case _ => res
+          }
+      }
+    }
+
+    checkCandidates().orElse(checkCandidates(withDynamic = true))
+  }
+
 
 }

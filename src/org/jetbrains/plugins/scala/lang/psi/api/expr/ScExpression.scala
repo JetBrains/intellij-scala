@@ -114,23 +114,29 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
   def implicitElement(fromUnderscore: Boolean = false,
                       expectedOption: => Option[ScType] = this.smartExpectedType()): Option[PsiNamedElement] = {
-    def referenceImplicitFunction(reference: ScReferenceExpression) = reference.multiResolve(false) match {
-      case Array(result: ScalaResolveResult) => result.implicitFunction
+    implicitConversion(fromUnderscore, expectedOption).map(_.element)
+  }
+
+  def implicitConversion(fromUnderscore: Boolean = false,
+                         expectedOption: => Option[ScType] = this.smartExpectedType()): Option[ScalaResolveResult] = {
+
+    def conversionForReference(reference: ScReferenceExpression) = reference.multiResolve(false) match {
+      case Array(result: ScalaResolveResult) => result.implicitConversion
       case _ => None
     }
 
-    def implicitFunction(element: ScalaPsiElement): Option[PsiNamedElement] = element.getParent match {
+    def inner(element: ScalaPsiElement): Option[ScalaResolveResult] = element.getParent match {
       case reference: ScReferenceExpression =>
-        referenceImplicitFunction(reference)
+        conversionForReference(reference)
       case infix: ScInfixExpr if this == infix.getBaseExpr =>
-        referenceImplicitFunction(infix.operation)
+        conversionForReference(infix.operation)
       case call: ScMethodCall => call.getImplicitFunction
-      case generator: ScGenerator => implicitFunction(generator)
+      case generator: ScGenerator => inner(generator)
       case _ =>
-        this.getTypeAfterImplicitConversion(expectedOption = expectedOption, fromUnderscore = fromUnderscore).implicitFunction
+        this.getTypeAfterImplicitConversion(expectedOption = expectedOption, fromUnderscore = fromUnderscore).implicitConversion
     }
 
-    implicitFunction(this)
+    inner(this)
   }
 
   def getAllImplicitConversions(fromUnderscore: Boolean = false): Seq[PsiNamedElement] = {
@@ -201,7 +207,9 @@ object ScExpression {
 
   case class ExpressionTypeResult(tr: TypeResult[ScType],
                                   importsUsed: scala.collection.Set[ImportUsed] = Set.empty,
-                                  implicitFunction: Option[PsiNamedElement] = None)
+                                  implicitConversion: Option[ScalaResolveResult] = None) {
+    def implicitFunction: Option[PsiNamedElement] = implicitConversion.map(_.element)
+  }
 
   object Type {
     def unapply(exp: ScExpression): Option[ScType] = exp.getType(TypingContext.empty).toOption
@@ -307,7 +315,7 @@ object ScExpression {
               }
               fromImplicit match {
                 case Some((mr, result)) =>
-                  ExpressionTypeResult(Success(mr, Some(expr)), result.importsUsed, Some(result.getElement))
+                  ExpressionTypeResult(Success(mr, Some(expr)), result.importsUsed, Some(result))
                 case _ =>
                   ExpressionTypeResult(tr)
               }

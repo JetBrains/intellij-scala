@@ -98,7 +98,7 @@ abstract class ScalaAnnotator extends Annotator
         if (isAdvancedHighlightingEnabled(element)) {
           expr.getTypeAfterImplicitConversion() match {
             case ExpressionTypeResult(Success(t, _), _, Some(implicitFunction)) =>
-              highlightImplicitView(expr, implicitFunction, t, expr, holder)
+              highlightImplicitView(expr, implicitFunction.element, t, expr, holder)
             case _ =>
           }
         }

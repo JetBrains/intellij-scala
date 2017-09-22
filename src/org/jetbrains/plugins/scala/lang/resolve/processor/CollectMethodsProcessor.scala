@@ -22,7 +22,7 @@ class CollectMethodsProcessor(place: PsiElement, name: String)
             substitutor = getSubst(state),
             importsUsed = getImports(state),
             implicitConversionClass = Option(state.get(IMPLICIT_RESOLUTION)),
-            implicitFunction = Option(state.get(IMPLICIT_FUNCTION)),
+            implicitConversion = Option(state.get(IMPLICIT_FUNCTION)),
             implicitType = Option(state.get(IMPLICIT_TYPE)),
             isAccessible = accessible))
         case _ =>

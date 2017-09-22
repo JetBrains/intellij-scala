@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl.{DoNotProcessPackageObjectException, isPackageObjectProcessing}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
 import scala.util.control.ControlThrowable
@@ -69,7 +70,7 @@ object CachesUtil {
 
   //keys for getUserData
   val IMPLICIT_TYPE: Key[ScType] = Key.create("implicit.type")
-  val IMPLICIT_FUNCTION: Key[PsiNamedElement] = Key.create("implicit.function")
+  val IMPLICIT_FUNCTION: Key[ScalaResolveResult] = Key.create("implicit.function")
   val IMPLICIT_RESOLUTION: Key[PsiClass] = Key.create("implicit.resolution")
   val NAMED_PARAM_KEY: Key[java.lang.Boolean] = Key.create("named.key")
   val PACKAGE_OBJECT_KEY: Key[(ScTypeDefinition, java.lang.Long)] = Key.create("package.object.key")

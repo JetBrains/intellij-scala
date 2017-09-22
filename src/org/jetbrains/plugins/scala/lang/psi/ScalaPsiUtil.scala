@@ -405,41 +405,6 @@ object ScalaPsiUtil {
     candidates.toArray
   }
 
-  def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation, isShape: Boolean):
-  Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
-
-    implicit val ctx: ProjectContext = call
-
-    def checkCandidates(withDynamic: Boolean = false): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
-      val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, isDynamic = withDynamic)
-      PartialFunction.condOpt(candidates) {
-        case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
-          def update(tp: ScType): ScType = {
-            if (r.isDynamic) DynamicResolveProcessor.getDynamicReturn(tp)
-            else tp
-          }
-
-          val res = fun match {
-            case fun: ScFun => (update(s.subst(fun.polymorphicType)), r.importsUsed, r.implicitFunction, Some(r))
-            case fun: ScFunction => (update(s.subst(fun.polymorphicType())), r.importsUsed, r.implicitFunction, Some(r))
-            case meth: PsiMethod => (update(ResolveUtils.javaPolymorphicType(meth, s, call.resolveScope)),
-              r.importsUsed, r.implicitFunction, Some(r))
-          }
-          call.getInvokedExpr.getNonValueType() match {
-            case Success(ScTypePolymorphicType(_, typeParams), _) =>
-              res.copy(_1 = res._1 match {
-                case ScTypePolymorphicType(internal, typeParams2) =>
-                  ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2))
-                case _ => ScTypePolymorphicType(res._1, typeParams)
-              })
-            case _ => res
-          }
-      }
-    }
-
-    checkCandidates().orElse(checkCandidates(withDynamic = true))
-  }
-
   /**
     * This method created for the following example:
     * {{{
