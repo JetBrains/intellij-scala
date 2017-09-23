@@ -21,12 +21,6 @@ class CbtSystemSettings(project: Project)
   extends AbstractExternalSystemSettings[CbtSystemSettings, CbtProjectSettings, CbtProjectSettingsListener](CbtTopic, project)
     with PersistentStateComponent[CbtSystemSettingsState] {
 
-  @BeanProperty
-  var isCbt = false
-
-  @BeanProperty
-  var extraModules: java.util.List[String] = new util.ArrayList[String]()
-
   override def copyExtraSettingsFrom(settings: CbtSystemSettings): Unit = {}
 
   override def checkSettings(old: CbtProjectSettings, current: CbtProjectSettings): Unit = {}
@@ -42,15 +36,11 @@ class CbtSystemSettings(project: Project)
 
   override def loadState(state: CbtSystemSettingsState): Unit = {
     super[AbstractExternalSystemSettings].loadState(state)
-    isCbt = state.isCbt
-    extraModules = state.extraModules
   }
 
   override def getState: CbtSystemSettingsState = {
     val state = new CbtSystemSettingsState()
     fillState(state)
-    state.isCbt = isCbt
-    state.extraModules = extraModules
     state
   }
 }
@@ -61,12 +51,6 @@ object CbtSystemSettings {
 
 class CbtSystemSettingsState extends AbstractExternalSystemSettings.State[CbtProjectSettings] {
   private val projectSettings = ContainerUtilRt.newTreeSet[CbtProjectSettings]()
-
-  @BeanProperty
-  var isCbt = false
-
-  @BeanProperty
-  var extraModules: java.util.List[String] = new util.ArrayList[String]()
 
   override def getLinkedExternalProjectsSettings: util.Set[CbtProjectSettings] = projectSettings
 
