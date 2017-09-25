@@ -22,7 +22,6 @@ import com.intellij.psi.PsiCodeFragment
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
-import com.intellij.util.ui.UIUtil
 import com.intellij.xdebugger.XDebuggerManager
 import com.intellij.xdebugger.breakpoints.XBreakpointType
 import com.sun.jdi.VoidValue
@@ -46,8 +45,8 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   private val breakpoints: mutable.Set[(String, Int, Integer)] = mutable.Set.empty
 
   protected def runDebugger(mainClass: String = mainClassName, debug: Boolean = false)(callback: => Unit) {
-    var processHandler: ProcessHandler = null
-    EdtTestUtil.runInEdtAndWait(() => {
+    inTransactionLater(getProject) {
+      var processHandler: ProcessHandler = null
       if (needMake) {
         make()
         saveChecksums()
@@ -62,22 +61,21 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
           if (debug) print(text)
         }
       }, runner)
-    })
 
-    try {
-      callback
-    } finally {
 
-      EdtTestUtil.runInEdtAndWait(() => {
-        clearXBreakpoints()
-        getDebugProcess.stop(true)
-        processHandler.destroyProcess()
-      })
+      try {
+        callback
+      } finally {
+
+        EdtTestUtil.runInEdtAndWait(() => {
+          clearXBreakpoints()
+          getDebugProcess.stop(true)
+          processHandler.destroyProcess()
+        })
+      }
     }
 
   }
-
-  override def invokeTestRunnable(runnable: Runnable): Unit = UIUtil.invokeAndWaitIfNeeded(runnable)
 
   protected def runProcess(className: String,
                            module: Module,
