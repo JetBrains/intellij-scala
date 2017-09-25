@@ -6,6 +6,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind
+import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightUsagesHandlerFactory.implicitHighlightingEnabled
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -102,19 +104,33 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
         }
       case ScalaTokenTypes.tIDENTIFIER =>
         element.getParent match {
-          case named: ScNamedElement => return new ScalaHighlightImplicitUsagesHandler(editor, file, named)
-          case ref: ScReferenceElement => return new ScalaHighlightImplicitUsagesHandler(editor, file, ref)
+          case named: ScNamedElement => return implicitHighlighter(editor, file, named)
+          case ref: ScReferenceElement => return implicitHighlighter(editor, file, ref)
           case _ =>
         }
 
       //to highlight usages of implicit parameter from context bound
       case ScalaTokenTypes.tCOLON =>
         (element.getParent, element.getNextSiblingNotWhitespaceComment) match {
-          case (tp: ScTypeParam, te: ScTypeElement) => return new ScalaHighlightImplicitUsagesHandler(editor, file, (tp, te))
+          case (tp: ScTypeParam, te: ScTypeElement) => return implicitHighlighter(editor, file, (tp, te))
           case _ =>
         }
       case _ =>
     }
     null
+  }
+
+  private def implicitHighlighter[T](editor: Editor, file: PsiFile, data: T)
+                            (implicit kind: TargetKind[T]): ScalaHighlightImplicitUsagesHandler[T] = {
+
+    if (implicitHighlightingEnabled.get()) new ScalaHighlightImplicitUsagesHandler(editor, file, data)
+    else null
+  }
+
+}
+
+object ScalaHighlightUsagesHandlerFactory {
+  val implicitHighlightingEnabled: ThreadLocal[Boolean] = new ThreadLocal[Boolean]() {
+    override def initialValue() = true
   }
 }

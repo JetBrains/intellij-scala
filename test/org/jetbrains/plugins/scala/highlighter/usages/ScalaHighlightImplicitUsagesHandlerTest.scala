@@ -19,7 +19,7 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
          |  implicit val implicit${CARET}Int = 0
          |}
       """.stripMargin
-    doTest(code, Seq.empty)
+    doTest(code, Seq("implicitInt"))
   }
 
   def testImplicitParameter(): Unit = {
@@ -31,7 +31,7 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
          |  foo()
          |}
       """.stripMargin
-    doTest(code, Seq("foo()"))
+    doTest(code, Seq("implicitInt", "foo()"))
   }
 
   def testImplicitConversion(): Unit = {
@@ -43,7 +43,7 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
          |  inc("123")
          |}
       """.stripMargin
-    doTest(code, Seq("\"123\""))
+    doTest(code, Seq("stringToInt", "\"123\""))
   }
 
   def testBothParameterAndConversion(): Unit = {
@@ -57,7 +57,7 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
          |  foo("42")
          |}
       """.stripMargin
-    doTest(code, Seq("\"123\"", "foo(\"42\")"))
+    doTest(code, Seq("stringToInt", "\"123\"", "foo(\"42\")"))
   }
 
   def testHighlightedRangesAreCorrect(): Unit = {
@@ -75,6 +75,7 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
     doTest(
       code,
       Seq(
+        "theAnswer",
         "increase(0)",
         "increase(0)",
         "(this.increase)(0)",
@@ -92,7 +93,7 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
          |  this(0)
          |}
       """.stripMargin
-    doTest(code, Seq("this(0)"))
+    doTest(code, Seq("theAnswer", "this(0)"))
   }
 
   def testContextBounds(): Unit = {
@@ -108,7 +109,7 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
          |
          |double(1)
       """.stripMargin
-    doTest(code, Seq("double(1)"))
+    doTest(code, Seq("intSemigroup", "double(1)"))
   }
 
   def testContextBoundsColon(): Unit = {
@@ -167,7 +168,7 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
          |  new AB(Array(1))
          |}
        """.stripMargin
-    doTest(code, Seq("new AB(1)", "new AB(Array(1))"))
+    doTest(code, Seq("theAnswer", "new AB(1)", "new AB(Array(1))"))
   }
 
   def testTypeClasses1(): Unit = {
@@ -192,6 +193,7 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
         """.stripMargin
 
     doTest(code, Seq(
+      "BooleanOrdering",
       "sort(Seq((Seq(12), (true, Seq(false)))))",
       "sort(Seq((Seq(12), false)))",
       "sort(Seq(false))"))
@@ -219,11 +221,26 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
         """.stripMargin
 
     doTest(code, Seq(
+      "tuple2Ordering",
       "sort(Seq((Seq(12), (true, Seq(false)))))",
       "sort(Seq((Seq(12), false)))",
       "sort(Seq((Seq(12), (1, Seq(2)))))"))
   }
 
+  def testCaretOnReference(): Unit = {
+    val code =
+      s"""
+         |object AAA {
+         |    def foo(i: Int)(implicit converter: Int => String): String = {
+         |      111.toUpperCase()
+         |      ${CARET}converter(i)
+         |    }
+         |  }
+      """.stripMargin
+
+    //only implicit usages and nameIds are highlighted by this handler
+    doTest(code, Seq("converter", "111"))
+  }
 
   def doTest(fileText: String, expected: Seq[String]): Unit = {
     import scala.collection.JavaConversions._

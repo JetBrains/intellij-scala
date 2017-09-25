@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.highlighter.usages
 
 import java.util
 
-import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
+import com.intellij.codeInsight.highlighting.{HighlightUsagesHandler, HighlightUsagesHandlerBase}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.LocalSearchScope
@@ -40,10 +40,36 @@ class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data
     val usages = targets.asScala
       .flatMap(findUsages(file, _))
       .map(range)
-    myReadUsages.addAll(usages.asJava)
+    val targetIds = targets.asScala.flatMap(nameId)
+    myReadUsages.addAll((targetIds ++ usages).asJava)
   }
 
   override def highlightReferences: Boolean = true
+
+  override def highlightUsages(): Unit = {
+    val targets = getTargets
+    if (targets.isEmpty) {
+      invokeDefaultHandler()
+    } else {
+      super.highlightUsages()
+    }
+  }
+
+  //we want to avoid resolve in ScalaHighlightUsagesHandlerFactory, but also not to use ScalaHighlightImplicitUsagesHandler
+  //for non-implicit elements
+  private def invokeDefaultHandler(): Unit = {
+    ScalaHighlightUsagesHandlerFactory.implicitHighlightingEnabled.set(false)
+    try {
+      HighlightUsagesHandler.invoke(editor.getProject, editor, file)
+    } finally {
+      ScalaHighlightUsagesHandlerFactory.implicitHighlightingEnabled.set(true)
+    }
+  }
+
+  private def nameId(target: PsiElement): Option[TextRange] = target match {
+    case named: ScNamedElement if named.getContainingFile == file => named.nameId.toOption.map(_.getTextRange)
+    case _ => None
+  }
 }
 
 object ScalaHighlightImplicitUsagesHandler {
