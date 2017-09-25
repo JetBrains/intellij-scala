@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.FileScanner;
 import org.jetbrains.plugins.scala.SlowTests;
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.experimental.categories.Category;
 
@@ -91,7 +92,7 @@ public abstract class FileSetTestCase extends TestSuite {
 
   protected abstract void runTest(final File file) throws Throwable;
 
-  private class ActualTest extends LightIdeaTestCase {
+  private class ActualTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     private File myTestFile;
 
     @NotNull
