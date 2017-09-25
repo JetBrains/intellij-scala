@@ -34,9 +34,11 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
   private def addBreakpoint(b: Breakpoint): Unit = addBreakpoint(b.line, mainFileName, b.ordinal)
 
   protected def checkVariants(lineNumber: Int, variants: String*) = {
-    val xSourcePosition = XDebuggerUtil.getInstance().createPosition(getVirtualFile(getFileInSrc(mainFileName)), lineNumber)
-    val foundVariants = scalaLineBreakpointType.computeVariants(getProject, xSourcePosition).asScala.map(_.getText)
-    Assert.assertEquals("Wrong set of variants found: ", variants, foundVariants)
+    inReadAction {
+      val xSourcePosition = XDebuggerUtil.getInstance().createPosition(getVirtualFile(getFileInSrc(mainFileName)), lineNumber)
+      val foundVariants = scalaLineBreakpointType.computeVariants(getProject, xSourcePosition).asScala.map(_.getText)
+      Assert.assertEquals("Wrong set of variants found: ", variants, foundVariants)
+    }
   }
 
   protected def checkStoppedAtBreakpointAt(breakpoints: Breakpoint*)(sourcePositionText: String) = {

@@ -5,7 +5,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.sun.jdi.Location
 import org.jetbrains.plugins.scala.debugger.{Loc, ScalaDebuggerTestCase, ScalaPositionManager}
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 
 import scala.collection.JavaConverters._
@@ -45,7 +45,7 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
       val posManager = new ScalaPositionManager(getDebugProcess)
 
       def checkSourcePosition(initialPosition: SourcePosition, location: Location) = {
-        extensions.inReadAction {
+        inReadAction {
           val newPosition = posManager.getSourcePosition(location)
           Assert.assertEquals(initialPosition.getFile, newPosition.getFile)
           Assert.assertEquals(initialPosition.getLine, newPosition.getLine)
@@ -90,7 +90,7 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
     SourcePosition.createFromLine(file, fromOffset.getLine)
   }
 
-  private def sourcePositionsInFile(fileName: String) = {
+  private def sourcePositionsInFile(fileName: String) = inReadAction {
     val psiManager = PsiManager.getInstance(getProject)
     val vFile = VfsUtil.findFileByIoFile(getFileInSrc(fileName), false)
     val psiFile = psiManager.findFile(vFile)
