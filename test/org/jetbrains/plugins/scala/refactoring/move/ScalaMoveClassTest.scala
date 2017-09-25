@@ -36,43 +36,43 @@ class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     doTest(Array("com.A"), "org")
   }
 
-  def testSCL2625() {
+  def testScl2625() {
     doTest(Array("somepackage.Dummy", "somepackage.MoreBusiness", "somepackage.Business", "somepackage.AnotherEnum"), "dest")
   }
 
-  def testSCL4623() {
+  def testScl4623() {
     doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
-  def testSCL4613() {
+  def testScl4613() {
     doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
-  def testSCL4621() {
+  def testScl4621() {
     doTest(Array("moveRefactoring.foo.O"), "moveRefactoring.bar")
   }
 
-  def testSCL4619() {
+  def testScl4619() {
     doTest(Array("foo.B"), "bar")
   }
 
-  def testSCL4875() {
+  def testScl4875() {
     doTest(Array("com.A"), "org")
   }
 
-  def testSCL4878() {
+  def testScl4878() {
     doTest(Array("org.B"), "com")
   }
 
-  def testSCL4894() {
+  def testScl4894() {
     doTest(Array("moveRefactoring.foo.B", "moveRefactoring.foo.BB"), "moveRefactoring.bar")
   }
 
-  def testSCL4972() {
+  def testScl4972() {
     doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
-  def testSCL5456 () {
+  def testScl5456 () {
     doTest(Array("com.A"), "org", Kinds.onlyClasses)
   }
 
@@ -86,7 +86,7 @@ class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   }
 
 
-//  wait for fix SCL-6316
+//  wait for fix Scl-6316
 //  def testWithoutCompanion() {
 //    doTest("withoutCompanion", Array("source.A"), "target", Kinds.onlyObjects, moveCompanion = false)
 //  }
