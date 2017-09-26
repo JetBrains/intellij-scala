@@ -44,7 +44,7 @@ class CbtExternalSystemManager
     (project: Project) => CbtLocalSettings.getInstance(project)
 
   override def getSettingsProvider: Function[Project, CbtSystemSettings] =
-    (project: Project) =>CbtSystemSettings.getInstance(project)
+    (project: Project) =>CbtSystemSettings.instance(project)
 
   override def enhanceLocalProcessing(urls: util.List[URL]): Unit = {
     urls.add(jarWith[scala.App].toURI.toURL)

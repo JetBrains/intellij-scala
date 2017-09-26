@@ -8,7 +8,7 @@ import org.jetbrains.sbt.project.settings.Context
 
 class CbtImportControl
   extends AbstractImportFromExternalSystemControl[CbtProjectSettings, CbtProjectSettingsListener, CbtSystemSettings](
-    CbtProjectSystem.Id, CbtSystemSettings.getInstance(ProjectManager.getInstance.getDefaultProject),
+    CbtProjectSystem.Id, CbtSystemSettings.instance(ProjectManager.getInstance.getDefaultProject),
     CbtProjectSettings.default) {
 
   def getLinkedProjectChooserDescriptor: FileChooserDescriptor =

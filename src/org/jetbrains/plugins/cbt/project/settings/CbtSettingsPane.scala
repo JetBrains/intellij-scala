@@ -8,20 +8,20 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton
 
 class CbtSettingsPane {
   val pane = new JPanel
-  private val cbtPathText = new TextFieldWithBrowseButton
-  cbtPathText.addBrowseFolderListener(
-    "Choose a CBT path",
-    "Choose a CBT path",
+  private val cbtExePathText = new TextFieldWithBrowseButton
+  cbtExePathText.addBrowseFolderListener(
+    "Choose a CBT executable path",
+    "Choose a CBT executable path",
     null,
-    FileChooserDescriptorFactory.createSingleFolderDescriptor)
+    FileChooserDescriptorFactory.createSingleFileDescriptor)
 
   pane.setLayout(new GridLayout(1, 2))
-  pane.add(new Label("CBT path"))
-  pane.add(cbtPathText)
+  pane.add(new Label("CBT executable path"))
+  pane.add(cbtExePathText)
 
   def cbtPath: String =
-    cbtPathText.getText
+    cbtExePathText.getText
 
   def updateCbtPath(path: String): Unit =
-    cbtPathText.setText(path)
+    cbtExePathText.setText(path)
 }

@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.cbt.process
 
 import java.io.File
+import java.nio.file.{Path, Paths}
 
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationSource}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
-import org.jetbrains.plugins.cbt.project.settings.{CbtExecutionSettings, CbtProjectSettings}
+import org.jetbrains.plugins.cbt._
+import org.jetbrains.plugins.cbt.project.settings.{CbtExecutionSettings, CbtProjectSettings, CbtSystemSettings}
 import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
 
 import scala.sys.process.{Process, ProcessLogger}
@@ -18,7 +20,7 @@ object CbtProcess {
                    settings: CbtExecutionSettings,
                    projectOpt: Option[Project],
                    taskListener: Option[(ExternalSystemTaskId,
-                   ExternalSystemTaskNotificationListener)]): Try[Elem] = {
+                     ExternalSystemTaskNotificationListener)]): Try[Elem] = {
     def buildParams: Seq[String] = {
       val extraModulesStr = settings.extraModules.mkString(":")
       val needCbtLibsStr = settings.isCbt.unary_!.toString
@@ -29,9 +31,6 @@ object CbtProcess {
       runAction("buildInfoXml" +: buildParams, settings.useDirect, root, projectOpt, taskListener)
     xml.map(XML.loadString)
   }
-
-  def generateGiter8Template(template: String, project: Project, root: File): Try[String] =
-    runAction(Seq("tools", "g8", template), useDirect = true, root, Option(project), None)
 
   def runAction(action: Seq[String],
                 useDirect: Boolean,
@@ -57,7 +56,13 @@ object CbtProcess {
     val logger = ProcessLogger(
       text => outputHandler.parseLine(text, stderr = false),
       text => outputHandler.parseLine(text + '\n', stderr = true))
-    val task = Seq("cbt") ++ (if (useDirect) Seq("direct") else Seq.empty) ++ action
+
+    val cbtExecutable =
+      projectOpt
+        .map(cbtExePath)
+        .getOrElse("cbt")
+
+    val task = Seq(cbtExecutable) ++ (if (useDirect) Seq("direct") else Seq.empty) ++ action
     val exitCode = Process(task, root) ! logger
     exitCode match {
       case 0 =>
@@ -67,4 +72,14 @@ object CbtProcess {
     }
   }
 
+  def cbtExePath(project: Project): String = {
+    val path = CbtSystemSettings.instance(project).cbtExePath
+    if (path.trim.isEmpty) defaultCbtExePath
+    else path
+  }
+
+  def defaultCbtExePath: String = "cbt"
+
+  def generateGiter8Template(template: String, project: Project, root: File): Try[String] =
+    runAction(Seq("tools", "g8", template), useDirect = true, root, Option(project), None)
 }

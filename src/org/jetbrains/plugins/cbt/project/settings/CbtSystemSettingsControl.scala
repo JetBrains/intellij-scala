@@ -9,7 +9,7 @@ class CbtSystemSettingsControl(settings: CbtSystemSettings)
   private val pane = new CbtSettingsPane
 
   def isModified: Boolean =
-    pane.cbtPath != settings.cbtPath
+    pane.cbtPath != settings.cbtExePath
 
   def showUi(show: Boolean): Unit =
     pane.pane.setEnabled(true)
@@ -20,11 +20,11 @@ class CbtSystemSettingsControl(settings: CbtSystemSettings)
   def disposeUIResources() {}
 
   def apply(settings: CbtSystemSettings): Unit = {
-    settings.cbtPath = pane.cbtPath
+    settings.cbtExePath = pane.cbtPath
   }
 
   def reset(): Unit = {
-    pane.updateCbtPath(settings.cbtPath)
+    pane.updateCbtPath(settings.cbtExePath)
   }
 
   def validate(settings: CbtSystemSettings) = true

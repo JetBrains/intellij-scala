@@ -6,7 +6,7 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationSource}
 import com.intellij.openapi.util.Key
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.cbt.process.CbtOutputListener
+import org.jetbrains.plugins.cbt.process.{CbtOutputListener, CbtProcess}
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 
 import scala.collection.JavaConverters._
@@ -22,7 +22,8 @@ class CbtCommandLineState(task: String,
   override def startProcess(): ProcessHandler = {
     ExternalSystemNotificationManager.getInstance(environment.getProject)
       .clearNotifications(NotificationSource.TASK_EXECUTION, CbtProjectSystem.Id)
-    val arguments = Seq("cbt") ++
+    val arguments = 
+      Seq(CbtProcess.cbtExePath(environment.getProject)) ++
       options ++
       (if (useDirect) Seq("direct") else Seq.empty) ++
       task.split(' ').map(_.trim).toSeq
