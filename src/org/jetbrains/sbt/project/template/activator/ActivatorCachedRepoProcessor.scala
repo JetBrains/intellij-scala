@@ -34,7 +34,7 @@ class ActivatorCachedRepoProcessor extends ProjectComponent {
     throw new ConfigurationException(msg)
   }
 
-  private def errorStr(msg: String) = error(msg, null)
+  private def errorStr(msg: String): Unit = error(msg, null)
 
   private def urlString = s"$REPO_URI/$INDEX_DIR/$VERSION"
 
@@ -48,12 +48,10 @@ class ActivatorCachedRepoProcessor extends ProjectComponent {
         case io: IOException => error("Can't download index", io)
       }
 
-      downloaded flatMap {
-        case str => str.split('\n').find {
-          case s => s.trim startsWith CACHE_HASH
-        } map {
-          case hashStr => hashStr.trim.stripPrefix(CACHE_HASH)
-        }
+      downloaded flatMap { str =>
+        str.split('\n')
+          .find(s => s.trim startsWith CACHE_HASH)
+          .map (hashStr => hashStr.trim.stripPrefix(CACHE_HASH))
       }
     }
 
@@ -63,16 +61,15 @@ class ActivatorCachedRepoProcessor extends ProjectComponent {
 
   private def downloadIndex(): Option[File] = {
     if (extractedHash.flatMap(a => indexFile.map(b => (a, b._1))).exists(a => a._1 == a._2)) indexFile.map(_._2) else {
-      extractHash() flatMap {
-        case hash =>
-          val tmpFile = FileUtil.createTempFile(s"index-$hash", ".zip", true)
-          val downloaded = ActivatorRepoProcessor.downloadFile(s"$urlString/${indexName(hash)}",
-            tmpFile.getCanonicalPath, errorStr, ProgressManager.getInstance().getProgressIndicator)
+      extractHash() flatMap { hash =>
+        val tmpFile = FileUtil.createTempFile(s"index-$hash", ".zip", true)
+        val downloaded = ActivatorRepoProcessor.downloadFile(s"$urlString/${indexName(hash)}",
+          tmpFile.getCanonicalPath, errorStr, ProgressManager.getInstance().getProgressIndicator)
 
-          if (downloaded) {
-            indexFile = Some((hash, tmpFile))
-            Some(tmpFile)
-          } else None
+        if (downloaded) {
+          indexFile = Some((hash, tmpFile))
+          Some(tmpFile)
+        } else None
       }
     }
   }
@@ -110,11 +107,9 @@ class ActivatorCachedRepoProcessor extends ProjectComponent {
           reader = DirectoryReader.open(FSDirectory.open(extracted))
           val searcher = new IndexSearcher(reader)
           val docs = searcher.search(new lucene.search.MatchAllDocsQuery, reader.maxDoc())
-          val data = docs.scoreDocs.map { case doc => reader document doc.doc }
+          val data = docs.scoreDocs.map(doc => reader document doc.doc)
 
-          data.map {
-            case docData => Keys.from(docData)
-          }.toMap
+          data.map(docData => Keys.from(docData)).toMap
       }
     } catch {
       case io: IOException =>
