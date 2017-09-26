@@ -18,6 +18,7 @@ public class SettingsManager {
   public static final JpsElementChildRoleBase<GlobalSettings> GLOBAL_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala global settings");
   public static final JpsElementChildRoleBase<ProjectSettings> PROJECT_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala project settings");
   public static final JpsElementChildRoleBase<LibrarySettings> LIBRARY_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala library settings");
+  public static final JpsElementChildRoleBase<HydraSettings> HYDRA_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala hydra settings");
 
   public static GlobalSettings getGlobalSettings(JpsGlobal global) {
     GlobalSettings settings = global.getContainer().getChild(GLOBAL_SETTINGS_ROLE);
@@ -35,6 +36,15 @@ public class SettingsManager {
 
   public static void setProjectSettings(JpsProject project, ProjectSettings settings) {
     project.getContainer().setChild(PROJECT_SETTINGS_ROLE, settings);
+  }
+
+  public static HydraSettings getHydraSettings(JpsProject project) {
+    HydraSettings settings = project.getContainer().getChild(HYDRA_SETTINGS_ROLE);
+    return  settings == null ? HydraSettingsImpl.DEFAULT : settings;
+  }
+
+  public static void setHydraSettings(JpsProject project, HydraSettings hydraSettings) {
+    project.getContainer().setChild(HYDRA_SETTINGS_ROLE, hydraSettings);
   }
 
   public static boolean hasScalaSdk(JpsModule module) {
