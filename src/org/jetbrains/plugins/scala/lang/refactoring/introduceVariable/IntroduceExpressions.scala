@@ -6,7 +6,6 @@ import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Pass, TextRange}
-import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.PsiModifier.PRIVATE
 import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
@@ -58,7 +57,7 @@ trait IntroduceExpressions {
         return
       }
 
-      val occurrences: Array[TextRange] = fileEncloser(file, startOffset).toArray.flatMap {
+      val occurrences = fileEncloser(file, startOffset).toSeq.flatMap {
         getOccurrenceRanges(expr, _)
       }
 
@@ -115,37 +114,19 @@ trait IntroduceExpressions {
 
   private def runWithDialog(suggestedNames: SuggestedNames, occurrences: OccurrencesInFile)
                            (implicit project: Project, editor: Editor, validator: ScalaVariableValidator): Unit = {
-    // Add occurrences highlighting
     val occurrences_ = occurrences.occurrences
-    val length = occurrences_.length
-    if (length > 1) {
-      occurrenceHighlighters = highlightOccurrences(project, occurrences_, editor)
-    }
 
-    showDialog(suggestedNames, length) match {
-      case dialog if dialog.isOK => runRefactoring(occurrences, suggestedNames.expression,
+    val SuggestedNames(expression, types, names) = suggestedNames
+    val dialog = new ScalaIntroduceVariableDialog(project, types, occurrences_.length, new ValidationReporter(project, this), names, expression)
+
+    this.showDialogImpl(dialog, occurrences_).foreach { dialog =>
+      runRefactoring(occurrences, suggestedNames.expression,
         varName = dialog.getEnteredName,
         varType = dialog.getSelectedType,
         replaceAllOccurrences = dialog.isReplaceAllOccurrences,
         isVariable = dialog.isDeclareVariable
       )
-      case _ =>
-        occurrenceHighlighters.foreach(_.dispose())
-        occurrenceHighlighters = Seq.empty
     }
-  }
-
-  private def showDialog(suggestedNames: SuggestedNames, length: Int)
-                        (implicit project: Project, editor: Editor, validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
-    val SuggestedNames(expression, types, names) = suggestedNames
-    val dialog = new ScalaIntroduceVariableDialog(project, types, length, new ValidationReporter(project, this), names, expression)
-
-    dialog.show()
-    if (!dialog.isOK && length > 1) {
-      WindowManager.getInstance.getStatusBar(project).setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
-    }
-
-    dialog
   }
 }
 

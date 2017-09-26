@@ -15,16 +15,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberIn
  * on 8/10/15
  */
 object ScalaInplaceTypeAliasIntroducer {
-  def apply(scNamedElement: ScNamedElement,
-            substituted: PsiElement,
-            editor: Editor,
-            initialName: String,
-            oldName: String,
-            scopeItem: ScopeItem): ScalaInplaceTypeAliasIntroducer = {
-
-    editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).addScopeElement(scopeItem)
-    new ScalaInplaceTypeAliasIntroducer(scNamedElement, substituted, editor, initialName, oldName)
-  }
 
   def revertState(myEditor: Editor, scopeItem: ScopeItem, namedElement: ScNamedElement): Unit = {
     val myProject = myEditor.getProject
@@ -50,12 +40,9 @@ object ScalaInplaceTypeAliasIntroducer {
   }
 }
 
-class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
-                                      substituted: PsiElement,
-                                      editor: Editor,
-                                      initialName: String,
-                                      oldName: String)
-  extends ScalaMemberInplaceRenamer(scNamedElement, substituted, editor, initialName, oldName) {
+class ScalaInplaceTypeAliasIntroducer(element: ScNamedElement)
+                                     (implicit editor: Editor)
+  extends ScalaMemberInplaceRenamer(element, element, editor, element.getName, element.getName) {
 
   override def setAdvertisementText(text: String): Unit = {
     myAdvertisementText = "Press ctrl + alt + v" + " to show dialog with more options"

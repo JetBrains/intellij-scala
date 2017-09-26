@@ -8,7 +8,9 @@ import com.intellij.openapi.command.impl.StartMarkAction
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util._
+import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.findElementOfClassAtOffset
 import com.intellij.refactoring.HelpID
@@ -18,12 +20,12 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.DialogConflictsReporter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 23.06.2008
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 23.06.2008
+  */
 class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with DialogConflictsReporter with IntroduceExpressions with IntroduceTypeAlias {
 
-  var occurrenceHighlighters = Seq.empty[RangeHighlighter]
+  private var occurrenceHighlighters = Seq.empty[RangeHighlighter]
 
   override def invoke(file: PsiFile)
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
@@ -72,6 +74,29 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
         afterExpressionChoosing(file, INTRODUCE_VARIABLE_REFACTORING_NAME) {
           invokeExpression(file, selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
         }
+    }
+  }
+
+  protected def showDialogImpl[D <: DialogWrapper](dialog: D,
+                                                   occurrences: Seq[TextRange])
+                                                  (implicit project: Project, editor: Editor): Option[D] = {
+    val multipleOccurrences = occurrences.length > 1
+    if (multipleOccurrences) {
+      occurrenceHighlighters = highlightOccurrences(project, occurrences, editor)
+    }
+
+    dialog.show()
+    if (dialog.isOK) Some(dialog) else {
+      if (multipleOccurrences) {
+        WindowManager.getInstance
+          .getStatusBar(project)
+          .setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
+      }
+
+      occurrenceHighlighters.foreach(_.dispose())
+      occurrenceHighlighters = Seq.empty
+
+      None
     }
   }
 }
