@@ -9,22 +9,22 @@ class CbtSystemSettingsControl(settings: CbtSystemSettings)
   private val pane = new CbtSettingsPane
 
   def isModified: Boolean =
-    pane.getCbtPath != settings.cbtPath
+    pane.cbtPath != settings.cbtPath
 
   def showUi(show: Boolean): Unit =
-    pane.getPane.setEnabled(true)
+    pane.pane.setEnabled(true)
 
   def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit =
-    canvas.add(pane.getPane, ExternalSystemUiUtil.getFillLineConstraints(indentLevel))
+    canvas.add(pane.pane, ExternalSystemUiUtil.getFillLineConstraints(indentLevel))
 
   def disposeUIResources() {}
 
   def apply(settings: CbtSystemSettings): Unit = {
-    settings.cbtPath = pane.getCbtPath
+    settings.cbtPath = pane.cbtPath
   }
 
   def reset(): Unit = {
-    pane.setCbtPath(settings.cbtPath)
+    pane.updateCbtPath(settings.cbtPath)
   }
 
   def validate(settings: CbtSystemSettings) = true
