@@ -238,8 +238,23 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
          |  }
       """.stripMargin
 
-    //only implicit usages and nameIds are highlighted by this handler
-    doTest(code, Seq("converter", "111"))
+    doTest(code, Seq("converter", "111", "converter"))
+  }
+
+  def testApplyFromConversion(): Unit = {
+    val code =
+      s"""
+         |import java.util
+         |import scala.collection.JavaConversions.${CARET}mapAsScalaMap
+         |
+         |object Test {
+         |  def env: util.Map[String, String] = System.getenv() // Java map
+         |  val term: String = env("TERM")
+         |  val term2: String = env.apply("TERM")
+         |}
+        """.stripMargin
+
+    doTest(code, Seq("mapAsScalaMap", "env", "env"))
   }
 
   def doTest(fileText: String, expected: Seq[String]): Unit = {

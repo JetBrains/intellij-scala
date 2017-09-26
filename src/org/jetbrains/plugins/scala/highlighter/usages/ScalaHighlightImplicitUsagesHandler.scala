@@ -125,7 +125,7 @@ object ScalaHighlightImplicitUsagesHandler {
 
   private implicit class ImplicitTarget(target: PsiElement) {
 
-    private def isTarget(named: PsiNamedElement): Boolean = named match {
+    def isTarget(named: PsiElement): Boolean = named match {
       case `target`                                                          => true
       case f: ScFunction if f.getSyntheticNavigationElement.contains(target) => true
       case _                                                                 => false
@@ -156,7 +156,8 @@ object ScalaHighlightImplicitUsagesHandler {
       case _ => true
     }
 
-    def containsImplicitRef(elem: PsiElement): Boolean = elem match {
+    def containsRefOrImplicitRef(elem: PsiElement): Boolean = elem match {
+      case ref: ScReferenceElement if target.isTarget(ref.resolve()) => true
       case e: ScExpression if target.isImplicitConversionOrParameter(e) => true
       case st: ScSimpleTypeElement if target.isImplicitParameterOf(st) => true
       case _ => false
@@ -164,7 +165,7 @@ object ScalaHighlightImplicitUsagesHandler {
 
     file
       .depthFirst()
-      .filter(e => inUseScope(e) && containsImplicitRef(e))
+      .filter(e => inUseScope(e) && containsRefOrImplicitRef(e))
       .toSeq
   }
 
@@ -196,6 +197,7 @@ object ScalaHighlightImplicitUsagesHandler {
       case MethodRepr(_: ScMethodCall, Some(base), None, _) => range(base)
       case MethodRepr(_, _, Some(ref), _)                   => startingFrom(ref.nameId)
       case simpleTypeElem: ScSimpleTypeElement              => forTypeElem(simpleTypeElem)
+      case ref: ScReferenceElement                          => startingFrom(ref.nameId)
       case _                                                => simpleRange
     }
   }
