@@ -257,6 +257,96 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
     doTest(code, Seq("mapAsScalaMap", "env", "env"))
   }
 
+  def testChainedImplicitParameters1(): Unit = {
+    val code =
+      s"""
+        |class A(val n: Int)
+        |
+        |class B(val m: Int, val n: Int)
+        |
+        |class C(val m: Int, val n: Int, val o: Int) {
+        |  def total = m + n + o
+        |}
+        |
+        |object O {
+        |  implicit def ${CARET}toA(n: Int): A = new A(n)
+        |
+        |  implicit def aToB[A1](a: A1)(implicit f: A1 => A): B =
+        |    new B(a.n, a.n)
+        |
+        |  implicit def bToC[B1](b: B1)(implicit f: B1 => B): C =
+        |    new C(b.m, b.n, b.m + b.n)
+        |
+        |  5.total
+        |  new A(5).total
+        |  new B(5, 5).total
+        |  new C(5, 5, 10).total
+        |}
+      """.stripMargin
+
+    doTest(code, Seq("toA", "5"))
+  }
+
+  def testChainedImplicitParameters2(): Unit = {
+    val code =
+      s"""
+         |class A(val n: Int)
+         |
+         |class B(val m: Int, val n: Int)
+         |
+         |class C(val m: Int, val n: Int, val o: Int) {
+         |  def total = m + n + o
+         |}
+         |
+         |object O {
+         |  implicit def toA(n: Int): A = new A(n)
+         |
+         |  implicit def ${CARET}aToB[A1](a: A1)(implicit f: A1 => A): B =
+         |    new B(a.n, a.n)
+         |
+         |  implicit def bToC[B1](b: B1)(implicit f: B1 => B): C =
+         |    new C(b.m, b.n, b.m + b.n)
+         |
+         |  5.total
+         |  new A(5).total
+         |  new B(5, 5).total
+         |  new C(5, 5, 10).total
+         |}
+        """.stripMargin
+
+    doTest(code, Seq("aToB", "5", "new A(5)"))
+  }
+
+  def testChainedImplicitParameters3(): Unit = {
+    val code =
+      s"""
+         |class A(val n: Int)
+         |
+         |class B(val m: Int, val n: Int)
+         |
+         |class C(val m: Int, val n: Int, val o: Int) {
+         |  def total = m + n + o
+         |}
+         |
+         |object O {
+         |  implicit def toA(n: Int): A = new A(n)
+         |
+         |  implicit def aToB[A1](a: A1)(implicit f: A1 => A): B =
+         |    new B(a.n, a.n)
+         |
+         |  implicit def ${CARET}bToC[B1](b: B1)(implicit f: B1 => B): C =
+         |    new C(b.m, b.n, b.m + b.n)
+         |
+         |  5.total
+         |  new A(5).total
+         |  new B(5, 5).total
+         |  new C(5, 5, 10).total
+         |}
+        """.stripMargin
+
+    doTest(code, Seq("bToC", "5", "new A(5)", "new B(5, 5)"))
+  }
+
   def doTest(fileText: String, expected: Seq[String]): Unit = {
     import scala.collection.JavaConversions._
     myFixture.configureByText("dummy.scala", fileText)
