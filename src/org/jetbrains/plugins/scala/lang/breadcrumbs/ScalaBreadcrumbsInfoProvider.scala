@@ -37,7 +37,8 @@ class ScalaBreadcrumbsInfoProvider extends BreadcrumbsProvider {
     import ScalaBreadcrumbsInfoProvider.MyTextRepresentationUtil._
     
     e match {
-      case clazz: ScTemplateDefinition => describeTemplateDef(clazz)
+      case newDef: ScNewTemplateDefinition => describeNewTemplate(newDef)
+      case clazz: ScTemplateDefinition => clazz.name
       case funExpr: ScFunctionExpr => describeFunction(funExpr)
       case fun: ScFunction => describeFunction(fun)
       case member: ScMember => describeMember(member)
@@ -99,14 +100,20 @@ object ScalaBreadcrumbsInfoProvider {
     def describeFunction(fun: ScFunction): String = if (fun.isConstructor) getConstructorSignature(fun) else getSignature(fun)
     
     def describeFunction(fun: ScFunctionExpr): String = "λ" + getSignature(fun)
-    
-    def describeTemplateDef(td: ScTemplateDefinition): String = td match {
-      case newDef: ScNewTemplateDefinition if Option(newDef.extendsBlock).exists(_.isAnonymousClass) =>
-        val txt = StringBuilder.newBuilder.append("new ").append(newDef.supers.map(_.getName).mkString("", " with ", ""))
-        if (newDef.constructor.exists(_.args.isDefined)) txt.append(PAR_HOLDER)
-        
-        limitText(txt.result(), limit = MAX_STRING_LENGTH*2)
-      case other => other.name
+
+    def describeNewTemplate(newDef: ScNewTemplateDefinition): String = {
+      val constructor = newDef.constructor match {
+        case None =>
+          "Object"
+        case Some(c) if c.arguments.nonEmpty =>
+          s"${c.typeElement.getText}$PAR_HOLDER"
+        case Some(c) =>
+          s"${c.typeElement.getText}"
+      }
+      val hasOtherTypes = newDef.extendsBlock.templateParents.exists(_.typeElementsWithoutConstructor.nonEmpty)
+      val otherTypesHolder = if (hasOtherTypes) " with ..." else ""
+      val text = s"new $constructor$otherTypesHolder"
+      limitText(text, limit = MAX_STRING_LENGTH*2)
     }
     
     def describeMember(mb: ScMember): String = mb match {
@@ -127,12 +134,14 @@ object ScalaBreadcrumbsInfoProvider {
     def describeCaseClause(clause: ScCaseClause): String = s"case ${limitString(clause.pattern.map(_.getText).getOrElse(""))} =>"
     
     def getTemplateDefTooltip(td: ScTemplateDefinition): String = {
-      (td match {
-        case _: ScClass => "class"
-        case _: ScObject => "object"
-        case _: ScTrait => "trait"
-        case _ => ""
-      }) + " " + describeTemplateDef(td)
+      val name = td.name
+      td match {
+        case _: ScClass                      => s"class $name"
+        case _: ScObject                     => s"object $name"
+        case _: ScTrait                      => s"trait $name"
+        case newDef: ScNewTemplateDefinition => describeNewTemplate(newDef)
+        case _                               => name
+      }
     }
     
     def getFunctionTooltip(fun: ScFunction): String = describeFunction(fun) + (if (fun.getBody != null) limitText(fun.getBody.getText) else "")
