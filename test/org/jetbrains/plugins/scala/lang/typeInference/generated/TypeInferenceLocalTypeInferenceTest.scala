@@ -100,4 +100,42 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
   def testSCL2507_5() {doTest()}
 
   def testSCL12598() = doTest()
+
+  def testSCL5809(): Unit = doTest {
+    """
+      |object SCL5809 {
+      |
+      |  trait Functor[F[_]] {
+      |    def map[A, B](fa: F[A])(f: A => B): F[B]
+      |  }
+      |
+      |  trait Applicative[F[_]] extends Functor[F] {
+      |    def map2[A, B, C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C]
+      |
+      |    def apply[A, B](fab: F[A => B])(fa: F[A]): F[B]
+      |
+      |    def unit[A](a: A): F[A]
+      |
+      |    // Excercise 1
+      |    def map2ApplyUnit[A, B, C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] = {
+      |      apply[B, C](apply[A, B => C](unit(f.curried))(fa))(fb)
+      |    }
+      |
+      |    def applyMap2Unit[A, B](fab: F[A => B])(fa: F[A]): F[B] = {
+      |      map2(fab, fa)((f, a) => f(a))
+      |    }
+      |
+      |    def map[A, B](fa: F[A])(f: A => B): F[B] = {
+      |      apply(/*start*/unit(f)/*end*/)(fa)
+      |    }
+      |  }
+      |
+      |  object Applicative {
+      |  }
+      |
+      |}
+      |//F[A => B]
+    """.stripMargin.trim
+  }
+
 }

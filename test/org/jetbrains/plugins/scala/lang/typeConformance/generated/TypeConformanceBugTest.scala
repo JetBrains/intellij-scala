@@ -56,4 +56,34 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
       |
       |/* True */
     """.stripMargin)
+
+  def testSCL11140(): Unit = doTest(
+    s"""
+       |import scala.collection.{Map, mutable}
+       |import scala.collection.generic.CanBuildFrom
+       |
+       |object IntelliBugs {
+       |  implicit class MapOps[K2, V2, M[K, V] <: Map[K, V]](val m: M[K2, V2]) extends AnyVal {
+       |    def mapValuesStrict[V3](f: V2 => V3)(implicit cbf: CanBuildFrom[M[K2, V2], (K2, V3), M[K2, V3]]) =
+       |      m.map { case (k, v) => k -> f(v) }
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    val m = mutable.HashMap.empty[String, Int]
+       |
+       |    $caretMarker
+       |    val m2: Map[String, Long] = m.mapValuesStrict(_.toLong)
+       |  }
+       |}
+       |//true
+    """.stripMargin)
+
+  def testSCL11060_2(): Unit = doTest(
+    s"""
+       |val foo: Iterator[(Int, Set[Int])] = {
+       |  val tS: (Int, Set[Int]) = (5, Set(12,3))
+       |  if (tS._2.nonEmpty) Some(tS).toIterator else None.toIterator
+       |}
+       |//true
+    """.stripMargin)
 }
