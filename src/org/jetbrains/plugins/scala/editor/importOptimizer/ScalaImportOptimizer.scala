@@ -754,7 +754,7 @@ object ScalaImportOptimizer {
   }
 
   private def collectImportsUsed(element: PsiElement, imports: util.Set[ImportUsed], names: util.Set[UsedName]): Unit = {
-    def implicitlyImported(srr: ScalaResolveResult) = {
+    def fromDefaultImport(srr: ScalaResolveResult) = {
       srr.element match {
         case c: PsiClass =>
           val qName = c.qualifiedName
@@ -768,31 +768,32 @@ object ScalaImportOptimizer {
 
     def addResult(srr: ScalaResolveResult, fromElem: PsiElement) = {
       val importsUsed = srr.importsUsed
-      if (importsUsed.nonEmpty || implicitlyImported(srr)) {
+      if (importsUsed.nonEmpty || fromDefaultImport(srr)) {
         imports.addAll(importsUsed.asJava)
         names.add(UsedName(srr.name, fromElem.getTextRange.getStartOffset))
       }
     }
 
+    def addWithImplicits(srr: ScalaResolveResult, fromElem: PsiElement) = {
+      withImplicits(srr).foreach(addResult(_, fromElem))
+    }
+
+    def withImplicits(srr: ScalaResolveResult): Seq[ScalaResolveResult] = {
+      srr +:
+        srr.implicitConversion.toSeq.flatMap(withImplicits) ++:
+        srr.implicitParameters.flatMap(withImplicits)
+    }
+
     def addFromExpression(expr: ScExpression): Unit = {
-      val afterImplicitConversion = expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType())
-
-      imports.addAll(afterImplicitConversion.importsUsed.asJava)
-      afterImplicitConversion.implicitFunction.foreach(f => names.add(UsedName(f.name, expr.getTextRange.getStartOffset)))
-
       expr match {
         case call: ScMethodCall => imports.addAll(call.getImportsUsed.asJava)
         case f: ScForStatement => imports.addAll(ScalaPsiUtil.getExprImports(f).asJava)
         case _ =>
       }
 
-      expr.findImplicitParameters match {
-        case Some(seq) =>
-          for (rr <- seq if rr != null) {
-            addResult(rr, expr)
-          }
-        case _ =>
-      }
+      val implicits = expr.implicitConversion() ++: expr.findImplicitParameters.getOrElse(Seq.empty)
+
+      implicits.foreach(addWithImplicits(_, expr))
     }
 
     element match {
@@ -808,16 +809,13 @@ object ScalaImportOptimizer {
         }
       case ref: ScReferenceElement if PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null =>
         ref.multiResolve(false) foreach {
-          case scalaResult: ScalaResolveResult => addResult(scalaResult, ref)
+          case scalaResult: ScalaResolveResult => addWithImplicits(scalaResult, ref)
           case _ =>
         }
       case simple: ScSimpleTypeElement =>
         simple.findImplicitParameters match {
           case Some(parameters) =>
-            parameters.foreach {
-              case r: ScalaResolveResult => addResult(r, simple)
-              case _ =>
-            }
+            parameters.foreach(addWithImplicits(_, simple))
           case _ =>
         }
       case _ =>
