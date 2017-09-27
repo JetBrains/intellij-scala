@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.cbt.settings
 
 import com.intellij.openapi.components._
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.cbt.project.settings.CbtSystemSettings
 
 import scala.beans.BeanProperty
 
@@ -14,15 +12,15 @@ class CbtGlobalSettings
   extends ApplicationComponent
     with PersistentStateComponent[CbtGlobalSettingsState] {
 
-  var cbtExePath: String = ""
+  var lastUsedCbtExePath: String = ""
 
   override def loadState(state: CbtGlobalSettingsState): Unit = {
-    cbtExePath = state.cbtExePath
+    lastUsedCbtExePath = state.lastUsedbtExePath
   }
 
   override def getState: CbtGlobalSettingsState = {
     val state = new CbtGlobalSettingsState
-    state.cbtExePath = cbtExePath
+    state.lastUsedbtExePath = lastUsedCbtExePath
     state
   }
 }
@@ -34,5 +32,5 @@ object CbtGlobalSettings {
 
 class CbtGlobalSettingsState {
   @BeanProperty
-  var cbtExePath: String = ""
+  var lastUsedbtExePath: String = ""
 }

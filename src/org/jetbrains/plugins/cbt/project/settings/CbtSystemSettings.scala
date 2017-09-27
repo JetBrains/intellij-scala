@@ -23,7 +23,7 @@ class CbtSystemSettings(project: Project)
     with PersistentStateComponent[CbtSystemSettingsState] {
 
   @BeanProperty
-  var cbtExePath: String = ""
+  var cbtExePath: String = CbtGlobalSettings.instance.lastUsedCbtExePath
 
   override def copyExtraSettingsFrom(settings: CbtSystemSettings): Unit = {}
 
@@ -59,7 +59,7 @@ class CbtSystemSettingsState extends AbstractExternalSystemSettings.State[CbtPro
   private val projectSettings = ContainerUtilRt.newTreeSet[CbtProjectSettings]()
 
   @BeanProperty
-  var cbtExePath: String = CbtGlobalSettings.instance.cbtExePath
+  var cbtExePath: String = CbtGlobalSettings.instance.lastUsedCbtExePath
 
   override def getLinkedExternalProjectsSettings: util.Set[CbtProjectSettings] = projectSettings
 
