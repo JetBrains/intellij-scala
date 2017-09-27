@@ -1,6 +1,7 @@
 package org.jetbrains.plugins
 
 import java.io.File
+import java.nio.file.Paths
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
@@ -55,7 +56,7 @@ package object cbt {
 
     def isCbtProject: Boolean =
       Try {
-        CbtSystemSettings.getInstance(project)
+        CbtSystemSettings.instance(project)
           .getLinkedProjectSettings(project.getBasePath)
       }
         .toOption

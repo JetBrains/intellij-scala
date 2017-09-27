@@ -48,14 +48,16 @@ class CbtLineMarkerProvider extends RunLineMarkerContributor {
                               scFun: ScFunction): Option[RunLineMarkerContributor.Info] = {
     val task = scFun.asInstanceOf[ScFunctionDefinitionImpl].getName
     val tooltipHandler = (_: PsiElement) => s"Run or Debug task '$task'"
-    val module = {
-      val buildModule = CBT.moduleByPath(scFun.getContainingFile.getVirtualFile.getPath, project)
-      val moudleDir = buildModule.baseDir.toFile.toPath.getParent.toString
-      CBT.moduleByPath(moudleDir, project)
+    val module =
+      CBT.moduleByPath(scFun.getContainingFile.getVirtualFile.getPath, project)
+        .flatMap { buildModule =>
+          val moudleDir = buildModule.baseDir.toFile.toPath.getParent.toString
+          CBT.moduleByPath(moudleDir, project)
+        }
+    module.map { m =>
+      val actions: Array[AnAction] =
+        Array(new RunTaskAction(task, m, project), new DebugTaskAction(task, m, project))
+      new RunLineMarkerContributor.Info(AllIcons.General.Run, tooltipHandler, actions: _ *)
     }
-    val actions: Array[AnAction] =
-      Array(new RunTaskAction(task, module, project), new DebugTaskAction(task, module, project))
-    val info = new RunLineMarkerContributor.Info(AllIcons.General.Run, tooltipHandler, actions: _ *)
-    Some(info)
   }
 }

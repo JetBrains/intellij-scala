@@ -4,7 +4,7 @@ import com.intellij.openapi.externalSystem.service.settings.{AbstractExternalPro
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, PaintAwarePanel}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
-import org.jetbrains.plugins.cbt.project.settings.{CbtProjectSettings, CbtProjectSettingsListener, CbtSystemSettings}
+import org.jetbrains.plugins.cbt.project.settings.{CbtProjectSettings, CbtProjectSettingsListener, CbtSystemSettings, CbtSystemSettingsControl}
 
 class CbtExternalSystemConfigurable(project: Project)
   extends AbstractExternalSystemConfigurable[CbtProjectSettings, CbtProjectSettingsListener,
@@ -12,22 +12,8 @@ class CbtExternalSystemConfigurable(project: Project)
 
   override def newProjectSettings(): CbtProjectSettings = new CbtProjectSettings
 
-  override def createSystemSettingsControl(settings: CbtSystemSettings): ExternalSystemSettingsControl[CbtSystemSettings] =
-    new ExternalSystemSettingsControl[CbtSystemSettings] {
-      override def apply(settings: CbtSystemSettings): Unit = {}
-
-      override def isModified: Boolean = false
-
-      override def reset(): Unit = {}
-
-      override def showUi(show: Boolean): Unit = {}
-
-      override def disposeUIResources(): Unit = {}
-
-      override def validate(settings: CbtSystemSettings): Boolean = true
-
-      override def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit = {}
-    }
+  override def createSystemSettingsControl(settings: CbtSystemSettings): CbtSystemSettingsControl =
+    new CbtSystemSettingsControl(settings)
 
   override def createProjectSettingsControl(settings: CbtProjectSettings): AbstractExternalProjectSettingsControl[CbtProjectSettings] =
     new AbstractExternalProjectSettingsControl[CbtProjectSettings](settings) {

@@ -8,6 +8,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.project.Project
 import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.xmlb.annotations.AbstractCollection
+import org.jetbrains.plugins.cbt.settings.CbtGlobalSettings
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 import scala.beans.BeanProperty
@@ -22,10 +23,7 @@ class CbtSystemSettings(project: Project)
     with PersistentStateComponent[CbtSystemSettingsState] {
 
   @BeanProperty
-  var isCbt = false
-
-  @BeanProperty
-  var extraModules: java.util.List[String] = new util.ArrayList[String]()
+  var cbtExePath: String = CbtGlobalSettings.instance.lastUsedCbtExePath
 
   override def copyExtraSettingsFrom(settings: CbtSystemSettings): Unit = {}
 
@@ -42,31 +40,26 @@ class CbtSystemSettings(project: Project)
 
   override def loadState(state: CbtSystemSettingsState): Unit = {
     super[AbstractExternalSystemSettings].loadState(state)
-    isCbt = state.isCbt
-    extraModules = state.extraModules
+    cbtExePath = state.cbtExePath
   }
 
   override def getState: CbtSystemSettingsState = {
     val state = new CbtSystemSettingsState()
     fillState(state)
-    state.isCbt = isCbt
-    state.extraModules = extraModules
+    state.cbtExePath = cbtExePath
     state
   }
 }
 
 object CbtSystemSettings {
-  def getInstance(project: Project): CbtSystemSettings = ServiceManager.getService(project, classOf[CbtSystemSettings])
+  def instance(project: Project): CbtSystemSettings = ServiceManager.getService(project, classOf[CbtSystemSettings])
 }
 
 class CbtSystemSettingsState extends AbstractExternalSystemSettings.State[CbtProjectSettings] {
   private val projectSettings = ContainerUtilRt.newTreeSet[CbtProjectSettings]()
 
   @BeanProperty
-  var isCbt = false
-
-  @BeanProperty
-  var extraModules: java.util.List[String] = new util.ArrayList[String]()
+  var cbtExePath: String = CbtGlobalSettings.instance.lastUsedCbtExePath
 
   override def getLinkedExternalProjectsSettings: util.Set[CbtProjectSettings] = projectSettings
 

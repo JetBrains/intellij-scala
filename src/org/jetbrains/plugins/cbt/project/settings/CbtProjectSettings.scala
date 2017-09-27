@@ -35,7 +35,7 @@ class CbtProjectSettings extends ExternalProjectSettings {
 
 object CbtProjectSettings {
   def getInstance(project: Project, path: String): CbtProjectSettings = {
-    val sysetemSettings = CbtSystemSettings.getInstance(project)
+    val sysetemSettings = CbtSystemSettings.instance(project)
     Option(sysetemSettings.getLinkedProjectSettings(path)).getOrElse(CbtProjectSettings.default)
   }
 
