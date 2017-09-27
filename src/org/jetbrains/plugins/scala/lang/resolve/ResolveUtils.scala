@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import _root_.scala.collection.Set
 
@@ -239,11 +240,10 @@ object ResolveUtils {
                 packageContains(packageName, placePackageName)
               }
               bind match {
-                case td: ScTemplateDefinition =>
-                  PsiTreeUtil.isContextAncestor(td, place, false) ||
-                          PsiTreeUtil.isContextAncestor(getCompanionModule(td).getOrElse(null: PsiElement),
-                            place, false) || (td.isInstanceOf[ScObject] &&
-                          td.asInstanceOf[ScObject].isPackageObject && processPackage(td.qualifiedName))
+                case td: ScTemplateDefinition if smartContextAncestor(td, place, checkCompanion = true) =>
+                  true
+                case obj: ScObject =>
+                  obj.isPackageObject && processPackage(obj.qualifiedName)
                 case pack: PsiPackage =>
                   val packageName = pack.getQualifiedName
                   processPackage(packageName)
@@ -260,7 +260,7 @@ object ResolveUtils {
                 classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
               enclosing match {
                 case td: ScTemplateDefinition =>
-                  PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(getCompanionModule(td).getOrElse(null: PsiElement), place, false)
+                  smartContextAncestor(td, place, checkCompanion = true)
                 case file: ScalaFile if file.isScriptFile =>
                   PsiTreeUtil.isContextAncestor(file, place, false)
                 case _ =>
@@ -302,7 +302,7 @@ object ResolveUtils {
               }
               bind match {
                 case td: ScTemplateDefinition =>
-                  if (PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(getCompanionModule(td).getOrElse(null: PsiElement), place, false)) return true
+                  if (smartContextAncestor(td, place, checkCompanion = true)) return true
                   td match {
                     case o: ScObject if o.isPackageObject =>
                       processPackage(o.qualifiedName) match {
@@ -342,9 +342,7 @@ object ResolveUtils {
             }
             enclosing match {
               case td: ScTypeDefinition =>
-                if (PsiTreeUtil.isContextAncestor(td, place, false) ||
-                        (withCompanion && PsiTreeUtil.isContextAncestor(getCompanionModule(td).
-                                getOrElse(null: PsiElement), place, false))) return true
+                if (smartContextAncestor(td, place, withCompanion)) return true
                 checkProtected(td, withCompanion)
               case td: ScTemplateDefinition =>
                 //it'd anonymous class, has access only inside
@@ -422,7 +420,7 @@ object ResolveUtils {
           def isInheritorOrSame(tp: ScType): Boolean = {
             tp.extractClass match {
               case Some(clazz) =>
-                if (clazz == td) return true
+                if (ScEquivalenceUtil.areClassesEquivalent(clazz, td)) return true
                 if (isInheritorDeep(clazz, td)) return true
               case _ =>
             }
@@ -442,6 +440,23 @@ object ResolveUtils {
       case _ =>
     }
     false
+  }
+
+  private def smartContextAncestor(td: ScTemplateDefinition, place: PsiElement, checkCompanion: Boolean): Boolean = {
+    def isContextAncestor(definition: ScTemplateDefinition): Boolean = PsiTreeUtil.isContextAncestor(td, place, false)
+
+    def withCompanion: Seq[ScTemplateDefinition] =
+      Seq(td) ++ (if (checkCompanion) getCompanionModule(td) else Seq.empty)
+
+    def withNavigationElem(t: ScTemplateDefinition): Seq[ScTemplateDefinition] = t.getNavigationElement match {
+      case `t` => Seq(t)
+      case other: ScTemplateDefinition => Seq(t, other)
+      case _ => Seq(t)
+    }
+
+    val candidates = withCompanion.flatMap(withNavigationElem)
+
+    candidates.exists(isContextAncestor)
   }
 
   def packageContains(packageName: String, potentialChild: String): Boolean = {
