@@ -51,4 +51,7 @@ class OptimizeImportsImplicitsTest extends OptimizeImportsTestBase {
   def testSCL7269(): Unit = doTest()
 
   def testSCL12332(): Unit = doTest()
+
+  //one of the examples from SCL-9326
+  def testFromUnderscore(): Unit = doTest()
 }

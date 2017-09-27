@@ -315,7 +315,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     }
 
     val (newType, params) = this.updatedWithImplicitParameters(res, useExpectedType)
-    setImplicitParameters(params, fromUnderscore = false)
+    setImplicitParameters(params)
 
     updateCacheFields()
 
