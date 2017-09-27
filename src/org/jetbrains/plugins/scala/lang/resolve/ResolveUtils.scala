@@ -270,7 +270,7 @@ object ResolveUtils {
                       def packaging(element: PsiElement) = Option(element).collect {
                         case packaging: ScPackaging => packaging
                       }.map {
-                        _.packageName
+                        _.fullPackageName
                       }.getOrElse("")
 
                       packageContains(packaging(enclosing), packaging(placeEnclosing))
