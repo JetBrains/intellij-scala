@@ -8,18 +8,19 @@ import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi._
+import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.PrevSiblignsIterator
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.worksheet.actions.{RunWorksheetAction, WorksheetGotoResNHandler}
+import org.jetbrains.plugins.scala.worksheet.GotoOriginalHandlerUtil
+import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetInterpretExprsIterator, WorksheetPsiGlue}
 
@@ -306,8 +307,8 @@ object WorksheetIncrementalEditorPrinter {
   private val LAMBDA_LENGTH = 32
   
   private def getConsoleHeaderLines(module: Module): Int = {
-    import org.jetbrains.plugins.scala.project._
     import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
+    import org.jetbrains.plugins.scala.project._
     
     val before = 7
     val after = 11
@@ -350,7 +351,7 @@ object WorksheetIncrementalEditorPrinter {
             case patternDef: ScPatternDefinition =>
               patternDef.declaredElements foreach {
                 declared =>
-                  declared.putUserData(WorksheetGotoResNHandler.WORKSHEET_GOTO_PSI_KEY, expr)
+                  GotoOriginalHandlerUtil.storeNonModifiablePsi(declared, expr)
                   if (!processor.execute(declared, state)) return false
               }
             case _ =>

@@ -60,14 +60,11 @@ object AbstractTypeAnnotationIntention {
       if variable.bindings.size == 1
     } yield variable
 
-  private[types] def underscoreSectionParent(element: PsiElement): Option[ScUnderscoreSection] = element match {
-    case underscore: ScUnderscoreSection => Some(underscore)
-    case _ =>
-      element.parentsInFile.findByType[ScUnderscoreSection].orElse(
-        element.parentsInFile.findByType[ScTypedStmt].collect {
-          case FirstChild(underscore: ScUnderscoreSection) => underscore
-        }
-      )
+  private[types] def underscoreSectionParent(element: PsiElement): Option[ScUnderscoreSection] = {
+    element.withParentsInFile.collectFirst {
+      case underscore: ScUnderscoreSection => underscore
+      case (_: ScTypedStmt) && FirstChild(underscore: ScUnderscoreSection) => underscore
+    }
   }
 
   def complete(element: PsiElement,

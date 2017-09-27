@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types =>
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
-//import scala.meta.internal.ast.Term
-//import scala.meta.internal.ast.Term.Param
-import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
 import scala.{meta => m, Seq => _}
 
@@ -68,7 +65,7 @@ trait TreeAdapter {
     m.Defn.Def(convertMods(t), toTermName(t),
       Seq(t.typeParameters map toTypeParams: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
-      t.returnTypeElement.map(toType(_)),
+      t.returnTypeElement.map(toType),
       expression(t.body).getOrElse(m.Term.Block(Nil))
     )
   }
@@ -86,7 +83,7 @@ trait TreeAdapter {
   def toFunDecl(t: ScFunctionDeclaration): m.Decl.Def = {
     m.Decl.Def(convertMods(t), toTermName(t), Seq(t.typeParameters map toTypeParams: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
-      t.typeElement.map(toType(_)).getOrElse(toStdTypeName(ptype.api.Unit(t.projectContext))))
+      t.typeElement.map(toType).getOrElse(toStdTypeName(ptype.api.Unit(t.projectContext))))
   }
 
   def toTypeDefn(t: ScTypeAliasDefinition): m.Defn.Type = {
@@ -111,7 +108,7 @@ trait TreeAdapter {
       toTypeName(t),
       Seq(t.typeParameters map toTypeParams: _*),
       m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
-      template(t.extendsBlock)
+      template(t.physicalExtendsBlock)
     )
     t.baseCompanionModule match {
       case Some(obj: ScObject) => m.Term.Block(Seq(defn, toObject(obj)))
@@ -125,7 +122,7 @@ trait TreeAdapter {
       toTypeName(c),
       Seq(c.typeParameters map toTypeParams: _*),
       ctor(c.constructor),
-      template(c.extendsBlock)
+      template(c.physicalExtendsBlock)
     )
     c.baseCompanionModule match {
       case Some(obj: ScObject) => m.Term.Block(Seq(defn, toObject(obj)))
@@ -144,7 +141,7 @@ trait TreeAdapter {
   def toObject(o: ScObject) = m.Defn.Object(
     convertMods(o),
     toTermName(o),
-    template(o.extendsBlock)
+    template(o.physicalExtendsBlock)
   )
 
   def ctor(pc: Option[ScPrimaryConstructor]): m.Ctor.Primary = {
@@ -208,7 +205,6 @@ trait TreeAdapter {
       case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None)
       case None => m.Term.Param(Nil, m.Name.Anonymous(), None, None)
     }
-    m.Ctor.Ref.Function
     // FIXME: preserve expression and member order
     val stats = (exprs, members) match {
       case (Some(exp), Some(hld)) => Some(hld ++ exp)
@@ -254,15 +250,18 @@ trait TreeAdapter {
   }
 
   private def toCtor(tp: m.Type): m.Term.Apply = {
-    def doConvert(tp: m.Type): m.Term = tp match {
+    val ctor = toCtorRef(tp)
+    m.Term.Apply(ctor, Nil)
+  }
+
+  private def toCtorRef(tp: m.Type): m.Ctor.Call = {
+    tp match {
       case m.Type.Name(value) => m.Ctor.Ref.Name(value)
       case m.Type.Select(qual, name) => m.Ctor.Ref.Select(qual, m.Ctor.Ref.Name(name.value))
       case m.Type.Project(qual, name) => m.Ctor.Ref.Project(qual, m.Ctor.Ref.Name(name.value))
-      case m.Type.Apply(tpe, args) => m.Term.ApplyType(doConvert(tpe), args)
+      case m.Type.Apply(tpe, args) => m.Term.ApplyType(toCtorRef(tpe), args)
       case other => unreachable(s"Unexpected type in constructor type element - $other")
     }
-    val ctor = doConvert(tp)
-    m.Term.Apply(ctor, Nil)
   }
 
   def toAnnot(annot: ScAnnotation): m.Mod.Annot = {
@@ -482,6 +481,7 @@ trait TreeAdapter {
       case ScLiteral(b: java.lang.Byte)       => Lit.Byte(b)
       case ScLiteral(s: String)               => Lit.String(s)
       case ScLiteral(null)                    => Lit.Null()
+      case _ if l.isSymbol && paradiseCompatibilityHacks => Lit.String(l.getValue.toString) // apparently, Lit.Symbol is no more in paradise
       case _ if l.isSymbol                    => Lit.Symbol(l.getValue.asInstanceOf[Symbol]) // symbol literals in meta contain a string as their value
       case other => other ?!
     }
@@ -489,14 +489,10 @@ trait TreeAdapter {
   }
 
   def toPatternDefinition(t: ScPatternDefinition): m.Tree = {
-    def pattern(bp: patterns.ScBindingPattern): m.Pat = {
-      m.Pat.Var.Term(toTermName(bp))
-    }
-
     if(t.bindings.exists(_.isVal))
-      m.Defn.Val(convertMods(t), Seq(t.bindings.map(pattern):_*), t.typeElement.map(toType), expression(t.expr).get)
+      m.Defn.Val(convertMods(t), Seq(t.pList.patterns.map(pattern):_*), t.typeElement.map(toType), expression(t.expr).get)
     else if(t.bindings.exists(_.isVar))
-      m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern):_*), t.typeElement.map(toType), expression(t.expr))
+      m.Defn.Var(convertMods(t), Seq(t.pList.patterns.map(pattern):_*), t.typeElement.map(toType), expression(t.expr))
     else unreachable
   }
 

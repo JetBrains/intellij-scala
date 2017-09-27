@@ -4,4 +4,4 @@ object SCL1734 {
   }
   class B
 }
-//(SCL1734.B) => SCL1734.B
+//SCL1734.B => SCL1734.B

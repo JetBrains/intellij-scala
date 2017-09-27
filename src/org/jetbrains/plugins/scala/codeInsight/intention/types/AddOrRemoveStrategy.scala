@@ -45,7 +45,7 @@ class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy
   override def parameterWithType(parameter: ScParameter): Boolean = {
     import parameter.projectContext
 
-    val newParameter = createParameterFromText(parameter.name)
+    val newParameter = createFunctionParameterFromText(parameter.name)
 
     val pair: Option[(PsiElement, PsiElement)] = Option(getParentOfType(parameter, classOf[ScFunctionExpr], false))
       .filter(_.parameters.size == 1)

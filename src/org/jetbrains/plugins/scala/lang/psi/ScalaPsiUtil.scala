@@ -249,12 +249,16 @@ object ScalaPsiUtil {
   }
 
   def findImplicitConversion(baseExpr: ScExpression, refName: String, ref: ScExpression, processor: BaseProcessor,
-                             noImplicitsForArgs: Boolean): Option[ImplicitResolveResult] = {
+                             noImplicitsForArgs: Boolean, precalcType: Option[ScType] = None): Option[ImplicitResolveResult] = {
     implicit val ctx: ProjectContext = baseExpr
 
-    val exprType = ImplicitCollector.exprType(baseExpr, fromUnder = false) match {
-      case None => return None
-      case Some(x) if x.equiv(Nothing) => return None //do not proceed with nothing type, due to performance problems.
+    val exprType = precalcType match {
+      case None => ImplicitCollector.exprType(baseExpr, fromUnder = false) match {
+        case None => return None
+        case Some(x) if x.equiv(Nothing) => return None //do not proceed with nothing type, due to performance problems.
+        case Some(x) => x
+      }
+      case Some(x) if x.equiv(Nothing) => return None
       case Some(x) => x
     }
     val args = processor match {

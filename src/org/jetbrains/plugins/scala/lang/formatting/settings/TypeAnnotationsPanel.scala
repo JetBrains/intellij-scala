@@ -3,7 +3,10 @@ package org.jetbrains.plugins.scala.lang.formatting.settings
 import java.util
 import javax.swing._
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.colors.EditorColorsScheme
+import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.project.ProjectUtil
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.util.execution.ParametersListUtil
@@ -86,7 +89,7 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
   override protected def createHighlighter(scheme: EditorColorsScheme): ScalaEditorHighlighter =
     new ScalaEditorHighlighter(null, null, scheme)
 
-  override protected def getFileType = ScalaFileType.INSTANCE
+  override protected def getFileType: FileType = ScalaFileType.INSTANCE
 
   override protected def getPreviewText: String = ""
 
@@ -98,8 +101,13 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
   override protected def resetImpl(settings: CodeStyleSettings): Unit =
     bindingsFor(settings).foreach(it => it.copyLeftToRight())
 
-  override protected def apply(settings: CodeStyleSettings): Unit =
+  override protected def apply(settings: CodeStyleSettings): Unit = {
     bindingsFor(settings).foreach(it => it.copyRightToLeft())
+
+    Option(ProjectUtil.guessCurrentProject(myContent)).foreach { project =>
+      DaemonCodeAnalyzer.getInstance(project).restart()
+    }
+  }
 }
 
 private object TypeAnnotationsPanel {

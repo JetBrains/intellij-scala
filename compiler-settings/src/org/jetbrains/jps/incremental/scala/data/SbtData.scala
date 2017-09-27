@@ -3,7 +3,6 @@ package data
 
 import java.io._
 import java.security.MessageDigest
-import javax.xml.bind.DatatypeConverter
 
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.scala._
@@ -17,6 +16,7 @@ case class SbtData(interfaceJar: File,
                    javaClassVersion: String)
 
 object SbtData {
+
   val compilerInterfacesKey = "scala.compiler.interfaces.dir"
 
   private def compilerInterfacesDir = {
@@ -46,7 +46,7 @@ object SbtData {
               .toRight("Unable to read SBT version from JVM classpath")
               .map { sbtVersion =>
 
-              val checksum = DatatypeConverter.printHexBinary(md5(sourceJar))
+              val checksum = encodeHex(md5(sourceJar))
               val interfacesHome = new File(compilerInterfacesDir, sbtVersion + "-idea-" + checksum)
 
               new SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
@@ -78,6 +78,20 @@ object SbtData {
     } else {
       md.digest(FileUtil.loadBytes(new FileInputStream(file)))
     }
+  }
+
+  private val HexChars = Array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F')
+
+  private def encodeHex(bytes: Array[Byte]): String = {
+    val out = new StringBuilder(bytes.length * 2)
+    var i = 0
+    while (i < bytes.length) {
+      val b = bytes(i)
+      out.append(HexChars((b >> 4) & 0xF))
+      out.append(HexChars(b & 0xF))
+      i += 1
+    }
+    out.toString()
   }
 
 }

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
-import org.jetbrains.plugins.scala.projectHighlighting.SeveralFilesHighlightingTest
+import org.jetbrains.plugins.scala.projectHighlighting.{ScalacTestdataHighlightingTestBase, SeveralFilesHighlightingTest}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter
 import org.junit.experimental.categories.Category
@@ -18,9 +18,7 @@ import scala.reflect.NameTransformer
   * Nikolay.Tropin
   * 14-Aug-17
   */
-abstract class FailedScalacTestsBase extends ScalaLightCodeInsightFixtureTestAdapter with SeveralFilesHighlightingTest {
-
-  override def getProject = super.getProject
+abstract class FailedScalacTestsBase extends ScalacTestdataHighlightingTestBase {
 
   override val reporter = new ConsoleReporter
 
@@ -49,20 +47,12 @@ class FailedScalacTests extends FailedScalacTestsBase {
 
   def testDirName = "failed"
 
-  override implicit val version: ScalaVersion = Scala_2_12
-
-  override def librariesLoaders = Seq(
-    ScalaLibraryLoader(isIncludeReflectLibrary = true),
-    JdkLoader()
-  )
-
   //todo: these tests freeze IDEA
 //  def `test_existential-slow-compile1`: Unit = doTest()
 //  def `test_existential-slow-compile2`: Unit = doTest()
 
   //Delete test method and move corresponding .scala file or directory to testdata/scalacTests/pos/ after test passes
 
-  def test_t3943(): Unit = doTest()
   def test_t4365(): Unit = doTest()
   def test_t5545(): Unit = doTest()
   def test_t6169(): Unit = doTest()
@@ -161,34 +151,16 @@ class FailedScalacTests extends FailedScalacTestsBase {
 class MacrosFailedScalacTests extends FailedScalacTestsBase {
   override def testDirName = "macros"
 
-  def `test_annotated-original`(): Unit = doTest()
-  def `test_annotated-treecopy`(): Unit = doTest()
-  def `test_attachments-typed-another-ident`(): Unit = doTest()
-  def `test_attachments-typed-ident`(): Unit = doTest()
-  def `test_macro-attachments`(): Unit = doTest()
-  def test_t5744(): Unit = doTest()
-  def test_t6485a(): Unit = doTest()
-  def test_t6485b(): Unit = doTest()
-  def test_t7461(): Unit = doTest()
-  def test_t7516(): Unit = doTest()
-  def test_t8001(): Unit = doTest()
-  def test_t8013(): Unit = doTest()
-  def test_t8064(): Unit = doTest()
-  def test_t8064b(): Unit = doTest()
-  def test_t8209a(): Unit = doTest()
-  def test_t8209b(): Unit = doTest()
-  def test_t8352(): Unit = doTest()
-  def test_t8411(): Unit = doTest()
-  def test_t8719(): Unit = doTest()
   def test_t8781(): Unit = doTest()
   def test_t8934a(): Unit = doTest()
-  def test_t8947(): Unit = doTest()
-  def test_t9392(): Unit = doTest()
-  def `test_macro-implicit-invalidate-on-error`(): Unit = doTest()
-  def `test_macro-bundle-disambiguate-bundle`(): Unit = doTest()
-  def `test_macro-bundle-disambiguate-nonbundle`(): Unit = doTest()
-  def test_t7776(): Unit = doTest()
-  def test_t6516(): Unit = doTest()
   def test_t8523(): Unit = doTest()
-  def test_t6447(): Unit = doTest()
+}
+
+//these tests pass locally but sometimes fail on teamcity
+@Category(Array(classOf[PerfCycleTests]))
+class FlakyScalacTests extends FailedScalacTestsBase {
+  override def testDirName = "flaky"
+
+  def test_t7516(): Unit = doTest()
+  def `test_annotated-treecopy`(): Unit = doTest()
 }

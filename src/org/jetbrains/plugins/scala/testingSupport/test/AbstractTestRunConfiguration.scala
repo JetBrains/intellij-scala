@@ -54,8 +54,7 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 
 /**
   * @author Ksenia.Sautina
@@ -720,14 +719,14 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
 
           val sbtRun = {
-            val oldSettings = if (useUiWithSbt)
+            lazy val oldSettings = if (useUiWithSbt)
               for {
                 _ <- initialize(comm)
                 mod <- modifySbtSettingsForUi(comm)
               } yield mod
             else Future.successful(SettingMap())
 
-            val cmdF = commands.map(
+            lazy val cmdF = commands.map(
               comm.command(_, {}, SbtShellCommunication.listenerAggregator(handler), showShell = false)
             )
             for {
@@ -737,9 +736,6 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             } yield reset
           }
           sbtRun.onComplete(_ => handler.closeRoot())
-
-          // await the sbt run completion so that tests don't have to deal with async behavior
-          Await.ready(sbtRun, 10.minutes)
         }
         res
       }

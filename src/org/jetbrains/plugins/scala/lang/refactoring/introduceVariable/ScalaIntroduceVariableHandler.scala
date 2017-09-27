@@ -9,98 +9,78 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util._
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{xml => _, _}
-import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil.findElementOfClassAtOffset
+import com.intellij.refactoring.HelpID
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil}
-
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO
+import org.jetbrains.plugins.scala.lang.refactoring.util.DialogConflictsReporter
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 23.06.2008
  */
+class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with DialogConflictsReporter with IntroduceExpressions with IntroduceTypeAlias {
 
-class ScalaIntroduceVariableHandler extends RefactoringActionHandler with DialogConflictsReporter with IntroduceExpressions with IntroduceTypeAlias {
   var occurrenceHighlighters = Seq.empty[RangeHighlighter]
 
-  def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
+  override def invoke(file: PsiFile)
+                     (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     val offset = editor.getCaretModel.getOffset
     def hasSelection = editor.getSelectionModel.hasSelection
     def selectionStart = editor.getSelectionModel.getSelectionStart
     def selectionEnd = editor.getSelectionModel.getSelectionEnd
 
-    ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
+    trimSpacesAndComments(editor, file)
 
-    val selectedElement: Option[PsiElement] = {
-      val typeElem = ScalaRefactoringUtil.getTypeElement(project, editor, file, selectionStart, selectionEnd)
-      val expr = ScalaRefactoringUtil.getExpression(project, editor, file, selectionStart, selectionEnd).map(_._1)
-      typeElem.orElse(expr)
-    }
+    val maybeSelectedElement = getTypeElement(file, selectionStart, selectionEnd)
+      .orElse(getExpression(project, editor, file, selectionStart, selectionEnd).map(_._1))
+
 
     def getTypeElementAtOffset = {
-      def isExpression = {
-        val element: PsiElement = file.findElementAt(offset) match {
-          case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
-            w.getText.contains("\n") => file.findElementAt(offset - 1)
-          case p => p
-        }
-        ScalaRefactoringUtil.getExpressions(element).nonEmpty
+      val diff = file.findElementAt(offset) match {
+        case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset => 1
+        case _ => 0
       }
 
-      def findTypeElement(offset: Int) =
-        if (!hasSelection && !isExpression)
-          Option(PsiTreeUtil.findElementOfClassAtOffset(file, offset, classOf[ScTypeElement], false))
-        else
-          None
-
-      file.findElementAt(offset) match {
-        case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset => findTypeElement(offset - 1)
-        case _ => findTypeElement(offset)
-      }
+      val realOffset = offset - diff
+      if (!hasSelection && getExpressionsAtOffset(file, realOffset).isEmpty)
+        Option(findElementOfClassAtOffset(file, realOffset, classOf[ScTypeElement], false))
+      else None
     }
 
-    if (hasSelection && selectedElement.isEmpty) {
+    if (hasSelection && maybeSelectedElement.isEmpty) {
       val message = ScalaBundle.message("cannot.refactor.not.expression.nor.type")
-      CommonRefactoringUtil.showErrorHint(project, editor, message, INTRODUCE_VARIABLE_REFACTORING_NAME, HelpID.INTRODUCE_VARIABLE)
+      showErrorHint(message, INTRODUCE_VARIABLE_REFACTORING_NAME, HelpID.INTRODUCE_VARIABLE)
       return
     }
 
     //clear data on startRefactoring, if there is no marks, but there is some data
     if (StartMarkAction.canStart(project) == null) {
-      editor.putUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO, new IntroduceTypeAliasData())
+      editor.putUserData(REVERT_TYPE_ALIAS_INFO, new IntroduceTypeAliasData())
     }
 
-    val typeElement = selectedElement match {
-      case Some(te: ScTypeElement) =>
-        Option(te)
+    val maybeTypeElement = maybeSelectedElement match {
+      case Some(te: ScTypeElement) => Option(te)
       case _ => getTypeElementAtOffset
     }
 
-    if (typeElement.isDefined) {
-      if (editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).isData) {
-        invokeTypeElement(project, editor, file, typeElement.get)
-      } else {
-        ScalaRefactoringUtil.afterTypeElementChoosing(project, editor, file, dataContext, typeElement.get, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
-          typeElement =>
-            invokeTypeElement(project, editor, file, typeElement)
+    maybeTypeElement match {
+      case Some(typeElement) if editor.getUserData(REVERT_TYPE_ALIAS_INFO).isData =>
+        invokeTypeElement(file, typeElement)
+      case Some(typeElement) =>
+        afterTypeElementChoosing(typeElement, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
+          invokeTypeElement(file, _)
         }
-      }
-    } else {
-      val canBeIntroduced: ScExpression => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
-      ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, INTRODUCE_VARIABLE_REFACTORING_NAME, canBeIntroduced) {
-        invokeExpression(project, editor, file, selectionStart, selectionEnd)
-      }
+      case _ =>
+        afterExpressionChoosing(file, INTRODUCE_VARIABLE_REFACTORING_NAME) {
+          invokeExpression(file, selectionStart, selectionEnd)
+        }
     }
-  }
-
-  def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {
-    //nothing to do
   }
 }
 
 object ScalaIntroduceVariableHandler {
-  val REVERT_INFO: Key[ScalaRefactoringUtil.RevertInfo] = new Key("RevertInfo")
+  val REVERT_INFO: Key[RevertInfo] = new Key("RevertInfo")
 }

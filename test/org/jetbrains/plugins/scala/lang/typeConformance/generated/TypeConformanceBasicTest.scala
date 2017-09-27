@@ -56,4 +56,23 @@ class TypeConformanceBasicTest extends TypeConformanceTestBase {
   def testTupleToConformance() {doTest()}
 
   def testTupleToProductNoConformance() {doTest()}
+
+  def testSCL9506(): Unit = {
+    doTest(
+      s"""object TicketTester {
+         |  trait A {
+         |    private type This = A
+         |
+         |    def something: This = this
+         |  }
+         |
+         |  class B extends A {
+         |    private type This = B
+         |
+         |    ${caretMarker}val aThis: This = super.something
+         |  }
+         |}
+         |//false
+      """.stripMargin)
+  }
 }

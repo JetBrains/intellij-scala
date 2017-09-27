@@ -33,7 +33,7 @@ object ScalaPostfixTemplateProvider {
     new ScalaMatchPostfixTemplate,
     new ScalaForEachPostfixTemplate,
     new ScalaIntroduceFieldPostfixTemplate,
-    new ScalaIntorduceVariablePostfixTemplate,
+    new ScalaIntroduceVariablePostfixTemplate,
     new ScalaNotPostfixTemplate,
     new ScalaNotPostfixTemplate("!"),
     new ScalaParenthesizedExpressionPostfixTemplate,

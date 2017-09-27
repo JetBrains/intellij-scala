@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable
 
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.findCommonParent
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -56,12 +57,12 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String) extends 
     myFile = createPseudoPhysicalScalaFile(getProject, fileText)
     fileEditorManager = FileEditorManager.getInstance(getProject)
     myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProject, myFile.getVirtualFile, 0), false)
+    myEditor.getSelectionModel.setSelection(startOffset, endOffset)
 
     try {
-      val validator = getValidator(getProject, myEditor)(myFile, (startOffset, endOffset))
-      val typeName = getName(fileText)
-
-      validator.findConflicts(typeName, replaceAllOccurrences)
+      val maybeValidator = getValidator(myFile)(getProject, myEditor)
+      maybeValidator.toSeq
+        .flatMap(_.findConflicts(getName(fileText), replaceAllOccurrences))
         .map(_._2)
         .toSet[String]
         .mkString("\n")
@@ -77,48 +78,49 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String) extends 
 object AbstractIntroduceVariableValidatorTestBase {
   private val ALL_MARKER = "<all>"
 
-  def getValidator(project: Project, editor: Editor)
-                  (implicit file: PsiFile, offsets: (Int, Int)): ScalaValidator = {
-    val (startOffset, endOffset) = offsets
+  def getValidator(file: PsiFile)
+                  (implicit project: Project, editor: Editor): Option[ScalaValidator] = {
+    implicit val selectionModel: SelectionModel = editor.getSelectionModel
+
+    val startOffset = selectionModel.getSelectionStart
+    val endOffset = selectionModel.getSelectionEnd
 
     PsiTreeUtil.getParentOfType(file.findElementAt(startOffset), classOf[ScExpression], classOf[ScTypeElement]) match {
       case _: ScExpression =>
-        val (expression: ScExpression, _) = getExpression(project, editor, file, startOffset, endOffset).get
-        getVariableValidator(expression)
-      case _: ScTypeElement =>
-        val typeElement = getTypeElement(project, editor, file, startOffset, endOffset).get
-        getTypeValidator(typeElement)
-      case _ => null
+        getExpression(project, editor, file, startOffset, endOffset).map {
+          case (expression, _) => getVariableValidator(expression, file)
+        }
+      case _: ScTypeElement => getTypeElement(file).map(getTypeValidator(_, file))
+      case _ => None
     }
   }
 
   import ScalaRefactoringUtil._
 
-  private[this] def getContainerOne(length: Int)
-                                   (implicit file: PsiFile, offsets: (Int, Int)): PsiElement = {
-    val (startOffset, endOffset) = offsets
+  private[this] def getContainerOne(file: PsiFile, length: Int)
+                                   (implicit selectionModel: SelectionModel): PsiElement = {
+    val origin = file.findElementAt(selectionModel.getSelectionStart)
+    val bound = file.findElementAt(selectionModel.getSelectionEnd - 1)
 
-    val commonParentOne = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset), file.findElementAt(endOffset - 1))
+    val commonParentOne = findCommonParent(origin, bound)
     ScalaPsiUtil.getParentOfType(commonParentOne, length == 1, classOf[ScalaFile], classOf[ScBlock], classOf[ScTemplateBody])
   }
 
-  private[this] def getVariableValidator(expression: ScExpression)
-                                        (implicit file: PsiFile, offsets: (Int, Int)): ScalaVariableValidator = {
-    val encloser = fileEncloser(offsets._1, file)
-    val occurrences = getOccurrenceRanges(unparExpr(expression), encloser)
-    val containerOne = getContainerOne(occurrences.length)
+  private[this] def getVariableValidator(expression: ScExpression, file: PsiFile)
+                                        (implicit selectionModel: SelectionModel): ScalaVariableValidator = {
+    val occurrences = getOccurrenceRanges(unparExpr(expression), fileEncloser(file).orNull)
+    val containerOne = getContainerOne(file, occurrences.length)
 
     val parent = commonParent(file, occurrences: _*)
     new ScalaVariableValidator(expression, occurrences.isEmpty, enclosingContainer(parent), containerOne)
   }
 
-  private[this] def getTypeValidator(typeElement: ScTypeElement)
-                                    (implicit file: PsiFile, offsets: (Int, Int)): ScalaTypeValidator = {
-    val encloser = fileEncloser(offsets._1, file)
-    val occurrences = getTypeElementOccurrences(typeElement, encloser)
-    val containerOne = getContainerOne(occurrences.length)
+  private[this] def getTypeValidator(typeElement: ScTypeElement, file: PsiFile)
+                                    (implicit selectionModel: SelectionModel): ScalaTypeValidator = {
+    val occurrences = getTypeElementOccurrences(typeElement, fileEncloser(file).orNull)
+    val containerOne = getContainerOne(file, occurrences.length)
 
-    val parent = PsiTreeUtil.findCommonParent(occurrences: _*)
+    val parent = findCommonParent(occurrences: _*)
     new ScalaTypeValidator(typeElement, occurrences.isEmpty, enclosingContainer(parent), containerOne)
   }
 

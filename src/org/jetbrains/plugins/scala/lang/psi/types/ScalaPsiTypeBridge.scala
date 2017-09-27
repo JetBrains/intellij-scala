@@ -4,6 +4,7 @@ package psi
 package types
 
 import com.intellij.psi._
+import com.intellij.psi.impl.PsiSubstitutorImpl
 import org.jetbrains.plugins.scala.extensions.{PsiWildcardTypeExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
@@ -65,7 +66,17 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
               }
             }
 
-            val designator = constructTypeForClass(clazz)
+            val scSubst = substitutor match {
+              case impl: PsiSubstitutorImpl =>
+                import scala.collection.JavaConversions._
+                import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+                ScSubstitutor(impl.getSubstitutionMap.toMap.filter{case (key,_) => key.isInstanceOf[PsiTypeParameter]}.map {
+                  case (key: PsiTypeParameter, value) => (key.nameAndId, value.toScType(visitedRawTypes))
+                })
+              case _ => ScSubstitutor.empty
+            }
+
+            val designator = constructTypeForClass(clazz, scSubst)
             clazz.getTypeParameters.toSeq match {
               case Seq() => designator
               case typeParameters =>
@@ -91,23 +102,23 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
                               paramTopLevel: Boolean): ScExistentialArgument =
     createParameter(wildcardType.lower, wildcardType.upper.orElse(maybeUpper), index)
 
-  private def constructTypeForClass(clazz: PsiClass, withTypeParameters: Boolean = false): ScType = clazz match {
-    case wrapper: PsiClassWrapper => constructTypeForClass(wrapper.definition)
+  private def constructTypeForClass(clazz: PsiClass, subst: ScSubstitutor, withTypeParameters: Boolean = false): ScType = clazz match {
+    case wrapper: PsiClassWrapper => constructTypeForClass(wrapper.definition, subst)
     case _ =>
       val designator = Option(clazz.containingClass) map {
-        constructTypeForClass(_, withTypeParameters = !clazz.hasModifierProperty("static"))
+        constructTypeForClass(_, subst, withTypeParameters = !clazz.hasModifierProperty("static"))
       } map {
         ScProjectionType(_, clazz, superReference = false)
       } getOrElse ScDesignatorType(clazz)
 
-      if (withTypeParameters) {
+      subst.subst(if (withTypeParameters) {
         clazz.getTypeParameters.toSeq map {
           TypeParameterType(_)
         } match {
           case Seq() => designator
           case parameters => ScParameterizedType(designator, parameters)
         }
-      } else designator
+      } else designator)
   }
 
   override def toPsiType(`type`: ScType, noPrimitives: Boolean): PsiType = toPsiTypeInner(`type`, noPrimitives)

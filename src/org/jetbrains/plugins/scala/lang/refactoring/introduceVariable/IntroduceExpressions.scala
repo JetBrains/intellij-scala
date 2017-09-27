@@ -39,19 +39,23 @@ trait IntroduceExpressions {
 
   val INTRODUCE_VARIABLE_REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
 
-  def invokeExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
+  def invokeExpression(file: PsiFile, startOffset: Int, endOffset: Int)
+                      (implicit project: Project, editor: Editor): Unit = {
     try {
       UsageTrigger.trigger(ScalaBundle.message("introduce.variable.id"))
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
-      ScalaRefactoringUtil.checkFile(file, project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME)
-      val (expr: ScExpression, types: Array[ScType]) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
-        getOrElse(showErrorMessageWithException(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME))
+      writableScalaFile(file, INTRODUCE_VARIABLE_REFACTORING_NAME)
+      val (expr: ScExpression, types: Array[ScType]) = getExpression(project, editor, file, startOffset, endOffset).
+        getOrElse(showErrorHintWithException(ScalaBundle.message("cannot.refactor.not.expression"), INTRODUCE_VARIABLE_REFACTORING_NAME))
 
-      ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessageWithException(_, project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME))
+      checkCanBeIntroduced(expr)
+        .foreach(showErrorHintWithException(_, INTRODUCE_VARIABLE_REFACTORING_NAME))
 
-      val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
-      val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
+      val occurrences: Array[TextRange] = fileEncloser(file, startOffset).toArray.flatMap {
+        getOccurrenceRanges(unparExpr(expr), _)
+      }
+
       implicit val validator = ScalaVariableValidator(file, expr, occurrences)
 
       def runWithDialog() {
@@ -98,7 +102,7 @@ trait IntroduceExpressions {
                 if (namedElement != null && namedElement.isValid) {
                   editor.getCaretModel.moveToOffset(namedElement.getTextOffset)
                   editor.getSelectionModel.removeSelection()
-                  if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
+                  if (isInplaceAvailable(editor)) {
                     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
                     PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
                     val variableIntroducer =
@@ -126,7 +130,7 @@ trait IntroduceExpressions {
         }
       }
 
-      if (ScalaRefactoringUtil.isInplaceAvailable(editor)) runInplace()
+      if (isInplaceAvailable(editor)) runInplace()
       else runWithDialog()
     }
 
@@ -200,7 +204,7 @@ trait IntroduceExpressions {
     }
 
     def isOneLiner = {
-      val lineText = ScalaRefactoringUtil.getLineText(editor)
+      val lineText = getLineText(editor)
       val model = editor.getSelectionModel
       val document = editor.getDocument
       val selectedText = model.getSelectedText
@@ -224,11 +228,11 @@ trait IntroduceExpressions {
       oneLineSelected && !insideExpression
     }
 
-    val revertInfo = ScalaRefactoringUtil.RevertInfo(file.getText, editor.getCaretModel.getOffset)
+    val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
     val typeName = if (varType != null) varType.canonicalText else ""
-    val expression = ScalaRefactoringUtil.expressionToIntroduce(expression_)
+    val expression = expressionToIntroduce(expression_)
 
     def needsTypeAnnotation =
       ScalaInplaceVariableIntroducer.needsTypeAnnotation(_: PsiElement, expression, forceInferType(expression), fromDialogMode)
@@ -244,11 +248,11 @@ trait IntroduceExpressions {
     val fastDefinition = occCount == 1 && isOneLiner
 
     //changes document directly
-    val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrences, varName, file)
+    val replacedOccurences = replaceOccurences(occurrences, varName, file)
 
     //only Psi-operations after this moment
     var firstRange = replacedOccurences(0)
-    val firstElement = ScalaRefactoringUtil.findParentExpr(file, firstRange)
+    val firstElement = findParentExpr(file, firstRange)
     val parentExprs =
       if (occCount == 1)
         firstElement match {
@@ -258,10 +262,10 @@ trait IntroduceExpressions {
             if isFunExpr && block.statements.size == 1 => Seq(infix)
           case expr => Seq(expr)
         }
-      else replacedOccurences.toSeq.map(ScalaRefactoringUtil.findParentExpr(file, _))
+      else replacedOccurences.toSeq.map(findParentExpr(file, _))
     val commonParent: PsiElement = PsiTreeUtil.findCommonParent(parentExprs: _*)
 
-    val nextParent: PsiElement = ScalaRefactoringUtil.nextParent(commonParent, file)
+    val nextParentInFile = nextParent(commonParent, file)
 
     editor.getCaretModel.moveToOffset(replacedOccurences(mainOcc).getEndOffset)
 
@@ -269,7 +273,7 @@ trait IntroduceExpressions {
       val parent: ScEnumerators = forStmt.enumerators.orNull
       val inParentheses = parent.prevSiblings.toList.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
       val needType = needsTypeAnnotation(parent)
-      val created = createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), if (needType) typeName else "")
+      val created = createEnumerator(varName, unparExpr(expression), if (needType) typeName else "")
       val elem = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
       var result: ScEnumerator = null
       if (elem != null) {
@@ -298,8 +302,7 @@ trait IntroduceExpressions {
     def createVariableDefinition(): PsiElement = {
       if (fastDefinition) {
         val addType = needsTypeAnnotation(firstElement)
-        replaceRangeByDeclaration(replacedOccurences(0), createDeclaration(varName, if (addType) typeName else "", isVariable,
-          ScalaRefactoringUtil.unparExpr(expression)))
+        replaceRangeByDeclaration(replacedOccurences(0), createDeclaration(varName, if (addType) typeName else "", isVariable, unparExpr(expression)))
       } else {
         var needFormatting = false
         val parent = commonParent match {
@@ -307,8 +310,7 @@ trait IntroduceExpressions {
             needFormatting = true
             extBl.addEarlyDefinitions()
           case _ =>
-            val container = ScalaRefactoringUtil.container(commonParent, file)
-            val needBraces = !commonParent.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(commonParent, nextParent)
+            val needBraces = !commonParent.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(commonParent, nextParentInFile)
             if (needBraces) {
               firstRange = firstRange.shiftRight(1)
               val replaced = commonParent.replace(createExpressionFromText("{" + commonParent.getText + "}"))
@@ -317,14 +319,13 @@ trait IntroduceExpressions {
                 case _ =>
               }
               replaced
-            } else container
+            } else container(commonParent, file)
         }
         val anchor = parent.getChildren.find(_.getTextRange.contains(firstRange)).getOrElse(parent.getLastChild)
         if (anchor != null) {
           val addType = needsTypeAnnotation(anchor)
 
-          val created = createDeclaration(varName, if (addType) typeName else "", isVariable,
-            ScalaRefactoringUtil.unparExpr(expression))
+          val created = createDeclaration(varName, if (addType) typeName else "", isVariable, unparExpr(expression))
 
           val result = ScalaPsiUtil.addStatementBefore(created.asInstanceOf[ScBlockStatement], parent, Some(anchor))
           CodeEditUtil.markToReformat(parent.getNode, needFormatting)
@@ -333,7 +334,7 @@ trait IntroduceExpressions {
       }
     }
 
-    val createdDeclaration: PsiElement = isIntroduceEnumerator(commonParent, nextParent, firstRange.getStartOffset) match {
+    val createdDeclaration: PsiElement = isIntroduceEnumerator(commonParent, nextParentInFile, firstRange.getStartOffset) match {
       case Some(forStmt) => createEnumeratorIn(forStmt)
       case _ => createVariableDefinition()
     }
@@ -373,7 +374,7 @@ trait IntroduceExpressions {
                          (implicit validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
     // Add occurrences highlighting
     if (occurrences.length > 1)
-      occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
+      occurrenceHighlighters = highlightOccurrences(project, occurrences, editor)
 
     val possibleNames = NameSuggester.suggestNames(expr).toArray
     val reporter = new ValidationReporter(project, this)
@@ -388,19 +389,5 @@ trait IntroduceExpressions {
     }
 
     dialog
-  }
-
-  def runTest(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int, replaceAll: Boolean) {
-    PsiDocumentManager.getInstance(project).commitAllDocuments()
-    ScalaRefactoringUtil.checkFile(file, project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME)
-
-    val (expr: ScExpression, types: Array[ScType]) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
-      getOrElse(showErrorMessageWithException(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME))
-
-    ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessageWithException(_, project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME))
-
-    val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
-    val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
-    runRefactoring(startOffset, endOffset, file, editor, expr, occurrences, "value", types(0), replaceAll, isVariable = false)
   }
 }

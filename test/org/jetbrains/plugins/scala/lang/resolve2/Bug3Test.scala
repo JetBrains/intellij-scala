@@ -91,4 +91,6 @@ class Bug3Test extends ResolveTestBase {
   def testSCL9926() {doTest()}
   def testSCL11119(): Unit = { doTest() }
   def testSCL10839(): Unit = { doTest() }
+  def testSCL10845(): Unit = { doTest() }
+  def testSCL10845_1(): Unit = { doTest() }
 }

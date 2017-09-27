@@ -86,7 +86,7 @@ object SettingQueryHandler {
         case None => //for sbt 13.13
           strings = strings.map(_.stripPrefix(filterPrefix) + "\n")
           val res = new StringBuilder()
-          strings.takeWhile(line => !line.startsWith(filterPrefix) && !line.startsWith(successPrefix)).foreach(res.append)
+          strings.takeWhile(line => !line.startsWith(filterPrefix) && !line.startsWith(successPrefix) && line.trim != "*").foreach(res.append)
           res.mkString
       }
     }

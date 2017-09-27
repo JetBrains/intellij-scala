@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package lang.refactoring.introduceField
+package lang
+package refactoring
+package introduceField
 
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.PsiClassListCellRenderer
@@ -9,7 +11,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.refactoring.RefactoringActionHandler
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
@@ -24,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
  * Nikolay.Tropin
  * 6/28/13
  */
-abstract class ScalaIntroduceFieldHandlerBase extends RefactoringActionHandler{
+abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHandler {
 
   val REFACTORING_NAME = ScalaBundle.message("introduce.field.title")
 

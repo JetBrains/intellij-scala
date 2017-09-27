@@ -177,7 +177,7 @@ object MetaExpansionsManager {
           case (Some(clazz), _) => Right(runDirect(clazz, compiledArgs))
           case (None, _)        => Left("Meta annotation class could not be found")
         }
-        errorOrTree
+        errorOrTree.right.map(fixTree)
       } catch {
         case pc: ProcessCanceledException => throw pc
         case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
@@ -247,6 +247,16 @@ object MetaExpansionsManager {
       method.invoke(inst, args: _*).asInstanceOf[Tree]
     } catch {
       case e: InvocationTargetException => throw new MetaWrappedException(e.getTargetException)
+    }
+  }
+
+  // TODO: undo other paradise compatibility hacks
+  def fixTree(tree: Tree): Tree = {
+    import scala.meta._
+    def fixParents(parents: immutable.Seq[Ctor.Call]) = parents.map({case Term.Apply(ctor: Ctor.Call, Nil) => ctor; case x=>x})
+    tree transform {
+      case Defn.Trait(mods, name, tparams, ctor, Template(early, parents, self, stats)) =>
+        Defn.Trait(mods, name, tparams, ctor, Template(early, fixParents(parents), self, stats))
     }
   }
 }

@@ -3,4 +3,4 @@ object TypedPlaceholder {
 
   foo(/*start*/(_: String).length/*end*/, "")
 }
-//(String) => Int
+//String => Int

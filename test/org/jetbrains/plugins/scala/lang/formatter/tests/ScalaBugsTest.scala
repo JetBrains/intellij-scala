@@ -931,7 +931,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     val after =
       """
         |val x = for {
-        |//Comment
+        |  //Comment
         |  x <- Nil
         |} yield {
         |  x
@@ -2578,6 +2578,408 @@ bars foreach {case (x, y) => list.add(x + y)}
       """.stripMargin
     doTextTest(before)
   }
+
+  def testSCL12297(): Unit = {
+    val before =
+      """
+        |/**
+        |  * smth
+        |  */
+        |@throws(classOf[A])
+        |def myMethod(p1: Int, p2: String): A =
+        |  foo(p1, this)
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL12416(): Unit = {
+    val before =
+      """
+        |// single line comment
+        |// another single line comment
+        |def foo(x: Int): Int =
+        |  if (x > 5) x * 2
+        |  else if (x > 3) x
+        |  else -x
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL12299(): Unit = {
+    val before =
+      """
+        |Nil.foreach { a =>
+        |}
+        |
+        |s"Hello, ${name.toString}"
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL12353(): Unit = {
+    getCommonSettings.BLANK_LINES_AROUND_FIELD = 1
+
+    val before =
+      """
+        |class A {
+        |  val x = 1
+        |
+        |  val y = 2
+        |
+        |  def foo = {
+        |    val a = 1
+        |    println(a)
+        |  }
+        |}
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  private val SCL12353Before =
+    """
+      |class SCL12353 {
+      |  val x = 1
+      |  val y = 2
+      |  val z = 3
+      |  def foo = {
+      |    val a = 1
+      |    println(a)
+      |    val b = 1
+      |    def boo = 42
+      |    def goo = 22
+      |    val c = 1
+      |    val d = 1
+      |  }
+      |  def bar = 42
+      |  val y1 = 13
+      |  trait Inner {
+      |    val x = 1
+      |    val y = 2
+      |    val z = 3
+      |    def foo = {
+      |      val a = 1
+      |      println(a)
+      |      val b = 1
+      |      def boo = 42
+      |      def goo = 22
+      |      val c = 1
+      |      val d = 1
+      |    }
+      |    def bar = 42
+      |    val y1 = 13
+      |  }
+      |}
+    """.stripMargin
+
+  def testSCL12353_1(): Unit = {
+    getCommonSettings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE = 1
+    getCommonSettings.BLANK_LINES_AROUND_FIELD = 1
+    getCommonSettings.BLANK_LINES_AROUND_METHOD = 1
+    getCommonSettings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE = 1
+
+    val after =
+      """
+        |class SCL12353 {
+        |  val x = 1
+        |
+        |  val y = 2
+        |
+        |  val z = 3
+        |
+        |  def foo = {
+        |    val a = 1
+        |    println(a)
+        |    val b = 1
+        |
+        |    def boo = 42
+        |
+        |    def goo = 22
+        |
+        |    val c = 1
+        |    val d = 1
+        |  }
+        |
+        |  def bar = 42
+        |
+        |  val y1 = 13
+        |
+        |  trait Inner {
+        |    val x = 1
+        |
+        |    val y = 2
+        |
+        |    val z = 3
+        |
+        |    def foo = {
+        |      val a = 1
+        |      println(a)
+        |      val b = 1
+        |
+        |      def boo = 42
+        |
+        |      def goo = 22
+        |
+        |      val c = 1
+        |      val d = 1
+        |    }
+        |
+        |    def bar = 42
+        |
+        |    val y1 = 13
+        |  }
+        |
+        |}
+      """.stripMargin
+    doTextTest(SCL12353Before, after)
+  }
+
+  def testSCL12353_2(): Unit = {
+    getScalaSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = 0
+    getScalaSettings.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES = 1
+    getCommonSettings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE = 0
+    getCommonSettings.BLANK_LINES_AROUND_FIELD = 0
+    getCommonSettings.BLANK_LINES_AROUND_METHOD = 0
+    getCommonSettings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE = 0
+
+    val after =
+      """
+        |class SCL12353 {
+        |  val x = 1
+        |  val y = 2
+        |  val z = 3
+        |  def foo = {
+        |    val a = 1
+        |
+        |    println(a)
+        |
+        |    val b = 1
+        |
+        |    def boo = 42
+        |    def goo = 22
+        |
+        |    val c = 1
+        |
+        |    val d = 1
+        |  }
+        |  def bar = 42
+        |  val y1 = 13
+        |
+        |  trait Inner {
+        |    val x = 1
+        |    val y = 2
+        |    val z = 3
+        |    def foo = {
+        |      val a = 1
+        |
+        |      println(a)
+        |
+        |      val b = 1
+        |
+        |      def boo = 42
+        |      def goo = 22
+        |
+        |      val c = 1
+        |
+        |      val d = 1
+        |    }
+        |    def bar = 42
+        |    val y1 = 13
+        |  }
+        |
+        |}
+      """.stripMargin
+    doTextTest(SCL12353Before, after)
+  }
+
+  def testSCL12353_3(): Unit = {
+    getCommonSettings.BLANK_LINES_AROUND_FIELD = 1
+    getCommonSettings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE = 1
+    getCommonSettings.BLANK_LINES_AROUND_METHOD = 0
+    getCommonSettings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE = 0
+    getScalaSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = 0
+    getScalaSettings.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES = 0
+    val after =
+      """
+        |class SCL12353 {
+        |  val x = 1
+        |
+        |  val y = 2
+        |
+        |  val z = 3
+        |
+        |  def foo = {
+        |    val a = 1
+        |    println(a)
+        |    val b = 1
+        |    def boo = 42
+        |    def goo = 22
+        |    val c = 1
+        |    val d = 1
+        |  }
+        |  def bar = 42
+        |
+        |  val y1 = 13
+        |
+        |  trait Inner {
+        |    val x = 1
+        |
+        |    val y = 2
+        |
+        |    val z = 3
+        |
+        |    def foo = {
+        |      val a = 1
+        |      println(a)
+        |      val b = 1
+        |      def boo = 42
+        |      def goo = 22
+        |      val c = 1
+        |      val d = 1
+        |    }
+        |    def bar = 42
+        |
+        |    val y1 = 13
+        |  }
+        |
+        |}
+      """.stripMargin
+    doTextTest(SCL12353Before, after)
+  }
+
+  def testSCL12347(): Unit = {
+    val before =
+      """
+        |foo[(String, Int)](
+        |  x,
+        |  { case (s, _) ⇒ s },
+        |  y,
+        |  { case (_, i) ⇒ i }
+        |)
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL12258(): Unit = {
+
+    val before =
+      """
+        |
+        |object Foo {
+        |  for {
+        |    // take first
+        |    fst <- Some(4)
+        |    // take second
+        |    snd <- Some(2)
+        |  } println(s"${fst}${snd}")
+        |}
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL4290(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    val before =
+      """
+        |class SCL4290 {
+        |  super.getFoo()
+        |    .foo()
+        |    .getBar()
+        |    .bar()
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class SCL4290 {
+        |  super.getFoo()
+        |       .foo()
+        |       .getBar()
+        |       .bar()
+        |}
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testSCL4290_1(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    val before =
+      """
+        |val x = foo().
+        |        foo().
+        |        goo()
+      """.stripMargin
+    doTextTest(before)
+  }
+
+  def testSCL12066(): Unit = {
+    getCommonSettings.WRAP_LONG_LINES = true
+    val before = "import com.google.cloud.bigquery.{BigQueryOptions, DatasetId, FormatOptions, Job, JobInfo, LoadJobConfiguration, StandardTableDefinition, TableId, TableInfo, ViewDefinition}"
+    val after =
+      """
+        |import com.google.cloud.bigquery.{BigQueryOptions, DatasetId, FormatOptions, Job, JobInfo, LoadJobConfiguration,
+        |  StandardTableDefinition, TableId, TableInfo, ViewDefinition}
+      """.stripMargin
+    doTextTest(before, after)
+    //TODO formatting engine is not able to first wrap, and then calculate spacings in a single pass
+    val after2 =
+      """
+        |import com.google.cloud.bigquery.{
+        |  BigQueryOptions, DatasetId, FormatOptions, Job, JobInfo, LoadJobConfiguration,
+        |  StandardTableDefinition, TableId, TableInfo, ViewDefinition
+        |}
+      """.stripMargin
+    doTextTest(after, after2)
+  }
+
+  private val beforeSCL3536 =
+    """
+      |class A extends B
+      |with C
+    """.stripMargin
+  def testSCL3536(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_EXTENDS_LIST = true
+    getScalaSettings.ALIGN_EXTENDS_WITH = ScalaCodeStyleSettings.ON_FIRST_TOKEN
+    val after =
+      """
+        |class A extends B
+        |                with C
+      """.stripMargin
+    doTextTest(beforeSCL3536, after)
+  }
+// TODO temporarily disabled untile formatter engine has a way to produce desired alignment
+//  def testSCL3536_1(): Unit = {
+//    getScalaSettings.ALIGN_EXTENDS_WITH = ScalaCodeStyleSettings.ON_FIRST_ANCESTOR
+//    val after =
+//      """
+//        |class A extends B
+//        |           with C
+//      """.stripMargin
+//
+//    doTextTest(beforeSCL3536, after)
+//  }
+  def testSCL3536_2(): Unit = {
+    getScalaSettings.ALIGN_EXTENDS_WITH = ScalaCodeStyleSettings.ALIGN_TO_EXTENDS
+    val after =
+      """
+        |class A extends B
+        |        with C
+      """.stripMargin
+    doTextTest(beforeSCL3536, after)
+  }
+  def testSCL3536_3(): Unit = {
+    getScalaSettings.ALIGN_EXTENDS_WITH = ScalaCodeStyleSettings.ON_FIRST_TOKEN
+    val before =
+      """
+        |class A extends B with
+        |C
+      """.stripMargin
+    val after =
+      """
+        |class A extends B with
+        |                C
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
 
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
