@@ -47,7 +47,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   @volatile
   private var implicitParametersFromUnder: Option[Seq[ScalaResolveResult]] = None
 
-  final protected def setImplicitParameters(results: Option[Seq[ScalaResolveResult]], fromUnderscore: Boolean): Unit = {
+  final protected def setImplicitParameters(results: Option[Seq[ScalaResolveResult]],
+                                            fromUnderscore: Boolean = ScUnderScoreSectionUtil.isUnderscoreFunction(this)): Unit = {
     if (fromUnderscore)
       implicitParametersFromUnder = results
     else
