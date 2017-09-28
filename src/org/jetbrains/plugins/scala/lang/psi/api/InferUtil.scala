@@ -262,7 +262,7 @@ object InferUtil {
           val update: ScTypePolymorphicType = localTypeInference(m,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(undefineSubstitutor(typeParams).subst(valueType))),
-            typeParams, shouldUndefineParameters = false, canThrowSCE, filterTypeParams = filterTypeParams)
+            typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE, filterTypeParams = filterTypeParams)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
@@ -272,7 +272,7 @@ object InferUtil {
           nonValueType = Success(localTypeInference(internal,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(undefineSubstitutor(typeParams).subst(internal.inferValueType))),
-            typeParams, shouldUndefineParameters = false, canThrowSCE,
+            typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE,
             filterTypeParams = filterTypeParams), Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)

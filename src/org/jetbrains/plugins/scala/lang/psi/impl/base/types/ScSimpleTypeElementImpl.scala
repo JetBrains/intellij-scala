@@ -172,7 +172,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               params(clauseIdx),
               c.arguments(clauseIdx).exprs.map(new Expression(_)),
               nonValueType.typeParameters,
-              canThrowSCE,
+              canThrowSCE = canThrowSCE,
               filterTypeParams = false)
           }
 
