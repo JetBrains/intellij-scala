@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
@@ -330,11 +330,9 @@ object ResolveUtils {
                     case None =>
                     case Some(_: ScThisReference) =>
                     case Some(_: ScSuperReference) =>
-                    case Some(ref: ScReferenceElement) =>
+                    case Some(ResolvesTo(_: ScSelfTypeElement)) =>
                       val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
                       if (enclosing == null) return false
-                      val resolve = ref.resolve()
-                      if (!enclosing.extendsBlock.selfTypeElement.contains(resolve)) return false
                     case _ => return false
                   }
                 case _ =>
@@ -415,28 +413,27 @@ object ResolveUtils {
   private def sameOrInheritor(cl1: PsiClass, cl2: PsiClass): Boolean =
     ScEquivalenceUtil.areClassesEquivalent(cl1, cl2) || isInheritorDeep(cl1, cl2)
 
+  private def isInheritorOrSame(tp: ScType, cl: PsiClass): Boolean = tp match {
+    case ScCompoundType(comps, _, _) =>
+      comps.exists(isInheritorOrSame(_, cl))
+    case tpt: TypeParameterType =>
+      isInheritorOrSame(tpt.upperType, cl)
+    case _ =>
+      tp.extractClass.exists(sameOrInheritor(_, cl))
+  }
+
   private def isInheritorOrSelfOrSame(placeTd: ScTemplateDefinition, td: PsiClass): Boolean = {
     if (sameOrInheritor(placeTd, td)) return true
 
     placeTd.selfTypeElement match {
       case Some(te: ScSelfTypeElement) => te.typeElement match {
         case Some(te: ScTypeElement) =>
-          def isInheritorOrSame(tp: ScType): Boolean = tp.extractClass.exists(sameOrInheritor(_, td))
-
-          te.getType(TypingContext.empty) match {
-            case Success(ctp: ScCompoundType, _) =>
-              for (tp <- ctp.components) {
-                if (isInheritorOrSame(tp)) return true
-              }
-            case Success(tp: ScType, _) =>
-              if (isInheritorOrSame(tp)) return true
-            case _ =>
-          }
-        case _ =>
+          te.getType(TypingContext.empty)
+            .exists(isInheritorOrSame(_, td))
+        case _ => false
       }
-      case _ =>
+      case _ => false
     }
-    false
   }
 
   private def smartContextAncestor(td: ScTemplateDefinition, place: PsiElement, checkCompanion: Boolean): Boolean = {
