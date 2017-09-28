@@ -390,7 +390,7 @@ class ImplicitCollector(place: PsiElement,
       filterTypeParams = isImplicitConversion,
       expectedType = Some(tp),
       place,
-      check = true
+      canThrowSCE = true
     )
   }
 
@@ -467,7 +467,7 @@ class ImplicitCollector(place: PsiElement,
 
       try {
         val (resType, implicitParams0) = InferUtil.updateTypeWithImplicitParameters(nonValueType, place, Some(fun),
-          check = !fullInfo, searchImplicitsRecursively + 1, fullInfo)
+          canThrowSCE = !fullInfo, searchImplicitsRecursively + 1, fullInfo)
         val implicitParams = implicitParams0.getOrElse(Seq.empty)
 
         if (implicitParams.exists(_.name == InferUtil.notFoundParameterName))

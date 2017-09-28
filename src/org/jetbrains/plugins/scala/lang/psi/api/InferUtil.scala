@@ -55,10 +55,10 @@ object InferUtil {
     *
     * @param res     MethodType or PolymorphicType(MethodType)
     * @param element place to find implicit parameters
-    * @param check   if true can throw SafeCheckException if it not found not ambiguous implicit parameters
+    * @param canThrowSCE   if true can throw SafeCheckException if it not found not ambiguous implicit parameters
     * @return updated type and sequence of implicit parameters
     */
-  def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement], check: Boolean,
+  def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement], canThrowSCE: Boolean,
                                        searchImplicitsRecursively: Int = 0, fullInfo: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
     implicit val ctx: ProjectContext = element
 
@@ -68,7 +68,7 @@ object InferUtil {
       case t@ScTypePolymorphicType(mt@ScMethodType(retType, _, impl), _) if !impl =>
         // See SCL-3516
         val (updatedType, ps) =
-          updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, check, fullInfo = fullInfo)
+          updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, canThrowSCE, fullInfo = fullInfo)
         implicitParameters = ps
         implicit val elementScope = mt.elementScope
 
@@ -101,9 +101,9 @@ object InferUtil {
               val polymorphicSubst = t.polymorphicTypeSubstitutor
               val abstractSubstitutor: ScSubstitutor = t.abstractOrLowerTypeSubstitutor
               val (paramsForInfer, exprs, resolveResults) =
-                findImplicits(paramsSingle, coreElement, element, check, searchImplicitsRecursively, abstractSubstitutor, polymorphicSubst)
+                findImplicits(paramsSingle, coreElement, element, canThrowSCE, searchImplicitsRecursively, abstractSubstitutor, polymorphicSubst)
               resInner = localTypeInference(retTypeSingle, paramsForInfer, exprs, typeParamsSingle,
-                safeCheck = check || fullInfo)
+                canThrowSCE = canThrowSCE || fullInfo)
               paramsForInferBuffer ++= paramsForInfer
               exprsBuffer ++= exprs
               resolveResultsBuffer ++= resolveResults
@@ -125,14 +125,14 @@ object InferUtil {
         resInner = dependentSubst.subst(resInner)
       case mt@ScMethodType(retType, _, isImplicit) if !isImplicit =>
         // See SCL-3516
-        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, check, fullInfo = fullInfo)
+        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, canThrowSCE, fullInfo = fullInfo)
         implicitParameters = ps
         implicit val elementScope = mt.elementScope
 
         resInner = mt.copy(returnType = updatedType)
       case ScMethodType(retType, params, isImplicit) if isImplicit =>
         val (paramsForInfer, exprs, resolveResults) =
-          findImplicits(params, coreElement, element, check, searchImplicitsRecursively)
+          findImplicits(params, coreElement, element, canThrowSCE, searchImplicitsRecursively)
 
         implicitParameters = Some(resolveResults)
         resInner = retType
@@ -155,7 +155,7 @@ object InferUtil {
 
 
   def findImplicits(params: Seq[Parameter], coreElement: Option[ScNamedElement], place: PsiElement,
-                    check: Boolean, searchImplicitsRecursively: Int = 0,
+                    canThrowSCE: Boolean, searchImplicitsRecursively: Int = 0,
                     abstractSubstitutor: ScSubstitutor = ScSubstitutor.empty,
                     polymorphicSubst: ScSubstitutor = ScSubstitutor.empty
                    ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
@@ -174,7 +174,7 @@ object InferUtil {
       val collector = new ImplicitCollector(implicitState)
       val results = collector.collect()
       if (results.length == 1) {
-        if (check && !results.head.isApplicable()) throw new SafeCheckException
+        if (canThrowSCE && !results.head.isApplicable()) throw new SafeCheckException
         resolveResults += results.head
 
         def updateExpr(): Unit = {
@@ -214,7 +214,7 @@ object InferUtil {
             //todo: should be added for infer to
             //todo: what if paramInCode is null?
             resolveResults += new ScalaResolveResult(param.paramInCode.get)
-          } else if (r == null && check) throw new SafeCheckException
+          } else if (r == null && canThrowSCE) throw new SafeCheckException
           else if (r == null) {
             val parameter = createParameterFromText(s"$notFoundParameterName: Int")(place.getManager)
             resolveResults += new ScalaResolveResult(parameter, implicitSearchState = Some(implicitState))
@@ -233,14 +233,14 @@ object InferUtil {
     *                               also we can update just for simple type without function
     * @param expectedType           appropriate expected type
     * @param expr                   place
-    * @param check                  we fail to get right type then if check throw SafeCheckException
+    * @param canThrowSCE            we fail to get right type then if canThrowSCE throw SafeCheckException
     * @return updated type
     */
   def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType],
                                     fromImplicitParameters: Boolean,
                                     filterTypeParams: Boolean,
                                     expectedType: Option[ScType], expr: PsiElement,
-                                    check: Boolean): TypeResult[ScType] = {
+                                    canThrowSCE: Boolean): TypeResult[ScType] = {
     implicit val ctx: ProjectContext = expr
     val Unit = ctx.stdTypes.Unit
 
@@ -256,13 +256,13 @@ object InferUtil {
             }
           val valueType = (expr match {
             case scExpr: ScExpression =>
-              scExpr.updatedWithImplicitParameters(innerInternal, check)._1
+              scExpr.updatedWithImplicitParameters(innerInternal, canThrowSCE)._1
             case _ => innerInternal
           }).inferValueType
           val update: ScTypePolymorphicType = localTypeInference(m,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(undefineSubstitutor(typeParams).subst(valueType))),
-            typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = filterTypeParams)
+            typeParams, shouldUndefineParameters = false, canThrowSCE, filterTypeParams = filterTypeParams)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
@@ -272,7 +272,7 @@ object InferUtil {
           nonValueType = Success(localTypeInference(internal,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(undefineSubstitutor(typeParams).subst(internal.inferValueType))),
-            typeParams, shouldUndefineParameters = false, safeCheck = check,
+            typeParams, shouldUndefineParameters = false, canThrowSCE,
             filterTypeParams = filterTypeParams), Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
@@ -358,9 +358,9 @@ object InferUtil {
   def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                          typeParams: Seq[TypeParameter],
                          shouldUndefineParameters: Boolean = true,
-                         safeCheck: Boolean = false,
+                         canThrowSCE: Boolean = false,
                          filterTypeParams: Boolean = true): ScTypePolymorphicType = {
-    localTypeInferenceWithApplicability(retType, params, exprs, typeParams, shouldUndefineParameters, safeCheck,
+    localTypeInferenceWithApplicability(retType, params, exprs, typeParams, shouldUndefineParameters, canThrowSCE,
       filterTypeParams)._1
   }
 
@@ -370,17 +370,17 @@ object InferUtil {
   def localTypeInferenceWithApplicability(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                           typeParams: Seq[TypeParameter],
                                           shouldUndefineParameters: Boolean = true,
-                                          safeCheck: Boolean = false,
+                                          canThrowSCE: Boolean = false,
                                           filterTypeParams: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
     val (tp, problems, _, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams,
-      shouldUndefineParameters, safeCheck, filterTypeParams)
+      shouldUndefineParameters, canThrowSCE, filterTypeParams)
     (tp, problems)
   }
 
   def localTypeInferenceWithApplicabilityExt(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                              typeParams: Seq[TypeParameter],
                                              shouldUndefineParameters: Boolean = true,
-                                             safeCheck: Boolean = false,
+                                             canThrowSCE: Boolean = false,
                                              filterTypeParams: Boolean = true
                                             ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)]) = {
     implicit val projectContext = retType.projectContext
@@ -399,7 +399,7 @@ object InferUtil {
     val tpe = if (c.problems.isEmpty) {
       var un: ScUndefinedSubstitutor = c.undefSubst
       val subst = c.undefSubst
-      subst.getSubstitutorWithBounds(safeCheck) match {
+      subst.getSubstitutorWithBounds(canThrowSCE) match {
         case Some((unSubst, lMap, uMap)) =>
           if (!filterTypeParams) {
             val undefiningSubstitutor = ScSubstitutor(typeParams.map(typeParam => {
@@ -429,7 +429,7 @@ object InferUtil {
                     unSubst.subst(upperType)
                 }
 
-                if (safeCheck && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
+                if (canThrowSCE && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
                   throw new SafeCheckException
                 TypeParameter(typeParameters, /* doesn't important here */
                   lower,
@@ -460,7 +460,7 @@ object InferUtil {
               ScTypePolymorphicType(sub.subst(retType), typeParams.filter {
                 case tp =>
                   val removeMe: Boolean = un.names.contains(tp.nameAndId)
-                  if (removeMe && safeCheck) {
+                  if (removeMe && canThrowSCE) {
                     //let's check type parameter kinds
                     def checkTypeParam(typeParam: ScTypeParam, tp: => ScType): Boolean = {
                       val typeParams: Seq[ScTypeParam] = typeParam.typeParameters
@@ -509,7 +509,7 @@ object InferUtil {
 
             un.getSubstitutor match {
               case Some(unSubstitutor) => updateWithSubst(unSubstitutor)
-              case _ if safeCheck => throw new SafeCheckException
+              case _ if canThrowSCE => throw new SafeCheckException
               case _ => updateWithSubst(unSubst)
             }
           }

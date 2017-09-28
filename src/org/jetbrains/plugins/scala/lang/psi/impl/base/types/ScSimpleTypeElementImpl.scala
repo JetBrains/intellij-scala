@@ -166,13 +166,13 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
       findConstructor match {
         case Some(c) =>
-          def updateWithClause(nonValueType: ScTypePolymorphicType, clauseIdx: Int, safeCheck: Boolean) = {
+          def updateWithClause(nonValueType: ScTypePolymorphicType, clauseIdx: Int, canThrowSCE: Boolean) = {
             InferUtil.localTypeInference(
               nonValueType.internalType,
               params(clauseIdx),
               c.arguments(clauseIdx).exprs.map(new Expression(_)),
               nonValueType.typeParameters,
-              safeCheck = safeCheck,
+              canThrowSCE,
               filterTypeParams = false)
           }
 
@@ -180,7 +180,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             var i = 0
             var result = ScTypePolymorphicType(res, typeParameters)
             while (i < params.length - 1 && i < c.arguments.length - 1) {
-              result = updateWithClause(result, i, safeCheck = false)
+              result = updateWithClause(result, i, canThrowSCE = false)
               i += 1
             }
             result
@@ -214,7 +214,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             val lastClauseIdx = c.arguments.length - 1
             val withLastClause =
               if (lastClauseIdx >= 0 && lastClauseIdx < params.length) {
-                updateWithClause(fromExpected, lastClauseIdx, safeCheck = withExpected)
+                updateWithClause(fromExpected, lastClauseIdx, canThrowSCE = withExpected)
               }
               else fromExpected
 
