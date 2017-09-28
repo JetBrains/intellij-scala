@@ -61,8 +61,8 @@ trait AllProjectHighlightingTest {
 
 object AllProjectHighlightingTest {
 
-  def annotateFile(psiFile: PsiFile, reporter: ProgressReporter): Unit = {
-    val fileName = psiFile.getName
+  def annotateFile(psiFile: PsiFile, reporter: ProgressReporter, relPath: Option[String] = None): Unit = {
+    val fileName = relPath.getOrElse(psiFile.getName)
     val mock = new AnnotatorHolderMock(psiFile){
       override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
         reporter.reportError(fileName, range, message)
