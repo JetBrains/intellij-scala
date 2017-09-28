@@ -440,23 +440,24 @@ object ResolveUtils {
   }
 
   private def smartContextAncestor(td: ScTemplateDefinition, place: PsiElement, checkCompanion: Boolean): Boolean = {
-    def isContextAncestor(definition: ScTemplateDefinition): Boolean = PsiTreeUtil.isContextAncestor(td, place, false)
+    val withCompanion: Set[ScTemplateDefinition] =
+      if (checkCompanion) getCompanionModule(td).toSet + td
+      else Set(td)
 
-    def withCompanion: Seq[ScTemplateDefinition] =
-      Seq(td) ++ (if (checkCompanion) getCompanionModule(td) else Seq.empty)
-
-    def withNavigationElem(t: ScTemplateDefinition): Seq[ScTemplateDefinition] = t.getNavigationElement match {
-      case `t` => Seq(t)
-      case other: ScTemplateDefinition => Seq(t, other)
-      case _ => Seq(t)
+    def withNavigationElem(t: ScTemplateDefinition): Set[ScTemplateDefinition] = t.getNavigationElement match {
+      case `t` => Set(t)
+      case other: ScTemplateDefinition => Set(t, other)
+      case _ => Set(t)
     }
 
     val candidates = withCompanion.flatMap(withNavigationElem)
-
-    candidates.exists(isContextAncestor)
+    place.withContexts.exists {
+      case td: ScTemplateDefinition => candidates.contains(td)
+      case _ => false
+    }
   }
 
-  def packageContains(packageName: String, potentialChild: String): Boolean = {
+  private def packageContains(packageName: String, potentialChild: String): Boolean = {
     ScalaNamesUtil.equivalentFqn(potentialChild, packageName) || potentialChild.startsWith(packageName + ".")
   }
 
