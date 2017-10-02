@@ -303,7 +303,7 @@ object ScImplicitlyConvertible {
               .map(Parameter(_))
 
             val implicitDependentSubstitutor = ScSubstitutor(() => {
-              val (inferredParameters, expressions, _) = findImplicits(effectiveParameters, None, expression, check = false,
+              val (inferredParameters, expressions, _) = findImplicits(effectiveParameters, None, expression, canThrowSCE = false,
                 abstractSubstitutor = substitutor.followed(dependentSubstitutor).followed(unSubst))
 
               val inferredTypes = expressions.map(_.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None))

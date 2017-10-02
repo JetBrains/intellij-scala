@@ -162,7 +162,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
     val withExpectedType = useExpectedType && this.expectedType().isDefined //optimization to avoid except
 
-    if (useExpectedType) nonValueType = this.updateAccordingToExpectedType(nonValueType, check = true)
+    if (useExpectedType) nonValueType = this.updateAccordingToExpectedType(nonValueType, canThrowSCE = true)
 
     def checkConformance(retType: ScType, psiExprs: Seq[Expression], parameters: Seq[Parameter]) = {
       tuplizyCase(psiExprs) { t =>
@@ -175,7 +175,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     def checkConformanceWithInference(retType: ScType, psiExprs: Seq[Expression],
                                       typeParams: Seq[TypeParameter], parameters: Seq[Parameter]) = {
       tuplizyCase(psiExprs) { t =>
-        InferUtil.localTypeInferenceWithApplicabilityExt(retType, parameters, t, typeParams, safeCheck = withExpectedType)
+        InferUtil.localTypeInferenceWithApplicabilityExt(retType, parameters, t, typeParams, canThrowSCE = withExpectedType)
       }
     }
 
@@ -352,9 +352,9 @@ object MethodInvocation {
       * according to method call expected type
       */
     def updateAccordingToExpectedType(nonValueType: TypeResult[ScType],
-                                      check: Boolean = false): TypeResult[ScType] = {
+                                      canThrowSCE: Boolean = false): TypeResult[ScType] = {
       InferUtil.updateAccordingToExpectedType(nonValueType, fromImplicitParameters = false, filterTypeParams = false,
-        expectedType = invocation.expectedType(), expr = invocation, check = check)
+        expectedType = invocation.expectedType(), expr = invocation, canThrowSCE)
     }
 
   }

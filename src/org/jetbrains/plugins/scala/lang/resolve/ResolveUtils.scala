@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import _root_.scala.collection.Set
 
@@ -239,11 +240,10 @@ object ResolveUtils {
                 packageContains(packageName, placePackageName)
               }
               bind match {
-                case td: ScTemplateDefinition =>
-                  PsiTreeUtil.isContextAncestor(td, place, false) ||
-                          PsiTreeUtil.isContextAncestor(getCompanionModule(td).getOrElse(null: PsiElement),
-                            place, false) || (td.isInstanceOf[ScObject] &&
-                          td.asInstanceOf[ScObject].isPackageObject && processPackage(td.qualifiedName))
+                case td: ScTemplateDefinition if smartContextAncestor(td, place, checkCompanion = true) =>
+                  true
+                case obj: ScObject =>
+                  obj.isPackageObject && processPackage(obj.qualifiedName)
                 case pack: PsiPackage =>
                   val packageName = pack.getQualifiedName
                   processPackage(packageName)
@@ -260,7 +260,7 @@ object ResolveUtils {
                 classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
               enclosing match {
                 case td: ScTemplateDefinition =>
-                  PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(getCompanionModule(td).getOrElse(null: PsiElement), place, false)
+                  smartContextAncestor(td, place, checkCompanion = true)
                 case file: ScalaFile if file.isScriptFile =>
                   PsiTreeUtil.isContextAncestor(file, place, false)
                 case _ =>
@@ -270,7 +270,7 @@ object ResolveUtils {
                       def packaging(element: PsiElement) = Option(element).collect {
                         case packaging: ScPackaging => packaging
                       }.map {
-                        _.packageName
+                        _.fullPackageName
                       }.getOrElse("")
 
                       packageContains(packaging(enclosing), packaging(placeEnclosing))
@@ -302,7 +302,7 @@ object ResolveUtils {
               }
               bind match {
                 case td: ScTemplateDefinition =>
-                  if (PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(getCompanionModule(td).getOrElse(null: PsiElement), place, false)) return true
+                  if (smartContextAncestor(td, place, checkCompanion = true)) return true
                   td match {
                     case o: ScObject if o.isPackageObject =>
                       processPackage(o.qualifiedName) match {
@@ -330,11 +330,9 @@ object ResolveUtils {
                     case None =>
                     case Some(_: ScThisReference) =>
                     case Some(_: ScSuperReference) =>
-                    case Some(ref: ScReferenceElement) =>
+                    case Some(ResolvesTo(_: ScSelfTypeElement)) =>
                       val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
                       if (enclosing == null) return false
-                      val resolve = ref.resolve()
-                      if (!enclosing.extendsBlock.selfTypeElement.contains(resolve)) return false
                     case _ => return false
                   }
                 case _ =>
@@ -342,9 +340,7 @@ object ResolveUtils {
             }
             enclosing match {
               case td: ScTypeDefinition =>
-                if (PsiTreeUtil.isContextAncestor(td, place, false) ||
-                        (withCompanion && PsiTreeUtil.isContextAncestor(getCompanionModule(td).
-                                getOrElse(null: PsiElement), place, false))) return true
+                if (smartContextAncestor(td, place, withCompanion)) return true
                 checkProtected(td, withCompanion)
               case td: ScTemplateDefinition =>
                 //it'd anonymous class, has access only inside
@@ -414,37 +410,51 @@ object ResolveUtils {
     pack.fullPackageName
   }
 
+  private def sameOrInheritor(cl1: PsiClass, cl2: PsiClass): Boolean =
+    ScEquivalenceUtil.areClassesEquivalent(cl1, cl2) || isInheritorDeep(cl1, cl2)
+
+  private def isInheritorOrSame(tp: ScType, cl: PsiClass): Boolean = tp match {
+    case ScCompoundType(comps, _, _) =>
+      comps.exists(isInheritorOrSame(_, cl))
+    case tpt: TypeParameterType =>
+      isInheritorOrSame(tpt.upperType, cl)
+    case _ =>
+      tp.extractClass.exists(sameOrInheritor(_, cl))
+  }
+
   private def isInheritorOrSelfOrSame(placeTd: ScTemplateDefinition, td: PsiClass): Boolean = {
-    if (isInheritorDeep(placeTd, td)) return true
+    if (sameOrInheritor(placeTd, td)) return true
+
     placeTd.selfTypeElement match {
       case Some(te: ScSelfTypeElement) => te.typeElement match {
         case Some(te: ScTypeElement) =>
-          def isInheritorOrSame(tp: ScType): Boolean = {
-            tp.extractClass match {
-              case Some(clazz) =>
-                if (clazz == td) return true
-                if (isInheritorDeep(clazz, td)) return true
-              case _ =>
-            }
-            false
-          }
-          te.getType(TypingContext.empty) match {
-            case Success(ctp: ScCompoundType, _) =>
-              for (tp <- ctp.components) {
-                if (isInheritorOrSame(tp)) return true
-              }
-            case Success(tp: ScType, _) =>
-              if (isInheritorOrSame(tp)) return true
-            case _ =>
-          }
-        case _ =>
+          te.getType(TypingContext.empty)
+            .exists(isInheritorOrSame(_, td))
+        case _ => false
       }
-      case _ =>
+      case _ => false
     }
-    false
   }
 
-  def packageContains(packageName: String, potentialChild: String): Boolean = {
+  private def smartContextAncestor(td: ScTemplateDefinition, place: PsiElement, checkCompanion: Boolean): Boolean = {
+    val withCompanion: Set[ScTemplateDefinition] =
+      if (checkCompanion) getCompanionModule(td).toSet + td
+      else Set(td)
+
+    def withNavigationElem(t: ScTemplateDefinition): Set[ScTemplateDefinition] = t.getNavigationElement match {
+      case `t` => Set(t)
+      case other: ScTemplateDefinition => Set(t, other)
+      case _ => Set(t)
+    }
+
+    val candidates = withCompanion.flatMap(withNavigationElem)
+    place.withContexts.exists {
+      case td: ScTemplateDefinition => candidates.contains(td)
+      case _ => false
+    }
+  }
+
+  private def packageContains(packageName: String, potentialChild: String): Boolean = {
     ScalaNamesUtil.equivalentFqn(potentialChild, packageName) || potentialChild.startsWith(packageName + ".")
   }
 

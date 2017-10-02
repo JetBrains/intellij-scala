@@ -351,7 +351,7 @@ object ScExpression {
               try {
                 val updatedWithExpected =
                   InferUtil.updateAccordingToExpectedType(Success(rtp, Some(expr)), fromImplicitParameters = true,
-                    filterTypeParams = false, expectedType = expType, expr = expr, check = true)
+                    filterTypeParams = false, expectedType = expType, expr = expr, canThrowSCE = true)
                 updatedWithExpected match {
                   case Success(newRes, _) =>
                     updateWithImplicitParameters(newRes, checkExpectedType = true, fromUnderscore)
