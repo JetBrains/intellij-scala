@@ -57,7 +57,7 @@ class ScalaApplicationUsagesCollector extends AbstractProjectsUsagesCollector {
 
       if (scala_version.isDefined) {
         checkLibrary("org.apache.spark", "Spark")
-        checkLibrary("io.predition", "PredictionIO")
+        checkLibrary("io.prediction", "PredictionIO")
         checkLibrary("com.stratio.sparkta", "Sparkta")
         checkLibrary("cats", "cats")
         checkLibrary("com.twitter.finagle", "Finagle")
