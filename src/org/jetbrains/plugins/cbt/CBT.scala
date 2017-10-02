@@ -9,6 +9,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.sbt.RichVirtualFile
 
+import scala.util.Try
+
 
 object CBT {
   val Icon: Icon = Icons.CBT
@@ -19,12 +21,13 @@ object CBT {
   val cbtBuildClassNames: Seq[String] =
     Seq("BaseBuild", "BasicBuild", "BuildBuild", "Plugin")
 
-  def moduleByPath(dir: String, project: Project): Module = {
+  def moduleByPath(dir: String, project: Project): Option[Module] = {
     val fileDir = Paths.get(dir)
     ModuleManager.getInstance(project).getModules
       .toSeq
       .sortBy(_.baseDir.length.unary_-)
-      .find(m => fileDir.startsWith(m.getModuleFile.getParent.getCanonicalPath))
-      .get
+      .find { m =>
+        Try(fileDir.startsWith(m.getModuleFile.getParent.getCanonicalPath)).toOption.contains(true)
+      }
   }
 }

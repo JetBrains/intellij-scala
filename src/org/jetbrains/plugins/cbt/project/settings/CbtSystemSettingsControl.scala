@@ -1,21 +1,31 @@
 package org.jetbrains.plugins.cbt.project.settings
 
-import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, PaintAwarePanel}
+import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, ExternalSystemUiUtil, PaintAwarePanel}
+import org.jetbrains.sbt.settings.SbtSettingsPane
 
 class CbtSystemSettingsControl(settings: CbtSystemSettings)
   extends ExternalSystemSettingsControl[CbtSystemSettings] {
 
-  def isModified: Boolean = false
+  private val pane = new CbtSettingsPane
 
-  def showUi(show: Boolean): Unit = {}
+  def isModified: Boolean =
+    pane.cbtPath != settings.cbtExePath
 
-  def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit = {}
+  def showUi(show: Boolean): Unit =
+    pane.pane.setEnabled(true)
+
+  def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit =
+    canvas.add(pane.pane, ExternalSystemUiUtil.getFillLineConstraints(indentLevel))
 
   def disposeUIResources() {}
 
-  def apply(settings: CbtSystemSettings): Unit = {}
+  def apply(settings: CbtSystemSettings): Unit = {
+    settings.cbtExePath = pane.cbtPath
+  }
 
-  def reset(): Unit = {}
+  def reset(): Unit = {
+    pane.updateCbtPath(settings.cbtExePath)
+  }
 
   def validate(settings: CbtSystemSettings) = true
 }

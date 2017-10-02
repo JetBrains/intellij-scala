@@ -5,6 +5,9 @@
         <component>
             <implementation-class>org.jetbrains.plugins.cbt.settings.StartupRoutine</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.cbt.settings.CbtGlobalSettings</implementation-class>
+        </component>
     </application-components>
 
     <extensions defaultExtensionNs="com.intellij">
