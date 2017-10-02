@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.cbt.settings
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components._
 
 import scala.beans.BeanProperty
@@ -26,7 +27,8 @@ class CbtGlobalSettings
 }
 
 object CbtGlobalSettings {
-  def instance: CbtGlobalSettings = ServiceManager.getService(classOf[CbtGlobalSettings])
+  def instance: CbtGlobalSettings =
+    ApplicationManager.getApplication.getComponent(classOf[CbtGlobalSettings])
 }
 
 
