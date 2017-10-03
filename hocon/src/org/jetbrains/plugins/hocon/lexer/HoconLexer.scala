@@ -132,6 +132,7 @@ class HoconLexer extends LexerBase {
             case _ => drain(offset + 1, escaping = false)
           }
         } else offset
+
       Some(TokenMatch(QuotedString, drain(1, escaping = false), onContents(state)))
     } else None
   }
@@ -161,7 +162,9 @@ class HoconLexer extends LexerBase {
     def matchToken(seq: CharSequence, state: State): Option[TokenMatch] = {
       var c = 0
       var nl = false
+
       def char = seq.charAt(c)
+
       while (c < seq.length && isHoconWhitespace(char)) {
         nl ||= char == '\n'
         c += 1

@@ -14,9 +14,9 @@ import org.jetbrains.plugins.hocon.lexer.HoconTokenType
 import org.jetbrains.plugins.hocon.psi.HoconPsiFile
 
 /**
- * HOCON line comments can start with either '//' or '#'. Unfortunately, only one of them can be declared in
- * [[HoconCommenter]] and so I need this custom enter handler for the other one.
- */
+  * HOCON line comments can start with either '//' or '#'. Unfortunately, only one of them can be declared in
+  * [[HoconCommenter]] and so I need this custom enter handler for the other one.
+  */
 class EnterInHashCommentHandler extends EnterHandlerDelegateAdapter {
   override def preprocessEnter(file: PsiFile, editor: Editor, caretOffsetRef: Ref[Integer], caretAdvance: Ref[Integer],
                                dataContext: DataContext, originalHandler: EditorActionHandler): Result =
@@ -69,6 +69,7 @@ class EnterInHashCommentHandler extends EnterHandlerDelegateAdapter {
 
         def lineNumber(psi: PsiElement) =
           editor.getDocument.getLineNumber(psi.getTextRange.getStartOffset)
+
         def isHashComment(psi: PsiElement) =
           psi != null && psi.getNode.getElementType == HoconTokenType.HashComment
 

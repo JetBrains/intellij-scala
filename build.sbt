@@ -31,7 +31,7 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
-  .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
+    .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations, hocon)
   .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
@@ -42,7 +42,7 @@ lazy val scalaCommunity: sbt.Project =
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
     addCompilerPlugin(Dependencies.macroParadise),
-    ideaInternalPlugins := Seq(
+    ideaInternalPlugins ++= Seq(
       "copyright",
       "gradle",
       "Groovy",
@@ -50,8 +50,7 @@ lazy val scalaCommunity: sbt.Project =
       "java-i18n",
       "android",
       "maven",
-      "junit",
-      "properties"
+      "junit"
     ),
     ideaInternalPluginsJars :=
       ideaInternalPluginsJars.value
@@ -118,6 +117,11 @@ lazy val macroAnnotations =
     addCompilerPlugin(Dependencies.macroParadise),
     libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler)
   ): _*)
+
+lazy val hocon =
+  newProject("hocon")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(ideaInternalPlugins += "properties")
 
 // Utility projects
 
@@ -194,7 +198,7 @@ lazy val jmhBenchmarks =
     .enablePlugins(JmhPlugin)
 
 // Testing keys and settings
-import TestCategory._
+import Common.TestCategory._
 
 addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOptTests")
 addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTests")
@@ -254,8 +258,8 @@ lazy val pluginPackagerCommunity =
       dependencyClasspath.in(sbtRuntimeDependencies, Compile).value
     ,
     mappings := {
-      import Packaging.PackageEntry._
       import Dependencies._
+      import Packaging.PackageEntry._
 
       val crossLibraries = (
         List(Dependencies.scalaParserCombinators, Dependencies.scalaXml) ++

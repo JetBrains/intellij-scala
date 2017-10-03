@@ -7,9 +7,9 @@ import org.jetbrains.plugins.hocon.lexer.HoconLexer
 import org.jetbrains.plugins.hocon.psi._
 
 /**
- * Manipulator for unquoted string literals. For now, it is registered for [[org.jetbrains.plugins.hocon.psi.HoconPsiElement]].
- * It will be registered for dedicated class after proper hierarchy of PSI classes for HOCON is implemented.
- */
+  * Manipulator for unquoted string literals. For now, it is registered for [[org.jetbrains.plugins.hocon.psi.HoconPsiElement]].
+  * It will be registered for dedicated class after proper hierarchy of PSI classes for HOCON is implemented.
+  */
 class HStringManipulator extends AbstractElementManipulator[HString] {
 
   import org.jetbrains.plugins.hocon.lexer.HoconTokenType._

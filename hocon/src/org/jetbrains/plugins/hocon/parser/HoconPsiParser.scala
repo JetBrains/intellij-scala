@@ -33,10 +33,12 @@ class HoconPsiParser extends PsiParser {
         @tailrec
         def goThrough(commentToken: IElementType, resultSoFar: Int, i: Int): Int = {
           def token = tokens.get(i)
+
           def text = getter.get(i)
 
           def entireLineComment =
             token == commentToken && (if (i > 0) tokens.get(i - 1) == LineBreakingWhitespace else atStreamEdge)
+
           def noBlankLineWhitespace =
             Whitespace.contains(token) && text.charIterator.count(_ == '\n') <= 1
 
@@ -329,7 +331,9 @@ class HoconPsiParser extends PsiParser {
       val endingMatcher = ValueEnding.orNewLineOrEof
 
       def tryParseNull = tryParse(passKeyword("null") && matches(endingMatcher), Null)
+
       def tryParseBoolean = tryParse((passKeyword("true") || passKeyword("false")) && matches(endingMatcher), Boolean)
+
       def tryParseNumber = tryParse(passNumber() && matches(endingMatcher), Number)
 
       @tailrec

@@ -25,7 +25,8 @@ class HoconPsiFile(provider: FileViewProvider) extends PsiFileImpl(HoconFileElem
         val sibling = notWhiteSpaceSibling(comment)(_.getNextSibling)
         entriesInner(sibling)
     }
-    
+
+
     entriesInner(getFirstChild)
   }
 

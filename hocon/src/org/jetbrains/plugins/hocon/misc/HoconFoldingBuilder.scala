@@ -57,4 +57,5 @@ class HoconFoldingBuilder extends FoldingBuilder {
       }
     }
   }
+
 }

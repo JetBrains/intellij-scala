@@ -2,14 +2,15 @@ package org.jetbrains.plugins.hocon.manipulators
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.{PsiManager, AbstractElementManipulator}
+import com.intellij.psi.{AbstractElementManipulator, PsiManager}
 import org.jetbrains.plugins.hocon.lexer.HoconLexer
-import org.jetbrains.plugins.hocon.psi.{HoconPsiElementFactory, HKey}
+import org.jetbrains.plugins.hocon.psi.{HKey, HoconPsiElementFactory}
 
 /**
   * @author ghik
   */
 class HKeyManipulator extends AbstractElementManipulator[HKey] {
+
   import org.jetbrains.plugins.hocon.lexer.HoconTokenType._
 
   def handleContentChange(key: HKey, range: TextRange, newContent: String): HKey = {
@@ -24,9 +25,9 @@ class HKeyManipulator extends AbstractElementManipulator[HKey] {
         escapedContent != newContent || newContent.exists(HoconLexer.ForbiddenCharsAndDot.contains)
 
     val quotedEscapedContent =
-      if(allStringTypes.contains(MultilineString))
+      if (allStringTypes.contains(MultilineString))
         "\"\"\"" + newContent + "\"\"\""
-      else if(allStringTypes.contains(QuotedString) || needsQuoting)
+      else if (allStringTypes.contains(QuotedString) || needsQuoting)
         "\"" + StringUtil.escapeStringCharacters(newContent) + "\""
       else
         newContent

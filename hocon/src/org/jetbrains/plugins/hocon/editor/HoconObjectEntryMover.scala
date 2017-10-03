@@ -11,38 +11,38 @@ import org.jetbrains.plugins.hocon.psi._
 import scala.annotation.tailrec
 
 /**
- * An implementation of [[com.intellij.codeInsight.editorActions.moveUpDown.StatementUpDownMover]] which can
- * move entire HOCON object entries (object fields or include statements).
- *
- * The entry being moved is being required to be the only entry in its own lines, i.e. there may not be any other
- * entry (or left/right object brace) in the first or last line occupied by the entry being moved. If this requirement is not
- * met, the "move statement" action will fallback to "move line".
- * <p/>
- * If the entry is "movable" (as defined above), the four scenarios are possible:
- * <p/>
- * 1. An object field may be "taken out" of its enclosing object field and have its prefix prepended, e.g.
- * {{{
- *   a {
- *     |b = c
- *   }
- * }}}
- * After "move statement up":
- * {{{
- *   a.|b = c
- *   a {
- *   }
- * }}}
- * <p/>
- * 2. An object field may be "inserted" into adjacent object field and have its prefix removed, i.e. a reverse
- * operation to "taking out". This is only possible when path of target field is a prefix of path of source field.
- * Also, caret must NOT be at position inside the path prefix that needs to be removed.
- * <p/>
- * 3. If neither "taking out" or "inserting" is possible, objeect entry may be simply swapped with its adjacent entry.
- * <p/>
- * 4. If there is no adjacent entry for swapping, object entry is simply swapped with adjacent line.
- *
- * @author ghik
- */
+  * An implementation of [[com.intellij.codeInsight.editorActions.moveUpDown.StatementUpDownMover]] which can
+  * move entire HOCON object entries (object fields or include statements).
+  *
+  * The entry being moved is being required to be the only entry in its own lines, i.e. there may not be any other
+  * entry (or left/right object brace) in the first or last line occupied by the entry being moved. If this requirement is not
+  * met, the "move statement" action will fallback to "move line".
+  * <p/>
+  * If the entry is "movable" (as defined above), the four scenarios are possible:
+  * <p/>
+  * 1. An object field may be "taken out" of its enclosing object field and have its prefix prepended, e.g.
+  * {{{
+  *   a {
+  *     |b = c
+  *   }
+  * }}}
+  * After "move statement up":
+  * {{{
+  *   a.|b = c
+  *   a {
+  *   }
+  * }}}
+  * <p/>
+  * 2. An object field may be "inserted" into adjacent object field and have its prefix removed, i.e. a reverse
+  * operation to "taking out". This is only possible when path of target field is a prefix of path of source field.
+  * Also, caret must NOT be at position inside the path prefix that needs to be removed.
+  * <p/>
+  * 3. If neither "taking out" or "inserting" is possible, objeect entry may be simply swapped with its adjacent entry.
+  * <p/>
+  * 4. If there is no adjacent entry for swapping, object entry is simply swapped with adjacent line.
+  *
+  * @author ghik
+  */
 class HoconObjectEntryMover extends LineMover {
   override def checkAvailable(editor: Editor, file: PsiFile, info: MoveInfo, down: Boolean): Boolean =
     super.checkAvailable(editor, file, info, down) && !editor.getSelectionModel.hasSelection &&
@@ -57,13 +57,14 @@ class HoconObjectEntryMover extends LineMover {
     val document = editor.getDocument
     val offset = editor.getCaretModel.getOffset
     val element = file.findElementAt(offset)
-    
+
     if (element == null) return false
-    
+
     val currentLine = document.getLineNumber(offset)
 
     def startLine(el: PsiElement) =
       document.getLineNumber(el.getTextRange.getStartOffset)
+
     def endLine(el: PsiElement) =
       document.getLineNumber(el.getTextRange.getEndOffset)
 
@@ -75,7 +76,7 @@ class HoconObjectEntryMover extends LineMover {
       entry.parent.exists(_.getTextRange.getStartOffset <= lineStart) &&
         entry.previousEntry.forall(_.getTextRange.getEndOffset < lineStart)
     }
-    
+
     def canInsertAfter(entry: HObjectEntry) = {
       val lineEnd = document.getLineEndOffset(endLine(entry))
       entry.parent.exists(_.getTextRange.getEndOffset >= lineEnd) &&
@@ -120,6 +121,7 @@ class HoconObjectEntryMover extends LineMover {
       if (isByEdge(field)) {
         def edgeLine(element: PsiElement) =
           if (down) endLine(element) else firstNonCommentLine(element)
+
         def canInsert(field: HObjectField) =
           if (down) canInsertAfter(field) else canInsertBefore(field)
 

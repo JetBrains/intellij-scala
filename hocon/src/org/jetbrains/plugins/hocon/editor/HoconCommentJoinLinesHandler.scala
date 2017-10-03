@@ -2,18 +2,17 @@ package org.jetbrains.plugins.hocon.editor
 
 import com.intellij.codeInsight.editorActions.JoinLinesHandlerDelegate
 import com.intellij.codeInsight.editorActions.JoinLinesHandlerDelegate.CANNOT_JOIN
-import com.intellij.lang.ASTNode
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.PsiFile
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.plugins.hocon.CommonUtil
-import org.jetbrains.plugins.hocon.lexer.{HoconTokenSets, HoconTokenType}
+import org.jetbrains.plugins.hocon.lexer.HoconTokenSets
 import org.jetbrains.plugins.hocon.psi.HoconPsiFile
 
 /**
- * HOCON line comments can start with either '//' or '#'. Unfortunately, only one of them can be declared in
- * [[HoconCommenter]] and so I need this custom join lines handler to properly handle both.
- */
+  * HOCON line comments can start with either '//' or '#'. Unfortunately, only one of them can be declared in
+  * [[HoconCommenter]] and so I need this custom join lines handler to properly handle both.
+  */
 class HoconCommentJoinLinesHandler extends JoinLinesHandlerDelegate {
   def tryJoinLines(document: Document, file: PsiFile, start: Int, end: Int): Int = file match {
     case _: HoconPsiFile =>

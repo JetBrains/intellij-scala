@@ -9,33 +9,32 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.{FileReference, FileReferenceSet}
 import org.jetbrains.plugins.hocon.CommonUtil._
 import org.jetbrains.plugins.hocon.HoconConstants._
-import org.jetbrains.plugins.scala.extensions._
 
 import scala.collection.JavaConverters._
 
 /**
- * FileReferenceSet subclass that tries to simulate how Typesafe Config handles includes with its
- * default includer implementation, <tt>com.typesafe.config.impl.SimpleIncluder</tt> -
- * as much as this is possible without access to actual runtime.
- * <p/>
- * This implementation will only try to resolve includes with <tt>classpath(...)</tt> qualifier or no qualifier -
- * that is, <tt>file(...)</tt> and <tt>url(...)</tt> are not supported since they can only be understood at runtime.
- * Also, for heuristic includes (no qualifier) in source, resource or library files, it is assumed that including file
- * was loaded from classpath resource and thus, included path will be interpreted as classpath resource relative to
- * current file. If including file is neither in sources or library, heuristic include will only be resolved if the
- * path is relative and resolution will be done relative to including file's parent directory.
- * <p/>
- * Files to include will be searched for in classpath of including file's containing module or - when including file
- * is in a library - joined classpath of all modules that directly depend on that library. Test sources and dependencies
- * are searched only when including file is also a test source or lies in a test dependency.
- * <p/>
- * Just like Typesafe Config, this implementation will try to guess extension of included resource to be either
- * <tt>.conf</tt>, <tt>.json</tt> or <tt>.properties</tt>. It is impossible to include a file with any other extension.
- * This constraint is also reflected by appropriate completion filter.
- * <p/>
- * If a reference resolves to multiple files, they will be sorted so that .conf files come first, .json files after
- * them and .properties files at the end. This reflects the order in which Typesafe Config merges those files.
- */
+  * FileReferenceSet subclass that tries to simulate how Typesafe Config handles includes with its
+  * default includer implementation, <tt>com.typesafe.config.impl.SimpleIncluder</tt> -
+  * as much as this is possible without access to actual runtime.
+  * <p/>
+  * This implementation will only try to resolve includes with <tt>classpath(...)</tt> qualifier or no qualifier -
+  * that is, <tt>file(...)</tt> and <tt>url(...)</tt> are not supported since they can only be understood at runtime.
+  * Also, for heuristic includes (no qualifier) in source, resource or library files, it is assumed that including file
+  * was loaded from classpath resource and thus, included path will be interpreted as classpath resource relative to
+  * current file. If including file is neither in sources or library, heuristic include will only be resolved if the
+  * path is relative and resolution will be done relative to including file's parent directory.
+  * <p/>
+  * Files to include will be searched for in classpath of including file's containing module or - when including file
+  * is in a library - joined classpath of all modules that directly depend on that library. Test sources and dependencies
+  * are searched only when including file is also a test source or lies in a test dependency.
+  * <p/>
+  * Just like Typesafe Config, this implementation will try to guess extension of included resource to be either
+  * <tt>.conf</tt>, <tt>.json</tt> or <tt>.properties</tt>. It is impossible to include a file with any other extension.
+  * This constraint is also reflected by appropriate completion filter.
+  * <p/>
+  * If a reference resolves to multiple files, they will be sorted so that .conf files come first, .json files after
+  * them and .properties files at the end. This reflects the order in which Typesafe Config merges those files.
+  */
 class IncludedFileReferenceSet(text: String, element: PsiElement, forcedAbsolute: Boolean, fromClasspath: Boolean)
   extends FileReferenceSet(text, element, 1, null, true) {
 
@@ -60,6 +59,7 @@ class IncludedFileReferenceSet(text: String, element: PsiElement, forcedAbsolute
   // code mostly based on similar bits in `FileReferenceSet` and `PsiFileReferenceHelper`
   override def computeDefaultContexts: ju.Collection[PsiFileSystemItem] = {
     val empty = ju.Collections.emptyList[PsiFileSystemItem]
+
     def single(fsi: PsiFileSystemItem) = ju.Collections.singletonList(fsi)
 
     val cf = getContainingFile
@@ -94,7 +94,8 @@ class IncludedFileReferenceSet(text: String, element: PsiElement, forcedAbsolute
       }
 
       def orderEntryScope = allScopes.reduceOption(_ union _)
-      def moduleScope = pfi.getModuleForFile(parent).toOption.map(_.getModuleRuntimeScope(false))
+
+      def moduleScope = Option(pfi.getModuleForFile(parent)).map(_.getModuleRuntimeScope(false))
 
       (orderEntryScope orElse moduleScope).map { scope =>
         // If there are any source roots with package prefix and that package is a subpackage of
@@ -113,7 +114,7 @@ class IncludedFileReferenceSet(text: String, element: PsiElement, forcedAbsolute
     if (fromClasspath)
       classpathDefaultContexts
     else if (!isAbsolutePathReference)
-      psiManager.findDirectory(parent).toOption.map(single).getOrElse(empty)
+      Option(psiManager.findDirectory(parent)).map(single).getOrElse(empty)
     else
       empty
   }

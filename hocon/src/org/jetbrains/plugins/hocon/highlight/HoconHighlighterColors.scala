@@ -2,7 +2,7 @@ package org.jetbrains.plugins.hocon.highlight
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.intellij.openapi.editor.{DefaultLanguageHighlighterColors => DLHC, HighlighterColors}
+import com.intellij.openapi.editor.{HighlighterColors, DefaultLanguageHighlighterColors => DLHC}
 
 object HoconHighlighterColors {
   final val BadCharacter = key("HOCON_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER)

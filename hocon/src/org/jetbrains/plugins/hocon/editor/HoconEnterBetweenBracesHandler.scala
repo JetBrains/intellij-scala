@@ -10,9 +10,10 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.hocon.lang.HoconLanguage
 
 /**
- * Like [[com.intellij.json.formatter.JsonEnterBetweenBracesHandler]]
- * @author ghik
- */
+  * Like [[com.intellij.json.formatter.JsonEnterBetweenBracesHandler]]
+  *
+  * @author ghik
+  */
 class HoconEnterBetweenBracesHandler extends EnterBetweenBracesHandler {
   override def preprocessEnter(file: PsiFile, editor: Editor, caretOffsetRef: Ref[Integer],
                                caretAdvance: Ref[Integer], dataContext: DataContext,
