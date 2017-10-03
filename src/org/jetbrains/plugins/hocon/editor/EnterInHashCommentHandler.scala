@@ -9,9 +9,9 @@ import com.intellij.openapi.util.Ref
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.util.text.CharArrayUtil
+import org.jetbrains.plugins.hocon.CommonUtil.notWhiteSpaceSibling
 import org.jetbrains.plugins.hocon.lexer.HoconTokenType
 import org.jetbrains.plugins.hocon.psi.HoconPsiFile
-import org.jetbrains.plugins.scala.extensions._
 
 /**
  * HOCON line comments can start with either '//' or '#'. Unfortunately, only one of them can be declared in
@@ -65,7 +65,7 @@ class EnterInHashCommentHandler extends EnterHandlerDelegateAdapter {
         val psiAtOffset = file.findElementAt(caretOffset)
         if (psiAtOffset == null) return Result.Continue
 
-        lazy val prevPsi = psiAtOffset.getPrevSiblingNotWhitespace
+        lazy val prevPsi = notWhiteSpaceSibling(psiAtOffset)(_.getPrevSibling)
 
         def lineNumber(psi: PsiElement) =
           editor.getDocument.getLineNumber(psi.getTextRange.getStartOffset)

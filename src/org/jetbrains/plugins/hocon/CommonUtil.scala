@@ -6,11 +6,32 @@ import java.{lang => jl, util => ju}
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.tree.{IElementType, TokenSet}
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import org.jetbrains.plugins.hocon.lexer.HoconTokenType
 
 import scala.collection.GenTraversableOnce
 import scala.language.implicitConversions
 
 object CommonUtil {
+
+  def notWhiteSpaceSibling(element: PsiElement)
+                          (sibling: PsiElement => PsiElement): PsiElement = {
+    var result = sibling(element)
+    while (isWhiteSpace(result)) {
+      result = sibling(result)
+    }
+    result
+  }
+
+  private[this] def isWhiteSpace(element: PsiElement): Boolean = element match {
+    case null => false
+    case _: PsiWhiteSpace => true
+    case _ => element.getNode.getElementType match {
+      case HoconTokenType.InlineWhitespace => true
+      case _ => false
+    }
+  }
+
   implicit def liftSingleToken(token: IElementType): TokenSet = TokenSet.create(token)
 
   implicit class TokenSetOps(val tokenSet: TokenSet) {
