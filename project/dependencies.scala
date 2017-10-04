@@ -117,7 +117,7 @@ object DependencyGroups {
     zincInterface
   )
 
-  val scalaCommunity: Seq[ModuleID] = Seq(
+  val scalaCore: Seq[ModuleID] = Seq(
     scalaLibrary,
     scalaReflect,
     scalaXml,

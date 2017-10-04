@@ -31,6 +31,10 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
+    .dependsOn(scalaCore)
+
+lazy val scalaCore: sbt.Project =
+  newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations, hocon)
   .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
@@ -39,7 +43,7 @@ lazy val scalaCommunity: sbt.Project =
     javacOptions in Global ++= Seq("-source", "1.8", "-target", "1.8"),
     scalacOptions in Global ++= Seq("-target:jvm-1.8", "-deprecation"),
     //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
-    libraryDependencies ++= DependencyGroups.scalaCommunity,
+    libraryDependencies ++= DependencyGroups.scalaCore,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
     addCompilerPlugin(Dependencies.macroParadise),
     ideaInternalPlugins ++= Seq(
@@ -49,6 +53,7 @@ lazy val scalaCommunity: sbt.Project =
       "IntelliLang",
       "java-i18n",
       "android",
+      "properties",
       "maven",
       "junit"
     ),
@@ -127,10 +132,10 @@ lazy val hocon =
 
 lazy val ideaRunner =
   newProject("ideaRunner", file("idea-runner"))
-  .dependsOn(Seq(jpsShared, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, decompiler).map(_ % Provided): _*)
+  .dependsOn(Seq(jpsShared, scalaRunner, runners, scalaCore, jpsPlugin, nailgunRunners, decompiler).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
-    unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value,
+    unmanagedJars in Compile := ideaMainJars.in(scalaCore).value,
     unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
     // run configuration
     fork in run := true,
@@ -194,7 +199,7 @@ lazy val sbtLaunchTestDownloader =
 
 lazy val jmhBenchmarks =
   newProject("jmhBenchmarks")
-    .dependsOn(scalaCommunity % "test->test")
+    .dependsOn(scalaCore % "test->test")
     .enablePlugins(JmhPlugin)
 
 // Testing keys and settings
@@ -263,7 +268,7 @@ lazy val pluginPackagerCommunity =
 
       val crossLibraries = (
         List(Dependencies.scalaParserCombinators, Dependencies.scalaXml) ++
-          DependencyGroups.scalaCommunity
+          DependencyGroups.scalaCore
         ).distinct
       val jps = Seq(
         Artifact(pack.in(jpsPlugin, Compile).value,
