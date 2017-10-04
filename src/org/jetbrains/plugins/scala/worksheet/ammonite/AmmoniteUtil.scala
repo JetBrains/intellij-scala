@@ -120,7 +120,7 @@ object AmmoniteUtil {
         val nv = s"${name}_$scalaVersion"
         
         val ivyPath = s"$group/$nv/jars|bundles/$version.jar"
-        val mavenPath = s"maven2/${group.replace('.', '/')}/$nv/$version/$nv-$version.jar"
+        val mavenPath = s"maven2/${group.replace('.', '/')}/$nv|$name/$version/$nv-$version.jar|$name-$version.jar"
         
         def tryIvy() = findFileByPattern(
           s"$getDefaultCachePath/$ivyPath", 
