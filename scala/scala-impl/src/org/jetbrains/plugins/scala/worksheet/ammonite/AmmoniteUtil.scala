@@ -116,20 +116,109 @@ object AmmoniteUtil {
   def findJarRoot(refElement: ScReferenceElement): Option[VirtualFile] = {
     AmmoniteUtil.extractLibInfo(refElement).flatMap {
       case LibInfo(group, name, version, scalaVersion) =>
-        val root = {
-          val r = new File(getDefaultCachePath, s"$group${File.separator}${name}_$scalaVersion")
-          val f = new File(r, "jars")
-          if (f.exists()) f else new File(r, "bundles")
-        }
-
-        val suffix = s"$version.jar"
-
-        if (root.exists() && root.isDirectory) root.listFiles().find(_.getName.endsWith(suffix)).flatMap {
+        val existsPredicate = (f: File) => f.exists()
+        val nv = s"${name}_$scalaVersion"
+        
+        val ivyPath = s"$group/$nv/jars|bundles/$version.jar"
+        val mavenPath = s"maven2/${group.replace('.', '/')}/$nv/$version/$nv-$version.jar"
+        
+        def tryIvy() = findFileByPattern(
+          s"$getDefaultCachePath/$ivyPath", 
+          existsPredicate
+        )
+        
+        def tryCoursier() = findFileByPattern(
+          s"$getCoursierCachePath/https/repo1.maven.org/$mavenPath",
+          existsPredicate
+        )
+        
+        tryIvy() orElse tryCoursier() flatMap { //todo more variants? 
           jarModuleRoot =>
             val jarRoot = JarFileSystem.getInstance().findLocalVirtualFileByPath(jarModuleRoot.getCanonicalPath)
             Option(jarRoot)
-        } else None
+        }
     }
+  }
+  
+  private def findFileByPattern(pattern: String, predicate: File => Boolean): Option[File] = {
+    abstract class PathPart[T] {
+      protected var current: Option[T] = None
+      def getCurrent: Option[T] = current
+      def hasNext: Boolean = false
+
+      def add(): Boolean
+      def reset()
+    }
+
+    case class SimplePart(p: String) extends PathPart[String] {
+      reset()
+      override def add(): Boolean = {
+        current = None
+        false
+      }
+      override def reset(): Unit = current = Option(p)
+    }
+
+    case class OrPart(ps: Iterable[String]) extends PathPart[String] {
+      private var it = ps.iterator
+      setCurrent()
+
+      override def add(): Boolean = it.hasNext && {setCurrent(); true}
+      override def hasNext: Boolean = it.hasNext
+      override def reset(): Unit = {
+        it = ps.iterator
+        setCurrent()
+      }
+
+      private def setCurrent() {
+        current = Option(it.next())
+      }
+    }
+
+    case class PathIterator(pathParts: Iterable[PathPart[String]]) extends Iterator[File] {
+      private var it = pathParts.iterator
+      private var currentDigit = pathParts.head
+      private var currentVal: Option[String] = Option(gluePath)
+
+      private def gluePath: String = pathParts.flatMap(_.getCurrent.toList).mkString(File.separator)
+
+      private def advance() {
+        if (!currentDigit.add()) {
+          val bf = currentDigit
+          while (!currentDigit.add() && it.hasNext) {
+            currentDigit = it.next()
+          }
+
+          if (currentDigit.getCurrent.isEmpty) return
+
+          pathParts.takeWhile(_ != currentDigit).foreach(_.reset())
+          bf.reset()
+
+          currentDigit = pathParts.head
+          it = pathParts.iterator
+        }
+
+        currentVal = Option(gluePath)
+      }
+
+      def hasNext: Boolean = currentVal.isDefined
+
+      def next(): File = {
+        val c = currentVal.get
+        currentVal = None
+        advance()
+        new File(c)
+      }
+    }
+    
+    PathIterator {
+      pattern.split('/').map {
+        part => part.split('|') match {
+          case Array(single) => SimplePart(single)
+          case multiple => OrPart(multiple)
+        }
+      }
+    }.find(predicate)
   }
 
   private def getResolveItem(library: Library, project: Project): Option[PsiDirectory] = getLibraryDirs(library, project).headOption
@@ -192,7 +281,9 @@ object AmmoniteUtil {
     if (result.length == 3) Some(LibInfo(result.head, result(1), result(2), scalaVersion getOrElse getScalaVersion(ref))) else None 
   }
 
-  def getDefaultCachePath: String = System.getProperty("user.home") + "/.ivy2/cache".replace('/', File.separatorChar)
+  def getDefaultCachePath: String = System.getProperty("user.home") + "/.ivy2/cache"
+  
+  def getCoursierCachePath: String = System.getProperty("user.home") + "/.coursier/cache/v1"
   
   def getModuleForFile(virtualFile: VirtualFile, project: Project): Option[Module] =
     Option(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
