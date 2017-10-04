@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.project.template.activator
+package org.jetbrains.sbt.project.template.techhub
 
 import javax.swing.Icon
 
@@ -11,14 +11,14 @@ import org.jetbrains.plugins.scala.icons.Icons
  * User: Dmitry.Naydanov
  * Date: 22.01.15.
  */
-class ScalaActivatorProjectTemplate extends ProjectTemplate {
+class TechHubProjectTemplate extends ProjectTemplate {
   override def getName: String = "Activator"
 
-  override def getDescription: String = "SBT-based project from a Lightbend Activator template"
+  override def getDescription: String = "sbt-based project from a Lightbend TechHub template"
 
   override def getIcon: Icon = Icons.LIGHTBEND_LOGO
 
   override def validateSettings(): ValidationInfo = null
 
-  override def createModuleBuilder(): AbstractModuleBuilder = new ActivatorProjectBuilder
+  override def createModuleBuilder(): AbstractModuleBuilder = new TechHubProjectBuilder
 }

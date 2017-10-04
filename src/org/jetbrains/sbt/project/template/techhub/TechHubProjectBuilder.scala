@@ -1,6 +1,7 @@
-package org.jetbrains.sbt.project.template.activator
+package org.jetbrains.sbt.project.template.techhub
 
-import java.io.File
+
+import java.io.{File, IOException}
 import javax.swing.{Icon, JTextField}
 
 import com.intellij.ide.projectWizard.ProjectSettingsStep
@@ -8,31 +9,32 @@ import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, Sdk
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
-import com.intellij.openapi.util.Condition
-import com.intellij.openapi.util.io.FileUtilRt
-import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.io.{FileUtil, FileUtilRt}
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.util.io.ZipUtil
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.project.template.activator.ActivatorRepoProcessor.DocData
+import org.jetbrains.sbt.project.template.techhub.TechHubStarterProjects.IndexEntry
+
+import scala.collection.JavaConverters._
 
 /**
  * User: Dmitry.Naydanov
  * Date: 21.01.15.
  */
-class ActivatorProjectBuilder extends 
+class TechHubProjectBuilder extends
   AbstractExternalModuleBuilder[SbtProjectSettings](SbtProjectSystem.Id, new SbtProjectSettings) with SbtRefreshCaller {
-  //TODO Refactor me
-  private var allTemplates: Map[String, DocData] = Map.empty
-  private val repoProcessor = new ActivatorCachedRepoProcessor
+
+  private var allTemplates: Map[String, IndexEntry] = Map.empty
+
   private lazy val settingsComponents = {
     downloadTemplateList()
-    new ActivatorTemplateList(allTemplates.toArray)
+    new TechHubTemplateList(allTemplates.values.toArray)
   }
 
   override def getGroupName: String = "Scala"
@@ -61,27 +63,20 @@ class ActivatorProjectBuilder extends
     module
   }
 
-  override def setupRootModel(modifiableRootModel: ModifiableRootModel) {
-    val selected = settingsComponents.getSelectedTemplate
+  override def setupRootModel(modifiableRootModel: ModifiableRootModel): Unit = {
+    val info = settingsComponents.getSelectedTemplate
 
-    allTemplates.get(selected) match {
-      case Some(info) =>
-        val contentPath = getContentEntryPath
-        if (StringUtil isEmpty contentPath) return
-
-        val contentRootDir = new File(contentPath)
-        FileUtilRt createDirectory contentRootDir
-
-        val vContentRootDir = LocalFileSystem.getInstance refreshAndFindFileByIoFile contentRootDir
-        if (vContentRootDir == null) return
-        //todo Looks like template name can't be set without some hack (activator itself can't do it)
-
-        createStub(info.id, contentPath)
-      case _ => error("Can't download template")
+    for {
+      contentPath <- Option(getContentEntryPath)
+      if contentPath.nonEmpty
+      contentRootDir = new File(contentPath)
+      if FileUtilRt createDirectory contentRootDir
+      vContentRootDir <- Option(LocalFileSystem.getInstance refreshAndFindFileByIoFile contentRootDir)
+    } {
+      createStub(info, contentPath)
+      modifiableRootModel.inheritSdk()
+      callForRefresh(modifiableRootModel.getProject)
     }
-
-    modifiableRootModel.inheritSdk()
-    callForRefresh(modifiableRootModel.getProject)
   }
 
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
@@ -89,9 +84,7 @@ class ActivatorProjectBuilder extends
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
     settingsStep.addSettingsComponent(settingsComponents.getMainPanel)
 
-    new SdkSettingsStep(settingsStep, this, new Condition[SdkTypeId] {
-      def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
-    }) {
+    new SdkSettingsStep(settingsStep, this, (t: SdkTypeId) => t != null && t.isInstanceOf[JavaSdk]) {
 
       override def updateDataModel() {
         settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
@@ -100,15 +93,12 @@ class ActivatorProjectBuilder extends
       override def validate(): Boolean = {
         val selected = settingsComponents.getSelectedTemplate
         if (selected == null) error("Select template")
-        
-        val context = settingsStep.getContext
 
         settingsStep match {
           case projectSettingsStep: ProjectSettingsStep =>
             projectSettingsStep.getPreferredFocusedComponent match {
               case field: JTextField =>
                 val txt = field.getText
-                if (context.isCreatingNewProject && !isIdentifier(txt)) error("SBT Project name must be valid Scala identifier")
               case _ =>
             }
           case _ =>
@@ -125,20 +115,63 @@ class ActivatorProjectBuilder extends
 
   private def error(msg: String) = throw new ConfigurationException(msg, "Error")
 
-  private def createStub(id: String, path: String) {
+  private def createStub(info: IndexEntry, path: String): Unit = {
     val moduleDir = new File(path)
     if (!moduleDir.exists()) moduleDir.mkdirs()
 
-    doWithProgress(repoProcessor.createTemplate(id, moduleDir, error), "Downloading template...")
+    doWithProgress(
+      createTemplate(info, moduleDir, getName),
+      "Downloading template..."
+    )
   }
 
-  private def downloadTemplateList() {
-    doWithProgress({allTemplates = repoProcessor.extractRepoData()}, "Downloading list of templates...")
+  private def downloadTemplateList(): Unit = {
+    doWithProgress(
+      // TODO report errors
+      {allTemplates = TechHubStarterProjects.downloadIndex().get},
+      "Downloading list of templates...")
   }
 
   private def doWithProgress(body: => Unit, title: String) {
-    ProgressManager.getInstance().runProcessWithProgressSynchronously(new Runnable {
-      override def run(): Unit = body
-    }, title, false, null)
+    ProgressManager.getInstance().runProcessWithProgressSynchronously(
+      new Runnable { override def run(): Unit = body },
+      title, false, null)
   }
+
+
+
+  private def createTemplate(template: IndexEntry, createIn: File, name: String) {
+    val contentDir = FileUtil.createTempDirectory(s"${template.templateName}-template-content", "", true)
+    val contentFile =  new File(contentDir, "content.zip")
+
+    contentFile.createNewFile()
+
+    downloadTemplate(template, contentFile, name)
+
+    ZipUtil.extract(contentFile, contentDir,
+      (dir,name) => {
+        // filter out included sbt launcher stuff
+        name != "sbt" &&
+          name != "sbt.bat" &&
+          ! dir.toPath.iterator.asScala.exists(_.getFileName == "sbt-dist")
+      })
+
+    // there should be just the one directory that contains the prepared project
+    val dirs = contentDir.listFiles(f => f.isDirectory)
+    assert(dirs.size == 1)
+    val projectDir = dirs.head
+    FileUtil.copyDirContent(projectDir, createIn)
+  }
+
+  private def downloadTemplate(entry: IndexEntry, pathTo: File, name: String, indicator: Option[ProgressIndicator] = None): Unit = {
+    try {
+      // hack to pass required name param when necessary. currently only name param is ever required in the templates
+      val url = s"entry.downloadUrl?name=$name"
+      TechHubDownloadUtil.downloadContentToFile(indicator, url, pathTo)
+    } catch {
+      case io: IOException =>
+        error(io.getMessage)
+    }
+  }
+
 }
