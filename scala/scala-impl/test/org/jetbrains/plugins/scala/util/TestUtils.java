@@ -85,7 +85,7 @@ public class TestUtils {
         if (f1.exists()) {
           TEST_DATA_PATH = f1.getAbsolutePath();
         } else {
-          File f2 = findTestDataDir(new File(".").getCanonicalFile());
+          File f2 = findTestDataDir(new File("scala/scala-impl").getCanonicalFile());
           TEST_DATA_PATH = f2.getAbsolutePath();
         }
         if (resource != null) {
