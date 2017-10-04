@@ -1,5 +1,7 @@
 package org.jetbrains.sbt.project.template.techhub
 
+import java.io.{File, IOException}
+
 import com.google.gson.Gson
 
 import scala.util.Try
@@ -41,6 +43,17 @@ object TechHubStarterProjects {
         .filterNot { entry => entry.keywords.contains("rp-v1")}
         .map { entry => (entry.templateName, entry) }
         .toMap
+    }
+  }
+
+  def downloadTemplate(entry: IndexEntry, pathTo: File, name: String, onError: String => Unit): Unit = {
+    try {
+      // hack to pass required name param when necessary. currently only name param is ever required in the templates
+      val url = s"${entry.downloadUrl}?name=$name"
+      TechHubDownloadUtil.downloadContentToFile(url, pathTo)
+    } catch {
+      case io: IOException =>
+        onError(io.getMessage)
     }
   }
 }

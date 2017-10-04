@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.project.template.techhub
 
 
-import java.io.{File, IOException}
+import java.io.File
 import javax.swing.{Icon, JTextField}
 
 import com.intellij.ide.projectWizard.ProjectSettingsStep
@@ -9,7 +9,7 @@ import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, Sdk
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.io.{FileUtil, FileUtilRt}
@@ -39,7 +39,7 @@ class TechHubProjectBuilder extends
 
   override def getGroupName: String = "Scala"
 
-  override def getBuilderId: String = "ScalaActivatorProjectBuilderId"
+  override def getBuilderId: String = "ScalaTechHubProjectBuilderId"
 
   override def getNodeIcon: Icon = Sbt.Icon
 
@@ -125,20 +125,18 @@ class TechHubProjectBuilder extends
     )
   }
 
-  private def downloadTemplateList(): Unit = {
+  private def downloadTemplateList(): Unit =
     doWithProgress(
       // TODO report errors
       {allTemplates = TechHubStarterProjects.downloadIndex().get},
-      "Downloading list of templates...")
-  }
+      "Downloading list of templates..."
+    )
 
-  private def doWithProgress(body: => Unit, title: String) {
+  private def doWithProgress(body: => Unit, title: String): Unit =
     ProgressManager.getInstance().runProcessWithProgressSynchronously(
       new Runnable { override def run(): Unit = body },
-      title, false, null)
-  }
-
-
+      title, false, null
+    )
 
   private def createTemplate(template: IndexEntry, createIn: File, name: String) {
     val contentDir = FileUtil.createTempDirectory(s"${template.templateName}-template-content", "", true)
@@ -146,15 +144,9 @@ class TechHubProjectBuilder extends
 
     contentFile.createNewFile()
 
-    downloadTemplate(template, contentFile, name)
+    TechHubStarterProjects.downloadTemplate(template, contentFile, name, onError = error(_))
 
-    ZipUtil.extract(contentFile, contentDir,
-      (dir,name) => {
-        // filter out included sbt launcher stuff
-        name != "sbt" &&
-          name != "sbt.bat" &&
-          ! dir.toPath.iterator.asScala.exists(_.getFileName == "sbt-dist")
-      })
+    ZipUtil.extract(contentFile, contentDir, filterSbtBallast(_,_))
 
     // there should be just the one directory that contains the prepared project
     val dirs = contentDir.listFiles(f => f.isDirectory)
@@ -163,15 +155,12 @@ class TechHubProjectBuilder extends
     FileUtil.copyDirContent(projectDir, createIn)
   }
 
-  private def downloadTemplate(entry: IndexEntry, pathTo: File, name: String, indicator: Option[ProgressIndicator] = None): Unit = {
-    try {
-      // hack to pass required name param when necessary. currently only name param is ever required in the templates
-      val url = s"entry.downloadUrl?name=$name"
-      TechHubDownloadUtil.downloadContentToFile(indicator, url, pathTo)
-    } catch {
-      case io: IOException =>
-        error(io.getMessage)
-    }
+  /** Filter sbt launcher and scripts included in archive. */
+  private def filterSbtBallast(dir: File, name: String) = {
+    name != "sbt" &&
+    name != "sbt.bat" &&
+    name != "sbt-dist" &&
+    ! dir.toPath.iterator.asScala.toSeq.exists(_.getFileName.toString == "sbt-dist")
   }
 
 }

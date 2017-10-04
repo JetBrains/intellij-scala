@@ -21,13 +21,13 @@ import scala.util.{Failure, Try}
 object TechHubDownloadUtil {
   private val CONTENT_LENGTH_TEMPLATE: String = "${content-length}"
 
-  def downloadContentToFile(progress: Option[ProgressIndicator], url: String, outputFile: File): Unit = {
+  def downloadContentToFile(url: String, outputFile: File): Unit = {
     val parentDirExists: Boolean = FileUtil.createParentDirs(outputFile)
     if (!parentDirExists) throw new IOException(s"Parent dir of '${outputFile.getAbsolutePath}' could not be created!")
 
     val out = new BufferedOutputStream(new FileOutputStream(outputFile))
     try {
-      download(progress, url, out)
+      download(None, url, out)
     } finally out.close()
   }
 
