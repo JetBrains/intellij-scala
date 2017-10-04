@@ -31,7 +31,8 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
-    .dependsOn(scalaCore)
+    .dependsOn(scalaCore % "test;compile;test->test")
+    .aggregate(scalaCore)
 
 lazy val scalaCore: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
