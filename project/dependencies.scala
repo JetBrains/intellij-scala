@@ -8,7 +8,6 @@ object Versions {
   val ideaVersion = "173.2463.16"
   val sbtStructureVersion: String = "2017.2"
   val sbtIdeaShellVersion: String = "2017.2"
-  val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
   val wagonVersion = "2.6"
@@ -82,7 +81,6 @@ object Dependencies {
   //  val specs2: ModuleID = "org.specs2" %% "specs2-core" % "3.9.1" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
   val specs2: ModuleID = "org.specs2" %% "specs2-core" % "2.4.17" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
 
-  val luceneCore: ModuleID = "org.apache.lucene" % "lucene-core" % luceneVersion
   val commonsLang: ModuleID = "commons-lang" % "commons-lang" % "2.6"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
 
@@ -128,7 +126,6 @@ object DependencyGroups {
     evoInflector,
     scalatestFindersPatched,
     jamm,
-    luceneCore,
     scalastyle,
     scalariform
   )

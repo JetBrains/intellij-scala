@@ -53,8 +53,7 @@ lazy val scalaCommunity: sbt.Project =
       "junit"
     ),
     ideaInternalPluginsJars :=
-      ideaInternalPluginsJars.value
-        .filterNot(cp => cp.data.getName.contains("lucene-core") || cp.data.getName.contains("junit-jupiter-api"))
+      ideaInternalPluginsJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api"))
     ,
     Keys.aggregate.in(updateIdea) := false,
     test in Test := test.in(Test).dependsOn(setUpTestEnvironment).value,
