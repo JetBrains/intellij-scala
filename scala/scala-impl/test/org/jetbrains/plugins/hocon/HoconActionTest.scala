@@ -2,10 +2,10 @@ package org.jetbrains.plugins.hocon
 
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.psi.PsiFile
-import com.intellij.testFramework.TestActionEvent
+import com.intellij.testFramework.{LightPlatformTestCase, TestActionEvent}
+import org.junit.Assert.assertNotNull
 
 /**
   * @author ghik
@@ -23,13 +23,16 @@ abstract class HoconActionTest(actionId: String, subpath: String)
       else null
   }
 
+  import HoconFileSetTestCase._
+  import LightPlatformTestCase.getProject
+
   protected def transform(data: Seq[String]): String = {
     val (fileText, offset) = extractCaret(data.head)
-    val psiFile = HoconTestUtils.createPseudoPhysicalHoconFile(getProject, fileText)
+    val psiFile = createPseudoPhysicalHoconFile(fileText)
 
     val editorManager = FileEditorManager.getInstance(getProject)
     val editor = editorManager.openTextEditor(new OpenFileDescriptor(getProject, psiFile.getVirtualFile, 0), false)
-    assert(editor != null)
+    assertNotNull(editor)
     editor.getCaretModel.moveToOffset(offset)
 
     val dataContext = new MockDataContext(psiFile, editor)
