@@ -13,9 +13,7 @@
     <module name="ideaRunner" />
     <envs />
     <method>
-      <option name="BuildArtifacts" enabled="true">
-        <artifact name="probes" />
-      </option>
+      <option name="BuildArtifacts" enabled="true" />
     </method>
   </configuration>
 </component>
