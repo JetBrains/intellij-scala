@@ -173,16 +173,22 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     (root / "src" / "test" / "scala").mkdirs()
 
     writeToFile(buildFile, SbtModuleBuilder.formatProjectDefinition(name, platform, scalaVersion))
-    writeToFile(pluginsFile, SbtModuleBuilder.formatSbtPlugins(platform))
     writeToFile(propertiesFile, SbtModuleBuilder.formatSbtProperties(sbtVersion))
+    SbtModuleBuilder.formatSbtPlugins(platform) match {
+      case "" =>
+      case content =>
+        writeToFile(pluginsFile, content)
+    }
   }
 
-  private def sdkSettingsStep(settingsStep: SettingsStep) = {
+  private def sdkSettingsStep(settingsStep: SettingsStep): SdkSettingsStep = {
+
     val filter = new Condition[SdkTypeId] {
       def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
     }
 
     new SdkSettingsStep(settingsStep, this, filter) {
+
       override def updateDataModel() {
         settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
       }
@@ -263,14 +269,11 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     if (!externalProjectSettings.isUseAutoImport) {
       FileDocumentManager.getInstance.saveAllDocuments()
-      ApplicationManager.getApplication.invokeLater(new Runnable() {
-        override def run(): Unit =
-          ExternalSystemUtil.refreshProjects(
-            new ImportSpecBuilder(model.getProject, SbtProjectSystem.Id)
-                    .forceWhenUptodate()
-                    .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-          )
-      })
+      ApplicationManager.getApplication.invokeLater(() => ExternalSystemUtil.refreshProjects(
+        new ImportSpecBuilder(model.getProject, SbtProjectSystem.Id)
+          .forceWhenUptodate()
+          .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+      ))
     }
   }
 }
@@ -283,7 +286,7 @@ private object SbtModuleBuilder {
          |version := "0.1"
          |
          |scalaVersion := "$scalaVersion"
-        """.stripMargin
+        """.stripMargin.trim
 
     case Dotty =>
       s"""
@@ -292,7 +295,7 @@ private object SbtModuleBuilder {
          |version := "0.1"
          |
          |scalaVersion := "$scalaVersion"
-       """.stripMargin
+       """.stripMargin.trim
   }
 
   def formatSbtPlugins(platform: Platform): String = platform match {

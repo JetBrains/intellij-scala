@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.project.template.activator
+package org.jetbrains.sbt.project.template.techhub
 
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode

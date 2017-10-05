@@ -19,16 +19,6 @@ object Common {
   def newProject(projectName: String): Project =
     newProject(projectName, file(projectName))
 
-  def unmanagedJarsFrom(sdkDirectory: File, subdirectories: String*): Classpath = {
-    val sdkPathFinder = subdirectories.foldLeft(PathFinder.empty) { (finder, dir) =>
-      finder +++ (sdkDirectory / dir)
-    }
-    (sdkPathFinder * globFilter("*.jar")).classpath
-  }
-
-  def filterTestClasspath(classpath: Def.Classpath): Def.Classpath =
-    classpath.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))
-
   object TestCategory {
     private val pkg = "org.jetbrains.plugins.scala"
     private def cat(name: String) = s"$pkg.$name"
@@ -64,7 +54,6 @@ object Common {
       // to enable debugging of tests running in external sbt instance
 //      ,"-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=y"
     ),
-    envVars in Test += "NO_FS_ROOTS_ACCESS_CHECK" -> "yes",
-    fullClasspath in Test := fullClasspath.in(Test).map(filterTestClasspath).value
+    envVars in Test += "NO_FS_ROOTS_ACCESS_CHECK" -> "yes"
   )
 }

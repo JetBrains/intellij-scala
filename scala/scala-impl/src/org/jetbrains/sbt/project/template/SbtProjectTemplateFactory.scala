@@ -5,7 +5,7 @@ import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.platform.{ProjectTemplate, ProjectTemplatesFactory}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory
-import org.jetbrains.sbt.project.template.activator.ScalaActivatorProjectTemplate
+import org.jetbrains.sbt.project.template.techhub.TechHubProjectTemplate
 
 /**
   * User: Dmitry.Naydanov, Pavel Fatin
@@ -20,7 +20,7 @@ class SbtProjectTemplateFactory extends ProjectTemplatesFactory {
     if (context.isCreatingNewProject) {
       Array(
         new SbtProjectTemplate(),
-        new ScalaActivatorProjectTemplate)
+        new TechHubProjectTemplate)
     } else {
       Array.empty
     }

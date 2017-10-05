@@ -1,6 +1,9 @@
 package org.jetbrains.sbt
 package project.template
 
+import javax.swing.Icon
+
+import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectTemplate
 
 /**
@@ -12,9 +15,9 @@ class SbtProjectTemplate extends ProjectTemplate {
 
   override def getDescription = "SBT-based Scala project (recommended)"
 
-  override def getIcon = Sbt.Icon
+  override def getIcon: Icon = Sbt.Icon
 
   override def createModuleBuilder() = new SbtModuleBuilder()
 
-  override def validateSettings() = null
+  override def validateSettings(): ValidationInfo = null
 }
