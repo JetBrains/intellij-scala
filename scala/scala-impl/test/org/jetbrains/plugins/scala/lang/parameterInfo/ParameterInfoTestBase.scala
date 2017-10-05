@@ -123,6 +123,8 @@ object ParameterInfoTestBase {
     override def isSingleParameterInfo = false
 
     override def isSingleOverload = false
+
+    override def setupRawUIComponentPresentation(htmlText: String): Unit = {}
   }
 
   private def expectedSignatures(lastElement: PsiElement): Seq[Seq[String]] = {
