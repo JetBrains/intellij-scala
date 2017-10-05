@@ -29,6 +29,10 @@ addCommandAlias("packagePluginCommunity", "pluginPackagerCommunity/package")
 addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package")
 
 // Main projects
+lazy val scalaCommunityRoot: sbt.Project =
+  newProject("scalaCommunityRoot", file("."))
+    .aggregate(scalaCommunity)
+
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("scala/scala-impl"))
     .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations, hocon)
