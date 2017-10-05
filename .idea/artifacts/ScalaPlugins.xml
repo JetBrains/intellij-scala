@@ -33,7 +33,7 @@
         <element id="archive" name="scala-nailgun-runner.jar">
           <element id="module-output" name="nailgunRunners" />
         </element>
-        <element id="library" level="project" name="SBT: org.scalastyle:scalastyle_2.11:0.8.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalastyle:scalastyle_2.11:1.0.0:jar" />
         <element id="library" level="project" name="SBT: org.scalariform:scalariform_2.11:0.1.7:jar" />
         <element id="library" level="project" name="SBT: commons-lang:commons-lang:2.6:jar" />
         <element id="library" level="project" name="SBT: org.atteo:evo-inflector:1.2:jar" />
