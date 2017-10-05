@@ -81,7 +81,7 @@ public class TestUtils {
       ClassLoader loader = TestUtils.class.getClassLoader();
       URL resource = loader.getResource("testdata");
       try {
-        File f1 = new File("scala-plugin", "testdata");
+        File f1 = new File("scala-plugin/scala/scala-impl", "testdata");
         if (f1.exists()) {
           TEST_DATA_PATH = f1.getAbsolutePath();
         } else {
