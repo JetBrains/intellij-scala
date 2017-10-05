@@ -19,11 +19,11 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
 
   val testResolver = new SbtIvyResolver("Test repo", "/%s/sbt/resolvers/testIvyCache" format TestUtils.getTestDataPath)
 
-  def testDoNotAnnotateIndexedDep(): Unit =
-    doTest(Seq.empty)
+//  def testDoNotAnnotateIndexedDep(): Unit =
+//    doTest(Seq.empty)
 
-  def testDoNotAnnotateIndexedDepWithDynamicVersion(): Unit =
-    doTest(Seq.empty)
+//  def testDoNotAnnotateIndexedDepWithDynamicVersion(): Unit =
+//    doTest(Seq.empty)
 
   def testAnnotateUnresolvedDep(): Unit = {
     val msg = SbtBundle("sbt.annotation.unresolvedDependency")
