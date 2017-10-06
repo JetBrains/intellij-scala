@@ -10,21 +10,21 @@ import com.intellij.psi.PsiFileFactory
 import com.intellij.testFramework.PlatformTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.language.{SbtFileImpl, SbtFileType}
+import org.junit.Assert._
 
 /**
  * @author Nikolay Obedin
  * @since 8/4/14.
  */
 abstract class AnnotatorTestBase extends PlatformTestCase {
-
-  def testdataPath: String = TestUtils.getTestDataPath + "/annotator/Sbt/"
+  protected def testdataPath: String = s"${TestUtils.getTestDataPath}/annotator/Sbt/"
 
   def loadTestFile(): SbtFileImpl = {
-    val fileName = getTestName(false) + ".sbt"
-    val filePath = testdataPath + fileName
+    val filePath = s"$testdataPath/${getTestName(false)}.sbt"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
-    assert(file != null, "file " + filePath + " not found")
+    assertNotNull(filePath, file)
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    PsiFileFactory.getInstance(getProject).createFileFromText(fileName , SbtFileType, fileText).asInstanceOf[SbtFileImpl]
+    assertFalse(fileText.isEmpty)
+    PsiFileFactory.getInstance(getProject).createFileFromText(s"${getTestName(false)}.sbt", SbtFileType, fileText).asInstanceOf[SbtFileImpl]
   }
 }

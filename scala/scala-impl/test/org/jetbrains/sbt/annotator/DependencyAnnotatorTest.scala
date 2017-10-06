@@ -16,8 +16,10 @@ import org.jetbrains.sbt.resolvers.SbtIvyResolver
  * @since 8/4/14.
  */
 class DependencyAnnotatorTest extends AnnotatorTestBase {
-
-  val testResolver = new SbtIvyResolver("Test repo", "/%s/sbt/resolvers/testIvyCache" format TestUtils.getTestDataPath)
+  private val testResolver = {
+    val root = s"/${TestUtils.getTestDataPath}/sbt/resolvers/testIvyCache"
+    new SbtIvyResolver("Test repo", root)
+  }
 
 //  def testDoNotAnnotateIndexedDep(): Unit =
 //    doTest(Seq.empty)
@@ -42,20 +44,17 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
   override def setUp(): Unit = {
     super.setUp()
 
-
-    val moduleManager = Option(ModuleManager.getInstance(getProject))
-    moduleManager.foreach { manager =>
-      manager.getModules.toSeq.foreach { module =>
-        val resolvers = SbtModule.getResolversFrom(module)
-        SbtModule.setResolversTo(module, resolvers + testResolver)
-      }
+    val module = {
+      val moduleManager = ModuleManager.getInstance(getProject)
+      val modules = moduleManager.getModules
+      assertEquals(1, modules.length)
+      modules(0)
     }
-    testResolver.getIndex(myProject)
-      .foreach(_.doUpdate()(getProject))
-  }
 
-  override def tearDown(): Unit = {
-    super.tearDown()
+    SbtModule.setResolversTo(module, Set(testResolver))
+
+    val index = testResolver.getIndex(myProject).get
+    index.doUpdate()(getProject)
   }
 
   private def doTest(messages: Seq[Message]) {
