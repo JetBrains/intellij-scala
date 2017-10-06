@@ -29,14 +29,12 @@ addCommandAlias("packagePluginCommunity", "pluginPackagerCommunity/package")
 addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package")
 
 // Main projects
-lazy val scalaCommunity: sbt.Project =
-  newProject("scalaCommunity", file("."))
-    .dependsOn(scalaImpl %  "test->test;compile->compile")
-    .aggregate(scalaImpl)
-    .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
+lazy val scalaCommunityRoot: sbt.Project =
+  newProject("scalaCommunityRoot", file("."))
+    .aggregate(scalaCommunity)
 
-lazy val scalaImpl: sbt.Project =
-  newProject("scalaImpl", file("scala/scala-impl"))
+lazy val scalaCommunity: sbt.Project =
+  newProject("scalaCommunity", file("scala/scala-impl"))
     .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations, hocon)
   .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
