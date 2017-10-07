@@ -35,7 +35,7 @@ lazy val scalaCommunityRoot: sbt.Project =
 
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("scala/scala-impl"))
-    .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations, hocon)
+    .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
@@ -46,7 +46,7 @@ lazy val scalaCommunity: sbt.Project =
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
     addCompilerPlugin(Dependencies.macroParadise),
-    ideaInternalPlugins ++= Seq(
+    ideaInternalPlugins := Seq(
       "copyright",
       "gradle",
       "Groovy",
@@ -54,7 +54,8 @@ lazy val scalaCommunity: sbt.Project =
       "java-i18n",
       "android",
       "maven",
-      "junit"
+      "junit",
+      "properties"
     ),
     ideaInternalPluginsJars :=
       ideaInternalPluginsJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api"))
@@ -120,11 +121,6 @@ lazy val macroAnnotations =
     addCompilerPlugin(Dependencies.macroParadise),
     libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler)
   ): _*)
-
-lazy val hocon =
-  newProject("hocon")
-    .enablePlugins(SbtIdeaPlugin)
-    .settings(ideaInternalPlugins += "properties")
 
 // Utility projects
 
