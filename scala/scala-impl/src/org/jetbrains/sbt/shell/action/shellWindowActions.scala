@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.shell.action
 
-import javax.swing.Icon
+import java.awt.event.{InputEvent, KeyEvent}
+import javax.swing.{Icon, KeyStroke}
 
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.engine.RemoteDebugProcessHandler
@@ -19,12 +20,10 @@ import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShe
 import scala.collection.JavaConverters._
 
 class RestartAction(project: Project) extends DumbAwareAction {
-  copyFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_RERUN))
 
   val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Restart)
   templatePresentation.setText("Restart SBT Shell") // TODO i18n / language-bundle
-  templatePresentation.setDescription(null)
 
   def actionPerformed(e: AnActionEvent): Unit = {
     val twm = ToolWindowManager.getInstance(project)
@@ -58,6 +57,22 @@ class ExecuteTaskAction(task: String, icon: Option[Icon]) extends DumbAwareActio
   }
 }
 
+class EOFAction(project: Project) extends DumbAwareAction {
+
+  private val templatePresentation: Presentation = getTemplatePresentation
+  templatePresentation.setIcon(AllIcons.Actions.TraceOver) // TODO sensible icon
+  templatePresentation.setText("Ctrl+D EOF")
+  templatePresentation.setDescription("")
+
+  private val ctrlD = KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK)
+  private val shortcuts = new CustomShortcutSet(ctrlD)
+  setShortcutSet(shortcuts)
+
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    SbtShellCommunication.forProject(project).send("\u0004")
+  }
+}
+
 class DebugShellAction(project: Project, remoteConnection: RemoteConnection) extends ToggleAction {
 
   private val templatePresentation: Presentation = getTemplatePresentation
@@ -78,7 +93,7 @@ class DebugShellAction(project: Project, remoteConnection: RemoteConnection) ext
     findSession.fold(false) { session => session.isAttached || session.isConnecting }
   }
 
-  private def attach() = {
+  private def attach(): Unit = {
 
     val runManager = RunManager.getInstance(project)
 
@@ -101,7 +116,7 @@ class DebugShellAction(project: Project, remoteConnection: RemoteConnection) ext
 
   }
 
-  private def detach() = {
+  private def detach(): Unit = {
     val executionManager = ExecutionManager.getInstance(project)
     val descriptors = executionManager.getContentManager.getAllDescriptors
 

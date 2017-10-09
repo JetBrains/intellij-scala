@@ -10,7 +10,7 @@ import com.intellij.ide.actions.{NextOccurenceToolbarAction, PreviousOccurenceTo
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.sbt.shell.action.{DebugShellAction, ExecuteTaskAction, RestartAction, StopAction}
+import org.jetbrains.sbt.shell.action._
 
 /**
   * Created by jast on 2017-05-17.
@@ -32,12 +32,16 @@ class SbtShellConsoleView private(project: Project, debugConnection: Option[Remo
       debugConnection.map(new DebugShellAction(project, _)).toArray
 
     val myToolbarActions: Array[AnAction] = Array(
+      new EOFAction(project),
       new RestartAction(project),
       new StopAction(project),
       new ExecuteTaskAction("products", Option(AllIcons.Actions.Compile))
     )
 
-    defaultActions ++ conditionalDebugAction ++ myToolbarActions
+    val all = defaultActions ++ conditionalDebugAction ++ myToolbarActions
+    all.foreach {act => act.registerCustomShortcutSet(act.getShortcutSet, this) }
+
+    all
   }
 
 }

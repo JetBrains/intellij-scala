@@ -41,6 +41,16 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
     listener.future
   }
 
+  /**
+    * Send string directly to the shell without regarding the shell state.
+    * This should only be used to send keypresses such as ctrl+c
+    */
+  def send(keys: String): Unit =
+    process.usingWriter { shell =>
+      shell.print(keys)
+      shell.flush()
+    }
+
   /** Start processing command queue if it is not yet active. */
   private def startQueueProcessing(handler: OSProcessHandler): Unit = {
 
