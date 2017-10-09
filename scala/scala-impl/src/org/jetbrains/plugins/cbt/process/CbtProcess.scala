@@ -10,6 +10,7 @@ import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt._
 import org.jetbrains.plugins.cbt.project.settings.{CbtExecutionSettings, CbtProjectSettings, CbtSystemSettings}
 import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
+import org.jetbrains.plugins.cbt.settings.CbtGlobalSettings
 
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.{Failure, Success, Try}
@@ -60,7 +61,7 @@ object CbtProcess {
     val cbtExecutable =
       projectOpt
         .map(cbtExePath)
-        .getOrElse("cbt")
+        .getOrElse(lastUsedCbtExePath)
 
     val task = Seq(cbtExecutable) ++ (if (useDirect) Seq("direct") else Seq.empty) ++ action
     val exitCode = Process(task, root) ! logger
@@ -74,11 +75,12 @@ object CbtProcess {
 
   def cbtExePath(project: Project): String = {
     val path = CbtSystemSettings.instance(project).cbtExePath
-    if (path.trim.isEmpty) defaultCbtExePath
+    if (path.trim.isEmpty) lastUsedCbtExePath
     else path
   }
 
-  def defaultCbtExePath: String = "cbt"
+  def lastUsedCbtExePath: String =
+    CbtGlobalSettings.instance.lastUsedCbtExePath
 
   def generateGiter8Template(template: String, project: Project, root: File): Try[String] =
     runAction(Seq("tools", "g8", template), useDirect = true, root, Option(project), None)

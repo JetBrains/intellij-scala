@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.cbt.project.settings
 
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, ExternalSystemUiUtil, PaintAwarePanel}
+import org.jetbrains.plugins.cbt.settings.CbtGlobalSettings
 import org.jetbrains.sbt.settings.SbtSettingsPane
 
 class CbtSystemSettingsControl(settings: CbtSystemSettings)
@@ -21,6 +22,7 @@ class CbtSystemSettingsControl(settings: CbtSystemSettings)
 
   def apply(settings: CbtSystemSettings): Unit = {
     settings.cbtExePath = pane.cbtPath
+    CbtGlobalSettings.instance.lastUsedCbtExePath = pane.cbtPath
   }
 
   def reset(): Unit = {
