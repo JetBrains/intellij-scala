@@ -8,7 +8,7 @@ import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, Ext
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.project.ProjectManager
 import org.jetbrains.plugins.cbt.process.CbtProcess
-import org.jetbrains.plugins.cbt.project.settings.CbtExecutionSettings
+import org.jetbrains.plugins.cbt.project.settings.{CbtExecutionSettings, CbtSystemSettings}
 import org.jetbrains.plugins.cbt.project.template.CbtProjectImporter
 
 class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSettings] {
