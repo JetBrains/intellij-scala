@@ -3,12 +3,14 @@ package annotator
 
 import _root_.junit.framework.Assert._
 import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.module.SbtModule
 import org.jetbrains.sbt.resolvers.SbtIvyResolver
+import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
 
 
 /**
@@ -16,10 +18,7 @@ import org.jetbrains.sbt.resolvers.SbtIvyResolver
  * @since 8/4/14.
  */
 class DependencyAnnotatorTest extends AnnotatorTestBase {
-  private val testResolver = {
-    val root = s"/${TestUtils.getTestDataPath}/sbt/resolvers/testIvyCache"
-    new SbtIvyResolver("Test repo", root)
-  }
+  private val root = s"/${TestUtils.getTestDataPath}/sbt/resolvers/testIvyCache"
 
   def testDoNotAnnotateIndexedDep(): Unit =
     doTest(Seq.empty)
@@ -51,10 +50,17 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
       modules(0)
     }
 
+    val testResolver = new SbtIvyResolver("Test repo", root)
     SbtModule.setResolversTo(module, Set(testResolver))
 
     val index = testResolver.getIndex(myProject).get
     index.doUpdate()(getProject)
+  }
+
+  override def tearDown(): Unit = {
+    super.tearDown()
+
+    FileUtil.delete(ResolverIndex.getIndexDirectory(root))
   }
 
   private def doTest(messages: Seq[Message]) {
