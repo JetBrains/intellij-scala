@@ -211,7 +211,7 @@ val fastTestOptions = "-v -s -a +c +q " +
   s"--exclude-categories=$scalacTests " +
   s"--exclude-categories=$highlightingTests"
 
-addCommandAlias("runFastTests", s"testOnly -- $fastTestOptions")
+addCommandAlias("runFastTests", s"testOnly org.jetbrains.sbt.annotator.DependencyAnnotatorTest")
 // subsets of tests to split the complete test run into smaller chunks
 addCommandAlias("runFastTestsComIntelliJ", s"testOnly com.intellij.* -- $fastTestOptions")
 addCommandAlias("runFastTestsOrgJetbrains", s"testOnly org.jetbrains.* -- $fastTestOptions")

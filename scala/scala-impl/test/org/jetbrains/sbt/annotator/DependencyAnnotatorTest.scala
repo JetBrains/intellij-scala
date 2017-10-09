@@ -21,25 +21,25 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
     new SbtIvyResolver("Test repo", root)
   }
 
-//  def testDoNotAnnotateIndexedDep(): Unit =
-//    doTest(Seq.empty)
+  def testDoNotAnnotateIndexedDep(): Unit =
+    doTest(Seq.empty)
 
 //  def testDoNotAnnotateIndexedDepWithDynamicVersion(): Unit =
 //    doTest(Seq.empty)
 
-  def testAnnotateUnresolvedDep(): Unit = {
-    val msg = SbtBundle("sbt.annotation.unresolvedDependency")
-    doTest(Seq(Warning("\"org.jetbrains\"", msg),
-      Warning("\"unknown-lib\"", msg),
-      Warning("\"0.0.0\"", msg)))
-  }
-
-  def testAnnotateUnresolvedDepWithDynamicVersion(): Unit = {
-    val msg = SbtBundle("sbt.annotation.unresolvedDependency")
-    doTest(Seq(Warning("\"org.jetbrains\"", msg),
-      Warning("\"unknown-lib\"", msg),
-      Warning("\"latest.release\"", msg)))
-  }
+//  def testAnnotateUnresolvedDep(): Unit = {
+//    val msg = SbtBundle("sbt.annotation.unresolvedDependency")
+//    doTest(Seq(Warning("\"org.jetbrains\"", msg),
+//      Warning("\"unknown-lib\"", msg),
+//      Warning("\"0.0.0\"", msg)))
+//  }
+//
+//  def testAnnotateUnresolvedDepWithDynamicVersion(): Unit = {
+//    val msg = SbtBundle("sbt.annotation.unresolvedDependency")
+//    doTest(Seq(Warning("\"org.jetbrains\"", msg),
+//      Warning("\"unknown-lib\"", msg),
+//      Warning("\"latest.release\"", msg)))
+//  }
 
   override def setUp(): Unit = {
     super.setUp()
