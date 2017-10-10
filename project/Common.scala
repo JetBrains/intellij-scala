@@ -52,7 +52,7 @@ object Common {
       s"-Dsbt.ivy.home=$ivyHomeDir",
       s"-Dplugin.path=${packagedPluginDir.value}"
       // to enable debugging of tests running in external sbt instance
-//      "-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=y"
+//      ,"-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=y"
     ),
     envVars in Test += "NO_FS_ROOTS_ACCESS_CHECK" -> "yes"
   )

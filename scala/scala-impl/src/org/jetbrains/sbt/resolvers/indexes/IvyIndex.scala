@@ -39,10 +39,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
 
   private def withStorageCheck[T](f: => Set[T]): Set[T] = {
     try     { f }
-    catch   {
-      case _: Exception =>
-        Set.empty
-    }
+    catch   { case _: Exception => Set.empty }
     finally { checkStorage() }
   }
 
@@ -70,9 +67,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
 
   override def searchVersion(groupId: String, artifactId: String)(implicit project: ProjectContext): Set[String] = {
     withStorageCheck {
-      val str = SbtResolverUtils.joinGroupArtifact(groupId, artifactId)
-      val strings = groupArtifactToVersionMap.get(str)
-      Option(strings).getOrElse(Set.empty)
+      Option(groupArtifactToVersionMap.get(SbtResolverUtils.joinGroupArtifact(groupId, artifactId))).getOrElse(Set.empty)
     }
   }
 
