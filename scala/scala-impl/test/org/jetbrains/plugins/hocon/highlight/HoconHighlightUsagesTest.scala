@@ -1,28 +1,18 @@
 package org.jetbrains.plugins.hocon.highlight
 
+import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase
+import org.jetbrains.plugins.hocon.lang.HoconFileType.DefaultExtension
+import org.junit.Assert.assertEquals
 
 /**
- * @author ghik
- */
+  * @author ghik
+  */
 class HoconHighlightUsagesTest extends LightPlatformCodeInsightFixtureTestCase {
-
-  import org.junit.Assert._
 
   override def getTestDataPath: String = "testdata/hocon/highlight/usages"
 
   override def isWriteActionRequired: Boolean = false
-
-  private def testUsages(expectedHighlights: (Int, Int, Int)*): Unit = {
-    val nameNoPrefix = getTestName(false).stripPrefix("test")
-    val testName = nameNoPrefix(0).toLower + nameNoPrefix.substring(1)
-    val actualHighlights = myFixture.testHighlightUsages(testName + ".conf").toSeq.map { rh =>
-      val logicalStart = myFixture.getEditor.offsetToLogicalPosition(rh.getStartOffset)
-      val length = rh.getEndOffset - rh.getStartOffset
-      (logicalStart.line, logicalStart.column, length)
-    }
-    assertEquals(expectedHighlights.toSet, actualHighlights.toSet)
-  }
 
   def testSimple(): Unit = testUsages(
     (0, 0, 3),
@@ -54,4 +44,24 @@ class HoconHighlightUsagesTest extends LightPlatformCodeInsightFixtureTestCase {
   )
 
   def testSingle(): Unit = testUsages()
+
+  private def testUsages(expectedHighlights: (Int, Int, Int)*): Unit = {
+    val actualHighlights = highlights.map {
+      case (startOffset, endOffset) => (logicalPositionAt(startOffset), endOffset - startOffset)
+    }.map {
+      case (position, length) => (position.line, position.column, length)
+    }
+
+    assertEquals(expectedHighlights.toSet, actualHighlights.toSet)
+  }
+
+  private def logicalPositionAt(offset: Int): LogicalPosition =
+    myFixture.getEditor.offsetToLogicalPosition(offset)
+
+  private def highlights: Seq[(Int, Int)] = {
+    val testName = s"${getTestName(true)}.$DefaultExtension"
+    myFixture.testHighlightUsages(testName).map { highlighter =>
+      (highlighter.getStartOffset, highlighter.getEndOffset)
+    }
+  }
 }
