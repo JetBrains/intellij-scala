@@ -1,14 +1,14 @@
-package org.jetbrains.plugins.hocon.editor
+package org.jetbrains.plugins.hocon
+package editor
 
-import com.intellij.openapi.actionSystem.IdeActions
-import org.jetbrains.plugins.hocon.{HoconEditorActionTest, TestSuiteCompanion}
+import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_ENTER
 import org.junit.runner.RunWith
 import org.junit.runners.AllTests
 
 /**
- * @author ghik
- */
-object HoconEnterActionTest extends TestSuiteCompanion[HoconEnterActionTest]
-
+  * @author ghik
+  */
 @RunWith(classOf[AllTests])
-class HoconEnterActionTest extends HoconEditorActionTest(IdeActions.ACTION_EDITOR_ENTER, "enter")
+class HoconEnterActionTest extends HoconEditorActionTest(ACTION_EDITOR_ENTER, "enter")
+
+object HoconEnterActionTest extends TestSuiteCompanion[HoconEnterActionTest]
