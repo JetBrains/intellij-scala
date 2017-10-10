@@ -234,7 +234,7 @@ object WorksheetFileHook {
     val c = editor.getComponent
     val actions = UIUtil.getClientProperty(c, AnAction.ACTIONS_KEY)
     
-    if (actions contains WorksheetReplRunAction.ACTION_INSTANCE) {
+    if (actions != null && actions.contains(WorksheetReplRunAction.ACTION_INSTANCE)) {
       val al = new util.ArrayList(actions)
       al remove WorksheetReplRunAction.ACTION_INSTANCE
       UIUtil.putClientProperty(c, AnAction.ACTIONS_KEY, al)
