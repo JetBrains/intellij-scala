@@ -29,12 +29,13 @@ addCommandAlias("packagePluginCommunity", "pluginPackagerCommunity/package")
 addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package")
 
 // Main projects
-lazy val scalaCommunityRoot: sbt.Project =
-  newProject("scalaCommunityRoot", file("."))
-    .aggregate(scalaCommunity)
-
 lazy val scalaCommunity: sbt.Project =
-  newProject("scalaCommunity", file("scala/scala-impl"))
+  newProject("scalaCommunity", file("."))
+    .dependsOn(scalaImpl %  "test->test;compile->compile")
+    .aggregate(scalaImpl)
+
+lazy val scalaImpl: sbt.Project =
+  newProject("scalaImpl", file("scala/scala-impl"))
     .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
@@ -129,7 +130,7 @@ lazy val ideaRunner =
   .dependsOn(Seq(jpsShared, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, decompiler).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
-    unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value,
+    unmanagedJars in Compile := ideaMainJars.in(scalaImpl).value,
     unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
     // run configuration
     fork in run := true,
@@ -193,7 +194,7 @@ lazy val sbtLaunchTestDownloader =
 
 lazy val jmhBenchmarks =
   newProject("jmhBenchmarks")
-    .dependsOn(scalaCommunity % "test->test")
+    .dependsOn(scalaImpl % "test->test")
     .enablePlugins(JmhPlugin)
 
 // Testing keys and settings
@@ -293,7 +294,7 @@ lazy val pluginPackagerCommunity =
           "launcher/sbt-launch.jar")
       )
       val lib = Seq(
-        Artifact(pack.in(scalaCommunity, Compile).value,
+        Artifact(pack.in(scalaImpl, Compile).value,
           "lib/scala-plugin.jar"),
         Artifact(pack.in(decompiler, Compile).value,
           "lib/scalap.jar"),
