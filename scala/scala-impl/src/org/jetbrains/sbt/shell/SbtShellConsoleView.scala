@@ -1,13 +1,13 @@
 package org.jetbrains.sbt.shell
 
-import com.intellij.codeEditor.printing.PrintAction
 import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.console.LanguageConsoleImpl
 import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
 import com.intellij.execution.filters._
+import com.intellij.execution.impl.ConsoleViewImpl.ClearAllAction
 import com.intellij.icons.AllIcons
-import com.intellij.ide.actions.{NextOccurenceToolbarAction, PreviousOccurenceToolbarAction}
 import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.sbt.shell.action._
@@ -19,26 +19,26 @@ class SbtShellConsoleView private(project: Project, debugConnection: Option[Remo
   LanguageConsoleImpl(project, SbtShellFileType.getName, SbtShellLanguage) {
 
   override def createConsoleActions(): Array[AnAction] = {
-    val defaultActions =
-      // yay inheritance over composition -_-
-      super.createConsoleActions().filter {
-        case _: PreviousOccurenceToolbarAction => false
-        case _: NextOccurenceToolbarAction => false
-        case _: PrintAction => false
-        case _ => true
-      }
 
-    val conditionalDebugAction: Array[AnAction] =
-      debugConnection.map(new DebugShellAction(project, _)).toArray
+    // hackery because we can't construct those actions directly
+    val defaultActions = super.createConsoleActions()
+    val toggleSoftWrapsAction = defaultActions.find { a => a.isInstanceOf[ToggleUseSoftWrapsToolbarAction] }.get
+    val clearAllAction = defaultActions.find { a => a.isInstanceOf[ClearAllAction] }.get
+
+    val debugAction = debugConnection.map(new DebugShellAction(project, _))
+    val conditionalActions = Array(debugAction).flatten
 
     val myToolbarActions: Array[AnAction] = Array(
+      toggleSoftWrapsAction,
+      new SbtShellScrollToTheEndToolbarAction(getEditor),
+      clearAllAction,
       new EOFAction(project),
       new RestartAction(project),
       new StopAction(project),
-      new ExecuteTaskAction("products", Option(AllIcons.Actions.Compile))
+      new ExecuteTaskAction(this, "products", Option(AllIcons.Actions.Compile))
     )
 
-    val all = defaultActions ++ conditionalDebugAction ++ myToolbarActions
+    val all = conditionalActions ++ myToolbarActions
     all.foreach {act => act.registerCustomShortcutSet(act.getShortcutSet, this) }
 
     all

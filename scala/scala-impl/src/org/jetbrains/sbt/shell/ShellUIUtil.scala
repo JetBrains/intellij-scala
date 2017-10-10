@@ -8,13 +8,9 @@ import com.intellij.util.ui.UIUtil
   */
 object ShellUIUtil {
   def inUI(f: =>Unit): Unit = {
-    UIUtil.invokeLaterIfNeeded( new Runnable {
-      override def run(): Unit = f
-    })
+    UIUtil.invokeLaterIfNeeded(() => f)
   }
   def inUIsync[T](f: =>T): T = {
-    UIUtil.invokeAndWaitIfNeeded( new Computable[T] {
-      override def compute(): T = f
-    })
+    UIUtil.invokeAndWaitIfNeeded(() => f)
   }
 }

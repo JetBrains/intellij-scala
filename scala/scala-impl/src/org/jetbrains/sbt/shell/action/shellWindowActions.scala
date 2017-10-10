@@ -6,6 +6,7 @@ import javax.swing.{Icon, KeyStroke}
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.engine.RemoteDebugProcessHandler
 import com.intellij.execution.configurations.RemoteConnection
+import com.intellij.execution.console.LanguageConsoleView
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.impl.ExecutionManagerImpl
 import com.intellij.execution.remote.{RemoteConfiguration, RemoteConfigurationType}
@@ -13,11 +14,21 @@ import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.{ExecutionManager, ProgramRunnerUtil, RunManager}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
+import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import com.intellij.openapi.wm.ToolWindowManager
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellToolWindowFactory}
 
 import scala.collection.JavaConverters._
+
+class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollToTheEndToolbarAction(editor) {
+
+  private val end = KeyStroke.getKeyStroke(KeyEvent.VK_END, InputEvent.CTRL_DOWN_MASK)
+  private val shortcuts = new CustomShortcutSet(end)
+  setShortcutSet(shortcuts)
+}
 
 class RestartAction(project: Project) extends DumbAwareAction {
 
@@ -46,13 +57,14 @@ class StopAction(project: Project) extends DumbAwareAction {
   }
 }
 
-class ExecuteTaskAction(task: String, icon: Option[Icon]) extends DumbAwareAction {
+class ExecuteTaskAction(console: LanguageConsoleView, task: String, icon: Option[Icon]) extends DumbAwareAction {
 
   getTemplatePresentation.setIcon(icon.orNull)
   getTemplatePresentation.setText(s"Execute $task")
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     // TODO execute with indicator
+    EditorUtil.scrollToTheEnd(console.getHistoryViewer)
     SbtShellCommunication.forProject(e.getProject).command(task)
   }
 }

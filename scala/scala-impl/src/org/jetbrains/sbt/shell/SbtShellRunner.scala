@@ -56,7 +56,8 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
   override def initAndRun(): Unit = {
     super.initAndRun()
-    ShellUIUtil.inUI {
+    import ShellUIUtil.inUI
+    inUI {
 
       // on Windows the terminal defaults to 80 columns which wraps and breaks highlighting.
       // Use a wider value that should be reasonable in most cases. Has no effect on Unix.
@@ -76,7 +77,15 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
         whenReady = if (!SbtRunner.isInTest) myConsoleView.setPrompt(">"),
         whenWorking = if (!SbtRunner.isInTest) myConsoleView.setPrompt("(busy) >")
       )
-      SbtProcessManager.forProject(project).attachListener(shellPromptChanger)
+
+      def scrollToEnd(): Unit = inUI {EditorUtil.scrollToTheEnd(getConsoleView.getEditor)}
+      val scrollOnStateChange = new SbtShellReadyListener(
+        whenReady = scrollToEnd(),
+        whenWorking = scrollToEnd()
+      )
+      val processManager = SbtProcessManager.forProject(project)
+      processManager.attachListener(shellPromptChanger)
+      processManager.attachListener(scrollOnStateChange)
       SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
 
       if (!SbtRunner.isInTest) {

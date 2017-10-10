@@ -9,6 +9,7 @@ import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil
