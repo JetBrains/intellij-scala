@@ -46,6 +46,7 @@ object Common {
     javaOptions in Test := Seq(
       "-Xms128m",
       "-Xmx4096m",
+      "-server",
       "-ea",
       s"-Didea.system.path=$testSystemDir",
       s"-Didea.config.path=$testConfigDir",
