@@ -7,26 +7,27 @@ import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import com.intellij.testFramework.EditorTestUtil
 import org.junit.Assert.assertNotNull
 
-abstract class HoconEditorActionTest(actionId: String, subpath: String) extends HoconActionTest(actionId, subpath) {
+abstract class HoconEditorActionTest protected(override protected val actionId: String,
+                                               subPath: String) extends HoconActionTest(actionId, subPath) {
 
   import HoconFileSetTestCase._
 
-  override protected def executeAction(dataContext: DataContext, editor: Editor): Unit = {
+  override protected def executeAction(dataContext: DataContext)
+                                      (implicit editor: Editor): String = {
     val actionHandler = EditorActionManager.getInstance.getActionHandler(actionId)
     assertNotNull(actionHandler)
 
+    val caretModel = editor.getCaretModel
     inWriteCommandAction {
-      actionHandler.execute(editor, editor.getCaretModel.getCurrentCaret, dataContext)
+      actionHandler.execute(editor, caretModel.getCurrentCaret, dataContext)
     }
-  }
 
-  protected def resultAfterAction(editor: Editor): String = {
     val fileText = editor.getDocument.getText
-    val caretOffset = editor.getCaretModel.getOffset
 
-    if (caretOffset >= 0 && caretOffset <= fileText.length)
-      fileText.substring(0, caretOffset) + EditorTestUtil.CARET_TAG + fileText.substring(caretOffset)
-    else
-      fileText
+    caretModel.getOffset match {
+      case offset if (0 to fileText.length).contains(offset) =>
+        fileText.substring(0, offset) + EditorTestUtil.CARET_TAG + fileText.substring(offset)
+      case _ => fileText
+    }
   }
 }
