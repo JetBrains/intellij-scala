@@ -2,8 +2,6 @@ package org.jetbrains.sbt.project.template.techhub
 
 import javax.swing.AbstractListModel
 
-import org.jetbrains.sbt.project.template.techhub.TechHubStarterProjects.IndexEntry
-
 class TemplateListModel(val items: Array[IndexEntry])
   extends AbstractListModel[IndexEntry] {
   private val temp = 12

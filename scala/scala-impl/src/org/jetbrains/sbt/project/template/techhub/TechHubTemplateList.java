@@ -5,7 +5,6 @@ import com.intellij.ui.components.JBList;
 import com.intellij.ui.speedSearch.ListWithFilter;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import org.jetbrains.sbt.project.template.techhub.TechHubStarterProjects.IndexEntry;
 
 import javax.swing.*;
 import java.awt.*;
