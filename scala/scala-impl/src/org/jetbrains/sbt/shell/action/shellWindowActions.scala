@@ -101,6 +101,9 @@ class DebugShellAction(project: Project, remoteConnection: RemoteConnection) ext
       findRunConfig
         .getOrElse {
           val rc = runManager.createConfiguration(configName, configFactory)
+          rc.setTemporary(true)
+          rc.setActivateToolWindowBeforeRun(false)
+          rc.setSingleton(true)
           runManager.setTemporaryConfiguration(rc)
           rc
         }
