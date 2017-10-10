@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.hocon.manipulators
+package org.jetbrains.plugins.hocon
+package manipulators
 
-import org.jetbrains.plugins.hocon.TestSuiteCompanion
 import org.jetbrains.plugins.hocon.psi.HString
 import org.junit.runner.RunWith
 import org.junit.runners.AllTests
 
-object HStringManipulatorTest extends TestSuiteCompanion[HStringManipulatorTest]
-
 @RunWith(classOf[AllTests])
-class HStringManipulatorTest extends HoconManipulatorTest[HString]("string")
+class HStringManipulatorTest extends HoconManipulatorTest(classOf[HString], "string")
+
+object HStringManipulatorTest extends TestSuiteCompanion[HStringManipulatorTest]

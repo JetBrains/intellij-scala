@@ -10,9 +10,6 @@ import org.junit.runners.AllTests
   * @author ghik
   */
 @RunWith(classOf[AllTests])
-class HoconMoveStatementUpActionTest extends HoconEditorActionTest(ACTION_MOVE_STATEMENT_UP_ACTION, "moveStatement/both") {
-
-  override protected def preprocessData(parts: Seq[String]): Seq[String] = parts.reverse
-}
+class HoconMoveStatementUpActionTest extends HoconEditorActionTest(ACTION_MOVE_STATEMENT_UP_ACTION, "moveStatement/up")
 
 object HoconMoveStatementUpActionTest extends TestSuiteCompanion[HoconMoveStatementUpActionTest]
