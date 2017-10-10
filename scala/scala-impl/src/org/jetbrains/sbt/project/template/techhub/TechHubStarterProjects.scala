@@ -49,7 +49,8 @@ object TechHubStarterProjects {
   def downloadTemplate(entry: IndexEntry, pathTo: File, name: String, onError: String => Unit): Unit = {
     try {
       // hack to pass required name param when necessary. currently only name param is ever required in the templates
-      val url = s"${entry.downloadUrl}?name=$name"
+      // _rawArchive=true gives us the template without any sbt launchers and scripts
+      val url = s"${entry.downloadUrl}?name=$name&_rawArchive_=true"
       TechHubDownloadUtil.downloadContentToFile(url, pathTo)
     } catch {
       case io: IOException =>

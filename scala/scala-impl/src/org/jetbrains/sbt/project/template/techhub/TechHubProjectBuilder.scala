@@ -146,21 +146,13 @@ class TechHubProjectBuilder extends
 
     TechHubStarterProjects.downloadTemplate(template, contentFile, name, onError = error(_))
 
-    ZipUtil.extract(contentFile, contentDir, filterSbtBallast(_,_))
+    ZipUtil.extract(contentFile, contentDir, null)
 
     // there should be just the one directory that contains the prepared project
     val dirs = contentDir.listFiles(f => f.isDirectory)
     assert(dirs.size == 1)
     val projectDir = dirs.head
     FileUtil.copyDirContent(projectDir, createIn)
-  }
-
-  /** Filter sbt launcher and scripts included in archive. */
-  private def filterSbtBallast(dir: File, name: String) = {
-    name != "sbt" &&
-    name != "sbt.bat" &&
-    name != "sbt-dist" &&
-    ! dir.toPath.iterator.asScala.toSeq.exists(_.getFileName.toString == "sbt-dist")
   }
 
 }
