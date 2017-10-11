@@ -4,6 +4,9 @@ import scala.language.implicitConversions
 import scala.language.postfixOps
 
 object Common {
+  lazy val communityFullClasspath: TaskKey[Classpath] =
+    taskKey[Classpath]("scalaCommunity module's fullClasspath in Compile and Test scopes")
+
   def newProject(projectName: String, base: File): Project =
     Project(projectName, base).settings(
       name := projectName,
@@ -18,6 +21,11 @@ object Common {
 
   def newProject(projectName: String): Project =
     newProject(projectName, file(projectName))
+
+  def deduplicatedClasspath(classpaths: Keys.Classpath*): Keys.Classpath = {
+    val merged = classpaths.foldLeft(Seq.empty[Attributed[File]]){(merged, cp) => merged ++ cp}
+    merged.sortBy(_.data.getCanonicalPath).distinct
+  }
 
   object TestCategory {
     private val pkg = "org.jetbrains.plugins.scala"
