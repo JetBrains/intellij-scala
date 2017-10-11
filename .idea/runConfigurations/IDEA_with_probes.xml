@@ -13,7 +13,7 @@
     <module name="ideaRunner" />
     <envs />
     <method>
-      <option name="BuildArtifacts" enabled="true" />
+      <option name="Make" enabled="false" />
     </method>
   </configuration>
 </component>
