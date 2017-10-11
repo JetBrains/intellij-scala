@@ -4,84 +4,74 @@ package includes
 import java.io.File
 
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.roots.{DependencyScope, LibraryOrderEntry, OrderRootType}
+import com.intellij.openapi.roots._
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.fixtures._
 import org.jetbrains.jps.model.java.JavaSourceRootType
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.ModuleExt
 
-import scala.collection.JavaConverters.mapAsJavaMapConverter
+import scala.collection.JavaConverters._
 
 /**
   * @author ghik
   */
 class HoconMultiModuleIncludeResolutionTest extends UsefulTestCase with HoconIncludeResolutionTest {
 
-  private var fixture: CodeInsightTestFixture = null
-  private var modules: Map[String, Module] = null
+  private var fixture: CodeInsightTestFixture = _
 
   override protected def rootPath = "testdata/hocon/includes/multimodule"
+
+  import HoconIncludeResolutionTest.inWriteAction
+  import HoconMultiModuleIncludeResolutionTest._
 
   override def setUp(): Unit = {
     super.setUp()
 
     val fixtureBuilder = IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(getName)
+
+    val moduleBuilders = subdirectories(rootPath)
+      .map((_, fixtureBuilder.addModule(classOf[JavaModuleFixtureBuilder[ModuleFixture]])))
+
+    moduleBuilders.foreach {
+      case (directory, builder) =>
+        builder.addContentRoot(directory.getPath)
+
+        def addLibrary(libraryName: String): Unit = {
+          import OrderRootType._
+          val mapping = Map(CLASSES -> "", SOURCES -> "src").mapValues { suffix =>
+            Array(new File(directory, libraryName + suffix).getPath)
+          }
+
+          builder.addLibrary(directory.getName + libraryName, mapping.asJava)
+        }
+
+        addLibrary("lib")
+        addLibrary("testlib")
+    }
+
     fixture = JavaTestFixtureFactory.getFixtureFactory.createCodeInsightFixture(fixtureBuilder.getFixture)
-
-    val baseDir = new File(rootPath)
-    val moduleDirs = baseDir.listFiles.sortBy(_.getName).iterator.filter(_.isDirectory)
-    val moduleFixtures = moduleDirs.map { dir =>
-      val builder = fixtureBuilder.addModule(classOf[JavaModuleFixtureBuilder[ModuleFixture]])
-      builder.addContentRoot(dir.getPath)
-
-      def libMapping(lib: String) =
-        Map(OrderRootType.CLASSES -> lib, OrderRootType.SOURCES -> (lib + "src"))
-          .mapValues(s => Array(new File(dir, s).getPath))
-          .asJava
-
-      builder.addLibrary(dir.getName + "lib", libMapping("lib"))
-      builder.addLibrary(dir.getName + "testlib", libMapping("testlib"))
-      (dir.getName, builder.getFixture)
-    }.toMap
-
     fixture.setUp()
     fixture.setTestDataPath(rootPath)
-
-    modules = moduleFixtures.mapValues(_.getModule)
 
     inWriteAction {
       LocalFileSystem.getInstance().refresh(false)
 
-      modules.values
-        .map(_.modifiableModel)
-        .foreach { model =>
-          val contentEntry = model.getContentEntries.head
-          contentEntry.addSourceFolder(contentEntry.getFile.findChild("src"), JavaSourceRootType.SOURCE)
-          contentEntry.addSourceFolder(contentEntry.getFile.findChild("testsrc"), JavaSourceRootType.TEST_SOURCE)
-          model.getOrderEntries.foreach {
-            case loe: LibraryOrderEntry if loe.getLibraryName.endsWith("testlib") =>
-              loe.setScope(DependencyScope.TEST)
-            case _ =>
-          }
-          model.commit()
-        }
+      val modules = moduleBuilders.map {
+        case (directory, builder) => (directory.getName, builder.getFixture.getModule)
+      }.toMap
 
-      def addDependency(dependingModule: Module, dependencyModule: Module): Unit = {
-        val model = dependingModule.modifiableModel
-        model.addModuleOrderEntry(dependencyModule).setExported(true)
-        model.commit()
+      val models = modules.mapValues { module =>
+        ModuleRootManager.getInstance(module).getModifiableModel
       }
+      models.values.foreach(setUpEntries)
 
-      addDependency(modules("modA"), modules("modB"))
-      addDependency(modules("modB"), modules("modC"))
+      addDependency(models("modA"), modules("modB"))
+      addDependency(models("modB"), modules("modC"))
     }
   }
 
   override def tearDown(): Unit = {
-    modules = null
     fixture.tearDown()
     fixture = null
     super.tearDown()
@@ -146,4 +136,35 @@ class HoconMultiModuleIncludeResolutionTest extends UsefulTestCase with HoconInc
 
   private def checkFile(path: String): Unit =
     checkFile(path, fixture.getProject)
+}
+
+object HoconMultiModuleIncludeResolutionTest {
+
+  private def subdirectories(path: String): Seq[File] =
+    new File(path).listFiles
+      .filter(_.isDirectory)
+      .sortBy(_.getName)
+
+  private def setUpEntries(model: ModifiableRootModel): Unit = {
+    val contentEntry = model.getContentEntries.head
+
+    def addSourceFolder(name: String, kind: JavaSourceRootType): Unit = {
+      contentEntry.addSourceFolder(contentEntry.getFile.findChild(name), kind)
+    }
+
+    import JavaSourceRootType._
+    addSourceFolder("src", SOURCE)
+    addSourceFolder("testsrc", TEST_SOURCE)
+
+    model.getOrderEntries.collect {
+      case entry: LibraryOrderEntry if entry.getLibraryName.endsWith("testlib") => entry
+    }.foreach(_.setScope(DependencyScope.TEST))
+
+    model.commit()
+  }
+
+  private def addDependency(model: ModifiableRootModel, module: Module): Unit = {
+    model.addModuleOrderEntry(module).setExported(true)
+    model.commit()
+  }
 }
