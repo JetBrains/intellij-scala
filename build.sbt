@@ -71,7 +71,8 @@ lazy val scalaImpl: sbt.Project =
       BuildInfoKey.constant("sbtStructureVersion", Versions.sbtStructureVersion),
       BuildInfoKey.constant("sbtIdeaShellVersion", Versions.sbtIdeaShellVersion),
       BuildInfoKey.constant("sbtLatest_0_13", Versions.Sbt.latest_0_13)
-    )
+    ),
+    fullClasspath in Test := deduplicatedClasspath((fullClasspath in Test).value, communityFullClasspath.value)
   )
 
 lazy val jpsPlugin =
@@ -240,6 +241,9 @@ cleanUpTestEnvironment in ThisBuild := {
 concurrentRestrictions in Global := Seq(
   Tags.limit(Tags.Test, 1)
 )
+
+communityFullClasspath in ThisBuild :=
+  deduplicatedClasspath(fullClasspath.in(scalaCommunity, Test).value, fullClasspath.in(scalaCommunity, Compile).value)
 
 // Packaging projects
 
