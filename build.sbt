@@ -31,8 +31,8 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
-    .dependsOn(scalaImpl %  "test->test;compile->compile")
-    .aggregate(scalaImpl)
+    .dependsOn(scalaImpl % "test->test;compile->compile", cbt % "test->test;compile->compile")
+    .aggregate(scalaImpl, cbt)
 
 lazy val scalaImpl: sbt.Project =
   newProject("scalaImpl", file("scala/scala-impl"))
@@ -122,6 +122,11 @@ lazy val macroAnnotations =
     addCompilerPlugin(Dependencies.macroParadise),
     libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler)
   ): _*)
+
+lazy val cbt =
+  newProject("cbt", file("cbt"))
+    .enablePlugins(SbtIdeaPlugin)
+    .dependsOn(scalaImpl % "test->test;compile->compile")
 
 // Utility projects
 
@@ -294,7 +299,9 @@ lazy val pluginPackagerCommunity =
           "launcher/sbt-launch.jar")
       )
       val lib = Seq(
-        Artifact(pack.in(scalaImpl, Compile).value,
+        MergedArtifact(Seq(
+          pack.in(scalaImpl, Compile).value,
+          pack.in(cbt, Compile).value),
           "lib/scala-plugin.jar"),
         Artifact(pack.in(decompiler, Compile).value,
           "lib/scalap.jar"),
