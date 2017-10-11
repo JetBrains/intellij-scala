@@ -1,44 +1,54 @@
 package org.jetbrains.plugins.hocon.includes
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.util.Computable
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{PsiFile, PsiManager}
-import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.hocon.lexer.HoconTokenType
 import org.jetbrains.plugins.hocon.psi.{HIncludeTarget, HoconPsiFile}
 import org.jetbrains.plugins.hocon.ref.IncludedFileReference
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.junit.Assert._
 
 /**
- * @author ghik
- */
+  * @author ghik
+  */
 trait HoconIncludeResolutionTest {
-  this: UsefulTestCase =>
 
-  protected def project: Project
+  protected def rootPath: String
 
-  protected def contentRoots: Array[VirtualFile]
+  protected final def contentRoot: Option[VirtualFile] = {
+    val fileSystem = LocalFileSystem.getInstance()
+    Option(fileSystem.findFileByPath(rootPath))
+  }
 
-  private def findFile(path: String): VirtualFile =
-    contentRoots.iterator.flatMap(_.findFileByRelativePath(path).toOption)
-      .toStream.headOption.getOrElse(throw new Exception("Could not find file " + path))
+  private def findVirtualFile(path: String): Option[VirtualFile] =
+    contentRoot.flatMap(file => Option(file.findFileByRelativePath(path)))
 
-  protected def findHoconFile(path: String): PsiFile =
-    PsiManager.getInstance(project).findFile(findFile(path)).asOptionOf[HoconPsiFile]
-      .getOrElse(throw new Exception("Could not find HOCON file " + path))
+  protected def findHoconFile(path: String, project: Project): Option[HoconPsiFile] = {
+    def toHoconFile(virtualFile: VirtualFile): Option[HoconPsiFile] =
+      PsiManager.getInstance(project).findFile(virtualFile) match {
+        case file: HoconPsiFile => Some(file)
+        case _ => None
+      }
 
-  protected def checkFile(path: String): Unit = {
-    val psiFile = findHoconFile(path)
+    findVirtualFile(path).flatMap(toHoconFile)
+  }
+
+  protected def checkFile(path: String, project: Project): Unit = {
+    val psiFile = findHoconFile(path, project).getOrElse(throw new RuntimeException)
 
     psiFile.depthFirst().foreach {
       case it: HIncludeTarget =>
-        val prevComments = it.parent.map(_.parent.map(_.nonWhitespaceChildren).getOrElse(Iterator.empty)).getOrElse(Iterator.empty)
+        val parent = it.parent
+        val prevComments = parent.map(_.parent.map(_.nonWhitespaceChildren).getOrElse(Iterator.empty)).getOrElse(Iterator.empty)
           .takeWhile(e => e.getNode.getElementType == HoconTokenType.HashComment)
           .toVector
 
         val references = it.getFileReferences
-        @inline def parentText = it.parent.map(_.getText).getOrElse("[No parent]")
+
+        def parentText = parent.map(_.getText).getOrElse("[No parent]")
 
         if (prevComments.nonEmpty) {
           assertTrue("No references in " + parentText, references.nonEmpty)
@@ -49,13 +59,17 @@ trait HoconIncludeResolutionTest {
             case _ =>
           }
 
-          val expectedFiles = prevComments.map(_.getText.stripPrefix("#")).mkString(",")
-            .split(',').iterator.map(_.trim).filter(_.nonEmpty).map(findFile).toSet
+          val expectedFiles = prevComments.flatMap(_.getText.stripPrefix("#").split(','))
+            .map(_.trim)
+            .filter(_.nonEmpty)
+            .flatMap(findVirtualFile)
 
-          val actualFiles = resolveResults.iterator
-            .map(_.getElement.asInstanceOf[PsiFile].getVirtualFile).toSet
+          val actualFiles = resolveResults.map(_.getElement)
+            .collect {
+              case file: PsiFile => file.getVirtualFile
+            }
 
-          assertEquals(parentText, expectedFiles, actualFiles)
+          assertEquals(parentText, expectedFiles.toSet, actualFiles.toSet)
         } else {
           assertTrue("Expected no references in " + parentText, references.isEmpty)
         }
@@ -63,4 +77,15 @@ trait HoconIncludeResolutionTest {
     }
   }
 
+}
+
+object HoconIncludeResolutionTest {
+
+  private[includes] def inWriteAction[T](body: => T) =
+    ApplicationManager.getApplication match {
+      case application if application.isWriteAccessAllowed => body
+      case application =>
+        val computable: Computable[T] = () => body
+        application.runWriteAction(computable)
+    }
 }

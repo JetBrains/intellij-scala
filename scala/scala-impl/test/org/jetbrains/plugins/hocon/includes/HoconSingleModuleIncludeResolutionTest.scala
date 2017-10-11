@@ -1,24 +1,47 @@
-package org.jetbrains.plugins.hocon.includes
+package org.jetbrains.plugins.hocon
+package includes
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.testFramework.LightPlatformTestCase
-import org.jetbrains.plugins.hocon.HoconLightMultiFileTestCase
+import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.testFramework.LightPlatformCodeInsightTestCase
+import com.intellij.testFramework.LightPlatformTestCase.{getModule, getProject}
+import com.intellij.testFramework.PsiTestUtil.removeContentEntry
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert.fail
 
-class HoconSingleModuleIncludeResolutionTest extends HoconLightMultiFileTestCase with HoconIncludeResolutionTest {
+class HoconSingleModuleIncludeResolutionTest extends LightPlatformCodeInsightTestCase with HoconIncludeResolutionTest {
 
-  protected def project: Project = LightPlatformTestCase.getProject
+  import HoconIncludeResolutionTest._
 
-  protected def contentRoots: Array[VirtualFile] =
-    Array(LocalFileSystem.getInstance.findFileByPath(rootPath))
+  protected def rootPath = s"${TestUtils.getTestDataPath}/hocon/includes/singlemodule"
 
-  protected def rootPath = baseRootPath + "includes/singlemodule"
+  override def setUp(): Unit = {
+    super.setUp()
 
-  def testIncludesFromToplevel(): Unit = {
+    val rootModel = ModuleRootManager.getInstance(getModule).getModifiableModel
+    val testDataRoot = contentRoot.getOrElse {
+      fail()
+      return
+    }
+
+    rootModel.addContentEntry(testDataRoot)
+      .addSourceFolder(testDataRoot, false)
+
+    inWriteAction {
+      rootModel.commit()
+    }
+  }
+
+  override def tearDown(): Unit = {
+    contentRoot.foreach(removeContentEntry(getModule, _))
+    super.tearDown()
+  }
+
+  def testIncludesFromTopLevel(): Unit =
     checkFile("including.conf")
-  }
 
-  def testIncludesFromWithinPackage(): Unit = {
+  def testIncludesFromWithinPackage(): Unit =
     checkFile("pkg/including.conf")
-  }
+
+  private def checkFile(path: String): Unit =
+    checkFile(path, getProject)
 }
