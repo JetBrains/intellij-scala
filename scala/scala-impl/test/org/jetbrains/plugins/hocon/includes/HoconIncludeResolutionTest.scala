@@ -4,12 +4,11 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.psi.{PsiFile, PsiManager}
+import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import org.jetbrains.plugins.hocon.lexer.HoconTokenType
 import org.jetbrains.plugins.hocon.psi.{HIncludeTarget, HoconPsiFile}
 import org.jetbrains.plugins.hocon.ref.IncludedFileReference
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.junit.Assert._
+import org.junit.Assert.{assertEquals, assertTrue}
 
 /**
   * @author ghik
@@ -39,41 +38,42 @@ trait HoconIncludeResolutionTest {
   protected def checkFile(path: String, project: Project): Unit = {
     val psiFile = findHoconFile(path, project).getOrElse(throw new RuntimeException)
 
-    psiFile.depthFirst().foreach {
-      case it: HIncludeTarget =>
-        val parent = it.parent
-        val prevComments = parent.map(_.parent.map(_.nonWhitespaceChildren).getOrElse(Iterator.empty)).getOrElse(Iterator.empty)
-          .takeWhile(e => e.getNode.getElementType == HoconTokenType.HashComment)
-          .toVector
+    new HoconIncludeResolutionTest.DepthFirstIterator(psiFile).collect {
+      case target: HIncludeTarget => target
+    }.foreach { target =>
+      val parent = target.parent
+      val prevComments = parent.map(_.parent.map(_.nonWhitespaceChildren).getOrElse(Iterator.empty)).getOrElse(Iterator.empty)
+        .takeWhile(e => e.getNode.getElementType == HoconTokenType.HashComment)
+        .toVector
 
-        val references = it.getFileReferences
+      val references = target.getFileReferences
 
-        def parentText = parent.map(_.getText).getOrElse("[No parent]")
+      def parentText = parent.map(_.getText).getOrElse("[No parent]")
 
-        if (prevComments.nonEmpty) {
-          assertTrue("No references in " + parentText, references.nonEmpty)
-          val resolveResults = references.last.multiResolve(false)
-          resolveResults.sliding(2).foreach {
-            case Array(rr1, rr2) =>
-              assertTrue(IncludedFileReference.ResolveResultOrdering.lteq(rr1, rr2))
-            case _ =>
+      if (prevComments.nonEmpty) {
+        assertTrue("No references in " + parentText, references.nonEmpty)
+        val resolveResults = references.last.multiResolve(false)
+        resolveResults.sliding(2).foreach {
+          case Array(rr1, rr2) =>
+            assertTrue(IncludedFileReference.ResolveResultOrdering.lteq(rr1, rr2))
+          case _ =>
+        }
+
+        val expectedFiles = prevComments.flatMap(_.getText.stripPrefix("#").split(','))
+          .map(_.trim)
+          .filter(_.nonEmpty)
+          .flatMap(findVirtualFile)
+
+        val actualFiles = resolveResults
+          .map(_.getElement)
+          .collect {
+            case file: PsiFile => file.getVirtualFile
           }
 
-          val expectedFiles = prevComments.flatMap(_.getText.stripPrefix("#").split(','))
-            .map(_.trim)
-            .filter(_.nonEmpty)
-            .flatMap(findVirtualFile)
-
-          val actualFiles = resolveResults.map(_.getElement)
-            .collect {
-              case file: PsiFile => file.getVirtualFile
-            }
-
-          assertEquals(parentText, expectedFiles.toSet, actualFiles.toSet)
-        } else {
-          assertTrue("Expected no references in " + parentText, references.isEmpty)
-        }
-      case _ =>
+        assertEquals(parentText, expectedFiles.toSet, actualFiles.toSet)
+      } else {
+        assertTrue("Expected no references in " + parentText, references.isEmpty)
+      }
     }
   }
 
@@ -88,4 +88,25 @@ object HoconIncludeResolutionTest {
         val computable: Computable[T] = () => body
         application.runWriteAction(computable)
     }
+
+  private class DepthFirstIterator(file: HoconPsiFile) extends Iterator[PsiElement] {
+
+    private var stack: List[PsiElement] = Nil
+
+    def hasNext: Boolean = stack.nonEmpty
+
+    def next(): PsiElement = {
+      val head :: tail = stack
+      stack = tail
+
+      var child = head.getLastChild
+      while (child != null) {
+        stack = child :: stack
+        child = child.getPrevSibling
+      }
+
+      head
+    }
+  }
+
 }
