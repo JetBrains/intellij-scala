@@ -38,7 +38,7 @@ lazy val scalaCommunity: sbt.Project =
     )
 
 lazy val scalaImpl: sbt.Project =
-  newProject("scalaImpl", file("scala/scala-impl"))
+  newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
@@ -79,7 +79,7 @@ lazy val scalaImpl: sbt.Project =
   )
 
 lazy val jpsPlugin =
-  newProject("jpsPlugin", file("scala/compiler"))
+  newProject("compiler", file("scala/compiler"))
   .dependsOn(jpsShared)
   .enablePlugins(SbtIdeaPlugin)
   .settings(
@@ -89,12 +89,12 @@ lazy val jpsPlugin =
   )
 
 lazy val jpsShared =
-  newProject("jpsShared", file("scala/compiler-settings"))
+  newProject("compiler-settings", file("scala/compiler-settings"))
   .enablePlugins(SbtIdeaPlugin)
   .settings(libraryDependencies += Dependencies.nailgun)
 
 lazy val scalaRunner =
-  newProject("scalaRunner", file("scala/scala-runners"))
+  newProject("scala-runners", file("scala/scala-runners"))
   .settings(
     libraryDependencies ++= DependencyGroups.scalaRunner,
     // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
@@ -111,7 +111,7 @@ lazy val runners =
   )
 
 lazy val nailgunRunners =
-  newProject("nailgunRunners", file("scala/nailgun"))
+  newProject("nailgun", file("scala/nailgun"))
   .dependsOn(scalaRunner)
   .settings(libraryDependencies += Dependencies.nailgun)
 
@@ -121,7 +121,7 @@ lazy val decompiler =
     .settings(libraryDependencies ++= DependencyGroups.decompiler)
 
 lazy val macroAnnotations =
-  newProject("macroAnnotations", file("scala/macros"))
+  newProject("macros", file("scala/macros"))
   .settings(Seq(
     addCompilerPlugin(Dependencies.macroParadise),
     libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler)
@@ -203,7 +203,7 @@ lazy val sbtLaunchTestDownloader =
   )
 
 lazy val jmhBenchmarks =
-  newProject("jmhBenchmarks", file("scala/benchmarks"))
+  newProject("benchmarks", file("scala/benchmarks"))
     .dependsOn(scalaImpl % "test->test")
     .enablePlugins(JmhPlugin)
 
