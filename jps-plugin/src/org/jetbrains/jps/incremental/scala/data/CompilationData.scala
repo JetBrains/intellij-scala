@@ -12,7 +12,6 @@ import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
-import org.jetbrains.plugin.scala.compiler.NameHashing
 
 import scala.collection.JavaConverters._
 
@@ -77,11 +76,19 @@ object CompilationData {
 
       val canonicalSources = sources.map(_.getCanonicalFile)
 
+      val hydraSettings = SettingsManager.getHydraSettings(context.getProjectDescriptor.getProject)
+      val scalaVersion = CompilerData.compilerVersion(module)
+      val hydraOptions =
+        if (hydraSettings.isHydraEnabled && scalaVersion.nonEmpty && hydraSettings.getArtifactPaths.containsKey(scalaVersion.get))
+          Seq("-sourcepath", outputGroups.map(_._1).mkString(File.pathSeparator), "-cpus", "2")
+        else
+          Seq.empty
+
       val isCompile =
         !JavaBuilderUtil.isCompileJavaIncrementally(context) &&
           !JavaBuilderUtil.isForcedRecompilationAllJavaModules(context)
 
-      CompilationData(canonicalSources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions,
+      CompilationData(canonicalSources, classpath, output, commonOptions ++ scalaOptions ++ hydraOptions, commonOptions ++ javaOptions,
         order, cacheFile, relevantOutputToCacheMap, outputGroups,
         ZincData(allSources, compilationStamp, isCompile))
     }

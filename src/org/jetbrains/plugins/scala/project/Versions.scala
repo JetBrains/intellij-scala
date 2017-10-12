@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.project
 
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
+import org.jetbrains.plugins.scala.compiler.HydraCredentialsManager
 import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
 
 import scala.io.Source
@@ -23,13 +24,18 @@ object Versions  {
     case Dotty => loadVersionsOf(Entity.Dotty)
   }
 
+  def loadHydraVersions: Array[String] = loadVersionsOf(Entity.Hydra)
+
   def loadSbtVersions: Array[String] = loadVersionsOf(Entity.Sbt013, Entity.Sbt1)
 
   private def loadVersionsOf(entities: Entity*): Array[String] = {
     val allVersions = entities.flatMap { entity =>
-      val loaded = loadVersionsFrom(entity.url, {
-        case entity.pattern(number) => number
-      })
+      val loaded = entity match {
+        case Entity.Hydra => loadVersionsForHydra()
+        case _ => loadVersionsFrom(entity.url, {
+          case entity.pattern(number) => number
+        })
+      }
 
     loaded
       .getOrElse(entity.hardcodedVersions)
@@ -49,10 +55,26 @@ object Versions  {
   private def loadLinesFrom(url: String): Try[Seq[String]] = {
     Try(HttpConfigurable.getInstance().openHttpConnection(url)).map { connection =>
       try {
+        if(url.contains(Entity.Hydra.url))
+          connection.setRequestProperty("Authorization", "Basic " + HydraCredentialsManager.getBasicAuthEncoding())
         Source.fromInputStream(connection.getInputStream).getLines().toVector
       } finally {
         connection.disconnect()
       }
+    }
+  }
+
+  private def loadVersionsForHydra() = {
+    val entity = Entity.Hydra
+
+    def downloadHydraVersions(url: String): Seq[String] =
+      loadVersionsFrom(url, { case entity.pattern(number) => number }).getOrElse(entity.hardcodedVersions).map(Version(_))
+        .filter(_ >= entity.minVersion).map(_.presentation)
+
+    loadVersionsFrom(entity.url, {
+      case entity.pattern(number) => number
+    }).map { versions =>
+      versions.flatMap(version => downloadHydraVersions(s"""${entity.url}$version/""")).distinct
     }
   }
 
@@ -80,5 +102,11 @@ object Versions  {
       """.+>(\d+.\d+.+)/<.*""".r,
       Version("0.2.0"),
       Seq("0.2.0-RC1"))
+
+    val Hydra = Entity("https://repo.triplequote.com/artifactory/ivy-releases/com.triplequote/",
+      ".+>(.*\\d+\\.\\d+\\.\\d+.*)/<.*".r,
+      Version("0.9.4"),
+      Seq("0.9.4")
+    )
   }
 }

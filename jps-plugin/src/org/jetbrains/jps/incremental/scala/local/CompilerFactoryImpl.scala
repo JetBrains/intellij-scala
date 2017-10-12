@@ -4,10 +4,11 @@ package local
 import java.io.File
 import java.net.URLClassLoader
 
-import org.jetbrains.jps.incremental.scala.data.{CompilerData, CompilerJars, SbtData}
+import org.jetbrains.jps.incremental.scala.data.{CompilerData, CompilerJars, HydraData, SbtData}
 import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl._
 import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 import xsbti.compile.{ScalaInstance => _, _}
+import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import sbt.io.Path
 import sbt.util.Logger
 import sbt.internal.inc._
@@ -38,7 +39,6 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
         else throw new IllegalStateException("Could not create scalac instance")
 
     }
-
   }
 
   private val classloaderCache = Some(new ClassLoaderCache(new URLClassLoader(Array())))
@@ -59,13 +59,13 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 }
 
 object CompilerFactoryImpl {
+  private val Log: JpsLogger = JpsLogger.getInstance(CompilerFactoryImpl.getClass.getName)
   private val scalaInstanceCache = new Cache[CompilerJars, ScalaInstance](3)
 
   var classLoadersMap = Map[Seq[File], ClassLoader]()
 
   def createScalaInstance(jars: CompilerJars): ScalaInstance = {
     scalaInstanceCache.getOrUpdate(jars) {
-
       val paths = jars.library +: jars.compiler +: jars.extra
 
       def createClassLoader() = {
@@ -97,11 +97,24 @@ object CompilerFactoryImpl {
                                client: Option[Client]): File = {
 
     val scalaVersion = scalaInstance.actualVersion
-    val sourceJar =
-      if (isBefore_2_11(scalaVersion)) sourceJars._2_10
-      else sourceJars._2_11
+    def getSourceJars = if (isBefore_2_11(scalaVersion)) sourceJars._2_10 else sourceJars._2_11
 
-    val interfaceId = "compiler-interface-" + scalaVersion + "-" + javaClassVersion
+    val sourceJar =
+      if (scalaVersion.contains("hydra")) {
+        val hydraBridge = scalaInstance.otherJars().find(_.getName.contains(HydraData.HydraBridgeName))
+        if(hydraBridge.isEmpty)
+          Log.warn(s"Hydra Bridge was not found for $scalaVersion " +
+            s"in ${scalaInstance.otherJars().map(_.getName).mkString(",")}. The vanilla bridge will be used instead.")
+        hydraBridge.getOrElse(getSourceJars)
+      }
+      else getSourceJars
+
+    def getHydraVersion = HydraData.getHydraVersionFromBridge(sourceJar) match {
+      case Some(ver) => s"-$ver"
+      case _ => ""
+    }
+
+    val interfaceId = "compiler-interface-" + scalaVersion + getHydraVersion + "-" + javaClassVersion
     val targetJar = new File(home, interfaceId + ".jar")
 
     if (!targetJar.exists) {
