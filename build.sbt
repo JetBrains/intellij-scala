@@ -3,6 +3,7 @@ import java.io.File
 import Common._
 import com.dancingrobot84.sbtidea.tasks.{UpdateIdea => updateIdeaTask}
 import sbt.Keys.{`package` => pack}
+import sbtide.Keys.ideSkipProject
 
 // Global build settings
 
@@ -167,7 +168,8 @@ lazy val sbtRuntimeDependencies =
     managedScalaInstance := false,
     conflictManager := ConflictManager.all,
     conflictWarning := ConflictWarning.disable,
-    resolvers += sbt.Classpaths.sbtPluginReleases
+    resolvers += sbt.Classpaths.sbtPluginReleases,
+    ideSkipProject := true
   )
 
 lazy val testDownloader =
@@ -340,7 +342,8 @@ lazy val pluginPackagerCommunity =
     pack := {
       Packaging.packagePlugin(mappings.value, artifactPath.value)
       artifactPath.value
-    }
+    },
+    ideSkipProject := true
   )
 
 
@@ -351,14 +354,16 @@ lazy val pluginCompressorCommunity =
     pack := {
       Packaging.compressPackagedPlugin(pack.in(pluginPackagerCommunity).value, artifactPath.value)
       artifactPath.value
-    }
+    },
+    ideSkipProject := true
   )
 
 lazy val repackagedZinc =
   newProject("repackagedZinc", file("tools/zinc"))
   .settings(
     assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
-    libraryDependencies += Dependencies.zinc
+    libraryDependencies += Dependencies.zinc,
+    ideSkipProject := true
   )
 
 updateIdea := {
