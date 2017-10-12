@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 class TechHubProjectTemplate extends ProjectTemplate {
   override def getName: String = "Lightbend Project Starter"
 
-  override def getDescription: String = "sbt-based project from a Lightbend TechHub template"
+  override def getDescription: String = "sbt-based project from a Lightbend Tech Hub template"
 
   override def getIcon: Icon = Icons.LIGHTBEND_LOGO
 
