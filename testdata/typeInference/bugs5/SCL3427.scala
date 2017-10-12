@@ -7,4 +7,4 @@ object SCL3427 {
     require(6 == together(2))
   }
 }
-//(Int) => Int
+//Int => Int

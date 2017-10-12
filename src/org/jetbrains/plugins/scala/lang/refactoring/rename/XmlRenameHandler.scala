@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package lang.refactoring.rename
+package lang
+package refactoring
+package rename
 
 import java.util.ArrayList
 
@@ -22,8 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPairedTag
  * User: Dmitry Naydanov
  * Date: 4/8/12
  */
-
-class XmlRenameHandler extends RenameHandler {
+class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler {
   def isAvailableOnDataContext(dataContext: DataContext): Boolean = {
     val editor = CommonDataKeys.EDITOR.getData(dataContext)
     if (editor == null || !editor.getSettings.isVariableInplaceRenameEnabled) return false
@@ -42,14 +43,16 @@ class XmlRenameHandler extends RenameHandler {
 
   def isRenaming(dataContext: DataContext): Boolean = isAvailableOnDataContext(dataContext)
 
-  def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
+  override def invoke(file: PsiFile)
+                     (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     if (!isRenaming(dataContext)) return
     val element = file.findElementAt(editor.getCaretModel.getOffset)
 
     if (element != null) invoke(project, Array(element), dataContext)
   }
 
-  def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {
+  override def invoke(elements: Array[PsiElement])
+                     (implicit project: Project, dataContext: DataContext): Unit = {
     import scala.collection.JavaConversions._
 
     if (!isRenaming(dataContext) || elements == null || elements.length != 1) return

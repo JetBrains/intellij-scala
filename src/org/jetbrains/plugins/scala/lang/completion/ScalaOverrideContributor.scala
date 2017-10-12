@@ -93,23 +93,19 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       element.getDelegate.renderElement(presentation)
 
       val (resultText, tailText) = member match {
-        case mm: ScMethodMember =>
-          (mm.text + " = {...}", mm.scType.presentableText)
+        case methodMember: ScMethodMember =>
+          (methodMember.getText + " = {...}", methodMember.scType.presentableText)
         case mVal: ScValueMember =>
           (mVal.name, mVal.scType.presentableText)
         case mVar: ScVariableMember =>
           (mVar.name, mVar.scType.presentableText)
-        case ta: ScAliasMember =>
-          val aliasType = Option(ta.getElement).collect {
-            case definition: ScTypeAliasDefinition => definition
-          }.flatMap {
-            _.aliasedTypeElement
-          }.map {
-            _.calcType
-          }.map {
-            _.presentableText
-          }.getOrElse("")
-          (ta.name, aliasType)
+        case ScAliasMember(definition: ScTypeAliasDefinition, _, _) =>
+          val maybeAliasTypeText = definition.aliasedTypeElement
+            .map(_.calcType)
+            .map(_.presentableText)
+
+          (member.name, maybeAliasTypeText.getOrElse(""))
+        case _ => (member.name, "")
       }
 
       presentation.setTypeText(tailText)
@@ -151,7 +147,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   }
 
   private def getMembers(templateDefinition: ScTemplateDefinition): Iterable[ClassMember] = {
-    ScalaOIUtil.getMembersToOverride(templateDefinition, withSelfType = true) ++
+    ScalaOIUtil.getMembersToOverride(templateDefinition) ++
       ScalaOIUtil.getMembersToImplement(templateDefinition, withSelfType = true)
   }
 
@@ -179,18 +175,18 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     import td.projectContext
 
     val text: String = classMember match {
-      case mm: ScMethodMember =>
-        val mBody = if (mm.isOverride) ScalaGenerationInfo.getMethodBody(mm, td, isImplement = false) else "???"
+      case member@ScMethodMember(signature, isOverride) =>
+        val mBody = if (isOverride) ScalaGenerationInfo.getMethodBody(member, td, isImplement = false) else "???"
         val fun =
           if (full)
-            createOverrideImplementMethod(mm.sign, needsOverrideModifier = true, mBody, withComment = false, withAnnotation = false)
+            createOverrideImplementMethod(signature, needsOverrideModifier = true, mBody, withComment = false, withAnnotation = false)
           else
-            createMethodFromSignature(mm.sign, needsInferType = true, mBody, withComment = false, withAnnotation = false)
+            createMethodFromSignature(signature, needsInferType = true, mBody, withComment = false, withAnnotation = false)
 
         TypeAnnotationUtil.removeTypeAnnotationIfNeeded(fun)
         fun.getText
-      case tm: ScAliasMember =>
-        getOverrideImplementTypeSign(tm.getElement, tm.substitutor, needsOverride = false)
+      case ScAliasMember(element, substitutor, _) =>
+        getOverrideImplementTypeSign(element, substitutor, needsOverride = false)
       case member: ScValueMember =>
         val variable = createOverrideImplementVariable(member.element, member.substitutor, needsOverrideModifier = false, isVal = true, withBody = withBody)
         TypeAnnotationUtil.removeTypeAnnotationIfNeeded(variable)

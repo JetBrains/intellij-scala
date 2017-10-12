@@ -61,8 +61,10 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   override def getIconInner = Icons.CLASS
 
-  override def constructor: Option[ScPrimaryConstructor] =
-    this.stubOrPsiChild(PRIMARY_CONSTRUCTOR)
+  override def constructor: Option[ScPrimaryConstructor] = desugaredElement match {
+    case Some(templateDefinition: ScConstructorOwner) => templateDefinition.constructor
+    case _ => this.stubOrPsiChild(PRIMARY_CONSTRUCTOR)
+  }
 
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}
@@ -72,6 +74,12 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
                                                   lastParent: PsiElement,
                                                   place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
+
+    desugaredElement match {
+      case Some(td) => return td.processDeclarationsForTemplateBody(processor, state, getLastChild, place)
+      case _ =>
+    }
+
     if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
 
     constructor match {

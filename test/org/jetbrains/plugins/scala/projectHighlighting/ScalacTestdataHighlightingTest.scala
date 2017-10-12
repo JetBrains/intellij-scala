@@ -2,21 +2,21 @@ package org.jetbrains.plugins.scala.projectHighlighting
 
 import java.io.File
 
+import org.jetbrains.plugins.scala.ScalacTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+import org.junit.experimental.categories.Category
 
 /**
   * Nikolay.Tropin
   * 04-Aug-17
   */
-class ScalacTestdataHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter with SeveralFilesHighlightingTest {
 
-  override implicit val version: ScalaVersion = Scala_2_12
-
-  override def getProject = super.getProject
+@Category(Array(classOf[ScalacTests]))
+class ScalacTestdataHighlightingTest extends ScalacTestdataHighlightingTestBase {
 
   override val reporter = ProgressReporter.newInstance(reportSuccess = false)
 
@@ -27,11 +27,19 @@ class ScalacTestdataHighlightingTest extends ScalaLightCodeInsightFixtureTestAda
     dir.listFiles()
   }
 
+  def testScalacTests(): Unit = doTest()
+
+}
+
+abstract class ScalacTestdataHighlightingTestBase
+  extends ScalaLightCodeInsightFixtureTestAdapter with SeveralFilesHighlightingTest  {
+
+  override def getProject = super.getProject
+
+  override implicit val version: ScalaVersion = Scala_2_12
+
   override def librariesLoaders = Seq(
     ScalaLibraryLoader(isIncludeReflectLibrary = true),
     JdkLoader()
   )
-
-  def testScalacTests(): Unit = doTest()
-
 }

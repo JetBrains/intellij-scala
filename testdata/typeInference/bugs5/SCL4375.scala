@@ -9,4 +9,4 @@ class SCL4375 {
 
   asd = /*start*/_ => ()/*end*/
 }
-//(Int) => Unit
+//Int => Unit

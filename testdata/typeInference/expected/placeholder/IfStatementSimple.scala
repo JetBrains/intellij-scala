@@ -3,4 +3,4 @@ object IfStatementSimple {
 
   foo(/*start*/if (_) "" else "g"/*end*/)
 }
-//(Boolean) => String
+//Boolean => String

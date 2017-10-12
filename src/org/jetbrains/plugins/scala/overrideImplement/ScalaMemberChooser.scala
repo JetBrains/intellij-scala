@@ -119,15 +119,11 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
       case m: ClassMember => m.getElement
     }
 
-    val hasTypeNeeded = elements.exists(typeAnnotationNeeded)
-    val hasNotNeeded = elements.exists(!typeAnnotationNeeded(_))
-
-    if (hasTypeNeeded && hasNotNeeded || elements.isEmpty)
-      State.DONT_CARE
-    else if (hasTypeNeeded)
-      State.SELECTED
-    else
-      State.NOT_SELECTED
+    elements.map(typeAnnotationNeeded).toSeq.distinct match {
+      case Seq(true) => State.SELECTED
+      case Seq(false) => State.NOT_SELECTED
+      case _ => State.DONT_CARE
+    }
   }
 
   private def typeAnnotationNeeded(element: PsiElement): Boolean =

@@ -21,14 +21,12 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.PsiUtilCore
-import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil._
 import org.jetbrains.plugins.scala.decompiler.{CompiledFileAdjuster, DecompilerUtil}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
@@ -43,6 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
@@ -180,12 +179,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   override def isScriptFile: Boolean = byStubOrPsi(_.isScript)(isScriptFileImpl)
 
   override def isWorksheetFile: Boolean = {
-    Option(getVirtualFile).orElse(Option(getViewProvider.getVirtualFile).flatMap {
-      case light: LightVirtualFile => Option(light.getOriginalFile)
-      case _ => None
-    }).exists {
+    ScalaUtil.findVirtualFile(this).exists {
       vFile => 
-        vFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION ||
+        vFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION && !ScalaProjectSettings.getInstance(getProject).isTreatScAsAmmonite ||
           ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
           ScalaProjectSettings.getInstance(getProject).isTreatScratchFilesAsWorksheet
     }

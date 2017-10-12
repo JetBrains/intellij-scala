@@ -5,8 +5,8 @@ object Versions {
   val scalaBinaryVersion: String = Scala.binary_2_11
   val sbtVersion: String = Sbt.latest
   val ideaVersion = "172.3757.52"
-  val sbtStructureVersion: String = "7.0.0+61-051fb9ba"
-  val sbtIdeaShellVersion: String = "1.2+7-625c26bc"
+  val sbtStructureVersion: String = "2017.2"
+  val sbtIdeaShellVersion: String = "2017.2"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
@@ -190,6 +190,8 @@ object DependencyGroups {
     "com.github.julien-truffaut"  %%  "monocle-core"    % "1.2.0",
     "com.github.julien-truffaut"  %%  "monocle-generic" % "1.2.0",
     "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0",
+    "com.fommil" % "stalactite_2.11" % "0.0.3",
+    "com.github.mpilquist" % "simulacrum_2.11" % "0.10.0",
     "io.spray" %% "spray-routing" % "1.3.1",
     "com.typesafe.slick" %% "slick" % "3.2.0",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
@@ -236,7 +238,7 @@ object DependencyGroups {
 
   // required jars for MockSbt - it adds different versions to test module classpath
   val mockSbtDownloader: Seq[ModuleID] = {
-    val vs013 = Seq("0.13.1", "0.13.5", "0.13.7", Sbt.latest)
+    val vs013 = Seq("0.13.1", "0.13.5", "0.13.7", Sbt.latest_0_13)
     val vs012 = Seq(Sbt.latest_0_12)
 
     vs013.flatMap(sbt013Libs) ++ vs012.flatMap(sbt012Libs)

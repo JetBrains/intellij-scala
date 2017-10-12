@@ -10,11 +10,10 @@ import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
-import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, RangeHighlighter, TextAttributes}
-import com.intellij.openapi.editor.{Editor, RangeMarker, VisualPosition}
+import com.intellij.openapi.editor.{Editor, RangeMarker, SelectionModel, VisualPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
 import com.intellij.openapi.util.TextRange
@@ -23,6 +22,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOfType}
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -135,20 +135,23 @@ object ScalaRefactoringUtil {
   }
 
   def inTemplateParents(typeElement: ScTypeElement): Boolean = {
-    PsiTreeUtil.getParentOfType(typeElement, classOf[ScTemplateParents]) != null
+    getParentOfType(typeElement, classOf[ScTemplateParents]) != null
   }
 
-  def checkTypeElement(element: ScTypeElement): Option[ScTypeElement] = {
-    Option(element).filter {
-      case e if e.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] => false
-      case _ => true
+  def isInvalid(typeElement: ScTypeElement): Boolean =
+    typeElement.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs]
+
+  def getTypeElement(file: PsiFile)
+                    (implicit selectionModel: SelectionModel): Option[ScTypeElement] =
+    getTypeElement(file, selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
+
+  def getTypeElement(file: PsiFile, startOffset: Int, endOffset: Int): Option[ScTypeElement] = {
+    val maybeTypeElement = Option(findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScTypeElement]))
+
+    maybeTypeElement.filter { typeElement =>
+      typeElement.getTextRange.getEndOffset == endOffset &&
+        !isInvalid(typeElement)
     }
-  }
-
-  def getTypeElement(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScTypeElement] = {
-    val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScTypeElement])
-
-    Option(element).filter(_.getTextRange.getEndOffset == endOffset).flatMap(checkTypeElement)
   }
 
   def getOwner(typeElement: PsiElement): ScTypeParametersOwner = PsiTreeUtil.getParentOfType(typeElement, classOf[ScTypeParametersOwner], true)
@@ -212,7 +215,7 @@ object ScalaRefactoringUtil {
       expr match {
         case Some(expression: ScInfixExpr) =>
           val op1 = expression.operation
-          if (ScalaRefactoringUtil.ensureFileWritable(project, file)) {
+          if (ensureFileWritable(file)(project)) {
             var res: Option[(ScExpression, Array[ScType])] = None
             inWriteCommandAction(project) {
               val document = editor.getDocument
@@ -265,7 +268,7 @@ object ScalaRefactoringUtil {
       }
     }
 
-    val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScExpression])
+    val element = findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScExpression])
 
     if (element == null || element.getTextRange.getEndOffset != endOffset) {
       return selectedInfixExpr() orElse partOfStringLiteral()
@@ -304,7 +307,8 @@ object ScalaRefactoringUtil {
     }
   }
 
-  def ensureFileWritable(project: Project, file: PsiFile): Boolean = {
+  private[this] def ensureFileWritable(file: PsiFile)
+                                      (implicit project: Project): Boolean = {
     val virtualFile = file.getVirtualFile
     val readonlyStatusHandler = ReadonlyStatusHandler.getInstance(project)
     val operationStatus = readonlyStatusHandler.ensureFilesWritable(virtualFile)
@@ -708,113 +712,104 @@ object ScalaRefactoringUtil {
     editor.getDocument.getText.substring(start, end)
   }
 
-  def getExpressions(element: PsiElement): Array[ScExpression] = {
-    val res = new ArrayBuffer[ScExpression]
-    var parent = element
+  def getExpressionsAtOffset(file: PsiFile, offset: Int): Seq[ScExpression] = {
+    val selectedElement = file.findElementAt(offset) match {
+      case whiteSpace: PsiWhiteSpace if whiteSpace.getTextRange.getStartOffset == offset &&
+        whiteSpace.getText.contains("\n") => file.findElementAt(offset - 1)
+      case element => element
+    }
+    getExpressions(selectedElement)
+  }
+
+  private[this] def getExpressions(selectedElement: PsiElement): Seq[ScExpression] = {
+    val result = mutable.ArrayBuffer[ScExpression]()
+    var parent = selectedElement
     while (parent != null && !parent.getText.contains("\n")) {
       parent match {
-        case expr: ScExpression => res += expr
+        case expression: ScExpression => result += expression
         case _ =>
       }
       parent = parent.getParent
     }
-    res.toArray
+    result
   }
 
-  def afterExpressionChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
-                              refactoringName: String, exprFilter: (ScExpression) => Boolean = _ => true)(invokesNext: => Unit) {
-
-    if (!editor.getSelectionModel.hasSelection) {
-      val offset = editor.getCaretModel.getOffset
-      val element: PsiElement = file.findElementAt(offset) match {
-        case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
-          w.getText.contains("\n") => file.findElementAt(offset - 1)
-        case p => p
-      }
-      val expressions = getExpressions(element).filter(exprFilter)
-      def chooseExpression(expr: ScExpression) {
-        editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset, expr.getTextRange.getEndOffset)
-        invokesNext
-      }
-      if (expressions.length == 0)
-        editor.getSelectionModel.selectLineAtCaret()
-      else if (expressions.length == 1) {
-        chooseExpression(expressions(0))
-        return
-      } else {
-        showChooser(editor, expressions, (elem: ScExpression) =>
-          chooseExpression(elem), ScalaBundle.message("choose.expression.for", refactoringName), (expr: ScExpression) => {
-          getShortText(expr)
-        })
-        return
-      }
+  def afterExpressionChoosing(file: PsiFile,
+                              refactoringName: String, filterExpressions: Boolean = true)
+                             (invokesNext: => Unit)
+                             (implicit project: Project, editor: Editor): Unit =
+    invokeOnSelected("choose.expression.for", refactoringName)(invokesNext, (_: ScExpression) => invokesNext) {
+      getExpressionsAtOffset(file, editor.getCaretModel.getOffset).filter {
+        case e if filterExpressions => checkCanBeIntroduced(e).isEmpty
+        case _ => true
+      }.toArray
     }
-    invokesNext
-  }
 
-  def afterTypeElementChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
-                               currentSelectedElement: ScTypeElement, refactoringName: String)(invokesNext: (ScTypeElement) => Unit) {
-
-    if (!editor.getSelectionModel.hasSelection) {
-      val element: PsiElement = currentSelectedElement
-
-      def getTypeElement: Array[ScTypeElement] = {
-        val res = new ArrayBuffer[ScTypeElement]
-        var parent = element
-        while (parent != null) {
-          parent match {
-            case simpleType: ScSimpleTypeElement if simpleType.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] =>
-            case typeInParenthesis: ScParenthesisedTypeElement =>
-              val inType = typeInParenthesis.typeElement
-              if (inType.isDefined && !res.contains(typeInParenthesis.typeElement.get)) {
-                res += typeInParenthesis.typeElement.get
-              }
-            case typeElement: ScTypeElement =>
-              res += typeElement
-            case _ =>
+  private[this] def getTypeElements(selectedElement: ScTypeElement): Seq[ScTypeElement] = {
+    val result = mutable.ArrayBuffer[ScTypeElement]()
+    var parent = selectedElement
+    while (parent != null) {
+      parent match {
+        case simpleType: ScSimpleTypeElement if isInvalid(simpleType) =>
+        case ScParenthesisedTypeElement(typeElement) =>
+          if (!result.contains(typeElement)) {
+            result += typeElement
           }
-          parent = PsiTreeUtil.getParentOfType(parent, classOf[ScTypeElement])
-        }
-        res.toArray
+        case typeElement => result += typeElement
       }
-
-      val typeElement = getTypeElement
-
-      def chooseTypeElement(typeElement: ScTypeElement) {
-        editor.getSelectionModel.setSelection(typeElement.getTextRange.getStartOffset, typeElement.getTextRange.getEndOffset)
-        invokesNext(typeElement)
-      }
-      if (typeElement.length == 0) {
-        editor.getSelectionModel.selectLineAtCaret()
-      }
-      else if (typeElement.length == 1) {
-        chooseTypeElement(typeElement(0))
-        return
-      } else {
-        showChooser(editor, typeElement, (elem: ScTypeElement) =>
-          chooseTypeElement(elem), ScalaBundle.message("choose.type.element.for", refactoringName), (value: ScTypeElement) => {
-          getShortText(value)
-        })
-        return
-      }
+      parent = getParentOfType(parent, classOf[ScTypeElement])
     }
-    invokesNext(currentSelectedElement)
+    result
   }
 
-  def fileEncloser(startOffset: Int, file: PsiFile): PsiElement = {
-    if (file.asInstanceOf[ScalaFile].isScriptFile) file
+  def afterTypeElementChoosing(selectedElement: ScTypeElement, refactoringName: String)
+                              (invokesNext: ScTypeElement => Unit)
+                              (implicit project: Project, editor: Editor): Unit =
+    invokeOnSelected("choose.type.element.for", refactoringName)(invokesNext(selectedElement), invokesNext) {
+      getTypeElements(selectedElement).toArray
+    }
+
+  private[this] def invokeOnSelected[T <: ScalaPsiElement](messageKey: String,
+                                                           refactoringName: String)
+                                                          (default: => Unit, consumer: T => Unit)
+                                                          (elements: => Array[T])
+                                                          (implicit editor: Editor): Unit = {
+    implicit val selectionModel: SelectionModel = editor.getSelectionModel
+
+    if (selectionModel.hasSelection) default
     else {
-      val elem = file.findElementAt(startOffset)
-      val result = ScalaPsiUtil.getParentOfType(elem, classOf[ScExtendsBlock], classOf[PsiFile])
-      if (result == null) {
-        for (child <- file.getChildren) {
-          val textRange: TextRange = child.getTextRange
-          if (textRange.contains(startOffset)) return child
-        }
+      def onElement(element: T): Unit = {
+        val textRange = element.getTextRange
+        selectionModel.setSelection(textRange.getStartOffset, textRange.getEndOffset)
+
+        consumer(element)
       }
-      result
+
+      elements match {
+        case Array() =>
+          selectionModel.selectLineAtCaret()
+          default
+        case Array(head) => onElement(head)
+        case array => showChooser(editor, array, onElement, ScalaBundle.message(messageKey, refactoringName), getShortText)
+      }
     }
   }
+
+  def fileEncloser(file: PsiFile)
+                  (implicit selectionModel: SelectionModel): Option[PsiElement] =
+    fileEncloser(file, selectionModel.getSelectionStart)
+
+  def fileEncloser(file: PsiFile, startOffset: Int): Option[PsiElement] =
+    file match {
+      case scalaFile: ScalaFile if scalaFile.isScriptFile => Some(file)
+      case _ =>
+        val maybeElement = Option(file.findElementAt(startOffset))
+          .flatMap(element => Option(getParentOfType(element, classOf[ScExtendsBlock], classOf[PsiFile])))
+
+        maybeElement.orElse {
+          file.getChildren.find(_.getTextRange.contains(startOffset))
+        }
+    }
 
   def isInplaceAvailable(editor: Editor): Boolean =
     editor.getSettings.isVariableInplaceRenameEnabled && !ApplicationManager.getApplication.isUnitTestMode
@@ -833,55 +828,68 @@ object ScalaRefactoringUtil {
 
   def isLiteralPattern(file: PsiFile, textRange: TextRange): Boolean = {
     val parent = ScalaRefactoringUtil.commonParent(file, textRange)
-    val literalPattern = PsiTreeUtil.getParentOfType(parent, classOf[ScLiteralPattern])
+    val literalPattern = getParentOfType(parent, classOf[ScLiteralPattern])
     literalPattern != null && literalPattern.getTextRange == textRange
   }
 
-  /**
-   * @throws IntroduceException
-   */
-  def showErrorMessageWithException(text: String, project: Project, editor: Editor, refactoringName: String): Nothing = {
-    CommonRefactoringUtil.showErrorHint(project, editor, text, refactoringName, null)
+  def showErrorHintWithException(message: String,
+                                 refactoringName: String,
+                                 helpId: String = null)
+                                (implicit project: Project, editor: Editor): Nothing = {
+    showErrorHint(message, refactoringName, helpId)
     throw new IntroduceException
   }
 
-  def showErrorHint(text: String, project: Project, editor: Editor, refactoringName: String): Unit = {
-    CommonRefactoringUtil.showErrorHint(project, editor, text, refactoringName, null)
+  def showErrorHint(message: String,
+                    refactoringName: String,
+                    helpId: String = null)
+                   (implicit project: Project, editor: Editor): Unit = {
+    CommonRefactoringUtil.showErrorHint(project, editor, message, refactoringName, helpId)
   }
 
-  def checkFile(file: PsiFile, project: Project, editor: Editor, refactoringName: String) {
-    if (!file.isInstanceOf[ScalaFile])
-      showErrorMessageWithException(ScalaBundle.message("only.for.scala"), project, editor, refactoringName)
+  def writableScalaFile(file: PsiFile, refactoringName: String)
+                       (implicit project: Project, editor: Editor): ScalaFile =
+    file match {
+      case scalaFile: ScalaFile if ensureFileWritable(file) => scalaFile
+      case _: ScalaFile => showErrorHintWithException(ScalaBundle.message("file.is.not.writable"), refactoringName)
+      case _ => showErrorHintWithException(ScalaBundle.message("only.for.scala"), refactoringName)
+    }
 
-    if (!ScalaRefactoringUtil.ensureFileWritable(project, file))
-      showErrorMessageWithException(ScalaBundle.message("file.is.not.writable"), project, editor, refactoringName)
-  }
+  def maybeWritableScalaFile(file: PsiFile, refactoringName: String)
+                            (implicit project: Project, editor: Editor): Option[ScalaFile] =
+    file match {
+      case scalaFile: ScalaFile if ensureFileWritable(file) => Some(scalaFile)
+      case _: ScalaFile =>
+        showErrorHint(ScalaBundle.message("file.is.not.writable"), refactoringName)
+        None
+      case _ => None
+    }
 
-  def checkCanBeIntroduced(expr: ScExpression, action: (String) => Unit = _ => {}): Boolean = {
-    var errorMessage: String = null
+  def checkCanBeIntroduced(expr: ScExpression): Option[String] = {
     ScalaPsiUtil.getParentOfType(expr, classOf[ScConstrBlock]) match {
       case block: ScConstrBlock =>
         for {
           selfInv <- block.selfInvocation
           args <- selfInv.args
           if args.isAncestorOf(expr)
-        } errorMessage = ScalaBundle.message("cannot.refactor.arg.in.self.invocation.of.constructor")
+        } return Some(ScalaBundle.message("cannot.refactor.arg.in.self.invocation.of.constructor"))
       case _ =>
     }
 
-    val guard: ScGuard = PsiTreeUtil.getParentOfType(expr, classOf[ScGuard])
-    if (guard != null && guard.getParent.isInstanceOf[ScCaseClause])
-      errorMessage = ScalaBundle.message("refactoring.is.not.supported.in.guard")
+    val guard: ScGuard = getParentOfType(expr, classOf[ScGuard])
+    if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) {
+      return Some(ScalaBundle.message("refactoring.is.not.supported.in.guard"))
+    }
 
     expr match {
       case block: ScBlock if !block.hasRBrace && block.statements.size != 1 =>
-        errorMessage = ScalaBundle.message("cannot.refactor.not.expression")
+        return Some(ScalaBundle.message("cannot.refactor.not.expression"))
       case _ =>
     }
 
-    if (errorMessage == null) errorMessage = expr.getParent match {
-      case inf: ScInfixExpr if inf.operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
-      case post: ScPostfixExpr if post.operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
+    val errorMessage = expr.getParent match {
+      case ScInfixExpr(_, operation, _) if operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
+      case ScPostfixExpr(_, operation) if operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
       case _: ScGenericCall => ScalaBundle.message("cannot.refactor.under.generic.call")
       case _ if expr.isInstanceOf[ScConstrExpr] => ScalaBundle.message("cannot.refactor.constr.expression")
       case _: ScArgumentExprList if expr.isInstanceOf[ScAssignStmt] => ScalaBundle.message("cannot.refactor.named.arg")
@@ -893,8 +901,8 @@ object ScalaRefactoringUtil {
         }
       case _ => null
     }
-    if (errorMessage != null) action(errorMessage)
-    errorMessage == null
+
+    Option(errorMessage)
   }
 
   def replaceOccurence(textRange: TextRange, newString: String, file: PsiFile): RangeMarker = {
@@ -956,7 +964,7 @@ object ScalaRefactoringUtil {
     documentManager.commitDocument(document)
     val newStart = start + shift
     val newEnd = newStart + newString.length
-    val newExpr = PsiTreeUtil.findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
+    val newExpr = findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
     val newPattern = PsiTreeUtil.findElementOfClassAtOffset(file, newStart, classOf[ScPattern], true)
     Option(newExpr).orElse(Option(newPattern))
       .map(elem => document.createRangeMarker(elem.getTextRange))
@@ -1072,7 +1080,7 @@ object ScalaRefactoringUtil {
       val candidate = ScalaPsiUtil.getParentOfType(element, false, classOf[ScalaFile], classOf[ScBlock],
         classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
 
-      val funDef = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition])
+      val funDef = getParentOfType(element, classOf[ScFunctionDefinition])
 
       val isCaseClausesBlock = candidate match {
         case b: ScBlock if b.hasCaseClauses => true
@@ -1104,7 +1112,8 @@ object ScalaRefactoringUtil {
     elements
   }
 
-  def showNotPossibleWarnings(elements: Seq[PsiElement], project: Project, editor: Editor, refactoringName: String): Boolean = {
+  def showNotPossibleWarnings(elements: Seq[PsiElement], refactoringName: String)
+                             (implicit project: Project, editor: Editor): Boolean = {
     def errors(elem: PsiElement): Option[String] = elem match {
       case funDef: ScFunctionDefinition if hasOutsideUsages(funDef) => ScalaBundle.message("cannot.extract.used.function.definition").toOption
       case _: ScBlockStatement => None
@@ -1131,12 +1140,12 @@ object ScalaRefactoringUtil {
 
     val messages = elements.flatMap(errors).distinct
     if (messages.nonEmpty) {
-      showErrorHint(messages.mkString("\n"), project, editor, refactoringName)
+      showErrorHint(messages.mkString("\n"), refactoringName)
       return true
     }
 
     if (elements.isEmpty || !elements.exists(_.isInstanceOf[ScBlockStatement])) {
-      showErrorHint(ScalaBundle.message("cannot.extract.empty.message"), project, editor, refactoringName)
+      showErrorHint(ScalaBundle.message("cannot.extract.empty.message"), refactoringName)
       return true
     }
 

@@ -199,8 +199,11 @@ addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTestsCat
 
 addCommandAlias("runHighlightingTests", s"testOnly -- --include-categories=$highlightingCategory")
 
+addCommandAlias("runScalacTests", s"testOnly -- --include-categories=$scalacTestsCategory")
+
 addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTestsCategory " +
                                             s"--exclude-categories=$perfOptCategory " +
+                                            s"--exclude-categories=$scalacTestsCategory " +
                                             s"--exclude-categories=$highlightingCategory ")
 
 lazy val setUpTestEnvironment = taskKey[Unit]("Set up proper environment for running tests")

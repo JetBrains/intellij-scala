@@ -51,13 +51,14 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
   def originalElement: Option[ScTemplateDefinition] = Option(getUserData(originalElemKey))
   def setDesugared(actualElement: ScTypeDefinition): ScTemplateDefinition = {
     putUserData(originalElemKey, actualElement)
-
     members.foreach { member =>
       member.setSynthetic(actualElement)
       member.setSyntheticContainingClass(actualElement)
     }
     this
   }
+  // designates that this very element has been created as a result of macro transform
+  // do not confuse with desugaredElement
   def isDesugared: Boolean = originalElement.isDefined
 
   def desugaredElement: Option[ScTemplateDefinition] = None

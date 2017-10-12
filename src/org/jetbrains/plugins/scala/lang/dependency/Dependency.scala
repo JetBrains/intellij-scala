@@ -19,10 +19,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
- * Pavel Fatin
- */
+  * Pavel Fatin
+  */
 
 case class Dependency(kind: DependencyKind, target: PsiElement, path: Path) {
   def isExternal(file: PsiFile, range: TextRange): Boolean = {
@@ -33,11 +34,32 @@ case class Dependency(kind: DependencyKind, target: PsiElement, path: Path) {
 }
 
 object Dependency {
+
+  class DependencyProcessor(ref: ScReferenceElement) extends CompletionProcessor(ref.getKinds(incomplete = false), ref) {
+    override def changedLevel: Boolean = {
+      val superRes = super.changedLevel
+
+      if (candidatesSet.nonEmpty) false //stop right away if something was found
+      else superRes
+    }
+
+    override protected val forName = Some(ref.refName)
+
+    private val nameHint = new NameHint {
+      override def getName(state: ResolveState): String = forName.get
+    }
+
+    override def getHint[T](hintKey: Key[T]): T = hintKey match {
+      case NameHint.KEY => nameHint.asInstanceOf[T]
+      case _ => super.getHint(hintKey)
+    }
+  }
+
   def dependenciesIn(scope: PsiElement): Seq[Dependency] = {
     scope.depthFirst()
-            .filterByType[ScReferenceElement]
-            .toList
-            .flatMap(reference => dependencyFor(reference).toList)
+      .filterByType[ScReferenceElement]
+      .toList
+      .flatMap(reference => dependencyFor(reference).toList)
   }
 
   def dependencyFor(reference: ScReferenceElement): Option[Dependency] = {
@@ -54,28 +76,8 @@ object Dependency {
       case _ =>
     }
 
-    implicit val ts = ref.projectContext
-
-    val processor =
-      new CompletionProcessor(ref.getKinds(incomplete = false), ref, collectImplicits = false, Some(ref.refName), isIncomplete = false) {
-        override def changedLevel: Boolean = {
-          val superRes = super.changedLevel
-
-          if (candidatesSet.nonEmpty) false  //stop right away if something was found
-          else superRes
-        }
-
-        private val nameHint = new NameHint {
-          override def getName(state: ResolveState): String = ref.refName
-        }
-
-        override def getHint[T](hintKey: Key[T]): T = {
-          hintKey match {
-            case NameHint.KEY => nameHint.asInstanceOf[T]
-            case _ => super.getHint(hintKey)
-          }
-        }
-      }
+    implicit val ts: ProjectContext = ref.projectContext
+    val processor = new DependencyProcessor(ref)
 
     val results = ref match {
       case rExpr: ScReferenceExpressionImpl => rExpr.doResolve(processor)

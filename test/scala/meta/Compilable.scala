@@ -44,7 +44,6 @@ trait Compilable {
   protected def setUpCompiler(implicit module: Module): Unit = {
     CompilerTestUtil.enableExternalCompiler()
     DebuggerTestUtil.enableCompileServer(true)
-    addRoots
     DebuggerTestUtil.forceJdk8ForBuildProcess()
   }
 
@@ -53,7 +52,7 @@ trait Compilable {
     CompileServerLauncher.instance.stop()
   }
 
-  protected def addRoots(implicit module: Module) {
+  protected def addRoots(module: Module) {
     inWriteAction {
       val srcRoot = getOrCreateChildDir("src")
       PsiTestUtil.addSourceRoot(module, srcRoot, false)

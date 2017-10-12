@@ -7,7 +7,6 @@ import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.refactoring.RefactoringActionHandler
 import com.intellij.refactoring.extractSuperclass.ExtractSuperClassUtil
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.annotations.TestOnly
@@ -21,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScalaType}
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandler
 import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
 
@@ -31,11 +31,12 @@ import scala.collection.mutable
  * Nikolay.Tropin
  * 2014-05-20
  */
-class ScalaExtractTraitHandler extends RefactoringActionHandler {
+class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
 
   val REFACTORING_NAME = ScalaBundle.message("extract.trait.title")
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
+  override def invoke(file: PsiFile)
+                     (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     val offset: Int = editor.getCaretModel.getOffset
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     val element: PsiElement = file.findElementAt(offset)
@@ -43,7 +44,8 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
     invokeOnClass(clazz, project, editor)
   }
 
-  override def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext): Unit = {
+  override def invoke(elements: Array[PsiElement])
+                     (implicit project: Project, dataContext: DataContext): Unit = {
     val clazz = elements match {
       case Array(clazz: ScTemplateDefinition) => clazz
       case _ =>
@@ -164,7 +166,6 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
   }
 
   private class ExtractInfo(val clazz: ScTemplateDefinition, val memberInfos: Seq[ScalaExtractMemberInfo]) {
-    import clazz.projectContext
 
     private val classesForSelfType = mutable.Set[PsiClass]()
     private val selected = memberInfos.map(_.getMember)

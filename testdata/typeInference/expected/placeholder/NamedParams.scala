@@ -4,4 +4,4 @@ object NamedParams {
 
   foo(y = /*start*/"" + _.length/*end*/, x = "")
 }
-//(String) => String
+//String => String

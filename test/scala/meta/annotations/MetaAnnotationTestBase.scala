@@ -9,13 +9,15 @@ import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ModuleRootAdapter, ModuleRootEvent}
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
-import org.jetbrains.plugins.scala.debugger.ScalaVersion
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.debugger.{CompilationCache, ScalaVersion}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -23,6 +25,7 @@ import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
+import org.junit.Assert.fail
 
 import scala.meta.ScalaMetaLibrariesOwner.MetaBaseLoader
 import scala.meta.{Compilable, ScalaMetaLibrariesOwner}
@@ -31,7 +34,9 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 
   import MetaAnnotationTestBase._
 
-  override implicit lazy val project: Project = getProject
+  override implicit def project: Project = getProject
+  override implicit protected def module: Module = metaModule
+  var metaModule: Module = _
   override def rootProject = getProject
   override def rootModule = myModule
 
@@ -42,8 +47,6 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
       case directory => directory
     }
   }
-
-  override implicit lazy val module: Module = PsiTestUtil.addModule(project, JavaModuleType.getModuleType, "meta", metaDirectory)
 
   override protected def getTestDataPath: String = TestUtils.getTestDataPath + "/scalameta"
 
@@ -62,31 +65,44 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
         }
       })
 
-    setUpCompiler(myModule)
+    metaModule = PsiTestUtil.addModule(project, JavaModuleType.getModuleType, "meta", metaDirectory)
+    addRoots(metaModule)
+    addRoots(myModule)
     setUpLibraries()
-    enableParadisePlugin()
 
     inWriteAction {
       val modifiableRootModel = myModule.modifiableModel
-      modifiableRootModel.addModuleOrderEntry(module)
+      modifiableRootModel.addModuleOrderEntry(metaModule)
       modifiableRootModel.commit()
     }
   }
 
+  override def tearDown(): Unit = {
+    tearDownLibraries()
+    metaModule = null
+    super.tearDown()
+  }
+
   protected def compileMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): List[String] = {
     addMetaSource(source)
-    runMake()
+    val cache = new CompilationCache(metaModule, Seq(version.major, ScalaMetaLibrariesOwner.metaVersion))
+    cache.withModuleOutputCache(List[String]()) {
+      setUpCompiler
+      enableParadisePlugin()
+      runMake()
+    }
   }
+
+  protected def compileAnnotBody(body: String) = compileMetaSource(mkAnnot(annotName, body))
 
   protected def addMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): Unit = {
     VfsTestUtil.createFile(metaDirectory, "meta.scala", source)
   }
 
-  private def enableParadisePlugin(): Unit = {
+  protected def enableParadisePlugin(): Unit = {
     val profile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
     val settings = profile.getSettings
-
-    settings.plugins :+= MetaParadiseLoader()(module).path
+    settings.plugins :+= MetaParadiseLoader()(metaModule).path
     profile.setSettings(settings)
   }
 
@@ -94,11 +110,19 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   protected def checkExpansionEquals(code: String, expectedExpansion: String): Unit = {
     import scala.meta.intellij.psiExt._
     myFixture.configureByText(s"Usage${getTestName(false)}.scala", code)
-    val holder = ScalaPsiUtil.getParentOfType(myFixture.getElementAtCaret, classOf[ScAnnotationsHolder]).asInstanceOf[ScAnnotationsHolder]
+    val holder = ScalaPsiUtil.getParentOfType(elementAtCaret, classOf[ScAnnotationsHolder]).asInstanceOf[ScAnnotationsHolder]
     holder.getMetaExpansion match {
       case Right(tree) => Assert.assertEquals(expectedExpansion, tree.toString())
       case Left(reason) if reason.nonEmpty => Assert.fail(reason)
       case Left("") => Assert.fail("Expansion was empty - did annotation even run?")
+    }
+  }
+
+  protected def checkExpandsNoError(): Unit = {
+    import scala.meta.intellij.psiExt._
+    testClass.getMetaExpansion match {
+      case Left(error)  => fail(s"Expansion failed: $error")
+      case _ =>
     }
   }
 
@@ -108,16 +132,19 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     gutters.get(0).asInstanceOf[GutterIconRenderer]
   }
 
-  def createFile(text: String): Unit = myFixture.configureByText(s"$testClassName.scala", text)
+  protected def createFile(text: String): Unit = myFixture.configureByText(s"$testClassName.scala", text)
 
-  // because getElementAtCaret from fixture forces resolve
+  // because getElementAtCaret from fixture forces resolve and we don't want that
   protected def elementAtCaret = PsiTreeUtil.getParentOfType(myFixture.getFile.findElementAt(myFixture.getCaretOffset-1), classOf[ScalaPsiElement])
-  protected def annotName: String = getTestName(true)
+  protected def refAtCaret = elementAtCaret match {
+    case ref: ScReferenceElement => ref
+    case other: PsiElement => PsiTreeUtil.getParentOfType(other, classOf[ScReferenceElement])
+  }
+  protected def annotName: String = s"a_${getTestName(true)}".toLowerCase
   protected def testClassName: String = getTestName(false)
-  protected def testClass: ScTypeDefinition = myFixture
-    .getFile
-    .getChildren
-    .collectFirst({case c: ScTypeDefinition if c.name == testClassName => c})
+  protected def testClass: ScTypeDefinition =  myFixture.getFile.getChildren
+    .flatMap(_.depthFirst().collectFirst{case c: ScTypeDefinition if c.name == testClassName => c})
+    .headOption
     .getOrElse{Assert.fail(s"Class $testClassName not found"); throw new RuntimeException}
   protected val tq = "\"\"\""
 }

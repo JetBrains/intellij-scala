@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
+import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinter
@@ -206,12 +206,11 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
   }
 
   //method extracted due to VerifyError in Scala compiler
-  private def updateProcessor(processor: PsiScopeProcessor, priority: Int)(body: => Unit) {
+  private def updateProcessor(processor: PsiScopeProcessor, priority: Int)(body: => Unit): Unit =
     processor match {
-      case b: BaseProcessor => b.definePriority(priority)(body)
+      case b: BaseProcessor with SubstitutablePrecedenceHelper[_] => b.runWithPriority(priority)(body)
       case _ => body
     }
-  }
 
   private def importedObjects(manager: PsiManager, scope: GlobalSearchScope, objects: Seq[String]): Seq[PsiClass] = {
     val res = new ArrayBuffer[PsiClass]

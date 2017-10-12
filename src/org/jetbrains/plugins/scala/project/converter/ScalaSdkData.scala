@@ -84,7 +84,10 @@ private object ScalaSdkData {
     ("2.8", "Scala_2_8"),
     ("2.9", "Scala_2_9"),
     ("2.10", "Scala_2_10"),
-    ("2.11", "Scala_2_11"))
+    ("2.11", "Scala_2_11"),
+    ("2.12", "Scala_2_12"))
+
+  private val DefaultLanguageLevel = "Scala_2_12"
 
   def findAllIn(context: ConversionContext): Seq[ScalaSdkData] = {
     val elements = context.getProjectLibrariesSettings.getProjectLibraries.asScala
@@ -105,7 +108,7 @@ private object ScalaSdkData {
   def languageLevelFrom(compilerClasspath: Seq[String]): String = {
     val compilerJarVersions = compilerClasspath.flatMap(path => versionOf(new File(path)).toSeq)
 
-    compilerJarVersions.headOption.flatMap(languageLevelFrom).getOrElse("Scala_2_11")
+    compilerJarVersions.headOption.flatMap(languageLevelFrom).getOrElse(DefaultLanguageLevel)
   }
   
   private def versionOf(file: File): Option[String] = {

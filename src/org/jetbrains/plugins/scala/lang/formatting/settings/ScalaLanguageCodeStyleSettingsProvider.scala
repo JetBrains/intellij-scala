@@ -85,7 +85,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       buffer ++= Seq("CLASS_BRACE_STYLE", "METHOD_BRACE_STYLE", "BRACE_STYLE")
 
       //extends list wrap
-      buffer ++= Seq("EXTENDS_LIST_WRAP", "ALIGN_MULTILINE_EXTENDS_LIST", "EXTENDS_KEYWORD_WRAP")
+      buffer ++= Seq("EXTENDS_LIST_WRAP", "EXTENDS_KEYWORD_WRAP")
 
       //method parameters
       buffer ++= Seq("METHOD_PARAMETERS_WRAP", "ALIGN_MULTILINE_PARAMETERS", "METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE",
@@ -124,6 +124,9 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
     //Custom options
     if (settingsType == SettingsType.WRAPPING_AND_BRACES_SETTINGS) {
+      showCustomOption("ALIGN_EXTENDS_WITH", ApplicationBundle.message("wrapping.align.when.multiline"),
+        ApplicationBundle.message("wrapping.extends.implements.list"), ScalaCodeStyleSettings.EXTENDS_ALIGN_STRING,
+        ScalaCodeStyleSettings.EXTENDS_ALIGN_VALUES)
       showCustomOption("WRAP_BEFORE_WITH_KEYWORD", "Wrap before 'with' keyword",
         ApplicationBundle.message("wrapping.extends.implements.list"))
       showCustomOption("ALIGN_IF_ELSE", "Align if-else statements", ApplicationBundle.message("wrapping.if.statement"))
@@ -193,6 +196,11 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("KEEP_COMMENTS_ON_SAME_LINE", "Keep one-line comments on same line", CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST", "Before opening square bracket", CodeStyleSettingsCustomizable.SPACES_IN_TYPE_PARAMETERS)
       showCustomOption("SPACE_INSIDE_SELF_TYPE_BRACES", "Self type braces", CodeStyleSettingsCustomizable.SPACES_WITHIN)
+    }
+
+    if (settingsType == SettingsType.BLANK_LINES_SETTINGS) {
+      showCustomOption("BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES", "Around method in inner scopes", CodeStyleSettingsCustomizable.BLANK_LINES)
+      showCustomOption("BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES", "Around field in inner scopes", CodeStyleSettingsCustomizable.BLANK_LINES)
     }
 
     if (settingsType == SettingsType.LANGUAGE_SPECIFIC) {

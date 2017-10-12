@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package lang.refactoring.changeSignature
+package lang
+package refactoring
+package changeSignature
 
 import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.internal.statistic.UsageTrigger
@@ -16,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
 import scala.annotation.tailrec
 
@@ -23,7 +26,7 @@ import scala.annotation.tailrec
  * Nikolay.Tropin
  * 2014-08-29
  */
-class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
+class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefactoringActionHandler {
 
   def invokeWithDialog(project: Project, fun: ScMethodLike) {
     UsageTrigger.trigger(ScalaChangeSignatureHandler.id)
@@ -31,11 +34,11 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
     dialog.show()
   }
 
-  private def invokeOnElement(project: Project, editor: Editor, element: PsiElement): Unit = {
-    def showErrorHint(message: String) = {
-      val name = ChangeSignatureHandler.REFACTORING_NAME
-      CommonRefactoringUtil.showErrorHint(project, editor, message, name, HelpID.CHANGE_SIGNATURE)
-    }
+  private def invokeOnElement(element: PsiElement)
+                             (implicit project: Project, editor: Editor): Unit = {
+    def showErrorHint =
+      ScalaRefactoringUtil.showErrorHint(_: String, ChangeSignatureHandler.REFACTORING_NAME, HelpID.CHANGE_SIGNATURE)
+
     def isSupportedFor(fun: ScMethodLike): Boolean = {
       fun match {
         case fun: ScFunction if fun.paramClauses.clauses.exists(_.isImplicit) =>
@@ -85,19 +88,25 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
     }
   }
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
+  override def invoke(file: PsiFile)
+                     (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     val element = Option(findTargetMember(file, editor))
             .getOrElse(CommonDataKeys.PSI_ELEMENT.getData(dataContext))
 
-    invokeOnElement(project, editor, element)
+    invokeOnElement(element)
   }
 
-  override def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext): Unit = {
-    if (elements.length != 1) return
-    val editor: Editor = if (dataContext == null) null else CommonDataKeys.EDITOR.getData(dataContext)
-    invokeOnElement(project, editor, elements(0))
-  }
+
+  override def invoke(elements: Array[PsiElement])
+                     (implicit project: Project, dataContext: DataContext): Unit =
+    elements match {
+      case Array(head) =>
+        implicit val editor: Editor = if (dataContext != null) CommonDataKeys.EDITOR.getData(dataContext)
+        else null
+        invokeOnElement(head)
+      case _ =>
+    }
 
   override def getTargetNotFoundMessage: String = ScalaBundle.message("error.wrong.caret.position.method.name")
 

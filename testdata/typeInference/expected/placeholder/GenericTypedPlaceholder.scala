@@ -3,4 +3,4 @@ object GenericTypedPlaceholder {
 
   foo[String](/*start*/_.length/*end*/, "")
 }
-//(String) => Int
+//String => Int

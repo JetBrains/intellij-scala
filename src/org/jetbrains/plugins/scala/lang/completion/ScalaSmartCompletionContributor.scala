@@ -88,7 +88,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               }
             }
             if (!elementAdded && chainCompletion && secondCompletion) {
-              val processor = new CompletionProcessor(StdKinds.refExprLastRef, place, false) {
+              val processor = new CompletionProcessor(StdKinds.refExprLastRef, place) {
 
                 override protected def postProcess(result: ScalaResolveResult): Unit = {
                   if (!result.isNamedParameter) {

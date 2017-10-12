@@ -1042,7 +1042,7 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
       |    def Z(i: Int) = 123
       |    val x: Int => Int = /*start*/Z/*end*/
       |  }
-      |//(Int) => Int
+      |//Int => Int
     """.stripMargin.trim
   }
 
