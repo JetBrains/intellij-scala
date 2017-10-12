@@ -12,13 +12,9 @@ resolvers in ThisBuild ++=
 
 resolvers in ThisBuild += Resolver.sonatypeRepo("snapshots")
 
-lazy val sdkDirectory = SettingKey[File]("sdk-directory", "Path to SDK directory where unmanagedJars and IDEA are located")
-
-sdkDirectory in ThisBuild := baseDirectory.in(ThisBuild).value / "SDK"
-
 ideaBuild in ThisBuild := Versions.ideaVersion
 
-ideaDownloadDirectory in ThisBuild := sdkDirectory.value / "ideaSDK"
+ideaDownloadDirectory in ThisBuild := Path.userHome / ".IdeaData" / "sdk"
 
 onLoad in Global := ((s: State) => { "updateIdea" :: s}) compose (onLoad in Global).value
 
