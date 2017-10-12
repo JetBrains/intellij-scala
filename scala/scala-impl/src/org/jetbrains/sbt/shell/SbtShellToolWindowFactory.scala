@@ -1,7 +1,14 @@
 package org.jetbrains.sbt.shell
 
+import java.awt.event.{InputEvent, KeyEvent}
+import javax.swing.KeyStroke
+
+import com.intellij.ide.actions.ActivateToolWindowAction
+import com.intellij.openapi.actionSystem.KeyboardShortcut
+import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.wm.{ToolWindow, ToolWindowAnchor, ToolWindowFactory, ToolWindowType}
+import com.intellij.openapi.wm._
+import com.intellij.openapi.wm.impl.ToolWindowImpl
 import org.jetbrains.plugins.scala.icons.Icons
 
 /**
@@ -16,6 +23,10 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
     toolWindow.setIcon(Icons.SBT_SHELL_TOOLWINDOW)
     toolWindow.setAnchor(ToolWindowAnchor.BOTTOM, null)
     toolWindow.setType(ToolWindowType.DOCKED, null)
+
+    val toolwindowId = toolWindow.asInstanceOf[ToolWindowImpl].getId
+    val actionId = ActivateToolWindowAction.getActionIdForToolWindow(toolwindowId)
+    addShortcuts(actionId)
   }
 
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
@@ -23,12 +34,22 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
     pm.openShellRunner()
   }
 
-  // TODO should probably only be available for SBT projects
-  override def shouldBeAvailable(project: Project): Boolean = true
-
   // don't auto-activate because starting sbt shell is super heavy weight
   override def isDoNotActivateOnStart: Boolean = true
 
+  private def addShortcuts(actionId: String): Unit = {
+    val keymapManager = KeymapManager.getInstance()
+
+    val defaultKeymap = keymapManager.getKeymap("$default")
+    val defaultShortcut =
+      new KeyboardShortcut(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK), null)
+    defaultKeymap.addShortcut(actionId, defaultShortcut)
+
+    // netbrans SaveAll is the only conflicting shortcut, and has the alternative ctrl+s
+    // so I think it's low impact to just remove this one conflict
+    val netbeansKeymap = keymapManager.getKeymap("NetBeans 6.5")
+    netbeansKeymap.removeShortcut("SaveAll", defaultShortcut)
+  }
 }
 
 object SbtShellToolWindowFactory {
