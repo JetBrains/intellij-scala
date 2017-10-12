@@ -6,6 +6,7 @@ import com.intellij.debugger.impl.{DebuggerManagerImpl, GenericDebuggerRunnerSet
 import com.intellij.execution.configurations._
 import com.intellij.execution.process.{ColoredProcessHandler, ProcessAdapter}
 import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.io.FileUtil
@@ -28,6 +29,8 @@ import scala.collection.JavaConverters._
 class SbtProcessManager(project: Project) extends AbstractProjectComponent(project) {
 
   import SbtProcessManager.ProcessData
+
+  private val log = Logger.getInstance(getClass)
 
   @volatile private var processData: Option[ProcessData] = None
 
@@ -166,8 +169,8 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     try {
       FileUtil.writeToFile(file, content)
     } catch {
-      case _ : IOException =>
-        // TODO log this!
+      case x : IOException =>
+        log.error(s"unable to write ${file.getPath} which is required for sbt shell support", x)
     }
   }
 
