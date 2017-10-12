@@ -39,10 +39,10 @@ object Common {
   }
 
   val testConfigDir: File =
-    Path.userHome / ".IdeaData" / "IDEA-15" / "scala" / "test-config"
+    Path.userHome / ".IdeaData" / "scala" / "test-config"
 
   val testSystemDir: File =
-    Path.userHome / ".IdeaData" / "IDEA-15" / "scala" / "test-system"
+    Path.userHome / ".IdeaData" / "scala" / "test-system"
 
   def ivyHomeDir: File =
     Option(System.getProperty("sbt.ivy.home")).fold(Path.userHome / ".ivy2")(file)

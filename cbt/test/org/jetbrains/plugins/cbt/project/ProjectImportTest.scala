@@ -357,7 +357,8 @@ class ProjectImportTest {
       case project: Project =>
         project.copy(root = replace(project.root).asInstanceOf[File],
           modules = project.modules.map(replace(_).asInstanceOf[Module]),
-          libraries = project.libraries.map(replace(_).asInstanceOf[Library])
+          libraries = project.libraries.map(replace(_).asInstanceOf[Library]),
+          cbtLibraries = project.cbtLibraries.map(replace(_).asInstanceOf[Library])
         )
       case module: Module =>
         module.copy(root = replace(module.root).asInstanceOf[File],
