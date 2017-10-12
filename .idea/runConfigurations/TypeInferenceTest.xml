@@ -13,7 +13,7 @@
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="package" />
-    <option name="VM_PARAMETERS" value="-Xms128m -Xmx1024m -XX:MaxPermSize=250m -ea -Didea.system.path=$USER_HOME$/.IdeaData/IDEA-15/scala/test-system -Didea.config.path=$USER_HOME$/.IdeaData/IDEA-15/scala/test-config -Dplugin.path=$PROJECT_DIR$/out/plugin/Scala" />
+    <option name="VM_PARAMETERS" value="-Xms128m -Xmx1024m -XX:MaxPermSize=250m -ea -Didea.system.path=$USER_HOME$/.IdeaData/scala/test-system -Didea.config.path=$USER_HOME$/.IdeaData/scala/test-config -Dplugin.path=$PROJECT_DIR$/out/plugin/Scala" />
     <option name="PARAMETERS" value="" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <option name="ENV_VARIABLES" />

@@ -3,6 +3,7 @@ import java.io.File
 import Common._
 import com.dancingrobot84.sbtidea.tasks.{UpdateIdea => updateIdeaTask}
 import sbt.Keys.{`package` => pack}
+import sbtide.Keys.ideSkipProject
 
 // Global build settings
 
@@ -12,13 +13,9 @@ resolvers in ThisBuild ++=
 
 resolvers in ThisBuild += Resolver.sonatypeRepo("snapshots")
 
-lazy val sdkDirectory = SettingKey[File]("sdk-directory", "Path to SDK directory where unmanagedJars and IDEA are located")
-
-sdkDirectory in ThisBuild := baseDirectory.in(ThisBuild).value / "SDK"
-
 ideaBuild in ThisBuild := Versions.ideaVersion
 
-ideaDownloadDirectory in ThisBuild := sdkDirectory.value / "ideaSDK"
+ideaDownloadDirectory in ThisBuild := Path.userHome / ".IdeaData" / "sdk"
 
 onLoad in Global := ((s: State) => { "updateIdea" :: s}) compose (onLoad in Global).value
 
@@ -33,9 +30,12 @@ lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
     .dependsOn(scalaImpl % "test->test;compile->compile", cbt % "test->test;compile->compile")
     .aggregate(scalaImpl, cbt)
+    .settings(
+      ideExcludedDirectories := Seq(baseDirectory.value / "out", baseDirectory.value / "tools")
+    )
 
 lazy val scalaImpl: sbt.Project =
-  newProject("scalaImpl", file("scala/scala-impl"))
+  newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
@@ -76,7 +76,7 @@ lazy val scalaImpl: sbt.Project =
   )
 
 lazy val jpsPlugin =
-  newProject("jpsPlugin", file("jps-plugin"))
+  newProject("compiler", file("scala/compiler"))
   .dependsOn(jpsShared)
   .enablePlugins(SbtIdeaPlugin)
   .settings(
@@ -86,12 +86,12 @@ lazy val jpsPlugin =
   )
 
 lazy val jpsShared =
-  newProject("jpsShared", file("jpsShared"))
+  newProject("compiler-settings", file("scala/compiler-settings"))
   .enablePlugins(SbtIdeaPlugin)
   .settings(libraryDependencies += Dependencies.nailgun)
 
 lazy val scalaRunner =
-  newProject("scalaRunner", file("ScalaRunner"))
+  newProject("scala-runners", file("scala/scala-runners"))
   .settings(
     libraryDependencies ++= DependencyGroups.scalaRunner,
     // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
@@ -99,7 +99,7 @@ lazy val scalaRunner =
   )
 
 lazy val runners =
-  newProject("runners", file("Runners"))
+  newProject("runners", file("scala/runners"))
   .dependsOn(scalaRunner)
   .settings(
     libraryDependencies ++= DependencyGroups.runners,
@@ -108,17 +108,17 @@ lazy val runners =
   )
 
 lazy val nailgunRunners =
-  newProject("nailgunRunners", file("NailgunRunners"))
+  newProject("nailgun", file("scala/nailgun"))
   .dependsOn(scalaRunner)
   .settings(libraryDependencies += Dependencies.nailgun)
 
 lazy val decompiler =
-  newProject("decompiler", file("decompiler"))
+  newProject("decompiler", file("scala/decompiler"))
     .settings(commonTestSettings(packagedPluginDir):_*)
     .settings(libraryDependencies ++= DependencyGroups.decompiler)
 
 lazy val macroAnnotations =
-  newProject("macroAnnotations", file("macroAnnotations"))
+  newProject("macros", file("scala/macros"))
   .settings(Seq(
     addCompilerPlugin(Dependencies.macroParadise),
     libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler)
@@ -132,7 +132,7 @@ lazy val cbt =
 // Utility projects
 
 lazy val ideaRunner =
-  newProject("ideaRunner", file("idea-runner"))
+  newProject("ideaRunner", file("tools/idea-runner"))
   .dependsOn(Seq(jpsShared, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, decompiler).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
@@ -161,17 +161,19 @@ lazy val ideaRunner =
     }
   )
 
-lazy val sbtRuntimeDependencies = project
+lazy val sbtRuntimeDependencies =
+  Project("sbtRuntimeDependencies", file("tools/sbt-runtime-dependencies"))
   .settings(
     libraryDependencies := DependencyGroups.sbtRuntime,
     managedScalaInstance := false,
     conflictManager := ConflictManager.all,
     conflictWarning := ConflictWarning.disable,
-    resolvers += sbt.Classpaths.sbtPluginReleases
+    resolvers += sbt.Classpaths.sbtPluginReleases,
+    ideSkipProject := true
   )
 
 lazy val testDownloader =
-  newProject("testJarsDownloader")
+  newProject("testJarsDownloader", file("tools/test-jars-downloader"))
   .settings(
     conflictManager := ConflictManager.all,
     conflictWarning := ConflictWarning.disable,
@@ -190,7 +192,7 @@ lazy val testDownloader =
   )
 
 lazy val sbtLaunchTestDownloader =
-  newProject("sbtLaunchTestDownloader")
+  newProject("sbtLaunchTestDownloader", file("tools/sbt-launch-test-downloader"))
   .settings(
     autoScalaLibrary := false,
     conflictManager := ConflictManager.all,
@@ -199,7 +201,7 @@ lazy val sbtLaunchTestDownloader =
   )
 
 lazy val jmhBenchmarks =
-  newProject("jmhBenchmarks")
+  newProject("benchmarks", file("scala/benchmarks"))
     .dependsOn(scalaImpl % "test->test")
     .enablePlugins(JmhPlugin)
 
@@ -257,7 +259,7 @@ iLoopWrapperPath := baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrap
 
 
 lazy val pluginPackagerCommunity =
-  newProject("pluginPackagerCommunity")
+  newProject("pluginPackagerCommunity", file("tools/packager"))
   .settings(
     artifactPath := packagedPluginDir.value,
     dependencyClasspath :=
@@ -340,25 +342,28 @@ lazy val pluginPackagerCommunity =
     pack := {
       Packaging.packagePlugin(mappings.value, artifactPath.value)
       artifactPath.value
-    }
+    },
+    ideSkipProject := true
   )
 
 
 lazy val pluginCompressorCommunity =
-  newProject("pluginCompressorCommunity")
+  newProject("pluginCompressorCommunity", file("tools/compressor"))
   .settings(
     artifactPath := baseDirectory.in(ThisBuild).value / "out" / "scala-plugin.zip",
     pack := {
       Packaging.compressPackagedPlugin(pack.in(pluginPackagerCommunity).value, artifactPath.value)
       artifactPath.value
-    }
+    },
+    ideSkipProject := true
   )
 
 lazy val repackagedZinc =
-  newProject("repackagedZinc")
+  newProject("repackagedZinc", file("tools/zinc"))
   .settings(
     assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
-    libraryDependencies += Dependencies.zinc
+    libraryDependencies += Dependencies.zinc,
+    ideSkipProject := true
   )
 
 updateIdea := {
