@@ -13,7 +13,7 @@ addons:
 
 env:
   global:
-    - IDEA_SDK=$TRAVIS_BUILD_DIR/SDK/ideaSDK
+    - IDEA_SDK=$HOME/.IdeaData/sdk
   # split up tests into several subsets to avoid 50m timeout
 #  matrix:
 #    - COMMAND=runFastTestsComIntelliJ
