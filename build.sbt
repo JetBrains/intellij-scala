@@ -227,7 +227,7 @@ concurrentRestrictions in Global := Seq(
 
 lazy val packagedPluginDir = settingKey[File]("Path to packaged, but not yet compressed plugin")
 
-packagedPluginDir in ThisBuild := baseDirectory.in(ThisBuild).value / "out" / "plugin" / "Scala"
+packagedPluginDir in ThisBuild := baseDirectory.in(ThisBuild).value / "target" / "plugin" / "Scala"
 
 lazy val iLoopWrapperPath = settingKey[File]("Path to repl interface sources")
 
@@ -322,7 +322,7 @@ lazy val pluginPackagerCommunity =
 lazy val pluginCompressorCommunity =
   newProject("pluginCompressorCommunity")
   .settings(
-    artifactPath := baseDirectory.in(ThisBuild).value / "out" / "scala-plugin.zip",
+    artifactPath := baseDirectory.in(ThisBuild).value / "target" / "scala-plugin.zip",
     pack := {
       Packaging.compressPackagedPlugin(pack.in(pluginPackagerCommunity).value, artifactPath.value)
       artifactPath.value
@@ -351,5 +351,5 @@ packILoopWrapper := {
   val fn = iLoopWrapperPath.value
 
   IO.zip(Seq((fn, fn.getName)),
-    baseDirectory.in(BuildRef(file(".").toURI)).value / "out" / "plugin" / "Scala" / "lib" / "jps" / "repl-interface-sources.jar")
+    baseDirectory.in(BuildRef(file(".").toURI)).value / "target" / "plugin" / "Scala" / "lib" / "jps" / "repl-interface-sources.jar")
 }
