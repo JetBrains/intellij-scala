@@ -25,7 +25,7 @@ import _root_.scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
-  override def getPresentableName = "Scala SBT builder"
+  override def getPresentableName = "Scala sbt builder"
 
   override def buildStarted(context: CompileContext): Unit = {
     val project: JpsProject = context.getProjectDescriptor.getProject

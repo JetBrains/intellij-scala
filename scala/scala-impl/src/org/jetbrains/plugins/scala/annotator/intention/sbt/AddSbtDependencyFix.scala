@@ -32,7 +32,7 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
     ! file.isInstanceOf[ScalaCodeFragment]
   }
 
-  override def getText: String = "Add SBT dependency..."
+  override def getText: String = "Add sbt dependency..."
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     val baseDir: VirtualFile = project.getBaseDir
@@ -114,7 +114,7 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
     result.getText
   }
 
-  override def getFamilyName = "Add SBT dependencies"
+  override def getFamilyName = "Add sbt dependencies"
 
   override def startInWriteAction(): Boolean = false
 }

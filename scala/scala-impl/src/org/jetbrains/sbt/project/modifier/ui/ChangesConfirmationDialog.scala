@@ -25,7 +25,7 @@ import scala.collection.mutable
 class ChangesConfirmationDialog private (val project: IJProject, private val changes: List[BuildFileChange], var myChangesBrowser: BuildFileChangeBrowser,
                                          val fileStatusMap: mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)], val canExcludeChanges: Boolean = false) extends DialogWrapper(project) {
 
-  setTitle("SBT build file changes")
+  setTitle("sbt build file changes")
   init()
 
   def selectedChanges: List[BuildFileChange] = {

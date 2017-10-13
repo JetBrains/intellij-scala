@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
- * Form with configuration of SBT runner.
+ * Form with configuration of sbt runner.
  */
 public class SbtRunConfigurationForm {
   private JPanel mainPanel;

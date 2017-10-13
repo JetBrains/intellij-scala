@@ -31,7 +31,7 @@ import scala.collection.JavaConverters._
  */
 class SbtProjectComponent(project: Project) extends AbstractProjectComponent(project) {
 
-  private val SBT_MAVEN_NOTIFICATION_GROUP = "Unindexed maven repositories for SBT detection"
+  private val SBT_MAVEN_NOTIFICATION_GROUP = "Unindexed maven repositories for sbt detection"
 
   override def projectOpened(): Unit = {
     manager.addPsiTreeChangeListener(TreeListener)
@@ -123,7 +123,7 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
         val ui = ProjectStructureConfigurable.getInstance(project)
         val editor = new SingleConfigurableEditor(project, ui)
         val module = ui.getModulesConfig.getModules.find(ModuleType.get(_).isInstanceOf[SbtModuleType])
-        ui.select(module.get.getName, "SBT", false)
+        ui.select(module.get.getName, "sbt", false)
         //Project Structure should be shown in a transaction
         TransactionGuard.getInstance().submitTransactionAndWait(() => editor.show())
       })
@@ -133,7 +133,7 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
           s"""Notification will be disabled for all projects
 Settings | Appearance & Behavior | Notifications | $SBT_MAVEN_NOTIFICATION_GROUP
 can be used to configure the notification.""".stripMargin,
-          "Unindexed Maven Repositories SBT Detection",
+          "Unindexed Maven Repositories sbt Detection",
           "Disable Notification",
           CommonBundle.getCancelButtonText,
           Messages.getWarningIcon)

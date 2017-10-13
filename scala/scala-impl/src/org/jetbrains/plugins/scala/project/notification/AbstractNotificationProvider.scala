@@ -42,7 +42,7 @@ abstract class AbstractNotificationProvider(project: Project, notifications: Edi
 
   private def isSourceCode(file: PsiFile): Boolean =
     file.getLanguage.isKindOf(ScalaLanguage.INSTANCE) &&
-      !file.getName.endsWith(".sbt") && // root SBT files belong to main (not *-build) modules
+      !file.getName.endsWith(".sbt") && // root sbt files belong to main (not *-build) modules
       file.isWritable
 
   protected def hasDeveloperKit(module: Module): Boolean

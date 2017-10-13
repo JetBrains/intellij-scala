@@ -25,10 +25,10 @@ class SbtStartupActivity extends StartupActivity {
       project.getUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT) != java.lang.Boolean.TRUE &&
       SbtProjectImportProvider.canImport(project.getBaseDir)
     ) {
-      val message = s"""<a href="$ImportDescription">Import SBT project</a>"""
+      val message = s"""<a href="$ImportDescription">Import sbt project</a>"""
 
       NotificationGroup.balloonGroup(Sbt.Name)
-        .createNotification("SBT project detected", message, NotificationType.INFORMATION, notificationListener(project))
+        .createNotification("sbt project detected", message, NotificationType.INFORMATION, notificationListener(project))
         .notify(project)
     }
 

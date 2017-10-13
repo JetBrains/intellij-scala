@@ -109,7 +109,7 @@ object SbtTestEventHandler {
   val testPendingRegex: Pattern = Pattern.compile("\\[info\\] Test Pending - ([^:]+): (.+)")
   val testIgnoredRegex: Pattern = Pattern.compile("\\[info\\] Test Ignored - ([^:]+): (.+)")
 
-//TODO maybe parse failed test location later (info from SBT output is not enough anyway)
+// TODO maybe parse failed test location later (info from sbt output is not enough anyway)
 //  def failedLocationRegex(failureMessage: String): Pattern = Pattern.compile(s"\\[info\\] ([\\s]+)$failureMessage \\(([^\\)]+)\\)")
 
   val regexes: List[Pattern] = List(testStartRegex, testSuccessfulRegex, testFailedRegex, suiteStartRegex,

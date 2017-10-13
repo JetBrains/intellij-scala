@@ -12,11 +12,11 @@ import org.jetbrains.plugins.scala.icons.Icons
  * @author Pavel Fatin
  */
 object Sbt {
-  val Name = "SBT"
+  val Name = "sbt"
 
   val FileExtension = "sbt"
 
-  val FileDescription = "SBT files"
+  val FileDescription = "sbt files"
 
   val BuildFile = "build.sbt"
 
@@ -30,15 +30,15 @@ object Sbt {
 
   val ModulesDirectory = ".idea/modules"
 
-  val ProjectDescription = "SBT project"
+  val ProjectDescription = "sbt project"
 
-  val ProjectLongDescription = "Project backed by SBT"
+  val ProjectLongDescription = "Project backed by sbt"
 
   val BuildModuleSuffix = "-build"
 
-  val BuildModuleName = "SBT module"
+  val BuildModuleName = "sbt module"
 
-  val BuildModuleDescription = "SBT modules are used to mark content roots and to provide libraries for SBT project definitions"
+  val BuildModuleDescription = "sbt modules are used to mark content roots and to provide libraries for sbt project definitions"
 
   val BuildLibraryName = "sbt-and-plugins"
 

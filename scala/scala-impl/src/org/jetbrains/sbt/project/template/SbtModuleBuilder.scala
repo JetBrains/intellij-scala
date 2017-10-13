@@ -44,7 +44,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
   private val selections = new Selections()
 
-  private lazy val sbtVersions: Array[String] = withProgressSynchronously("Fetching SBT versions") { _ =>
+  private lazy val sbtVersions: Array[String] = withProgressSynchronously("Fetching sbt versions") { _ =>
     Versions.loadSbtVersions
   }
 
@@ -108,7 +108,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     )
 
     val resolveSbtClassifiersCheckBox = applyTo(new JCheckBox(SbtBundle("sbt.settings.sources")))(
-      _.setToolTipText("Download SBT sources (useful for editing the project definition)"),
+      _.setToolTipText("Download sbt sources (useful for editing the project definition)"),
       _.setSelected(selections.resolveSbtClassifiers)
     )
 

@@ -73,7 +73,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val configuredSdk = sbtSettings.jdk.map(JdkByName).flatMap(SdkUtils.findProjectSdk)
     val sdk = configuredSdk.getOrElse(projectSdk)
     // TODO prompt user to setup a JDK
-    assert(sdk != null, "Setup a project JDK to run the SBT shell")
+    assert(sdk != null, "Setup a project JDK to run the sbt shell")
 
     val javaParameters: JavaParameters = new JavaParameters
     javaParameters.setJdk(sdk)

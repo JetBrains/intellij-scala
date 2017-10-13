@@ -56,7 +56,7 @@ trait RemoteResourceOwner {
           }
         // Main server class redirects all (unexpected) stdout data to stderr.
         // In theory, there should be no such data at all, however, in practice,
-        // SBT "leaks" some messages into console (e.g. for "explain type errors" option).
+        // sbt "leaks" some messages into console (e.g. for "explain type errors" option).
         // Report such output not as errors, but as warings (to continue make process).
         case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
           client.message(Kind.WARNING, fromBytes(data))

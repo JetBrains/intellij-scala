@@ -44,7 +44,7 @@ object ModuleExtDataService {
         module <- getIdeModuleByNode(dataNode)
         data = dataNode.getData
       } {
-        module.configureScalaCompilerSettingsFrom("SBT", data.scalacOptions)
+        module.configureScalaCompilerSettingsFrom("sbt", data.scalacOptions)
         data.scalaVersion.foreach(version => configureScalaSdk(module, data.scalaOrganization, version, data.scalacClasspath))
         configureOrInheritSdk(module, data.jdk)
         configureLanguageLevel(module, data.javacOptions)

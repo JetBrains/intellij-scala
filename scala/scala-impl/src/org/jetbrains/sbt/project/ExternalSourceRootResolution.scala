@@ -30,7 +30,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
           | $externalRootsStr
           | These source roots cannot be included in the IDEA project model.
           | </p><p>
-          | <strong>Solution:</strong> declare an SBT project for these sources and include the project in dependencies.
+          | <strong>Solution:</strong> declare an sbt project for these sources and include the project in dependencies.
           | </p>
         """.stripMargin
       self.taskListener.onTaskOutput(WarningMessage(msg), stdOut = false)
