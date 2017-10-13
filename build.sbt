@@ -31,7 +31,7 @@ lazy val scalaCommunity: sbt.Project =
     .dependsOn(scalaImpl % "test->test;compile->compile", cbt % "test->test;compile->compile")
     .aggregate(scalaImpl, cbt)
     .settings(
-      ideExcludedDirectories := Seq(baseDirectory.value / "out", baseDirectory.value / "tools")
+      ideExcludedDirectories := Seq(baseDirectory.value / "tools")
     )
 
 lazy val scalaImpl: sbt.Project =
@@ -251,7 +251,7 @@ communityFullClasspath in ThisBuild :=
 
 lazy val packagedPluginDir = settingKey[File]("Path to packaged, but not yet compressed plugin")
 
-packagedPluginDir in ThisBuild := baseDirectory.in(ThisBuild).value / "out" / "plugin" / "Scala"
+packagedPluginDir in ThisBuild := baseDirectory.in(ThisBuild).value / "target" / "plugin" / "Scala"
 
 lazy val iLoopWrapperPath = settingKey[File]("Path to repl interface sources")
 
@@ -387,5 +387,5 @@ packILoopWrapper := {
   val fn = iLoopWrapperPath.value
 
   IO.zip(Seq((fn, fn.getName)),
-    baseDirectory.in(BuildRef(file(".").toURI)).value / "out" / "plugin" / "Scala" / "lib" / "jps" / "repl-interface-sources.jar")
+    baseDirectory.in(BuildRef(file(".").toURI)).value / "target" / "plugin" / "Scala" / "lib" / "jps" / "repl-interface-sources.jar")
 }
