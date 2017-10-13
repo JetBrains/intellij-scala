@@ -8,7 +8,7 @@
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="directory" />
-    <option name="VM_PARAMETERS" value="-Xmx800m -XX:ReservedCodeCacheSize=64m -XX:+HeapDumpOnOutOfMemoryError -XX:MaxPermSize=250m -ea -Didea.is.internal=true -Didea.debug.mode=true -Didea.system.path=$USER_HOME$/.IdeaData/scala/system -Didea.config.path=$USER_HOME$/.IdeaData/scala/config -Dapple.laf.useScreenMenuBar=true -Dplugin.path=$PROJECT_DIR$/target/plugin/Scala" />
+    <option name="VM_PARAMETERS" value="-Xmx800m -XX:ReservedCodeCacheSize=64m -XX:+HeapDumpOnOutOfMemoryError -ea -Didea.is.internal=true -Didea.debug.mode=true -Didea.system.path=$USER_HOME$/.IdeaData/scala/system -Didea.config.path=$USER_HOME$/.IdeaData/scala/config -Dapple.laf.useScreenMenuBar=true -Dplugin.path=$PROJECT_DIR$/target/plugin/Scala" />
     <option name="PARAMETERS" value="" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <option name="ENV_VARIABLES" />
