@@ -14,17 +14,13 @@ addons:
 env:
   global:
     - IDEA_SDK=$HOME/.IdeaData/sdk
-  # split up tests into several subsets to avoid 50m timeout
-#  matrix:
-#    - COMMAND=runFastTestsComIntelliJ
-#    - COMMAND=runFastTestsOrgJetbrains
-#    - COMMAND=runFastTestsScala
 
 before_script:
   # relies on travis supporting sbt-extras launcher
   - sbt -jvm-opts travis/package.jvmopts packagePluginCommunity test:compile setUpTestEnvironment
 
 script:
+  # only typeInference tests are run because Travis times out even for the fastTests selection
   - sbt -jvm-opts travis/fastTests.jvmopts runTypeInferenceTests
 
 
@@ -42,4 +38,4 @@ before_cache:
   - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
   - find $IDEA_SDK -name "ideaIC-*.zip" -delete
   # remove all but the newest ideaSDK
-  - ls -Art $IDEA_SDK | tail -n 1 | xargs find $IDEA_SDK -maxdepth 1 -mindepth 1 -print -not -name
+  - ls -Art $IDEA_SDK | tail -n 1 | xargs find $IDEA_SDK -maxdepth 1 -mindepth 1 -not -name | xargs rm -r
