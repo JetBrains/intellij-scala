@@ -20,8 +20,6 @@ import java.util.Map;
 class HydraCompilerSettings implements PersistentStateComponent<HydraCompilerSettings> {
   public boolean isHydraEnabled = false;
 
-  public Map<String, List<String>> artifactPaths = new HashMap();
-
   public String hydraVersion = "";
 
   public HydraCompilerSettings getState() {

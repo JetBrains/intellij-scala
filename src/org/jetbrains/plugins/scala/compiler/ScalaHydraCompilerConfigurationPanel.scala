@@ -9,20 +9,20 @@ import org.jetbrains.plugins.scala.extensions
 import com.intellij.openapi.project.Project
 import com.intellij.ui.DocumentAdapter
 import org.jetbrains.plugins.scala.project.{ProjectExt, Version, Versions}
+import org.jetbrains.plugins.scala.settings.HydraApplicationSettings
 
-import scala.collection.JavaConverters._
 import scala.util.{Failure, Success}
 
 /**
   * @author Maris Alexandru
   */
-class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraCompilerSettings) extends HydraCompilerConfigurationPanel {
+class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraCompilerSettings, hydraGlobalSettings: HydraApplicationSettings) extends HydraCompilerConfigurationPanel {
 
-  val documentAdapter = new DocumentAdapter {
+  private val documentAdapter = new DocumentAdapter {
     override def textChanged(documentEvent: DocumentEvent): Unit = downloadButton.setEnabled(getUsername.nonEmpty && getPassword.nonEmpty)
   }
 
-  val focusListener = new FocusListener {
+  private val focusListener = new FocusListener {
     override def focusGained(e: FocusEvent): Unit = {}
 
     override def focusLost(e: FocusEvent): Unit = if (getUsername.nonEmpty && getPassword.nonEmpty &&
@@ -32,6 +32,7 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
     }
   }
 
+  hydraGlobalSettings.getState
   userTextField.addFocusListener(focusListener)
   userTextField.getDocument.addDocumentListener(documentAdapter)
   passwordTextField.getDocument.addDocumentListener(documentAdapter)
@@ -60,7 +61,7 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
     } yield filteredVersion
 
     val filteredScalaVersionsString = filteredScalaVersions.mkString(", ")
-    val scalaVersionsToBeDownloaded = filteredScalaVersions.filterNot(settings.artifactPaths.containsKey(_))
+    val scalaVersionsToBeDownloaded = filteredScalaVersions.filterNot(hydraGlobalSettings.artifactPaths.contains(_, hydraVersion))
     val scalaVersionsToBeDownloadedString = scalaVersionsToBeDownloaded.mkString(", ")
     if (scalaVersionsToBeDownloaded.nonEmpty) {
       val result = extensions.withProgressSynchronouslyTry(s"Downloading Hydra $hydraVersion for $scalaVersionsToBeDownloadedString")(downloadVersion(scalaVersionsToBeDownloaded, hydraVersion))
@@ -76,6 +77,6 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
   }
 
   private def downloadVersion(scalaVersions: Seq[String], hydraVersion: String): (String => Unit) => Unit =
-    (listener: String => Unit) => scalaVersions.foreach(version =>
-      settings.artifactPaths.put(version,HydraArtifactsCache.getOrDownload(version, hydraVersion, listener).asJava))
+    (listener: (String) => Unit) => scalaVersions.foreach(version => HydraArtifactsCache.downloadIfNotPresent(version, hydraVersion, listener))
+
 }

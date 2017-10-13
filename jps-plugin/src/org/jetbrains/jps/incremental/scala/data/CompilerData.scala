@@ -28,8 +28,9 @@ object CompilerData {
     val module = target.getModule
 
     def useHydraCompiler(jars: CompilerJars): Boolean = {
+      val hydraGlobalSettings = SettingsManager.getGlobalHydraSettings(project.getModel.getGlobal)
       val hydraProjectSettings = SettingsManager.getHydraSettings(project.getProject)
-      hydraProjectSettings.isHydraEnabled && compilerVersion(module).nonEmpty && hydraProjectSettings.getArtifactPaths.containsKey(compilerVersion(module).get)
+      hydraProjectSettings.isHydraEnabled && compilerVersion(module).nonEmpty && hydraGlobalSettings.containsArtifactsFor(compilerVersion(module).get, hydraProjectSettings.getHydraVersion)
     }
 
     val compilerJars = if (SettingsManager.hasScalaSdk(module)) {

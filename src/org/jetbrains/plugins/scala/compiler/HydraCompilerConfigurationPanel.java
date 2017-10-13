@@ -8,7 +8,6 @@ import org.jetbrains.sbt.project.template.SComboBox;
 import javax.swing.*;
 import java.awt.*;
 
-
 /**
  * @author Maris Alexandru
  */
@@ -50,6 +49,25 @@ public class HydraCompilerConfigurationPanel {
 
   public boolean isHydraEnabled() {
     return enableHydraCheckBox.isSelected();
+  }
+
+  /**
+   * @noinspection ALL
+   */
+  private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
+    if (currentFont == null) return null;
+    String resultName;
+    if (fontName == null) {
+      resultName = currentFont.getName();
+    } else {
+      Font testFont = new Font(fontName, Font.PLAIN, 10);
+      if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
+        resultName = fontName;
+      } else {
+        resultName = currentFont.getName();
+      }
+    }
+    return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
   }
 
   {
@@ -98,25 +116,6 @@ public class HydraCompilerConfigurationPanel {
     panel1.add(downloadButton, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     hydraVersionComboBox = new SComboBox();
     panel1.add(hydraVersionComboBox, new GridConstraints(2, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-  }
-
-  /**
-   * @noinspection ALL
-   */
-  private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
-    if (currentFont == null) return null;
-    String resultName;
-    if (fontName == null) {
-      resultName = currentFont.getName();
-    } else {
-      Font testFont = new Font(fontName, Font.PLAIN, 10);
-      if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
-        resultName = fontName;
-      } else {
-        resultName = currentFont.getName();
-      }
-    }
-    return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
   }
 
   /**

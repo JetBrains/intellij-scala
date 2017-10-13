@@ -28,9 +28,6 @@ public class HydraSettingsImpl extends JpsElementBase<HydraSettingsImpl> impleme
     return myState.hydraVersion;
   }
 
-  @Override
-  public Map<String, List<String>> getArtifactPaths() { return myState.artifactPaths; }
-
   @NotNull
   @Override
   public HydraSettingsImpl createCopy() {
@@ -45,6 +42,5 @@ public class HydraSettingsImpl extends JpsElementBase<HydraSettingsImpl> impleme
   public static class State {
     public boolean isHydraEnabled = false;
     public String hydraVersion = "";
-    public Map<String, List<String>> artifactPaths = new HashMap();
   }
 }

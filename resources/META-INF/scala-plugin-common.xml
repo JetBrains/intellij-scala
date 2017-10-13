@@ -420,8 +420,11 @@
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
 
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.HydraApplicationSettings"
+                            serviceImplementation="org.jetbrains.plugins.scala.settings.HydraApplicationSettings"/>
+
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.HydraCompilerSettings"
-                            serviceImplementation="org.jetbrains.plugins.scala.compiler.HydraCompilerSettings"/>
+                        serviceImplementation="org.jetbrains.plugins.scala.compiler.HydraCompilerSettings"/>
 
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>

@@ -77,9 +77,10 @@ object CompilationData {
       val canonicalSources = sources.map(_.getCanonicalFile)
 
       val hydraSettings = SettingsManager.getHydraSettings(context.getProjectDescriptor.getProject)
+      val hydraGlobalSettings = SettingsManager.getGlobalHydraSettings(context.getProjectDescriptor.getModel.getGlobal)
       val scalaVersion = CompilerData.compilerVersion(module)
       val hydraOptions =
-        if (hydraSettings.isHydraEnabled && scalaVersion.nonEmpty && hydraSettings.getArtifactPaths.containsKey(scalaVersion.get))
+        if (hydraSettings.isHydraEnabled && scalaVersion.nonEmpty && hydraGlobalSettings.containsArtifactsFor(scalaVersion.get, hydraSettings.getHydraVersion))
           Seq("-sourcepath", outputGroups.map(_._1).mkString(File.pathSeparator), "-cpus", "2")
         else
           Seq.empty

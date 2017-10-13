@@ -29,7 +29,8 @@ object HydraData {
   val HydraBridgeNameRegex = s".*${HydraData.HydraBridgeName}-(\\d+\\.\\d+\\.\\d+)-sources.jar".r
 
   def apply(project: JpsProject, scalaVersion: String): HydraData = {
-    val files = SettingsManager.getHydraSettings(project).getArtifactPaths.getOrDefault(scalaVersion, List[String]().asJava).asScala.map(new File(_)).toList
+    val hydraProjectSettings = SettingsManager.getHydraSettings(project)
+    val files = SettingsManager.getGlobalHydraSettings(project.getModel.getGlobal).getArtifactsFor(scalaVersion,hydraProjectSettings.getHydraVersion).asScala.map(new File(_)).toList
 
     new HydraData(project, files, scalaVersion)
   }

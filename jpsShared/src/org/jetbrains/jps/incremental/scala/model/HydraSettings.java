@@ -11,5 +11,4 @@ import java.util.Map;
 public interface HydraSettings extends JpsElement {
   boolean isHydraEnabled();
   String getHydraVersion();
-  Map<String, List<String>> getArtifactPaths();
 }
