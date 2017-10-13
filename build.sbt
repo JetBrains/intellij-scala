@@ -132,7 +132,7 @@ lazy val cbt =
 // Utility projects
 
 lazy val ideaRunner =
-  newProject("ideaRunner", file("tools/idea-runner"))
+  newProject("idea-runner", file("tools/idea-runner"))
   .dependsOn(Seq(jpsShared, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, decompiler).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
