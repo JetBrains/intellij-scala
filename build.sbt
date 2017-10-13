@@ -350,7 +350,7 @@ lazy val pluginPackagerCommunity =
 lazy val pluginCompressorCommunity =
   newProject("pluginCompressorCommunity", file("tools/compressor"))
   .settings(
-    artifactPath := baseDirectory.in(ThisBuild).value / "out" / "scala-plugin.zip",
+    artifactPath := baseDirectory.in(ThisBuild).value / "target" / "scala-plugin.zip",
     pack := {
       Packaging.compressPackagedPlugin(pack.in(pluginPackagerCommunity).value, artifactPath.value)
       artifactPath.value
