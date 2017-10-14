@@ -20,7 +20,7 @@ import scala.collection.JavaConverters._
 case class CompilerData(compilerJars: Option[CompilerJars], javaHome: Option[File], incrementalType: IncrementalityType)
 
 object CompilerData {
-  private val Log: JpsLogger = JpsLogger.getInstance(CompilationData.getClass.getName)
+  private val Log: JpsLogger = JpsLogger.getInstance(CompilerData.getClass.getName)
 
   def from(context: CompileContext, chunk: ModuleChunk): Either[String, CompilerData] = {
     val project = context.getProjectDescriptor
