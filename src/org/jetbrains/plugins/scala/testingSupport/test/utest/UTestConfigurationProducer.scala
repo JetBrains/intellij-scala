@@ -114,7 +114,7 @@ class UTestConfigurationProducer extends {
             block.getParent match {
               case argList: ScArguments =>
                 argList.getParent match {
-                  case call: ScMethodCall if TestNodeProvider.isUTestSuiteApplyCall(call) =>
+                  case call: ScMethodCall if TestNodeProvider.isUTestSuiteApplyCall(call) || TestNodeProvider.isUTestTestsCall(call) =>
                     getTestSuiteName(call).map(_ + "\\" + testScopeName)
                   case call: ScMethodCall if TestNodeProvider.isUTestApplyCall(call) =>
                     buildPathFromTestExpr(call).map(_ + "\\" + testScopeName)
@@ -148,7 +148,8 @@ class UTestConfigurationProducer extends {
     if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(containingObject, suitePath))) return (null, null)
 
     val nameContainer = ScalaPsiUtil.getParentWithProperty(element, strict = false,
-      e => TestNodeProvider.isUTestInfixExpr(e) || TestNodeProvider.isUTestSuiteApplyCall(e) || TestNodeProvider.isUTestApplyCall(e))
+      e => TestNodeProvider.isUTestInfixExpr(e) || TestNodeProvider.isUTestSuiteApplyCall(e) ||
+        TestNodeProvider.isUTestApplyCall(e) || TestNodeProvider.isUTestTestsCall(e))
     val testName = nameContainer.flatMap {
       case infixExpr: ScInfixExpr =>
         //test location is a scope defined through infix '-'
