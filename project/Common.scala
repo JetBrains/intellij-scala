@@ -7,12 +7,6 @@ object Common {
   lazy val communityFullClasspath: TaskKey[Classpath] =
     taskKey[Classpath]("scalaCommunity module's fullClasspath in Compile and Test scopes")
 
-  lazy val testConfigDir: TaskKey[File] =
-    taskKey[File]("IDEA's config directory for tests")
-
-  lazy val testSystemDir: TaskKey[File] =
-    taskKey[File]("IDEA's system directory for tests")
-
   def newProject(projectName: String, base: File): Project =
     Project(projectName, base).settings(
       name := projectName,
@@ -44,6 +38,12 @@ object Common {
     val scalacTests: String = cat("ScalacTests")
   }
 
+  val testConfigDir: File =
+    Path.userHome / ".IdeaData" / "scala" / "test-config"
+
+  val testSystemDir: File =
+    Path.userHome / ".IdeaData" / "scala" / "test-system"
+
   def ivyHomeDir: File =
     Option(System.getProperty("sbt.ivy.home")).fold(Path.userHome / ".ivy2")(file)
 
@@ -56,8 +56,8 @@ object Common {
       "-Xmx4096m",
       "-server",
       "-ea",
-      s"-Didea.system.path=${testSystemDir.value}",
-      s"-Didea.config.path=${testConfigDir.value}",
+      s"-Didea.system.path=$testSystemDir",
+      s"-Didea.config.path=$testConfigDir",
       s"-Dsbt.ivy.home=$ivyHomeDir",
       s"-Dplugin.path=${packagedPluginDir.value}"
       // to enable debugging of tests running in external sbt instance

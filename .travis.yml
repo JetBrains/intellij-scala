@@ -13,7 +13,7 @@ addons:
 
 env:
   global:
-    - IDEA_SDK=$HOME/.ScalaPluginIC/sdk
+    - IDEA_SDK=$HOME/.IdeaData/sdk
   # split up tests into several subsets to avoid 50m timeout
 #  matrix:
 #    - COMMAND=runFastTestsComIntelliJ

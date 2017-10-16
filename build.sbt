@@ -15,11 +15,7 @@ resolvers in ThisBuild += Resolver.sonatypeRepo("snapshots")
 
 ideaBuild in ThisBuild := Versions.ideaVersion
 
-ideaDownloadDirectory in ThisBuild := Path.userHome / ".ScalaPluginIC" / "sdk"
-
-testConfigDir in ThisBuild := Path.userHome / ".ScalaPluginIC" / "test-config"
-
-testSystemDir in ThisBuild := Path.userHome / ".ScalaPluginIC" / "test-system"
+ideaDownloadDirectory in ThisBuild := Path.userHome / ".IdeaData" / "sdk"
 
 onLoad in Global := ((s: State) => { "updateIdea" :: s}) compose (onLoad in Global).value
 
@@ -240,8 +236,8 @@ setUpTestEnvironment in ThisBuild := {
 lazy val cleanUpTestEnvironment = taskKey[Unit]("Clean up IDEA test system and config directories")
 
 cleanUpTestEnvironment in ThisBuild := {
-  IO.delete(testSystemDir.value)
-  IO.delete(testConfigDir.value)
+  IO.delete(testSystemDir)
+  IO.delete(testConfigDir)
 }
 
 concurrentRestrictions in Global := Seq(
