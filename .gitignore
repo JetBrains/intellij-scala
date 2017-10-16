@@ -7,15 +7,11 @@
 .idea/*.xml
 !.idea/vcs.xml
 !.idea/uiDesigner.xml
-/out
-/SDK/*SDK
 /target
 /*.bat
 *.class
 !scala/scala-impl/testdata/decompiler/**/*.class
 !scala/scala-runners/resources/**/*.class
-out
-build
 .DS_Store
 *~
 target/
