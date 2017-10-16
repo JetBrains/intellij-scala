@@ -52,6 +52,10 @@ public class UTestPath {
     return new UTestPath(qualifiedClassName);
   }
 
+  public UTestPath getMethodPath() {
+    return new UTestPath(qualifiedClassName, new LinkedList<String>(), method);
+  }
+
   public UTestPath parent() {
     if (path.isEmpty() && method == null) {
       return null;
@@ -105,7 +109,7 @@ public class UTestPath {
     if (other instanceof UTestPath) {
       UTestPath otherPath = (UTestPath) other;
       return otherPath.qualifiedClassName.equals(qualifiedClassName) && otherPath.path.equals(path) &&
-          (otherPath.method != null && otherPath.method.equals(method) || otherPath.method == null && method == null);
+        (otherPath.method != null && otherPath.method.equals(method) || otherPath.method == null && method == null);
     } else {
       return false;
     }

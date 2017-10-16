@@ -146,7 +146,7 @@ object DependencyGroups {
     "org.scala-lang" % "scala-compiler" % scalaVersion,
     specs2,
     "org.scalatest" %% "scalatest" % "3.0.1" % "provided",
-    "com.lihaoyi" %% "utest" % "0.4.8" % "provided"
+    "com.lihaoyi" %% "utest" % "0.5.4" % "provided"
   )
 
   val sbtLaunchTestDownloader: Seq[ModuleID] =
@@ -167,6 +167,7 @@ object DependencyGroups {
     "com.lihaoyi" % "utest_2.10" % "0.4.3" % "provided",
     "com.lihaoyi" % "utest_2.11" % "0.3.1" % "provided",
     "com.lihaoyi" % "utest_2.11" % "0.4.3" % "provided",
+    "com.lihaoyi" % "utest_2.11" % "0.5.4" % "provided",
     "com.typesafe.akka" % "akka-actor_2.11" % "2.4.19",
     "com.typesafe.akka" % "akka-stream_2.11" % "2.4.19",
     "com.typesafe.play" % "play_2.10" % "2.4.10",

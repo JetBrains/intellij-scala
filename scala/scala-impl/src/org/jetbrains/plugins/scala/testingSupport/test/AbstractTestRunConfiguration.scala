@@ -50,7 +50,7 @@ import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, Settin
 
 import scala.annotation.tailrec
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -66,7 +66,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
                                             val name: String,
                                             val configurationProducer: TestConfigurationProducer,
                                             private var envs: java.util.Map[String, String] =
-                                              new java.util.HashMap[String, String](),
+                                            new mutable.HashMap[String, String](),
                                             private var addIntegrationTestsClasspath: Boolean = false)
   extends ModuleBasedConfiguration[RunConfigurationModule](name,
     new RunConfigurationModule(project),
@@ -257,8 +257,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     getConfigurationModule.getModule
   }
 
-  def getValidModules: java.util.List[Module] =
-    getProject.modulesWithScala.asJava
+  def getValidModules: java.util.List[Module] = getProject.modulesWithScala
 
   def classKey: String = "-s"
   def testNameKey: String = "-testName"
@@ -411,11 +410,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
   protected def findTestsByFqnCondition(classCondition: String => Boolean, testCondition: String => Boolean,
                                         classToTests: mutable.Map[String, Set[String]]): Unit = {
-    val suiteClasses = AllClassesSearch
-      .search(getSearchScope.intersectWith(GlobalSearchScopesCore.projectTestScope(project)), project)
-      .asScala
-      .filter(c => classCondition(c.qualifiedName)).filterNot(isInvalidSuite)
-
+    val suiteClasses = AllClassesSearch.search(getSearchScope.intersectWith(GlobalSearchScopesCore.projectTestScope(project)),
+      project).filter(c => classCondition(c.qualifiedName)).filterNot(isInvalidSuite)
     //we don't care about linearization here, so can process in arbitrary order
     @tailrec
     def getTestNames(classesToVisit: List[ScTypeDefinition], visited: Set[ScTypeDefinition] = Set.empty,
@@ -589,11 +585,11 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           vmParams = PathMacroManager.getInstance(module).expandPath(vmParams)
         }
 
-        val mutableEnvVariables = getEnvVariables
+        val mutableEnvVariables = new mutable.HashMap[String, String]() ++ getEnvVariables
         params.setEnv(mutableEnvVariables)
 
         //expand environment variables in vmParams
-        params.getEnv.entrySet.forEach { entry =>
+        for (entry <- params.getEnv.entrySet) {
           vmParams = StringUtil.replace(vmParams, "$" + entry.getKey + "$", entry.getValue, false)
         }
 
@@ -601,8 +597,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         val wDir = getWorkingDirectory
         params.setWorkingDirectory(expandPath(wDir))
 
-        //        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug " +
-        //          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
+        //                params.getVMParametersList.addParametersString("-agentlib:jdwp=transport=dt_socket,server=n,address=UNIT-549.Labs.IntelliJ.Net:5005,suspend=y")
 
         val rtJarPath = ScalaUtil.runnersPath()
         params.getClassPath.add(rtJarPath)
@@ -646,13 +641,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
               val printer: PrintStream = new PrintStream(outputStream)
               params.getProgramParametersList.add("@" + fileWithParams.getPath)
 
-              (printer.println, (_: Unit) => printer.close())
+              (printer.println, _ => printer.close())
             }
             catch {
               case ioException: IOException => throw new ExecutionException("Failed to create dynamic classpath file with command-line args.", ioException)
             }
           } else {
-            (params.getProgramParametersList.add(_), (_: Unit) => ())
+            (params.getProgramParametersList.add(_), _ => ())
           }
 
         addParametersString(getTestArgs, myAdd)
@@ -768,8 +763,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     JDOMExternalizer.write(element, "useUiWithSbt", useUiWithSbt)
     val classRegexps: Map[String, String] = Map(zippedRegexps.zipWithIndex.map{case ((c, _), i) => (i.toString, c)}:_*)
     val testRegexps: Map[String, String] = Map(zippedRegexps.zipWithIndex.map{case ((_, t), i) => (i.toString, t)}:_*)
-    JDOMExternalizer.writeMap(element, classRegexps.asJava, "classRegexps", "pattern")
-    JDOMExternalizer.writeMap(element, testRegexps.asJava, "testRegexps", "pattern")
+    JDOMExternalizer.writeMap(element, classRegexps, "classRegexps", "pattern")
+    JDOMExternalizer.writeMap(element, testRegexps, "testRegexps", "pattern")
     JDOMExternalizer.writeMap(element, envs, "envs", "envVar")
     PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
   }
@@ -790,10 +785,10 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     testArgs = JDOMExternalizer.readString(element, "params")
     workingDirectory = JDOMExternalizer.readString(element, "workingDirectory")
     val classRegexpsMap = mutable.Map[String, String]()
-    JDOMExternalizer.readMap(element, classRegexpsMap.asJava, "classRegexps", "pattern")
+    JDOMExternalizer.readMap(element, classRegexpsMap, "classRegexps", "pattern")
     classRegexps = loadRegexps(classRegexpsMap)
     val testRegexpssMap = mutable.Map[String, String]()
-    JDOMExternalizer.readMap(element, testRegexpssMap.asJava, "testRegexps", "pattern")
+    JDOMExternalizer.readMap(element, testRegexpssMap, "testRegexps", "pattern")
     testRegexps = loadRegexps(testRegexpssMap)
     JDOMExternalizer.readMap(element, envs, "envs", "envVar")
     val s = JDOMExternalizer.readString(element, "searchForTest")

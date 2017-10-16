@@ -31,7 +31,7 @@ lazy val scalaCommunity: sbt.Project =
     .dependsOn(scalaImpl % "test->test;compile->compile", cbt % "test->test;compile->compile")
     .aggregate(scalaImpl, cbt)
     .settings(
-      ideExcludedDirectories := Seq(baseDirectory.value / "out", baseDirectory.value / "tools")
+      ideExcludedDirectories := Seq(baseDirectory.value / "target", baseDirectory.value / "tools")
     )
 
 lazy val scalaImpl: sbt.Project =
@@ -132,7 +132,7 @@ lazy val cbt =
 // Utility projects
 
 lazy val ideaRunner =
-  newProject("ideaRunner", file("tools/idea-runner"))
+  newProject("idea-runner", file("tools/idea-runner"))
   .dependsOn(Seq(jpsShared, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, decompiler).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
@@ -251,7 +251,7 @@ communityFullClasspath in ThisBuild :=
 
 lazy val packagedPluginDir = settingKey[File]("Path to packaged, but not yet compressed plugin")
 
-packagedPluginDir in ThisBuild := baseDirectory.in(ThisBuild).value / "out" / "plugin" / "Scala"
+packagedPluginDir in ThisBuild := baseDirectory.in(ThisBuild).value / "target" / "plugin" / "Scala"
 
 lazy val iLoopWrapperPath = settingKey[File]("Path to repl interface sources")
 
@@ -350,7 +350,7 @@ lazy val pluginPackagerCommunity =
 lazy val pluginCompressorCommunity =
   newProject("pluginCompressorCommunity", file("tools/compressor"))
   .settings(
-    artifactPath := baseDirectory.in(ThisBuild).value / "out" / "scala-plugin.zip",
+    artifactPath := baseDirectory.in(ThisBuild).value / "target" / "scala-plugin.zip",
     pack := {
       Packaging.compressPackagedPlugin(pack.in(pluginPackagerCommunity).value, artifactPath.value)
       artifactPath.value
@@ -387,5 +387,5 @@ packILoopWrapper := {
   val fn = iLoopWrapperPath.value
 
   IO.zip(Seq((fn, fn.getName)),
-    baseDirectory.in(BuildRef(file(".").toURI)).value / "out" / "plugin" / "Scala" / "lib" / "jps" / "repl-interface-sources.jar")
+    baseDirectory.in(BuildRef(file(".").toURI)).value / "target" / "plugin" / "Scala" / "lib" / "jps" / "repl-interface-sources.jar")
 }
