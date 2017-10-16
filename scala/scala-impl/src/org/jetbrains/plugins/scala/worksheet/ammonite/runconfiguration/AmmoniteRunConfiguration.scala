@@ -8,6 +8,7 @@ import com.intellij.execution.configurations._
 import com.intellij.execution.filters.TextConsoleBuilderImpl
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{LabeledComponent, TextFieldWithBrowseButton}
@@ -157,8 +158,10 @@ object AmmoniteRunConfiguration {
     
     private def createTextElement(name: String) = {
       val comp = new LabeledComponent[TextFieldWithBrowseButton]()
+      val fileBrowser = new TextFieldWithBrowseButton()
+      fileBrowser.addBrowseFolderListener("Select...", "", null, new FileChooserDescriptor(true, false, true, true, false, false))
       
-      comp.setComponent(new TextFieldWithBrowseButton())
+      comp.setComponent(fileBrowser)
       comp.setText(name)
       
       comp
