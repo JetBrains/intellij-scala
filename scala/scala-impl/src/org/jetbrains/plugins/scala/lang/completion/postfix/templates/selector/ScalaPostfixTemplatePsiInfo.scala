@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScPrefixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithUnaryNotSurrounder
 
 /**
@@ -23,7 +22,7 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
         case _: ScLiteral | _: ScReferenceExpression | _: ScParenthesisedExpr if elements.length == 1 =>
           "!" + templateText(elements)
         case ScPrefixExpr(operation, operand) if operation.refName == "!" &&
-          operand.getType(TypingContext.empty).getOrAny.conforms(Boolean(operand.projectContext)) =>
+          operand.getType().getOrAny.conforms(Boolean(operand.projectContext)) =>
           operand.getNode.getText
         case _ => s"!(${templateText(elements)})"
       }.getOrElse("!()")

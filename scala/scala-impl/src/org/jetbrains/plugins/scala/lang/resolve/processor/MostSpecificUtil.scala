@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.Set
@@ -356,9 +355,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           pd.declaredType.getOrElse(Nothing)
         case vd: ScVariableDefinition if PsiTreeUtil.isContextAncestor(vd, elem, true) =>
           vd.declaredType.getOrElse(Nothing)
-        case _ => refPatt.getType(TypingContext.empty).getOrAny
+        case _ => refPatt.getType().getOrAny
       }
-      case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrAny
+      case typed: ScTypedDefinition => typed.getType().getOrAny
       case f: PsiField => f.getType.toScType()
       case _ => Nothing
     }

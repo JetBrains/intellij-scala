@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
@@ -78,7 +77,7 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
                 PresentationUtil.presentationString(method.returnType.
                         getOrAny)
       case b: ScBindingPattern => b.name + ": " +
-              PresentationUtil.presentationString(b.getType(TypingContext.empty).getOrAny)
+        PresentationUtil.presentationString(b.getType().getOrAny)
       case _ => element.name
     }
   }

@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
@@ -457,7 +457,7 @@ object MixinNodes {
               else ScParameterizedType(ScalaType.designator(clazz),
                 clazz.getTypeParameters.map(TypeParameterType(_, None)))
             clazz match {
-              case td: ScTypeDefinition => td.getType(TypingContext.empty).getOrElse(default)
+              case td: ScTypeDefinition => td.getType().getOrElse(default)
               case _ => default
             }
           }

@@ -9,7 +9,6 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScParenthesisedExpr, ScReturnStmt}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * @author Ksenia.Sautina
@@ -35,7 +34,7 @@ class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
 
     val value = returnStmt.expr.orNull
     if (value == null) return false
-    val valType = value.getType(TypingContext.empty).getOrElse(null)
+    val valType = value.getType().getOrElse(null)
     if (valType == null) return false
     if (valType.canonicalText == "Boolean") return true
 

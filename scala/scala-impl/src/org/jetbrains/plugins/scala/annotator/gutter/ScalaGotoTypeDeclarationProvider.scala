@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.annotator.gutter
 import com.intellij.codeInsight.navigation.actions.TypeDeclarationProvider
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 
 /**
@@ -15,7 +14,7 @@ class ScalaGotoTypeDeclarationProvider extends TypeDeclarationProvider {
   def getSymbolTypeDeclarations(symbol: PsiElement): Array[PsiElement] = {
     symbol match {
       case typed: ScTypedDefinition =>
-        val res = typed.getType(TypingContext.empty)
+        val res = typed.getType()
         def getForType(tp: ScType): Seq[PsiElement] = tp.extractClass match {
           case Some(clazz: PsiClass) => Seq[PsiElement](clazz)
           case _ => Seq.empty

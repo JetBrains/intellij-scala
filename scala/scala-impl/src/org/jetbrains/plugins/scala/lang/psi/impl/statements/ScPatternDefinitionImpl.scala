@@ -6,7 +6,6 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
-import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -17,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -51,7 +51,7 @@ class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
 
   def declaredElements: Seq[ScBindingPattern] = bindings
 
-  def getType(ctx: TypingContext): TypeResult[ScType] = {
+  def getType(ctx: TypingContext.type): TypeResult[ScType] = {
     typeElement match {
       case Some(te) => te.getType(ctx)
       case None if expr.nonEmpty => expr.get.getType(ctx)

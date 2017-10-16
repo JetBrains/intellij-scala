@@ -10,9 +10,9 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -68,11 +68,11 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
 
   protected override def innerType: TypeResult[ScType] = {
     (thenBranch, elseBranch) match {
-      case (Some(t), Some(e)) => for (tt <- t.getType(TypingContext.empty);
-                                      et <- e.getType(TypingContext.empty)) yield {
-        tt.lub(et, checkWeak = true)
+      case (Some(t), Some(e)) => for (tt <- t.getType();
+                                      et <- e.getType()) yield {
+        tt.lub(et)
       }
-      case (Some(t), None) => t.getType(TypingContext.empty).map(_.lub(Unit, checkWeak = true))
+      case (Some(t), None) => t.getType().map(_.lub(Unit))
       case _ => Failure(ScalaBundle.message("nothing.to.type"), Some(this))
     }
   }

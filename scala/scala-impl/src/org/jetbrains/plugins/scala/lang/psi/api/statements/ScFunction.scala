@@ -35,7 +35,8 @@ import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDeclarat
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
@@ -172,7 +173,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def definedReturnType: TypeResult[ScType] = {
     returnTypeElement match {
-      case Some(ret) => ret.getType(TypingContext.empty)
+      case Some(ret) => ret.getType()
       case _ if !hasAssign => Success(Unit, Some(this))
       case _ =>
         superMethod match {
@@ -236,7 +237,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def returnTypeInner: TypeResult[ScType]
 
-  def declaredType: TypeResult[ScType] = wrap(returnTypeElement) flatMap (_.getType(TypingContext.empty))
+  def declaredType: TypeResult[ScType] = wrap(returnTypeElement) flatMap (_.getType())
 
   def clauses: Option[ScParameters] = Some(paramClauses)
 
@@ -370,7 +371,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   private def getReturnTypeImpl: PsiType = {
-    val resultType = getType(TypingContext.empty).getOrAny match {
+    val resultType = getType().getOrAny match {
       case FunctionType(rt, _) => rt
       case tp => tp
     }
@@ -483,7 +484,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       annotations("scala.throws").headOption match {
         case Some(annotation) =>
           annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
-            _.getType(TypingContext.empty) match {
+            _.getType() match {
               case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass match {
                 case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
                   arg.toPsiType match {
@@ -500,7 +501,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  def getType(ctx: TypingContext): TypeResult[ScType] = {
+  def getType(ctx: TypingContext.type): TypeResult[ScType] = {
     this.returnType match {
       case Success(tp: ScType, _) =>
         var res: TypeResult[ScType] = Success(tp, None)
@@ -573,7 +574,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     while (i >= 0) {
       val cl = paramClauses.clauses.apply(i)
       if (!cl.isImplicit) {
-        val paramTypes: Seq[TypeResult[ScType]] = cl.parameters.map(_.getType(TypingContext.empty))
+        val paramTypes: Seq[TypeResult[ScType]] = cl.parameters.map(_.getType(TypingContext))
         if (paramTypes.exists(_.isEmpty)) return None
         res += paramTypes.map(_.get)
       }

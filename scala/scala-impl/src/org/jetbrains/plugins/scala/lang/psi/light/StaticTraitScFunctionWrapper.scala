@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 /**
  * @author Alefas
@@ -37,7 +37,7 @@ class StaticTraitScFunctionWrapper(val function: ScFunction, containingClass: Ps
 
   private def paramText(param: ScParameter): String = {
     val paramAnnotations = JavaConversionUtil.annotations(param).mkString("", " ", " ")
-    val typeText = param.getRealParameterType(TypingContext.empty) match {
+    val typeText = param.getRealParameterType match {
       case Success(tp, _) =>
         val simple = JavaConversionUtil.typeText(tp)
         if (param.isCallByNameParameter) s"scala.Function0<$simple>"

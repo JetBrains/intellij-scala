@@ -11,8 +11,8 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.ScExistentialType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -42,8 +42,7 @@ abstract class ExistentialSimplificationTestBase extends ScalaLightPlatformCodeI
     val addOne = if(PsiTreeUtil.getParentOfType(scalaFile.findElementAt(startOffset),classOf[ScExpression]) != null) 0 else 1 //for xml tests
     val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
     assert(expr != null, "Not specified expression in range to infer type.")
-    val typez = expr.getType(TypingContext.empty)
-    typez match {
+    expr.getType() match {
       case Success(ttypez: ScExistentialType, _) =>
 
         val res = ttypez.simplify().presentableText

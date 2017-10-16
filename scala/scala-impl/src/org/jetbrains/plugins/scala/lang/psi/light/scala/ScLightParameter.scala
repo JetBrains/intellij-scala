@@ -9,7 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 
 /**
  * @author Alefas
@@ -19,7 +20,7 @@ class ScLightParameter(val param: ScParameter, tp: ScType, i: Int)
   extends LightElement(param.getManager, param.getLanguage) with ScParameter {
   override def nameId: PsiElement = param.nameId
 
-  override def getType(ctx: TypingContext): TypeResult[ScType] = Success(tp, Some(this))
+  override def getType(ctx: TypingContext.type): TypeResult[ScType] = Success(tp, Some(this))
 
   override def deprecatedName: Option[String] = param.deprecatedName
 

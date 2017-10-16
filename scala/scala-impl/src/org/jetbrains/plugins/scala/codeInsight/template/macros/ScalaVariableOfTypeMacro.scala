@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -61,7 +60,7 @@ class ScalaVariableOfTypeMacro extends ScalaMacro {
         for (variant <- variants) {
           variant.getElement match {
             case typed: ScTypedDefinition =>
-              for (t <- typed.getType(TypingContext.empty))
+              for (t <- typed.getType())
                 addLookupItems(exprs, context, variant, t, file.getProject, array)
             case _ =>
           }
@@ -95,7 +94,7 @@ class ScalaVariableOfTypeMacro extends ScalaMacro {
         for (variant <- variants) {
           variant.getElement match {
             case typed: ScTypedDefinition =>
-              for (t <- typed.getType(TypingContext.empty))
+              for (t <- typed.getType())
                 getResult(exprs, context, variant, t, file.getProject).map(return _)
             case _ =>
           }

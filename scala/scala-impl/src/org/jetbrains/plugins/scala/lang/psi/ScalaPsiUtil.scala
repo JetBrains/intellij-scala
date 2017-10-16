@@ -45,10 +45,11 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -56,9 +57,9 @@ import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectPs
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, Set, mutable}
-import scala.collection.JavaConverters._
 
 /**
   * User: Alexander Podkhalyuzin
@@ -356,9 +357,9 @@ object ScalaPsiUtil {
         val referencedType = gen.referencedExpr.getNonValueType().getOrNothing
         referencedType match {
           case _: ScTypePolymorphicType => //that means that generic call is important here
-            (gen, gen.getType(TypingContext.empty).getOrNothing, Seq.empty)
+            (gen, gen.getType().getOrNothing, Seq.empty)
           case _ =>
-            (gen.referencedExpr, gen.referencedExpr.getType(TypingContext.empty).getOrNothing, gen.arguments)
+            (gen.referencedExpr, gen.referencedExpr.getType().getOrNothing, gen.arguments)
         }
       case expression => (expression, tp, Seq.empty)
     }
@@ -520,9 +521,9 @@ object ScalaPsiUtil {
       }
 
       tp match {
-        case ScDesignatorType(v: ScBindingPattern) => collectPartsTr(v.getType(TypingContext.empty))
-        case ScDesignatorType(v: ScFieldId) => collectPartsTr(v.getType(TypingContext.empty))
-        case ScDesignatorType(p: ScParameter) => collectPartsTr(p.getType(TypingContext.empty))
+        case ScDesignatorType(v: ScBindingPattern) => collectPartsTr(v.getType())
+        case ScDesignatorType(v: ScFieldId) => collectPartsTr(v.getType())
+        case ScDesignatorType(p: ScParameter) => collectPartsTr(p.getType())
         case ScCompoundType(comps, _, _) => collectPartsIter(comps)
         case ParameterizedType(a: ScAbstractType, args) =>
           collectParts(a)
@@ -544,9 +545,9 @@ object ScalaPsiUtil {
         case proj@ScProjectionType(projected, _, _) =>
           collectParts(projected)
           proj.actualElement match {
-            case v: ScBindingPattern => collectPartsTr(v.getType(TypingContext.empty).map(proj.actualSubst.subst))
-            case v: ScFieldId => collectPartsTr(v.getType(TypingContext.empty).map(proj.actualSubst.subst))
-            case v: ScParameter => collectPartsTr(v.getType(TypingContext.empty).map(proj.actualSubst.subst))
+            case v: ScBindingPattern => collectPartsTr(v.getType().map(proj.actualSubst.subst))
+            case v: ScFieldId => collectPartsTr(v.getType().map(proj.actualSubst.subst))
+            case v: ScParameter => collectPartsTr(v.getType(TypingContext).map(proj.actualSubst.subst))
             case _ =>
           }
           tp.extractClassType match {
@@ -667,7 +668,7 @@ object ScalaPsiUtil {
   def mapToLazyTypesSeq(elems: Seq[PsiParameter]): Seq[() => ScType] = {
     elems.map(param => () =>
       param match {
-        case scp: ScParameter => scp.getType(TypingContext.empty).getOrNothing
+        case scp: ScParameter => scp.getType(TypingContext).getOrNothing
         case p: PsiParameter =>
           val treatJavaObjectAsAny = p.parentsInFile.findByType[PsiClass] match {
             case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
@@ -864,7 +865,7 @@ object ScalaPsiUtil {
     val map = new collection.mutable.HashMap[(String, Long), ScType]
     var i = 0
     while (i < Math.min(tp.length, typeArgs.length)) {
-      map += ((tp(tp.length - 1 - i), typeArgs(typeArgs.length - 1 - i).getType(TypingContext.empty).getOrAny))
+      map += ((tp(tp.length - 1 - i), typeArgs(typeArgs.length - 1 - i).getType().getOrAny))
       i += 1
     }
     ScSubstitutor(map.toMap)
@@ -1698,7 +1699,7 @@ object ScalaPsiUtil {
     if (bindings.size == 1 && expr.contains(instance)) Option(bindings.head)
     else {
       for (bind <- bindings) {
-        if (bind.getType(TypingContext.empty).toOption == instance.getType(TypingContext.empty).toOption) return Option(bind)
+        if (bind.getType().toOption == instance.getType().toOption) return Option(bind)
       }
       None
     }

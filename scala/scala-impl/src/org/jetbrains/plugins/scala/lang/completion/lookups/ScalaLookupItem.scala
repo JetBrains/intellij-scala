@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -121,16 +121,16 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
     UIFreezingGuard.withDefaultValue("") {
       element match {
         case fun: ScFunction =>
-          val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.getType(TypingContext.empty).getOrAny
+          val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.getType().getOrAny
           presentationString(scType, substitutor)
         case fun: ScFun =>
           presentationString(fun.retType, substitutor)
         case alias: ScTypeAliasDefinition =>
           presentationString(alias.aliasedType.getOrAny, substitutor)
         case param: ScParameter =>
-          presentationString(param.getRealParameterType(TypingContext.empty).getOrAny, substitutor)
+          presentationString(param.getRealParameterType.getOrAny, substitutor)
         case t: ScTemplateDefinition if name == "this" || name.endsWith(".this") =>
-          t.getTypeWithProjections(TypingContext.empty, thisProjections = true) match {
+          t.getTypeWithProjections(thisProjections = true) match {
             case Success(tp, _) =>
               tp.presentableText
             case _ => ""
@@ -140,7 +140,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
         case m: PsiMethod =>
           presentationString(m.getReturnType, substitutor)
         case t: Typeable =>
-          presentationString(t.getType(TypingContext.empty).getOrAny, substitutor)
+          presentationString(t.getType().getOrAny, substitutor)
         case _ => ""
       }
     }

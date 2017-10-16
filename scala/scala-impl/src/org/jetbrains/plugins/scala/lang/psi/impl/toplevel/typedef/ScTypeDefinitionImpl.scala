@@ -37,7 +37,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionE
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.projectView.{ClassAndCompanionObject, SingularDefinition, TraitAndCompanionObject}
 
@@ -86,7 +87,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
       .exists(isInheritor(_, deep = true))
   }
 
-  def getType(ctx: TypingContext): Success[ScType] = {
+  def getType(ctx: TypingContext.type): Success[ScType] = {
     val parentClass: ScTemplateDefinition = containingClass
     if (typeParameters.isEmpty) {
       if (parentClass != null) {
@@ -105,14 +106,14 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     }
   }
 
-  def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType] = {
+  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult[ScType] = {
     def args = typeParameters.map(TypeParameterType(_))
     def innerType = if (typeParameters.isEmpty) ScalaType.designator(this)
     else ScParameterizedType(ScalaType.designator(this), args)
     val parentClazz = containingClass
     if (parentClazz != null) {
-      val tpe: ScType = if (!thisProjections) parentClazz.getTypeWithProjections(TypingContext.empty, thisProjections = false).
-        getOrElse(return Failure("Cannot resolve parent class", Some(this)))
+      val tpe: ScType = if (!thisProjections) parentClazz.getTypeWithProjections()
+        .getOrElse(return Failure("Cannot resolve parent class", Some(this)))
       else ScThisType(parentClazz)
 
       val innerProjection = ScProjectionType(tpe, this, superReference = false)

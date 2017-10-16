@@ -7,9 +7,9 @@ import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElementExt, ScTypeVariableTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScType}
 
 /**
  * @author Alefas

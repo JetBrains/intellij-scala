@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 /**
  * @author Alexander Podkhalyuzin
@@ -44,7 +44,7 @@ trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
                   r.getActualElement.asInstanceOf[PsiClass].qualifiedName == "scala.throws" =>
                 constr.args match {
                   case Some(args) if args.exprs.length == 1 =>
-                    args.exprs(0).getType(TypingContext.empty) match {
+                    args.exprs(0).getType() match {
                       case Success(ParameterizedType(tp, arg), _) if arg.length == 1 =>
                         tp.extractClass match {
                           case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>

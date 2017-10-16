@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Typeable, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -67,8 +67,7 @@ object LookupElementManager {
               case Some(named) =>
                 named match {
                   case cl: PsiClass => Some(cl)
-                  case tp: Typeable =>
-                    tp.getType(TypingContext.empty).toOption.flatMap(_.extractClass)
+                  case Typeable(tp) => tp.extractClass
                   case _ => None
                 }
               case _ => None

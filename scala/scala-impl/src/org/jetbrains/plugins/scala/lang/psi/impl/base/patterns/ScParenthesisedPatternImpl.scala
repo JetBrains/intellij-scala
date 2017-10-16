@@ -10,7 +10,8 @@ import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 
 /**
 * @author ilyas, Alexander Podkhalyuzin
@@ -26,5 +27,5 @@ class ScParenthesisedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (nod
 
   override def toString: String = "PatternInParenthesis"
 
-  override def getType(ctx: TypingContext) : TypeResult[ScType] = wrap(subpattern) flatMap {_.getType(ctx)}
+  override def getType(ctx: TypingContext.type): TypeResult[ScType] = wrap(subpattern).flatMap(_.getType(ctx))
 }

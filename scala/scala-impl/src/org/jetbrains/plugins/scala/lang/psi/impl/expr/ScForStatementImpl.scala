@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitCompletionProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
@@ -121,7 +121,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           gen.pattern.desugarizedPatternIndex = exprText.length
           var filterText = "withFilter"
           var filterFound = false
-          val tp = gen.rvalue.getType(TypingContext.empty).getOrAny
+          val tp = gen.rvalue.getType().getOrAny
           val processor = new ImplicitCompletionProcessor(StdKinds.methodRef, this) {
 
               override def execute(element: PsiElement, state: ResolveState): Boolean = {

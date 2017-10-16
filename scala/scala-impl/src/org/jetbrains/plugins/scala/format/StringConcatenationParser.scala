@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * Pavel Fatin
@@ -37,7 +36,7 @@ object StringConcatenationParser extends StringParser {
     }
   }
 
-  def isString(exp: ScExpression): Boolean = exp.getType(TypingContext.empty).toOption match {
+  def isString(exp: ScExpression): Boolean = exp.getType().toOption match {
     case Some(ScDesignatorType(element)) => element.name == "String"
     case Some(ScProjectionType(ScDesignatorType(predef), ta: ScTypeAlias, _))  => predef.name == "Predef" && ta.name == "String"
     case _ => false

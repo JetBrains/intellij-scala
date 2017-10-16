@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementI
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportStmtStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, StdKinds}
@@ -125,7 +125,7 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
               poOpt() match {
                 case Some(po) =>
                   if (checkPo) {
-                    po.getType(TypingContext.empty)
+                    po.getType()
                   } else Failure("no failure", Some(this))
                 case _ => Failure("no failure", Some(this))
               }

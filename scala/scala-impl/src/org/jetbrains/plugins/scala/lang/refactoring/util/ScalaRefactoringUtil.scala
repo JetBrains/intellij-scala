@@ -43,7 +43,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -285,7 +284,7 @@ object ScalaRefactoringUtil {
       return selectedInfixExpr() orElse partOfStringLiteral()
     }
 
-    val cachedType = element.getType(TypingContext.empty).getOrAny
+    val cachedType = element.getType().getOrAny
 
     object ReferenceToFunction {
       def unapply(refExpr: ScReferenceExpression): Option[ScFunction] = refExpr.bind() match {

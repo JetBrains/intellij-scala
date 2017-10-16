@@ -11,7 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 
 /**
  * @author Alefas
@@ -58,7 +59,7 @@ class SimulacrumInjection extends SyntheticMembersInjector {
             }
             val ops = clazz.functions.flatMap {
               case f: ScFunction =>
-                f.parameters.headOption.flatMap(_.getType(TypingContext.empty).toOption).flatMap(tp => isProperTpt(tp)) match {
+                f.parameters.headOption.flatMap(_.getType(TypingContext).toOption).flatMap(tp => isProperTpt(tp)) match {
                   case Some(funTypeParamToLift) =>
                     val annotation = f.findAnnotationNoAliases("simulacrum.op")
                     val names =
@@ -102,7 +103,7 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                         def paramText(p: ScParameter): String = {
                           substOpt match {
                             case Some(subst) =>
-                              p.name + " : " + subst.subst(p.getType(TypingContext.empty).getOrAny).canonicalText
+                              p.name + " : " + subst.subst(p.getType(TypingContext).getOrAny).canonicalText
                             case _ => p.getText
                           }
                         }
@@ -135,7 +136,7 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                """.stripMargin
 
             val AllOpsSupers = clazz.extendsBlock.templateParents.toSeq.flatMap(parents => parents.typeElements.flatMap { te =>
-                te.getType(TypingContext.empty) match {
+              te.getType() match {
                   case Success(ParameterizedType(classType, Seq(tp)), _) if isProperTpt(tp).isDefined =>
                     def fromType: Seq[String] = {
                       val project = clazz.getProject

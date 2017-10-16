@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingD
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createNewLine, createTemplateDefinitionFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
@@ -96,7 +96,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     }
 
     val (lastReturn, lastExprType) = elements.reverse.collectFirst {
-      case expr: ScExpression => (checkLastReturn(expr), Some(expr.getType(TypingContext.empty).getOrAny))
+      case expr: ScExpression => (checkLastReturn(expr), Some(expr.getType(TypingContext).getOrAny))
     }.getOrElse((false, None))
 
     val hasReturn: Option[ScType] = returnType

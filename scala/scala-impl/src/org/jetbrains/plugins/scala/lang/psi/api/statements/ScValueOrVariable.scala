@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Typeable, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 /**
   * @author adkozlov
@@ -24,7 +24,7 @@ trait ScValueOrVariable extends ScBlockStatement with ScMember with ScDocComment
 
   def declaredType: Option[ScType] =
     typeElement.flatMap {
-      _.getType(TypingContext.empty).toOption
+      _.getType().toOption
     }
 
   override protected def isSimilarMemberForNavigation(member: ScMember, isStrict: Boolean): Boolean = member match {

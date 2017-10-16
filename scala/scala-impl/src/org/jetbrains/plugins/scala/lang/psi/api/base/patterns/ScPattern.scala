@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPa
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve._
@@ -39,7 +40,7 @@ import scala.meta.intellij.QuasiquoteInferUtil
 trait ScPattern extends ScalaPsiElement with Typeable {
   def isIrrefutableFor(t: Option[ScType]): Boolean = false
 
-  override def getType(ctx: TypingContext): TypeResult[ScType] = Failure("Cannot type pattern", Some(this))
+  override def getType(ctx: TypingContext.type): TypeResult[ScType] = Failure("Cannot type pattern", Some(this))
 
   def bindings: Seq[ScBindingPattern] = {
     val b = new ArrayBuffer[ScBindingPattern]
@@ -123,8 +124,8 @@ object ScPattern {
 
       pattern.getContext match {
         case list: ScPatternList => list.getContext match {
-          case _var: ScVariable => _var.getType(TypingContext.empty).toOption
-          case _val: ScValue => _val.getType(TypingContext.empty).toOption
+          case _var: ScVariable => _var.getType(TypingContext).toOption
+          case _val: ScValue => _val.getType(TypingContext).toOption
         }
         case argList: ScPatternArgumentList =>
           argList.getContext match {
@@ -186,7 +187,7 @@ object ScPattern {
         }
         case clause: ScCaseClause => clause.getContext /*clauses*/ .getContext match {
           case matchStat: ScMatchStmt => matchStat.expr match {
-            case Some(e) => Some(e.getType(TypingContext.empty).getOrAny)
+            case Some(e) => Some(e.getType().getOrAny)
             case _ => None
           }
           case b: ScBlockExpr if b.getContext.isInstanceOf[ScCatchBlock] =>
@@ -213,7 +214,7 @@ object ScPattern {
           else None
         case enum: ScEnumerator =>
           Option(enum.rvalue).flatMap { rvalue =>
-            rvalue.getType(TypingContext.empty).toOption
+            rvalue.getType().toOption
           }
         case _ => None
       }
@@ -310,7 +311,7 @@ object ScPattern {
                 undefSubst = undefSubst.followed(ScSubstitutor(ScThisType(clazz)))
               case _ =>
             }
-            val firstParameterType = fun.parameters.head.getType(TypingContext.empty) match {
+            val firstParameterType = fun.parameters.head.getType(TypingContext) match {
               case Success(tp, _) => tp
               case _ => return None
             }
@@ -347,7 +348,7 @@ object ScPattern {
             val undefSubst = substitutor followed fun.typeParameters.foldLeft(ScSubstitutor.empty) { (s, p) =>
               s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor))))
             }
-            val firstParameterRetTp = fun.parameters.head.getType(TypingContext.empty) match {
+            val firstParameterRetTp = fun.parameters.head.getType(TypingContext) match {
               case Success(tp, _) => tp
               case _ => return None
             }
@@ -382,7 +383,7 @@ object ScPattern {
           if cl.isCase && cl.tooBigForUnapply =>
           val undefSubst = subst.followed(ScSubstitutor(ScThisType(cl)))
           val params: Seq[ScParameter] = cl.parameters
-          val types = params.map(_.getType(TypingContext.empty).getOrAny).map(undefSubst.subst)
+          val types = params.map(_.getType(TypingContext).getOrAny).map(undefSubst.subst)
           val args = if (types.nonEmpty && params.last.isVarArgs) {
             val lastType = types.last
             val tp = ScalaPsiElementFactory.createTypeFromText(s"scala.collection.Seq[${lastType.canonicalText}]", cl, cl)
@@ -412,9 +413,9 @@ object ScPattern {
       case ScalaResolveResult(fun: ScFunction, subst) if fun.parameters.isEmpty && fun.name == name =>
         Seq(subst.subst(fun.returnType.getOrAny))
       case ScalaResolveResult(b: ScBindingPattern, subst) if b.name == name =>
-        Seq(subst.subst(b.getType(TypingContext.empty).getOrAny))
+        Seq(subst.subst(b.getType(TypingContext).getOrAny))
       case ScalaResolveResult(param: ScClassParameter, subst) if param.name == name =>
-        Seq(subst.subst(param.getType(TypingContext.empty).getOrAny))
+        Seq(subst.subst(param.getType(TypingContext).getOrAny))
       case _ => Seq.empty
     }.headOption
   }

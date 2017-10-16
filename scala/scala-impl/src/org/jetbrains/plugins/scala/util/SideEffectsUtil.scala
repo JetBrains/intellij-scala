@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -45,12 +44,12 @@ object SideEffectsUtil {
             case Both(_: ScBindingPattern, ScalaPsiUtil.inNameContext(pd: ScPatternDefinition))
               if pd.hasModifierProperty("lazy") => false
             case bp: ScBindingPattern =>
-              val tp = bp.getType(TypingContext.empty)
+              val tp = bp.getType()
               !FunctionType.isFunctionType(tp.getOrAny)
             case _: ScObject => false
             case p: ScParameter
               if !p.isCallByNameParameter &&
-                !FunctionType.isFunctionType(p.getRealParameterType(TypingContext.empty).getOrAny) => true
+                !FunctionType.isFunctionType(p.getRealParameterType.getOrAny) => true
             case _: ScSyntheticFunction => true
             case m: PsiMethod => methodHasNoSideEffects(m, ref.qualifier.flatMap(_.getType().toOption))
             case _ => false

@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
@@ -416,7 +416,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         case s: ScSelfInvocation =>
           val clazz = ScalaPsiUtil.getContextOfType(s, true, classOf[ScClass])
           if (clazz == null) return
-          val tp: ScType = clazz.asInstanceOf[ScClass].getType(TypingContext.empty).getOrElse(return)
+          val tp: ScType = clazz.asInstanceOf[ScClass].getType().getOrElse(return)
           val typeArgs: Seq[ScTypeElement] = Seq.empty
           val arguments = s.arguments
           val secondaryConstructors = (c: ScClass) => {
@@ -430,7 +430,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           }
           processConstructor(s, tp, typeArgs, arguments, secondaryConstructors)
         case constr: ScConstructor =>
-          val tp: ScType = constr.typeElement.getType(TypingContext.empty).getOrElse(return)
+          val tp: ScType = constr.typeElement.getType().getOrElse(return)
           val typeArgs: Seq[ScTypeElement] = constr.typeArgList.map(_.typeArgs).getOrElse(Seq())
           val arguments = constr.arguments
           val secondaryConstructors = (clazz: ScClass) => clazz.secondaryConstructors

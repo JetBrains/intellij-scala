@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.annotator.quickfix.{AddReturnTypeFix, RemoveE
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScTypesExt}
 
 /**
@@ -26,7 +26,7 @@ trait FunctionAnnotator {
       }
     }
 
-    val tailrecAnnotation = function.annotations.find(_.typeElement.getType(TypingContext.empty)
+    val tailrecAnnotation = function.annotations.find(_.typeElement.getType()
             .map(_.canonicalText).filter(_ == "_root_.scala.annotation.tailrec").isDefined)
 
     tailrecAnnotation.foreach { it =>

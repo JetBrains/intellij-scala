@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextTyp
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * @author Roman.Shein
@@ -33,7 +32,7 @@ class ScalaComponentTypeOfMacro extends ScalaMacro {
     outerItems.flatMap {
       case lookupItem: ScalaLookupItem => lookupItem.element match {
         case typeDef: ScTypeDefinition =>
-          typeDef.getType(TypingContext.empty).toOption.flatMap(MacroUtil.getComponentFromArrayType).
+          typeDef.getType().toOption.flatMap(MacroUtil.getComponentFromArrayType).
                   map(MacroUtil.getTypeLookupItem(_, context.getProject))
         case _ => None
       }

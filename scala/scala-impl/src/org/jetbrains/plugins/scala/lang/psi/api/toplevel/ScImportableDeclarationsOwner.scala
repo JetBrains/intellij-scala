@@ -6,7 +6,6 @@ package toplevel
 
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * @author ilyas
@@ -20,7 +19,7 @@ trait ScImportableDeclarationsOwner extends ScalaPsiElement {
    */
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean =
     if (isStable) {
-      ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
+      ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType())
     } else true
 
 }

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.Update
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
@@ -208,7 +208,7 @@ class ScProjectionType private(val projected: ScType,
     actualElement match {
       case a: ScTypedDefinition if isSingletonOk(a) =>
         val subst = actualSubst
-        val tp = subst.subst(a.getType(TypingContext.empty).getOrAny)
+        val tp = subst.subst(a.getType().getOrAny)
         tp match {
           case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
             val resInner = tp.equiv(r, uSubst, falseUndef)
@@ -244,7 +244,7 @@ class ScProjectionType private(val projected: ScType,
         proj2.actualElement match {
           case a: ScTypedDefinition if isSingletonOk(a) =>
             val subst = actualSubst
-            val tp = subst.subst(a.getType(TypingContext.empty).getOrAny)
+            val tp = subst.subst(a.getType().getOrAny)
             tp match {
               case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
                 val resInner = tp.equiv(this, uSubst, falseUndef)
@@ -266,7 +266,7 @@ class ScProjectionType private(val projected: ScType,
             case _: ScObject =>
             case t: ScTypedDefinition if t.isStable =>
               val s: ScSubstitutor = ScSubstitutor(projected) followed actualSubst
-              t.getType(TypingContext.empty) match {
+              t.getType() match {
                 case Success(tp: DesignatorOwner, _) if tp.isSingleton =>
                   return s.subst(tp).equiv(r, uSubst, falseUndef)
                 case _ =>
@@ -278,7 +278,7 @@ class ScProjectionType private(val projected: ScType,
             case t: ScTypedDefinition =>
               val s: ScSubstitutor =
                 ScSubstitutor(p1) followed proj2.actualSubst
-              t.getType(TypingContext.empty) match {
+              t.getType() match {
                 case Success(tp: DesignatorOwner, _) if tp.isSingleton =>
                   return s.subst(tp).equiv(this, uSubst, falseUndef)
                 case _ =>
@@ -292,7 +292,7 @@ class ScProjectionType private(val projected: ScType,
         element match {
           case _: ScObject => (false, uSubst)
           case t: ScTypedDefinition if t.isStable =>
-            t.getType(TypingContext.empty) match {
+            t.getType() match {
               case Success(singleton: DesignatorOwner, _) if singleton.isSingleton =>
                 val newSubst = actualSubst.followed(ScSubstitutor(projected))
                 r.equiv(newSubst.subst(singleton), uSubst, falseUndef)

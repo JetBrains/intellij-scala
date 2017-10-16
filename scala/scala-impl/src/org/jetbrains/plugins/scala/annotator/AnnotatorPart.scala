@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 
 /**
@@ -48,7 +47,7 @@ object AnnotatorPart {
     val superTypeElements = td.extendsBlock.templateParents.toSeq.flatMap(_.typeElements)
     for {
       typeElem <- superTypeElements
-      tp <- typeElem.getType(TypingContext.empty).toOption
+      tp <- typeElem.getType().toOption
     } yield {
       (typeElem, extractor(tp))
     }

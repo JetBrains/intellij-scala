@@ -21,14 +21,13 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createParameterFromText}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.JavaConverters._
 
 /**
  * @author Ksenia.Sautina
@@ -117,7 +116,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
       u.getParent match {
         case typedStmt: ScTypedStmt =>
           needBraces = true
-          buf.append(": ").append(typedStmt.getType(TypingContext.empty).get.canonicalText)
+          buf.append(": ").append(typedStmt.getType().get.canonicalText)
         case _ =>
       }
 

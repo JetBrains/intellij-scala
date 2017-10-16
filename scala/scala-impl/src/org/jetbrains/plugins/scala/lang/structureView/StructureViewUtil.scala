@@ -3,8 +3,8 @@ package lang
 package structureView
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 
 /**
 * @author Alexander Podkhalyuzin
@@ -32,7 +32,7 @@ object StructureViewUtil {
         }
       } else {
         res.append(param.name + ": ")
-        val typez = subst.subst(param.getType(TypingContext.empty).getOrNothing)
+        val typez = subst.subst(param.getType(TypingContext).getOrNothing)
         res.append(typez.presentableText + (if (param.isRepeatedParameter) "*" else ""))
         res.append(", ")
       }

@@ -6,7 +6,7 @@ package base
 package types
 
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /** 
 * @author Alexander Podkhalyuzin

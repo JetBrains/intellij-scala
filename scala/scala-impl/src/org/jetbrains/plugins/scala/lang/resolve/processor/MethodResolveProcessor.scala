@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtR
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -90,7 +90,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
           val functionName = if (isUpdate) "update" else "apply"
           val typeResult = getFromType(state) match {
             case Some(tp) => Success(ScProjectionType(tp, obj, superReference = false), Some(obj))
-            case _ => obj.getType(TypingContext.empty)
+            case _ => obj.getType()
           }
           val processor = new CollectMethodsProcessor(ref, functionName)
 

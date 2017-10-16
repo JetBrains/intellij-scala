@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -141,7 +141,7 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
 
   override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
-  def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType] = getType(ctx) //no projections for new template definition
+  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult[ScType] = getType() //no projections for new template definition
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =
     super[ScNewTemplateDefinition].isInheritor(baseClass, deep)

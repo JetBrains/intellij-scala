@@ -26,7 +26,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 
@@ -76,14 +77,14 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       constr match {
         case fun: ScFunction =>
           (fun.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
-            val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
+            val paramType: ScType = subst.subst(p.getType(TypingContext).getOrAny)
             new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam,p.isRepeatedParameter,
               p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.getType().toOption))
           }),
             fun.parameterList.clauses.lastOption.exists(_.isImplicit))
         case f: ScPrimaryConstructor =>
           (f.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
-            val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
+            val paramType: ScType = subst.subst(p.getType(TypingContext).getOrAny)
             new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam, p.isRepeatedParameter,
               p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.getType().toOption))
           }),
@@ -156,7 +157,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
           val appSubst = ScSubstitutor(zipped.map {
             case (arg, typeParam) =>
-              (typeParam.nameAndId, arg.getType(TypingContext.empty).getOrAny)
+              (typeParam.nameAndId, arg.getType().getOrAny)
           }.toMap)
           val newRes = appSubst.subst(res)
           updateImplicits(newRes, withExpected = false, params = params, lastImplicit = lastImplicit)
@@ -279,7 +280,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
           val appSubst = ScSubstitutor(zipped.map {
             case (arg, typeParam) =>
-              (typeParam.nameAndId, arg.getType(TypingContext.empty).getOrAny)
+              (typeParam.nameAndId, arg.getType().getOrAny)
           }.toMap)
           (appSubst.subst(res), appSubst)
         }

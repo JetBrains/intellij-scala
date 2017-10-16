@@ -5,12 +5,8 @@ package api
 package base
 package types
 
-import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.AnnotationExpr
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotationExpr
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Author: Alexander Podkhalyuzin

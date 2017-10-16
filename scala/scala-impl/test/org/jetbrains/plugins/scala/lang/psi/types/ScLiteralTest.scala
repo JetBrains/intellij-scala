@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.junit.Assert
 
 /**
@@ -45,7 +44,7 @@ class ScLiteralTest extends SimpleTestCase {
 
   private def assertTypeIs(code: String, expectation: ScType) {
     val exp = code.parse[ScExpression]
-    val t = exp.getType(TypingContext.empty).get
-    Assert.assertEquals(expectation, t)
+    val actual = exp.getType().get
+    Assert.assertEquals(expectation, actual)
   }
 }

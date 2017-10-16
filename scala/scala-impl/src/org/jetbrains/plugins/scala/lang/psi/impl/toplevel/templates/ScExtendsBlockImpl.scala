@@ -22,11 +22,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, _}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
-import scala.annotation.tailrec
 import scala.collection.Seq
 import scala.collection.mutable.ListBuffer
 
@@ -82,7 +80,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
     templateParents match {
       case Some(parents: ScTemplateParents) => parents.superTypes.foreach(addType)
-      case _ => syntheticTypeElements.map(_.getType(TypingContext.empty).getOrAny).foreach(addType)
+      case _ => syntheticTypeElements.map(_.getType().getOrAny).foreach(addType)
     }
 
     if (isUnderCaseClass) {

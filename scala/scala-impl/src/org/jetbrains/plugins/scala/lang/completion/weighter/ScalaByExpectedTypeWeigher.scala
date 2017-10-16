@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScalaType}
 
 /**
@@ -86,7 +86,7 @@ class ScalaByExpectedTypeWeigher(expectedTypes: Seq[ScType], position: PsiElemen
             fun.returnType match {
               case Success(tp, _) => (tp, helper(tp, subst))
               case _ =>
-                fun.getType(TypingContext.empty) match {
+                fun.getType() match {
                   case Success(tp, _) => (tp, helper(tp, subst))
                   case _ => (null, null)
                 }
@@ -97,7 +97,7 @@ class ScalaByExpectedTypeWeigher(expectedTypes: Seq[ScType], position: PsiElemen
             val tp = method.getReturnType.toScType()
             (tp, helper(tp, subst))
           case typed: ScTypedDefinition =>
-            typed.getType(TypingContext.empty) match {
+            typed.getType() match {
               case Success(tp, _) => (tp, helper(tp))
               case _ => (null, null)
             }

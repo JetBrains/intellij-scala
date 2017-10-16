@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -37,7 +37,7 @@ class ScFunctionDeclarationImpl private (stub: ScFunctionStub, node: ASTNode)
 
   def returnTypeInner: TypeResult[ScType] = {
     typeElement match {
-      case Some(t) => t.getType(TypingContext.empty)
+      case Some(t) => t.getType()
       case None => Success(Unit, Some(this))
     }
   }

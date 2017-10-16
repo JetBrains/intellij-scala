@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyRef}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor._
@@ -381,7 +381,7 @@ object TypeDefinitionMembers {
         member match {
           case _var: ScVariable if nonBridge(place, _var) =>
             for (dcl <- _var.declaredElements) {
-              lazy val t = dcl.getType(TypingContext.empty).getOrAny
+              lazy val t = dcl.getType().getOrAny
               addSignature(Signature(dcl, subst))
               addSignature(Signature.setter(dcl, subst))
               dcl.nameContext match {
@@ -417,7 +417,7 @@ object TypeDefinitionMembers {
           case constr: ScPrimaryConstructor =>
             val parameters = constr.parameters
             for (param <- parameters if nonBridge(place, param)) {
-              lazy val t = param.getType(TypingContext.empty).getOrAny
+              lazy val t = param.getType(TypingContext).getOrAny
               addSignature(Signature(param, subst))
               if (!param.isStable) addSignature(Signature(param.name + "_=", Seq(() => t), subst, param))
               val beanProperty = ScalaPsiUtil.isBeanProperty(param, noResolve = true)
@@ -580,7 +580,7 @@ object TypeDefinitionMembers {
         case td: ScTypeDefinition =>
           td.selfType match {
             case Some(selfType) =>
-              val clazzType = td.getTypeWithProjections(TypingContext.empty).getOrAny
+              val clazzType = td.getTypeWithProjections().getOrAny
               selfType.glb(clazzType) match {
                 case c: ScCompoundType =>
                   getSignatures(c, Some(clazzType), clazz)
@@ -605,7 +605,7 @@ object TypeDefinitionMembers {
       case td: ScTypeDefinition =>
         td.selfType match {
           case Some(selfType) =>
-            val clazzType = td.getTypeWithProjections(TypingContext.empty).getOrAny
+            val clazzType = td.getTypeWithProjections().getOrAny
             selfType.glb(clazzType) match {
               case c: ScCompoundType =>
                 getTypes(c, Some(clazzType), clazz)

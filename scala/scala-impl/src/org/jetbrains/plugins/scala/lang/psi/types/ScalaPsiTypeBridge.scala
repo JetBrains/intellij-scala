@@ -13,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
+
 import scala.collection.JavaConverters._
 
 trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
@@ -145,7 +146,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       case ScDesignatorType(c: ScTypeDefinition) if qualNameToType.contains(c.qualifiedName) =>
         toPsiTypeInner(qualNameToType(c.qualifiedName), noPrimitives)
       case ScDesignatorType(valClass: ScClass) if ValueClassType.isValueClass(valClass) =>
-        valClass.parameters.head.getRealParameterType(TypingContext.empty) match {
+        valClass.parameters.head.getRealParameterType match {
           case Success(tp, _) if !(noPrimitives && tp.isPrimitive) =>
             toPsiTypeInner(tp, noPrimitives)
           case _ => createType(valClass)

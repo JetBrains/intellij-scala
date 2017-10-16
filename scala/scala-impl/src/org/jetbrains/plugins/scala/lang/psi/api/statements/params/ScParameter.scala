@@ -18,7 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionEx
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
@@ -62,21 +63,17 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def getActualDefaultExpression: Option[ScExpression]
 
-  def getRealParameterType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = {
-    if (!isRepeatedParameter) return getType(ctx)
-    getType(ctx) match {
+  def getRealParameterType: TypeResult[ScType] =
+    getType(TypingContext) match {
+      case result if !isRepeatedParameter => result
       case f@Success(tp: ScType, elem) =>
         elementScope.getCachedClass("scala.collection.Seq")
-          .map {
-            ScalaType.designator
-          }.map {
-          ScParameterizedType(_, Seq(tp))
-        }.map {
-          Success(_, elem)
-        }.getOrElse(f)
+          .map(ScalaType.designator)
+          .map(ScParameterizedType(_, Seq(tp)))
+          .map(Success(_, elem))
+          .getOrElse(f)
       case f => f
     }
-  }
 
   override def getDeclarationScope: ScalaPsiElement = PsiTreeUtil.getContextOfType(this, classOf[ScParameterOwner], classOf[ScFunctionExpr])
 
@@ -111,7 +108,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     specificScope.intersectWith(super.getUseScope)
   }
 
-  def getType: PsiType = getRealParameterType(TypingContext.empty).getOrNothing.toPsiType
+  def getType: PsiType = getRealParameterType.getOrNothing.toPsiType
 
   def isAnonymousParameter: Boolean = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {

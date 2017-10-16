@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
@@ -107,9 +107,7 @@ trait Utils {
   implicit class RichScExpression(expr: ScExpression) {
     import expr.projectContext
 
-    def withSubstitutionCaching[T](fun: TypeResult[ScType] => T):T = withSubstitutionCaching(TypingContext.empty, fun)
-
-    def withSubstitutionCaching[T](context: TypingContext = TypingContext.empty, fun: TypeResult[ScType] => T):T = {
+    def withSubstitutionCaching[T](fun: TypeResult[ScType] => T): T = {
       if (dumbMode) {
         expr match {
           case ts: ScTypedStmt => fun(TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null)))
@@ -117,7 +115,7 @@ trait Utils {
         }
       } else {
         ScSubstitutor.cacheSubstitutions = true
-        val tp = expr.getType(context)
+        val tp = expr.getType()
         ScSubstitutor.cacheSubstitutions = false
         val res = fun(tp)
         ScSubstitutor.cache.clear()
@@ -125,9 +123,7 @@ trait Utils {
       }
     }
 
-    def getTypeWithCachedSubst: ScType = getTypeWithCachedSubst(TypingContext.empty)
-
-    def getTypeWithCachedSubst(context: TypingContext): ScType = {
+    def getTypeWithCachedSubst: ScType = {
       if (dumbMode) {
         expr match {
           case ts: ScTypedStmt => ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null).getOrElse(ptype.api.Any)
@@ -135,7 +131,7 @@ trait Utils {
         }
       } else {
         val s = ScSubstitutor(ScSubstitutor.cache.toMap)
-        s.subst(expr.getType(context).get)
+        s.subst(expr.getType().get)
       }
     }
   }

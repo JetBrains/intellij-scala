@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -34,7 +33,7 @@ trait AssignmentAnnotator {
           case Some(r) if r.isDynamic && r.name == DynamicResolveProcessor.UPDATE_DYNAMIC => //ignore
           case Some(r) if !r.isNamedParameter =>
             def checkVariable() {
-              left.getType(TypingContext.empty).foreach { lType =>
+              left.getType().foreach { lType =>
                 right.foreach { expression =>
                   expression.getTypeAfterImplicitConversion().tr.foreach { rType =>
                     if(!rType.conforms(lType)) {
@@ -64,7 +63,7 @@ trait AssignmentAnnotator {
                     ra.problems.foreach {
                       case TypeMismatch(expression, expectedType) =>
                         if (expression != null)
-                          for (t <- expression.getType(TypingContext.empty)) {
+                          for (t <- expression.getType()) {
                             //TODO show parameter name
                             val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
                             val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)

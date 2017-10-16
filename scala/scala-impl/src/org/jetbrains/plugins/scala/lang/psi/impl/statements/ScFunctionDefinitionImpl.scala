@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createBlockFromExpr
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 /**
@@ -73,10 +73,10 @@ class ScFunctionDefinitionImpl protected (stub: ScFunctionStub, node: ASTNode)
   def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
     case None if !hasAssign => Success(api.Unit, Some(this))
     case None => body match {
-      case Some(b) => b.getType(TypingContext.empty)
+      case Some(b) => b.getType()
       case _ => Success(api.Unit, Some(this))
     }
-    case Some(rte: ScTypeElement) => rte.getType(TypingContext.empty)
+    case Some(rte: ScTypeElement) => rte.getType()
   }
 
   def body: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)

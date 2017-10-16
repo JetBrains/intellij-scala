@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * Pavel Fatin
@@ -30,13 +29,13 @@ class ScalaRedundantConversionInspection extends AbstractInspection("Redundant c
 
     target match {
       case f: ScSyntheticFunction if f.name.startsWith("to") =>
-        for (leftType <- left.getType(TypingContext.empty);
+        for (leftType <- left.getType();
              conversionType = f.retType if leftType.equiv(conversionType))
           registerProblem(element, left, conversionType.presentableText, offset, holder)
       case f: PsiMethod if f.getName == "toString" &&
               f.getParameterList.getParametersCount == 0 &&
               (f.getTypeParameterList == null || f.getTypeParameterList.getTypeParameters.isEmpty) =>
-        for (leftType <- left.getType(TypingContext.empty) if leftType.canonicalText == "_root_.java.lang.String")
+        for (leftType <- left.getType() if leftType.canonicalText == "_root_.java.lang.String")
           registerProblem(element, left, "java.lang.String", offset, holder)
       case _ =>
     }

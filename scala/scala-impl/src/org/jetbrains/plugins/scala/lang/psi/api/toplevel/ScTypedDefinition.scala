@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiTypedDefinitionWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Typeable, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
@@ -37,7 +37,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
       case v: ScModifierListOwner => v.hasModifierProperty
       case _ => _ => false
     }
-    val tType = getType(TypingContext.empty).getOrAny
+    val tType = getType().getOrAny
     new FakePsiMethod(this, name + "_=", typeArr2paramArr(Array[ScType](tType)), Unit, hasModifierProperty)
   }
 
@@ -48,7 +48,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
       case _ => _ => false
     }
     new FakePsiMethod(this, "get" + StringUtil.capitalize(this.name), Array.empty,
-      this.getType(TypingContext.empty).getOrAny, hasModifierProperty)
+      this.getType().getOrAny, hasModifierProperty)
   }
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
@@ -57,7 +57,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
       case v: ScModifierListOwner => v.hasModifierProperty
       case _ => _ => false
     }
-    val tType = getType(TypingContext.empty).getOrAny
+    val tType = getType().getOrAny
     new FakePsiMethod(this, "set" + name.capitalize, typeArr2paramArr(Array[ScType](tType)), api.Unit, hasModifierProperty)
   }
 
@@ -68,7 +68,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
       case _ => _ => false
     }
     new FakePsiMethod(this, "is" + StringUtil.capitalize(this.name), Array.empty,
-      this.getType(TypingContext.empty).getOrAny, hasModifierProperty)
+      this.getType().getOrAny, hasModifierProperty)
   }
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
