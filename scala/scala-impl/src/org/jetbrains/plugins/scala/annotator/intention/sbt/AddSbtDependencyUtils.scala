@@ -5,12 +5,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.intention.sbt.SbtDependenciesVisitor._
-import org.jetbrains.plugins.scala.extensions.Typed
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
@@ -145,10 +145,10 @@ object AddSbtDependencyUtils {
     for {
       formalSeq <- ScalaPsiElementFactory.createTypeFromText(SBT_SEQ_TYPE, seqCall, seqCall)
       formalSetting <- ScalaPsiElementFactory.createTypeFromText(SBT_SETTING_TYPE, seqCall, seqCall)
-      Typed(parameterized: ScParameterizedType) <- seqCall.getType().toOption
-      if parameterized.designator.equiv(formalSeq)
-      Typed(argsParameterized: ScParameterizedType) <- parameterized.asInstanceOf[ScParameterizedType].typeArguments.headOption
-      if argsParameterized.designator.equiv(formalSetting)
+      Typeable(ParameterizedType(designator, typeArguments)) <- Some(seqCall)
+      if designator.equiv(formalSeq)
+      Typeable(ParameterizedType(innerDesignator, _)) <- typeArguments.headOption
+      if innerDesignator.equiv(formalSetting)
     } yield {
       val addedExpr: ScInfixExpr = generateLibraryDependency(info)
       doInSbtWriteCommandAction(seqCall.args.addExpr(addedExpr), seqCall.getContainingFile)

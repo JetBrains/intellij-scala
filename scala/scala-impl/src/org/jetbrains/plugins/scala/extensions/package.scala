@@ -60,8 +60,6 @@ import scala.util.{Failure, Success, Try}
 
 package object extensions {
 
-  object Typed { def unapply[A](a: A) = Some(a) }
-
   implicit class PsiMethodExt(val repr: PsiMethod) extends AnyVal {
 
     import PsiMethodExt._
