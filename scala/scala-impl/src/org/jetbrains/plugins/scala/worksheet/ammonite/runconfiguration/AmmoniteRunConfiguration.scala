@@ -146,8 +146,8 @@ object AmmoniteRunConfiguration {
       val panel = new JPanel()
       panel setLayout new BoxLayout(panel, BoxLayout.Y_AXIS)
       
-      val comp0 = createTextElement("Script: ")
-      val comp1 = createTextElement("Amm executable: ")
+      val comp0 = createTextElement("Script:")
+      val comp1 = createTextElement("Amm executable:")
       
       panel.add(comp0, 0)
       panel.add(comp1, 1)
