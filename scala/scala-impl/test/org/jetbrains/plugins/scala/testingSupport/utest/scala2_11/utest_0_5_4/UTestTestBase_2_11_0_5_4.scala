@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.testingSupport.utest.utest_0_5_4
+package org.jetbrains.plugins.scala.testingSupport.utest.scala2_11.utest_0_5_4
 
 import org.jetbrains.plugins.scala.base.libraryLoaders.{ThirdPartyLibraryLoader, UTestLoader}
 import org.jetbrains.plugins.scala.testingSupport.utest.UTestTestCase
