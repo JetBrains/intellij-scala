@@ -31,7 +31,7 @@ lazy val scalaCommunity: sbt.Project =
     .dependsOn(scalaImpl % "test->test;compile->compile", cbt % "test->test;compile->compile")
     .aggregate(scalaImpl, cbt)
     .settings(
-      ideExcludedDirectories := Seq(baseDirectory.value / "target", baseDirectory.value / "tools")
+      ideExcludedDirectories := Seq(baseDirectory.value / "target")
     )
 
 lazy val scalaImpl: sbt.Project =
@@ -132,7 +132,7 @@ lazy val cbt =
 // Utility projects
 
 lazy val ideaRunner =
-  newProject("idea-runner", file("tools/idea-runner"))
+  newProject("idea-runner", file("target/tools/idea-runner"))
   .dependsOn(Seq(jpsShared, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, decompiler).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
@@ -162,7 +162,7 @@ lazy val ideaRunner =
   )
 
 lazy val sbtRuntimeDependencies =
-  Project("sbtRuntimeDependencies", file("tools/sbt-runtime-dependencies"))
+  Project("sbtRuntimeDependencies", file("target/tools/sbt-runtime-dependencies"))
   .settings(
     libraryDependencies := DependencyGroups.sbtRuntime,
     managedScalaInstance := false,
@@ -173,7 +173,7 @@ lazy val sbtRuntimeDependencies =
   )
 
 lazy val testDownloader =
-  newProject("testJarsDownloader", file("tools/test-jars-downloader"))
+  newProject("testJarsDownloader", file("target/tools/test-jars-downloader"))
   .settings(
     conflictManager := ConflictManager.all,
     conflictWarning := ConflictWarning.disable,
@@ -192,7 +192,7 @@ lazy val testDownloader =
   )
 
 lazy val sbtLaunchTestDownloader =
-  newProject("sbtLaunchTestDownloader", file("tools/sbt-launch-test-downloader"))
+  newProject("sbtLaunchTestDownloader", file("target/tools/sbt-launch-test-downloader"))
   .settings(
     autoScalaLibrary := false,
     conflictManager := ConflictManager.all,
@@ -259,7 +259,7 @@ iLoopWrapperPath := baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrap
 
 
 lazy val pluginPackagerCommunity =
-  newProject("pluginPackagerCommunity", file("tools/packager"))
+  newProject("pluginPackagerCommunity", file("target/tools/packager"))
   .settings(
     artifactPath := packagedPluginDir.value,
     dependencyClasspath :=
@@ -348,7 +348,7 @@ lazy val pluginPackagerCommunity =
 
 
 lazy val pluginCompressorCommunity =
-  newProject("pluginCompressorCommunity", file("tools/compressor"))
+  newProject("pluginCompressorCommunity", file("target/tools/compressor"))
   .settings(
     artifactPath := baseDirectory.in(ThisBuild).value / "target" / "scala-plugin.zip",
     pack := {
@@ -359,7 +359,7 @@ lazy val pluginCompressorCommunity =
   )
 
 lazy val repackagedZinc =
-  newProject("repackagedZinc", file("tools/zinc"))
+  newProject("repackagedZinc", file("target/tools/zinc"))
   .settings(
     assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
     libraryDependencies += Dependencies.zinc,

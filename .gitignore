@@ -15,7 +15,6 @@
 .DS_Store
 *~
 target/
-tools/
 
 scala/scala-impl/testdata/debugger
 scala/scala-impl/testdata/projects
