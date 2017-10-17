@@ -35,6 +35,7 @@ lazy val scalaCommunity: sbt.Project =
     .dependsOn(scalaImpl % "test->test;compile->compile", cbt % "test->test;compile->compile")
     .aggregate(scalaImpl, cbt)
     .settings(
+      aggregate.in(updateIdea) := false,
       ideExcludedDirectories := Seq(baseDirectory.value / "target")
     )
 
