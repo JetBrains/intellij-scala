@@ -76,8 +76,8 @@ object Dependencies {
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
-  val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "1.0.5"
-  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
+  val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "1.0.6"
+  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains" % "sbt-structure-core_2.11" % sbtStructureVersion
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.2"
@@ -87,8 +87,8 @@ object Dependencies {
   val commonsLang: ModuleID = "commons-lang" % "commons-lang" % "2.6"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
 
-  val scalastyle_2_11: ModuleID = "org.scalastyle" % "scalastyle_2.11" % "0.8.0"
-  val scalariform_2_11: ModuleID = "org.scalariform" % "scalariform_2.11" % "0.1.7"
+  val scalastyle_2_11: ModuleID = "org.scalastyle" % "scalastyle_2.11" % "1.0.0"
+  val scalariform_2_11: ModuleID = "org.scalariform" % "scalariform_2.11" % "0.2.0"
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
   val scalaMacros2: ModuleID = "org.scalamacros" %% "scalamacros" % ScalamacrosVersion
@@ -175,7 +175,7 @@ object DependencyGroups {
     "com.lihaoyi" % "utest_2.11" % "0.5.4" % "provided",
     "org.scalaz" % "scalaz-core_2.11" % "7.1.0",
     "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0",
-    "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.5",
+    "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.6",
     "org.specs2" % "specs2_2.10" % "2.4.6",
     "org.scalaz" % "scalaz-core_2.10" % "7.1.0",
     "org.scalaz" % "scalaz-concurrent_2.10" % "7.1.0",
