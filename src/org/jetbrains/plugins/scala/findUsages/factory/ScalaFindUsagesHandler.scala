@@ -6,16 +6,19 @@ import java.util
 import com.intellij.find.findUsages.{AbstractFindUsagesDialog, FindUsagesHandler, FindUsagesOptions}
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -100,6 +103,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
   override def getFindUsagesOptions(dataContext: DataContext): FindUsagesOptions = {
     element match {
       case _: ScTypeDefinition => factory.typeDefinitionOptions
+      case n: ScReferencePattern if isImplicit(n) => factory.implicitDefinitionOptions
       case inNameContext(m: ScMember) if !m.isLocal => factory.memberOptions
       case _: ScParameter | _: ScTypeParam |
            inNameContext(_: ScMember | _: ScCaseClause | _: ScGenerator | _: ScEnumerator ) => factory.localOptions
@@ -135,10 +139,18 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
     }
   }
 
+  def isImplicit(e: ScReferencePattern): Boolean = {
+    getParentOfType(e, classOf[ScMember]) match {
+      case m: ScMember => m.hasModifierProperty(ScalaKeyword.IMPLICIT)
+      case _           => false
+    }
+  }
 
   override def getFindUsagesDialog(isSingleFile: Boolean, toShowInNewTab: Boolean, mustOpenInNewTab: Boolean): AbstractFindUsagesDialog = {
     element match {
       case t: ScTypeDefinition => new ScalaTypeDefinitionUsagesDialog(t, getProject, getFindUsagesOptions,
+        toShowInNewTab, mustOpenInNewTab, isSingleFile, this)
+      case ne: ScReferencePattern if isImplicit(ne) => new ScalaImplicitDefinitionUsagesDialog(ne, getProject, getFindUsagesOptions,
         toShowInNewTab, mustOpenInNewTab, isSingleFile, this)
       case _ => super.getFindUsagesDialog(isSingleFile, toShowInNewTab, mustOpenInNewTab)
     }
@@ -157,6 +169,29 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
   override def processElementUsages(element: PsiElement, processor: Processor[UsageInfo], options: FindUsagesOptions): Boolean = {
     if (!super.processElementUsages(element, processor, options)) return false
     options match {
+      case s: ScalaImplicitDefinitionFindUsagesOptions if element.isInstanceOf[ScNamedElement] =>
+        def unwrap[T](maybeSeq: Option[Seq[T]]): Seq[T] = maybeSeq.getOrElse(Seq.empty)
+        def dfs(vFile: VirtualFile): Seq[VirtualFile] =
+          vFile +: unwrap(Option(vFile.getChildren).map(_.toSeq)).flatMap(dfs)
+
+        val allFiles = dfs(getProject.getBaseDir)
+        val relevantFiles = allFiles.filter(options.searchScope.contains(_))
+        val el = element match {
+          case r: ScReferenceExpression => r.resolve
+          case _                        => element
+        }
+        val usages: Seq[PsiElement] = inReadAction {
+          for {
+            virtualFile <- relevantFiles
+            file = PsiManager.getInstance(getProject).findFile(virtualFile)
+            usage <- ScalaHighlightImplicitUsagesHandler.findUsages(file, Seq(el))
+          } yield usage
+        }
+
+        for (usage <- usages) {
+          val processed = inReadAction(processor.process(new UsageInfo(usage)))
+          if (!processed) return false
+        }
       case s: ScalaTypeDefinitionFindUsagesOptions if element.isInstanceOf[ScTypeDefinition] =>
         val definition = element.asInstanceOf[ScTypeDefinition]
         if (s.isMembersUsages) {
