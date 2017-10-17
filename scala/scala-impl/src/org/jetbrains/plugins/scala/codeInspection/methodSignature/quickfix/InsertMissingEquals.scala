@@ -11,7 +11,7 @@ class InsertMissingEquals(functionDecl: ScFunctionDeclaration)
         extends AbstractFixOnPsiElement("Insert missing '='", functionDecl) {
   def doApplyFix(project: Project) {
     val funDef = getElement
-    funDef.typeElement match {
+    funDef.returnTypeElement match {
       case Some(ScCompoundTypeElement(types, Some(refinement))) if types.nonEmpty =>
         val lastTypeInDecl = types.last.getTextRange.getEndOffset - funDef.getTextRange.getStartOffset
         val defAndReturnType = funDef.getText.substring(0, lastTypeInDecl)

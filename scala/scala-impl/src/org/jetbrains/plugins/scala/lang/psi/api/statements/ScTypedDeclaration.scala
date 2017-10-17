@@ -4,15 +4,9 @@ package psi
 package api
 package statements
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-trait ScTypedDeclaration extends ScDeclaration {
-  def typeElement: Option[ScTypeElement]
-
-  def `type`: TypeResult[ScType]
-
+trait ScTypedDeclaration extends ScDeclaration with Typeable {
   def declaredElements: Seq[ScTypedDefinition]
 }

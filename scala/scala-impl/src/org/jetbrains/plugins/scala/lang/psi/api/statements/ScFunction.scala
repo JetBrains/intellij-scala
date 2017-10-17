@@ -234,7 +234,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def isProcedure: Boolean = paramClauses.clauses.isEmpty
 
-  def returnTypeInner: TypeResult[ScType]
+  protected def returnTypeInner: TypeResult[ScType]
 
   def declaredType: TypeResult[ScType] = wrap(returnTypeElement) flatMap (_.`type`())
 

@@ -28,7 +28,7 @@ class ScLightFunctionDeclaration(pTypes: Seq[Seq[ScType]], tParams: Seq[TypePara
 
   override def paramClauses: ScParameters = new ScLightParameters(pTypes, fun)
 
-  override def returnTypeInner: TypeResult[ScType] = Success(rt, Some(this))
+  override protected def returnTypeInner: TypeResult[ScType] = Success(rt, Some(this))
 
   override def definedReturnType: TypeResult[ScType] = Success(rt, Some(this))
 

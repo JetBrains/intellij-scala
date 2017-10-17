@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypedDeclaration, ScValueDeclaration, ScVariableDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueDeclaration, ScVariableDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -80,7 +80,7 @@ private object ScalaAotCompletionContributor {
   def typeIdentifierIn(parameter: ScParameter): PsiElement =
     parameter.paramType.get.depthFirst().find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER).get
 
-  def typeIdentifierIn(declaration: ScTypedDeclaration): PsiElement =
+  def typeIdentifierIn(declaration: ScValueDeclaration): PsiElement =
     declaration.typeElement.get.depthFirst().find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER).get
 
   def capitalize(s: String): String =

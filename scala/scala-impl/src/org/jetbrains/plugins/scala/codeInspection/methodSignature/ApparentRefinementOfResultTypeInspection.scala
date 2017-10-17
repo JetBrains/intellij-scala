@@ -14,7 +14,7 @@ class ApparentRefinementOfResultTypeInspection extends AbstractMethodSignatureIn
   "ScalaApparentRefinementOfResultType", "Apparent refinement of result type; are you missing an '=' sign?") {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
-    case f: ScFunctionDeclaration  => f.typeElement match {
+    case f: ScFunctionDeclaration => f.returnTypeElement match {
       case Some(e @ ScCompoundTypeElement(types, Some(_))) if types.nonEmpty =>
         holder.registerProblem(e, getDisplayName, new InsertMissingEquals(f))
       case _ =>

@@ -70,7 +70,7 @@ class ScFunctionDefinitionImpl protected (stub: ScFunctionStub, node: ASTNode)
 
   override def toString: String = "ScFunctionDefinition: " + ifReadAllowed(name)("")
 
-  def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
+  override protected def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
     case None if !hasAssign => Success(api.Unit, Some(this))
     case None => body match {
       case Some(b) => b.`type`()

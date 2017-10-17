@@ -30,7 +30,7 @@ class ScVariableDeclarationImpl private (stub: ScVariableStub, node: ASTNode)
 
   override def toString: String = "ScVariableDeclaration: " + ifReadAllowed(declaredNames.mkString(", "))("")
 
-  def `type`: TypeResult[ScType] = wrap(typeElement).flatMap(_.`type`())
+  def `type`(): TypeResult[ScType] = wrap(typeElement).flatMap(_.`type`())
 
   def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 
