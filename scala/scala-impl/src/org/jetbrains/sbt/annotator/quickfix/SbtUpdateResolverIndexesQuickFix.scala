@@ -21,7 +21,7 @@ class SbtUpdateResolverIndexesQuickFix(module: Module) extends AbstractIntention
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     val ui = ProjectStructureConfigurable.getInstance(project)
     val editor = new SingleConfigurableEditor(project, ui)
-    ui.select(module.getName, "SBT", false)
+    ui.select(module.getName, "sbt", false)
     //Project Structure should be shown in a transaction
     TransactionGuard.getInstance().submitTransactionAndWait(new Runnable {
       def run(): Unit = editor.show()

@@ -22,13 +22,13 @@ import org.jetbrains.sbt.project.structure.SbtRunner
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
 /**
- * Run configuration of SBT tasks.
+ * Run configuration of sbt tasks.
  */
 class SbtRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
         extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
 
   /**
-   * List of task to execute in format of SBT.
+   * List of task to execute in format of sbt.
    */
   private var tasks = ""
 

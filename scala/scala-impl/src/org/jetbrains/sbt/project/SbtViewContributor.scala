@@ -66,31 +66,31 @@ private object SbtViewContributor {
   class SbtTasksGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtTasks)) {
     override def update(presentation: PresentationData): Unit = {
       super.update(presentation)
-      setNameAndTooltip(getName, "SBT tasks defined in this project")
+      setNameAndTooltip(getName, "sbt tasks defined in this project")
       // presentation.setIcon(sbtIcon) TODO
     }
 
-    override def getName: String = "SBT Tasks"
+    override def getName: String = "sbt Tasks"
   }
 
   class SbtSettingsGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtSettings)) {
     override def update(presentation: PresentationData): Unit = {
       super.update(presentation)
-      setNameAndTooltip(getName, "SBT settings defined in this project")
+      setNameAndTooltip(getName, "sbt settings defined in this project")
       // presentation.setIcon(sbtIcon) TODO
     }
 
-    override def getName: String = "SBT Settings"
+    override def getName: String = "sbt Settings"
   }
 
   class SbtCommandsGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtCommands)) {
     override def update(presentation: PresentationData): Unit = {
       super.update(presentation)
-      setNameAndTooltip(getName, "Named SBT commands defined in this project")
+      setNameAndTooltip(getName, "Named sbt commands defined in this project")
       // presentation.setIcon(sbtIcon) TODO
     }
 
-    override def getName: String = "SBT Commands"
+    override def getName: String = "sbt Commands"
   }
 
   class SbtTaskViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtTaskData])

@@ -45,7 +45,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     if (sourceDependencies.nonEmpty) {
       val message = "IDEA incremental compiler cannot handle shared source modules: " +
         sourceDependencies.map(_.getName).mkString(", ") +
-        ".\nPlease enable SBT incremental compiler for the project."
+        ".\nPlease enable sbt incremental compiler for the project."
       context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.ERROR, message))
       return ExitCode.ABORT
     }
@@ -53,7 +53,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     val sources = collectSources(context, chunk, dirtyFilesHolder)
     if (sources.isEmpty) return ExitCode.NOTHING_DONE
 
-    if (hasBuildModules(chunk)) return ExitCode.NOTHING_DONE // *.scala files in SBT "build" modules are rightly excluded from compilation
+    if (hasBuildModules(chunk)) return ExitCode.NOTHING_DONE // *.scala files in sbt "build" modules are rightly excluded from compilation
 
     if (!hasScalaModules(chunk)) {
       val message = "skipping Scala files without a Scala SDK in module(s) " + chunk.getPresentableShortName

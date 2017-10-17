@@ -53,6 +53,6 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 }
 
 object SbtShellToolWindowFactory {
-  val title = "SBT Shell"
+  val title = "sbt Shell"
   val ID = "sbt-shell-toolwindow"
 }

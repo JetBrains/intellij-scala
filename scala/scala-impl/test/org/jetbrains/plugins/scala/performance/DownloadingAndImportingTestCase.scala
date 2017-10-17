@@ -73,7 +73,7 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
       ZipUtil.unzip(null, projectDir, outputZipFile, null, null, true)
     } else { reporter.notify("Project files already extracted") }
     Assert.assertTrue("Project dir does not exist. Download or unpack failed!", projectDir.exists())
-    reporter.notify("Finished extracting, starting SBT setup")
+    reporter.notify("Finished extracting, starting sbt setup")
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectDir)
     setUpSbtLauncherAndStructure(myProject)
     extensions.inWriteAction {
@@ -85,7 +85,7 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
         ProjectJdkTable.getInstance().addJdk(sdk)
       }
       ProjectRootManager.getInstance(myProject).setProjectSdk(sdk)
-      reporter.notify("Finished SBT setup, starting import")
+      reporter.notify("Finished sbt setup, starting import")
     }
   }
 

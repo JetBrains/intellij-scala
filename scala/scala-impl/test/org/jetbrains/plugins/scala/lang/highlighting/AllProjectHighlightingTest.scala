@@ -75,7 +75,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
       val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17
       else internalSdk
 
-      //todo: why we need this??? Looks like SBT integration problem, as we attached SDK as setting
+      //todo: why we need this??? Looks like sbt integration problem, as we attached SDK as setting
       if (ProjectJdkTable.getInstance().findJdk(sdk.getName) == null) {
         ProjectJdkTable.getInstance().addJdk(sdk)
       }

@@ -6,7 +6,7 @@
 
 # Scala Plugin for IntelliJ IDEA
 
-Plugin that implements Scala, SBT, Play 2, SSP and Hocon support in IntelliJ IDEA.
+Plugin that implements Scala, sbt, Play 2, SSP and Hocon support in IntelliJ IDEA.
 
 ## General information
 
@@ -35,7 +35,7 @@ In order to take part in Scala plugin development, you need to:
   ```
 
 3. Open IntelliJ IDEA, select `File -> New -> Project from existing sources`, point to
-the directory where Scala plugin repository is and then import it as SBT project.
+the directory where Scala plugin repository is and then import it as sbt project.
 
 4. When importing is finished, in order to get artifacts and run configurations for IDEA project,
 go to the Scala plugin repo directory and run
@@ -45,10 +45,10 @@ go to the Scala plugin repo directory and run
   ```
 
 
-5. Open the SBT options (`Preferences -> Build, Execution, Deployment -> SBT`)
+5. Open the sbt options (`Preferences -> Build, Execution, Deployment -> sbt`)
 
-  - select `Use SBT shell for build and import`
-  - in `Global SBT settings -> JVM Options -> Maximum heap size`, enter at least `2048`
+  - select `Use sbt shell for build and import`
+  - in `Global sbt settings -> JVM Options -> Maximum heap size`, enter at least `2048`
 
 6. Select the IDEA run configuration and select the `Run` or `Debug` button to build and start a development version
 of IDEA with the Scala plugin.

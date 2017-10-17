@@ -105,7 +105,7 @@ class TechHubProjectBuilder extends
 
         val text = settingsStep.getModuleNameField.getText
         if (!isIdentifier(text))
-          error("SBT Project name must be valid Scala identifier")
+          error("sbt Project name must be valid Scala identifier")
 
         true
       }

@@ -48,7 +48,7 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
     runPackage(ScalaTestingTestCase.getSpecs2TemplateConfig(getProject), "test.specs2", "specs2",
       inSpecsPackage)
 
-  //TODO: this test is not taking into aaccount tests in OtherUTest/otherTests because SBT test detection detects only 'test'
+  //TODO: this test is not taking into aaccount tests in OtherUTest/otherTests because sbt test detection detects only 'test'
   def testUTestAllInPackage(): Unit =
     runPackage(ScalaTestingTestCase.getUTestTemplateConfig(getProject), "test.uTest", "uTest",
       inUTestPackage)

@@ -7,7 +7,7 @@ import com.intellij.execution.process.{OSProcessHandler, ProcessEvent, ProcessHa
 import scala.collection.mutable
 
 /** Process wrapper used to imitate termination of process so that 'stop' button in UI stops tests, but foes not kill
-  * SBT shell.
+  * sbt shell.
   * @author Roman.Shein
   *         Date: 16.02.2017
   */

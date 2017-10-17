@@ -22,7 +22,7 @@ class SetupScalaSdkNotificationProvider(project: Project, notifications: EditorN
 
   override protected def hasDeveloperKit(module: Module): Boolean =
     getModuleType(module) != JavaModuleType.getModuleType ||
-      module.getName.endsWith("-build") || // gen-idea doesn't use the SBT module type
+      module.getName.endsWith("-build") || // gen-idea doesn't use the sbt module type
       module.hasScala
 
   override protected def createTask(module: Module) = new Runnable {

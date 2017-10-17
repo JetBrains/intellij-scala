@@ -123,7 +123,7 @@ object ScalaBuilder {
   }
 
   def hasBuildModules(chunk: ModuleChunk): Boolean = {
-    chunk.getModules.asScala.exists(_.getName.endsWith("-build")) // gen-idea doesn't use the SBT module type
+    chunk.getModules.asScala.exists(_.getName.endsWith("-build")) // gen-idea doesn't use the sbt module type
   }
 
   def projectSettings(context: CompileContext): ProjectSettings = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)

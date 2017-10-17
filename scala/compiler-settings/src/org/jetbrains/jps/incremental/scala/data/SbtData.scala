@@ -33,15 +33,15 @@ object SbtData {
 
   def from(classLoader: ClassLoader, pluginRoot: File, javaClassVersion: String): Either[String, SbtData] = {
     Either.cond(pluginRoot.exists, pluginRoot,
-      "SBT home directory does not exist: " + pluginRoot).flatMap { sbtHome =>
+      "sbt home directory does not exist: " + pluginRoot).flatMap { sbtHome =>
 
       Option(sbtHome.listFiles)
-        .toRight("Invalid SBT home directory: " + sbtHome.getPath)
+        .toRight("Invalid sbt home directory: " + sbtHome.getPath)
         .flatMap { files =>
 
           def fileWithName(name: String): Either[String, File] = {
             files.find(_.getName == name)
-              .toRight(s"No '$name' in SBT home directory")
+              .toRight(s"No '$name' in sbt home directory")
           }
 
           for {
@@ -68,7 +68,7 @@ object SbtData {
       manifest.getMainAttributes.getValue("Implementation-Version")
     } match {
       case Success(version) => Right(version)
-      case Failure(t) => Left(s"Unable to read SBT version from JVM classpath:\n$t")
+      case Failure(t) => Left(s"Unable to read sbt version from JVM classpath:\n$t")
     }
   }
 

@@ -7,5 +7,5 @@ import com.intellij.openapi.externalSystem.model.ProjectSystemId
  * @author Pavel Fatin
  */
 object SbtProjectSystem {
-  val Id = new ProjectSystemId("SBT", Sbt.Name)
+  val Id = new ProjectSystemId("sbt", Sbt.Name)
 }

@@ -13,7 +13,7 @@ import org.jetbrains.sbt.shell.SbtProcessManager
   */
 class SbtShellStartAction extends ExternalSystemAction {
 
-  setText("Run SBT Shell")
+  setText("Run sbt Shell")
 
   override def update(e: AnActionEvent): Unit = {
     super.update(e)

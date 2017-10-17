@@ -67,12 +67,12 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         }
 
       } else {
-        val message = s"SBT $sinceSbtVersion+ required. Please update project build.properties."
+        val message = s"sbt $sinceSbtVersion+ required. Please update project build.properties."
         Failure(new UnsupportedOperationException(message))
       }
     }
     else {
-      val error = s"SBT launcher not found at ${SbtLauncher.getCanonicalPath}"
+      val error = s"sbt launcher not found at ${SbtLauncher.getCanonicalPath}"
       Failure(new FileNotFoundException(error))
     }
   }
@@ -176,7 +176,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     }
 
     Try {
-      val handler = new OSProcessHandler(process, "SBT import", Charset.forName("UTF-8"))
+      val handler = new OSProcessHandler(process, "sbt import", Charset.forName("UTF-8"))
       handler.addProcessListener(new ListenerAdapter(processListener))
       handler.startNotify()
 
