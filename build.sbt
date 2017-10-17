@@ -158,7 +158,7 @@ lazy val ideaRunner =
       s"-Didea.system.path=${System.getProperty("user.home")}/.IdeaData/IDEA-14/scala/system",
       s"-Didea.config.path=${System.getProperty("user.home")}/.IdeaData/IDEA-14/scala/config",
       "-Dapple.laf.useScreenMenuBar=true",
-      s"-Dplugin.path=${baseDirectory.value.getParentFile}/out/plugin/Scala",
+      s"-Dplugin.path=${packagedPluginDir.value}",
       "-Didea.ProcessCanceledException=disabled"
     ),
     products in Compile := {
@@ -167,7 +167,7 @@ lazy val ideaRunner =
   )
 
 lazy val sbtRuntimeDependencies =
-  Project("sbtRuntimeDependencies", file("target/tools/sbt-runtime-dependencies"))
+  (project in file("target/tools/sbt-runtime-dependencies"))
   .settings(
     libraryDependencies := DependencyGroups.sbtRuntime,
     managedScalaInstance := false,
