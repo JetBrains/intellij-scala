@@ -30,7 +30,7 @@ class UnitInMapInspection extends OperationOnCollectionInspection {
         else Seq.empty
       val Unit = call.projectContext.stdTypes.Unit
       val unitTypeReturns = body.calculateReturns().collect {
-        case expr@Typeable(ft@FunctionType(Unit, _)) if arg.getType().getOrAny.equiv(ft) => expr
+        case expr@Typeable(ft@FunctionType(Unit, _)) if arg.`type`().getOrAny.equiv(ft) => expr
         case expr@Typeable(Unit) => expr
       }.filter(_.getTextLength > 0)
 

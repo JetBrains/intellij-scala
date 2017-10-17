@@ -42,7 +42,7 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
       case (_, ScDesignatorType(_: ScObject)) =>
         (false, substitutor)
       case (_, ScDesignatorType(typed: ScTypedDefinition)) if typed.isStable =>
-        typed.getType() match {
+        typed.`type`() match {
           case Success(tp: DesignatorOwner, _) if tp.isSingleton =>
             this.equiv(tp, substitutor, falseUndef)
           case _ =>
@@ -50,7 +50,7 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
         }
       case (_, ScProjectionType(_, _: ScObject, _)) => (false, substitutor)
       case (_, p@ScProjectionType(tp, elem: ScTypedDefinition, _)) if elem.isStable =>
-        elem.getType() match {
+        elem.`type`() match {
           case Success(singleton: DesignatorOwner, _) if singleton.isSingleton =>
             val newSubst = p.actualSubst.followed(ScSubstitutor(tp))
             this.equiv(newSubst.subst(singleton), substitutor, falseUndef)

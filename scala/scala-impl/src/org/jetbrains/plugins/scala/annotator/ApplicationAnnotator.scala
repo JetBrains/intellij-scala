@@ -89,7 +89,7 @@ trait ApplicationAnnotator {
                     holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(fun))
                     addCreateFromUsagesQuickFixes(reference, holder)
                   case TypeMismatch(expression, expectedType) if inSameFile(expression, holder) =>
-                    for (t <- expression.getType()) {
+                    for (t <- expression.`type`()) {
                       //TODO show parameter name
                       val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
                       val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
@@ -191,7 +191,7 @@ trait ApplicationAnnotator {
       case ExcessArgument(argument) =>
         holder.createErrorAnnotation(argument, "Too many arguments")
       case TypeMismatch(expression, expectedType) =>
-        for (t <- expression.getType()) {
+        for (t <- expression.`type`()) {
           //TODO show parameter name
           val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
           val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)

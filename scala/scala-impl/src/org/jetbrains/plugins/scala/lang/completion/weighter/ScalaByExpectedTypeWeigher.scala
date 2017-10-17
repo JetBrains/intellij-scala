@@ -86,7 +86,7 @@ class ScalaByExpectedTypeWeigher(expectedTypes: Seq[ScType], position: PsiElemen
             fun.returnType match {
               case Success(tp, _) => (tp, helper(tp, subst))
               case _ =>
-                fun.getType() match {
+                fun.`type`() match {
                   case Success(tp, _) => (tp, helper(tp, subst))
                   case _ => (null, null)
                 }
@@ -97,7 +97,7 @@ class ScalaByExpectedTypeWeigher(expectedTypes: Seq[ScType], position: PsiElemen
             val tp = method.getReturnType.toScType()
             (tp, helper(tp, subst))
           case typed: ScTypedDefinition =>
-            typed.getType() match {
+            typed.`type`() match {
               case Success(tp, _) => (tp, helper(tp))
               case _ => (null, null)
             }

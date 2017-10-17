@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -32,7 +31,7 @@ class ScPrimaryConstructorWrapper(val delegate: ScPrimaryConstructor, isJavaVara
     forDefault match {
       case Some(i) =>
         val param = delegate.parameters(i - 1)
-        param.getType(TypingContext).getOrAny
+        param.`type`().getOrAny
       case _ => null
     }
   }
@@ -114,7 +113,7 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
       val scalaType = forDefault match {
         case Some(i) =>
           val param = delegate.parameters(i - 1)
-          val paramType = substitutor.subst(param.getType(TypingContext).getOrAny)
+          val paramType = substitutor.subst(param.`type`().getOrAny)
           generifySubst.subst(paramType)
         case None =>
           val retType = substitutor.subst(delegate.returnType.getOrAny)
@@ -232,7 +231,7 @@ object ScFunctionWrapper {
     val varargs: Boolean = param.isRepeatedParameter && isJavaVarargs
 
     val paramType =
-      if (varargs) param.getType(TypingContext)
+      if (varargs) param.`type`()
       else param.getRealParameterType
 
     val typeText = paramType.map(subst.subst) match {

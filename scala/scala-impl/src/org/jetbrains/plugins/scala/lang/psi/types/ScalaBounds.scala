@@ -247,11 +247,11 @@ trait ScalaBounds extends api.Bounds {
           case (ScDesignatorType(t: ScParameter), _) =>
             lub(t.getRealParameterType.getOrAny, t2, checkWeak)
           case (ScDesignatorType(t: ScTypedDefinition), _) if !t.isInstanceOf[ScObject] =>
-            lub(t.getType().getOrAny, t2, checkWeak)
+            lub(t.`type`().getOrAny, t2, checkWeak)
           case (_, ScDesignatorType(t: ScParameter)) =>
             lub(t1, t.getRealParameterType.getOrAny, checkWeak)
           case (_, ScDesignatorType(t: ScTypedDefinition)) if !t.isInstanceOf[ScObject] =>
-            lub(t1, t.getType().getOrAny, checkWeak)
+            lub(t1, t.`type`().getOrAny, checkWeak)
           case (ex: ScExistentialType, _) => lubInner(ex.quantified, t2, checkWeak, stopAddingUpperBound).unpackedType
           case (_, ex: ScExistentialType) => lubInner(t1, ex.quantified, checkWeak, stopAddingUpperBound).unpackedType
           case (TypeParameterType(Nil, _, upper, _), _) if !stopAddingUpperBound => lub(upper, t2, checkWeak)

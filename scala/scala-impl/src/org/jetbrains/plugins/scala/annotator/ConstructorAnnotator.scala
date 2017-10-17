@@ -38,7 +38,7 @@ trait ConstructorAnnotator {
             holder.createErrorAnnotation(argument, "Too many arguments for constructor")
           case TypeMismatch(expression, expectedType) =>
             if (expression != null)
-              for (t <- expression.getType()) {
+              for (t <- expression.`type`()) {
                 //TODO show parameter name
                 val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
                 val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)

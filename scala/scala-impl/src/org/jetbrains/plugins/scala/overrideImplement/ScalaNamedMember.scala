@@ -60,14 +60,14 @@ sealed trait ScalaFieldMember extends ScalaTypedMember
 class ScValueMember(member: ScValue, val element: ScTypedDefinition, val substitutor: ScSubstitutor, val isOverride: Boolean)
         extends {
           val name = element.getName
-          val scType = substitutor.subst(element.getType().getOrAny)
+          val scType = substitutor.subst(element.`type`().getOrAny)
           val text = element.name + ": " + scType.presentableText
         } with PsiElementClassMember[ScValue](member, text) with ScalaFieldMember
 
 class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, val substitutor: ScSubstitutor, val isOverride: Boolean)
         extends {
           val name = element.getName
-          val scType = substitutor.subst(element.getType().getOrAny)
+          val scType = substitutor.subst(element.`type`().getOrAny)
           val text = name + ": " + scType.presentableText
         } with PsiElementClassMember[ScVariable](member, text) with ScalaFieldMember
 

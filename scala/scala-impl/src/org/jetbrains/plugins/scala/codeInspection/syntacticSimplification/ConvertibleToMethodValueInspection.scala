@@ -98,10 +98,11 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
     val newExpr = createExpressionWithContextFromText(newExprText, oldExpr.getContext, oldExpr)
     oldExpr.expectedType(fromUnderscore = false) match {
       case Some(expectedType) if FunctionType.isFunctionType(expectedType) =>
-        def conformsExpected(expr: ScExpression): Boolean = expr.getType().getOrAny conforms expectedType
-        conformsExpected(oldExpr) && conformsExpected(newExpr) && oldExpr.getType().getOrAny.conforms(newExpr.getType().getOrNothing)
+        def conformsExpected(expr: ScExpression): Boolean = expr.`type`().getOrAny conforms expectedType
+
+        conformsExpected(oldExpr) && conformsExpected(newExpr) && oldExpr.`type`().getOrAny.conforms(newExpr.`type`().getOrNothing)
       case None if newExprText endsWith "_" =>
-        (oldExpr.getType(), newExpr.getType()) match {
+        (oldExpr.`type`(), newExpr.`type`()) match {
           case (Success(oldType, _), Success(newType, _)) => oldType.equiv(newType)
           case _ => false
         }

@@ -229,7 +229,7 @@ object Signature {
 
   def setter(definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty) = Signature(
     s"${definition.name}_=",
-    Seq(() => definition.getType().getOrAny),
+    Seq(() => definition.`type`().getOrAny),
     subst,
     definition
   )

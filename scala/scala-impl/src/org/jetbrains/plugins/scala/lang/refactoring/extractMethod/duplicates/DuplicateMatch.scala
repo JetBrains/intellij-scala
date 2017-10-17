@@ -23,7 +23,6 @@ import scala.collection.mutable
  * 2014-05-15
  */
 class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement]) {
-  import pattern.projectContext
 
   private val parameterValues = mutable.Map[ExtractMethodParameter, ScExpression]()
   private val definitionCorrespondence = mutable.Map[ScTypedDefinition, ScTypedDefinition]()
@@ -90,7 +89,7 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
   }
 
   private def typesEquiv(expr1: ScExpression, expr2: ScExpression) = {
-    (expr1.getType(), expr2.getType()) match {
+    (expr1.`type`(), expr2.`type`()) match {
       case (Success(t1, _), Success(t2, _)) =>
         def extractFromSingletonType(t: ScType) = t match {
           case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>

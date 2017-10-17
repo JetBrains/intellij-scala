@@ -62,7 +62,7 @@ sealed trait FunctionTypeFactory {
         (definition, substitutor.followed(parameterizedType.substitutor))
     }.flatMap {
       case (definition, followedSubstitutor) =>
-        definition.getType().toOption.map {
+        definition.`type`().toOption.map {
           followedSubstitutor.subst
         }.collect {
           case ParameterizedType(_, typeArgs) => typeArgs

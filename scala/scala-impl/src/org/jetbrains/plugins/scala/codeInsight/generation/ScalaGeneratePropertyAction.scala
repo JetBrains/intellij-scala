@@ -39,7 +39,7 @@ object ScalaGeneratePropertyHandler {
 
   private def addPropertyMembers(definition: ScVariableDefinition): Unit = {
     val name = definition.bindings.head.name
-    val typeText = definition.getType().getOrAny.canonicalText
+    val typeText = definition.`type`().getOrAny.canonicalText
     val defaultValue = definition.expr.fold("???")(_.getText)
     val modifiers = definition.getModifierList.getText
 

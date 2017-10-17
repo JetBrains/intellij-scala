@@ -234,7 +234,7 @@ object DebuggerUtil {
   private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor) = param match {
       case p: ScParameter if p.isRepeatedParameter => "Lscala/collection/Seq;"
       case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
-      case _ => getJVMStringForType(subst.subst(param.getType().getOrAny))
+      case _ => getJVMStringForType(subst.subst(param.`type`().getOrAny))
     }
   
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Boolean): Value = {

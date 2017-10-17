@@ -44,7 +44,7 @@ trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
                   r.getActualElement.asInstanceOf[PsiClass].qualifiedName == "scala.throws" =>
                 constr.args match {
                   case Some(args) if args.exprs.length == 1 =>
-                    args.exprs(0).getType() match {
+                    args.exprs(0).`type`() match {
                       case Success(ParameterizedType(tp, arg), _) if arg.length == 1 =>
                         tp.extractClass match {
                           case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>

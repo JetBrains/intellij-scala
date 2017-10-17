@@ -355,9 +355,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           pd.declaredType.getOrElse(Nothing)
         case vd: ScVariableDefinition if PsiTreeUtil.isContextAncestor(vd, elem, true) =>
           vd.declaredType.getOrElse(Nothing)
-        case _ => refPatt.getType().getOrAny
+        case _ => refPatt.`type`().getOrAny
       }
-      case typed: ScTypedDefinition => typed.getType().getOrAny
+      case typed: ScTypedDefinition => typed.`type`().getOrAny
       case f: PsiField => f.getType.toScType()
       case _ => Nothing
     }

@@ -27,7 +27,7 @@ object NameSuggester {
 
   private[this] def namesByType(expression: ScExpression): Seq[String] = {
     def collectTypes: Seq[ScType] = {
-      val types = expression.getType().toOption ++
+      val types = expression.`type`().toOption ++
         expression.getTypeWithoutImplicits().toOption ++
         expression.getTypeIgnoreBaseType.toOption
 

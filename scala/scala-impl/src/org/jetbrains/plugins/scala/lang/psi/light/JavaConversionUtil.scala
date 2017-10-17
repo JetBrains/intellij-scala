@@ -94,7 +94,7 @@ object JavaConversionUtil {
         if (call.referencedExpr.getText.endsWith("classOf")) {
           val arguments = call.arguments
           if (arguments.length == 1) {
-            val typeResult = arguments.head.getType()
+            val typeResult = arguments.head.`type`()
             typeResult match {
               case Success(tp, _) =>
                 tp.extractClass match {

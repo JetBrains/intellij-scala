@@ -83,7 +83,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
         case Parsed.Success(qq) =>
           ScalaPsiElementFactory
             .createTypeElementFromText(s"scala.meta.${qq.productPrefix}")(PsiManager.getInstance(pat.getProject))
-            .getType()
+            .`type`()
         case Parsed.Error(_, message, _) =>
           Failure(message, Some(pat))
       }

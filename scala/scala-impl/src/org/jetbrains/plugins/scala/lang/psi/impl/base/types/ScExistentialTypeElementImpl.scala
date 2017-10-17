@@ -23,7 +23,7 @@ import _root_.scala.collection.mutable.ListBuffer
 
 class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExistentialTypeElement {
   protected def innerType: TypeResult[ScType] = {
-    val q = quantified.getType()
+    val q = quantified.`type`()
     val problems: ListBuffer[TypeResult[ScType]] = new ListBuffer
     problems += q
     val wildcards: List[ScExistentialArgument] = {
@@ -40,7 +40,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
           case value: ScValueDeclaration =>
             value.typeElement match {
               case Some(te) =>
-                val ttype = te.getType()
+                val ttype = te.`type`()
                 problems += ttype
                 val t = ScCompoundType(Seq(ttype.getOrAny, Singleton), Map.empty, Map.empty)
                 for (declared <- value.declaredElements) {

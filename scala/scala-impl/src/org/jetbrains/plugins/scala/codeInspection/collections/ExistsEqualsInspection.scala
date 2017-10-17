@@ -35,7 +35,7 @@ object ExistsEquals extends SimplificationType {
     ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, qual.getContext, qual) match {
       case ScMethodCall(ref: ScReferenceExpression, Seq(a)) =>
         ref.resolve() != null &&
-        a.expectedType(fromUnderscore = false).exists(a.getType().getOrNothing.conforms(_))
+          a.expectedType(fromUnderscore = false).exists(a.`type`().getOrNothing.conforms(_))
       case _ => false
     }
 

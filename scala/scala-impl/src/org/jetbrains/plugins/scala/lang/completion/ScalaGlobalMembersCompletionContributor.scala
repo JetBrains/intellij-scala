@@ -192,7 +192,7 @@ object ScalaGlobalMembersCompletionContributor {
       case (definition, _) =>
         val maybeObject = findInheritor(definition)
         maybeObject
-          .flatMap(_.getType().toOption)
+          .flatMap(_.`type`().toOption)
           .foreach(processType)
     }
 

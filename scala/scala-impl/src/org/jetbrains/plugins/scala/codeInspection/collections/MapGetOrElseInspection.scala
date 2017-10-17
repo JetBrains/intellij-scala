@@ -38,14 +38,13 @@ object MapGetOrElse extends SimplificationType() {
   }
 
   def checkTypes(qual: ScExpression, mapArg: ScExpression, replacementText: String): Boolean = {
-    import qual.projectContext
 
     val mapArgRetType = mapArg match {
       case Typeable(FunctionType(retType, _)) => retType
       case _ => return false
     }
     ScalaPsiElementFactory.createExpressionFromText(replacementText, qual.getContext) match {
-      case ScMethodCall(ScMethodCall(_, Seq(firstArg)), _) => mapArgRetType.conforms(firstArg.getType().getOrNothing)
+      case ScMethodCall(ScMethodCall(_, Seq(firstArg)), _) => mapArgRetType.conforms(firstArg.`type`().getOrNothing)
       case _ => false
     }
   }
@@ -59,17 +58,16 @@ object MapGetOrElse extends SimplificationType() {
       case Some(e) => e
       case _ => return false
     }
-    val mapArgRetType = mapArg.getType() match {
+    val mapArgRetType = mapArg.`type`() match {
       case Success(FunctionType(retType, _), _) => retType
       case _ => return false
     }
-    import baseExpr.projectContext
 
     val firstArgText = stripped(getOrElseArg).getText
     val secondArgText = stripped(mapArg).getText
     val newExprText = s"${baseExpr.getText}.fold {$firstArgText}{$secondArgText}"
     ScalaPsiElementFactory.createExpressionFromText(newExprText, baseExpr.getContext) match {
-      case ScMethodCall(ScMethodCall(_, Seq(firstArg)), _) => mapArgRetType.conforms(firstArg.getType().getOrNothing)
+      case ScMethodCall(ScMethodCall(_, Seq(firstArg)), _) => mapArgRetType.conforms(firstArg.`type`().getOrNothing)
       case _ => false
     }
   }

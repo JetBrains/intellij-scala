@@ -54,12 +54,12 @@ class ScTypeAliasDeclarationImpl private (stub: ScTypeAliasStub, node: ASTNode)
   override def toString: String = "ScTypeAliasDeclaration: " + ifReadAllowed(name)("")
 
   def lowerBound: TypeResult[ScType] = lowerTypeElement match {
-      case Some(te) => te.getType()
+    case Some(te) => te.`type`()
       case None => Success(Nothing, Some(this))
   }
 
   def upperBound: TypeResult[ScType] = upperTypeElement match {
-      case Some(te) => te.getType()
+    case Some(te) => te.`type`()
       case None => Success(Any, Some(this))
   }
 

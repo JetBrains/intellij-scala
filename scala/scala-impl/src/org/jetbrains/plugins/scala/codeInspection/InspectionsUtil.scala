@@ -25,7 +25,7 @@ object InspectionsUtil {
   val MethodSignature = "Scala: Method signature"
 
   def isExpressionOfType(className: String, expr: ScExpression): Boolean = Option(expr).map { expression =>
-    (expression.getType().getOrAny, expression.getProject)
+    (expression.`type`().getOrAny, expression.getProject)
   }.exists {
     case (tp, project) => conformsToTypeFromClass(tp, className, project)
   }

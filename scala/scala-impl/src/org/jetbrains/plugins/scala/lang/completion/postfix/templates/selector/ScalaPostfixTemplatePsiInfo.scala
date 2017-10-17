@@ -22,7 +22,7 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
         case _: ScLiteral | _: ScReferenceExpression | _: ScParenthesisedExpr if elements.length == 1 =>
           "!" + templateText(elements)
         case ScPrefixExpr(operation, operand) if operation.refName == "!" &&
-          operand.getType().getOrAny.conforms(Boolean(operand.projectContext)) =>
+          operand.`type`().getOrAny.conforms(Boolean(operand.projectContext)) =>
           operand.getNode.getText
         case _ => s"!(${templateText(elements)})"
       }.getOrElse("!()")

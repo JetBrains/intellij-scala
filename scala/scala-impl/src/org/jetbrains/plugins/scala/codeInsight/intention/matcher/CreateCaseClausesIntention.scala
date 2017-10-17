@@ -138,7 +138,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
       case x: ScMatchStmt if x.caseClauses.isEmpty =>
         val project = element.projectContext
         val clazz = x.expr
-          .flatMap(_.getType().toOption)
+          .flatMap(_.`type`().toOption)
           .flatMap(_.extractClass)
 
         clazz match {

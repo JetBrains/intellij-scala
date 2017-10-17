@@ -63,7 +63,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     * @return seq of application problems
     */
   def applicationProblems: Seq[ApplicabilityProblem] = {
-    getType()
+    `type`()
     problemsVar
   }
 
@@ -82,7 +82,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   }
 
   private def matchedParametersInner: Seq[(Parameter, ScExpression)] = {
-    getType()
+    `type`()
     matchedParamsVar
   }
 
@@ -92,7 +92,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     * @return imports used for implicit conversion
     */
   def getImportsUsed: collection.Set[ImportUsed] = {
-    getType()
+    `type`()
     importsUsedVar
   }
 
@@ -102,7 +102,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     * @return actual conversion element
     */
   def getImplicitFunction: Option[ScalaResolveResult] = {
-    getType()
+    `type`()
     implicitFunctionVar
   }
 
@@ -112,7 +112,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   def isApplyOrUpdateCall: Boolean = applyOrUpdateElement.isDefined
 
   def applyOrUpdateElement: Option[ScalaResolveResult] = {
-    getType()
+    `type`()
     applyOrUpdateElemVar
   }
 

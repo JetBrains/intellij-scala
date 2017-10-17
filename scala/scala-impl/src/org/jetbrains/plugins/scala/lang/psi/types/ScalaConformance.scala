@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
@@ -322,15 +321,15 @@ trait ScalaConformance extends api.Conformance {
       override def visitDesignatorType(d: ScDesignatorType) {
         d.element match {
           case v: ScBindingPattern =>
-            val res = v.getType()
+            val res = v.`type`()
             if (res.isEmpty) result = (false, undefinedSubst)
             else result = conformsInner(l, res.get, visited, undefinedSubst)
           case v: ScParameter =>
-            val res = v.getType(TypingContext)
+            val res = v.`type`()
             if (res.isEmpty) result = (false, undefinedSubst)
             else result = conformsInner(l, res.get, visited, undefinedSubst)
           case v: ScFieldId =>
-            val res = v.getType()
+            val res = v.`type`()
             if (res.isEmpty) result = (false, undefinedSubst)
             else result = conformsInner(l, res.get, visited, undefinedSubst)
           case _ =>
@@ -436,8 +435,8 @@ trait ScalaConformance extends api.Conformance {
                   undefinedSubst = t._2
                   (projDes.actualElement, proj.actualElement) match {
                     case (desT: Typeable, projT: Typeable) =>
-                      desT.getType().filter(_.isInstanceOf[ScParameterizedType]).
-                        map(_.asInstanceOf[ScParameterizedType]).flatMap(dt => projT.getType().
+                      desT.`type`().filter(_.isInstanceOf[ScParameterizedType]).
+                        map(_.asInstanceOf[ScParameterizedType]).flatMap(dt => projT.`type`().
                         map(c => conformsInner(ScParameterizedType(dt.designator, param.typeArguments),
                           cutProj(c, acc), visited, undefinedSubst))).map(t => if (t._1) result = t)
                     case _ =>
@@ -455,15 +454,15 @@ trait ScalaConformance extends api.Conformance {
                 case syntheticClass: ScSyntheticClass =>
                   result = conformsInner(l, syntheticClass.stdType, HashSet.empty, undefinedSubst)
                 case v: ScBindingPattern =>
-                  val res = v.getType()
+                  val res = v.`type`()
                   if (res.isEmpty) result = (false, undefinedSubst)
                   else result = conformsInner(l, proj2.actualSubst.subst(res.get), visited, undefinedSubst)
                 case v: ScParameter =>
-                  val res = v.getType(TypingContext)
+                  val res = v.`type`()
                   if (res.isEmpty) result = (false, undefinedSubst)
                   else result = conformsInner(l, proj2.actualSubst.subst(res.get), visited, undefinedSubst)
                 case v: ScFieldId =>
-                  val res = v.getType()
+                  val res = v.`type`()
                   if (res.isEmpty) result = (false, undefinedSubst)
                   else result = conformsInner(l, proj2.actualSubst.subst(res.get), visited, undefinedSubst)
                 case _ =>

@@ -12,7 +12,7 @@ class ScalaTypeOfVariableMacro extends ScalaMacro {
   override def innerCalculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     if (params.length == 0) return null
     Option(params(0).calculateResult(context)).flatMap(MacroUtil.resultToScExpr(_, context)).
-            flatMap(_.getType().toOption).map(new ScalaTypeResult(_)).orNull
+      flatMap(_.`type`().toOption).map(new ScalaTypeResult(_)).orNull
   }
 
   override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = calculateResult(params, context)

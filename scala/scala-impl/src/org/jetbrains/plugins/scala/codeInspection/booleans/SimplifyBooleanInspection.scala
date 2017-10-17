@@ -72,7 +72,7 @@ object SimplifyBooleanUtil {
 
   def isOfBooleanType(expr: ScExpression): Boolean = {
     import expr.projectContext
-    expr.getType().getOrAny.weakConforms(api.Boolean)
+    expr.`type`().getOrAny.weakConforms(api.Boolean)
   }
 
   private def getScExprChildren(expr: ScExpression) =  expr.children.collect { case expr: ScExpression => expr }.toList

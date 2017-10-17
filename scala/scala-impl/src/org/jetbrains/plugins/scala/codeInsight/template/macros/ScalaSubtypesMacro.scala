@@ -41,7 +41,7 @@ class ScalaSubtypesMacro extends ScalaMacro {
               .collect {
                 case definition: ScTypeDefinition => definition
               }
-              .flatMap(_.getType().toOption)
+              .flatMap(_.`type`().toOption)
               .flatMap(MacroUtil.getTypeLookupItem(_, project))
               .toArray
           case _ => Array[LookupElement]()

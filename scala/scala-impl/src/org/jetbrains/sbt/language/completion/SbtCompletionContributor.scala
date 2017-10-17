@@ -52,7 +52,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
       // In expression `setting += ???` extracts type T of `setting: Setting[Seq[T]]`
       def extractSeqType: Option[ScType] = {
         if (operator.getText != "+=") return None
-        operator.getType() match {
+        operator.`type`() match {
           case Success(ParameterizedType(_, typeArgs), _) =>
             typeArgs.last match {
               case ParameterizedType(settingType, Seq(seqFullType)) if qualifiedName(settingType) == "sbt.Init.Setting" =>
@@ -122,7 +122,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
         variant.element match {
           case f: PsiField if f.getType.toScType().conforms(expectedType) =>
             apply(variant)
-          case typed: ScTypedDefinition if typed.getType().getOrAny.conforms(expectedType) =>
+          case typed: ScTypedDefinition if typed.`type`().getOrAny.conforms(expectedType) =>
             variant.isLocalVariable =
               (typed.isVar || typed.isVal) &&
                 typed.containingFile.exists(_.getName == parameters.getOriginalFile.getName)

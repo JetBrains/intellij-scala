@@ -22,9 +22,9 @@ class ScalaRedundantCastInspection extends AbstractInspection("Redundant cast") 
 
       call.referencedExpr.children.toList match {
         case List(left: ScExpression, ElementText("."), ElementText("asInstanceOf")) =>
-          for (actualType <- left.getType().toOption;
+          for (actualType <- left.`type`().toOption;
                typeArgument <- call.arguments.headOption;
-               castType <- typeArgument.getType() if actualType.equiv(castType)) {
+               castType <- typeArgument.`type`() if actualType.equiv(castType)) {
 
             val descriptor = {
               val range = new TextRange(left.getTextLength, call.getTextLength)

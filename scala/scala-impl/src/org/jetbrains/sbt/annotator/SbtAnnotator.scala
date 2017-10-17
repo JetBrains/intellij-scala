@@ -67,7 +67,7 @@ class SbtAnnotator extends Annotator {
 
     private def annotateTypeMismatch(expression: ScExpression): Unit =
       for {
-        expressionType <- expression.getType().toOption
+        expressionType <- expression.`type`().toOption
         message <-
           if (expressionType.equiv(Nothing) || expressionType.equiv(Null))
             Option(expectedExpressionType)

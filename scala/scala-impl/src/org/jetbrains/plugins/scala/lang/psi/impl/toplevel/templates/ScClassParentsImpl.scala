@@ -33,7 +33,7 @@ class ScClassParentsImpl private(stub: ScTemplateParentsStub[ScClassParents], no
     val iterator = elements.iterator
     val buffer = ArrayBuffer[ScType]()
     while (iterator.hasNext) {
-      buffer += iterator.next.getType().getOrAny
+      buffer += iterator.next.`type`().getOrAny
     }
     buffer
   }

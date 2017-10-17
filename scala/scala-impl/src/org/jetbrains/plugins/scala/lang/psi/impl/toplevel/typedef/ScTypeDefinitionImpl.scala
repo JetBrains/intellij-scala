@@ -37,7 +37,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionE
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.projectView.{ClassAndCompanionObject, SingularDefinition, TraitAndCompanionObject}
@@ -87,7 +86,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
       .exists(isInheritor(_, deep = true))
   }
 
-  def getType(ctx: TypingContext.type): Success[ScType] = {
+  def `type`(): Success[ScType] = {
     val parentClass: ScTemplateDefinition = containingClass
     if (typeParameters.isEmpty) {
       if (parentClass != null) {

@@ -21,8 +21,8 @@ class ScTypedStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTy
 
   protected override def innerType: TypeResult[ScType] = {
     typeElement match {
-      case Some(te) => te.getType()
-      case None if !expr.isInstanceOf[ScUnderscoreSection] => expr.getType()
+      case Some(te) => te.`type`()
+      case None if !expr.isInstanceOf[ScUnderscoreSection] => expr.`type`()
       case _ => Failure("Typed statement is not complete for underscore section", Some(this))
     }
   }

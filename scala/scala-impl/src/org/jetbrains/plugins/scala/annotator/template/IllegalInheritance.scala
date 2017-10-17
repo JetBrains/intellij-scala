@@ -20,8 +20,8 @@ object IllegalInheritance extends AnnotatorPart[ScTemplateDefinition] {
 
     if(!typeAware) return
 
-    definition.selfTypeElement.flatMap(_.getType().toOption).
-      orElse(definition.getType().toOption).foreach { ownType =>
+    definition.selfTypeElement.flatMap(_.`type`().toOption).
+      orElse(definition.`type`().toOption).foreach { ownType =>
       AnnotatorPart.superRefsWithSubst(definition).foreach {
         case (refElement, Some((SelfType(Some(aType)), subst)))  =>
           val anotherType = subst.subst(aType)

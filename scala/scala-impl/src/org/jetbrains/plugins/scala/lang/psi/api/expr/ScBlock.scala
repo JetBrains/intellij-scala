@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 
 import scala.collection.mutable
@@ -44,7 +43,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
       val iterator = clauses.iterator
       while (iterator.hasNext) {
         iterator.next().expr match {
-          case Some(e) => clausesTypes += e.getType().getOrNothing
+          case Some(e) => clausesTypes += e.`type`().getOrNothing
           case _ =>
         }
       }
@@ -104,13 +103,13 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           val visitedWithT = visited + t
           t match {
             case ScDesignatorType(p: ScParameter) if p.owner.isInstanceOf[ScFunctionExpr] && p.owner.asInstanceOf[ScFunctionExpr].result.contains(this) =>
-              val t = existize(p.getType(TypingContext).getOrAny, visitedWithT)
+              val t = existize(p.`type`().getOrAny, visitedWithT)
               val ex = ScExistentialArgument(p.name, Nil, t, t)
               m.put(p.name, ex)
               ex
             case ScDesignatorType(typed: ScBindingPattern) if typed.nameContext.isInstanceOf[ScCaseClause] &&
               typed.nameContext.asInstanceOf[ScCaseClause].expr.contains(this) =>
-              val t = existize(typed.getType().getOrAny, visitedWithT)
+              val t = existize(typed.`type`().getOrAny, visitedWithT)
               val ex = ScExistentialArgument(typed.name, Nil, t, t)
               m.put(typed.name, ex)
               ex
@@ -127,7 +126,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                 m.put(clazz.name, ex)
                 ex
               case typed: ScTypedDefinition =>
-                val t = existize(typed.getType().getOrAny, visitedWithT)
+                val t = existize(typed.`type`().getOrAny, visitedWithT)
                 val ex = ScExistentialArgument(typed.name, Nil, t, t)
                 m.put(typed.name, ex)
                 ex
@@ -171,7 +170,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           }
         }
 
-        val t = existize(e.getType().getOrAny, Set.empty)
+        val t = existize(e.`type`().getOrAny, Set.empty)
         if (m.isEmpty) t else new ScExistentialType(t, m.values.toList).simplify()
     }
     Success(inner, Some(this))

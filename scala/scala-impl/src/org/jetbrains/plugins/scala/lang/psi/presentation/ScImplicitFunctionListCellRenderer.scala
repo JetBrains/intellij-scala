@@ -77,7 +77,7 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
                 PresentationUtil.presentationString(method.returnType.
                         getOrAny)
       case b: ScBindingPattern => b.name + ": " +
-        PresentationUtil.presentationString(b.getType().getOrAny)
+        PresentationUtil.presentationString(b.`type`().getOrAny)
       case _ => element.name
     }
   }

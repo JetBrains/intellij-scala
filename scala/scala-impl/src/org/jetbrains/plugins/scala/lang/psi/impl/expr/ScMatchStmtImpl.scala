@@ -28,7 +28,7 @@ class ScMatchStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMa
   override def toString: String = "MatchStatement"
 
   protected override def innerType: TypeResult[ScType] = {
-    val branchTypes = getBranches.map(_.getType())
+    val branchTypes = getBranches.map(_.`type`())
     collectFailures(branchTypes, Nothing)(_.foldLeft(Nothing: ScType)(_.lub(_, checkWeak = true)))
   }
 }

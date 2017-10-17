@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMeth
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -98,7 +97,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
         val constructor = args.getContext.asInstanceOf[ScConstructor]
         val index = constructor.arguments.indexOf(args)
         val typeElement = constructor.typeElement
-        typeElement.getType() match {
+        typeElement.`type`() match {
           case Success(tp, _) =>
             val project = position.getProject
 
@@ -133,7 +132,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
       case fun: ScMethodLike =>
         val clauses = fun.effectiveParameterClauses
         if (clauses.length > clauseIndex) clauses(clauseIndex).effectiveParameters.map(p =>
-          (p.name, subst.subst(p.getType(TypingContext).getOrAny)))
+          (p.name, subst.subst(p.`type`().getOrAny)))
         else Seq.empty
       case _ =>
         if (clauseIndex != 0) Seq.empty
@@ -149,7 +148,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
       val res = signature.map {
         case (name: String, tp: ScType) =>
           methodLike.parameterList.params.find(_.name == name) match {
-            case Some(param) if param.getType(TypingContext).getOrAny.conforms(tp) =>
+            case Some(param) if param.`type`().getOrAny.conforms(tp) =>
               names += name
               name
             case _ => names += ""

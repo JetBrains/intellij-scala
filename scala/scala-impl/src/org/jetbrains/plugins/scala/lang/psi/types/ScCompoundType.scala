@@ -226,14 +226,14 @@ object ScCompoundType {
         case fun: ScFunction => signatureMapVal += ((Signature(fun), fun.returnType.getOrAny))
         case varDecl: ScVariable =>
           signatureMapVal ++= varDecl.declaredElements.map {
-            e => (Signature(e), e.getType().getOrAny)
+            e => (Signature(e), e.`type`().getOrAny)
           }
           signatureMapVal ++= varDecl.declaredElements.map {
-            e => (Signature(e), e.getType().getOrAny)
+            e => (Signature(e), e.`type`().getOrAny)
           }
         case valDecl: ScValue =>
           signatureMapVal ++= valDecl.declaredElements.map {
-            e => (Signature(e), e.getType().getOrAny)
+            e => (Signature(e), e.`type`().getOrAny)
           }
       }
     }

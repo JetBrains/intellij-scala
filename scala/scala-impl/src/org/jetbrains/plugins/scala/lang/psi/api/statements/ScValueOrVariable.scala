@@ -24,7 +24,7 @@ trait ScValueOrVariable extends ScBlockStatement with ScMember with ScDocComment
 
   def declaredType: Option[ScType] =
     typeElement.flatMap {
-      _.getType().toOption
+      _.`type`().toOption
     }
 
   override protected def isSimilarMemberForNavigation(member: ScMember, isStrict: Boolean): Boolean = member match {

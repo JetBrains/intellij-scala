@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.annotator.intention.sbt
 
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.annotator.intention.sbt.AddSbtDependencyUtils._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
-import AddSbtDependencyUtils._
+import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 
 /**
   * Created by afonichkin on 8/28/17.
@@ -37,7 +37,7 @@ object SbtDependenciesVisitor {
 
     if (call.deepestInvokedExpr.getText == SEQ) {
       for {
-        callType <- call.getType().toOption
+        callType <- call.`type`().toOption
         formalSeq <- ScalaPsiElementFactory.createTypeFromText(SBT_SEQ_TYPE, call, call)
         formalSetting <- ScalaPsiElementFactory.createTypeFromText(SBT_SETTING_TYPE, call, call)
       } yield callType match {
@@ -63,7 +63,7 @@ object SbtDependenciesVisitor {
 
     f(patternDefinition)
 
-    val processed = patternDefinition.getType()
+    val processed = patternDefinition.`type`()
       .filter(_.canonicalText == SBT_PROJECT_TYPE)
       .map { _ =>
         getSettings(patternDefinition).foreach(processMethodCall(_)(f))

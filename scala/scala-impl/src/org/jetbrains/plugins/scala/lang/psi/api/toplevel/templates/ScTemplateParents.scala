@@ -44,7 +44,7 @@ object ScTemplateParents {
     typeElements.map {
       case element: ScTypeElement =>
         def tail(): PsiClass = {
-          element.getType().map {
+          element.`type`().map {
             case tp: ScType => tp.extractClass match {
               case Some(clazz) => clazz
               case _ => null

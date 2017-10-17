@@ -39,11 +39,11 @@ class EmptyParenMethodAccessedAsParameterlessInspection extends AbstractMethodSi
       e.getParent match {
         case gc: ScGenericCall =>
           ScalaPsiUtil.findCall(gc) match {
-            case None => check(e, holder, gc.getType())
+            case None => check(e, holder, gc.`type`())
             case Some(_) =>
           }
         case _: ScMethodCall | _: ScInfixExpr | _: ScPrefixExpr | _: ScUnderscoreSection => // okay
-        case _ => check(e, holder, e.getType())
+        case _ => check(e, holder, e.`type`())
       }
   }
 

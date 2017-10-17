@@ -13,7 +13,7 @@ class ScalaExpressionTypeMacro extends ScalaMacro {
 
   override def innerCalculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     if (params.length != 1) return null
-    MacroUtil.resultToScExpr(params.head.calculateResult(context), context).flatMap(_.getType().toOption).
+    MacroUtil.resultToScExpr(params.head.calculateResult(context), context).flatMap(_.`type`().toOption).
             map(myType => new ScalaTypeResult(myType)).orNull
   }
 

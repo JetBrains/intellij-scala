@@ -125,7 +125,7 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
               poOpt() match {
                 case Some(po) =>
                   if (checkPo) {
-                    po.getType()
+                    po.`type`()
                   } else Failure("no failure", Some(this))
                 case _ => Failure("no failure", Some(this))
               }

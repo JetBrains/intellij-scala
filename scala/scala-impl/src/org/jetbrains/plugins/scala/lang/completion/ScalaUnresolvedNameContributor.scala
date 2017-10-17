@@ -115,7 +115,7 @@ class ScalaUnresolvedNameContributor extends ScalaCompletionContributor {
       override def toString: String = name.zip(`type`).map { case (n, t) => s"$n: $t" }.headOption.getOrElse("")
     }
 
-    def computeType(exprs: ScExpression): Option[ScType] = Option(exprs.getType().getOrAny)
+    def computeType(exprs: ScExpression): Option[ScType] = Option(exprs.`type`().getOrAny)
 
     val names: mutable.Map[String, Int] = mutable.HashMap.empty[String, Int]
 

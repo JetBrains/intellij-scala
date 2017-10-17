@@ -60,7 +60,7 @@ object AddSbtDependencyUtils {
         if (pat.expr.isEmpty)
           return
 
-        if (pat.expr.get.getType().get.canonicalText != SBT_PROJECT_TYPE)
+        if (pat.expr.get.`type`().get.canonicalText != SBT_PROJECT_TYPE)
           return
 
         res = res ++ Seq(pat)

@@ -29,7 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createSc
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -205,7 +204,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         typez match {
           case definition: ScTypeAliasDefinition =>
             val `type` = definition.aliasedTypeElement.flatMap {
-              _.getType().toOption
+              _.`type`().toOption
             }.getOrElse(Any)
             buffer.append(s" = ${urlText(`type`)}")
           case _ =>
@@ -388,7 +387,7 @@ object ScalaDocumentationProvider {
     val buffer: StringBuilder = new StringBuilder(": ")
     val typez = elem match {
       case fun: ScFunction => fun.returnType.getOrAny
-      case _ => elem.getType().getOrAny
+      case _ => elem.`type`().getOrAny
     }
     buffer.append(typeToString(typez))
     buffer.toString()
@@ -524,7 +523,7 @@ object ScalaDocumentationProvider {
           buffer.append(leadingAsterisks).append(MyScaladocParsing.THROWS_TAG).append(" ")
           annotation.constructor.args.foreach( a =>
             a.exprs.headOption.map {
-              case exprHead => exprHead.getType() match {
+              case exprHead => exprHead.`type`() match {
                 case Success(head, _) =>
                   head match {
                     case ParameterizedType(_, args) =>
@@ -616,9 +615,9 @@ object ScalaDocumentationProvider {
     elem.templateParents match {
       case Some(x: ScTemplateParents) =>
         val seq = x.allTypeElements
-        buffer.append(typeToString(seq.head.getType().getOrAny) + "\n")
+        buffer.append(typeToString(seq.head.`type`().getOrAny) + "\n")
         for (i <- 1 until seq.length)
-          buffer append " with " + typeToString(seq(i).getType().getOrAny)
+          buffer append " with " + typeToString(seq(i).`type`().getOrAny)
       case None =>
         buffer.append("<a href=\"psi_element://scala.ScalaObject\"><code>ScalaObject</code></a>")
         if (elem.isUnderCaseClass) {
@@ -662,7 +661,7 @@ object ScalaDocumentationProvider {
     def parseAnnotation(elem: ScAnnotation): String = {
       val res = new StringBuilder("@")
       val constr: ScConstructor = elem.constructor
-      res.append(typeToString(constr.typeElement.getType().getOrAny))
+      res.append(typeToString(constr.typeElement.`type`().getOrAny))
 
       val attrs = elem.annotationExpr.getAnnotationParameters
       if (attrs.nonEmpty) res append attrs.map(_.getText).mkString("(", ", " ,")")
@@ -990,7 +989,7 @@ object ScalaDocumentationProvider {
         buffer.append(field.name)
         field match {
           case typed: ScTypedDefinition =>
-            val typez = subst.subst(typed.getType().getOrAny)
+            val typez = subst.subst(typed.`type`().getOrAny)
             if (typez != null) buffer.append(": " + typez.presentableText)
           case _ =>
         }
@@ -1005,7 +1004,7 @@ object ScalaDocumentationProvider {
         buffer.append(field.name)
         field match {
           case typed: ScTypedDefinition =>
-            val typez = subst.subst(typed.getType().getOrAny)
+            val typez = subst.subst(typed.`type`().getOrAny)
             if (typez != null) buffer.append(": " + typez.presentableText)
           case _ =>
         }
@@ -1023,7 +1022,7 @@ object ScalaDocumentationProvider {
     val buffer = new StringBuilder
     buffer.append("Pattern: ")
     buffer.append(binding.name)
-    val typez = subst.subst(subst.subst(binding.getType().getOrAny))
+    val typez = subst.subst(subst.subst(binding.`type`().getOrAny))
     if (typez != null) buffer.append(": " + typez.presentableText)
 
     buffer.toString()
@@ -1051,7 +1050,7 @@ object ScalaDocumentationProvider {
   }
 
   def generateParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String = {
-    val defaultText = s"${parameter.name}: ${subst.subst(parameter.getType(TypingContext).getOrAny).presentableText}"
+    val defaultText = s"${parameter.name}: ${subst.subst(parameter.`type`().getOrAny).presentableText}"
 
     (parameter match {
       case clParameter: ScClassParameter =>
@@ -1059,7 +1058,7 @@ object ScalaDocumentationProvider {
 
         if (clazz == null) defaultText else clazz.name + " " + clazz.getPresentation.getLocationString + "\n" +
                 (if (clParameter.isVal) "val " else if (clParameter.isVar) "var " else "") + clParameter.name +
-          ": " + subst.subst(clParameter.getType(TypingContext).getOrAny).presentableText
+          ": " + subst.subst(clParameter.`type`().getOrAny).presentableText
       case _ => defaultText}) +
         (if (parameter.isRepeatedParameter) "*" else "")
   }

@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, TestConfigurationUtil}
@@ -143,7 +142,7 @@ class ScalaTestConfigurationProducer extends {
                   if (clauses.nonEmpty) {
                     val params = clauses.head.parameters
                     if (params.nonEmpty) {
-                      params.head.getType(TypingContext) match {
+                      params.head.`type`() match {
                         case Success(t, _) if t.isUnit => failedToCheck = false
                         case Success(tp, _) =>
                           tp.extractClass match {

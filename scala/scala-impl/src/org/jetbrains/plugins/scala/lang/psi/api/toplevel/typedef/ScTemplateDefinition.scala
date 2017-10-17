@@ -77,7 +77,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
       implicit val elementScope: ElementScope = ElementScope(getProject)
       tp match {
         case Some(tp1) => (for (te <- tp1.allTypeElements;
-                                t = te.getType().getOrAny;
+                                t = te.`type`().getOrAny;
                                 asPsi = t.toPsiType
                                 if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
         case _ => PsiClassType.EMPTY_ARRAY

@@ -141,7 +141,7 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
 
   override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
-  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult[ScType] = getType() //no projections for new template definition
+  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult[ScType] = `type`() //no projections for new template definition
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =
     super[ScNewTemplateDefinition].isInheritor(baseClass, deep)

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, api}
 
 class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScCompoundTypeElement {
   protected def innerType: TypeResult[ScType] = {
-    val comps = components.map(_.getType())
+    val comps = components.map(_.`type`())
     refinement match {
       case None => collectFailures(comps, Any)(new ScCompoundType(_, Map.empty, Map.empty))
       case Some(r) => collectFailures(comps, api.Any)(ScCompoundType.fromPsi(_, r.holders.toList, r.types.toList))

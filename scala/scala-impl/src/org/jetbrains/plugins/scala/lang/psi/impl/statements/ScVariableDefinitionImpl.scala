@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScVariableStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 
 
@@ -48,9 +47,9 @@ class ScVariableDefinitionImpl private (stub: ScVariableStub, node: ASTNode)
     case ScPatternList(patterns) => patterns.flatMap(_.bindings)
   }
 
-  def getType(ctx: TypingContext.type): TypeResult[ScType] = typeElement match {
-    case Some(te) => te.getType(ctx)
-    case None => expr.map(_.getType())
+  def `type`(): TypeResult[ScType] = typeElement match {
+    case Some(te) => te.`type`()
+    case None => expr.map(_.`type`())
             .getOrElse(Failure("Cannot infer type without an expression", Some(this)))
   }
 

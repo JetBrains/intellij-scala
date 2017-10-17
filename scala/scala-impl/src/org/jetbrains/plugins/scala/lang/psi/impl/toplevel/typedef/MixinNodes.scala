@@ -457,7 +457,7 @@ object MixinNodes {
               else ScParameterizedType(ScalaType.designator(clazz),
                 clazz.getTypeParameters.map(TypeParameterType(_, None)))
             clazz match {
-              case td: ScTypeDefinition => td.getType().getOrElse(default)
+              case td: ScTypeDefinition => td.`type`().getOrElse(default)
               case _ => default
             }
           }

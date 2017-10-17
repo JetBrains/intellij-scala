@@ -162,7 +162,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   isGrey = true
                   appendFirst()
                 } else {
-                  val exprType = expr.getType().getOrNothing
+                  val exprType = expr.`type`().getOrNothing
                   val getIt = used.indexOf(false)
                   used(getIt) = true
                   val param: (Parameter, String) = parameters(getIt)
@@ -195,7 +195,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         if (namedMode) buffer.append(namedPostfix)
                         assign.getRExpression match {
                           case Some(expr: ScExpression) =>
-                            for (exprType <- expr.getType()) {
+                            for (exprType <- expr.`type`()) {
                               val paramType = param._1.paramType
                               if (!exprType.conforms(paramType)) isGrey = true
                             }
@@ -239,7 +239,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 val paramType = parameters.last._1.paramType
                 while (!isGrey && k < exprs.length.min(index)) {
                   if (k < index) {
-                    for (exprType <- exprs(k).getType()) {
+                    for (exprType <- exprs(k).`type`()) {
                     if (!exprType.conforms(paramType)) isGrey = true
                     }
                   }
@@ -495,7 +495,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     effectiveParameterClauses.length >= count =>
                     res += ((new PhysicalSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
                   case _ =>
-                    for (typez <- call.getEffectiveInvokedExpr.getType()) //todo: implicit conversions
+                    for (typez <- call.getEffectiveInvokedExpr.`type`()) //todo: implicit conversions
                     {collectForType(typez)}
                 }
               } else {
@@ -516,7 +516,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       res += ((signature, 0))
                       res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map { (_, 0) }
                     case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) =>
-                      val typez = subst.subst(typed.getType().getOrNothing) //todo: implicit conversions
+                      val typez = subst.subst(typed.`type`().getOrNothing) //todo: implicit conversions
                       collectForType(typez)
                     case _ =>
                   }
@@ -525,7 +525,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             case None =>
               call match {
                 case call: ScMethodCall =>
-                  for (typez <- call.getEffectiveInvokedExpr.getType()) { //todo: implicit conversions
+                  for (typez <- call.getEffectiveInvokedExpr.`type`()) { //todo: implicit conversions
                     collectForType(typez)
                   }
               }

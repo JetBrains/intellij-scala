@@ -26,7 +26,7 @@ trait FunctionAnnotator {
       }
     }
 
-    val tailrecAnnotation = function.annotations.find(_.typeElement.getType()
+    val tailrecAnnotation = function.annotations.find(_.typeElement.`type`()
             .map(_.canonicalText).filter(_ == "_root_.scala.annotation.tailrec").isDefined)
 
     tailrecAnnotation.foreach { it =>
@@ -88,8 +88,8 @@ trait FunctionAnnotator {
       def needsTypeAnnotation() = {
         val message = ScalaBundle.message("function.must.define.type.explicitly", function.name)
         val returnTypes = function.returnUsages(withBooleanInfix = false).toSeq.collect {
-          case retStmt: ScReturnStmt => retStmt.expr.flatMap(_.getType().toOption).getOrElse(Any)
-          case expr: ScExpression => expr.getType().getOrAny
+          case retStmt: ScReturnStmt => retStmt.expr.flatMap(_.`type`().toOption).getOrElse(Any)
+          case expr: ScExpression => expr.`type`().getOrAny
         }
         val annotation = holder.createErrorAnnotation(usage.asInstanceOf[ScReturnStmt].returnKeyword, message)
         annotation.registerFix(new AddReturnTypeFix(function, returnTypes.lub()))

@@ -31,15 +31,15 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
   override def toString: String = "TryStatement"
 
   protected override def innerType: TypeResult[ScType] = {
-    val lifted = tryBlock.getType()
+    val lifted = tryBlock.`type`()
     lifted flatMap { _ => catchBlock match {
         case None => lifted
         case Some(cb) =>
           cb.expression match {
             case Some(expr) if !lifted.isEmpty =>
-              expr.getType() match {
+              expr.`type`() match {
                 case Success(_, _) =>
-                  val tp = expr.getType().getOrAny
+                  val tp = expr.`type`().getOrAny
                   val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.resolveScope, "java.lang.Throwable")
                   throwable.fold(lifted) { throwable =>
                     val throwableType = ScDesignatorType(throwable)

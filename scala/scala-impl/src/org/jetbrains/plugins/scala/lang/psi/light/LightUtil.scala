@@ -29,7 +29,7 @@ object LightUtil {
         implicit val elementScope = holder.elementScope
 
         val classes = annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
-          _.getType() match {
+          _.`type`() match {
             case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass match {
               case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
                 arg.toPsiType match {
@@ -48,7 +48,7 @@ object LightUtil {
         if (classes.isEmpty) {
           annotation.constructor.typeArgList match {
             case Some(args) =>
-              val classes = args.typeArgs.map(_.getType()).filter(_.isDefined).map(_.get).flatMap {
+              val classes = args.typeArgs.map(_.`type`()).filter(_.isDefined).map(_.get).flatMap {
                 _.toPsiType match {
                   case c: PsiClassType =>
                     c.resolve() match {

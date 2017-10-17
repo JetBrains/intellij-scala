@@ -121,7 +121,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
     UIFreezingGuard.withDefaultValue("") {
       element match {
         case fun: ScFunction =>
-          val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.getType().getOrAny
+          val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.`type`().getOrAny
           presentationString(scType, substitutor)
         case fun: ScFun =>
           presentationString(fun.retType, substitutor)
@@ -140,7 +140,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
         case m: PsiMethod =>
           presentationString(m.getReturnType, substitutor)
         case t: Typeable =>
-          presentationString(t.getType().getOrAny, substitutor)
+          presentationString(t.`type`().getOrAny, substitutor)
         case _ => ""
       }
     }

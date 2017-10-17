@@ -46,7 +46,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
   }
 
   def hasTailRecursionAnnotation: Boolean =
-    annotations.exists(_.typeElement.getType()
+    annotations.exists(_.typeElement.`type`()
       .map(_.canonicalText).exists(_ == "_root_.scala.annotation.tailrec"))
 
   def recursiveReferences: Seq[RecursiveReference] = {

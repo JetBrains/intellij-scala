@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, ParameterizedType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, api, _}
 
@@ -38,7 +37,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean = {
     t match {
-      case Some(t) => getType() match {
+      case Some(t) => `type`() match {
         case Success(tp, _) if t conforms tp => true
         case _ => false
       }
@@ -48,12 +47,12 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   override def toString: String = "TypedPattern: " + ifReadAllowed(name)("")
 
-  override def getType(ctx: TypingContext.type = TypingContext): TypeResult[ScType] = {
+  override def `type`(): TypeResult[ScType] = {
     typePattern match {
       case Some(tp) =>
         if (tp.typeElement == null) return Failure("No type element for type pattern", Some(this))
         val typeElementType: TypeResult[ScType] =
-          tp.typeElement.getType(ctx).map {
+          tp.typeElement.`type`().map {
             case tp: ScExistentialType =>
               val skolem = tp.quantified
               skolem.extractClassType match {  //todo: type aliases?
@@ -109,7 +108,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType())
+    ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`())
   }
 
   override def getOriginalElement: PsiElement = super[ScTypedPattern].getOriginalElement

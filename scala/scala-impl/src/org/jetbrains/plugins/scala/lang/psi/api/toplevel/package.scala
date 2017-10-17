@@ -29,7 +29,7 @@ package object toplevel {
         case ta: ScTypeAliasDeclaration =>
           val boundsDepth = ta.lowerBound.getOrNothing.typeDepth.max(ta.upperBound.getOrAny.typeDepth)
           typeParametersOwnerDepth(ta, boundsDepth)
-        case t: ScTypedDefinition => t.getType().getOrAny.typeDepth
+        case t: ScTypedDefinition => t.`type`().getOrAny.typeDepth
         case _ => 1
       }
     }

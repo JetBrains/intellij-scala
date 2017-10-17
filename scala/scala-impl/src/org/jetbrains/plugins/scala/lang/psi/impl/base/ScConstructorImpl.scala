@@ -126,7 +126,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
           val appSubst = ScSubstitutor(zipped.map {
             case (arg, typeParam) =>
-              (typeParam.nameAndId, arg.getType().getOrAny)
+              (typeParam.nameAndId, arg.`type`().getOrAny)
           }.toMap)
           Success(appSubst.subst(res), Some(this))
         case _ =>

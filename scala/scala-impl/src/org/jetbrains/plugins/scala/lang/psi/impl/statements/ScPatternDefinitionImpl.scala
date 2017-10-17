@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 
 /**
@@ -51,10 +50,10 @@ class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
 
   def declaredElements: Seq[ScBindingPattern] = bindings
 
-  def getType(ctx: TypingContext.type): TypeResult[ScType] = {
+  def `type`(): TypeResult[ScType] = {
     typeElement match {
-      case Some(te) => te.getType(ctx)
-      case None if expr.nonEmpty => expr.get.getType(ctx)
+      case Some(te) => te.`type`()
+      case None if expr.nonEmpty => expr.get.`type`()
       case _ => Failure("Cannot infer type without an expression", Some(this))
     }
   }

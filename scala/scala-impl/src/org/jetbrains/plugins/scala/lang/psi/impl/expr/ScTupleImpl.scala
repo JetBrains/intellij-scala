@@ -19,7 +19,7 @@ class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple 
   override def toString: String = "Tuple"
 
   protected override def innerType: TypeResult[ScType] = {
-    val result = exprs.map(_.getType().getOrAny) match {
+    val result = exprs.map(_.`type`().getOrAny) match {
       case Seq() => Unit
       case components => TupleType(components)
     }

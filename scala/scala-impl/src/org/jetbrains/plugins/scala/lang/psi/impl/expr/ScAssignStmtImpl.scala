@@ -28,12 +28,12 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
 
   protected override def innerType: TypeResult[ScType] = {
     getLExpression match {
-      case call: ScMethodCall => call.getType()
+      case call: ScMethodCall => call.`type`()
       case _ =>
         resolveAssignment match {
           case Some(_) =>
             mirrorMethodCall match {
-              case Some(call) => call.getType()
+              case Some(call) => call.`type`()
               case None => Success(Unit, Some(this))
             }
           case _ => Success(Unit, Some(this))

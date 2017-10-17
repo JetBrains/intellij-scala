@@ -61,7 +61,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     selfTypeElement.flatMap {
       _.typeElement
     }.flatMap {
-      _.getType().toOption
+      _.`type`().toOption
     }
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
@@ -80,7 +80,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
     templateParents match {
       case Some(parents: ScTemplateParents) => parents.superTypes.foreach(addType)
-      case _ => syntheticTypeElements.map(_.getType().getOrAny).foreach(addType)
+      case _ => syntheticTypeElements.map(_.`type`().getOrAny).foreach(addType)
     }
 
     if (isUnderCaseClass) {

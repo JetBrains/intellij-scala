@@ -37,7 +37,7 @@ class ScFunctionDeclarationImpl private (stub: ScFunctionStub, node: ASTNode)
 
   def returnTypeInner: TypeResult[ScType] = {
     typeElement match {
-      case Some(t) => t.getType()
+      case Some(t) => t.`type`()
       case None => Success(Unit, Some(this))
     }
   }

@@ -73,10 +73,10 @@ class ScFunctionDefinitionImpl protected (stub: ScFunctionStub, node: ASTNode)
   def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
     case None if !hasAssign => Success(api.Unit, Some(this))
     case None => body match {
-      case Some(b) => b.getType()
+      case Some(b) => b.`type`()
       case _ => Success(api.Unit, Some(this))
     }
-    case Some(rte: ScTypeElement) => rte.getType()
+    case Some(rte: ScTypeElement) => rte.`type`()
   }
 
   def body: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)

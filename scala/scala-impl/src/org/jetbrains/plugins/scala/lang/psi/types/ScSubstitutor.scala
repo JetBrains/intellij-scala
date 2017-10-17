@@ -283,7 +283,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                   else if (isInheritorDeep(cl, clazz)) tp
                   else null
                 case Some(named: ScTypedDefinition) =>
-                  update(named.getType().getOrAny)
+                  update(named.`type`().getOrAny)
                 case _ =>
                   typez match {
                     case ScCompoundType(types, _, _) =>

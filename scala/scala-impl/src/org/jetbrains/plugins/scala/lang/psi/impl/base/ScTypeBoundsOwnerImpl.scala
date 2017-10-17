@@ -14,15 +14,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   //todo[CYCLIC]
-  def lowerBound: TypeResult[ScType] = wrapWith(lowerTypeElement, Nothing).flatMap(_.getType().map(extractBound(_, isLower = true)))
+  def lowerBound: TypeResult[ScType] = wrapWith(lowerTypeElement, Nothing).flatMap(_.`type`().map(extractBound(_, isLower = true)))
 
-  def upperBound: TypeResult[ScType] = wrapWith(upperTypeElement, Any).flatMap(_.getType().map(extractBound(_, isLower = false)))
+  def upperBound: TypeResult[ScType] = wrapWith(upperTypeElement, Any).flatMap(_.`type`().map(extractBound(_, isLower = false)))
 
   protected def extractBound(in: ScType, isLower: Boolean): ScType = in
 
-  override def viewBound: Seq[ScType] = viewTypeElement.flatMap(_.getType().toOption)
+  override def viewBound: Seq[ScType] = viewTypeElement.flatMap(_.`type`().toOption)
 
-  override def contextBound: Seq[ScType] = contextBoundTypeElement.flatMap(_.getType().toOption)
+  override def contextBound: Seq[ScType] = contextBoundTypeElement.flatMap(_.`type`().toOption)
 
   override def upperTypeElement: Option[ScTypeElement] = {
     val tUpper = findLastChildByType[PsiElement](ScalaTokenTypes.tUPPER_BOUND)

@@ -25,7 +25,7 @@ trait TypeInferenceDoTest {
   protected def doTest(fileText: Option[String], fileName: String = "dummy.scala"): Unit = {
     val scalaFile: ScalaFile = configureFromFileText(fileName, fileText)
     val expr: ScExpression = findExpression(scalaFile)
-    val typez = expr.getType() match {
+    val typez = expr.`type`() match {
       case Success(t, _) if t.isUnit => expr.getTypeIgnoreBaseType
       case x => x
     }

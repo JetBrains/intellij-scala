@@ -47,7 +47,7 @@ object AnnotatorPart {
     val superTypeElements = td.extendsBlock.templateParents.toSeq.flatMap(_.typeElements)
     for {
       typeElem <- superTypeElements
-      tp <- typeElem.getType().toOption
+      tp <- typeElem.`type`().toOption
     } yield {
       (typeElem, extractor(tp))
     }

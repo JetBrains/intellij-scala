@@ -47,7 +47,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     }
 
     annotations map { annotation =>
-      (annotation, annotation.typeElement.getType().getOrAny)
+      (annotation, annotation.typeElement.`type`().getOrAny)
     } filter {
       case (_, scType) => acceptType(scType)
     } map {

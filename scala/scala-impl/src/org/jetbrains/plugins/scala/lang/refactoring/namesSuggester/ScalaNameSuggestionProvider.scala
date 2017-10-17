@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplat
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+
 import scala.collection.JavaConverters._
 
 /**
@@ -42,7 +43,7 @@ object ScalaNameSuggestionProvider {
   import NameSuggester.suggestNamesByType
 
   private def suggestedNamesByType(typeable: Typeable): Seq[String] =
-    typeable.getType()
+    typeable.`type`()
       .toOption.toSeq
       .flatMap(suggestNamesByType)
 }

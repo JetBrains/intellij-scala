@@ -495,7 +495,7 @@ abstract class ScalaAnnotator extends Annotator
   def checkCatchBlockGeneralizedRule(block: ScCatchBlock, holder: AnnotationHolder, typeAware: Boolean) {
     block.expression match {
       case Some(expr) =>
-        val tp = expr.getType().getOrAny
+        val tp = expr.`type`().getOrAny
         val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.resolveScope, "java.lang.Throwable").orNull
         if (throwable == null) return
         val throwableType = ScDesignatorType(throwable)
@@ -1212,7 +1212,7 @@ abstract class ScalaAnnotator extends Annotator
                                     declaredElements: Seq[Typeable with ScNamedElement], holder: AnnotationHolder) {
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {
-        element.getType() match {
+        element.`type`() match {
           case Success(tp, _) =>
             ScalaType.expandAliases(tp) match {
               //so type alias is highlighted

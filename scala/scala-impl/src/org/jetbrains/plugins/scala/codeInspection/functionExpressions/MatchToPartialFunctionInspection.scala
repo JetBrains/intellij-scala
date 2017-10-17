@@ -40,7 +40,7 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId) 
   }
 
   private def notExpectedType(expr: ScExpression) = {
-    (expr.getType(), expr.expectedType()) match {
+    (expr.`type`(), expr.expectedType()) match {
       case (Success(tpe: ScType, _), Some(expType: ScType)) => !expType.equiv(tpe)
       case _ => true
     }

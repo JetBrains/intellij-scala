@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, Implic
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
@@ -39,7 +38,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
   import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression._
 
-  override def getType(ctx: TypingContext.type): TypeResult[ScType] =
+  override def `type`(): TypeResult[ScType] =
     this.getTypeAfterImplicitConversion().tr
 
   @volatile
@@ -70,7 +69,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
       this.getTypeWithoutImplicits(fromUnderscore = true) //to update implicitParametersFromUnder
       implicitParametersFromUnder
     } else {
-      getType() //to update implicitParameters field
+      `type`() //to update implicitParameters field
       implicitParameters
     }
   }
@@ -110,7 +109,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     * @return mirror for this expression, in case if it exists
     */
   def getAdditionalExpression: Option[(ScExpression, ScType)] = {
-    getType()
+    `type`()
     additionalExpression
   }
 
@@ -193,8 +192,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
           }
         case ScInfixExpr(left, ElementText(op), right)
           if withBooleanInfix && (op == "&&" || op == "||") &&
-            left.getType().exists(_ == api.Boolean) &&
-            right.getType().exists(_ == api.Boolean) => calculateReturns0(right)
+            left.`type`().exists(_ == api.Boolean) &&
+            right.`type`().exists(_ == api.Boolean) => calculateReturns0(right)
         //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
         case _ => if (!res.contains(el)) res += el
       }
@@ -214,7 +213,7 @@ object ScExpression {
   }
 
   object Type {
-    def unapply(exp: ScExpression): Option[ScType] = exp.getType().toOption
+    def unapply(exp: ScExpression): Option[ScType] = exp.`type`().toOption
   }
 
   implicit class Ext(val expr: ScExpression) extends AnyVal {

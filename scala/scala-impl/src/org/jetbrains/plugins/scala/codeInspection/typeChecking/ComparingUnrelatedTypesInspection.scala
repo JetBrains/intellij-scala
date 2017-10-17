@@ -89,7 +89,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
       if (needHighlighting) {
         //getType() for the reference on the left side returns singleton type, little hack here
         val leftOnTheRight = ScalaPsiElementFactory.createExpressionWithContextFromText(left.getText, right.getParent, right)
-        Seq(leftOnTheRight, right) map (_.getType()) match {
+        Seq(leftOnTheRight, right) map (_.`type`()) match {
           case Seq(Success(leftType, _), Success(rightType, _)) if cannotBeCompared(leftType, rightType) =>
             val message = generateComparingUnrelatedTypesMsg(leftType, rightType)
             holder.registerProblem(expr, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
@@ -98,8 +98,8 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
       }
     case MethodRepr(_, Some(baseExpr), Some(ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
       for {
-        ParameterizedType(_, Seq(elemType)) <- baseExpr.getType().map(_.tryExtractDesignatorSingleton)
-        argType <- arg.getType()
+        ParameterizedType(_, Seq(elemType)) <- baseExpr.`type`().map(_.tryExtractDesignatorSingleton)
+        argType <- arg.`type`()
         if cannotBeCompared(elemType, argType)
       } {
         val message = generateComparingUnrelatedTypesMsg(elemType, argType)
@@ -107,10 +107,10 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
       }
     case IsInstanceOfCall(call) =>
       val qualType = call.referencedExpr match {
-        case ScReferenceExpression.withQualifier(q) => q.getType().toOption
+        case ScReferenceExpression.withQualifier(q) => q.`type`().toOption
         case _ => None
       }
-      val argType = call.arguments.headOption.flatMap(_.getType().toOption)
+      val argType = call.arguments.headOption.flatMap(_.`type`().toOption)
       for {
         t1 <- qualType
         t2 <- argType

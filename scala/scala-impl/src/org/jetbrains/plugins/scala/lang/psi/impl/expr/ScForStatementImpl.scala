@@ -121,7 +121,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           gen.pattern.desugarizedPatternIndex = exprText.length
           var filterText = "withFilter"
           var filterFound = false
-          val tp = gen.rvalue.getType().getOrAny
+          val tp = gen.rvalue.`type`().getOrAny
           val processor = new ImplicitCompletionProcessor(StdKinds.methodRef, this) {
 
               override def execute(element: PsiElement, state: ResolveState): Boolean = {

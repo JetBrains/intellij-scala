@@ -116,7 +116,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
       u.getParent match {
         case typedStmt: ScTypedStmt =>
           needBraces = true
-          buf.append(": ").append(typedStmt.getType().get.canonicalText)
+          buf.append(": ").append(typedStmt.`type`().get.canonicalText)
         case _ =>
       }
 

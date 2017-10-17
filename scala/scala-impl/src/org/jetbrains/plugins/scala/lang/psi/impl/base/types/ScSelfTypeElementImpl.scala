@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScSelfTypeElementStub
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -33,17 +32,17 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
 
   def nameId: PsiElement = findChildByType[PsiElement](TokenSets.SELF_TYPE_ID)
 
-  def getType(ctx: TypingContext.type): TypeResult[ScType] = {
+  def `type`(): TypeResult[ScType] = {
     val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
     assert(parent != null)
     typeElement match {
       case Some(ste) =>
         for {
-          templateType <- parent.getType(ctx)
-          selfType <- ste.getType(ctx)
+          templateType <- parent.`type`()
+          selfType <- ste.`type`()
           ct = ScCompoundType(Seq(templateType, selfType), Map.empty, Map.empty)
         } yield ct
-      case None => parent.getType(ctx)
+      case None => parent.`type`()
     }
   }
 

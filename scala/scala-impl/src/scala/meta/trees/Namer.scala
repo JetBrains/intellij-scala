@@ -45,7 +45,7 @@ trait Namer {
           } catch {
             case _: SyntheticException =>
               elem.getContext match {
-                case mc: ScSugarCallExpr => mkSyntheticMethodName(toType(mc.getBaseExpr.getType()), x.getElement.asInstanceOf[ScSyntheticFunction], mc)
+                case mc: ScSugarCallExpr => mkSyntheticMethodName(toType(mc.getBaseExpr.`type`()), x.getElement.asInstanceOf[ScSyntheticFunction], mc)
                 case other => other ???
               }
           }

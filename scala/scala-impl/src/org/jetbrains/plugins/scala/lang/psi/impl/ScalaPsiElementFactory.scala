@@ -587,7 +587,7 @@ object ScalaPsiElementFactory {
                 param.typeElement match {
                   case Some(x) =>
                     val colon = this.colon(name)
-                    val typeText = substitutor.subst(x.getType().getOrAny).canonicalText
+                    val typeText = substitutor.subst(x.`type`().getOrAny).canonicalText
                     val arrow = ScalaPsiUtil.functionArrow(param.getProject)
                     name + colon + (if (param.isCallByNameParameter) arrow else "") + typeText + (if (param.isRepeatedParameter) "*" else "")
                   case _ => name
@@ -712,7 +712,7 @@ object ScalaPsiElementFactory {
     val name = variable.name
     val colon = this.colon(name)
     val typeText = if (needsInferType)
-      substitutor.subst(variable.getType().getOrAny).canonicalText else ""
+      substitutor.subst(variable.`type`().getOrAny).canonicalText else ""
     s"$overrideText$modifiersText$keyword$name$colon$typeText${body.map(x => " = " + x).getOrElse("")}"
   }
 
@@ -734,7 +734,7 @@ object ScalaPsiElementFactory {
   def createTypeFromText(text: String, context: PsiElement, child: PsiElement): Option[ScType] = {
     val typeElement = createTypeElementFromText(text, context, child)
     Option(typeElement).map {
-      _.getType().getOrAny // FIXME this should probably be a None instead of Some(Any)
+      _.`type`().getOrAny // FIXME this should probably be a None instead of Some(Any)
     }
   }
 

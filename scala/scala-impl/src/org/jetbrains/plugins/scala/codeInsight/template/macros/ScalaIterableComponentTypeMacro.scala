@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 class ScalaIterableComponentTypeMacro extends ScalaMacro {
   override def innerCalculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     if (params.length != 1) return null
-    Option(params(0).calculateResult(context)).flatMap(MacroUtil.resultToScExpr(_, context)).flatMap(_.getType().
+    Option(params(0).calculateResult(context)).flatMap(MacroUtil.resultToScExpr(_, context)).flatMap(_.`type`().
             toOption.flatMap{ exprType =>
               MacroUtil.getComponentFromArrayType(exprType) match {
                 case Some(arrComponentType) => Some(arrComponentType)

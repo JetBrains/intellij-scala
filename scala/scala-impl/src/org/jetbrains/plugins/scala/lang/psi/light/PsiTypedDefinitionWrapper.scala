@@ -172,6 +172,6 @@ object PsiTypedDefinitionWrapper {
     import typedDefinition.projectContext
 
     if (role == SETTER || role == EQ) Unit
-    else typedDefinition.getType().getOrElse(AnyRef)
+    else typedDefinition.`type`().getOrElse(AnyRef)
   }
 }

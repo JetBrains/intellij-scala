@@ -72,7 +72,7 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
         ScPackageImpl.implicitlyImportedObject(place.getManager, scope, "scala") match {
           case Some(obj: ScObject) =>
             var newState = state
-            obj.getType().foreach {
+            obj.`type`().foreach {
               case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
             }
             if (!obj.processDeclarations(processor, newState, lastParent, place)) return false
@@ -82,7 +82,7 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
         findPackageObject(scope) match {
           case Some(obj: ScObject) =>
             var newState = state
-            obj.getType().foreach {
+            obj.`type`().foreach {
               case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
             }
             if (!obj.processDeclarations(processor, newState, lastParent, place)) return false

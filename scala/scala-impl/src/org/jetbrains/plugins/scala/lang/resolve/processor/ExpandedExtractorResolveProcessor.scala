@@ -39,7 +39,7 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
           val parentImports = getImports(state)
           val typez = getFromType(state) match {
             case Some(tp) => ScProjectionType(tp, bind, superReference = false)
-            case _ => bind.getType().getOrAny
+            case _ => bind.`type`().getOrAny
           }
           var seq = false
           val buffer = new ArrayBuffer[ScalaResolveResult]

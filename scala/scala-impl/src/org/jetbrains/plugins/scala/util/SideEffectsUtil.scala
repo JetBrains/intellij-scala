@@ -44,14 +44,14 @@ object SideEffectsUtil {
             case Both(_: ScBindingPattern, ScalaPsiUtil.inNameContext(pd: ScPatternDefinition))
               if pd.hasModifierProperty("lazy") => false
             case bp: ScBindingPattern =>
-              val tp = bp.getType()
+              val tp = bp.`type`()
               !FunctionType.isFunctionType(tp.getOrAny)
             case _: ScObject => false
             case p: ScParameter
               if !p.isCallByNameParameter &&
                 !FunctionType.isFunctionType(p.getRealParameterType.getOrAny) => true
             case _: ScSyntheticFunction => true
-            case m: PsiMethod => methodHasNoSideEffects(m, ref.qualifier.flatMap(_.getType().toOption))
+            case m: PsiMethod => methodHasNoSideEffects(m, ref.qualifier.flatMap(_.`type`().toOption))
             case _ => false
           })
         }
@@ -62,13 +62,13 @@ object SideEffectsUtil {
           case ref if hasImplicitConversion(ref) => false
           case ref if ref.refName.endsWith("_=") => false
           case ResolvesTo(_: ScSyntheticFunction) => true
-          case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, baseExpr.getType().toOption)
+          case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, baseExpr.`type`().toOption)
           case _ => false
         }
         checkOperation && hasNoSideEffects(baseExpr) && args.forall(hasNoSideEffects)
       case ScMethodCall(baseExpr, args) =>
         val (checkQual, typeOfQual) = baseExpr match {
-          case ScReferenceExpression.withQualifier(qual) => (hasNoSideEffects(qual), qual.getType().toOption)
+          case ScReferenceExpression.withQualifier(qual) => (hasNoSideEffects(qual), qual.`type`().toOption)
           case _ => (true, None)
         }
         val checkBaseExpr = baseExpr match {

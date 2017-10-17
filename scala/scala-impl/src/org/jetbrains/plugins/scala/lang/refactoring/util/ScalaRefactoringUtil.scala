@@ -284,7 +284,7 @@ object ScalaRefactoringUtil {
       return selectedInfixExpr() orElse partOfStringLiteral()
     }
 
-    val cachedType = element.getType().getOrAny
+    val cachedType = element.`type`().getOrAny
 
     object ReferenceToFunction {
       def unapply(refExpr: ScReferenceExpression): Option[ScFunction] = refExpr.bind() match {

@@ -90,7 +90,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
           val functionName = if (isUpdate) "update" else "apply"
           val typeResult = getFromType(state) match {
             case Some(tp) => Success(ScProjectionType(tp, obj, superReference = false), Some(obj))
-            case _ => obj.getType()
+            case _ => obj.`type`()
           }
           val processor = new CollectMethodsProcessor(ref, functionName)
 
@@ -542,7 +542,7 @@ object MethodResolveProcessor {
         r.element match {
           case f: ScFunction if f.hasParameterClause => Set((r, false))
           case b: ScTypedDefinition if argumentClauses.nonEmpty =>
-            val tpe = b.getType().toOption
+            val tpe = b.`type`().toOption
             tpe.map(applyMethodsFor).getOrElse(Set.empty)
           case b: PsiField => // See SCL-3055
             applyMethodsFor(b.getType.toScType())

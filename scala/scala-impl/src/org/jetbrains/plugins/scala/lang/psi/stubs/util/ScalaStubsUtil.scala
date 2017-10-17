@@ -87,7 +87,7 @@ object ScalaStubsUtil {
             val selfTypeElement = iterator.next
             selfTypeElement.typeElement match {
               case Some(typeElement) =>
-                typeElement.getType() match {
+                typeElement.`type`() match {
                   case Success(tp, _) =>
                     if (checkTp(tp)) {
                       val clazz = PsiTreeUtil.getContextOfType(selfTypeElement, classOf[ScTemplateDefinition])

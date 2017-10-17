@@ -90,7 +90,7 @@ object IntroduceImplicitParameterIntention {
       val newParam = declaredType match {
         case None => "_"
         case _ if withoutParameterTypes => "_"
-        case Some(t) if expectedType.exists(_.equiv(t.getType().getOrAny)) => "_"
+        case Some(t) if expectedType.exists(_.equiv(t.`type`().getOrAny)) => "_"
         case Some(_) => s"(_: ${p.typeElement.get.getText})"
       }
 

@@ -33,7 +33,7 @@ trait AssignmentAnnotator {
           case Some(r) if r.isDynamic && r.name == DynamicResolveProcessor.UPDATE_DYNAMIC => //ignore
           case Some(r) if !r.isNamedParameter =>
             def checkVariable() {
-              left.getType().foreach { lType =>
+              left.`type`().foreach { lType =>
                 right.foreach { expression =>
                   expression.getTypeAfterImplicitConversion().tr.foreach { rType =>
                     if(!rType.conforms(lType)) {
@@ -63,7 +63,7 @@ trait AssignmentAnnotator {
                     ra.problems.foreach {
                       case TypeMismatch(expression, expectedType) =>
                         if (expression != null)
-                          for (t <- expression.getType()) {
+                          for (t <- expression.`type`()) {
                             //TODO show parameter name
                             val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
                             val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)

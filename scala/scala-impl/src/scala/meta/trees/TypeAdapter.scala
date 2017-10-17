@@ -80,7 +80,7 @@ trait TypeAdapter {
           m.Type.Name(other.getText)
         case other: ScTypeElement =>
           LOG.warn(s"Using slow type conversion of type element ${other.getClass}: ${other.getText}")
-          toType(other.getType())
+          toType(other.`type`())
         case other => other ?!
       }
     })
@@ -110,7 +110,7 @@ trait TypeAdapter {
           m.Type.Name(t.name)
         case t: typedef.ScTemplateDefinition =>
           val s = ScSubstitutor(ScSubstitutor.cache.toMap)
-          toType(s.subst(t.getType().get)) // FIXME: what about typing context?
+          toType(s.subst(t.`type`().get)) // FIXME: what about typing context?
         case t: ScPackaging =>
           m.Type.Singleton(toTermName(t.reference.get))//.setTypechecked
         case t: ScConstructor => ???
@@ -125,7 +125,7 @@ trait TypeAdapter {
           m.Type.Name(t.getText)
         case t: ScParameter =>
           val s = ScSubstitutor(ScSubstitutor.cache.toMap)
-          toType(s.subst(t.typeElement.get.getType().get))
+          toType(s.subst(t.typeElement.get.`type`().get))
         case t: ScTypedDefinition if dumbMode =>
           m.Type.Name(t.name)
         case t: ScTypedDefinition =>

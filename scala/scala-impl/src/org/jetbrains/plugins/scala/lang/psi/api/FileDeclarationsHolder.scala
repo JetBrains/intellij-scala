@@ -143,7 +143,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
             clazz match {
               case td: ScTypeDefinition if !isScalaPredefinedClass =>
                 var newState = state
-                td.getType().foreach {
+                td.`type`().foreach {
                   tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
                 }
                 if (!clazz.processDeclarations(processor, newState, null, place)) return false

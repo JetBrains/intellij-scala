@@ -115,7 +115,7 @@ trait Utils {
         }
       } else {
         ScSubstitutor.cacheSubstitutions = true
-        val tp = expr.getType()
+        val tp = expr.`type`()
         ScSubstitutor.cacheSubstitutions = false
         val res = fun(tp)
         ScSubstitutor.cache.clear()
@@ -131,7 +131,7 @@ trait Utils {
         }
       } else {
         val s = ScSubstitutor(ScSubstitutor.cache.toMap)
-        s.subst(expr.getType().get)
+        s.subst(expr.`type`().get)
       }
     }
   }
@@ -144,7 +144,7 @@ trait Utils {
         expr.definedReturnType.getOrElse(ptype.api.Any)
       } else {
         val s = ScSubstitutor(ScSubstitutor.cache.toMap)
-        s.subst(expr.getType().get)
+        s.subst(expr.`type`().get)
       }
     }
   }
@@ -160,7 +160,7 @@ trait Utils {
         }
       } else {
         val s = ScSubstitutor(ScSubstitutor.cache.toMap)
-        expr.getType() match {
+        expr.`type`() match {
           case Success(res, elem) => Success(s.subst(res), elem)
           case other => other
         }

@@ -41,7 +41,7 @@ abstract class TypeInferenceBenchmarkBase(testName: String) extends TypeInferenc
   @Measurement(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
   @Benchmark
   def exprTypeUncached(bh: Blackhole) = syncInEdt {
-    bh.consume(expr.getType())
+    bh.consume(expr.`type`())
     scalaPsiManager.clearAllCaches()
     psiModTracker.incCounter()
   }
@@ -51,7 +51,7 @@ abstract class TypeInferenceBenchmarkBase(testName: String) extends TypeInferenc
   @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
   @Benchmark
   def exprTypeCachedJavaStructure(bh: Blackhole) = syncInEdt {
-    bh.consume(expr.getType())
+    bh.consume(expr.`type`())
     scalaPsiManager.clearCachesOnChange()
   }
 

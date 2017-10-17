@@ -188,7 +188,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         val result: TypeResult[ScType] =
           e match {
             case p: ScParameter => p.getRealParameterType
-            case _ => e.getType()
+            case _ => e.`type`()
           }
         result match {
           case Success(tp, _) => processType(tp, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
@@ -282,7 +282,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         val typeResult: TypeResult[ScType] =
           des match {
             case p: ScParameter => p.getRealParameterType
-            case _ => des.getType()
+            case _ => des.`type`()
           }
         typeResult match {
           case Success(tp, _) =>

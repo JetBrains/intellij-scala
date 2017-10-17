@@ -65,7 +65,7 @@ object SuggestScalaVariableNameMacro {
             filter(_.name == x(1))
           if (items.length == 0) return default
           items(0) match {
-            case typed: ScTypedDefinition => typed.getType() match {
+            case typed: ScTypedDefinition => typed.`type`() match {
               case Success(ParameterizedType(_, typeArgs), _) => typeArgs.head
               case Success(JavaArrayType(argument), _) => argument
               case _ => return default

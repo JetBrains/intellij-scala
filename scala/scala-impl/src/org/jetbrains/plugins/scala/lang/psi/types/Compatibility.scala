@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
@@ -385,8 +384,8 @@ object Compatibility {
   }
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor): Parameter = {
-    val t = substitutor.subst(p.getType(TypingContext).getOrNothing)
-    val default = p.getDefaultExpression.flatMap(_.getType().toOption.map(substitutor.subst))
+    val t = substitutor.subst(p.`type`().getOrNothing)
+    val default = p.getDefaultExpression.flatMap(_.`type`().toOption.map(substitutor.subst))
     Parameter(p.name, p.deprecatedName, t, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter,
       p.index, Some(p), default)
   }
@@ -483,9 +482,9 @@ object Compatibility {
 
         if (shortage > 0) {
           val part = obligatory.takeRight(shortage).map { p =>
-            val t = p.getType(TypingContext).getOrAny
+            val t = p.`type`().getOrAny
             Parameter(p.name, p.deprecatedName, t, t, p.isDefaultParam, p.isRepeatedParameter,
-              p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.getType().toOption))
+              p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.`type`().toOption))
           }
           return ConformanceExtResult(part.map(MissedValueParameter(_)))
         }

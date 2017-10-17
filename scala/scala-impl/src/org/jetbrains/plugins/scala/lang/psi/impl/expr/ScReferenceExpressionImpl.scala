@@ -29,7 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -323,7 +322,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
                 case None => ScalaType.designator(refPatt)
               }
             } else {
-              val result = refPatt.getType()
+              val result = refPatt.`type`()
               result match {
                 case Success(tp, _) => s.subst(tp)
                 case _ => return result
@@ -393,7 +392,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         if (result.isDynamic) DynamicResolveProcessor.getDynamicReturn(functionType)
         else functionType
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
-        val result = param.getType(TypingContext)
+        val result = param.`type`()
         val computeType = s.subst(result match {
           case Success(tp, _) => tp
           case _ => return result
@@ -438,14 +437,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             case None => ScalaType.designator(f)
           }
         } else {
-          val result = f.getType()
+          val result = f.`type`()
           result match {
             case Success(tp, _) => s.subst(tp)
             case _ => return result
           }
         }
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
-        val result = typed.getType()
+        val result = typed.`type`()
         result match {
           case Success(tp, _) => s.subst(tp)
           case _ => return result
@@ -478,7 +477,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             case fieldId: ScFieldId => fieldId
             case parameter: ScParameter => parameter
           }.flatMap {
-            _.getType().toOption
+            _.`type`().toOption
           }
 
           def removeTypeDesignator(`type`: ScType): ScType = {
@@ -496,7 +495,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
 
           def convertQualifier(jlClass: PsiClass): ScType = {
             val maybeType = maybeReference.flatMap {
-              _.getType().toOption
+              _.`type`().toOption
             }
 
             val upperBound = maybeType.flatMap {

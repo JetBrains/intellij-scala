@@ -15,13 +15,12 @@ object RedundantCollectionConversion extends SimplificationType {
   override def hint: String = InspectionBundle.message("redundant.collection.conversion")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
-    import expr.projectContext
 
     val withGeneric = expr match {
       case ChildOf(gc: ScGenericCall) => gc
       case ref => ref
     }
-    val typeAfterConversion = withGeneric.getType().getOrAny
+    val typeAfterConversion = withGeneric.`type`().getOrAny
     withGeneric match {
       case (base@Typeable(baseType)) `.toCollection` () if baseType.conforms(typeAfterConversion) =>
         val simplification = replace(withGeneric).withText(base.getText).highlightFrom(base)

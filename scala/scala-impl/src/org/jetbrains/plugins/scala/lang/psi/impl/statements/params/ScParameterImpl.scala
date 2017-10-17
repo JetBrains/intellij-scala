@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.ScParamElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 
 /**
@@ -73,7 +72,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   def typeElement: Option[ScTypeElement] = byPsiOrStub(paramType.flatMap(_.typeElement.toOption))(_.typeElement)
 
-  def getType(ctx: TypingContext.type): TypeResult[ScType] = {
+  def `type`(): TypeResult[ScType] = {
     def success(t: ScType): TypeResult[ScType] = Success(t, Some(this))
     //todo: this is very error prone way to calc type, when usually we need real parameter type
     getStub match {
@@ -81,14 +80,14 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
         typeElement match {
           case None if baseDefaultParam =>
             getActualDefaultExpression match {
-              case Some(t) => success(t.getType().getOrNothing)
+              case Some(t) => success(t.`type`().getOrNothing)
               case None => success(Nothing)
             }
           case None => expectedParamType.map(_.unpackedType) match {
             case Some(t) => success(t)
             case None => success(Nothing)
           }
-          case Some(e) => success(e.getType().getOrAny)
+          case Some(e) => success(e.`type`().getOrAny)
         }
       case paramStub =>
         paramStub.typeText match {
@@ -97,7 +96,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
             Failure("Cannot infer type", Some(this))
           case None => Failure("Wrong Stub problem", Some(this)) //shouldn't be
           case Some(_: String) => paramStub.typeElement match {
-            case Some(te) => te.getType()
+            case Some(te) => te.`type`()
             case None => Failure("Wrong type element", Some(this))
           }
         }

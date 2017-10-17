@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.Update
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -58,7 +57,7 @@ object Parameter {
 
   def apply(parameter: PsiParameter): Parameter = parameter match {
     case scParameter: ScParameter =>
-      val `type` = scParameter.getType(TypingContext).getOrNothing
+      val `type` = scParameter.`type`().getOrNothing
 
       new Parameter(name = scParameter.name,
         deprecatedName = scParameter.deprecatedName,
@@ -69,7 +68,7 @@ object Parameter {
         isByName = scParameter.isCallByNameParameter,
         index = scParameter.index,
         psiParam = Some(scParameter),
-        defaultType = scParameter.getDefaultExpression.flatMap(_.getType().toOption))
+        defaultType = scParameter.getDefaultExpression.flatMap(_.`type`().toOption))
     case _ =>
       val `type` = parameter.paramType(exact = false)
 

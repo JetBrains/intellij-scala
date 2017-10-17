@@ -38,7 +38,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
           expr.depthFirst().exists(_.getNode.getElementType == ScalaTokenTypes.kRETURN)
         }
         fun.body match {
-          case Some(funBody) if fun.getType().getOrAny.conforms(expected) && !containsReturn(funBody) =>
+          case Some(funBody) if fun.`type`().getOrAny.conforms(expected) && !containsReturn(funBody) =>
             lazy val replacement: String = {
               val res = new StringBuilder
               val isInfix = definition.parent.exists(_.isInstanceOf[ScInfixExpr])

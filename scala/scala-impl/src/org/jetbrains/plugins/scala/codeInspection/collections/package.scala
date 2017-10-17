@@ -154,7 +154,7 @@ package object collections {
     def unapply(expr: ScExpression): Boolean = {
       import expr.projectContext
 
-      expr.getType() match {
+      expr.`type`() match {
         case Success(result, _) =>
           result match {
             case FunctionType(returnType, _) => returnType.conforms(api.Boolean)
@@ -367,7 +367,7 @@ package object collections {
   }
 
   def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = Option(expr).flatMap {
-    _.getType().toOption
+    _.`type`().toOption
   }.flatMap {
     _.tryExtractDesignatorSingleton.extractClass
   }.exists {

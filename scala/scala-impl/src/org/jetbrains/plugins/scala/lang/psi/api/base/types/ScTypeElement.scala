@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 
@@ -25,7 +24,7 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
     s"$typeName: $text"
   }
 
-  def getType(ctx: TypingContext.type): TypeResult[ScType] = getType
+  def `type`(): TypeResult[ScType] = getType
 
   @CachedWithRecursionGuard(this, Failure("Recursive type of type element", Some(this)),
     ModCount.getBlockModificationCount)

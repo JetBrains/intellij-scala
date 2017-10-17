@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText}
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.annotations.Implementation
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
@@ -46,7 +45,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   }
 
   override def valueWithoutType(value: ScPatternDefinition): Boolean = {
-    value.getType().foreach {
+    value.`type`().foreach {
       addTypeAnnotation(_, value, value.pList)
     }
 
@@ -54,7 +53,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   }
 
   override def variableWithoutType(variable: ScVariableDefinition): Boolean = {
-    variable.getType().foreach {
+    variable.`type`().foreach {
       addTypeAnnotation(_, variable, variable.pList)
     }
 
@@ -96,7 +95,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   }
 
   override def underscoreSectionWithoutType(underscore: ScUnderscoreSection): Boolean = {
-    underscore.getType().foreach {
+    underscore.`type`().foreach {
       addTypeAnnotation(_, underscore.getParent, underscore)
     }
 
@@ -110,7 +109,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
     editor match {
       case Some(e) if tps.size > 1 =>
-        val texts = tps.reverse.flatMap(_.getType().toOption).map(ScTypeText)
+        val texts = tps.reverse.flatMap(_.`type`().toOption).map(ScTypeText)
         val expr = new ChooseTypeTextExpression(texts)
         // TODO Invoke the simplification
         IntentionUtil.startTemplate(added, context, expr, e)

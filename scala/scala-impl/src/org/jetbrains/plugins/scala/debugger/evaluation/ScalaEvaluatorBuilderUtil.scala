@@ -35,7 +35,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -392,7 +391,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def classOfFunctionEvaluator(ref: ScReferenceExpression): Evaluator = {
     val clazzJVMName = ref.getContext match {
       case gen: ScGenericCall =>
-        gen.arguments.head.getType().map {
+        gen.arguments.head.`type`().map {
           val project = ref.getProject
           _.extractClass match {
             case Some(clazz) =>
@@ -415,7 +414,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def repeatedArgEvaluator(exprsForP: Seq[ScExpression], expectedType: ScType, context: PsiElement): Evaluator = {
     def seqEvaluator: Evaluator = {
-      val argTypes = exprsForP.map(_.getType().getOrAny)
+      val argTypes = exprsForP.map(_.`type`().getOrAny)
       val argTypeText =
         if (argTypes.isEmpty) expectedType.canonicalText
         else argTypes.lub().canonicalText
@@ -446,14 +445,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
         val exprText = resolveResults(i) match {
           case ScalaResolveResult(clazz: ScTrait, substitutor) if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
-            val argType = substitutor.subst(clazz.getType().get)
+            val argType = substitutor.subst(clazz.`type`().get)
             argType match {
               case ParameterizedType(_, Seq(paramType)) => classManifestText(paramType)
               case _ =>
                 throw EvaluationException(cannotFindMessage)
             }
           case ScalaResolveResult(clazz: ScTrait, substitutor) if clazz.qualifiedName == "scala.reflect.ClassTag" =>
-            val argType = substitutor.subst(clazz.getType().get)
+            val argType = substitutor.subst(clazz.`type`().get)
             argType match {
               case ParameterizedType(_, Seq(arg)) => classTagText(arg)
               case _ =>
@@ -1146,7 +1145,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             case ref: ScReferenceExpression if ref.resolve().isInstanceOf[PsiMethod] =>
               methodCallEvaluator(methodCall, call.argumentExpressions ++ collected, matchedParameters ++ call.matchedParametersMap)
             case ref: ScReferenceExpression =>
-              ref.getType().getOrAny match {
+              ref.`type`().getOrAny match {
                 //isApplyOrUpdateCall does not work for generic calls
                 case ExtractClass(psiClass) if psiClass.findMethodsByName("apply", true).nonEmpty =>
                   val typeArgsText = gen.typeArgs.fold("")(_.getText)
@@ -1363,7 +1362,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def isOfPrimitiveType(param: PsiParameter): Boolean = param match { //todo specialized type parameters
     case p: ScParameter =>
-      val tp: ScType = p.getType(TypingContext).getOrAny
+      val tp: ScType = p.`type`().getOrAny
       tp.isPrimitive
     case _: PsiParameter =>
       val tp = param.getType

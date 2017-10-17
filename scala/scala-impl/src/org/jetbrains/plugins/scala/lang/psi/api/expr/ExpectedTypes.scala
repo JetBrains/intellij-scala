@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -143,7 +142,7 @@ private[expr] object ExpectedTypes {
       //SLS[6.13]
       case t: ScTypedStmt =>
         t.typeElement match {
-          case Some(te) => Array((te.getType().getOrAny, Some(te)))
+          case Some(te) => Array((te.`type`().getOrAny, Some(te)))
           case _ => Array.empty
         }
       //SLS[6.15]
@@ -158,10 +157,10 @@ private[expr] object ExpectedTypes {
                 ScalaPsiUtil.nameContext(named) match {
                   case v: ScValue =>
                     Array((subst.subst(named.asInstanceOf[ScTypedDefinition].
-                      getType().getOrAny), v.typeElement))
+                      `type`().getOrAny), v.typeElement))
                   case v: ScVariable =>
                     Array((subst.subst(named.asInstanceOf[ScTypedDefinition].
-                      getType().getOrAny), v.typeElement))
+                      `type`().getOrAny), v.typeElement))
                   case f: ScFunction if f.paramClauses.clauses.isEmpty =>
                     a.mirrorMethodCall match {
                       case Some(call) =>
@@ -170,7 +169,7 @@ private[expr] object ExpectedTypes {
                     }
                   case p: ScParameter =>
                     //for named parameters
-                    Array((subst.subst(p.getType(TypingContext).getOrAny), p.typeElement))
+                    Array((subst.subst(p.`type`().getOrAny), p.typeElement))
                   case f: PsiField =>
                     Array((subst.subst(f.getType.toScType()), None))
                   case _ => Array.empty
@@ -242,12 +241,12 @@ private[expr] object ExpectedTypes {
       //SLS[4.1]
       case v @ ScPatternDefinition.expr(expr) if expr == sameInContext =>
         v.typeElement match {
-          case Some(te) => Array((v.getType().getOrAny, Some(te)))
+          case Some(te) => Array((v.`type`().getOrAny, Some(te)))
           case _ => Array.empty
         }
       case v @ ScVariableDefinition.expr(expr) if expr == sameInContext =>
         v.typeElement match {
-          case Some(te) => Array((v.getType().getOrAny, Some(te)))
+          case Some(te) => Array((v.`type`().getOrAny, Some(te)))
           case _ => Array.empty
         }
       //SLS[4.6]
@@ -263,7 +262,7 @@ private[expr] object ExpectedTypes {
       //default parameters
       case param: ScParameter =>
         param.typeElement match {
-          case Some(_) => Array((param.getType(TypingContext).getOrAny, param.typeElement))
+          case Some(_) => Array((param.`type`().getOrAny, param.typeElement))
           case _ => Array.empty
         }
       case ret: ScReturnStmt =>

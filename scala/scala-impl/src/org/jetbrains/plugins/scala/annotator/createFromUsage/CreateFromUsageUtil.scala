@@ -37,13 +37,13 @@ object CreateFromUsageUtil {
     implicit val project = arg.projectContext
 
     arg match {
-      case ref: ScReferenceExpression => (ref.refName, ref.getType().getOrAny)
+      case ref: ScReferenceExpression => (ref.refName, ref.`type`().getOrAny)
       case expr: ScExpression =>
-        val tp = expr.getType().getOrAny
+        val tp = expr.`type`().getOrAny
         (nameByType(tp), tp)
-      case bp: ScBindingPattern if !bp.isWildcard => (bp.name, bp.getType().getOrAny)
+      case bp: ScBindingPattern if !bp.isWildcard => (bp.name, bp.`type`().getOrAny)
       case p: ScPattern =>
-        val tp: ScType = p.getType().getOrAny
+        val tp: ScType = p.`type`().getOrAny
         (nameByType(tp), tp)
       case _ => ("value", Any)
     }
@@ -129,7 +129,7 @@ object CreateFromUsageUtil {
   }
 
   def unapplyMethodTypeText(pattern: ScPattern): String = {
-    val types = CreateFromUsageUtil.patternArgs(pattern).map(_.getType().getOrAny)
+    val types = CreateFromUsageUtil.patternArgs(pattern).map(_.`type`().getOrAny)
     val typesText = types.map(_.canonicalText).mkString(", ")
     types.size match {
       case 0 => "Boolean"
@@ -144,7 +144,7 @@ object InstanceOfClass {
     elem match {
       case ScExpression.Type(TypeAsClass(psiClass)) => Some(psiClass)
       case ResolvesTo(typed: ScTypedDefinition) =>
-        typed.getType().toOption match {
+        typed.`type`().toOption match {
           case Some(TypeAsClass(psiClass)) => Some(psiClass)
           case _ => None
         }

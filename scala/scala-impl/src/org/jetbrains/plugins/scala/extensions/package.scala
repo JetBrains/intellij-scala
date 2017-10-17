@@ -38,7 +38,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -94,7 +93,7 @@ package object extensions {
     def parametersTypes: Seq[ScType] = repr match {
       case scalaFunction: ScFunction =>
         scalaFunction.parameters
-          .map(_.getType(TypingContext).getOrNothing)
+          .map(_.`type`().getOrNothing)
       case _ =>
         parameters.map(_.getType)
           .map(_.toScType())
@@ -239,8 +238,8 @@ package object extensions {
         case _: ScPrimaryConstructor => None
         case e: ScFunction if e.isConstructor => None
         case e: ScFunction => e.returnType.toOption
-        case e: ScBindingPattern => e.getType(TypingContext).toOption
-        case e: ScFieldId => e.getType(TypingContext).toOption
+        case e: ScBindingPattern => e.`type`().toOption
+        case e: ScFieldId => e.`type`().toOption
         case e: ScParameter => e.getRealParameterType.toOption
         case e: PsiMethod if e.isConstructor => None
         case e: PsiMethod => lift(e.getReturnType)
@@ -739,7 +738,7 @@ package object extensions {
 
     def paramType(exact: Boolean = true, treatJavaObjectAsAny: Boolean = true): ScType = param match {
       case parameter: FakePsiParameter => parameter.parameter.paramType
-      case parameter: ScParameter => parameter.getType(TypingContext).getOrAny
+      case parameter: ScParameter => parameter.`type`().getOrAny
       case _ =>
         val paramType = param.getType match {
           case arrayType: PsiArrayType if exact && param.isVarArgs =>

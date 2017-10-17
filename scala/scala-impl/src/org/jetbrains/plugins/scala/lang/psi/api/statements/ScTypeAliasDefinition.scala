@@ -26,7 +26,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def aliasedType: TypeResult[ScType] =
     aliasedTypeElement.map {
-      _.getType()
+      _.`type`()
     }.getOrElse(Failure("No alias type", Some(this)))
 
   def lowerBound: TypeResult[ScType] = aliasedType

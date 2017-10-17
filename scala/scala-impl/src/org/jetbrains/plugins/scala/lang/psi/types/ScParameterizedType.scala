@@ -202,7 +202,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
 
     designator.extractClassType match {
       case Some((clazz: ScTypeDefinition, sub)) if startsWith(clazz, prefix) =>
-        clazz.getType() match {
+        clazz.`type`() match {
           case Success(t, _) =>
             val substituted = (sub followed substitutor).subst(t)
             substituted match {

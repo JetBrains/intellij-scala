@@ -97,7 +97,7 @@ class ScPackagingImpl private(stub: ScPackagingStub, node: ASTNode)
 
       findPackageObject(place.resolveScope).foreach { definition =>
         var newState = state
-        definition.getType().foreach { tp =>
+        definition.`type`().foreach { tp =>
           newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
         }
         if (!definition.processDeclarations(processor, newState, lastParent, place)) return false

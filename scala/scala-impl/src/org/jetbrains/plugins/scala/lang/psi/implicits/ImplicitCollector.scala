@@ -350,7 +350,7 @@ class ImplicitCollector(place: PsiElement,
     c.element match {
       case typeable: Typeable =>
         val subst = c.substitutor
-        typeable.getType() match {
+        typeable.`type`() match {
           case Success(t: ScType, _) =>
             if (!subst.subst(t).conforms(tp))
               reportWrong(c, subst, TypeDoesntConformResult)
@@ -652,7 +652,7 @@ class ImplicitCollector(place: PsiElement,
       case ParameterizedType(designator, _) => Set(designator)
       case tp@ScDesignatorType(_: ScObject) => Set(tp)
       case ScDesignatorType(v: ScTypedDefinition) =>
-        val valueType: ScType = v.getType().getOrAny
+        val valueType: ScType = v.`type`().getOrAny
         topLevelTypeConstructors(valueType)
       case ScCompoundType(comps, _, _) => comps.flatMap(topLevelTypeConstructors).toSet
       case _ => Set(tp)
@@ -665,7 +665,7 @@ class ImplicitCollector(place: PsiElement,
       case ParameterizedType(_, args) => 1 + args.foldLeft(0)(_ + complexity(_))
       case ScDesignatorType(_: ScObject) => 1
       case ScDesignatorType(v: ScTypedDefinition) =>
-        val valueType: ScType = v.getType().getOrAny
+        val valueType: ScType = v.`type`().getOrAny
         1 + complexity(valueType)
       case ScCompoundType(comps, _, _) => comps.foldLeft(0)(_ + complexity(_))
       case _ => 1

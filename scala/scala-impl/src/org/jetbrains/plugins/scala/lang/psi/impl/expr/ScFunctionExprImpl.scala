@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 /**
@@ -51,9 +50,9 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   }
 
   protected override def innerType: TypeResult[ScType] = {
-    val paramTypes = (parameters: Seq[ScParameter]).map(_.getType(TypingContext))
+    val paramTypes = (parameters: Seq[ScParameter]).map(_.`type`())
     val resultType = result match {
-      case Some(r) => r.getType().getOrAny
+      case Some(r) => r.`type`().getOrAny
       case _ => api.Unit
     }
     collectFailures(paramTypes, Nothing)(FunctionType(resultType, _))

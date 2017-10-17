@@ -235,7 +235,7 @@ object PatternAnnotatorUtil {
       case parenth: ScParenthesisedPattern =>
         patternType(parenth.subpattern.orNull)
       case null => None
-      case _ => pattern.getType().toOption
+      case _ => pattern.`type`().toOption
     }
   }
 }

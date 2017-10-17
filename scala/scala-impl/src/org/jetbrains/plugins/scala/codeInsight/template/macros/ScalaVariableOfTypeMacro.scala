@@ -60,7 +60,7 @@ class ScalaVariableOfTypeMacro extends ScalaMacro {
         for (variant <- variants) {
           variant.getElement match {
             case typed: ScTypedDefinition =>
-              for (t <- typed.getType())
+              for (t <- typed.`type`())
                 addLookupItems(exprs, context, variant, t, file.getProject, array)
             case _ =>
           }
@@ -94,7 +94,7 @@ class ScalaVariableOfTypeMacro extends ScalaMacro {
         for (variant <- variants) {
           variant.getElement match {
             case typed: ScTypedDefinition =>
-              for (t <- typed.getType())
+              for (t <- typed.`type`())
                 getResult(exprs, context, variant, t, file.getProject).map(return _)
             case _ =>
           }

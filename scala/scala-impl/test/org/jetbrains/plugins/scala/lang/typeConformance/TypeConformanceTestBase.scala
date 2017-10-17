@@ -96,7 +96,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     val declaredType = valueDecl.declaredType.getOrElse(sys.error("Must provide type annotation for LHS"))
 
     val expr = valueDecl.expr.getOrElse(sys.error("Expression not found"))
-    expr.getType() match {
+    expr.`type`() match {
       case Success(rhsType, _) => (declaredType, rhsType)
       case Failure(msg, elem) => sys.error(s"Couldn't compute type of ${expr.getText}: $msg")
     }
@@ -133,7 +133,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
       case _ => "True"
     }
     for ((expr, param) <- application.matchedParameters) {
-      val exprTp = expr.getType().getOrElse(throw new RuntimeException(s"Failed to get type of expression(${expr.getText})"))
+      val exprTp = expr.`type`().getOrElse(throw new RuntimeException(s"Failed to get type of expression(${expr.getText})"))
       val res = exprTp.conforms(param.paramType)
       if (res != expectedResult.toBoolean)
         errors +=

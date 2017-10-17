@@ -199,7 +199,7 @@ class ScalaInlineHandler extends InlineHandler {
     implicit val project = element.projectContext
 
     element match {
-      case typedDef: ScTypedDefinition if FunctionType.unapply(typedDef.getType().getOrAny).exists(_._2.nonEmpty) =>
+      case typedDef: ScTypedDefinition if FunctionType.unapply(typedDef.`type`().getOrAny).exists(_._2.nonEmpty) =>
         val message = typedDef match {
           case _: ScFunctionDeclaration | _: ScFunctionDefinition => ScalaBundle.message("cannot.inline.function.with.parameters")
           case _ => ScalaBundle.message("cannot.inline.value.functional.type")

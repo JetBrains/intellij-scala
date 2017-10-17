@@ -43,8 +43,8 @@ class JavaAccessorMethodCalledAsEmptyParenInspection extends AbstractMethodSigna
 
   private def hasSameType(call: ScMethodCall, ref: ScReferenceExpression) = {
 
-    val callType = call.getType().toOption
-    val refType = ref.getType().toOption
+    val callType = call.`type`().toOption
+    val refType = ref.`type`().toOption
     (callType, refType) match {
       case (Some(t1), Some(t2)) => t1.equiv(t2)
       case _ => false

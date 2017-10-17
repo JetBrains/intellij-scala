@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 
 /**
@@ -34,9 +33,9 @@ class ScValueDeclarationImpl private (stub: ScValueStub, node: ASTNode)
 
   def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 
-  override def getType(ctx: TypingContext.type): TypeResult[ScType] = typeElement match {
+  override def `type`: TypeResult[ScType] = typeElement match {
     case None => Failure(ScalaBundle.message("no.type.element.found", getText), Some(this))
-    case Some(te) => te.getType(ctx)
+    case Some(te) => te.`type`()
   }
 
   def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)

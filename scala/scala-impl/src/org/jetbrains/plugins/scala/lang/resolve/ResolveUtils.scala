@@ -427,7 +427,7 @@ object ResolveUtils {
     placeTd.selfTypeElement match {
       case Some(te: ScSelfTypeElement) => te.typeElement match {
         case Some(te: ScTypeElement) =>
-          te.getType()
+          te.`type`()
             .exists(isInheritorOrSame(_, td))
         case _ => false
       }

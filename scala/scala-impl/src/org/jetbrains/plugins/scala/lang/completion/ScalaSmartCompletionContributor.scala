@@ -124,7 +124,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                 case _ => false
               }
               if (!added) {
-                fun.getType() match {
+                fun.`type`() match {
                   case Success(tp, _) => checkType(tp, infer, second, etaExpanded = true)
                   case _ =>
                 }
@@ -136,7 +136,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
             case typed: ScTypedDefinition =>
               if (!PsiTreeUtil.isContextAncestor(typed.nameContext, place, false) &&
                 (originalPlace == null || !PsiTreeUtil.isContextAncestor(typed.nameContext, originalPlace, false)))
-                for (tt <- typed.getType()) checkType(tt, ScSubstitutor.empty, checkForSecondCompletion)
+                for (tt <- typed.`type`()) checkType(tt, ScSubstitutor.empty, checkForSecondCompletion)
             case f: PsiField =>
               checkType(f.getType.toScType(), ScSubstitutor.empty, checkForSecondCompletion)
             case _ =>

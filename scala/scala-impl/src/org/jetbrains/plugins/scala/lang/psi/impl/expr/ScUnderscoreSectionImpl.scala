@@ -54,10 +54,10 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             overExpr match {
               case Some(`typed`) =>
                 typed.typeElement match {
-                  case Some(te) => return te.getType()
+                  case Some(te) => return te.`type`()
                   case _ => return Failure("Typed statement is not complete for underscore section", Some(this))
                 }
-              case _ => return typed.getType()
+              case _ => return typed.`type`()
             }
           case _ =>
         }

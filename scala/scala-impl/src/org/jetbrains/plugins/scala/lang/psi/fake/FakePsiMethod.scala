@@ -35,7 +35,7 @@ class FakePsiMethod(
   implicit val elementScope = navElement.elementScope
 } with LightElement(manager, language) with PsiMethod with PsiTypeParametersOwnerAdapter {
   def this(value: ScTypedDefinition, hasModifier: String => Boolean) = {
-    this(value, value.name, Array.empty, value.getType().getOrAny, hasModifier)
+    this(value, value.name, Array.empty, value.`type`().getOrAny, hasModifier)
   }
   override def toString: String = name + "()"
 

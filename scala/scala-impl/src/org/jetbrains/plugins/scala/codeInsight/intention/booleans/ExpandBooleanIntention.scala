@@ -34,7 +34,7 @@ class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
 
     val value = returnStmt.expr.orNull
     if (value == null) return false
-    val valType = value.getType().getOrElse(null)
+    val valType = value.`type`().getOrElse(null)
     if (valType == null) return false
     if (valType.canonicalText == "Boolean") return true
 

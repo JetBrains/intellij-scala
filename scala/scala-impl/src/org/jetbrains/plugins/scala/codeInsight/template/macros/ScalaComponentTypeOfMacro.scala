@@ -19,7 +19,7 @@ class ScalaComponentTypeOfMacro extends ScalaMacro {
       case scTypeRes: ScalaTypeResult =>
         MacroUtil.getComponentFromArrayType(scTypeRes.myType).map(new ScalaTypeResult(_)).orNull
       case otherRes: Result =>
-        MacroUtil.resultToScExpr(otherRes, context).flatMap(_.getType().toOption).
+        MacroUtil.resultToScExpr(otherRes, context).flatMap(_.`type`().toOption).
                 flatMap(MacroUtil.getComponentFromArrayType).map(new ScalaTypeResult(_)).orNull
     }
   }
@@ -32,7 +32,7 @@ class ScalaComponentTypeOfMacro extends ScalaMacro {
     outerItems.flatMap {
       case lookupItem: ScalaLookupItem => lookupItem.element match {
         case typeDef: ScTypeDefinition =>
-          typeDef.getType().toOption.flatMap(MacroUtil.getComponentFromArrayType).
+          typeDef.`type`().toOption.flatMap(MacroUtil.getComponentFromArrayType).
                   map(MacroUtil.getTypeLookupItem(_, context.getProject))
         case _ => None
       }

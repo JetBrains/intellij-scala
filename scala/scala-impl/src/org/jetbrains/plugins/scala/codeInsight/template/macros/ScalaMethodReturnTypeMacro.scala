@@ -17,7 +17,7 @@ class ScalaMethodReturnTypeMacro extends ScalaMacro {
     implicit val project: ProjectContext = context.getProject
     
     Option(PsiTreeUtil.getParentOfType(context.getPsiElementAtStartOffset, classOf[ScFunction])).
-      map(_.getType().getOrAny match {
+      map(_.`type`().getOrAny match {
               case FunctionType(rt, _) => rt
               case t => t
             }).map(new ScalaTypeResult(_)).orNull

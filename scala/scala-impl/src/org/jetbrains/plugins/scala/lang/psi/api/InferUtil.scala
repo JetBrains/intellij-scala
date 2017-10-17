@@ -341,7 +341,7 @@ object InferUtil {
         case _: ScObject |
              _: ScParameter |
              _: ScBindingPattern |
-             _: ScFieldId => element.asInstanceOf[Typeable].getType().toOption
+             _: ScFieldId => element.asInstanceOf[Typeable].`type`().toOption
         case function: ScFunction => function.functionTypeNoImplicits()
       }
 

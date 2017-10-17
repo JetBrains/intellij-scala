@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 class ScalaTypeSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     val expression = elements(0).asInstanceOf[ScExpression]
-    val typeResult = expression.getType()
+    val typeResult = expression.`type`()
     val typeText = typeResult.map(_.presentableText).getOrElse("Any")
     "(" + super.getTemplateAsString(elements) + ": " + typeText + ")"
   }

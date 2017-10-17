@@ -94,7 +94,7 @@ object AnnotatorHighlighter {
       } else if (conformsByNames(resolvedType, JAVA_COLLECTIONS_BASES)) {
         simpleAnnotate(ScalaBundle.message("java.collection"), DefaultHighlighter.JAVA_COLLECTION)
       } else if (resolvedType.canonicalText.startsWith(SCALA_COLLECTION_GENERIC_BASE) && refElement.isInstanceOf[ScReferenceExpression]) {
-        refElement.asInstanceOf[ScReferenceExpression].getType().foreach {
+        refElement.asInstanceOf[ScReferenceExpression].`type`().foreach {
           case FunctionType(returnType, _) => Option(returnType).foreach(a =>
             if (a.canonicalText.startsWith(SCALA_COLLECTION_MUTABLE_BASE)) {
               simpleAnnotate(ScalaBundle.message("scala.mutable.collection"), DefaultHighlighter.MUTABLE_COLLECTION)
@@ -165,7 +165,7 @@ object AnnotatorHighlighter {
         parent match {
           case r@(_: ScValue | _: ScVariable) =>
             Option(x.containingClass).foreach(a => if (SCALA_PREDEFINED_OBJECTS.contains(a.qualifiedName)) {
-              x.getType().foreach(annotateCollectionByType)
+              x.`type`().foreach(annotateCollectionByType)
             })
 
             getParentByStub(parent) match {

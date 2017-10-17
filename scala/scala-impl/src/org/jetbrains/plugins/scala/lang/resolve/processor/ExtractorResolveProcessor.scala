@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
@@ -34,7 +33,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
         def resultsFor(unapplyName: String) = {
           val typeResult = getFromType(state) match {
             case Some(tp) => Success(ScProjectionType(tp, obj, superReference = false), Some(obj))
-            case _ => obj.getType()
+            case _ => obj.`type`()
           }
           val processor = new CollectMethodsProcessor(ref, unapplyName)
           typeResult.foreach(t => processor.processType(t, ref))
@@ -86,7 +85,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
             case fun: ScFunction =>
               val clauses = fun.paramClauses.clauses
               if (clauses.length != 0 && clauses.apply(0).parameters.length == 1) {
-                for (paramType <- clauses(0).parameters.apply(0).getType(TypingContext)
+                for (paramType <- clauses(0).parameters.apply(0).`type`()
                      if tp conforms r.substitutor.subst(paramType)) return true
               }
               false

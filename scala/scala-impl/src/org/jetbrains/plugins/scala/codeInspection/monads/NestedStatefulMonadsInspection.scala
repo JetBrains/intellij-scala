@@ -21,7 +21,7 @@ final class NestedStatefulMonadsInspection extends AbstractInspection(Annotation
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case call: ScMethodCall =>
       val project = call.getProject
-      call.getType().getOrAny match {
+      call.`type`().getOrAny match {
         case outer@ParameterizedType(_, typeArgs)
           if isStatefulMonadType(outer, project) && typeArgs.exists(isStatefulMonadType(_, project)) =>
           holder.registerProblem(call, Annotation)

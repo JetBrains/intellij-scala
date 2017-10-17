@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
@@ -196,7 +195,7 @@ object ScImplicitlyConvertible {
     val clause = function.paramClauses.clauses.head
     val firstParameter = clause.parameters.head
 
-    val argumentType = firstParameter.getType(TypingContext)
+    val argumentType = firstParameter.`type`()
 
     def substitute(maybeType: TypeResult[ScType]) =
       maybeType.map(substitutor.subst)
@@ -217,7 +216,7 @@ object ScImplicitlyConvertible {
         f.returnType
       case _: ScBindingPattern | _: ScParameter | _: ScObject =>
         // View Bounds and Context Bounds are processed as parameters.
-        element.asInstanceOf[Typeable].getType()
+        element.asInstanceOf[Typeable].`type`()
     }).toOption
 
     maybeElementType.map(substitutor.subst)

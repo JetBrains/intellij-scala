@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionEx
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
@@ -64,7 +63,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
   def getActualDefaultExpression: Option[ScExpression]
 
   def getRealParameterType: TypeResult[ScType] =
-    getType(TypingContext) match {
+    `type`() match {
       case result if !isRepeatedParameter => result
       case f@Success(tp: ScType, elem) =>
         elementScope.getCachedClass("scala.collection.Seq")

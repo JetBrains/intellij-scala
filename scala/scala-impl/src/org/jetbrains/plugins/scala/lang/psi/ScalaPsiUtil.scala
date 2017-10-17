@@ -45,7 +45,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -357,9 +356,9 @@ object ScalaPsiUtil {
         val referencedType = gen.referencedExpr.getNonValueType().getOrNothing
         referencedType match {
           case _: ScTypePolymorphicType => //that means that generic call is important here
-            (gen, gen.getType().getOrNothing, Seq.empty)
+            (gen, gen.`type`().getOrNothing, Seq.empty)
           case _ =>
-            (gen.referencedExpr, gen.referencedExpr.getType().getOrNothing, gen.arguments)
+            (gen.referencedExpr, gen.referencedExpr.`type`().getOrNothing, gen.arguments)
         }
       case expression => (expression, tp, Seq.empty)
     }
@@ -521,9 +520,9 @@ object ScalaPsiUtil {
       }
 
       tp match {
-        case ScDesignatorType(v: ScBindingPattern) => collectPartsTr(v.getType())
-        case ScDesignatorType(v: ScFieldId) => collectPartsTr(v.getType())
-        case ScDesignatorType(p: ScParameter) => collectPartsTr(p.getType())
+        case ScDesignatorType(v: ScBindingPattern) => collectPartsTr(v.`type`())
+        case ScDesignatorType(v: ScFieldId) => collectPartsTr(v.`type`())
+        case ScDesignatorType(p: ScParameter) => collectPartsTr(p.`type`())
         case ScCompoundType(comps, _, _) => collectPartsIter(comps)
         case ParameterizedType(a: ScAbstractType, args) =>
           collectParts(a)
@@ -545,9 +544,9 @@ object ScalaPsiUtil {
         case proj@ScProjectionType(projected, _, _) =>
           collectParts(projected)
           proj.actualElement match {
-            case v: ScBindingPattern => collectPartsTr(v.getType().map(proj.actualSubst.subst))
-            case v: ScFieldId => collectPartsTr(v.getType().map(proj.actualSubst.subst))
-            case v: ScParameter => collectPartsTr(v.getType(TypingContext).map(proj.actualSubst.subst))
+            case v: ScBindingPattern => collectPartsTr(v.`type`().map(proj.actualSubst.subst))
+            case v: ScFieldId => collectPartsTr(v.`type`().map(proj.actualSubst.subst))
+            case v: ScParameter => collectPartsTr(v.`type`().map(proj.actualSubst.subst))
             case _ =>
           }
           tp.extractClassType match {
@@ -668,7 +667,7 @@ object ScalaPsiUtil {
   def mapToLazyTypesSeq(elems: Seq[PsiParameter]): Seq[() => ScType] = {
     elems.map(param => () =>
       param match {
-        case scp: ScParameter => scp.getType(TypingContext).getOrNothing
+        case scp: ScParameter => scp.`type`().getOrNothing
         case p: PsiParameter =>
           val treatJavaObjectAsAny = p.parentsInFile.findByType[PsiClass] match {
             case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
@@ -865,7 +864,7 @@ object ScalaPsiUtil {
     val map = new collection.mutable.HashMap[(String, Long), ScType]
     var i = 0
     while (i < Math.min(tp.length, typeArgs.length)) {
-      map += ((tp(tp.length - 1 - i), typeArgs(typeArgs.length - 1 - i).getType().getOrAny))
+      map += ((tp(tp.length - 1 - i), typeArgs(typeArgs.length - 1 - i).`type`().getOrAny))
       i += 1
     }
     ScSubstitutor(map.toMap)
@@ -1699,7 +1698,7 @@ object ScalaPsiUtil {
     if (bindings.size == 1 && expr.contains(instance)) Option(bindings.head)
     else {
       for (bind <- bindings) {
-        if (bind.getType().toOption == instance.getType().toOption) return Option(bind)
+        if (bind.`type`().toOption == instance.`type`().toOption) return Option(bind)
       }
       None
     }
@@ -1831,11 +1830,11 @@ object ScalaPsiUtil {
     def isSAMable(td: ScTemplateDefinition): Boolean = {
       def selfTypeValid: Boolean = {
         td.selfType match {
-          case Some(selfParam: ScParameterizedType) => td.getType() match {
+          case Some(selfParam: ScParameterizedType) => td.`type`() match {
             case Success(classParamTp: ScParameterizedType, _) => selfParam.designator.conforms(classParamTp.designator)
             case _ => false
           }
-          case Some(selfTp) => td.getType() match {
+          case Some(selfTp) => td.`type`() match {
             case Success(classType, _) => selfTp.conforms(classType)
             case _ => false
           }
@@ -1869,7 +1868,7 @@ object ScalaPsiUtil {
           for {
             f <- singleAbstractMethod
             if f.paramClauses.clauses.length == 1 && !f.hasTypeParameters
-            tp <- f.getType().toOption
+            tp <- f.`type`().toOption
           } yield {
             val substituted = substitutor.subst(tp)
             extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse {

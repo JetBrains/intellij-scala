@@ -30,7 +30,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) w
   protected def innerType: TypeResult[ScType] = {
     this.bind() match {
       case Some(ScalaResolveResult(elem, _)) =>
-        val te: TypeResult[ScType] = typeElement.getType()
+        val te: TypeResult[ScType] = typeElement.`type`()
         te match {
           case Success(ScDesignatorType(_: PsiPackage), _) =>
             this.success(ScalaType.designator(elem))
@@ -64,7 +64,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) w
 
   def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult] = {
     if (!accessibilityCheck) processor.doNotCheckAccessibility()
-    val projected = typeElement.getType().getOrAny
+    val projected = typeElement.`type`().getOrAny
     processor.processType(projected, this)
     val res = processor.candidates.map { r : ScalaResolveResult =>
       r.element match {

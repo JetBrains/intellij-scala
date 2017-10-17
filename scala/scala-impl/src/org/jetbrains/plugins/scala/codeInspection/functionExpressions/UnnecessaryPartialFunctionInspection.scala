@@ -72,7 +72,7 @@ class UnnecessaryPartialFunctionInspection
         case _: ScWildcardPattern => true
         case typedPattern: ScTypedPattern =>
           val patternType = typedPattern.typePattern.map(_.typeElement.calcType)
-          val expressionType = caseClause.expr.flatMap(_.getType().toOption)
+          val expressionType = caseClause.expr.flatMap(_.`type`().toOption)
           (patternType, expressionType) match {
             case (Some(inputType), Some(returnType)) => conformsToExpectedType(inputType, returnType)
             case _ => false

@@ -33,7 +33,7 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       for {
         declared <- variable.declaredType
         expr <- variable.expr
-        tp <- expr.getType()
+        tp <- expr.`type`()
         if computeBaseTypes(declared, tp).nonEmpty
       } setText(message("make.type.more.specific"))
 
@@ -45,7 +45,7 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       for {
         declared <- value.declaredType
         expr <- value.expr
-        tp <- expr.getType()
+        tp <- expr.`type`()
         if computeBaseTypes(declared, tp).nonEmpty
       } setText(message("make.type.more.specific"))
 
@@ -57,7 +57,7 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       for {
         declared <- function.returnType
         expr <- function.body
-        tp <- expr.getType()
+        tp <- expr.`type`()
         if computeBaseTypes(declared, tp).nonEmpty
       } setText(message("make.type.more.specific.fun"))
 
@@ -104,8 +104,8 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       for {
         body <- function.body
         if maybeEditor.isDefined
-        tp <- body.getType()
-        declared <- typeElement.getType()
+        tp <- body.`type`()
+        declared <- typeElement.`type`()
       } doTemplate(typeElement, declared, tp, function)
 
       true
@@ -116,8 +116,8 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       for {
         body <- value.expr
         if maybeEditor.isDefined
-        tp <- body.getType()
-        declared <- typeElement.getType()
+        tp <- body.`type`()
+        declared <- typeElement.`type`()
       } doTemplate(typeElement, declared, tp, value)
 
       true
@@ -128,8 +128,8 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       for {
         body <- variable.expr
         if maybeEditor.isDefined
-        tp <- body.getType()
-        declared <- typeElement.getType()
+        tp <- body.`type`()
+        declared <- typeElement.`type`()
       } doTemplate(typeElement, declared, tp, variable)
 
       true

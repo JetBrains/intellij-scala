@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 
 /**
  * @author Nikolay.Tropin
@@ -62,7 +61,7 @@ object AddBreakoutQuickFix {
   }
 
   def isImplicitCanBuildFromParam(p: ScParameter): Boolean = {
-    p.getType(TypingContext) match {
+    p.`type`() match {
       case Success(tpe, _) if tpe.canonicalText.startsWith("_root_.scala.collection.generic.CanBuildFrom") => true
       case _ => false
     }

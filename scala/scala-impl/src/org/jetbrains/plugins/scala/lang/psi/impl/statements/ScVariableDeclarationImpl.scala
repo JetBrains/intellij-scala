@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScVariableStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 
 
 /**
@@ -31,7 +30,7 @@ class ScVariableDeclarationImpl private (stub: ScVariableStub, node: ASTNode)
 
   override def toString: String = "ScVariableDeclaration: " + ifReadAllowed(declaredNames.mkString(", "))("")
 
-  def getType(ctx: TypingContext.type): TypeResult[ScType] = wrap(typeElement).flatMap(_.getType())
+  def `type`: TypeResult[ScType] = wrap(typeElement).flatMap(_.`type`())
 
   def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 

@@ -44,7 +44,7 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
         val rText = rOp.getText
         val exprText = s"$lText = $lText ${r.element.name} $rText"
         val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, getContext, this)
-        newExpr.getType()
+        newExpr.`type`()
       case _ => super.innerType
     }
   }

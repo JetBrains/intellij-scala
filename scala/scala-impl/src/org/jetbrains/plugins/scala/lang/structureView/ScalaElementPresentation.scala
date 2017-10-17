@@ -73,7 +73,7 @@ object ScalaElementPresentation {
 
   def getValOrVarPresentableText(elem: ScNamedElement): String = {
     val typeText = elem match {
-      case typed: Typeable => ": " + typed.getType().getOrAny.presentableText
+      case typed: Typeable => ": " + typed.`type`().getOrAny.presentableText
       case _ => ""
     }
     val keyword = ScalaPsiUtil.nameContext(elem) match {

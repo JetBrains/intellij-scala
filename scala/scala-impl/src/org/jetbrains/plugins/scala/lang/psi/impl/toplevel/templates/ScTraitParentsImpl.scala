@@ -34,7 +34,7 @@ class ScTraitParentsImpl private(stub: ScTemplateParentsStub[ScTraitParents], no
     val buffer = ArrayBuffer[ScType]()
     val iterator = elements.iterator //for reducing stacktrace
     while (iterator.hasNext) {
-      buffer += iterator.next().getType().getOrAny
+      buffer += iterator.next().`type`().getOrAny
     }
     buffer
   }

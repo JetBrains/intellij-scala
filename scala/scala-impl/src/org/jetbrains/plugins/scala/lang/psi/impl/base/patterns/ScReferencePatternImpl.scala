@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createWildcardPattern
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScReferencePatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 
 /**
@@ -49,7 +48,7 @@ class ScReferencePatternImpl private(stub: ScReferencePatternStub, node: ASTNode
 
   override def toString: String = "ReferencePattern: " + ifReadAllowed(name)("")
 
-  override def getType(ctx: TypingContext.type): TypeResult[ScType] = {
+  override def `type`(): TypeResult[ScType] = {
     this.expectedType match {
       case Some(x) => Success(x, Some(this))
       case _ => Failure("Cannot define expected type", Some(this))
@@ -75,7 +74,7 @@ class ScReferencePatternImpl private(stub: ScReferencePatternStub, node: ASTNode
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
-    ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType())
+    ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`())
   }
 
   override def delete() {
