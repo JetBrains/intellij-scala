@@ -14,6 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{LabeledComponent, TextFieldWithBrowseButton}
 import com.intellij.openapi.util.{JDOMExternalizer, SystemInfo}
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.ui.RawCommandLineEditor
 import org.jdom.Element
 import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfiguration.MyEditor
 
@@ -31,13 +32,18 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
   
   private var execName: Option[String] = None
   private var fileName: Option[String] = None
+  private var scriptParameters: Option[String] = None
   
   def setFilePath(path: String) {
-    fileName = Option(path)
+    if (path != "") fileName = Option(path)
   }
   
   def setExecPath(path: String) {
     execName = Option(path)
+  }
+  
+  def setScriptParameters(params: String) {
+    if (params != "") scriptParameters = Option(params)
   }
   
   def getIOFile: Option[File] = fileName.map(new File(_)).filter(_.exists())
@@ -64,8 +70,10 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
           cmd.addParameter("--predef")
           cmd.addParameter(s"${createPredefFile(getIOFile.map(_.getName).getOrElse("AmmoniteFile.sc"))}")
         }
-        
+
         fileName.foreach(cmd.addParameter)
+        scriptParameters.foreach(cmd.getParametersList.addParametersString(_))
+
         JavaCommandLineStateUtil.startProcess(cmd)
       }
     }
@@ -82,6 +90,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
     
     saveFileElement("execName", execName)
     saveFileElement("fileName", fileName)
+    saveFileElement("scriptParameters", scriptParameters)
   }
 
   override def readExternal(element: Element) {
@@ -96,6 +105,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
     
     execName = retrieveFileElement("execName")
     fileName = retrieveFileElement("fileName")
+    scriptParameters = retrieveFileElement("scriptParameters")
   }
   
   private def createPredefFile(baseName: String): String = {
@@ -123,48 +133,54 @@ object AmmoniteRunConfiguration {
     override def createEditor(): JComponent = form.panel
 
     override def applyEditorTo(s: AmmoniteRunConfiguration) {
-      val (fileName, execName) = form.get
+      val (fileName, execName, scriptParameters) = form.get
       s.setFilePath(fileName)
       s.setExecPath(execName)
+      s.setScriptParameters(scriptParameters)
     }
 
     override def resetEditorFrom(s: AmmoniteRunConfiguration) {
-      form.set(s.fileName.getOrElse(""), s.execName.getOrElse("amm"))
+      form(s.fileName.getOrElse(""), s.execName.getOrElse("amm"), s.scriptParameters.getOrElse(""))
     }
   }
   
   private class AmmoniteRunConfigurationForm {
-    val (panel, fileNameField, execNameField) = initPanel()
+    val (panel, fileNameField, execNameField, scriptParameters) = initPanel()
     
-    def get: (String, String) = (fileNameField.getText, execNameField.getText)
+    def get: (String, String, String) = (fileNameField.getText, execNameField.getText, scriptParameters.getText)
     
-    def set(fileName: String, execName: String) {
+    def apply(fileName: String, execName: String, parametersRaw: String) {
       fileNameField.setText(fileName)
       execNameField.setText(execName)
+      scriptParameters.setText(parametersRaw)
     }
     
     private def initPanel() = {
       val panel = new JPanel()
       panel setLayout new BoxLayout(panel, BoxLayout.Y_AXIS)
       
-      val comp0 = createTextElement("Script:")
-      val comp1 = createTextElement("Amm executable:")
+      val comp0 = createLabeledElement("Script:", createFileBrowser)
+      val comp1 = createLabeledElement("Amm executable:", createFileBrowser)
+      val comp2 = createLabeledElement("Script parameters:", new RawCommandLineEditor)
       
       panel.add(comp0, 0)
       panel.add(comp1, 1)
+      panel.add(comp2, 2)
       
-      (panel, comp0.getComponent, comp1.getComponent)
+      (panel, comp0.getComponent, comp1.getComponent, comp2.getComponent)
     }
     
-    private def createTextElement(name: String) = {
-      val comp = new LabeledComponent[TextFieldWithBrowseButton]()
+    private def createLabeledElement[T <: JComponent](name: String, comp: T): LabeledComponent[T] = {
+      val c = new LabeledComponent[T]
+      c.setComponent(comp)
+      c.setText(name)
+      c
+    }
+    
+    private def createFileBrowser: TextFieldWithBrowseButton = {
       val fileBrowser = new TextFieldWithBrowseButton()
       fileBrowser.addBrowseFolderListener("Select...", "", null, new FileChooserDescriptor(true, false, true, true, false, false))
-      
-      comp.setComponent(fileBrowser)
-      comp.setText(name)
-      
-      comp
+      fileBrowser
     }
   }
 }
