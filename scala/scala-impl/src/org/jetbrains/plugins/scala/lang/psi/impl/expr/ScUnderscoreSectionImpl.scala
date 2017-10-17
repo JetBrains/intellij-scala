@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue,
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -54,10 +54,10 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             overExpr match {
               case Some(`typed`) =>
                 typed.typeElement match {
-                  case Some(te) => return te.getType(TypingContext.empty)
+                  case Some(te) => return te.getType()
                   case _ => return Failure("Typed statement is not complete for underscore section", Some(this))
                 }
-              case _ => return typed.getType(TypingContext.empty)
+              case _ => return typed.getType()
             }
           case _ =>
         }

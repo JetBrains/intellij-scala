@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, Typeable, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, MostSpecificUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -350,7 +350,7 @@ class ImplicitCollector(place: PsiElement,
     c.element match {
       case typeable: Typeable =>
         val subst = c.substitutor
-        typeable.getType(TypingContext.empty) match {
+        typeable.getType() match {
           case Success(t: ScType, _) =>
             if (!subst.subst(t).conforms(tp))
               reportWrong(c, subst, TypeDoesntConformResult)
@@ -652,7 +652,7 @@ class ImplicitCollector(place: PsiElement,
       case ParameterizedType(designator, _) => Set(designator)
       case tp@ScDesignatorType(_: ScObject) => Set(tp)
       case ScDesignatorType(v: ScTypedDefinition) =>
-        val valueType: ScType = v.getType(TypingContext.empty).getOrAny
+        val valueType: ScType = v.getType().getOrAny
         topLevelTypeConstructors(valueType)
       case ScCompoundType(comps, _, _) => comps.flatMap(topLevelTypeConstructors).toSet
       case _ => Set(tp)
@@ -665,7 +665,7 @@ class ImplicitCollector(place: PsiElement,
       case ParameterizedType(_, args) => 1 + args.foldLeft(0)(_ + complexity(_))
       case ScDesignatorType(_: ScObject) => 1
       case ScDesignatorType(v: ScTypedDefinition) =>
-        val valueType: ScType = v.getType(TypingContext.empty).getOrAny
+        val valueType: ScType = v.getType().getOrAny
         1 + complexity(valueType)
       case ScCompoundType(comps, _, _) => comps.foldLeft(0)(_ + complexity(_))
       case _ => 1

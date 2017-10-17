@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -322,7 +323,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
                 case None => ScalaType.designator(refPatt)
               }
             } else {
-              val result = refPatt.getType(TypingContext.empty)
+              val result = refPatt.getType()
               result match {
                 case Success(tp, _) => s.subst(tp)
                 case _ => return result
@@ -371,7 +372,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
               case function: ScFunction if PsiTreeUtil.isContextAncestor(function, this, true) &&
                 isMethodDependent(function) => ScalaType.designator(param)
               case _ =>
-                val result = param.getRealParameterType(TypingContext.empty)
+                val result = param.getRealParameterType
                 s.subst(result match {
                   case Success(tp, _) => tp
                   case _ => return result
@@ -392,7 +393,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         if (result.isDynamic) DynamicResolveProcessor.getDynamicReturn(functionType)
         else functionType
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
-        val result = param.getType(TypingContext.empty)
+        val result = param.getType(TypingContext)
         val computeType = s.subst(result match {
           case Success(tp, _) => tp
           case _ => return result
@@ -437,14 +438,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             case None => ScalaType.designator(f)
           }
         } else {
-          val result = f.getType(TypingContext.empty)
+          val result = f.getType()
           result match {
             case Success(tp, _) => s.subst(tp)
             case _ => return result
           }
         }
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
-        val result = typed.getType(TypingContext.empty)
+        val result = typed.getType()
         result match {
           case Success(tp, _) => s.subst(tp)
           case _ => return result

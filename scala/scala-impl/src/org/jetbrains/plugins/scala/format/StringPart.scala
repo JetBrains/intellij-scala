@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -42,7 +42,7 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
 
   def format: String = specifier.map(_.format).getOrElse("")
 
-  def expressionType: Option[ScType] = expression.getType(TypingContext.empty).toOption
+  def expressionType: Option[ScType] = expression.getType().toOption
 
   def isLiteral: Boolean = expression.isInstanceOf[ScLiteral]
 

@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -21,8 +21,8 @@ class ScTypedStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTy
 
   protected override def innerType: TypeResult[ScType] = {
     typeElement match {
-      case Some(te) => te.getType(TypingContext.empty)
-      case None if !expr.isInstanceOf[ScUnderscoreSection] => expr.getType(TypingContext.empty)
+      case Some(te) => te.getType()
+      case None if !expr.isInstanceOf[ScUnderscoreSection] => expr.getType()
       case _ => Failure("Typed statement is not complete for underscore section", Some(this))
     }
   }

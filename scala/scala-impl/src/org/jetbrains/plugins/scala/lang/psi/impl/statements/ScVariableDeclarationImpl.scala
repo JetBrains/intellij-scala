@@ -6,6 +6,7 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -13,9 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScVariableStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
-import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 
 
 /**
@@ -31,7 +31,7 @@ class ScVariableDeclarationImpl private (stub: ScVariableStub, node: ASTNode)
 
   override def toString: String = "ScVariableDeclaration: " + ifReadAllowed(declaredNames.mkString(", "))("")
 
-  def getType(ctx: TypingContext): TypeResult[ScType] = wrap(typeElement) flatMap {_.getType(TypingContext.empty)}
+  def getType(ctx: TypingContext.type): TypeResult[ScType] = wrap(typeElement).flatMap(_.getType())
 
   def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 

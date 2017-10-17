@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -77,7 +77,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
       implicit val elementScope: ElementScope = ElementScope(getProject)
       tp match {
         case Some(tp1) => (for (te <- tp1.allTypeElements;
-                                t = te.getType(TypingContext.empty).getOrAny;
+                                t = te.getType().getOrAny;
                                 asPsi = t.toPsiType
                                 if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
         case _ => PsiClassType.EMPTY_ARRAY
@@ -156,7 +156,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
   }
 
-  def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType]
+  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult[ScType]
 
   def members: Seq[ScMember] = extendsBlock.members ++ syntheticMembers
   def functions: Seq[ScFunction] = extendsBlock.functions
@@ -207,7 +207,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def allTypeAliasesIncludingSelfType: Seq[(PsiNamedElement, ScSubstitutor)] = {
     selfType match {
       case Some(selfType) =>
-        val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
+        val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getTypes(c, Some(clazzType), this).allFirstSeq().
@@ -239,7 +239,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def allValsIncludingSelfType: Seq[(PsiNamedElement, ScSubstitutor)] = {
     selfType match {
       case Some(selfType) =>
-        val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
+        val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(n => n.filter{
@@ -269,7 +269,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def allMethodsIncludingSelfType: Iterable[PhysicalSignature] = {
     selfType match {
       case Some(selfType) =>
-        val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
+        val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(_.filter {
@@ -289,7 +289,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def allSignaturesIncludingSelfType: Seq[Signature] = {
     selfType match {
       case Some(selfType) =>
-        val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
+        val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().

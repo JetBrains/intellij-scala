@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
@@ -33,7 +34,7 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 
   def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
-  override def getType(ctx: TypingContext): TypeResult[ScType] = {
+  override def getType(ctx: TypingContext.type): TypeResult[ScType] = {
     if (getLastChild.isInstanceOf[ScSeqWildcard]) {
       return this.expectedType match {
         case Some(x) => Success(x, Some(this))
@@ -43,7 +44,7 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
     if (named == null) Failure("Cannot infer type", Some(this))
     else {
       this.expectedType match {
-        case Some(expectedType) => named.getType(TypingContext.empty).map(expectedType.glb(_))
+        case Some(expectedType) => named.getType().map(expectedType.glb(_))
         case  _ => named.getType(ctx)
       }
     }
@@ -52,7 +53,7 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
     if (isStable) {
-      ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
+      ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext))
     } else true
   }
 

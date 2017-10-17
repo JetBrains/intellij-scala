@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
@@ -52,7 +52,7 @@ class CollectImplicitsProcessor(expression: ScExpression, withoutPrecedence: Boo
               val typeParameters = f.typeParameters
               for {
                 param <- clauses(1).parameters
-                paramType <- param.getType(TypingContext.empty)
+                paramType <- param.getType(TypingContext)
               } {
                 var hasTypeParametersInType = false
                 paramType.recursiveUpdate {
@@ -76,7 +76,7 @@ class CollectImplicitsProcessor(expression: ScExpression, withoutPrecedence: Boo
             case d: ScDeclaredElementsHolder if (d.isInstanceOf[ScValue] || d.isInstanceOf[ScVariable]) &&
               d.asInstanceOf[ScModifierListOwner].hasModifierProperty("implicit") =>
               if (!ResolveUtils.isAccessible(d.asInstanceOf[ScMember], getPlace)) return true
-              val tp = subst.subst(b.getType(TypingContext.empty).getOrElse(return true))
+              val tp = subst.subst(b.getType().getOrElse(return true))
               if (functionType.exists(!tp.conforms(_))) return true
               addResult(new ScalaResolveResult(b, subst, getImports(state)))
             case _ => return true
@@ -87,12 +87,12 @@ class CollectImplicitsProcessor(expression: ScExpression, withoutPrecedence: Boo
               if (!ResolveUtils.isAccessible(c, getPlace)) return true
             case _ =>
           }
-          val tp = subst.subst(param.getType(TypingContext.empty).getOrElse(return true))
+          val tp = subst.subst(param.getType(TypingContext).getOrElse(return true))
           if (functionType.exists(!tp.conforms(_))) return true
           addResult(new ScalaResolveResult(param, subst, getImports(state)))
         case obj: ScObject if obj.hasModifierProperty("implicit") =>
           if (!ResolveUtils.isAccessible(obj, getPlace)) return true
-          val tp = subst.subst(obj.getType(TypingContext.empty).getOrElse(return true))
+          val tp = subst.subst(obj.getType().getOrElse(return true))
           if (functionType.exists(!tp.conforms(_))) return true
           addResult(new ScalaResolveResult(obj, subst, getImports(state)))
         case _ =>

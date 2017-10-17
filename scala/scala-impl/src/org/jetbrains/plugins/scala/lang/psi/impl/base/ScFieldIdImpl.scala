@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypedDeclaration, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScImportableDeclarationsOwner
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFieldIdStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 
 /**
   * @author ilyas
@@ -28,7 +29,7 @@ class ScFieldIdImpl private(stub: ScFieldIdStub, node: ASTNode)
 
   override def toString: String = "Field identifier: " + ifReadAllowed(name)("")
 
-  def getType(ctx: TypingContext): TypeResult[ScType] = getParent /*id list*/ .getParent match {
+  def getType(ctx: TypingContext.type): TypeResult[ScType] = getParent /*id list*/ .getParent match {
     case typed: ScTypedDeclaration => typed.getType(ctx)
     //partial matching
   }

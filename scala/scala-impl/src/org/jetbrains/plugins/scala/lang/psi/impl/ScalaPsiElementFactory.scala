@@ -47,7 +47,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocResolvableCodeReference, ScDocSyntaxElement}
@@ -588,7 +587,7 @@ object ScalaPsiElementFactory {
                 param.typeElement match {
                   case Some(x) =>
                     val colon = this.colon(name)
-                    val typeText = substitutor.subst(x.getType(TypingContext.empty).getOrAny).canonicalText
+                    val typeText = substitutor.subst(x.getType().getOrAny).canonicalText
                     val arrow = ScalaPsiUtil.functionArrow(param.getProject)
                     name + colon + (if (param.isCallByNameParameter) arrow else "") + typeText + (if (param.isRepeatedParameter) "*" else "")
                   case _ => name
@@ -713,7 +712,7 @@ object ScalaPsiElementFactory {
     val name = variable.name
     val colon = this.colon(name)
     val typeText = if (needsInferType)
-      substitutor.subst(variable.getType(TypingContext.empty).getOrAny).canonicalText else ""
+      substitutor.subst(variable.getType().getOrAny).canonicalText else ""
     s"$overrideText$modifiersText$keyword$name$colon$typeText${body.map(x => " = " + x).getOrElse("")}"
   }
 

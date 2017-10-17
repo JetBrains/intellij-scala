@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, 
 import org.jetbrains.plugins.scala.extensions.{ElementText, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * Pavel Fatin
@@ -23,9 +22,9 @@ class ScalaRedundantCastInspection extends AbstractInspection("Redundant cast") 
 
       call.referencedExpr.children.toList match {
         case List(left: ScExpression, ElementText("."), ElementText("asInstanceOf")) =>
-          for (actualType <- left.getType(TypingContext.empty).toOption;
+          for (actualType <- left.getType().toOption;
                typeArgument <- call.arguments.headOption;
-               castType <- typeArgument.getType(TypingContext.empty) if actualType.equiv(castType)) {
+               castType <- typeArgument.getType() if actualType.equiv(castType)) {
 
             val descriptor = {
               val range = new TextRange(left.getTextLength, call.getTextLength)

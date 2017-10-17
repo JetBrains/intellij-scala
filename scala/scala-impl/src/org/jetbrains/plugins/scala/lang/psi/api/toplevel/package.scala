@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.api
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDeclaration, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
   * @author adkozlov
@@ -30,7 +29,7 @@ package object toplevel {
         case ta: ScTypeAliasDeclaration =>
           val boundsDepth = ta.lowerBound.getOrNothing.typeDepth.max(ta.upperBound.getOrAny.typeDepth)
           typeParametersOwnerDepth(ta, boundsDepth)
-        case t: ScTypedDefinition => t.getType(TypingContext.empty).getOrAny.typeDepth
+        case t: ScTypedDefinition => t.getType().getOrAny.typeDepth
         case _ => 1
       }
     }

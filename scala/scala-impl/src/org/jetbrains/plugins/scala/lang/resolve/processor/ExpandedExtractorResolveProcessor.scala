@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
@@ -40,7 +39,7 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
           val parentImports = getImports(state)
           val typez = getFromType(state) match {
             case Some(tp) => ScProjectionType(tp, bind, superReference = false)
-            case _ => bind.getType(TypingContext.empty).getOrAny
+            case _ => bind.getType().getOrAny
           }
           var seq = false
           val buffer = new ArrayBuffer[ScalaResolveResult]

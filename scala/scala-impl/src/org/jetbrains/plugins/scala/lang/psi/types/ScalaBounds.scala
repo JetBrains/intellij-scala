@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
@@ -246,13 +245,13 @@ trait ScalaBounds extends api.Bounds {
       def lubWithExpandedAliases(t1: ScType, t2: ScType): ScType = {
         (t1, t2) match {
           case (ScDesignatorType(t: ScParameter), _) =>
-            lub(t.getRealParameterType(TypingContext.empty).getOrAny, t2, checkWeak)
+            lub(t.getRealParameterType.getOrAny, t2, checkWeak)
           case (ScDesignatorType(t: ScTypedDefinition), _) if !t.isInstanceOf[ScObject] =>
-            lub(t.getType(TypingContext.empty).getOrAny, t2, checkWeak)
+            lub(t.getType().getOrAny, t2, checkWeak)
           case (_, ScDesignatorType(t: ScParameter)) =>
-            lub(t1, t.getRealParameterType(TypingContext.empty).getOrAny, checkWeak)
+            lub(t1, t.getRealParameterType.getOrAny, checkWeak)
           case (_, ScDesignatorType(t: ScTypedDefinition)) if !t.isInstanceOf[ScObject] =>
-            lub(t1, t.getType(TypingContext.empty).getOrAny, checkWeak)
+            lub(t1, t.getType().getOrAny, checkWeak)
           case (ex: ScExistentialType, _) => lubInner(ex.quantified, t2, checkWeak, stopAddingUpperBound).unpackedType
           case (_, ex: ScExistentialType) => lubInner(t1, ex.quantified, checkWeak, stopAddingUpperBound).unpackedType
           case (TypeParameterType(Nil, _, upper, _), _) if !stopAddingUpperBound => lub(upper, t2, checkWeak)

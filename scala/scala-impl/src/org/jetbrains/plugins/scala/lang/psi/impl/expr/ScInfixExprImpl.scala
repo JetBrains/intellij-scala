@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 import scala.collection.Seq
 
@@ -44,7 +44,7 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
         val rText = rOp.getText
         val exprText = s"$lText = $lText ${r.element.name} $rText"
         val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, getContext, this)
-        newExpr.getType(TypingContext.empty)
+        newExpr.getType()
       case _ => super.innerType
     }
   }

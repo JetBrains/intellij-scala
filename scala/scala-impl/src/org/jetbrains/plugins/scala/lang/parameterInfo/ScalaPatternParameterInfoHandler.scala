@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -225,7 +225,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                       else {
                         val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
                           s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor)))))
-                        val result = fun.parameters.head.getType(TypingContext.empty)
+                        val result = fun.parameters.head.getType(TypingContext)
                         if (result.isEmpty) substitutor
                         else {
                           val funType = undefSubst.subst(result.get)

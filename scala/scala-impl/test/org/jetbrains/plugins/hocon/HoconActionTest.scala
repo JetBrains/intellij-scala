@@ -20,7 +20,7 @@ abstract class HoconActionTest protected(protected val actionId: String,
   import HoconFileSetTestCase._
   import LightPlatformTestCase.getProject
 
-  protected def transform(data: Seq[String]): String = {
+  override protected def transform(data: Seq[String]): String = {
     val (fileText, offset) = extractCaret(data.head)
     val psiFile = createPseudoPhysicalHoconFile(fileText)
 

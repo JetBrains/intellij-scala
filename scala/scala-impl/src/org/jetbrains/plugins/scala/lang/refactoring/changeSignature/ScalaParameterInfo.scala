@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, Nothing}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
@@ -33,7 +33,7 @@ class ScalaParameterInfo(@BeanProperty var name: String,
         extends JavaParameterInfo {
 
   def this(p: ScParameter) {
-    this(p.name, p.index, p.getType(TypingContext.empty).getOrAny, p.getProject, p.isRepeatedParameter, p.isCallByNameParameter,
+    this(p.name, p.index, p.getType(TypingContext).getOrAny, p.getProject, p.isRepeatedParameter, p.isCallByNameParameter,
       keywordsAndAnnotations = ScalaParameterInfo.keywordsAndAnnotations(p))
   }
 

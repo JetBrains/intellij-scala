@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScConstrBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 trait ConstructorAnnotator {
@@ -39,7 +38,7 @@ trait ConstructorAnnotator {
             holder.createErrorAnnotation(argument, "Too many arguments for constructor")
           case TypeMismatch(expression, expectedType) =>
             if (expression != null)
-              for (t <- expression.getType(TypingContext.empty)) {
+              for (t <- expression.getType()) {
                 //TODO show parameter name
                 val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
                 val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)

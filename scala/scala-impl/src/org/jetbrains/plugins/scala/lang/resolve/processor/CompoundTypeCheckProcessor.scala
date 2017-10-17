@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, Unit, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
 
 /**
@@ -126,9 +126,9 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
     element match {
       case _: ScBindingPattern | _: ScFieldId | _: ScParameter =>
         val rt = subst.subst(element match {
-          case b: ScBindingPattern => b.getType(TypingContext.empty).getOrNothing
-          case f: ScFieldId => f.getType(TypingContext.empty).getOrNothing
-          case param: ScParameter => param.getType(TypingContext.empty).getOrNothing
+          case b: ScBindingPattern => b.getType().getOrNothing
+          case f: ScFieldId => f.getType().getOrNothing
+          case param: ScParameter => param.getType(TypingContext).getOrNothing
         })
         val dcl: ScTypedDefinition = element.asInstanceOf[ScTypedDefinition]
         val isVar = dcl.isVar

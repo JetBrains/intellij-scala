@@ -13,7 +13,7 @@ addons:
 
 env:
   global:
-    - IDEA_SDK=$HOME/.IdeaData/sdk
+    - IDEA_SDK=$HOME/.ScalaPluginIC/sdk
 
 before_script:
   # relies on travis supporting sbt-extras launcher

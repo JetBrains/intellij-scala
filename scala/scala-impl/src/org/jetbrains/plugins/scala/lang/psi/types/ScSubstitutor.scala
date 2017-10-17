@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.annotation.tailrec
 import scala.language.implicitConversions
@@ -284,7 +283,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                   else if (isInheritorDeep(cl, clazz)) tp
                   else null
                 case Some(named: ScTypedDefinition) =>
-                  update(named.getType(TypingContext.empty).getOrAny)
+                  update(named.getType().getOrAny)
                 case _ =>
                   typez match {
                     case ScCompoundType(types, _, _) =>
@@ -442,7 +441,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
         //todo: this is ugly workaround for
         result = updateThisType match {
           case Some(thisType@ScDesignatorType(param: ScParameter)) =>
-            val paramType = param.getRealParameterType(TypingContext.empty).getOrAny
+            val paramType = param.getRealParameterType.getOrAny
             if (paramType.conforms(middleRes)) thisType
             else middleRes
           case _ => middleRes

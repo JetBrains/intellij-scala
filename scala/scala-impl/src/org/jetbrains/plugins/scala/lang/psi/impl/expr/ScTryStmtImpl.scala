@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
@@ -31,15 +31,15 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
   override def toString: String = "TryStatement"
 
   protected override def innerType: TypeResult[ScType] = {
-    val lifted = tryBlock.getType(TypingContext.empty)
+    val lifted = tryBlock.getType()
     lifted flatMap { _ => catchBlock match {
         case None => lifted
         case Some(cb) =>
           cb.expression match {
             case Some(expr) if !lifted.isEmpty =>
-              expr.getType(TypingContext.empty) match {
+              expr.getType() match {
                 case Success(_, _) =>
-                  val tp = expr.getType(TypingContext.empty).getOrAny
+                  val tp = expr.getType().getOrAny
                   val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.resolveScope, "java.lang.Throwable")
                   throwable.fold(lifted) { throwable =>
                     val throwableType = ScDesignatorType(throwable)

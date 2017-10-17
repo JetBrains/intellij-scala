@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
@@ -144,7 +143,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
             clazz match {
               case td: ScTypeDefinition if !isScalaPredefinedClass =>
                 var newState = state
-                td.getType(TypingContext.empty).foreach {
+                td.getType().foreach {
                   tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
                 }
                 if (!clazz.processDeclarations(processor, newState, null, place)) return false

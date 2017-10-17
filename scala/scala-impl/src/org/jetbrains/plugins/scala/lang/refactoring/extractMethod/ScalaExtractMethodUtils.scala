@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicateMatch
@@ -215,7 +214,7 @@ object ScalaExtractMethodUtils {
       val endOffset = elements(elements.length - 1).getTextRange.getEndOffset
       definition.getTextOffset >= startOffset && definition.getTextOffset < endOffset
     } else false
-    val retType = definition.getType(TypingContext.empty).getOrNothing
+    val retType = definition.getType().getOrNothing
     val tp = definition match {
       case fun: ScFunction if fun.paramClauses.clauses.isEmpty =>
         implicit val elementScope = definition.elementScope

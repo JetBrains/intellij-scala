@@ -7,17 +7,15 @@ import com.intellij.psi._
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 
 /**
  * @author Jason Zaugg
@@ -67,7 +65,7 @@ class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
   override def toString: String = "ScMacroDefinition: " + ifReadAllowed(name)("")
 
   def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
-    case Some(rte: ScTypeElement) => rte.getType(TypingContext.empty)
+    case Some(rte: ScTypeElement) => rte.getType()
     case None => Success(Any, Some(this)) // TODO look up type from the macro impl.
   }
 
@@ -77,10 +75,6 @@ class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitMacroDefinition(this)
-  }
-
-  override def getType(ctx: TypingContext): TypeResult[ScType] = {
-    super.getType(ctx)
   }
 
   override def accept(visitor: PsiElementVisitor) {

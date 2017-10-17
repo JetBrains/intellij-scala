@@ -38,7 +38,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -59,8 +59,6 @@ import scala.util.{Failure, Success, Try}
   */
 
 package object extensions {
-
-  object Typed { def unapply[A](a: A) = Some(a) }
 
   implicit class PsiMethodExt(val repr: PsiMethod) extends AnyVal {
 
@@ -96,7 +94,7 @@ package object extensions {
     def parametersTypes: Seq[ScType] = repr match {
       case scalaFunction: ScFunction =>
         scalaFunction.parameters
-          .map(_.getType(TypingContext.empty).getOrNothing)
+          .map(_.getType(TypingContext).getOrNothing)
       case _ =>
         parameters.map(_.getType)
           .map(_.toScType())
@@ -241,9 +239,9 @@ package object extensions {
         case _: ScPrimaryConstructor => None
         case e: ScFunction if e.isConstructor => None
         case e: ScFunction => e.returnType.toOption
-        case e: ScBindingPattern => e.getType(TypingContext.empty).toOption
-        case e: ScFieldId => e.getType(TypingContext.empty).toOption
-        case e: ScParameter => e.getRealParameterType(TypingContext.empty).toOption
+        case e: ScBindingPattern => e.getType(TypingContext).toOption
+        case e: ScFieldId => e.getType(TypingContext).toOption
+        case e: ScParameter => e.getRealParameterType.toOption
         case e: PsiMethod if e.isConstructor => None
         case e: PsiMethod => lift(e.getReturnType)
         case e: PsiVariable => lift(e.getType)
@@ -741,7 +739,7 @@ package object extensions {
 
     def paramType(exact: Boolean = true, treatJavaObjectAsAny: Boolean = true): ScType = param match {
       case parameter: FakePsiParameter => parameter.parameter.paramType
-      case parameter: ScParameter => parameter.getType(TypingContext.empty).getOrAny
+      case parameter: ScParameter => parameter.getType(TypingContext).getOrAny
       case _ =>
         val paramType = param.getType match {
           case arrayType: PsiArrayType if exact && param.isVarArgs =>

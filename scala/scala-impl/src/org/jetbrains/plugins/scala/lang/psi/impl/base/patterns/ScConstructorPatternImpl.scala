@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeParameterType, UndefinedType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /** 
@@ -53,8 +54,8 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                   var i = 0
                   while (i < subpatterns.length) {
                     val tp = {
-                      substitutor.subst(params(i).getType(TypingContext.empty).
-                              getOrElse(return false))
+                      substitutor.subst(params(i).getType(TypingContext)
+                        .getOrElse(return false))
                     }
                     if (!subpatterns.apply(i).isIrrefutableFor(Some(tp))) {
                       return false
@@ -71,7 +72,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
     }
   }
 
-  override def getType(ctx: TypingContext): TypeResult[ScType] = {
+  override def getType(ctx: TypingContext.type): TypeResult[ScType] = {
     ref.bind() match {
       case Some(r) =>
         r.element match {
@@ -107,7 +108,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
               val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
                 s.bindT(p.nameAndId, p.upperBound.getOrAny))
               val emptyRes = substitutor followed emptySubst
-              val result = fun.parameters.head.getType(TypingContext.empty)
+              val result = fun.parameters.head.getType(TypingContext)
               if (result.isEmpty) emptyRes
               else {
                 val funType = undefSubst.subst(result.get)
@@ -124,7 +125,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                 }
               }
             }
-            fun.paramClauses.clauses.head.parameters.head.getType(TypingContext.empty).map(subst.subst)
+            fun.paramClauses.clauses.head.parameters.head.getType(TypingContext).map(subst.subst)
           case _ => Success(Nothing, Some(this))
         }
       case _ => Failure("Cannot resolve symbol", Some(this))

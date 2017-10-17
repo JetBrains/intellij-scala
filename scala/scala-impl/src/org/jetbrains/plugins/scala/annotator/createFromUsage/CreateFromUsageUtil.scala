@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ExtractClass}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
@@ -42,9 +41,9 @@ object CreateFromUsageUtil {
       case expr: ScExpression =>
         val tp = expr.getType().getOrAny
         (nameByType(tp), tp)
-      case bp: ScBindingPattern if !bp.isWildcard => (bp.name, bp.getType(TypingContext.empty).getOrAny)
+      case bp: ScBindingPattern if !bp.isWildcard => (bp.name, bp.getType().getOrAny)
       case p: ScPattern =>
-        val tp: ScType = p.getType(TypingContext.empty).getOrAny
+        val tp: ScType = p.getType().getOrAny
         (nameByType(tp), tp)
       case _ => ("value", Any)
     }
@@ -130,7 +129,7 @@ object CreateFromUsageUtil {
   }
 
   def unapplyMethodTypeText(pattern: ScPattern): String = {
-    val types = CreateFromUsageUtil.patternArgs(pattern).map(_.getType(TypingContext.empty).getOrAny)
+    val types = CreateFromUsageUtil.patternArgs(pattern).map(_.getType().getOrAny)
     val typesText = types.map(_.canonicalText).mkString(", ")
     types.size match {
       case 0 => "Boolean"

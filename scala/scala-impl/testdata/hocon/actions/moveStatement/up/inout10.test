@@ -1,0 +1,9 @@
+a {
+  something.here = 42
+}
+a.<caret>b = 42
+-----
+a {
+  something.here = 42
+  <caret>b = 42
+}

@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner,
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitCompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
@@ -163,7 +162,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   isGrey = true
                   appendFirst()
                 } else {
-                  val exprType = expr.getType(TypingContext.empty).getOrNothing
+                  val exprType = expr.getType().getOrNothing
                   val getIt = used.indexOf(false)
                   used(getIt) = true
                   val param: (Parameter, String) = parameters(getIt)
@@ -196,7 +195,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         if (namedMode) buffer.append(namedPostfix)
                         assign.getRExpression match {
                           case Some(expr: ScExpression) =>
-                            for (exprType <- expr.getType(TypingContext.empty)) {
+                            for (exprType <- expr.getType()) {
                               val paramType = param._1.paramType
                               if (!exprType.conforms(paramType)) isGrey = true
                             }
@@ -240,7 +239,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 val paramType = parameters.last._1.paramType
                 while (!isGrey && k < exprs.length.min(index)) {
                   if (k < index) {
-                    for (exprType <- exprs(k).getType(TypingContext.empty)) {
+                    for (exprType <- exprs(k).getType()) {
                     if (!exprType.conforms(paramType)) isGrey = true
                     }
                   }
@@ -496,7 +495,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     effectiveParameterClauses.length >= count =>
                     res += ((new PhysicalSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
                   case _ =>
-                    for (typez <- call.getEffectiveInvokedExpr.getType(TypingContext.empty)) //todo: implicit conversions
+                    for (typez <- call.getEffectiveInvokedExpr.getType()) //todo: implicit conversions
                     {collectForType(typez)}
                 }
               } else {
@@ -517,7 +516,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       res += ((signature, 0))
                       res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map { (_, 0) }
                     case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) =>
-                      val typez = subst.subst(typed.getType(TypingContext.empty).getOrNothing) //todo: implicit conversions
+                      val typez = subst.subst(typed.getType().getOrNothing) //todo: implicit conversions
                       collectForType(typez)
                     case _ =>
                   }
@@ -526,7 +525,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             case None =>
               call match {
                 case call: ScMethodCall =>
-                  for (typez <- call.getEffectiveInvokedExpr.getType(TypingContext.empty)) { //todo: implicit conversions
+                  for (typez <- call.getEffectiveInvokedExpr.getType()) { //todo: implicit conversions
                     collectForType(typez)
                   }
               }

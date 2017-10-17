@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClassParameterImpl
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -30,7 +30,7 @@ class MonocleInjector extends SyntheticMembersInjector {
     }
     fields.foreach({ i =>
       val template = if (clazz.typeParameters.isEmpty)
-        s"def $prefix${i.name}: _root_.monocle.Lens[${clazz.qualifiedName}, ${i.getType(TypingContext.empty).map(_.canonicalText).getOrElse("Any")}] = ???"
+        s"def $prefix${i.name}: _root_.monocle.Lens[${clazz.qualifiedName}, ${i.getType(TypingContext).map(_.canonicalText).getOrElse("Any")}] = ???"
       else {
         val tparams = s"[${clazz.typeParameters.map(_.getText).mkString(",")}]"
         s"def $prefix${i.name}$tparams: _root_.monocle.Lens[${clazz.qualifiedName}$tparams, ${i.typeElement.get.calcType}] = ???"

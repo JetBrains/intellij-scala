@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.{Set, mutable}
@@ -154,7 +154,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           processElement(clazz, ScSubstitutor.empty, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
         } else {
           val selfType = clazz.selfType.get
-          val clazzType: ScType = clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return true)
+          val clazzType: ScType = clazz.getTypeWithProjections().getOrElse(return true)
           if (selfType == ScThisType(clazz)) {
             //to prevent SOE, let's process Element
             processElement(clazz, ScSubstitutor.empty, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
@@ -187,8 +187,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case ScDesignatorType(e: ScTypedDefinition) if place.isInstanceOf[ScTypeProjection] =>
         val result: TypeResult[ScType] =
           e match {
-            case p: ScParameter => p.getRealParameterType(TypingContext.empty)
-            case _ => e.getType(TypingContext.empty)
+            case p: ScParameter => p.getRealParameterType
+            case _ => e.getType()
           }
         result match {
           case Success(tp, _) => processType(tp, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
@@ -281,8 +281,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case des: ScTypedDefinition =>
         val typeResult: TypeResult[ScType] =
           des match {
-            case p: ScParameter => p.getRealParameterType(TypingContext.empty)
-            case _ => des.getType(TypingContext.empty)
+            case p: ScParameter => p.getRealParameterType
+            case _ => des.getType()
           }
         typeResult match {
           case Success(tp, _) =>

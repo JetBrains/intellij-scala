@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
@@ -94,7 +94,7 @@ object JavaConversionUtil {
         if (call.referencedExpr.getText.endsWith("classOf")) {
           val arguments = call.arguments
           if (arguments.length == 1) {
-            val typeResult = arguments.head.getType(TypingContext.empty)
+            val typeResult = arguments.head.getType()
             typeResult match {
               case Success(tp, _) =>
                 tp.extractClass match {

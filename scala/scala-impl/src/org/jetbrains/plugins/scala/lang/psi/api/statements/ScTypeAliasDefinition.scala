@@ -6,12 +6,11 @@ package statements
 
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Invariant, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
 /**
@@ -27,7 +26,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def aliasedType: TypeResult[ScType] =
     aliasedTypeElement.map {
-      _.getType(TypingContext.empty)
+      _.getType()
     }.getOrElse(Failure("No alias type", Some(this)))
 
   def lowerBound: TypeResult[ScType] = aliasedType

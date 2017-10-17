@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScInfixTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
@@ -110,7 +110,7 @@ trait TypeAdapter {
           m.Type.Name(t.name)
         case t: typedef.ScTemplateDefinition =>
           val s = ScSubstitutor(ScSubstitutor.cache.toMap)
-          toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
+          toType(s.subst(t.getType().get)) // FIXME: what about typing context?
         case t: ScPackaging =>
           m.Type.Singleton(toTermName(t.reference.get))//.setTypechecked
         case t: ScConstructor => ???

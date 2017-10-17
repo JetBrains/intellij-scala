@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TupleType, Unit}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -19,7 +19,7 @@ class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple 
   override def toString: String = "Tuple"
 
   protected override def innerType: TypeResult[ScType] = {
-    val result = exprs.map(_.getType(TypingContext.empty).getOrAny) match {
+    val result = exprs.map(_.getType().getOrAny) match {
       case Seq() => Unit
       case components => TupleType(components)
     }

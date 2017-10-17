@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -70,7 +70,7 @@ object ScThisReferenceImpl {
           ScThisType(td)
         case _ =>
 
-          td.getTypeWithProjections(TypingContext.empty, thisProjections = true).map {
+          td.getTypeWithProjections(thisProjections = true).map {
             case scType => td.selfType.map(scType.glb(_)).getOrElse(scType)
           } match {
             case Success(scType, _) => scType

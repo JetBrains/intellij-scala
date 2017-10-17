@@ -6,6 +6,7 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -15,9 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScVariableStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
-import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 
 
 /**
@@ -48,9 +48,9 @@ class ScVariableDefinitionImpl private (stub: ScVariableStub, node: ASTNode)
     case ScPatternList(patterns) => patterns.flatMap(_.bindings)
   }
 
-  def getType(ctx: TypingContext): TypeResult[ScType] = typeElement match {
+  def getType(ctx: TypingContext.type): TypeResult[ScType] = typeElement match {
     case Some(te) => te.getType(ctx)
-    case None => expr.map(_.getType(TypingContext.empty))
+    case None => expr.map(_.getType())
             .getOrElse(Failure("Cannot infer type without an expression", Some(this)))
   }
 

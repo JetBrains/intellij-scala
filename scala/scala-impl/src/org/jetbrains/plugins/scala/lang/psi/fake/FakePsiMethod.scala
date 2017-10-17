@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * User: Alexander Podkhalyuzin
@@ -36,7 +35,7 @@ class FakePsiMethod(
   implicit val elementScope = navElement.elementScope
 } with LightElement(manager, language) with PsiMethod with PsiTypeParametersOwnerAdapter {
   def this(value: ScTypedDefinition, hasModifier: String => Boolean) = {
-    this(value, value.name, Array.empty, value.getType(TypingContext.empty).getOrAny, hasModifier)
+    this(value, value.name, Array.empty, value.getType().getOrAny, hasModifier)
   }
   override def toString: String = name + "()"
 

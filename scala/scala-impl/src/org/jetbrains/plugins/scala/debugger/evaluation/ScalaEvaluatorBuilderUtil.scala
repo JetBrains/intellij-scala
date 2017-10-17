@@ -34,13 +34,13 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Typeable, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
-import scala.util.Try
 
 /**
 * Nikolay.Tropin
@@ -392,7 +392,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def classOfFunctionEvaluator(ref: ScReferenceExpression): Evaluator = {
     val clazzJVMName = ref.getContext match {
       case gen: ScGenericCall =>
-        gen.arguments.head.getType(TypingContext.empty).map {
+        gen.arguments.head.getType().map {
           val project = ref.getProject
           _.extractClass match {
             case Some(clazz) =>
@@ -446,14 +446,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
         val exprText = resolveResults(i) match {
           case ScalaResolveResult(clazz: ScTrait, substitutor) if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
-            val argType = substitutor.subst(clazz.getType(TypingContext.empty).get)
+            val argType = substitutor.subst(clazz.getType().get)
             argType match {
               case ParameterizedType(_, Seq(paramType)) => classManifestText(paramType)
               case _ =>
                 throw EvaluationException(cannotFindMessage)
             }
           case ScalaResolveResult(clazz: ScTrait, substitutor) if clazz.qualifiedName == "scala.reflect.ClassTag" =>
-            val argType = substitutor.subst(clazz.getType(TypingContext.empty).get)
+            val argType = substitutor.subst(clazz.getType().get)
             argType match {
               case ParameterizedType(_, Seq(arg)) => classTagText(arg)
               case _ =>
@@ -1363,7 +1363,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def isOfPrimitiveType(param: PsiParameter): Boolean = param match { //todo specialized type parameters
     case p: ScParameter =>
-      val tp: ScType = p.getType(TypingContext.empty).getOrAny
+      val tp: ScType = p.getType(TypingContext).getOrAny
       tp.isPrimitive
     case _: PsiParameter =>
       val tp = param.getType

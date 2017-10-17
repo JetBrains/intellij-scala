@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -95,7 +94,7 @@ object AnnotatorHighlighter {
       } else if (conformsByNames(resolvedType, JAVA_COLLECTIONS_BASES)) {
         simpleAnnotate(ScalaBundle.message("java.collection"), DefaultHighlighter.JAVA_COLLECTION)
       } else if (resolvedType.canonicalText.startsWith(SCALA_COLLECTION_GENERIC_BASE) && refElement.isInstanceOf[ScReferenceExpression]) {
-        refElement.asInstanceOf[ScReferenceExpression].getType(TypingContext.empty).foreach {
+        refElement.asInstanceOf[ScReferenceExpression].getType().foreach {
           case FunctionType(returnType, _) => Option(returnType).foreach(a =>
             if (a.canonicalText.startsWith(SCALA_COLLECTION_MUTABLE_BASE)) {
               simpleAnnotate(ScalaBundle.message("scala.mutable.collection"), DefaultHighlighter.MUTABLE_COLLECTION)
@@ -166,7 +165,7 @@ object AnnotatorHighlighter {
         parent match {
           case r@(_: ScValue | _: ScVariable) =>
             Option(x.containingClass).foreach(a => if (SCALA_PREDEFINED_OBJECTS.contains(a.qualifiedName)) {
-              x.getType(TypingContext.empty).foreach(annotateCollectionByType)
+              x.getType().foreach(annotateCollectionByType)
             })
 
             getParentByStub(parent) match {

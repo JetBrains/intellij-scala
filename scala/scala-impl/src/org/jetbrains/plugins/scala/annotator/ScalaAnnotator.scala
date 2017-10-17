@@ -12,8 +12,8 @@ import com.intellij.openapi.util.{Condition, Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
-import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker._
+import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.annotator.intention.sbt.AddSbtDependencyFix
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
@@ -434,8 +434,9 @@ abstract class ScalaAnnotator extends Annotator
   }
 
   private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Unit = {
-    import scala.meta.intellij.psiExt._
     import ScalaProjectSettings.ScalaMetaMode
+
+    import scala.meta.intellij.psiExt._
     if (annotation.isMetaMacro) {
       if (!MetaExpansionsManager.isUpToDate(annotation)) {
         val warning = holder.createWarningAnnotation(annotation, ScalaBundle.message("scala.meta.recompile"))
@@ -494,7 +495,7 @@ abstract class ScalaAnnotator extends Annotator
   def checkCatchBlockGeneralizedRule(block: ScCatchBlock, holder: AnnotationHolder, typeAware: Boolean) {
     block.expression match {
       case Some(expr) =>
-        val tp = expr.getType(TypingContext.empty).getOrAny
+        val tp = expr.getType().getOrAny
         val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.resolveScope, "java.lang.Throwable").orNull
         if (throwable == null) return
         val throwableType = ScDesignatorType(throwable)
@@ -973,7 +974,7 @@ abstract class ScalaAnnotator extends Annotator
               }
             case param: ScParameter =>
               if (!param.isDefaultParam) return //performance optimization
-              param.getRealParameterType() match {
+              param.getRealParameterType match {
                 case Success(paramType, _) if paramType.extractClass.isDefined =>
                 //do not check generic types. See SCL-3508
                 case _ => return

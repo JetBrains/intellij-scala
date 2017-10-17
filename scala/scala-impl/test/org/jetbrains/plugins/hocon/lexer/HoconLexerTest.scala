@@ -1,19 +1,18 @@
-package org.jetbrains.plugins.hocon.lexer
+package org.jetbrains.plugins.hocon
+package lexer
 
-import org.jetbrains.plugins.hocon.{HoconFileSetTestCase, TestSuiteCompanion}
 import org.junit.runner.RunWith
 import org.junit.runners.AllTests
 
-object HoconLexerTest extends TestSuiteCompanion[HoconLexerTest]
-
 @RunWith(classOf[AllTests])
 class HoconLexerTest extends HoconFileSetTestCase("lexer") {
-  def advance(lexer: HoconLexer) = {
+
+  def advance(lexer: HoconLexer): HoconLexer = {
     lexer.advance()
     lexer
   }
 
-  override def transform(data: Seq[String]) = {
+  override protected def transform(data: Seq[String]): String = {
     val fileContents = data.head
     val lexer = new HoconLexer
 
@@ -27,3 +26,5 @@ class HoconLexerTest extends HoconFileSetTestCase("lexer") {
     }.mkString("\n")
   }
 }
+
+object HoconLexerTest extends TestSuiteCompanion[HoconLexerTest]

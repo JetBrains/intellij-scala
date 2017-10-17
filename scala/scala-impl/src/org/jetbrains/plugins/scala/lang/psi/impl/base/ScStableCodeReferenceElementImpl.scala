@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceElementResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
@@ -330,7 +330,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
           case Some(res) => processQualifierResolveResult(res, processor)
           case _ =>
         }
-      case Some(thisQ: ScThisReference) => for (ttype <- thisQ.getType(TypingContext.empty)) processor.processType(ttype, this)
+      case Some(thisQ: ScThisReference) => for (ttype <- thisQ.getType()) processor.processType(ttype, this)
       case Some(superQ: ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
       case Some(qual) => assert(assertion = false, s"Weird qualifier: ${qual.getClass}")
     }
@@ -343,7 +343,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
           case obj: ScObject =>
             val fromType = r.fromType match {
               case Some(fType) => Success(ScProjectionType(fType, obj, superReference = false), Some(this))
-              case _ => td.getType(TypingContext.empty).map(substitutor.subst)
+              case _ => td.getType().map(substitutor.subst)
             }
             var state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
             if (fromType.isDefined) {
@@ -356,7 +356,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
             td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor), null, this)
         }
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
-        val fromType = s.subst(typed.getType(TypingContext.empty).getOrElse(return))
+        val fromType = s.subst(typed.getType().getOrElse(return))
         processor.processType(fromType, this, ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType))
         processor match {
           case _: ExtractorResolveProcessor =>

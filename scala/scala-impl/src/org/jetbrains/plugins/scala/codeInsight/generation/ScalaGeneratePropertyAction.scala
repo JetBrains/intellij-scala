@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.codeInsight.generation.GenerationUtil.element
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createDefinitionWithContext, createNewLine}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
   * Nikolay.Tropin
@@ -40,7 +39,7 @@ object ScalaGeneratePropertyHandler {
 
   private def addPropertyMembers(definition: ScVariableDefinition): Unit = {
     val name = definition.bindings.head.name
-    val typeText = definition.getType(TypingContext.empty).getOrAny.canonicalText
+    val typeText = definition.getType().getOrAny.canonicalText
     val defaultValue = definition.expr.fold("???")(_.getText)
     val modifiers = definition.getModifierList.getText
 

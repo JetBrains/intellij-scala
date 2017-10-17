@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaRecursiveElemen
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -154,7 +154,7 @@ package object collections {
     def unapply(expr: ScExpression): Boolean = {
       import expr.projectContext
 
-      expr.getType(TypingContext.empty) match {
+      expr.getType() match {
         case Success(result, _) =>
           result match {
             case FunctionType(returnType, _) => returnType.conforms(api.Boolean)

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.junit.Assert.fail
 
@@ -96,7 +96,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     val declaredType = valueDecl.declaredType.getOrElse(sys.error("Must provide type annotation for LHS"))
 
     val expr = valueDecl.expr.getOrElse(sys.error("Expression not found"))
-    expr.getType(TypingContext.empty) match {
+    expr.getType() match {
       case Success(rhsType, _) => (declaredType, rhsType)
       case Failure(msg, elem) => sys.error(s"Couldn't compute type of ${expr.getText}: $msg")
     }

@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 
@@ -124,7 +124,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                 case _ => false
               }
               if (!added) {
-                fun.getType(TypingContext.empty) match {
+                fun.getType() match {
                   case Success(tp, _) => checkType(tp, infer, second, etaExpanded = true)
                   case _ =>
                 }
@@ -136,7 +136,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
             case typed: ScTypedDefinition =>
               if (!PsiTreeUtil.isContextAncestor(typed.nameContext, place, false) &&
                 (originalPlace == null || !PsiTreeUtil.isContextAncestor(typed.nameContext, originalPlace, false)))
-                for (tt <- typed.getType(TypingContext.empty)) checkType(tt, ScSubstitutor.empty, checkForSecondCompletion)
+                for (tt <- typed.getType()) checkType(tt, ScSubstitutor.empty, checkForSecondCompletion)
             case f: PsiField =>
               checkType(f.getType.toScType(), ScSubstitutor.empty, checkForSecondCompletion)
             case _ =>
@@ -246,7 +246,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
             parent match {
               case _: ScNewTemplateDefinition if foundClazz => //do nothing, impossible to invoke
               case t: ScTemplateDefinition =>
-                t.getTypeWithProjections(TypingContext.empty, thisProjections = true) match {
+                t.getTypeWithProjections(thisProjections = true) match {
                   case Success(scType, _) =>
                     val lookupString = (if (foundClazz) t.name + "." else "") + "this"
                     val el = new ScalaLookupItem(t, lookupString)

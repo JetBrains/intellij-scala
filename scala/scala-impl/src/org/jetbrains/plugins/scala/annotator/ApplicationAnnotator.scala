@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -90,7 +89,7 @@ trait ApplicationAnnotator {
                     holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(fun))
                     addCreateFromUsagesQuickFixes(reference, holder)
                   case TypeMismatch(expression, expectedType) if inSameFile(expression, holder) =>
-                    for (t <- expression.getType(TypingContext.empty)) {
+                    for (t <- expression.getType()) {
                       //TODO show parameter name
                       val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
                       val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
@@ -192,7 +191,7 @@ trait ApplicationAnnotator {
       case ExcessArgument(argument) =>
         holder.createErrorAnnotation(argument, "Too many arguments")
       case TypeMismatch(expression, expectedType) =>
-        for(t <- expression.getType(TypingContext.empty)) {
+        for (t <- expression.getType()) {
           //TODO show parameter name
           val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
           val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
