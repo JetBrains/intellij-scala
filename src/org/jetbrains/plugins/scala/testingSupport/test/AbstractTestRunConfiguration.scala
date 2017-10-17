@@ -597,8 +597,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         val wDir = getWorkingDirectory
         params.setWorkingDirectory(expandPath(wDir))
 
-        //        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug " +
-        //          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
+//                params.getVMParametersList.addParametersString("-agentlib:jdwp=transport=dt_socket,server=n,address=UNIT-549.Labs.IntelliJ.Net:5005,suspend=y")
 
         val rtJarPath = ScalaUtil.runnersPath()
         params.getClassPath.add(rtJarPath)

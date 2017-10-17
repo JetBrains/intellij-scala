@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact build-on-make="true" name="ScalaPlugins">
-    <output-path>$PROJECT_DIR$/out/plugin/Scala</output-path>
+    <output-path>$PROJECT_DIR$/target/plugin/Scala</output-path>
     <properties id="ant-postprocessing">
       <options enabled="true">
         <file>file://$PROJECT_DIR$/buildutils.xml</file>
