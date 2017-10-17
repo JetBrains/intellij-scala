@@ -25,9 +25,8 @@ sealed abstract class TypeResult[+T](implicit val projectContext: ProjectContext
   def getOrElse[U >: T](default: => U): U = if (isEmpty) default else this.get
   def toOption: Option[T] = if (isEmpty) None else Some(this.get)
 
-  def apply(fail: Failure): TypeResult[T]
-  def isCyclic: Boolean
-  
+  final def apply(fail: Failure): TypeResult[T] = this
+
   def getOrNothing(implicit ev: T <:< ScType): ScType = getOrType(Nothing)
   def getOrAny(implicit ev: T <:< ScType): ScType = getOrType(Any)
   def getOrType(default: ScType)(implicit ev: T <:< ScType): ScType = if (isEmpty) default else this.get
@@ -53,12 +52,6 @@ case class Success[+T](result: T, elem: Option[PsiElement])
   def foreach[B](f: T => B): Unit = f(result)
   def get: T = result
   def isEmpty = false
-
-  def innerFailures: List[Failure] = List()
-  def apply(fail: Failure) = new Success(result, elem) {
-    override def innerFailures: List[Failure] = fail :: self.innerFailures
-  }
-  def isCyclic = false
 }
 
 class TypeResultWithFilter[+T](self: TypeResult[T], p: T => Boolean) {
@@ -77,7 +70,4 @@ case class Failure(cause: String, place: Option[PsiElement])
   def filter(f: Nothing => Boolean): Failure = this
   def get = throw new NoSuchElementException("Failure.get")
   def isEmpty = true
-
-  def apply(fail: Failure): Failure = this
-  def isCyclic = false
 }

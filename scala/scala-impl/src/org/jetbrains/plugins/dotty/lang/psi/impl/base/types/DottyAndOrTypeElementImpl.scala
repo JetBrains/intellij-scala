@@ -3,42 +3,40 @@ package org.jetbrains.plugins.dotty.lang.psi.impl.base.types
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.dotty.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScTypeElement, ScTypeElementExt}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixTypeElement
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 /**
   * @author adkozlov
   */
 abstract class DottyAndOrTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixTypeElement {
-  protected val defaultType: ScType
 
-  protected def apply: Seq[ScType] => ScType
+  protected def innerTypeValue: ScType
 
-  protected def innerType: TypeResult[ScType] = {
-    def lift(typeElement: ScTypeElement) = typeElement.`type`()
+  protected def types(default: ScType): Seq[ScType] =
+    Seq(
+      leftTypeElement.`type`(),
+      rightTypeElement match {
+        case Some(typeElement) => typeElement.`type`()
+        case _ => this.success(api.Nothing)
+      }
+    ).map(_.getOrElse(default))
 
-    val rightType = rightTypeElement match {
-      case Some(typeElement) => lift(typeElement)
-      case _ => this.success(Nothing)
-    }
-    collectFailures(Seq(lift(leftTypeElement), rightType), defaultType)(apply)
-  }
+  override protected def innerType: Success[ScType] =
+    this.success(innerTypeValue)
 }
 
 class DottyAndTypeElementImpl(node: ASTNode) extends DottyAndOrTypeElementImpl(node) {
   override val typeName = "AndType"
 
-  override protected val defaultType = Nothing
-
-  override protected def apply = DottyAndType(_)
+  override protected def innerTypeValue: ScType =
+    DottyAndType(types(api.Nothing))
 }
 
 class DottyOrTypeElementImpl(node: ASTNode) extends DottyAndOrTypeElementImpl(node) {
   override val typeName = "OrType"
 
-  override protected val defaultType = Any
-
-  override protected def apply = DottyOrType(_)
+  override protected def innerTypeValue: ScType =
+    DottyOrType(types(api.Any))
 }

@@ -9,9 +9,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -19,11 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, api}
 
 class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScCompoundTypeElement {
   protected def innerType: TypeResult[ScType] = {
-    val comps = components.map(_.`type`())
-    refinement match {
-      case None => collectFailures(comps, Any)(new ScCompoundType(_, Map.empty, Map.empty))
-      case Some(r) => collectFailures(comps, api.Any)(ScCompoundType.fromPsi(_, r.holders.toList, r.types.toList))
-    }
+    val componentsTypes = components.map(_.`type`().getOrAny)
+    val compoundType = refinement.map { r =>
+      ScCompoundType.fromPsi(componentsTypes, r.holders, r.types)
+    }.getOrElse(new ScCompoundType(componentsTypes))
+
+    this.success(compoundType)
   }
 
   override def accept(visitor: ScalaElementVisitor) {

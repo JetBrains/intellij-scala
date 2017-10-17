@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
@@ -184,21 +184,11 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       case _ =>
     }
 
-    val args: scala.Seq[ScTypeElement] = typeArgList.typeArgs
-    if (args.isEmpty) return tr
-    val argTypesWrapped = args.map {
-      _.`type`()
-    }
-    val argTypesgetOrElseped = argTypesWrapped.map {_.getOrAny}
-    def fails(t: ScType) = (for (f@Failure(_, _) <- argTypesWrapped) yield f).foldLeft(this.success(t))(_.apply(_))
-
-    //Find cyclic type references
-    argTypesWrapped.find(_.isCyclic) match {
-      case Some(_) => fails(ScParameterizedType(res, Seq(argTypesgetOrElseped.toSeq: _*)))
-      case None =>
-        val typeArgs = args.map(_.`type`())
-        val result = ScParameterizedType(res, typeArgs.map(_.getOrAny))
-        (for (f@Failure(_, _) <- typeArgs) yield f).foldLeft(this.success(result))(_.apply(_))
+    typeArgList.typeArgs match {
+      case Seq() => tr
+      case args =>
+        val result = ScParameterizedType(res, args.map(_.`type`().getOrAny))
+        this.success(result)
     }
   }
 
