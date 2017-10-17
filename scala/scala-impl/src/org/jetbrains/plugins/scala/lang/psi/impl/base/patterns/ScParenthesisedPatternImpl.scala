@@ -26,5 +26,5 @@ class ScParenthesisedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (nod
 
   override def toString: String = "PatternInParenthesis"
 
-  override def `type`(): TypeResult[ScType] = wrap(subpattern).flatMap(_.`type`())
+  override def `type`(): TypeResult[ScType] = this.flatMapType(subpattern)
 }

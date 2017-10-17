@@ -9,9 +9,8 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.intersectScopes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
-import org.jetbrains.plugins.scala.util.monads.MonadTransformer
 
-trait ScalaPsiElement extends PsiElement with MonadTransformer with ProjectContextOwner {
+trait ScalaPsiElement extends PsiElement with ProjectContextOwner {
   protected var context: PsiElement = null
   protected var child: PsiElement = null
 

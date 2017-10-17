@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 trait ScTuplePattern extends ScPattern {
   def patternList: Option[ScPatterns] = findChild(classOf[ScPatterns])
 
-  override def `type`(): TypeResult[ScType] = wrap(patternList).flatMap { l =>
-    val types = l.patterns.map(_.`type`().getOrAny)
+  override def `type`(): TypeResult[ScType] = this.flatMap(patternList) { list =>
+    val types = list.patterns.map(_.`type`().getOrAny)
     this.success(TupleType(types))
   }
 }

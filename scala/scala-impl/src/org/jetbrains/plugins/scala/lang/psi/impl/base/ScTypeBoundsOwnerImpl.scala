@@ -8,15 +8,14 @@ import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
-  //todo[CYCLIC]
-  def lowerBound: TypeResult[ScType] = wrapWith(lowerTypeElement, Nothing).flatMap(_.`type`().map(extractBound(_, isLower = true)))
 
-  def upperBound: TypeResult[ScType] = wrapWith(upperTypeElement, Any).flatMap(_.`type`().map(extractBound(_, isLower = false)))
+  def lowerBound: TypeResult[ScType] = typeOf(lowerTypeElement, isLower = true)
+
+  def upperBound: TypeResult[ScType] = typeOf(upperTypeElement, isLower = false)
 
   protected def extractBound(in: ScType, isLower: Boolean): ScType = in
 
@@ -72,4 +71,10 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
     }
     node.getTreeParent.removeRange(node, null)
   }
+
+  private def typeOf(typeElement: Option[ScTypeElement], isLower: Boolean): TypeResult[ScType] =
+    typeElement match {
+      case Some(elem) => elem.`type`().map(extractBound(_, isLower))
+      case None => Success(if (isLower) api.Nothing else api.Any, None)
+    }
 }
