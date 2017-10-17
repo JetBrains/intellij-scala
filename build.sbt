@@ -155,8 +155,8 @@ lazy val ideaRunner =
       "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005",
       "-Didea.is.internal=true",
       "-Didea.debug.mode=true",
-      s"-Didea.system.path=${System.getProperty("user.home")}/.IdeaData/IDEA-14/scala/system",
-      s"-Didea.config.path=${System.getProperty("user.home")}/.IdeaData/IDEA-14/scala/config",
+      s"-Didea.system.path=${System.getProperty("user.home")}/.ScalaPluginIC/system",
+      s"-Didea.config.path=${System.getProperty("user.home")}/.ScalaPluginIC/config",
       "-Dapple.laf.useScreenMenuBar=true",
       s"-Dplugin.path=${packagedPluginDir.value}",
       "-Didea.ProcessCanceledException=disabled"

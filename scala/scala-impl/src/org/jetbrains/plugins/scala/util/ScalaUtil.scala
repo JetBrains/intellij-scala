@@ -30,11 +30,11 @@ object ScalaUtil {
   }
 
   def runnersPath(): String = {
-    PathUtil.getJarPathForClass(classOf[Client]).replace("jpsShared", "scala-plugin-runners")
+    PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-settings", "scala-runners")
   }
 
   def testingSupportTestPath(): String = {
-    PathUtil.getJarPathForClass(classOf[Client]).replace("jpsShared", "Runners")
+    PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-settings", "runners")
   }
 
   def getScalaPluginSystemPath: String = {

@@ -213,7 +213,7 @@ object SbtRunner {
           scalaVer <- jarWith[this.type].parent
           target <- scalaVer.parent
           project <- if (playEnabled) Option(target << 3) else target.parent
-        } yield project / "out" / "plugin" / "Scala" / "launcher").get
+        } yield project / "target" / "plugin" / "Scala" / "launcher").get
       case res => res
     }
   }
