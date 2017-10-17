@@ -33,7 +33,7 @@ trait DecompilerTestBase extends TestCase {
       val path = basePath(separator) + {if (name.isEmpty) "" else name + separator}
       val communityDir = new jFile(path)
       if (communityDir.exists()) path
-      else s"scala-plugin$separator$path"
+      else s"community$separator$path"
     }
     s"$dirPath$separator$fileName"
   }
