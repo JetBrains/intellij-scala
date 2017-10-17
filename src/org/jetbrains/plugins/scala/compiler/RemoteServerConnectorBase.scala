@@ -31,8 +31,8 @@ abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[Fil
 
   private val libRoot = {
     if (ApplicationManager.getApplication.isUnitTestMode) {
-      if (PlatformUtils.isIdeaCommunity) new File("./out/plugin/Scala/lib").getAbsoluteFile
-      else new File("../../out/plugin/Scala/lib").getAbsoluteFile
+      if (PlatformUtils.isIdeaCommunity) new File("./target/plugin/Scala/lib").getAbsoluteFile
+      else new File("../../target/plugin/Scala/lib").getAbsoluteFile
     }
     else new File(PathUtil.getJarPathForClass(getClass)).getParentFile
   }

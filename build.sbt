@@ -142,7 +142,7 @@ lazy val ideaRunner =
       s"-Didea.system.path=${System.getProperty("user.home")}/.IdeaData/IDEA-14/scala/system",
       s"-Didea.config.path=${System.getProperty("user.home")}/.IdeaData/IDEA-14/scala/config",
       "-Dapple.laf.useScreenMenuBar=true",
-      s"-Dplugin.path=${baseDirectory.value.getParentFile}/out/plugin/Scala",
+      s"-Dplugin.path=${baseDirectory.value.getParentFile}/target/plugin/Scala",
       "-Didea.ProcessCanceledException=disabled"
     ),
     products in Compile := {
