@@ -65,8 +65,10 @@ class ScSyntheticTypeParameter(override val name: String, val owner: ScFun)
 
   def isCovariant = false
   def isContravariant = false
-  def lowerBound = Success(Nothing, Some(this))
-  def upperBound = Success(Any, Some(this))
+
+  def lowerBound = Success(Nothing)
+
+  def upperBound = Success(Any)
 
   def getIndex = -1
   def getOwner = null

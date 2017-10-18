@@ -531,7 +531,7 @@ abstract class ScalaAnnotator extends Annotator
                       case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst)
                       case _ => return
                     }
-                    val expectedType = Success(tp, None)
+                    val expectedType = Success(tp)
                     val conformance = smartCheckConformance(expectedType, returnType)
                     if (!conformance) {
                       if (typeAware) {
@@ -986,7 +986,7 @@ abstract class ScalaAnnotator extends Annotator
           expr.expectedTypeEx(fromUnderscore) match {
             case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
             case Some((tp: ScType, typeElement)) =>
-              val expectedType = Success(tp, None)
+              val expectedType = Success(tp)
               implicitFunction match {
                 case Some(_) =>
                   //todo:

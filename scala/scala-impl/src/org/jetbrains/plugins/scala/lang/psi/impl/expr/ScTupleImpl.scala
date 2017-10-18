@@ -23,7 +23,7 @@ class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple 
       case Seq() => Unit
       case components => TupleType(components)
     }
-    Success(result, Some(this))
+    Success(result)
   }
 
   override def accept(visitor: ScalaElementVisitor) {

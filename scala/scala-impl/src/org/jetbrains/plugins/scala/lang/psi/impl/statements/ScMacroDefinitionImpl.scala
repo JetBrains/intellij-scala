@@ -66,7 +66,7 @@ class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
 
   override protected def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
     case Some(rte: ScTypeElement) => rte.`type`()
-    case None => Success(Any, Some(this)) // TODO look up type from the macro impl.
+    case None => Success(Any) // TODO look up type from the macro impl.
   }
 
   def body: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)

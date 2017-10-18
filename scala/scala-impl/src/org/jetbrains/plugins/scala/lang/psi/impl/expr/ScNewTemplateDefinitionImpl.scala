@@ -99,15 +99,15 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
 
 
     if (superTypes.length > 1 || holders.nonEmpty || aliases.nonEmpty) {
-      Success(ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList), Some(this))
+      Success(ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList))
     } else {
       extendsBlock.templateParents match {
         case Some(tp) if tp.allTypeElements.length == 1 =>
           tp.allTypeElements.head.getNonValueType()
         case _ =>
           superTypes.headOption match {
-            case Some(t) => Success(t, Some(this))
-            case None => Success(AnyRef, Some(this)) //this is new {} case
+            case Some(t) => Success(t)
+            case None => Success(AnyRef) //this is new {} case
           }
       }
     }

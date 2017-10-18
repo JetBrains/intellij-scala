@@ -29,7 +29,7 @@ class ScCompositePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) w
 
   override def `type`(): TypeResult[ScType] = {
     this.expectedType match {
-      case Some(expected) => Success(expected, Some(this))
+      case Some(expected) => Success(expected)
       case _ => super.`type`() //Failure
     }
   }

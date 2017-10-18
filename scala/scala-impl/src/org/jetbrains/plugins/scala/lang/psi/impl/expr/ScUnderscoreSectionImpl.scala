@@ -110,7 +110,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             }
             result match {
               case None => Failure("No type inferred")
-              case Some(t) => Success(t, None)
+              case Some(t) => Success(t)
             }
         }
     }

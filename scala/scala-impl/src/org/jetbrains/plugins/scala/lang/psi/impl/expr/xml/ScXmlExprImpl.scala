@@ -37,6 +37,6 @@ class ScXmlExprImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXml
         }
       case _ =>
         getType("scala.xml.NodeBuffer")
-    }, Some(this))
+    })
   }
 }

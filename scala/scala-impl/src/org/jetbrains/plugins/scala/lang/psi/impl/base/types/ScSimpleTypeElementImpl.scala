@@ -410,7 +410,7 @@ object ScSimpleTypeElementImpl {
               case failure: Failure => return failure
             }
         }
-        Success(result, Some(ref))
+        Success(result)
       case _ =>
         ref.pathQualifier match {
           case Some(thisRef: ScThisReference) =>
@@ -426,7 +426,7 @@ object ScSimpleTypeElementImpl {
                 case _ => ScalaType.designator(resolvedElement)
               }
             }
-            Success(result, Some(ref))
+            Success(result)
         }
     }
   }
@@ -439,7 +439,7 @@ object ScSimpleTypeElementImpl {
 
     val element = Some(path)
     maybeTemplate match {
-      case Some(template) => Success(function(template), element)
+      case Some(template) => Success(function(template))
       case _ => Failure(message)
     }
   }

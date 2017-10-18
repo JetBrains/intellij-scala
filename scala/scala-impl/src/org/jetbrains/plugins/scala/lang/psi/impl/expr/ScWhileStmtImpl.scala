@@ -50,5 +50,5 @@ class ScWhileStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScWh
   }
 
 
-  protected override def innerType = Success(api.Unit, Some(this))
+  protected override def innerType = Success(api.Unit)
 }

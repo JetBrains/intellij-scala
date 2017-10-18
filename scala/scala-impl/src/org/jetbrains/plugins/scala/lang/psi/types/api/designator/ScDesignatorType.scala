@@ -36,7 +36,7 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
                     if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
                       case (tParam: ScTypeParam, TypeParameterType(_, _, _, param)) if tParam == param => true
                       case _ => false
-                    }) return Some(AliasType(ta, Success(des, Some(element)), Success(des, Some(element))))
+                    }) return Some(AliasType(ta, Success(des), Success(des)))
                   case _ =>
                 }
               case _ =>

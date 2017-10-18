@@ -32,7 +32,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
       def resultsForTypedDef(obj: ScTypedDefinition) {
         def resultsFor(unapplyName: String) = {
           val typeResult = getFromType(state) match {
-            case Some(tp) => Success(ScProjectionType(tp, obj, superReference = false), Some(obj))
+            case Some(tp) => Success(ScProjectionType(tp, obj, superReference = false))
             case _ => obj.`type`()
           }
           val processor = new CollectMethodsProcessor(ref, unapplyName)

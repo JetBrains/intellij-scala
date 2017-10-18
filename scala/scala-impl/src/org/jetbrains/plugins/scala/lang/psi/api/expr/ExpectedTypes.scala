@@ -441,7 +441,7 @@ private[expr] object ExpectedTypes {
                 case ScTypePolymorphicType(internal, params) =>
                   update(ScTypePolymorphicType(internal, params ++ typeParams))
                 case tp => update(ScTypePolymorphicType(tp, typeParams))
-              }, Some(expr))
+              })
               call.foreach(call => polyType = call.updateAccordingToExpectedType(polyType))
               processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isDynamicNamed)
             case _ =>
@@ -457,7 +457,8 @@ private[expr] object ExpectedTypes {
                 if (r.isDynamic) getDynamicReturn(tp)
                 else tp
               }
-              var polyType: TypeResult[ScType] = Success(update(subst.subst(fun.polymorphicType())), Some(expr))
+
+              var polyType: TypeResult[ScType] = Success(update(subst.subst(fun.polymorphicType())))
               call.foreach(call => polyType = call.updateAccordingToExpectedType(polyType))
               processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isDynamicNamed)
             case _ =>

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
@@ -69,7 +69,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
         elementScope.getCachedClass("scala.collection.Seq")
           .map(ScalaType.designator)
           .map(ScParameterizedType(_, Seq(tp)))
-          .map(Success(_, elem))
+          .map((result: ValueType) => Success(result))
           .getOrElse(f)
       case f => f
     }

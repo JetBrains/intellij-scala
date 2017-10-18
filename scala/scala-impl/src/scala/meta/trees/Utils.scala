@@ -156,12 +156,12 @@ trait Utils {
       if (dumbMode) {
         expr match {
           case ts: ScTypedStmt => TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null))
-          case _ => Success(ptype.api.Any, None)
+          case _ => Success(ptype.api.Any)
         }
       } else {
         val s = ScSubstitutor(ScSubstitutor.cache.toMap)
         expr.`type`() match {
-          case Success(res, elem) => Success(s.subst(res), elem)
+          case Success(res, elem) => Success(s.subst(res))
           case other => other
         }
       }

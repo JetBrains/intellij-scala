@@ -21,9 +21,9 @@ class ScLightTypeAliasDeclaration(s: TypeAliasSignature, val ta: ScTypeAliasDecl
 
   override def nameId: PsiElement = ta.nameId
 
-  override def upperBound: TypeResult[ScType] = Success(s.upperBound, Some(this))
+  override def upperBound: TypeResult[ScType] = Success(s.upperBound)
 
-  override def lowerBound: TypeResult[ScType] = Success(s.lowerBound, Some(this))
+  override def lowerBound: TypeResult[ScType] = Success(s.lowerBound)
 
   override def getOriginalElement: PsiElement = super[ScTypeAliasDeclaration].getOriginalElement
 

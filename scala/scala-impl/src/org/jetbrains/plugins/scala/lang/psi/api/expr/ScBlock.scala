@@ -60,7 +60,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           val fun = funs.find(_.isInstanceOf[ScTrait]).getOrElse(return Failure("Cannot find PartialFunction class"))
           val throwable = manager.getCachedClass(resolveScope, "java.lang.Throwable").orNull
           if (throwable == null) return Failure("Cannot find Throwable class")
-          return Success(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesLubType)), Some(this))
+          return Success(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesLubType)))
         case _ =>
           val et = this.expectedType(fromUnderscore = false)
             .getOrElse(return Failure("Cannot infer type without expected type"))
@@ -82,9 +82,9 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
           return et match {
             case FunctionType(_, params) =>
-              Success(FunctionType(clausesLubType, params.map(removeVarianceAbstracts)), Some(this))
+              Success(FunctionType(clausesLubType, params.map(removeVarianceAbstracts)))
             case PartialFunctionType(_, param) =>
-              Success(PartialFunctionType(clausesLubType, removeVarianceAbstracts(param)), Some(this))
+              Success(PartialFunctionType(clausesLubType, removeVarianceAbstracts(param)))
             case _ =>
               Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction")
           }
@@ -173,7 +173,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         val t = existize(e.`type`().getOrAny, Set.empty)
         if (m.isEmpty) t else new ScExistentialType(t, m.values.toList).simplify()
     }
-    Success(inner, Some(this))
+    Success(inner)
   }
 
   private def leastClassType(t : ScTemplateDefinition): ScType = {

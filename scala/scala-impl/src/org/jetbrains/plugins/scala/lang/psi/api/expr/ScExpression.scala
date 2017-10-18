@@ -256,7 +256,7 @@ object ScExpression {
             ScMethodType(expr.getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,
               fromUnderscore = true).tr.getOrAny,
               params, isImplicit = false)
-          Success(methType, Some(expr))
+          Success(methType)
         }
       }
     }
@@ -282,7 +282,7 @@ object ScExpression {
         expectedType(fromUnderscore = fromUnderscore)
       }
 
-      if (isShape) ExpressionTypeResult(Success(shape(expr).getOrElse(Nothing), Some(expr)))
+      if (isShape) ExpressionTypeResult(Success(shape(expr).getOrElse(Nothing)))
       else {
         val tr = getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
         (expected, tr.toOption) match {
@@ -292,7 +292,7 @@ object ScExpression {
             val samType = tryConvertToSAM(fromUnderscore, expType, tp)
 
             if (samType.nonEmpty) samType.get
-            else if (isJavaReflectPolymorphic) ExpressionTypeResult(Success(expType, Some(expr)))
+            else if (isJavaReflectPolymorphic) ExpressionTypeResult(Success(expType))
             else {
               val functionType = FunctionType(expType, Seq(tp))
               val implicitCollector = new ImplicitCollector(expr, functionType, functionType, None, isImplicitConversion = true)
@@ -316,7 +316,7 @@ object ScExpression {
               }
               fromImplicit match {
                 case Some((mr, result)) =>
-                  ExpressionTypeResult(Success(mr, Some(expr)), result.importsUsed, Some(result))
+                  ExpressionTypeResult(Success(mr), result.importsUsed, Some(result))
                 case _ =>
                   ExpressionTypeResult(tr)
               }
@@ -333,7 +333,7 @@ object ScExpression {
       val fromNullLiteral = expr match {
         case lit: ScLiteral =>
           val typeForNull = lit.getTypeForNullWithoutImplicits
-          if (typeForNull.nonEmpty) Option(Success(typeForNull.get, None))
+          if (typeForNull.nonEmpty) Option(Success(typeForNull.get))
           else None
         case _ => None
       }
@@ -350,7 +350,7 @@ object ScExpression {
             def updateExpected(oldRes: ScType): ScType = {
               try {
                 val updatedWithExpected =
-                  InferUtil.updateAccordingToExpectedType(Success(rtp, Some(expr)), fromImplicitParameters = true,
+                  InferUtil.updateAccordingToExpectedType(Success(rtp), fromImplicitParameters = true,
                     filterTypeParams = false, expectedType = expType, expr = expr, canThrowSCE = true)
                 updatedWithExpected match {
                   case Success(newRes, _) =>
@@ -397,21 +397,21 @@ object ScExpression {
 
             val valType = res.inferValueType.unpackedType
 
-            if (ignoreBaseTypes) Success(valType, Some(expr))
+            if (ignoreBaseTypes) Success(valType)
             else {
               expType match {
                 case None =>
-                  Success(valType, Some(expr))
+                  Success(valType)
                 case Some(expected) if expected.removeAbstracts equiv Unit =>
                   //value discarding
-                  Success(Unit, Some(expr))
+                  Success(Unit)
                 case Some(expected) =>
                   val narrowing = isNarrowing(expected)
                   if (narrowing.isDefined) narrowing.get
                   else {
                     val widening = isWidening(valType, expected)
                     if (widening.isDefined) widening.get
-                    else Success(valType, Some(expr))
+                    else Success(valType)
                   }
               }
             }
@@ -466,7 +466,7 @@ object ScExpression {
       def isChar(v: Long)  = v >= scala.Char.MinValue  && v <= scala.Char.MaxValue
       def isShort(v: Long) = v >= scala.Short.MinValue && v <= scala.Short.MaxValue
 
-      def success(t: ScType) = Some(Success(t, Some(expr)))
+      def success(t: ScType) = Some(Success(t))
 
       val intLiteralValue: Int = expr match {
         case ScIntLiteral(value) => value
@@ -497,12 +497,12 @@ object ScExpression {
       import stdTypes._
 
       (l, r) match {
-        case (Byte, Short | Int | Long | Float | Double) => Some(Success(expected, Some(expr)))
-        case (Short, Int | Long | Float | Double) => Some(Success(expected, Some(expr)))
-        case (Char, Byte | Short | Int | Long | Float | Double) => Some(Success(expected, Some(expr)))
-        case (Int, Long | Float | Double) => Some(Success(expected, Some(expr)))
-        case (Long, Float | Double) => Some(Success(expected, Some(expr)))
-        case (Float, Double) => Some(Success(expected, Some(expr)))
+        case (Byte, Short | Int | Long | Float | Double) => Some(Success(expected))
+        case (Short, Int | Long | Float | Double) => Some(Success(expected))
+        case (Char, Byte | Short | Int | Long | Float | Double) => Some(Success(expected))
+        case (Int, Long | Float | Double) => Some(Success(expected))
+        case (Long, Float | Double) => Some(Success(expected))
+        case (Float, Double) => Some(Success(expected))
         case _ => None
       }
     }
@@ -536,7 +536,7 @@ object ScExpression {
 
     private def tryConvertToSAM(fromUnderscore: Boolean, expected: ScType, tp: ScType) = {
       def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {
-        def expectedResult = Some(ExpressionTypeResult(Success(expected, Some(expr))))
+        def expectedResult = Some(ExpressionTypeResult(Success(expected)))
 
         tp match {
           case FunctionType(_, params) if ScalaPsiUtil.isSAMEnabled(expr) =>

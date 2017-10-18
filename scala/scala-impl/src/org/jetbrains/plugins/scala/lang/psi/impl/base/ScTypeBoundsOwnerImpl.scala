@@ -8,8 +8,8 @@ import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
 
@@ -75,6 +75,6 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   private def typeOf(typeElement: Option[ScTypeElement], isLower: Boolean): TypeResult[ScType] =
     typeElement match {
       case Some(elem) => elem.`type`().map(extractBound(_, isLower))
-      case None => Success(if (isLower) api.Nothing else api.Any, None)
+      case None => Success(if (isLower) api.Nothing else api.Any)
     }
 }

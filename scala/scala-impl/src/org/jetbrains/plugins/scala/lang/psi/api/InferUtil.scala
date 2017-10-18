@@ -263,7 +263,7 @@ object InferUtil {
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(undefineSubstitutor(typeParams).subst(valueType))),
             typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE, filterTypeParams = filterTypeParams)
-          nonValueType = Success(update, Some(expr)) //here should work in different way:
+          nonValueType = Success(update) //here should work in different way:
         }
         updateRes(expectedType.get)
       //todo: Something should be unified, that's bad to have fromImplicitParameters parameter.
@@ -273,7 +273,7 @@ object InferUtil {
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE,
-            filterTypeParams = filterTypeParams), Some(expr)) //here should work in different way:
+            filterTypeParams = filterTypeParams)) //here should work in different way:
         }
         updateRes(expectedType.get)
       case _ =>
@@ -326,9 +326,9 @@ object InferUtil {
 
     nonValueType match {
       case Success(tpt@ScTypePolymorphicType(mt: ScMethodType, _), elem) =>
-        Success(tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType)), elem)
+        Success(tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType)))
       case Success(mt: ScMethodType, elem) =>
-        Success(applyImplicitViewToResult(mt, expectedType), elem)
+        Success(applyImplicitViewToResult(mt, expectedType))
       case tr => tr
     }
   }

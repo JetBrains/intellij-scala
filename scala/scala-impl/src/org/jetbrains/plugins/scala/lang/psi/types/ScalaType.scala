@@ -34,14 +34,14 @@ object ScalaType {
   def expandAliases(tp: ScType, visited: Set[ScType] = Set.empty): TypeResult[ScType] = {
     import tp.projectContext
 
-    if (visited contains tp) return Success(tp, None)
+    if (visited contains tp) return Success(tp)
     tp match {
       case proj@ScProjectionType(_, _, _) => proj.actualElement match {
         case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
           t.aliasedType.flatMap(t => expandAliases(proj.actualSubst.subst(t), visited + tp))
         case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty =>
           t.upperBound.flatMap(upper => expandAliases(proj.actualSubst.subst(upper), visited + tp))
-        case _ => Success(tp, None)
+        case _ => Success(tp)
       }
       case at: ScAbstractType => expandAliases(at.upper, visited + tp) // ugly hack for SCL-3592
       case ScDesignatorType(t: ScType) => expandAliases(t, visited + tp)
@@ -53,7 +53,7 @@ object ScalaType {
       case pt: ScParameterizedType if pt.isAliasType.isDefined =>
         val aliasType: AliasType = pt.isAliasType.get
         aliasType.upper.flatMap(expandAliases(_, visited + tp))
-      case _ => Success(tp, None)
+      case _ => Success(tp)
     }
   }
 

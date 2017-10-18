@@ -298,7 +298,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             UpdateApplyData(Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
           }
         if (useExpectedType) {
-          this.updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
+          this.updateAccordingToExpectedType(Success(processedType)).foreach(x => processedType = x)
         }
         applyOrUpdateElemLocal = applyOrUpdateResult
         importsUsedLocal = importsUsed
@@ -319,7 +319,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
     updateCacheFields()
 
-    Success(newType, Some(this))
+    Success(newType)
   }
 
   @volatile private var problemsVar: Seq[ApplicabilityProblem] = Seq.empty

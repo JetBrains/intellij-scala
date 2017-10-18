@@ -26,7 +26,7 @@ class ScThrowStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTh
 
   override def toString: String = "ThrowStatement"
 
-  protected override def innerType: TypeResult[ScType] = Success(Nothing, Some(this))
+  protected override def innerType: TypeResult[ScType] = Success(Nothing)
 
   def body: Option[ScExpression] = findChild(classOf[ScExpression])
 }

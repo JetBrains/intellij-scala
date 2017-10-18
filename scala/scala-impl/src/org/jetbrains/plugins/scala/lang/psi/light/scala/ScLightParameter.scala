@@ -19,7 +19,7 @@ class ScLightParameter(val param: ScParameter, tp: ScType, i: Int)
   extends LightElement(param.getManager, param.getLanguage) with ScParameter {
   override def nameId: PsiElement = param.nameId
 
-  override def `type`(): TypeResult[ScType] = Success(tp, Some(this))
+  override def `type`(): TypeResult[ScType] = Success(tp)
 
   override def deprecatedName: Option[String] = param.deprecatedName
 

@@ -37,7 +37,7 @@ class ScFunctionDeclarationImpl private (stub: ScFunctionStub, node: ASTNode)
 
   override protected def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
     case Some(t) => t.`type`()
-    case None => Success(Unit, Some(this))
+    case None => Success(Unit)
   }
 }
                                          

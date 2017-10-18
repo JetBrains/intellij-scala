@@ -95,9 +95,9 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                 case _ => emptySubst
               }
             }
-            Success(ScParameterizedType(refType, td.getTypeParameters.map(tp => newSubst.subst(TypeParameterType(tp, None)))), Some(this))
-          case td: ScClass => Success(ScalaType.designator(td), Some(this))
-          case obj: ScObject => Success(ScalaType.designator(obj), Some(this))
+            Success(ScParameterizedType(refType, td.getTypeParameters.map(tp => newSubst.subst(TypeParameterType(tp, None)))))
+          case td: ScClass => Success(ScalaType.designator(td))
+          case obj: ScObject => Success(ScalaType.designator(obj))
           case fun: ScFunction /*It's unapply method*/ if (fun.name == "unapply" || fun.name == "unapplySeq") &&
                   fun.parameters.count(!_.isImplicitParameter) == 1 =>
             val substitutor = r.substitutor
@@ -125,7 +125,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
               }
             }
             fun.paramClauses.clauses.head.parameters.head.`type`().map(subst.subst)
-          case _ => Success(Nothing, Some(this))
+          case _ => Success(Nothing)
         }
       case _ => Failure("Cannot resolve symbol")
     }

@@ -36,7 +36,7 @@ sealed abstract class TypeResult[+T](implicit val projectContext: ProjectContext
 object TypeResult {
   def fromOption(o: Option[ScType])
                 (implicit pc: ProjectContext): TypeResult[ScType] = o match {
-    case Some(t) => Success(t, None)
+    case Some(t) => Success(t)
     case None => Failure("")
   }
 }
@@ -68,9 +68,8 @@ class Success[T] private(private val result: T)
 
 object Success {
 
-  def apply[T](result: T, element: Option[PsiElement] = None)
-              (implicit context: ProjectContext): Success[T] =
-    new Success(result)
+  def apply[T](result: T)
+              (implicit context: ProjectContext): Success[T] = new Success(result)
 
   def unapply[T](success: Success[T]): Option[(T, Option[PsiElement])] =
     Option(success)
@@ -78,8 +77,8 @@ object Success {
       .map((_, None))
 }
 
-class Failure private(private val cause: String)
-                     (implicit context: ProjectContext) extends TypeResult[Nothing] {
+case class Failure(private val cause: String)
+                  (implicit context: ProjectContext) extends TypeResult[Nothing] {
 
   def map[U](f: Nothing => U): Failure = this
 
@@ -92,23 +91,4 @@ class Failure private(private val cause: String)
   def get: Nothing = throw new NoSuchElementException("Failure.get")
 
   def isEmpty: Boolean = true
-
-  override def toString: String = s"Failure($cause)"
-
-  override def equals(other: Any): Boolean = other match {
-    case Failure(otherCause) => cause == otherCause
-    case _ => false
-  }
-
-  override def hashCode(): Int = cause.hashCode
-}
-
-object Failure {
-
-  def apply(cause: String)
-           (implicit context: ProjectContext): Failure =
-    new Failure(cause)
-
-  def unapply(failure: Failure): Option[String] =
-    Option(failure).map(_.cause)
 }

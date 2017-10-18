@@ -173,12 +173,12 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def definedReturnType: TypeResult[ScType] = {
     returnTypeElement match {
       case Some(ret) => ret.`type`()
-      case _ if !hasAssign => Success(Unit, Some(this))
+      case _ if !hasAssign => Success(Unit)
       case _ =>
         superMethod match {
           case Some(f: ScFunction) => f.definedReturnType
           case Some(m: PsiMethod) =>
-            Success(m.getReturnType.toScType(), Some(this))
+            Success(m.getReturnType.toScType())
           case _ => Failure("No defined return type")
         }
     }
@@ -503,7 +503,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def `type`(): TypeResult[ScType] = {
     this.returnType match {
       case Success(tp: ScType, _) =>
-        var res: TypeResult[ScType] = Success(tp, None)
+        var res: TypeResult[ScType] = Success(tp)
         var i = paramClauses.clauses.length - 1
         while (i >= 0) {
           res match {

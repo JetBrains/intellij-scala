@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -26,9 +26,9 @@ class ScDelegatingLightTypeParam(t: TypeParameter, val tParam: ScTypeParam)
 
   override val typeParamId: Long = tParam.typeParamId
 
-  override def upperBound: TypeResult[ScType] = Success(t.upperType, Some(this))
+  override def upperBound: TypeResult[ScType] = Success(t.upperType)
 
-  override def lowerBound: TypeResult[ScType] = Success(t.lowerType, Some(this))
+  override def lowerBound: TypeResult[ScType] = Success(t.lowerType)
 
   override def getIndex: Int = tParam.getIndex
 
@@ -93,9 +93,9 @@ class ScExistentialLightTypeParam(override val name: String)(implicit pc: Projec
 
   override def isHigherKindedTypeParameter: Boolean = false
 
-  override def lowerBound: TypeResult[ScType] = Success(api.Nothing, None)
+  override def lowerBound: TypeResult[ScType] = Success(api.Nothing)
 
-  override def upperBound: TypeResult[ScType] = Success(api.Any, None)
+  override def upperBound: TypeResult[ScType] = Success(api.Any)
 
   override def toString: String = name
 

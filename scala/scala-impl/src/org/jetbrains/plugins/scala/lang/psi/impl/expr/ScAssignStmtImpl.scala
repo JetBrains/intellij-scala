@@ -34,9 +34,9 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
           case Some(_) =>
             mirrorMethodCall match {
               case Some(call) => call.`type`()
-              case None => Success(Unit, Some(this))
+              case None => Success(Unit)
             }
-          case _ => Success(Unit, Some(this))
+          case _ => Success(Unit)
         }
     }
   }

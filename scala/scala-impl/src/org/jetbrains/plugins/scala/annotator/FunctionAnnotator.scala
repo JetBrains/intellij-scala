@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.annotator.quickfix.{AddReturnTypeFix, RemoveE
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScTypesExt}
 
 /**
@@ -130,6 +130,6 @@ trait FunctionAnnotator {
     case _ => (Some(element), Any)
   }) match {
     case (Some(expression: ScExpression), _) => expression.getTypeAfterImplicitConversion().tr
-    case (_, default) => TypeResult.fromOption(Some(default))
+    case (_, default) => Success(default)
   }
 }

@@ -36,7 +36,7 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   override def `type`(): TypeResult[ScType] = {
     if (getLastChild.isInstanceOf[ScSeqWildcard]) {
       return this.expectedType match {
-        case Some(x) => Success(x, Some(this))
+        case Some(x) => Success(x)
         case _ =>  Failure("No expected type for wildcard naming")
       }
     }

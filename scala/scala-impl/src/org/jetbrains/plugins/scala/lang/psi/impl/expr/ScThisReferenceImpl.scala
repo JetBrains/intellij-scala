@@ -78,6 +78,6 @@ object ScThisReferenceImpl {
           }
       }
     }
-    Success(result, element)
+    Success(result)
   }
 }

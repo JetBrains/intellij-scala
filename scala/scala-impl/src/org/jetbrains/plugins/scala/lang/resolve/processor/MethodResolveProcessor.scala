@@ -89,7 +89,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
         case obj: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] =>
           val functionName = if (isUpdate) "update" else "apply"
           val typeResult = getFromType(state) match {
-            case Some(tp) => Success(ScProjectionType(tp, obj, superReference = false), Some(obj))
+            case Some(tp) => Success(ScProjectionType(tp, obj, superReference = false))
             case _ => obj.`type`()
           }
           val processor = new CollectMethodsProcessor(ref, functionName)
