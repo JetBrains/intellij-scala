@@ -380,13 +380,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         }
       case ScalaResolveResult(value: ScSyntheticValue, _) => value.tp
       case ScalaResolveResult(fun: ScFunction, s) if fun.isProbablyRecursive =>
-        val optionResult: Option[ScType] = {
-          fun.definedReturnType match {
-            case s: Success[ScType] => Some(s.get)
-            case _: Failure => None
-          }
-        }
-        s.subst(fun.polymorphicType(optionResult))
+        val maybeResult = fun.definedReturnType.toOption
+        s.subst(fun.polymorphicType(maybeResult))
       case result@ScalaResolveResult(fun: ScFunction, s) =>
         val functionType = s.subst(fun.polymorphicType())
         if (result.isDynamic) DynamicResolveProcessor.getDynamicReturn(functionType)

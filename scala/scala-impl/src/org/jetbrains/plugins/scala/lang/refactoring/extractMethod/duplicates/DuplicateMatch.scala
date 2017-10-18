@@ -100,7 +100,7 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
         newTp1.zip(newTp2).forall {
           case (tp1, tp2) => tp1.equiv(tp2)
         }
-      case (Failure(_, _), Failure(_, _)) => true
+      case (_: Failure, _: Failure) => true
       case _ => false
     }
   }

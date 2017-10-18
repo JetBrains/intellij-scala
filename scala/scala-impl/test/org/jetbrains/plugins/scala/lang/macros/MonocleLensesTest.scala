@@ -35,7 +35,7 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     exp.allMethods.find(_.name == methodName) match {
       case Some(x) => x.method.asInstanceOf[ScFunctionDefinition].returnType match {
         case Success(t, _) => assertEquals(s"${t.toString} != $expectedType", expectedType, t.toString)
-        case Failure(cause, _) => fail(cause)
+        case Failure(cause) => fail(cause)
       }
       case None => fail("method not found")
     }

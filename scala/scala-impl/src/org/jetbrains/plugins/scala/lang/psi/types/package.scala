@@ -145,7 +145,7 @@ package object types {
       def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
         tp.recursiveUpdate {
           `type` => `type`.isAliasType match {
-            case Some(AliasType(ta: ScTypeAliasDefinition, _, Failure(_, _))) if needExpand(ta) =>
+            case Some(AliasType(ta: ScTypeAliasDefinition, _, _: Failure)) if needExpand(ta) =>
               ReplaceWith(projectContext.stdTypes.Any)
             case Some(AliasType(ta: ScTypeAliasDefinition, _, Success(upper, _))) if needExpand(ta) =>
               if (visited.contains(`type`)) throw RecursionException

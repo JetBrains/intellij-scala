@@ -56,7 +56,7 @@ class StalactiteTest extends ScalaLightCodeInsightFixtureTestAdapter {
         case Some(method) =>
           method.returnType match {
             case Success(t, _) => assertEquals(s"${t.presentableText} != $expectedType", expectedType, t.presentableText)
-            case Failure(cause, _) => fail(cause)
+            case Failure(cause) => fail(cause)
           }
 
         case None =>

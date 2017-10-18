@@ -98,7 +98,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     val expr = valueDecl.expr.getOrElse(sys.error("Expression not found"))
     expr.`type`() match {
       case Success(rhsType, _) => (declaredType, rhsType)
-      case Failure(msg, elem) => sys.error(s"Couldn't compute type of ${expr.getText}: $msg")
+      case Failure(msg) => sys.error(s"Couldn't compute type of ${expr.getText}: $msg")
     }
   }
 

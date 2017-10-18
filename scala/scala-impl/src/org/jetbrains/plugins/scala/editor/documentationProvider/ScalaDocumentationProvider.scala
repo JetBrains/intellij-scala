@@ -1039,10 +1039,7 @@ object ScalaDocumentationProvider {
     alias match {
       case d: ScTypeAliasDefinition =>
         buffer.append(" = ")
-        val ttype = subst.subst(d.aliasedType match {
-          case Success(t, _) => t
-          case Failure(_, _) => Any
-        })
+        val ttype = subst.subst(d.aliasedType.getOrAny)
         buffer.append(ttype.presentableText)
       case _ =>
     }

@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
@@ -124,22 +124,17 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
     Icons.TYPE_ALIAS
   }
 
-  override def getSuperTypes: Array[PsiClassType] = {
+  override def getSuperTypes: Array[PsiClassType] =
     // For Java
-    upperBound match {
-      case Success(t, _) =>
-        val tp = t match {
-          case ParameterizedType(des, _) if hasTypeParameters => des
-          case _ => t
-        }
-
-        tp.toPsiType match {
-          case x: PsiClassType => Array(x)
-          case _ => Array() // TODO
-        }
-      case Failure(_, _) => Array()
-    }
-  }
+    upperBound.toOption.map {
+      case ParameterizedType(des, _) if hasTypeParameters => des
+      case t => t
+    }.flatMap {
+      _.toPsiType match {
+        case x: PsiClassType => Some(x)
+        case _ => None // TODO
+      }
+    }.toArray
 
   override def isHigherKindedTypeParameter: Boolean =
     this.parent.filter(_.isInstanceOf[ScTypeParamClause]).flatMap(_.parent).exists(_.isInstanceOf[ScTypeParam])

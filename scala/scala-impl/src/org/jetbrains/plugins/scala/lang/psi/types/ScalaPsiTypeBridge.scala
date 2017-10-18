@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 import scala.collection.JavaConverters._
 
@@ -183,10 +183,8 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
             case _ => createType(clazz, raw = outerClassHasTypeParameters(proj))
           }
         case elem: ScTypeAliasDefinition if !visitedAliases.contains(elem) =>
-          elem.aliasedType match {
-            case Success(typez, _) => toPsiTypeInner(typez, noPrimitives, visitedAliases + elem)
-            case Failure(_, _) => javaObject
-          }
+          elem.aliasedType.map(toPsiTypeInner(_, noPrimitives, visitedAliases + elem))
+            .getOrElse(javaObject)
         case _ => javaObject
       }
       case ScThisType(clazz) => createType(clazz)

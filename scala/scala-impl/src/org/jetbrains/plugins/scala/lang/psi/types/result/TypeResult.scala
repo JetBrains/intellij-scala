@@ -58,8 +58,8 @@ case class Success[+T](result: T, elem: Option[PsiElement])
   def isEmpty: Boolean = false
 }
 
-case class Failure(cause: String, place: Option[PsiElement])
-                  (implicit pc: ProjectContext) extends TypeResult[Nothing] {
+class Failure private(private val cause: String)
+                     (implicit context: ProjectContext) extends TypeResult[Nothing] {
 
   def map[U](f: Nothing => U): Failure = this
 
@@ -72,4 +72,23 @@ case class Failure(cause: String, place: Option[PsiElement])
   def get: Nothing = throw new NoSuchElementException("Failure.get")
 
   def isEmpty: Boolean = true
+
+  override def toString: String = s"Failure($cause)"
+
+  override def equals(other: Any): Boolean = other match {
+    case Failure(otherCause) => cause == otherCause
+    case _ => false
+  }
+
+  override def hashCode(): Int = cause.hashCode
+}
+
+object Failure {
+
+  def apply(cause: String, place: Option[PsiElement])
+           (implicit pc: ProjectContext): Failure =
+    new Failure(cause)
+
+  def unapply(failure: Failure): Option[String] =
+    Option(failure).map(_.cause)
 }

@@ -15,11 +15,11 @@ class ScalaMetaException(message: String) extends Exception(message)
 
 class ScalaMetaResolveError(elem: PsiElement) extends ScalaMetaException(s"Cannot resolve ${elem.getClass} at ${elem.toString}")
 
-class ScalaMetaTypeResultFailure(elem: Option[PsiElement], cause: String) extends ScalaMetaException(s"Cannot calculate type at ${elem.map(_.getText).getOrElse("UNKNOWN")}($cause)")
+class ScalaMetaTypeResultFailure(cause: String) extends ScalaMetaException(s"Cannot calculate type: $cause")
 
 package object error {
   def unreachable = throw new AbortException("This code should be unreachable")
-  def unreachable(reason: String) = throw new AbortException("This code should be unreachable: " + reason)
-  def unresolved(cause: String, place: Option[PsiElement]) = throw new AbortException(place, s"""Failed to typecheck "${place.map(_.getText).getOrElse("UNKNOWN")}" - $cause""")
+  def unreachable(reason: String) = throw new AbortException(s"This code should be unreachable: $reason")
+  def unresolved(cause: String) = throw new AbortException(s"Failed to typecheck: $cause")
   def die(reason: String = "unknown") = throw new AbortException(reason)
 }

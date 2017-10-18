@@ -55,12 +55,8 @@ abstract class ExistentialSimplificationTestBase extends ScalaLightPlatformCodeI
           case _ => assertTrue("Test result must be in last comment statement.", false)
         }
         assertEquals(output, res)
-      case Success(_, _) =>
-        assert(assertion = false, message = "Expression has not existential type")
-      case Failure(msg, elem) => assert(assertion = false, message = msg + " :: " + (elem match {
-        case Some(x) => x.getText
-        case None => "empty element"
-      }))
+      case Success(_, _) => fail("Expression has not existential type")
+      case Failure(msg) => fail(msg)
     }
   }
 }

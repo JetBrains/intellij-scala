@@ -60,7 +60,7 @@ trait TypeInferenceDoTest {
             assertEquals(expectedText, ScTypePresentation.withoutAliases(ttypez))
           case _ => assertEquals(output, res)
         }
-      case Failure(msg, elem) => assert(assertion = false, msg + " :: " + (elem match {case Some(x) => x.getText case None => "empty element"}))
+      case Failure(msg) => fail(msg)
     }
   }
 
