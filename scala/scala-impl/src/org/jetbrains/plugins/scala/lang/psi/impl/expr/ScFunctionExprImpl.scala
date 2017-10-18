@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 /**
@@ -53,7 +53,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     val paramTypes = parameters.map(_.`type`().getOrNothing)
     val maybeResultType = result.map(_.`type`().getOrAny)
     val functionType = FunctionType(maybeResultType.getOrElse(api.Unit), paramTypes)
-    this.success(functionType)
+    Success(functionType)
   }
 
   override def controlFlowScope: Option[ScalaPsiElement] = result

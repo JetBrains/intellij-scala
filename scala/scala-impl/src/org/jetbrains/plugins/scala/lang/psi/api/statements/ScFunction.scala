@@ -510,7 +510,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
             case Success(t: ScType, _) =>
               val parameters = paramClauses.clauses.apply(i).parameters
               val paramTypes = parameters.map(_.`type`().getOrNothing)
-              res = this.success(FunctionType(t, paramTypes))
+              res = Success(FunctionType(t, paramTypes))
             case _ =>
           }
           i = i - 1

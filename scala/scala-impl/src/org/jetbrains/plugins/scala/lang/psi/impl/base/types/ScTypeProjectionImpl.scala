@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
@@ -30,12 +30,9 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) w
   protected def innerType: TypeResult[ScType] = {
     this.bind() match {
       case Some(ScalaResolveResult(elem, _)) =>
-        val te: TypeResult[ScType] = typeElement.`type`()
-        te match {
-          case Success(ScDesignatorType(_: PsiPackage), _) =>
-            this.success(ScalaType.designator(elem))
-          case _ =>
-            te map {ScProjectionType(_, elem, superReference = false)}
+        typeElement.`type`().map {
+          case ScDesignatorType(_: PsiPackage) => ScalaType.designator(elem)
+          case t => ScProjectionType(t, elem, superReference = false)
         }
       case _ => Failure("Cannot Resolve reference")
     }

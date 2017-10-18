@@ -28,9 +28,9 @@ sealed abstract class TypeResult[+T](implicit val projectContext: ProjectContext
 
   final def exists(f: T => Boolean): Boolean = withFilter(f).isDefined
 
-  final def getOrElse[U >: T](default: => U): U = if (isEmpty) default else this.get
+  final def getOrElse[U >: T](default: => U): U = if (isEmpty) default else get
 
-  final def toOption: Option[T] = if (isEmpty) None else Some(this.get)
+  final def toOption: Option[T] = if (isEmpty) None else Some(get)
 }
 
 object TypeResult {
@@ -41,21 +41,41 @@ object TypeResult {
   }
 }
 
-case class Success[+T](result: T, elem: Option[PsiElement])
-                      (implicit pc: ProjectContext) extends TypeResult[T] {
-  self =>
+class Success[T] private(private val result: T)
+                        (implicit context: ProjectContext) extends TypeResult[T] {
 
-  def map[U](f: T => U): Success[U] = Success(f(result), elem)
+  def map[U](f: T => U): Success[U] = Success(f(result))
 
   def flatMap[U](f: T => TypeResult[U]): TypeResult[U] = f(result)
 
-  def withFilter(f: T => Boolean): TypeResult[T] = if (f(result)) Success(result, elem) else Failure("Wrong type")
+  def withFilter(f: T => Boolean): TypeResult[T] = if (f(result)) this else Failure("Wrong type")
 
   def foreach[B](f: T => B): Unit = f(result)
 
   def get: T = result
 
   def isEmpty: Boolean = false
+
+  override def equals(other: Any): Boolean = other match {
+    case Success((otherResult, _)) => result == otherResult
+    case _ => false
+  }
+
+  override def hashCode(): Int = result.hashCode()
+
+  override def toString = s"Success($result)"
+}
+
+object Success {
+
+  def apply[T](result: T, element: Option[PsiElement] = None)
+              (implicit context: ProjectContext): Success[T] =
+    new Success(result)
+
+  def unapply[T](success: Success[T]): Option[(T, Option[PsiElement])] =
+    Option(success)
+      .map(_.result)
+      .map((_, None))
 }
 
 class Failure private(private val cause: String)

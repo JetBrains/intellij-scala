@@ -7,7 +7,7 @@ package patterns
 
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TupleType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -19,6 +19,6 @@ trait ScTuplePattern extends ScPattern {
 
   override def `type`(): TypeResult[ScType] = this.flatMap(patternList) { list =>
     val types = list.patterns.map(_.`type`().getOrAny)
-    this.success(TupleType(types))
+    Success(TupleType(types))
   }
 }

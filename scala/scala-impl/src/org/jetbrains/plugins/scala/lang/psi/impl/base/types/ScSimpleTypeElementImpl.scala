@@ -302,18 +302,18 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
         ref.resolveNoConstructor match {
           case Array(ScalaResolveResult(psiTypeParameter: PsiTypeParameter, _)) =>
-            this.success(TypeParameterType(psiTypeParameter, None))
+            Success(TypeParameterType(psiTypeParameter, None))
           case Array(ScalaResolveResult(tvar: ScTypeVariableTypeElement, _)) =>
-            this.success(tvar.`type`().getOrAny)
+            Success(tvar.`type`().getOrAny)
           case Array(ScalaResolveResult(synth: ScSyntheticClass, _)) =>
-            this.success(synth.stdType)
+            Success(synth.stdType)
           case Array(ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))
             if constrRef && to.isInstanceOf[PsiNamedElement] &&
               (to.typeParameters.isEmpty || getContext.isInstanceOf[ScParameterizedTypeElement]) =>
             val (tp, ss) = getContext match {
               case p: ScParameterizedTypeElement if !to.isInstanceOf[ScTypeAliasDeclaration] =>
                 val (parameterized, ss) = updateForParameterized(subst, to.asInstanceOf[PsiNamedElement], p)
-                (this.success(parameterized), ss)
+                (Success(parameterized), ss)
               case _ =>
                 (calculateReferenceType(ref), ScSubstitutor.empty)
             }
@@ -324,7 +324,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             val (result, ss) = getContext match {
               case p: ScParameterizedTypeElement if !to.isInstanceOf[ScTypeAliasDeclaration] =>
                 val (parameterized, ss) = updateForParameterized(subst, to.asInstanceOf[PsiNamedElement], p)
-                (this.success(parameterized), ss)
+                (Success(parameterized), ss)
               case _ =>
                 (calculateReferenceType(ref), ScSubstitutor.empty)
             }
@@ -332,9 +332,9 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           case _ => //resolve constructor with local type inference
             ref.bind() match {
               case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) if !noConstructor =>
-                this.success(typeForConstructor(ref, method, subst, r.getActualElement))
+                Success(typeForConstructor(ref, method, subst, r.getActualElement))
               case Some(ScalaResolveResult(ta: ScTypeAlias, _: ScSubstitutor)) if ta.isExistentialTypeAlias =>
-                this.success(ScExistentialArgument(ta.name, ta.typeParameters.map(TypeParameterType(_, None)).toList,
+                Success(ScExistentialArgument(ta.name, ta.typeParameters.map(TypeParameterType(_, None)).toList,
                   ta.lowerBound.getOrNothing, ta.upperBound.getOrAny))
               case _ => calculateReferenceType(ref, shapesOnly = false)
             }

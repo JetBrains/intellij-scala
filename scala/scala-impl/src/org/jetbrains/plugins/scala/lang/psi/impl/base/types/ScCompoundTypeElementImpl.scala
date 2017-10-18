@@ -9,7 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 
 /**
@@ -23,7 +23,7 @@ class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       ScCompoundType.fromPsi(componentsTypes, r.holders, r.types)
     }.getOrElse(new ScCompoundType(componentsTypes))
 
-    this.success(compoundType)
+    Success(compoundType)
   }
 
   override def accept(visitor: ScalaElementVisitor) {

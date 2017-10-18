@@ -16,8 +16,6 @@ package object result {
   }
 
   implicit class TypeableExt(val typeable: ScalaPsiElement with Typeable) extends AnyVal {
-    def success(`type`: ScType): Success[ScType] =
-      Success(`type`, Some(typeable))
 
     def flatMap[E <: ScalaPsiElement](maybeElement: Option[E])
                                      (function: E => TypeResult[ScType]): TypeResult[ScType] =

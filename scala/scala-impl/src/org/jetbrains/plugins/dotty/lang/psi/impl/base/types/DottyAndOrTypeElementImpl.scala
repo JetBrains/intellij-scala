@@ -19,12 +19,11 @@ abstract class DottyAndOrTypeElementImpl(node: ASTNode) extends ScalaPsiElementI
       leftTypeElement.`type`(),
       rightTypeElement match {
         case Some(typeElement) => typeElement.`type`()
-        case _ => this.success(api.Nothing)
+        case _ => Success(api.Nothing)
       }
     ).map(_.getOrElse(default))
 
-  override protected def innerType: Success[ScType] =
-    this.success(innerTypeValue)
+  override protected def innerType: Success[ScType] = Success(innerTypeValue)
 }
 
 class DottyAndTypeElementImpl(node: ASTNode) extends DottyAndOrTypeElementImpl(node) {

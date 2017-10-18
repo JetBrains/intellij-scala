@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 
 /**
 * @author Alexander Podkhalyuzin, ilyas
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 class ScParenthesisedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParenthesisedTypeElement {
   protected def innerType: TypeResult[ScType] = typeElement match {
     case Some(el) => el.`type`()
-    case None => this.success(Unit)
+    case None => Success(Unit)
   }
 
   override def accept(visitor: ScalaElementVisitor) {
