@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package data
 
 import java.io.{File, IOException}
+import java.nio.file.Paths
 import java.util
 import java.util.Collections
 
@@ -12,6 +13,7 @@ import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
+import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 
 import scala.collection.JavaConverters._
 
@@ -34,6 +36,7 @@ case class CompilationData(sources: Seq[File],
 }
 
 object CompilationData {
+  private val Log: JpsLogger = JpsLogger.getInstance(CompilationData.getClass.getName)
   private val compilationStamp = System.nanoTime()
 
   def from(sources: Seq[File], allSources: Seq[File], context: CompileContext, chunk: ModuleChunk): Either[String, CompilationData] = {
@@ -81,9 +84,13 @@ object CompilationData {
       val scalaVersion = CompilerData.compilerVersion(module)
       val hydraOptions =
         if (hydraSettings.isHydraEnabled && scalaVersion.nonEmpty && hydraGlobalSettings.containsArtifactsFor(scalaVersion.get, hydraSettings.getHydraVersion))
-          Seq("-sourcepath", outputGroups.map(_._1).mkString(File.pathSeparator), "-cpus", "2")
+          Seq("-sourcepath", outputGroups.map(_._1).mkString(File.pathSeparator), "-cpus", hydraSettings.getNumberOfCores,
+            "-YsourcePartitioner:" + hydraSettings.getSourcePartitioner, "-YhydraStore", hydraSettings.getHydraStorePath,
+            "-YpartitionFile", Paths.get(hydraSettings.getHydraStorePath, module.getName).toString, "-YrootDirectory", hydraSettings.getProjectRoot,
+            "-YtimingsFile", Paths.get(hydraSettings.getHydraStorePath, "timings.csv").toString, "-YhydraTag", module.getName)
         else
           Seq.empty
+      Log.debug("Hydra options: " + hydraOptions.mkString(" "))
 
       val isCompile =
         !JavaBuilderUtil.isCompileJavaIncrementally(context) &&

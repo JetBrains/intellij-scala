@@ -33,6 +33,10 @@ class HydraApplicationSettings extends PersistentStateComponent[HydraApplication
     state
   }
 
+  def getDownloadedHydraVersions: Array[String] = {
+    for { (_, hydraVersion) <- artifactPaths.keySet.toArray } yield hydraVersion
+  }
+
   private def convertArtifactsFromStateToSettings(artifacts: java.util.Map[String, java.util.List[String]]) = {
     val resultArtifacts = for {
       (key, value) <- artifacts.asScala

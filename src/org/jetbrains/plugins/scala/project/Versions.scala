@@ -105,8 +105,8 @@ object Versions  {
 
     val Hydra = Entity("https://repo.triplequote.com/artifactory/ivy-releases/com.triplequote/",
       ".+>(.*\\d+\\.\\d+\\.\\d+.*)/<.*".r,
-      Version("0.9.4"),
-      Seq("0.9.4")
+      Version("0.9.5"),
+      Seq("0.9.5")
     )
   }
 }
