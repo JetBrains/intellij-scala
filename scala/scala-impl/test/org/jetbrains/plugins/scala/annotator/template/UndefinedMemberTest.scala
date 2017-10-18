@@ -40,7 +40,10 @@ class UndefinedMemberTest extends AnnotatorTestBase(UndefinedMember) {
       case Error("var v: Object", UndefinedMember.Message) :: Nil =>
     }
     assertMatches(messages("new { type T }")) {
-      case Error("type T", UndefinedMember.Message) :: Nil =>
+      case Nil =>
+    }
+    assertMatches(messages("object O { type T }")) {
+      case Nil =>
     }
   }
 
