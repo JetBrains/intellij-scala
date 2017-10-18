@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -93,9 +93,9 @@ class ScExistentialLightTypeParam(override val name: String)(implicit pc: Projec
 
   override def isHigherKindedTypeParameter: Boolean = false
 
-  override def lowerBound: TypeResult[ScType] = TypeResult.Nothing
+  override def lowerBound: TypeResult[ScType] = Success(api.Nothing, None)
 
-  override def upperBound: TypeResult[ScType] = TypeResult.Any
+  override def upperBound: TypeResult[ScType] = Success(api.Any, None)
 
   override def toString: String = name
 

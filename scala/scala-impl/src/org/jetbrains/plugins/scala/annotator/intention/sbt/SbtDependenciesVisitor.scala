@@ -64,7 +64,7 @@ object SbtDependenciesVisitor {
     f(patternDefinition)
 
     val processed = patternDefinition.`type`()
-      .filter(_.canonicalText == SBT_PROJECT_TYPE)
+      .withFilter(_.canonicalText == SBT_PROJECT_TYPE)
       .map { _ =>
         getSettings(patternDefinition).foreach(processMethodCall(_)(f))
       }

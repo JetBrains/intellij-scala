@@ -251,7 +251,7 @@ object ScImplicitlyConvertible {
         def substitute(maybeType: TypeResult[ScType]) = maybeType
           .map(substitutor.subst)
           .map(unSubst.subst)
-          .filter(!hasRecursiveTypeParameters(_))
+          .withFilter(!hasRecursiveTypeParameters(_))
 
         function.typeParameters.foreach { typeParameter =>
           val nameAndId = typeParameter.nameAndId

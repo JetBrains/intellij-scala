@@ -435,7 +435,7 @@ trait ScalaConformance extends api.Conformance {
                   undefinedSubst = t._2
                   (projDes.actualElement, proj.actualElement) match {
                     case (desT: Typeable, projT: Typeable) =>
-                      desT.`type`().filter(_.isInstanceOf[ScParameterizedType]).
+                      desT.`type`().withFilter(_.isInstanceOf[ScParameterizedType]).
                         map(_.asInstanceOf[ScParameterizedType]).flatMap(dt => projT.`type`().
                         map(c => conformsInner(ScParameterizedType(dt.designator, param.typeArguments),
                           cutProj(c, acc), visited, undefinedSubst))).map(t => if (t._1) result = t)
