@@ -6,17 +6,11 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 package object result {
 
-  implicit class TypeResultExt[T](val typeResult: TypeResult[T]) extends AnyVal {
+  implicit class TypeResultExt(val typeResult: TypeResult[ScType]) extends AnyVal {
 
-    def getOrNothing(implicit ev: T <:< ScType): ScType =
-      getOrType(api.Nothing)
+    def getOrNothing: ScType = typeResult.getOrElse(api.Nothing)
 
-    def getOrAny(implicit ev: T <:< ScType): ScType =
-      getOrType(api.Any)
-
-    private def getOrType(default: ScType)
-                         (implicit ev: T <:< ScType): ScType =
-      if (typeResult.isEmpty) default else typeResult.get
+    def getOrAny: ScType = typeResult.getOrElse(api.Any)
 
     private implicit def context: ProjectContext = typeResult.projectContext
   }
@@ -28,7 +22,7 @@ package object result {
     def flatMap[E <: ScalaPsiElement](maybeElement: Option[E])
                                      (function: E => TypeResult[ScType]): TypeResult[ScType] =
       maybeElement.map(function)
-        .getOrElse(Failure("No element found", Some(typeable)))
+        .getOrElse(Failure("No element found"))
 
     def flatMapType[E <: ScalaPsiElement with Typeable](maybeElement: Option[E]): TypeResult[ScType] =
       flatMap(maybeElement)(_.`type`())

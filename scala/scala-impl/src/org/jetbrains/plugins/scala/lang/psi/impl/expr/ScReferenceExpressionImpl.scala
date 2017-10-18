@@ -309,11 +309,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         ScalaPsiUtil.nameContext(refPatt) match {
           case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, this, true) => pd.declaredType match {
             case Some(t) => t
-            case None => return Failure("No declared type found", Some(this))
+            case None => return Failure("No declared type found")
           }
           case vd: ScVariableDefinition if PsiTreeUtil.isContextAncestor(vd, this, true) => vd.declaredType match {
             case Some(t) => t
-            case None => return Failure("No declared type found", Some(this))
+            case None => return Failure("No declared type found")
           }
           case _ =>
             if (stableTypeRequired && refPatt.isStable) {
@@ -447,7 +447,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
       case ScalaResolveResult(pack: PsiPackage, _) => ScalaType.designator(pack)
       case ScalaResolveResult(clazz: ScClass, s) if clazz.isCase =>
         s.subst(clazz.constructor.
-          getOrElse(return Failure("Case Class hasn't primary constructor", Some(this))).polymorphicType)
+          getOrElse(return Failure("Case Class hasn't primary constructor")).polymorphicType)
       case ScalaResolveResult(clazz: ScTypeDefinition, s) if clazz.typeParameters.nonEmpty =>
         s.subst(ScParameterizedType(ScalaType.designator(clazz),
           clazz.typeParameters.map(TypeParameterType(_, Some(s)))))
@@ -576,5 +576,5 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     }
   }
 
-  private def resolveFailure = Failure("Cannot resolve expression", Some(this))
+  private def resolveFailure = Failure("Cannot resolve expression")
 }

@@ -73,7 +73,7 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
         tt.lub(et)
       }
       case (Some(t), None) => t.`type`().map(_.lub(Unit))
-      case _ => Failure(ScalaBundle.message("nothing.to.type"), Some(this))
+      case _ => Failure(ScalaBundle.message("nothing.to.type"))
     }
   }
 }

@@ -37,7 +37,7 @@ object TypeResult {
   def fromOption(o: Option[ScType])
                 (implicit pc: ProjectContext): TypeResult[ScType] = o match {
     case Some(t) => Success(t, None)
-    case None => Failure("", None)
+    case None => Failure("")
   }
 }
 
@@ -49,7 +49,7 @@ case class Success[+T](result: T, elem: Option[PsiElement])
 
   def flatMap[U](f: T => TypeResult[U]): TypeResult[U] = f(result)
 
-  def withFilter(f: T => Boolean): TypeResult[T] = if (f(result)) Success(result, elem) else Failure("Wrong type", elem)
+  def withFilter(f: T => Boolean): TypeResult[T] = if (f(result)) Success(result, elem) else Failure("Wrong type")
 
   def foreach[B](f: T => B): Unit = f(result)
 
@@ -85,8 +85,8 @@ class Failure private(private val cause: String)
 
 object Failure {
 
-  def apply(cause: String, place: Option[PsiElement])
-           (implicit pc: ProjectContext): Failure =
+  def apply(cause: String)
+           (implicit context: ProjectContext): Failure =
     new Failure(cause)
 
   def unapply(failure: Failure): Option[String] =

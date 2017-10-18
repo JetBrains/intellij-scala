@@ -37,10 +37,10 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
     if (getLastChild.isInstanceOf[ScSeqWildcard]) {
       return this.expectedType match {
         case Some(x) => Success(x, Some(this))
-        case _ =>  Failure("No expected type for wildcard naming", Some(this))
+        case _ =>  Failure("No expected type for wildcard naming")
       }
     }
-    if (named == null) Failure("Cannot infer type", Some(this))
+    if (named == null) Failure("Cannot infer type")
     else {
       this.expectedType match {
         case Some(expectedType) => named.`type`().map(expectedType.glb(_))

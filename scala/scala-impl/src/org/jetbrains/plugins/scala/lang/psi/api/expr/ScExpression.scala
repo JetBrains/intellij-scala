@@ -75,7 +75,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   }
 
   protected def innerType: TypeResult[ScType] =
-    Failure(ScalaBundle.message("no.type.inferred", getText), Some(this))
+    Failure(ScalaBundle.message("no.type.inferred", getText))
 
   /**
     * Some expression may be replaced only with another one
@@ -238,7 +238,7 @@ object ScExpression {
 
     def getTypeIgnoreBaseType: TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
-    @CachedWithRecursionGuard(expr, Failure("Recursive getNonValueType", Some(expr)), ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(expr, Failure("Recursive getNonValueType"), ModCount.getBlockModificationCount)
     def getNonValueType(ignoreBaseType: Boolean = false,
                         fromUnderscore: Boolean = false): TypeResult[ScType] = {
       ProgressManager.checkCanceled()
@@ -269,7 +269,7 @@ object ScExpression {
       * @param ignoreBaseTypes parameter to avoid value discarding, literal narrowing, widening
       *                        this parameter is useful for refactorings (introduce variable)
       */
-    @CachedWithRecursionGuard(expr, ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion", Some(expr))), ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(expr, ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion")), ModCount.getBlockModificationCount)
     def getTypeAfterImplicitConversion(checkImplicits: Boolean = true,
                                        isShape: Boolean = false,
                                        expectedOption: Option[ScType] = None,
@@ -326,7 +326,7 @@ object ScExpression {
       }
     }
 
-    @CachedWithRecursionGuard(expr, Failure("Recursive getTypeWithoutImplicits", Some(expr)),
+    @CachedWithRecursionGuard(expr, Failure("Recursive getTypeWithoutImplicits"),
       ModCount.getBlockModificationCount)
     def getTypeWithoutImplicits(ignoreBaseTypes: Boolean = false, fromUnderscore: Boolean = false): TypeResult[ScType] = {
       ProgressManager.checkCanceled()

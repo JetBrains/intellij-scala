@@ -30,7 +30,7 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
         case _ => mc.getNonValueType()
       }
       case Some(expr) => expr.getNonValueType()
-      case _ => Failure(s"Cannot find method ${getFirstChild.getText} of StringContext", Some(this))
+      case _ => Failure(s"Cannot find method ${getFirstChild.getText} of StringContext")
     }
   }
 

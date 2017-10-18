@@ -26,7 +26,7 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
 
   def `type`(): TypeResult[ScType] = getType
 
-  @CachedWithRecursionGuard(this, Failure("Recursive type of type element", Some(this)),
+  @CachedWithRecursionGuard(this, Failure("Recursive type of type element"),
     ModCount.getBlockModificationCount)
   private[types] def getType: TypeResult[ScType] = innerType
 
@@ -85,6 +85,6 @@ trait ScDesugarizableTypeElement extends ScTypeElement {
 
   override protected def innerType: TypeResult[ScType] = computeDesugarizedType match {
     case Some(typeElement) => typeElement.getType
-    case _ => Failure(s"Cannot desugarize $typeName", Some(this))
+    case _ => Failure(s"Cannot desugarize $typeName")
   }
 }

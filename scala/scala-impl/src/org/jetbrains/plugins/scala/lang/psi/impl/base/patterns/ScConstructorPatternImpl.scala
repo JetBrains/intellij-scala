@@ -127,7 +127,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             fun.paramClauses.clauses.head.parameters.head.`type`().map(subst.subst)
           case _ => Success(Nothing, Some(this))
         }
-      case _ => Failure("Cannot resolve symbol", Some(this))
+      case _ => Failure("Cannot resolve symbol")
     }
   }
 

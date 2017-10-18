@@ -40,7 +40,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   override def getTypeNoConstructor: TypeResult[ScType] = innerNonValueType(inferValueType = true, noConstructor = true)
 
-  @CachedWithRecursionGuard(this, Failure("Recursive non value type of type element", Some(this)),
+  @CachedWithRecursionGuard(this, Failure("Recursive non value type of type element"),
     ModCount.getBlockModificationCount)
   override def getNonValueType(withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] =
     innerNonValueType(inferValueType = false, withUnnecessaryImplicitsUpdate = withUnnecessaryImplicitsUpdate)
@@ -385,7 +385,7 @@ object ScSimpleTypeElementImpl {
       case Some(r@ScalaResolveResult(n: PsiMethod, _)) if n.isConstructor =>
         (n.containingClass, r.fromType)
       case Some(r@ScalaResolveResult(n: PsiNamedElement, _)) => (n, r.fromType)
-      case _ => return Failure("Cannot resolve reference", Some(ref))
+      case _ => return Failure("Cannot resolve reference")
     }
 
     def makeProjection(`type`: ScType, superReference: Boolean = false) =
@@ -440,7 +440,7 @@ object ScSimpleTypeElementImpl {
     val element = Some(path)
     maybeTemplate match {
       case Some(template) => Success(function(template), element)
-      case _ => Failure(message, element)
+      case _ => Failure(message)
     }
   }
 

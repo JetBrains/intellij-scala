@@ -87,7 +87,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   def shapeType(i: Int): TypeResult[ScType] = {
     val seq = shapeMultiType(i)
     if (seq.length == 1) seq.head
-    else Failure("Can't resolve type", Some(this))
+    else Failure("Can't resolve type")
   }
 
   def shapeMultiType(i: Int): Seq[TypeResult[ScType]] = innerMultiType(i, isShape = true)
@@ -95,7 +95,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   def multiType(i: Int): Seq[TypeResult[ScType]] = innerMultiType(i, isShape = false)
 
   private def innerMultiType(i: Int, isShape: Boolean): Seq[TypeResult[ScType]] = {
-    def FAILURE = Failure("Can't resolve type", Some(this))
+    def FAILURE = Failure("Can't resolve type")
     def workWithResolveResult(constr: PsiMethod, r: ScalaResolveResult,
                               subst: ScSubstitutor, s: ScSimpleTypeElement,
                               ref: ScStableCodeReferenceElement): TypeResult[ScType] = {
@@ -111,7 +111,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           val methodType = fun.nestedMethodType(i, Some(tp)).getOrElse(return FAILURE)
           subst.subst(methodType)
         case method: PsiMethod =>
-          if (i > 0) return Failure("Java constructors only have one parameter section", Some(this))
+          if (i > 0) return Failure("Java constructors only have one parameter section")
           ResolveUtils.javaMethodType(method, subst, this.resolveScope, Some(subst.subst(tp)))
       }
       val typeParameters: Seq[TypeParameter] = r.getActualElement match {
@@ -179,7 +179,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             case _ =>
           }
           buffer
-        case _ => Seq(Failure("Hasn't reference", Some(this)))
+        case _ => Seq(Failure("Hasn't reference"))
       }
     }
 

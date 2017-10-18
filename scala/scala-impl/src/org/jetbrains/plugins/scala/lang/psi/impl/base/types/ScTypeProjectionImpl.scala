@@ -37,7 +37,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) w
           case _ =>
             te map {ScProjectionType(_, elem, superReference = false)}
         }
-      case _ => Failure("Cannot Resolve reference", Some(this))
+      case _ => Failure("Cannot Resolve reference")
     }
   }
 

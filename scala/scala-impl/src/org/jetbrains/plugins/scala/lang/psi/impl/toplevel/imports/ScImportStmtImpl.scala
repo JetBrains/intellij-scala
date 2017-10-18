@@ -126,8 +126,8 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
                 case Some(po) =>
                   if (checkPo) {
                     po.`type`()
-                  } else Failure("no failure", Some(this))
-                case _ => Failure("no failure", Some(this))
+                  } else Failure("no failure")
+                case _ => Failure("no failure")
               }
             case _ => exprQualRefType()
           }

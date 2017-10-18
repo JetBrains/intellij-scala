@@ -66,9 +66,9 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
   private def workWithBindInternal(bindInternal: Option[PsiElement], i: Int): TypeResult[ScType] = {
     val (res: ScType, clazz: ScTemplateDefinition) = bindInternal match {
       case Some(c: ScMethodLike) =>
-        val methodType = c.nestedMethodType(i).getOrElse(return Failure("Not enough parameter sections", Some(this)))
+        val methodType = c.nestedMethodType(i).getOrElse(return Failure("Not enough parameter sections"))
         (methodType, c.containingClass)
-      case _ => return Failure("Cannot shape resolve self invocation", Some(this))
+      case _ => return Failure("Cannot shape resolve self invocation")
     }
     clazz match {
       case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>

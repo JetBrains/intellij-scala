@@ -54,7 +54,7 @@ class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
     typeElement match {
       case Some(te) => te.`type`()
       case None if expr.nonEmpty => expr.get.`type`()
-      case _ => Failure("Cannot infer type without an expression", Some(this))
+      case _ => Failure("Cannot infer type without an expression")
     }
   }
 

@@ -28,7 +28,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
     refTemplate match {
       case Some(td) if td.isMetaAnnotatationImpl => TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText("scala.meta.Stat", this, null))
       case Some(td) => ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this)
-      case _ => Failure("Cannot infer type", Some(this))
+      case _ => Failure("Cannot infer type")
     }
   }
 
@@ -74,7 +74,7 @@ object ScThisReferenceImpl {
             case scType => td.selfType.map(scType.glb(_)).getOrElse(scType)
           } match {
             case Success(scType, _) => scType
-            case _ => return Failure("No clazz type found", Some(expr))
+            case _ => return Failure("No clazz type found")
           }
       }
     }

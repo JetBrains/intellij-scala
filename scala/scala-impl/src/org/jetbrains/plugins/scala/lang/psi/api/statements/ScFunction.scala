@@ -179,7 +179,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
           case Some(f: ScFunction) => f.definedReturnType
           case Some(m: PsiMethod) =>
             Success(m.getReturnType.toScType(), Some(this))
-          case _ => Failure("No defined return type", Some(this))
+          case _ => Failure("No defined return type")
         }
     }
   }

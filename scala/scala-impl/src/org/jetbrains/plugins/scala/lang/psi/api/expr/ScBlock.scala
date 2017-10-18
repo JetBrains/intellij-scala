@@ -57,13 +57,13 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         case _: ScCatchBlock =>
           val manager = ScalaPsiManager.instance
           val funs = manager.getCachedClasses(resolveScope, "scala.PartialFunction")
-          val fun = funs.find(_.isInstanceOf[ScTrait]).getOrElse(return Failure("Cannot find PartialFunction class", Some(this)))
+          val fun = funs.find(_.isInstanceOf[ScTrait]).getOrElse(return Failure("Cannot find PartialFunction class"))
           val throwable = manager.getCachedClass(resolveScope, "java.lang.Throwable").orNull
-          if (throwable == null) return Failure("Cannot find Throwable class", Some(this))
+          if (throwable == null) return Failure("Cannot find Throwable class")
           return Success(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesLubType)), Some(this))
         case _ =>
           val et = this.expectedType(fromUnderscore = false)
-            .getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
+            .getOrElse(return Failure("Cannot infer type without expected type"))
 
           def removeVarianceAbstracts(scType: ScType) = {
             var index = 0
@@ -86,7 +86,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
             case PartialFunctionType(_, param) =>
               Success(PartialFunctionType(clausesLubType, removeVarianceAbstracts(param)), Some(this))
             case _ =>
-              Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction", Some(this))
+              Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction")
           }
       }
     }

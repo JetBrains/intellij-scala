@@ -55,14 +55,14 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               case Some(`typed`) =>
                 typed.typeElement match {
                   case Some(te) => return te.`type`()
-                  case _ => return Failure("Typed statement is not complete for underscore section", Some(this))
+                  case _ => return Failure("Typed statement is not complete for underscore section")
                 }
               case _ => return typed.`type`()
             }
           case _ =>
         }
         overExpr match {
-          case None => Failure("No type inferred", None)
+          case None => Failure("No type inferred")
           case Some(expr: ScExpression) =>
             val unders = ScUnderScoreSectionUtil.underscores(expr)
             var startOffset = if (expr.getTextRange != null) expr.getTextRange.getStartOffset else 0
@@ -72,7 +72,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               e = e.getContext
             }
             val i = unders.indexWhere(_.getTextRange.getStartOffset == startOffset)
-            if (i < 0) return Failure("Not found under", None)
+            if (i < 0) return Failure("Not found under")
             var result: Option[ScType] = null //strange logic to handle problems with detecting type
             var forEqualsParamLength: Boolean = false //this is for working completion
             for (tp <- expr.expectedTypes(fromUnderscore = false) if result != None) {
@@ -109,7 +109,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               }
             }
             result match {
-              case None => Failure("No type inferred", None)
+              case None => Failure("No type inferred")
               case Some(t) => Success(t, None)
             }
         }

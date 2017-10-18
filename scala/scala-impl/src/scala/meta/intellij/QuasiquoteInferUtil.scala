@@ -85,7 +85,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
             .createTypeElementFromText(s"scala.meta.${qq.productPrefix}")(PsiManager.getInstance(pat.getProject))
             .`type`()
         case Parsed.Error(_, message, _) =>
-          Failure(message, Some(pat))
+          Failure(message)
       }
     } catch {
       case _: ArrayIndexOutOfBoundsException =>  // workaround for meta parser failure on malformed quasiquotes

@@ -25,7 +25,7 @@ class ScParenthesisedExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       case Some(x: ScExpression) =>
         val res = x.getNonValueType()
         res
-      case _ => Failure("No expression in parentheseses", Some(this))
+      case _ => Failure("No expression in parentheseses")
     }
   }
 

@@ -59,7 +59,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
           ScalaType.designator
         }.getOrElse(Nothing)
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => api.Boolean
-      case _ => return Failure("Wrong Psi to get Literal type", Some(this))
+      case _ => return Failure("Wrong Psi to get Literal type")
     }
     Success(inner, Some(this))
   }

@@ -50,7 +50,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   override def `type`(): TypeResult[ScType] = {
     typePattern match {
       case Some(tp) =>
-        if (tp.typeElement == null) return Failure("No type element for type pattern", Some(this))
+        if (tp.typeElement == null) return Failure("No type element for type pattern")
         val typeElementType: TypeResult[ScType] =
           tp.typeElement.`type`().map {
             case tp: ScExistentialType =>
@@ -102,7 +102,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
             }
           case _ => typeElementType
         }
-      case None => Failure("No type pattern", Some(this))
+      case None => Failure("No type pattern")
     }
   }
 

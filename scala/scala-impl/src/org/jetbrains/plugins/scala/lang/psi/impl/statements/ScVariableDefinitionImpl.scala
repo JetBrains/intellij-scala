@@ -50,7 +50,7 @@ class ScVariableDefinitionImpl private (stub: ScVariableStub, node: ASTNode)
   def `type`(): TypeResult[ScType] = typeElement match {
     case Some(te) => te.`type`()
     case None => expr.map(_.`type`())
-            .getOrElse(Failure("Cannot infer type without an expression", Some(this)))
+            .getOrElse(Failure("Cannot infer type without an expression"))
   }
 
   def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)

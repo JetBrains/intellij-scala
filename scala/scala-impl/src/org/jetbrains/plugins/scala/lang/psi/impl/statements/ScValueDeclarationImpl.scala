@@ -35,7 +35,7 @@ class ScValueDeclarationImpl private (stub: ScValueStub, node: ASTNode)
 
   override def `type`(): TypeResult[ScType] = typeElement match {
     case Some(te) => te.`type`()
-    case None => Failure(ScalaBundle.message("no.type.element.found", getText), Some(this))
+    case None => Failure(ScalaBundle.message("no.type.element.found", getText))
   }
 
   def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)

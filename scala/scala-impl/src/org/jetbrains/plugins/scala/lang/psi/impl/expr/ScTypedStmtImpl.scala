@@ -23,7 +23,7 @@ class ScTypedStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTy
     typeElement match {
       case Some(te) => te.`type`()
       case None if !expr.isInstanceOf[ScUnderscoreSection] => expr.`type`()
-      case _ => Failure("Typed statement is not complete for underscore section", Some(this))
+      case _ => Failure("Typed statement is not complete for underscore section")
     }
   }
 

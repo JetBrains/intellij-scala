@@ -27,7 +27,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
   def aliasedType: TypeResult[ScType] =
     aliasedTypeElement.map {
       _.`type`()
-    }.getOrElse(Failure("No alias type", Some(this)))
+    }.getOrElse(Failure("No alias type"))
 
   def lowerBound: TypeResult[ScType] = aliasedType
 

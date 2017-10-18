@@ -112,7 +112,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     val parentClazz = containingClass
     if (parentClazz != null) {
       val tpe: ScType = if (!thisProjections) parentClazz.getTypeWithProjections()
-        .getOrElse(return Failure("Cannot resolve parent class", Some(this)))
+        .getOrElse(return Failure("Cannot resolve parent class"))
       else ScThisType(parentClazz)
 
       val innerProjection = ScProjectionType(tpe, this, superReference = false)

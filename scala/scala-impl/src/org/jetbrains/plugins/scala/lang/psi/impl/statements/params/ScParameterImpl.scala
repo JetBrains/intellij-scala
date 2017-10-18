@@ -93,11 +93,11 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
         paramStub.typeText match {
           case None if paramStub.getParentStub != null && paramStub.getParentStub.getParentStub != null &&
             paramStub.getParentStub.getParentStub.getParentStub.isInstanceOf[ScFunctionStub] =>
-            Failure("Cannot infer type", Some(this))
-          case None => Failure("Wrong Stub problem", Some(this)) //shouldn't be
+            Failure("Cannot infer type")
+          case None => Failure("Wrong Stub problem") //shouldn't be
           case Some(_: String) => paramStub.typeElement match {
             case Some(te) => te.`type`()
-            case None => Failure("Wrong type element", Some(this))
+            case None => Failure("Wrong type element")
           }
         }
     }

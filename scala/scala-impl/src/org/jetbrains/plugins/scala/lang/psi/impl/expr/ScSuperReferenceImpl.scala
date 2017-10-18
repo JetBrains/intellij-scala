@@ -169,7 +169,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       }
   }
 
-  protected override def innerType = Failure("Cannot infer type of `super' expression", Some(this))
+  protected override def innerType = Failure("Cannot infer type of `super' expression")
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitSuperReference(this)
