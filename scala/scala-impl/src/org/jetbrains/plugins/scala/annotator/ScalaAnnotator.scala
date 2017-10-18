@@ -1192,7 +1192,7 @@ abstract class ScalaAnnotator extends Annotator
       if (!childHasAnnotation(fun.returnTypeElement, "uncheckedVariance")) {
         fun.returnType match {
           case Success(returnType, _) =>
-            checkVariance(ScalaType.expandAliases(returnType).getOrType(returnType), Covariant, fun.nameId,
+            checkVariance(ScalaType.expandAliases(returnType).getOrElse(returnType), Covariant, fun.nameId,
               fun.getParent, holder)
           case _ =>
         }
@@ -1200,7 +1200,7 @@ abstract class ScalaAnnotator extends Annotator
       for (parameter <- fun.parameters) {
         parameter.typeElement match {
           case Some(te) if !childHasAnnotation(Some(te), "uncheckedVariance") =>
-            checkVariance(ScalaType.expandAliases(te.calcType).getOrType(te.calcType), Contravariant,
+            checkVariance(ScalaType.expandAliases(te.calcType).getOrElse(te.calcType), Contravariant,
               parameter.nameId, fun.getParent, holder)
           case _ =>
         }
