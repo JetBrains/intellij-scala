@@ -1212,6 +1212,10 @@
                          displayName="Sorted and head/last to max/min" groupPath="Scala,Collections" groupName="Simplifications: other"
                          shortName="SortedHeadLast" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.CollectHeadOptionInspection"
+                         displayName="Collect and headOption to collectFirst" groupPath="Scala,Collections" groupName="Simplifications: other"
+                         shortName="CollectHeadOption" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
         <!--maps-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"

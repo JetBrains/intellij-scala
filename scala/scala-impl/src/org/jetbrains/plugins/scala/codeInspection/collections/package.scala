@@ -57,6 +57,7 @@ package object collections {
   private[collections] val `.contains` = invocation("contains").from(likeCollectionClasses)
   private[collections] val `.flatten` = invocation("flatten").from(likeCollectionClasses)
   private[collections] val `.flatMap` = invocation("flatMap").from(likeCollectionClasses)
+  private[collections] val `.collect` = invocation("collect").from(likeCollectionClasses)
 
   private[collections] val `.isDefined` = invocation(Set("isDefined", "nonEmpty")).from(likeOptionClasses)
   private[collections] val `.isEmptyOnOption` = invocation("isEmpty").from(likeOptionClasses)
