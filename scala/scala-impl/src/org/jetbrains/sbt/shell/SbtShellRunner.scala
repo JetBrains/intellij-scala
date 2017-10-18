@@ -78,7 +78,12 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
         whenWorking = if (!SbtRunner.isInTest) myConsoleView.setPrompt("(busy) >")
       )
 
-      def scrollToEnd(): Unit = inUI {EditorUtil.scrollToTheEnd(getConsoleView.getHistoryViewer)}
+      def scrollToEnd(): Unit = inUI {
+        val editor = getConsoleView.getHistoryViewer
+        if (!editor.isDisposed)
+          EditorUtil.scrollToTheEnd(editor)
+      }
+
       val scrollOnStateChange = new SbtShellReadyListener(
         whenReady = scrollToEnd(),
         whenWorking = scrollToEnd()
