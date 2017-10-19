@@ -3,9 +3,10 @@ package org.jetbrains.plugins.cbt.runner
 import javax.swing.Icon
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
+import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.cbt.CBT
 
-class CbtConfigurationType extends ConfigurationType {
+class CbtConfigurationType extends ConfigurationType with DumbAware {
   val confFactory = new CbtRunConfigurationFactory(this)
 
   def getIcon: Icon = CBT.Icon

@@ -3,12 +3,13 @@ package org.jetbrains.sbt.runner
 import javax.swing.Icon
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
-import org.jetbrains.sbt.{SbtBundle, Sbt}
+import com.intellij.openapi.project.DumbAware
+import org.jetbrains.sbt.{Sbt, SbtBundle}
 
 /**
  * Configuration running of sbt task.
  */
-class SbtConfigurationType extends ConfigurationType {
+class SbtConfigurationType extends ConfigurationType with DumbAware {
   val confFactory = new SbtRunConfigurationFactory(this)
   
   def getIcon: Icon = Sbt.Icon

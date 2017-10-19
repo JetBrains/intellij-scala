@@ -3,13 +3,14 @@ package org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration
 import javax.swing.Icon
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
+import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.icons.Icons
 
 /**
   * User: Dmitry.Naydanov
   * Date: 13.09.17.
   */
-class AmmoniteRunConfigurationType extends ConfigurationType {
+class AmmoniteRunConfigurationType extends ConfigurationType with DumbAware {
   private val factory = new AmmoniteRunConfigurationFactory(this)
   
   override def getId: String = "ScalaAmmoniteRunConfigurationType"
