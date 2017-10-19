@@ -35,7 +35,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
   private var scriptParameters: Option[String] = None
   
   def setFilePath(path: String) {
-    if (path != "") fileName = Option(path)
+    fileName = Option(path).filter(_ != "") 
   }
   
   def setExecPath(path: String) {
@@ -43,7 +43,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
   }
   
   def setScriptParameters(params: String) {
-    if (params != "") scriptParameters = Option(params)
+    scriptParameters = Option(params).filter(_ != "")
   }
   
   def getIOFile: Option[File] = fileName.map(new File(_)).filter(_.exists())
