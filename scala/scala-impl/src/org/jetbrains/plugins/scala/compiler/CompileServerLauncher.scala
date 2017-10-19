@@ -269,9 +269,9 @@ object CompileServerLauncher {
   }
 
 
-  object ConfigureLinkListener extends NotificationListener.Adapter {
+  class ConfigureLinkListener(project: Project) extends NotificationListener.Adapter {
     def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
-      CompileServerManager.showCompileServerSettingsDialog()
+      CompileServerManager.showCompileServerSettingsDialog(project)
       notification.expire()
     }
   }

@@ -39,7 +39,7 @@ class ServerMediator(project: Project) extends AbstractProjectComponent(project)
       if (!settings.COMPILE_SERVER_ENABLED && project.hasDotty) {
         val title = "Enable Scala Compile Server"
         val content = s"<html><body>Dotty projects require Scala Compile Server<br> <a href=''>Configure</a></body></html>"
-        Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR, CompileServerLauncher.ConfigureLinkListener))
+        Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR, new CompileServerLauncher.ConfigureLinkListener(project)))
         false
       }
       else true

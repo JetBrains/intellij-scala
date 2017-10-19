@@ -91,7 +91,8 @@
         <langCodeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider"/>
         <lang.lineWrapStrategy language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.formatting.ScalaLineWrapPositionStrategy"/>
         <projectConfigurable groupId="language" displayName="Scala" instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
-        <applicationConfigurable groupId="language" displayName="Scala Compile Server" instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
+        <applicationConfigurable displayName="Scala Compile Server" parentId="Scala Compiler"
+                                 instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
@@ -427,7 +428,7 @@
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
-        <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler"
+        <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler" dynamic="true"
                              instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable" />
 
         <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>

@@ -156,7 +156,7 @@ class CompileServerManager(project: Project) extends AbstractProjectComponent(pr
 
   private object Configure extends AnAction("&Configure...", "Configure compile server", AllIcons.General.Settings) with DumbAware {
     def actionPerformed(e: AnActionEvent) {
-      showCompileServerSettingsDialog()
+      showCompileServerSettingsDialog(project)
     }
   }
 
@@ -203,7 +203,7 @@ object CompileServerManager {
     }
   }
 
-  def showCompileServerSettingsDialog(): Unit = {
-    ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala Compile Server")
+  def showCompileServerSettingsDialog(project: Project): Unit = {
+    ShowSettingsUtil.getInstance().showSettingsDialog(project, "Scala Compile Server")
   }
 }
