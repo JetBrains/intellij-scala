@@ -31,7 +31,7 @@ class HoconParserDefinition extends ParserDefinition {
 
   def getCommentTokens: TokenSet = Comment
 
-  def getWhitespaceTokens: TokenSet = Whitespace
+  override def getWhitespaceTokens: TokenSet = Whitespace
 
   def getFileNodeType: IFileElementType =
     HoconElementType.HoconFileElementType

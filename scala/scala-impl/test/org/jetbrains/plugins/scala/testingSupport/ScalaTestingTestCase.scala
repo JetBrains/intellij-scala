@@ -78,17 +78,17 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
   override protected def buildFileStructure(fileName: String): TreeElementWrapper = {
     val ioFile = new java.io.File(srcDir, fileName)
-    var wrapper: StructureViewComponent.StructureViewTreeElementWrapper = null
+    var wrapper: TreeElementWrapper = null
     EdtTestUtil.runInEdtAndWait(() => {
       val file = PsiManager.getInstance(getProject).findFile(getVirtualFile(ioFile))
       val treeViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]) {
         override def isEnabled(provider: NodeProvider[_ <: TreeElement]): Boolean = provider.isInstanceOf[TestNodeProvider]
       }
-      wrapper = new StructureViewComponent.StructureViewTreeElementWrapper(getProject, treeViewModel.getRoot, treeViewModel)
+      wrapper = StructureViewComponent.createWrapper(getProject, treeViewModel.getRoot, treeViewModel)
 
-      def initTree(wrapper: StructureViewComponent.StructureViewTreeElementWrapper) {
+      def initTree(wrapper: TreeElementWrapper) {
         wrapper.initChildren()
-        wrapper.getChildren.asScala.foreach(node => initTree(node.asInstanceOf[StructureViewComponent.StructureViewTreeElementWrapper]))
+        wrapper.getChildren.asScala.foreach(node => initTree(node.asInstanceOf[TreeElementWrapper]))
       }
 
       initTree(wrapper)

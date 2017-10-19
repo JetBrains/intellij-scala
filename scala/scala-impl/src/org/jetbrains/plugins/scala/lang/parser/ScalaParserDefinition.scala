@@ -35,7 +35,7 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper {
 
   def getStringLiteralElements: TokenSet = ScalaTokenTypes.STRING_LITERAL_TOKEN_SET
 
-  def getWhitespaceTokens: TokenSet = ScalaTokenTypes.WHITES_SPACES_TOKEN_SET
+  override def getWhitespaceTokens: TokenSet = ScalaTokenTypes.WHITES_SPACES_TOKEN_SET
 
   def createElement(astNode: ASTNode): PsiElement =
     psiCreator.createElement(astNode)
