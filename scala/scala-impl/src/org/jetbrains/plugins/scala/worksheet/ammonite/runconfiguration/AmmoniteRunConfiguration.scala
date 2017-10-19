@@ -58,10 +58,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
         execName match {
           case Some(exec) =>
             val exFile = new File(exec)
-            if (!exFile.exists()) cmd.setExePath(exec) else {
-              cmd.setWorkDirectory(exFile.getParentFile)
-              cmd.setExePath("./" + exFile.getName)
-            }
+            if (exFile.exists()) cmd.setExePath(exFile.getAbsolutePath) else cmd.setExePath(exec)
           case None => 
             cmd.setExePath("amm")
         }
@@ -71,7 +68,12 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
           cmd.addParameter(s"${createPredefFile(getIOFile.map(_.getName).getOrElse("AmmoniteFile.sc"))}")
         }
 
-        fileName.foreach(cmd.addParameter)
+        fileName.foreach{
+          f => 
+            cmd.addParameter(f)
+            val tf = new File(f)
+            if (tf.exists()) cmd.setWorkDirectory(tf.getParentFile)
+        }
         scriptParameters.foreach(cmd.getParametersList.addParametersString(_))
 
         JavaCommandLineStateUtil.startProcess(cmd)
