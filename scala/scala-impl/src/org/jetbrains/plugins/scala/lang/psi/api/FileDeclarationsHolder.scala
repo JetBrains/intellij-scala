@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImpo
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
+import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 import worksheet.processor.WorksheetCompiler
 import worksheet.ui.WorksheetIncrementalEditorPrinter
 
@@ -118,6 +119,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       if (!re) return false
     }
     
+    AmmoniteUtil.executeImplicitImportsDeclarations(processor, this, state)
 
     val checkPredefinedClassesAndPackages = processor match {
       case r: ResolveProcessor => r.checkPredefinedClassesAndPackages()
