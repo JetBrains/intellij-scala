@@ -22,7 +22,7 @@ object UndefinedMember extends AnnotatorPart[ScTemplateDefinition] {
     if (!isNew && !isObject) return
 
     definition.members.foreach {
-      case td: ScTypeAliasDeclaration =>
+      case td: ScTypeAliasDeclaration => //abstract type declarations are allowed
       case declaration: ScDeclaration => 
         val isNative = declaration match {
           case a: ScAnnotationsHolder => a.hasAnnotation("scala.native")
