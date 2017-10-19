@@ -50,6 +50,7 @@ object AmmoniteUtil {
       case ScalaProjectSettings.ScFileMode.Worksheet => false
       case ScalaProjectSettings.ScFileMode.Auto => 
         ProjectRootManager.getInstance(project).getFileIndex.isUnderSourceRootOfType(virtualFile, ContainerUtilRt.newHashSet(JavaSourceRootType.TEST_SOURCE))
+      case _ => false
     })
   }
 
