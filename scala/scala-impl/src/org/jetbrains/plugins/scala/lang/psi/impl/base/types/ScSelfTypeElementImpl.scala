@@ -40,8 +40,7 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
         for {
           templateType <- parent.`type`()
           selfType <- ste.`type`()
-          ct = ScCompoundType(Seq(templateType, selfType), Map.empty, Map.empty)
-        } yield ct
+        } yield ScCompoundType(Seq(templateType, selfType))
       case None => parent.`type`()
     }
   }

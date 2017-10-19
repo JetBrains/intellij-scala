@@ -56,7 +56,7 @@ trait TreeAdapter {
       convertMods(t), toTermName(t),
       Seq(t.typeParameters map toTypeParams: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
-      t.definedReturnType.map(toType(_)).toOption,
+      t.definedReturnType.toOption.map(toType(_)),
       expression(t.body).get
     )
   }

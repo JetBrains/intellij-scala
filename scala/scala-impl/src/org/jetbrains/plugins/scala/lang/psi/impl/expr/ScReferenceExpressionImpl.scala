@@ -337,6 +337,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
           case _: ScFunctionExpr => null
           case f => f
         }
+
         def isMethodDependent(function: ScFunction): Boolean = {
           def checkte(te: ScTypeElement): Boolean = {
             var res = false
@@ -348,6 +349,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             })
             res
           }
+
           function.returnTypeElement match {
             case Some(te) if checkte(te) => return true
             case _ =>
@@ -558,22 +560,18 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
   }
 
   def getPrevTypeInfoParams: Seq[TypeParameter] = {
-    qualifier match {
-      case Some(_: ScSuperReference) => Seq.empty
-      case Some(qual) =>
-        qual.getNonValueType().map {
-          case t: ScTypePolymorphicType => t.typeParameters
-          case _ => Seq.empty
-        }.getOrElse(Seq.empty)
-      case _ => getContext match {
-        case sugar: ScSugarCallExpr if sugar.operation == this =>
-          sugar.getBaseExpr.getNonValueType().map {
-            case t: ScTypePolymorphicType => t.typeParameters
-            case _ => Seq.empty
-          }.getOrElse(Seq.empty)
-        case _ => Seq.empty
+    val maybeExpression = qualifier match {
+      case Some(_: ScSuperReference) => None
+      case None => getContext match {
+        case ScSugarCallExpr(baseExpression, operation, _) if operation == this => Some(baseExpression)
+        case _ => None
       }
+      case result => result
     }
+
+    maybeExpression.flatMap(_.getNonValueType().toOption).collect {
+      case ScTypePolymorphicType(_, parameters) => parameters
+    }.getOrElse(Seq.empty)
   }
 
   private def resolveFailure = Failure("Cannot resolve expression")

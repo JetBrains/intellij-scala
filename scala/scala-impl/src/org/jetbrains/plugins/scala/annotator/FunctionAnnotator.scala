@@ -26,8 +26,10 @@ trait FunctionAnnotator {
       }
     }
 
-    val tailrecAnnotation = function.annotations.find(_.typeElement.`type`()
-            .map(_.canonicalText).withFilter(_ == "_root_.scala.annotation.tailrec").isDefined)
+    val tailrecAnnotation = function.annotations.find {
+      _.typeElement.`type`().toOption
+        .map(_.canonicalText).contains("_root_.scala.annotation.tailrec")
+    }
 
     tailrecAnnotation.foreach { it =>
       if (!function.canBeTailRecursive) {

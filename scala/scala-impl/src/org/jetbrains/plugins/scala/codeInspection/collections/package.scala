@@ -367,19 +367,14 @@ package object collections {
     }
   }
 
-  def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = Option(expr).flatMap {
-    _.`type`().toOption
-  }.flatMap {
-    _.tryExtractDesignatorSingleton.extractClass
-  }.exists {
-    qualifiedNameFitToPatterns(_, patterns)
-  }
+  def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean =
+    Option(expr).flatMap(_.`type`().toOption)
+      .flatMap(_.tryExtractDesignatorSingleton.extractClass)
+      .exists(qualifiedNameFitToPatterns(_, patterns))
 
-  private def qualifiedNameFitToPatterns(clazz: PsiClass, patterns: Array[String]) = Option(clazz).flatMap {
-    _.qualifiedName.toOption
-  }.exists {
-    ScalaNamesUtil.nameFitToPatterns(_, patterns, strict = false)
-  }
+  private def qualifiedNameFitToPatterns(clazz: PsiClass, patterns: Array[String]) =
+    Option(clazz).flatMap(c => Option(c.qualifiedName))
+      .exists(ScalaNamesUtil.nameFitToPatterns(_, patterns, strict = false))
 
   def isOption(expr: ScExpression): Boolean = isOfClassFrom(expr, likeOptionClasses)
 

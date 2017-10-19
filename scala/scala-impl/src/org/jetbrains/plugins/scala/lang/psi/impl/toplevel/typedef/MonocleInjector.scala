@@ -1,41 +1,59 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
+package org.jetbrains.plugins.scala.lang.psi.impl
+package toplevel
+package typedef
 
+import com.intellij.psi.PsiAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClassParameterImpl
 
-import scala.collection.mutable.ArrayBuffer
-
 class MonocleInjector extends SyntheticMembersInjector {
+
+  import MonocleInjector.mkLens
+
   override def injectFunctions(source: ScTypeDefinition): Seq[String] = {
-    source match {
-      // Monocle lenses generation
-      case obj: ScObject =>
-        obj.fakeCompanionClassOrCompanionClass match {
-          case clazz: ScClass if clazz.findAnnotationNoAliases("monocle.macros.Lenses") != null => mkLens(obj)
-          case _ => Seq.empty
-        }
+    val companionClass = source match {
+      case obj: ScObject => obj.fakeCompanionClassOrCompanionClass
+      case _ => null
+    }
+
+    companionClass match {
+      case clazz: ScClass => mkLens(clazz, clazz.findAnnotationNoAliases("monocle.macros.Lenses"))
       case _ => Seq.empty
     }
   }
+}
 
-  private def mkLens(obj: ScObject): ArrayBuffer[String] = {
-    val buffer = new ArrayBuffer[String]
-    val clazz = obj.fakeCompanionClassOrCompanionClass.asInstanceOf[ScClass]
-    val fields = clazz.allVals.collect({ case (f: ScClassParameterImpl, _) => f }).filter(_.isCaseClassVal)
-    val prefix = Option(clazz.findAnnotationNoAliases("monocle.macros.Lenses").findAttributeValue("value")) match {
-      case Some(literal: ScLiteralImpl) => literal.getValue.toString
-      case _ => ""
-    }
-    fields.foreach({ i =>
-      val template = if (clazz.typeParameters.isEmpty)
-        s"def $prefix${i.name}: _root_.monocle.Lens[${clazz.qualifiedName}, ${i.`type`().map(_.canonicalText).getOrElse("Any")}] = ???"
-      else {
-        val tparams = s"[${clazz.typeParameters.map(_.getText).mkString(",")}]"
-        s"def $prefix${i.name}$tparams: _root_.monocle.Lens[${clazz.qualifiedName}$tparams, ${i.typeElement.get.calcType}] = ???"
+object MonocleInjector {
+
+  // Monocle lenses generation
+  private def mkLens(clazz: ScClass, annotation: PsiAnnotation): Seq[String] = annotation match {
+    case null => Seq.empty
+    case _ =>
+      val prefix = annotation.findAttributeValue("value") match {
+        case ScLiteralImpl.string(value) => value
+        case _ => ""
       }
-      buffer += template
-    })
-    buffer
+
+      mkLens(clazz, prefix)
+  }
+
+  private[this] def mkLens(clazz: ScClass, prefix: String): Seq[String] = {
+    val typeParametersText = clazz.typeParameters.map(_.getText) match {
+      case Seq() => ""
+      case seq => seq.mkString("[", ",", "]")
+    }
+
+    clazz.allVals.collect {
+      case (f: ScClassParameterImpl, _) if f.isCaseClassVal => f
+    }.map { parameter =>
+      val typeText = if (typeParametersText.isEmpty) {
+        parameter.`type`().toOption.map(_.canonicalText).getOrElse("Any")
+      } else {
+        parameter.typeElement.get.calcType.toString
+      }
+
+      s"def $prefix${parameter.name}$typeParametersText: _root_.monocle.Lens[${clazz.qualifiedName}$typeParametersText, $typeText] = ???"
+    }
   }
 }

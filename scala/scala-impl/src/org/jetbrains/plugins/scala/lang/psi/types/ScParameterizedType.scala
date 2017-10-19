@@ -30,8 +30,8 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
   override protected def isAliasTypeInner: Option[AliasType] = {
     designator match {
       case ScDesignatorType(ta: ScTypeAlias) =>
-        val existingWildcards = ta.lowerBound.map(ScExistentialType.existingWildcards).getOrElse(Set.empty) ++
-          (if (ta.isDefinition) Set.empty else ta.upperBound.map(ScExistentialType.existingWildcards).getOrElse(Set.empty))
+        val existingWildcards = ta.lowerBound.toOption.map(ScExistentialType.existingWildcards).getOrElse(Set.empty) ++
+          (if (ta.isDefinition) Set.empty else ta.upperBound.toOption.map(ScExistentialType.existingWildcards).getOrElse(Set.empty))
 
         val genericSubst = ScalaPsiUtil.
           typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
@@ -45,8 +45,8 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
         val ta: ScTypeAlias = p.actualElement.asInstanceOf[ScTypeAlias]
         val subst: ScSubstitutor = p.actualSubst
 
-        val existingWildcards = ta.lowerBound.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(Set.empty) ++
-          (if (ta.isDefinition) Set.empty else ta.upperBound.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(Set.empty))
+        val existingWildcards = ta.lowerBound.toOption.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(Set.empty) ++
+          (if (ta.isDefinition) Set.empty else ta.upperBound.toOption.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(Set.empty))
 
         val genericSubst = ScalaPsiUtil.
           typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),

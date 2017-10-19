@@ -363,9 +363,8 @@ object ScalaPsiUtil {
       case expression => (expression, tp, Seq.empty)
     }
     val invoked = call.getInvokedExpr
-    val typeParams = invoked.getNonValueType().map {
+    val typeParams = invoked.getNonValueType().toOption.collect {
       case ScTypePolymorphicType(_, tps) => tps
-      case _ => Seq.empty
     }.getOrElse(Seq.empty)
     val emptyStringExpression = createExpressionFromText("\"\"")
     val processor = new MethodResolveProcessor(expr, methodName, if (!isDynamic) args :: Nil

@@ -10,11 +10,11 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 /**
   * @author ilyas
   */
-sealed abstract class TypeResult[+T](implicit val projectContext: ProjectContext) {
+sealed abstract class TypeResult[+T <: ScType](implicit val projectContext: ProjectContext) {
 
-  def map[U](f: T => U): TypeResult[U]
+  def map[U <: ScType](f: T => U): TypeResult[U]
 
-  def flatMap[U](f: T => TypeResult[U]): TypeResult[U]
+  def flatMap[U <: ScType](f: T => TypeResult[U]): TypeResult[U]
 
   def withFilter(f: T => Boolean): TypeResult[T]
 
@@ -41,12 +41,12 @@ object TypeResult {
   }
 }
 
-class Success[T] private(private val result: T)
-                        (implicit context: ProjectContext) extends TypeResult[T] {
+class Success[T <: ScType] private(private val result: T)
+                                  (implicit context: ProjectContext) extends TypeResult[T] {
 
-  def map[U](f: T => U): Success[U] = Success(f(result))
+  def map[U <: ScType](f: T => U): Success[U] = Success(f(result))
 
-  def flatMap[U](f: T => TypeResult[U]): TypeResult[U] = f(result)
+  def flatMap[U <: ScType](f: T => TypeResult[U]): TypeResult[U] = f(result)
 
   def withFilter(f: T => Boolean): TypeResult[T] = if (f(result)) this else Failure("Wrong type")
 
@@ -68,10 +68,10 @@ class Success[T] private(private val result: T)
 
 object Success {
 
-  def apply[T](result: T)
-              (implicit context: ProjectContext): Success[T] = new Success(result)
+  def apply[T <: ScType](result: T)
+                        (implicit context: ProjectContext): Success[T] = new Success(result)
 
-  def unapply[T](success: Success[T]): Option[(T, Option[PsiElement])] =
+  def unapply[T <: ScType](success: Success[T]): Option[(T, Option[PsiElement])] =
     Option(success)
       .map(_.result)
       .map((_, None))
@@ -80,11 +80,11 @@ object Success {
 case class Failure(private val cause: String)
                   (implicit context: ProjectContext) extends TypeResult[Nothing] {
 
-  def map[U](f: Nothing => U): Failure = this
+  def map[U <: ScType](f: Nothing => U): this.type = this
 
-  def flatMap[U](f: Nothing => TypeResult[U]): Failure = this
+  def flatMap[U <: ScType](f: Nothing => TypeResult[U]): this.type = this
 
-  def withFilter(f: Nothing => Boolean): Failure = this
+  def withFilter(f: Nothing => Boolean): this.type = this
 
   def foreach[B](f: Nothing => B): Unit = {}
 

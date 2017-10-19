@@ -572,8 +572,8 @@ abstract class ScalaAnnotator extends Annotator
 
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {
     for {
-      lower <- sTypeParam.lowerBound
-      upper <- sTypeParam.upperBound
+      lower <- sTypeParam.lowerBound.toOption
+      upper <- sTypeParam.upperBound.toOption
       if !lower.conforms(upper)
       annotation = holder.createErrorAnnotation(sTypeParam,
         ScalaBundle.message("lower.bound.conform.to.upper", upper, lower))

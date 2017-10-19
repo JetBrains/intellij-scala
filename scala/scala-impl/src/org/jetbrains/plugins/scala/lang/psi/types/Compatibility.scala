@@ -255,14 +255,13 @@ object Compatibility {
               val tp = ScParameterizedType(seqType, Seq(param.paramType))
               val expectedType = ScParameterizedType(seqType, Seq(param.expectedType))
 
-              for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
-                val conforms = exprType.weakConforms(tp)
-                if (!conforms) {
-                  return ConformanceExtResult(Seq(TypeMismatch(expr, tp)), undefSubst, defaultParameterUsed, matched, matchedTypes)
-                } else {
+              for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr.toOption) {
+                if (exprType.weakConforms(tp)) {
                   matched ::= (param, expr)
                   matchedTypes ::= (param, exprType)
                   undefSubst += exprType.conforms(tp, ScUndefinedSubstitutor(), checkWeak = true)._2
+                } else {
+                  return ConformanceExtResult(Seq(TypeMismatch(expr, tp)), undefSubst, defaultParameterUsed, matched, matchedTypes)
                 }
               }
             case _ =>
@@ -308,14 +307,13 @@ object Compatibility {
                   (param.paramType, param.expectedType)
                 }
 
-                for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
-                  val conforms = exprType.weakConforms(paramType)
-                  if (!conforms) {
-                    problems ::= TypeMismatch(expr, paramType)
-                  } else {
+                for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr.toOption) {
+                  if (exprType.weakConforms(paramType)) {
                     matched ::= (param, expr)
                     matchedTypes ::= (param, exprType)
                     undefSubst += exprType.conforms(paramType, ScUndefinedSubstitutor(), checkWeak = true)._2
+                  } else {
+                    problems ::= TypeMismatch(expr, paramType)
                   }
                 }
               case _ =>

@@ -421,7 +421,7 @@ trait ScalaConformance extends api.Conformance {
               val projected1 = proj1.projected
               val projected2 = proj2.projected
               result = conformsInner(projected1, projected2, visited, undefinedSubst)
-            case param@ParameterizedType(projDes: ScProjectionType, _) =>
+            case ParameterizedType(projDes: ScProjectionType, typeArguments) =>
               //TODO this looks overcomplicated. Improve the code.
               def cutProj(p: ScType, acc: List[ScProjectionType]): ScType = {
                 if (acc.isEmpty) p else acc.foldLeft(p){
@@ -433,12 +433,25 @@ trait ScalaConformance extends api.Conformance {
                 val t = proj.projected.equiv(projDes.projected, undefinedSubst)
                 if (t._1) {
                   undefinedSubst = t._2
-                  (projDes.actualElement, proj.actualElement) match {
+                  val (maybeLeft, maybeRight) = (projDes.actualElement, proj.actualElement) match {
                     case (desT: Typeable, projT: Typeable) =>
-                      desT.`type`().withFilter(_.isInstanceOf[ScParameterizedType]).
-                        map(_.asInstanceOf[ScParameterizedType]).flatMap(dt => projT.`type`().
-                        map(c => conformsInner(ScParameterizedType(dt.designator, param.typeArguments),
-                          cutProj(c, acc), visited, undefinedSubst))).map(t => if (t._1) result = t)
+                      val left = desT.`type`().toOption
+                        .collect {
+                          case ParameterizedType(designator, _) => designator
+                        }.map(ScParameterizedType(_, typeArguments))
+
+
+                      val right = projT.`type`().toOption
+                        .map(cutProj(_, acc))
+
+                      (left, right)
+                    case _ => (None, None)
+                  }
+
+                  maybeLeft.zip(maybeRight).map {
+                    case (left, right) => conformsInner(left, right, visited, undefinedSubst)
+                  }.foreach {
+                    case r@(true, _) => result = r
                     case _ =>
                   }
                 } else {

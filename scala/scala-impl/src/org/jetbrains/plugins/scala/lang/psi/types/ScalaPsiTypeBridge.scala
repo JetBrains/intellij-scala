@@ -183,7 +183,8 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
             case _ => createType(clazz, raw = outerClassHasTypeParameters(proj))
           }
         case elem: ScTypeAliasDefinition if !visitedAliases.contains(elem) =>
-          elem.aliasedType.map(toPsiTypeInner(_, noPrimitives, visitedAliases + elem))
+          elem.aliasedType.toOption
+            .map(toPsiTypeInner(_, noPrimitives, visitedAliases + elem))
             .getOrElse(javaObject)
         case _ => javaObject
       }
