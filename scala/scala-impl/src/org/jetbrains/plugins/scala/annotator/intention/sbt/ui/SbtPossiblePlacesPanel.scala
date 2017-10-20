@@ -128,7 +128,7 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
 
     viewer.getMarkupModel.addRangeHighlighter(dep.getTextRange.getStartOffset, dep.getTextRange.getEndOffset, HighlighterLayer.SELECTION, attributes, HighlighterTargetArea.EXACT_RANGE)
 
-    viewer.getComponent.setPreferredSize(new Dimension(1600, 500))
+
     viewer.getComponent.updateUI()
 
     viewer
