@@ -206,10 +206,12 @@ object SbtRunner {
   def getSbtLauncherDir: File = {
     val file: File = jarWith[this.type]
     val deep = if (file.getName == "classes") 1 else 2
-    val playEnabled = Try(getClass.getClassLoader.loadClass("com.intellij.scala.play.Play2Bundle") != null).getOrElse(false)
     val res = (file << deep) / "launcher"
-    if (!res.exists() && isInTest)
-      jarWith[this.type].parent.flatMap(findLauncherDir).get
+    if (!res.exists() && isInTest) {
+      val start = jarWith[this.type].parent
+      start.flatMap(findLauncherDir)
+        .getOrElse(throw new RuntimeException(s"could not find sbt launcher dir at or above ${start.get}"))
+    }
     else res
   }
 

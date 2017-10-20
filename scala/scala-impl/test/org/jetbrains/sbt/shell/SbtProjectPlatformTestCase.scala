@@ -6,9 +6,6 @@ import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.ide.impl.ProjectUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
-import com.intellij.openapi.externalSystem.model.DataNode
-import com.intellij.openapi.externalSystem.model.project.ProjectData
-import com.intellij.openapi.externalSystem.service.project.ExternalProjectRefreshCallback
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.projectRoots.ProjectJdkTable
@@ -19,7 +16,6 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.junit.Assert
 
 /**
   * Created by Roman.Shein on 27.03.2017.
@@ -36,12 +32,8 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
       ProjectJdkTable.getInstance.addJdk(sdk)
       ProjectRootManager.getInstance(project).setProjectSdk(sdk)
     }
-    val callback = new ExternalProjectRefreshCallback {
-      override def onFailure(errorMessage: String, errorDetails: String): Unit =
-        Assert.fail(s"sbt project refresh failed: $errorMessage. Details: $errorDetails")
-      override def onSuccess(externalProject: DataNode[ProjectData]): Unit = ()
-    }
-    val importSpec = new ImportSpecBuilder(project, SbtProjectSystem.Id).callback(callback).build()
+    // I would attach a callback here to debug errors, but that overrides the default callback which deos the project updating ...
+    val importSpec = new ImportSpecBuilder(project, SbtProjectSystem.Id).build()
     ExternalSystemUtil.refreshProjects(importSpec)
     myProject = project
   }
