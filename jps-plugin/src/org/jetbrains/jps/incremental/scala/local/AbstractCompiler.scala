@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package local
 
 import java.io.File
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Supplier
 
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
@@ -9,7 +10,7 @@ import xsbti._
 import xsbti.compile._
 import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
 
-import scala.collection.mutable
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -73,7 +74,7 @@ abstract class AbstractCompiler extends Compiler {
   }
 
   private class ClientReporter(client: Client) extends Reporter {
-    private val entries: mutable.Buffer[Problem] = mutable.Buffer.empty
+    private val entries: ConcurrentLinkedQueue[Problem] = new ConcurrentLinkedQueue()
     private var errorSeen = false
     private var warningSeen = false
 
@@ -89,12 +90,12 @@ abstract class AbstractCompiler extends Compiler {
 
     override def printSummary(): Unit = {} // Not needed in Intellij-zinc integration
 
-    override def problems: Array[Problem] = entries.reverse.toArray
+    override def problems: Array[Problem] = entries.asScala.toArray.reverse
 
     override def comment(position: Position, msg: String): Unit = logInClient(msg, position, Kind.PROGRESS)
 
     override def log(problem: Problem): Unit = {
-      entries += problem
+      entries.add(problem)
 
       val kind = problem.severity() match {
         case Severity.Info =>
