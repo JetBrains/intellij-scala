@@ -14,7 +14,7 @@ import com.intellij.util.containers.ContainerUtilRt
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
@@ -159,6 +159,11 @@ object AmmoniteUtil {
             Option(jarRoot)
         }
     }
+  }
+  
+  def isAmmoniteSpecificImport(expr: ScImportExpr): Boolean = {
+    val txt = expr.getText
+    txt.startsWith(ROOT_EXEC) || txt.startsWith(ROOT_FILE) || txt.startsWith(ROOT_IVY)
   }
   
   private def findFileByPattern(pattern: String, predicate: File => Boolean): Option[File] = {
