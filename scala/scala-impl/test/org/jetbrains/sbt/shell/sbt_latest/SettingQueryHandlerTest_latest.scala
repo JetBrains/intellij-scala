@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.shell.sbt13_latest
+package org.jetbrains.sbt.shell.sbt_latest
 
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.sbt.shell.SettingQueryHandlerTest
