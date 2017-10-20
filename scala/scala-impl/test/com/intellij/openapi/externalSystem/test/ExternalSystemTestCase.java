@@ -381,7 +381,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
         JarOutputStream target = new JarOutputStream(new FileOutputStream(f), manifest);
         for (Pair<ByteSequence, String> contentEntry : contentEntries) {
-            addJarEntry(contentEntry.first.getBytes(), contentEntry.second, target);
+            addJarEntry(contentEntry.first.toBytes(), contentEntry.second, target);
         }
         target.close();
 

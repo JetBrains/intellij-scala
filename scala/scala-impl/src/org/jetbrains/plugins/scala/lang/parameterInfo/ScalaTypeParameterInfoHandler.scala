@@ -51,9 +51,9 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
     findCall(context)
   }
 
-  def getParameterCloseChars: String = "{},];\n"
+  override def getParameterCloseChars: String = "{},];\n"
 
-  def getParametersForDocumentation(p: Any, context: ParameterInfoContext): Array[Object] = ArrayUtil.EMPTY_OBJECT_ARRAY
+  override def getParametersForDocumentation(p: Any, context: ParameterInfoContext): Array[Object] = ArrayUtil.EMPTY_OBJECT_ARRAY
 
   def findElementForUpdatingParameterInfo(context: UpdateParameterInfoContext): ScTypeArgs = {
     findCall(context)
@@ -187,7 +187,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
     context.setCurrentParameter(i)
   }
 
-  def tracksParameterIndex: Boolean = true
+  override def tracksParameterIndex: Boolean = true
 
   private def fromResolved(ref: ScReferenceElement, useActualElement: Boolean = false): Option[(PsiElement, ScSubstitutor)] = {
     ref.bind() match {
