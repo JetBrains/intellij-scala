@@ -6,30 +6,43 @@ import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.ide.impl.ProjectUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.model.project.ProjectData
+import com.intellij.openapi.externalSystem.service.project.ExternalProjectRefreshCallback
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.{Disposer, Key}
+import com.intellij.openapi.util.Key
 import com.intellij.testFramework.{PlatformTestCase, ThreadTracker}
 import com.intellij.util.ui.UIUtil
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.plugins.scala.extensions._
+import org.junit.Assert
 
 /**
   * Created by Roman.Shein on 27.03.2017.
   */
 abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
+
   override def setUpProject(): Unit = {
-    //projectFile is the sbt file for the root project
-    val project = ProjectUtil.openOrImport(getSbtRootFile.getAbsolutePath, null, false)
+    // projectFile is the sbt file for the root project
+    val path = getSbtRootFile.getAbsolutePath
+    val project = ProjectUtil.openOrImport(path, null, false)
+    assert(project != null, s"project at path $path was null")
     val sdk = TestUtils.createJdk()
     inWriteAction {
       ProjectJdkTable.getInstance.addJdk(sdk)
       ProjectRootManager.getInstance(project).setProjectSdk(sdk)
     }
-    ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
+    val callback = new ExternalProjectRefreshCallback {
+      override def onFailure(errorMessage: String, errorDetails: String): Unit =
+        Assert.fail(s"sbt project refresh failed: $errorMessage. Details: $errorDetails")
+      override def onSuccess(externalProject: DataNode[ProjectData]): Unit = ()
+    }
+    val importSpec = new ImportSpecBuilder(project, SbtProjectSystem.Id).callback(callback).build()
+    ExternalSystemUtil.refreshProjects(importSpec)
     myProject = project
   }
 
@@ -60,11 +73,10 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
       jdkTable.getAllJdks.foreach(jdkTable.removeJdk)
     }
 
-    myRunner.getConsoleView.dispose()
-    Disposer.dispose(myRunner.getConsoleView)
+    SbtProcessManager.forProject(getProject).destroyProcess()
+
     UIUtil.dispatchAllInvocationEvents()
     val handler = myRunner.getProcessHandler
-    handler.destroyProcess()
     //give the handler some time to terminate the process
     while (!handler.isProcessTerminated || handler.isProcessTerminating) {
       Thread.sleep(100)

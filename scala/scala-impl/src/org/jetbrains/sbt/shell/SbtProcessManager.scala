@@ -182,7 +182,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
     val pd = ProcessData(handler, runner)
 
-    processData = Option(pd)
+    processData.synchronized { processData = Option(pd) }
     pd.runner.initAndRun()
     pd
   }
@@ -200,7 +200,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   }
 
   /** Creates the SbtShellRunner view, or focuses it if it already exists. */
-  def openShellRunner(focus: Boolean = false): SbtShellRunner = {
+  def openShellRunner(focus: Boolean = false): SbtShellRunner = processData.synchronized {
 
     val theRunner = processData match {
       case Some(ProcessData(_, runner)) if runner.getConsoleView.isRunning =>
@@ -221,7 +221,8 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
   def destroyProcess(): Unit = processData.synchronized {
     processData match {
-      case Some(ProcessData(handler, _)) =>
+      case Some(ProcessData(handler, runner)) =>
+        runner.dispose()
         handler.destroyProcess()
         processData = None
       case None => // nothing to do
