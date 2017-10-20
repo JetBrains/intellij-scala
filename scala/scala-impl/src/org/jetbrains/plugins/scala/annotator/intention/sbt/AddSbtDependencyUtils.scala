@@ -229,12 +229,13 @@ object AddSbtDependencyUtils {
   private def generateArtifactText(info: ArtifactInfo): String =
     s""""${info.groupId}" % "${info.artifactId}" % "${info.version}""""
 
-  def getRelativePath(elem: PsiElement)(implicit project: ProjectContext): Option[String] =
+  def getRelativePath(elem: PsiElement)(implicit project: ProjectContext): Option[String] = {
     for {
       path <- Option(elem.getContainingFile.getVirtualFile.getCanonicalPath)
-      if !path.startsWith(project.getBasePath)
+      if path.startsWith(project.getBasePath)
     } yield
       path.substring(project.getBasePath.length + 1)
+  }
 
   def toDependencyPlaceInfo(elem: PsiElement, affectedProjects: Seq[String])(implicit ctx: ProjectContext): Option[DependencyPlaceInfo] = {
     val offset =

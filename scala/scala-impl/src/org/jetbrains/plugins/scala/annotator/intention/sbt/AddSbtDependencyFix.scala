@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.resolvers.SbtResolver
+import org.jetbrains.sbt.settings.SbtSystemSettings
 
 /**
   * Created by afonichkin on 7/7/17.
@@ -29,7 +30,8 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
     file != null &&
     file.isInstanceOf[ScalaFile] &&
     refElement.getManager.isInProject(file) &&
-    ! file.isInstanceOf[ScalaCodeFragment]
+    ! file.isInstanceOf[ScalaCodeFragment] &&
+    ! SbtSystemSettings.getInstance(project).getLinkedProjectsSettings.isEmpty
   }
 
   override def getText: String = "Add sbt dependency..."
@@ -47,17 +49,15 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
     val resolver: SbtResolver = SbtResolver.localCacheResolver(None)
 
     for {
-      sbtFile <- sbtFileOpt
-      module <- refElement.module
-      if ExternalSystemApiUtil.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
-      ivyIndex <- resolver.getIndex(project)
+      sbtFile   <- sbtFileOpt
+      ivyIndex  <- resolver.getIndex(project)
       artifactInfoSet = ivyIndex.searchArtifactInfo(getReferenceText)
-      psiSbtFile: ScalaFile = PsiManager.getInstance(project).findFile(sbtFile).asInstanceOf[ScalaFile]
-      depPlaces = getDependencyPlaces(project, psiSbtFile)
-      wizard = new SbtArtifactSearchWizard(project, artifactInfoSet, depPlaces)
+      psiSbtFile      = PsiManager.getInstance(project).findFile(sbtFile).asInstanceOf[ScalaFile]
+      depPlaces       = getDependencyPlaces(project, psiSbtFile)
+      wizard          = new SbtArtifactSearchWizard(project, artifactInfoSet, depPlaces)
       (infoOption, fileLineOption) = wizard.search()
-      artifactInfo <- infoOption
-      fileLine <- fileLineOption
+      artifactInfo  <- infoOption
+      fileLine      <- fileLineOption
     } {
       addDependency(fileLine.element, artifactInfo)(project)
       refresh(project)
