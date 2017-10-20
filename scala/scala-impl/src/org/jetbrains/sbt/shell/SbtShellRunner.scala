@@ -10,9 +10,11 @@ import com.intellij.execution.process.{OSProcessHandler, ProcessHandler}
 import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory
 import com.intellij.execution.ui.layout.PlaceInGrid
 import com.intellij.execution.ui.{RunContentDescriptor, RunnerLayoutUi}
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
 import com.intellij.ui.content.{Content, ContentFactory}
 import com.pty4j.{PtyProcess, WinSize}
@@ -26,7 +28,9 @@ import scala.collection.JavaConverters._
   * Created by jast on 2016-5-29.
   */
 class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Option[RemoteConnection])
-  extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath) {
+  extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath)
+  with Disposable
+{
 
   private val toolWindowTitle = project.getName
 
@@ -160,6 +164,11 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
     content.setToolwindowTitle(toolWindowTitle)
 
     content
+  }
+
+  override def dispose(): Unit = {
+    myConsoleView.dispose()
+    Disposer.dispose(myConsoleView)
   }
 
   object SbtShellRootType extends ConsoleRootType("sbt.shell", getConsoleTitle)
