@@ -12,8 +12,8 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.ui.JBSplitter
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.worksheet.actions.{CleanWorksheetAction, TopComponentAction}
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import worksheet.actions.{CleanWorksheetAction, TopComponentAction}
+import worksheet.runconfiguration.WorksheetCache
 
 /**
  * @author Ksenia.Sautina

@@ -1,4 +1,4 @@
-package testingSupport.specs2
+package org.jetbrains.plugins.scala.testingSupport.specs2
 
 import org.specs2.main.Arguments
 import org.specs2.reporter.{Notifier, NotifierReporter, Reporter}

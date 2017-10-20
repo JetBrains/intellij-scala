@@ -5,6 +5,7 @@ package console
 import javax.swing.Icon
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
+import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.icons.Icons
 
 /**
@@ -12,7 +13,7 @@ import org.jetbrains.plugins.scala.icons.Icons
  * Date: 10.02.2009
  */
 
-class ScalaConsoleConfigurationType extends ConfigurationType {
+class ScalaConsoleConfigurationType extends ConfigurationType with DumbAware {
   val confFactory = new ScalaConsoleRunConfigurationFactory(this)
 
   def getIcon: Icon = Icons.SCALA_CONSOLE

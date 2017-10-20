@@ -7,7 +7,7 @@ import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetUiConstructor
+import worksheet.ui.WorksheetUiConstructor
 
 /**
  * User: Dmitry Naydanov

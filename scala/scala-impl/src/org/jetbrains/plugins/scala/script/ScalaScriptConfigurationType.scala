@@ -4,6 +4,7 @@ package script
 import javax.swing.Icon
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
+import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.icons.Icons
 
 /**
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.icons.Icons
  * Date: 04.02.2009
  */
 
-class ScalaScriptConfigurationType extends ConfigurationType {
+class ScalaScriptConfigurationType extends ConfigurationType with DumbAware {
   val confFactory = new ScalaScriptRunConfigurationFactory(this)
   
   def getIcon: Icon = Icons.SCRIPT_FILE_LOGO

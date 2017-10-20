@@ -23,10 +23,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFi
 import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.NotificationUtil
-import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
-import org.jetbrains.plugins.scala.worksheet.server._
-import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, WorksheetEditorPrinterFactory}
+import worksheet.actions.RunWorksheetAction
+import worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
+import worksheet.server._
+import worksheet.ui.{WorksheetEditorPrinterBase, WorksheetEditorPrinterFactory}
 
 /**
   * User: Dmitry Naydanov
@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, Wor
   * @param callback (Name, AddToClasspath)
   */
 class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (String, String) => Unit, auto: Boolean) {
-  import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler._
+  import worksheet.processor.WorksheetCompiler._
   
   private val project = worksheetFile.getProject
   private val runType = getRunType(project)

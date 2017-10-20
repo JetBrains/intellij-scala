@@ -22,11 +22,11 @@ import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.jps.incremental.scala.remote._
 import org.jetbrains.plugins.scala.compiler.{ErrorHandler, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
-import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{MyTranslatingClient, OuterCompilerInterface}
-import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, WorksheetIncrementalEditorPrinter}
+import worksheet.actions.WorksheetFileHook
+import worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
+import worksheet.runconfiguration.ReplModeArgs
+import worksheet.server.RemoteServerConnector.{MyTranslatingClient, OuterCompilerInterface}
+import worksheet.ui.{WorksheetEditorPrinterBase, WorksheetIncrementalEditorPrinter}
 
 /**
   * User: Dmitry Naydanov
@@ -40,7 +40,7 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File, works
   /**
     * Args (for running in compile server process only)
     * 0. Compiled class name to execute 
-    * 1. Path to scala-plugin-runners.jar (needed to load MacroPrinter for types)
+    * 1. Path to runners.jar (needed to load MacroPrinter for types)
     * 2. Output - path to temp file, where processed worksheet code is written
     * 3. Output dir for compiled worksheet (i.e. for compiled temp file with processed code)
     * 4. Original worksheet file path. Used as id of REPL session on compile server (iff REPL enabled)

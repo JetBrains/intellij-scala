@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScTypeAliasDefinitionImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
-import org.jetbrains.plugins.scala.worksheet.WorksheetFoldingBuilder
+import worksheet.WorksheetFoldingBuilder
 
 import scala.collection._
 import scala.collection.JavaConverters._

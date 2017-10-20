@@ -8,7 +8,7 @@ import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.Alarm
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import worksheet.runconfiguration.WorksheetCache
 
 /**
  * Created by ibogomolov on 28.05.14.

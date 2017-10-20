@@ -11,8 +11,8 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup.WorksheetFoldRegionListener
+import worksheet.processor.FileAttributeUtilCache
+import worksheet.ui.WorksheetFoldGroup.WorksheetFoldRegionListener
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer

@@ -30,12 +30,10 @@ object ScalaUtil {
   }
 
   def runnersPath(): String = {
-    PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-settings", "scala-runners")
+    PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-shared", "runners")
   }
 
-  def testingSupportTestPath(): String = {
-    PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-settings", "runners")
-  }
+  def testingSupportTestPath(): String = runnersPath()
 
   def getScalaPluginSystemPath: String = {
     PathManager.getSystemPath + "/scala"

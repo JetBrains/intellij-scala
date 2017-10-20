@@ -6,13 +6,14 @@ import java.io.{IOException, OutputStream}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.TextRange
 
 /**
  * @author Ksenia.Sautina
  * @since 9/18/12
  */
-class ScalaConsoleExecuteAction extends AnAction {
+class ScalaConsoleExecuteAction extends AnAction with DumbAware {
   override def update(e: AnActionEvent) {
     val editor = e.getData(CommonDataKeys.EDITOR)
     if (editor == null || !editor.isInstanceOf[EditorEx]) {

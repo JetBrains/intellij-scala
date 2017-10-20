@@ -12,10 +12,10 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiWhiteSpace}
 import com.intellij.util.Alarm
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.worksheet.actions.{RunWorksheetAction, WorksheetFileHook}
-import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetCompiler, WorksheetPerFileConfig}
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
+import worksheet.actions.{RunWorksheetAction, WorksheetFileHook}
+import worksheet.processor.{FileAttributeUtilCache, WorksheetCompiler, WorksheetPerFileConfig}
+import worksheet.runconfiguration.WorksheetCache
+import worksheet.server.WorksheetProcessManager
 
 /**
  * User: Dmitry.Naydanov

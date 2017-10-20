@@ -11,8 +11,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiFileFactory}
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.actions.{CleanWorksheetAction, TopComponentAction}
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterFactory
+import worksheet.actions.{CleanWorksheetAction, TopComponentAction}
+import worksheet.ui.WorksheetEditorPrinterFactory
 
 /**
  * @author Ksenia.Sautina

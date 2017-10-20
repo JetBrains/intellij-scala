@@ -80,7 +80,7 @@ public class ScalaCompileServerForm implements Configurable {
 
     @Nls
     public String getDisplayName() {
-        return "Scala";
+        return "Scala Compile Server";
     }
 
     @Nullable

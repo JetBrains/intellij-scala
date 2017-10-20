@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterFactory
+import worksheet.ui.WorksheetEditorPrinterFactory
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer

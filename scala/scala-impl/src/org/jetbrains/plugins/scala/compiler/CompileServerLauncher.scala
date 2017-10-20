@@ -190,11 +190,11 @@ object CompileServerLauncher {
       new File(pluginRoot, "scala-library.jar"),
       new File(pluginRoot, "scala-reflect.jar"),
       new File(pluginRoot, "scala-nailgun-runner.jar"),
-      new File(pluginRoot, "jpsShared.jar"),
+      new File(pluginRoot, "compiler-shared.jar"),
       new File(jpsRoot, "nailgun.jar"),
       new File(jpsRoot, "sbt-interface.jar"),
       new File(jpsRoot, "incremental-compiler.jar"),
-      new File(jpsRoot, "scala-jps-plugin.jar")
+      new File(jpsRoot, "compiler-jps.jar")
     )
   }
 
@@ -269,9 +269,9 @@ object CompileServerLauncher {
   }
 
 
-  object ConfigureLinkListener extends NotificationListener.Adapter {
+  class ConfigureLinkListener(project: Project) extends NotificationListener.Adapter {
     def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
-      CompileServerManager.showCompileServerSettingsDialog()
+      CompileServerManager.showCompileServerSettingsDialog(project)
       notification.expire()
     }
   }
