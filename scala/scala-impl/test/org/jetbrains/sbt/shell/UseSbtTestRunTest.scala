@@ -9,6 +9,9 @@ import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
 import org.junit.experimental.categories.Category
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 /**
   * Created by Roman.Shein on 13.04.2017.
   */
@@ -48,7 +51,7 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
     runPackage(ScalaTestingTestCase.getSpecs2TemplateConfig(getProject), "test.specs2", "specs2",
       inSpecsPackage)
 
-  //TODO: this test is not taking into aaccount tests in OtherUTest/otherTests because sbt test detection detects only 'test'
+  //TODO: this test is not taking into account tests in OtherUTest/otherTests because sbt test detection detects only 'test'
   def testUTestAllInPackage(): Unit =
     runPackage(ScalaTestingTestCase.getUTestTemplateConfig(getProject), "test.uTest", "uTest",
       inUTestPackage)
@@ -117,7 +120,9 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
     config.testKind = TestRunConfigurationForm.TestKind.TEST_NAME
     config.testName = testName
     config.setTestClassPath(classFqn)
-    config.setModule(ModuleManager.getInstance(getProject).findModuleByName(moduleName))
+    val module = ModuleManager.getInstance(getProject).findModuleByName(moduleName)
+    assert(module != null, s"Could not find module '$moduleName' in project '$getProject'")
+    config.setModule(module)
     runConfig(config, expectedStrings, unexpectedStrings)
   }
 
@@ -128,10 +133,13 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
     val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =
       new ExecutionEnvironmentBuilder(config.getProject, executor)
     executionEnvironmentBuilder.runProfile(config).buildAndExecute()
+    // we can expect test to be done after additional reload completes, which also resets shell for the next test
+    val finished = SbtShellCommunication.forProject(config.project).command("reload")
+    Await.ready(finished, 10.minutes)
     runner.getConsoleView.flushDeferredText()
     val log = logger.getLog
-    expectedStrings.foreach(str => assert(log.contains(str), s"Sbt shell console did not contain $str"))
-    unexpectedStrings.foreach(str => assert(!log.contains(str), s"Sbt shell console contained $str"))
+    expectedStrings.foreach(str => assert(log.contains(str), s"Sbt shell console did not contain expected '$str'"))
+    unexpectedStrings.foreach(str => assert(!log.contains(str), s"Sbt shell console contained unexpected '$str'"))
     assert(!log.contains(SbtProjectPlatformTestCase.errorPrefix))
   }
 }
