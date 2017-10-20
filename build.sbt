@@ -3,6 +3,7 @@ import java.io.File
 import Common._
 import com.dancingrobot84.sbtidea.tasks.{UpdateIdea => updateIdeaTask}
 import sbt.Keys.{`package` => pack}
+import sbtide.Keys.ideSkipProject
 
 // Global build settings
 
@@ -12,13 +13,13 @@ resolvers in ThisBuild ++=
 
 resolvers in ThisBuild += Resolver.sonatypeRepo("snapshots")
 
-lazy val sdkDirectory = SettingKey[File]("sdk-directory", "Path to SDK directory where unmanagedJars and IDEA are located")
-
-sdkDirectory in ThisBuild := baseDirectory.in(ThisBuild).value / "SDK"
-
 ideaBuild in ThisBuild := Versions.ideaVersion
 
-ideaDownloadDirectory in ThisBuild := sdkDirectory.value / "ideaSDK"
+ideaDownloadDirectory in ThisBuild := Path.userHome / ".ScalaPluginIC" / "sdk"
+
+testConfigDir in ThisBuild := Path.userHome / ".ScalaPluginIC" / "test-config"
+
+testSystemDir in ThisBuild := Path.userHome / ".ScalaPluginIC" / "test-system"
 
 onLoad in Global := ((s: State) => { "updateIdea" :: s}) compose (onLoad in Global).value
 
@@ -31,7 +32,16 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
-  .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
+    .dependsOn(scalaImpl % "test->test;compile->compile", cbt % "test->test;compile->compile")
+    .aggregate(scalaImpl, cbt)
+    .settings(
+      aggregate.in(updateIdea) := false,
+      ideExcludedDirectories := Seq(baseDirectory.value / "target")
+    )
+
+lazy val scalaImpl: sbt.Project =
+  newProject("scala-impl", file("scala/scala-impl"))
+    .dependsOn(compilerShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
@@ -54,8 +64,7 @@ lazy val scalaCommunity: sbt.Project =
       "properties"
     ),
     ideaInternalPluginsJars :=
-      ideaInternalPluginsJars.value
-        .filterNot(cp => cp.data.getName.contains("lucene-core") || cp.data.getName.contains("junit-jupiter-api"))
+      ideaInternalPluginsJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api"))
     ,
     Keys.aggregate.in(updateIdea) := false,
     test in Test := test.in(Test).dependsOn(setUpTestEnvironment).value,
@@ -67,12 +76,13 @@ lazy val scalaCommunity: sbt.Project =
       BuildInfoKey.constant("sbtStructureVersion", Versions.sbtStructureVersion),
       BuildInfoKey.constant("sbtIdeaShellVersion", Versions.sbtIdeaShellVersion),
       BuildInfoKey.constant("sbtLatest_0_13", Versions.Sbt.latest_0_13)
-    )
+    ),
+    fullClasspath in Test := deduplicatedClasspath((fullClasspath in Test).value, communityFullClasspath.value)
   )
 
-lazy val jpsPlugin =
-  newProject("jpsPlugin", file("jps-plugin"))
-  .dependsOn(jpsShared)
+lazy val compilerJps =
+  newProject("compiler-jps", file("scala/compiler-jps"))
+  .dependsOn(compilerShared)
   .enablePlugins(SbtIdeaPlugin)
   .settings(
     libraryDependencies ++=
@@ -80,22 +90,13 @@ lazy val jpsPlugin =
         DependencyGroups.sbtBundled
   )
 
-lazy val jpsShared =
-  newProject("jpsShared", file("jpsShared"))
+lazy val compilerShared =
+  newProject("compiler-shared", file("scala/compiler-shared"))
   .enablePlugins(SbtIdeaPlugin)
   .settings(libraryDependencies += Dependencies.nailgun)
 
-lazy val scalaRunner =
-  newProject("scalaRunner", file("ScalaRunner"))
-  .settings(
-    libraryDependencies ++= DependencyGroups.scalaRunner,
-    // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
-    ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
-  )
-
 lazy val runners =
-  newProject("runners", file("Runners"))
-  .dependsOn(scalaRunner)
+  newProject("runners", file("scala/runners"))
   .settings(
     libraryDependencies ++= DependencyGroups.runners,
     // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
@@ -103,30 +104,35 @@ lazy val runners =
   )
 
 lazy val nailgunRunners =
-  newProject("nailgunRunners", file("NailgunRunners"))
-  .dependsOn(scalaRunner)
+  newProject("nailgun", file("scala/nailgun"))
+  .dependsOn(runners)
   .settings(libraryDependencies += Dependencies.nailgun)
 
 lazy val decompiler =
-  newProject("decompiler", file("decompiler"))
+  newProject("decompiler", file("scala/decompiler"))
     .settings(commonTestSettings(packagedPluginDir):_*)
     .settings(libraryDependencies ++= DependencyGroups.decompiler)
 
 lazy val macroAnnotations =
-  newProject("macroAnnotations", file("macroAnnotations"))
+  newProject("macros", file("scala/macros"))
   .settings(Seq(
     addCompilerPlugin(Dependencies.macroParadise),
     libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler)
   ): _*)
 
+lazy val cbt =
+  newProject("cbt", file("cbt"))
+    .enablePlugins(SbtIdeaPlugin)
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+
 // Utility projects
 
 lazy val ideaRunner =
-  newProject("ideaRunner", file("idea-runner"))
-  .dependsOn(Seq(jpsShared, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, decompiler).map(_ % Provided): _*)
+  newProject("idea-runner", file("target/tools/idea-runner"))
+  .dependsOn(Seq(compilerShared, runners, scalaCommunity, compilerJps, nailgunRunners, decompiler).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
-    unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value,
+    unmanagedJars in Compile := ideaMainJars.in(scalaImpl).value,
     unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
     // run configuration
     fork in run := true,
@@ -140,10 +146,10 @@ lazy val ideaRunner =
       "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005",
       "-Didea.is.internal=true",
       "-Didea.debug.mode=true",
-      s"-Didea.system.path=${System.getProperty("user.home")}/.IdeaData/IDEA-14/scala/system",
-      s"-Didea.config.path=${System.getProperty("user.home")}/.IdeaData/IDEA-14/scala/config",
+      s"-Didea.system.path=${System.getProperty("user.home")}/.ScalaPluginIC/system",
+      s"-Didea.config.path=${System.getProperty("user.home")}/.ScalaPluginIC/config",
       "-Dapple.laf.useScreenMenuBar=true",
-      s"-Dplugin.path=${baseDirectory.value.getParentFile}/out/plugin/Scala",
+      s"-Dplugin.path=${packagedPluginDir.value}",
       "-Didea.ProcessCanceledException=disabled"
     ),
     products in Compile := {
@@ -151,17 +157,19 @@ lazy val ideaRunner =
     }
   )
 
-lazy val sbtRuntimeDependencies = project
+lazy val sbtRuntimeDependencies =
+  (project in file("target/tools/sbt-runtime-dependencies"))
   .settings(
     libraryDependencies := DependencyGroups.sbtRuntime,
     managedScalaInstance := false,
     conflictManager := ConflictManager.all,
     conflictWarning := ConflictWarning.disable,
-    resolvers += sbt.Classpaths.sbtPluginReleases
+    resolvers += sbt.Classpaths.sbtPluginReleases,
+    ideSkipProject := true
   )
 
 lazy val testDownloader =
-  newProject("testJarsDownloader")
+  newProject("testJarsDownloader", file("target/tools/test-jars-downloader"))
   .settings(
     conflictManager := ConflictManager.all,
     conflictWarning := ConflictWarning.disable,
@@ -180,7 +188,7 @@ lazy val testDownloader =
   )
 
 lazy val sbtLaunchTestDownloader =
-  newProject("sbtLaunchTestDownloader")
+  newProject("sbtLaunchTestDownloader", file("target/tools/sbt-launch-test-downloader"))
   .settings(
     autoScalaLibrary := false,
     conflictManager := ConflictManager.all,
@@ -189,12 +197,12 @@ lazy val sbtLaunchTestDownloader =
   )
 
 lazy val jmhBenchmarks =
-  newProject("jmhBenchmarks")
-    .dependsOn(scalaCommunity % "test->test")
+  newProject("benchmarks", file("scala/benchmarks"))
+    .dependsOn(scalaImpl % "test->test")
     .enablePlugins(JmhPlugin)
 
 // Testing keys and settings
-import TestCategory._
+import Common.TestCategory._
 
 addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOptTests")
 addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTests")
@@ -224,46 +232,49 @@ setUpTestEnvironment in ThisBuild := {
 lazy val cleanUpTestEnvironment = taskKey[Unit]("Clean up IDEA test system and config directories")
 
 cleanUpTestEnvironment in ThisBuild := {
-  IO.delete(testSystemDir)
-  IO.delete(testConfigDir)
+  IO.delete(testSystemDir.value)
+  IO.delete(testConfigDir.value)
 }
 
 concurrentRestrictions in Global := Seq(
   Tags.limit(Tags.Test, 1)
 )
 
+communityFullClasspath in ThisBuild :=
+  deduplicatedClasspath(fullClasspath.in(scalaCommunity, Test).value, fullClasspath.in(scalaCommunity, Compile).value)
+
 // Packaging projects
 
 lazy val packagedPluginDir = settingKey[File]("Path to packaged, but not yet compressed plugin")
 
-packagedPluginDir in ThisBuild := baseDirectory.in(ThisBuild).value / "out" / "plugin" / "Scala"
+packagedPluginDir in ThisBuild := baseDirectory.in(ThisBuild).value / "target" / "plugin" / "Scala"
 
 lazy val iLoopWrapperPath = settingKey[File]("Path to repl interface sources")
 
-iLoopWrapperPath := baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrapperImpl.scala"
+iLoopWrapperPath := baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapperImpl.scala"
 
 
 lazy val pluginPackagerCommunity =
-  newProject("pluginPackagerCommunity")
+  newProject("pluginPackagerCommunity", file("target/tools/packager"))
   .settings(
     artifactPath := packagedPluginDir.value,
     dependencyClasspath :=
       dependencyClasspath.in(scalaCommunity, Compile).value ++
-      dependencyClasspath.in(jpsPlugin, Compile).value ++
+      dependencyClasspath.in(compilerJps, Compile).value ++
       dependencyClasspath.in(runners, Compile).value ++
       dependencyClasspath.in(sbtRuntimeDependencies, Compile).value
     ,
     mappings := {
-      import Packaging.PackageEntry._
       import Dependencies._
+      import Packaging.PackageEntry._
 
       val crossLibraries = (
         List(Dependencies.scalaParserCombinators, Dependencies.scalaXml) ++
           DependencyGroups.scalaCommunity
         ).distinct
       val jps = Seq(
-        Artifact(pack.in(jpsPlugin, Compile).value,
-          "lib/jps/scala-jps-plugin.jar"),
+        Artifact(pack.in(compilerJps, Compile).value,
+          "lib/jps/compiler-jps.jar"),
         Library(nailgun,
           "lib/jps/nailgun.jar"),
         Library(Dependencies.compilerBridgeSources_2_10,
@@ -276,7 +287,7 @@ lazy val pluginPackagerCommunity =
           "lib/jps/compiler-interface.jar"),
         Library(sbtInterface,
           "lib/jps/sbt-interface.jar"),
-        Artifact(Packaging.putInTempJar(baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrapperImpl.scala" ),
+        Artifact(Packaging.putInTempJar(baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapperImpl.scala" ),
           "lib/jps/repl-interface-sources.jar")
       )
       val launcher = Seq(
@@ -290,18 +301,18 @@ lazy val pluginPackagerCommunity =
           "launcher/sbt-launch.jar")
       )
       val lib = Seq(
-        Artifact(pack.in(scalaCommunity, Compile).value,
+        MergedArtifact(Seq(
+          pack.in(scalaImpl, Compile).value,
+          pack.in(cbt, Compile).value),
           "lib/scala-plugin.jar"),
         Artifact(pack.in(decompiler, Compile).value,
           "lib/scalap.jar"),
-        Artifact(pack.in(jpsShared, Compile).value,
-          "lib/jpsShared.jar"),
+        Artifact(pack.in(compilerShared, Compile).value,
+          "lib/compiler-shared.jar"),
         Artifact(pack.in(nailgunRunners, Compile).value,
           "lib/scala-nailgun-runner.jar"),
-        MergedArtifact(Seq(
-            pack.in(runners, Compile).value,
-            pack.in(scalaRunner, Compile).value),
-          "lib/scala-plugin-runners.jar"),
+        Artifact(pack.in(runners, Compile).value,
+          "lib/runners.jar"),
         AllOrganisation("org.scalameta", "lib/scalameta120.jar"),
         Library(fastparse,
           "lib/fastparse.jar"),
@@ -325,25 +336,28 @@ lazy val pluginPackagerCommunity =
     pack := {
       Packaging.packagePlugin(mappings.value, artifactPath.value)
       artifactPath.value
-    }
+    },
+    ideSkipProject := true
   )
 
 
 lazy val pluginCompressorCommunity =
-  newProject("pluginCompressorCommunity")
+  newProject("pluginCompressorCommunity", file("target/tools/compressor"))
   .settings(
-    artifactPath := baseDirectory.in(ThisBuild).value / "out" / "scala-plugin.zip",
+    artifactPath := baseDirectory.in(ThisBuild).value / "target" / "scala-plugin.zip",
     pack := {
       Packaging.compressPackagedPlugin(pack.in(pluginPackagerCommunity).value, artifactPath.value)
       artifactPath.value
-    }
+    },
+    ideSkipProject := true
   )
 
 lazy val repackagedZinc =
-  newProject("repackagedZinc")
+  newProject("repackagedZinc", file("target/tools/zinc"))
   .settings(
     assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
-    libraryDependencies += Dependencies.zinc
+    libraryDependencies += Dependencies.zinc,
+    ideSkipProject := true
   )
 
 updateIdea := {
@@ -367,5 +381,5 @@ packILoopWrapper := {
   val fn = iLoopWrapperPath.value
 
   IO.zip(Seq((fn, fn.getName)),
-    baseDirectory.in(BuildRef(file(".").toURI)).value / "out" / "plugin" / "Scala" / "lib" / "jps" / "repl-interface-sources.jar")
+    baseDirectory.in(BuildRef(file(".").toURI)).value / "target" / "plugin" / "Scala" / "lib" / "jps" / "repl-interface-sources.jar")
 }
