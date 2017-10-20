@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.annotator.intention.sbt.ui
 
-import java.awt.Dimension
 import javax.swing.{Icon, JComponent}
 
 import com.intellij.ide.wizard.Step
 import com.intellij.openapi.project.Project
+import com.intellij.util.ui.JBUI
 import org.jetbrains.plugins.scala.annotator.intention.sbt.DependencyPlaceInfo
 
 /**
@@ -15,7 +15,7 @@ class SbtPossiblePlacesStep(wizard: SbtArtifactSearchWizard, project: Project, f
 
   override def _init(): Unit = {
     wizard.setTitle("Place to add dependency")
-    setPreferredSize(new Dimension(1600, 1200))
+    wizard.setSize(JBUI.scale(600), JBUI.scale(750))
     updateUI()
   }
 
