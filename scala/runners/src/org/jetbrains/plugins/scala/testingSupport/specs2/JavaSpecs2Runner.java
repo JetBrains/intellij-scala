@@ -3,14 +3,13 @@ package org.jetbrains.plugins.scala.testingSupport.specs2;
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.specs2.runner.ClassRunner$;
 import org.specs2.runner.NotifierRunner;
-import testingSupport.specs2.MyNotifierRunner;
+import org.jetbrains.plugins.scala.testingSupport.specs2.MyNotifierRunner;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alexander Podkhalyuzin

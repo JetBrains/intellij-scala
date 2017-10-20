@@ -46,7 +46,7 @@ class Specs2RunConfiguration(override val project: Project,
   override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] =
     modifySetting(SettingMap(), "fullClasspath", "test", "Test",
       "Attributed(new File(\"" + ScalaUtil.runnersPath().replace("\\", "\\\\") + "\"))(AttributeMap.empty)",
-      comm, !_.contains("scala-plugin-runners.jar"), shouldRevert = false)
+      comm, !_.contains("runners.jar"), shouldRevert = false)
 
   override def getReporterParams: String = " -- -notifier " + reporterClass
 

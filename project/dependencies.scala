@@ -138,10 +138,6 @@ object DependencyGroups {
     bcel
   )
 
-  val scalaRunner = Seq(
-    specs2
-  )
-
   val runners = Seq(
     "org.scala-lang" % "scala-compiler" % scalaVersion,
     specs2,

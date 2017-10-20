@@ -26,10 +26,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterFactory
+import worksheet.processor.WorksheetCompiler
+import worksheet.runconfiguration.WorksheetCache
+import worksheet.server.WorksheetProcessManager
+import worksheet.ui.WorksheetEditorPrinterFactory
 
 /**
  * @author Ksenia.Sautina

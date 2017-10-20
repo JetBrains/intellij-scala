@@ -21,8 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImpo
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinter
+import worksheet.processor.WorksheetCompiler
+import worksheet.ui.WorksheetIncrementalEditorPrinter
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer

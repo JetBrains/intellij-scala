@@ -56,11 +56,11 @@ abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[Fil
 
   private val compilerClasspath = scalaSdk.compilerClasspath
 
-  private val compilerSettingsJar = new File(libCanonicalPath, "jpsShared.jar")
+  private val compilerSharedJar = new File(libCanonicalPath, "compiler-shared.jar")
   
-  protected val runnersJar = new File(libCanonicalPath, "scala-plugin-runners.jar")
+  protected val runnersJar = new File(libCanonicalPath, "runners.jar")
 
-  val additionalCp = compilerClasspath :+ runnersJar :+ compilerSettingsJar :+ outputDir
+  val additionalCp = compilerClasspath :+ runnersJar :+ compilerSharedJar :+ outputDir
 
   protected def worksheetArgs: Array[String] = Array()
 

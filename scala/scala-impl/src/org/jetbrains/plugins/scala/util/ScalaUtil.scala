@@ -30,7 +30,7 @@ object ScalaUtil {
   }
 
   def runnersPath(): String = {
-    PathUtil.getJarPathForClass(classOf[Client]).replace("jpsShared", "scala-plugin-runners")
+    PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-shared", "runners")
   }
 
   def testingSupportTestPath(): String = runnersPath()

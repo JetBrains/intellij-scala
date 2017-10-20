@@ -42,7 +42,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
-import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
+import worksheet.ammonite.AmmoniteUtil
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer

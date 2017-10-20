@@ -6,7 +6,7 @@ import javax.swing.Icon
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
-import org.jetbrains.plugins.scala.worksheet.actions.TopComponentAction
+import worksheet.actions.TopComponentAction
 
 /**
  * User: Dmitry Naydanov

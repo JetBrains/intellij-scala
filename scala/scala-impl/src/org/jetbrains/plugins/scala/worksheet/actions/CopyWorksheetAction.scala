@@ -12,8 +12,8 @@ import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldRegionDelegate
+import worksheet.runconfiguration.WorksheetCache
+import worksheet.ui.WorksheetFoldRegionDelegate
 
 /**
  * @author Dmitry.Naydanov

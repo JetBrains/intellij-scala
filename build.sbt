@@ -41,7 +41,7 @@ lazy val scalaCommunity: sbt.Project =
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
-    .dependsOn(jpsShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
+    .dependsOn(compilerShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin, BuildInfoPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
@@ -80,9 +80,9 @@ lazy val scalaImpl: sbt.Project =
     fullClasspath in Test := deduplicatedClasspath((fullClasspath in Test).value, communityFullClasspath.value)
   )
 
-lazy val jpsPlugin =
-  newProject("compiler", file("scala/compiler"))
-  .dependsOn(jpsShared)
+lazy val compilerJps =
+  newProject("compiler-jps", file("scala/compiler-jps"))
+  .dependsOn(compilerShared)
   .enablePlugins(SbtIdeaPlugin)
   .settings(
     libraryDependencies ++=
@@ -90,22 +90,13 @@ lazy val jpsPlugin =
         DependencyGroups.sbtBundled
   )
 
-lazy val jpsShared =
-  newProject("compiler-settings", file("scala/compiler-settings"))
+lazy val compilerShared =
+  newProject("compiler-shared", file("scala/compiler-shared"))
   .enablePlugins(SbtIdeaPlugin)
   .settings(libraryDependencies += Dependencies.nailgun)
 
-lazy val scalaRunner =
-  newProject("scala-runners", file("scala/scala-runners"))
-  .settings(
-    libraryDependencies ++= DependencyGroups.scalaRunner,
-    // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
-    ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
-  )
-
 lazy val runners =
   newProject("runners", file("scala/runners"))
-  .dependsOn(scalaRunner)
   .settings(
     libraryDependencies ++= DependencyGroups.runners,
     // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
@@ -114,7 +105,7 @@ lazy val runners =
 
 lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
-  .dependsOn(scalaRunner)
+  .dependsOn(runners)
   .settings(libraryDependencies += Dependencies.nailgun)
 
 lazy val decompiler =
@@ -138,7 +129,7 @@ lazy val cbt =
 
 lazy val ideaRunner =
   newProject("idea-runner", file("target/tools/idea-runner"))
-  .dependsOn(Seq(jpsShared, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, decompiler).map(_ % Provided): _*)
+  .dependsOn(Seq(compilerShared, runners, scalaCommunity, compilerJps, nailgunRunners, decompiler).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
     unmanagedJars in Compile := ideaMainJars.in(scalaImpl).value,
@@ -260,7 +251,7 @@ packagedPluginDir in ThisBuild := baseDirectory.in(ThisBuild).value / "target" /
 
 lazy val iLoopWrapperPath = settingKey[File]("Path to repl interface sources")
 
-iLoopWrapperPath := baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrapperImpl.scala"
+iLoopWrapperPath := baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapperImpl.scala"
 
 
 lazy val pluginPackagerCommunity =
@@ -269,7 +260,7 @@ lazy val pluginPackagerCommunity =
     artifactPath := packagedPluginDir.value,
     dependencyClasspath :=
       dependencyClasspath.in(scalaCommunity, Compile).value ++
-      dependencyClasspath.in(jpsPlugin, Compile).value ++
+      dependencyClasspath.in(compilerJps, Compile).value ++
       dependencyClasspath.in(runners, Compile).value ++
       dependencyClasspath.in(sbtRuntimeDependencies, Compile).value
     ,
@@ -282,8 +273,8 @@ lazy val pluginPackagerCommunity =
           DependencyGroups.scalaCommunity
         ).distinct
       val jps = Seq(
-        Artifact(pack.in(jpsPlugin, Compile).value,
-          "lib/jps/scala-jps-plugin.jar"),
+        Artifact(pack.in(compilerJps, Compile).value,
+          "lib/jps/compiler-jps.jar"),
         Library(nailgun,
           "lib/jps/nailgun.jar"),
         Library(Dependencies.compilerBridgeSources_2_10,
@@ -296,7 +287,7 @@ lazy val pluginPackagerCommunity =
           "lib/jps/compiler-interface.jar"),
         Library(sbtInterface,
           "lib/jps/sbt-interface.jar"),
-        Artifact(Packaging.putInTempJar(baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrapperImpl.scala" ),
+        Artifact(Packaging.putInTempJar(baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapperImpl.scala" ),
           "lib/jps/repl-interface-sources.jar")
       )
       val launcher = Seq(
@@ -316,14 +307,12 @@ lazy val pluginPackagerCommunity =
           "lib/scala-plugin.jar"),
         Artifact(pack.in(decompiler, Compile).value,
           "lib/scalap.jar"),
-        Artifact(pack.in(jpsShared, Compile).value,
-          "lib/jpsShared.jar"),
+        Artifact(pack.in(compilerShared, Compile).value,
+          "lib/compiler-shared.jar"),
         Artifact(pack.in(nailgunRunners, Compile).value,
           "lib/scala-nailgun-runner.jar"),
-        MergedArtifact(Seq(
-            pack.in(runners, Compile).value,
-            pack.in(scalaRunner, Compile).value),
-          "lib/scala-plugin-runners.jar"),
+        Artifact(pack.in(runners, Compile).value,
+          "lib/runners.jar"),
         AllOrganisation("org.scalameta", "lib/scalameta120.jar"),
         Library(fastparse,
           "lib/fastparse.jar"),

@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Comple
 import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceElementResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
-import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
+import worksheet.ammonite.AmmoniteUtil
 
 /**
  * @author AlexanderPodkhalyuzin
