@@ -253,7 +253,7 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
     )
     createFile(s"@$annotName('abc) class $testClassName")
     val errors = myFixture.doHighlighting(HighlightSeverity.ERROR)
-    assertTrue(s"Symbol in annotation causes error: ${errors.get(0)}", errors.isEmpty)
+    assert(errors.isEmpty, s"Symbol in annotation causes error: ${errors.get(0)}")
   }
 
   // Type parameters resolve to both synthetic and physical elements if target is present in both
