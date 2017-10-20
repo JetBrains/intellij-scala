@@ -107,9 +107,12 @@ object AmmoniteUtil {
           case Some(d) =>
             refElement.refName match {
               case PARENT_FILE => Option(d.getParent)
-              case other if d.isDirectory =>
-                Option(d.asInstanceOf[PsiDirectory].findFile(s"$other.$AMMONITE_EXTENSION"))
-              case _ => None
+              case other =>
+                d match {
+                  case dir: PsiDirectory =>
+                    Option(dir findFile s"$other.$AMMONITE_EXTENSION").orElse(Option(dir findSubdirectory other))
+                  case _ => None
+                }
             }
           case a@None => a
         }
