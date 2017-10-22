@@ -10,7 +10,9 @@ import org.jetbrains.plugins.scala.settings.HydraApplicationSettings
 /**
   * @author Maris Alexandru
   */
-class HydraCompilerConfigurable (project: Project, settings: HydraCompilerSettings, hydraGlobalSettings: HydraApplicationSettings) extends AbstractConfigurable("Hydra Compiler"){
+class HydraCompilerConfigurable (project: Project) extends AbstractConfigurable("Hydra Compiler"){
+  private val settings = HydraCompilerSettings.getInstance(project)
+  private val hydraGlobalSettings = HydraApplicationSettings.getInstance()
   private val form = new ScalaHydraCompilerConfigurationPanel(project, settings, hydraGlobalSettings)
 
   override def createComponent(): JPanel = form.getContentPanel

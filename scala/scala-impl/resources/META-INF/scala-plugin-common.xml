@@ -93,7 +93,6 @@
         <projectConfigurable groupId="language" displayName="Scala" instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
         <applicationConfigurable displayName="Scala Compile Server" parentId="Scala Compiler"
                                  instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
-        <projectConfigurable groupId="language" displayName="Hydra Compiler" instance="org.jetbrains.plugins.scala.compiler.HydraCompilerConfigurable"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
@@ -437,7 +436,6 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler" dynamic="true"
                              instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable" />
-
         <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>
 
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaAttributeValueSelectioner"/>
@@ -1483,6 +1481,9 @@
         </action>
         <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction">
             <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
+        </action>
+        <action id="Hydra.EnableSettings" class="org.jetbrains.plugins.scala.actions.EnableHydraSettingsAction"
+                text="Enable/Disable Hydra Settings" description="Enables or Disables Hydra Settings Panel">
         </action>
         <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.ScalaConsoleExecuteAction" text="Execute Console Statement">
             <keyboard-shortcut first-keystroke="control ENTER" keymap="$default"/>
