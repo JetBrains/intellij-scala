@@ -5,6 +5,7 @@ import java.io.File
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.ScalaLoader
@@ -47,6 +48,7 @@ case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
     val srcRoots = ScalaRuntimeLoader(Sources).rootFiles
 
     library = PsiTestUtil.addProjectLibrary(module, "scala-sdk", classRoots.asJava, srcRoots.asJava)
+    Disposer.register(module, library)
 
     inWriteAction {
       library.convertToScalaSdkWith(languageLevel(files.head), files)
