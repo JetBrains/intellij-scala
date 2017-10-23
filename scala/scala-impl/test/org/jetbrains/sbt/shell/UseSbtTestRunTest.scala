@@ -4,6 +4,7 @@ import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.roots.ProjectRootManager
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
@@ -129,17 +130,25 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
   protected def runConfig(config: AbstractTestRunConfiguration, expectedStrings: Seq[String],
                           unexpectedStrings: Seq[String], commandsExpected: Int = 1): Unit = {
     config.useSbt = true
+    val project = config.getProject
+    val sdk = ProjectRootManager.getInstance(project).getProjectSdk
+    assert(sdk != null, s"project sdk was null in project ${project.getName}")
+
     val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(classOf[DefaultRunExecutor])
     val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =
-      new ExecutionEnvironmentBuilder(config.getProject, executor)
+      new ExecutionEnvironmentBuilder(project, executor)
     executionEnvironmentBuilder.runProfile(config).buildAndExecute()
     // we can expect test to be done after additional reload completes, which also resets shell for the next test
-    val finished = SbtShellCommunication.forProject(config.project).command("reload")
+    val finished = SbtShellCommunication.forProject(project).command("reload")
     Await.ready(finished, 10.minutes)
     runner.getConsoleView.flushDeferredText()
     val log = logger.getLog
-    expectedStrings.foreach(str => assert(log.contains(str), s"sbt shell console did not contain expected string '$str'"))
-    unexpectedStrings.foreach(str => assert(!log.contains(str), s"sbt shell console contained unexpected string '$str'"))
-    assert(!log.contains(SbtProjectPlatformTestCase.errorPrefix))
+    expectedStrings.foreach(str => assert(log.contains(str), s"sbt shell console did not contain expected string '$str'. Full log:\n$log"))
+    unexpectedStrings.foreach(str => assert(!log.contains(str), s"sbt shell console contained unexpected string '$str'. Full log:\n$log"))
+    val logSplitted = logLines(log)
+    val errorline = logSplitted.find(line => line contains SbtProjectPlatformTestCase.errorPrefix)
+    assert(errorline.isEmpty, s"log contained errors: $errorline")
   }
+
+  private def logLines(log: String) = log.split("\n").toVector
 }
