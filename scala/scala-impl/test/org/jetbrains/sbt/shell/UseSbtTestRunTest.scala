@@ -138,8 +138,8 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
     Await.ready(finished, 10.minutes)
     runner.getConsoleView.flushDeferredText()
     val log = logger.getLog
-    expectedStrings.foreach(str => assert(log.contains(str), s"Sbt shell console did not contain expected '$str'"))
-    unexpectedStrings.foreach(str => assert(!log.contains(str), s"Sbt shell console contained unexpected '$str'"))
+    expectedStrings.foreach(str => assert(log.contains(str), s"sbt shell console did not contain expected string '$str'"))
+    unexpectedStrings.foreach(str => assert(!log.contains(str), s"sbt shell console contained unexpected string '$str'"))
     assert(!log.contains(SbtProjectPlatformTestCase.errorPrefix))
   }
 }

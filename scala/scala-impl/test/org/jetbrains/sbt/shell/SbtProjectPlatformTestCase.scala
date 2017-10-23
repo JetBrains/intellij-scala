@@ -23,7 +23,9 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
 
   override def setUpProject(): Unit = {
-    // projectFile is the sbt file for the root project
+    //projectFile is the sbt file for the root project
+    val sbtRootFile = getSbtRootFile
+    assert(sbtRootFile.exists, "expected path does not exist: " + sbtRootFile.getAbsolutePath)
     val path = getSbtRootFile.getAbsolutePath
     val project = ProjectUtil.openOrImport(path, null, false)
     assert(project != null, s"project at path $path was null")
