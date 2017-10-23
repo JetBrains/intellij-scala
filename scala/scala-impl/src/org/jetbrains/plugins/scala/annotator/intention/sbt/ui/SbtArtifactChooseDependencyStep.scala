@@ -12,7 +12,7 @@ class SbtArtifactChooseDependencyStep(wizard: SbtArtifactSearchWizard, artifactI
   extends SbtArtifactSearchPanel(wizard, artifactInfoSet) with Step {
 
   override def _init(): Unit = {
-    wizard.setTitle("Sbt Artifact Search")
+    wizard.setTitle("sbt artifact search")
     updateUI()
   }
 
