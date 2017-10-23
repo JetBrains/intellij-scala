@@ -6,9 +6,9 @@ import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemN
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
+import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.structure.CbtModuleExtData
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, Platform, ScalaLanguageLevel}
-import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.service.{AbstractDataService, AbstractImporter, Importer}
 
 class CbtModuleExtDataService extends AbstractDataService[CbtModuleExtData, Library](CbtModuleExtData.Key) {
@@ -28,7 +28,7 @@ object CbtModuleExtDataService {
         NotificationCategory.WARNING,
         NotificationSource.PROJECT_SYNC)
     ExternalSystemNotificationManager.getInstance(project)
-      .showNotification(SbtProjectSystem.Id, notification)
+      .showNotification(CbtProjectSystem.Id, notification)
   }
 
   private class Importer(toImport: Seq[DataNode[CbtModuleExtData]],
