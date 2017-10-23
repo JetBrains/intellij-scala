@@ -6,7 +6,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyLibraryLoader._
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11, Scala_2_12}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.project.ModuleExt
 
 /**
@@ -22,7 +22,7 @@ trait ThirdPartyLibraryLoader extends LibraryLoader {
     val file = new File(path).getCanonicalFile
     assert(file.exists(), s"library root for $name does not exist at $file")
     VfsRootAccess.allowRootAccess(path)
-    PsiTestUtil.addLibrary(module, path)
+    PsiTestUtil.addLibrary(this, module, name, path)
   }
 
   protected def path(implicit version: ScalaVersion): String
