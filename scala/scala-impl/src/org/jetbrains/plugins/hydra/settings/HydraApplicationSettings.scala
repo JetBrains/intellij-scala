@@ -1,11 +1,12 @@
-package org.jetbrains.plugins.scala.settings
+package org.jetbrains.plugins.hydra.settings
 
 import java.io.File
 import java.util
-import scala.collection.JavaConverters._
+
 import com.intellij.openapi.components._
 
 import scala.beans.BeanProperty
+import scala.collection.JavaConverters._
 
 /**
   * @author Maris Alexandru

@@ -1,16 +1,16 @@
-package org.jetbrains.plugins.scala.compiler
+package org.jetbrains.plugins.hydra.compiler
 
 import java.awt.event.{ActionEvent, FocusEvent, FocusListener}
 import javax.swing.event.DocumentEvent
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
-import com.intellij.openapi.ui.{Messages, TextComponentAccessor}
-import org.jetbrains.plugins.scala.caches.HydraArtifactsCache
-import org.jetbrains.plugins.scala.extensions
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.{Messages, TextComponentAccessor}
 import com.intellij.ui.{DocumentAdapter, EditorNotifications}
+import org.jetbrains.plugins.hydra.caches.HydraArtifactsCache
+import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.project.{ProjectExt, Version, Versions}
-import org.jetbrains.plugins.scala.settings.HydraApplicationSettings
 
 import scala.util.{Failure, Success}
 

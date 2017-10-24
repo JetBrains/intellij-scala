@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala.compiler
+package org.jetbrains.plugins.hydra.compiler
 
 import java.io.File
 
 import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.compiler.SourcePartitioner.Auto
+import org.jetbrains.plugins.hydra.compiler.SourcePartitioner.Auto
 
 import scala.beans.BeanProperty
 

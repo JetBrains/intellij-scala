@@ -270,7 +270,7 @@
 
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider"/>
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider"/>
-        <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.HydraArtifactsNotificationProvider"/>
+        <editorNotificationProvider implementation="org.jetbrains.plugins.hydra.notification.HydraArtifactsNotificationProvider"/>
 
         <!--Enter Handler for ScalaDoc -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.lang.completion.handlers.ScalaDocParamEnterHandlerDelegate"/>
@@ -421,11 +421,11 @@
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
 
-        <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.HydraApplicationSettings"
-                            serviceImplementation="org.jetbrains.plugins.scala.settings.HydraApplicationSettings"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.hydra.settings.HydraApplicationSettings"
+                            serviceImplementation="org.jetbrains.plugins.hydra.settings.HydraApplicationSettings"/>
 
-        <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.HydraCompilerSettings"
-                        serviceImplementation="org.jetbrains.plugins.scala.compiler.HydraCompilerSettings"/>
+        <projectService serviceInterface="org.jetbrains.plugins.hydra.compiler.HydraCompilerSettings"
+                        serviceImplementation="org.jetbrains.plugins.hydra.compiler.HydraCompilerSettings"/>
 
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
@@ -1483,7 +1483,7 @@
         <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction">
             <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
         </action>
-        <action id="Hydra.EnableSettings" class="org.jetbrains.plugins.scala.actions.EnableHydraSettingsAction"
+        <action id="Hydra.EnableSettings" class="org.jetbrains.plugins.hydra.actions.EnableHydraSettingsAction"
                 text="Enable/Disable Hydra Settings" description="Enables or Disables Hydra Settings Panel">
         </action>
         <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.ScalaConsoleExecuteAction" text="Execute Console Statement">

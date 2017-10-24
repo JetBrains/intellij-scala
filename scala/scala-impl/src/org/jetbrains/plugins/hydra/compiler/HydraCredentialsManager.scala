@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.compiler
+package org.jetbrains.plugins.hydra.compiler
 
 import java.nio.charset.StandardCharsets
 import java.util.Base64

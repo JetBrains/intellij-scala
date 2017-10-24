@@ -12,7 +12,8 @@ import scala.util.Random
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.options.Configurable.Composite
 import com.intellij.openapi.util.registry.Registry
-import org.jetbrains.plugins.scala.compiler.{HydraCompilerConfigurable, HydraCompilerSettings, ScalaCompileServerForm, ScalaCompileServerSettings}
+import org.jetbrains.plugins.hydra.compiler.{HydraCompilerConfigurable, HydraCompilerSettings}
+import org.jetbrains.plugins.scala.compiler.{ScalaCompileServerForm, ScalaCompileServerSettings}
 
 /**
  * @author Pavel Fatin

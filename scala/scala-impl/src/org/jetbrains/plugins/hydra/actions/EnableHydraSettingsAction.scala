@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.actions
+package org.jetbrains.plugins.hydra.actions
 
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys, ToggleAction}
+import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, ToggleAction}
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.compiler.HydraCompilerSettings
+import org.jetbrains.plugins.hydra.compiler.HydraCompilerSettings
 
 /**
   * @author Maris Alexandru

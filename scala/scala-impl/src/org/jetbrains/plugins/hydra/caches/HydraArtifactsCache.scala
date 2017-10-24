@@ -1,11 +1,10 @@
-package org.jetbrains.plugins.scala.caches
+package org.jetbrains.plugins.hydra.caches
 
 import java.io.File
 
-import org.jetbrains.plugins.scala.project.template.FileExt
 import com.intellij.openapi.diagnostic.Logger
-import org.jetbrains.plugins.scala.project.template.Downloader
-import org.jetbrains.plugins.scala.settings.HydraApplicationSettings
+import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
+import org.jetbrains.plugins.scala.project.template.{Downloader, FileExt}
 
 /**
   * @author Maris Alexandru
