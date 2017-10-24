@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="probes">
-    <output-path>$PROJECT_DIR$/out/artifacts/probes</output-path>
-    <root id="archive" name="probes.jar">
-      <element id="module-output" name="yourkitProbes" />
-      <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.11.6.jar" path-in-jar="/" />
-    </root>
-  </artifact>
-</component>

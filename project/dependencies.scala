@@ -5,10 +5,9 @@ object Versions {
   val scalaBinaryVersion: String = Scala.binary_2_12
   val sbtVersion: String = Sbt.latest
   val zincVersion = "1.0.0"
-  val ideaVersion = "173.2463.16"
+  val ideaVersion = "173.3302.5"
   val sbtStructureVersion: String = "2017.2"
   val sbtIdeaShellVersion: String = "2017.2"
-  val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
   val wagonVersion = "2.6"
@@ -82,7 +81,6 @@ object Dependencies {
   //  val specs2: ModuleID = "org.specs2" %% "specs2-core" % "3.9.1" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
   val specs2: ModuleID = "org.specs2" %% "specs2-core" % "2.4.17" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
 
-  val luceneCore: ModuleID = "org.apache.lucene" % "lucene-core" % luceneVersion
   val commonsLang: ModuleID = "commons-lang" % "commons-lang" % "2.6"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
 
@@ -128,7 +126,6 @@ object DependencyGroups {
     evoInflector,
     scalatestFindersPatched,
     jamm,
-    luceneCore,
     scalastyle,
     scalariform
   )
@@ -141,15 +138,11 @@ object DependencyGroups {
     bcel
   )
 
-  val scalaRunner = Seq(
-    specs2
-  )
-
   val runners = Seq(
     "org.scala-lang" % "scala-compiler" % scalaVersion,
     specs2,
     "org.scalatest" %% "scalatest" % "3.0.1" % "provided",
-    "com.lihaoyi" %% "utest" % "0.4.8" % "provided"
+    "com.lihaoyi" %% "utest" % "0.5.4" % "provided"
   )
 
   val sbtLaunchTestDownloader: Seq[ModuleID] =
@@ -170,6 +163,7 @@ object DependencyGroups {
     "com.lihaoyi" % "utest_2.10" % "0.4.3" % "provided",
     "com.lihaoyi" % "utest_2.11" % "0.3.1" % "provided",
     "com.lihaoyi" % "utest_2.11" % "0.4.3" % "provided",
+    "com.lihaoyi" % "utest_2.11" % "0.5.4" % "provided",
     "com.typesafe.akka" % "akka-actor_2.11" % "2.4.19",
     "com.typesafe.akka" % "akka-stream_2.11" % "2.4.19",
     "com.typesafe.play" % "play_2.10" % "2.4.10",
