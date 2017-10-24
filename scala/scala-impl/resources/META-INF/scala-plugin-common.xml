@@ -270,6 +270,7 @@
 
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider"/>
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider"/>
+        <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.HydraArtifactsNotificationProvider"/>
 
         <!--Enter Handler for ScalaDoc -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.lang.completion.handlers.ScalaDocParamEnterHandlerDelegate"/>

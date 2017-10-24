@@ -4,6 +4,7 @@ import javax.swing.JPanel
 
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.project.Project
+import com.intellij.ui.EditorNotifications
 import org.jetbrains.plugins.scala.project.AbstractConfigurable
 import org.jetbrains.plugins.scala.settings.HydraApplicationSettings
 
@@ -43,5 +44,6 @@ class HydraCompilerConfigurable (project: Project) extends AbstractConfigurable(
     settings.sourcePartitioner = form.selectedSourcePartitioner
     settings.hydraStorePath = form.getHydraStoreDirectory
     HydraCredentialsManager.setCredentials(form.getUsername, form.getPassword)
+    EditorNotifications.updateAll()
   }
 }

@@ -8,7 +8,7 @@ import com.intellij.openapi.ui.{Messages, TextComponentAccessor}
 import org.jetbrains.plugins.scala.caches.HydraArtifactsCache
 import org.jetbrains.plugins.scala.extensions
 import com.intellij.openapi.project.Project
-import com.intellij.ui.DocumentAdapter
+import com.intellij.ui.{DocumentAdapter, EditorNotifications}
 import org.jetbrains.plugins.scala.project.{ProjectExt, Version, Versions}
 import org.jetbrains.plugins.scala.settings.HydraApplicationSettings
 
@@ -79,6 +79,7 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
 
     downloadVersionWithProgress(scalaVersions, selectedVersion)
     settings.hydraVersion = selectedVersion
+    EditorNotifications.updateAll()
   }
 
   private def downloadHydraVersions = {
