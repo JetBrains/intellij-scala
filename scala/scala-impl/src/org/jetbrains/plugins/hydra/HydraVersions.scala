@@ -8,8 +8,8 @@ import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
   * @author Maris Alexandru
   */
 object HydraVersions {
-  val MinHydraVersion = "2.11"
-  val UnsupportedHydraVersion = "2.12.0"
+  private val MinHydraVersion = "2.11.8"
+  private val UnsupportedHydraVersion = "2.12.0"
 
   def getSupportedScalaVersions(project: Project): Seq[String] = {
     val scalaVersions = for {
@@ -18,8 +18,7 @@ object HydraVersions {
       if scalaVersion != UnsupportedHydraVersion
       version = Version(scalaVersion)
       if version >= Version(MinHydraVersion)
-      filteredVersion = version.presentation
-    } yield filteredVersion
+    } yield version.presentation
 
     scalaVersions.distinct
   }
