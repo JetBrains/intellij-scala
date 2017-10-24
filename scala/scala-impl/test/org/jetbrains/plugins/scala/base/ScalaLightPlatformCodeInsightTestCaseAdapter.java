@@ -120,7 +120,6 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         super.setUp();
 
         TestUtils.disableTimerThread();
-        //libLoader.clean();
     }
 
     protected void setUpWithoutScalaLib() throws Exception {
@@ -174,7 +173,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     @Override
     protected void tearDown() throws Exception {
-        tearDownLibraries();
-        super.tearDown();
+        try {
+            tearDownLibraries();
+        } finally {
+            super.tearDown();
+        }
     }
 }
