@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.SbtProjectSystem
 
+import scala.concurrent.{Future, Promise}
+
 /**
   * Created by Roman.Shein on 27.03.2017.
   */
@@ -98,14 +100,17 @@ object SbtProjectPlatformTestCase {
 
 class ProcessLogger extends ProcessListener {
   private val logBuilder: StringBuilder = new StringBuilder()
+  private val termination = Promise.apply[Int]()
 
   def getLog: String = logBuilder.mkString
+  def terminated: Future[Int] = termination.future
 
   override def processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean): Unit = {}
 
   override def startNotified(event: ProcessEvent): Unit = {}
 
-  override def processTerminated(event: ProcessEvent): Unit = {}
+  override def processTerminated(event: ProcessEvent): Unit =
+    termination.success(event.getExitCode)
 
   override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
     synchronized { logBuilder.append(event.getText) }
