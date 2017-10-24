@@ -30,10 +30,6 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     JdkLoader()
   )
 
-  override protected def setUp(): Unit = {
-    super.setUp()
-  }
-
   override protected def getProjectDescriptor = new DelegatingProjectDescriptor(super.getProjectDescriptor) {
     override def setUpProject(project: Project, handler: LightProjectDescriptor.SetupHandler) = {
       super.setUpProject(project, handler)
