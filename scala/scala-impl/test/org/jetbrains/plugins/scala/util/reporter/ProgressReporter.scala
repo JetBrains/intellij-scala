@@ -16,7 +16,7 @@ trait ProgressReporter {
 }
 
 object ProgressReporter {
-  def newInstance(reportSuccess: Boolean = true): ProgressReporter = {
-    if (sys.env.contains("TEAMCITY_VERSION")) new TeamCityReporter(reportSuccess) else new ConsoleReporter
+  def newInstance(name: String, reportSuccess: Boolean = true): ProgressReporter = {
+    if (sys.env.contains("TEAMCITY_VERSION")) new TeamCityReporter(name, reportSuccess) else new ConsoleReporter
   }
 }

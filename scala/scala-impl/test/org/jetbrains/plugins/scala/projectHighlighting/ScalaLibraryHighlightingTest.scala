@@ -18,7 +18,7 @@ import org.junit.experimental.categories.Category
 abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testHighlightScalaLibrary(): Unit = {
-    val reporter = ProgressReporter.newInstance(reportSuccess = false)
+    val reporter = ProgressReporter.newInstance(getClass.getName, reportSuccess = false)
 
     val sources = ScalaLibraryLoader.ScalaRuntimeLoader(Sources).rootFiles.head
     VfsUtilCore.processFilesRecursively(sources, (vFile: VirtualFile) => {
