@@ -253,6 +253,15 @@ lazy val iLoopWrapperPath = settingKey[File]("Path to repl interface sources")
 
 iLoopWrapperPath := baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapperImpl.scala"
 
+//packages output of several modules to a single jar
+lazy val scalaPluginJarPackager =
+  newProject("scalaPluginJarPackager", file("target/tools/scalaPluginJarPackager"))
+    .settings(
+      products in Compile :=
+        products.in(scalaImpl, Compile).value ++
+        products.in(cbt, Compile).value,
+      ideSkipProject := true
+    )
 
 lazy val pluginPackagerCommunity =
   newProject("pluginPackagerCommunity", file("target/tools/packager"))
@@ -301,9 +310,7 @@ lazy val pluginPackagerCommunity =
           "launcher/sbt-launch.jar")
       )
       val lib = Seq(
-        MergedArtifact(Seq(
-          pack.in(scalaImpl, Compile).value,
-          pack.in(cbt, Compile).value),
+        Artifact(pack.in(scalaPluginJarPackager, Compile).value,
           "lib/scala-plugin.jar"),
         Artifact(pack.in(decompiler, Compile).value,
           "lib/scalap.jar"),
