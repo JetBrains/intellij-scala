@@ -225,21 +225,21 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                       else {
                         val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
                           s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor)))))
-                        val result = fun.parameters.head.`type`()
-                        if (result.isEmpty) substitutor
-                        else {
-                          val funType = undefSubst.subst(result.get)
-                          constr.expectedType match {
-                            case Some(tp) =>
-                              val conformance = funType.conforms(tp, ScUndefinedSubstitutor())
-                              if (conformance._1) {
-                                conformance._2.getSubstitutor match {
-                                  case Some(newSubst) => newSubst.followed(substitutor)
-                                  case _ => substitutor
-                                }
-                              } else substitutor
-                            case _ => substitutor
-                          }
+                        fun.parameters.head.`type`() match {
+                          case Right(result) =>
+                            val funType = undefSubst.subst(result)
+                            constr.expectedType match {
+                              case Some(tp) =>
+                                val conformance = funType.conforms(tp, ScUndefinedSubstitutor())
+                                if (conformance._1) {
+                                  conformance._2.getSubstitutor match {
+                                    case Some(newSubst) => newSubst.followed(substitutor)
+                                    case _ => substitutor
+                                  }
+                                } else substitutor
+                              case _ => substitutor
+                            }
+                          case Left(_) => substitutor
                         }
                       }
                       res += ((new PhysicalSignature(fun, subst), 0))

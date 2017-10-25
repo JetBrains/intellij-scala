@@ -48,15 +48,15 @@ object LightUtil {
         if (classes.isEmpty) {
           annotation.constructor.typeArgList match {
             case Some(args) =>
-              val classes = args.typeArgs.map(_.`type`()).filter(_.isDefined).map(_.get).flatMap {
-                _.toPsiType match {
-                  case c: PsiClassType =>
-                    c.resolve() match {
-                      case clazz: PsiClass => Seq(clazz.getQualifiedName)
-                      case _ => Seq.empty
-                    }
-                  case _ => Seq.empty
-                }
+              val classes = args.typeArgs
+                .flatMap(_.`type`().toOption)
+                .flatMap {
+                  _.toPsiType match {
+                    case c: PsiClassType => Option(c.resolve())
+                    case _ => None
+                  }
+                }.collect {
+                case c: PsiClass => c.getQualifiedName
               }
               if (classes.nonEmpty) accumulator :+ classes.mkString(sep = ", ")
               else accumulator

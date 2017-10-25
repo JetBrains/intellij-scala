@@ -41,10 +41,6 @@ package object result {
       case _ => throw new NoSuchElementException("Failure.get")
     }
 
-    def isEmpty: Boolean = result.isLeft
-
-    def isDefined: Boolean = result.isRight
-
     def getOrAny: ScType = getOrApiType(_.Any)
 
     def getOrNothing: ScType = getOrApiType(_.Nothing)

@@ -19,7 +19,7 @@ trait FunctionAnnotator {
   self: ScalaAnnotator =>
 
   def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, typeAware: Boolean) {
-    if (!function.hasExplicitType && !function.returnTypeIsDefined) {
+    if (!function.hasExplicitType && function.definedReturnType.isLeft) {
       function.recursiveReferences.foreach { ref =>
           val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
           holder.createErrorAnnotation(ref.element, message)

@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types => ptype}
 
 import scala.collection.immutable.Seq
@@ -50,17 +49,18 @@ trait TreeAdapter {
     m.Term.New(m.Template(Nil, Seq(toCtor(annot.constructor)), m.Term.Param(Nil, m.Name.Anonymous(), None, None), None))
   }
 
-  def toMacroDefn(t: ScMacroDefinition): m.Defn.Macro = {
-    if (t.definedReturnType.isEmpty)
-      unreachable("Macro definition must have return type defined")
-    m.Defn.Macro(
-      convertMods(t), toTermName(t),
-      Seq(t.typeParameters map toTypeParams: _*),
-      Seq(t.paramClauses.clauses.map(convertParamClause): _*),
-      t.definedReturnType.toOption.map(toType(_)),
-      expression(t.body).get
-    )
-  }
+  def toMacroDefn(t: ScMacroDefinition): m.Defn.Macro =
+    t.definedReturnType match {
+      case Right(value) =>
+        m.Defn.Macro(
+          convertMods(t), toTermName(t),
+          Seq(t.typeParameters map toTypeParams: _*),
+          Seq(t.paramClauses.clauses.map(convertParamClause): _*),
+          Option(toType(value)),
+          expression(t.body).get
+        )
+      case _ => unreachable("Macro definition must have return type defined")
+    }
 
   def toFunDefn(t: ScFunctionDefinition): m.Defn.Def = {
     m.Defn.Def(convertMods(t), toTermName(t),

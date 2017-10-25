@@ -216,8 +216,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    */
   def returnTypeElement: Option[ScTypeElement]
 
-  def returnTypeIsDefined: Boolean = !definedReturnType.isEmpty
-
   def hasExplicitType: Boolean = returnTypeElement.isDefined
 
   def removeExplicitType() {
@@ -568,18 +566,17 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   private def collectReverseParamTypesNoImplicits: Option[Seq[Seq[ScType]]] = {
-    var i = paramClauses.clauses.length - 1
-    val res: ArrayBuffer[Seq[ScType]] = ArrayBuffer.empty
-    while (i >= 0) {
-      val cl = paramClauses.clauses.apply(i)
-      if (!cl.isImplicit) {
-        val paramTypes: Seq[TypeResult[ScType]] = cl.parameters.map(_.`type`())
-        if (paramTypes.exists(_.isEmpty)) return None
-        res += paramTypes.map(_.get)
+    val buffer = ArrayBuffer.empty[Seq[ScType]]
+    for (cl <- paramClauses.clauses.reverse
+         if !cl.isImplicit) {
+      val paramTypes: Seq[TypeResult[ScType]] = cl.parameters.map(_.`type`())
+      if (paramTypes.exists(_.isLeft)) return None
+
+      buffer += paramTypes.collect {
+        case Right(value) => value
       }
-      i = i - 1
     }
-    Some(res)
+    Some(buffer)
   }
 }
 

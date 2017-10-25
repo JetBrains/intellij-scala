@@ -345,12 +345,13 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
               case Some(fType) => Success(ScProjectionType(fType, obj, superReference = false))
               case _ => td.`type`().map(substitutor.subst)
             }
-            var state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
-            if (fromType.isDefined) {
-              state = state.put(BaseProcessor.FROM_TYPE_KEY, fromType.get)
-              processor.processType(fromType.get, this, state)
-            } else {
-              td.processDeclarations(processor, state, null, this)
+            val state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
+
+            fromType match {
+              case Right(value) =>
+                processor.processType(value, this, state.put(BaseProcessor.FROM_TYPE_KEY, value))
+              case _ =>
+                td.processDeclarations(processor, state, null, this)
             }
           case _: ScClass | _: ScTrait =>
             td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor), null, this)

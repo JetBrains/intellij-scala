@@ -509,17 +509,15 @@ abstract class ScalaAnnotator extends Annotator
             val annotation = holder.createErrorAnnotation(expr, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
           } else if (checkReturnTypeIsBoolean) {
-            def error() {
+            val maybeType = candidates(0) match {
+              case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst).toOption
+              case _ => None
+            }
+
+            if (!maybeType.exists(_.equiv(Boolean))) {
               val error = ScalaBundle.message("expected.type.boolean", memberName)
               val annotation = holder.createErrorAnnotation(expr, error)
               annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-            }
-            candidates(0) match {
-              case ScalaResolveResult(fun: ScFunction, subst) =>
-                if (fun.returnType.isEmpty || !subst.subst(fun.returnType.get).equiv(Boolean)) {
-                  error()
-                }
-              case _ => error()
             }
           } else {
             block.getContext match {
@@ -531,11 +529,10 @@ abstract class ScalaAnnotator extends Annotator
                       case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst)
                       case _ => return
                     }
-                    val expectedType = Success(tp)
-                    val conformance = smartCheckConformance(expectedType, returnType)
+                    val conformance = smartCheckConformance(Success(tp), returnType)
                     if (!conformance) {
                       if (typeAware) {
-                        val (retTypeText, expectedTypeText) = ScTypePresentation.different(returnType.getOrNothing, expectedType.get)
+                        val (retTypeText, expectedTypeText) = ScTypePresentation.different(returnType.getOrNothing, tp)
                         val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", retTypeText, expectedTypeText)
                         val annotation: Annotation = holder.createErrorAnnotation(expr, error)
                         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
@@ -1007,7 +1004,7 @@ abstract class ScalaAnnotator extends Annotator
                     case _ => expr
                   }
 
-                  val (exprTypeText, expectedTypeText) = ScTypePresentation.different(exprType.getOrNothing, expectedType.get)
+                  val (exprTypeText, expectedTypeText) = ScTypePresentation.different(exprType.getOrNothing, tp)
                   val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", exprTypeText, expectedTypeText)
                   val annotation: Annotation = holder.createErrorAnnotation(markedPsi, error)
                   annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)

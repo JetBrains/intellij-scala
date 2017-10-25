@@ -107,21 +107,21 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
               val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
                 s.bindT(p.nameAndId, p.upperBound.getOrAny))
               val emptyRes = substitutor followed emptySubst
-              val result = fun.parameters.head.`type`()
-              if (result.isEmpty) emptyRes
-              else {
-                val funType = undefSubst.subst(result.get)
-                this.expectedType match {
-                  case Some(tp) =>
-                    val conformance = funType.conforms(tp, ScUndefinedSubstitutor())
-                    if (conformance._1) {
-                      conformance._2.getSubstitutor match {
-                        case Some(newSubst) => newSubst followed substitutor followed emptySubst
-                        case _ => emptyRes
-                      }
-                    } else emptyRes
-                  case _ => emptyRes
-                }
+              fun.parameters.head.`type`() match {
+                case Right(result) =>
+                  val funType = undefSubst.subst(result)
+                  this.expectedType match {
+                    case Some(tp) =>
+                      val conformance = funType.conforms(tp, ScUndefinedSubstitutor())
+                      if (conformance._1) {
+                        conformance._2.getSubstitutor match {
+                          case Some(newSubst) => newSubst followed substitutor followed emptySubst
+                          case _ => emptyRes
+                        }
+                      } else emptyRes
+                    case _ => emptyRes
+                  }
+                case Left(_) => emptyRes
               }
             }
             fun.paramClauses.clauses.head.parameters.head.`type`().map(subst.subst)

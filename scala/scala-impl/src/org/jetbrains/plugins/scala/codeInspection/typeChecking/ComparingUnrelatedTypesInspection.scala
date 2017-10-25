@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
@@ -64,15 +64,14 @@ object ComparingUnrelatedTypesInspection {
     }
   }
 
-  private def undefinedTypeAlias(`type`: ScType) = `type`.isAliasType match {
-    case Some(ScTypeUtil.AliasType(_, lower, upper)) =>
-      lower.isEmpty || upper.isEmpty || !lower.get.equiv(upper.get)
+  private def undefinedTypeAlias(`type`: ScType) = `type`.isAliasType.exists {
+    case AliasType(_, Right(lower), Right(upper)) => !lower.equiv(upper)
     case _ => false
   }
 
   @tailrec
   private def extractActualType(`type`: ScType): ScType = `type`.isAliasType match {
-    case Some(ScTypeUtil.AliasType(_, Success(rhs), _)) => extractActualType(rhs)
+    case Some(AliasType(_, Success(rhs), _)) => extractActualType(rhs)
     case _ => `type`.tryExtractDesignatorSingleton
   }
 }
