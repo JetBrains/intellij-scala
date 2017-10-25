@@ -12,9 +12,10 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.containers.ContainerUtilRt
 import org.jetbrains.jps.model.java.JavaSourceRootType
+import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
@@ -123,7 +124,17 @@ object AmmoniteUtil {
   def scriptResolveSbtDependency(refElement: ScStableCodeReferenceElement): Option[PsiDirectory] = {
     def scriptResolveIvy(refElement: ScStableCodeReferenceElement) = refElement.getText == ROOT_IVY
 
-    refElement.qualifier match {
+    def qual(scRef: ScStableCodeReferenceElement) = {
+      scRef.getParent match {
+        case selector: ScImportSelector => 
+          new ParentsIterator(selector).collectFirst {
+            case expr: ScImportExpr => expr.qualifier 
+          }
+        case _ => scRef.qualifier
+      }
+    }
+    
+    qual(refElement) match {
       case Some(q) if scriptResolveIvy(q) =>
         findLibrary(refElement) flatMap {
           lib => getResolveItem(lib, refElement.getProject)
