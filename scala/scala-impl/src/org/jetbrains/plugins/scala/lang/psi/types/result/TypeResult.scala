@@ -4,6 +4,7 @@ package psi
 package types
 package result
 
+import org.jetbrains.plugins.scala.lang.psi.types.result.Failure.TypeError
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -64,8 +65,7 @@ final case class Success[T <: ScType](private val result: T) extends TypeResult[
   def getOrAny: T = result
 }
 
-final case class Failure(private val cause: String)
-                        (implicit context: ProjectContext) extends TypeResult[Nothing] {
+final class Failure private(private val error: TypeError) extends TypeResult[Nothing] {
 
   def map[U <: ScType](f: Nothing => U): this.type = this
 
@@ -79,7 +79,30 @@ final case class Failure(private val cause: String)
 
   def isEmpty: Boolean = true
 
-  def getOrNothing: ScType = api.Nothing
+  def getOrNothing: ScType = api.Nothing(error.context)
 
-  def getOrAny: ScType = api.Any
+  def getOrAny: ScType = api.Any(error.context)
+
+  override def equals(other: Any): Boolean = other match {
+    case that: Failure => error == that.error
+    case _ => false
+  }
+
+  override def hashCode(): Int = error.hashCode()
+
+  override def toString = s"Failure(${error.cause})"
+}
+
+object Failure {
+
+  case class TypeError(private[result] val cause: String,
+                       private[result] val context: ProjectContext)
+
+  def apply(message: String)
+           (implicit context: ProjectContext): Failure =
+    new Failure(TypeError(message, context))
+
+  def unapply(failure: Failure): Option[String] =
+    Some(failure.error.cause)
+
 }
