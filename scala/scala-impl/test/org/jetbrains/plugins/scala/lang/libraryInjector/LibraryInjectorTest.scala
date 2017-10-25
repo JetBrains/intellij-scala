@@ -45,15 +45,13 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
     CompilerTestUtil.enableExternalCompiler()
     DebuggerTestUtil.enableCompileServer(true)
     DebuggerTestUtil.forceJdk8ForBuildProcess()
-
-    setUpLibraries()
   }
 
   protected override def tearDown() {
+    disposeLibraries()
     CompilerTestUtil.disableExternalCompiler(getProject)
     CompileServerLauncher.instance.stop()
 
-    tearDownLibraries()
     super.tearDown()
   }
 

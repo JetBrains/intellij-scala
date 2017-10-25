@@ -71,7 +71,7 @@ object DebuggerTestUtil {
       Option(new File(path))
         .filter(_.exists())
         .flatMap(_.listFiles()
-          .sortBy(_.getName)
+          .sortBy(_.getName) // TODO somehow sort by release number to get the newest actually
           .reverse
           .find(f => f.getName.contains(suffix) && isJDK(new File(f, postfix)))
           .map(new File(_, s"$postfix/jre").getAbsolutePath)

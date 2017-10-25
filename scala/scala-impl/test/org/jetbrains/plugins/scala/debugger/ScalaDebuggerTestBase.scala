@@ -42,13 +42,9 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
       if (testDataProjectPath.exists()) FileUtil.delete(testDataProjectPath)
     }
 
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-
-      def run() {
-        ScalaDebuggerTestBase.super.setUp()
-        checkOrAddAllSourceFiles()
-        setUpLibraries()
-      }
+    EdtTestUtil.runInEdtAndWait(() => {
+      ScalaDebuggerTestBase.super.setUp()
+      checkOrAddAllSourceFiles()
     })
   }
 

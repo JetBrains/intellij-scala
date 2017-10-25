@@ -19,7 +19,7 @@ case class SourcesLoader(rootPath: String)
     PsiTestUtil.addSourceRoot(module, rootFile)
   }
 
-  override def clean(): Unit = {
+  override def dispose(): Unit = {
     PsiTestUtil.removeSourceRoot(module, rootFile)
   }
 

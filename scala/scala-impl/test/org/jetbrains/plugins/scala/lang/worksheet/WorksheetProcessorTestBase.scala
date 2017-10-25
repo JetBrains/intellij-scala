@@ -21,11 +21,6 @@ import org.junit.Assert.assertNotNull
   */
 abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
 
-  override def setUp(): Unit = {
-    super.setUp()
-    setUpLibraries()
-  }
-
   override protected def useCompileServer: Boolean = true
 
   import WorksheetProcessorTestBase._

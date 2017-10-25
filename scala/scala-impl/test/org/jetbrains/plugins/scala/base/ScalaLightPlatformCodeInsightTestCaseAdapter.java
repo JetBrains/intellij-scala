@@ -108,22 +108,12 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         setUpLibraries();
     }
 
-    @Override
-    public void tearDownLibraries() {
-        for (LibraryLoader libraryLoader : librariesLoadersAdapter()) {
-            libraryLoader.clean();
-        }
-    }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
         TestUtils.disableTimerThread();
-    }
-
-    protected void setUpWithoutScalaLib() throws Exception {
-        super.setUp();
     }
 
     protected boolean isIncludeReflectLibrary() {
@@ -174,7 +164,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     @Override
     protected void tearDown() throws Exception {
         try {
-            tearDownLibraries();
+            disposeLibraries();
         } finally {
             super.tearDown();
         }

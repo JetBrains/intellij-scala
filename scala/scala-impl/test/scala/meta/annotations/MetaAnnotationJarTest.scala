@@ -40,7 +40,7 @@ class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMet
   }
 
   override def tearDown(): Unit = try {
-    tearDownLibraries()
+    disposeLibraries()
   } finally {
     inWriteAction {
       val projectJdkTable = ProjectJdkTable.getInstance()

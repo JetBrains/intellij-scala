@@ -4,8 +4,7 @@ import java.io.File
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
-import com.intellij.openapi.roots.OrderRootType
-import com.intellij.openapi.roots.libraries.{Library, LibraryTable}
+import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
@@ -31,7 +30,7 @@ case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
     addScalaSdk
   }
 
-  override def clean(): Unit = {
+  override def dispose(): Unit = {
     if (library != null) {
       inWriteAction {
         module.detach(library)
@@ -81,7 +80,7 @@ object ScalaLibraryLoader {
       Option(fileSystem.refreshAndFindFileByPath(s"$path!/")).toSeq
     }
 
-    override def init(implicit version: ScalaVersion): Unit = {}
+    override def init(implicit version: ScalaVersion): Unit = ()
 
     override def folder(implicit version: ScalaVersion): String =
       name
@@ -130,7 +129,7 @@ case class JdkLoader(jdk: Sdk = TestUtils.createJdk())
     }
   }
 
-  override def clean(): Unit = {
+  override def dispose(): Unit = {
     val model = module.modifiableModel
     model.setSdk(null)
     inWriteAction {
