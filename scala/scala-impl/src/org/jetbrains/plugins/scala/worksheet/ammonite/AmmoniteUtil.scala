@@ -189,7 +189,7 @@ object AmmoniteUtil {
       private var it = ps.iterator
       setCurrent()
 
-      override def add(): Boolean = it.hasNext && {setCurrent(); true}
+      override def add(): Boolean = {it.hasNext && {setCurrent(); true} || {current = None; false}}
       override def hasNext: Boolean = it.hasNext
       override def reset(): Unit = {
         it = ps.iterator
@@ -210,16 +210,9 @@ object AmmoniteUtil {
 
       private def advance() {
         if (!currentDigit.add()) {
-          val bf = currentDigit
-          while (!currentDigit.add() && it.hasNext) {
-            currentDigit = it.next()
-          }
-
+          while (!currentDigit.add() && it.hasNext) currentDigit = it.next()
           if (currentDigit.getCurrent.isEmpty) return
-
           pathParts.takeWhile(_ != currentDigit).foreach(_.reset())
-          bf.reset()
-
           currentDigit = pathParts.head
           it = pathParts.iterator
         }
@@ -243,6 +236,11 @@ object AmmoniteUtil {
           case Array(single) => SimplePart(single)
           case multiple => OrPart(multiple)
         }
+      }.foldRight(List.empty[PathPart[String]]){
+        case (SimplePart(part), SimplePart(pp) :: tail) =>
+          SimplePart(part + File.separator + pp) :: tail
+        case (otherPart, list) =>
+          otherPart :: list
       }
     }.find(predicate)
   }
