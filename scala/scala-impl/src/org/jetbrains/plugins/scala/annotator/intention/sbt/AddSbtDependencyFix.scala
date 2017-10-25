@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.annotator.intention.sbt
 
+import com.intellij.codeInsight.daemon.impl.DaemonProgressIndicator
 import com.intellij.codeInsight.intention.{IntentionAction, LowPriorityAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{ModuleManager, ModuleUtilCore}
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
@@ -16,9 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.resolvers.SbtResolver
+import org.jetbrains.sbt.resolvers.{ArtifactInfo, SbtResolver}
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
 /**
@@ -37,6 +40,10 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
   override def getText: String = "Add sbt dependency..."
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+    def filterByScalaVer(artifacts: Set[ArtifactInfo]): Set[ArtifactInfo] = {
+      val scalaVer = refElement.module.flatMap(_.scalaSdk.map(_.languageLevel.version))
+      scalaVer.map(version => artifacts.filter(_.artifactId.endsWith(version))).getOrElse(artifacts)
+    }
     val baseDir: VirtualFile = project.getBaseDir
     val sbtFileOpt: Option[VirtualFile] = {
       val buildSbt = baseDir.findChild(Sbt.BuildFile)
@@ -54,7 +61,8 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
       artifactInfoSet = ivyIndex.searchArtifactInfo(getReferenceText)
       psiSbtFile      = PsiManager.getInstance(project).findFile(sbtFile).asInstanceOf[ScalaFile]
       depPlaces       = getDependencyPlaces(project, psiSbtFile)
-      wizard          = new SbtArtifactSearchWizard(project, artifactInfoSet, depPlaces)
+      matchingScala   = filterByScalaVer(artifactInfoSet)
+      wizard          = new SbtArtifactSearchWizard(project, matchingScala, depPlaces)
       (infoOption, fileLineOption) = wizard.search()
       artifactInfo  <- infoOption
       fileLine      <- fileLineOption
