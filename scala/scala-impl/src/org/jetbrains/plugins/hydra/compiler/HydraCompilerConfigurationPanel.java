@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.compiler;
+package org.jetbrains.plugins.hydra.compiler;
 
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.uiDesigner.core.GridConstraints;

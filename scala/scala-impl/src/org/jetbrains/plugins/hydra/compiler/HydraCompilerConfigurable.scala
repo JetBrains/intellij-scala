@@ -1,12 +1,12 @@
-package org.jetbrains.plugins.scala.compiler
+package org.jetbrains.plugins.hydra.compiler
 
 import javax.swing.JPanel
 
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.project.Project
 import com.intellij.ui.EditorNotifications
+import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
 import org.jetbrains.plugins.scala.project.AbstractConfigurable
-import org.jetbrains.plugins.scala.settings.HydraApplicationSettings
 
 /**
   * @author Maris Alexandru

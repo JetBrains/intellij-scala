@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.project
 
 import com.intellij.util.net.HttpConfigurable
+import org.jetbrains.plugins.hydra.compiler.HydraCredentialsManager
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
-import org.jetbrains.plugins.scala.compiler.HydraCredentialsManager
 import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
 
 import scala.io.Source
