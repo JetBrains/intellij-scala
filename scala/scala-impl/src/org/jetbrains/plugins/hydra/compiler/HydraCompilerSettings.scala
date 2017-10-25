@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.hydra.compiler
 
 import java.io.File
+import java.nio.file.Paths
 
 import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
@@ -23,7 +24,7 @@ class HydraCompilerSettings(project: Project) extends PersistentStateComponent[H
 
   var isHydraSettingsEnabled: Boolean = false
 
-  var hydraVersion: String = "0.9.5"
+  var hydraVersion: String = ""
 
   var noOfCores: String = Math.ceil(Runtime.getRuntime.availableProcessors()/2D).toInt.toString
 
@@ -52,7 +53,7 @@ class HydraCompilerSettings(project: Project) extends PersistentStateComponent[H
     isHydraSettingsEnabled = state.isHydraSettingsEnabled
   }
 
-  def getDefaultHydraStorePath: String = ProjectRoot + File.separator + ".hydra"
+  def getDefaultHydraStorePath: String = Paths.get(ProjectRoot, ".hydra", "idea").toString
 
   private def getProjectRootPath: String = project.getBaseDir.getPresentableUrl
 }

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.project
 
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.plugins.hydra.compiler.HydraCredentialsManager
+import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
 
@@ -55,7 +56,7 @@ object Versions  {
   private def loadLinesFrom(url: String): Try[Seq[String]] = {
     Try(HttpConfigurable.getInstance().openHttpConnection(url)).map { connection =>
       try {
-        if(url.contains(Entity.Hydra.url))
+        if(url.contains(HydraApplicationSettings.getInstance().getHydraRepositoryUrl))
           connection.setRequestProperty("Authorization", "Basic " + HydraCredentialsManager.getBasicAuthEncoding())
         Source.fromInputStream(connection.getInputStream).getLines().toVector
       } finally {
@@ -66,15 +67,16 @@ object Versions  {
 
   private def loadVersionsForHydra() = {
     val entity = Entity.Hydra
+    val repoUrl = HydraApplicationSettings.getInstance().getHydraRepositoryUrl + entity.url
 
     def downloadHydraVersions(url: String): Seq[String] =
       loadVersionsFrom(url, { case entity.pattern(number) => number }).getOrElse(entity.hardcodedVersions).map(Version(_))
         .filter(_ >= entity.minVersion).map(_.presentation)
 
-    loadVersionsFrom(entity.url, {
+    loadVersionsFrom(repoUrl, {
       case entity.pattern(number) => number
     }).map { versions =>
-      versions.flatMap(version => downloadHydraVersions(s"""${entity.url}$version/""")).distinct
+      versions.flatMap(version => downloadHydraVersions(s"""$repoUrl$version/""")).distinct
     }
   }
 
@@ -103,7 +105,7 @@ object Versions  {
       Version("0.2.0"),
       Seq("0.2.0-RC1"))
 
-    val Hydra = Entity("https://repo.triplequote.com/artifactory/ivy-releases/com.triplequote/",
+    val Hydra = Entity("/ivy-releases/com.triplequote/",
       ".+>(.*\\d+\\.\\d+\\.\\d+.*)/<.*".r,
       Version("0.9.5"),
       Seq("0.9.5")

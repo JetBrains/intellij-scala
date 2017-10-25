@@ -22,25 +22,43 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
   private val fileChooserDescriptor = new FileChooserDescriptor(false, true, false, false, false, false)
 
   private val documentAdapter = new DocumentAdapter {
-    override def textChanged(documentEvent: DocumentEvent): Unit = downloadButton.setEnabled(getUsername.nonEmpty && getPassword.nonEmpty)
+    override def textChanged(documentEvent: DocumentEvent): Unit =
+      downloadButton.setEnabled(getUsername.nonEmpty && getPassword.nonEmpty && getHydraRepository.nonEmpty)
   }
 
   private val focusListener = new FocusListener {
     override def focusGained(e: FocusEvent): Unit = {}
 
     override def focusLost(e: FocusEvent): Unit = if (getUsername.nonEmpty && getPassword.nonEmpty &&
-      (HydraCredentialsManager.getLogin != getUsername || HydraCredentialsManager.getPlainPassword != getPassword)) {
+      (HydraCredentialsManager.getLogin != getUsername ||
+        HydraCredentialsManager.getPlainPassword != getPassword ||
+        hydraGlobalSettings.hydraRepositoryUrl != getHydraRepository ||
+        hydraGlobalSettings.hydraRepositoryRealm != getHydraRepositoryRealm)) {
+
       HydraCredentialsManager.setCredentials(getUsername, getPassword)
+      hydraGlobalSettings.hydraRepositoryUrl = getHydraRepository
       hydraVersionComboBox.setItems(HydraVersions.downloadHydraVersions)
+      hydraVersionComboBox.setSelectedItem(settings.hydraVersion)
     }
   }
 
   hydraGlobalSettings.getState
+  setDefaultHydraVersion
+
+  hydraRepository.setText(hydraGlobalSettings.hydraRepositoryUrl)
+  hydraRepository.addFocusListener(focusListener)
+  hydraRepository.getDocument.addDocumentListener(documentAdapter)
+
+  realmTextField.setText(hydraGlobalSettings.hydraRepositoryRealm)
+  realmTextField.addFocusListener(focusListener)
+  realmTextField.getDocument.addDocumentListener(documentAdapter)
+
   userTextField.addFocusListener(focusListener)
   userTextField.getDocument.addDocumentListener(documentAdapter)
+
   passwordTextField.getDocument.addDocumentListener(documentAdapter)
   passwordTextField.addFocusListener(focusListener)
-  hydraVersionComboBox.setItems(HydraVersions.downloadHydraVersions)
+
   downloadButton.addActionListener((_: ActionEvent) => onDownload())
   noOfCoresComboBox.setItems(Array.range(1, Runtime.getRuntime.availableProcessors() + 1).map(_.toString).sortWith(_ > _))
   sourcePartitionerComboBox.setItems(SourcePartitioner.values.map(_.value).toArray)
@@ -70,6 +88,14 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
   def getHydraStoreDirectory: String = hydraStoreDirectoryField.getText
 
   def setHydraStoreDirectory(path: String): Unit = hydraStoreDirectoryField.setText(path)
+
+  def getHydraRepository: String = hydraRepository.getText
+
+  def setHydraRepository(repositoryUrl: String): Unit = hydraRepository.setText(repositoryUrl)
+
+  def getHydraRepositoryRealm: String = realmTextField.getText
+
+  def setHydraRepositoryRealm(realm: String): Unit = realmTextField.setText(realm)
 
   def onDownload(): Unit = {
     val scalaVersions = HydraVersions.getSupportedScalaVersions(project)
@@ -103,4 +129,9 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
   private def downloadVersion(scalaVersions: Seq[String], hydraVersion: String): (String => Unit) => Unit =
     (listener: (String) => Unit) => scalaVersions.foreach(version => HydraArtifactsCache.downloadIfNotPresent(version, hydraVersion, listener))
 
+  private def setDefaultHydraVersion = {
+    val hydraVersions = HydraVersions.downloadHydraVersions
+    hydraVersionComboBox.setItems(hydraVersions)
+    setSelectedVersion(hydraVersions.head)
+  }
 }

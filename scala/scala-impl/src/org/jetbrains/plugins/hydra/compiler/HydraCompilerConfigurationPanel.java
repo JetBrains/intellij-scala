@@ -24,6 +24,8 @@ public class HydraCompilerConfigurationPanel {
   protected SComboBox noOfCoresComboBox;
   protected SComboBox sourcePartitionerComboBox;
   protected TextFieldWithBrowseButton hydraStoreDirectoryField;
+  protected JTextField hydraRepository;
+  protected JTextField realmTextField;
 
   public HydraCompilerConfigurationPanel() {
 
@@ -169,6 +171,16 @@ public class HydraCompilerConfigurationPanel {
     panel1.add(label6, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     hydraStoreDirectoryField = new TextFieldWithBrowseButton();
     panel1.add(hydraStoreDirectoryField, new GridConstraints(6, 2, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label7 = new JLabel();
+    label7.setText("Hydra Repository");
+    panel1.add(label7, new GridConstraints(3, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    hydraRepository = new JTextField();
+    panel1.add(hydraRepository, new GridConstraints(3, 4, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    final JLabel label8 = new JLabel();
+    label8.setText("Repository Realm");
+    panel1.add(label8, new GridConstraints(4, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    realmTextField = new JTextField();
+    panel1.add(realmTextField, new GridConstraints(4, 4, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
   }
 
   /**

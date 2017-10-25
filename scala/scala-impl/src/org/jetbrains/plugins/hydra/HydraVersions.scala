@@ -12,9 +12,9 @@ import scala.collection.breakOut
   */
 object HydraVersions {
 
-  private val MinHydraVersion = "2.11.8"
-  private val UnsupportedHydraVersion = "2.12.0"
-  private val compilerRegex = """.*scala-compiler-(\d+\.\d+\.\d+)(-SNAPSHOT)?\.jar""".r
+  private val MinScalaVersion = "2.11.8"
+  private val UnsupportedScalaVersion = "2.12.0"
+  private val CompilerRegex = """.*scala-compiler-(\d+\.\d+\.\d+)(-SNAPSHOT)?\.jar""".r
 
   private final val Log: Logger = Logger.getInstance(this.getClass.getName)
 
@@ -26,11 +26,11 @@ object HydraVersions {
     val scalaVersionsPerModule: Map[ScalaModule, String] = (for {
       module <- scalaModules
       classpathFile <- module.sdk.compilerClasspath
-      mtch <- compilerRegex.findFirstMatchIn(classpathFile.getName)
+      mtch <- CompilerRegex.findFirstMatchIn(classpathFile.getName)
       scalaVersion = mtch.group(1)
-      if scalaVersion != UnsupportedHydraVersion
+      if scalaVersion != UnsupportedScalaVersion
       version = Version(scalaVersion)
-      if version >= Version(MinHydraVersion)
+      if version >= Version(MinScalaVersion)
     } yield module -> version.presentation)(breakOut)
 
     if (scalaModules.size != scalaVersionsPerModule.size) {

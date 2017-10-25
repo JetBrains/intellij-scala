@@ -5,6 +5,7 @@ import java.io.{File, FileNotFoundException}
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.hydra.compiler.HydraCredentialsManager
+import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
 import org.jetbrains.plugins.scala.project.Platform
 
 /**
@@ -71,13 +72,18 @@ object Downloader {
       "updateClassifiers")
   }
 
-  private def sbtCommandsForHydra(platform: Platform, version: String) = Seq(
-    s"""set scalaVersion := "${version.split("_")(0)}"""",
-    s"""set credentials := Seq(Credentials("Artifactory Realm", "repo.triplequote.com", "${HydraCredentialsManager.getLogin}", "${HydraCredentialsManager.getPlainPassword}"))""",
-    s"""set resolvers := Seq(Resolver.url("Triplequote Plugins Ivy Releases", url("https://repo.triplequote.com/artifactory/ivy-releases/"))(Resolver.ivyStylePatterns), Resolver.url("Triplequote sbt-plugin-relseases", url("https://repo.triplequote.com/artifactory/sbt-plugins-release/"))(Resolver.ivyStylePatterns),  "Triplequote Plugins Releases" at "https://repo.triplequote.com/artifactory/libs-release-local/")""",
-    s"""set libraryDependencies := Seq("com.triplequote" % "hydra_${version.split("_")(0)}" % "${version.split("_")(1)}", ("com.triplequote" % "hydra-bridge_1_0" % "${version.split("_")(1)}").sources())""",
-    "updateClassifiers",
-    "show dependencyClasspath")
+  private def sbtCommandsForHydra(platform: Platform, version: String) = {
+    val settings = HydraApplicationSettings.getInstance()
+    val repositoryName = settings.getHydraRepositoryName
+    val repositoryUrl = settings.getHydraRepositoryUrl
+    Seq(
+      s"""set scalaVersion := "${version.split("_")(0)}"""",
+      s"""set credentials := Seq(Credentials("${settings.hydraRepositoryRealm}", "${repositoryName}", "${HydraCredentialsManager.getLogin}", "${HydraCredentialsManager.getPlainPassword}"))""",
+      s"""set resolvers := Seq(Resolver.url("Triplequote Plugins Ivy Releases", url("${repositoryUrl}/ivy-releases/"))(Resolver.ivyStylePatterns), Resolver.url("Triplequote sbt-plugin-relseases", url("${repositoryUrl}/sbt-plugins-release/"))(Resolver.ivyStylePatterns),  "Triplequote Plugins Releases" at "${repositoryUrl}/libs-release-local/")""",
+      s"""set libraryDependencies := Seq("com.triplequote" % "hydra_${version.split("_")(0)}" % "${version.split("_")(1)}", ("com.triplequote" % "hydra-bridge_1_0" % "${version.split("_")(1)}").sources())""",
+      "updateClassifiers",
+      "show dependencyClasspath")
+  }
 }
 
 class DownloadException(message: String) extends Exception(message)
