@@ -30,7 +30,20 @@ object CompilerData {
     def useHydraCompiler(jars: CompilerJars): Boolean = {
       val hydraGlobalSettings = SettingsManager.getGlobalHydraSettings(project.getModel.getGlobal)
       val hydraProjectSettings = SettingsManager.getHydraSettings(project.getProject)
-      hydraProjectSettings.isHydraEnabled && compilerVersion(module).nonEmpty && hydraGlobalSettings.containsArtifactsFor(compilerVersion(module).get, hydraProjectSettings.getHydraVersion)
+
+      val enabled = hydraProjectSettings.isHydraEnabled
+      val compilerVer = compilerVersion(module)
+      val hydraArtifactsExist = compilerVer.map(v => hydraGlobalSettings.containsArtifactsFor(v, hydraProjectSettings.getHydraVersion)).getOrElse(false)
+      val res = enabled && hydraArtifactsExist
+
+      if (enabled && !res) {
+        val reason =
+          if (compilerVer.isEmpty) s"could not extract compiler version from module $module, ${compilerJarsIn(module)}"
+          else s"Hydra artifacts not found for ${compilerVer.get} and ${hydraProjectSettings.getHydraVersion}."
+
+        Log.error(s"Not using Hydra compiler for ${module.getName} because $reason")
+      }
+      res
     }
 
     val compilerJars = if (SettingsManager.hasScalaSdk(module)) {

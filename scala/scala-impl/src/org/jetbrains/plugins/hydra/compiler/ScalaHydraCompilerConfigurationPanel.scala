@@ -74,9 +74,13 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
   def onDownload(): Unit = {
     val scalaVersions = HydraVersions.getSupportedScalaVersions(project)
 
-    downloadVersionWithProgress(scalaVersions, selectedVersion)
-    settings.hydraVersion = selectedVersion
-    EditorNotifications.updateAll()
+    if (scalaVersions.isEmpty)
+      Messages.showErrorDialog("Could not determine Scala version in this project.", "Hydra Plugin Error")
+    else {
+      downloadVersionWithProgress(scalaVersions, selectedVersion)
+      settings.hydraVersion = selectedVersion
+      EditorNotifications.updateAll()
+    }
   }
 
   private def downloadVersionWithProgress(scalaVersions: Seq[String], hydraVersion: String): Unit = {
