@@ -311,7 +311,7 @@ object ScPattern {
               case _ =>
             }
             val firstParameterType = fun.parameters.head.`type`() match {
-              case Success(tp, _) => tp
+              case Success(tp) => tp
               case _ => return None
             }
             val funType = undefSubst.subst(firstParameterType)
@@ -321,7 +321,7 @@ object ScPattern {
             }
           }
           fun.returnType match {
-            case Success(rt, _) =>
+            case Success(rt) =>
               def updateRes(tp: ScType): ScType = {
                 val parameters: Seq[ScTypeParam] = fun.typeParameters
                 tp.recursiveVarianceUpdate {
@@ -348,7 +348,7 @@ object ScPattern {
               s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor))))
             }
             val firstParameterRetTp = fun.parameters.head.`type`() match {
-              case Success(tp, _) => tp
+              case Success(tp) => tp
               case _ => return None
             }
             val funType = undefSubst.subst(firstParameterRetTp)
@@ -358,7 +358,7 @@ object ScPattern {
             }
           }
           fun.returnType match {
-            case Success(rt, _) =>
+            case Success(rt) =>
               val args = ScPattern.extractorParameters(subst.subst(rt), pattern, ScPattern.isOneArgCaseClassMethod(fun))
               if (args.isEmpty) return None
               if (argIndex < args.length - 1) return Some(subst.subst(args(argIndex)))

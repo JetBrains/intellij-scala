@@ -161,7 +161,7 @@ trait Utils {
       } else {
         val s = ScSubstitutor(ScSubstitutor.cache.toMap)
         expr.`type`() match {
-          case Success(res, elem) => Success(s.subst(res))
+          case Success(res) => Success(s.subst(res))
           case other => other
         }
       }

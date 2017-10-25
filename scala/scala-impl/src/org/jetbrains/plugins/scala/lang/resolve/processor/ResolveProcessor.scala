@@ -295,7 +295,7 @@ object ResolveProcessor {
       case c: PsiClass => "Class:" + c.qualifiedName
       case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
         t.aliasedType match {
-          case Success(tp, _) =>
+          case Success(tp) =>
             tp.extractClass match {
               case Some(_: ScObject) => defaultForTypeAlias(t)
               case Some(td: ScTypeDefinition) if td.typeParameters.isEmpty && ScalaPsiUtil.hasStablePath(td) =>

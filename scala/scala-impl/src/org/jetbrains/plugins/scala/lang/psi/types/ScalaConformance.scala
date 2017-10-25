@@ -393,7 +393,7 @@ trait ScalaConformance extends api.Conformance {
         }
 
         result = l.isAliasType match {
-          case Some(AliasType(_: ScTypeAliasDefinition, Success(comp: ScCompoundType, _), _)) =>
+          case Some(AliasType(_: ScTypeAliasDefinition, Success(comp: ScCompoundType), _)) =>
             conformsInner(comp, c, HashSet.empty, undefinedSubst)
           case _ => (false, undefinedSubst)
         }
@@ -1620,7 +1620,7 @@ trait ScalaConformance extends api.Conformance {
   def processHigherKindedTypeParams(undefType: ParameterizedType, defType: ParameterizedType, undefinedSubst: ScUndefinedSubstitutor,
                                     falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     val defTypeExpanded = defType.isAliasType.map(_.lower).map {
-      case Success(p: ScParameterizedType, _) => p
+      case Success(p: ScParameterizedType) => p
       case _ => defType
     }.getOrElse(defType)
     extractParams(defTypeExpanded.designator) match {

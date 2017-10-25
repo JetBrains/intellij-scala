@@ -269,7 +269,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     val fields = constructor match {
       case Some(constr) => constr.parameters.map { param =>
         param.`type`() match {
-          case Success(tp: TypeParameterType, _) if tp.psiTypeParameter.findAnnotation("scala.specialized") != null =>
+          case Success(tp: TypeParameterType) if tp.psiTypeParameter.findAnnotation("scala.specialized") != null =>
             val factory: PsiElementFactory = PsiElementFactory.SERVICE.getInstance(getProject)
             val psiTypeText: String = tp.toPsiType.getCanonicalText
             val text = s"public final $psiTypeText ${param.name};"

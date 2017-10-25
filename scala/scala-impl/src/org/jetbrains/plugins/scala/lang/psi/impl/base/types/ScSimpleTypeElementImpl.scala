@@ -406,7 +406,7 @@ object ScSimpleTypeElementImpl {
             }
           case _ =>
             calculateReferenceType(qualifier, shapesOnly) match {
-              case Success(tp, _) => makeProjection(tp)
+              case Success(tp) => makeProjection(tp)
               case failure: Failure => return failure
             }
         }

@@ -38,7 +38,7 @@ class StaticTraitScFunctionWrapper(val function: ScFunction, containingClass: Ps
   private def paramText(param: ScParameter): String = {
     val paramAnnotations = JavaConversionUtil.annotations(param).mkString("", " ", " ")
     val typeText = param.getRealParameterType match {
-      case Success(tp, _) =>
+      case Success(tp) =>
         val simple = JavaConversionUtil.typeText(tp)
         if (param.isCallByNameParameter) s"scala.Function0<$simple>"
         else simple

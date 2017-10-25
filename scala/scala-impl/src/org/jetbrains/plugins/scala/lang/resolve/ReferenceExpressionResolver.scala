@@ -475,7 +475,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       ProgressManager.checkCanceled()
 
       e.getNonValueType() match {
-        case Success(tpt @ ScTypePolymorphicType(internal, tp), _) if tp.nonEmpty &&
+        case Success(tpt@ScTypePolymorphicType(internal, tp)) if tp.nonEmpty &&
           !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[UndefinedType] /* optimization */ =>
           val substed = tpt.abstractTypeSubstitutor.subst(internal)
           processType(substed, e, processor)

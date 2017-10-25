@@ -59,7 +59,7 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
     it =>
       val _type = expressionType.map(ScalaType.expandAliases(_)).getOrElse(new Object())
       _type match {
-        case Success(result, _) => result match {
+        case Success(result) => result match {
           case res: ScType =>
             try {
               val value = Types.valueOf(res)

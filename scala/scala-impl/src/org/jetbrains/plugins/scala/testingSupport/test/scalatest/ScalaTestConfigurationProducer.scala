@@ -143,8 +143,8 @@ class ScalaTestConfigurationProducer extends {
                     val params = clauses.head.parameters
                     if (params.nonEmpty) {
                       params.head.`type`() match {
-                        case Success(t, _) if t.isUnit => failedToCheck = false
-                        case Success(tp, _) =>
+                        case Success(t) if t.isUnit => failedToCheck = false
+                        case Success(tp) =>
                           tp.extractClass match {
                             case Some(psiClass) if psiClass.qualifiedName == "java.lang.String" =>
                               call.argumentExpressions.head match {

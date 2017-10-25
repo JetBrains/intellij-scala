@@ -4,7 +4,6 @@ package psi
 package types
 package result
 
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -45,7 +44,7 @@ object TypeResult {
   }
 }
 
-final class Success[T <: ScType] private(private val result: T) extends TypeResult[T] {
+final case class Success[T <: ScType](private val result: T) extends TypeResult[T] {
 
   def map[U <: ScType](f: T => U): Success[U] = Success(f(result))
 
@@ -63,25 +62,6 @@ final class Success[T <: ScType] private(private val result: T) extends TypeResu
   def getOrNothing: T = result
 
   def getOrAny: T = result
-
-  override def equals(other: Any): Boolean = other match {
-    case Success((otherResult, _)) => result == otherResult
-    case _ => false
-  }
-
-  override def hashCode(): Int = result.hashCode()
-
-  override def toString = s"Success($result)"
-}
-
-object Success {
-
-  def apply[T <: ScType](result: T): Success[T] = new Success(result)
-
-  def unapply[T <: ScType](success: Success[T]): Option[(T, Option[PsiElement])] =
-    Option(success)
-      .map(_.result)
-      .map((_, None))
 }
 
 final case class Failure(private val cause: String)

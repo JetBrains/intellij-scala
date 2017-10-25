@@ -30,7 +30,7 @@ object LightUtil {
 
         val classes = annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
           _.`type`() match {
-            case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass match {
+            case Success(ParameterizedType(des, Seq(arg))) => des.extractClass match {
               case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
                 arg.toPsiType match {
                   case c: PsiClassType =>

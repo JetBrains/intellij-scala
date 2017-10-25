@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createSc
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -524,7 +524,7 @@ object ScalaDocumentationProvider {
           annotation.constructor.args.foreach( a =>
             a.exprs.headOption.map {
               case exprHead => exprHead.`type`() match {
-                case Success(head, _) =>
+                case Success(head) =>
                   head match {
                     case ParameterizedType(_, args) =>
                       args.headOption match {
@@ -1029,7 +1029,6 @@ object ScalaDocumentationProvider {
   }
 
   def generateTypeAliasInfo(alias: ScTypeAlias, subst: ScSubstitutor): String = {
-    import alias.projectContext
 
     val buffer = new StringBuilder
     buffer.append(getMemberHeader(alias))

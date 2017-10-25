@@ -131,7 +131,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
           presentationString(param.getRealParameterType.getOrAny, substitutor)
         case t: ScTemplateDefinition if name == "this" || name.endsWith(".this") =>
           t.getTypeWithProjections(thisProjections = true) match {
-            case Success(tp, _) =>
+            case Success(tp) =>
               tp.presentableText
             case _ => ""
           }

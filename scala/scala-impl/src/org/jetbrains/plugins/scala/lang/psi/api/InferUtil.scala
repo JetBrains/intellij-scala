@@ -246,7 +246,7 @@ object InferUtil {
 
     var nonValueType = _nonValueType
     nonValueType match {
-      case Success(ScTypePolymorphicType(m@ScMethodType(internal, _, impl), typeParams), _)
+      case Success(ScTypePolymorphicType(m@ScMethodType(internal, _, impl), typeParams))
         if expectedType.isDefined && (!fromImplicitParameters || impl) =>
         def updateRes(expected: ScType) {
           if (expected.equiv(Unit)) return //do not update according to Unit type
@@ -267,7 +267,7 @@ object InferUtil {
         }
         updateRes(expectedType.get)
       //todo: Something should be unified, that's bad to have fromImplicitParameters parameter.
-      case Success(ScTypePolymorphicType(internal, typeParams), _) if expectedType.isDefined && fromImplicitParameters =>
+      case Success(ScTypePolymorphicType(internal, typeParams)) if expectedType.isDefined && fromImplicitParameters =>
         def updateRes(expected: ScType) {
           nonValueType = Success(localTypeInference(internal,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
@@ -325,9 +325,9 @@ object InferUtil {
     }
 
     nonValueType match {
-      case Success(tpt@ScTypePolymorphicType(mt: ScMethodType, _), elem) =>
+      case Success(tpt@ScTypePolymorphicType(mt: ScMethodType, _)) =>
         Success(tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType)))
-      case Success(mt: ScMethodType, elem) =>
+      case Success(mt: ScMethodType) =>
         Success(applyImplicitViewToResult(mt, expectedType))
       case tr => tr
     }

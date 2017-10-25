@@ -19,7 +19,7 @@ class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends Intenti
 
   val getText: String = {
     val (oldTypeDescripton, newTypeDescription) = typeElement.`type`() match {
-      case Success(oldType, _) => ScTypePresentation.different(oldType, newType)
+      case Success(oldType) => ScTypePresentation.different(oldType, newType)
       case _ => (typeElement.getText, newType.presentableText)
     }
     s"Change type '$oldTypeDescripton' to '$newTypeDescription'"

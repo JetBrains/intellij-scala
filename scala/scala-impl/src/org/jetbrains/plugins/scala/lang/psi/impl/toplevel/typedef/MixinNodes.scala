@@ -535,7 +535,7 @@ object MixinNodes {
       @tailrec
       def updateTp(tp: ScType, depth: Int = 0): ScType = {
         tp.isAliasType match {
-          case Some(AliasType(_, _, Success(upper, _))) =>
+          case Some(AliasType(_, _, Success(upper))) =>
             if (tp != upper && depth < 100) updateTp(upper, depth + 1)
             else tp
           case _ =>

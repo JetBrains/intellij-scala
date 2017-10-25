@@ -351,7 +351,7 @@ class ImplicitCollector(place: PsiElement,
       case typeable: Typeable =>
         val subst = c.substitutor
         typeable.`type`() match {
-          case Success(t: ScType, _) =>
+          case Success(t) =>
             if (!subst.subst(t).conforms(tp))
               reportWrong(c, subst, TypeDoesntConformResult)
             else
@@ -448,7 +448,7 @@ class ImplicitCollector(place: PsiElement,
 
     val nonValueType: ScType =
       try updateNonValueType(nonValueType0) match {
-        case Success(tpe, _) => tpe
+        case Success(tpe) => tpe
         case _ => return wrongTypeParam(BadTypeResult)
       }
       catch {

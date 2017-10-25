@@ -73,7 +73,7 @@ object ScThisReferenceImpl {
           td.getTypeWithProjections(thisProjections = true).map {
             case scType => td.selfType.map(scType.glb(_)).getOrElse(scType)
           } match {
-            case Success(scType, _) => scType
+            case Success(scType) => scType
             case _ => return Failure("No clazz type found")
           }
       }

@@ -223,7 +223,7 @@ object ScalaPsiUtil {
     lastParent match {
       case _: ScImportStmt =>
         typeResult match {
-          case Success(t, _) =>
+          case Success(t) =>
             (processor, place) match {
               case (b: BaseProcessor, p: ScalaPsiElement) => b.processType(subst subst t, p, state)
               case _ => true
@@ -495,7 +495,7 @@ object ScalaPsiUtil {
 
     def collectPartsTr(option: TypeResult[ScType]): Unit = {
       option match {
-        case Success(t, _) => collectParts(t)
+        case Success(t) => collectParts(t)
         case _ =>
       }
     }
@@ -505,7 +505,7 @@ object ScalaPsiUtil {
       if (visited.contains(tp)) return
       visited += tp
       tp.isAliasType match {
-        case Some(AliasType(_, _, Success(t, _))) => collectParts(t)
+        case Some(AliasType(_, _, Success(t))) => collectParts(t)
         case _ =>
       }
 
@@ -1830,11 +1830,11 @@ object ScalaPsiUtil {
       def selfTypeValid: Boolean = {
         td.selfType match {
           case Some(selfParam: ScParameterizedType) => td.`type`() match {
-            case Success(classParamTp: ScParameterizedType, _) => selfParam.designator.conforms(classParamTp.designator)
+            case Success(classParamTp: ScParameterizedType) => selfParam.designator.conforms(classParamTp.designator)
             case _ => false
           }
           case Some(selfTp) => td.`type`() match {
-            case Success(classType, _) => selfTp.conforms(classType)
+            case Success(classType) => selfTp.conforms(classType)
             case _ => false
           }
           case _ => true

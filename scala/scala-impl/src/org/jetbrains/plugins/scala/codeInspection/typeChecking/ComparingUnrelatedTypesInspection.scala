@@ -72,7 +72,7 @@ object ComparingUnrelatedTypesInspection {
 
   @tailrec
   private def extractActualType(`type`: ScType): ScType = `type`.isAliasType match {
-    case Some(ScTypeUtil.AliasType(_, Success(rhs, _), _)) => extractActualType(rhs)
+    case Some(ScTypeUtil.AliasType(_, Success(rhs), _)) => extractActualType(rhs)
     case _ => `type`.tryExtractDesignatorSingleton
   }
 }
@@ -90,7 +90,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         //getType() for the reference on the left side returns singleton type, little hack here
         val leftOnTheRight = ScalaPsiElementFactory.createExpressionWithContextFromText(left.getText, right.getParent, right)
         Seq(leftOnTheRight, right) map (_.`type`()) match {
-          case Seq(Success(leftType, _), Success(rightType, _)) if cannotBeCompared(leftType, rightType) =>
+          case Seq(Success(leftType), Success(rightType)) if cannotBeCompared(leftType, rightType) =>
             val message = generateComparingUnrelatedTypesMsg(leftType, rightType)
             holder.registerProblem(expr, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
           case _ =>

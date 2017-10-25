@@ -183,17 +183,17 @@ object ScFunctionWrapper {
               val classes = new ArrayBuffer[String]()
               val project = fun.getProject
               tp.upperBound.map(subst.subst) match {
-                case Success(tp: ScCompoundType, _) =>
+                case Success(tp: ScCompoundType) =>
                   tp.components.foreach { tp: ScType =>
                     tp.extractClass match {
                       case Some(clazz) => classes += clazz.getQualifiedName
                       case _ =>
                     }
                   }
-                case Success(_: StdType, _) =>
-                case Success(tpt: TypeParameterType, _) =>
+                case Success(_: StdType) =>
+                case Success(tpt: TypeParameterType) =>
                   classes += tpt.canonicalText
-                case Success(scType, _) =>
+                case Success(scType) =>
                   scType.extractClass match {
                     case Some(clazz) => classes += clazz.getQualifiedName
                     case _ =>
@@ -235,13 +235,13 @@ object ScFunctionWrapper {
       else param.getRealParameterType
 
     val typeText = paramType.map(subst.subst) match {
-      case Success(tp, _) if param.isCallByNameParameter =>
+      case Success(tp) if param.isCallByNameParameter =>
         val psiType = tp match {
           case std: StdType => tp.typeSystem.stdToPsiType(std, noPrimitives = true)
           case _ => tp.toPsiType
         }
         s"scala.Function0<${psiType.getCanonicalText}>"
-      case Success(tp, _) =>
+      case Success(tp) =>
         JavaConversionUtil.typeText(tp)
       case _ => "java.lang.Object"
     }

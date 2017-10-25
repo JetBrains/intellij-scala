@@ -136,7 +136,7 @@ class SimulacrumInjection extends SyntheticMembersInjector {
 
             val AllOpsSupers = clazz.extendsBlock.templateParents.toSeq.flatMap(parents => parents.typeElements.flatMap { te =>
               te.`type`() match {
-                  case Success(ParameterizedType(classType, Seq(tp)), _) if isProperTpt(tp).isDefined =>
+                case Success(ParameterizedType(classType, Seq(tp))) if isProperTpt(tp).isDefined =>
                     def fromType: Seq[String] = {
                       val project = clazz.getProject
                       classType.extractClass match {

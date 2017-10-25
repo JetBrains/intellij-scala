@@ -38,7 +38,7 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
           cb.expression match {
             case Some(expr) if !lifted.isEmpty =>
               expr.`type`() match {
-                case Success(_, _) =>
+                case Success(_) =>
                   val tp = expr.`type`().getOrAny
                   val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.resolveScope, "java.lang.Throwable")
                   throwable.fold(lifted) { throwable =>

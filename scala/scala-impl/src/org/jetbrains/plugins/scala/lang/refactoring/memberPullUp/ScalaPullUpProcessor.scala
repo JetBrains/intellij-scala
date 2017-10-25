@@ -121,7 +121,7 @@ class ScalaPullUpProcessor(project: Project,
   private def declarationsText(m: ScMember): Seq[String] = {
     def textForBinding(b: ScBindingPattern) = {
       val typeText = b.`type`() match {
-        case Success(t, _) => s": ${t.canonicalText}"
+        case Success(t) => s": ${t.canonicalText}"
         case _ => ""
       }
       s"${b.name}$typeText"

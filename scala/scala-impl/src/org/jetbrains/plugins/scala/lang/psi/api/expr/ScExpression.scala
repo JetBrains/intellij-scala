@@ -342,7 +342,7 @@ object ScExpression {
       else {
         val inner = expr.getNonValueType(ignoreBaseTypes, fromUnderscore)
         inner match {
-          case Success(rtp, _) =>
+          case Success(rtp) =>
             var res = rtp
 
             val expType = expectedType(fromUnderscore)
@@ -353,7 +353,7 @@ object ScExpression {
                   InferUtil.updateAccordingToExpectedType(Success(rtp), fromImplicitParameters = true,
                     filterTypeParams = false, expectedType = expType, expr = expr, canThrowSCE = true)
                 updatedWithExpected match {
-                  case Success(newRes, _) =>
+                  case Success(newRes) =>
                     updateWithImplicitParameters(newRes, checkExpectedType = true, fromUnderscore)
                   case _ =>
                     updateWithImplicitParameters(oldRes, checkExpectedType = true, fromUnderscore)

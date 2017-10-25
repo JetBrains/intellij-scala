@@ -144,7 +144,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
         isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
-              case Success(tp, _) => tp
+              case Success(tp) => tp
               case _ => return (false, uSubst)
             }).equiv(r, uSubst, falseUndef)
           case _ => (false, uSubst)
@@ -153,7 +153,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
         isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
-              case Success(tp, _) => tp
+              case Success(tp) => tp
               case _ => return (false, uSubst)
             }).equiv(r, uSubst, falseUndef)
           case _ => (false, uSubst)
@@ -203,7 +203,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     designator.extractClassType match {
       case Some((clazz: ScTypeDefinition, sub)) if startsWith(clazz, prefix) =>
         clazz.`type`() match {
-          case Success(t, _) =>
+          case Success(t) =>
             val substituted = (sub followed substitutor).subst(t)
             substituted match {
               case pt: ScParameterizedType =>
@@ -240,7 +240,7 @@ object ScParameterizedType {
   def apply(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
     def createCompoundProjectionParameterized(pt: ScParameterizedType): ValueType = {
       pt.isAliasType match {
-        case Some(AliasType(_: ScTypeAliasDefinition, _, Success(upper: ValueType, _))) => upper
+        case Some(AliasType(_: ScTypeAliasDefinition, _, Success(upper: ValueType))) => upper
         case _ => pt
       }
     }

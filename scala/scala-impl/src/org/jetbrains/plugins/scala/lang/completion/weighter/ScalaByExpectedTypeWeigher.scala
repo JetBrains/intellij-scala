@@ -84,10 +84,10 @@ class ScalaByExpectedTypeWeigher(expectedTypes: Seq[ScType], position: PsiElemen
             val subst = ScalaPsiUtil.inferMethodTypesArgs(fun, scalaLookupItem.substitutor)
 
             fun.returnType match {
-              case Success(tp, _) => (tp, helper(tp, subst))
+              case Success(tp) => (tp, helper(tp, subst))
               case _ =>
                 fun.`type`() match {
-                  case Success(tp, _) => (tp, helper(tp, subst))
+                  case Success(tp) => (tp, helper(tp, subst))
                   case _ => (null, null)
                 }
             }
@@ -98,7 +98,7 @@ class ScalaByExpectedTypeWeigher(expectedTypes: Seq[ScType], position: PsiElemen
             (tp, helper(tp, subst))
           case typed: ScTypedDefinition =>
             typed.`type`() match {
-              case Success(tp, _) => (tp, helper(tp))
+              case Success(tp) => (tp, helper(tp))
               case _ => (null, null)
             }
           case f: PsiField =>

@@ -53,7 +53,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
       def extractSeqType: Option[ScType] = {
         if (operator.getText != "+=") return None
         operator.`type`() match {
-          case Success(ParameterizedType(_, typeArgs), _) =>
+          case Success(ParameterizedType(_, typeArgs)) =>
             typeArgs.last match {
               case ParameterizedType(settingType, Seq(seqFullType)) if qualifiedName(settingType) == "sbt.Init.Setting" =>
                 val collectionTypeNames = Seq("scala.collection.Seq", "scala.collection.immutable.Set")

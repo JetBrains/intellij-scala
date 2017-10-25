@@ -47,7 +47,7 @@ class ScProjectionType private(val projected: ScType,
         ta match {
           case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
             ta.aliasedType match {
-              case Success(tp, _) =>
+              case Success(tp) =>
                 actualSubst.subst(tp) match {
                   case ParameterizedType(des, typeArgs) =>
                     val taArgs = ta.typeParameters
@@ -220,7 +220,7 @@ class ScProjectionType private(val projected: ScType,
     isAliasType match {
       case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
         return (lower match {
-          case Success(tp, _) => tp
+          case Success(tp) => tp
           case _ => return (false, uSubst)
         }).equiv(r, uSubst, falseUndef)
       case _ =>
@@ -235,7 +235,7 @@ class ScProjectionType private(val projected: ScType,
         r.isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             this.equiv(lower match {
-              case Success(tp, _) => tp
+              case Success(tp) => tp
               case _ => return (false, uSubst)
             }, uSubst, falseUndef)
           case _ => (false, uSubst)
@@ -256,7 +256,7 @@ class ScProjectionType private(val projected: ScType,
         r.isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             this.equiv(lower match {
-              case Success(tp, _) => tp
+              case Success(tp) => tp
               case _ => return (false, uSubst)
             }, uSubst, falseUndef)
           case _ =>
@@ -267,7 +267,7 @@ class ScProjectionType private(val projected: ScType,
             case t: ScTypedDefinition if t.isStable =>
               val s: ScSubstitutor = ScSubstitutor(projected) followed actualSubst
               t.`type`() match {
-                case Success(tp: DesignatorOwner, _) if tp.isSingleton =>
+                case Success(tp: DesignatorOwner) if tp.isSingleton =>
                   return s.subst(tp).equiv(r, uSubst, falseUndef)
                 case _ =>
               }
@@ -279,7 +279,7 @@ class ScProjectionType private(val projected: ScType,
               val s: ScSubstitutor =
                 ScSubstitutor(p1) followed proj2.actualSubst
               t.`type`() match {
-                case Success(tp: DesignatorOwner, _) if tp.isSingleton =>
+                case Success(tp: DesignatorOwner) if tp.isSingleton =>
                   return s.subst(tp).equiv(this, uSubst, falseUndef)
                 case _ =>
               }
@@ -293,7 +293,7 @@ class ScProjectionType private(val projected: ScType,
           case _: ScObject => (false, uSubst)
           case t: ScTypedDefinition if t.isStable =>
             t.`type`() match {
-              case Success(singleton: DesignatorOwner, _) if singleton.isSingleton =>
+              case Success(singleton: DesignatorOwner) if singleton.isSingleton =>
                 val newSubst = actualSubst.followed(ScSubstitutor(projected))
                 r.equiv(newSubst.subst(singleton), uSubst, falseUndef)
               case _ => (false, uSubst)

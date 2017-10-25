@@ -96,7 +96,7 @@ object JavaConversionUtil {
           if (arguments.length == 1) {
             val typeResult = arguments.head.`type`()
             typeResult match {
-              case Success(tp, _) =>
+              case Success(tp) =>
                 tp.extractClass match {
                   case Some(clazz) => clazz.getQualifiedName + ".class"
                   case _ => problem

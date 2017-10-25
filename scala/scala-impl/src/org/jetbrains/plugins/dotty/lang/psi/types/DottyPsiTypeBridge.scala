@@ -42,7 +42,7 @@ trait DottyPsiTypeBridge extends api.PsiTypeBridge {
           case syntheticClass: ScSyntheticClass => toPsiType(syntheticClass.stdType)
           case clazz: PsiClass => createType(clazz, raw = true)
           case definition: ScTypeAliasDefinition => definition.aliasedType match {
-            case Success(result, _) => createComponent(result)
+            case Success(result) => createComponent(result)
             case _ => createJavaObject
           }
           case _ => createJavaObject

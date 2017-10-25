@@ -59,7 +59,7 @@ object MapGetOrElse extends SimplificationType() {
       case _ => return false
     }
     val mapArgRetType = mapArg.`type`() match {
-      case Success(FunctionType(retType, _), _) => retType
+      case Success(FunctionType(retType, _)) => retType
       case _ => return false
     }
 

@@ -383,7 +383,7 @@ object MethodInvocation {
               r.importsUsed, r.implicitConversion, Some(r))
           }
           call.getInvokedExpr.getNonValueType() match {
-            case Success(ScTypePolymorphicType(_, typeParams), _) =>
+            case Success(ScTypePolymorphicType(_, typeParams)) =>
               val fixedType = res.processedType match {
                 case ScTypePolymorphicType(internal, typeParams2) =>
                   ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2))

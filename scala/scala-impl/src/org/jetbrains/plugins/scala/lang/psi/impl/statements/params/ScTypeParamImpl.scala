@@ -61,8 +61,8 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
               in
             }
           case t => t.isAliasType match {
-            case Some(AliasType(_: ScTypeAliasDefinition, Success(lower, _), _)) if isLower => extractBound(lower, isLower)
-            case Some(AliasType(_: ScTypeAliasDefinition, _, Success(upper, _))) if !isLower => extractBound(upper, isLower)
+            case Some(AliasType(_: ScTypeAliasDefinition, Success(lower), _)) if isLower => extractBound(lower, isLower)
+            case Some(AliasType(_: ScTypeAliasDefinition, _, Success(upper))) if !isLower => extractBound(upper, isLower)
             case None => t
           }
         }

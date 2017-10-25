@@ -130,7 +130,7 @@ private class BaseTypesIterator(tp: ScType) extends Iterator[ScType] {
           if (!visitedAliases.contains(ta)) {
             visitedAliases += ta
             ta.aliasedType match {
-              case Success(aliased, _) => Some(s.subst(aliased))
+              case Success(aliased) => Some(s.subst(aliased))
               case _ => None
             }
           }

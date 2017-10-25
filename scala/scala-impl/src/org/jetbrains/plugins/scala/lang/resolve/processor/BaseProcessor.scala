@@ -191,7 +191,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             case _ => e.`type`()
           }
         result match {
-          case Success(tp, _) => processType(tp, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
+          case Success(tp) => processType(tp, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
           case _ => true
         }
       case ScDesignatorType(e) =>
@@ -285,7 +285,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             case _ => des.`type`()
           }
         typeResult match {
-          case Success(tp, _) =>
+          case Success(tp) =>
             processType(newSubst subst tp, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
               updateWithProjectionSubst = false, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
           case _ => true

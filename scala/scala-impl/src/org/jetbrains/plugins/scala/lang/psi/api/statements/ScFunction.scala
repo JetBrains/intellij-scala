@@ -484,7 +484,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         case Some(annotation) =>
           annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
             _.`type`() match {
-              case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass match {
+              case Success(ParameterizedType(des, Seq(arg))) => des.extractClass match {
                 case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
                   arg.toPsiType match {
                     case c: PsiClassType => Seq(c)
@@ -502,12 +502,12 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def `type`(): TypeResult[ScType] = {
     this.returnType match {
-      case Success(tp: ScType, _) =>
+      case Success(tp) =>
         var res: TypeResult[ScType] = Success(tp)
         var i = paramClauses.clauses.length - 1
         while (i >= 0) {
           res match {
-            case Success(t: ScType, _) =>
+            case Success(t) =>
               val parameters = paramClauses.clauses.apply(i).parameters
               val paramTypes = parameters.map(_.`type`().getOrNothing)
               res = Success(FunctionType(t, paramTypes))

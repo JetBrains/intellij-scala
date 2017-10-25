@@ -147,7 +147,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
         toPsiTypeInner(qualNameToType(c.qualifiedName), noPrimitives)
       case ScDesignatorType(valClass: ScClass) if ValueClassType.isValueClass(valClass) =>
         valClass.parameters.head.getRealParameterType match {
-          case Success(tp, _) if !(noPrimitives && tp.isPrimitive) =>
+          case Success(tp) if !(noPrimitives && tp.isPrimitive) =>
             toPsiTypeInner(tp, noPrimitives)
           case _ => createType(valClass)
         }
@@ -169,7 +169,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           }
         case a: ScTypeAliasDefinition if !visitedAliases.contains(a) =>
           a.aliasedType match {
-            case Success(c: ScParameterizedType, _) =>
+            case Success(c: ScParameterizedType) =>
               toPsiTypeInner(ScParameterizedType(c.designator, args), noPrimitives, visitedAliases + a)
             case _ => javaObject
           }

@@ -130,7 +130,7 @@ object PatternAnnotator {
           case Some(ref) =>
             ref.bind() match {
               case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" => fun.returnType match {
-                case Success(rt, _) =>
+                case Success(rt) =>
                   val expected = ScPattern.expectedNumberOfExtractorArguments(rt, pattern, ScPattern.isOneArgCaseClassMethod(fun))
                   val tupleCrushingIsPresent = expected > 0 && numPatterns == 1 && !fun.isSynthetic
                   if (expected != numPatterns   && !tupleCrushingIsPresent) { //1 always fits if return type is Option[TupleN]
@@ -140,7 +140,7 @@ object PatternAnnotator {
                 case _ =>
               }
               case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapplySeq" => fun.returnType match {
-                case Success(rt, _) =>
+                case Success(rt) =>
                   //subtract 1 because last argument (Seq) may be omitted
                   val expected = ScPattern.expectedNumberOfExtractorArguments(rt, pattern, ScPattern.isOneArgCaseClassMethod(fun)) - 1
                   if (expected > numPatterns) {

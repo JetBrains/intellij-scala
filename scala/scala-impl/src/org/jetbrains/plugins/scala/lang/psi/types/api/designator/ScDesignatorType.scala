@@ -29,7 +29,7 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
         ta match {
           case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
             ta.aliasedType match {
-              case Success(tp, _) =>
+              case Success(tp) =>
                 tp match {
                   case ParameterizedType(des, typeArgs) =>
                     val taArgs = ta.typeParameters
