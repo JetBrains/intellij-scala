@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, Nothing}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 

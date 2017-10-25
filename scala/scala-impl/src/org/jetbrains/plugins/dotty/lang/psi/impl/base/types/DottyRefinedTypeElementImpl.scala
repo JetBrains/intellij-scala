@@ -5,7 +5,7 @@ import org.jetbrains.plugins.dotty.lang.psi.api.base.types.DottyRefinedTypeEleme
 import org.jetbrains.plugins.dotty.lang.psi.types.DottyRefinedType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
   * @author adkozlov

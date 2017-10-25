@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 
@@ -32,7 +32,6 @@ object ScalaType {
   //      with this as we currently only rely on this method to determine covariant types: the parameter
   //      types of FunctionN, or the elements of TupleN
   def expandAliases(tp: ScType, visited: Set[ScType] = Set.empty): TypeResult[ScType] = {
-    import tp.projectContext
 
     if (visited contains tp) return Success(tp)
     tp match {

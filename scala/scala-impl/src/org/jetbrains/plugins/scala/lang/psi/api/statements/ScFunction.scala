@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDeclarat
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt

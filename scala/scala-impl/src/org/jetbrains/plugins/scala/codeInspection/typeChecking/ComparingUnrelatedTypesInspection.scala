@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -98,8 +98,8 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
       }
     case MethodRepr(_, Some(baseExpr), Some(ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
       for {
-        ParameterizedType(_, Seq(elemType)) <- baseExpr.`type`().map(_.tryExtractDesignatorSingleton)
-        argType <- arg.`type`()
+        ParameterizedType(_, Seq(elemType)) <- baseExpr.`type`().toOption.map(_.tryExtractDesignatorSingleton)
+        argType <- arg.`type`().toOption
         if cannotBeCompared(elemType, argType)
       } {
         val message = generateComparingUnrelatedTypesMsg(elemType, argType)

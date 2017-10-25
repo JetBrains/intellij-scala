@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwne
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
@@ -145,7 +145,7 @@ package object types {
       def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
         tp.recursiveUpdate {
           `type` => `type`.isAliasType match {
-            case Some(AliasType(ta: ScTypeAliasDefinition, _, _: Failure)) if needExpand(ta) =>
+            case Some(AliasType(ta: ScTypeAliasDefinition, _, Failure(_))) if needExpand(ta) =>
               ReplaceWith(projectContext.stdTypes.Any)
             case Some(AliasType(ta: ScTypeAliasDefinition, _, Success(upper))) if needExpand(ta) =>
               if (visited.contains(`type`)) throw RecursionException

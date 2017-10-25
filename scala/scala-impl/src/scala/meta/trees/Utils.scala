@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
@@ -109,10 +109,12 @@ trait Utils {
 
     def withSubstitutionCaching[T](fun: TypeResult[ScType] => T): T = {
       if (dumbMode) {
-        expr match {
-          case ts: ScTypedStmt => fun(TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null)))
-          case _                => fun(TypeResult.fromOption(None))
+        val maybeType = expr match {
+          case ts: ScTypedStmt => ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null)
+          case _ => None
         }
+
+        fun(TypeResult(maybeType))
       } else {
         ScSubstitutor.cacheSubstitutions = true
         val tp = expr.`type`()
@@ -155,7 +157,7 @@ trait Utils {
     def getTypeWithCachedSubst: TypeResult[ScType] = {
       if (dumbMode) {
         expr match {
-          case ts: ScTypedStmt => TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null))
+          case ts: ScTypedStmt => TypeResult(ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null))
           case _ => Success(ptype.api.Any)
         }
       } else {

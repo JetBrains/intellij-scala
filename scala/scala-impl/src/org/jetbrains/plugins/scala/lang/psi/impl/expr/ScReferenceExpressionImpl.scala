@@ -302,7 +302,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
       case ScalaResolveResult(self: ScSelfTypeElement, _) =>
         val clazz = PsiTreeUtil.getContextOfType(self, true, classOf[ScTemplateDefinition])
         ScThisReferenceImpl.getThisTypeForTypeDefinition(clazz, this) match {
-          case success: Success[ScType] => success.get
+          case Success(value) => value
           case failure => return failure
         }
       case r@ScalaResolveResult(refPatt: ScBindingPattern, s) =>

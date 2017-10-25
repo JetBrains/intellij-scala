@@ -6,12 +6,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpol
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScMethodCallImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.meta.Dialect
 import scala.meta.inputs.Input
@@ -58,8 +60,8 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
       case Parsed.Error(_, cause, exc) =>
         Seq.empty
     }
-    val types = typeStrings.map(ScalaPsiElementFactory.createTypeFromText(_, stringContextApplicationRef, null))
-    val treeType = ScalaPsiElementFactory.createTypeFromText("scala.meta.Tree", stringContextApplicationRef, null)
+    val types = typeStrings.map(createTypeFromText(_, stringContextApplicationRef, null))
+    val treeType = createTypeFromText("scala.meta.Tree", stringContextApplicationRef, null)
     types.zipWithIndex.map {
       case (maybeType, i) =>
         val tp = maybeType.orElse(treeType).get
@@ -69,7 +71,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
 
   def getMetaQQExprType(pat: ScInterpolatedStringLiteral): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
-    implicit val project = pat.projectContext
+    implicit val context: ProjectContext = pat.projectContext
 
     val patternText = escapeQQ(pat)
     val qqdialect = if (pat.isMultiLineString)
@@ -89,7 +91,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
       }
     } catch {
       case _: ArrayIndexOutOfBoundsException =>  // workaround for meta parser failure on malformed quasiquotes
-        TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText("scala.meta.Tree", pat, null))
+        TypeResult(createTypeFromText("scala.meta.Tree", pat, null))
     }
   }
 

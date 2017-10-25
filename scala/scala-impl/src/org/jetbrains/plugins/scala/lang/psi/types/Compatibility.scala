@@ -94,7 +94,7 @@ object Compatibility {
       } else {
         import scala.collection.Set
 
-        def default: (Success[ScType], Set[ImportUsed]) = (Success(typez), Set.empty)
+        def default: (TypeResult[ScType], Set[ImportUsed]) = (Success(typez), Set.empty)
 
         if (isShape || !checkImplicits || place == null) default
         else eval(typez, expectedOption)

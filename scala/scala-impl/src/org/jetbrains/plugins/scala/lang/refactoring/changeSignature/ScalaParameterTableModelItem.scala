@@ -5,6 +5,7 @@ import com.intellij.refactoring.changeSignature.ParameterTableModelItemBase
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.collection.mutable.ListBuffer
 
