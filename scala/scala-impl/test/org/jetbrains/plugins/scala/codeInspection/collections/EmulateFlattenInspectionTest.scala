@@ -104,6 +104,38 @@ class EmulateFlattenInspectionTest extends OperationsOnCollectionInspectionTest 
     testQuickFix(text, result, hint)
   }
 
+  def testSuggestes12(): Unit = {
+    val selected = s"val o = Option(Option(1)); o.${START}getOrElse(None)$END"
+    checkTextHasError(selected)
+    val text = "val o = Option(Option(1)); o.getOrElse(None)"
+    val result = "val o = Option(Option(1)); o.flatten"
+    testQuickFix(text, result, hint)
+  }
+
+  def testSuggestes13(): Unit = {
+    val selected = s"Option(Option(1)).${START}getOrElse(None)$END"
+    checkTextHasError(selected)
+    val text = "Option(Option(1)).getOrElse(None)"
+    val result = "Option(Option(1)).flatten"
+    testQuickFix(text, result, hint)
+  }
+
+  def testSuggestes14(): Unit = {
+    val selected = s"val o = Option(Option(1)); o.${START}map(_.get)$END"
+    checkTextHasError(selected)
+    val text = "val o = Option(Option(1)); o.map(_.get)"
+    val result = "val o = Option(Option(1)); o.flatten"
+    testQuickFix(text, result, hint)
+  }
+
+  def testSuggestes15(): Unit = {
+    val selected = s"Option(Option(1)).${START}map(_.get)$END"
+    checkTextHasError(selected)
+    val text = "Option(Option(1)).map(_.get)"
+    val result = "Option(Option(1)).flatten"
+    testQuickFix(text, result, hint)
+  }
+
   def testNotSuggests1(): Unit = {
     val text = s"Seq(Seq(1), Seq(2), Seq(3)).flatMap(x => identity(Seq(1, 2, 3)))"
     checkTextHasNoErrors(text)
@@ -121,6 +153,21 @@ class EmulateFlattenInspectionTest extends OperationsOnCollectionInspectionTest 
 
   def testNotSuggests4(): Unit = {
     val text = s"List(List(1), List(2), List(3)).flatMap(1 :: _ )"
+    checkTextHasNoErrors(text)
+  }
+
+  def testNotSuggests5(): Unit = {
+    val text = s"Option(Option(1)).getOrElse(Option(2))"
+    checkTextHasNoErrors(text)
+  }
+
+  def testNotSuggests6(): Unit = {
+    val text = s"Option(Option(1), 2).getOrElse(None)"
+    checkTextHasNoErrors(text)
+  }
+
+  def testNotSuggests7(): Unit = {
+    val text = s"Option(List(1)).getOrElse(None)"
     checkTextHasNoErrors(text)
   }
 }
