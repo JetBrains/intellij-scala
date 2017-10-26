@@ -138,11 +138,10 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
     val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =
       new ExecutionEnvironmentBuilder(project, executor)
     executionEnvironmentBuilder.runProfile(config).buildAndExecute()
-    // we can expect test to be done after additional reload completes, which also resets shell for the next test
-    val finished = SbtShellCommunication.forProject(project).command("reload")
-    Await.ready(finished, 10.minutes)
     runner.getConsoleView.flushDeferredText()
+    val exitCode = Await.result(logger.terminated, 10.minutes)
     val log = logger.getLog
+    assert(exitCode != 0, "sbt shell completed with nonzero exit code. Full log:\n$log")
     expectedStrings.foreach(str => assert(log.contains(str), s"sbt shell console did not contain expected string '$str'. Full log:\n$log"))
     unexpectedStrings.foreach(str => assert(!log.contains(str), s"sbt shell console contained unexpected string '$str'. Full log:\n$log"))
     val logSplitted = logLines(log)

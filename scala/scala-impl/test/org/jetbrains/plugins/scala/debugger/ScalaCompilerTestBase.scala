@@ -51,6 +51,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
     compilerVmOptions.foreach(setCompilerVmOptions)
     DebuggerTestUtil.enableCompileServer(useCompileServer)
     DebuggerTestUtil.forceJdk8ForBuildProcess()
+    setUpLibraries()
   }
 
   protected def compilerVmOptions: Option[String] = None
@@ -100,7 +101,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
         CompilerTestUtil.disableExternalCompiler(myProject)
         CompileServerLauncher.instance.stop()
 
-        tearDownLibraries()
+        disposeLibraries()
 
       } finally {
         ScalaCompilerTestBase.super.tearDown()

@@ -13,7 +13,5 @@ trait LibraryLoader extends Disposable {
 
   def init(implicit version: ScalaVersion): Unit
 
-  def clean(): Unit = dispose()
-
-  override def dispose(): Unit = Disposer.dispose(this)
+  override def dispose(): Unit = ()
 }

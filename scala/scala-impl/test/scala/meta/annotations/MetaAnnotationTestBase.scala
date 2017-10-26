@@ -82,7 +82,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   }
 
   override def tearDown(): Unit = try {
-    tearDownLibraries()
+    disposeLibraries()
 
     inWriteAction {
       val jdkTable = ProjectJdkTable.getInstance()

@@ -23,7 +23,7 @@ trait ThirdPartyLibraryLoader extends LibraryLoader {
     val file = new File(path).getCanonicalFile
     assert(file.exists(), s"library root for $name does not exist at $file")
     VfsRootAccess.allowRootAccess(path)
-    PsiTestUtil.addLibrary(this, module, file.getName, file.getParent, file.getName)
+    PsiTestUtil.addLibrary(this, module, name, file.getParent, file.getName)
   }
 
   protected def path(implicit version: ScalaVersion): String

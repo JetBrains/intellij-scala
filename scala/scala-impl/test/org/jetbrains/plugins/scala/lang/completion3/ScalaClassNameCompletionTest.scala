@@ -197,7 +197,7 @@ class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {
     settings.setImportsWithPrefix(Array.empty)
   }
 
-  override protected def tearDown(): Unit = {
+  override def tearDown(): Unit = {
     codeStyleSettings.setImportsWithPrefix(importsWithPrefix)
 
     super.tearDown()
@@ -243,7 +243,7 @@ class FullQualifiedImportsCompletionTest extends ScalaClassNameCompletionTest {
     settings.setAddFullQualifiedImports(false)
   }
 
-  override protected def tearDown(): Unit = {
+  override def tearDown(): Unit = {
     codeStyleSettings.setAddFullQualifiedImports(isAddFullQualifiedImports)
 
     super.tearDown()

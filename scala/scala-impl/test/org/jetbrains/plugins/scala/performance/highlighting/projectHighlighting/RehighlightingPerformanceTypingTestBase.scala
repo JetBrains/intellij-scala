@@ -56,7 +56,7 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
     myCodeInsightTestFixture.tearDown()
     myCodeInsightTestFixture = null
 
-    tearDownLibraries()
+    disposeLibraries()
     super.tearDown()
   }
 

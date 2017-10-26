@@ -105,6 +105,7 @@ public abstract class FileSetTestCase extends TestSuite {
       myTestFile = testFile;
     }
 
+    @Override
     protected void setUp() throws Exception {
       super.setUp();
       FileSetTestCase.this.setUp(getProject());
