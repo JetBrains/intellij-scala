@@ -75,19 +75,21 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     def getConstructorParams(constr: PsiMethod, subst: ScSubstitutor): (Seq[Seq[Parameter]], Boolean) = {
       constr match {
         case fun: ScFunction =>
-          (fun.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
+          val clauses = fun.effectiveParameterClauses
+          (clauses.map(_.effectiveParameters.map { p =>
             val paramType: ScType = subst.subst(p.`type`().getOrAny)
             new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam,p.isRepeatedParameter,
               p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.`type`().toOption))
           }),
-            fun.parameterList.clauses.lastOption.exists(_.isImplicit))
+            clauses.lastOption.exists(_.isImplicit))
         case f: ScPrimaryConstructor =>
-          (f.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
+          val clauses = f.effectiveParameterClauses
+          (clauses.map(_.effectiveParameters.map { p =>
             val paramType: ScType = subst.subst(p.`type`().getOrAny)
             new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam, p.isRepeatedParameter,
               p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.`type`().toOption))
           }),
-            f.parameterList.clauses.lastOption.exists(_.isImplicit))
+            clauses.lastOption.exists(_.isImplicit))
         case m: PsiMethod =>
           (Seq(m.parameters.map { p =>
             Parameter(p.paramType(), isRepeated = p.isVarArgs, index = p.index)
