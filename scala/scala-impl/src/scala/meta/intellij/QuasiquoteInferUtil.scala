@@ -91,7 +91,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
       }
     } catch {
       case _: ArrayIndexOutOfBoundsException =>  // workaround for meta parser failure on malformed quasiquotes
-        TypeResult(createTypeFromText("scala.meta.Tree", pat, null))
+        createTypeFromText("scala.meta.Tree", pat, null).asTypeResult
     }
   }
 

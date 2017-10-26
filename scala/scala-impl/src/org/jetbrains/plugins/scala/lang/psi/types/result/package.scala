@@ -7,8 +7,8 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 package object result {
 
-  private type TypeError = (String, ProjectContext)
-  type TypeResult[T <: ScType] = Either[TypeError, ScType]
+  type Failure = (String, ProjectContext)
+  type TypeResult[T <: ScType] = Either[Failure, ScType]
 
   object Failure {
     def apply(cause: String)
@@ -20,9 +20,9 @@ package object result {
     }
   }
 
-  object TypeResult {
-    def apply(maybeType: Option[ScType])
-             (implicit context: ProjectContext): TypeResult[ScType] = maybeType match {
+  implicit class OptionTypeExt(val maybeRight: Option[ScType]) extends AnyVal {
+
+    def asTypeResult(implicit context: ProjectContext): TypeResult[ScType] = maybeRight match {
       case Some(result) => Right(result)
       case None => Failure("")
     }
@@ -30,10 +30,7 @@ package object result {
 
   implicit class TypeResultExt(val result: TypeResult[ScType]) extends AnyVal {
 
-    def get: ScType = result match {
-      case Right(value) => value
-      case _ => throw new NoSuchElementException("Failure.get")
-    }
+    def get: ScType = getOrApiType(null)
 
     def getOrAny: ScType = getOrApiType(_.Any)
 
@@ -41,7 +38,8 @@ package object result {
 
     private def getOrApiType(apiType: StdTypes => ScType): ScType = result match {
       case Right(value) => value
-      case Left((_, projectContext)) => apiType(projectContext.stdTypes)
+      case Left((_, projectContext)) if apiType != null => apiType(projectContext.stdTypes)
+      case _ => throw new NoSuchElementException("Failure.get")
     }
   }
 

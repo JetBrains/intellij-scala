@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -26,7 +27,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   protected override def innerType: TypeResult[ScType] = {
     import scala.meta.intellij.psiExt.TemplateDefExt
     refTemplate match {
-      case Some(td) if td.isMetaAnnotatationImpl => TypeResult(ScalaPsiElementFactory.createTypeFromText("scala.meta.Stat", this, null))
+      case Some(td) if td.isMetaAnnotatationImpl => createTypeFromText("scala.meta.Stat", this, null).asTypeResult
       case Some(td) => ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this)
       case _ => Failure("Cannot infer type")
     }
