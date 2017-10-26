@@ -1484,7 +1484,7 @@
             <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
         </action>
         <action id="Hydra.EnableSettings" class="org.jetbrains.plugins.hydra.actions.EnableHydraSettingsAction"
-                text="Enable/Disable Hydra Settings" description="Enables or Disables Hydra Settings Panel">
+                text="Show Hydra Settings" description="Shows or hides the Hydra Settings Panel">
         </action>
         <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.ScalaConsoleExecuteAction" text="Execute Console Statement">
             <keyboard-shortcut first-keystroke="control ENTER" keymap="$default"/>
