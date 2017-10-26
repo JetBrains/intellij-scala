@@ -63,7 +63,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     proc.candidates.toSeq.map(_.element)
   }
 
-  private def workWithBindInternal(bindInternal: Option[PsiElement], i: Int): TypeResult[ScType] = {
+  private def workWithBindInternal(bindInternal: Option[PsiElement], i: Int): TypeResult = {
     val (res: ScType, clazz: ScTemplateDefinition) = bindInternal match {
       case Some(c: ScMethodLike) =>
         val methodType = c.nestedMethodType(i).getOrElse(return Failure("Not enough parameter sections"))
@@ -78,16 +78,16 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     }
   }
 
-  def shapeType(i: Int): TypeResult[ScType] = {
+  def shapeType(i: Int): TypeResult = {
     val option = bindInternal(shapeResolve = true)
     workWithBindInternal(option, i)
   }
 
-  def shapeMultiType(i: Int): Seq[TypeResult[ScType]] = {
+  def shapeMultiType(i: Int): Seq[TypeResult] = {
     bindMultiInternal(shapeResolve = true).map(pe => workWithBindInternal(Some(pe), i))
   }
 
-  def multiType(i: Int): Seq[TypeResult[ScType]] = {
+  def multiType(i: Int): Seq[TypeResult] = {
     bindMultiInternal(shapeResolve = false).map(pe => workWithBindInternal(Some(pe), i))
   }
 

@@ -236,11 +236,11 @@ object InferUtil {
     * @param canThrowSCE            we fail to get right type then if canThrowSCE throw SafeCheckException
     * @return updated type
     */
-  def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType],
+  def updateAccordingToExpectedType(_nonValueType: TypeResult,
                                     fromImplicitParameters: Boolean,
                                     filterTypeParams: Boolean,
                                     expectedType: Option[ScType], expr: PsiElement,
-                                    canThrowSCE: Boolean): TypeResult[ScType] = {
+                                    canThrowSCE: Boolean): TypeResult = {
     implicit val ctx: ProjectContext = expr
     val Unit = ctx.stdTypes.Unit
 

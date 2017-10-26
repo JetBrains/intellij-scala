@@ -6,7 +6,6 @@ package expr
 
 import com.intellij.psi.ResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /** 
@@ -25,13 +24,13 @@ trait ScGenericCall extends ScExpression {
     case _ => Nil
   }
 
-  def shapeType: TypeResult[ScType]
+  def shapeType: TypeResult
 
-  def shapeMultiType: Array[TypeResult[ScType]]
+  def shapeMultiType: Array[TypeResult]
 
   def shapeMultiResolve: Option[Array[ResolveResult]]
 
-  def multiType: Array[TypeResult[ScType]]
+  def multiType: Array[TypeResult]
 
   def multiResolve: Option[Array[ResolveResult]]
 }

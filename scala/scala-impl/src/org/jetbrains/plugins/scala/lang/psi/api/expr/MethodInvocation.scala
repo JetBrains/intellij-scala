@@ -129,7 +129,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     */
   def isUpdateCall: Boolean = false
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     try {
       tryToGetInnerType(useExpectedType = true)
     } catch {
@@ -138,7 +138,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     }
   }
 
-  private def tryToGetInnerType(useExpectedType: Boolean): TypeResult[ScType] = {
+  private def tryToGetInnerType(useExpectedType: Boolean): TypeResult = {
     var problemsLocal: Seq[ApplicabilityProblem] = Seq.empty
     var matchedParamsLocal: Seq[(Parameter, ScExpression)] = Seq.empty
     var importsUsedLocal: collection.Set[ImportUsed] = collection.Set.empty
@@ -153,7 +153,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       applyOrUpdateElemVar = applyOrUpdateElemLocal
     }
 
-    var nonValueType: TypeResult[ScType] = getEffectiveInvokedExpr.getNonValueType()
+    var nonValueType: TypeResult = getEffectiveInvokedExpr.getNonValueType()
     this match {
       case _: ScPrefixExpr => return nonValueType //no arg exprs, just reference expression type
       case _: ScPostfixExpr => return nonValueType //no arg exprs, just reference expression type
@@ -264,7 +264,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             }
             new Expression(actualExpr) {
               override def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
-                                                          _expectedOption: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
+                                                          _expectedOption: Option[ScType]): (TypeResult, collection.Set[ImportUsed]) = {
                 val expectedOption = _expectedOption.map {
                   case TupleType(comps) if comps.length == 2 => comps(1)
                   case t => t
@@ -351,8 +351,8 @@ object MethodInvocation {
       * This method useful in case if you want to update some polymorphic type
       * according to method call expected type
       */
-    def updateAccordingToExpectedType(nonValueType: TypeResult[ScType],
-                                      canThrowSCE: Boolean = false): TypeResult[ScType] = {
+    def updateAccordingToExpectedType(nonValueType: TypeResult,
+                                      canThrowSCE: Boolean = false): TypeResult = {
       InferUtil.updateAccordingToExpectedType(nonValueType, fromImplicitParameters = false, filterTypeParams = false,
         expectedType = invocation.expectedType(), expr = invocation, canThrowSCE)
     }

@@ -5,7 +5,6 @@ package api
 package expr
 
 import com.intellij.psi.{PsiElement, PsiReference}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /** 
@@ -20,11 +19,11 @@ trait ScSelfInvocation extends ScalaPsiElement with PsiReference {
 
   def bind: Option[PsiElement]
 
-  def shapeType(i: Int): TypeResult[ScType]
+  def shapeType(i: Int): TypeResult
 
-  def shapeMultiType(i: Int): Seq[TypeResult[ScType]]
+  def shapeMultiType(i: Int): Seq[TypeResult]
 
-  def multiType(i: Int): Seq[TypeResult[ScType]]
+  def multiType(i: Int): Seq[TypeResult]
 
   def thisElement: PsiElement = getFirstChild
 }

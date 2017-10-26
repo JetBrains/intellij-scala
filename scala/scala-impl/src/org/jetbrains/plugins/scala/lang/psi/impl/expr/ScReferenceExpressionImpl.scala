@@ -182,8 +182,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     }
   } // See SCL-3092
 
-  def multiType: Array[TypeResult[ScType]] = {
-    val buffer = ArrayBuffer[TypeResult[ScType]]()
+  def multiType: Array[TypeResult] = {
+    val buffer = ArrayBuffer[TypeResult]()
     val iterator = multiResolve(incomplete = false).iterator
     while (iterator.hasNext) {
       iterator.next() match {
@@ -194,22 +194,22 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     buffer.toArray
   }
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     this.bind() match {
       case Some(srr) => convertBindToType(srr)
       case _ => resolveFailure
     }
   }
 
-  def shapeType: TypeResult[ScType] = {
+  def shapeType: TypeResult = {
     shapeResolve match {
       case Array(bind: ScalaResolveResult) if bind.isApplicable() => convertBindToType(bind)
       case _ => resolveFailure
     }
   }
 
-  def shapeMultiType: Array[TypeResult[ScType]] = {
-    val buffer = ArrayBuffer[TypeResult[ScType]]()
+  def shapeMultiType: Array[TypeResult] = {
+    val buffer = ArrayBuffer[TypeResult]()
     val iterator = shapeResolve.iterator
     while (iterator.hasNext) {
       iterator.next() match {
@@ -228,7 +228,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     }
   }
 
-  protected def convertBindToType(bind: ScalaResolveResult): TypeResult[ScType] = {
+  protected def convertBindToType(bind: ScalaResolveResult): TypeResult = {
     val fromType: Option[ScType] = bind.fromType
     val unresolvedTypeParameters: Seq[TypeParameter] = bind.unresolvedTypeParameters.getOrElse(Seq.empty)
 

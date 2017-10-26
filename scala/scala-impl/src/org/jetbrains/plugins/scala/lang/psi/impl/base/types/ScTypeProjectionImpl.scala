@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
 * Date: 13.03.2008
 */
 class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) with ScTypeProjection {
-  protected def innerType: TypeResult[ScType] = {
+  protected def innerType: TypeResult = {
     this.bind() match {
       case Some(ScalaResolveResult(elem, _)) =>
         typeElement.`type`().map {

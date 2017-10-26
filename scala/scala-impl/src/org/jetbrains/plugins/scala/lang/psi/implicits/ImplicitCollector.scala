@@ -383,7 +383,7 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def updateNonValueType(nonValueType0: ScType): TypeResult[ScType] = {
+  private def updateNonValueType(nonValueType0: ScType): TypeResult = {
     InferUtil.updateAccordingToExpectedType(
       Right(nonValueType0),
       fromImplicitParameters = true,

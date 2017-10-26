@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
+import org.jetbrains.plugins.scala.lang.psi.types.TypeAliasSignature
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypeAliasSignature}
 
 /**
  * @author Alefas
@@ -21,9 +21,9 @@ class ScLightTypeAliasDeclaration(s: TypeAliasSignature, val ta: ScTypeAliasDecl
 
   override def nameId: PsiElement = ta.nameId
 
-  override def upperBound: TypeResult[ScType] = Right(s.upperBound)
+  override def upperBound: TypeResult = Right(s.upperBound)
 
-  override def lowerBound: TypeResult[ScType] = Right(s.lowerBound)
+  override def lowerBound: TypeResult = Right(s.lowerBound)
 
   override def getOriginalElement: PsiElement = super[ScTypeAliasDeclaration].getOriginalElement
 

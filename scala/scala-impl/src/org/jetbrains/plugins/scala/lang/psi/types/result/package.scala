@@ -8,13 +8,13 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 package object result {
 
   type Failure = (String, ProjectContext)
-  type TypeResult[T <: ScType] = Either[Failure, ScType]
+  type TypeResult = Either[Failure, ScType]
 
   object Failure {
     def apply(cause: String)
-             (implicit context: ProjectContext): TypeResult[ScType] = Left(cause, context)
+             (implicit context: ProjectContext): TypeResult = Left(cause, context)
 
-    def unapply(result: TypeResult[ScType]): Option[String] = result match {
+    def unapply(result: TypeResult): Option[String] = result match {
       case Left((cause, _)) => Some(cause)
       case _ => None
     }
@@ -22,13 +22,13 @@ package object result {
 
   implicit class OptionTypeExt(val maybeRight: Option[ScType]) extends AnyVal {
 
-    def asTypeResult(implicit context: ProjectContext): TypeResult[ScType] = maybeRight match {
+    def asTypeResult(implicit context: ProjectContext): TypeResult = maybeRight match {
       case Some(result) => Right(result)
       case None => Failure("")
     }
   }
 
-  implicit class TypeResultExt(val result: TypeResult[ScType]) extends AnyVal {
+  implicit class TypeResultExt(val result: TypeResult) extends AnyVal {
 
     def get: ScType = getOrApiType(null)
 
@@ -46,11 +46,11 @@ package object result {
   implicit class TypeableExt(val typeable: ScalaPsiElement with Typeable) extends AnyVal {
 
     def flatMap[E <: ScalaPsiElement](maybeElement: Option[E])
-                                     (function: E => TypeResult[ScType]): TypeResult[ScType] =
+                                     (function: E => TypeResult): TypeResult =
       maybeElement.map(function)
         .getOrElse(Failure("No element found"))
 
-    def flatMapType[E <: ScalaPsiElement with Typeable](maybeElement: Option[E]): TypeResult[ScType] =
+    def flatMapType[E <: ScalaPsiElement with Typeable](maybeElement: Option[E]): TypeResult =
       flatMap(maybeElement)(_.`type`())
 
     private implicit def context: ProjectContext = typeable

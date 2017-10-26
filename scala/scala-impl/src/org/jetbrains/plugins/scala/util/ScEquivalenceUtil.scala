@@ -5,8 +5,8 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -43,7 +43,7 @@ object ScEquivalenceUtil {
   }
 
   private def areTypeAliasesEquivalent(ta1: ScTypeAlias, ta2: ScTypeAlias): Boolean = {
-    def equiv(tr1: TypeResult[ScType], tr2: TypeResult[ScType]): Boolean =
+    def equiv(tr1: TypeResult, tr2: TypeResult): Boolean =
       (tr1, tr2) match {
         case (Right(left), Right(right)) => left.equiv(right)
         case _ => false

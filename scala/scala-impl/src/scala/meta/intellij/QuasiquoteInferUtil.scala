@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScMethodCallImpl
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -69,7 +68,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
     }
   }
 
-  def getMetaQQExprType(pat: ScInterpolatedStringLiteral): TypeResult[ScType] = {
+  def getMetaQQExprType(pat: ScInterpolatedStringLiteral): TypeResult = {
     ProgressManager.checkCanceled()
     implicit val context: ProjectContext = pat.projectContext
 

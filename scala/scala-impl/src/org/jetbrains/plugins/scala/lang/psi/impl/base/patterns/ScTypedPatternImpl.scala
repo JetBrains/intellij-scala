@@ -47,11 +47,11 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   override def toString: String = "TypedPattern: " + ifReadAllowed(name)("")
 
-  override def `type`(): TypeResult[ScType] = {
+  override def `type`(): TypeResult = {
     typePattern match {
       case Some(tp) =>
         if (tp.typeElement == null) return Failure("No type element for type pattern")
-        val typeElementType: TypeResult[ScType] =
+        val typeElementType: TypeResult =
           tp.typeElement.`type`().map {
             case tp: ScExistentialType =>
               val skolem = tp.quantified

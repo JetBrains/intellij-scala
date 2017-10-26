@@ -71,7 +71,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
     }
   }
 
-  override def `type`(): TypeResult[ScType] = {
+  override def `type`(): TypeResult = {
     ref.bind() match {
       case Some(r) =>
         r.element match {

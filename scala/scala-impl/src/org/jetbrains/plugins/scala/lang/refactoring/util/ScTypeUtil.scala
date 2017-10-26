@@ -21,5 +21,5 @@ object ScTypeUtil {
     case t => t
   }
 
-  case class AliasType(ta: ScTypeAlias, lower: TypeResult[ScType], upper: TypeResult[ScType])
+  case class AliasType(ta: ScTypeAlias, lower: TypeResult, upper: TypeResult)
 }

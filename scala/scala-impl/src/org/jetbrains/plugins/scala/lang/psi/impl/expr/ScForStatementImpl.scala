@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitCompletionProcessor
@@ -349,7 +348,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
   }
 
-  override protected def innerType: TypeResult[ScType] = {
+  override protected def innerType: TypeResult = {
     getDesugarizedExpr match {
       case Some(newExpr) => newExpr.getNonValueType()
       case None => Failure("Cannot create expression")

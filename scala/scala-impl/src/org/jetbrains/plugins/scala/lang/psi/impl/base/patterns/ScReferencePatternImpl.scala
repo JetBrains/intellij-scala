@@ -48,7 +48,7 @@ class ScReferencePatternImpl private(stub: ScReferencePatternStub, node: ASTNode
 
   override def toString: String = "ReferencePattern: " + ifReadAllowed(name)("")
 
-  override def `type`(): TypeResult[ScType] = {
+  override def `type`(): TypeResult = {
     this.expectedType match {
       case Some(x) => Right(x)
       case _ => Failure("Cannot define expected type")

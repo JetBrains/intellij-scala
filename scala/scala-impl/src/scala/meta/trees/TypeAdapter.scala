@@ -94,7 +94,7 @@ trait TypeAdapter {
     }
   }
 
-  def toType(tr: TypeResult[ptype.ScType]): m.Type = {
+  def toType(tr: TypeResult): m.Type = {
     import org.jetbrains.plugins.scala.lang.psi.types.result._
     tr match {
       case Right(res) => toType(res)
@@ -258,7 +258,7 @@ trait TypeAdapter {
     m.Type.Bounds(tp.lowerTypeElement.map(toType), tp.upperTypeElement.map(toType))//.setTypechecked
   }
 
-  def returnType(tr: ptype.result.TypeResult[ptype.ScType]): m.Type = {
+  def returnType(tr: ptype.result.TypeResult): m.Type = {
     import ptype.result._
     tr match {
       case Right(t) => toType(t)

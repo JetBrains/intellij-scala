@@ -39,7 +39,7 @@ import scala.meta.intellij.QuasiquoteInferUtil
 trait ScPattern extends ScalaPsiElement with Typeable {
   def isIrrefutableFor(t: Option[ScType]): Boolean = false
 
-  override def `type`(): TypeResult[ScType] = Failure("Cannot type pattern")
+  override def `type`(): TypeResult = Failure("Cannot type pattern")
 
   def bindings: Seq[ScBindingPattern] = {
     val b = new ArrayBuffer[ScBindingPattern]

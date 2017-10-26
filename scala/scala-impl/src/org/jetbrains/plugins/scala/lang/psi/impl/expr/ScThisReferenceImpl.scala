@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScThisReference {
   override def toString: String = "ThisReference"
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     import scala.meta.intellij.psiExt.TemplateDefExt
     refTemplate match {
       case Some(td) if td.isMetaAnnotatationImpl => createTypeFromText("scala.meta.Stat", this, null).asTypeResult
@@ -56,7 +56,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 }
 
 object ScThisReferenceImpl {
-  def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult[ScType] = {
+  def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult = {
     import td.projectContext
     // SLS 6.5:  If the expression’s expected type is a stable type,
     // or C .this occurs as the prefix of a selection, its type is C.this.type,

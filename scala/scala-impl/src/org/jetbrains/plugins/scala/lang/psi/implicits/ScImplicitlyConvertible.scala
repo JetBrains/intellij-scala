@@ -197,7 +197,7 @@ object ScImplicitlyConvertible {
 
     val argumentType = firstParameter.`type`()
 
-    def substitute(maybeType: TypeResult[ScType]) =
+    def substitute(maybeType: TypeResult) =
       maybeType.map(substitutor.subst)
         .getOrNothing
 
@@ -248,7 +248,7 @@ object ScImplicitlyConvertible {
         val nameAndIds = function.typeParameters.map(_.nameAndId).toSet
         def hasRecursiveTypeParameters(`type`: ScType): Boolean = `type`.hasRecursiveTypeParameters(nameAndIds)
 
-        def substitute(maybeType: TypeResult[ScType]) = maybeType
+        def substitute(maybeType: TypeResult) = maybeType
           .toOption
           .map(substitutor.subst)
           .map(unSubst.subst)

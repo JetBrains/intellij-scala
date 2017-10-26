@@ -36,13 +36,13 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
  */
 
 class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
-  protected def innerType: TypeResult[ScType] = innerNonValueType(inferValueType = true)
+  protected def innerType: TypeResult = innerNonValueType(inferValueType = true)
 
-  override def getTypeNoConstructor: TypeResult[ScType] = innerNonValueType(inferValueType = true, noConstructor = true)
+  override def getTypeNoConstructor: TypeResult = innerNonValueType(inferValueType = true, noConstructor = true)
 
   @CachedWithRecursionGuard(this, Failure("Recursive non value type of type element"),
     ModCount.getBlockModificationCount)
-  override def getNonValueType(withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] =
+  override def getNonValueType(withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult =
     innerNonValueType(inferValueType = false, withUnnecessaryImplicitsUpdate = withUnnecessaryImplicitsUpdate)
 
   @volatile
@@ -61,7 +61,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     implicitParameters
   }
 
-  private def innerNonValueType(inferValueType: Boolean, noConstructor: Boolean = false, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] = {
+  private def innerNonValueType(inferValueType: Boolean, noConstructor: Boolean = false, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult = {
     ProgressManager.checkCanceled()
 
     def parametrise(tp: ScType, clazz: PsiClass, subst: ScSubstitutor): ScType = {
@@ -287,7 +287,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         }
         val constrRef = ref.isConstructorReference && !noConstructor
 
-        def updateImplicitsWithoutLocalTypeInference(r: TypeResult[ScType], ss: ScSubstitutor): TypeResult[ScType] = {
+        def updateImplicitsWithoutLocalTypeInference(r: TypeResult, ss: ScSubstitutor): TypeResult = {
           if (withUnnecessaryImplicitsUpdate) {
             r.map {
               tp =>
@@ -363,7 +363,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
 object ScSimpleTypeElementImpl {
 
-  def calculateReferenceType(ref: ScStableCodeReferenceElement, shapesOnly: Boolean = false): TypeResult[ScType] = {
+  def calculateReferenceType(ref: ScStableCodeReferenceElement, shapesOnly: Boolean = false): TypeResult = {
     import ref.projectContext
 
     val (resolvedElement, fromType) = (if (!shapesOnly) {

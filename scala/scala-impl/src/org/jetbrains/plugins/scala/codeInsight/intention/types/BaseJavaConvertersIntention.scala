@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 import scala.annotation.tailrec
 
@@ -39,7 +39,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
     }
   }
 
-  def isProperTargetCollection(typeResult: TypeResult[ScType], project: Project): Boolean =
+  def isProperTargetCollection(typeResult: TypeResult, project: Project): Boolean =
     typeResult.exists {
       scType =>
         scType.extractClass exists {
@@ -49,7 +49,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
         }
     }
 
-  def isAlreadyConvertedCollection(typeResult: TypeResult[ScType], project: Project): Boolean =
+  def isAlreadyConvertedCollection(typeResult: TypeResult, project: Project): Boolean =
     typeResult.exists {
       scType =>
         scType.extractClass exists {

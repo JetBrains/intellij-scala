@@ -25,10 +25,10 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScUnderscoreSection {
   override def toString: String = "UnderscoreSection"
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     bindingExpr match {
       case Some(ref: ScReferenceExpression) =>
-        def fun(): TypeResult[ScType] = {
+        def fun(): TypeResult = {
           ref.getNonValueType().map {
             case ScTypePolymorphicType(internalType, typeParameters) =>
               ScTypePolymorphicType(ScMethodType(internalType, Nil, isImplicit = false), typeParameters)

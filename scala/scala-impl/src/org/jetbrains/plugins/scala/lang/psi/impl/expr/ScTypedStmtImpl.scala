@@ -8,7 +8,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
@@ -19,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 class ScTypedStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypedStmt {
   override def toString: String = "TypedStatement"
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     typeElement match {
       case Some(te) => te.`type`()
       case None if !expr.isInstanceOf[ScUnderscoreSection] => expr.`type`()

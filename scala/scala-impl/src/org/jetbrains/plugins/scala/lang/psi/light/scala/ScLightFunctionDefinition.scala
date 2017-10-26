@@ -26,11 +26,11 @@ class ScLightFunctionDefinition(pTypes: Seq[Seq[ScType]], tParams: Seq[TypeParam
 
   override def paramClauses: ScParameters = new ScLightParameters(pTypes, fun)
 
-  override protected def returnTypeInner: TypeResult[ScType] = Right(rt)
+  override protected def returnTypeInner: TypeResult = Right(rt)
 
-  override def definedReturnType: TypeResult[ScType] = Right(rt)
+  override def definedReturnType: TypeResult = Right(rt)
 
-  override def declaredType: TypeResult[ScType] = Right(rt)
+  override def declaredType: TypeResult = Right(rt)
 
   override def hasExplicitType: Boolean = true
 

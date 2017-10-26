@@ -218,7 +218,7 @@ object ScalaPsiUtil {
   }
 
   def processImportLastParent(processor: PsiScopeProcessor, state: ResolveState, place: PsiElement,
-                              lastParent: PsiElement, typeResult: => TypeResult[ScType]): Boolean = {
+                              lastParent: PsiElement, typeResult: => TypeResult): Boolean = {
     val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty)
     lastParent match {
       case _: ScImportStmt =>
@@ -493,7 +493,7 @@ object ScalaPsiUtil {
       }
     }
 
-    def collectPartsTr(option: TypeResult[ScType]): Unit = {
+    def collectPartsTr(option: TypeResult): Unit = {
       option match {
         case Right(t) => collectParts(t)
         case _ =>

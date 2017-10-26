@@ -38,7 +38,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
   import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression._
 
-  override def `type`(): TypeResult[ScType] =
+  override def `type`(): TypeResult =
     this.getTypeAfterImplicitConversion().tr
 
   @volatile
@@ -74,7 +74,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     }
   }
 
-  protected def innerType: TypeResult[ScType] =
+  protected def innerType: TypeResult =
     Failure(ScalaBundle.message("no.type.inferred", getText))
 
   /**
@@ -206,7 +206,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
 object ScExpression {
 
-  case class ExpressionTypeResult(tr: TypeResult[ScType],
+  case class ExpressionTypeResult(tr: TypeResult,
                                   importsUsed: scala.collection.Set[ImportUsed] = Set.empty,
                                   implicitConversion: Option[ScalaResolveResult] = None) {
     def implicitFunction: Option[PsiNamedElement] = implicitConversion.map(_.element)
@@ -236,11 +236,11 @@ object ScExpression {
     @CachedWithRecursionGuard(expr, None, ModCount.getBlockModificationCount)
     def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.smartExpectedType(expr, fromUnderscore)
 
-    def getTypeIgnoreBaseType: TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
+    def getTypeIgnoreBaseType: TypeResult = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
     @CachedWithRecursionGuard(expr, Failure("Recursive getNonValueType"), ModCount.getBlockModificationCount)
     def getNonValueType(ignoreBaseType: Boolean = false,
-                        fromUnderscore: Boolean = false): TypeResult[ScType] = {
+                        fromUnderscore: Boolean = false): TypeResult = {
       ProgressManager.checkCanceled()
       if (fromUnderscore) expr.innerType
       else {
@@ -328,7 +328,7 @@ object ScExpression {
 
     @CachedWithRecursionGuard(expr, Failure("Recursive getTypeWithoutImplicits"),
       ModCount.getBlockModificationCount)
-    def getTypeWithoutImplicits(ignoreBaseTypes: Boolean = false, fromUnderscore: Boolean = false): TypeResult[ScType] = {
+    def getTypeWithoutImplicits(ignoreBaseTypes: Boolean = false, fromUnderscore: Boolean = false): TypeResult = {
       ProgressManager.checkCanceled()
       val fromNullLiteral = expr match {
         case lit: ScLiteral =>
@@ -459,7 +459,7 @@ object ScExpression {
     }
 
     //numeric literal narrowing
-    def isNarrowing(expected: ScType): Option[TypeResult[ScType]] = {
+    def isNarrowing(expected: ScType): Option[TypeResult] = {
       import expr.projectContext
 
       def isByte(v: Long)  = v >= scala.Byte.MinValue  && v <= scala.Byte.MaxValue
@@ -488,7 +488,7 @@ object ScExpression {
     }
 
     //numeric widening
-    private def isWidening(valueType: ScType, expected: ScType): Option[TypeResult[ScType]] = {
+    private def isWidening(valueType: ScType, expected: ScType): Option[TypeResult] = {
       val (l, r) = (getStdType(valueType), getStdType(expected)) match {
         case (Some(left), Some(right)) => (left, right)
         case _ => return None

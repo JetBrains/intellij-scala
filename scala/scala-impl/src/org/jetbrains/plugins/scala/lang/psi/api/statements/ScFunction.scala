@@ -170,7 +170,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     false
   }
 
-  def definedReturnType: TypeResult[ScType] = {
+  def definedReturnType: TypeResult = {
     returnTypeElement match {
       case Some(ret) => ret.`type`()
       case _ if !hasAssign => Right(Unit)
@@ -232,9 +232,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def isProcedure: Boolean = paramClauses.clauses.isEmpty
 
-  protected def returnTypeInner: TypeResult[ScType]
+  protected def returnTypeInner: TypeResult
 
-  def declaredType: TypeResult[ScType] = this.flatMapType(returnTypeElement)
+  def declaredType: TypeResult = this.flatMapType(returnTypeElement)
 
   def clauses: Option[ScParameters] = Some(paramClauses)
 
@@ -498,10 +498,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  def `type`(): TypeResult[ScType] = {
+  def `type`(): TypeResult = {
     this.returnType match {
       case Right(tp) =>
-        var res: TypeResult[ScType] = Right(tp)
+        var res: TypeResult = Right(tp)
         var i = paramClauses.clauses.length - 1
         while (i >= 0) {
           res match {
@@ -569,7 +569,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     val buffer = ArrayBuffer.empty[Seq[ScType]]
     for (cl <- paramClauses.clauses.reverse
          if !cl.isImplicit) {
-      val paramTypes: Seq[TypeResult[ScType]] = cl.parameters.map(_.`type`())
+      val paramTypes: Seq[TypeResult] = cl.parameters.map(_.`type`())
       if (paramTypes.exists(_.isLeft)) return None
 
       buffer += paramTypes.collect {
@@ -594,7 +594,7 @@ object ScFunction {
     /** Is this function sometimes invoked without it's name appearing at the call site? */
     def isSpecial: Boolean = Special(function.name)
 
-    def returnType: TypeResult[ScType] = {
+    def returnType: TypeResult = {
       if (importantOrderFunction(function)) {
         val parent = function.getParent
         val isCalculating = isCalculatingFor(parent)

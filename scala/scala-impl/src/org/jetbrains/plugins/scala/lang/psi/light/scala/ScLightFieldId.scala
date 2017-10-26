@@ -32,7 +32,7 @@ class ScLightFieldId(rt: ScType, val f: ScFieldId)
   override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T =
     throw new UnsupportedOperationException("Operation on light element")
 
-  override def `type`(): TypeResult[ScType] = Right(rt)
+  override def `type`(): TypeResult = Right(rt)
 
   override def getParent: PsiElement = f.getParent //to find right context
 }

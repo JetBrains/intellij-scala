@@ -22,7 +22,7 @@ class ScLightBindingPattern(rt: ScType, val b: ScBindingPattern)
 
   override def getParent: PsiElement = b.getParent
 
-  override def `type`(): TypeResult[ScType] = Right(rt)
+  override def `type`(): TypeResult = Right(rt)
 
   override def getOriginalElement: PsiElement = super[ScBindingPattern].getOriginalElement
 

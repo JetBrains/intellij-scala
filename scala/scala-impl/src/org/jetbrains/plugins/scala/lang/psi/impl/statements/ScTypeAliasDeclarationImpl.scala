@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -53,12 +52,12 @@ class ScTypeAliasDeclarationImpl private (stub: ScTypeAliasStub, node: ASTNode)
   
   override def toString: String = "ScTypeAliasDeclaration: " + ifReadAllowed(name)("")
 
-  def lowerBound: TypeResult[ScType] = lowerTypeElement match {
+  def lowerBound: TypeResult = lowerTypeElement match {
     case Some(te) => te.`type`()
     case None => Right(Nothing)
   }
 
-  def upperBound: TypeResult[ScType] = upperTypeElement match {
+  def upperBound: TypeResult = upperTypeElement match {
     case Some(te) => te.`type`()
     case None => Right(Any)
   }

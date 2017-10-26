@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -32,7 +32,7 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
 
   import ScTryStmtImpl._
 
-  protected override def innerType: TypeResult[ScType] =
+  protected override def innerType: TypeResult =
     tryBlock.`type`().flatMap { tryBlockType =>
       val maybeExpression = catchBlock.flatMap(_.expression)
 

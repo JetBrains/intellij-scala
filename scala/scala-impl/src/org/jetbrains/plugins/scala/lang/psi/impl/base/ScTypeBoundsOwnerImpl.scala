@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
 
-  def lowerBound: TypeResult[ScType] = typeOf(lowerTypeElement, isLower = true)
+  def lowerBound: TypeResult = typeOf(lowerTypeElement, isLower = true)
 
-  def upperBound: TypeResult[ScType] = typeOf(upperTypeElement, isLower = false)
+  def upperBound: TypeResult = typeOf(upperTypeElement, isLower = false)
 
   protected def extractBound(in: ScType, isLower: Boolean): ScType = in
 
@@ -72,7 +72,7 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
     node.getTreeParent.removeRange(node, null)
   }
 
-  private def typeOf(typeElement: Option[ScTypeElement], isLower: Boolean): TypeResult[ScType] =
+  private def typeOf(typeElement: Option[ScTypeElement], isLower: Boolean): TypeResult =
     typeElement match {
       case Some(elem) => elem.`type`().map(extractBound(_, isLower))
       case None => Right(if (isLower) api.Nothing else api.Any)

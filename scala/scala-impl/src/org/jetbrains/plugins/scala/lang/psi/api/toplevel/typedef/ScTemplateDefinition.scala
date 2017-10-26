@@ -156,7 +156,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
   }
 
-  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult[ScType]
+  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult
 
   def members: Seq[ScMember] = extendsBlock.members ++ syntheticMembers
   def functions: Seq[ScFunction] = extendsBlock.functions

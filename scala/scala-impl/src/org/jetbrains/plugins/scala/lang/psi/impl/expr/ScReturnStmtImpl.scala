@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -29,7 +28,7 @@ class ScReturnStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScR
 
   override def toString: String = "ReturnStatement"
 
-  protected override def innerType: TypeResult[ScType] = Right(Nothing)
+  protected override def innerType: TypeResult = Right(Nothing)
     //Failure("Cannot infer type of `return' expression", Some(this))
 
   def returnKeyword: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.kRETURN)

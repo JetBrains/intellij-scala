@@ -8,7 +8,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
@@ -20,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 class ScParenthesisedExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParenthesisedExpr {
   override def toString: String = "ExpressionInParenthesis"
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     expr match {
       case Some(x: ScExpression) =>
         val res = x.getNonValueType()

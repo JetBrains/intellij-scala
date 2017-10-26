@@ -86,7 +86,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
       .exists(isInheritor(_, deep = true))
   }
 
-  def `type`(): TypeResult[ScType] = {
+  def `type`(): TypeResult = {
     val parentClass: ScTemplateDefinition = containingClass
     if (typeParameters.isEmpty) {
       if (parentClass != null) {
@@ -105,7 +105,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     }
   }
 
-  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult[ScType] = {
+  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult = {
     def args = typeParameters.map(TypeParameterType(_))
     def innerType = if (typeParameters.isEmpty) ScalaType.designator(this)
     else ScParameterizedType(ScalaType.designator(this), args)

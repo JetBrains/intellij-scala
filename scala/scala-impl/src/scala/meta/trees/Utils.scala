@@ -107,7 +107,7 @@ trait Utils {
   implicit class RichScExpression(expr: ScExpression) {
     import expr.projectContext
 
-    def withSubstitutionCaching[T](fun: TypeResult[ScType] => T): T = {
+    def withSubstitutionCaching[T](fun: TypeResult => T): T = {
       if (dumbMode) {
         val maybeType = expr match {
           case ts: ScTypedStmt => createTypeFromText(ts.getText, expr, null)
@@ -142,7 +142,7 @@ trait Utils {
   implicit class RichScTypedDefinition(expr: ScTypedDefinition) {
     import expr.projectContext
 
-    def getTypeWithCachedSubst: TypeResult[ScType] = {
+    def getTypeWithCachedSubst: TypeResult = {
       if (dumbMode) {
         expr match {
           case ts: ScTypedStmt => createTypeFromText(ts.getText, expr, null).asTypeResult

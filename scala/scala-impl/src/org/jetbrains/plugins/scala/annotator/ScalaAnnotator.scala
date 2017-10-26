@@ -1405,7 +1405,7 @@ abstract class ScalaAnnotator extends Annotator
     * In other way it will return true to avoid red code.
     * Check conformance in case l = r.
     */
-  def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType]): Boolean = {
+  def smartCheckConformance(l: TypeResult, r: TypeResult): Boolean = {
     val leftType = l match {
       case Right(res) => res
       case _ => return true

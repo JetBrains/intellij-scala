@@ -51,11 +51,11 @@ object Compatibility {
 
 
     @CachedWithRecursionGuard(place, (Right(typez), Set.empty), ModCount.getBlockModificationCount)
-    private def eval(typez: ScType, expectedOption: Option[ScType]): (TypeResult[ScType], Set[ImportUsed]) = {
+    private def eval(typez: ScType, expectedOption: Option[ScType]): (TypeResult, Set[ImportUsed]) = {
       expectedOption match {
         case Some(expected) if typez.conforms(expected) => (Right(typez), Set.empty)
         case Some(expected) =>
-          val defaultResult: (TypeResult[ScType], Set[ImportUsed]) = (Right(typez), Set.empty)
+          val defaultResult: (TypeResult, Set[ImportUsed]) = (Right(typez), Set.empty)
           implicit val elementScope = place.elementScope
 
           val functionType = FunctionType(expected, Seq(typez))
@@ -87,14 +87,14 @@ object Compatibility {
     }
 
     def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
-                                       expectedOption: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
+                                       expectedOption: Option[ScType]): (TypeResult, collection.Set[ImportUsed]) = {
       if (expr != null) {
         val expressionTypeResult = expr.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
         (expressionTypeResult.tr, expressionTypeResult.importsUsed)
       } else {
         import scala.collection.Set
 
-        def default: (TypeResult[ScType], Set[ImportUsed]) = (Right(typez), Set.empty)
+        def default: (TypeResult, Set[ImportUsed]) = (Right(typez), Set.empty)
 
         if (isShape || !checkImplicits || place == null) default
         else eval(typez, expectedOption)

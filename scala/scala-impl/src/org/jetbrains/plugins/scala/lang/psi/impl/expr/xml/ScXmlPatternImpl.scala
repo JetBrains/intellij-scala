@@ -10,7 +10,6 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScPatterns}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -41,7 +40,7 @@ class ScXmlPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
 
   override def toString: String = "XmlPattern"
 
-  override def `type`(): TypeResult[ScType] = {
+  override def `type`(): TypeResult = {
     val clazz = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.xml.Node").orNull
     if (clazz == null) return Failure("not found scala.xml.Node")
     Right(ScDesignatorType(clazz))

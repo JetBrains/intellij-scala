@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
@@ -50,7 +49,7 @@ class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
 
   def declaredElements: Seq[ScBindingPattern] = bindings
 
-  def `type`(): TypeResult[ScType] = {
+  def `type`(): TypeResult = {
     typeElement match {
       case Some(te) => te.`type`()
       case None if expr.nonEmpty => expr.get.`type`()

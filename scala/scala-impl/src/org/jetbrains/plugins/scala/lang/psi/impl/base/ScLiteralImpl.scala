@@ -37,7 +37,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
 
   override def toString: String = "Literal"
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     val child = getFirstChild.getNode
     val inner = child.getElementType match {
       case ScalaTokenTypes.kNULL => Null

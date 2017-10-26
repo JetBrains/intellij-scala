@@ -18,8 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createBlockFromExpr
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
+import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -70,7 +70,7 @@ class ScFunctionDefinitionImpl protected (stub: ScFunctionStub, node: ASTNode)
 
   override def toString: String = "ScFunctionDefinition: " + ifReadAllowed(name)("")
 
-  override protected def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
+  override protected def returnTypeInner: TypeResult = returnTypeElement match {
     case None if !hasAssign => Right(api.Unit)
     case None => body match {
       case Some(b) => b.`type`()

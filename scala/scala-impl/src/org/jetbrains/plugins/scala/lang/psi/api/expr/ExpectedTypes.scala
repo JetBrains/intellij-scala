@@ -89,7 +89,7 @@ private[expr] object ExpectedTypes {
       }
     }
 
-    def mapResolves(resolves: Array[ResolveResult], types: Array[TypeResult[ScType]]): Array[(TypeResult[ScType], Boolean)] = {
+    def mapResolves(resolves: Array[ResolveResult], types: Array[TypeResult]): Array[(TypeResult, Boolean)] = {
       resolves.zip(types).map {
         case (r: ScalaResolveResult, tp) =>
           val isNamedDynamic = r.isDynamic && r.name == APPLY_DYNAMIC_NAMED
@@ -286,7 +286,7 @@ private[expr] object ExpectedTypes {
         }
         val callExpression = args.callExpression
         if (callExpression != null) {
-          var tps: Array[(TypeResult[ScType], Boolean)] = callExpression match {
+          var tps: Array[(TypeResult, Boolean)] = callExpression match {
             case ref: ScReferenceExpression =>
               if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
               else mapResolves(ref.multiResolve(false), ref.multiType)
@@ -363,7 +363,7 @@ private[expr] object ExpectedTypes {
 
   @tailrec
   private def processArgsExpected(res: ArrayBuffer[(ScType, Option[ScTypeElement])], expr: ScExpression, i: Int,
-                                  tp: TypeResult[ScType], exprs: Seq[ScExpression], call: Option[MethodInvocation] = None,
+                                  tp: TypeResult, exprs: Seq[ScExpression], call: Option[MethodInvocation] = None,
                                   forApply: Boolean = false, isDynamicNamed: Boolean = false) {
     import expr.projectContext
 
@@ -438,7 +438,7 @@ private[expr] object ExpectedTypes {
                 else tp
               }
 
-              var polyType: TypeResult[ScType] = Right(s.subst(fun.polymorphicType()) match {
+              var polyType: TypeResult = Right(s.subst(fun.polymorphicType()) match {
                 case ScTypePolymorphicType(internal, params) =>
                   update(ScTypePolymorphicType(internal, params ++ typeParams))
                 case tp => update(ScTypePolymorphicType(tp, typeParams))
@@ -459,7 +459,7 @@ private[expr] object ExpectedTypes {
                 else tp
               }
 
-              var polyType: TypeResult[ScType] = Right(update(subst.subst(fun.polymorphicType())))
+              var polyType: TypeResult = Right(update(subst.subst(fun.polymorphicType())))
               call.foreach(call => polyType = call.updateAccordingToExpectedType(polyType))
               processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isDynamicNamed)
             case _ =>

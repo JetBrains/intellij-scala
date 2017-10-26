@@ -185,7 +185,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case ScDesignatorType(o: ScObject) =>
         processElement(o, ScSubstitutor.empty, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
       case ScDesignatorType(e: ScTypedDefinition) if place.isInstanceOf[ScTypeProjection] =>
-        val result: TypeResult[ScType] =
+        val result: TypeResult =
           e match {
             case p: ScParameter => p.getRealParameterType
             case _ => e.`type`()
@@ -279,7 +279,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case clazz: PsiClass =>
         TypeDefinitionMembers.processDeclarations(clazz, BaseProcessor.this, state.put(ScSubstitutor.key, newSubst), null, place)
       case des: ScTypedDefinition =>
-        val typeResult: TypeResult[ScType] =
+        val typeResult: TypeResult =
           des match {
             case p: ScParameter => p.getRealParameterType
             case _ => des.`type`()

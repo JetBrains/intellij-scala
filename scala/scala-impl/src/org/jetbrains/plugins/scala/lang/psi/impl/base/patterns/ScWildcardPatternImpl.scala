@@ -29,7 +29,7 @@ class ScWildcardPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wi
 
   override def toString: String = "WildcardPattern"
 
-  override def `type`(): TypeResult[ScType] = this.expectedType match {
+  override def `type`(): TypeResult = this.expectedType match {
     case Some(x) => Right(x)
     case _ => Failure("cannot determine expected type")
   }

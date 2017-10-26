@@ -23,7 +23,7 @@ abstract class DottyAndOrTypeElementImpl(node: ASTNode) extends ScalaPsiElementI
       }
     ).map(_.getOrElse(default))
 
-  override protected def innerType: TypeResult[ScType] = Right(innerTypeValue)
+  override protected def innerType: TypeResult = Right(innerTypeValue)
 }
 
 class DottyAndTypeElementImpl(node: ASTNode) extends DottyAndOrTypeElementImpl(node) {
