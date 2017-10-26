@@ -7,18 +7,9 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 package object result {
 
-  type Failure = (String, ProjectContext)
+  import scala.util.{Either, Left, Right}
+
   type TypeResult = Either[Failure, ScType]
-
-  object Failure {
-    def apply(cause: String)
-             (implicit context: ProjectContext): TypeResult = Left(cause, context)
-
-    def unapply(result: TypeResult): Option[String] = result match {
-      case Left((cause, _)) => Some(cause)
-      case _ => None
-    }
-  }
 
   implicit class OptionTypeExt(val maybeRight: Option[ScType]) extends AnyVal {
 
@@ -38,7 +29,7 @@ package object result {
 
     private def getOrApiType(apiType: StdTypes => ScType): ScType = result match {
       case Right(value) => value
-      case Left((_, projectContext)) if apiType != null => apiType(projectContext.stdTypes)
+      case Left(failure) if apiType != null => apiType(failure.context.stdTypes)
       case _ => throw new NoSuchElementException("Failure.get")
     }
   }
