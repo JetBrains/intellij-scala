@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala.testingSupport.utest.scala2_11.utest_0_5_4
+package org.jetbrains.plugins.scala.testingSupport.utest.scala2_12.utest_0_5_4
 
-import org.jetbrains.plugins.scala.testingSupport.utest.UTestStaticStringTest
 import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.testingSupport.utest.UTestStaticStringTest
 import org.junit.experimental.categories.Category
 
 /**
@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
   * @since 04.09.2015.
   */
 @Category(Array(classOf[SlowTests]))
-class UTestStaticStringTest_2_11_0_5_4 extends UTestTestBase_2_11_0_5_4 with UTestStaticStringTest {
+class UTestStaticStringTest_2_12_0_5_4 extends UTestTestBase_2_12_0_5_4 with UTestStaticStringTest {
 
   protected val testsTestName = "UTestTests"
 
