@@ -76,8 +76,8 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     refType match {
       case ScTypePolymorphicType(int, tps) =>
         val subst = ScalaPsiUtil.genericCallSubstitutor(tps.map(_.nameAndId), this)
-        Success(subst.subst(int))
-      case _ => Success(refType)
+        Right(subst.subst(int))
+      case _ => Right(refType)
     }
   }
 
@@ -88,8 +88,8 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     refType match {
       case ScTypePolymorphicType(int, tps) =>
         val subst = ScalaPsiUtil.genericCallSubstitutor(tps.map(_.nameAndId), this)
-        Success(subst.subst(int))
-      case _ => Success(refType)
+        Right(subst.subst(int))
+      case _ => Right(refType)
     }
   }
 

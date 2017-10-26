@@ -29,7 +29,7 @@ class ScReturnStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScR
 
   override def toString: String = "ReturnStatement"
 
-  protected override def innerType: TypeResult[ScType] = Success(Nothing)
+  protected override def innerType: TypeResult[ScType] = Right(Nothing)
     //Failure("Cannot infer type of `return' expression", Some(this))
 
   def returnKeyword: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.kRETURN)

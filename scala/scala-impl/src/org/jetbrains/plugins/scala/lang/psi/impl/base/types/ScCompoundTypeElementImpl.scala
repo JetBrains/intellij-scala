@@ -23,7 +23,7 @@ class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       ScCompoundType.fromPsi(componentsTypes, r.holders, r.types)
     }.getOrElse(new ScCompoundType(componentsTypes))
 
-    Success(compoundType)
+    Right(compoundType)
   }
 
   override def accept(visitor: ScalaElementVisitor) {

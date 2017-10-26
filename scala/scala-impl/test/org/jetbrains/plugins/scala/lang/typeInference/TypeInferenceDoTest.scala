@@ -26,11 +26,11 @@ trait TypeInferenceDoTest {
     val scalaFile: ScalaFile = configureFromFileText(fileName, fileText)
     val expr: ScExpression = findExpression(scalaFile)
     val typez = expr.`type`() match {
-      case Success(t) if t.isUnit => expr.getTypeIgnoreBaseType
+      case Right(t) if t.isUnit => expr.getTypeIgnoreBaseType
       case x => x
     }
     typez match {
-      case Success(ttypez) =>
+      case Right(ttypez) =>
         val res = ttypez.presentableText
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
         val text = lastPsi.getText

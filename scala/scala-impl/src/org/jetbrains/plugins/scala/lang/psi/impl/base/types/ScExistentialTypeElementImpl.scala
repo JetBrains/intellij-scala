@@ -55,7 +55,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
     }
 
     q.map(ScExistentialType(_, wildcards))
-      .flatMap((result: ScExistentialType) => Success(result))
+      .flatMap((result: ScExistentialType) => Right(result))
   }
 
   import com.intellij.psi.scope.PsiScopeProcessor

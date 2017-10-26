@@ -43,7 +43,7 @@ abstract class ExistentialSimplificationTestBase extends ScalaLightPlatformCodeI
     val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
     assert(expr != null, "Not specified expression in range to infer type.")
     expr.`type`() match {
-      case Success(ttypez: ScExistentialType) =>
+      case Right(ttypez: ScExistentialType) =>
 
         val res = ttypez.simplify().presentableText
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
@@ -55,7 +55,7 @@ abstract class ExistentialSimplificationTestBase extends ScalaLightPlatformCodeI
           case _ => assertTrue("Test result must be in last comment statement.", false)
         }
         assertEquals(output, res)
-      case Success(_) => fail("Expression has not existential type")
+      case Right(_) => fail("Expression has not existential type")
       case Failure(msg) => fail(msg)
     }
   }

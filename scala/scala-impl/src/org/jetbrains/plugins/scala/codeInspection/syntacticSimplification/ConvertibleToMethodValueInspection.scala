@@ -103,7 +103,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
         conformsExpected(oldExpr) && conformsExpected(newExpr) && oldExpr.`type`().getOrAny.conforms(newExpr.`type`().getOrNothing)
       case None if newExprText endsWith "_" =>
         (oldExpr.`type`(), newExpr.`type`()) match {
-          case (Success(oldType), Success(newType)) => oldType.equiv(newType)
+          case (Right(oldType), Right(newType)) => oldType.equiv(newType)
           case _ => false
         }
       case _ => false

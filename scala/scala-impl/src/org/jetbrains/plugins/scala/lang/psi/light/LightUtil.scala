@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -30,7 +29,7 @@ object LightUtil {
 
         val classes = annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
           _.`type`() match {
-            case Success(ParameterizedType(des, Seq(arg))) => des.extractClass match {
+            case Right(ParameterizedType(des, Seq(arg))) => des.extractClass match {
               case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
                 arg.toPsiType match {
                   case c: PsiClassType =>

@@ -73,7 +73,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
   def typeElement: Option[ScTypeElement] = byPsiOrStub(paramType.flatMap(_.typeElement.toOption))(_.typeElement)
 
   def `type`(): TypeResult[ScType] = {
-    def success(t: ScType): TypeResult[ScType] = Success(t)
+    def success(t: ScType): TypeResult[ScType] = Right(t)
     //todo: this is very error prone way to calc type, when usually we need real parameter type
     getStub match {
       case null =>

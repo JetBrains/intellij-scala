@@ -147,7 +147,7 @@ package object types {
           `type` => `type`.isAliasType match {
             case Some(AliasType(ta: ScTypeAliasDefinition, _, Failure(_))) if needExpand(ta) =>
               ReplaceWith(projectContext.stdTypes.Any)
-            case Some(AliasType(ta: ScTypeAliasDefinition, _, Success(upper))) if needExpand(ta) =>
+            case Some(AliasType(ta: ScTypeAliasDefinition, _, Right(upper))) if needExpand(ta) =>
               if (visited.contains(`type`)) throw RecursionException
               val updated =
                 try innerUpdate(upper, visited + `type`)

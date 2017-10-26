@@ -22,11 +22,11 @@ class ScLightTypeAliasDefinition(s: TypeAliasSignature, val ta: ScTypeAliasDefin
 
   override def nameId: PsiElement = ta.nameId
 
-  override def upperBound: TypeResult[ScType] = Success(s.upperBound)
+  override def upperBound: TypeResult[ScType] = Right(s.upperBound)
 
-  override def lowerBound: TypeResult[ScType] = Success(s.lowerBound)
+  override def lowerBound: TypeResult[ScType] = Right(s.lowerBound)
 
-  override def aliasedType: TypeResult[ScType] = Success(s.lowerBound)
+  override def aliasedType: TypeResult[ScType] = Right(s.lowerBound)
 
   override def aliasedTypeElement: Option[ScTypeElement] = ta.aliasedTypeElement
 

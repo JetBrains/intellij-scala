@@ -156,7 +156,7 @@ package object collections {
       import expr.projectContext
 
       expr.`type`() match {
-        case Success(result) =>
+        case Right(result) =>
           result match {
             case FunctionType(returnType, _) => returnType.conforms(api.Boolean)
             case _ => false

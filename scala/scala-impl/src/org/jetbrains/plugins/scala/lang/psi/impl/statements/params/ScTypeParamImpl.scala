@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
@@ -61,8 +60,8 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
               in
             }
           case t => t.isAliasType match {
-            case Some(AliasType(_: ScTypeAliasDefinition, Success(lower), _)) if isLower => extractBound(lower, isLower)
-            case Some(AliasType(_: ScTypeAliasDefinition, _, Success(upper))) if !isLower => extractBound(upper, isLower)
+            case Some(AliasType(_: ScTypeAliasDefinition, Right(lower), _)) if isLower => extractBound(lower, isLower)
+            case Some(AliasType(_: ScTypeAliasDefinition, _, Right(upper))) if !isLower => extractBound(upper, isLower)
             case None => t
           }
         }

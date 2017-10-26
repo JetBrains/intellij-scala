@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 class ScParenthesisedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParenthesisedTypeElement {
   protected def innerType: TypeResult[ScType] = typeElement match {
     case Some(el) => el.`type`()
-    case None => Success(Unit)
+    case None => Right(Unit)
   }
 
   override def accept(visitor: ScalaElementVisitor) {

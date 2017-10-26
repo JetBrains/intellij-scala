@@ -44,6 +44,6 @@ class ScXmlPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
   override def `type`(): TypeResult[ScType] = {
     val clazz = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.xml.Node").orNull
     if (clazz == null) return Failure("not found scala.xml.Node")
-    Success(ScDesignatorType(clazz))
+    Right(ScDesignatorType(clazz))
   }
 }

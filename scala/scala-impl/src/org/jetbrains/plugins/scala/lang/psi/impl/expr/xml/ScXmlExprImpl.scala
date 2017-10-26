@@ -26,7 +26,8 @@ class ScXmlExprImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXml
       if (typez.length != 0) ScalaType.designator(typez(0))
       else Nothing
     }
-    Success(getElements.length match {
+
+    Right(getElements.length match {
       case 0 => Any
       case 1 =>
         getElements.head match {

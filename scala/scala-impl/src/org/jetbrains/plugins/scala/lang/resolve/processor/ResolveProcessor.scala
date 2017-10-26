@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -295,7 +294,7 @@ object ResolveProcessor {
       case c: PsiClass => "Class:" + c.qualifiedName
       case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
         t.aliasedType match {
-          case Success(tp) =>
+          case Right(tp) =>
             tp.extractClass match {
               case Some(_: ScObject) => defaultForTypeAlias(t)
               case Some(td: ScTypeDefinition) if td.typeParameters.isEmpty && ScalaPsiUtil.hasStablePath(td) =>

@@ -246,7 +246,7 @@ object InferUtil {
 
     var nonValueType = _nonValueType
     nonValueType match {
-      case Success(ScTypePolymorphicType(m@ScMethodType(internal, _, impl), typeParams))
+      case Right(ScTypePolymorphicType(m@ScMethodType(internal, _, impl), typeParams))
         if expectedType.isDefined && (!fromImplicitParameters || impl) =>
         def updateRes(expected: ScType) {
           if (expected.equiv(Unit)) return //do not update according to Unit type
@@ -263,13 +263,13 @@ object InferUtil {
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(undefineSubstitutor(typeParams).subst(valueType))),
             typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE, filterTypeParams = filterTypeParams)
-          nonValueType = Success(update) //here should work in different way:
+          nonValueType = Right(update) //here should work in different way:
         }
         updateRes(expectedType.get)
       //todo: Something should be unified, that's bad to have fromImplicitParameters parameter.
-      case Success(ScTypePolymorphicType(internal, typeParams)) if expectedType.isDefined && fromImplicitParameters =>
+      case Right(ScTypePolymorphicType(internal, typeParams)) if expectedType.isDefined && fromImplicitParameters =>
         def updateRes(expected: ScType) {
-          nonValueType = Success(localTypeInference(internal,
+          nonValueType = Right(localTypeInference(internal,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE,
@@ -325,10 +325,10 @@ object InferUtil {
     }
 
     nonValueType match {
-      case Success(tpt@ScTypePolymorphicType(mt: ScMethodType, _)) =>
-        Success(tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType)))
-      case Success(mt: ScMethodType) =>
-        Success(applyImplicitViewToResult(mt, expectedType))
+      case Right(tpt@ScTypePolymorphicType(mt: ScMethodType, _)) =>
+        Right(tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType)))
+      case Right(mt: ScMethodType) =>
+        Right(applyImplicitViewToResult(mt, expectedType))
       case tr => tr
     }
   }

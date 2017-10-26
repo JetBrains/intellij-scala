@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, StdType, arrayType}
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.collection.JavaConverters._
 
@@ -42,7 +41,7 @@ trait DottyPsiTypeBridge extends api.PsiTypeBridge {
           case syntheticClass: ScSyntheticClass => toPsiType(syntheticClass.stdType)
           case clazz: PsiClass => createType(clazz, raw = true)
           case definition: ScTypeAliasDefinition => definition.aliasedType match {
-            case Success(result) => createComponent(result)
+            case Right(result) => createComponent(result)
             case _ => createJavaObject
           }
           case _ => createJavaObject

@@ -38,7 +38,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   override def isIrrefutableFor(t: Option[ScType]): Boolean = {
     t match {
       case Some(t) => `type`() match {
-        case Success(tp) if t conforms tp => true
+        case Right(tp) if t conforms tp => true
         case _ => false
       }
       case _ => false

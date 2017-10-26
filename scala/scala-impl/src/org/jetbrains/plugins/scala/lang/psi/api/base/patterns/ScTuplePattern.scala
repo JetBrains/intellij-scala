@@ -19,6 +19,6 @@ trait ScTuplePattern extends ScPattern {
 
   override def `type`(): TypeResult[ScType] = this.flatMap(patternList) { list =>
     val types = list.patterns.map(_.`type`().getOrAny)
-    Success(TupleType(types))
+    Right(TupleType(types))
   }
 }

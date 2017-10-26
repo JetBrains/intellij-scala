@@ -26,9 +26,9 @@ class ScDelegatingLightTypeParam(t: TypeParameter, val tParam: ScTypeParam)
 
   override val typeParamId: Long = tParam.typeParamId
 
-  override def upperBound: TypeResult[ScType] = Success(t.upperType)
+  override def upperBound: TypeResult[ScType] = Right(t.upperType)
 
-  override def lowerBound: TypeResult[ScType] = Success(t.lowerType)
+  override def lowerBound: TypeResult[ScType] = Right(t.lowerType)
 
   override def getIndex: Int = tParam.getIndex
 
@@ -93,9 +93,9 @@ class ScExistentialLightTypeParam(override val name: String)(implicit pc: Projec
 
   override def isHigherKindedTypeParameter: Boolean = false
 
-  override def lowerBound: TypeResult[ScType] = Success(api.Nothing)
+  override def lowerBound: TypeResult[ScType] = Right(api.Nothing)
 
-  override def upperBound: TypeResult[ScType] = Success(api.Any)
+  override def upperBound: TypeResult[ScType] = Right(api.Any)
 
   override def toString: String = name
 

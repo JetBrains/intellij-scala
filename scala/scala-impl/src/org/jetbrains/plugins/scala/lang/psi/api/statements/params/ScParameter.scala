@@ -65,11 +65,11 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
   def getRealParameterType: TypeResult[ScType] =
     `type`() match {
       case result if !isRepeatedParameter => result
-      case f@Success(tp) =>
+      case f@Right(tp) =>
         elementScope.getCachedClass("scala.collection.Seq")
           .map(ScalaType.designator)
           .map(ScParameterizedType(_, Seq(tp)))
-          .map((result: ValueType) => Success(result))
+          .map((result: ValueType) => Right(result))
           .getOrElse(f)
       case f => f
     }

@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -130,7 +129,7 @@ object PatternAnnotator {
           case Some(ref) =>
             ref.bind() match {
               case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" => fun.returnType match {
-                case Success(rt) =>
+                case Right(rt) =>
                   val expected = ScPattern.expectedNumberOfExtractorArguments(rt, pattern, ScPattern.isOneArgCaseClassMethod(fun))
                   val tupleCrushingIsPresent = expected > 0 && numPatterns == 1 && !fun.isSynthetic
                   if (expected != numPatterns   && !tupleCrushingIsPresent) { //1 always fits if return type is Option[TupleN]
@@ -140,7 +139,7 @@ object PatternAnnotator {
                 case _ =>
               }
               case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapplySeq" => fun.returnType match {
-                case Success(rt) =>
+                case Right(rt) =>
                   //subtract 1 because last argument (Seq) may be omitted
                   val expected = ScPattern.expectedNumberOfExtractorArguments(rt, pattern, ScPattern.isOneArgCaseClassMethod(fun)) - 1
                   if (expected > numPatterns) {

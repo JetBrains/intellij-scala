@@ -4,7 +4,6 @@ import com.intellij.openapi.util.Computable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 /**
@@ -51,12 +50,12 @@ trait ScalaEquivalence extends api.Equivalence {
       }
 
       right.isAliasType match {
-        case Some(AliasType(_: ScTypeAliasDefinition, Success(right), _)) => return equivInner(left, right, substitutor, falseUndef)
+        case Some(AliasType(_: ScTypeAliasDefinition, Right(right), _)) => return equivInner(left, right, substitutor, falseUndef)
         case _ =>
       }
 
       left.isAliasType match {
-        case Some(AliasType(_: ScTypeAliasDefinition, Success(left), _)) => return equivInner(left, right, substitutor, falseUndef)
+        case Some(AliasType(_: ScTypeAliasDefinition, Right(left), _)) => return equivInner(left, right, substitutor, falseUndef)
         case _ =>
       }
 

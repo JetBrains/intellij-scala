@@ -97,7 +97,7 @@ abstract class ScalaAnnotator extends Annotator
 
         if (isAdvancedHighlightingEnabled(element)) {
           expr.getTypeAfterImplicitConversion() match {
-            case ExpressionTypeResult(Success(t), _, Some(implicitFunction)) =>
+            case ExpressionTypeResult(Right(t), _, Some(implicitFunction)) =>
               highlightImplicitView(expr, implicitFunction.element, t, expr, holder)
             case _ =>
           }
@@ -529,7 +529,7 @@ abstract class ScalaAnnotator extends Annotator
                       case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst)
                       case _ => return
                     }
-                    val conformance = smartCheckConformance(Success(tp), returnType)
+                    val conformance = smartCheckConformance(Right(tp), returnType)
                     if (!conformance) {
                       if (typeAware) {
                         val (retTypeText, expectedTypeText) = ScTypePresentation.different(returnType.getOrNothing, tp)
@@ -972,7 +972,7 @@ abstract class ScalaAnnotator extends Annotator
             case param: ScParameter =>
               if (!param.isDefaultParam) return //performance optimization
               param.getRealParameterType match {
-                case Success(paramType) if paramType.extractClass.isDefined =>
+                case Right(paramType) if paramType.extractClass.isDefined =>
                 //do not check generic types. See SCL-3508
                 case _ => return
               }
@@ -983,7 +983,7 @@ abstract class ScalaAnnotator extends Annotator
           expr.expectedTypeEx(fromUnderscore) match {
             case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
             case Some((tp: ScType, typeElement)) =>
-              val expectedType = Success(tp)
+              val expectedType = Right(tp)
               implicitFunction match {
                 case Some(_) =>
                   //todo:
@@ -1081,7 +1081,7 @@ abstract class ScalaAnnotator extends Annotator
           import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
           funType match {
-            case Success(tp) if tp equiv Unit => return //nothing to check
+            case Right(tp) if tp equiv Unit => return //nothing to check
             case _ =>
           }
 
@@ -1188,7 +1188,7 @@ abstract class ScalaAnnotator extends Annotator
       checkBoundsVariance(fun, holder, fun.nameId, fun.getParent)
       if (!childHasAnnotation(fun.returnTypeElement, "uncheckedVariance")) {
         fun.returnType match {
-          case Success(returnType) =>
+          case Right(returnType) =>
             checkVariance(ScalaType.expandAliases(returnType).getOrElse(returnType), Covariant, fun.nameId,
               fun.getParent, holder)
           case _ =>
@@ -1210,10 +1210,10 @@ abstract class ScalaAnnotator extends Annotator
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {
         element.`type`() match {
-          case Success(tp) =>
+          case Right(tp) =>
             ScalaType.expandAliases(tp) match {
               //so type alias is highlighted
-              case Success(newTp) => checkVariance(newTp, variance, element.nameId, toCheck, holder)
+              case Right(newTp) => checkVariance(newTp, variance, element.nameId, toCheck, holder)
               case _ => checkVariance(tp, variance, element.nameId, toCheck, holder)
             }
           case _ =>
@@ -1407,11 +1407,11 @@ abstract class ScalaAnnotator extends Annotator
     */
   def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType]): Boolean = {
     val leftType = l match {
-      case Success(res) => res
+      case Right(res) => res
       case _ => return true
     }
     val rightType = r match {
-      case Success(res) => res
+      case Right(res) => res
       case _ => return true
     }
     rightType.conforms(leftType)

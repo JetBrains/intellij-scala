@@ -7,29 +7,23 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 package object result {
 
-  type TypeError = (String, ProjectContext)
+  private type TypeError = (String, ProjectContext)
   type TypeResult[T <: ScType] = Either[TypeError, ScType]
-
-  object Success {
-    def apply(result: ScType): TypeResult[ScType] = Right(result)
-
-    def unapply(success: Right[TypeError, ScType]): Option[ScType] = Some(success.value)
-  }
 
   object Failure {
     def apply(cause: String)
              (implicit context: ProjectContext): TypeResult[ScType] = Left(cause, context)
 
-    def unapply(left: Left[TypeError, ScType]): Option[String] = {
-      val (cause, _) = left.value
-      Some(cause)
+    def unapply(result: TypeResult[ScType]): Option[String] = result match {
+      case Left((cause, _)) => Some(cause)
+      case _ => None
     }
   }
 
   object TypeResult {
     def apply(maybeType: Option[ScType])
              (implicit context: ProjectContext): TypeResult[ScType] = maybeType match {
-      case Some(scType) => Success(scType)
+      case Some(result) => Right(result)
       case None => Failure("")
     }
   }

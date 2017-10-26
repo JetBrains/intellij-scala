@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, Invariant, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 import scala.collection.immutable.ListMap
@@ -144,7 +143,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
         isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
-              case Success(tp) => tp
+              case Right(tp) => tp
               case _ => return (false, uSubst)
             }).equiv(r, uSubst, falseUndef)
           case _ => (false, uSubst)
@@ -153,7 +152,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
         isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
-              case Success(tp) => tp
+              case Right(tp) => tp
               case _ => return (false, uSubst)
             }).equiv(r, uSubst, falseUndef)
           case _ => (false, uSubst)
@@ -203,7 +202,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     designator.extractClassType match {
       case Some((clazz: ScTypeDefinition, sub)) if startsWith(clazz, prefix) =>
         clazz.`type`() match {
-          case Success(t) =>
+          case Right(t) =>
             val substituted = (sub followed substitutor).subst(t)
             substituted match {
               case pt: ScParameterizedType =>
@@ -240,7 +239,7 @@ object ScParameterizedType {
   def apply(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
     def createCompoundProjectionParameterized(pt: ScParameterizedType): ValueType = {
       pt.isAliasType match {
-        case Some(AliasType(_: ScTypeAliasDefinition, _, Success(upper: ValueType))) => upper
+        case Some(AliasType(_: ScTypeAliasDefinition, _, Right(upper: ValueType))) => upper
         case _ => pt
       }
     }

@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStateme
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * @author Nikolay.Tropin
@@ -62,7 +61,7 @@ object AddBreakoutQuickFix {
 
   def isImplicitCanBuildFromParam(p: ScParameter): Boolean = {
     p.`type`() match {
-      case Success(tpe) if tpe.canonicalText.startsWith("_root_.scala.collection.generic.CanBuildFrom") => true
+      case Right(tpe) if tpe.canonicalText.startsWith("_root_.scala.collection.generic.CanBuildFrom") => true
       case _ => false
     }
   }

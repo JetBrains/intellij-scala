@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, TestConfigurationUtil}
@@ -143,8 +142,8 @@ class ScalaTestConfigurationProducer extends {
                     val params = clauses.head.parameters
                     if (params.nonEmpty) {
                       params.head.`type`() match {
-                        case Success(t) if t.isUnit => failedToCheck = false
-                        case Success(tp) =>
+                        case Right(t) if t.isUnit => failedToCheck = false
+                        case Right(tp) =>
                           tp.extractClass match {
                             case Some(psiClass) if psiClass.qualifiedName == "java.lang.String" =>
                               call.argumentExpressions.head match {

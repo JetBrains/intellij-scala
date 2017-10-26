@@ -63,7 +63,7 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
       }
 
       alias.aliasedType match {
-        case Success(paramType: ScParameterizedType) =>
+        case Right(paramType: ScParameterizedType) =>
           val typeParam: Seq[ScTypeParam] = alias.typeParameters
           val valid =
             typeParam.nonEmpty &&

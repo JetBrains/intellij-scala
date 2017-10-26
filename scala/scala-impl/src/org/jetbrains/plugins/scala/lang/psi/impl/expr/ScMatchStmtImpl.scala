@@ -30,6 +30,6 @@ class ScMatchStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMa
   protected override def innerType: TypeResult[ScType] = {
     val branchesTypes = getBranches.map(_.`type`().getOrNothing)
     val branchesLub = branchesTypes.foldLeft(Nothing: ScType)(_.lub(_))
-    Success(branchesLub)
+    Right(branchesLub)
   }
 }

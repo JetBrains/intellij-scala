@@ -132,6 +132,6 @@ trait FunctionAnnotator {
     case _ => (Some(element), Any)
   }) match {
     case (Some(expression: ScExpression), _) => expression.getTypeAfterImplicitConversion().tr
-    case (_, default) => Success(default)
+    case (_, default) => Right(default)
   }
 }

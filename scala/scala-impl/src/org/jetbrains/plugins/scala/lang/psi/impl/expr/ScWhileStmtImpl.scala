@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.api
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
 * @author Alexander.Podkhalyuzin
@@ -50,5 +49,5 @@ class ScWhileStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScWh
   }
 
 
-  protected override def innerType = Success(api.Unit)
+  protected override def innerType = Right(api.Unit)
 }

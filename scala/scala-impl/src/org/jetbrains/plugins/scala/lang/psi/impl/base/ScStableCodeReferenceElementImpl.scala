@@ -32,7 +32,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceElementResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
@@ -342,7 +341,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
         td match {
           case obj: ScObject =>
             val fromType = r.fromType match {
-              case Some(fType) => Success(ScProjectionType(fType, obj, superReference = false))
+              case Some(fType) => Right(ScProjectionType(fType, obj, superReference = false))
               case _ => td.`type`().map(substitutor.subst)
             }
             val state = ResolveState.initial.put(ScSubstitutor.key, substitutor)

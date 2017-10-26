@@ -524,7 +524,7 @@ object ScalaDocumentationProvider {
           annotation.constructor.args.foreach( a =>
             a.exprs.headOption.map {
               case exprHead => exprHead.`type`() match {
-                case Success(head) =>
+                case Right(head) =>
                   head match {
                     case ParameterizedType(_, args) =>
                       args.headOption match {

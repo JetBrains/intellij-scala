@@ -53,7 +53,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     val paramTypes = parameters.map(_.`type`().getOrNothing)
     val maybeResultType = result.map(_.`type`().getOrAny)
     val functionType = FunctionType(maybeResultType.getOrElse(api.Unit), paramTypes)
-    Success(functionType)
+    Right(functionType)
   }
 
   override def controlFlowScope: Option[ScalaPsiElement] = result

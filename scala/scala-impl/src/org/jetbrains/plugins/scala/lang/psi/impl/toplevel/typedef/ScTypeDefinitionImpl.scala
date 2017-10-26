@@ -90,16 +90,16 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     val parentClass: ScTemplateDefinition = containingClass
     if (typeParameters.isEmpty) {
       if (parentClass != null) {
-        Success(ScProjectionType(ScThisType(parentClass), this, superReference = false))
+        Right(ScProjectionType(ScThisType(parentClass), this, superReference = false))
       } else {
-        Success(ScalaType.designator(this))
+        Right(ScalaType.designator(this))
       }
     } else {
       if (parentClass != null) {
-        Success(ScParameterizedType(ScProjectionType(ScThisType(parentClass), this, superReference = false),
+        Right(ScParameterizedType(ScProjectionType(ScThisType(parentClass), this, superReference = false),
           typeParameters.map(TypeParameterType(_))))
       } else {
-        Success(ScParameterizedType(ScalaType.designator(this),
+        Right(ScParameterizedType(ScalaType.designator(this),
           typeParameters.map(TypeParameterType(_))))
       }
     }
@@ -116,9 +116,9 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
       else ScThisType(parentClazz)
 
       val innerProjection = ScProjectionType(tpe, this, superReference = false)
-      Success(if (typeParameters.isEmpty) innerProjection
+      Right(if (typeParameters.isEmpty) innerProjection
       else ScParameterizedType(innerProjection, args))
-    } else Success(innerType)
+    } else Right(innerType)
   }
 
   override def getModifierList: ScModifierList = super[ScTypeDefinition].getModifierList

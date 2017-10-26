@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
@@ -96,7 +95,7 @@ object JavaConversionUtil {
           if (arguments.length == 1) {
             val typeResult = arguments.head.`type`()
             typeResult match {
-              case Success(tp) =>
+              case Right(tp) =>
                 tp.extractClass match {
                   case Some(clazz) => clazz.getQualifiedName + ".class"
                   case _ => problem

@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner,
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
@@ -269,7 +268,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     val fields = constructor match {
       case Some(constr) => constr.parameters.map { param =>
         param.`type`() match {
-          case Success(tp: TypeParameterType) if tp.psiTypeParameter.findAnnotation("scala.specialized") != null =>
+          case Right(tp: TypeParameterType) if tp.psiTypeParameter.findAnnotation("scala.specialized") != null =>
             val factory: PsiElementFactory = PsiElementFactory.SERVICE.getInstance(getProject)
             val psiTypeText: String = tp.toPsiType.getCanonicalText
             val text = s"public final $psiTypeText ${param.name};"

@@ -298,7 +298,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             UpdateApplyData(Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
           }
         if (useExpectedType) {
-          this.updateAccordingToExpectedType(Success(processedType)).foreach(x => processedType = x)
+          this.updateAccordingToExpectedType(Right(processedType)).foreach(x => processedType = x)
         }
         applyOrUpdateElemLocal = applyOrUpdateResult
         importsUsedLocal = importsUsed
@@ -319,7 +319,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
     updateCacheFields()
 
-    Success(newType)
+    Right(newType)
   }
 
   @volatile private var problemsVar: Seq[ApplicabilityProblem] = Seq.empty
@@ -383,7 +383,7 @@ object MethodInvocation {
               r.importsUsed, r.implicitConversion, Some(r))
           }
           call.getInvokedExpr.getNonValueType() match {
-            case Success(ScTypePolymorphicType(_, typeParams)) =>
+            case Right(ScTypePolymorphicType(_, typeParams)) =>
               val fixedType = res.processedType match {
                 case ScTypePolymorphicType(internal, typeParams2) =>
                   ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2))

@@ -244,7 +244,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             case ScAbstractType(_, lower, _) => lower
             case _ => tp
           }).isAliasType match {
-            case Some(AliasType(_, Success(lower: DesignatorOwner), _)) if lower.isStable =>
+            case Some(AliasType(_, Right(lower: DesignatorOwner), _)) if lower.isStable =>
               return true
             case _ =>
               tp match {
@@ -302,7 +302,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
       case ScalaResolveResult(self: ScSelfTypeElement, _) =>
         val clazz = PsiTreeUtil.getContextOfType(self, true, classOf[ScTemplateDefinition])
         ScThisReferenceImpl.getThisTypeForTypeDefinition(clazz, this) match {
-          case Success(value) => value
+          case Right(value) => value
           case failure => return failure
         }
       case r@ScalaResolveResult(refPatt: ScBindingPattern, s) =>
@@ -324,7 +324,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             } else {
               val result = refPatt.`type`()
               result match {
-                case Success(tp) => s.subst(tp)
+                case Right(tp) => s.subst(tp)
                 case _ => return result
               }
             }
@@ -375,7 +375,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
               case _ =>
                 val result = param.getRealParameterType
                 s.subst(result match {
-                  case Success(tp) => tp
+                  case Right(tp) => tp
                   case _ => return result
                 })
             }
@@ -391,7 +391,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
         val result = param.`type`()
         val computeType = s.subst(result match {
-          case Success(tp) => tp
+          case Right(tp) => tp
           case _ => return result
         })
         elementScope.getCachedClass("scala.collection.Seq")
@@ -436,14 +436,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         } else {
           val result = f.`type`()
           result match {
-            case Success(tp) => s.subst(tp)
+            case Right(tp) => s.subst(tp)
             case _ => return result
           }
         }
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
         val result = typed.`type`()
         result match {
-          case Success(tp) => s.subst(tp)
+          case Right(tp) => s.subst(tp)
           case _ => return result
         }
       case ScalaResolveResult(pack: PsiPackage, _) => ScalaType.designator(pack)
@@ -519,19 +519,19 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         getContext match {
           case sugar: ScSugarCallExpr if sugar.operation == this =>
             sugar.getBaseExpr.getNonValueType() match {
-              case Success(ScTypePolymorphicType(_, typeParams)) =>
+              case Right(ScTypePolymorphicType(_, typeParams)) =>
                 inner match {
                   case ScTypePolymorphicType(internal, typeParams2) =>
-                    return Success(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2 ++ unresolvedTypeParameters)))
+                    return Right(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2 ++ unresolvedTypeParameters)))
                   case _ =>
-                    return Success(ScTypePolymorphicType(inner, typeParams ++ unresolvedTypeParameters))
+                    return Right(ScTypePolymorphicType(inner, typeParams ++ unresolvedTypeParameters))
                 }
               case _ if unresolvedTypeParameters.nonEmpty =>
                 inner match {
                   case ScTypePolymorphicType(internal, typeParams) =>
-                    return Success(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams))
+                    return Right(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams))
                   case _ =>
-                    return Success(ScTypePolymorphicType(inner, unresolvedTypeParameters))
+                    return Right(ScTypePolymorphicType(inner, unresolvedTypeParameters))
                 }
               case _ =>
             }
@@ -539,24 +539,24 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         }
       case Some(qualifier) =>
         qualifier.getNonValueType() match {
-          case Success(ScTypePolymorphicType(_, typeParams)) =>
+          case Right(ScTypePolymorphicType(_, typeParams)) =>
             inner match {
               case ScTypePolymorphicType(internal, typeParams2) =>
-                return Success(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2 ++ unresolvedTypeParameters)))
+                return Right(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2 ++ unresolvedTypeParameters)))
               case _ =>
-                return Success(ScTypePolymorphicType(inner, typeParams ++ unresolvedTypeParameters))
+                return Right(ScTypePolymorphicType(inner, typeParams ++ unresolvedTypeParameters))
             }
           case _ if unresolvedTypeParameters.nonEmpty =>
             inner match {
               case ScTypePolymorphicType(internal, typeParams) =>
-                return Success(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams))
+                return Right(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams))
               case _ =>
-                return Success(ScTypePolymorphicType(inner, unresolvedTypeParameters))
+                return Right(ScTypePolymorphicType(inner, unresolvedTypeParameters))
             }
           case _ =>
         }
     }
-    Success(inner)
+    Right(inner)
   }
 
   def getPrevTypeInfoParams: Seq[TypeParameter] = {

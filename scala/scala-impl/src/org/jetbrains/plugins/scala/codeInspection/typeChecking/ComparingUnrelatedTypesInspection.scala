@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -71,7 +70,7 @@ object ComparingUnrelatedTypesInspection {
 
   @tailrec
   private def extractActualType(`type`: ScType): ScType = `type`.isAliasType match {
-    case Some(AliasType(_, Success(rhs), _)) => extractActualType(rhs)
+    case Some(AliasType(_, Right(rhs), _)) => extractActualType(rhs)
     case _ => `type`.tryExtractDesignatorSingleton
   }
 }
@@ -89,7 +88,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         //getType() for the reference on the left side returns singleton type, little hack here
         val leftOnTheRight = ScalaPsiElementFactory.createExpressionWithContextFromText(left.getText, right.getParent, right)
         Seq(leftOnTheRight, right) map (_.`type`()) match {
-          case Seq(Success(leftType), Success(rightType)) if cannotBeCompared(leftType, rightType) =>
+          case Seq(Right(leftType), Right(rightType)) if cannotBeCompared(leftType, rightType) =>
             val message = generateComparingUnrelatedTypesMsg(leftType, rightType)
             holder.registerProblem(expr, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
           case _ =>

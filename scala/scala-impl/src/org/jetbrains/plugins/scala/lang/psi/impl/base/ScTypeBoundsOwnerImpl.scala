@@ -75,6 +75,6 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   private def typeOf(typeElement: Option[ScTypeElement], isLower: Boolean): TypeResult[ScType] =
     typeElement match {
       case Some(elem) => elem.`type`().map(extractBound(_, isLower))
-      case None => Success(if (isLower) api.Nothing else api.Any)
+      case None => Right(if (isLower) api.Nothing else api.Any)
     }
 }

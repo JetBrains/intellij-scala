@@ -17,5 +17,5 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 class ScUnitExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScUnitExpr {
   override def toString: String = "UnitExpression"
 
-  protected override def innerType: TypeResult[ScType] = Success(Unit)
+  protected override def innerType: TypeResult[ScType] = Right(Unit)
 }

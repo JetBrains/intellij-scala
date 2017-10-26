@@ -119,7 +119,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           tp.typeParameters.map(TypeParameter(_))
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
           ptp.getTypeParameters.toSeq.map(TypeParameter(_))
-        case _ => return Success(res)
+        case _ => return Right(res)
       }
       s.getParent match {
         case p: ScParameterizedTypeElement =>
@@ -128,7 +128,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             case (arg, typeParam) =>
               (typeParam.nameAndId, arg.`type`().getOrAny)
           }.toMap)
-          Success(appSubst.subst(res))
+          Right(appSubst.subst(res))
         case _ =>
           var nonValueType = ScTypePolymorphicType(res, typeParameters)
           expectedType match {
@@ -153,10 +153,10 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
               )
               val extRes = Compatibility.checkConformanceExt(false, undefParams, paramsByClauses.map(_._1), false, false)
               val result = extRes.undefSubst.getSubstitutor.map(_.subst(nonValueType)).getOrElse(nonValueType)
-              return Success(result)
+              return Right(result)
             case _ =>
           }
-          Success(nonValueType)
+          Right(nonValueType)
       }
     }
 
@@ -175,7 +175,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                   Seq(Parameter(p.getName, None, paramType, paramType, p.getDefaultValue != null, isRepeated = false, isByName = false))
                 case _ => Seq.empty
               }
-              buffer += Success(ScMethodType(ScDesignatorType(clazz), params, isImplicit = false))
+              buffer += Right(ScMethodType(ScDesignatorType(clazz), params, isImplicit = false))
             case _ =>
           }
           buffer

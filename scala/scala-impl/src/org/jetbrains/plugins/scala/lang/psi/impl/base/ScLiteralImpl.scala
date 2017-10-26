@@ -61,7 +61,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => api.Boolean
       case _ => return Failure("Wrong Psi to get Literal type")
     }
-    Success(inner)
+    Right(inner)
   }
 
   @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)

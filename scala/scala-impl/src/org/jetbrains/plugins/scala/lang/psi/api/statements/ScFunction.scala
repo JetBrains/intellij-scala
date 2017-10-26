@@ -173,12 +173,12 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def definedReturnType: TypeResult[ScType] = {
     returnTypeElement match {
       case Some(ret) => ret.`type`()
-      case _ if !hasAssign => Success(Unit)
+      case _ if !hasAssign => Right(Unit)
       case _ =>
         superMethod match {
           case Some(f: ScFunction) => f.definedReturnType
           case Some(m: PsiMethod) =>
-            Success(m.getReturnType.toScType())
+            Right(m.getReturnType.toScType())
           case _ => Failure("No defined return type")
         }
     }
@@ -482,7 +482,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         case Some(annotation) =>
           annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
             _.`type`() match {
-              case Success(ParameterizedType(des, Seq(arg))) => des.extractClass match {
+              case Right(ParameterizedType(des, Seq(arg))) => des.extractClass match {
                 case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
                   arg.toPsiType match {
                     case c: PsiClassType => Seq(c)
@@ -500,15 +500,15 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def `type`(): TypeResult[ScType] = {
     this.returnType match {
-      case Success(tp) =>
-        var res: TypeResult[ScType] = Success(tp)
+      case Right(tp) =>
+        var res: TypeResult[ScType] = Right(tp)
         var i = paramClauses.clauses.length - 1
         while (i >= 0) {
           res match {
-            case Success(t) =>
+            case Right(t) =>
               val parameters = paramClauses.clauses.apply(i).parameters
               val paramTypes = parameters.map(_.`type`().getOrNothing)
-              res = Success(FunctionType(t, paramTypes))
+              res = Right(FunctionType(t, paramTypes))
             case _ =>
           }
           i = i - 1

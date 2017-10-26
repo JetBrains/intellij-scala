@@ -49,7 +49,7 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
           function.returnType
             .map(substitutor.subst)
             .map(tryBlockType.lub(_))
-        case _ => Success(tryBlockType)
+        case _ => Right(tryBlockType)
       }
     }
 }

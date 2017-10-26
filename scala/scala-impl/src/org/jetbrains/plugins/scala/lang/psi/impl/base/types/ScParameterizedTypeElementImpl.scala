@@ -188,7 +188,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       case Seq() => tr
       case args =>
         val result = ScParameterizedType(res, args.map(_.`type`().getOrAny))
-        Success(result)
+        Right(result)
     }
   }
 

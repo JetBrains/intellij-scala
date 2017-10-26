@@ -97,7 +97,7 @@ trait TypeAdapter {
   def toType(tr: TypeResult[ptype.ScType]): m.Type = {
     import org.jetbrains.plugins.scala.lang.psi.types.result._
     tr match {
-      case Success(res) => toType(res)
+      case Right(res) => toType(res)
       case Failure(cause) => throw new ScalaMetaTypeResultFailure(cause)
     }
   }
@@ -130,7 +130,7 @@ trait TypeAdapter {
           m.Type.Name(t.name)
         case t: ScTypedDefinition =>
           t.getTypeWithCachedSubst match {
-            case Success(res) => toType(res)
+            case Right(res) => toType(res)
             case Failure(cause) => unresolved(cause)
           }
         case t: ScReferenceElement if dumbMode =>
@@ -261,7 +261,7 @@ trait TypeAdapter {
   def returnType(tr: ptype.result.TypeResult[ptype.ScType]): m.Type = {
     import ptype.result._
     tr match {
-      case Success(t) => toType(t)
+      case Right(t) => toType(t)
       case Failure(cause) =>
         LOG.warn(s"Failed to infer return type($cause)")
         m.Type.Name("Unit")//.setTypechecked

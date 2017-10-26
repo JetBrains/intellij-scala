@@ -55,12 +55,12 @@ class ScTypeAliasDeclarationImpl private (stub: ScTypeAliasStub, node: ASTNode)
 
   def lowerBound: TypeResult[ScType] = lowerTypeElement match {
     case Some(te) => te.`type`()
-    case None => Success(Nothing)
+    case None => Right(Nothing)
   }
 
   def upperBound: TypeResult[ScType] = upperTypeElement match {
     case Some(te) => te.`type`()
-    case None => Success(Any)
+    case None => Right(Any)
   }
 
   override def upperTypeElement: Option[ScTypeElement] =
