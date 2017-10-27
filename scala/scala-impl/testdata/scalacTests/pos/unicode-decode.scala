@@ -1,4 +1,4 @@
-object Test {
+class Test {
 
   val ↑ = 3
   val x$u20A2 = 4
