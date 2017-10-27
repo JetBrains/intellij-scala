@@ -4,8 +4,8 @@ package result
 
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-class Failure private(private val cause: String,
-                      private val context: ProjectContext) {
+class Failure private(private[result] val cause: String,
+                      private[result] val context: ProjectContext) {
 
 
   override def toString = s"Failure($cause)"
