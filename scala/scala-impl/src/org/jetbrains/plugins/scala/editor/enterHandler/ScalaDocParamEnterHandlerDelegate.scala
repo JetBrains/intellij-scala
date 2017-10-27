@@ -1,5 +1,5 @@
-package org.jetbrains.plugins.scala
-package lang.completion.handlers
+package org.jetbrains.plugins.scala.editor
+package enterHandler
 
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
@@ -18,11 +19,12 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 
 class ScalaDocParamEnterHandlerDelegate extends EnterHandlerDelegateAdapter {
   override def postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): Result = {
-    if (!file.isInstanceOf[ScalaFile]) {
+    if (!file.isInstanceOf[ScalaFile] || !editor.inDocComment(editor.offset)) {
       return Result.Continue
     }
     val document = editor.getDocument
-    PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
+    val project = file.getProject
+    document.commit(project)
 
     val scalaFile = file.asInstanceOf[ScalaFile]
     val caretOffset = editor.getCaretModel.getOffset
@@ -63,7 +65,6 @@ class ScalaDocParamEnterHandlerDelegate extends EnterHandlerDelegateAdapter {
       val toInsert = StringUtil.repeat(" ", endOffset - startOffset)
       extensions.inWriteAction {
         document.insertString(caretOffset, toInsert)
-        PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
       }
     }
 
