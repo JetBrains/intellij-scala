@@ -1235,6 +1235,11 @@
                          displayName="Redundant get when getting a value from Map" groupPath="Scala,Collections" groupName="Maps"
                          shortName="MapGetGet" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapLiftInspection"
+                         displayName="Lift to Get" groupPath="Scala,Collections" groupName="Maps"
+                         shortName="MapLift" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+
         <!--options-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantHeadOrLastOptionInspection"
                          displayName="Redundant headOption or lastOption" groupPath="Scala,Collections" groupName="Options"
