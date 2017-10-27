@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
 
 /**
@@ -22,15 +22,24 @@ package object editor {
 
     def commitDocument(project: Project): Unit = editor.getDocument.commit(project)
 
-    def inScalaString(offset: Int): Boolean = inTokenType(offset, ScalaTokenTypes.STRING_LITERAL_TOKEN_SET.contains)
+    def inScalaString(offset: Int): Boolean = {
+      val afterInterpolatedInjection =
+        isTokenType(offset - 1, t => t == tRBRACE || t == tIDENTIFIER) &&
+          isTokenType(offset, t => t == tINTERPOLATED_STRING || t == tINTERPOLATED_STRING_END)
 
-    def inDocComment(offset: Int): Boolean = inTokenType(offset, _.isInstanceOf[ScalaDocElementType])
+      val previousIsStringToken =
+        isTokenType(offset - 1, t => STRING_LITERAL_TOKEN_SET.contains(t) || t == tINTERPOLATED_STRING_ESCAPE)
 
-    private def inTokenType(offset: Int, predicate: IElementType => Boolean): Boolean = {
-      if (offset == 0 || offset >= editor.getDocument.getTextLength) return false
+      previousIsStringToken || afterInterpolatedInjection
+    }
+
+    def inDocComment(offset: Int): Boolean = isTokenType(offset - 1, _.isInstanceOf[ScalaDocElementType])
+
+    private def isTokenType(offset: Int, predicate: IElementType => Boolean): Boolean = {
+      if (offset < 0 || offset >= editor.getDocument.getTextLength) return false
 
       val highlighter = editor.asInstanceOf[EditorEx].getHighlighter
-      val iterator = highlighter.createIterator(offset - 1)
+      val iterator = highlighter.createIterator(offset)
       predicate(iterator.getTokenType)
     }
   }
