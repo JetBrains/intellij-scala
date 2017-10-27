@@ -120,10 +120,9 @@ case class ScalaTestLoader(override val version: String,
   override val vendor: String = "org.scalatest"
 }
 
-case class ScalaXmlLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+case class ScalaXmlLoader(override val version: String = "1.0.1")(implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override val name: String = "scala-xml"
   override val vendor: String = "org.scala-lang.modules"
-  override val version: String = "1.0.1"
   override val ivyType: IvyType = Bundles
 }
 
