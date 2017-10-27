@@ -11,9 +11,10 @@ import com.intellij.openapi.module.{ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
+import com.intellij.psi.{PsiElement, PsiFile, PsiManager, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.annotator.intention.sbt.AddSbtDependencyUtils._
 import org.jetbrains.plugins.scala.annotator.intention.sbt.ui.SbtArtifactSearchWizard
+import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -29,12 +30,13 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
 /**
   * Created by afonichkin on 7/7/17.
   */
-class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionAction with LowPriorityAction {
+class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReferenceElement]) extends IntentionAction with LowPriorityAction {
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
-    refElement.isValid &&
+    val element = refElement.getElement
+    element.isValid &&
     file != null &&
     file.isInstanceOf[ScalaFile] &&
-    refElement.getManager.isInProject(file) &&
+      element.getManager.isInProject(file) &&
     ! file.isInstanceOf[ScalaCodeFragment] &&
     ! SbtSystemSettings.getInstance(project).getLinkedProjectsSettings.isEmpty
   }
@@ -42,8 +44,9 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
   override def getText: String = "Add sbt dependency..."
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+    val element = refElement.getElement
     def filterByScalaVer(artifacts: Set[ArtifactInfo]): Set[ArtifactInfo] = {
-      val scalaVer = refElement.module.flatMap(_.scalaSdk.map(_.languageLevel.version))
+      val scalaVer = element.module.flatMap(_.scalaSdk.map(_.languageLevel.version))
       scalaVer
         .map(version => artifacts.filter(_.artifactId.endsWith(version)))
           .map(res => if (res.nonEmpty) res else artifacts)
@@ -122,7 +125,7 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
 
     val sbtProjects: Seq[ScPatternDefinition] = getTopLevelSbtProjects(psiSbtFile)
 
-    val moduleName = ModuleUtilCore.findModuleForPsiElement(refElement).getName
+    val moduleName = ModuleUtilCore.findModuleForPsiElement(refElement.getElement).getName
 
     val modules = ModuleManager.getInstance(project).getModules
     val projToAffectedModules = sbtProjects.map(proj => proj -> modules.map(_.getName).filter(containsModuleName(proj, _))).toMap
@@ -155,7 +158,7 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
     proj.getText.contains("\"" + moduleName + "\"")
 
   private def getReferenceText: String = {
-    var result = refElement
+    var result = refElement.getElement
     while (result.getParent.isInstanceOf[ScReferenceElement]) {
       result = result.getParent.asInstanceOf[ScReferenceElement]
     }
@@ -166,4 +169,6 @@ class AddSbtDependencyFix(refElement: ScReferenceElement) extends IntentionActio
   override def getFamilyName = "Add sbt dependencies"
 
   override def startInWriteAction(): Boolean = false
+
+
 }

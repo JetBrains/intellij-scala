@@ -797,7 +797,7 @@ abstract class ScalaAnnotator extends Annotator
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
-      annotation.registerFix(new AddSbtDependencyFix(refElement))
+      annotation.registerFix(new AddSbtDependencyFix(SmartPointerManager.getInstance(refElement.getProject).createSmartPsiElementPointer(refElement)))
     }
   }
 
@@ -867,7 +867,7 @@ abstract class ScalaAnnotator extends Annotator
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
-      annotation.registerFix(new AddSbtDependencyFix(refElement))
+      annotation.registerFix(new AddSbtDependencyFix(SmartPointerManager.getInstance(refElement.getProject).createSmartPsiElementPointer(refElement)))
     }
   }
 

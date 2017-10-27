@@ -17,29 +17,22 @@ class SbtArtifactSearchWizard(project: Project, artifactInfoSet: Set[ArtifactInf
   var resultArtifact: Option[ArtifactInfo] = _
   var resultFileLine: Option[DependencyPlaceInfo] = _
 
-  override def init(): Unit = {
-    super.init()
-  }
-
   override def getHelpID: String = null
 
   def search(): (Option[ArtifactInfo], Option[DependencyPlaceInfo]) = {
     if (!showAndGet()) {
       return (None, None)
     }
-
     (resultArtifact, resultFileLine)
   }
 
-  override def canGoNext: Boolean = {
-    if (getCurrentStepObject == sbtArtifactSearchStep) {
-      sbtArtifactSearchStep.canGoNext
-    } else {
-      sbtPossiblePlacesStep.canGoNext
-    }
-  }
 
   addStep(sbtArtifactSearchStep)
   addStep(sbtPossiblePlacesStep)
   init()
+
+  override def dispose(): Unit = {
+    sbtPossiblePlacesStep.panel.releaseEditor()
+    super.dispose()
+  }
 }
