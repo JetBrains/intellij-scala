@@ -4,9 +4,9 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types => ptype}
 
@@ -20,23 +20,24 @@ trait TreeAdapter {
 
   def ideaToMeta(tree: PsiElement): m.Tree = {
     ProgressManager.checkCanceled()
+
     tree match {
-      case t: ScValueDeclaration => toVal(t)
-      case t: ScVariableDeclaration => toVar(t)
-      case t: ScTypeAliasDeclaration => toTypeDecl(t)
-      case t: ScTypeAliasDefinition => toTypeDefn(t)
-      case t: ScFunctionDeclaration => toFunDecl(t)
-      case t: ScPatternDefinition => toPatternDefinition(t)
-      case t: ScVariableDefinition => toVarDefn(t)
-      case t: ScFunctionDefinition => toFunDefn(t)
-      case t: ScMacroDefinition => toMacroDefn(t)
-      case t: ScPrimaryConstructor => ctor(Some(t))
-      case t: ScTrait => toTrait(t)
-      case t: ScClass => toClass(t)
-      case t: ScObject => toObject(t)
-      case t: ScAnnotation => toAnnot(t)
-      case t: ScExpression => expression(Some(t)).get
-      case t: p.toplevel.imports.ScImportStmt => m.Import(Seq(t.importExprs.map(imports):_*))
+      case t: ScValueDeclaration      => toVal(t)
+      case t: ScVariableDeclaration   => toVar(t)
+      case t: ScTypeAliasDeclaration  => toTypeDecl(t)
+      case t: ScTypeAliasDefinition   => toTypeDefn(t)
+      case t: ScFunctionDeclaration   => toFunDecl(t)
+      case t: ScPatternDefinition     => toPatternDefinition(t)
+      case t: ScVariableDefinition    => toVarDefn(t)
+      case t: ScFunctionDefinition    => toFunDefn(t)
+      case t: ScMacroDefinition       => toMacroDefn(t)
+      case t: ScPrimaryConstructor    => ctor(Some(t))
+      case t: ScTrait                 => toTrait(t)
+      case t: ScClass                 => toClass(t)
+      case t: ScObject                => toObject(t)
+      case t: ScAnnotation            => toAnnot(t)
+      case t: ScExpression            => expression(Some(t)).get
+      case t: ScImportStmt            => m.Import(Seq(t.importExprs.map(imports):_*))
 
       case t: PsiClass => toClass(t)
       case t: PsiMethod => t ???
@@ -77,8 +78,7 @@ trait TreeAdapter {
   }
 
   def toVarDefn(t: ScVariableDefinition): m.Defn.Var = {
-    def pattern(bp: ScBindingPattern) = m.Pat.Var.Term(toTermName(bp))
-    m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern): _*), t.declaredType.map(toType(_)), expression(t.expr))
+    m.Defn.Var(convertMods(t), Seq(t.pList.patterns.map(pattern): _*), t.declaredType.map(toType(_)), expression(t.expr))
   }
 
   def toFunDecl(t: ScFunctionDeclaration): m.Decl.Def = {
@@ -473,7 +473,7 @@ trait TreeAdapter {
       case ScLiteral(c: java.lang.Character)  => Lit.Char(c)
       case ScLiteral(b: java.lang.Byte)       => Lit.Byte(b)
       case ScLiteral(s: String)               => Lit.String(s)
-      case ScLiteral(null)                    => Lit.Null()
+      case ScLiteral(null)                    => Lit.Null(())
       case _ if l.isSymbol && paradiseCompatibilityHacks => Lit.String(l.getValue.toString) // apparently, Lit.Symbol is no more in paradise
       case _ if l.isSymbol                    => Lit.Symbol(l.getValue.asInstanceOf[Symbol]) // symbol literals in meta contain a string as their value
       case other => other ?!
