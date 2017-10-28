@@ -1123,10 +1123,16 @@ abstract class ScalaAnnotator extends Annotator
   }
 
   private def checkAbsentTypeArgs(simpleTypeElement: ScSimpleTypeElement, holder: AnnotationHolder): Unit = {
+    // Dirty hack(see SCL-12582): we shouldn't complain about missing type args since they will be added by a macro after expansion
+    def isFreestyleAnnotated(ah: ScAnnotationsHolder): Boolean = {
+      (ah.findAnnotationNoAliases("freestyle.free") != null) ||
+        ah.findAnnotationNoAliases("freestyle.module") != null
+    }
     def needTypeArgs: Boolean = {
       def noHigherKinds(owner: ScTypeParametersOwner) = !owner.typeParameters.exists(_.typeParameters.nonEmpty)
 
       val canHaveTypeArgs = simpleTypeElement.reference.map(_.resolve()).exists {
+        case ah: ScAnnotationsHolder if isFreestyleAnnotated(ah) => false
         case c: PsiClass => c.hasTypeParameters
         case owner: ScTypeParametersOwner => owner.typeParameters.nonEmpty
         case _ => false
