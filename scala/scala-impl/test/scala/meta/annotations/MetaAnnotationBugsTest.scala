@@ -267,4 +267,17 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
     assertEquals("Reference should resolve to single element in trait", 1, resTrait.size)
   }
 
+  def testSCL12582_2(): Unit = {
+    compileAnnotBody(s""" q"trait $testClassName[F[_]]" """)
+    createFile(
+      s"""
+         |@$annotName
+         |trait $testClassName
+         |class Foo extends $testClassName[Foo]
+      """.stripMargin
+    )
+
+    checkNoErrorHighlights("Wrong number of type parameters.")
+  }
+
 }

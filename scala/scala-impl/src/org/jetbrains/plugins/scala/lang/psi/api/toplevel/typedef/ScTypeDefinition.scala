@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
@@ -70,6 +71,8 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   def allInnerTypeDefinitions: Seq[ScTypeDefinition] = members.collect {
     case td: ScTypeDefinition => td
   }
+
+  override def typeParameters: Seq[ScTypeParam]
 
   override def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = SyntheticMembersInjector.injectInners(this)
 
