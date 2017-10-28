@@ -152,7 +152,6 @@ object DependencyGroups {
 
   val testDownloader = Seq(
 
-    scalaXml,
     "com.chuusai" % "shapeless_2.11" % "2.0.0",
     "com.fommil" % "stalactite_2.11" % "0.0.3",
     "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
@@ -168,8 +167,9 @@ object DependencyGroups {
     "com.typesafe.akka" % "akka-stream_2.11" % "2.4.19",
     "com.typesafe.play" % "play_2.10" % "2.4.10",
     "com.typesafe.slick" % "slick_2.11" % "3.2.1",
-//    "io.spray" %% "spray-routing" % "1.3.4",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
+    "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.6",
+    "org.scala-lang.modules" % "scala-xml_2.12" % "1.0.6",
     "org.specs2" % "specs2_2.10" % "2.4.6",
     "org.scala-js" % "scalajs-library_2.10" % "0.6.14",
     "org.scalaz" % "scalaz-core_2.10" % scalazVersion,
