@@ -5,7 +5,7 @@ object Versions {
   val scalaBinaryVersion: String = Scala.binary_2_12
   val sbtVersion: String = Sbt.latest
   val zincVersion = "1.0.0"
-  val ideaVersion = "173.3302.5"
+  val ideaVersion = "173.3415.22"
   val sbtStructureVersion: String = "2017.2"
   val sbtIdeaShellVersion: String = "2017.2"
   val aetherVersion = "1.0.0.v20140518"
@@ -84,7 +84,7 @@ object Dependencies {
   val commonsLang: ModuleID = "commons-lang" % "commons-lang" % "2.6"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
 
-  val scalastyle: ModuleID = "org.scalastyle" %% "scalastyle" % "0.9.0"
+  val scalastyle: ModuleID = "org.scalastyle" %% "scalastyle" % "1.0.0"
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.2"
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.projectHighlighting
 
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.{ScalaFileType, SlowTests}
+import org.jetbrains.plugins.scala.{PerfCycleTests, ScalaFileType}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyLibraryLoader.Sources
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader
@@ -35,7 +35,7 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
   }
 }
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[PerfCycleTests]))
 class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
   override implicit val version: ScalaVersion = Scala_2_12
 }

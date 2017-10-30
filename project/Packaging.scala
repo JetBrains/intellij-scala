@@ -1,5 +1,5 @@
 import java.io._
-import java.util.zip.{ZipInputStream, ZipOutputStream}
+import java.util.zip.{ZipException, ZipInputStream, ZipOutputStream}
 
 import sbt.Keys._
 import sbt._
@@ -132,6 +132,7 @@ object Packaging {
           }
           outStream.closeEntry()
         } catch {
+          case ze: ZipException if ze.getMessage.startsWith("duplicate entry") => //ignore
           case e: IOException => println(s"$e")
         }
         entry = inStream.getNextEntry

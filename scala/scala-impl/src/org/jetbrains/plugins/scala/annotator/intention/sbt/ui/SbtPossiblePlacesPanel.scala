@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.annotator.intention.sbt.ui
 
-import java.awt.{BorderLayout, Component, Dimension}
-import javax.swing.event.{TreeModelListener, TreeSelectionEvent, TreeSelectionListener}
-import javax.swing.tree.{TreeCellRenderer, TreeModel, TreePath, TreeSelectionModel}
-import javax.swing.{JPanel, JTree, ScrollPaneConstants}
+import java.awt.BorderLayout
+import javax.swing._
+import javax.swing.event._
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.editor.colors.CodeInsightColors
@@ -13,187 +12,105 @@ import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetAr
 import com.intellij.openapi.editor.{Editor, EditorFactory, LogicalPosition, ScrollType}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
-import com.intellij.ui.treeStructure.Tree
-import com.intellij.ui.{ScrollPaneFactory, SimpleColoredComponent, SimpleTextAttributes}
-import com.intellij.util.ui.UIUtil
-import org.jetbrains.plugins.scala.ScalaFileType
+import com.intellij.ui._
+import com.intellij.ui.components.JBList
 import org.jetbrains.plugins.scala.annotator.intention.sbt.{AddSbtDependencyUtils, DependencyPlaceInfo}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
+
+import scala.collection.JavaConverters.asJavaCollectionConverter
 
 /**
   * Created by afonichkin on 7/19/17.
   */
 class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, fileLines: Seq[DependencyPlaceInfo]) extends JPanel {
-  val myResultList: Tree = new Tree()
-  var myCurFileLine: DependencyPlaceInfo = _
+  val myResultList: JBList[DependencyPlaceInfo] = new JBList[DependencyPlaceInfo]()
+  var myCurEditor: Editor = createEditor()
 
-  var canGoNext: Boolean = false
-
-  val myLayout = new BorderLayout()
-  var myCurEditor: Editor = _
-
-  val EDITOR_TOP_MARGIN = 7
+  private val EDITOR_TOP_MARGIN = 7
 
   init()
 
   def init(): Unit = {
-    myResultList.setExpandableItemsEnabled(false)
+    setLayout(new BorderLayout())
 
-    if (fileLines.isEmpty)
-      myResultList.getEmptyText.setText("Nothing to show")
-    else
-      myResultList.getEmptyText.setText("Loading...")
+    val splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT)
 
-    myResultList.setRootVisible(false)
-    myResultList.setShowsRootHandles(true)
+    myResultList.setModel(new CollectionListModel[DependencyPlaceInfo](fileLines.asJavaCollection))
+    myResultList.getSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
 
-    myResultList.setModel(new MyTreeModel(fileLines))
-    myResultList.getSelectionModel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION)
+    val scrollPane = ScrollPaneFactory.createScrollPane(myResultList)
+    scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS) // Don't remove this line.
+    splitPane.setContinuousLayout(true)
+    splitPane.add(scrollPane)
+    splitPane.add(myCurEditor.getComponent)
 
-    setLayout(myLayout)
+    add(splitPane, BorderLayout.CENTER)
 
-    val pane = ScrollPaneFactory.createScrollPane(myResultList)
-    pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS) // Don't remove this line.
+    GuiUtils.replaceJSplitPaneWithIDEASplitter(splitPane)
+    myResultList.setCellRenderer(new PlacesCellRenderer)
 
-    add(pane, BorderLayout.CENTER)
-
-    myResultList.setCellRenderer(new MyCellRenderer)
-
-    myResultList.addTreeSelectionListener((treeSelectionEvent: TreeSelectionEvent) => {
-      val path = treeSelectionEvent.getNewLeadSelectionPath
-      if (path == null) {
-        canGoNext = false
-        myCurFileLine = null
-        updateEditor()
-      } else {
-        path.getLastPathComponent match {
-          case fileLine: DependencyPlaceInfo if myCurFileLine != fileLine =>
-            canGoNext = true
-            myCurFileLine = fileLine
-            updateEditor()
-          case _ =>
-        }
+    myResultList.addListSelectionListener { (_: ListSelectionEvent) =>
+      val place = myResultList.getSelectedValue
+      if (place != null) {
+        if (myCurEditor == null)
+          myCurEditor = createEditor()
+        updateEditor(place)
       }
-      wizard.updateWizardButtons()
-    })
+      wizard.updateButtons(true, place != null, false)
+    }
   }
 
-  private def updateEditor(): Unit = {
-    if (myCurFileLine == null) {
-      remove(myLayout.getLayoutComponent(BorderLayout.SOUTH))
-      updateUI()
-    } else {
-      val editor = createEditor(myCurFileLine.path)
-      val editorHighlighter = EditorHighlighterFactory.getInstance.createEditorHighlighter(project, ScalaFileType.INSTANCE)
-      editor.asInstanceOf[EditorEx].setHighlighter(editorHighlighter)
-      editor.getCaretModel.moveToOffset(myCurFileLine.offset)
-      val scrollingModel = editor.getScrollingModel
-      scrollingModel.scrollToCaret(ScrollType.CENTER)
-      val oldPos = editor.offsetToLogicalPosition(myCurFileLine.offset)
-      scrollingModel.scrollTo(new LogicalPosition(math.max(1, oldPos.line - EDITOR_TOP_MARGIN), oldPos.column), ScrollType.CENTER)
-
-      releaseEditor()
-      myCurEditor = editor
-
-      add(editor.getComponent, BorderLayout.SOUTH)
-      updateUI()
+  private def updateEditor(myCurFileLine: DependencyPlaceInfo): Unit = {
+    val document    = FileDocumentManager.getInstance.getDocument(project.getBaseDir.findFileByRelativePath(myCurFileLine.path))
+    val tmpFile     = ScalaPsiElementFactory.createScalaFileFromText(document.getText)(project)
+    var tmpElement  = tmpFile.findElementAt(myCurFileLine.element.getTextOffset)
+    while (tmpElement.getTextRange != myCurFileLine.element.getTextRange) {
+      tmpElement = tmpElement.getParent
     }
+    val dep = AddSbtDependencyUtils.addDependency(tmpElement, wizard.resultArtifact.get)(project).get
+
+    extensions.inWriteAction {
+      myCurEditor.getDocument.setText(tmpFile.getText)
+    }
+
+    myCurEditor.getCaretModel.moveToOffset(myCurFileLine.offset)
+    val scrollingModel = myCurEditor.getScrollingModel
+    val oldPos = myCurEditor.offsetToLogicalPosition(myCurFileLine.offset)
+    scrollingModel.scrollTo(new LogicalPosition(math.max(1, oldPos.line - EDITOR_TOP_MARGIN), oldPos.column),
+      ScrollType.CENTER)
+    val attributes = myCurEditor.getColorsScheme.getAttributes(CodeInsightColors.MATCHED_BRACE_ATTRIBUTES)
+    myCurEditor.getMarkupModel.addRangeHighlighter(dep.getTextRange.getStartOffset,
+      dep.getTextRange.getEndOffset,
+      HighlighterLayer.SELECTION,
+      attributes,
+      HighlighterTargetArea.EXACT_RANGE
+    )
   }
 
   def releaseEditor(): Unit = {
-    val prevSouthComponent = myLayout.getLayoutComponent(BorderLayout.SOUTH)
-    if (prevSouthComponent != null)
-      remove(prevSouthComponent)
-
-    if (myCurEditor != null)
+    if (myCurEditor != null && !myCurEditor.isDisposed) {
       EditorFactory.getInstance.releaseEditor(myCurEditor)
+      myCurEditor = null
+    }
   }
 
-  private def createEditor(path: String): Editor = {
-    val document = FileDocumentManager.getInstance.getDocument(project.getBaseDir.findFileByRelativePath(path))
-    val tmpFile = ScalaPsiElementFactory.createScalaFileFromText(document.getText)(project)
-    var tmpElement = tmpFile.findElementAt(myCurFileLine.element.getTextOffset)
-    while (tmpElement.getTextRange != myCurFileLine.element.getTextRange)
-      tmpElement = tmpElement.getParent
-
-    val dep: PsiElement = AddSbtDependencyUtils.addDependency(tmpElement, wizard.resultArtifact.get)(project).get
-
-    val viewer = EditorFactory.getInstance.createViewer(
-      EditorFactory.getInstance().createDocument(tmpFile.getText)
-    )
-
-    val scheme = viewer.getColorsScheme
-    val attributes = scheme.getAttributes(CodeInsightColors.MATCHED_BRACE_ATTRIBUTES)
-
-    viewer.getMarkupModel.addRangeHighlighter(dep.getTextRange.getStartOffset, dep.getTextRange.getEndOffset, HighlighterLayer.SELECTION, attributes, HighlighterTargetArea.EXACT_RANGE)
-
-
-    viewer.getComponent.updateUI()
-
+  private def createEditor(): Editor = {
+    val viewer = EditorFactory.getInstance.createViewer(EditorFactory.getInstance().createDocument(""))
+    val editorHighlighter = EditorHighlighterFactory.getInstance.createEditorHighlighter(project, ScalaFileType.INSTANCE)
+    viewer.asInstanceOf[EditorEx].setHighlighter(editorHighlighter)
     viewer
   }
 
-  def getResult: Option[DependencyPlaceInfo] = {
-    for (path: TreePath <- myResultList.getSelectionPaths) {
-      path.getLastPathComponent match {
-        case info: DependencyPlaceInfo => return Some(info)
-        case _ =>
-      }
+  private class PlacesCellRenderer extends ColoredListCellRenderer[DependencyPlaceInfo] {
+    override def customizeCellRenderer(list: JList[_ <: DependencyPlaceInfo], info: DependencyPlaceInfo, index: Int, selected: Boolean, hasFocus: Boolean): Unit = {
+      setIcon(AllIcons.Nodes.PpFile)
+      append(info.path + ":", SimpleTextAttributes.REGULAR_ATTRIBUTES)
+      append(info.line.toString, getGrayAttributes(selected))
+      if (info.affectedProjects.nonEmpty)
+        append(" (" + info.affectedProjects.map(_.toString).mkString(", ") + ")", SimpleTextAttributes.REGULAR_ATTRIBUTES)
     }
-    None
-  }
-
-  private class MyTreeModel(elements: Seq[DependencyPlaceInfo]) extends TreeModel {
-    override def getIndexOfChild(parent: scala.Any, child: scala.Any): Int = elements.indexOf(child)
-
-    override def valueForPathChanged(treePath: TreePath, o: scala.Any): Unit = {}
-
-    override def getChild(parent: scala.Any, index: Int): AnyRef = elements(index)
-
-    override def addTreeModelListener(treeModelListener: TreeModelListener): Unit = {}
-
-    override def isLeaf(node: scala.Any): Boolean = node != elements
-
-    override def removeTreeModelListener(treeModelListener: TreeModelListener): Unit = {}
-
-    override def getChildCount(o: scala.Any): Int = elements.size
-
-    override def getRoot: AnyRef = elements
-  }
-
-  private class MyCellRenderer extends JPanel with TreeCellRenderer {
-    val myComponent: SimpleColoredComponent = new SimpleColoredComponent
-
-    init()
-
-    def init(): Unit = {
-      myComponent.setOpaque(false)
-      myComponent.setIconOpaque(false)
-      add(myComponent)
-    }
-
-    override def getTreeCellRendererComponent(tree: JTree, value: scala.Any, selected: Boolean, expanded: Boolean,
-                                              leaf: Boolean, row: Int, hasFocus: Boolean): Component = {
-      myComponent.clear()
-
-      setBackground(if (selected) UIUtil.getTreeSelectionBackground else tree.getBackground)
-
-      value match {
-        case info: DependencyPlaceInfo =>
-          myComponent.setIcon(AllIcons.Nodes.PpFile)
-          myComponent.append(info.path + ":", SimpleTextAttributes.REGULAR_ATTRIBUTES)
-          myComponent.append(info.line.toString, getGrayAttributes(selected))
-          if (info.affectedProjects.nonEmpty)
-            myComponent.append(" (" + info.affectedProjects.map(_.toString).mkString(", ") + ")", SimpleTextAttributes.REGULAR_ATTRIBUTES)
-        case _ =>
-      }
-
-      this
-    }
-
     private def getGrayAttributes(selected: Boolean): SimpleTextAttributes =
       if (!selected) SimpleTextAttributes.GRAY_ATTRIBUTES else SimpleTextAttributes.REGULAR_ATTRIBUTES
   }
-
 }

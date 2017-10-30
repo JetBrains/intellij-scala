@@ -4,7 +4,9 @@ package lang.scaladoc
 import com.intellij.openapi.actionSystem.{DataContext, IdeActions}
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.junit.Assert
 
 /**
  * User: Dmitry Naydanov
@@ -36,7 +38,8 @@ abstract class ScalaDocEnterActionTestBase extends ScalaLightPlatformCodeInsight
         }
       }
     })
+    getEditorAdapter.getDocument.commit(getProjectAdapter)
 
-    assert(transform(getFileAdapter.getText).equals(assumedStub))
+    Assert.assertEquals(transform(getFileAdapter.getText), assumedStub)
   }
 }

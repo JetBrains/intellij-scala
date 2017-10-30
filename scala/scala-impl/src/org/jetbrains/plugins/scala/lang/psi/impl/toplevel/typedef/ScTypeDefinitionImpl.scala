@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -51,6 +52,11 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition with PsiClassFake {
 
   override def hasTypeParameters: Boolean = typeParameters.nonEmpty
+
+  override def typeParameters: Seq[ScTypeParam] = desugaredElement match {
+    case Some(td: ScTypeDefinition) => td.typeParameters
+    case _ => super.typeParameters
+  }
 
   override def add(element: PsiElement): PsiElement = {
     element match {

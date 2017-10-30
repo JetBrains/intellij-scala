@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.editor.enterHandler
+package org.jetbrains.plugins.scala.editor
+package enterHandler
 
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
@@ -31,13 +32,17 @@ class EnterBetweenClosureBracesHandler extends EnterHandlerDelegateAdapter {
     if (!file.isInstanceOf[ScalaFile]) {
       return Result.Continue
     }
+    val project = file.getProject
+
     val document: Document = editor.getDocument
     val text: CharSequence = document.getCharsSequence
     val offset: Int = caretOffset.get.intValue
     if (!CodeInsightSettings.getInstance.SMART_INDENT_ON_ENTER) return Result.Continue
     val nextCharOffset: Int = CharArrayUtil.shiftForward(text, offset, " \t")
     if (!isValidOffset(nextCharOffset, text) || text.charAt(nextCharOffset) != '}') return Result.Continue
-    PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
+
+    document.commit(project)
+
     val element = Option(file.findElementAt(offset))
     if (element.map(e => PsiTreeUtil.skipSiblingsBackward(e, classOf[PsiWhiteSpace])).exists{
       case fun: ScFunctionExpr =>
@@ -48,9 +53,9 @@ class EnterBetweenClosureBracesHandler extends EnterHandlerDelegateAdapter {
     } && element.map(_.getParent).exists(_.isInstanceOf[ScBlock])) {
       originalHandler.execute(editor, editor.getCaretModel.getCurrentCaret, dataContext)
 
-      PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
+      document.commit(project)
       try {
-        CodeStyleManager.getInstance(file.getProject).adjustLineIndent(file, editor.getCaretModel.getOffset)
+        CodeStyleManager.getInstance(project).adjustLineIndent(file, editor.getCaretModel.getOffset)
       }
       catch {
         case e: IncorrectOperationException => LOG.error(e)

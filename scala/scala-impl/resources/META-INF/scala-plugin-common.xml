@@ -272,7 +272,7 @@
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider"/>
 
         <!--Enter Handler for ScalaDoc -->
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.lang.completion.handlers.ScalaDocParamEnterHandlerDelegate"/>
+        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaDocParamEnterHandlerDelegate"/>
         <!--/Handler-->
 
         <!--Enter Handler for inserting "+" in interpolated strings-->
@@ -1217,7 +1217,6 @@
                          displayName="Collect and headOption to collectFirst" groupPath="Scala,Collections" groupName="Simplifications: other"
                          shortName="CollectHeadOption" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-
         <!--maps-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
                          displayName="Get and getOrElse to getOrElse" groupPath="Scala,Collections" groupName="Maps"
@@ -1235,6 +1234,11 @@
                          displayName="Redundant get when getting a value from Map" groupPath="Scala,Collections" groupName="Maps"
                          shortName="MapGetGet" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapLiftInspection"
+                         displayName="Lift to Get" groupPath="Scala,Collections" groupName="Maps"
+                         shortName="MapLift" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+
         <!--options-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantHeadOrLastOptionInspection"
                          displayName="Redundant headOption or lastOption" groupPath="Scala,Collections" groupName="Options"
@@ -1257,13 +1261,17 @@
                          shortName="GetOrElseNull" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.IfElseToOptionInspection"
-                       displayName="Emulated Option(x)" groupPath="Scala,Collections" groupName="Options"
-                       shortName="IfElseToOption" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.IfElseToFilteredOptionInspection"
-                       displayName="Change to filter" groupPath="Scala,Collections" groupName="Options"
-                       shortName="IfElseToFilterdOption" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
+                         displayName="Emulated Option(x)" groupPath="Scala,Collections" groupName="Options"
+                         shortName="IfElseToOption" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.IfElseToFilteredOptionInspection"
+                         displayName="Change to filter" groupPath="Scala,Collections" groupName="Options"
+                         shortName="IfElseToFilterdOption" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OptionWithConstantInspection"
+                         displayName="Option with constant to Some" groupPath="Scala,Collections" groupName="Options"
+                         shortName="OptionWithConstant" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <!--other-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
                          displayName="Filter after sort" groupPath="Scala,Collections" groupName="Other"

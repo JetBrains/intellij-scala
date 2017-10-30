@@ -2,12 +2,10 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.worksheet.GotoOriginalHandlerUtil
 
 import scala.collection.mutable
@@ -21,24 +19,9 @@ class AmmoniteScriptWrappersHolder(project: Project) extends AbstractProjectComp
   
   private def createWrapper(from: ScalaFile) = {
     val obj = GotoOriginalHandlerUtil.createPsi((from: ScalaFile) => ScalaPsiElementFactory.createObjectWithContext(
-      s" object ${from.getName.stripSuffix(s".${AmmoniteUtil.AMMONITE_EXTENSION}")} {  }", from, from.getFirstChild
+      s"object ${AmmoniteScriptWrappersHolder.getWrapperName(from)} {\n${from.getText} }", from, from.getFirstChild
     ), from)
-    
     GotoOriginalHandlerUtil.storePsi(obj.getContainingFile, from)
-
-    def storeInfo(psi: PsiElement) {
-      val psiElement = GotoOriginalHandlerUtil.createPsi((p: PsiElement) => ScalaPsiElementFactory.createElementFromText(p.getText)( //todo
-        new ProjectContext(from.getProject)), psi)
-      obj.extendsBlock.templateBody.foreach { body => body.addBefore(psiElement, body.getLastChild)}
-    }
-
-    from.getChildren.foreach {
-      case decl: ScDeclaration => storeInfo(decl)
-      case df@(_: ScVariableDefinition | _: ScTemplateDefinition | _: ScFunctionDefinition | _: ScPatternDefinition | _: ScTypeDefinition) =>
-        storeInfo(df)
-      case _ => 
-    }
-    
     obj
   }
   
@@ -58,4 +41,8 @@ class AmmoniteScriptWrappersHolder(project: Project) extends AbstractProjectComp
 
 object AmmoniteScriptWrappersHolder {
   def getInstance(project: Project): AmmoniteScriptWrappersHolder = project.getComponent(classOf[AmmoniteScriptWrappersHolder])
+  
+  def getWrapperName(from: PsiFile): String = from.getName.stripSuffix(s".${AmmoniteUtil.AMMONITE_EXTENSION}")
+  
+  def getOffsetFix(from: PsiFile): Int = (getWrapperName(from) + "object  {\n").length 
 }

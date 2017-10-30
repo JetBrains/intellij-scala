@@ -12,9 +12,10 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.containers.ContainerUtilRt
 import org.jetbrains.jps.model.java.JavaSourceRootType
+import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
@@ -123,7 +124,17 @@ object AmmoniteUtil {
   def scriptResolveSbtDependency(refElement: ScStableCodeReferenceElement): Option[PsiDirectory] = {
     def scriptResolveIvy(refElement: ScStableCodeReferenceElement) = refElement.getText == ROOT_IVY
 
-    refElement.qualifier match {
+    def qual(scRef: ScStableCodeReferenceElement) = {
+      scRef.getParent match {
+        case selector: ScImportSelector => 
+          new ParentsIterator(selector).collectFirst {
+            case expr: ScImportExpr => expr.qualifier 
+          }
+        case _ => scRef.qualifier
+      }
+    }
+    
+    qual(refElement) match {
       case Some(q) if scriptResolveIvy(q) =>
         findLibrary(refElement) flatMap {
           lib => getResolveItem(lib, refElement.getProject)
@@ -189,7 +200,7 @@ object AmmoniteUtil {
       private var it = ps.iterator
       setCurrent()
 
-      override def add(): Boolean = it.hasNext && {setCurrent(); true}
+      override def add(): Boolean = {it.hasNext && {setCurrent(); true} || {current = None; false}}
       override def hasNext: Boolean = it.hasNext
       override def reset(): Unit = {
         it = ps.iterator
@@ -210,16 +221,9 @@ object AmmoniteUtil {
 
       private def advance() {
         if (!currentDigit.add()) {
-          val bf = currentDigit
-          while (!currentDigit.add() && it.hasNext) {
-            currentDigit = it.next()
-          }
-
+          while (!currentDigit.add() && it.hasNext) currentDigit = it.next()
           if (currentDigit.getCurrent.isEmpty) return
-
           pathParts.takeWhile(_ != currentDigit).foreach(_.reset())
-          bf.reset()
-
           currentDigit = pathParts.head
           it = pathParts.iterator
         }
@@ -243,6 +247,11 @@ object AmmoniteUtil {
           case Array(single) => SimplePart(single)
           case multiple => OrPart(multiple)
         }
+      }.foldRight(List.empty[PathPart[String]]){
+        case (SimplePart(part), SimplePart(pp) :: tail) =>
+          SimplePart(part + File.separator + pp) :: tail
+        case (otherPart, list) =>
+          otherPart :: list
       }
     }.find(predicate)
   }
