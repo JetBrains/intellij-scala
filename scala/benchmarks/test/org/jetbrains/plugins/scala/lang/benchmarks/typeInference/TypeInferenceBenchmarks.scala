@@ -46,5 +46,5 @@ class Slick extends TypeInferenceBenchmarkBase("Slick") {
 
 class Cats extends TypeInferenceBenchmarkBase("Cats") {
   override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
-    Array(CatsLoader())
+    Array(CatsLoader()(module))
 }
