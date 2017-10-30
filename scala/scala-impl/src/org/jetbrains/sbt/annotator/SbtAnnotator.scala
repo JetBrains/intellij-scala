@@ -103,8 +103,8 @@ object SbtAnnotator {
     (for {
       typeName <- allowedTypes
       expectedType <- createTypeFromText(typeName, expression.getContext, expression)
+      if !expectedType.isAny // this shouldn't happen if context is setup corretly
     } yield {
-      assert(!expectedType.isAny, s"created type was Any, expected $typeName")
       lazy val typeAfterImplicits = expression.getTypeAfterImplicitConversion(expectedOption = Option(expectedType)).tr.getOrNothing
       expressionType.conforms(expectedType) || typeAfterImplicits.conforms(expectedType)
     }).exists(identity)
