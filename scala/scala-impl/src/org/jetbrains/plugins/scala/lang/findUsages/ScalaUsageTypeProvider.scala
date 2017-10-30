@@ -37,7 +37,7 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
       (element, targets) match {
         case (referenceElement: ScReferenceElement, Array(only: PsiElementUsageTarget))
           if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
-          Some(parameterInPattern)
+          Some(ParameterInPattern)
         case _ =>
           element.withParentsInFile
             .flatMap(usageType)
@@ -56,7 +56,7 @@ object ScalaUsageTypeProvider {
     expression.bind()
       .map(resolvedElement)
       .collect {
-        case function: ScFunction if function.isApplyMethod => methodApply
+        case function: ScFunction if function.isApplyMethod => MethodApply
         case definition: ScFunctionDefinition if isAncestor(definition, expression, false) => RECURSION
       }.orNull
   }
@@ -71,29 +71,29 @@ object ScalaUsageTypeProvider {
 
     if (patterns.exists(isPatternAncestor)) CLASS_CATCH_CLAUSE_PARAMETER_DECLARATION
     else pattern match {
-      case ScTypedPattern(typeElement) if isPatternAncestor(typeElement) => classTypedPattern
-      case _: ScConstructorPattern | _: ScInfixPattern => extractor
+      case ScTypedPattern(typeElement) if isPatternAncestor(typeElement) => ClassTypedPattern
+      case _: ScConstructorPattern | _: ScInfixPattern => Extractor
       case _ => null
     }
   }
 
   implicit def stringToUsageType(name: String): UsageType = new UsageType(name)
 
-  val extractor: UsageType = "Extractor"
-  val classTypedPattern: UsageType = "Typed Pattern"
-  val typedStatement: UsageType = "Typed Statement"
-  val methodApply: UsageType = "Method `apply`"
-  val thisReference: UsageType = "This Reference"
-  val accessModifier: UsageType = "Access Modifier"
-  val packageClause: UsageType = "Package Clause"
-  val functionExpression: UsageType = "Function expression"
-  val namedParameter: UsageType = "Named parameter"
-  val prefixInterpolatedString: UsageType = "Interpolated string prefix"
-  val parameterInPattern: UsageType = "Parameter in pattern"
-  val selfType: UsageType = "Self type"
-  val typeBound: UsageType = "Type bound"
-  val typeAlias: UsageType = "Type alias"
-  val secondaryConstructor: UsageType = "Secondary constructor"
+  val Extractor: UsageType = "Extractor"
+  val ClassTypedPattern: UsageType = "Typed Pattern"
+  val TypedStatement: UsageType = "Typed Statement"
+  val MethodApply: UsageType = "Method `apply`"
+  val ThisReference: UsageType = "This Reference"
+  val AccessModifier: UsageType = "Access Modifier"
+  val PackageClause: UsageType = "Package Clause"
+  val FunctionExpression: UsageType = "Function expression"
+  val NamedParameter: UsageType = "Named parameter"
+  val PrefixInterpolatedString: UsageType = "Interpolated string prefix"
+  val ParameterInPattern: UsageType = "Parameter in pattern"
+  val SelfType: UsageType = "Self type"
+  val TypeBound: UsageType = "Type bound"
+  val TypeAlias: UsageType = "Type alias"
+  val SecondaryConstructor: UsageType = "Secondary constructor"
 
   private def usageType(element: PsiElement): Option[UsageType] =
     Option(nullableUsageType(element))
@@ -115,18 +115,18 @@ object ScalaUsageTypeProvider {
       case parameter: ScParameter if isAppropriate(parameter) => CLASS_METHOD_PARAMETER_DECLARATION
       case pattern: ScPattern => patternUsageType(pattern)
       case typeElement: ScTypeElement => typeUsageType(typeElement)
-      case _: ScInterpolatedStringPartReference => prefixInterpolatedString
+      case _: ScInterpolatedStringPartReference => PrefixInterpolatedString
       case expression: ScReferenceExpression => referenceExpressionUsageType(expression)
       case expression: ScAnnotationExpr if existsAppropriate(expression.constr.reference) => ANNOTATION
-      case reference: ScThisReference if existsAppropriate(reference.reference) => thisReference
+      case reference: ScThisReference if existsAppropriate(reference.reference) => ThisReference
       case reference: ScSuperReference if existsAppropriate(reference.reference) => DELEGATE_TO_SUPER
-      case _: ScAccessModifier => accessModifier
-      case packaging: ScPackaging if existsAppropriate(packaging.reference) => packageClause
+      case _: ScAccessModifier => AccessModifier
+      case packaging: ScPackaging if existsAppropriate(packaging.reference) => PackageClause
       case assignment: ScAssignStmt if isAppropriate(assignment.getLExpression) =>
-        if (assignment.isNamedParameter) namedParameter else WRITE
-      case MethodValue(_) => functionExpression
+        if (assignment.isNamedParameter) NamedParameter else WRITE
+      case MethodValue(_) => FunctionExpression
       case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions => READ
-      case invocation: ScSelfInvocation if !isAppropriate(invocation.args.orNull) => secondaryConstructor
+      case invocation: ScSelfInvocation if !isAppropriate(invocation.args.orNull) => SecondaryConstructor
       case _ => null
     }
   }
@@ -159,10 +159,10 @@ object ScalaUsageTypeProvider {
       case classParameter: ScClassParameter if isAppropriate(classParameter.typeElement) && classParameter.isEffectiveVal =>
         CLASS_FIELD_DECLARATION
       case typedStmt: ScTypedStmt if isAppropriate(typedStmt.typeElement) =>
-        typedStatement
-      case _: ScSelfTypeElement => selfType
-      case _: ScTypeAliasDeclaration | _: ScTypeParam => typeBound
-      case _: ScTypeAliasDefinition => typeAlias
+        TypedStatement
+      case _: ScSelfTypeElement => SelfType
+      case _: ScTypeAliasDeclaration | _: ScTypeParam => TypeBound
+      case _: ScTypeAliasDefinition => TypeAlias
       case _ => null
     }
   }
