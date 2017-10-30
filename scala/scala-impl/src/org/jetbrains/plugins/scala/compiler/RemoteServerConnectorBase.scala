@@ -10,7 +10,6 @@ import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.{PathUtil, PlatformUtils}
 import org.jetbrains.jps.incremental.scala.data.SbtData
-import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 
@@ -31,8 +30,8 @@ abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[Fil
 
   private val libRoot = {
     if (ApplicationManager.getApplication.isUnitTestMode) {
-      if (PlatformUtils.isIdeaCommunity) new File("./target/plugin/Scala/lib").getAbsoluteFile
-      else new File("../../target/plugin/Scala/lib").getAbsoluteFile
+      val pluginPath = System.getProperty("plugin.path")
+      new File(pluginPath, "lib")
     }
     else new File(PathUtil.getJarPathForClass(getClass)).getParentFile
   }
