@@ -122,10 +122,6 @@
     </extensions>
 
     <actions>
-        <action id="Scala.Sbt.StartShell"
-                class="org.jetbrains.sbt.shell.action.SbtShellStartAction"
-                text="Start sbt shell"
-        />
         <action id="Scala.Sbt.RunTask"
                 class="org.jetbrains.sbt.shell.action.RunTaskAction"
                 text="Run"
@@ -161,12 +157,6 @@
                 text="Help"
                 description="Get help in sbt shell"
         />
-
-        <group>
-            <separator/>
-            <reference id="Scala.Sbt.StartShell"/>
-            <add-to-group group-id="ExternalSystemView.ActionsToolbar.LeftPanel"/>
-        </group>
 
         <group id="Scala.Sbt.TaskMenu" popup="true">
             <reference ref="RunContextGroup"/>
