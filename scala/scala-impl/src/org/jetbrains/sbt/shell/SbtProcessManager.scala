@@ -9,8 +9,8 @@ import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil
@@ -193,14 +193,14 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   def removeListener(listener: ProcessAdapter): Unit =
     acquireShellProcessHandler.removeProcessListener(listener)
 
-  /** Supply a printwriter that writes to the current process. */
+  /** Supply a PrintWriter that writes to the current process. */
   def usingWriter[T](f: PrintWriter => T): T = {
     val writer = new PrintWriter(new OutputStreamWriter(acquireShellProcessHandler.getProcessInput))
     f(writer)
   }
 
-  /** Creates the SbtShellRunner view, or focuses it if it already exists. */
-  def openShellRunner(focus: Boolean = false): SbtShellRunner = processData.synchronized {
+  /** Creates the SbtShellRunner view, and focuses it if requested. */
+  def acquireShellRunner: SbtShellRunner = processData.synchronized {
 
     val theRunner = processData match {
       case Some(ProcessData(_, runner)) if runner.getConsoleView.isRunning =>
@@ -208,8 +208,6 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
       case _ =>
         updateProcessData().runner
     }
-
-    ShellUIUtil.inUIsync(if (!SbtRunner.isInTest) theRunner.openShell(focus))
 
     theRunner
   }
@@ -222,7 +220,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   def destroyProcess(): Unit = processData.synchronized {
     processData match {
       case Some(ProcessData(handler, runner)) =>
-        runner.dispose()
+        Disposer.dispose(runner)
         handler.destroyProcess()
         processData = None
       case None => // nothing to do

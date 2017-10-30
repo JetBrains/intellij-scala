@@ -59,7 +59,7 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
     //TODO this is hacky, but sometimes 'main' gets leaked
     ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication, "ForkJoinPool")
     myComm = SbtShellCommunication.forProject(getProject)
-    myRunner = SbtProcessManager.forProject(getProject).openShellRunner()
+    myRunner = SbtProcessManager.forProject(getProject).acquireShellRunner
     myRunner.getProcessHandler.addProcessListener(logger)
   }
 

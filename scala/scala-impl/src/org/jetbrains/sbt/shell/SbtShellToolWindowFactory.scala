@@ -31,7 +31,7 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
     val pm = SbtProcessManager.forProject(project)
-    pm.openShellRunner()
+    pm.acquireShellRunner.openShell(false)
   }
 
   // don't auto-activate because starting sbt shell is super heavy weight

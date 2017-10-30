@@ -36,7 +36,9 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
   private lazy val myConsoleView: LanguageConsoleImpl =
     ShellUIUtil.inUIsync {
-      SbtShellConsoleView(project, debugConnection)
+      val cv = SbtShellConsoleView(project, debugConnection)
+      Disposer.register(this, cv)
+      cv
     }
 
   // lazy so that getProcessHandler will return something initialized when this is first accessed
@@ -138,13 +140,13 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       toolWindow.getContentManager.setSelectedContent(content, focus)
   }
 
-  def addToolWindowContent(@NotNull toolWindow: ToolWindow, @NotNull content: Content): Unit = {
+  private def addToolWindowContent(@NotNull toolWindow: ToolWindow, @NotNull content: Content): Unit = {
     val twContentManager = toolWindow.getContentManager
     twContentManager.removeAllContents(true)
     twContentManager.addContent(content)
   }
 
-  def createToolWindowContent: Content = {
+  private def createToolWindowContent: Content = {
     //Create runner UI layout
     val factory = RunnerLayoutUi.Factory.getInstance(project)
     val layoutUi = factory.create("sbt-shell-toolwindow-runner", "", "session", project)
@@ -166,10 +168,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
     content
   }
 
-  override def dispose(): Unit = {
-    myConsoleView.dispose()
-    Disposer.dispose(myConsoleView)
-  }
+  override def dispose(): Unit = {}
 
   object SbtShellRootType extends ConsoleRootType("sbt.shell", getConsoleTitle)
 
@@ -185,4 +184,3 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
     }
   }
 }
-
