@@ -29,7 +29,7 @@ object Versions {
     val latest_2_9 = "2.9.3"
     val latest_2_10 = "2.10.6"
     val latest_2_11 = "2.11.11"
-    val latest_2_12 = "2.12.3"
+    val latest_2_12 = "2.12.4"
     val latest: String = latest_2_12
 
     def binaryVersion(v: String): String =
@@ -47,7 +47,7 @@ object Versions {
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.16"
-    val latest_1_0 = "1.0.1"
+    val latest_1_0 = "1.0.3"
     val latest: String = latest_1_0
 
     def scalaVersion(v: String): String =
