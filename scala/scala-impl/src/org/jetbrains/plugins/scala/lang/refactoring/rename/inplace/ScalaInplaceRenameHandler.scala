@@ -10,7 +10,7 @@ import com.intellij.psi.util.PsiUtilBase
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
-import org.jetbrains.plugins.scala.extensions.{Both, inTransactionLater}
+import org.jetbrains.plugins.scala.extensions.{Both, callbackInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -45,7 +45,7 @@ trait ScalaInplaceRenameHandler {
     def showSubstitutePopup(title: String, positive: String, subst: => PsiNamedElement): Unit = {
       val cancel = ScalaBundle.message("rename.cancel")
       val list = JListCompatibility.createJBListFromListData(positive, cancel)
-      val callback = inTransactionLater(editor.getProject) {
+      val callback = callbackInTransaction(editor.getProject) {
         list.getSelectedValue match {
           case s: String if s == positive =>
             val file = subst.getContainingFile.getVirtualFile

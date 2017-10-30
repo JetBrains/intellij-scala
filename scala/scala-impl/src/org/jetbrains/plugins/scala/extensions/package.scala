@@ -704,8 +704,12 @@ package object extensions {
       ApplicationManager.getApplication.invokeAndWait(() => body)
     }
 
-  def inTransactionLater(disposable: Disposable)(body: => Unit): Runnable = {
+  def callbackInTransaction(disposable: Disposable)(body: => Unit): Runnable = {
     TransactionGuard.getInstance().submitTransactionLater(disposable, body)
+  }
+
+  def invokeAndWaitInTransaction(disposable: Disposable)(body: => Unit): Unit = {
+    TransactionGuard.getInstance().submitTransactionAndWait(disposable, body)
   }
 
   private def preservingControlFlow(body: => Unit) {

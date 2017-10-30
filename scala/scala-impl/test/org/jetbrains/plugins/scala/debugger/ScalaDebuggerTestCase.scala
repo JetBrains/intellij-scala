@@ -17,7 +17,7 @@ import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHand
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.{Key, Ref}
 import com.intellij.psi.PsiCodeFragment
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.EdtTestUtil
@@ -30,7 +30,6 @@ import org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert
-
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
@@ -45,37 +44,39 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   private val breakpoints: mutable.Set[(String, Int, Integer)] = mutable.Set.empty
 
   protected def runDebugger(mainClass: String = mainClassName, debug: Boolean = false)(callback: => Unit) {
-    inTransactionLater(getProject) {
-      var processHandler: ProcessHandler = null
-      if (needMake) {
-        make()
-        saveChecksums()
-      }
-      addBreakpoints()
-      val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find {
-        _.getClass == classOf[GenericDebuggerRunner]
-      }.get
-      processHandler = runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
+    if (needMake) {
+      make()
+      saveChecksums()
+    }
+    addBreakpoints()
+    val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find {
+      _.getClass == classOf[GenericDebuggerRunner]
+    }.get
+
+    val processHandler = Ref.create[ProcessHandler]
+    EdtTestUtil.runInEdtAndWait(() => {
+      val handler = runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
         override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
           val text = event.getText
           if (debug) print(text)
         }
       }, runner)
+      processHandler.set(handler)
+    })
 
 
-      try {
-        callback
-      } finally {
+    try {
+      callback
+    } finally {
 
-        EdtTestUtil.runInEdtAndWait(() => {
-          clearXBreakpoints()
-          getDebugProcess.stop(true)
-          processHandler.destroyProcess()
-        })
-      }
+      EdtTestUtil.runInEdtAndWait(() => {
+        clearXBreakpoints()
+        getDebugProcess.stop(true)
+        processHandler.get.destroyProcess()
+      })
     }
-
   }
+
 
   protected def runProcess(className: String,
                            module: Module,
@@ -122,16 +123,18 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   protected def clearBreakpoints(): Unit = breakpoints.clear()
 
   private def addBreakpoints() {
-    breakpoints.foreach {
-      case (fileName, line, ordinal) =>
-        val ioFile = new File(srcDir, fileName)
-        val file = getVirtualFile(ioFile)
-        val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
-        val properties = new JavaLineBreakpointProperties
-        properties.setLambdaOrdinal(ordinal)
-        inWriteAction {
-          xBreakpointManager.addLineBreakpoint(scalaLineBreakpointType, file.getUrl, line, properties)
-        }
+    invokeAndWaitInTransaction(getProject) {
+      breakpoints.foreach {
+        case (fileName, line, ordinal) =>
+          val ioFile = new File(srcDir, fileName)
+          val file = getVirtualFile(ioFile)
+          val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
+          val properties = new JavaLineBreakpointProperties
+          properties.setLambdaOrdinal(ordinal)
+          inWriteAction {
+            xBreakpointManager.addLineBreakpoint(scalaLineBreakpointType, file.getUrl, line, properties)
+          }
+      }
     }
   }
 
