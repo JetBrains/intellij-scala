@@ -3,10 +3,13 @@ package project.structure
 
 import java.io.{FileNotFoundException, _}
 import java.nio.charset.Charset
+import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.externalSystem.model.ExternalSystemException
+import com.intellij.openapi.externalSystem.model.task.event._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
@@ -53,7 +56,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         val messageResult: Try[String] = {
           if (useShellImport) {
             val shell = SbtShellCommunication.forProject(project)
-            dumpFromShell(shell, structureFilePath, options)
+            dumpFromShell(directory, shell, structureFilePath, options)
           }
           else dumpFromProcess(directory, structureFilePath, options: Seq[String], majorSbtVersion)
         }
@@ -80,27 +83,67 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   private val statusUpdate = (message:String) =>
     listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
 
-  private def dumpFromShell(shell: SbtShellCommunication, structureFilePath: String, options: Seq[String]): Try[String] = {
+  private def dumpFromShell(dir: File, shell: SbtShellCommunication, structureFilePath: String, options: Seq[String]): Try[String] = {
+
+    listener.onStart(id, dir.getCanonicalPath)
 
     val optString = options.mkString(" ")
     val setCmd = s"""set _root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions in Global := "$optString""""
     val cmd = s";reload; $setCmd ;*/*:dumpStructureTo $structureFilePath"
-    val output =
-      shell.command(cmd, new StringBuilder, messageAggregator(id, statusUpdate), showShell = true)
+
+    val taskDescriptor = new TaskOperationDescriptorImpl("project structure dump", System.currentTimeMillis(), "project-structure-dump")
+    val aggregator = esMessageAggregator(id, s"dump:${UUID.randomUUID()}", taskDescriptor, shell, listener)
+    val output = shell.command(cmd, new StringBuilder, aggregator, showShell = false)
 
     Await.ready(output, Duration.Inf)
+
     output.value.get.map(_.toString())
   }
 
   /** Aggregates (messages, warnings) and updates external system listener. */
-  private def messageAggregator(id: ExternalSystemTaskId, statusUpdate: String=>Unit): EventAggregator[StringBuilder] = {
+  private def messageAggregator(statusUpdate: String=>Unit): EventAggregator[StringBuilder] = {
     case (m,TaskStart) => m
     case (m,TaskComplete) => m
     case (messages, Output(message)) =>
       val text = message.trim
       if (text.nonEmpty) statusUpdate(text)
-      messages.append("\n").append(text)
+      messages.append(System.lineSeparator).append(text)
+  }
+
+  private def esMessageAggregator(id: ExternalSystemTaskId,
+                                  dumpTaskId: String,
+                                  taskDescriptor: TaskOperationDescriptor,
+                                  shell: SbtShellCommunication,
+                                  notifications: ExternalSystemTaskNotificationListener): EventAggregator[StringBuilder] = {
+    case (messages, TaskStart) =>
+      val startEvent = new ExternalSystemStartEventImpl[TaskOperationDescriptor](dumpTaskId, null, taskDescriptor)
+      val event = new ExternalSystemTaskExecutionEvent(id, startEvent)
+      notifications.onStatusChange(event)
       messages
+    case (messages, TaskComplete) =>
+      val endEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
+        dumpTaskId, null, taskDescriptor,
+        new SuccessResultImpl(0, System.currentTimeMillis(), true)
+      )
+      val event = new ExternalSystemTaskExecutionEvent(id, endEvent)
+      notifications.onStatusChange(event)
+      messages
+    case (messages, Output(text)) =>
+      if (text.contains("(i)gnore")) {
+        val ex = new ExternalSystemException("Error importing sbt project. Please check sbt shell output.")
+        shell.send("i" + System.lineSeparator)
+        listener.onFailure(id, ex)
+      } else {
+
+        val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
+          dumpTaskId, null, taskDescriptor, messages.size, -1, "lines"
+        )
+        val event = new ExternalSystemTaskExecutionEvent(id, progressEvent)
+
+        notifications.onStatusChange(event)
+        notifications.onTaskOutput(id, text, true)
+      }
+      messages.append(System.lineSeparator).append(text.trim)
   }
 
   private def shellImportSupported(sbtVersion: Version): Boolean =
@@ -158,7 +201,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
 
     def update(textRaw: String): Unit = {
       val text = textRaw.trim
-      output.append("\n").append(text)
+      output.append(System.lineSeparator).append(text)
       if (text.nonEmpty) statusUpdate(text)
     }
 
