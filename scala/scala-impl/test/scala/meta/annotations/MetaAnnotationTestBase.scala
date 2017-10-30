@@ -40,7 +40,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 
   import MetaAnnotationTestBase._
 
-  override implicit lazy val project: Project = getProject
+  override implicit def project: Project = getProject
   override implicit protected def module: Module = metaModule
   var metaModule: Module = _
   override def rootProject = getProject
@@ -62,7 +62,6 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   override def setUp(): Unit = {
     super.setUp()
 
-    val project = getProject
     project.getMessageBus
       .connect(getTestRootDisposable)
       .subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
