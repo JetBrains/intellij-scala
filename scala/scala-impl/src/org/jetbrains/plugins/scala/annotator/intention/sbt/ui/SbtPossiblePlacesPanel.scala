@@ -104,7 +104,7 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
 
   private class PlacesCellRenderer extends ColoredListCellRenderer[DependencyPlaceInfo] {
     override def customizeCellRenderer(list: JList[_ <: DependencyPlaceInfo], info: DependencyPlaceInfo, index: Int, selected: Boolean, hasFocus: Boolean): Unit = {
-      setIcon(AllIcons.Nodes.PpFile)
+      setIcon(org.jetbrains.plugins.scala.icons.Icons.SBT_FILE)
       append(info.path + ":", SimpleTextAttributes.REGULAR_ATTRIBUTES)
       append(info.line.toString, getGrayAttributes(selected))
       if (info.affectedProjects.nonEmpty)
