@@ -18,7 +18,7 @@ class SbtPossiblePlacesStep(wizard: SbtArtifactSearchWizard, project: Project, f
 
   override def _init(): Unit = {
     wizard.setTitle("Place to add dependency")
-    wizard.setSize(JBUI.scale(800), JBUI.scale(7950))
+    wizard.setSize(JBUI.scale(800), JBUI.scale(750))
     panel.myResultList.clearSelection()
     extensions.inWriteAction {
       panel.myCurEditor.getDocument.setText("// Select a place from the list above to enable this preview")
