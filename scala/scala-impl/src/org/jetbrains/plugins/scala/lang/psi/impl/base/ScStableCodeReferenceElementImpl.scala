@@ -52,7 +52,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
   }
 
   def getVariants: Array[Object] = {
-    val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
+    val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
     doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
       case res: ScalaResolveResult =>
         val qualifier = res.fromType.getOrElse(Nothing)

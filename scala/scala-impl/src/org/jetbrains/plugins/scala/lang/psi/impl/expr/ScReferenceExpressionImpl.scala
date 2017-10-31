@@ -143,7 +143,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     * Important! Do not change types of Object values, this can cause errors due to bad architecture.
     */
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
-    val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
+    val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
 
     getSimpleVariants(implicits, filterNotNamedVariants).flatMap {
       case res: ScalaResolveResult =>

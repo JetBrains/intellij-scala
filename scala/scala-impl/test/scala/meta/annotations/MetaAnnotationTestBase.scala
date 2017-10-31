@@ -20,10 +20,10 @@ import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.debugger.{CompilationCache, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -131,7 +131,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   protected def checkExpansionEquals(code: String, expectedExpansion: String): Unit = {
     import scala.meta.intellij.psiExt._
     myFixture.configureByText(s"Usage${getTestName(false)}.scala", code)
-    val holder = ScalaPsiUtil.getParentOfType(elementAtCaret, classOf[ScAnnotationsHolder]).asInstanceOf[ScAnnotationsHolder]
+    val holder = elementAtCaret.parentOfType(classOf[ScAnnotationsHolder], strict = false).orNull
     holder.getMetaExpansion match {
       case Right(tree) => Assert.assertEquals(expectedExpansion, tree.toString())
       case Left(reason) if reason.nonEmpty => Assert.fail(reason)

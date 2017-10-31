@@ -9,7 +9,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -55,12 +55,11 @@ class TypeAliasUsagesSearcher extends QueryExecutorBase[PsiReference, References
 
   private class MyProcessor(myTarget: PsiElement, @Nullable prefix: String, mySession: SearchSession) extends RequestResultProcessor(myTarget, prefix) {
     def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = inReadAction {
-      ScalaPsiUtil.getParentOfType(element, classOf[ScConstructor]) match {
-        case cons: ScConstructor if PsiTreeUtil.isAncestor(cons.typeElement, element, false) =>
+      element.parentOfType(classOf[ScConstructor], strict = false) match {
+        case Some(cons) if PsiTreeUtil.isAncestor(cons.typeElement, element, false) =>
           element match {
             case resRef: ScReferenceElement => resRef.bind().flatMap(_.parentElement) match {
-              case Some(`myTarget`) =>
-                consumer.process(resRef)
+              case Some(`myTarget`) => consumer.process(resRef)
               case _ => true
             }
             case _ => true

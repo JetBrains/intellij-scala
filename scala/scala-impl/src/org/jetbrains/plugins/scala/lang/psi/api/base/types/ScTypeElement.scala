@@ -5,7 +5,7 @@ package api
 package base
 package types
 
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -55,17 +55,10 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
    *
    * This in turn is used in the `treeWalkUp` in [[org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl.processQualifier]]
    */
-  private def refreshAnalog() {
-    ScalaPsiUtil.getParentOfType(this, classOf[ScTypeParam]) match {
-      case tp: ScTypeParam =>
-        ScalaPsiUtil.getParentOfType(tp, classOf[ScMethodLike]) match {
-          case ml: ScMethodLike =>
-            ml.effectiveParameterClauses
-          case _ =>
-        }
-      case _ =>
-    }
-  }
+  private def refreshAnalog(): Unit =
+    this.parentOfType(classOf[ScTypeParam], strict = false)
+      .flatMap(_.parentOfType(classOf[ScMethodLike], strict = false))
+      .foreach(_.effectiveParameterClauses)
 
   @volatile
   private[this] var _analog: Option[ScTypeElement] = None

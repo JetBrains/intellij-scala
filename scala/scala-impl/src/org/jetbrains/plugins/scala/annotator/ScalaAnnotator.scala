@@ -1048,7 +1048,7 @@ abstract class ScalaAnnotator extends Annotator
 
   private def checkUnboundUnderscore(under: ScUnderscoreSection, holder: AnnotationHolder) {
     if (under.getText == "_") {
-      ScalaPsiUtil.getParentOfType(under, classOf[ScVariableDefinition]) match {
+      under.parentOfType(classOf[ScVariableDefinition], strict = false).foreach {
         case varDef @ ScVariableDefinition.expr(_) if varDef.expr.contains(under) =>
           if (varDef.containingClass == null) {
             val error = ScalaBundle.message("local.variables.must.be.initialized")

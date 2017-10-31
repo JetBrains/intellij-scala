@@ -1037,12 +1037,6 @@ object ScalaPsiUtil {
     getMethodsForName(clazz, "update")
   }
 
-  /**
-    * For one classOf use PsiTreeUtil.getParenteOfType instead
-    */
-  def getParentOfType(element: PsiElement, clazz: Class[_ <: PsiElement]): PsiElement =
-    PsiTreeUtil.getParentOfType(element, clazz, false)
-
   @tailrec
   def getParentWithProperty(element: PsiElement, strict: Boolean, property: PsiElement => Boolean): Option[PsiElement] = {
     if (element == null) None

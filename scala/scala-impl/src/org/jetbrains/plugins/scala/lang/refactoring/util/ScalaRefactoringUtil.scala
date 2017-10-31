@@ -880,18 +880,18 @@ object ScalaRefactoringUtil {
     }
 
   def checkCanBeIntroduced(expr: ScExpression): Option[String] = {
-    ScalaPsiUtil.getParentOfType(expr, classOf[ScConstrBlock]) match {
-      case block: ScConstrBlock =>
-        for {
-          selfInv <- block.selfInvocation
-          args <- selfInv.args
-          if args.isAncestorOf(expr)
-        } return Some(ScalaBundle.message("cannot.refactor.arg.in.self.invocation.of.constructor"))
-      case _ =>
+    val exists1 = expr.parentOfType(classOf[ScConstrBlock], strict = false)
+      .flatMap(_.selfInvocation)
+      .flatMap(_.args)
+      .exists(_.isAncestorOf(expr))
+
+    if (exists1) {
+      return Some(ScalaBundle.message("cannot.refactor.arg.in.self.invocation.of.constructor"))
     }
 
-    val guard: ScGuard = getParentOfType(expr, classOf[ScGuard])
-    if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) {
+    val exists2 = expr.parentOfType(classOf[ScGuard], strict = false)
+      .exists(_.getParent.isInstanceOf[ScCaseClause])
+    if (exists2) {
       return Some(ScalaBundle.message("refactoring.is.not.supported.in.guard"))
     }
 
