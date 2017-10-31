@@ -196,10 +196,10 @@ lazy val sbtLaunchTestDownloader =
     ideSkipProject := true
   )
 
-lazy val jmhBenchmarks =
-  newProject("benchmarks", file("scala/benchmarks"))
-    .dependsOn(scalaImpl % "test->test")
-    .enablePlugins(JmhPlugin)
+//lazy val jmhBenchmarks =
+//  newProject("benchmarks", file("scala/benchmarks"))
+//    .dependsOn(scalaImpl % "test->test")
+//    .enablePlugins(JmhPlugin)
 
 // Testing keys and settings
 import Common.TestCategory._
