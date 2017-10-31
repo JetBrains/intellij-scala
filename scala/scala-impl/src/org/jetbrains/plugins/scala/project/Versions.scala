@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.project
 
+import java.net.{HttpURLConnection, URL}
+
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.plugins.hydra.compiler.HydraCredentialsManager
 import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
@@ -53,11 +55,15 @@ object Versions  {
     loadLinesFrom(url).map { lines => lines.collect(filter) }
   }
 
-  private def loadLinesFrom(url: String): Try[Seq[String]] = {
+  private def loadHydraVersionsFrom(url: String, filter: PartialFunction[String, String]): Try[Seq[String]] = {
+    val loadedLines = loadLinesFrom(url){ connection => connection.setRequestProperty("Authorization", "Basic " + HydraCredentialsManager.getBasicAuthEncoding()) }
+    loadedLines.map { lines => lines.collect(filter) }
+  }
+
+  private def loadLinesFrom(url: String)(implicit prepareConnection: HttpURLConnection => Unit = _ => ()): Try[Seq[String]] = {
     Try(HttpConfigurable.getInstance().openHttpConnection(url)).map { connection =>
       try {
-        if(url.contains(HydraApplicationSettings.getInstance().getHydraRepositoryUrl))
-          connection.setRequestProperty("Authorization", "Basic " + HydraCredentialsManager.getBasicAuthEncoding())
+        prepareConnection(connection)
         Source.fromInputStream(connection.getInputStream).getLines().toVector
       } finally {
         connection.disconnect()
@@ -67,13 +73,12 @@ object Versions  {
 
   private def loadVersionsForHydra() = {
     val entity = Entity.Hydra
-    val repoUrl = HydraApplicationSettings.getInstance().getHydraRepositoryUrl + entity.url
-
+    val repoUrl = new URL(HydraApplicationSettings.getInstance().getHydraRepositoryUrl, entity.url).toString
     def downloadHydraVersions(url: String): Seq[String] =
-      loadVersionsFrom(url, { case entity.pattern(number) => number }).getOrElse(entity.hardcodedVersions).map(Version(_))
+      loadHydraVersionsFrom(url, { case entity.pattern(number) => number }).getOrElse(entity.hardcodedVersions).map(Version(_))
         .filter(_ >= entity.minVersion).map(_.presentation)
 
-    loadVersionsFrom(repoUrl, {
+    loadHydraVersionsFrom(repoUrl, {
       case entity.pattern(number) => number
     }).map { versions =>
       versions.flatMap(version => downloadHydraVersions(s"""$repoUrl$version/""")).distinct
@@ -105,7 +110,7 @@ object Versions  {
       Version("0.2.0"),
       Seq("0.2.0-RC1"))
 
-    val Hydra = Entity("/ivy-releases/com.triplequote/",
+    val Hydra = Entity("ivy-releases/com.triplequote/",
       ".+>(.*\\d+\\.\\d+\\.\\d+.*)/<.*".r,
       Version("0.9.5"),
       Seq("0.9.5")

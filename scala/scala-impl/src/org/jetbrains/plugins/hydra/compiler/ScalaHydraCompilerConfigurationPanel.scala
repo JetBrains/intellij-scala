@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.hydra.compiler
 
 import java.awt.event.{ActionEvent, FocusEvent, FocusListener}
+import java.net.URL
 import javax.swing.event.DocumentEvent
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
@@ -12,7 +13,7 @@ import org.jetbrains.plugins.hydra.caches.HydraArtifactsCache
 import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
 import org.jetbrains.plugins.scala.extensions
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 /**
   * @author Maris Alexandru
@@ -23,7 +24,7 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
 
   private val documentAdapter = new DocumentAdapter {
     override def textChanged(documentEvent: DocumentEvent): Unit =
-      downloadButton.setEnabled(getUsername.nonEmpty && getPassword.nonEmpty && getHydraRepository.nonEmpty)
+      downloadButton.setEnabled(getUsername.nonEmpty && getPassword.nonEmpty && getHydraRepository.nonEmpty && getHydraRepositoryRealm.nonEmpty)
   }
 
   private val focusListener = new FocusListener {
@@ -32,21 +33,36 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
     override def focusLost(e: FocusEvent): Unit = if (getUsername.nonEmpty && getPassword.nonEmpty &&
       (HydraCredentialsManager.getLogin != getUsername ||
         HydraCredentialsManager.getPlainPassword != getPassword ||
-        hydraGlobalSettings.hydraRepositoryUrl != getHydraRepository ||
         hydraGlobalSettings.hydraRepositoryRealm != getHydraRepositoryRealm)) {
 
       HydraCredentialsManager.setCredentials(getUsername, getPassword)
-      hydraGlobalSettings.hydraRepositoryUrl = getHydraRepository
       hydraVersionComboBox.setItems(HydraVersions.downloadHydraVersions)
       hydraVersionComboBox.setSelectedItem(settings.hydraVersion)
+    }
+  }
+
+  private val urlFocusListener = new FocusListener {
+    override def focusGained(e: FocusEvent): Unit = {}
+
+    override def focusLost(e: FocusEvent): Unit = if (hydraGlobalSettings.getHydraRepositoryUrl.toString != getHydraRepository) {
+      Try(new URL(getHydraRepository)) match {
+        case Success(_) => {
+          hydraGlobalSettings.setHydraRepositopryUrl(getHydraRepository)
+          setHydraRepository(hydraGlobalSettings.getHydraRepositoryUrl.toString)
+          hydraVersionComboBox.setItems(HydraVersions.downloadHydraVersions)
+          hydraVersionComboBox.setSelectedItem(settings.hydraVersion)
+        }
+        case Failure(_) => Messages.showErrorDialog(contentPanel, s"$getHydraRepository is not valid. Default URL will be used.", "URL not valid")
+      }
+
     }
   }
 
   hydraGlobalSettings.getState
   setDefaultHydraVersion
 
-  hydraRepository.setText(hydraGlobalSettings.hydraRepositoryUrl)
-  hydraRepository.addFocusListener(focusListener)
+  hydraRepository.setText(hydraGlobalSettings.getHydraRepositoryUrl.toString)
+  hydraRepository.addFocusListener(urlFocusListener)
   hydraRepository.getDocument.addDocumentListener(documentAdapter)
 
   realmTextField.setText(hydraGlobalSettings.hydraRepositoryRealm)
