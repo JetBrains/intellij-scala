@@ -12,6 +12,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.InsideAsync
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -166,12 +167,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     def localFunName() = {
       val transformed = NameTransformer.encode(fun.name)
       fun match {
-        case ScalaPositionManager.InsideAsync(call) =>
-          val containingFun = PsiTreeUtil.getParentOfType(fun, classOf[ScFunctionDefinition], true)
-          if (containingFun != null && call.isAncestorOf(containingFun))
-            transformed
-          else
-            transformed + "$macro"
+        case InsideAsync(call) if !fun.parentOfType(classOf[ScFunctionDefinition]).exists(call.isAncestorOf(_)) =>
+          transformed + "$macro"
         case _ => transformed
       }
     }
@@ -719,7 +716,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case _: ScGenerator | _: ScEnumerator if position != null && isNotUsedEnumerator(named, position.getElementAt) =>
         throw EvaluationException(ScalaBundle.message("not.used.from.for.statement", name))
       case LazyVal(_) => localLazyValEvaluator(named)
-      case ScalaPositionManager.InsideAsync(_) =>
+      case InsideAsync(_) =>
         val simpleLocal = new ScalaLocalVariableEvaluator(name, fileName)
         val fieldMacro = ScalaFieldEvaluator(new ScalaThisEvaluator(), name + "$macro")
         ScalaDuplexEvaluator(simpleLocal, fieldMacro)
@@ -1482,7 +1479,7 @@ object ScalaEvaluatorBuilderUtil {
         case b: ScBlock if b.isAnonymousFunction => false //handled in isGenerateAnonfunSimple
         case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) || ScalaPsiUtil.isArgumentOfFunctionType(e) => true
         case ScalaPsiUtil.MethodValue(_) => true
-        case Both(ChildOf(argExprs: ScArgumentExprList), ScalaPositionManager.InsideAsync(call))
+        case Both(ChildOf(argExprs: ScArgumentExprList), InsideAsync(call))
           if call.args == argExprs => true
         case _ => false
       }

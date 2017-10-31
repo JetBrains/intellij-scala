@@ -6,11 +6,12 @@ import javax.swing.Icon
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor
 import com.intellij.lang.Language
 import com.intellij.openapi.module.Module
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import com.intellij.testIntegration.JavaTestFramework
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.sbt.project.modifier.SimpleBuildFileModifier
@@ -40,20 +41,19 @@ abstract class AbstractTestFramework extends JavaTestFramework {
   def findSetUpMethod(clazz: PsiClass): PsiMethod = null
 
   def isTestClass(clazz: PsiClass, canBePotential: Boolean): Boolean = {
-    val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(clazz match {
+    val newClazz = clazz match {
       case wrapper: PsiClassWrapper => wrapper.definition
       case _ => clazz
-    }, classOf[ScTypeDefinition], false)
-    if (parent == null) return false
+    }
+
+    val parent = newClazz.parentOfType(classOf[ScTypeDefinition], strict = false)
+      .getOrElse(return false)
 
     val elementScope = ElementScope(clazz.getProject)
 
     elementScope.getCachedClass(getMarkerClassFQName).isDefined &&
-      getSuitePaths.flatMap {
-        elementScope.getCachedClass
-      }.exists {
-        ScalaPsiUtil.isInheritorDeep(parent, _)
-      }
+      getSuitePaths.flatMap(elementScope.getCachedClass)
+        .exists(isInheritorDeep(parent, _))
   }
 
   override def getLanguage: Language = ScalaLanguage.INSTANCE

@@ -20,7 +20,7 @@ import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
 import com.intellij.util.{ArrayFactory, Processor}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
@@ -267,6 +267,11 @@ package object extensions {
 
     def parent: Option[PsiElement] = Option(element.getParent)
 
+    def parentOfType[E <: PsiElement](clazz: Class[E], strict: Boolean = true): Option[E] =
+      Option(getParentOfType(element, clazz, strict))
+
+    def isAncestorOf(otherElement: PsiElement): Boolean = isAncestor(element, otherElement, true)
+
     def parents: Iterator[PsiElement] = new ParentsIterator(element)
 
     def withParents: Iterator[PsiElement] = new ParentsIterator(element, strict = false)
@@ -295,8 +300,6 @@ package object extensions {
     def nextSiblings: Iterator[PsiElement] = new NextSiblignsIterator(element)
 
     def nextSibilingsWithSelf: Iterator[PsiElement] = Iterator(element) ++ nextSiblings
-
-    def isAncestorOf(e: PsiElement): Boolean = PsiTreeUtil.isAncestor(element, e, true)
 
     def contexts: Iterator[PsiElement] = new ContextsIterator(element)
 

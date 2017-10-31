@@ -22,7 +22,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOfType}
+import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOfType, isAncestor}
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypeParametersOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -1099,7 +1099,7 @@ object ScalaRefactoringUtil {
         case _ => false
       }
 
-      if (funDef != null && PsiTreeUtil.isAncestor(candidate, funDef, true) && oneExprBody(funDef))
+      if (funDef != null && isAncestor(candidate, funDef, true) && oneExprBody(funDef))
         funDef.body.get
       else if (isCaseClausesBlock) container(candidate.getContext, file)
       else candidate
@@ -1137,18 +1137,12 @@ object ScalaRefactoringUtil {
       case _ => ScalaBundle.message("cannot.extract.empty.message").toOption
     }
 
-    def hasOutsideUsages(elem: PsiElement): Boolean = {
-      val scope = new LocalSearchScope(PsiTreeUtil.getParentOfType(elem, classOf[ScControlFlowOwner], true))
-      val refs = ReferencesSearch.search(elem, scope).findAll()
-      import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-      for {
-        ref <- refs.asScala
-        if !elements.exists(PsiTreeUtil.isAncestor(_, ref.getElement, false))
-      } {
-        return true
-      }
-      false
-    }
+    def hasOutsideUsages(elem: PsiElement): Boolean =
+      !elem.parentOfType(classOf[ScConstructorOwner])
+        .map(new LocalSearchScope(_)).toSeq
+        .flatMap(scope => ReferencesSearch.search(elem, scope).findAll().asScala)
+        .map(_.getElement)
+        .forall(referenced => elements.exists(isAncestor(_, referenced, false)))
 
     val messages = elements.flatMap(errors).distinct
     if (messages.nonEmpty) {

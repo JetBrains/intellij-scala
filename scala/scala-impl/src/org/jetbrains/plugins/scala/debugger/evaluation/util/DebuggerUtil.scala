@@ -535,15 +535,14 @@ object DebuggerUtil {
   }
 
   @tailrec
-  def isLocalClass(td: PsiClass): Boolean = {
-    td.getParent match {
-      case _: ScTemplateBody =>
-        val parent = PsiTreeUtil.getParentOfType(td, classOf[PsiClass], true)
-        if (parent == null || parent.isInstanceOf[ScNewTemplateDefinition]) return true
-        isLocalClass(parent)
-      case _: ScPackaging | _: ScalaFile => false
-      case _ => true
-    }
+  def isLocalClass(td: PsiClass): Boolean = td.getParent match {
+    case _: ScTemplateBody =>
+      td.parentOfType(classOf[PsiClass]) match {
+        case Some(_: ScNewTemplateDefinition) | None => true
+        case Some(clazz) => isLocalClass(clazz)
+      }
+    case _: ScPackaging | _: ScalaFile => false
+    case _ => true
   }
 
   def getContainingMethod(elem: PsiElement): Option[PsiElement] = {

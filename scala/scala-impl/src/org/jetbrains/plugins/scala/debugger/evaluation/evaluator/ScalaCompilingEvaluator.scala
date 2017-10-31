@@ -15,7 +15,6 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation._
@@ -243,9 +242,10 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
       case (stmt: ScBlockStatement) childOf (funDef: ScFunctionDefinition) if funDef.body.contains(stmt) => (stmt, funDef)
       case (stmt: ScBlockStatement) childOf (nonExpr: PsiElement) => (stmt, nonExpr)
       case _ =>
-        val blockStmt = PsiTreeUtil.getParentOfType(elem, classOf[ScBlockStatement], true)
-        if (blockStmt == null) throw EvaluationException("Could not compile local class in this context")
-        else findAnchorAndParent(blockStmt)
+        elem.parentOfType(classOf[ScBlockStatement]) match {
+          case Some(blockStatement) => findAnchorAndParent(blockStatement)
+          case _ => throw EvaluationException("Could not compile local class in this context")
+        }
     }
 
     var (prevParent, parent) = findAnchorAndParent(context)
