@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 
 /**
@@ -59,11 +58,10 @@ abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHand
   }
 
   protected def anchorForNewDeclaration(expr: ScExpression, occurrences: Seq[TextRange], aClass: ScTemplateDefinition): PsiElement = {
-    val commonParent = ScalaRefactoringUtil.commonParent(aClass.getContainingFile, occurrences)
     val firstOccOffset = occurrences.map(_.getStartOffset).min
-    val anchor = ScalaRefactoringUtil.statementsAndMembersInClass(aClass).find(_.getTextRange.getEndOffset >= firstOccOffset)
+    val anchor = statementsAndMembersInClass(aClass).find(_.getTextRange.getEndOffset >= firstOccOffset)
     anchor.getOrElse {
-      if (PsiTreeUtil.isAncestor(aClass.extendsBlock.templateBody.orNull, commonParent, false)) null
+      if (PsiTreeUtil.isAncestor(aClass.extendsBlock.templateBody.orNull, commonParent(aClass.getContainingFile, occurrences), false)) null
       else {
         aClass.extendsBlock match {
           case ScExtendsBlock.EarlyDefinitions(earlyDef) => earlyDef.lastChild.orNull
@@ -77,18 +75,20 @@ abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHand
 object ScalaIntroduceFieldHandlerBase {
 
   def canBeInitializedInDeclaration(expr: ScExpression, aClass: ScTemplateDefinition): Boolean = {
-    val stmtsAndMmbrs = ScalaRefactoringUtil.statementsAndMembersInClass(aClass)
+    val stmtsAndMmbrs = statementsAndMembersInClass(aClass)
     expr.withParentsInFile
             .find(stmtsAndMmbrs.contains(_))
-            .forall(ScalaRefactoringUtil.checkForwardReferences(expr, _))
+      .forall(checkForwardReferences(expr, _))
   }
 
   def canBeInitInLocalScope[T <: PsiElement](ifc: IntroduceFieldContext[T], replaceAll: Boolean): Boolean = {
     val occurrences = if (replaceAll) ifc.occurrences else Seq(ifc.element.getTextRange)
-    val parExpr: ScExpression = ScalaRefactoringUtil.findParentExpr(ScalaRefactoringUtil.commonParent(ifc.file, occurrences))
-    val container = ScalaRefactoringUtil.container(parExpr, ifc.file)
-    val stmtsAndMmbrs = ScalaRefactoringUtil.statementsAndMembersInClass(ifc.aClass)
-    val containerIsLocal = container.withParentsInFile.exists(stmtsAndMmbrs.contains(_))
+    val parExpr: ScExpression = findParentExpr(commonParent(ifc.file, occurrences))
+    val stmtsAndMmbrs = statementsAndMembersInClass(ifc.aClass)
+    val containerIsLocal = container(parExpr).getOrElse(ifc.file)
+      .withParentsInFile
+      .exists(stmtsAndMmbrs.contains(_))
+
     if (!containerIsLocal) false
     else {
       ifc.element match {
@@ -100,18 +100,17 @@ object ScalaIntroduceFieldHandlerBase {
 
   def anchorForInitializer(occurrences: Seq[TextRange], file: PsiFile): Option[PsiElement] = {
     var firstRange = occurrences.head
-    val commonParent = ScalaRefactoringUtil.commonParent(file, occurrences)
 
-    val parExpr = ScalaRefactoringUtil.findParentExpr(commonParent)
+    val parExpr = findParentExpr(commonParent(file, occurrences))
     if (parExpr == null) return None
-    val container: PsiElement = ScalaRefactoringUtil.container(parExpr, file)
-    val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, ScalaRefactoringUtil.nextParent(parExpr, file))
+
+    val isNotBlock = !parExpr.isInstanceOf[ScBlock]
     val parent =
-      if (needBraces) {
+      if (isNotBlock && needBraces(parExpr, nextParent(parExpr, file))) {
         firstRange = firstRange.shiftRight(1)
         parExpr.replaceExpression(createExpressionFromText(s"{${parExpr.getText}}")(file.getManager),
           removeParenthesis = false)
-      } else container
+      } else container(parExpr).getOrElse(file)
     if (parent == null) None
     else parent.getChildren.find(_.getTextRange.contains(firstRange))
   }

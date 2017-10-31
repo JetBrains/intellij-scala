@@ -20,7 +20,7 @@ import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
+import com.intellij.psi.util.PsiTreeUtil.{getNonStrictParentOfType, getParentOfType, isAncestor}
 import com.intellij.util.{ArrayFactory, Processor}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
@@ -269,6 +269,12 @@ package object extensions {
 
     def parentOfType[E <: PsiElement](clazz: Class[E], strict: Boolean = true): Option[E] =
       Option(getParentOfType(element, clazz, strict))
+
+    def parentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
+      Option(getParentOfType(element, classes: _*))
+
+    def nonStrictParentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
+      Option(getNonStrictParentOfType(element, classes: _*))
 
     def isAncestorOf(otherElement: PsiElement): Boolean = isAncestor(element, otherElement, true)
 

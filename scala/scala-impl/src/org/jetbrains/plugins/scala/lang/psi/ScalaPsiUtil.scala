@@ -1040,28 +1040,8 @@ object ScalaPsiUtil {
   /**
     * For one classOf use PsiTreeUtil.getParenteOfType instead
     */
-  def getParentOfType(element: PsiElement, clazz: Class[_ <: PsiElement]): PsiElement = {
-    getParentOfType(element, false, clazz)
-  }
-
-  /**
-    * For one classOf use PsiTreeUtil.getParenteOfType instead
-    */
-  def getParentOfType(element: PsiElement, classes: Class[_ <: PsiElement]*): PsiElement = {
-    getParentOfType(element, false, classes: _*)
-  }
-
-  /**
-    * For one classOf use PsiTreeUtil.getParenteOfType instead
-    */
-  def getParentOfType(element: PsiElement, strict: Boolean, classes: Class[_ <: PsiElement]*): PsiElement = {
-    var el: PsiElement = if (!strict) element else {
-      if (element == null) return null
-      element.getParent
-    }
-    while (el != null && !classes.exists(_.isInstance(el))) el = el.getParent
-    el
-  }
+  def getParentOfType(element: PsiElement, clazz: Class[_ <: PsiElement]): PsiElement =
+    PsiTreeUtil.getParentOfType(element, clazz, false)
 
   @tailrec
   def getParentWithProperty(element: PsiElement, strict: Boolean, property: PsiElement => Boolean): Option[PsiElement] = {

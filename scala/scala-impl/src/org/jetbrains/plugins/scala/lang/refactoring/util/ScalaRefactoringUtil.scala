@@ -1079,32 +1079,21 @@ object ScalaRefactoringUtil {
   }
 
   @tailrec
-  def container(element: PsiElement, file: PsiFile): PsiElement = {
-    def oneExprBody(fun: ScFunctionDefinition): Boolean = fun.body match {
-      case Some(_: ScBlock) => false
-      case Some(_: ScNewTemplateDefinition) => false
-      case Some(_) => true
-      case None => false
+  def container(element: PsiElement): Option[PsiElement] = if (element != null) {
+    val maybeFunction = element.parentOfType(classOf[ScFunctionDefinition])
+    val maybeBody = maybeFunction.flatMap(_.body).filter {
+      case _: ScBlock |
+           _: ScNewTemplateDefinition => false
+      case _ => true
     }
 
-    if (element == null) file
-    else {
-      val candidate = ScalaPsiUtil.getParentOfType(element, false, classOf[ScalaFile], classOf[ScBlock],
-        classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
-
-      val funDef = getParentOfType(element, classOf[ScFunctionDefinition])
-
-      val isCaseClausesBlock = candidate match {
-        case b: ScBlock if b.hasCaseClauses => true
-        case _ => false
-      }
-
-      if (funDef != null && isAncestor(candidate, funDef, true) && oneExprBody(funDef))
-        funDef.body.get
-      else if (isCaseClausesBlock) container(candidate.getContext, file)
-      else candidate
+    val classes = Seq(classOf[ScalaFile], classOf[ScBlock], classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
+    element.nonStrictParentOfType(classes) match {
+      case Some(candidate) if maybeBody.isDefined && candidate.isAncestorOf(maybeFunction.get) => maybeBody
+      case Some(block: ScBlock) if block.hasCaseClauses => container(block.getContext)
+      case maybeCandidate => maybeCandidate
     }
-  }
+  } else None
 
   def inSuperConstructor(element: PsiElement, aClass: ScTemplateDefinition): Boolean = {
     aClass.extendsBlock.templateParents match {

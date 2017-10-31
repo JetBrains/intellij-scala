@@ -26,6 +26,7 @@ import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
 import com.intellij.ui.NonFocusableCheckBox
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScExpression}
@@ -57,15 +58,17 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
 
   implicit def projectContext: ProjectContext = project
 
+  import ScalaInplaceVariableIntroducer._
+
   private var myVarCheckbox: JCheckBox = _
   private var mySpecifyTypeChb: JCheckBox = _
   private var myDeclarationStartOffset: Int = 0
-  private val newDeclaration = ScalaPsiUtil.getParentOfType(namedElement, classOf[ScEnumerator], classOf[ScDeclaredElementsHolder])
+  private val newDeclaration = findDeclaration(namedElement)
   private var myCheckIdentifierListener: Option[DocumentListener] = None
   private val myFile: PsiFile = namedElement.getContainingFile
   private val myBalloonPanel: JPanel = new JPanel()
   private var nameIsValid: Boolean = true
-  private val isEnumerator: Boolean = newDeclaration.isInstanceOf[ScEnumerator]
+  private val isEnumerator: Boolean = newDeclaration.exists(_.isInstanceOf[ScEnumerator])
   private val initialName = ScalaNamesUtil.scalaName(namedElement)
 
   private val myLabel = new JLabel()
@@ -74,10 +77,9 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
   private val myChbPanel = new JPanel()
   private val typePanel = new JPanel()
 
-  private val needTypeDefault: Boolean =
-    ScalaInplaceVariableIntroducer.needsTypeAnnotation(namedElement, expr, forceInferType)
+  private val needTypeDefault: Boolean = needsTypeAnnotation(namedElement, expr, forceInferType)
 
-  setDeclaration(newDeclaration)
+  newDeclaration.foreach(setDeclaration)
 
   private def checkIdentifierListener(): DocumentListener = new DocumentListener {
     override def documentChanged(e: DocumentEvent): Unit = {
@@ -87,10 +89,11 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
       else {
         val input = myCaretRangeMarker.getDocument.getText(range)
         val numberOfSpaces = input.lastIndexOf(' ') + 1
-        val declaration = findDeclaration(range.getStartOffset + numberOfSpaces)
-        val named: Option[ScNamedElement] = namedElement(declaration)
+        val maybeDeclaration = findDeclarationAt(range.getStartOffset + numberOfSpaces)
+
+        val named: Option[ScNamedElement] = namedElement(maybeDeclaration)
         if (named.isDefined) {
-          setDeclaration(declaration)
+          maybeDeclaration.foreach(setDeclaration)
           if (nameIsValid != (named.isDefined && isIdentifier(input.trim, myFile.getLanguage))) {
             nameIsValid = !nameIsValid
           }
@@ -103,19 +106,17 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
     }
   }
 
-  private def namedElement(declaration: PsiElement): Option[ScNamedElement] = declaration match {
+  private def namedElement(maybeDeclaration: Option[PsiElement]): Option[ScNamedElement] = maybeDeclaration.flatMap {
     case value: ScValue => value.declaredElements.headOption
     case variable: ScVariable => variable.declaredElements.headOption
     case enumerator: ScEnumerator => enumerator.pattern.bindings.headOption
     case _ => None
   }
 
-  private def findDeclaration(offset: Int): PsiElement = {
-    val elem = myFile.findElementAt(offset)
-    ScalaPsiUtil.getParentOfType(elem, classOf[ScEnumerator], classOf[ScDeclaredElementsHolder])
-  }
+  private def findDeclarationAt(offset: Int): Option[PsiElement] =
+    findDeclaration(myFile.findElementAt(offset))
 
-  private def getDeclaration: PsiElement = findDeclaration(myDeclarationStartOffset)
+  private def getDeclaration: Option[PsiElement] = findDeclarationAt(myDeclarationStartOffset)
 
   private def setDeclaration(declaration: PsiElement): Unit = {
     myDeclarationStartOffset = declaration.getTextRange.getStartOffset
@@ -138,20 +139,15 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
       myVarCheckbox.addActionListener((e: ActionEvent) => {
         val writeAction = new WriteCommandAction[Unit](myProject, getCommandName, getCommandName) {
 
-          private def changeValOrVar(asVar: Boolean, declaration: PsiElement): Unit = {
-            val replacement =
-              declaration match {
-                case value: ScValue if asVar =>
-                  createVarFromValDeclaration(value)
-                case variable: ScVariableDefinition if !asVar =>
-                  createValFromVarDefinition(variable)
-                case _ => declaration
-              }
-            if (replacement != declaration) setDeclaration(declaration.replace(replacement))
-          }
-
           protected def run(result: Result[Unit]): Unit = {
-            changeValOrVar(myVarCheckbox.isSelected, getDeclaration)
+            val asVar = myVarCheckbox.isSelected
+            getDeclaration.collect {
+              case value: ScValue if asVar => (value, createVarFromValDeclaration(value))
+              case variable: ScVariableDefinition if !asVar => (variable, createValFromVarDefinition(variable))
+            }.map {
+              case (declaration, replacement) => declaration.replace(replacement)
+            }.foreach(setDeclaration)
+
             commitDocument()
           }
         }
@@ -189,9 +185,8 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
 
           val writeAction = new WriteCommandAction[Unit](myProject, getCommandName, getCommandName) {
             private def addTypeAnnotation(selectedType: ScType): Unit = {
-              val declaration = getDeclaration
-              declaration match {
-                case _: ScDeclaredElementsHolder | _: ScEnumerator =>
+              getDeclaration.foreach {
+                case declaration@(_: ScDeclaredElementsHolder | _: ScEnumerator) =>
                   val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
                   val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
                   val first = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
@@ -199,7 +194,8 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
                   val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN)
                   declarationCopy.addRangeAfter(first, last, assign)
                   assign.delete()
-                  val replaced = getDeclaration.replace(declarationCopy)
+
+                  val replaced = declaration.replace(declarationCopy)
                   ScalaPsiUtil.adjustTypes(replaced)
                   setDeclaration(replaced)
                   commitDocument()
@@ -208,11 +204,11 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
             }
 
             private def removeTypeAnnotation(): Unit = {
-              getDeclaration match {
+              getDeclaration.foreach {
                 case holder: ScDeclaredElementsHolder =>
                   val colon = holder.findFirstChildByType(ScalaTokenTypes.tCOLON)
                   val assign = holder.findFirstChildByType(ScalaTokenTypes.tASSIGN)
-                  implicit val manager = myFile.getManager
+                  implicit val manager: PsiManager = myFile.getManager
                   val whiteSpace = createExpressionFromText("1 + 1").findElementAt(1)
                   val newWhiteSpace = holder.addBefore(whiteSpace, assign)
                   holder.getNode.removeRange(colon.getNode, newWhiteSpace.getNode)
@@ -330,11 +326,11 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
           else {
             myEditor.getCaretModel.moveToOffset(myExprMarker.getEndOffset)
           }
-        } else if (getDeclaration != null) {
-          val declaration = getDeclaration
-          myEditor.getCaretModel.moveToOffset(declaration.getTextRange.getEndOffset)
-        }
-      } else if (getDeclaration != null && !UndoManager.getInstance(myProject).isUndoInProgress) {
+        } else
+          getDeclaration.foreach { declaration =>
+            myEditor.getCaretModel.moveToOffset(declaration.getTextRange.getEndOffset)
+          }
+      } else if (getDeclaration.isDefined && !UndoManager.getInstance(myProject).isUndoInProgress) {
         val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
         if (revertInfo != null) {
           extensions.inWriteAction {
@@ -410,4 +406,7 @@ object ScalaInplaceVariableIntroducer {
       else ScalaTypeAnnotationSettings(anchor.getProject).isTypeAnnotationRequiredFor(
         Declaration(Visibility.Default), Location(anchor), Some(Implementation.Expression(expression)))
     } else true
+
+  private def findDeclaration(element: PsiElement) =
+    element.nonStrictParentOfType(Seq(classOf[ScEnumerator], classOf[ScDeclaredElementsHolder]))
 }

@@ -5,8 +5,8 @@ import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil.{findCommonParent, getParentOfType}
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
@@ -96,7 +96,12 @@ object AbstractIntroduceVariableValidatorTestBase {
     val bound = file.findElementAt(selectionModel.getSelectionEnd - 1)
 
     val commonParentOne = findCommonParent(origin, bound)
-    ScalaPsiUtil.getParentOfType(commonParentOne, length == 1, classOf[ScalaFile], classOf[ScBlock], classOf[ScTemplateBody])
+
+    val classes = Seq(classOf[ScalaFile], classOf[ScBlock], classOf[ScTemplateBody])
+    (length match {
+      case 1 => commonParentOne.parentOfType(classes)
+      case _ => commonParentOne.nonStrictParentOfType(classes)
+    }).orNull
   }
 
   private[this] def getVariableValidator(expression: ScExpression, file: PsiFile)

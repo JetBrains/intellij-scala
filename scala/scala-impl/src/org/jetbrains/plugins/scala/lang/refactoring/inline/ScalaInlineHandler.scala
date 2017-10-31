@@ -151,8 +151,10 @@ class ScalaInlineHandler extends InlineHandler {
       }
       if (refs.isEmpty)
         showErrorHint(ScalaBundle.message("cannot.inline.never.used"), inlineTitleSuffix)
-      else if (!psiNamedElement.isInstanceOf[ScTypeAliasDefinition] && refs.exists(ref =>
-        ScalaPsiUtil.getParentOfType(ref.getElement, classOf[ScStableCodeReferenceElement], classOf[ScStableReferenceElementPattern]) != null))
+      else if (!psiNamedElement.isInstanceOf[ScTypeAliasDefinition] &&
+        refs.map(_.getElement)
+          .flatMap(_.nonStrictParentOfType(Seq(classOf[ScStableCodeReferenceElement], classOf[ScStableReferenceElementPattern])))
+          .nonEmpty)
         showErrorHint(ScalaBundle.message("cannot.inline.stable.reference"), inlineTitleSuffix)
       else if (!ApplicationManager.getApplication.isUnitTestMode) {
         val occurences = refs.size match {
