@@ -1124,6 +1124,10 @@
                          displayName="Equals onCollections of different kinds" groupPath="Scala,Collections" groupName="Comparing"
                          shortName="ComparingDiffCollectionKinds" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ComparingLengthInspection"
+                         displayName="Comparing length to lengthCompare" groupPath="Scala,Collections" groupName="Comparing"
+                         shortName="ComparingLength" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <!--indices-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZipWithIndexInspection"
                          displayName="Manually zipping with indices" groupPath="Scala,Collections" groupName="Indices"
