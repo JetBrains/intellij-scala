@@ -56,6 +56,9 @@ class HydraApplicationSettings extends PersistentStateComponent[HydraApplication
 
   def getHydraRepositoryUrl: URL = hydraRepositoryUrl
 
+  //The URL manipulation is needed because of how the java.net.URL works.
+  //If there is no ending "/" for the URL when you create a new URL using public URL(URL context, String spec) constructor
+  //what will happen is that the spec path would replace the context path of the URL. Otherwise the spec will be appended to the context path.
   private def parseUrl(url: String) = Try(new URL(if (url.endsWith("/")) url else url.concat("/"))) getOrElse HydraApplicationSettings.DefaultHydraRepositoryUrl
 
   private def convertArtifactsFromStateToSettings(artifacts: java.util.Map[String, java.util.List[String]]) = {
