@@ -64,10 +64,10 @@ object ScalaUsageTypeProvider {
   def patternUsageType(pattern: ScPattern): UsageType = {
     def isPatternAncestor(element: PsiElement) = isAncestor(element, pattern, false)
 
-    val patterns = getParentOfType(pattern, classOf[ScCatchBlock]) match {
-      case ScCatchBlock(clauses) => clauses.caseClauses.flatMap(_.pattern)
-      case _ => Seq.empty
-    }
+    val patterns = pattern.parentOfType(classOf[ScCatchBlock]).toSeq.collect {
+      case ScCatchBlock(clauses) => clauses
+    }.flatMap(_.caseClauses)
+      .flatMap(_.pattern)
 
     if (patterns.exists(isPatternAncestor)) CLASS_CATCH_CLAUSE_PARAMETER_DECLARATION
     else pattern match {

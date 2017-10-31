@@ -5,11 +5,10 @@ package parameters
 import com.intellij.find.findUsages.{CustomUsageSearcher, FindUsagesOptions}
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.usageView.UsageInfo
 import com.intellij.usages.{Usage, UsageInfoToUsageConverter}
 import com.intellij.util.Processor
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -57,7 +56,7 @@ class ConstructorParamsInConstructorPatternSearcher extends CustomUsageSearcher 
       inReadAction {
         if (!param.isValid) return None
 
-        PsiTreeUtil.getParentOfType(param, classOf[ScPrimaryConstructor]) match {
+        param.parentOfType(classOf[ScPrimaryConstructor]).flatMap {
           case pc@ScPrimaryConstructor.ofClass(cls) if cls.isCase =>
             pc.parameters.indexOf(param) match {
               case -1 => None

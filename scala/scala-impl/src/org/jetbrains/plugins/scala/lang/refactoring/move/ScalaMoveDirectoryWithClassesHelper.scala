@@ -12,10 +12,11 @@ import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackage
 import com.intellij.refactoring.util.MoveRenameUsageInfo
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Function
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+
 import scala.collection.JavaConverters._
 
 /**
@@ -66,11 +67,9 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
 
         if (remainsNothing) {
           ReferencesSearch.search(aPackage, GlobalSearchScope.projectScope(project)).findAll().forEach { reference =>
-            val element: PsiElement = reference.getElement
-            val importStmt = PsiTreeUtil.getParentOfType(element, classOf[ScImportStmt])
-            if (importStmt != null) {
-              usages.add(ImportStatementToRemoveUsage(importStmt))
-            }
+            reference.getElement.parentOfType(classOf[ScImportStmt])
+              .map(ImportStatementToRemoveUsage)
+              .foreach(usages.add)
           }
         }
       }

@@ -4,7 +4,6 @@ package codeInspection.syntacticSimplification
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ConvertibleToMethodValueInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
@@ -41,10 +40,8 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
       if (allArgsUnderscores(args) && qualOpt.forall(onlyStableValuesUsed))
         registerProblem(holder, expr, InspectionBundle.message("convertible.to.method.value.anonymous.hint"))
     case und: ScUnderscoreSection if und.bindingExpr.isDefined =>
-      val isInParameterOfParameterizedClass = PsiTreeUtil.getParentOfType(und, classOf[ScClassParameter]) match {
-        case null => false
-        case cp => cp.containingClass.hasTypeParameters
-      }
+      val isInParameterOfParameterizedClass = und.parentOfType(classOf[ScClassParameter])
+        .exists(_.containingClass.hasTypeParameters)
       def mayReplace() = und.bindingExpr.get match {
         case ResolvesTo(fun) if hasByNameParam(fun) => false
         case ScReferenceExpression.withQualifier(qual) => onlyStableValuesUsed(qual)

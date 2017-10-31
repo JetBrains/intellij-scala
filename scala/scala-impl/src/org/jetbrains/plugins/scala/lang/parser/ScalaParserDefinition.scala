@@ -6,8 +6,8 @@ import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.stubs.PsiFileStub
 import com.intellij.psi.tree.{IStubFileElementType, TokenSet}
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
@@ -49,10 +49,9 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper {
   }
 
   override def spaceExistanceTypeBetweenTokens(leftNode: ASTNode, rightNode: ASTNode): ParserDefinition.SpaceRequirements = {
-    val importStatement = PsiTreeUtil.getParentOfType(leftNode.getPsi, classOf[ScImportStmt])
-    val isNeighbour = Option(importStatement).exists {
-      _.getTextRange.getEndOffset == rightNode.getTextRange.getStartOffset
-    }
+    val isNeighbour = leftNode.getPsi.parentOfType(classOf[ScImportStmt])
+      .map(_.getTextRange.getEndOffset)
+      .contains(rightNode.getTextRange.getStartOffset)
 
     import com.intellij.lang.ParserDefinition.SpaceRequirements._
     rightNode.getElementType match {
