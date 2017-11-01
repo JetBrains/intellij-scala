@@ -5,10 +5,13 @@ package util
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiBuilder.Marker
+import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.impl.source.resolve.FileContextUtil
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
+import org.jetbrains.plugins.scala.project.ScalaSdkCache
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.DebugPrint
 
@@ -186,7 +189,7 @@ object ParserUtils extends ParserUtilsBase {
   }
   
   def isTrailingCommasEnabled(builder: ScalaPsiBuilder): Boolean = 
-    ScalaProjectSettings.getInstance(builder.getProject).isTrailingCommasEnabled
+    builder.asInstanceOf[ScalaPsiBuilderImpl].isTrailingCommasEnabled
 
   def isTrailingComma(builder: ScalaPsiBuilder, expectedBrace: IElementType): Boolean = {
     if (builder.getTokenType != ScalaTokenTypes.tCOMMA) return false
