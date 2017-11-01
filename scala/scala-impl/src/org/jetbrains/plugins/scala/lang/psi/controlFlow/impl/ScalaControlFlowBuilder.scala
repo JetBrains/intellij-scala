@@ -248,7 +248,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitMethodCallExpression(call: ScMethodCall) {
-    import call.projectContext
     val matchedParams = call.matchedParameters
     def isByNameOrFunction(arg: ScExpression) = {
       val param = matchedParams.toMap.get(arg)
@@ -360,10 +359,8 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       case Some(e) => e != ret
       case None => false
     })
-    ret.expr match {
-      case Some(e) => e.accept(this)
-      case None =>
-    }
+    ret.expr.foreach(_.accept(this))
+
     if (isNodeNeeded) startNode(Some(ret)) { _ =>
       addPendingEdge(null, myHead)
     }

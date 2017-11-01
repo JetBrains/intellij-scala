@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInsight.intentions.booleans
+package org.jetbrains.plugins.scala.codeInsight
+package intentions
+package booleans
 
 import org.jetbrains.plugins.scala.codeInsight.intention.booleans.ExpandBooleanIntention
-import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
  * @author Ksenia.Sautina
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
  */
 
 class ExpandBooleanIntentionTest extends ScalaIntentionTestBase {
-  val familyName = ExpandBooleanIntention.familyName
+  val familyName = ExpandBooleanIntention.FamilyName
 
   def testExpandBoolean() {
     val text =

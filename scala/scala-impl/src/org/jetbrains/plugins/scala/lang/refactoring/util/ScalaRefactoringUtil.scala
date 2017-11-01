@@ -665,10 +665,8 @@ object ScalaRefactoringUtil {
         builder.append(r.refName)
       case r: ScReturnStmt =>
         builder.append("return ")
-        r.expr match {
-          case Some(expression) => builder.append(getShortText(expression))
-          case _ =>
-        }
+        r.expr.map(getShortText)
+          .foreach(builder.append)
       case s: ScSuperReference => builder.append(s.getText)
       case t: ScThisReference => builder.append(t.getText)
       case t: ScThrowStmt =>

@@ -1070,32 +1070,21 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  private def checkExplicitTypeForReturnStatement(ret: ScReturnStmt, holder: AnnotationHolder) {
-    val fun: ScFunction = PsiTreeUtil.getParentOfType(ret, classOf[ScFunction])
-    fun match {
-      case null =>
-        val error = ScalaBundle.message("return.outside.method.definition")
-        val annotation: Annotation = holder.createErrorAnnotation(ret.returnKeyword, error)
-        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      case _ if !fun.hasAssign || fun.returnType.exists(_ == Unit) =>
-      case _ => fun.returnTypeElement match {
-        case Some(_: ScTypeElement) =>
-          import org.jetbrains.plugins.scala.lang.psi.types._
-          val funType = fun.returnType
-          funType match {
-            case Right(tp) if tp equiv Unit => return //nothing to check
-            case _ =>
-          }
+  private def checkExplicitTypeForReturnStatement(statement: ScReturnStmt, holder: AnnotationHolder): Unit = {
+    val function = statement.returnFunction.getOrElse {
+      val error = ScalaBundle.message("return.outside.method.definition")
+      val annotation: Annotation = holder.createErrorAnnotation(statement.returnKeyword, error)
+      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+      return
+    }
 
-          val importUsed = ret.expr.map { expression =>
-            expression.getTypeAfterImplicitConversion()
-          }.toSet[ScExpression.ExpressionTypeResult].flatMap {
-            _.importsUsed
-          }
+    function.returnType match {
+      case Right(tp) if function.hasAssign && !tp.equiv(Unit) =>
+        val importUsed = statement.expr.toSet[ScExpression]
+          .flatMap(_.getTypeAfterImplicitConversion().importsUsed)
 
-          registerUsedImports(ret, importUsed)
-        case _ =>
-      }
+        registerUsedImports(statement, importUsed)
+      case _ =>
     }
   }
 
