@@ -39,13 +39,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
-
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
 import scala.util.Try
+
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 
 /**
   * @author ilyas
@@ -128,7 +129,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           namePatterns ++= Option(namePattern)
       }
     }
-    val packageName: Option[String] = Option(inReadAction(file.asInstanceOf[ScalaFile].getPackageName))
+    val packageName: Option[String] = inReadAction {
+      possiblePositions.headOption
+        .flatMap(findPackageName)
+    }
 
     val foundWithPattern =
       if (namePatterns.isEmpty) Nil
@@ -240,6 +244,16 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   private def checkScalaFile(file: PsiFile): Boolean = file match {
     case sf: ScalaFile => !sf.isCompiled
     case _ => false
+  }
+
+  private def findPackageName(position: PsiElement): Option[String] = {
+    def packageWithName(e: PsiElement): Option[String] = e match {
+      case p: ScPackaging => Some(p.fullPackageName)
+      case obj: ScObject if obj.isPackageObject => Some(obj.qualifiedName.stripSuffix("package$"))
+      case _ => None
+    }
+
+    position.parentsInFile.flatMap(packageWithName).headOption
   }
 
   private def filterAllClasses(condition: ReferenceType => Boolean, packageName: Option[String]): Seq[ReferenceType] = {
@@ -951,6 +965,7 @@ object ScalaPositionManager {
 
     private def partsFor(elem: PsiElement): Seq[String] = {
       elem match {
+        case o: ScObject if o.isPackageObject => Seq("package$")
         case td: ScTypeDefinition => Seq(ScalaNamesUtil.toJavaName(td.name))
         case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => Seq("$anon")
         case e if ScalaEvaluatorBuilderUtil.isGenerateClass(e) => partsForAnonfun(e)
