@@ -14,8 +14,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{LabeledComponent, TextFieldWithBrowseButton}
 import com.intellij.openapi.util.{JDOMExternalizer, SystemInfo}
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.RawCommandLineEditor
 import org.jdom.Element
+import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder
 import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfiguration.MyEditor
 
 /**
@@ -80,6 +82,14 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
       }
     }
     state.setConsoleBuilder(new TextConsoleBuilderImpl(project))
+    
+    fileName.foreach {
+      fn =>
+        Option(LocalFileSystem.getInstance().findFileByIoFile(new File(fn))) foreach {
+          vFile =>
+            AmmoniteScriptWrappersHolder.getInstance(project).onAmmoniteRun(vFile)
+        }
+    }
     state
   }
 
