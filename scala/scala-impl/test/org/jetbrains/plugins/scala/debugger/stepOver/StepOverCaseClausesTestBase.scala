@@ -60,7 +60,7 @@ abstract class StepOverTest extends StepOverTestBase {
     s"""
        |object SkipStoreResult {
        |  def main (args: Array[String]){
-       |    ""
+       |    ""$bp
        |    val z = Seq(1, 2) match {
        |      case Seq(1, _) =>
        |        foo()
@@ -109,7 +109,7 @@ abstract class StepOverTest extends StepOverTestBase {
     s"""
        |object ComplexPattern {
        |  def main (args: Array[String]){
-       |    ""
+       |    ""$bp
        |    val z = Seq(left(1), left(2)) match {
        |      case Seq(Right("1")) =>
        |        foo()
@@ -147,7 +147,7 @@ abstract class StepOverTest extends StepOverTestBase {
     s"""
        |object NestedMatch {
        |  def main (args: Array[String]){
-       |    ""
+       |    ""$bp
        |    val z = Seq(left(1), left(2)) match {
        |      case Seq(Left(Seq(Some(1))), x) => x match {
        |        case Left(Seq(None)) =>
