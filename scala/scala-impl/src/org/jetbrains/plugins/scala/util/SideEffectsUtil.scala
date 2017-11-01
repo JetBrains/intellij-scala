@@ -74,6 +74,7 @@ object SideEffectsUtil {
         }
         val checkBaseExpr = baseExpr match {
           case _ if hasImplicitConversion(baseExpr) => false
+          case u: ScUnderscoreSection => false
           case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, typeOfQual)
           case ResolvesTo(_: ScSyntheticFunction) => true
           case ResolvesTo(_: ScTypedDefinition) =>
