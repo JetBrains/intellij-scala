@@ -68,20 +68,30 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
     while (tmpElement.getTextRange != myCurFileLine.element.getTextRange) {
       tmpElement = tmpElement.getParent
     }
-    val dep = AddSbtDependencyUtils.addDependency(tmpElement, wizard.resultArtifact.get)(project).get
+    val dep = AddSbtDependencyUtils.addDependency(tmpElement, wizard.resultArtifact.get)(project)
 
     extensions.inWriteAction {
-      myCurEditor.getDocument.setText(tmpFile.getText)
+      val text = dep match {
+        case Some(_)  => tmpFile.getText
+        case None     => "// Could not generate dependency string, please report this issue"
+      }
+      myCurEditor.getDocument.setText(text)
     }
 
     myCurEditor.getCaretModel.moveToOffset(myCurFileLine.offset)
-    val scrollingModel = myCurEditor.getScrollingModel
-    val oldPos = myCurEditor.offsetToLogicalPosition(myCurFileLine.offset)
+    val scrollingModel  = myCurEditor.getScrollingModel
+    val oldPos          = myCurEditor.offsetToLogicalPosition(myCurFileLine.offset)
     scrollingModel.scrollTo(new LogicalPosition(math.max(1, oldPos.line - EDITOR_TOP_MARGIN), oldPos.column),
       ScrollType.CENTER)
     val attributes = myCurEditor.getColorsScheme.getAttributes(CodeInsightColors.MATCHED_BRACE_ATTRIBUTES)
-    myCurEditor.getMarkupModel.addRangeHighlighter(dep.getTextRange.getStartOffset,
-      dep.getTextRange.getEndOffset,
+
+    val (startOffset, endOffset) = dep match {
+      case Some(elem) => (elem.getTextRange.getStartOffset, elem.getTextRange.getEndOffset)
+      case None => (0, 0)
+    }
+    myCurEditor.getMarkupModel.addRangeHighlighter(
+      startOffset,
+      endOffset,
       HighlighterLayer.SELECTION,
       attributes,
       HighlighterTargetArea.EXACT_RANGE

@@ -63,7 +63,7 @@ object AddSbtDependencyUtils {
         if (pat.expr.isEmpty)
           return
 
-        if (pat.expr.get.`type`().get.canonicalText != SBT_PROJECT_TYPE)
+        if (pat.expr.get.`type`().getOrAny.canonicalText != SBT_PROJECT_TYPE)
           return
 
         res = res ++ Seq(pat)
@@ -152,7 +152,6 @@ object AddSbtDependencyUtils {
         generateArtifactPsiExpression(info)
       case _ => generateLibraryDependency(info)
     }
-    org.slf4j.LoggerFactory
     doInSbtWriteCommandAction(seqCall.args.addExpr(addedExpr), seqCall.getContainingFile)
     Some(addedExpr)
   }
