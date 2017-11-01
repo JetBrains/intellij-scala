@@ -115,12 +115,10 @@ class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, 
   private class PlacesCellRenderer extends ColoredListCellRenderer[DependencyPlaceInfo] {
     override def customizeCellRenderer(list: JList[_ <: DependencyPlaceInfo], info: DependencyPlaceInfo, index: Int, selected: Boolean, hasFocus: Boolean): Unit = {
       setIcon(org.jetbrains.plugins.scala.icons.Icons.SBT_FILE)
-      append(info.path + ":", SimpleTextAttributes.REGULAR_ATTRIBUTES)
-      append(info.line.toString, getGrayAttributes(selected))
+      append(info.path + ":")
+      append(info.line.toString, SimpleTextAttributes.GRAY_ATTRIBUTES)
       if (info.affectedProjects.nonEmpty)
-        append(" (" + info.affectedProjects.map(_.toString).mkString(", ") + ")", SimpleTextAttributes.REGULAR_ATTRIBUTES)
+        append(" (" + info.affectedProjects.map(_.toString).mkString(", ") + ")")
     }
-    private def getGrayAttributes(selected: Boolean): SimpleTextAttributes =
-      if (!selected) SimpleTextAttributes.GRAY_ATTRIBUTES else SimpleTextAttributes.REGULAR_ATTRIBUTES
   }
 }

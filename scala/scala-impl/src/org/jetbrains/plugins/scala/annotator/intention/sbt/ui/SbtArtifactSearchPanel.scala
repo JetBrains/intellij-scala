@@ -45,7 +45,9 @@ class SbtArtifactSearchPanel(wizard: SbtArtifactSearchWizard, artifactInfoSet: S
   private class DependencyListCellRenderer extends ColoredListCellRenderer[ArtifactInfo] {
     override def customizeCellRenderer(list: JList[_ <: ArtifactInfo], value: ArtifactInfo, index: Int, selected: Boolean, hasFocus: Boolean): Unit = {
       setIcon(AllIcons.Modules.Library)
-      append(s"${value.groupId}:${value.artifactId}:${value.version}")
+      append(s"${value.groupId}:", SimpleTextAttributes.GRAY_ATTRIBUTES)
+      append(value.artifactId)
+      append(s":${value.version}", SimpleTextAttributes.GRAY_ATTRIBUTES)
     }
   }
 }
