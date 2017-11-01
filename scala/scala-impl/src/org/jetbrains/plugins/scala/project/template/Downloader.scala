@@ -75,7 +75,7 @@ object Downloader {
   private def sbtCommandsForHydra(platform: Platform, version: String) = {
     val settings = HydraApplicationSettings.getInstance()
     val repositoryName = settings.getHydraRepositoryName
-    val repositoryUrl = settings.getHydraRepositoryUrl.toString
+    val repositoryUrl = settings.getHydraRepositoryUrl
     Seq(
       s"""set scalaVersion := "${version.split("_")(0)}"""",
       s"""set credentials := Seq(Credentials("${settings.hydraRepositoryRealm}", "${repositoryName}", "${HydraCredentialsManager.getLogin}", "${HydraCredentialsManager.getPlainPassword}"))""",

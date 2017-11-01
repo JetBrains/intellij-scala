@@ -33,36 +33,21 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
     override def focusLost(e: FocusEvent): Unit = if (getUsername.nonEmpty && getPassword.nonEmpty &&
       (HydraCredentialsManager.getLogin != getUsername ||
         HydraCredentialsManager.getPlainPassword != getPassword ||
+        hydraGlobalSettings.getHydraRepositoryUrl != getHydraRepository ||
         hydraGlobalSettings.hydraRepositoryRealm != getHydraRepositoryRealm)) {
 
       HydraCredentialsManager.setCredentials(getUsername, getPassword)
+      hydraGlobalSettings.setHydraRepositopryUrl(getHydraRepository)
       hydraVersionComboBox.setItems(HydraVersions.downloadHydraVersions)
       hydraVersionComboBox.setSelectedItem(settings.hydraVersion)
-    }
-  }
-
-  private val urlFocusListener = new FocusListener {
-    override def focusGained(e: FocusEvent): Unit = {}
-
-    override def focusLost(e: FocusEvent): Unit = if (hydraGlobalSettings.getHydraRepositoryUrl.toString != getHydraRepository) {
-      Try(new URL(getHydraRepository)) match {
-        case Success(_) => {
-          hydraGlobalSettings.setHydraRepositopryUrl(getHydraRepository)
-          setHydraRepository(hydraGlobalSettings.getHydraRepositoryUrl.toString)
-          hydraVersionComboBox.setItems(HydraVersions.downloadHydraVersions)
-          hydraVersionComboBox.setSelectedItem(settings.hydraVersion)
-        }
-        case Failure(_) => Messages.showErrorDialog(contentPanel, s"$getHydraRepository is not valid. Default URL will be used.", "URL not valid")
-      }
-
     }
   }
 
   hydraGlobalSettings.getState
   setDefaultHydraVersion
 
-  hydraRepository.setText(hydraGlobalSettings.getHydraRepositoryUrl.toString)
-  hydraRepository.addFocusListener(urlFocusListener)
+  hydraRepository.setText(hydraGlobalSettings.getHydraRepositoryUrl)
+  hydraRepository.addFocusListener(focusListener)
   hydraRepository.getDocument.addDocumentListener(documentAdapter)
 
   realmTextField.setText(hydraGlobalSettings.hydraRepositoryRealm)
@@ -89,6 +74,7 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
     }
   })
 
+
   def selectedVersion: String = hydraVersionComboBox.getSelectedItem.toString
 
   def setSelectedVersion(version: String): Unit = hydraVersionComboBox.setSelectedItem(version)
@@ -114,6 +100,13 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
   def setHydraRepositoryRealm(realm: String): Unit = realmTextField.setText(realm)
 
   def onDownload(): Unit = {
+    Try(new URL(hydraGlobalSettings.getHydraRepositoryUrl)) match {
+      case Success(_) => downloadHydraForProjectScalaVersions()
+      case _ => Messages.showErrorDialog(contentPanel, s"""URL "$getHydraRepository" is not valid. To be able to download, please enter a valid URL.""", "URL not valid")
+    }
+  }
+
+  private def downloadHydraForProjectScalaVersions(): Unit = {
     val scalaVersions = HydraVersions.getSupportedScalaVersions(project)
 
     if (scalaVersions.isEmpty)
@@ -145,7 +138,7 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
   private def downloadVersion(scalaVersions: Seq[String], hydraVersion: String): (String => Unit) => Unit =
     (listener: (String) => Unit) => scalaVersions.foreach(version => HydraArtifactsCache.downloadIfNotPresent(version, hydraVersion, listener))
 
-  private def setDefaultHydraVersion = {
+  private def setDefaultHydraVersion: Unit = {
     val hydraVersions = HydraVersions.downloadHydraVersions
     hydraVersionComboBox.setItems(hydraVersions)
     setSelectedVersion(hydraVersions.head)

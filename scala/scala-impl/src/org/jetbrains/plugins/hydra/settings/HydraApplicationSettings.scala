@@ -8,7 +8,7 @@ import com.intellij.openapi.components._
 
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
-import scala.util.Try
+import scala.util.{Success, Try}
 
 /**
   * @author Maris Alexandru
@@ -20,14 +20,14 @@ import scala.util.Try
 class HydraApplicationSettings extends PersistentStateComponent[HydraApplicationSettingsState]{
 
   var artifactPaths: Map[(String, String), List[String]] = Map.empty
-  private var hydraRepositoryUrl: URL = HydraApplicationSettings.DefaultHydraRepositoryUrl
+  private var hydraRepositoryUrl: String = HydraApplicationSettings.DefaultHydraRepositoryUrl
   var hydraRepositoryRealm: String = HydraApplicationSettings.DefaultHydraRepositoryRealm
   private val KeySeparator = "_"
 
   override def loadState(state: HydraApplicationSettingsState): Unit = {
     state.removeMapEntriesThatDontExist()
     artifactPaths = convertArtifactsFromStateToSettings(state.getGlobalArtifactPaths)
-    hydraRepositoryUrl = parseUrl(state.getHydraRepositoryUrl)
+    hydraRepositoryUrl = state.getHydraRepositoryUrl
     hydraRepositoryRealm = state.hydraRepositoryRealm
   }
 
@@ -50,16 +50,14 @@ class HydraApplicationSettings extends PersistentStateComponent[HydraApplication
     for { (scalaVersion, _) <- artifactPaths.keySet.toArray } yield scalaVersion
   }
 
-  def getHydraRepositoryName: String = hydraRepositoryUrl.getHost
+  def getHydraRepositoryName: String = Try(new URL(hydraRepositoryUrl)) match {
+    case Success(url) => url.getHost
+    case _ => ""
+  }
 
-  def setHydraRepositopryUrl(url: String): Unit = hydraRepositoryUrl = parseUrl(url)
+  def setHydraRepositopryUrl(url: String): Unit = hydraRepositoryUrl = url
 
-  def getHydraRepositoryUrl: URL = hydraRepositoryUrl
-
-  //The URL manipulation is needed because of how the java.net.URL works.
-  //If there is no ending "/" for the URL when you create a new URL using public URL(URL context, String spec) constructor
-  //what will happen is that the spec path would replace the context path of the URL. Otherwise the spec will be appended to the context path.
-  private def parseUrl(url: String) = Try(new URL(if (url.endsWith("/")) url else url.concat("/"))) getOrElse HydraApplicationSettings.DefaultHydraRepositoryUrl
+  def getHydraRepositoryUrl: String = hydraRepositoryUrl
 
   private def convertArtifactsFromStateToSettings(artifacts: java.util.Map[String, java.util.List[String]]) = {
     val resultArtifacts = for {
@@ -92,7 +90,7 @@ class HydraApplicationSettingsState {
 }
 
 object HydraApplicationSettings {
-  val DefaultHydraRepositoryUrl = new URL("https://repo.triplequote.com/artifactory/")
+  val DefaultHydraRepositoryUrl = "https://repo.triplequote.com/artifactory/"
   val DefaultHydraRepositoryRealm = "Artifactory Realm"
   def getInstance(): HydraApplicationSettings = ServiceManager.getService(classOf[HydraApplicationSettings])
 }

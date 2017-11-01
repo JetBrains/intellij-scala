@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.project
 
-import java.net.{HttpURLConnection, URL}
+import java.net.HttpURLConnection
 
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.plugins.hydra.compiler.HydraCredentialsManager
@@ -73,15 +73,17 @@ object Versions  {
 
   private def loadVersionsForHydra() = {
     val entity = Entity.Hydra
-    val repoUrl = new URL(HydraApplicationSettings.getInstance().getHydraRepositoryUrl, entity.url).toString
+    val repoUrl = HydraApplicationSettings.getInstance().getHydraRepositoryUrl
+    val entityUrl = if (repoUrl.endsWith("/")) repoUrl + entity.url else repoUrl + "/" + entity.url
+
     def downloadHydraVersions(url: String): Seq[String] =
       loadHydraVersionsFrom(url, { case entity.pattern(number) => number }).getOrElse(entity.hardcodedVersions).map(Version(_))
         .filter(_ >= entity.minVersion).map(_.presentation)
 
-    loadHydraVersionsFrom(repoUrl, {
+    loadHydraVersionsFrom(entityUrl, {
       case entity.pattern(number) => number
     }).map { versions =>
-      versions.flatMap(version => downloadHydraVersions(s"""$repoUrl$version/""")).distinct
+      versions.flatMap(version => downloadHydraVersions(s"""$entityUrl$version/""")).distinct
     }
   }
 
