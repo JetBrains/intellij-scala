@@ -227,8 +227,12 @@ object AddSbtDependencyUtils {
 
   private def generateNewLine(implicit ctx: ProjectContext): PsiElement = ScalaPsiElementFactory.createElementFromText("\n")
 
-  private def generateArtifactText(info: ArtifactInfo): String =
-    s""""${info.groupId}" % "${info.artifactId}" % "${info.version}""""
+  private def generateArtifactText(info: ArtifactInfo): String = {
+    if (info.artifactId.matches("^.+_\\d+\\.\\d+$"))
+      s""""${info.groupId}" %% "${info.artifactId.replaceAll("_\\d+\\.\\d+$", "")}" % "${info.version}""""
+    else
+      s""""${info.groupId}" % "${info.artifactId}" % "${info.version}""""
+  }
 
   def getRelativePath(elem: PsiElement)(implicit project: ProjectContext): Option[String] = {
     for {
