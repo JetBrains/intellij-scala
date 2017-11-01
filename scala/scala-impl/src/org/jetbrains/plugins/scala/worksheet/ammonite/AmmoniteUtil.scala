@@ -9,7 +9,6 @@ import com.intellij.openapi.roots.{OrderRootType, ProjectRootManager}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.containers.ContainerUtilRt
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
@@ -278,13 +277,7 @@ object AmmoniteUtil {
   }
   
   private def getScalaVersion(element: ScalaPsiElement): String = {
-    ScalaUtil.findVirtualFile(element.getContainingFile).flatMap {
-      file => getModuleForFile(file, element.getProject)
-    } flatMap {
-      module => module.scalaSdk
-    } flatMap {
-      sdk => sdk.compilerVersion
-    } map {
+    ScalaUtil.getScalaVersion(element.getContainingFile) map {
       version => version.lastIndexOf('.') match {
         case a if a < 2 => version
         case i => version.substring(0, i)
@@ -319,7 +312,4 @@ object AmmoniteUtil {
   def getDefaultCachePath: String = System.getProperty("user.home") + "/.ivy2/cache"
   
   def getCoursierCachePath: String = System.getProperty("user.home") + "/.coursier/cache/v1"
-  
-  def getModuleForFile(virtualFile: VirtualFile, project: Project): Option[Module] =
-    Option(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
 }
