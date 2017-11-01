@@ -11,6 +11,7 @@ import com.intellij.openapi.module.{ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.annotator.intention.sbt.AddSbtDependencyUtils._
 import org.jetbrains.plugins.scala.annotator.intention.sbt.ui.SbtArtifactSearchWizard
@@ -21,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -69,11 +71,20 @@ class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReferenceElement]
         import com.intellij.notification.Notifications.Bus
         def error(msg: String): Unit = Bus.notify(new Notification(getText, getText, msg, NotificationType.ERROR))
         def getDeps: Set[ArtifactInfo] = {
+          def doSearch(name: String): Set[ArtifactInfo] = resolver.getIndex(project)
+            .map(_.searchArtifactInfo(name))
+            .getOrElse(Set.empty)
           indicator.setText("Searching for artifacts...")
           val fqName = extensions.inReadAction(getReferenceText)
-          val artifactInfoSet = resolver.getIndex(project)
-            .map(_.searchArtifactInfo(fqName))
-            .getOrElse(Set.empty)
+          val artifactInfoSet = if (fqName.endsWith("._")) { // search wildcard imports by containing package
+            doSearch(fqName.replaceAll("_$", ""))
+          } else {
+            doSearch(fqName) match {
+              case set if set.isEmpty && fqName.contains(".") => // imported name is not a class -> search for enclosing package
+                doSearch(fqName.substring(0, fqName.lastIndexOf(".") + 1))
+              case result => result
+            }
+          }
           extensions.inReadAction(filterByScalaVer(artifactInfoSet))
         }
 
@@ -158,12 +169,11 @@ class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReferenceElement]
     proj.getText.contains("\"" + moduleName + "\"")
 
   private def getReferenceText: String = {
-    var result = refElement.getElement
-    while (result.getParent.isInstanceOf[ScReferenceElement]) {
-      result = result.getParent.asInstanceOf[ScReferenceElement]
-    }
-
-    result.getText
+    val importExpr = PsiTreeUtil.getParentOfType(refElement.getElement, classOf[ScImportExpr])
+    if (!importExpr.isSingleWildcard)
+      s"${importExpr.qualifier.getText}.${refElement.getElement.getText}" // for "import x.y.{foo, bar=>baz}" and so on
+    else
+      importExpr.getText
   }
 
   override def getFamilyName = "Add sbt dependencies"

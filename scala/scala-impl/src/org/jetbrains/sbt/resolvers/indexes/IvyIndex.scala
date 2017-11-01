@@ -212,11 +212,13 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
       val classExt = ".class"
 
       val entries = jarFile.entries().asScala
-        .filter(e => e.getName.endsWith(classExt) && !e.getName.contains("$"))
+        .filter(e => (e.getName.endsWith(classExt) && !e.getName.contains("$")) ||
+          e.getName.endsWith("/") || e.getName.endsWith("\\"))
 
       entries
         .map(e => e.getName)
-        .map(name => name.replaceAll("/", ".").substring(0, name.length - classExt.length))
+        .map(name => name.replaceAll("/", "."))
+        .map(name => if (name.endsWith(classExt)) name.substring(0, name.length - classExt.length) else name)
         .toStream
     }
 
