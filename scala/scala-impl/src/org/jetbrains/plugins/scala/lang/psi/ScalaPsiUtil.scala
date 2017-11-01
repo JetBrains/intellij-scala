@@ -1404,6 +1404,7 @@ object ScalaPsiUtil {
     param.parentOfType(classOf[ScFunction]).flatMap {
       case fun if fun.isSyntheticCopy => Option(fun.containingClass)
       case fun if fun.isSyntheticApply => getCompanionModule(fun.containingClass)
+      case _ => None
     }.collect {
       case td: ScClass if td.isCase => td
     }.flatMap(_.constructor).toSeq
