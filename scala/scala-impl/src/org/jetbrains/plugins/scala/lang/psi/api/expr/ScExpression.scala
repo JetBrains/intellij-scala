@@ -6,19 +6,20 @@ package expr
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{ElementText, PsiElementExt, PsiNamedElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIntLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitResolveResult, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
@@ -26,8 +27,6 @@ import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Seq, Set}
 
 /**
   * @author ilyas, Alexander Podkhalyuzin
@@ -158,53 +157,32 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
           else firstName.compareTo(secondName) < 0
       }
   }
-
-  final def calculateReturns(withBooleanInfix: Boolean = false): Seq[PsiElement] = {
-    val res = new ArrayBuffer[PsiElement]
-
-    def calculateReturns0(el: PsiElement) {
-      el match {
-        case tr: ScTryStmt =>
-          calculateReturns0(tr.tryBlock)
-          tr.catchBlock match {
-            case Some(ScCatchBlock(caseCl)) =>
-              caseCl.caseClauses.flatMap(_.expr).foreach(calculateReturns0)
-            case _ =>
-          }
-        case block: ScBlock =>
-          block.lastExpr match {
-            case Some(expr) => calculateReturns0(expr)
-            case _ => res += block
-          }
-        case pe: ScParenthesisedExpr =>
-          pe.expr.foreach(calculateReturns0)
-        case m: ScMatchStmt =>
-          m.getBranches.foreach(calculateReturns0)
-        case i: ScIfStmt =>
-          i.elseBranch match {
-            case Some(e) =>
-              calculateReturns0(e)
-              i.thenBranch match {
-                case Some(thenBranch) => calculateReturns0(thenBranch)
-                case _ =>
-              }
-            case _ => res += i
-          }
-        case ScInfixExpr(left, ElementText(op), right)
-          if withBooleanInfix && (op == "&&" || op == "||") &&
-            left.`type`().exists(_ == api.Boolean) &&
-            right.`type`().exists(_ == api.Boolean) => calculateReturns0(right)
-        //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
-        case _ => if (!res.contains(el)) res += el
-      }
-    }
-
-    calculateReturns0(this)
-    res
-  }
 }
 
 object ScExpression {
+
+  def calculateReturns: ScExpression => Set[ScExpression] = {
+    case ScTryStmt(tryBlock, maybeCatchBlock, _) =>
+      calculateReturns(tryBlock) ++
+        maybeCatchBlock.collect {
+          case ScCatchBlock(clauses) => clauses
+        }.toSet[ScCaseClauses]
+          .flatMap(_.caseClauses)
+          .flatMap(_.expr)
+          .flatMap(calculateReturns)
+    case block: ScBlock =>
+      block.lastExpr
+        .map(calculateReturns)
+        .getOrElse(Set(block))
+    case ScParenthesisedExpr(innerExpression) => calculateReturns(innerExpression)
+    case m: ScMatchStmt =>
+      m.getBranches.toSet.flatMap(calculateReturns)
+    case ScIfStmt(_, maybeThenBranch, Some(elseBranch)) =>
+      calculateReturns(elseBranch) ++
+        maybeThenBranch.toSet.flatMap(calculateReturns)
+    case i: ScIfStmt => Set(i)
+    case expression => Set(expression) // TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
+  }
 
   case class ExpressionTypeResult(tr: TypeResult,
                                   importsUsed: scala.collection.Set[ImportUsed] = Set.empty,

@@ -6,6 +6,7 @@ import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.calculateReturns
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturnStmt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 
@@ -15,12 +16,12 @@ class RemoveRedundantReturnInspection extends AbstractInspection("ScalaRedundant
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case function: ScFunctionDefinition =>
     for (body <- function.body) {
-        val returns = body.calculateReturns()
+      val returns = calculateReturns(body)
       body.depthFirst {
         !_.isInstanceOf[ScFunction]
       }.foreach {
           case r: ScReturnStmt =>
-            if (returns.contains(r)) {
+            if (returns(r)) {
               holder.registerProblem(r.returnKeyword, "Return keyword is redundant",
                 ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new RemoveReturnKeywordQuickFix(r))
             }

@@ -4,6 +4,7 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{ChangeReferenceNameQuickFix, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.calculateReturns
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -28,7 +29,7 @@ class UnitInMapInspection extends OperationOnCollectionInspection {
         if (isInBlock) Seq(new ChangeReferenceNameQuickFix(InspectionBundle.message("use.foreach.instead.of.map"), ref, "foreach"))
         else Seq.empty
       val Unit = call.projectContext.stdTypes.Unit
-      val unitTypeReturns = body.calculateReturns().collect {
+      val unitTypeReturns = calculateReturns(body).collect {
         case expr@Typeable(ft@FunctionType(Unit, _)) if arg.`type`().getOrAny.equiv(ft) => expr
         case expr@Typeable(Unit) => expr
       }.filter(_.getTextLength > 0)

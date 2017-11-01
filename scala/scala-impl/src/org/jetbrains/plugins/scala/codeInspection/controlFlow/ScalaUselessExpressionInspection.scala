@@ -64,7 +64,7 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
     }
     def isInReturnPositionForUnitFunction: Boolean = {
       Option(PsiTreeUtil.getParentOfType(expr, classOf[ScFunctionDefinition])) match {
-        case Some(fun) if fun.returnType.exists(_.isUnit) => fun.returnUsages().contains(expr)
+        case Some(fun) if fun.returnType.exists(_.isUnit) => fun.returnUsages(expr)
         case _ => false
       }
     }

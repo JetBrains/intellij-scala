@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 class ScalaHighlightExitPointsHandler(fun: ScFunctionDefinition, editor: Editor,
                                       file: PsiFile, keyword: PsiElement)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
-  def computeUsages(targets: util.List[PsiElement]) {
-    val usages = fun.returnUsages().toSeq :+ keyword
+  def computeUsages(targets: util.List[PsiElement]): Unit = {
+    val usages = fun.returnUsages ++ Set(keyword)
     usages.map(_.getTextRange).foreach(myReadUsages.add)
   }
 

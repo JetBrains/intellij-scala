@@ -64,7 +64,7 @@ trait FunctionAnnotator {
 
     for {
       functionType <- function.returnType
-      usage <- function.returnUsages()
+      usage <- function.returnUsages
       usageType <- typeOf(usage)
     } {
 
@@ -87,14 +87,14 @@ trait FunctionAnnotator {
         typeMismatch()
       }
 
-      def needsTypeAnnotation() = {
+      def needsTypeAnnotation(): Unit = {
         val message = ScalaBundle.message("function.must.define.type.explicitly", function.name)
-        val returnTypes = function.returnUsages(withBooleanInfix = false).toSeq.collect {
+        val returnTypes = function.returnUsages.collect {
           case retStmt: ScReturnStmt => retStmt.expr.flatMap(_.`type`().toOption).getOrElse(Any)
           case expr: ScExpression => expr.`type`().getOrAny
         }
         val annotation = holder.createErrorAnnotation(usage.asInstanceOf[ScReturnStmt].returnKeyword, message)
-        annotation.registerFix(new AddReturnTypeFix(function, returnTypes.lub()))
+        annotation.registerFix(new AddReturnTypeFix(function, returnTypes.toSeq.lub()))
       }
 
       def redundantReturnExpression() = {
