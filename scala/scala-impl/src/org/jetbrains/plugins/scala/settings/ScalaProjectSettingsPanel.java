@@ -86,7 +86,6 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox myProjectViewHighlighting;
     private JComboBox scalaMetaMode;
     private JCheckBox metaTrimBodies;
-    private JCheckBox trailingCommasEnabledCheckBox;
     private JComboBox scTypeSelectionCombobox;
     private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
     private Project myProject;
@@ -243,7 +242,6 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setScalaMetaMode((ScalaProjectSettings.ScalaMetaMode) scalaMetaMode.getModel().getSelectedItem());
         scalaProjectSettings.setMetaTrimMethodBodies(metaTrimBodies.isSelected());
 
-        scalaProjectSettings.setTrailingCommasEnabled(trailingCommasEnabledCheckBox.isSelected());
         scalaProjectSettings.setScFileMode(ScalaProjectSettings.ScFileMode.valueOf(scTypeSelectionCombobox.getSelectedItem().toString()));
 
         if (myProject != null && myProject.isDefault())
@@ -361,8 +359,6 @@ public class ScalaProjectSettingsPanel {
 
         if (scalaProjectSettings.getScFileMode() != scTypeSelectionCombobox.getSelectedItem()) return true;
 
-        if (scalaProjectSettings.isTrailingCommasEnabled() != trailingCommasEnabledCheckBox.isSelected()) return true;
-
         return false;
     }
 
@@ -422,8 +418,6 @@ public class ScalaProjectSettingsPanel {
         disabledInspectionsTable.setModel(new BundledInspectionsUiTableModel(
             scalaProjectSettings.getBundledLibJarsPathsToInspections(),
             scalaProjectSettings.getBundledInspectionIdsDisabled(), myProject));
-
-        setValue(trailingCommasEnabledCheckBox, scalaProjectSettings.isTrailingCommasEnabled());
 
         scTypeSelectionCombobox.setSelectedItem(scalaProjectSettings.getScFileMode());
 
@@ -682,9 +676,6 @@ public class ScalaProjectSettingsPanel {
         scalaTestDefaultSuperClass = new JTextField();
         scalaTestDefaultSuperClass.setColumns(25);
         panel7.add(scalaTestDefaultSuperClass, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        trailingCommasEnabledCheckBox = new JCheckBox();
-        trailingCommasEnabledCheckBox.setText("Trailing commas enabled");
-        panel7.add(trailingCommasEnabledCheckBox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel8 = new JPanel();
         panel8.setLayout(new GridLayoutManager(2, 3, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane1.addTab("Updates", panel8);
