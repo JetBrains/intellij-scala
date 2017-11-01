@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator.intention.sbt
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.intention.sbt.SbtDependenciesVisitor._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -25,6 +26,8 @@ object AddSbtDependencyUtils {
   val SBT_PROJECT_TYPE = "_root_.sbt.Project"
   val SBT_SEQ_TYPE = "_root_.scala.collection.Seq"
   val SBT_SETTING_TYPE = "_root_.sbt.Def.Setting"
+
+  private val InfixOpsSet = Set(":=", "+=", "++=")
 
   def getPossiblePlacesToAddFromProjectDefinition(proj: ScPatternDefinition): Seq[PsiElement] = {
     var res: Seq[PsiElement] = List()
@@ -141,19 +144,18 @@ object AddSbtDependencyUtils {
     }
   }
 
-  def addDependencyToSeq(seqCall: ScMethodCall, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] =
-    for {
-      formalSeq <- ScalaPsiElementFactory.createTypeFromText(SBT_SEQ_TYPE, seqCall, seqCall)
-      formalSetting <- ScalaPsiElementFactory.createTypeFromText(SBT_SETTING_TYPE, seqCall, seqCall)
-      Typeable(ParameterizedType(designator, typeArguments)) <- Some(seqCall)
-      if designator.equiv(formalSeq)
-      Typeable(ParameterizedType(innerDesignator, _)) <- typeArguments.headOption
-      if innerDesignator.equiv(formalSetting)
-    } yield {
-      val addedExpr: ScInfixExpr = generateLibraryDependency(info)
-      doInSbtWriteCommandAction(seqCall.args.addExpr(addedExpr), seqCall.getContainingFile)
-      addedExpr
+  def addDependencyToSeq(seqCall: ScMethodCall, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] = {
+    def isValid(expr: ScInfixExpr) = InfixOpsSet.contains(expr.operation.refName)
+    val parentDef = Option(PsiTreeUtil.getParentOfType(seqCall, classOf[ScInfixExpr]))
+    val addedExpr = parentDef match {
+      case Some(expr) if isValid(expr) && expr.lOp.textMatches(LIBRARY_DEPENDENCIES) =>
+        generateArtifactPsiExpression(info)
+      case _ => generateLibraryDependency(info)
     }
+    org.slf4j.LoggerFactory
+    doInSbtWriteCommandAction(seqCall.args.addExpr(addedExpr), seqCall.getContainingFile)
+    Some(addedExpr)
+  }
 
   def addDependencyToTypedSeq(typedSeq: ScTypedStmt, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] =
     typedSeq.expr match {
