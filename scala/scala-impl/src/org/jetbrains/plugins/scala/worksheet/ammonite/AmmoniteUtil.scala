@@ -278,7 +278,7 @@ object AmmoniteUtil {
   }
   
   private def getScalaVersion(element: ScalaPsiElement): String = {
-    Option(PsiUtilCore getVirtualFile element).flatMap {
+    ScalaUtil.findVirtualFile(element.getContainingFile).flatMap {
       file => getModuleForFile(file, element.getProject)
     } flatMap {
       module => module.scalaSdk
