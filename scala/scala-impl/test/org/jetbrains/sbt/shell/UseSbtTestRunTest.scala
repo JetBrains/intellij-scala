@@ -9,15 +9,30 @@ import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
 import org.junit.experimental.categories.Category
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
+
+import com.intellij.testFramework.EdtTestUtil
 
 /**
   * Created by Roman.Shein on 13.04.2017.
   */
 @Category(Array(classOf[SlowTests]))
 abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
+
+  override def runInDispatchThread(): Boolean = false
+
+  override def setUp(): Unit = {
+    EdtTestUtil.runInEdtAndWait { () =>
+      super.setUp()
+    }
+  }
+
+  override def tearDown(): Unit = {
+    EdtTestUtil.runInEdtAndWait { () =>
+      super.tearDown()
+    }
+  }
 
   def testScalaTestSimpleTest(): Unit =
     runSingleTest(ScalaTestingTestCase.getScalaTestTemplateConfig(getProject), "test.scalaTest.SimpleScalaTest",
@@ -134,14 +149,18 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
     val sdk = ProjectRootManager.getInstance(project).getProjectSdk
     assert(sdk != null, s"project sdk was null in project ${project.getName}")
 
-    val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(classOf[DefaultRunExecutor])
-    val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =
-      new ExecutionEnvironmentBuilder(project, executor)
-    executionEnvironmentBuilder.runProfile(config).buildAndExecute()
-    runner.getConsoleView.flushDeferredText()
+    EdtTestUtil.runInEdtAndWait { () =>
+      val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(classOf[DefaultRunExecutor])
+      val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =
+        new ExecutionEnvironmentBuilder(project, executor)
+      executionEnvironmentBuilder.runProfile(config).buildAndExecute()
+      runner.getConsoleView.flushDeferredText()
+      comm.command("exit", showShell = false)
+    }
+
     val exitCode = Await.result(logger.terminated, 10.minutes)
     val log = logger.getLog
-    assert(exitCode != 0, "sbt shell completed with nonzero exit code. Full log:\n$log")
+    assert(exitCode == 0, s"sbt shell completed with nonzero exit code. Full log:\n$log")
     expectedStrings.foreach(str => assert(log.contains(str), s"sbt shell console did not contain expected string '$str'. Full log:\n$log"))
     unexpectedStrings.foreach(str => assert(!log.contains(str), s"sbt shell console contained unexpected string '$str'. Full log:\n$log"))
     val logSplitted = logLines(log)
