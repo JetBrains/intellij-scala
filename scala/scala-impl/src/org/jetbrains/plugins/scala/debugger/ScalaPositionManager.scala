@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
-import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil._
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -46,6 +46,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
 import scala.util.Try
 
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 
 /**
@@ -56,6 +57,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   protected[debugger] val caches = new ScalaPositionManagerCaches(debugProcess)
   private val outerAndNestedTypePartsPattern = """([^\$]*)(\$.*)?""".r
   import caches._
+
+  implicit val scope: ElementScope = ElementScope(debugProcess.getProject, debugProcess.getSearchScope)
 
   ScalaPositionManager.cacheInstance(this)
 
@@ -116,11 +119,11 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       val sourceImages = onTheLine ++ nonLambdaParent
       sourceImages.foreach {
         case null =>
-        case tr: ScTrait if !DebuggerUtil.isLocalClass(tr) =>
+        case tr: ScTrait if !isLocalClass(tr) =>
           val traitImplName = getSpecificNameForDebugger(tr)
           val simpleName = traitImplName.stripSuffix("$class")
           Seq(simpleName, traitImplName).foreach(addExactClasses)
-        case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
+        case td: ScTypeDefinition if !isLocalClass(td) =>
           val qName = getSpecificNameForDebugger(td)
           val delayedBodyName = if (isDelayedInit(td)) Seq(s"$qName$delayedInitBody") else Nil
           (qName +: delayedBodyName).foreach(addExactClasses)
@@ -168,7 +171,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   override def createPrepareRequests(requestor: ClassPrepareRequestor, position: SourcePosition): util.List[ClassPrepareRequest] = {
     def isLocalOrUnderDelayedInit(definition: PsiClass): Boolean = {
-      DebuggerUtil.isLocalClass(definition) || isDelayedInit(definition)
+      isLocalClass(definition) || isDelayedInit(definition)
     }
 
     def findEnclosingTypeDefinition: Option[ScTypeDefinition] = {
@@ -176,7 +179,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       def notLocalEnclosingTypeDefinition(element: PsiElement): Option[ScTypeDefinition] = {
         PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition]) match {
           case null => None
-          case td if DebuggerUtil.isLocalClass(td) => notLocalEnclosingTypeDefinition(td.getParent)
+          case td if isLocalClass(td) => notLocalEnclosingTypeDefinition(td.getParent)
           case td => Some(td)
         }
       }
@@ -209,7 +212,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           case cl: ScClass if ValueClassType.isValueClass(cl) =>
             //there are no instances of value classes, methods from companion object are used
             qName.set(getSpecificNameForDebugger(cl) + "$")
-          case tr: ScTrait if !DebuggerUtil.isLocalClass(tr) =>
+          case tr: ScTrait if !isLocalClass(tr) =>
             //to handle both trait methods encoding
             qName.set(tr.getQualifiedNameForDebugger + "*")
           case typeDef: ScTypeDefinition if !isLocalOrUnderDelayedInit(typeDef) =>
@@ -450,8 +453,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         else originalQName.replace(packageSuffix, ".").takeWhile(_ != '$')
       }
       def tryToFindClass(name: String) = {
-        findClassByQualName(name, isScalaObject = false)
-          .orElse(findClassByQualName(name, isScalaObject = true))
+        findClassByQName(name, isScalaObject = false)
+          .orElse(findClassByQName(name, isScalaObject = true))
       }
 
       val scriptFile = findScriptFile(refType)
@@ -504,7 +507,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   private def findElementByReferenceTypeInner(refType: ReferenceType): Option[PsiElement] = {
 
-    val byName = findByQualName(refType) orElse findByShortName(refType)
+    val byName = findPsiClassByQName(refType) orElse findByShortName(refType)
     if (byName.isDefined) return byName
 
     val project = debugProcess.getProject
@@ -565,7 +568,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       val applySignature = refType.methodsByName("apply").asScala.find(m => !m.isSynthetic).map(_.signature())
       if (applySignature.isEmpty) candidates
       else {
-        candidates.filter(l => applySignature == DebuggerUtil.lambdaJVMSignature(l))
+        candidates.filter(l => applySignature == lambdaJVMSignature(l))
       }
     }
 
@@ -591,38 +594,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
     filteredWithSignature.headOption
-  }
-
-  private def findClassByQualName(qName: String, isScalaObject: Boolean): Option[PsiClass] = {
-    val project = debugProcess.getProject
-
-    val cacheManager = ScalaShortNamesCacheManager.getInstance(project)
-    val classes =
-      if (qName.endsWith(packageSuffix))
-        Option(cacheManager.getPackageObjectByName(qName.stripSuffix(packageSuffix), GlobalSearchScope.allScope(project))).toSeq
-      else
-        cacheManager.getClassesByFQName(qName.replace(packageSuffix, "."), debugProcess.getSearchScope)
-
-    val clazz =
-      if (classes.length == 1) classes.headOption
-      else if (classes.length >= 2) {
-        if (isScalaObject) classes.find(_.isInstanceOf[ScObject])
-        else classes.find(!_.isInstanceOf[ScObject])
-      }
-      else None
-    clazz.filter(_.isValid)
-  }
-
-  private def findByQualName(refType: ReferenceType): Option[PsiClass] = {
-    val originalQName = NameTransformer.decode(refType.name)
-    val endsWithPackageSuffix = originalQName.endsWith(packageSuffix)
-    val withoutSuffix =
-      if (endsWithPackageSuffix) originalQName.stripSuffix(packageSuffix)
-      else originalQName.stripSuffix("$").stripSuffix("$class")
-    val withDots = withoutSuffix.replace(packageSuffix, ".").replace('$', '.')
-    val transformed = if (endsWithPackageSuffix) withDots + packageSuffix else withDots
-
-    findClassByQualName(transformed, originalQName.endsWith("$"))
   }
 
   private def findByShortName(refType: ReferenceType): Option[PsiClass] = {
@@ -692,7 +663,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
 object ScalaPositionManager {
   private val SCRIPT_HOLDER_CLASS_NAME: String = "Main$$anon$1"
-  private val packageSuffix = ".package$"
   private val delayedInitBody = "delayedInit$body"
 
   private val isCompiledWithIndyLambdasCache = mutable.HashMap[PsiFile, Boolean]()
@@ -779,7 +749,7 @@ object ScalaPositionManager {
         val parentsOnTheLine = element.withParentsInFile.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
         val anon = parentsOnTheLine.collectFirst {
           case e if isLambda(e) => e
-          case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => newTd
+          case newTd: ScNewTemplateDefinition if generatesAnonClass(newTd) => newTd
         }
         val filteredParents = parentsOnTheLine.reverse.filter {
           case _: ScExpression => true
@@ -944,7 +914,7 @@ object ScalaPositionManager {
     private var compiledWithIndyLambdas = isCompiledWithIndyLambdas(containingFile)
     private val exactName: Option[String] = {
       elem match {
-        case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
+        case td: ScTypeDefinition if !isLocalClass(td) =>
           Some(getSpecificNameForDebugger(td))
         case _ => None
       }
@@ -967,7 +937,7 @@ object ScalaPositionManager {
       elem match {
         case o: ScObject if o.isPackageObject => Seq("package$")
         case td: ScTypeDefinition => Seq(ScalaNamesUtil.toJavaName(td.name))
-        case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => Seq("$anon")
+        case newTd: ScNewTemplateDefinition if generatesAnonClass(newTd) => Seq("$anon")
         case e if ScalaEvaluatorBuilderUtil.isGenerateClass(e) => partsForAnonfun(e)
         case _ => Seq.empty
       }
