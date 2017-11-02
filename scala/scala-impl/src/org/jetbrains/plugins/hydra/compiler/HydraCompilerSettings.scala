@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.hydra.compiler
 
-import java.io.File
 import java.nio.file.Paths
 
 import com.intellij.openapi.components._

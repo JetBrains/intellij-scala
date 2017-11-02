@@ -102,7 +102,7 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
   def onDownload(): Unit = {
     Try(new URL(hydraGlobalSettings.getHydraRepositoryUrl)) match {
       case Success(_) => downloadHydraForProjectScalaVersions()
-      case _ => Messages.showErrorDialog(contentPanel, s"""URL "$getHydraRepository" is not valid. To be able to download, please enter a valid URL.""", "URL not valid")
+      case _ => Messages.showErrorDialog(contentPanel, s"$getHydraRepository is not a valid URL.", "Invalid URL")
     }
   }
 
