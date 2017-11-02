@@ -187,12 +187,6 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     pd
   }
 
-  def attachListener(listener: ProcessAdapter): Unit =
-    acquireShellProcessHandler.addProcessListener(listener)
-
-  def removeListener(listener: ProcessAdapter): Unit =
-    acquireShellProcessHandler.removeProcessListener(listener)
-
   /** Supply a PrintWriter that writes to the current process. */
   def usingWriter[T](f: PrintWriter => T): T = {
     val writer = new PrintWriter(new OutputStreamWriter(acquireShellProcessHandler.getProcessInput))

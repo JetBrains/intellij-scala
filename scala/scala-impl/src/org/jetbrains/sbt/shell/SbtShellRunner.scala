@@ -94,9 +94,8 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
         whenReady = scrollToEnd(),
         whenWorking = scrollToEnd()
       )
-      val processManager = SbtProcessManager.forProject(project)
-      processManager.attachListener(shellPromptChanger)
-      processManager.attachListener(scrollOnStateChange)
+      myProcessHandler.addProcessListener(shellPromptChanger)
+      myProcessHandler.addProcessListener(scrollOnStateChange)
       SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
 
       if (!SbtRunner.isInTest) {
