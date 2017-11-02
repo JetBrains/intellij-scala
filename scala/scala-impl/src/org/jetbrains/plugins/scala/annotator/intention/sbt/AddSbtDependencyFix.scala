@@ -105,6 +105,11 @@ class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReferenceElement]
 
         indicator.setIndeterminate(true)
 
+        resolver.getIndex(project).foreach {
+          indicator.setText("Updating dependency index...")
+          _.doUpdate(Some(indicator))(project)
+        }
+
         val deps = getDeps
         if (deps.isEmpty) {
           error("No dependencies found for given import")
