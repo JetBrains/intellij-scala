@@ -77,7 +77,10 @@ class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReferenceElement]
           indicator.setText("Searching for artifacts...")
           val fqName = extensions.inReadAction(getReferenceText)
           val artifactInfoSet = if (fqName.endsWith("._")) { // search wildcard imports by containing package
-            doSearch(fqName.replaceAll("_$", ""))
+            doSearch(fqName.replaceAll("_$", "")) match {
+              case set if set.isEmpty => doSearch(fqName.replaceAll("._$", "")) // not a package, try searching for a class
+              case result => result
+            }
           } else {
             doSearch(fqName) match {
               case set if set.isEmpty && fqName.contains(".") => // imported name is not a class -> search for enclosing package
@@ -170,7 +173,7 @@ class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReferenceElement]
 
   private def getReferenceText: String = {
     val importExpr = PsiTreeUtil.getParentOfType(refElement.getElement, classOf[ScImportExpr])
-    if (refElement.getElement.qualifier.isEmpty)
+    if (importExpr.selectors.size > 1 || importExpr.selectors.exists(_.isAliasedImport))
       s"${importExpr.qualifier.getText}.${refElement.getElement.getText}" // for "import x.y.{foo, bar=>baz}" and so on
     else
       importExpr.getText
