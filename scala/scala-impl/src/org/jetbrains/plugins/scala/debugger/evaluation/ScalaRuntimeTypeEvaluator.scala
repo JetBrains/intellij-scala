@@ -3,7 +3,7 @@ package debugger.evaluation
 
 import scala.collection.JavaConverters._
 
-import com.intellij.debugger.{DebuggerBundle, DebuggerInvocationUtil, EvaluatingComputable}
+import com.intellij.debugger.DebuggerBundle
 import com.intellij.debugger.codeinsight.RuntimeTypeEvaluator
 import com.intellij.debugger.engine.ContextUtil
 import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
@@ -36,13 +36,11 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
     val process = context.getDebugProcess
     if (process == null) return null
 
-    val evaluator: ExpressionEvaluator = DebuggerInvocationUtil.commitAndRunReadAction(project, new EvaluatingComputable[ExpressionEvaluator] {
-      def compute: ExpressionEvaluator = {
-        val textWithImports = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, expression.getText)
-        val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(textWithImports, expression, project)
-        ScalaEvaluatorBuilder.build(codeFragment, ContextUtil.getSourcePosition(evaluationContext))
-      }
-    })
+    val evaluator: ExpressionEvaluator = inReadAction {
+      val textWithImports = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, expression.getText)
+      val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(textWithImports, expression, project)
+      ScalaEvaluatorBuilder.build(codeFragment, ContextUtil.getSourcePosition(evaluationContext))
+    }
     val value: Value = evaluator.evaluate(evaluationContext)
     if (value != null) {
       inReadAction {

@@ -83,15 +83,12 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
     }
   }
 
-  private def callEvaluator(evaluationContext: EvaluationContext): ExpressionEvaluator = {
-    DebuggerInvocationUtil.commitAndRunReadAction(project, new EvaluatingComputable[ExpressionEvaluator] {
-      override def compute(): ExpressionEvaluator = {
-        val callCode = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, generatedClass.callText)
-        val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(callCode, generatedClass.getAnchor, project)
-        ScalaEvaluatorBuilder.build(codeFragment, SourcePosition.createFromElement(generatedClass.getAnchor))
-      }
-    })
-  }
+  private def callEvaluator(evaluationContext: EvaluationContext): ExpressionEvaluator =
+    inReadAction {
+      val callCode = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, generatedClass.callText)
+      val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(callCode, generatedClass.getAnchor, project)
+      ScalaEvaluatorBuilder.build(codeFragment, SourcePosition.createFromElement(generatedClass.getAnchor))
+    }
 
   private def defineClasses(classes: Seq[OutputFileObject], context: EvaluationContext,
                             process: DebugProcess, classLoader: ClassLoaderReference): Unit = {
