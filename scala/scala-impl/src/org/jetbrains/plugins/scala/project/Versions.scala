@@ -64,7 +64,7 @@ object Versions  {
     val Scala = Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
       Version("2.10.0"),
-      Seq("2.10.6", "2.11.11", "2.12.3"))
+      Seq("2.10.6", "2.11.11", "2.12.4"))
 
     val Sbt013 = Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
