@@ -42,7 +42,8 @@ object HydraVersions {
     scalaVersionsPerModule.values.toSeq.distinct
   }
 
-  def downloadHydraVersions(repoURL: String, login: String, password: String): Array[String] = (Versions.loadHydraVersions(repoURL, login, password) ++ HydraApplicationSettings.getInstance().getDownloadedHydraVersions)
-    .distinct
-    .sortWith(Version(_) >= Version(_))
+  def downloadHydraVersions(repoURL: String, login: String, password: String): Array[String] =
+    (Versions.loadHydraVersions(repoURL, login, password) ++ HydraApplicationSettings.getInstance().hydraVersions)
+      .distinct
+      .sortWith(Version(_) >= Version(_))
 }

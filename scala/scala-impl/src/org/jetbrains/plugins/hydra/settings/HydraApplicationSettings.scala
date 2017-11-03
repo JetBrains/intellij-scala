@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.hydra.settings
 
 import java.io.File
-import java.net.URL
 import java.util
 
 import com.intellij.openapi.components._
 
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
-import scala.util.{Success, Try}
 
 /**
   * @author Maris Alexandru
@@ -20,6 +18,7 @@ import scala.util.{Success, Try}
 class HydraApplicationSettings extends PersistentStateComponent[HydraApplicationSettingsState]{
 
   var artifactPaths: Map[(String, String), List[String]] = Map.empty
+  var hydraVersions: Array[String] = Array.empty
   private var hydraRepositoryUrl: String = HydraApplicationSettings.DefaultHydraRepositoryUrl
   var hydraRepositoryRealm: String = HydraApplicationSettings.DefaultHydraRepositoryRealm
   private val KeySeparator = "_"
@@ -27,6 +26,7 @@ class HydraApplicationSettings extends PersistentStateComponent[HydraApplication
   override def loadState(state: HydraApplicationSettingsState): Unit = {
     state.removeMapEntriesThatDontExist()
     artifactPaths = convertArtifactsFromStateToSettings(state.getGlobalArtifactPaths)
+    hydraVersions = state.getHydraVersions.asScala.toArray
     hydraRepositoryUrl = state.getHydraRepositoryUrl
     hydraRepositoryRealm = state.hydraRepositoryRealm
   }
@@ -38,12 +38,9 @@ class HydraApplicationSettings extends PersistentStateComponent[HydraApplication
     state.removeMapEntriesThatDontExist()
     state.setHydraRepositoryUrl(hydraRepositoryUrl.toString)
     state.setHydraRepositoryRealm(hydraRepositoryRealm)
+    state.setHydraVersions(hydraVersions.toList.asJava)
     artifactPaths = convertArtifactsFromStateToSettings(state.getGlobalArtifactPaths)
     state
-  }
-
-  def getDownloadedHydraVersions: Array[String] = {
-    for { (_, hydraVersion) <- artifactPaths.keySet.toArray } yield hydraVersion
   }
 
   def getDownloadedScalaVersions: Array[String] = {
@@ -74,6 +71,9 @@ class HydraApplicationSettingsState {
 
   @BeanProperty
   var hydraRepositoryRealm: String = HydraApplicationSettings.DefaultHydraRepositoryRealm
+
+  @BeanProperty
+  var hydraVersions: java.util.List[String] = new util.ArrayList()
 
   def removeMapEntriesThatDontExist(): Unit = {
     globalArtifactPaths = globalArtifactPaths.asScala.filter(entry => checkIfArtifactsExist(entry._2)).asJava
