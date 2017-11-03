@@ -50,11 +50,6 @@ class HydraApplicationSettings extends PersistentStateComponent[HydraApplication
     for { (scalaVersion, _) <- artifactPaths.keySet.toArray } yield scalaVersion
   }
 
-  def getHydraRepositoryName: String = Try(new URL(hydraRepositoryUrl)) match {
-    case Success(url) => url.getHost
-    case _ => ""
-  }
-
   def setHydraRepositopryUrl(url: String): Unit = hydraRepositoryUrl = url
 
   def getHydraRepositoryUrl: String = hydraRepositoryUrl

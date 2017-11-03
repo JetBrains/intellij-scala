@@ -40,5 +40,9 @@ object HydraCredentialsManager {
     new String(encode(s"${getLogin}:${getPlainPassword}"))
   }
 
+  def getBasicAuthEncoding(login: String, password: String): String = {
+    new String(encode(s"$login:$password"))
+  }
+
   private def encode(text: String) = Base64.getEncoder.encodeToString(text.getBytes(StandardCharsets.UTF_8))
 }

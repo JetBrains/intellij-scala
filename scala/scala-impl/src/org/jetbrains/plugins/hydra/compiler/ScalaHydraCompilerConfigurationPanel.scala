@@ -36,15 +36,12 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
         hydraGlobalSettings.getHydraRepositoryUrl != getHydraRepository ||
         hydraGlobalSettings.hydraRepositoryRealm != getHydraRepositoryRealm)) {
 
-      HydraCredentialsManager.setCredentials(getUsername, getPassword)
-      hydraGlobalSettings.setHydraRepositopryUrl(getHydraRepository)
-      hydraVersionComboBox.setItems(HydraVersions.downloadHydraVersions)
+      hydraVersionComboBox.setItems(HydraVersions.downloadHydraVersions(getHydraRepository, getUsername, getPassword))
       hydraVersionComboBox.setSelectedItem(settings.hydraVersion)
     }
   }
 
   hydraGlobalSettings.getState
-  setDefaultHydraVersion
 
   hydraRepository.setText(hydraGlobalSettings.getHydraRepositoryUrl)
   hydraRepository.addFocusListener(focusListener)
@@ -74,6 +71,7 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
     }
   })
 
+  setDefaultHydraVersion
 
   def selectedVersion: String = hydraVersionComboBox.getSelectedItem.toString
 
@@ -98,6 +96,11 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
   def getHydraRepositoryRealm: String = realmTextField.getText
 
   def setHydraRepositoryRealm(realm: String): Unit = realmTextField.setText(realm)
+
+  def getHydraRepositoryName: String = Try(new URL(getHydraRepository)) match {
+    case Success(url) => url.getHost
+    case _ => ""
+  }
 
   def onDownload(): Unit = {
     Try(new URL(hydraGlobalSettings.getHydraRepositoryUrl)) match {
@@ -136,11 +139,15 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
   }
 
   private def downloadVersion(scalaVersions: Seq[String], hydraVersion: String): (String => Unit) => Unit =
-    (listener: (String) => Unit) => scalaVersions.foreach(version => HydraArtifactsCache.downloadIfNotPresent(version, hydraVersion, listener))
+    (listener: (String) => Unit) => scalaVersions.foreach(version =>
+      HydraArtifactsCache.downloadIfNotPresent(HydraRepositorySettings(getHydraRepositoryName, getHydraRepository,
+        getHydraRepositoryRealm, getUsername, getPassword), version, hydraVersion, listener))
 
   private def setDefaultHydraVersion: Unit = {
-    val hydraVersions = HydraVersions.downloadHydraVersions
+    val hydraVersions = HydraVersions.downloadHydraVersions(getHydraRepository, getUsername, getPassword)
     hydraVersionComboBox.setItems(hydraVersions)
     setSelectedVersion(hydraVersions.head)
   }
 }
+
+sealed case class HydraRepositorySettings(repositoryName: String, repositoryURL: String, repositoryRealm: String, login: String, password: String)
