@@ -9,7 +9,6 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIntLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
@@ -27,6 +26,7 @@ import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 
 /**
   * @author ilyas, Alexander Podkhalyuzin
@@ -161,27 +161,71 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
 object ScExpression {
 
-  def calculateReturns: ScExpression => Set[ScExpression] = {
-    case ScTryStmt(tryBlock, maybeCatchBlock, _) =>
-      calculateReturns(tryBlock) ++
-        maybeCatchBlock.collect {
-          case ScCatchBlock(clauses) => clauses
-        }.toSet[ScCaseClauses]
-          .flatMap(_.caseClauses)
-          .flatMap(_.expr)
-          .flatMap(calculateReturns)
-    case block: ScBlock =>
-      block.lastExpr
-        .map(calculateReturns)
-        .getOrElse(Set(block))
-    case ScParenthesisedExpr(innerExpression) => calculateReturns(innerExpression)
-    case m: ScMatchStmt =>
-      m.getBranches.toSet.flatMap(calculateReturns)
-    case ScIfStmt(_, maybeThenBranch, Some(elseBranch)) =>
-      calculateReturns(elseBranch) ++
-        maybeThenBranch.toSet.flatMap(calculateReturns)
-    case i: ScIfStmt => Set(i)
-    case expression => Set(expression) // TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
+  def calculateReturns(expression: ScExpression): Set[ScExpression] = {
+    val visitor = new ReturnsVisitor
+    expression.accept(visitor)
+    visitor.result
+  }
+
+  private[api] class ReturnsVisitor extends ScalaElementVisitor {
+
+    private val result_ = mutable.LinkedHashSet.empty[ScExpression]
+
+    def result: Set[ScExpression] = result_.toSet
+
+    override def visitTryExpression(statement: ScTryStmt): Unit = {
+      acceptVisitor(statement.tryBlock)
+
+      statement.catchBlock.collect {
+        case ScCatchBlock(clauses) => clauses
+      }.toSeq
+        .flatMap(_.caseClauses)
+        .flatMap(_.expr)
+        .foreach(acceptVisitor)
+    }
+
+    override def visitExprInParent(expression: ScParenthesisedExpr): Unit = {
+      expression.expr match {
+        case Some(innerExpression) => acceptVisitor(innerExpression)
+        case _ => super.visitExprInParent(expression)
+      }
+    }
+
+    override def visitMatchStatement(statement: ScMatchStmt): Unit = {
+      statement.getBranches.foreach(acceptVisitor)
+    }
+
+    override def visitIfStatement(statement: ScIfStmt): Unit = {
+      statement.elseBranch match {
+        case Some(elseBranch) =>
+          acceptVisitor(elseBranch)
+          statement.thenBranch.foreach(acceptVisitor)
+        case _ => super.visitIfStatement(statement)
+      }
+    }
+
+    override def visitReferenceExpression(reference: ScReferenceExpression): Unit = {
+      visitExpression(reference)
+    }
+
+    override def visitExpression(expression: ScExpression): Unit = {
+      val maybeLastExpression = expression match {
+        case block: ScBlock => block.lastExpr
+        case _ => None
+      }
+
+      maybeLastExpression match {
+        case Some(lastExpression) =>
+          acceptVisitor(lastExpression)
+        case _ =>
+          super.visitExpression(expression)
+          result_ += expression
+      }
+    }
+
+    protected def acceptVisitor(expression: ScExpression): Unit = {
+      expression.accept(this)
+    }
   }
 
   case class ExpressionTypeResult(tr: TypeResult,
@@ -196,6 +240,7 @@ object ScExpression {
 
   implicit class Ext(val expr: ScExpression) extends AnyVal {
     private implicit def elementScope: ElementScope = expr.elementScope
+
     private def project = elementScope.projectContext
 
     def expectedType(fromUnderscore: Boolean = true): Option[ScType] =
@@ -440,8 +485,10 @@ object ScExpression {
     def isNarrowing(expected: ScType): Option[TypeResult] = {
       import expr.projectContext
 
-      def isByte(v: Long)  = v >= scala.Byte.MinValue  && v <= scala.Byte.MaxValue
-      def isChar(v: Long)  = v >= scala.Char.MinValue  && v <= scala.Char.MaxValue
+      def isByte(v: Long) = v >= scala.Byte.MinValue && v <= scala.Byte.MaxValue
+
+      def isChar(v: Long) = v >= scala.Char.MinValue && v <= scala.Char.MaxValue
+
       def isShort(v: Long) = v >= scala.Short.MinValue && v <= scala.Short.MaxValue
 
       def success(t: ScType) = Some(Right(t))
@@ -458,8 +505,8 @@ object ScExpression {
       import stdTypes._
 
       expected.removeAbstracts match {
-        case Char  if isChar(intLiteralValue)  => success(Char)
-        case Byte  if isByte(intLiteralValue)  => success(Byte)
+        case Char if isChar(intLiteralValue) => success(Char)
+        case Byte if isByte(intLiteralValue) => success(Byte)
         case Short if isShort(intLiteralValue) => success(Short)
         case _ => None
       }

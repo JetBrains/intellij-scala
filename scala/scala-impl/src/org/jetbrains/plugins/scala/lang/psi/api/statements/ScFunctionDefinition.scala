@@ -7,7 +7,7 @@ package statements
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScConstructorPattern, ScInfixPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.calculateReturns
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -82,30 +82,22 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
     val expressions: Set[PsiElement] = recursiveReferences match {
       case Seq() => Set.empty
       case _ =>
-        val booleanInstance = StdTypes.instance.Boolean
+        def calculateExpandedReturns(expression: ScExpression): Set[ScExpression] = {
+          val visitor = new ScExpression.ReturnsVisitor {
 
-        def calculateExpandedReturns: ScExpression => Set[ScExpression] = {
-          case ScInfixExpr(Typeable(`booleanInstance`), ElementText("&&" | "||"), right@Typeable(`booleanInstance`)) =>
-            calculateExpandedReturns(right)
-          case ScTryStmt(tryBlock, maybeCatchBlock, _) =>
-            calculateExpandedReturns(tryBlock) ++
-              maybeCatchBlock.collect {
-                case ScCatchBlock(clauses) => clauses
-              }.toSet[ScCaseClauses]
-                .flatMap(_.caseClauses)
-                .flatMap(_.expr)
-                .flatMap(calculateExpandedReturns)
-          case block: ScBlock =>
-            block.lastExpr
-              .map(calculateExpandedReturns)
-              .getOrElse(Set(block))
-          case ScParenthesisedExpr(innerExpression) => calculateExpandedReturns(innerExpression)
-          case m: ScMatchStmt =>
-            m.getBranches.toSet.flatMap(calculateExpandedReturns)
-          case ScIfStmt(_, maybeThenBranch, Some(elseBranch)) =>
-            calculateExpandedReturns(elseBranch) ++
-              maybeThenBranch.toSet.flatMap(calculateExpandedReturns)
-          case expression => Set(expression)
+            private val booleanInstance = StdTypes.instance.Boolean
+
+            override def visitInfixExpression(infix: ScInfixExpr): Unit = {
+              infix match {
+                case ScInfixExpr(Typeable(`booleanInstance`), ElementText("&&" | "||"), right@Typeable(`booleanInstance`)) =>
+                  acceptVisitor(right)
+                case _ => super.visitInfixExpression(infix)
+              }
+            }
+          }
+
+          expression.accept(visitor)
+          visitor.result
         }
 
         def expandIf(expression: ScExpression): Set[ScExpression] = (expression match {
