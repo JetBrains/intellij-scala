@@ -168,7 +168,7 @@ lazy val sbtRuntimeDependencies =
     ideSkipProject := true
   )
 
-lazy val testDownloader =
+lazy val testJarsDownloader =
   newProject("testJarsDownloader", file("target/tools/test-jars-downloader"))
   .settings(
     conflictManager := ConflictManager.all,
@@ -226,7 +226,7 @@ addCommandAlias("runFastTestsScala", s"testOnly scala.* -- $fastTestOptions")
 lazy val setUpTestEnvironment = taskKey[Unit]("Set up proper environment for running tests")
 
 setUpTestEnvironment in ThisBuild := {
-  update.in(testDownloader).value
+  update.in(testJarsDownloader).value
 }
 
 lazy val cleanUpTestEnvironment = taskKey[Unit]("Clean up IDEA test system and config directories")

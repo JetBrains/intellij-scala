@@ -3,8 +3,9 @@ import sbt._
 object Versions {
   val scalaVersion: String = Scala.latest_2_12
   val scalaBinaryVersion: String = Scala.binary_2_12
+  // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   val sbtVersion: String = Sbt.latest
-  val zincVersion = "1.0.0"
+  val zincVersion = "1.0.3"
   val ideaVersion = "173.3415.22"
   val sbtStructureVersion: String = "2017.2"
   val sbtIdeaShellVersion: String = "2017.2"
@@ -49,6 +50,12 @@ object Versions {
     val latest_0_13 = "0.13.16"
     val latest_1_0 = "1.0.3"
     val latest: String = latest_1_0
+
+    // these need to be updated to correspond to the versions in sbt/project/Dependencies.scala
+    // they are required for our tests. TODO: automatically update them based on sbt base version
+    val latestIo = "1.0.2"
+    val latestUtil = "1.0.2"
+    val latestLm = "1.0.3"
 
     def scalaVersion(v: String): String =
       if (v.startsWith(Sbt.binary_0_12)) Scala.binary_2_9
@@ -239,17 +246,19 @@ object DependencyGroups {
     )
 
   val sbt1CrossScala: CrossVersion = CrossVersion.fullMapped(_ => Scala.binary_2_12)
-  def sbt100Libs(v:String): Seq[ModuleID] =
-    // these are not cross-versioned
-    Seq("sbt", "util-interface", "test-agent").map(lib => sbtOrg % lib % v) ++
-    // this has separate versioning
-    Seq(sbtOrg % "compiler-interface" % "1.0.0") ++
-    // all of these are published cross-versioned for scala 2.12
-    Seq(
-      "main","logic","collections","util-position","util-relation","actions","completion","io",
-      "util-control","run","util-logging","task-system","tasks","util-cache",
-      "testing","util-tracking","main-settings","command","protocol","core-macros", "librarymanagement-core"
-    ).map(lib => (sbtOrg % lib % v).withCrossVersion(sbt1CrossScala))
+//  def sbt100Libs(v:String): Seq[ModuleID] =
+//    // these are not cross-versioned
+//    Seq("sbt", "util-interface", "test-agent").map(lib => sbtOrg % lib % v) ++
+//    // this has separate versioning
+//    Seq(sbtOrg % "compiler-interface" % zincVersion) ++
+//    // all of these are published cross-versioned for scala 2.12
+//    Seq(
+//      "main","logic","collections","util-position","util-relation","actions","completion","io",
+//      "util-control","run","util-logging","task-system","tasks","util-cache",
+//      "testing","util-tracking","main-settings","command","protocol","core-macros", "librarymanagement-core"
+//    ).map(lib => (sbtOrg % lib % v).withCrossVersion(sbt1CrossScala))
+
+  def sbt100Libs(v:String): Seq[ModuleID] = Seq(sbtOrg % "sbt" % v) // all the modules are transitive deps
 
   // required jars for MockSbt - it adds different versions to test module classpath
   val mockSbtDownloader: Seq[ModuleID] = {
