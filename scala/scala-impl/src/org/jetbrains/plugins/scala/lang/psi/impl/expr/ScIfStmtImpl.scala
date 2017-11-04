@@ -5,29 +5,19 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
-class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStmt {
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
-    }
-  }
-
-  override def toString: String = "IfStatement"
+  * @author Alexander Podkhalyuzin
+  *         Date: 06.03.2008
+  */
+class ScIfStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIfStmt {
 
   def condition: Option[ScExpression] = {
     val rpar = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
@@ -42,11 +32,11 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
       else getLastChild match {
         case expression: ScExpression => expression
         case _ => PsiTreeUtil.getPrevSiblingOfType(getLastChild, classOf[ScExpression])
-    }
+      }
     if (t == null) None else condition match {
-      case None => Some(t) 
+      case None => Some(t)
       case Some(c) if c != t => Some(t)
-      case  _ => None
+      case _ => None
     }
   }
 
@@ -76,4 +66,6 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
       case _ => Failure(ScalaBundle.message("nothing.to.type"))
     }
   }
+
+  override def toString: String = "IfStatement"
 }

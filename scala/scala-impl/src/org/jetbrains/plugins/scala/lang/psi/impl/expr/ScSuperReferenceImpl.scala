@@ -11,25 +11,20 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import _root_.scala.collection.mutable.ArrayBuffer
-
 /**
-* @author Alexander Podkhalyuzin
-* Date: 14.03.2008
-*/
-
-class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSuperReference {
-  override def toString = "SuperReference"
-
+  * @author Alexander Podkhalyuzin
+  *         Date: 14.03.2008
+  */
+class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScSuperReference {
   def isHardCoded: Boolean = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) false else {
@@ -59,15 +54,14 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     }
   }
 
-
-
   def drvTemplate: Option[ScTemplateDefinition] = reference match {
     case Some(q) => q.bind() match {
-      case Some(ScalaResolveResult(td : ScTypeDefinition, _)) => Some(td)
+      case Some(ScalaResolveResult(td: ScTypeDefinition, _)) => Some(td)
       case _ => None
     }
     case None => ScalaPsiUtil.drvTemplate(this)
   }
+
 
   def staticSuper: Option[ScType] = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
@@ -80,27 +74,31 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) null else new PsiReference {
       def getElement: ScSuperReferenceImpl = ScSuperReferenceImpl.this
+
       def getRangeInElement: TextRange = new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
+
       def getCanonicalText: String = resolve match {
-        case c : PsiClass => c.qualifiedName
+        case c: PsiClass => c.qualifiedName
         case _ => null
       }
+
       def isSoft: Boolean = false
 
       def handleElementRename(newElementName: String): ScSuperReferenceImpl = doRename(newElementName)
-      def bindToElement(e : PsiElement): ScSuperReferenceImpl = e match {
-        case c : PsiClass => doRename(c.name)
+
+      def bindToElement(e: PsiElement): ScSuperReferenceImpl = e match {
+        case c: PsiClass => doRename(c.name)
         case _ => throw new IncorrectOperationException("cannot bind to anything but class")
       }
 
-      private def doRename(newName : String) = {
+      private def doRename(newName: String) = {
         val parent = id.getNode.getTreeParent
         parent.replaceChild(id.getNode, createIdentifier(newName))
         ScSuperReferenceImpl.this
       }
 
       def isReferenceTo(element: PsiElement): Boolean = element match {
-        case c : PsiClass => c.name == id.getText && resolve == c
+        case c: PsiClass => c.name == id.getText && resolve == c
         case _ => false
       }
 
@@ -109,11 +107,12 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
           findSuper(id) match {
             case Some(t) => t.extractClass match {
               case Some(c) => c
-              case None    => null
+              case None => null
             }
-            case _       => null
+            case _ => null
           }
         }
+
         ScalaPsiUtil.fileContext(id) match {
           case file: ScalaFile if file.isCompiled =>
             val next = id.getNode.getTreeNext
@@ -132,19 +131,14 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       }
 
       def getVariants: Array[Object] = superTypes match {
-        case None => Array[Object]()
+        case None => Array.emptyObjectArray
         case Some(supers) =>
-          val buff = new ArrayBuffer[Object]
-          supers.foreach { t => t.extractClass match {
-            case Some(c) => buff += c
-            case None =>
-          }}
-          buff.toArray
+          supers.flatMap(_.extractClass).toArray
       }
     }
   }
 
-  def findSuper(id : PsiElement) : Option[ScType] = superTypes match {
+  def findSuper(id: PsiElement): Option[ScType] = superTypes match {
     case None => None
     case Some(types) =>
       val name = id.getText
@@ -171,14 +165,5 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
   protected override def innerType = Failure("Cannot infer type of `super' expression")
 
-  override def accept(visitor: ScalaElementVisitor) {
-    visitor.visitSuperReference(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => visitor.visitSuperReference(this)
-      case _ => super.accept(visitor)
-    }
-  }
+  override def toString = "SuperReference"
 }

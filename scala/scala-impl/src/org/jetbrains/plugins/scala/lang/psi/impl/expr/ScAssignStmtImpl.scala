@@ -5,8 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{PsiElementVisitor, PsiField, ResolveState}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import com.intellij.psi.{PsiField, ResolveState}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
@@ -19,12 +18,9 @@ import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
- * @author Alexander Podkhalyuzin
- */
-
-class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScAssignStmt {
-  override def toString: String = "AssignStatement"
-
+  * @author Alexander Podkhalyuzin
+  */
+class ScAssignStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScAssignStmt {
   protected override def innerType: TypeResult = {
     getLExpression match {
       case call: ScMethodCall => call.`type`()
@@ -37,13 +33,6 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
             }
           case _ => Right(Unit)
         }
-    }
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
     }
   }
 
@@ -113,4 +102,6 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
       case _ => None
     }
   }
+
+  override def toString: String = "AssignStatement"
 }

@@ -8,7 +8,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScMethodLikeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -25,19 +24,18 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import scala.collection.Seq
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
-class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSelfInvocation {
-  override def toString: String = "SelfInvocation"
+  * @author Alexander Podkhalyuzin
+  *         Date: 22.02.2008
+  */
+class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScSelfInvocation {
 
   def bind: Option[PsiElement] = bindInternal(shapeResolve = false)
 
-  private def bindInternal(shapeResolve: Boolean): Option[PsiElement] = {
-    val seq = bindMultiInternal(shapeResolve)
-    if (seq.length == 1) Some(seq(0))
-    else None
-  }
+  private def bindInternal(shapeResolve: Boolean): Option[PsiElement] =
+    bindMultiInternal(shapeResolve) match {
+      case Seq(head) => Some(head)
+      case _ => None
+    }
 
   private def bindMultiInternal(shapeResolve: Boolean): Seq[PsiElement] = {
     val psiClass = PsiTreeUtil.getContextOfType(this, classOf[PsiClass])
@@ -51,7 +49,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       case None => Seq.empty
     }
     val proc = new MethodResolveProcessor(this, "this", List(expressions), Seq.empty,
-      Seq.empty /*todo: ? */, StdKinds.methodsOnly, constructorResolve = true, isShapeResolve = shapeResolve,
+      Seq.empty /*todo: ? */ , StdKinds.methodsOnly, constructorResolve = true, isShapeResolve = shapeResolve,
       enableTupling = true, selfConstructorResolve = true)
     for (constr <- clazz.secondaryConstructors.filter(_ != method) if constr != method) {
       proc.execute(constr, ResolveState.initial)
@@ -91,16 +89,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     bindMultiInternal(shapeResolve = false).map(pe => workWithBindInternal(Some(pe), i))
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
-    visitor.visitSelfInvocation(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case s: ScalaElementVisitor => s.visitSelfInvocation(this)
-      case _ => super.accept(visitor)
-    }
-  }
+  override def toString: String = "SelfInvocation"
 
   override def handleElementRename(newElementName: String): PsiElement = this
 
@@ -120,6 +109,6 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
   override def getRangeInElement: TextRange = {
     val start = this.getTextRange.getStartOffset
-    Option(thisElement).getOrElse(this).getTextRange.shiftRight(- start)
+    Option(thisElement).getOrElse(this).getTextRange.shiftRight(-start)
   }
 }

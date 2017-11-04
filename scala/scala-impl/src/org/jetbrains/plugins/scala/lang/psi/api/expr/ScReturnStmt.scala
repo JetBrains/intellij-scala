@@ -20,7 +20,9 @@ trait ScReturnStmt extends ScExpression {
   def returnFunction: Option[ScFunctionDefinition] =
     this.parentOfType(classOf[ScFunctionDefinition])
 
-  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitReturnStatement(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitReturnStatement(this)
+  }
 }
 
 object ScReturnStmt {

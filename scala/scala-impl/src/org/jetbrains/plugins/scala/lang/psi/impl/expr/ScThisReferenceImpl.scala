@@ -5,9 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
@@ -17,12 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwne
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
- * @author Alexander Podkhalyuzin
- * Date: 06.03.2008
- */
-
-class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScThisReference {
-  override def toString: String = "ThisReference"
+  * @author Alexander Podkhalyuzin
+  *         Date: 06.03.2008
+  */
+class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScThisReference {
 
   protected override def innerType: TypeResult = {
     import scala.meta.intellij.psiExt.TemplateDefExt
@@ -43,16 +39,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
       if (encl != null) Some(PsiTreeUtil.getContextOfType(encl, false, classOf[ScTemplateDefinition])) else None
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
-    visitor.visitThisReference(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => visitor.visitThisReference(this)
-      case _ => super.accept(visitor)
-    }
-  }
+  override def toString: String = "ThisReference"
 }
 
 object ScThisReferenceImpl {

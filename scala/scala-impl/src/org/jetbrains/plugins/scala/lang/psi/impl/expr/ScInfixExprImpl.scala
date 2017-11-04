@@ -5,21 +5,15 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-import scala.collection.Seq
-
 /**
- * @author Alexander Podkhalyuzin
- * Date: 06.03.2008
- */
-
-class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixExpr {
-  override def toString: String = "InfixExpression"
+  * @author Alexander Podkhalyuzin
+  *         Date: 06.03.2008
+  */
+class ScInfixExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScInfixExpr {
 
   override def argumentExpressions: Seq[ScExpression] = {
     if (isRightAssoc) Seq(lOp)
@@ -48,14 +42,5 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
     }
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
-    visitor.visitInfixExpression(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => visitor.visitInfixExpression(this)
-      case _ => super.accept(visitor)
-    }
-  }
+  override def toString: String = "InfixExpression"
 }
