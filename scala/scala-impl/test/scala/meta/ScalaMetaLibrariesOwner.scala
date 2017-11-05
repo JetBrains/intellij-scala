@@ -10,7 +10,7 @@ trait ScalaMetaLibrariesOwner extends ScalaSdkOwner {
 
   import ScalaMetaLibrariesOwner._
 
-  protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] = Array(
+  protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] = Seq(
     MetaCommonLoader(),
     MetaDialectsLoader(),
     MetaInlineLoader(),

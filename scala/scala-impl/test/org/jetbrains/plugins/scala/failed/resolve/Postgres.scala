@@ -12,8 +12,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class Postgres extends FailedResolveTest("postgresql") {
 
-  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
-    Array(PostgresLoader()(module))
+  override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
+    Seq(PostgresLoader()(module))
 
   def testSCL8556(): Unit = doTest()
 }

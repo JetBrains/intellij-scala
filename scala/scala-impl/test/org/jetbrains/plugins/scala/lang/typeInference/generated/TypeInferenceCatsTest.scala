@@ -11,8 +11,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[SlowTests]))
 class TypeInferenceCatsTest extends TypeInferenceTestBase {
 
-  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
-    Array(CatsLoader()(module))
+  override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
+    Seq(CatsLoader()(module))
 
   override protected def folderPath: String = super.folderPath + "cats/"
 

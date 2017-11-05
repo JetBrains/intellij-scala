@@ -19,11 +19,11 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   override implicit val version: ScalaVersion = Scala_2_12
 
-  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] = {
+  override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] = {
     import MonocleLensesTest._
 
     implicit val module: Module = getModuleAdapter
-    Array(MonocleCoreLoader(), MonocleMacroLoader(), MonocleGeneric())
+    Seq(MonocleCoreLoader(), MonocleMacroLoader(), MonocleGeneric())
   }
 
   protected def folderPath: String = TestUtils.getTestDataPath

@@ -12,8 +12,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class ScalaZTest extends TypeInferenceTestBase {
 
-  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
-    Array(ScalaZCoreLoader()(module))
+  override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
+    Seq(ScalaZCoreLoader()(module))
 
   def testSCL5706(): Unit = {
     doTest(
