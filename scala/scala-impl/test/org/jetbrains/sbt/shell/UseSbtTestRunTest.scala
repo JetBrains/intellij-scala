@@ -2,16 +2,18 @@ package org.jetbrains.sbt.shell
 
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.runners.ExecutionEnvironmentBuilder
+import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
+import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
+import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.roots.ProjectRootManager
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
 import org.junit.experimental.categories.Category
-import scala.concurrent.Await
-import scala.concurrent.duration._
 
+import scala.concurrent.{Await, Promise}
+import scala.concurrent.duration._
 import com.intellij.testFramework.EdtTestUtil
 
 /**
@@ -149,16 +151,36 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
     val sdk = ProjectRootManager.getInstance(project).getProjectSdk
     assert(sdk != null, s"project sdk was null in project ${project.getName}")
 
+    val runComplete = Promise[Int]
+
     EdtTestUtil.runInEdtAndWait { () =>
       val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(classOf[DefaultRunExecutor])
       val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =
         new ExecutionEnvironmentBuilder(project, executor)
-      executionEnvironmentBuilder.runProfile(config).buildAndExecute()
+
+      // we need this whole setup to get the SbtProcessHandlerWrapper that the run config uses
+      // rather than the sbt shell process handler since it isn't terminated by the time the test run completes
+      val executionEnvironment = executionEnvironmentBuilder
+        .runProfile(config)
+        .build()
+
+      val runCompleteListener = new ProcessAdapter {
+        override def processTerminated(event: ProcessEvent): Unit =
+          if (!runComplete.isCompleted)
+          runComplete.success(event.getExitCode)
+      }
+
+      val callback = new ProgramRunner.Callback {
+        override def processStarted(descriptor: RunContentDescriptor): Unit = {
+          descriptor.getProcessHandler.addProcessListener(runCompleteListener)
+        }
+      }
+
+      executionEnvironment.getRunner.execute(executionEnvironment, callback)
       runner.getConsoleView.flushDeferredText()
-      comm.command("exit", showShell = false)
     }
 
-    val exitCode = Await.result(logger.terminated, 3.minutes)
+    val exitCode = Await.result(runComplete.future, 3.minutes)
     val log = logger.getLog
     assert(exitCode == 0, s"sbt shell completed with nonzero exit code. Full log:\n$log")
     expectedStrings.foreach(str => assert(log.contains(str), s"sbt shell console did not contain expected string '$str'. Full log:\n$log"))
