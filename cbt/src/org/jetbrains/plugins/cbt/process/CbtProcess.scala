@@ -1,15 +1,13 @@
 package org.jetbrains.plugins.cbt.process
 
 import java.io.File
-import java.nio.file.{Path, Paths}
 
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationSource}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
-import org.jetbrains.plugins.cbt._
-import org.jetbrains.plugins.cbt.project.settings.{CbtExecutionSettings, CbtProjectSettings, CbtSystemSettings}
-import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
+import org.jetbrains.plugins.cbt.project.settings.{CbtExecutionSettings, CbtSystemSettings}
+import org.jetbrains.plugins.cbt.project.structure.{CbtParsingBuildInfoXmlException, CbtProjectImporingException}
 import org.jetbrains.plugins.cbt.settings.CbtGlobalSettings
 
 import scala.sys.process.{Process, ProcessLogger}
@@ -28,9 +26,11 @@ object CbtProcess {
       Seq("--extraModules", extraModulesStr, "--needCbtLibs", needCbtLibsStr)
     }
 
-    val xml =
-      runAction("buildInfoXml" +: buildParams, settings.useDirect, root, projectOpt, taskListener)
-    xml.map(XML.loadString)
+    runAction("buildInfoXml" +: buildParams, settings.useDirect, root, projectOpt, taskListener)
+      .flatMap { xml =>
+        Try(XML.loadString(xml))
+          .recoverWith { case _ => Failure(new CbtParsingBuildInfoXmlException) }
+      }
   }
 
   def runAction(action: Seq[String],
