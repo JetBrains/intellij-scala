@@ -5,6 +5,8 @@ package api
 package toplevel
 package typedef
 
+import scala.annotation.tailrec
+
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.search.{LocalSearchScope, PackageScope, SearchScope}
@@ -19,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScMemberOrLocal
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
-
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -169,44 +170,68 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   }
 
   abstract override def getUseScope: SearchScope = {
-    val accessModifier = Option(getModifierList).flatMap(_.accessModifier)
+    def accessModifier(modifierListOwner: ScModifierListOwner) = Option(getModifierList).flatMap(_.accessModifier)
 
-    def withCompanionSearchScope(typeDefinition: ScTypeDefinition): SearchScope = {
+    def localSearchScope(typeDefinition: ScTypeDefinition, withCompanion: Boolean = true): SearchScope = {
       val scope = new LocalSearchScope(typeDefinition)
-      typeDefinition.baseCompanionModule.map {
-        new LocalSearchScope(_)
-      }.map {
-        scope.union
-      }.getOrElse(scope)
+      if (withCompanion) {
+        typeDefinition.baseCompanionModule match {
+          case Some(td) => scope.union(new LocalSearchScope(td))
+          case _ => scope
+        }
+      }
+      else scope
     }
 
-    def fromContainingBlockOrMember(): Option[SearchScope] = {
-      val blockOrMember = PsiTreeUtil.getContextOfType(this, true, classOf[ScBlock], classOf[ScMember])
+    def containingClassScope(withCompanion: Boolean) = containingClass match {
+      case definition: ScTypeDefinition => Some(localSearchScope(definition, withCompanion))
+      case _ => this.containingFile.map(new LocalSearchScope(_))
+    }
+
+    def forTopLevelPrivate(modifierListOwner: ScModifierListOwner) = modifierListOwner match {
+      case td: ScTypeDefinition if td.isTopLevel =>
+        val qName = Option(td.qualifiedName)
+        val parentPackage = qName.flatMap(ScalaPsiUtil.parentPackage(_, td.getProject))
+        parentPackage.map(new PackageScope(_, /*includeSubpackages*/ false, /*includeLibraries*/ true))
+      case _ => None
+    }
+
+    @tailrec
+    def fromContainingBlockOrMember(elem: PsiElement): Option[SearchScope] = {
+      val blockOrMember = PsiTreeUtil.getContextOfType(elem, true, classOf[ScBlock], classOf[ScMember])
       blockOrMember match {
         case null => None
-        case block: ScBlock => Some(new LocalSearchScope(block))
+        case b: ScBlock => Some(new LocalSearchScope(b))
+        case o: ScObject => Some(o.getUseScope)
+        case td: ScTypeDefinition => //can't use td.getUseScope because of inheritance
+          fromUnqualifiedOrThisPrivate(td) match {
+            case None => fromContainingBlockOrMember(td)
+            case scope => scope
+          }
         case member: ScMember => Some(member.getUseScope)
       }
     }
 
+    //should be checked only for the member itself
+    //member of a qualified private class may escape it's package with inheritance
     def fromQualifiedPrivate(): Option[SearchScope] = {
-      accessModifier.filter(am => am.isPrivate && am.getReference != null).map(_.scope) collect {
-        case p: PsiPackage => new PackageScope(p, true, true)
-        case td: ScTypeDefinition => withCompanionSearchScope(td)
+      accessModifier(this).filter(am => am.isPrivate && !am.isUnqualifiedPrivateOrThis).map(_.scope) collect {
+        case p: PsiPackage => new PackageScope(p, /*includeSubpackages*/true, /*includeLibraries*/true)
+        case td: ScTypeDefinition => localSearchScope(td)
       }
     }
 
-    val fromModifierOrContext = this match {
-      case _ if accessModifier.exists(mod => mod.isPrivate && mod.isThis) =>
-        Option(containingClass).orElse(this.containingFile).map {
-          new LocalSearchScope(_)
-        }
-      case _ if accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
-        Option(containingClass).collect {
-          case definition: ScTypeDefinition => withCompanionSearchScope(definition)
-        }.orElse {
-          this.containingFile.map(new LocalSearchScope(_))
-        }
+    def fromUnqualifiedOrThisPrivate(modifierListOwner: ScModifierListOwner) = {
+      accessModifier(modifierListOwner) match {
+        case Some(mod) if mod.isUnqualifiedPrivateOrThis =>
+          forTopLevelPrivate(modifierListOwner).orElse {
+            containingClassScope(withCompanion = !mod.isThis)
+          }
+        case _ => None
+      }
+    }
+
+    def fromContext = this match {
       case cp: ScClassParameter =>
         Option(cp.containingClass).map {
           _.getUseScope
@@ -219,9 +244,11 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
         }
       case _ =>
         fromQualifiedPrivate().orElse {
-          fromContainingBlockOrMember()
+          fromContainingBlockOrMember(this)
         }
     }
+    val fromModifierOrContext = fromUnqualifiedOrThisPrivate(this).orElse(fromContext)
+
     ScalaPsiUtil.intersectScopes(super.getUseScope, fromModifierOrContext)
   }
 }

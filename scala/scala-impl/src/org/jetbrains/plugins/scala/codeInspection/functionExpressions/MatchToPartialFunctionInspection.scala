@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 import scala.collection.JavaConverters._
@@ -41,7 +40,7 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId) 
 
   private def notExpectedType(expr: ScExpression) = {
     (expr.`type`(), expr.expectedType()) match {
-      case (Success(tpe: ScType, _), Some(expType: ScType)) => !expType.equiv(tpe)
+      case (Right(tpe), Some(expType: ScType)) => !expType.equiv(tpe)
       case _ => true
     }
   }

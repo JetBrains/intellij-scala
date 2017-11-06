@@ -7,7 +7,6 @@ package base
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
@@ -16,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl.ofPackageObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAccessModifierStub
 
@@ -38,14 +38,13 @@ class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNode)
     byStubOrPsi(_.idText)(Option(getNode.findChildByType(tIDENTIFIER)).map(_.getPsi.getText))
 
   def scope: PsiNamedElement =
-    Option(getReference) map {
-      _.resolve
-    } collect {
-      case o: ScObject if o.isPackageObject => ScPackageImpl.ofPackageObject(o)
-      case named: PsiNamedElement => named
-    } getOrElse {
-      getParentOfType(this, classOf[ScTypeDefinition], true)
-    }
+    Option(getReference)
+      .flatMap(reference => Option(reference.resolve))
+      .collect {
+        case o: ScObject if o.isPackageObject => ofPackageObject(o)
+        case named: PsiNamedElement => named
+      }.orElse(this.parentOfType(classOf[ScTypeDefinition]))
+      .orNull
 
   //return ref only for {private|protected}[Id], not for private[this]
   def isProtected: Boolean = byStubOrPsi(_.isProtected)(getNode.hasChildOfType(kPROTECTED))

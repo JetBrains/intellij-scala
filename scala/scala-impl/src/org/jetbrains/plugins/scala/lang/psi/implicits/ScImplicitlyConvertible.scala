@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
@@ -197,7 +197,7 @@ object ScImplicitlyConvertible {
 
     val argumentType = firstParameter.`type`()
 
-    def substitute(maybeType: TypeResult[ScType]) =
+    def substitute(maybeType: TypeResult) =
       maybeType.map(substitutor.subst)
         .getOrNothing
 
@@ -248,7 +248,8 @@ object ScImplicitlyConvertible {
         val nameAndIds = function.typeParameters.map(_.nameAndId).toSet
         def hasRecursiveTypeParameters(`type`: ScType): Boolean = `type`.hasRecursiveTypeParameters(nameAndIds)
 
-        def substitute(maybeType: TypeResult[ScType]) = maybeType
+        def substitute(maybeType: TypeResult) = maybeType
+          .toOption
           .map(substitutor.subst)
           .map(unSubst.subst)
           .withFilter(!hasRecursiveTypeParameters(_))

@@ -10,34 +10,36 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.format.{Text, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.MultilineStringUtil._
 
 class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
+
+  import StringToMultilineStringIntention._
+
   def getFamilyName: String = "Regular/Multi-line String conversion"
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val literalExpression: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)
-    literalExpression match {
-      case null => false
-      case lit if lit.isMultiLineString =>
-        setText("Convert to \"string\"")
-        true
-      case lit if lit.isString =>
-        setText("Convert to \"\"\"string\"\"\"")
-        true
-      case _ => false
+    val maybeText = literalParent(element).collect {
+      case lit if lit.isMultiLineString => "Convert to \"string\""
+      case lit if lit.isString => "Convert to \"\"\"string\"\"\""
     }
-  }
 
+    maybeText.foreach(setText)
+    maybeText.isDefined
+  }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     if (!element.isValid) return
-    val lit: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)
-    if (lit == null || !lit.isString) return
+
+    val lit = literalParent(element)
+      .filter(_.isString)
+      .getOrElse(return)
+
     if (!FileModificationService.getInstance.preparePsiElementForWrite(element)) return
     val containingFile = element.getContainingFile
 
@@ -46,8 +48,14 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
 
     UndoUtil.markPsiFileForUndo(containingFile)
   }
+}
 
-  def regularToMultiline(literal: ScLiteral, editor: Editor) {
+object StringToMultilineStringIntention {
+
+  private def literalParent(element: PsiElement) =
+    element.parentOfType(classOf[ScLiteral], strict = false)
+
+  private def regularToMultiline(literal: ScLiteral, editor: Editor): Unit = {
     import literal.projectContext
 
     val document = editor.getDocument
@@ -72,8 +80,8 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  def multilineToRegular(literal: ScLiteral) {
-    implicit val projectContext = literal.projectContext
+  private def multilineToRegular(literal: ScLiteral): Unit = {
+    implicit val projectContext: ProjectContext = literal.projectContext
     literal match {
       case interpolated: ScInterpolatedStringLiteral =>
         val prefix = interpolated.reference.map(_.getText).getOrElse("")
@@ -84,7 +92,7 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
             StripMarginParser.parse(literal).getOrElse(Nil)
           case _ => InterpolatedStringParser.parse(interpolated).getOrElse(Nil)
         }
-        val content = InterpolatedStringFormatter.formatContent(parts, toMultiline = false)
+        val content = InterpolatedStringFormatter.formatContent(parts)
         val quote = "\""
         val text = s"$prefix$quote$content$quote"
         val newLiteral = createExpressionFromText(text)
@@ -109,6 +117,5 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
           case _ =>
         }
     }
-
   }
 }

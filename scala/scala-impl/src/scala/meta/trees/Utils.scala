@@ -6,9 +6,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScSugarCallE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
@@ -107,12 +107,14 @@ trait Utils {
   implicit class RichScExpression(expr: ScExpression) {
     import expr.projectContext
 
-    def withSubstitutionCaching[T](fun: TypeResult[ScType] => T): T = {
+    def withSubstitutionCaching[T](fun: TypeResult => T): T = {
       if (dumbMode) {
-        expr match {
-          case ts: ScTypedStmt => fun(TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null)))
-          case _                => fun(TypeResult.fromOption(None))
+        val maybeType = expr match {
+          case ts: ScTypedStmt => createTypeFromText(ts.getText, expr, null)
+          case _ => None
         }
+
+        fun(maybeType.asTypeResult)
       } else {
         ScSubstitutor.cacheSubstitutions = true
         val tp = expr.`type`()
@@ -120,18 +122,6 @@ trait Utils {
         val res = fun(tp)
         ScSubstitutor.cache.clear()
         res
-      }
-    }
-
-    def getTypeWithCachedSubst: ScType = {
-      if (dumbMode) {
-        expr match {
-          case ts: ScTypedStmt => ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null).getOrElse(ptype.api.Any)
-          case _                => ptype.api.Any
-        }
-      } else {
-        val s = ScSubstitutor(ScSubstitutor.cache.toMap)
-        s.subst(expr.`type`().get)
       }
     }
   }
@@ -143,8 +133,8 @@ trait Utils {
       if (dumbMode) {
         expr.definedReturnType.getOrElse(ptype.api.Any)
       } else {
-        val s = ScSubstitutor(ScSubstitutor.cache.toMap)
-        s.subst(expr.`type`().get)
+        val substitutor = ScSubstitutor(ScSubstitutor.cache.toMap)
+        substitutor.subst(expr.`type`().get)
       }
     }
   }
@@ -152,18 +142,15 @@ trait Utils {
   implicit class RichScTypedDefinition(expr: ScTypedDefinition) {
     import expr.projectContext
 
-    def getTypeWithCachedSubst: TypeResult[ScType] = {
+    def getTypeWithCachedSubst: TypeResult = {
       if (dumbMode) {
         expr match {
-          case ts: ScTypedStmt => TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null))
-          case _ => Success(ptype.api.Any)
+          case ts: ScTypedStmt => createTypeFromText(ts.getText, expr, null).asTypeResult
+          case _ => Right(ptype.api.Any)
         }
       } else {
-        val s = ScSubstitutor(ScSubstitutor.cache.toMap)
-        expr.`type`() match {
-          case Success(res, elem) => Success(s.subst(res))
-          case other => other
-        }
+        val substitutor = ScSubstitutor(ScSubstitutor.cache.toMap)
+        expr.`type`().map(substitutor.subst)
       }
     }
   }

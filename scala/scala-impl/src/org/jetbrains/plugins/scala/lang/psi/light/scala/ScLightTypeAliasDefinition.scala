@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypeAliasSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.TypeAliasSignature
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * @author Alefas
@@ -22,11 +22,11 @@ class ScLightTypeAliasDefinition(s: TypeAliasSignature, val ta: ScTypeAliasDefin
 
   override def nameId: PsiElement = ta.nameId
 
-  override def upperBound: TypeResult[ScType] = Success(s.upperBound)
+  override def upperBound: TypeResult = Right(s.upperBound)
 
-  override def lowerBound: TypeResult[ScType] = Success(s.lowerBound)
+  override def lowerBound: TypeResult = Right(s.lowerBound)
 
-  override def aliasedType: TypeResult[ScType] = Success(s.lowerBound)
+  override def aliasedType: TypeResult = Right(s.lowerBound)
 
   override def aliasedTypeElement: Option[ScTypeElement] = ta.aliasedTypeElement
 

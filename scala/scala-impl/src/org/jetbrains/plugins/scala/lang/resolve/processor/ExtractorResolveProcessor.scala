@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
@@ -32,7 +31,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
       def resultsForTypedDef(obj: ScTypedDefinition) {
         def resultsFor(unapplyName: String) = {
           val typeResult = getFromType(state) match {
-            case Some(tp) => Success(ScProjectionType(tp, obj, superReference = false))
+            case Some(tp) => Right(ScProjectionType(tp, obj, superReference = false))
             case _ => obj.`type`()
           }
           val processor = new CollectMethodsProcessor(ref, unapplyName)
@@ -84,8 +83,8 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
           r.element match {
             case fun: ScFunction =>
               val clauses = fun.paramClauses.clauses
-              if (clauses.length != 0 && clauses.apply(0).parameters.length == 1) {
-                for (paramType <- clauses(0).parameters.apply(0).`type`()
+              if (clauses.nonEmpty && clauses.head.parameters.length == 1) {
+                for (paramType <- clauses.head.parameters.head.`type`().toOption
                      if tp conforms r.substitutor.subst(paramType)) return true
               }
               false
@@ -93,7 +92,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
           }
         }
         val filtered = candidates.filter(t => isApplicable(t))
-        if (filtered.size == 0) candidates
+        if (filtered.isEmpty) candidates
         else if (filtered.size == 1) filtered
         else {
           new MostSpecificUtil(ref, 1).mostSpecificForResolveResult(filtered, expandInnerResult = false) match {

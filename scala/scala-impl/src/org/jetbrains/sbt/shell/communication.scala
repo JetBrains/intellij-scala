@@ -36,7 +36,7 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
                  eventHandler: EventAggregator[A],
                  showShell: Boolean): Future[A] = {
     val listener = new CommandListener(default, eventHandler)
-    if (showShell) process.openShellRunner()
+    process.acquireShellRunner
     commands.put((cmd, listener))
     listener.future
   }
@@ -74,14 +74,16 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
         val (cmd, listener) = next
 
         listener.started()
-        process.attachListener(listener)
+
+        val handler = process.acquireShellProcessHandler
+        handler.addProcessListener(listener)
 
         process.usingWriter { shell =>
           shell.println(cmd)
           shell.flush()
         }
         listener.future.onComplete { _ =>
-          process.removeListener(listener)
+          handler.removeProcessListener(listener)
         }
       } else shellQueueReady.release()
     }

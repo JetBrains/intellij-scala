@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 class MakeResultExpressionExplicit extends AbstractTransformer {
   def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (e: ScFunctionDefinition) if e.hasExplicitType && !e.hasUnitResultType =>
-      e.returnUsages().foreach {
+      e.returnUsages.foreach {
         case _: ScReturnStmt => // skip
         case it => it.replace(code"return $it")
       }

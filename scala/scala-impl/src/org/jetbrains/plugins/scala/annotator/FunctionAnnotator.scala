@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.annotator.quickfix.{AddReturnTypeFix, RemoveE
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScTypesExt}
 
 /**
@@ -19,15 +19,17 @@ trait FunctionAnnotator {
   self: ScalaAnnotator =>
 
   def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, typeAware: Boolean) {
-    if (!function.hasExplicitType && !function.returnTypeIsDefined) {
+    if (!function.hasExplicitType && function.definedReturnType.isLeft) {
       function.recursiveReferences.foreach { ref =>
           val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
           holder.createErrorAnnotation(ref.element, message)
       }
     }
 
-    val tailrecAnnotation = function.annotations.find(_.typeElement.`type`()
-            .map(_.canonicalText).withFilter(_ == "_root_.scala.annotation.tailrec").isDefined)
+    val tailrecAnnotation = function.annotations.find {
+      _.typeElement.`type`().toOption
+        .map(_.canonicalText).contains("_root_.scala.annotation.tailrec")
+    }
 
     tailrecAnnotation.foreach { it =>
       if (!function.canBeTailRecursive) {
@@ -62,7 +64,7 @@ trait FunctionAnnotator {
 
     for {
       functionType <- function.returnType
-      usage <- function.returnUsages()
+      usage <- function.returnUsages
       usageType <- typeOf(usage)
     } {
 
@@ -85,14 +87,14 @@ trait FunctionAnnotator {
         typeMismatch()
       }
 
-      def needsTypeAnnotation() = {
+      def needsTypeAnnotation(): Unit = {
         val message = ScalaBundle.message("function.must.define.type.explicitly", function.name)
-        val returnTypes = function.returnUsages(withBooleanInfix = false).toSeq.collect {
+        val returnTypes = function.returnUsages.collect {
           case retStmt: ScReturnStmt => retStmt.expr.flatMap(_.`type`().toOption).getOrElse(Any)
           case expr: ScExpression => expr.`type`().getOrAny
         }
         val annotation = holder.createErrorAnnotation(usage.asInstanceOf[ScReturnStmt].returnKeyword, message)
-        annotation.registerFix(new AddReturnTypeFix(function, returnTypes.lub()))
+        annotation.registerFix(new AddReturnTypeFix(function, returnTypes.toSeq.lub()))
       }
 
       def redundantReturnExpression() = {
@@ -130,6 +132,6 @@ trait FunctionAnnotator {
     case _ => (Some(element), Any)
   }) match {
     case (Some(expression: ScExpression), _) => expression.getTypeAfterImplicitConversion().tr
-    case (_, default) => Success(default)
+    case (_, default) => Right(default)
   }
 }

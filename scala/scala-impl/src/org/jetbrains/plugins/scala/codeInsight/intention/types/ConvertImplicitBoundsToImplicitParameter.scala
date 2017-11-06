@@ -10,8 +10,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertImplicitBoundsToImplicitParameter._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner}
@@ -37,30 +37,35 @@ class ConvertImplicitBoundsToImplicitParameter extends PsiElementBaseIntentionAc
 
 object ConvertImplicitBoundsToImplicitParameter {
 
-  def canBeConverted(element: PsiElement): Boolean = {
-    val paramTypeElement: ScTypeBoundsOwner = PsiTreeUtil.getParentOfType(element, classOf[ScTypeBoundsOwner], false)
-    val scTypeParamOwner: ScTypeParametersOwner = PsiTreeUtil.getParentOfType(paramTypeElement, classOf[ScTypeParametersOwner], true)
-    paramTypeElement != null && paramTypeElement.hasImplicitBound && !scTypeParamOwner.isInstanceOf[ScTrait]
-  }
-  
-  def doConversion(element: PsiElement): Seq[ScParameter] = {
-    if (element == null || !element.isValid) return Seq.empty
-    val (function: ScMethodLike, paramOwner: ScParameterOwner, typeParamOwner: ScTypeParametersOwner) = 
-      PsiTreeUtil.getParentOfType(element, classOf[ScParameterOwner], false) match {
-        case x: ScFunction => (x, x, x)
-        case x: ScClass => (x.constructor.getOrElse(return Seq.empty), x, x)
-        case _ => return Seq.empty
+  def canBeConverted(element: PsiElement): Boolean =
+    element.parentOfType(classOf[ScTypeBoundsOwner], strict = false)
+      .filter(_.hasImplicitBound)
+      .flatMap(_.parentOfType(classOf[ScTypeParametersOwner]))
+      .exists {
+        case _: ScTrait => false
+        case _ => true
       }
+
+  def doConversion(element: PsiElement): Seq[ScParameter] = {
+    val parameterOwner = Option(element).filter(_.isValid)
+      .flatMap(_.parentOfType(classOf[ScParameterOwner], strict = false))
+      .getOrElse(return Seq.empty)
+
+    val function = (parameterOwner match {
+      case function: ScFunction => Some(function)
+      case clazz: ScClass => clazz.constructor
+      case _ => None
+    }).getOrElse(return Seq.empty)
 
     import function.projectContext
 
-    def removeImplicitBounds() {
-      typeParamOwner.typeParameters.foreach(_.removeImplicitBounds())
+    def removeImplicitBounds(): Unit = parameterOwner match {
+      case parameterOwner: ScTypeParametersOwner =>
+        val typeParameters = parameterOwner.typeParameters
+        typeParameters.foreach(_.removeImplicitBounds())
     }
 
-    val declaredClauses: Seq[ScParameterClause] = paramOwner.allClauses
-
-    declaredClauses.lastOption match {
+    parameterOwner.allClauses.lastOption match {
       case Some(paramClause) if paramClause.isImplicit =>
         // Already has an implicit parameter clause: delete it, add the bounds, then
         // add the parameters from the deleted clause the the new one.
@@ -84,7 +89,7 @@ object ConvertImplicitBoundsToImplicitParameter {
           case Some(implicitParamClause) if implicitParamClause.isImplicit =>
             // for a constructor, might need to add an empty parameter section before the
             // implicit section.
-            val extra = function.effectiveParameterClauses.drop(declaredClauses.size).headOption
+            val extra = function.effectiveParameterClauses.drop(parameterOwner.allClauses.size).headOption
             var result: Seq[ScParameter] = Seq.empty
             for(c <- extra) {
               val newClause = createClauseFromText(c.getText)

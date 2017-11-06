@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeParameterType, UndefinedType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /** 
@@ -71,7 +71,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
     }
   }
 
-  override def `type`(): TypeResult[ScType] = {
+  override def `type`(): TypeResult = {
     ref.bind() match {
       case Some(r) =>
         r.element match {
@@ -95,9 +95,9 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                 case _ => emptySubst
               }
             }
-            Success(ScParameterizedType(refType, td.getTypeParameters.map(tp => newSubst.subst(TypeParameterType(tp, None)))))
-          case td: ScClass => Success(ScalaType.designator(td))
-          case obj: ScObject => Success(ScalaType.designator(obj))
+            Right(ScParameterizedType(refType, td.getTypeParameters.map(tp => newSubst.subst(TypeParameterType(tp, None)))))
+          case td: ScClass => Right(ScalaType.designator(td))
+          case obj: ScObject => Right(ScalaType.designator(obj))
           case fun: ScFunction /*It's unapply method*/ if (fun.name == "unapply" || fun.name == "unapplySeq") &&
                   fun.parameters.count(!_.isImplicitParameter) == 1 =>
             val substitutor = r.substitutor
@@ -107,25 +107,25 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
               val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
                 s.bindT(p.nameAndId, p.upperBound.getOrAny))
               val emptyRes = substitutor followed emptySubst
-              val result = fun.parameters.head.`type`()
-              if (result.isEmpty) emptyRes
-              else {
-                val funType = undefSubst.subst(result.get)
-                this.expectedType match {
-                  case Some(tp) =>
-                    val conformance = funType.conforms(tp, ScUndefinedSubstitutor())
-                    if (conformance._1) {
-                      conformance._2.getSubstitutor match {
-                        case Some(newSubst) => newSubst followed substitutor followed emptySubst
-                        case _ => emptyRes
-                      }
-                    } else emptyRes
-                  case _ => emptyRes
-                }
+              fun.parameters.head.`type`() match {
+                case Right(result) =>
+                  val funType = undefSubst.subst(result)
+                  this.expectedType match {
+                    case Some(tp) =>
+                      val conformance = funType.conforms(tp, ScUndefinedSubstitutor())
+                      if (conformance._1) {
+                        conformance._2.getSubstitutor match {
+                          case Some(newSubst) => newSubst followed substitutor followed emptySubst
+                          case _ => emptyRes
+                        }
+                      } else emptyRes
+                    case _ => emptyRes
+                  }
+                case Left(_) => emptyRes
               }
             }
             fun.paramClauses.clauses.head.parameters.head.`type`().map(subst.subst)
-          case _ => Success(Nothing)
+          case _ => Right(Nothing)
         }
       case _ => Failure("Cannot resolve symbol")
     }

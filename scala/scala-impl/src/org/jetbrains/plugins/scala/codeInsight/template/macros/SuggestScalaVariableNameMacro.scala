@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 /**
@@ -66,8 +65,8 @@ object SuggestScalaVariableNameMacro {
           if (items.length == 0) return default
           items(0) match {
             case typed: ScTypedDefinition => typed.`type`() match {
-              case Success(ParameterizedType(_, typeArgs), _) => typeArgs.head
-              case Success(JavaArrayType(argument), _) => argument
+              case Right(ParameterizedType(_, typeArgs)) => typeArgs.head
+              case Right(JavaArrayType(argument)) => argument
               case _ => return default
             }
             case _ => return default

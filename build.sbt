@@ -15,11 +15,11 @@ resolvers in ThisBuild += Resolver.sonatypeRepo("snapshots")
 
 ideaBuild in ThisBuild := Versions.ideaVersion
 
-ideaDownloadDirectory in ThisBuild := Path.userHome / ".ScalaPluginIC" / "sdk"
+ideaDownloadDirectory in ThisBuild := homePrefix / ".ScalaPluginIC" / "sdk"
 
-testConfigDir in ThisBuild := Path.userHome / ".ScalaPluginIC" / "test-config"
+testConfigDir in ThisBuild := homePrefix / ".ScalaPluginIC" / "test-config"
 
-testSystemDir in ThisBuild := Path.userHome / ".ScalaPluginIC" / "test-system"
+testSystemDir in ThisBuild := homePrefix / ".ScalaPluginIC" / "test-system"
 
 onLoad in Global := ((s: State) => { "updateIdea" :: s}) compose (onLoad in Global).value
 
@@ -168,7 +168,7 @@ lazy val sbtRuntimeDependencies =
     ideSkipProject := true
   )
 
-lazy val testDownloader =
+lazy val testJarsDownloader =
   newProject("testJarsDownloader", file("target/tools/test-jars-downloader"))
   .settings(
     conflictManager := ConflictManager.all,
@@ -196,10 +196,10 @@ lazy val sbtLaunchTestDownloader =
     ideSkipProject := true
   )
 
-lazy val jmhBenchmarks =
-  newProject("benchmarks", file("scala/benchmarks"))
-    .dependsOn(scalaImpl % "test->test")
-    .enablePlugins(JmhPlugin)
+//lazy val jmhBenchmarks =
+//  newProject("benchmarks", file("scala/benchmarks"))
+//    .dependsOn(scalaImpl % "test->test")
+//    .enablePlugins(JmhPlugin)
 
 // Testing keys and settings
 import Common.TestCategory._
@@ -226,7 +226,7 @@ addCommandAlias("runFastTestsScala", s"testOnly scala.* -- $fastTestOptions")
 lazy val setUpTestEnvironment = taskKey[Unit]("Set up proper environment for running tests")
 
 setUpTestEnvironment in ThisBuild := {
-  update.in(testDownloader).value
+  update.in(testJarsDownloader).value
 }
 
 lazy val cleanUpTestEnvironment = taskKey[Unit]("Clean up IDEA test system and config directories")
@@ -253,6 +253,15 @@ lazy val iLoopWrapperPath = settingKey[File]("Path to repl interface sources")
 
 iLoopWrapperPath := baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapperImpl.scala"
 
+//packages output of several modules to a single jar
+lazy val scalaPluginJarPackager =
+  newProject("scalaPluginJarPackager", file("target/tools/scalaPluginJarPackager"))
+    .settings(
+      products in Compile :=
+        products.in(scalaImpl, Compile).value ++
+        products.in(cbt, Compile).value,
+      ideSkipProject := true
+    )
 
 lazy val pluginPackagerCommunity =
   newProject("pluginPackagerCommunity", file("target/tools/packager"))
@@ -301,9 +310,7 @@ lazy val pluginPackagerCommunity =
           "launcher/sbt-launch.jar")
       )
       val lib = Seq(
-        MergedArtifact(Seq(
-          pack.in(scalaImpl, Compile).value,
-          pack.in(cbt, Compile).value),
+        Artifact(pack.in(scalaPluginJarPackager, Compile).value,
           "lib/scala-plugin.jar"),
         Artifact(pack.in(decompiler, Compile).value,
           "lib/scalap.jar"),

@@ -11,8 +11,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class ScalazTest extends FailedResolveTest("scalaz") {
 
-  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
-    Array(ScalaZCoreLoader()(module))
+  override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
+    Seq(ScalaZCoreLoader()(module))
 
   def testSCL7213(): Unit = doTest()
 

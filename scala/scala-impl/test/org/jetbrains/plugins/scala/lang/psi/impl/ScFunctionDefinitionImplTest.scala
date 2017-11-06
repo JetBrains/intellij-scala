@@ -8,66 +8,67 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursionType, ScFun
 import org.junit.Assert._
 
 /**
- * Pavel Fatin
- */
+  * Pavel Fatin
+  */
 class ScFunctionDefinitionImplTest extends SimpleTestCase {
-  def testNoRecursion() {
+
+  def testNoRecursion(): Unit = {
     assertRecursionTypeIs("def f(n: Int) = n", NoRecursion)
   }
 
-  def testLinearRecursion() {
+  def testLinearRecursion(): Unit = {
     assertRecursionTypeIs("def f(n: Int): Int = 1 + f(n)", OrdinaryRecursion)
   }
 
-  def testTailRecursion() {
+  def testTailRecursion(): Unit = {
     assertRecursionTypeIs("def f(n: Int): Int = f(n + 1)", TailRecursion)
   }
 
-  def testTailRecursionWithCurring() {
+  def testTailRecursionWithCurring(): Unit = {
     assertRecursionTypeIs("def f(n: Int)(x:Int)(y:Int): Int = f(n + 1)(x)(y)", TailRecursion)
   }
 
-  def testTailRecursionWithTypeParam() {
+  def testTailRecursionWithTypeParam(): Unit = {
     assertRecursionTypeIs("def f[A](n: Int): Int = f[A](n + 1)", TailRecursion)
   }
 
-  def testReturn() {
+  def testReturn(): Unit = {
     assertRecursionTypeIs("def f(n: Int): Int = return f(n + 1)", TailRecursion)
   }
 
-  def testAndAnd() {
+  def testAndAnd(): Unit = {
     assertRecursionTypeIs("def f(n: Int): Boolean = n > 0 && f(n)", TailRecursion)
   }
 
-  def testAndAnd2() {
+  def testAndAnd2(): Unit = {
     assertRecursionTypeIs("def f(n: Int): Boolean = f(n) && n > 0", OrdinaryRecursion)
   }
 
-  def testAndAnd3() {
+  def testAndAnd3(): Unit = {
     assertRecursionTypeIs("def f(n: Int): Boolean = f(n) && f(n-1)", OrdinaryRecursion)
   }
 
-  def testOrOr() {
+  def testOrOr(): Unit = {
     assertRecursionTypeIs("def f(n: Int): Boolean = n > 0 || f(n)", TailRecursion)
   }
 
-  def testOrOr2() {
+  def testOrOr2(): Unit = {
     assertRecursionTypeIs("def f(n: Int): Boolean = f(n) || n > 0", OrdinaryRecursion)
   }
 
-  def testOrOr3() {
+  def testOrOr3(): Unit = {
     assertRecursionTypeIs("def f(n: Int): Boolean = f(n) || f(n-1)", OrdinaryRecursion)
   }
 
-  def testIf() {
+  def testIf(): Unit = {
     assertRecursionTypeIs("def f(n: Int) {if (true) {f(n + 1)}}", TailRecursion)
   }
 
-  def testOtherInfixOperator() {
+  def testOtherInfixOperator(): Unit = {
     assertRecursionTypeIs("def f(n: Int): Boolean = n > 0 ** f(n)", OrdinaryRecursion)
   }
 
-  def testDeeperInfixOperator() {
+  def testDeeperInfixOperator(): Unit = {
     assertRecursionTypeIs(
       """
         |def f(n: Int): Boolean =
@@ -78,31 +79,26 @@ class ScFunctionDefinitionImplTest extends SimpleTestCase {
       """.stripMargin, TailRecursion)
   }
 
-  def testGetReturnUsages() {
-    assertUsages(
+  def testGetReturnUsages(): Unit = {
+    val code =
       """
-        def f[A](n: Int)(body: => A): Option[A] = {
-          try
-            return Some(body)
-          catch {
-            case e: Exception if n == 0 => return None
-          }
-          f[A](n - 1)(body)
-        }
-      """,
-      "return Some(body)",
-      "return None",
-      "f[A](n - 1)(body)")
+        |def f[A](n: Int)(body: => A): Option[A] = {
+        |  try
+        |    return Some(body)
+        |  catch {
+        |    case e: Exception if n == 0 => return None
+        |  }
+        |  f[A](n - 1)(body)
+        |}
+      """.stripMargin
+
+    val actualUsages = parseAsFunction(code).returnUsages
+    assertEquals(Set("return Some(body)", "return None", "f[A](n - 1)(body)"), actualUsages.map(_.getText))
   }
 
-
-  private def assertUsages(@Language("Scala") code: String, expected: String*) {
-    assertEquals(expected, parse(code).returnUsages().map(_.getText).toSeq)
+  private def assertRecursionTypeIs(@Language("Scala") code: String, expected: RecursionType): Unit = {
+    assertEquals(expected, parseAsFunction(code).recursionType)
   }
 
-  private def assertRecursionTypeIs(@Language("Scala") code: String, expectation: RecursionType) {
-    assertEquals(expectation, parse(code).recursionType)
-  }
-
-  private def parse(@Language("Scala") code: String): ScFunctionDefinition = code.parse[ScFunctionDefinition]
+  private def parseAsFunction(@Language("Scala") code: String): ScFunctionDefinition = code.parse[ScFunctionDefinition]
 }

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScInfixTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
@@ -94,10 +94,10 @@ trait TypeAdapter {
     }
   }
 
-  def toType(tr: TypeResult[ptype.ScType]): m.Type = {
+  def toType(tr: TypeResult): m.Type = {
     import org.jetbrains.plugins.scala.lang.psi.types.result._
     tr match {
-      case Success(res, _) => toType(res)
+      case Right(res) => toType(res)
       case Failure(cause) => throw new ScalaMetaTypeResultFailure(cause)
     }
   }
@@ -130,7 +130,7 @@ trait TypeAdapter {
           m.Type.Name(t.name)
         case t: ScTypedDefinition =>
           t.getTypeWithCachedSubst match {
-            case Success(res, _) => toType(res)
+            case Right(res) => toType(res)
             case Failure(cause) => unresolved(cause)
           }
         case t: ScReferenceElement if dumbMode =>
@@ -258,10 +258,10 @@ trait TypeAdapter {
     m.Type.Bounds(tp.lowerTypeElement.map(toType), tp.upperTypeElement.map(toType))//.setTypechecked
   }
 
-  def returnType(tr: ptype.result.TypeResult[ptype.ScType]): m.Type = {
+  def returnType(tr: ptype.result.TypeResult): m.Type = {
     import ptype.result._
     tr match {
-      case Success(t, _) => toType(t)
+      case Right(t) => toType(t)
       case Failure(cause) =>
         LOG.warn(s"Failed to infer return type($cause)")
         m.Type.Name("Unit")//.setTypechecked

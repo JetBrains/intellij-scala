@@ -46,8 +46,6 @@ abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestA
     fixture.configureByText("dummy.scala", normalizedText)
     fixture.enableInspections(classOfInspection)
 
-    val description = normalize(this.description)
-
     fixture.doHighlighting().asScala
       .filter(it => descriptionMatches(it.getDescription))
       .map(info => (info, highlightedRange(info)))

@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -34,7 +34,7 @@ import scala.collection.mutable.ArrayBuffer
 
 trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImportsHolder {
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     if (hasCaseClauses) {
       val caseClauses = findChildByClassScala(classOf[ScCaseClauses])
       val clauses: Seq[ScCaseClause] = caseClauses.caseClauses
@@ -60,7 +60,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           val fun = funs.find(_.isInstanceOf[ScTrait]).getOrElse(return Failure("Cannot find PartialFunction class"))
           val throwable = manager.getCachedClass(resolveScope, "java.lang.Throwable").orNull
           if (throwable == null) return Failure("Cannot find Throwable class")
-          return Success(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesLubType)))
+          return Right(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesLubType)))
         case _ =>
           val et = this.expectedType(fromUnderscore = false)
             .getOrElse(return Failure("Cannot infer type without expected type"))
@@ -82,9 +82,9 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
           return et match {
             case FunctionType(_, params) =>
-              Success(FunctionType(clausesLubType, params.map(removeVarianceAbstracts)))
+              Right(FunctionType(clausesLubType, params.map(removeVarianceAbstracts)))
             case PartialFunctionType(_, param) =>
-              Success(PartialFunctionType(clausesLubType, removeVarianceAbstracts(param)))
+              Right(PartialFunctionType(clausesLubType, removeVarianceAbstracts(param)))
             case _ =>
               Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction")
           }
@@ -173,7 +173,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         val t = existize(e.`type`().getOrAny, Set.empty)
         if (m.isEmpty) t else new ScExistentialType(t, m.values.toList).simplify()
     }
-    Success(inner)
+    Right(inner)
   }
 
   private def leastClassType(t : ScTemplateDefinition): ScType = {

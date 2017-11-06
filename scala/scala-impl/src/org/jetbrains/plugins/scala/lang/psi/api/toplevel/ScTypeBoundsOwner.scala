@@ -11,8 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 trait ScTypeBoundsOwner extends ScalaPsiElement {
-  def lowerBound: TypeResult[ScType]
-  def upperBound: TypeResult[ScType]
+  def lowerBound: TypeResult
+
+  def upperBound: TypeResult
   def viewBound: Seq[ScType] = Nil
   def contextBound: Seq[ScType] = Nil
 

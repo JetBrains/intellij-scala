@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -156,7 +156,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
   }
 
-  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult[ScType]
+  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult
 
   def members: Seq[ScMember] = extendsBlock.members ++ syntheticMembers
   def functions: Seq[ScFunction] = extendsBlock.functions

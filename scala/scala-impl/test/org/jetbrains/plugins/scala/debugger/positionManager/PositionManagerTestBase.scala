@@ -19,9 +19,8 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
   protected val offsetMarker = "<offset>"
   protected val sourcePositionsOffsets = mutable.HashMap[String, Seq[Int]]()
 
-  //fileText should contain object Main with method main
-  protected def checkGetAllClasses(expectedClassNames: String*) = {
-    val sourcePositions = sourcePositionsInFile(mainFileName)
+  protected def checkGetAllClassesInFile(fileName: String)(expectedClassNames: String*): Unit = {
+    val sourcePositions = sourcePositionsInFile(fileName)
 
     runDebugger() {
       waitForBreakpoint()
@@ -31,10 +30,15 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
           posManager.getAllClasses(position)
         }
         val classNames = classes.asScala.map(_.name())
-        Assert.assertTrue(s"Wrong classes are found at ${position.toString} (found: ${classNames.mkString(", ")}, expected: $className", classNames.contains(className))
+        Assert.assertTrue(
+          s"Wrong classes are found at ${position.toString} (found: ${classNames.mkString(", ")}, expected: $className",
+          classNames.contains(className)
+        )
       }
     }
   }
+
+  protected def checkGetAllClasses(expectedClassNames: String*): Unit = checkGetAllClassesInFile(mainFileName)(expectedClassNames: _*)
 
   protected def checkLocationsOfLine(expectedLocations: Set[Loc]*): Unit = {
     val sourcePositions = sourcePositionsInFile(mainFileName)
@@ -66,7 +70,7 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
 
   private def toSimpleLocation(location: Location) = Loc(location.declaringType().name(), location.method().name(), location.lineNumber())
 
-  protected def setupFile(fileName: String, fileText: String): Unit = {
+  protected def setupFile(fileName: String, fileText: String, hasOffsets: Boolean = true): Unit = {
     val breakpointLine = fileText.lines.indexWhere(_.contains(bp))
     var cleanedText = fileText.replace(bp, "").replace("\r", "")
     val offsets = ArrayBuffer[Int]()
@@ -77,7 +81,7 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
       offset = cleanedText.indexOf(offsetMarker)
     }
 
-    assert(offsets.nonEmpty, s"Not specified offset marker in test case. Use $offsetMarker in provided text of the file.")
+    assert(!hasOffsets || offsets.nonEmpty, s"Not specified offset marker in test case. Use $offsetMarker in provided text of the file.")
     sourcePositionsOffsets += (fileName -> offsets)
     addSourceFile(fileName, cleanedText)
 

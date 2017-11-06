@@ -5,7 +5,6 @@ package types
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -47,7 +46,7 @@ class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy
 
     val newParameter = createFunctionParameterFromText(parameter.name)
 
-    val pair: Option[(PsiElement, PsiElement)] = Option(getParentOfType(parameter, classOf[ScFunctionExpr], false))
+    val pair: Option[(PsiElement, PsiElement)] = parameter.parentOfType(classOf[ScFunctionExpr], strict = false)
       .filter(_.parameters.size == 1)
       .flatMap(_.params.clauses.headOption)
       .filter { clause =>

@@ -6,7 +6,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader.{ScalaCompilerLoader, ScalaLibraryLoaderAdapter, ScalaReflectLoader, ScalaRuntimeLoader}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyLibraryLoader, IvyLibraryLoaderAdapter, LibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyLibraryLoader, IvyLibraryLoaderAdapter}
 import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.sbt.MockSbt._
 
@@ -54,23 +54,46 @@ trait MockSbt_0_13 extends MockSbtBase {
 trait MockSbt_1_0 extends MockSbtBase {
   override implicit val version: ScalaVersion = Scala_2_12
 
-  private val sbt_1_0_modules = Seq("sbt", "util-interface", "test-agent")
+  // https://github.com/sbt/sbt/blob/1.x/project/Dependencies.scala
+  // update them when updating versions.sbtVersion
+  // TODO find a way to automatically get the dependencies via transitive deps from org.scala-sbt:sbt artifact
+  private val ioVersion = "1.0.2"
+  private val utilVersion = "1.0.2"
+  private val lmVersion = "1.0.3"
+  private val zincVersion = "1.0.3"
+
+  private val sbt_1_0_modules = Seq("sbt", "test-agent")
+
+  private val util_cross = Seq("util-cache","util-control","util-logging","util-position","util-relation","util-tracking")
+  private val lm_cross = Seq("librarymanagement-core","librarymanagement-ivy")
 
   private val sbt_1_0_modules_cross = Seq(
-    "main","logic","collections","util-position","util-relation","actions","completion","io",
-    "util-control","run","util-logging","task-system","tasks","util-cache",
-    "testing","util-tracking","main-settings","command","protocol","core-macros", "librarymanagement-core")
+    "main","logic","collections","actions","completion",
+    "run","task-system","tasks","testing","main-settings",
+    "command","protocol","core-macros")
 
-  private def sbt_1_0_compiler_interface(implicit module: Module) = new SbtBaseLoader() {
+  private def compilerInterfaceLoader(implicit module: Module) = new SbtBaseLoader() {
     override val name: String = "compiler-interface"
-    override val version = "1.0.0"
+    override val version: String = zincVersion
+  }
+
+  private def utilInterfaceLoader = new SbtBaseLoader() {
+    override val name: String = "util-interface"
+    override val version: String = utilVersion
+  }
+
+  private def ioLoader = new SbtBaseLoader_Cross() {
+    override val name: String = "io"
+    override val version: String = ioVersion
   }
 
   override protected def librariesLoaders: Seq[IvyLibraryLoader] =
     scalaLoaders ++
       sbt_1_0_modules.map(sbtLoader) ++
-      sbt_1_0_modules_cross.map(sbtLoader_cross) :+
-      sbt_1_0_compiler_interface
+      sbt_1_0_modules_cross.map(sbtLoader_cross) ++
+      util_cross.map(sbtLoader_cross(_)(utilVersion,module)) ++
+      lm_cross.map(sbtLoader_cross(_)(lmVersion,module)) ++
+      Seq(compilerInterfaceLoader, ioLoader, utilInterfaceLoader)
 }
 
 private[sbt] object MockSbt {

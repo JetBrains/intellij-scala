@@ -18,7 +18,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfType, getParentOfType}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{inTransactionLater, inWriteAction, startCommand}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, callbackInTransaction, inWriteAction, startCommand}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -212,11 +212,8 @@ trait IntroduceTypeAlias {
     val usualOccurrences = replaceTypeElements(occurrences.getUsualOccurrences, typeName, typeAlias)
     replaceTypeElements(occurrences.getExtendedOccurrences, typeName, typeAlias)
 
-    val className = getParentOfType(parent, classOf[ScObject]) match {
-      case objectType: ScObject =>
-        objectType.name
-      case _ => ""
-    }
+    val className = parent.parentOfType(classOf[ScObject])
+      .map(_.name).getOrElse("")
 
     replaceTypeElements(occurrences.getCompanionObjOccurrences, className + "." + typeName, typeAlias)
 
@@ -334,7 +331,7 @@ trait IntroduceTypeAlias {
       }
     }
 
-    val callback: Runnable = inTransactionLater(editor.getProject) {
+    val callback: Runnable = callbackInTransaction(editor.getProject) {
       pass(list.getSelectedValue.asInstanceOf[T])
     }
 

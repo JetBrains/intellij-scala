@@ -3,7 +3,7 @@ package types
 package result
 
 trait Typeable {
-  def `type`(): TypeResult[ScType]
+  def `type`(): TypeResult
 }
 
 object Typeable {

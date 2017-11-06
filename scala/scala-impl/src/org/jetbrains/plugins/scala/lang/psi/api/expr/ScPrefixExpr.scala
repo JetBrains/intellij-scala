@@ -6,16 +6,15 @@ package expr
 
 import com.intellij.psi.PsiElement
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
+/**
+  * @author Alexander Podkhalyuzin
+  *         Date: 06.03.2008
+  */
 trait ScPrefixExpr extends ScExpression with ScSugarCallExpr {
   def operand: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(1)
 
-  def operation : ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0) match {
-    case re : ScReferenceExpression => re
+  def operation: ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0) match {
+    case re: ScReferenceExpression => re
     case _ =>
       throw new UnsupportedOperationException("Prefix Expr Operation is not reference expression: " + this.getText)
   }
@@ -23,6 +22,10 @@ trait ScPrefixExpr extends ScExpression with ScSugarCallExpr {
   def argsElement: PsiElement = operation
 
   def getBaseExpr: ScExpression = operand
+
+  override def accept(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitPrefixExpression(this)
+  }
 }
 
 object ScPrefixExpr {

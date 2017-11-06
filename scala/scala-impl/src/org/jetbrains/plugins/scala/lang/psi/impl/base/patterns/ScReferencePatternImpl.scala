@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createWildcardPattern
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScReferencePatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
   * @author Alexander Podkhalyuzin
@@ -48,9 +48,9 @@ class ScReferencePatternImpl private(stub: ScReferencePatternStub, node: ASTNode
 
   override def toString: String = "ReferencePattern: " + ifReadAllowed(name)("")
 
-  override def `type`(): TypeResult[ScType] = {
+  override def `type`(): TypeResult = {
     this.expectedType match {
-      case Some(x) => Success(x)
+      case Some(x) => Right(x)
       case _ => Failure("Cannot define expected type")
     }
   }

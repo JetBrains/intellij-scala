@@ -59,4 +59,10 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testParamSameAsJavaKeyword(): Unit = doTest()
   
   def testObjectImport(): Unit = doTest()
+
+  def testPrivatePackageClassInheritor(): Unit = doTest()
+
+  def testPrivateSamePackage(): Unit = doTest()
+
+  def testPrivateMemberSamePackage(): Unit = doTest()
 }

@@ -145,7 +145,7 @@ class UTestConfigurationProducer extends {
     }
     //this is checked once we provide a concrete class for test run
     //    if (!containingObject.isInstanceOf[ScObject]) return fail
-    if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(containingObject, suitePath))) return (null, null)
+    if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(containingObject, suitePath))) return fail
 
     val nameContainer = ScalaPsiUtil.getParentWithProperty(element, strict = false,
       e => TestNodeProvider.isUTestInfixExpr(e) || TestNodeProvider.isUTestSuiteApplyCall(e) ||

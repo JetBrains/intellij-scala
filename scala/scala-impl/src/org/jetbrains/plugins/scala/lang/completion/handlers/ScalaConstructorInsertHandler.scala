@@ -4,15 +4,14 @@ import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion.{CompletionType, InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.openapi.util.Condition
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
@@ -92,34 +91,25 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
         PsiDocumentManager.getInstance(context.getProject).commitDocument(document)
         val file = context.getFile
         val element = file.findElementAt(endOffset - 1)
-        val newT = PsiTreeUtil.getParentOfType(element, classOf[ScNewTemplateDefinition])
-        if (newT != null) {
-          newT.extendsBlock.templateParents match {
-            case Some(tp: ScTemplateParents) =>
-              val elements = tp.typeElements
-              if (elements.length == 1) {
-                val element: ScTypeElement = elements.head
-                val ref: ScStableCodeReferenceElement = element match {
-                  case simple: ScSimpleTypeElement => simple.reference.orNull
-                  case par: ScParameterizedTypeElement => par.typeElement match {
-                    case simple: ScSimpleTypeElement => simple.reference.orNull
-                    case _ => null
-                  }
-                  case _ => null
-                }
-                if (ref != null && !isRenamed) {
-                  if (item.prefixCompletion) {
-                    val newRefText = clazz.qualifiedName.split('.').takeRight(2).mkString(".")
-                    val newRef = createReferenceFromText(newRefText)(clazz.getManager)
-                    val replaced = ref.replace(newRef).asInstanceOf[ScStableCodeReferenceElement]
-                    replaced.bindToElement(clazz)
-                  } else {
-                    ref.bindToElement(clazz)
-                  }
-                }
-              }
+        element.parentOfType(classOf[ScNewTemplateDefinition]).foreach { newT =>
+          val maybeRef = newT.extendsBlock.templateParents.toSeq.flatMap(_.typeElements) match {
+            case Seq(ScSimpleTypeElement(reference)) => reference
+            case Seq(ScParameterizedTypeElement(ScSimpleTypeElement(reference), _)) => reference
+            case _ => None
+          }
+
+          maybeRef match {
+            case Some(value) if !isRenamed =>
+              val referenceElement = if (item.prefixCompletion) {
+                val newRefText = clazz.qualifiedName.split('.').takeRight(2).mkString(".")
+                val newRef = createReferenceFromText(newRefText)(clazz.getManager)
+                value.replace(newRef).asInstanceOf[ScStableCodeReferenceElement]
+              } else value
+
+              referenceElement.bindToElement(clazz)
             case _ =>
           }
+
           ScalaPsiUtil.adjustTypes(newT)
         }
 

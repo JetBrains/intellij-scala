@@ -16,8 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
@@ -64,15 +63,14 @@ object ComparingUnrelatedTypesInspection {
     }
   }
 
-  private def undefinedTypeAlias(`type`: ScType) = `type`.isAliasType match {
-    case Some(ScTypeUtil.AliasType(_, lower, upper)) =>
-      lower.isEmpty || upper.isEmpty || !lower.get.equiv(upper.get)
+  private def undefinedTypeAlias(`type`: ScType) = `type`.isAliasType.exists {
+    case AliasType(_, Right(lower), Right(upper)) => !lower.equiv(upper)
     case _ => false
   }
 
   @tailrec
   private def extractActualType(`type`: ScType): ScType = `type`.isAliasType match {
-    case Some(ScTypeUtil.AliasType(_, Success(rhs, _), _)) => extractActualType(rhs)
+    case Some(AliasType(_, Right(rhs), _)) => extractActualType(rhs)
     case _ => `type`.tryExtractDesignatorSingleton
   }
 }
@@ -90,7 +88,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         //getType() for the reference on the left side returns singleton type, little hack here
         val leftOnTheRight = ScalaPsiElementFactory.createExpressionWithContextFromText(left.getText, right.getParent, right)
         Seq(leftOnTheRight, right) map (_.`type`()) match {
-          case Seq(Success(leftType, _), Success(rightType, _)) if cannotBeCompared(leftType, rightType) =>
+          case Seq(Right(leftType), Right(rightType)) if cannotBeCompared(leftType, rightType) =>
             val message = generateComparingUnrelatedTypesMsg(leftType, rightType)
             holder.registerProblem(expr, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
           case _ =>
@@ -98,8 +96,8 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
       }
     case MethodRepr(_, Some(baseExpr), Some(ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
       for {
-        ParameterizedType(_, Seq(elemType)) <- baseExpr.`type`().map(_.tryExtractDesignatorSingleton)
-        argType <- arg.`type`()
+        ParameterizedType(_, Seq(elemType)) <- baseExpr.`type`().toOption.map(_.tryExtractDesignatorSingleton)
+        argType <- arg.`type`().toOption
         if cannotBeCompared(elemType, argType)
       } {
         val message = generateComparingUnrelatedTypesMsg(elemType, argType)

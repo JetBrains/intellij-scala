@@ -60,16 +60,14 @@ object SbtDependenciesVisitor {
   }
 
   def processPatternDefinition(patternDefinition: ScPatternDefinition)(f: PsiElement => Unit): Unit = {
-
     f(patternDefinition)
 
-    val processed = patternDefinition.`type`()
-      .withFilter(_.canonicalText == SBT_PROJECT_TYPE)
-      .map { _ =>
-        getSettings(patternDefinition).foreach(processMethodCall(_)(f))
-      }
+    val maybeTypeName = patternDefinition.`type`().toOption
+      .map(_.canonicalText)
 
-    processed.getOrElse {
+    if (maybeTypeName.contains(SBT_PROJECT_TYPE)) {
+      getSettings(patternDefinition).foreach(processMethodCall(_)(f))
+    } else {
       patternDefinition.expr match {
         case Some(call: ScMethodCall) => processMethodCall(call)(f)
         case Some(infix: ScInfixExpr) => processInfix(infix)(f)

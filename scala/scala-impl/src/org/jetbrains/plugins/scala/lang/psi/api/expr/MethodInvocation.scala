@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
@@ -129,7 +129,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     */
   def isUpdateCall: Boolean = false
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     try {
       tryToGetInnerType(useExpectedType = true)
     } catch {
@@ -138,7 +138,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     }
   }
 
-  private def tryToGetInnerType(useExpectedType: Boolean): TypeResult[ScType] = {
+  private def tryToGetInnerType(useExpectedType: Boolean): TypeResult = {
     var problemsLocal: Seq[ApplicabilityProblem] = Seq.empty
     var matchedParamsLocal: Seq[(Parameter, ScExpression)] = Seq.empty
     var importsUsedLocal: collection.Set[ImportUsed] = collection.Set.empty
@@ -153,7 +153,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       applyOrUpdateElemVar = applyOrUpdateElemLocal
     }
 
-    var nonValueType: TypeResult[ScType] = getEffectiveInvokedExpr.getNonValueType()
+    var nonValueType: TypeResult = getEffectiveInvokedExpr.getNonValueType()
     this match {
       case _: ScPrefixExpr => return nonValueType //no arg exprs, just reference expression type
       case _: ScPostfixExpr => return nonValueType //no arg exprs, just reference expression type
@@ -264,7 +264,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             }
             new Expression(actualExpr) {
               override def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
-                                                          _expectedOption: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
+                                                          _expectedOption: Option[ScType]): (TypeResult, collection.Set[ImportUsed]) = {
                 val expectedOption = _expectedOption.map {
                   case TupleType(comps) if comps.length == 2 => comps(1)
                   case t => t
@@ -298,7 +298,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             UpdateApplyData(Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
           }
         if (useExpectedType) {
-          this.updateAccordingToExpectedType(Success(processedType)).foreach(x => processedType = x)
+          this.updateAccordingToExpectedType(Right(processedType)).foreach(x => processedType = x)
         }
         applyOrUpdateElemLocal = applyOrUpdateResult
         importsUsedLocal = importsUsed
@@ -319,7 +319,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
     updateCacheFields()
 
-    Success(newType)
+    Right(newType)
   }
 
   @volatile private var problemsVar: Seq[ApplicabilityProblem] = Seq.empty
@@ -351,8 +351,8 @@ object MethodInvocation {
       * This method useful in case if you want to update some polymorphic type
       * according to method call expected type
       */
-    def updateAccordingToExpectedType(nonValueType: TypeResult[ScType],
-                                      canThrowSCE: Boolean = false): TypeResult[ScType] = {
+    def updateAccordingToExpectedType(nonValueType: TypeResult,
+                                      canThrowSCE: Boolean = false): TypeResult = {
       InferUtil.updateAccordingToExpectedType(nonValueType, fromImplicitParameters = false, filterTypeParams = false,
         expectedType = invocation.expectedType(), expr = invocation, canThrowSCE)
     }
@@ -383,7 +383,7 @@ object MethodInvocation {
               r.importsUsed, r.implicitConversion, Some(r))
           }
           call.getInvokedExpr.getNonValueType() match {
-            case Success(ScTypePolymorphicType(_, typeParams), _) =>
+            case Right(ScTypePolymorphicType(_, typeParams)) =>
               val fixedType = res.processedType match {
                 case ScTypePolymorphicType(internal, typeParams2) =>
                   ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2))

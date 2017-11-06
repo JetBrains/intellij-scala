@@ -9,7 +9,6 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope._
 import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.importOptimizer._
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -166,12 +165,12 @@ trait ScImportsHolder extends ScalaPsiElement {
   def addImportsForPaths(paths: Seq[String], refsContainer: PsiElement = null): Unit = {
     import ScalaImportOptimizer._
 
-    implicit val manager = getManager
+    implicit val manager: PsiManager = getManager
     def samePackage(path: String) = {
       val ref = createReferenceFromText(path)
       val pathQualifier = Option(ref).flatMap(_.qualifier.map(_.getText)).getOrElse("")
-      val ourPackageName: Option[String] =
-        Option(PsiTreeUtil.getParentOfType(this, classOf[ScPackaging], false)).map(_.fullPackageName)
+      val ourPackageName = this.parentOfType(classOf[ScPackaging], strict = false)
+        .map(_.fullPackageName)
       ourPackageName.contains(pathQualifier)
     }
 

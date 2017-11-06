@@ -60,11 +60,11 @@ object ResolveUtils {
                 (kinds contains OBJECT) && isStaticCorrect(c)
               }
             case patt: ScBindingPattern =>
-              val parent = getParentOfType(patt, classOf[ScVariable], classOf[ScValue])
-              parent match {
-                case _: ScVariable => kinds contains VAR
-                case _ => kinds contains VAL
+              val value = patt.nonStrictParentOfType(Seq(classOf[ScVariable], classOf[ScValue])) match {
+                case Some(_: ScVariable) => VAR
+                case _ => VAL
               }
+              kinds.contains(value)
             case patt: ScFieldId =>
               if (patt.getParent /*list of ids*/ .getParent.isInstanceOf[ScVariable])
                 kinds contains VAR else kinds contains VAL

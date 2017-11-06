@@ -51,6 +51,12 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
     }
   }
 
+  override def tearDown(): Unit = try {
+    disposeLibraries()
+  } finally {
+    super.tearDown()
+  }
+
   override def loadTestFile(): SbtFileImpl = {
     val fileName = "SbtAnnotator.sbt"
     val filePath = testdataPath + fileName

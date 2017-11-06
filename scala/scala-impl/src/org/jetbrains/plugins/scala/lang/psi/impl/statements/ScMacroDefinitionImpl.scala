@@ -13,9 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * @author Jason Zaugg
@@ -64,9 +63,9 @@ class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
 
   override def toString: String = "ScMacroDefinition: " + ifReadAllowed(name)("")
 
-  override protected def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
+  override protected def returnTypeInner: TypeResult = returnTypeElement match {
     case Some(rte: ScTypeElement) => rte.`type`()
-    case None => Success(Any) // TODO look up type from the macro impl.
+    case None => Right(Any) // TODO look up type from the macro impl.
   }
 
   def body: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)

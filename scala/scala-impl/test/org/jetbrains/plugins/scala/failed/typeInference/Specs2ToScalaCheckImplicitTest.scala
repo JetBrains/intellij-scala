@@ -11,8 +11,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class Specs2ToScalaCheckImplicitTest extends TypeInferenceTestBase {
 
-  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
-    Array(Specs2Loader("2.4.15")(module), ScalaZCoreLoader()(module))
+  override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
+    Seq(Specs2Loader("2.4.15")(module), ScalaZCoreLoader()(module))
 
   def testSCL8864(): Unit = doTest {
     s"""object Main extends App {

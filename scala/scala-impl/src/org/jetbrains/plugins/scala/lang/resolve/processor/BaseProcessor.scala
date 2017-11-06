@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.{Set, mutable}
@@ -185,13 +185,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case ScDesignatorType(o: ScObject) =>
         processElement(o, ScSubstitutor.empty, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
       case ScDesignatorType(e: ScTypedDefinition) if place.isInstanceOf[ScTypeProjection] =>
-        val result: TypeResult[ScType] =
+        val result: TypeResult =
           e match {
             case p: ScParameter => p.getRealParameterType
             case _ => e.`type`()
           }
         result match {
-          case Success(tp, _) => processType(tp, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
+          case Right(tp) => processType(tp, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
           case _ => true
         }
       case ScDesignatorType(e) =>
@@ -279,13 +279,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case clazz: PsiClass =>
         TypeDefinitionMembers.processDeclarations(clazz, BaseProcessor.this, state.put(ScSubstitutor.key, newSubst), null, place)
       case des: ScTypedDefinition =>
-        val typeResult: TypeResult[ScType] =
+        val typeResult: TypeResult =
           des match {
             case p: ScParameter => p.getRealParameterType
             case _ => des.`type`()
           }
         typeResult match {
-          case Success(tp, _) =>
+          case Right(tp) =>
             processType(newSubst subst tp, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
               updateWithProjectionSubst = false, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
           case _ => true

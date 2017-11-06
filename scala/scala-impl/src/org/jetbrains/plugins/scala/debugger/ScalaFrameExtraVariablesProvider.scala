@@ -119,13 +119,13 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
       }
     }
 
-    inReadAction {
-      srr.getElement match {
-        case named if generatorNotFromBody(named, place) => tryEvaluate(named.name, place, evaluationContext).isSuccess
-        case named: PsiNamedElement if notUsedInCurrentClass(named, place) => tryEvaluate(named.name, place, evaluationContext).isSuccess
-        case _ => true
-      }
+    val named = srr.getElement
+
+    if (generatorNotFromBody(named, place) || notUsedInCurrentClass(named, place)) {
+      val name = inReadAction(named.name)
+      tryEvaluate(name, place, evaluationContext).isSuccess
     }
+    else true
   }
 
   private def isInCatchBlock(cc: ScCaseClause): Boolean = {

@@ -157,6 +157,18 @@ public class ScalaProjectSettingsPanel {
         if (injectionPrefixTable == null) injectionPrefixTable = new ScalaUiWithDependency.NullComponentWithSettings();
 
         scTypeSelectionCombobox.setModel(new EnumComboBoxModel(ScalaProjectSettings.ScFileMode.class));
+        scTypeSelectionCombobox.setRenderer(new ListCellRendererWrapper() {
+            @Override
+            public void customize(JList jList, Object o, int i, boolean b, boolean b1) {
+                if (!(o instanceof ScalaProjectSettings.ScFileMode)) return;
+                
+                switch ((ScalaProjectSettings.ScFileMode) o) {
+                    case Auto: setText("Ammonite in test sources, otherwise Worksheet"); break;
+                    case Ammonite: setText("Always Ammonite"); break;
+                    case Worksheet: setText("Always Worksheet"); 
+                }
+            }
+        });
 
         autoRunDelaySlider.setMaximum(WorksheetAutoRunner$.MODULE$.RUN_DELAY_MS_MAXIMUM());
         autoRunDelaySlider.setMinimum(WorksheetAutoRunner$.MODULE$.RUN_DELAY_MS_MINIMUM());

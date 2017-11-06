@@ -4,10 +4,15 @@ package debugger
 import java.io.File
 import java.util.concurrent.atomic.AtomicReference
 
+import scala.collection.mutable
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
+
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.engine._
 import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder
+import com.intellij.debugger.engine.events.SuspendContextCommandImpl
 import com.intellij.debugger.impl._
 import com.intellij.execution.Executor
 import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationType}
@@ -17,8 +22,7 @@ import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHand
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.util.Key
-import com.intellij.psi.PsiCodeFragment
+import com.intellij.openapi.util.{Key, Ref}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
@@ -31,9 +35,6 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert
 
-import scala.collection.mutable
-import scala.util.{Failure, Success, Try}
-
 /**
  * User: Alefas
  * Date: 13.10.11
@@ -44,44 +45,59 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   private val breakpoints: mutable.Set[(String, Int, Integer)] = mutable.Set.empty
 
+  //safety net against not running tests at all
+  private var wasAtBreakpoint: Boolean = false
+  protected def shouldStopAtBreakpointAtLeastOnce(): Boolean = true
+
+  override def setUp() = {
+    super.setUp()
+    if (needMake) {
+      make()
+      saveChecksums()
+    }
+  }
+
   protected def runDebugger(mainClass: String = mainClassName, debug: Boolean = false)(callback: => Unit) {
-    inTransactionLater(getProject) {
-      var processHandler: ProcessHandler = null
-      if (needMake) {
-        make()
-        saveChecksums()
-      }
-      addBreakpoints()
-      val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find {
-        _.getClass == classOf[GenericDebuggerRunner]
-      }.get
-      processHandler = runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
+    setupBreakpoints()
+    val processHandler = runProcess(mainClass, debug)
+    val debugProcess = getDebugProcess
+
+    try {
+      callback
+    } finally {
+      EdtTestUtil.runInEdtAndWait(() => {
+        clearXBreakpoints()
+        debugProcess.stop(true)
+        processHandler.destroyProcess()
+      })
+    }
+
+    Assert.assertTrue("Stop at breakpoint expected", wasAtBreakpoint || !shouldStopAtBreakpointAtLeastOnce())
+  }
+
+  private def runProcess(mainClass: String = mainClassName, debug: Boolean = false): ProcessHandler = {
+    val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find {
+      _.getClass == classOf[GenericDebuggerRunner]
+    }.get
+
+    val processHandler = Ref.create[ProcessHandler]
+    EdtTestUtil.runInEdtAndWait(() => {
+      val handler = runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
         override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
           val text = event.getText
           if (debug) print(text)
         }
       }, runner)
-
-
-      try {
-        callback
-      } finally {
-
-        EdtTestUtil.runInEdtAndWait(() => {
-          clearXBreakpoints()
-          getDebugProcess.stop(true)
-          processHandler.destroyProcess()
-        })
-      }
-    }
-
+      processHandler.set(handler)
+    })
+    processHandler.get
   }
 
-  protected def runProcess(className: String,
-                           module: Module,
-                           executorClass: Class[_ <: Executor],
-                           listener: ProcessListener,
-                           runner: ProgramRunner[_ <: RunnerSettings]): ProcessHandler = {
+  private def runProcess(className: String,
+                         module: Module,
+                         executorClass: Class[_ <: Executor],
+                         listener: ProcessListener,
+                         runner: ProgramRunner[_ <: RunnerSettings]): ProcessHandler = {
     val configuration: ApplicationConfiguration = new ApplicationConfiguration("app", module.getProject, ApplicationConfigurationType.getInstance)
     configuration.setModule(module)
     configuration.setMainClassName(className)
@@ -102,13 +118,8 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     processHandler.get
   }
 
-  protected def getDebugProcess: DebugProcessImpl = {
-    getDebugSession.getProcess
-  }
-
-  protected def getDebugSession: DebuggerSession = {
-    DebuggerManagerEx.getInstanceEx(getProject).getContext.getDebuggerSession
-  }
+  protected def getDebugProcess: DebugProcessImpl =
+    DebuggerManagerEx.getInstanceEx(getProject).getContext.getDebugProcess
 
   protected def resume() {
     val resumeCommand = getDebugProcess.createResumeCommand(suspendContext)
@@ -119,19 +130,24 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     breakpoints += ((fileName, line, lambdaOrdinal))
   }
 
-  protected def clearBreakpoints(): Unit = breakpoints.clear()
+  protected def clearBreakpoints(): Unit = {
+    breakpoints.clear()
+    clearXBreakpoints()
+  }
 
-  private def addBreakpoints() {
-    breakpoints.foreach {
-      case (fileName, line, ordinal) =>
-        val ioFile = new File(srcDir, fileName)
-        val file = getVirtualFile(ioFile)
-        val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
-        val properties = new JavaLineBreakpointProperties
-        properties.setLambdaOrdinal(ordinal)
-        inWriteAction {
-          xBreakpointManager.addLineBreakpoint(scalaLineBreakpointType, file.getUrl, line, properties)
-        }
+  private def setupBreakpoints() {
+    invokeAndWaitInTransaction(getProject) {
+      breakpoints.foreach {
+        case (fileName, line, ordinal) =>
+          val ioFile = new File(srcDir, fileName)
+          val file = getVirtualFile(ioFile)
+          val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
+          val properties = new JavaLineBreakpointProperties
+          properties.setLambdaOrdinal(ordinal)
+          inWriteAction {
+            xBreakpointManager.addLineBreakpoint(scalaLineBreakpointType, file.getUrl, line, properties)
+          }
+      }
     }
   }
 
@@ -146,10 +162,14 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   protected def scalaLineBreakpointType = XBreakpointType.EXTENSION_POINT_NAME.findExtension(classOf[ScalaLineBreakpointType])
 
-  protected def waitForBreakpoint(): SuspendContextImpl =  {
+  protected def waitForBreakpoint(): SuspendContextImpl = {
     val (suspendContext, processTerminated) = waitForBreakpointInner()
 
-    assert(suspendContext != null, "too long process, terminated=" + processTerminated)
+    val message =
+      if (processTerminated) "process terminated before breakpoint"
+      else "too long waiting for breakpoint"
+
+    assert(suspendContext != null, message)
     suspendContext
   }
 
@@ -159,75 +179,116 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   }
 
   private def waitForBreakpointInner(): (SuspendContextImpl, Boolean) = {
-    var i = 0
-    def processTerminated: Boolean = getDebugProcess.getExecutionResult.getProcessHandler.isProcessTerminated
-    while (i < 1000 && suspendContext == null && !processTerminated) {
-      Thread.sleep(10)
-      i += 1
-    }
-    (suspendContext, processTerminated)
-  }
-
-  protected def managed[T >: Null](callback: => T): T = {
-    var result: T = null
-    def ctx = DebuggerContextUtil.createDebuggerContext(getDebugSession, suspendContext)
     val semaphore = new Semaphore()
     semaphore.down()
-    getDebugProcess.getManagerThread.invokeAndWait(() => {
-      result = callback
-      semaphore.up()
+
+    val result = Ref.create[(SuspendContextImpl, Boolean)]((null, false))
+
+    getDebugProcess.addDebugProcessListener(new DebugProcessAdapterImpl {
+      override def paused(suspendContext: SuspendContextImpl) = {
+        wasAtBreakpoint = true
+        getDebugProcess.removeDebugProcessListener(this)
+        result.set(suspendContext, false)
+        semaphore.up()
+      }
+
+      override def processDetached(process: DebugProcessImpl, closedByUser: Boolean) = {
+        process.removeDebugProcessListener(this)
+        result.set(null, true)
+        semaphore.up()
+      }
     })
-    def finished = semaphore.waitFor(20000)
-    assert(finished, "Too long debugger action")
-    result
+
+    semaphore.waitFor(30000)
+
+    result.get
   }
 
   protected def suspendManager = getDebugProcess.getSuspendManager
 
   protected def suspendContext = suspendManager.getPausedContext
 
-  protected def evaluationContext() = new EvaluationContextImpl(suspendContext, suspendContext.getFrameProxy, suspendContext.getFrameProxy.thisObject())
+  protected def evaluationContext() = managed {
+    new EvaluationContextImpl(suspendContext, suspendContext.getFrameProxy, suspendContext.getFrameProxy.thisObject())
+  }
 
-  protected def currentSourcePosition = ContextUtil.getSourcePosition(suspendContext)
+  protected def currentSourcePosition = managed {
+    ContextUtil.getSourcePosition(suspendContext)
+  }
 
   protected def evalResult(codeText: String): String = {
+    val ctx = evaluationContext()
+    val factory = new ScalaCodeFragmentFactory()
+    val factoryWrapper = new CodeFragmentFactoryContextWrapper(factory)
+    val evaluatorBuilder: EvaluatorBuilder = factory.getEvaluatorBuilder
+    val kind =
+      if (codeText.contains("\n")) CodeFragmentKind.CODE_BLOCK
+      else CodeFragmentKind.EXPRESSION
+
+    val contextElement = managed {
+      ContextUtil.getContextElement(ctx)
+    }
+
+    val textWithImports = new TextWithImportsImpl(kind, codeText)
+    val fragment = inReadAction {
+      val fragment = factoryWrapper.createCodeFragment(textWithImports, contextElement, getProject)
+      fragment.forceResolveScope(GlobalSearchScope.allScope(getProject))
+      DebuggerUtils.checkSyntax(fragment)
+      fragment
+    }
+
+    inSuspendContextAction(60.seconds, "Too long evaluate expression: " + codeText) {
+      val value = Try {
+        val evaluator = inReadAction {
+          evaluatorBuilder.build(fragment, currentSourcePosition)
+        }
+        evaluator.evaluate(ctx)
+      }
+      value match {
+        case Success(v: VoidValue) => "undefined"
+        case Success(v) =>
+          DebuggerUtils.getValueAsString(ctx, v)
+        case Failure(e: EvaluateException) => e.getMessage
+        case Failure(e: Throwable) => "Other error: " + e.getMessage
+      }
+    }
+  }
+
+  private def waitScheduledAction[T](timeout: Duration, timeoutMsg: String, callback: => T)
+                                    (schedule: (=> Unit) => Unit): T = {
+    val result = Ref.create[T]()
     val semaphore = new Semaphore()
     semaphore.down()
-    val result =
-      managed[String] {
-        val ctx: EvaluationContextImpl = evaluationContext()
-        val factory = new ScalaCodeFragmentFactory()
-        val kind = if (codeText.contains("\n")) CodeFragmentKind.CODE_BLOCK else CodeFragmentKind.EXPRESSION
-        val codeFragment: PsiCodeFragment = inReadAction {
-          val result = new CodeFragmentFactoryContextWrapper(factory).
-            createCodeFragment(new TextWithImportsImpl(kind, codeText),
-              ContextUtil.getContextElement(ctx), getProject)
-          result.forceResolveScope(GlobalSearchScope.allScope(getProject))
-          DebuggerUtils.checkSyntax(result)
-          result
-        }
-        val evaluatorBuilder: EvaluatorBuilder = factory.getEvaluatorBuilder
 
-        val value = Try {
-          val evaluator = inReadAction(evaluatorBuilder.build(codeFragment, currentSourcePosition))
-          inSuspendContextCommand(ctx) {
-            evaluator.evaluate(ctx)
-          }
+    schedule {
+      result.set(callback)
+      semaphore.up()
+    }
+    val finished = semaphore.waitFor(timeout.toMillis)
+    if (!finished) {
+      semaphore.up()
+    }
+    Assert.assertTrue(timeoutMsg, finished)
+    result.get
+  }
+
+  protected def inSuspendContextAction[T](timeout: Duration, timeoutMsg: String)(callback: => T): T = {
+    val context = suspendContext
+    val process = getDebugProcess
+
+    waitScheduledAction(timeout, timeoutMsg, callback) { body =>
+      process.getManagerThread.schedule(new SuspendContextCommandImpl(context) {
+        override def contextAction(suspendContext: SuspendContextImpl): Unit = {
+          body
         }
-        val res = value match {
-          case Success(v: VoidValue) => "undefined"
-          case Success(v) =>
-            inSuspendContextCommand(ctx) {
-              DebuggerUtils.getValueAsString(ctx, v)
-            }
-          case Failure(e: EvaluateException) => e.getMessage
-          case Failure(e: Throwable) => "Other error: " + e.getMessage
-        }
-        semaphore.up()
-        res
-      }
-    assert(semaphore.waitFor(10000), "Too long evaluate expression: " + codeText)
-    result
+      })
+    }
+  }
+
+  protected def managed[T >: Null](callback: => T): T = {
+    waitScheduledAction(30.seconds, "Too long debugger action", callback) { body =>
+      getDebugProcess.getManagerThread.invoke(() => body)
+    }
   }
 
   protected def evalEquals(codeText: String, expected: String) {
@@ -280,15 +341,6 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     addSourceFile(path, cleanedText)
 
     breakpointLines.foreach(addBreakpoint(_, path))
-  }
-
-  protected def inSuspendContextCommand[T](ctx: EvaluationContextImpl)(body: => T): T = {
-    val suspendContext = ctx.getSuspendContext
-    suspendContext.myInProgress = true
-    try body
-    finally {
-      suspendContext.myInProgress = false
-    }
   }
 }
 

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Invariant, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
 /**
@@ -24,14 +24,14 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
   def aliasedTypeElement: Option[ScTypeElement]
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
-  def aliasedType: TypeResult[ScType] =
+  def aliasedType: TypeResult =
     aliasedTypeElement.map {
       _.`type`()
     }.getOrElse(Failure("No alias type"))
 
-  def lowerBound: TypeResult[ScType] = aliasedType
+  def lowerBound: TypeResult = aliasedType
 
-  def upperBound: TypeResult[ScType] = aliasedType
+  def upperBound: TypeResult = aliasedType
 
   def isExactAliasFor(cls: PsiClass): Boolean = {
     val isDefinedInObject = containingClass match {

@@ -20,7 +20,7 @@ import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.{getNonStrictParentOfType, getParentOfType, isAncestor}
 import com.intellij.util.{ArrayFactory, Processor}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
@@ -38,6 +38,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -266,6 +267,17 @@ package object extensions {
 
     def parent: Option[PsiElement] = Option(element.getParent)
 
+    def parentOfType[E <: PsiElement](clazz: Class[E], strict: Boolean = true): Option[E] =
+      Option(getParentOfType(element, clazz, strict))
+
+    def parentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
+      Option(getParentOfType(element, classes: _*))
+
+    def nonStrictParentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
+      Option(getNonStrictParentOfType(element, classes: _*))
+
+    def isAncestorOf(otherElement: PsiElement): Boolean = isAncestor(element, otherElement, true)
+
     def parents: Iterator[PsiElement] = new ParentsIterator(element)
 
     def withParents: Iterator[PsiElement] = new ParentsIterator(element, strict = false)
@@ -294,8 +306,6 @@ package object extensions {
     def nextSiblings: Iterator[PsiElement] = new NextSiblignsIterator(element)
 
     def nextSibilingsWithSelf: Iterator[PsiElement] = Iterator(element) ++ nextSiblings
-
-    def isAncestorOf(e: PsiElement): Boolean = PsiTreeUtil.isAncestor(element, e, true)
 
     def contexts: Iterator[PsiElement] = new ContextsIterator(element)
 
@@ -703,8 +713,12 @@ package object extensions {
       ApplicationManager.getApplication.invokeAndWait(() => body)
     }
 
-  def inTransactionLater(disposable: Disposable)(body: => Unit): Runnable = {
+  def callbackInTransaction(disposable: Disposable)(body: => Unit): Runnable = {
     TransactionGuard.getInstance().submitTransactionLater(disposable, body)
+  }
+
+  def invokeAndWaitInTransaction(disposable: Disposable)(body: => Unit): Unit = {
+    TransactionGuard.getInstance().submitTransactionAndWait(disposable, body)
   }
 
   private def preservingControlFlow(body: => Unit) {

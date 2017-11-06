@@ -1,15 +1,17 @@
 package org.jetbrains.plugins.scala
-package editor.enterHandler
+package editor
+package enterHandler
 
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
+import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
@@ -19,16 +21,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
  */
 class AddUnitTypeEnterHandler extends EnterHandlerDelegateAdapter {
   override def postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): Result = {
-    val project = file.getProject
-    val scalaSettings = ScalaCodeStyleSettings.getInstance(project)
-    if (!scalaSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT) return Result.Continue
+    if (!isApplicable(file, editor)) return Result.Continue
 
     val document = editor.getDocument
-    PsiDocumentManager.getInstance(project).commitDocument(document)
 
-    val caretModel = editor.getCaretModel
-    val offset = caretModel.getOffset
-    val element = file.findElementAt(offset)
+    editor.commitDocument(file.getProject)
+
+    val element = file.findElementAt(editor.offset)
 
     if (element == null) return Result.Continue
 
@@ -44,7 +43,6 @@ class AddUnitTypeEnterHandler extends EnterHandlerDelegateAdapter {
             if (funDef.findFirstChildByType(ScalaTokenTypes.tASSIGN) == null)
               extensions.inWriteAction {
                 document.insertString(prev.getTextRange.getEndOffset, ": Unit =")
-                PsiDocumentManager.getInstance(project).commitDocument(document)
               }
           case _ =>
         }
@@ -52,5 +50,25 @@ class AddUnitTypeEnterHandler extends EnterHandlerDelegateAdapter {
     }
 
     Result.Default
+  }
+
+  private def isApplicable(file: PsiFile, editor: Editor): Boolean = {
+    val project = file.getProject
+    val settings = ScalaCodeStyleSettings.getInstance(project)
+
+    file.isInstanceOf[ScalaFile] &&
+      settings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT &&
+      prevNonWhitespace(editor) == '{'
+  }
+
+  private def prevNonWhitespace(editor: Editor): Char = {
+    val chars = editor.getDocument.getImmutableCharSequence
+    var offset = editor.offset
+    var found = ' '
+    while (found.isWhitespace && offset > 0) {
+      offset -= 1
+      found = chars.charAt(offset)
+    }
+    found
   }
 }

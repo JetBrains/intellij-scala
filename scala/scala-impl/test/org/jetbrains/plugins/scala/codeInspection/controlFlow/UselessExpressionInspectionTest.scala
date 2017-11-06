@@ -260,4 +260,18 @@ class UselessExpressionInspectionTest extends ScalaInspectionTestBase {
       """
     checkTextHasNoErrors(text)
   }
+
+  def testUnderscoreApply(): Unit = {
+    val text =
+      """
+        |object ToDo {
+        |  var todo: Option[() => Unit] = None
+        |
+        |  def doIt() = todo.foreach(_ ())
+        |  def doItToo() = todo.foreach(_.apply())
+        |  todo.foreach(_())
+        |}
+      """
+    checkTextHasNoErrors(text)
+  }
 }

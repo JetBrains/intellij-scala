@@ -10,12 +10,13 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.calculateReturns
 
 class ScalaHighlightExprResultHandler(expr: ScExpression, editor: Editor,
                                       file: PsiFile, keyword: PsiElement)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
-  def computeUsages(targets: util.List[PsiElement]) {
-    val returns = expr.calculateReturns() :+ keyword
+  def computeUsages(targets: util.List[PsiElement]): Unit = {
+    val returns = calculateReturns(expr) ++ Set(keyword)
     returns.map(_.getTextRange).foreach(myReadUsages.add)
   }
 

@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
@@ -84,21 +84,21 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     }
   }
 
-  def shapeType(i: Int): TypeResult[ScType] = {
+  def shapeType(i: Int): TypeResult = {
     val seq = shapeMultiType(i)
     if (seq.length == 1) seq.head
     else Failure("Can't resolve type")
   }
 
-  def shapeMultiType(i: Int): Seq[TypeResult[ScType]] = innerMultiType(i, isShape = true)
+  def shapeMultiType(i: Int): Seq[TypeResult] = innerMultiType(i, isShape = true)
 
-  def multiType(i: Int): Seq[TypeResult[ScType]] = innerMultiType(i, isShape = false)
+  def multiType(i: Int): Seq[TypeResult] = innerMultiType(i, isShape = false)
 
-  private def innerMultiType(i: Int, isShape: Boolean): Seq[TypeResult[ScType]] = {
+  private def innerMultiType(i: Int, isShape: Boolean): Seq[TypeResult] = {
     def FAILURE = Failure("Can't resolve type")
     def workWithResolveResult(constr: PsiMethod, r: ScalaResolveResult,
                               subst: ScSubstitutor, s: ScSimpleTypeElement,
-                              ref: ScStableCodeReferenceElement): TypeResult[ScType] = {
+                              ref: ScStableCodeReferenceElement): TypeResult = {
       val clazz = constr.containingClass
       val tp = r.getActualElement match {
         case ta: ScTypeAliasDefinition => subst.subst(ta.aliasedType.getOrElse(return FAILURE))
@@ -119,7 +119,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           tp.typeParameters.map(TypeParameter(_))
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
           ptp.getTypeParameters.toSeq.map(TypeParameter(_))
-        case _ => return Success(res)
+        case _ => return Right(res)
       }
       s.getParent match {
         case p: ScParameterizedTypeElement =>
@@ -128,7 +128,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             case (arg, typeParam) =>
               (typeParam.nameAndId, arg.`type`().getOrAny)
           }.toMap)
-          Success(appSubst.subst(res))
+          Right(appSubst.subst(res))
         case _ =>
           var nonValueType = ScTypePolymorphicType(res, typeParameters)
           expectedType match {
@@ -153,17 +153,17 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
               )
               val extRes = Compatibility.checkConformanceExt(false, undefParams, paramsByClauses.map(_._1), false, false)
               val result = extRes.undefSubst.getSubstitutor.map(_.subst(nonValueType)).getOrElse(nonValueType)
-              return Success(result)
+              return Right(result)
             case _ =>
           }
-          Success(nonValueType)
+          Right(nonValueType)
       }
     }
 
-    def processSimple(s: ScSimpleTypeElement): Seq[TypeResult[ScType]] = {
+    def processSimple(s: ScSimpleTypeElement): Seq[TypeResult] = {
       s.reference match {
         case Some(ref) =>
-          val buffer = new ArrayBuffer[TypeResult[ScType]]
+          val buffer = new ArrayBuffer[TypeResult]
           val resolve = if (isShape) ref.shapeResolveConstr else ref.resolveAllConstructors
           resolve.foreach {
             case r@ScalaResolveResult(constr: PsiMethod, subst) =>
@@ -175,7 +175,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                   Seq(Parameter(p.getName, None, paramType, paramType, p.getDefaultValue != null, isRepeated = false, isByName = false))
                 case _ => Seq.empty
               }
-              buffer += Success(ScMethodType(ScDesignatorType(clazz), params, isImplicit = false))
+              buffer += Right(ScMethodType(ScDesignatorType(clazz), params, isImplicit = false))
             case _ =>
           }
           buffer

@@ -2,15 +2,15 @@ package scala.meta
 
 import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyLibraryLoaderAdapter, ThirdPartyLibraryLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_11_11}
+import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_12}
 
 trait ScalaMetaLibrariesOwner extends ScalaSdkOwner {
 
-  override implicit val version: ScalaVersion = Scala_2_11_11
+  override implicit val version: ScalaVersion = Scala_2_12
 
   import ScalaMetaLibrariesOwner._
 
-  protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] = Array(
+  protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] = Seq(
     MetaCommonLoader(),
     MetaDialectsLoader(),
     MetaInlineLoader(),

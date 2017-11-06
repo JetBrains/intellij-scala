@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -89,7 +89,7 @@ private[expr] object ExpectedTypes {
       }
     }
 
-    def mapResolves(resolves: Array[ResolveResult], types: Array[TypeResult[ScType]]): Array[(TypeResult[ScType], Boolean)] = {
+    def mapResolves(resolves: Array[ResolveResult], types: Array[TypeResult]): Array[(TypeResult, Boolean)] = {
       resolves.zip(types).map {
         case (r: ScalaResolveResult, tp) =>
           val isNamedDynamic = r.isDynamic && r.name == APPLY_DYNAMIC_NAMED
@@ -271,7 +271,7 @@ private[expr] object ExpectedTypes {
         fun.returnTypeElement match {
           case Some(rte: ScTypeElement) =>
             fun.returnType match {
-              case Success(rt: ScType, _) => Array((rt, Some(rte)))
+              case Right(rt) => Array((rt, Some(rte)))
               case _ => Array.empty
             }
           case None => Array.empty
@@ -286,7 +286,7 @@ private[expr] object ExpectedTypes {
         }
         val callExpression = args.callExpression
         if (callExpression != null) {
-          var tps: Array[(TypeResult[ScType], Boolean)] = callExpression match {
+          var tps: Array[(TypeResult, Boolean)] = callExpression match {
             case ref: ScReferenceExpression =>
               if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
               else mapResolves(ref.multiResolve(false), ref.multiType)
@@ -363,7 +363,7 @@ private[expr] object ExpectedTypes {
 
   @tailrec
   private def processArgsExpected(res: ArrayBuffer[(ScType, Option[ScTypeElement])], expr: ScExpression, i: Int,
-                                  tp: TypeResult[ScType], exprs: Seq[ScExpression], call: Option[MethodInvocation] = None,
+                                  tp: TypeResult, exprs: Seq[ScExpression], call: Option[MethodInvocation] = None,
                                   forApply: Boolean = false, isDynamicNamed: Boolean = false) {
     import expr.projectContext
 
@@ -407,7 +407,7 @@ private[expr] object ExpectedTypes {
       }
     }
     tp match {
-      case Success(ScMethodType(_, params, _), _) =>
+      case Right(ScMethodType(_, params, _)) =>
         if (params.length == 1 && !params.head.isRepeated && exprs.length > 1) {
           params.head.paramType.removeAbstracts match {
             case TupleType(args) => applyForParams(args.zipWithIndex.map {
@@ -416,7 +416,7 @@ private[expr] object ExpectedTypes {
             case _ =>
           }
         } else applyForParams(params)
-      case Success(t@ScTypePolymorphicType(ScMethodType(_, params, _), _), _) =>
+      case Right(t@ScTypePolymorphicType(ScMethodType(_, params, _), _)) =>
         val subst = t.abstractTypeSubstitutor
         val newParams = params.map(p => p.copy(paramType = subst.subst(p.paramType)))
         if (newParams.length == 1 && !newParams.head.isRepeated && exprs.length > 1) {
@@ -427,7 +427,7 @@ private[expr] object ExpectedTypes {
             case _ =>
           }
         } else applyForParams(newParams)
-      case Success(ScTypePolymorphicType(anotherType, typeParams), _) if !forApply =>
+      case Right(ScTypePolymorphicType(anotherType, typeParams)) if !forApply =>
         val cand = call.getOrElse(expr).applyShapeResolveForExpectedType(anotherType, exprs, call)
         if (cand.length == 1) {
           cand(0) match {
@@ -437,7 +437,8 @@ private[expr] object ExpectedTypes {
                 if (r.isDynamic) getDynamicReturn(tp)
                 else tp
               }
-              var polyType: TypeResult[ScType] = Success(s.subst(fun.polymorphicType()) match {
+
+              var polyType: TypeResult = Right(s.subst(fun.polymorphicType()) match {
                 case ScTypePolymorphicType(internal, params) =>
                   update(ScTypePolymorphicType(internal, params ++ typeParams))
                 case tp => update(ScTypePolymorphicType(tp, typeParams))
@@ -447,7 +448,7 @@ private[expr] object ExpectedTypes {
             case _ =>
           }
         }
-      case Success(anotherType, _) if !forApply =>
+      case Right(anotherType) if !forApply =>
         val cand = call.getOrElse(expr).applyShapeResolveForExpectedType(anotherType, exprs, call)
         if (cand.length == 1) {
           cand(0) match {
@@ -458,7 +459,7 @@ private[expr] object ExpectedTypes {
                 else tp
               }
 
-              var polyType: TypeResult[ScType] = Success(update(subst.subst(fun.polymorphicType())))
+              var polyType: TypeResult = Right(update(subst.subst(fun.polymorphicType())))
               call.foreach(call => polyType = call.updateAccordingToExpectedType(polyType))
               processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isDynamicNamed)
             case _ =>

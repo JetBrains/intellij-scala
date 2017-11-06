@@ -1,32 +1,28 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluation
 
+import scala.collection.JavaConverters._
+
+import com.intellij.debugger.DebuggerBundle
 import com.intellij.debugger.codeinsight.RuntimeTypeEvaluator
 import com.intellij.debugger.engine.ContextUtil
 import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
 import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluationContextImpl, TextWithImportsImpl}
 import com.intellij.debugger.impl.DebuggerContextImpl
-import com.intellij.debugger.{DebuggerBundle, DebuggerInvocationUtil, EvaluatingComputable}
-import com.intellij.openapi.application.{AccessToken, ReadAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiImmediateClassType
-import com.intellij.psi.search.GlobalSearchScope
-import com.sun.jdi.{ClassType, Type, Value}
+import com.sun.jdi.{ClassType, ReferenceType, Type, Value}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, inReadAction}
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
-import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -37,18 +33,19 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
 
   override def evaluate(evaluationContext: EvaluationContextImpl): PsiType = {
     val project: Project = evaluationContext.getProject
+    val process = context.getDebugProcess
+    if (process == null) return null
 
-    val evaluator: ExpressionEvaluator = DebuggerInvocationUtil.commitAndRunReadAction(project, new EvaluatingComputable[ExpressionEvaluator] {
-      def compute: ExpressionEvaluator = {
-        val textWithImports = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, expression.getText)
-        val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(textWithImports, expression, project)
-        ScalaEvaluatorBuilder.build(codeFragment, ContextUtil.getSourcePosition(evaluationContext))
-      }
-    })
+    val evaluator: ExpressionEvaluator = inReadAction {
+      val textWithImports = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, expression.getText)
+      val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(textWithImports, expression, project)
+      ScalaEvaluatorBuilder.build(codeFragment, ContextUtil.getSourcePosition(evaluationContext))
+    }
     val value: Value = evaluator.evaluate(evaluationContext)
     if (value != null) {
       inReadAction {
-        Option(getCastableRuntimeType(project, value)).map(new PsiImmediateClassType(_, PsiSubstitutor.EMPTY)).orNull
+        getCastableRuntimeType(project, value)(ElementScope(project, process.getSearchScope))
+          .map(new PsiImmediateClassType(_, PsiSubstitutor.EMPTY)).orNull
       }
     } else throw EvaluationException(DebuggerBundle.message("evaluation.error.surrounded.expression.null"))
   }
@@ -58,51 +55,38 @@ object ScalaRuntimeTypeEvaluator {
 
   val KEY: Key[ScExpression => ScType] = Key.create("SCALA_RUNTIME_TYPE_EVALUATOR")
 
-  def getCastableRuntimeType(project: Project, value: Value): PsiClass = {
+  private val stdTypeNames = Set("java.lang.Object", "scala.Any", "scala.AnyRef", "scala.AnyVal")
+
+  private def getCastableRuntimeType(project: Project, value: Value)(implicit elementScope: ElementScope): Option[PsiClass] = {
     val unwrapped = DebuggerUtil.unwrapScalaRuntimeRef(value)
     val jdiType: Type = unwrapped.asInstanceOf[Value].`type`
-    var psiClass: PsiClass = findPsiClass(project, jdiType)
-    if (psiClass != null) {
-      return psiClass
+
+    findPsiClass(jdiType).orElse {
+      findBaseClass(jdiType)
     }
+  }
+
+  private def findBaseClass(jdiType: Type)(implicit elementScope: ElementScope): Option[PsiClass] = {
     jdiType match {
       case classType: ClassType =>
         val superclass: ClassType = classType.superclass
-        val stdTypeNames = Seq("java.lang.Object", "scala.Any", "scala.AnyRef", "scala.AnyVal")
-        if (superclass != null && !stdTypeNames.contains(superclass.name)) {
-          psiClass = findPsiClass(project, superclass)
-          if (psiClass != null) {
-            return psiClass
-          }
-        }
-        classType.interfaces.asScala
-          .map(findPsiClass(project, _))
-          .find(_ != null)
-          .orNull
-      case _ => null
+        if (superclass != null && !stdTypeNames.contains(superclass.name))
+          findPsiClass(superclass)
+        else
+          classType.interfaces.iterator().asScala
+            .flatMap(findPsiClass(_))
+            .headOption
+      case _ =>
+        None
     }
   }
 
-  private def findPsiClass(project: Project, jdiType: Type): PsiClass = {
-    val token: AccessToken = ReadAction.start
-    try {
-      ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), jdiType.name()).orNull
-    }
-    finally {
-      token.finish()
-    }
-  }
-
-  def isSubtypeable(scType: ScType): Boolean = {
-    scType match {
-      case ExtractClass(psiClass) =>
-        psiClass match {
-          case _: ScObject => false
-          case owner: ScModifierListOwner => !owner.hasFinalModifier
-          case _ if scType.isInstanceOf[PsiPrimitiveType] => false
-          case _ => !psiClass.hasModifierProperty(PsiModifier.FINAL)
-        }
-      case _ => false
+  private def findPsiClass(jdiType: Type)(implicit elementScope: ElementScope): Option[PsiClass] = {
+    jdiType match {
+      case refType: ReferenceType =>
+        inReadAction(DebuggerUtil.findPsiClassByQName(refType))
+      case _ =>
+        None
     }
   }
 }

@@ -10,7 +10,7 @@ import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExis
 */
 
 class ScWildcardTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeBoundsOwnerImpl with ScWildcardTypeElement {
-  protected def innerType: TypeResult[ScType] = {
+  protected def innerType: TypeResult = {
     for {
       lb <- lowerBound
       ub <- upperBound

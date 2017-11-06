@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 
@@ -120,12 +120,12 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               val second = checkForSecondCompletion &&
                 fun.paramClauses.clauses.filterNot(_.isImplicit).flatMap(_.parameters).isEmpty
               val added = fun.returnType match {
-                case Success(tp, _) => checkType(tp, infer, second)
+                case Right(tp) => checkType(tp, infer, second)
                 case _ => false
               }
               if (!added) {
                 fun.`type`() match {
-                  case Success(tp, _) => checkType(tp, infer, second, etaExpanded = true)
+                  case Right(tp) => checkType(tp, infer, second, etaExpanded = true)
                   case _ =>
                 }
               }
@@ -247,7 +247,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               case _: ScNewTemplateDefinition if foundClazz => //do nothing, impossible to invoke
               case t: ScTemplateDefinition =>
                 t.getTypeWithProjections(thisProjections = true) match {
-                  case Success(scType, _) =>
+                  case Right(scType) =>
                     val lookupString = (if (foundClazz) t.name + "." else "") + "this"
                     val el = new ScalaLookupItem(t, lookupString)
                     if (!scType.equiv(Nothing) && typez.exists(scType conforms _)) {

@@ -6,9 +6,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns._
 import com.intellij.patterns.StandardPatterns._
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.sbt.language.SbtFileType
 import org.jetbrains.sbt.resolvers.SbtResolverUtils
@@ -96,28 +97,27 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
         results.stopHere()
       }
 
-      val expr = ScalaPsiUtil.getParentOfType(place, classOf[ScInfixExpr]).asInstanceOf[ScInfixExpr]
-
       if (place.getText == CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
         return
 
       val cleanText = place.getText.replaceAll(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED, "").replaceAll("\"", "")
 
-      def isValidOp(operation: String) = operation == "%" || operation == "%%"
+      def isValidOp(expression: ScReferenceExpression) =
+        expression.getText match {
+          case "%" | "%%" => true
+          case _ => false
+        }
 
-      (expr.lOp, expr.operation.getText, expr.rOp) match {
-        case (_, oper, _) if oper == "+=" || oper == "++=" => // empty completion from scratch
+      place.parentOfType(classOf[ScInfixExpr], strict = false).foreach {
+        case ScInfixExpr(_, oper, _) if oper.getText == "+=" || oper.getText == "++=" => // empty completion from scratch
           completeGroup(cleanText)
-        case (lop, oper, ScLiteralImpl.string(artifact)) if lop == place.getContext && isValidOp(oper) =>
-          val versionSuffix = if (oper == "%%") s"_${place.scalaLanguageLevelOrDefault.version}" else ""
+        case ScInfixExpr(lop, oper, ScLiteralImpl.string(artifact)) if lop == place.getContext && isValidOp(oper) =>
+          val versionSuffix = if (oper.getText == "%%") s"_${place.scalaLanguageLevelOrDefault.version}" else ""
           completeGroup(artifact + versionSuffix)
-        case (ScLiteralImpl.string(group), oper, rop) if rop == place.getContext && isValidOp(oper) =>
-          if (oper == "%%")
-            completeArtifact(group, stripVersion = true)
-          else
-            completeArtifact(group, stripVersion = false)
-        case (ScInfixExpr(llop, loper, lrop), oper, rop)
-          if rop == place.getContext && oper == "%" && isValidOp(loper.getText) =>
+        case ScInfixExpr(ScLiteralImpl.string(group), oper, rop) if rop == place.getContext && isValidOp(oper) =>
+          completeArtifact(group, stripVersion = oper.getText == "%%")
+        case ScInfixExpr(ScInfixExpr(llop, loper, lrop), oper, rop)
+          if rop == place.getContext && oper.getText == "%" && isValidOp(loper) =>
           val versionSuffix = if (loper.getText == "%%") s"_${place.scalaLanguageLevelOrDefault.version}" else ""
           for {
             ScLiteralImpl.string(group) <- Option(llop)

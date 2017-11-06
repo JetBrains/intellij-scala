@@ -117,4 +117,11 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
       Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Term.Block(List(Term.Apply(Term.Name("f"), Nil), Term.Apply(Term.Name("f"), Nil), Lit.Int(42))))
     )
   }
+
+  def testDefaultValue(): Unit = {
+    doTest(
+      "def f(a: Int = 42) = a",
+      Defn.Def(Nil, Term.Name("f"), Nil, List(List(Term.Param(Nil, Term.Name("a"), Some(Type.Name("Int")), Some(Lit.Int(42))))), None, Term.Name("a"))
+    )
+  }
 }

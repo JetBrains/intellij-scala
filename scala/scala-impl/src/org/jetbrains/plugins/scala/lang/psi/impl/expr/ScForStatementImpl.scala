@@ -10,11 +10,9 @@ import com.intellij.psi._
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitCompletionProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
@@ -23,19 +21,10 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
-class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScForStatement {
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
-    }
-  }
-
-  override def toString: String = "ForStatement"
+  * @author Alexander Podkhalyuzin
+  *         Date: 06.03.2008
+  */
+class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScForStatement {
 
   def isYield: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kYIELD) != null
 
@@ -45,9 +34,9 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   def patterns: Seq[ScPattern] = enumerators.toSeq.flatMap(_.patterns)
 
   override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
     val enumerators: ScEnumerators = this.enumerators match {
       case None => return true
       case Some(x) => x
@@ -55,7 +44,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     if (lastParent == enumerators) return true
     enumerators.processDeclarations(processor, state, null, place)
   }
-  
+
   protected def bodyToText(expr: ScExpression) = expr.getText
 
   @tailrec
@@ -74,7 +63,9 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       val copyOf = this.copy().asInstanceOf[ScForStatement]
       val underscores = ScUnderScoreSectionUtil.underscores(copyOf)
       val length = underscores.length
+
       def name(i: Int): String = s"forAnonParam$$$i"
+
       underscores.zipWithIndex.foreach {
         case (underscore, index) =>
           val referenceExpression = ScalaPsiElementFactory.createReferenceExpressionFromText(name(index))
@@ -102,7 +93,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       val gen = gens.head
       if (gen.rvalue == null) return None
       exprText.append("(").append(gen.rvalue.getText).append(")").append(".").append(if (isYield) "map" else "foreach")
-              .append(" { case ")
+        .append(" { case ")
       gen.pattern.desugarizedPatternIndex = exprText.length
       exprText.append(gen.pattern.getText).append(s" $arrow ")
       body match {
@@ -124,26 +115,26 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           val tp = gen.rvalue.`type`().getOrAny
           val processor = new ImplicitCompletionProcessor(StdKinds.methodRef, this) {
 
-              override def execute(element: PsiElement, state: ResolveState): Boolean = {
-                super.execute(element, state)
-                if (!levelSet.isEmpty) {
-                  filterFound = true
-                  false
-                } else true
-              }
+            override def execute(element: PsiElement, state: ResolveState): Boolean = {
+              super.execute(element, state)
+              if (!levelSet.isEmpty) {
+                filterFound = true
+                false
+              } else true
+            }
 
             override protected val forName = Some("withFilter")
-            }
+          }
           processor.processType(tp, this)
           if (!filterFound) filterText = "filter"
           exprText.append(gen.pattern.getText).
-                  append(" <- ((").append(gen.rvalue.getText).append(s").$filterText { case ").
-                  append(gen.pattern.bindings.map(b => b.name).mkString("(", ", ", ")")).append(s" $arrow ")
-                  if (forDisplay) {
-                    exprText.append(guard.expr.map(_.getText).getOrElse("true"))
-                  } else {
-                    exprText.append(guard.expr.map(_.getText).getOrElse("true")).append(";true")
-                  }
+            append(" <- ((").append(gen.rvalue.getText).append(s").$filterText { case ").
+            append(gen.pattern.bindings.map(b => b.name).mkString("(", ", ", ")")).append(s" $arrow ")
+          if (forDisplay) {
+            exprText.append(guard.expr.map(_.getText).getOrElse("true"))
+          } else {
+            exprText.append(guard.expr.map(_.getText).getOrElse("true")).append(";true")
+          }
           exprText.append("})")
 
           next = nextEnumerator(next)
@@ -165,7 +156,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           }
         case _: ScGenerator =>
           exprText.append("(").append(gen.rvalue.getText).append(")").append(".").
-                  append(if (isYield) "flatMap " else "foreach ").append("{ case ")
+            append(if (isYield) "flatMap " else "foreach ").append("{ case ")
           gen.pattern.desugarizedPatternIndex = exprText.length
           exprText.append(gen.pattern.getText).append(s" $arrow ").append("for {")
           while (next != null) {
@@ -197,9 +188,9 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           }
 
           exprText.append(") <- (for (").append(freshName1).append("@(").append(gen.pattern.getText).append(") <- ").
-                  append(gen.rvalue.getText).append(") yield {val ").append(freshName2).append("@(").
-                  append(enum.pattern.getText).append(") = ").append(enum.rvalue.getText).
-                  append("; (").append(freshName2).append(", ").append(freshName1).append(")})")
+            append(gen.rvalue.getText).append(") yield {val ").append(freshName2).append("@(").
+            append(enum.pattern.getText).append(") = ").append(enum.rvalue.getText).
+            append("; (").append(freshName2).append(", ").append(freshName1).append(")})")
           next = nextEnumerator(next)
           if (next != null) exprText.append(" ; ")
           while (next != null) {
@@ -284,6 +275,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         }
       }
     }
+
     if ((enums.isEmpty && guards.isEmpty && gens.length == 1) || gens.isEmpty || res.isEmpty) res
     else {
       val expr = res.get
@@ -349,7 +341,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
   }
 
-  override protected def innerType: TypeResult[ScType] = {
+  override protected def innerType: TypeResult = {
     getDesugarizedExpr match {
       case Some(newExpr) => newExpr.getNonValueType()
       case None => Failure("Cannot create expression")
@@ -360,4 +352,5 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   def getRightParenthesis = Option(findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS))
 
+  override def toString: String = "ForStatement"
 }

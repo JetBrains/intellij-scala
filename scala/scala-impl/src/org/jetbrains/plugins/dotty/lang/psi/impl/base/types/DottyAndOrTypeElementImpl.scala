@@ -4,7 +4,7 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.dotty.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixTypeElement
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 /**
@@ -19,11 +19,11 @@ abstract class DottyAndOrTypeElementImpl(node: ASTNode) extends ScalaPsiElementI
       leftTypeElement.`type`(),
       rightTypeElement match {
         case Some(typeElement) => typeElement.`type`()
-        case _ => Success(api.Nothing)
+        case _ => Right(api.Nothing)
       }
     ).map(_.getOrElse(default))
 
-  override protected def innerType: Success[ScType] = Success(innerTypeValue)
+  override protected def innerType: TypeResult = Right(innerTypeValue)
 }
 
 class DottyAndTypeElementImpl(node: ASTNode) extends DottyAndOrTypeElementImpl(node) {

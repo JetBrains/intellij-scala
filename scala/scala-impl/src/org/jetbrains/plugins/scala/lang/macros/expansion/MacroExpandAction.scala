@@ -18,16 +18,15 @@ import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteCommandAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.annotation.tailrec
@@ -40,16 +39,15 @@ class MacroExpandAction extends AnAction {
   import MacroExpandAction._
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-
-
     UsageTrigger.trigger(ScalaBundle.message("macro.expand.action.id"))
 
     val sourceEditor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
     val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument).asInstanceOf[ScalaFile]
     val offset = sourceEditor.getCaretModel.getOffset
-    val annot = PsiTreeUtil.getParentOfType(psiFile.findElementAt(offset), classOf[ScAnnotation], false)
-    if (annot != null)
-      expandMetaAnnotation(annot)
+
+    psiFile.findElementAt(offset)
+      .parentOfType(classOf[ScAnnotation], strict = false)
+      .foreach(expandMetaAnnotation)
     //    expandSerialized(e, sourceEditor, psiFile)
   }
 

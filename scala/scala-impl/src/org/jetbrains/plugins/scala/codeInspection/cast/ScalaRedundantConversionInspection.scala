@@ -29,14 +29,17 @@ class ScalaRedundantConversionInspection extends AbstractInspection("Redundant c
 
     target match {
       case f: ScSyntheticFunction if f.name.startsWith("to") =>
-        for (leftType <- left.`type`();
-             conversionType = f.retType if leftType.equiv(conversionType))
-          registerProblem(element, left, conversionType.presentableText, offset, holder)
+        for {
+          leftType <- left.`type`().toOption
+          conversionType = f.retType if leftType.equiv(conversionType)
+        } registerProblem(element, left, conversionType.presentableText, offset, holder)
       case f: PsiMethod if f.getName == "toString" &&
               f.getParameterList.getParametersCount == 0 &&
               (f.getTypeParameterList == null || f.getTypeParameterList.getTypeParameters.isEmpty) =>
-        for (leftType <- left.`type`() if leftType.canonicalText == "_root_.java.lang.String")
-          registerProblem(element, left, "java.lang.String", offset, holder)
+        for {
+          leftType <- left.`type`().toOption
+          if leftType.canonicalText == "_root_.java.lang.String"
+        } registerProblem(element, left, "java.lang.String", offset, holder)
       case _ =>
     }
   }

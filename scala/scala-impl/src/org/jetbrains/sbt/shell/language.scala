@@ -29,7 +29,7 @@ object SbtShellFileType extends LanguageFileType(SbtShellLanguage) {
   override def getDefaultExtension: String = "sbts"
   override def getName: String = "sbtShell"
   override def getIcon: Icon = Sbt.FileIcon
-  override def getDescription: String = "Sbt Shell file dummy"
+  override def getDescription: String = "sbt shell file dummy"
 }
 
 class SbtShellFileTypeFactory extends FileTypeFactory {
@@ -40,8 +40,8 @@ class SbtShellFileTypeFactory extends FileTypeFactory {
 class SbtShellLexerAdapter extends FlexAdapter(new _SbtShellLexer)
 
 class SbtShellFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider, SbtShellLanguage) {
-  override def getFileType = SbtShellFileType
-  override def toString: String = "Sbt Shell File"
+  override def getFileType: SbtShellFileType.type = SbtShellFileType
+  override def toString: String = "sbt shell file"
 }
 
 class SbtShellParserDefinition extends ParserDefinition {

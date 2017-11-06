@@ -3,65 +3,61 @@ package org.jetbrains.plugins.scala.codeInsight.intention.booleans
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScParenthesisedExpr, ScReturnStmt}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
- * @author Ksenia.Sautina
- * @since 6/29/12
- */
-
-object ExpandBooleanIntention {
-  def familyName = "Expand Boolean"
-}
-
+  * @author Ksenia.Sautina
+  * @since 6/29/12
+  */
 class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = ExpandBooleanIntention.familyName
 
-  override def getText: String = "Expand boolean use to 'if else'"
+  import ExpandBooleanIntention._
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val returnStmt: ScReturnStmt = PsiTreeUtil.getParentOfType(element, classOf[ScReturnStmt], false)
-    if (returnStmt == null) return false
+  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
+    findReturnParent(element).filter { statement =>
+      val range = statement.getTextRange
+      val offset = editor.getCaretModel.getOffset
+      range.getStartOffset <= offset && offset <= range.getEndOffset
+    }.collect {
+      case ScReturnStmt(Typeable(scType)) => scType.canonicalText
+    }.contains("Boolean")
 
-    val range: TextRange = returnStmt.getTextRange
-    val offset = editor.getCaretModel.getOffset
-    if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
+    val statement = findReturnParent(element).filter(_.isValid)
+      .getOrElse(return)
 
-    val value = returnStmt.expr.orNull
-    if (value == null) return false
-    val valType = value.`type`().getOrElse(null)
-    if (valType == null) return false
-    if (valType.canonicalText == "Boolean") return true
-
-    false
-  }
-
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val returnStmt: ScReturnStmt = PsiTreeUtil.getParentOfType(element, classOf[ScReturnStmt], false)
-    if (returnStmt == null || !returnStmt.isValid) return
-
-    val start = returnStmt.getTextRange.getStartOffset
-    val expr = new StringBuilder
-    val value = returnStmt.expr.orNull
-    if (value == null) return
-    expr.append("if ")
-
-    value match {
-      case v: ScParenthesisedExpr => expr.append(v.getText)
-      case _ => expr.append("(").append(value.getText).append(")")
+    val expressionText = statement match {
+      case ScReturnStmt(ScParenthesisedExpr(ElementText(text))) => text
+      case ScReturnStmt(ElementText(text)) => text
+      case _ => return
     }
 
-    expr.append("{ return true } else { return false }")
+    val start = statement.getTextRange.getStartOffset
 
     inWriteAction {
-      returnStmt.replaceExpression(createExpressionFromText(expr.toString())(element.getManager), true)
+      implicit val context: ProjectContext = project
+      val replacement = createExpressionFromText(s"if ($expressionText) { return true } else { return false }")
+      statement.replaceExpression(replacement, removeParenthesis = true)
+
       editor.getCaretModel.moveToOffset(start)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }
+
+  override def getText: String = "Expand boolean use to 'if else'"
+
+  def getFamilyName: String = FamilyName
+}
+
+object ExpandBooleanIntention {
+
+  val FamilyName = "Expand Boolean"
+
+  private def findReturnParent(element: PsiElement): Option[ScReturnStmt] =
+    element.parentOfType(classOf[ScReturnStmt], strict = false)
 }

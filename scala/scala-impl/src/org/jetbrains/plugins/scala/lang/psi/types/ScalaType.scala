@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 
@@ -31,17 +31,16 @@ object ScalaType {
   // TODO perhaps we need to choose the lower bound if we are in a contravariant position. We get away
   //      with this as we currently only rely on this method to determine covariant types: the parameter
   //      types of FunctionN, or the elements of TupleN
-  def expandAliases(tp: ScType, visited: Set[ScType] = Set.empty): TypeResult[ScType] = {
-    import tp.projectContext
+  def expandAliases(tp: ScType, visited: Set[ScType] = Set.empty): TypeResult = {
 
-    if (visited contains tp) return Success(tp)
+    if (visited contains tp) return Right(tp)
     tp match {
       case proj@ScProjectionType(_, _, _) => proj.actualElement match {
         case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
           t.aliasedType.flatMap(t => expandAliases(proj.actualSubst.subst(t), visited + tp))
         case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty =>
           t.upperBound.flatMap(upper => expandAliases(proj.actualSubst.subst(upper), visited + tp))
-        case _ => Success(tp)
+        case _ => Right(tp)
       }
       case at: ScAbstractType => expandAliases(at.upper, visited + tp) // ugly hack for SCL-3592
       case ScDesignatorType(t: ScType) => expandAliases(t, visited + tp)
@@ -53,7 +52,7 @@ object ScalaType {
       case pt: ScParameterizedType if pt.isAliasType.isDefined =>
         val aliasType: AliasType = pt.isAliasType.get
         aliasType.upper.flatMap(expandAliases(_, visited + tp))
-      case _ => Success(tp)
+      case _ => Right(tp)
     }
   }
 

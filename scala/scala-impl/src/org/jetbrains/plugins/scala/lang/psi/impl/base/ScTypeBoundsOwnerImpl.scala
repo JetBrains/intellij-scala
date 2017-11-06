@@ -8,14 +8,14 @@ import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
 
-  def lowerBound: TypeResult[ScType] = typeOf(lowerTypeElement, isLower = true)
+  def lowerBound: TypeResult = typeOf(lowerTypeElement, isLower = true)
 
-  def upperBound: TypeResult[ScType] = typeOf(upperTypeElement, isLower = false)
+  def upperBound: TypeResult = typeOf(upperTypeElement, isLower = false)
 
   protected def extractBound(in: ScType, isLower: Boolean): ScType = in
 
@@ -72,9 +72,9 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
     node.getTreeParent.removeRange(node, null)
   }
 
-  private def typeOf(typeElement: Option[ScTypeElement], isLower: Boolean): TypeResult[ScType] =
+  private def typeOf(typeElement: Option[ScTypeElement], isLower: Boolean): TypeResult =
     typeElement match {
       case Some(elem) => elem.`type`().map(extractBound(_, isLower))
-      case None => Success(if (isLower) api.Nothing else api.Any)
+      case None => Right(if (isLower) api.Nothing else api.Any)
     }
 }

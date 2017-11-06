@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -49,7 +49,7 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
       case parents: ScClassParents if parents.typeElements.length == 1 => parents
     }.flatMap(_.constructor)
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     constructor match {
       case Some(constructor) =>
         constructor.reference match {
@@ -99,15 +99,15 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
 
 
     if (superTypes.length > 1 || holders.nonEmpty || aliases.nonEmpty) {
-      Success(ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList))
+      Right(ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList))
     } else {
       extendsBlock.templateParents match {
         case Some(tp) if tp.allTypeElements.length == 1 =>
           tp.allTypeElements.head.getNonValueType()
         case _ =>
           superTypes.headOption match {
-            case Some(t) => Success(t)
-            case None => Success(AnyRef) //this is new {} case
+            case Some(t) => Right(t)
+            case None => Right(AnyRef) //this is new {} case
           }
       }
     }
@@ -141,7 +141,7 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
 
   override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
-  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult[ScType] = `type`() //no projections for new template definition
+  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult = `type`() //no projections for new template definition
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =
     super[ScNewTemplateDefinition].isInheritor(baseClass, deep)

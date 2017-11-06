@@ -4,7 +4,6 @@ import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
@@ -41,7 +40,7 @@ sealed trait FunctionTypeFactory {
       case 0 => None //hack for http://youtrack.jetbrains.com/issue/SCL-6880 to avoid infinite loop.
       case _ =>
         `type`.isAliasType match {
-          case Some(AliasType(_: ScTypeAliasDefinition, Success(lower, _), _)) =>
+          case Some(AliasType(_: ScTypeAliasDefinition, Right(lower), _)) =>
             extractForPrefix(lower, prefix, depth - 1)
           case _ =>
             `type` match {

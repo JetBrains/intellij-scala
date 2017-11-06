@@ -34,7 +34,7 @@ trait ResolverIndex {
 
 object ResolverIndex {
   val DEFAULT_INDEXES_DIR: File = new File(PathManager.getSystemPath) / "sbt" / "indexes"
-  val CURRENT_INDEX_VERSION = "3"
+  val CURRENT_INDEX_VERSION = "5"
   val NO_TIMESTAMP: Int = -1
   val MAVEN_UNAVALIABLE: Int = -2
   def getIndexDirectory(root: String) = new File(indexesDir, root.shaDigest)

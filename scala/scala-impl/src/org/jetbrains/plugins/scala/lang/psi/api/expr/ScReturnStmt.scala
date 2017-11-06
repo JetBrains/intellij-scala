@@ -5,19 +5,27 @@ package api
 package expr
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
+/**
+  * @author Alexander Podkhalyuzin
+  *         Date: 06.03.2008
+  */
 trait ScReturnStmt extends ScExpression {
   def expr: Option[ScExpression] = findChild(classOf[ScExpression])
 
   def returnKeyword: PsiElement
 
-  def returnFunction: Option[ScFunctionDefinition]
+  def returnFunction: Option[ScFunctionDefinition] =
+    this.parentOfType(classOf[ScFunctionDefinition])
 
-  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitReturnStatement(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitReturnStatement(this)
+  }
+}
+
+object ScReturnStmt {
+
+  def unapply(statement: ScReturnStmt): Option[ScExpression] = statement.expr
 }

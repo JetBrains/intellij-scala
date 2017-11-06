@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTr
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -183,17 +183,17 @@ object ScFunctionWrapper {
               val classes = new ArrayBuffer[String]()
               val project = fun.getProject
               tp.upperBound.map(subst.subst) match {
-                case Success(tp: ScCompoundType, _) =>
+                case Right(tp: ScCompoundType) =>
                   tp.components.foreach { tp: ScType =>
                     tp.extractClass match {
                       case Some(clazz) => classes += clazz.getQualifiedName
                       case _ =>
                     }
                   }
-                case Success(_: StdType, _) =>
-                case Success(tpt: TypeParameterType, _) =>
+                case Right(_: StdType) =>
+                case Right(tpt: TypeParameterType) =>
                   classes += tpt.canonicalText
-                case Success(scType, _) =>
+                case Right(scType) =>
                   scType.extractClass match {
                     case Some(clazz) => classes += clazz.getQualifiedName
                     case _ =>
@@ -235,13 +235,13 @@ object ScFunctionWrapper {
       else param.getRealParameterType
 
     val typeText = paramType.map(subst.subst) match {
-      case Success(tp, _) if param.isCallByNameParameter =>
+      case Right(tp) if param.isCallByNameParameter =>
         val psiType = tp match {
           case std: StdType => tp.typeSystem.stdToPsiType(std, noPrimitives = true)
           case _ => tp.toPsiType
         }
         s"scala.Function0<${psiType.getCanonicalText}>"
-      case Success(tp, _) =>
+      case Right(tp) =>
         JavaConversionUtil.typeText(tp)
       case _ => "java.lang.Object"
     }

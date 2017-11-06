@@ -2,8 +2,10 @@ package org.jetbrains.sbt
 package project
 
 import java.io.File
+import java.util.UUID
 
 import com.intellij.openapi.externalSystem.model.project.{ProjectData => ESProjectData, _}
+import com.intellij.openapi.externalSystem.model.task.event._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
@@ -20,6 +22,7 @@ import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.ProjectData
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.{structure => sbtStructure}
+import scala.collection.JavaConverters._
 
 import scala.util.{Failure, Success}
 
@@ -54,12 +57,24 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val results = runner.read(new File(root), options, importFromShell = settings.useShellForImport)
 
-    results
-      .map { case (elem, messages) =>
-        val warnings = messages.lines.filter(isWarningOrError)
-        if (warnings.nonEmpty)
-          listener.onTaskOutput(id, WarningMessage(warnings.mkString("\n")), false)
+    val importTaskId = s"import:${UUID.randomUUID()}"
+    val importTaskDescriptor =
+      new TaskOperationDescriptorImpl("import to IntelliJ project model", System.currentTimeMillis(), "project-model-import")
 
+
+    // side-effecty status reporting
+    results.foreach { case (_, messages) =>
+      val convertStartEvent = new ExternalSystemStartEventImpl(importTaskId, null, importTaskDescriptor)
+      val event = new ExternalSystemTaskExecutionEvent(id, convertStartEvent)
+      listener.onStatusChange(event)
+
+      val warnings = messages.lines.filter(isWarningOrError)
+      if (warnings.nonEmpty)
+        listener.onTaskOutput(id, WarningMessage(warnings.mkString(System.lineSeparator)), false)
+    }
+
+    val conversionResult = results
+      .map { case (elem, _) =>
         val data = elem.deserialize[sbtStructure.StructureData].right.get
         convert(root, data, settings.jdk).toDataNode
       }
@@ -70,7 +85,24 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         case x: Exception =>
           Failure(new ExternalSystemException(x))
       }
-      .get // ok to throw here, that's the way ExternalSystem likes it
+
+    // more side-effecty reporting
+    conversionResult.transform (
+      _ => Success(new SuccessResultImpl(0, System.currentTimeMillis(), true)), /* TODO starttime*/
+      x => Success(
+        new FailureResultImpl(0, System.currentTimeMillis(),
+          List.empty[com.intellij.openapi.externalSystem.model.task.event.Failure].asJava // TODO error list
+        )
+      )
+    ).foreach { result =>
+      val convertFinishedEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
+        importTaskId, null, importTaskDescriptor, result
+      )
+      val event = new ExternalSystemTaskExecutionEvent(id, convertFinishedEvent)
+      listener.onStatusChange(event)
+    }
+
+    conversionResult.get // ok to throw here, that's the way ExternalSystem likes it
 
   }
 

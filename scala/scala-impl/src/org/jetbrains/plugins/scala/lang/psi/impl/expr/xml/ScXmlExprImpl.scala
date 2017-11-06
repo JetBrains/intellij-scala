@@ -10,7 +10,7 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,13 +20,14 @@ class ScXmlExprImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXml
   override def toString: String = "XmlExpression"
 
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     def getType(s: String): ScType = {
       val typez = ScalaPsiManager.instance(getProject).getCachedClasses(getResolveScope, s).filter(!_.isInstanceOf[ScObject])
       if (typez.length != 0) ScalaType.designator(typez(0))
       else Nothing
     }
-    Success(getElements.length match {
+
+    Right(getElements.length match {
       case 0 => Any
       case 1 =>
         getElements.head match {
