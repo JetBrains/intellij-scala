@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.performance.typing
 
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.PerfCycleTests
 import org.junit.experimental.categories.Category
 
 /**
   * @author Roman.Shein
   *         Date: 15.12.2015
   */
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[PerfCycleTests]))
 class TypedHandlerTest extends TypingTestWithPerformanceTestBase {
 
   val typingTimeout = 200

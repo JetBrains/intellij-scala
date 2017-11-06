@@ -97,7 +97,7 @@ abstract class ScalaAnnotator extends Annotator
 
         if (isAdvancedHighlightingEnabled(element)) {
           expr.getTypeAfterImplicitConversion() match {
-            case ExpressionTypeResult(Success(t, _), _, Some(implicitFunction)) =>
+            case ExpressionTypeResult(Right(t), _, Some(implicitFunction)) =>
               highlightImplicitView(expr, implicitFunction.element, t, expr, holder)
             case _ =>
           }
@@ -509,17 +509,15 @@ abstract class ScalaAnnotator extends Annotator
             val annotation = holder.createErrorAnnotation(expr, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
           } else if (checkReturnTypeIsBoolean) {
-            def error() {
+            val maybeType = candidates(0) match {
+              case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst).toOption
+              case _ => None
+            }
+
+            if (!maybeType.exists(_.equiv(Boolean))) {
               val error = ScalaBundle.message("expected.type.boolean", memberName)
               val annotation = holder.createErrorAnnotation(expr, error)
               annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-            }
-            candidates(0) match {
-              case ScalaResolveResult(fun: ScFunction, subst) =>
-                if (fun.returnType.isEmpty || !subst.subst(fun.returnType.get).equiv(Boolean)) {
-                  error()
-                }
-              case _ => error()
             }
           } else {
             block.getContext match {
@@ -531,11 +529,10 @@ abstract class ScalaAnnotator extends Annotator
                       case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst)
                       case _ => return
                     }
-                    val expectedType = Success(tp)
-                    val conformance = smartCheckConformance(expectedType, returnType)
+                    val conformance = smartCheckConformance(Right(tp), returnType)
                     if (!conformance) {
                       if (typeAware) {
-                        val (retTypeText, expectedTypeText) = ScTypePresentation.different(returnType.getOrNothing, expectedType.get)
+                        val (retTypeText, expectedTypeText) = ScTypePresentation.different(returnType.getOrNothing, tp)
                         val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", retTypeText, expectedTypeText)
                         val annotation: Annotation = holder.createErrorAnnotation(expr, error)
                         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
@@ -572,8 +569,8 @@ abstract class ScalaAnnotator extends Annotator
 
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {
     for {
-      lower <- sTypeParam.lowerBound
-      upper <- sTypeParam.upperBound
+      lower <- sTypeParam.lowerBound.toOption
+      upper <- sTypeParam.upperBound.toOption
       if !lower.conforms(upper)
       annotation = holder.createErrorAnnotation(sTypeParam,
         ScalaBundle.message("lower.bound.conform.to.upper", upper, lower))
@@ -800,7 +797,8 @@ abstract class ScalaAnnotator extends Annotator
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
-      annotation.registerFix(new AddSbtDependencyFix(refElement))
+      if (PsiTreeUtil.getParentOfType(refElement, classOf[ScImportExpr]) != null)
+        annotation.registerFix(new AddSbtDependencyFix(SmartPointerManager.getInstance(refElement.getProject).createSmartPsiElementPointer(refElement)))
     }
   }
 
@@ -870,7 +868,8 @@ abstract class ScalaAnnotator extends Annotator
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
-      annotation.registerFix(new AddSbtDependencyFix(refElement))
+      if (PsiTreeUtil.getParentOfType(refElement, classOf[ScImportExpr]) != null)
+        annotation.registerFix(new AddSbtDependencyFix(SmartPointerManager.getInstance(refElement.getProject).createSmartPsiElementPointer(refElement)))
     }
   }
 
@@ -975,7 +974,7 @@ abstract class ScalaAnnotator extends Annotator
             case param: ScParameter =>
               if (!param.isDefaultParam) return //performance optimization
               param.getRealParameterType match {
-                case Success(paramType, _) if paramType.extractClass.isDefined =>
+                case Right(paramType) if paramType.extractClass.isDefined =>
                 //do not check generic types. See SCL-3508
                 case _ => return
               }
@@ -986,7 +985,7 @@ abstract class ScalaAnnotator extends Annotator
           expr.expectedTypeEx(fromUnderscore) match {
             case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
             case Some((tp: ScType, typeElement)) =>
-              val expectedType = Success(tp)
+              val expectedType = Right(tp)
               implicitFunction match {
                 case Some(_) =>
                   //todo:
@@ -1007,7 +1006,7 @@ abstract class ScalaAnnotator extends Annotator
                     case _ => expr
                   }
 
-                  val (exprTypeText, expectedTypeText) = ScTypePresentation.different(exprType.getOrNothing, expectedType.get)
+                  val (exprTypeText, expectedTypeText) = ScTypePresentation.different(exprType.getOrNothing, tp)
                   val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", exprTypeText, expectedTypeText)
                   val annotation: Annotation = holder.createErrorAnnotation(markedPsi, error)
                   annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
@@ -1051,7 +1050,7 @@ abstract class ScalaAnnotator extends Annotator
 
   private def checkUnboundUnderscore(under: ScUnderscoreSection, holder: AnnotationHolder) {
     if (under.getText == "_") {
-      ScalaPsiUtil.getParentOfType(under, classOf[ScVariableDefinition]) match {
+      under.parentOfType(classOf[ScVariableDefinition], strict = false).foreach {
         case varDef @ ScVariableDefinition.expr(_) if varDef.expr.contains(under) =>
           if (varDef.containingClass == null) {
             val error = ScalaBundle.message("local.variables.must.be.initialized")
@@ -1071,32 +1070,21 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  private def checkExplicitTypeForReturnStatement(ret: ScReturnStmt, holder: AnnotationHolder) {
-    val fun: ScFunction = PsiTreeUtil.getParentOfType(ret, classOf[ScFunction])
-    fun match {
-      case null =>
-        val error = ScalaBundle.message("return.outside.method.definition")
-        val annotation: Annotation = holder.createErrorAnnotation(ret.returnKeyword, error)
-        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      case _ if !fun.hasAssign || fun.returnType.exists(_ == Unit) =>
-      case _ => fun.returnTypeElement match {
-        case Some(_: ScTypeElement) =>
-          import org.jetbrains.plugins.scala.lang.psi.types._
-          val funType = fun.returnType
-          funType match {
-            case Success(tp: ScType, _) if tp equiv Unit => return //nothing to check
-            case _ =>
-          }
+  private def checkExplicitTypeForReturnStatement(statement: ScReturnStmt, holder: AnnotationHolder): Unit = {
+    val function = statement.returnFunction.getOrElse {
+      val error = ScalaBundle.message("return.outside.method.definition")
+      val annotation: Annotation = holder.createErrorAnnotation(statement.returnKeyword, error)
+      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+      return
+    }
 
-          val importUsed = ret.expr.map { expression =>
-            expression.getTypeAfterImplicitConversion()
-          }.toSet[ScExpression.ExpressionTypeResult].flatMap {
-            _.importsUsed
-          }
+    function.returnType match {
+      case Right(tp) if function.hasAssign && !tp.equiv(Unit) =>
+        val importUsed = statement.expr.toSet[ScExpression]
+          .flatMap(_.getTypeAfterImplicitConversion().importsUsed)
 
-          registerUsedImports(ret, importUsed)
-        case _ =>
-      }
+        registerUsedImports(statement, importUsed)
+      case _ =>
     }
   }
 
@@ -1126,10 +1114,16 @@ abstract class ScalaAnnotator extends Annotator
   }
 
   private def checkAbsentTypeArgs(simpleTypeElement: ScSimpleTypeElement, holder: AnnotationHolder): Unit = {
+    // Dirty hack(see SCL-12582): we shouldn't complain about missing type args since they will be added by a macro after expansion
+    def isFreestyleAnnotated(ah: ScAnnotationsHolder): Boolean = {
+      (ah.findAnnotationNoAliases("freestyle.free") != null) ||
+        ah.findAnnotationNoAliases("freestyle.module") != null
+    }
     def needTypeArgs: Boolean = {
       def noHigherKinds(owner: ScTypeParametersOwner) = !owner.typeParameters.exists(_.typeParameters.nonEmpty)
 
       val canHaveTypeArgs = simpleTypeElement.reference.map(_.resolve()).exists {
+        case ah: ScAnnotationsHolder if isFreestyleAnnotated(ah) => false
         case c: PsiClass => c.hasTypeParameters
         case owner: ScTypeParametersOwner => owner.typeParameters.nonEmpty
         case _ => false
@@ -1191,7 +1185,7 @@ abstract class ScalaAnnotator extends Annotator
       checkBoundsVariance(fun, holder, fun.nameId, fun.getParent)
       if (!childHasAnnotation(fun.returnTypeElement, "uncheckedVariance")) {
         fun.returnType match {
-          case Success(returnType, _) =>
+          case Right(returnType) =>
             checkVariance(ScalaType.expandAliases(returnType).getOrElse(returnType), Covariant, fun.nameId,
               fun.getParent, holder)
           case _ =>
@@ -1213,10 +1207,10 @@ abstract class ScalaAnnotator extends Annotator
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {
         element.`type`() match {
-          case Success(tp, _) =>
+          case Right(tp) =>
             ScalaType.expandAliases(tp) match {
               //so type alias is highlighted
-              case Success(newTp, _) => checkVariance(newTp, variance, element.nameId, toCheck, holder)
+              case Right(newTp) => checkVariance(newTp, variance, element.nameId, toCheck, holder)
               case _ => checkVariance(tp, variance, element.nameId, toCheck, holder)
             }
           case _ =>
@@ -1408,13 +1402,13 @@ abstract class ScalaAnnotator extends Annotator
     * In other way it will return true to avoid red code.
     * Check conformance in case l = r.
     */
-  def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType]): Boolean = {
+  def smartCheckConformance(l: TypeResult, r: TypeResult): Boolean = {
     val leftType = l match {
-      case Success(res, _) => res
+      case Right(res) => res
       case _ => return true
     }
     val rightType = r match {
-      case Success(res, _) => res
+      case Right(res) => res
       case _ => return true
     }
     rightType.conforms(leftType)

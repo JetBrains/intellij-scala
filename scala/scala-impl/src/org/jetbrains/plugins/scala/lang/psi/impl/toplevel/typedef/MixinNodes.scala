@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
@@ -535,7 +534,7 @@ object MixinNodes {
       @tailrec
       def updateTp(tp: ScType, depth: Int = 0): ScType = {
         tp.isAliasType match {
-          case Some(AliasType(_, _, Success(upper, _))) =>
+          case Some(AliasType(_, _, Right(upper))) =>
             if (tp != upper && depth < 100) updateTp(upper, depth + 1)
             else tp
           case _ =>

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScValueDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Singleton, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import _root_.scala.collection.mutable.ListBuffer
 
@@ -22,9 +22,9 @@ import _root_.scala.collection.mutable.ListBuffer
 */
 
 class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExistentialTypeElement {
-  protected def innerType: TypeResult[ScType] = {
+  protected def innerType: TypeResult = {
     val q = quantified.`type`()
-    val problems: ListBuffer[TypeResult[ScType]] = new ListBuffer
+    val problems: ListBuffer[TypeResult] = new ListBuffer
     problems += q
     val wildcards: List[ScExistentialArgument] = {
       var buff: ListBuffer[ScExistentialArgument] = new ListBuffer
@@ -55,7 +55,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
     }
 
     q.map(ScExistentialType(_, wildcards))
-      .flatMap((result: ScExistentialType) => Success(result))
+      .flatMap((result: ScExistentialType) => Right(result))
   }
 
   import com.intellij.psi.scope.PsiScopeProcessor

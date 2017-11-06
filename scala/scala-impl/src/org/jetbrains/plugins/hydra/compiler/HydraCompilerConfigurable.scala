@@ -24,7 +24,9 @@ class HydraCompilerConfigurable (project: Project) extends AbstractConfigurable(
     form.selectedVersion != settings.hydraVersion ||
     form.selectedNoOfCores != settings.noOfCores ||
     form.selectedSourcePartitioner != settings.sourcePartitioner ||
-    form.getHydraStoreDirectory != settings.hydraStorePath
+    form.getHydraStoreDirectory != settings.hydraStorePath ||
+    form.getHydraRepository != hydraGlobalSettings.getHydraRepositoryUrl ||
+    form.getHydraRepositoryRealm != hydraGlobalSettings.hydraRepositoryRealm
 
   override def reset() {
     form.setUsername(HydraCredentialsManager.getLogin)
@@ -34,6 +36,8 @@ class HydraCompilerConfigurable (project: Project) extends AbstractConfigurable(
     form.setSelectedVersion(settings.hydraVersion)
     form.setSelectedSourcePartitioner(settings.sourcePartitioner)
     form.setHydraStoreDirectory(settings.hydraStorePath)
+    form.setHydraRepository(hydraGlobalSettings.getHydraRepositoryUrl)
+    form.setHydraRepositoryRealm(hydraGlobalSettings.hydraRepositoryRealm)
   }
 
   override def apply() {
@@ -43,6 +47,8 @@ class HydraCompilerConfigurable (project: Project) extends AbstractConfigurable(
     settings.noOfCores = form.selectedNoOfCores
     settings.sourcePartitioner = form.selectedSourcePartitioner
     settings.hydraStorePath = form.getHydraStoreDirectory
+    hydraGlobalSettings.setHydraRepositopryUrl(form.getHydraRepository)
+    hydraGlobalSettings.hydraRepositoryRealm = form.getHydraRepositoryRealm
     HydraCredentialsManager.setCredentials(form.getUsername, form.getPassword)
     EditorNotifications.updateAll()
   }

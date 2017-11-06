@@ -3,6 +3,7 @@ package org.jetbrains.plugins.hydra.caches
 import java.io.File
 
 import com.intellij.openapi.diagnostic.Logger
+import org.jetbrains.plugins.hydra.compiler.HydraRepositorySettings
 import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
 import org.jetbrains.plugins.scala.project.template.{Downloader, FileExt}
 
@@ -20,12 +21,12 @@ object HydraArtifactsCache {
     artifacts.forall(new File(_).exists())
   }
 
-  def downloadIfNotPresent(scalaVersion: String, hydraVersion: String, listener: String => Unit): Unit = {
+  def downloadIfNotPresent(repositorySettings: HydraRepositorySettings, scalaVersion: String, hydraVersion: String, listener: String => Unit): Unit = {
     val artifacts = hydraGlobalSettings.artifactPaths.get((scalaVersion, hydraVersion))
 
     if (artifacts.isEmpty) {
       val sbtBufferedOutput = new StringBuilder
-      Downloader.downloadHydra(s"${scalaVersion}_$hydraVersion", (text: String) => {
+      Downloader.downloadHydra(repositorySettings, s"${scalaVersion}_$hydraVersion", (text: String) => {
         sbtBufferedOutput.append(text)
         listener(text)
       })

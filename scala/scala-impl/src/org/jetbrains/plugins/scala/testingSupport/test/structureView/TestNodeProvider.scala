@@ -155,7 +155,7 @@ object TestNodeProvider {
     expr.getNode.getFirstChildNode.getText
 
   private def processChildren[T <: PsiElement](children: Array[T],
-                                               processFun: (T, Project) => Option[TestStructureViewElement],
+                                               processFun: (T, Project) => Option[TreeElement],
                                                project: Project): Array[TreeElement] = {
     children.map(element => processFun(element, project)).filter(_.isDefined).map(_.get)
   }
@@ -432,7 +432,7 @@ object TestNodeProvider {
 
   //-----uTest-----
   private def extractUTest(expr: ScMethodCall, project: Project): util.Collection[TreeElement] = {
-    def extractUTestInner(expr: PsiElement, project: Project): Option[TestStructureViewElement] = {
+    def extractUTestInner(expr: PsiElement, project: Project): Option[TreeElement] = {
       if (isUTestInfixExpr(expr)) {
         Some(new TestStructureViewElement(expr, getInfixExprTestName(expr.asInstanceOf[ScInfixExpr]),
           processChildren(getInnerExprs(expr), extractUTestInner, project)))
@@ -442,10 +442,10 @@ object TestNodeProvider {
       } else None
     }
     if (isUTestSuiteApplyCall(expr) || isUTestTestsCall(expr)) {
-      import scala.collection.JavaConversions._
+      import scala.collection.JavaConverters._
       expr.args.findFirstChildByType(ScalaElementTypes.BLOCK_EXPR) match {
         case blockExpr: ScBlockExpr => (for (methodExpr <- blockExpr.children if methodExpr.isInstanceOf[ScInfixExpr] || methodExpr.isInstanceOf[ScMethodCall])
-          yield extractUTestInner(methodExpr, project)).filter(_.isDefined).map(_.get).toList
+          yield extractUTestInner(methodExpr, project)).filter(_.isDefined).map(_.get).toList.asJava
         case _ => new util.ArrayList[TreeElement]
       }
     } else new util.ArrayList[TreeElement]()
@@ -537,16 +537,16 @@ object TestNodeProvider {
       }
     }
     val suiteName = aSuite.getQualifiedName
-    import scala.collection.JavaConversions._
+    import scala.collection.JavaConverters._
     val nodeProvider = new TestNodeProvider
     getTestLeaves(configurationProducer match {
       case _: UTestConfigurationProducer =>
-        new ScalaTypeDefinitionStructureViewElement(aSuite).getChildren.toList flatMap {
-          case scVal: ScalaValueStructureViewElement if !scVal.isInherited => nodeProvider.provideNodes(scVal).toList
+        new ScalaTypeDefinitionStructureViewElement(aSuite).getChildren flatMap {
+          case scVal: ScalaValueStructureViewElement if !scVal.isInherited => nodeProvider.provideNodes(scVal).asScala
           case _ => List.empty
         }
       case _ =>
-        nodeProvider.provideNodes(new ScalaTypeDefinitionStructureViewElement(aSuite))
+        nodeProvider.provideNodes(new ScalaTypeDefinitionStructureViewElement(aSuite)).asScala
     }).map { e =>
       Option(configurationProducer.getLocationClassAndTest(new PsiLocation(e.psiElement))) filter {
         case (suite, testName) =>

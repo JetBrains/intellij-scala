@@ -15,7 +15,7 @@ public class NailgunRunner {
   private static final String SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main";
 
   private static final String SBT_WATCHER_ALIAS = "play-sbt-watcher";
-  private static final String SBT_WATCHER_DESCRIPTION = "Play framework SBT watcher";
+  private static final String SBT_WATCHER_DESCRIPTION = "Play framework sbt watcher";
   private static final String SBT_WATCHER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.play.SbtWatcherMain";
 
   private static final String STOP_ALIAS_START = "stop_";

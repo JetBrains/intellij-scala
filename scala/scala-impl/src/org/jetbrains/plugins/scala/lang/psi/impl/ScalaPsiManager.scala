@@ -21,7 +21,7 @@ import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, 
 import com.intellij.psi.stubs.{StubIndex, StubIndexKey}
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.ArrayUtil
-import com.intellij.util.containers.{ContainerUtil, WeakValueHashMap}
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
@@ -285,7 +285,7 @@ class ScalaPsiManager(val project: Project) {
   }
 
   private val syntheticPackagesCreator = new SyntheticPackageCreator(project)
-  private val syntheticPackages = new WeakValueHashMap[String, AnyRef]
+  private val syntheticPackages = ContainerUtil.createWeakValueMap[String, AnyRef]()
   private val emptyMarker: AnyRef = new Object
 
   def syntheticPackage(fqn: String): ScSyntheticPackage = {

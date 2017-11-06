@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.types.api.designator
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -43,7 +42,7 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
         (false, substitutor)
       case (_, ScDesignatorType(typed: ScTypedDefinition)) if typed.isStable =>
         typed.`type`() match {
-          case Success(tp: DesignatorOwner, _) if tp.isSingleton =>
+          case Right(tp: DesignatorOwner) if tp.isSingleton =>
             this.equiv(tp, substitutor, falseUndef)
           case _ =>
             (false, substitutor)
@@ -51,7 +50,7 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
       case (_, ScProjectionType(_, _: ScObject, _)) => (false, substitutor)
       case (_, p@ScProjectionType(tp, elem: ScTypedDefinition, _)) if elem.isStable =>
         elem.`type`() match {
-          case Success(singleton: DesignatorOwner, _) if singleton.isSingleton =>
+          case Right(singleton: DesignatorOwner) if singleton.isSingleton =>
             val newSubst = p.actualSubst.followed(ScSubstitutor(tp))
             this.equiv(newSubst.subst(singleton), substitutor, falseUndef)
           case _ => (false, substitutor)

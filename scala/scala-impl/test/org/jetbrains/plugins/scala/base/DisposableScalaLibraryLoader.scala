@@ -24,7 +24,4 @@ class DisposableScalaLibraryLoader(implicit project: ProjectContext, module: Mod
     jdkLoader.init
   }
 
-  override def clean(): Unit = {}
-
-  override def dispose(): Unit = clean()
 }

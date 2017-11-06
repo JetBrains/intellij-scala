@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
-package editor.enterHandler
+package editor
+package enterHandler
 
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
@@ -9,7 +10,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Ref, TextRange}
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.format.StringConcatenationParser
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -29,9 +30,13 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
 
   override def preprocessEnter(file: PsiFile, editor: Editor, caretOffsetRef: Ref[Integer], caretAdvance: Ref[Integer], 
                                dataContext: DataContext, originalHandler: EditorActionHandler): Result = {
-    val document = editor.getDocument
-    val text = document.getText
+
     val caretOffset = caretOffsetRef.get.intValue
+
+    if (!file.isInstanceOf[ScalaFile] || !editor.inScalaString(caretOffset)) return Result.Continue
+
+    val document = editor.getDocument
+    val text = document.getImmutableCharSequence
 
     if (caretOffset == 0 || caretOffset >= text.length()) return Result.Continue
 
@@ -42,7 +47,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
     val ch1 = text.charAt(caretOffset - 1)
     val ch2 = text.charAt(caretOffset)
 
-    whiteSpaceAfterCaret = text.substring(caretOffset).takeWhile(c => c == ' ' || c == '\t')
+    whiteSpaceAfterCaret = whitespaceAfter(text, caretOffset)
     document.deleteString(caretOffset, caretOffset + whiteSpaceAfterCaret.length)
 
     if ((ch1 != '(' || ch2 != ')')&&(ch1 != '{' || ch2 != '}') || !CodeInsightSettings.getInstance.SMART_INDENT_ON_ENTER)
@@ -60,7 +65,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
 
     val project = file.getProject
     val document = editor.getDocument
-    PsiDocumentManager.getInstance(project).commitDocument(document)
+    document.commit(project)
 
     val caretModel = editor.getCaretModel
     val offset = caretModel.getOffset
@@ -247,5 +252,10 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
     }
 
     Result.Stop
+  }
+
+  private def whitespaceAfter(chars: CharSequence, offset: Int): String = {
+    val iterator = Iterator.range(offset, chars.length() - 1).map(chars.charAt)
+    iterator.takeWhile(c => c == ' ' || c == '\t').mkString
   }
 }

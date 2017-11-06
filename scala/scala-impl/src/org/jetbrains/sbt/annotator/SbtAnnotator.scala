@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.{ProjectContext, Version}
 import org.jetbrains.sbt.language.SbtFileImpl
@@ -102,8 +103,8 @@ object SbtAnnotator {
     (for {
       typeName <- allowedTypes
       expectedType <- createTypeFromText(typeName, expression.getContext, expression)
+      if !expectedType.isAny // this shouldn't happen if context is setup corretly
     } yield {
-      assert(!expectedType.isAny, s"created type was Any, expected $typeName")
       lazy val typeAfterImplicits = expression.getTypeAfterImplicitConversion(expectedOption = Option(expectedType)).tr.getOrNothing
       expressionType.conforms(expectedType) || typeAfterImplicits.conforms(expectedType)
     }).exists(identity)

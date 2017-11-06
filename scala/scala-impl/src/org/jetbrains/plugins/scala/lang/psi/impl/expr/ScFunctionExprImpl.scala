@@ -7,26 +7,16 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
- * @author Alexander Podkhalyuzin
- */
-
-class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionExpr {
-  override def accept(visitor: PsiElementVisitor): Unit = {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
-    }
-  }
-
-  override def toString: String = "FunctionExpression"
+  * @author Alexander Podkhalyuzin
+  */
+class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFunctionExpr {
 
   def parameters: Seq[ScParameter] = params.params
 
@@ -40,7 +30,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                                    place: PsiElement): Boolean = {
     result match {
       case Some(x) if x == lastParent || (lastParent.isInstanceOf[ScalaPsiElement] &&
-        x == lastParent.asInstanceOf[ScalaPsiElement].getDeepSameElementInContext)=>
+        x == lastParent.asInstanceOf[ScalaPsiElement].getDeepSameElementInContext) =>
         for (p <- parameters) {
           if (!processor.execute(p, state)) return false
         }
@@ -49,12 +39,14 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
   }
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     val paramTypes = parameters.map(_.`type`().getOrNothing)
     val maybeResultType = result.map(_.`type`().getOrAny)
     val functionType = FunctionType(maybeResultType.getOrElse(api.Unit), paramTypes)
-    Success(functionType)
+    Right(functionType)
   }
 
   override def controlFlowScope: Option[ScalaPsiElement] = result
+
+  override def toString: String = "FunctionExpression"
 }

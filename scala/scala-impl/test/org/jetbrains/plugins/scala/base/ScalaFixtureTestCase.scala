@@ -28,7 +28,7 @@ abstract class ScalaFixtureTestCase
   }
 
   override def tearDown(): Unit = {
-    tearDownLibraries()
+    disposeLibraries()
     super.tearDown()
   }
 }

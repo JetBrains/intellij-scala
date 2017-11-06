@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
@@ -149,7 +149,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     case _ => None
   }
 
-  override protected def innerType: TypeResult[ScType] = {
+  override protected def innerType: TypeResult = {
     computeDesugarizedType match {
       case Some(typeElement) =>
         return typeElement.`type`()
@@ -188,7 +188,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       case Seq() => tr
       case args =>
         val result = ScParameterizedType(res, args.map(_.`type`().getOrAny))
-        Success(result)
+        Right(result)
     }
   }
 

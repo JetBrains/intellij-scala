@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInsight.template.impl
 
 import com.intellij.codeInsight.template.TemplateContextType
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiFile, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
@@ -21,7 +21,7 @@ object ScalaCommentContextType {
       case _: PsiWhiteSpace if offset > 0 => file.findElementAt(offset - 1)
       case elem => elem
     }
-    val comment = PsiTreeUtil.getParentOfType(element, classOf[PsiComment], false)
-    comment != null
+
+    element.parentOfType(classOf[PsiComment], strict = false).isDefined
   }
 }

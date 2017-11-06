@@ -32,12 +32,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceElementResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
-import worksheet.ammonite.AmmoniteUtil
+import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -53,7 +52,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
   }
 
   def getVariants: Array[Object] = {
-    val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
+    val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
     doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
       case res: ScalaResolveResult =>
         val qualifier = res.fromType.getOrElse(Nothing)
@@ -342,15 +341,16 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
         td match {
           case obj: ScObject =>
             val fromType = r.fromType match {
-              case Some(fType) => Success(ScProjectionType(fType, obj, superReference = false))
+              case Some(fType) => Right(ScProjectionType(fType, obj, superReference = false))
               case _ => td.`type`().map(substitutor.subst)
             }
-            var state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
-            if (fromType.isDefined) {
-              state = state.put(BaseProcessor.FROM_TYPE_KEY, fromType.get)
-              processor.processType(fromType.get, this, state)
-            } else {
-              td.processDeclarations(processor, state, null, this)
+            val state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
+
+            fromType match {
+              case Right(value) =>
+                processor.processType(value, this, state.put(BaseProcessor.FROM_TYPE_KEY, value))
+              case _ =>
+                td.processDeclarations(processor, state, null, this)
             }
           case _: ScClass | _: ScTrait =>
             td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor), null, this)

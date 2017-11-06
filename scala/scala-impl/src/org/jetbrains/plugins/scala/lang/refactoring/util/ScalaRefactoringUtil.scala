@@ -22,7 +22,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOfType}
+import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOfType, isAncestor}
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -36,13 +36,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypeParametersOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -559,7 +560,7 @@ object ScalaRefactoringUtil {
       }
     })
 
-    val callback: Runnable = inTransactionLater(editor.getProject) {
+    val callback: Runnable = callbackInTransaction(editor.getProject) {
       pass(list.getSelectedValue.asInstanceOf[T])
     }
 
@@ -664,10 +665,8 @@ object ScalaRefactoringUtil {
         builder.append(r.refName)
       case r: ScReturnStmt =>
         builder.append("return ")
-        r.expr match {
-          case Some(expression) => builder.append(getShortText(expression))
-          case _ =>
-        }
+        r.expr.map(getShortText)
+          .foreach(builder.append)
       case s: ScSuperReference => builder.append(s.getText)
       case t: ScThisReference => builder.append(t.getText)
       case t: ScThrowStmt =>
@@ -879,18 +878,18 @@ object ScalaRefactoringUtil {
     }
 
   def checkCanBeIntroduced(expr: ScExpression): Option[String] = {
-    ScalaPsiUtil.getParentOfType(expr, classOf[ScConstrBlock]) match {
-      case block: ScConstrBlock =>
-        for {
-          selfInv <- block.selfInvocation
-          args <- selfInv.args
-          if args.isAncestorOf(expr)
-        } return Some(ScalaBundle.message("cannot.refactor.arg.in.self.invocation.of.constructor"))
-      case _ =>
+    val exists1 = expr.parentOfType(classOf[ScConstrBlock], strict = false)
+      .flatMap(_.selfInvocation)
+      .flatMap(_.args)
+      .exists(_.isAncestorOf(expr))
+
+    if (exists1) {
+      return Some(ScalaBundle.message("cannot.refactor.arg.in.self.invocation.of.constructor"))
     }
 
-    val guard: ScGuard = getParentOfType(expr, classOf[ScGuard])
-    if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) {
+    val exists2 = expr.parentOfType(classOf[ScGuard], strict = false)
+      .exists(_.getParent.isInstanceOf[ScCaseClause])
+    if (exists2) {
       return Some(ScalaBundle.message("refactoring.is.not.supported.in.guard"))
     }
 
@@ -1078,32 +1077,21 @@ object ScalaRefactoringUtil {
   }
 
   @tailrec
-  def container(element: PsiElement, file: PsiFile): PsiElement = {
-    def oneExprBody(fun: ScFunctionDefinition): Boolean = fun.body match {
-      case Some(_: ScBlock) => false
-      case Some(_: ScNewTemplateDefinition) => false
-      case Some(_) => true
-      case None => false
+  def container(element: PsiElement): Option[PsiElement] = if (element != null) {
+    val maybeFunction = element.parentOfType(classOf[ScFunctionDefinition])
+    val maybeBody = maybeFunction.flatMap(_.body).filter {
+      case _: ScBlock |
+           _: ScNewTemplateDefinition => false
+      case _ => true
     }
 
-    if (element == null) file
-    else {
-      val candidate = ScalaPsiUtil.getParentOfType(element, false, classOf[ScalaFile], classOf[ScBlock],
-        classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
-
-      val funDef = getParentOfType(element, classOf[ScFunctionDefinition])
-
-      val isCaseClausesBlock = candidate match {
-        case b: ScBlock if b.hasCaseClauses => true
-        case _ => false
-      }
-
-      if (funDef != null && PsiTreeUtil.isAncestor(candidate, funDef, true) && oneExprBody(funDef))
-        funDef.body.get
-      else if (isCaseClausesBlock) container(candidate.getContext, file)
-      else candidate
+    val classes = Seq(classOf[ScalaFile], classOf[ScBlock], classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
+    element.nonStrictParentOfType(classes) match {
+      case Some(candidate) if maybeBody.isDefined && candidate.isAncestorOf(maybeFunction.get) => maybeBody
+      case Some(block: ScBlock) if block.hasCaseClauses => container(block.getContext)
+      case maybeCandidate => maybeCandidate
     }
-  }
+  } else None
 
   def inSuperConstructor(element: PsiElement, aClass: ScTemplateDefinition): Boolean = {
     aClass.extendsBlock.templateParents match {
@@ -1136,18 +1124,12 @@ object ScalaRefactoringUtil {
       case _ => ScalaBundle.message("cannot.extract.empty.message").toOption
     }
 
-    def hasOutsideUsages(elem: PsiElement): Boolean = {
-      val scope = new LocalSearchScope(PsiTreeUtil.getParentOfType(elem, classOf[ScControlFlowOwner], true))
-      val refs = ReferencesSearch.search(elem, scope).findAll()
-      import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-      for {
-        ref <- refs.asScala
-        if !elements.exists(PsiTreeUtil.isAncestor(_, ref.getElement, false))
-      } {
-        return true
-      }
-      false
-    }
+    def hasOutsideUsages(elem: PsiElement): Boolean =
+      !elem.parentOfType(classOf[ScConstructorOwner])
+        .map(new LocalSearchScope(_)).toSeq
+        .flatMap(scope => ReferencesSearch.search(elem, scope).findAll().asScala)
+        .map(_.getElement)
+        .forall(referenced => elements.exists(isAncestor(_, referenced, false)))
 
     val messages = elements.flatMap(errors).distinct
     if (messages.nonEmpty) {

@@ -19,7 +19,7 @@ class AmmoniteRunConfigurationType extends ConfigurationType with DumbAware {
 
   override def getIcon: Icon = Icons.SCALA_CONSOLE
 
-  override def getDisplayName: String = "Run Ammonite"
+  override def getDisplayName: String = "Ammonite"
 
   override def getConfigurationTypeDescription: String = "Run Ammonite script"
 }

@@ -2,8 +2,11 @@ package org.jetbrains.plugins.scala.debugger
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import org.jetbrains.plugins.scala.TestFixtureProvider
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
+
+import scala.collection.mutable.ListBuffer
 
 /**
  * @author Nikolay.Tropin
@@ -47,11 +50,20 @@ trait ScalaSdkOwner {
 
   protected def librariesLoaders: Seq[LibraryLoader]
 
-  protected def setUpLibraries(): Unit =
-    librariesLoaders.foreach(_.init)
+  private lazy val myLoaders: ListBuffer[LibraryLoader] = ListBuffer()
 
-  protected def tearDownLibraries(): Unit =
-    librariesLoaders.foreach(_.clean())
+  protected def setUpLibraries(): Unit = {
+    librariesLoaders.foreach { loader =>
+      myLoaders += loader
+      loader.init
+    }
+  }
+
+  protected def disposeLibraries(): Unit = {
+    myLoaders.foreach(Disposer.dispose)
+    myLoaders.clear()
+  }
+
 }
 
 // Java compatibility

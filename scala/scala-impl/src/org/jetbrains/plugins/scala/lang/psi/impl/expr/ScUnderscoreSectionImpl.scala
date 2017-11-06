@@ -5,9 +5,8 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -15,20 +14,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue,
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
  */
 
-class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScUnderscoreSection {
-  override def toString: String = "UnderscoreSection"
-
-  protected override def innerType: TypeResult[ScType] = {
+class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScUnderscoreSection {
+  protected override def innerType: TypeResult = {
     bindingExpr match {
       case Some(ref: ScReferenceExpression) =>
-        def fun(): TypeResult[ScType] = {
+        def fun(): TypeResult = {
           ref.getNonValueType().map {
             case ScTypePolymorphicType(internalType, typeParameters) =>
               ScTypePolymorphicType(ScMethodType(internalType, Nil, isImplicit = false), typeParameters)
@@ -110,20 +107,11 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             }
             result match {
               case None => Failure("No type inferred")
-              case Some(t) => Success(t)
+              case Some(t) => Right(t)
             }
         }
     }
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
-    visitor.visitUnderscoreExpression(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => visitor.visitUnderscoreExpression(this)
-      case _ => super.accept(visitor)
-    }
-  }
+  override def toString: String = "UnderscoreSection"
 }

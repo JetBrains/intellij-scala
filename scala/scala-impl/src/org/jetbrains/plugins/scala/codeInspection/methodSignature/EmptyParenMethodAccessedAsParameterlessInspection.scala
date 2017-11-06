@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.AddCa
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
@@ -47,7 +46,7 @@ class EmptyParenMethodAccessedAsParameterlessInspection extends AbstractMethodSi
       }
   }
 
-  private def check(e: ScReferenceExpression, holder: ProblemsHolder, callType: TypeResult[ScType]) {
+  private def check(e: ScReferenceExpression, holder: ProblemsHolder, callType: TypeResult) {
     e.resolve() match {
       case (f: ScFunction) if !f.isInCompiledFile && f.isEmptyParen =>
         callType.toOption match {

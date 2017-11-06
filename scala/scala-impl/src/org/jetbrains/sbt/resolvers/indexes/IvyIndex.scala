@@ -33,7 +33,8 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     if (artifactToGroupMap.isCorrupted ||
         groupToArtifactMap.isCorrupted ||
         groupArtifactToVersionMap.isCorrupted ||
-        fqNameToGroupArtifactVersionMap.isCorrupted)
+        fqNameToGroupArtifactVersionMap.isCorrupted ||
+        currentVersion.toInt < CURRENT_INDEX_VERSION.toInt)
       deleteIndex()
   }
 
@@ -100,7 +101,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
       fqNameGavMap.getOrElseUpdate(fqName, mutable.Set.empty) ++= artifacts
     }
 
-    val ivyCacheEnumerator = new SbtIvyCacheEnumerator(new File(root))
+    val ivyCacheEnumerator = new SbtIvyCacheEnumerator(new File(root), progressIndicator)
     ivyCacheEnumerator.artifacts.foreach(processArtifact)
     ivyCacheEnumerator.fqNameToArtifacts.foreach(processFqNames)
 
@@ -194,29 +195,33 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     }
   }
 
-  private[indexes] class SbtIvyCacheEnumerator(val cacheDir: File) {
+  private[indexes] class SbtIvyCacheEnumerator(val cacheDir: File, progressIndicator: Option[ProgressIndicator]) {
 
     val fqNameToArtifacts: mutable.Map[String, mutable.Set[ArtifactInfo]] = mutable.Map.empty
 
     private val ivyFileFilter = new FileFilter {
       override def accept(file: File): Boolean =
         file.name.endsWith(".xml") &&
-          (file.lastModified() > innerTimestamp || currentVersion.toInt < CURRENT_INDEX_VERSION.toInt)
+          (file.lastModified() > innerTimestamp)
     }
 
     def artifacts: Stream[ArtifactInfo] = listArtifacts(cacheDir)
 
     private def fqNamesFromJarFile(file: File): Stream[String] = {
+      progressIndicator.foreach(_.setText2(file.getAbsolutePath))
+
       val jarFile = new JarFile(file)
 
       val classExt = ".class"
 
       val entries = jarFile.entries().asScala
-        .filter(e => e.getName.endsWith(classExt) && !e.getName.contains("$"))
+        .filter(e => (e.getName.endsWith(classExt) && !e.getName.contains("$")) ||
+          e.getName.endsWith("/") || e.getName.endsWith("\\"))
 
       entries
         .map(e => e.getName)
-        .map(name => name.replaceAll("/", ".").substring(0, name.length - classExt.length))
+        .map(name => name.replaceAll("/", "."))
+        .map(name => if (name.endsWith(classExt)) name.substring(0, name.length - classExt.length) else name)
         .toStream
     }
 

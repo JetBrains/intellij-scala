@@ -3,9 +3,10 @@ import sbt._
 object Versions {
   val scalaVersion: String = Scala.latest_2_12
   val scalaBinaryVersion: String = Scala.binary_2_12
+  // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   val sbtVersion: String = Sbt.latest
-  val zincVersion = "1.0.0"
-  val ideaVersion = "173.3302.5"
+  val zincVersion = "1.0.3"
+  val ideaVersion = "173.3415.22"
   val sbtStructureVersion: String = "2017.2"
   val sbtIdeaShellVersion: String = "2017.2"
   val aetherVersion = "1.0.0.v20140518"
@@ -29,7 +30,7 @@ object Versions {
     val latest_2_9 = "2.9.3"
     val latest_2_10 = "2.10.6"
     val latest_2_11 = "2.11.11"
-    val latest_2_12 = "2.12.3"
+    val latest_2_12 = "2.12.3" // don't upgrade to 2.12.4 because it breaks compilation. https://github.com/scala/bug/issues/10568
     val latest: String = latest_2_12
 
     def binaryVersion(v: String): String =
@@ -47,8 +48,14 @@ object Versions {
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.16"
-    val latest_1_0 = "1.0.1"
+    val latest_1_0 = "1.0.3"
     val latest: String = latest_1_0
+
+    // these need to be updated to correspond to the versions in sbt/project/Dependencies.scala
+    // they are required for our tests. TODO: automatically update them based on sbt base version
+    val latestIo = "1.0.2"
+    val latestUtil = "1.0.2"
+    val latestLm = "1.0.3"
 
     def scalaVersion(v: String): String =
       if (v.startsWith(Sbt.binary_0_12)) Scala.binary_2_9
@@ -84,7 +91,7 @@ object Dependencies {
   val commonsLang: ModuleID = "commons-lang" % "commons-lang" % "2.6"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
 
-  val scalastyle: ModuleID = "org.scalastyle" %% "scalastyle" % "0.9.0"
+  val scalastyle: ModuleID = "org.scalastyle" %% "scalastyle" % "1.0.0"
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.2"
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
@@ -152,7 +159,6 @@ object DependencyGroups {
 
   val testDownloader = Seq(
 
-    scalaXml,
     "com.chuusai" % "shapeless_2.11" % "2.0.0",
     "com.fommil" % "stalactite_2.11" % "0.0.3",
     "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
@@ -168,19 +174,24 @@ object DependencyGroups {
     "com.typesafe.akka" % "akka-stream_2.11" % "2.4.19",
     "com.typesafe.play" % "play_2.10" % "2.4.10",
     "com.typesafe.slick" % "slick_2.11" % "3.2.1",
-//    "io.spray" %% "spray-routing" % "1.3.4",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
-    "org.specs2" % "specs2_2.10" % "2.4.6",
+    "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.6",
+    "org.scala-lang.modules" % "scala-xml_2.12" % "1.0.6",
     "org.scala-js" % "scalajs-library_2.10" % "0.6.14",
     "org.scalaz" % "scalaz-core_2.10" % scalazVersion,
     "org.scalaz" % "scalaz-concurrent_2.10" % scalazVersion,
     "org.scalaz" % "scalaz-core_2.11" % scalazVersion,
     "org.scalaz" % "scalaz-concurrent_2.11" % scalazVersion,
     "org.scalaz.stream" % "scalaz-stream_2.11" % "0.6a",
+    "org.specs2" % "specs2_2.10" % "2.4.6",
     "org.specs2" % "specs2_2.11" % "2.4.15",
     "org.specs2" % "specs2-core_2.11" % "3.0.1",
+    "org.specs2" % "specs2-core_2.12" % "4.0.0",
     "org.specs2" % "specs2-common_2.11" % "3.0.1",
+    "org.specs2" % "specs2-common_2.12" % "4.0.0",
     "org.specs2" % "specs2-matcher_2.11" % "3.0.1",
+    "org.specs2" % "specs2-matcher_2.12" % "4.0.0",
+    "org.specs2" % "specs2-fp_2.12" % "4.0.0",
     "org.typelevel" % "scodec-bits_2.11" % "1.1.0-SNAPSHOT",
     "org.typelevel" % "scodec-core_2.11" % "1.7.0-SNAPSHOT",
     "org.scalatest" % "scalatest_2.10" % "1.9.2",
@@ -190,7 +201,8 @@ object DependencyGroups {
     "org.scalatest" % "scalatest_2.11" % "2.2.1",
     "org.scalatest" % "scalatest_2.11" % "3.0.1",
     "org.scalactic" % "scalactic_2.11" % "3.0.1",
-//    "org.scalatest" % "scalatest_2.12" % "3.0.1",
+    "org.scalactic" % "scalactic_2.12" % "3.0.4",
+    "org.scalatest" % "scalatest_2.12" % "3.0.4",
     "org.scalameta" % s"paradise_$scalaVersion" % paradiseVersion exclude("org.scalameta", s"scalameta_$scalaBinaryVersion"),
     "org.scalameta" % "scalameta_2.11" % scalaMetaVersion,
     "org.scalameta" % "scalameta_2.12" % scalaMetaVersion,
@@ -234,17 +246,19 @@ object DependencyGroups {
     )
 
   val sbt1CrossScala: CrossVersion = CrossVersion.fullMapped(_ => Scala.binary_2_12)
-  def sbt100Libs(v:String): Seq[ModuleID] =
-    // these are not cross-versioned
-    Seq("sbt", "util-interface", "test-agent").map(lib => sbtOrg % lib % v) ++
-    // this has separate versioning
-    Seq(sbtOrg % "compiler-interface" % "1.0.0") ++
-    // all of these are published cross-versioned for scala 2.12
-    Seq(
-      "main","logic","collections","util-position","util-relation","actions","completion","io",
-      "util-control","run","util-logging","task-system","tasks","util-cache",
-      "testing","util-tracking","main-settings","command","protocol","core-macros", "librarymanagement-core"
-    ).map(lib => (sbtOrg % lib % v).withCrossVersion(sbt1CrossScala))
+//  def sbt100Libs(v:String): Seq[ModuleID] =
+//    // these are not cross-versioned
+//    Seq("sbt", "util-interface", "test-agent").map(lib => sbtOrg % lib % v) ++
+//    // this has separate versioning
+//    Seq(sbtOrg % "compiler-interface" % zincVersion) ++
+//    // all of these are published cross-versioned for scala 2.12
+//    Seq(
+//      "main","logic","collections","util-position","util-relation","actions","completion","io",
+//      "util-control","run","util-logging","task-system","tasks","util-cache",
+//      "testing","util-tracking","main-settings","command","protocol","core-macros", "librarymanagement-core"
+//    ).map(lib => (sbtOrg % lib % v).withCrossVersion(sbt1CrossScala))
+
+  def sbt100Libs(v:String): Seq[ModuleID] = Seq(sbtOrg % "sbt" % v) // all the modules are transitive deps
 
   // required jars for MockSbt - it adds different versions to test module classpath
   val mockSbtDownloader: Seq[ModuleID] = {

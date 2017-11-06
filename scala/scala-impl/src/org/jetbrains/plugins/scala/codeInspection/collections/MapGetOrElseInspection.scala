@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * Nikolay.Tropin
@@ -59,7 +59,7 @@ object MapGetOrElse extends SimplificationType() {
       case _ => return false
     }
     val mapArgRetType = mapArg.`type`() match {
-      case Success(FunctionType(retType, _), _) => retType
+      case Right(FunctionType(retType, _)) => retType
       case _ => return false
     }
 

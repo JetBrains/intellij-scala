@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.highlightOccurrences
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
@@ -150,8 +151,10 @@ class ScalaInlineHandler extends InlineHandler {
       }
       if (refs.isEmpty)
         showErrorHint(ScalaBundle.message("cannot.inline.never.used"), inlineTitleSuffix)
-      else if (!psiNamedElement.isInstanceOf[ScTypeAliasDefinition] && refs.exists(ref =>
-        ScalaPsiUtil.getParentOfType(ref.getElement, classOf[ScStableCodeReferenceElement], classOf[ScStableReferenceElementPattern]) != null))
+      else if (!psiNamedElement.isInstanceOf[ScTypeAliasDefinition] &&
+        refs.map(_.getElement)
+          .flatMap(_.nonStrictParentOfType(Seq(classOf[ScStableCodeReferenceElement], classOf[ScStableReferenceElementPattern])))
+          .nonEmpty)
         showErrorHint(ScalaBundle.message("cannot.inline.stable.reference"), inlineTitleSuffix)
       else if (!ApplicationManager.getApplication.isUnitTestMode) {
         val occurences = refs.size match {

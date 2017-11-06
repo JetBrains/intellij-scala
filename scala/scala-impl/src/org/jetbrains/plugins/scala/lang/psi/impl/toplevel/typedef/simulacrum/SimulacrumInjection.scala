@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * @author Alefas
@@ -136,7 +136,7 @@ class SimulacrumInjection extends SyntheticMembersInjector {
 
             val AllOpsSupers = clazz.extendsBlock.templateParents.toSeq.flatMap(parents => parents.typeElements.flatMap { te =>
               te.`type`() match {
-                  case Success(ParameterizedType(classType, Seq(tp)), _) if isProperTpt(tp).isDefined =>
+                case Right(ParameterizedType(classType, Seq(tp))) if isProperTpt(tp).isDefined =>
                     def fromType: Seq[String] = {
                       val project = clazz.getProject
                       classType.extractClass match {

@@ -44,8 +44,10 @@ object Common {
     val scalacTests: String = cat("ScalacTests")
   }
 
+  lazy val homePrefix = sys.props.get("tc.idea.prefix").map(new File(_)).getOrElse(Path.userHome)
+
   def ivyHomeDir: File =
-    Option(System.getProperty("sbt.ivy.home")).fold(Path.userHome / ".ivy2")(file)
+    Option(System.getProperty("sbt.ivy.home")).fold(homePrefix / ".ivy2")(file)
 
   def commonTestSettings(packagedPluginDir: SettingKey[File]): Seq[Setting[_]] = Seq(
     fork in Test := true,

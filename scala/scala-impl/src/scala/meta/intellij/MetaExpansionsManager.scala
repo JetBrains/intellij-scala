@@ -13,20 +13,20 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 
+import scala.collection.JavaConverters._
 import scala.collection.immutable
 import scala.meta.parsers.Parse
 import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
 import scala.meta.{Dialect, Tree}
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
-import scala.collection.JavaConverters._
 
 /**
   * @author Mikhail Mutcianko
@@ -90,9 +90,9 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
         val outDirs: List[URL] = projectOutputDirs(module.getProject).map(str => new File(str).toURI.toURL)
         val fullCP: immutable.Seq[URL] = outDirs ++ dependencyCP :+ pluginCP
         // a quick way to test for compatible meta version - check jar name in classpath
-        if (annot.scalaLanguageLevelOrDefault == Scala_2_11 && dependencyCP.exists(_.toString.contains(s"trees_2.11-$META_MAJOR_VERSION")))
+        if (annot.scalaLanguageLevelOrDefault == Scala_2_12 && dependencyCP.exists(_.toString.contains(s"trees_2.12-$META_MAJOR_VERSION")))
           new URLClassLoader(fullCP, getClass.getClassLoader)
-        else if (annot.scalaLanguageLevelOrDefault == Scala_2_11)
+        else if (annot.scalaLanguageLevelOrDefault == Scala_2_12)
           new MetaClassLoader(fullCP)
         else
           new MetaClassLoader(fullCP, incompScala = true)
@@ -148,9 +148,7 @@ object MetaExpansionsManager {
 
 
   def runMetaAnnotation(annot: ScAnnotation): Either[String, Tree] = {
-
-    val holder: ScAnnotationsHolder = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
-      .asInstanceOf[ScAnnotationsHolder]
+    val holder = annot.parentOfType(classOf[ScAnnotationsHolder], strict = false).orNull
 
     @CachedInsidePsiElement(annot, ModCount.getBlockModificationCount)
     def runMetaAnnotationsImpl(annot: ScAnnotation): Either[String, Tree] = {

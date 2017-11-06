@@ -13,8 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -33,7 +32,7 @@ class ScValueDeclarationImpl private (stub: ScValueStub, node: ASTNode)
 
   def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 
-  override def `type`(): TypeResult[ScType] = typeElement match {
+  override def `type`(): TypeResult = typeElement match {
     case Some(te) => te.`type`()
     case None => Failure(ScalaBundle.message("no.type.element.found", getText))
   }

@@ -37,30 +37,31 @@ class SmartStepIntoTest_212 extends SmartStepIntoTestBase {
 
 abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
 
-  protected val handler = new ScalaSmartStepIntoHandler
-  protected var targets: Seq[SmartStepTarget] = null
+  protected def handler = new ScalaSmartStepIntoHandler
 
-  def availableSmartStepTargets(): Seq[SmartStepTarget] = managed {
-    inReadAction {
-      handler.findSmartStepTargets(currentSourcePosition).asScala
-    }
-  }
+  def availableSmartStepTargets(): Seq[SmartStepTarget] =
+    handler.findSmartStepTargets(currentSourcePosition).asScala
 
   def checkSmartStepTargets(expected: String*): Unit = {
-    targets = availableSmartStepTargets()
-    Assert.assertEquals("Wrong set of smart step targets:", expected, targets.map(_.getPresentation))
+    val targets = inReadAction {
+      availableSmartStepTargets().map(_.getPresentation)
+    }
+    Assert.assertEquals("Wrong set of smart step targets:", expected, targets)
   }
 
   def checkSmartStepInto(target: String, source: String, methodName: String, line: Int) = {
-    if (targets == null) targets = availableSmartStepTargets()
-    val sst = targets.find(_.getPresentation == target)
+    val sst = inReadAction {
+      availableSmartStepTargets().find(_.getPresentation == target)
+    }
     Assert.assertTrue(s"Cannot find such target: $target", sst.isDefined)
     doSmartStepInto(sst.get)
     checkLocation(source, methodName, line)
   }
 
   private def doSmartStepInto(target: SmartStepTarget): Unit = {
-    val filter = handler.createMethodFilter(target)
+    val filter = inReadAction {
+      handler.createMethodFilter(target)
+    }
     val stepIntoCommand = getDebugProcess.createStepIntoCommand(suspendContext, false, filter)
     getDebugProcess.getManagerThread.invokeAndWait(stepIntoCommand)
     waitForBreakpoint()

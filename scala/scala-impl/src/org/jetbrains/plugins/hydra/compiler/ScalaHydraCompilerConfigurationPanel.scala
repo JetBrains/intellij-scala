@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.hydra.compiler
 
-import java.awt.event.{ActionEvent, FocusEvent, FocusListener}
+import java.awt.event.ActionEvent
+import java.net.URL
 import javax.swing.event.DocumentEvent
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
@@ -12,7 +13,7 @@ import org.jetbrains.plugins.hydra.caches.HydraArtifactsCache
 import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
 import org.jetbrains.plugins.scala.extensions
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 /**
   * @author Maris Alexandru
@@ -22,26 +23,25 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
   private val fileChooserDescriptor = new FileChooserDescriptor(false, true, false, false, false, false)
 
   private val documentAdapter = new DocumentAdapter {
-    override def textChanged(documentEvent: DocumentEvent): Unit = downloadButton.setEnabled(getUsername.nonEmpty && getPassword.nonEmpty)
-  }
-
-  private val focusListener = new FocusListener {
-    override def focusGained(e: FocusEvent): Unit = {}
-
-    override def focusLost(e: FocusEvent): Unit = if (getUsername.nonEmpty && getPassword.nonEmpty &&
-      (HydraCredentialsManager.getLogin != getUsername || HydraCredentialsManager.getPlainPassword != getPassword)) {
-      HydraCredentialsManager.setCredentials(getUsername, getPassword)
-      hydraVersionComboBox.setItems(HydraVersions.downloadHydraVersions)
-    }
+    override def textChanged(documentEvent: DocumentEvent): Unit =
+      downloadButton.setEnabled(getUsername.nonEmpty && getPassword.nonEmpty && getHydraRepository.nonEmpty && getHydraRepositoryRealm.nonEmpty)
   }
 
   hydraGlobalSettings.getState
-  userTextField.addFocusListener(focusListener)
+  setHydraVersions
+
+  hydraRepository.setText(hydraGlobalSettings.getHydraRepositoryUrl)
+  hydraRepository.getDocument.addDocumentListener(documentAdapter)
+
+  realmTextField.setText(hydraGlobalSettings.hydraRepositoryRealm)
+  realmTextField.getDocument.addDocumentListener(documentAdapter)
+
   userTextField.getDocument.addDocumentListener(documentAdapter)
+
   passwordTextField.getDocument.addDocumentListener(documentAdapter)
-  passwordTextField.addFocusListener(focusListener)
-  hydraVersionComboBox.setItems(HydraVersions.downloadHydraVersions)
+
   downloadButton.addActionListener((_: ActionEvent) => onDownload())
+  downloadVersionButton.addActionListener((_: ActionEvent) => onDownloadVersions())
   noOfCoresComboBox.setItems(Array.range(1, Runtime.getRuntime.availableProcessors() + 1).map(_.toString).sortWith(_ > _))
   sourcePartitionerComboBox.setItems(SourcePartitioner.values.map(_.value).toArray)
 
@@ -71,24 +71,50 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
 
   def setHydraStoreDirectory(path: String): Unit = hydraStoreDirectoryField.setText(path)
 
+  def getHydraRepository: String = hydraRepository.getText
+
+  def setHydraRepository(repositoryUrl: String): Unit = hydraRepository.setText(repositoryUrl)
+
+  def getHydraRepositoryRealm: String = realmTextField.getText
+
+  def setHydraRepositoryRealm(realm: String): Unit = realmTextField.setText(realm)
+
+  def getHydraRepositoryName: String = Try(new URL(getHydraRepository)) match {
+    case Success(url) => url.getHost
+    case _ => ""
+  }
+
   def onDownload(): Unit = {
+    Try(new URL(hydraGlobalSettings.getHydraRepositoryUrl)) match {
+      case Success(_) => downloadHydraForProjectScalaVersions()
+      case _ => Messages.showErrorDialog(contentPanel, s"$getHydraRepository is not a valid URL.", "Invalid URL")
+    }
+  }
+
+  def onDownloadVersions(): Unit = {
+    val hydraVersions = HydraVersions.downloadHydraVersions(getHydraRepository, getUsername, getPassword)
+    hydraGlobalSettings.hydraVersions = hydraVersions
+    setHydraVersions(hydraVersions)
+  }
+
+  private def downloadHydraForProjectScalaVersions(): Unit = {
     val scalaVersions = HydraVersions.getSupportedScalaVersions(project)
 
     if (scalaVersions.isEmpty)
       Messages.showErrorDialog("Could not determine Scala version in this project.", "Hydra Plugin Error")
     else {
-      downloadVersionWithProgress(scalaVersions, selectedVersion)
+      downloadArtifactsWithProgress(scalaVersions, selectedVersion)
       settings.hydraVersion = selectedVersion
       EditorNotifications.updateAll()
     }
   }
 
-  private def downloadVersionWithProgress(scalaVersions: Seq[String], hydraVersion: String): Unit = {
+  private def downloadArtifactsWithProgress(scalaVersions: Seq[String], hydraVersion: String): Unit = {
     val filteredScalaVersionsString = scalaVersions.mkString(", ")
     val scalaVersionsToBeDownloaded = scalaVersions.filterNot(hydraGlobalSettings.artifactPaths.contains(_, hydraVersion))
     val scalaVersionsToBeDownloadedString = scalaVersionsToBeDownloaded.mkString(", ")
     if (scalaVersionsToBeDownloaded.nonEmpty) {
-      val result = extensions.withProgressSynchronouslyTry(s"Downloading Hydra $hydraVersion for $scalaVersionsToBeDownloadedString")(downloadVersion(scalaVersionsToBeDownloaded, hydraVersion))
+      val result = extensions.withProgressSynchronouslyTry(s"Downloading Hydra $hydraVersion for $scalaVersionsToBeDownloadedString")(downloadArtifacts(scalaVersionsToBeDownloaded, hydraVersion))
       result match {
         case Failure(exception) => {
           Messages.showErrorDialog(contentPanel, exception.getMessage, s"Error Downloading Hydra $hydraVersion for $scalaVersionsToBeDownloadedString")
@@ -100,7 +126,23 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
     }
   }
 
-  private def downloadVersion(scalaVersions: Seq[String], hydraVersion: String): (String => Unit) => Unit =
-    (listener: (String) => Unit) => scalaVersions.foreach(version => HydraArtifactsCache.downloadIfNotPresent(version, hydraVersion, listener))
+  private def downloadArtifacts(scalaVersions: Seq[String], hydraVersion: String): (String => Unit) => Unit =
+    (listener: (String) => Unit) => scalaVersions.foreach(version =>
+      HydraArtifactsCache.downloadIfNotPresent(HydraRepositorySettings(getHydraRepositoryName, getHydraRepository,
+        getHydraRepositoryRealm, getUsername, getPassword), version, hydraVersion, listener))
 
+  private def setHydraVersions: Unit = {
+    val hydraVersions = (hydraGlobalSettings.hydraVersions :+ settings.hydraVersion).distinct
+    setHydraVersions(hydraVersions)
+  }
+
+  private def setHydraVersions(hydraVersions: Array[String]): Unit = {
+    hydraVersionComboBox.setItems(hydraVersions)
+    if(settings.hydraVersion.nonEmpty)
+      setSelectedVersion(settings.hydraVersion)
+    else
+      setSelectedVersion(hydraVersions.head)
+  }
 }
+
+sealed case class HydraRepositorySettings(repositoryName: String, repositoryURL: String, repositoryRealm: String, login: String, password: String)

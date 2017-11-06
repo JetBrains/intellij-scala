@@ -4,11 +4,10 @@ package intention
 package types
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.command.undo.UndoUtil
+import com.intellij.openapi.command.undo.UndoUtil.markPsiFileForUndo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParenthesisedTypeElement, ScReferenceableInfixTypeElement}
@@ -26,19 +25,20 @@ class ConvertFromInfixIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val infixTypeElement = PsiTreeUtil.getParentOfType(element, classOf[ScReferenceableInfixTypeElement], false)
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
+    val infixTypeElement = Option(element).filter(_.isValid)
+      .flatMap(_.parentOfType(classOf[ScReferenceableInfixTypeElement], strict = false))
+      .getOrElse(return)
+
+    val replacement = infixTypeElement.computeDesugarizedType
+      .getOrElse(return)
+
     val elementToReplace = infixTypeElement.getParent match {
       case x: ScParenthesisedTypeElement => x
       case _ => infixTypeElement
     }
 
-    if (element == null) return
-    infixTypeElement.computeDesugarizedType match {
-      case Some(replacement) =>
-        elementToReplace.replace(replacement)
-        UndoUtil.markPsiFileForUndo(replacement.getContainingFile)
-      case _ =>
-    }
+    elementToReplace.replace(replacement)
+    markPsiFileForUndo(replacement.getContainingFile)
   }
 }

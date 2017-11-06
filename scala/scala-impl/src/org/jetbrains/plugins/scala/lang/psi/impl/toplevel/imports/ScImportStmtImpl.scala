@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementI
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportStmtStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, StdKinds}
@@ -205,14 +205,15 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
               }
               if (importExpr.isSingleWildcard) {
                 if (!checkWildcardImports) return true
-                (elem, processor) match {
-                  case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] =>
-                    if (!processor.processType(new ScDesignatorType(cl, true), place,
-                      newState)) return false
-                  case (_, processor: BaseProcessor) if refType.isDefined =>
-                    if (!processor.processType(refType.get, place, newState)) return false
-                  case _ => if (!elem.processDeclarations(processor, newState, this, place)) return false
+                val processed = (elem, refType, processor) match {
+                  case (cl: PsiClass, _, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] =>
+                    processor.processType(new ScDesignatorType(cl, true), place, newState)
+                  case (_, Right(value), processor: BaseProcessor) =>
+                    processor.processType(value, place, newState)
+                  case _ =>
+                    elem.processDeclarations(processor, newState, this, place)
                 }
+                if (!processed) return false
               } else if (!processor.execute(elem, newState)) return false
             case Some(set) =>
               val shadowed: mutable.HashSet[(ScImportSelector, PsiElement)] = mutable.HashSet.empty

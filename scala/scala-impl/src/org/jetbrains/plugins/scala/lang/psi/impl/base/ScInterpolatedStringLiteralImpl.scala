@@ -4,8 +4,7 @@ package lang.psi.impl.base
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.{InterpolatedStringType, ScInterpolatedStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.meta.intellij.QuasiquoteInferUtil
 
@@ -22,7 +21,7 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
     case _ => null
   }
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     getStringContextExpression match {
       case Some(mc: ScMethodCall) => mc.getInvokedExpr match {
         case expr: ScReferenceExpression if QuasiquoteInferUtil.isMetaQQ(expr) =>

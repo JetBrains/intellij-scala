@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -73,6 +74,7 @@ object SideEffectsUtil {
         }
         val checkBaseExpr = baseExpr match {
           case _ if hasImplicitConversion(baseExpr) => false
+          case u: ScUnderscoreSection => false
           case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, typeOfQual)
           case ResolvesTo(_: ScSyntheticFunction) => true
           case ResolvesTo(_: ScTypedDefinition) =>

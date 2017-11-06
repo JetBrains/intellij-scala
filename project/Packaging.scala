@@ -1,4 +1,5 @@
-import java.io.File
+import java.io._
+import java.util.zip.{ZipException, ZipInputStream, ZipOutputStream}
 
 import sbt.Keys._
 import sbt._
@@ -110,12 +111,42 @@ object Packaging {
     }
   }
 
-  private def mergeIntoTemporaryJar(filesToMerge: File*): File =
-    IO.withTemporaryDirectory { tmp =>
-      filesToMerge.foreach(IO.unzip(_, tmp))
+  private def mergeIntoTemporaryJar(filesToMerge: File*): File = {
       val zipFile =  File.createTempFile("sbt-merge-result",".jar", IO.temporaryDirectory)
-      zipFile.delete()
-      IO.zip((tmp ***) pair (relativeTo(tmp), false), zipFile)
+      fastMerge(filesToMerge, zipFile)
       zipFile
     }
+
+  def copyZipContent(input: File, outStream: ZipOutputStream): Unit = {
+    val inStream = new ZipInputStream(new BufferedInputStream(new FileInputStream(input)))
+    try {
+      val buffer = new Array[Byte](64 * 1024)
+      var entry = inStream.getNextEntry
+      while (entry != null) {
+        try {
+          outStream.putNextEntry(entry)
+          var numRead = inStream.read(buffer)
+          while (numRead > 0) {
+            outStream.write(buffer, 0, numRead)
+            numRead = inStream.read(buffer)
+          }
+          outStream.closeEntry()
+        } catch {
+          case ze: ZipException if ze.getMessage.startsWith("duplicate entry") => //ignore
+          case e: IOException => println(s"$e")
+        }
+        entry = inStream.getNextEntry
+      }
+    } finally { if (inStream != null) inStream.close() }
+  }
+
+  def fastMerge(input: Seq[File], output: File): Unit = {
+    val outStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(output)))
+    try {
+      for (file <- input) {
+        copyZipContent(file, outStream)
+      }
+    } finally { if (outStream != null) outStream.close() }
+  }
+
 }

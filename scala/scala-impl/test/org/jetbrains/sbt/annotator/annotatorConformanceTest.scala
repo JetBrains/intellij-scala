@@ -3,6 +3,7 @@ package org.jetbrains.sbt.annotator
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.sbt.annotator.SbtAnnotator.isTypeAllowed
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.{MockSbt_0_12, MockSbt_0_13, MockSbt_1_0, Sbt}

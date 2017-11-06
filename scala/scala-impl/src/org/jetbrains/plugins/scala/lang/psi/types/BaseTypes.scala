@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -130,7 +129,7 @@ private class BaseTypesIterator(tp: ScType) extends Iterator[ScType] {
           if (!visitedAliases.contains(ta)) {
             visitedAliases += ta
             ta.aliasedType match {
-              case Success(aliased, _) => Some(s.subst(aliased))
+              case Right(aliased) => Some(s.subst(aliased))
               case _ => None
             }
           }

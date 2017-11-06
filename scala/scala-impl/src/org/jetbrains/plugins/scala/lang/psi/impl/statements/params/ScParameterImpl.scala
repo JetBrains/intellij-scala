@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.ScParamElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -72,8 +72,8 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   def typeElement: Option[ScTypeElement] = byPsiOrStub(paramType.flatMap(_.typeElement.toOption))(_.typeElement)
 
-  def `type`(): TypeResult[ScType] = {
-    def success(t: ScType): TypeResult[ScType] = Success(t)
+  def `type`(): TypeResult = {
+    def success(t: ScType): TypeResult = Right(t)
     //todo: this is very error prone way to calc type, when usually we need real parameter type
     getStub match {
       case null =>

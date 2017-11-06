@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.codeInsight.generation.GenerationUtil.element
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createDefinitionWithContext, createNewLine}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
   * Nikolay.Tropin

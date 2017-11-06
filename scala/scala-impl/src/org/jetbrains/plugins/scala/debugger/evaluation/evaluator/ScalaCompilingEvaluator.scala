@@ -15,7 +15,6 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation._
@@ -84,15 +83,12 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
     }
   }
 
-  private def callEvaluator(evaluationContext: EvaluationContext): ExpressionEvaluator = {
-    DebuggerInvocationUtil.commitAndRunReadAction(project, new EvaluatingComputable[ExpressionEvaluator] {
-      override def compute(): ExpressionEvaluator = {
-        val callCode = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, generatedClass.callText)
-        val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(callCode, generatedClass.getAnchor, project)
-        ScalaEvaluatorBuilder.build(codeFragment, SourcePosition.createFromElement(generatedClass.getAnchor))
-      }
-    })
-  }
+  private def callEvaluator(evaluationContext: EvaluationContext): ExpressionEvaluator =
+    inReadAction {
+      val callCode = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, generatedClass.callText)
+      val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(callCode, generatedClass.getAnchor, project)
+      ScalaEvaluatorBuilder.build(codeFragment, SourcePosition.createFromElement(generatedClass.getAnchor))
+    }
 
   private def defineClasses(classes: Seq[OutputFileObject], context: EvaluationContext,
                             process: DebugProcess, classLoader: ClassLoaderReference): Unit = {
@@ -243,9 +239,10 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
       case (stmt: ScBlockStatement) childOf (funDef: ScFunctionDefinition) if funDef.body.contains(stmt) => (stmt, funDef)
       case (stmt: ScBlockStatement) childOf (nonExpr: PsiElement) => (stmt, nonExpr)
       case _ =>
-        val blockStmt = PsiTreeUtil.getParentOfType(elem, classOf[ScBlockStatement], true)
-        if (blockStmt == null) throw EvaluationException("Could not compile local class in this context")
-        else findAnchorAndParent(blockStmt)
+        elem.parentOfType(classOf[ScBlockStatement]) match {
+          case Some(blockStatement) => findAnchorAndParent(blockStatement)
+          case _ => throw EvaluationException("Could not compile local class in this context")
+        }
     }
 
     var (prevParent, parent) = findAnchorAndParent(context)

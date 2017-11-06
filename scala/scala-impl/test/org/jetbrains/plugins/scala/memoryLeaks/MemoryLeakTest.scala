@@ -84,7 +84,6 @@ class MemoryLeakTest extends PlatformTestCase {
   }
 
   private def closeAndDispose(implicit project: ProjectContext): Unit = {
-    librariesLoaders.foreach(_.clean())
     ProjectManagerEx.getInstanceEx.closeAndDispose(project)
 
     assertFalse(project.isOpen)

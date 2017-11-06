@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
@@ -309,43 +309,38 @@ trait ScalaConformance extends api.Conformance {
     }
 
     trait ThisVisitor extends ScalaTypeVisitor {
-      override def visitThisType(t: ScThisType) {
-        val clazz = t.element
-        val res = clazz.getTypeWithProjections()
-        if (res.isEmpty) result = (false, undefinedSubst)
-        else result = conformsInner(l, res.get, visited, subst, checkWeak)
+      override def visitThisType(t: ScThisType): Unit = {
+        result = t.element.getTypeWithProjections() match {
+          case Right(value) => conformsInner(l, value, visited, subst, checkWeak)
+          case _ => (false, undefinedSubst)
+        }
       }
     }
 
     trait DesignatorVisitor extends ScalaTypeVisitor {
-      override def visitDesignatorType(d: ScDesignatorType) {
-        d.element match {
-          case v: ScBindingPattern =>
-            val res = v.`type`()
-            if (res.isEmpty) result = (false, undefinedSubst)
-            else result = conformsInner(l, res.get, visited, undefinedSubst)
-          case v: ScParameter =>
-            val res = v.`type`()
-            if (res.isEmpty) result = (false, undefinedSubst)
-            else result = conformsInner(l, res.get, visited, undefinedSubst)
-          case v: ScFieldId =>
-            val res = v.`type`()
-            if (res.isEmpty) result = (false, undefinedSubst)
-            else result = conformsInner(l, res.get, visited, undefinedSubst)
-          case _ =>
+      override def visitDesignatorType(d: ScDesignatorType): Unit = {
+        val maybeType = d.element match {
+          case v: ScBindingPattern => v.`type`()
+          case v: ScParameter => v.`type`()
+          case v: ScFieldId => v.`type`()
+          case _ => return
+        }
+
+        result = maybeType match {
+          case Right(value) => conformsInner(l, value, visited, undefinedSubst)
+          case _ => (false, undefinedSubst)
         }
       }
     }
 
     trait ParameterizedAliasVisitor extends ScalaTypeVisitor {
-      override def visitParameterizedType(p: ParameterizedType) {
+      override def visitParameterizedType(p: ParameterizedType): Unit = {
         p.isAliasType match {
           case Some(AliasType(_, _, upper)) =>
-            if (upper.isEmpty) {
-              result = (false, undefinedSubst)
-              return
+            result = upper match {
+              case Right(value) => conformsInner(l, value, visited, undefinedSubst)
+              case _ => (false, undefinedSubst)
             }
-            result = conformsInner(l, upper.get, visited, undefinedSubst)
           case _ =>
         }
       }
@@ -356,9 +351,8 @@ trait ScalaConformance extends api.Conformance {
 
       override def visitDesignatorType(des: ScDesignatorType) {
         des.isAliasType match {
-          case Some(AliasType(_, _, upper)) =>
-            if (upper.isEmpty) return
-            val res = conformsInner(l, upper.get, visited, undefinedSubst)
+          case Some(AliasType(_, _, Right(value))) =>
+            val res = conformsInner(l, value, visited, undefinedSubst)
             if (stopDesignatorAliasOnFailure || res._1) result = res
           case _ =>
         }
@@ -393,7 +387,7 @@ trait ScalaConformance extends api.Conformance {
         }
 
         result = l.isAliasType match {
-          case Some(AliasType(_: ScTypeAliasDefinition, Success(comp: ScCompoundType, _), _)) =>
+          case Some(AliasType(_: ScTypeAliasDefinition, Right(comp: ScCompoundType), _)) =>
             conformsInner(comp, c, HashSet.empty, undefinedSubst)
           case _ => (false, undefinedSubst)
         }
@@ -409,11 +403,11 @@ trait ScalaConformance extends api.Conformance {
     trait ProjectionVisitor extends ScalaTypeVisitor {
       def stopProjectionAliasOnFailure: Boolean = false
 
-      override def visitProjectionType(proj2: ScProjectionType) {
+      override def visitProjectionType(proj2: ScProjectionType): Unit = {
         proj2.isAliasType match {
-          case Some(AliasType(_, _, upper)) =>
-            if (upper.isEmpty) return
-            val res = conformsInner(l, upper.get, visited, undefinedSubst)
+          case Some(AliasType(_, _, Left(_))) =>
+          case Some(AliasType(_, _, Right(value))) =>
+            val res = conformsInner(l, value, visited, undefinedSubst)
             if (stopProjectionAliasOnFailure || res._1) result = res
           case _ =>
             l match {
@@ -421,7 +415,7 @@ trait ScalaConformance extends api.Conformance {
               val projected1 = proj1.projected
               val projected2 = proj2.projected
               result = conformsInner(projected1, projected2, visited, undefinedSubst)
-            case param@ParameterizedType(projDes: ScProjectionType, _) =>
+            case ParameterizedType(projDes: ScProjectionType, typeArguments) =>
               //TODO this looks overcomplicated. Improve the code.
               def cutProj(p: ScType, acc: List[ScProjectionType]): ScType = {
                 if (acc.isEmpty) p else acc.foldLeft(p){
@@ -433,12 +427,25 @@ trait ScalaConformance extends api.Conformance {
                 val t = proj.projected.equiv(projDes.projected, undefinedSubst)
                 if (t._1) {
                   undefinedSubst = t._2
-                  (projDes.actualElement, proj.actualElement) match {
+                  val (maybeLeft, maybeRight) = (projDes.actualElement, proj.actualElement) match {
                     case (desT: Typeable, projT: Typeable) =>
-                      desT.`type`().withFilter(_.isInstanceOf[ScParameterizedType]).
-                        map(_.asInstanceOf[ScParameterizedType]).flatMap(dt => projT.`type`().
-                        map(c => conformsInner(ScParameterizedType(dt.designator, param.typeArguments),
-                          cutProj(c, acc), visited, undefinedSubst))).map(t => if (t._1) result = t)
+                      val left = desT.`type`().toOption
+                        .collect {
+                          case ParameterizedType(designator, _) => designator
+                        }.map(ScParameterizedType(_, typeArguments))
+
+
+                      val right = projT.`type`().toOption
+                        .map(cutProj(_, acc))
+
+                      (left, right)
+                    case _ => (None, None)
+                  }
+
+                  maybeLeft.zip(maybeRight).map {
+                    case (left, right) => conformsInner(left, right, visited, undefinedSubst)
+                  }.foreach {
+                    case r@(true, _) => result = r
                     case _ =>
                   }
                 } else {
@@ -450,22 +457,19 @@ trait ScalaConformance extends api.Conformance {
               }
               findProjectionBase(proj2)
             case _ =>
-              proj2.actualElement match {
+              val res = proj2.actualElement match {
                 case syntheticClass: ScSyntheticClass =>
                   result = conformsInner(l, syntheticClass.stdType, HashSet.empty, undefinedSubst)
-                case v: ScBindingPattern =>
-                  val res = v.`type`()
-                  if (res.isEmpty) result = (false, undefinedSubst)
-                  else result = conformsInner(l, proj2.actualSubst.subst(res.get), visited, undefinedSubst)
-                case v: ScParameter =>
-                  val res = v.`type`()
-                  if (res.isEmpty) result = (false, undefinedSubst)
-                  else result = conformsInner(l, proj2.actualSubst.subst(res.get), visited, undefinedSubst)
-                case v: ScFieldId =>
-                  val res = v.`type`()
-                  if (res.isEmpty) result = (false, undefinedSubst)
-                  else result = conformsInner(l, proj2.actualSubst.subst(res.get), visited, undefinedSubst)
-                case _ =>
+                  return
+                case v: ScBindingPattern => v.`type`()
+                case v: ScParameter => v.`type`()
+                case v: ScFieldId => v.`type`()
+                case _ => return
+              }
+
+              result = res match {
+                case Right(value) => conformsInner(l, proj2.actualSubst.subst(value), visited, undefinedSubst)
+                case _ => (false, undefinedSubst)
               }
           }
         }
@@ -680,18 +684,15 @@ trait ScalaConformance extends api.Conformance {
 
       proj.isAliasType match {
         case Some(AliasType(_, lower, _)) =>
-          if (lower.isEmpty) {
-              result = (false, undefinedSubst)
-              return
+          result = lower match {
+            case Right(value) => conformsInner(value, r, visited, undefinedSubst)
+            case _ => (false, undefinedSubst)
           }
-          result = conformsInner(lower.get, r, visited, undefinedSubst)
-          return
         case _ =>
+          rightVisitor = new ExistentialVisitor {}
+          r.visitType(rightVisitor)
+          if (result != null) return
       }
-
-      rightVisitor = new ExistentialVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
     }
 
     override def visitJavaArrayType(a1: JavaArrayType) {
@@ -946,11 +947,11 @@ trait ScalaConformance extends api.Conformance {
                 return
               case _ =>
             }
-          if (lower.isEmpty) {
-            result = (false, undefinedSubst)
-            return
+
+          result = lower match {
+            case Right(value) => conformsInner(value, r, visited, undefinedSubst)
+            case _ => (false, undefinedSubst)
           }
-          result = conformsInner(lower.get, r, visited, undefinedSubst)
           return
         case _ =>
       }
@@ -1236,7 +1237,7 @@ trait ScalaConformance extends api.Conformance {
       }
     }
 
-    override def visitThisType(t: ScThisType) {
+    override def visitThisType(t: ScThisType): Unit = {
       var rightVisitor: ScalaTypeVisitor =
         new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
           with ParameterizedAbstractVisitor {}
@@ -1252,10 +1253,10 @@ trait ScalaConformance extends api.Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      val clazz = t.element
-      val res = clazz.getTypeWithProjections()
-      if (res.isEmpty) result = (false, undefinedSubst)
-      else result = conformsInner(res.get, r, visited, subst, checkWeak)
+      result = t.element.getTypeWithProjections() match {
+        case Right(value) => conformsInner(value, r, visited, subst, checkWeak)
+        case _ => (false, undefinedSubst)
+      }
     }
 
     override def visitDesignatorType(des: ScDesignatorType) {
@@ -1292,18 +1293,15 @@ trait ScalaConformance extends api.Conformance {
 
       des.isAliasType match {
         case Some(AliasType(_, lower, _)) =>
-          if (lower.isEmpty) {
-              result = (false, undefinedSubst)
-              return
+          result = lower match {
+            case Right(value) => conformsInner(value, r, visited, undefinedSubst)
+            case _ => (false, undefinedSubst)
           }
-          result = conformsInner(lower.get, r, visited, undefinedSubst)
-          return
         case _ =>
+          rightVisitor = new CompoundTypeVisitor with ExistentialVisitor {}
+          r.visitType(rightVisitor)
+          if (result != null) return
       }
-
-      rightVisitor = new CompoundTypeVisitor with ExistentialVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
     }
 
     override def visitTypeParameterType(tpt1: TypeParameterType) {
@@ -1607,7 +1605,7 @@ trait ScalaConformance extends api.Conformance {
   def processHigherKindedTypeParams(undefType: ParameterizedType, defType: ParameterizedType, undefinedSubst: ScUndefinedSubstitutor,
                                     falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     val defTypeExpanded = defType.isAliasType.map(_.lower).map {
-      case Success(p: ScParameterizedType, _) => p
+      case Right(p: ScParameterizedType) => p
       case _ => defType
     }.getOrElse(defType)
     extractParams(defTypeExpanded.designator) match {

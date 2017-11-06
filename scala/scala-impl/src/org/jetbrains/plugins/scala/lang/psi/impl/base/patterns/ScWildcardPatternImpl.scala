@@ -10,7 +10,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -29,8 +29,8 @@ class ScWildcardPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wi
 
   override def toString: String = "WildcardPattern"
 
-  override def `type`(): TypeResult[ScType] = this.expectedType match {
-    case Some(x) => Success(x)
+  override def `type`(): TypeResult = this.expectedType match {
+    case Some(x) => Right(x)
     case _ => Failure("cannot determine expected type")
   }
 }

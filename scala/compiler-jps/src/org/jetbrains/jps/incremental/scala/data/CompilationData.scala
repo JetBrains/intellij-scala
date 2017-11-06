@@ -82,12 +82,13 @@ object CompilationData {
       val hydraSettings = SettingsManager.getHydraSettings(context.getProjectDescriptor.getProject)
       val hydraGlobalSettings = SettingsManager.getGlobalHydraSettings(context.getProjectDescriptor.getModel.getGlobal)
       val scalaVersion = CompilerData.compilerVersion(module)
+      val hydraConfigFolder = if (target.isTests) "test" else "main"
       val hydraOptions =
         if (hydraSettings.isHydraEnabled && scalaVersion.nonEmpty && hydraGlobalSettings.containsArtifactsFor(scalaVersion.get, hydraSettings.getHydraVersion))
           Seq("-sourcepath", outputGroups.map(_._1).mkString(File.pathSeparator), "-cpus", hydraSettings.getNumberOfCores,
-            "-YsourcePartitioner:" + hydraSettings.getSourcePartitioner, "-YhydraStore", hydraSettings.getHydraStorePath,
+            "-YsourcePartitioner:" + hydraSettings.getSourcePartitioner, "-YhydraStore", Paths.get(hydraSettings.getHydraStorePath, module.getName, hydraConfigFolder).toString,
             "-YpartitionFile", Paths.get(hydraSettings.getHydraStorePath, module.getName).toString, "-YrootDirectory", hydraSettings.getProjectRoot,
-            "-YtimingsFile", Paths.get(hydraSettings.getHydraStorePath, "timings.csv").toString, "-YhydraTag", module.getName)
+            "-YtimingsFile", Paths.get(hydraSettings.getHydraStorePath, "timings.csv").toString, "-YhydraTag", s"${module.getName}/${hydraConfigFolder}")
         else
           Seq.empty
       Log.debug("Hydra options: " + hydraOptions.mkString(" "))

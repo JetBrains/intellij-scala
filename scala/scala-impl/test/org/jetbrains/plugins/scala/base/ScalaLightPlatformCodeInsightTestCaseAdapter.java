@@ -24,11 +24,12 @@ import org.jetbrains.plugins.scala.debugger.ScalaVersion;
 import org.jetbrains.plugins.scala.debugger.Scala_2_10$;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import scala.collection.Seq;
+import scala.collection.immutable.Vector$;
+import scala.collection.mutable.Buffer;
+import scala.collection.mutable.Buffer$;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -71,21 +72,21 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     @Override
     public Seq<LibraryLoader> librariesLoaders() {
-        return scala.collection.JavaConverters.asScalaBuffer(librariesLoadersAdapter());
-    }
-
-    private List<LibraryLoader> librariesLoadersAdapter() {
         Module module = module();
+        ArrayList<LibraryLoader> back = new ArrayList<>();
 
-        ArrayList<LibraryLoader> result = new ArrayList<LibraryLoader>();
-        result.add(new ScalaLibraryLoader(isIncludeReflectLibrary(), module));
+        ScalaLibraryLoader scalaLoader = new ScalaLibraryLoader(isIncludeReflectLibrary(), module);
+        back.add(scalaLoader);
 
         String path = rootPath();
         if (path != null) {
-            result.add(new SourcesLoader(path, module));
+            back.add(new SourcesLoader(path, module));
         }
 
-        result.addAll(Arrays.asList(additionalLibraries()));
+        Buffer<LibraryLoader> result = scala.collection.JavaConverters.asScalaBuffer(back);
+        Seq addLibs = additionalLibraries();
+        //noinspection unchecked (because variance)
+        result.$plus$plus$eq(addLibs);
 
         return result;
     }
@@ -108,31 +109,20 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         setUpLibraries();
     }
 
-    @Override
-    public void tearDownLibraries() {
-        for (LibraryLoader libraryLoader : librariesLoadersAdapter()) {
-            libraryLoader.clean();
-        }
-    }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
         TestUtils.disableTimerThread();
-        //libLoader.clean();
-    }
-
-    protected void setUpWithoutScalaLib() throws Exception {
-        super.setUp();
     }
 
     protected boolean isIncludeReflectLibrary() {
         return false;
     }
 
-    protected ThirdPartyLibraryLoader[] additionalLibraries() {
-        return EMPTY_LOADERS_ARRAY;
+    protected Seq<ThirdPartyLibraryLoader> additionalLibraries() {
+        return Vector$.MODULE$.empty();
     }
 
     protected VirtualFile getVFileAdapter() {
@@ -174,7 +164,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     @Override
     protected void tearDown() throws Exception {
-        tearDownLibraries();
-        super.tearDown();
+        try {
+            disposeLibraries();
+        } finally {
+            super.tearDown();
+        }
     }
 }

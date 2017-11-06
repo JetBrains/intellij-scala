@@ -143,7 +143,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     * Important! Do not change types of Object values, this can cause errors due to bad architecture.
     */
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
-    val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
+    val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
 
     getSimpleVariants(implicits, filterNotNamedVariants).flatMap {
       case res: ScalaResolveResult =>
@@ -182,8 +182,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     }
   } // See SCL-3092
 
-  def multiType: Array[TypeResult[ScType]] = {
-    val buffer = ArrayBuffer[TypeResult[ScType]]()
+  def multiType: Array[TypeResult] = {
+    val buffer = ArrayBuffer[TypeResult]()
     val iterator = multiResolve(incomplete = false).iterator
     while (iterator.hasNext) {
       iterator.next() match {
@@ -194,22 +194,22 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     buffer.toArray
   }
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     this.bind() match {
       case Some(srr) => convertBindToType(srr)
       case _ => resolveFailure
     }
   }
 
-  def shapeType: TypeResult[ScType] = {
+  def shapeType: TypeResult = {
     shapeResolve match {
       case Array(bind: ScalaResolveResult) if bind.isApplicable() => convertBindToType(bind)
       case _ => resolveFailure
     }
   }
 
-  def shapeMultiType: Array[TypeResult[ScType]] = {
-    val buffer = ArrayBuffer[TypeResult[ScType]]()
+  def shapeMultiType: Array[TypeResult] = {
+    val buffer = ArrayBuffer[TypeResult]()
     val iterator = shapeResolve.iterator
     while (iterator.hasNext) {
       iterator.next() match {
@@ -228,7 +228,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     }
   }
 
-  protected def convertBindToType(bind: ScalaResolveResult): TypeResult[ScType] = {
+  protected def convertBindToType(bind: ScalaResolveResult): TypeResult = {
     val fromType: Option[ScType] = bind.fromType
     val unresolvedTypeParameters: Seq[TypeParameter] = bind.unresolvedTypeParameters.getOrElse(Seq.empty)
 
@@ -244,7 +244,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             case ScAbstractType(_, lower, _) => lower
             case _ => tp
           }).isAliasType match {
-            case Some(AliasType(_, Success(lower: DesignatorOwner, _), _)) if lower.isStable =>
+            case Some(AliasType(_, Right(lower: DesignatorOwner), _)) if lower.isStable =>
               return true
             case _ =>
               tp match {
@@ -302,7 +302,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
       case ScalaResolveResult(self: ScSelfTypeElement, _) =>
         val clazz = PsiTreeUtil.getContextOfType(self, true, classOf[ScTemplateDefinition])
         ScThisReferenceImpl.getThisTypeForTypeDefinition(clazz, this) match {
-          case success: Success[ScType] => success.get
+          case Right(value) => value
           case failure => return failure
         }
       case r@ScalaResolveResult(refPatt: ScBindingPattern, s) =>
@@ -324,7 +324,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             } else {
               val result = refPatt.`type`()
               result match {
-                case Success(tp, _) => s.subst(tp)
+                case Right(tp) => s.subst(tp)
                 case _ => return result
               }
             }
@@ -337,6 +337,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
           case _: ScFunctionExpr => null
           case f => f
         }
+
         def isMethodDependent(function: ScFunction): Boolean = {
           def checkte(te: ScTypeElement): Boolean = {
             var res = false
@@ -348,6 +349,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             })
             res
           }
+
           function.returnTypeElement match {
             case Some(te) if checkte(te) => return true
             case _ =>
@@ -373,7 +375,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
               case _ =>
                 val result = param.getRealParameterType
                 s.subst(result match {
-                  case Success(tp, _) => tp
+                  case Right(tp) => tp
                   case _ => return result
                 })
             }
@@ -389,7 +391,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
         val result = param.`type`()
         val computeType = s.subst(result match {
-          case Success(tp, _) => tp
+          case Right(tp) => tp
           case _ => return result
         })
         elementScope.getCachedClass("scala.collection.Seq")
@@ -434,14 +436,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         } else {
           val result = f.`type`()
           result match {
-            case Success(tp, _) => s.subst(tp)
+            case Right(tp) => s.subst(tp)
             case _ => return result
           }
         }
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
         val result = typed.`type`()
         result match {
-          case Success(tp, _) => s.subst(tp)
+          case Right(tp) => s.subst(tp)
           case _ => return result
         }
       case ScalaResolveResult(pack: PsiPackage, _) => ScalaType.designator(pack)
@@ -517,19 +519,19 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         getContext match {
           case sugar: ScSugarCallExpr if sugar.operation == this =>
             sugar.getBaseExpr.getNonValueType() match {
-              case Success(ScTypePolymorphicType(_, typeParams), _) =>
+              case Right(ScTypePolymorphicType(_, typeParams)) =>
                 inner match {
                   case ScTypePolymorphicType(internal, typeParams2) =>
-                    return Success(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2 ++ unresolvedTypeParameters)))
+                    return Right(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2 ++ unresolvedTypeParameters)))
                   case _ =>
-                    return Success(ScTypePolymorphicType(inner, typeParams ++ unresolvedTypeParameters))
+                    return Right(ScTypePolymorphicType(inner, typeParams ++ unresolvedTypeParameters))
                 }
               case _ if unresolvedTypeParameters.nonEmpty =>
                 inner match {
                   case ScTypePolymorphicType(internal, typeParams) =>
-                    return Success(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams))
+                    return Right(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams))
                   case _ =>
-                    return Success(ScTypePolymorphicType(inner, unresolvedTypeParameters))
+                    return Right(ScTypePolymorphicType(inner, unresolvedTypeParameters))
                 }
               case _ =>
             }
@@ -537,43 +539,39 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         }
       case Some(qualifier) =>
         qualifier.getNonValueType() match {
-          case Success(ScTypePolymorphicType(_, typeParams), _) =>
+          case Right(ScTypePolymorphicType(_, typeParams)) =>
             inner match {
               case ScTypePolymorphicType(internal, typeParams2) =>
-                return Success(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2 ++ unresolvedTypeParameters)))
+                return Right(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2 ++ unresolvedTypeParameters)))
               case _ =>
-                return Success(ScTypePolymorphicType(inner, typeParams ++ unresolvedTypeParameters))
+                return Right(ScTypePolymorphicType(inner, typeParams ++ unresolvedTypeParameters))
             }
           case _ if unresolvedTypeParameters.nonEmpty =>
             inner match {
               case ScTypePolymorphicType(internal, typeParams) =>
-                return Success(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams))
+                return Right(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams))
               case _ =>
-                return Success(ScTypePolymorphicType(inner, unresolvedTypeParameters))
+                return Right(ScTypePolymorphicType(inner, unresolvedTypeParameters))
             }
           case _ =>
         }
     }
-    Success(inner)
+    Right(inner)
   }
 
   def getPrevTypeInfoParams: Seq[TypeParameter] = {
-    qualifier match {
-      case Some(_: ScSuperReference) => Seq.empty
-      case Some(qual) =>
-        qual.getNonValueType().map {
-          case t: ScTypePolymorphicType => t.typeParameters
-          case _ => Seq.empty
-        }.getOrElse(Seq.empty)
-      case _ => getContext match {
-        case sugar: ScSugarCallExpr if sugar.operation == this =>
-          sugar.getBaseExpr.getNonValueType().map {
-            case t: ScTypePolymorphicType => t.typeParameters
-            case _ => Seq.empty
-          }.getOrElse(Seq.empty)
-        case _ => Seq.empty
+    val maybeExpression = qualifier match {
+      case Some(_: ScSuperReference) => None
+      case None => getContext match {
+        case ScSugarCallExpr(baseExpression, operation, _) if operation == this => Some(baseExpression)
+        case _ => None
       }
+      case result => result
     }
+
+    maybeExpression.flatMap(_.getNonValueType().toOption).collect {
+      case ScTypePolymorphicType(_, parameters) => parameters
+    }.getOrElse(Seq.empty)
   }
 
   private def resolveFailure = Failure("Cannot resolve expression")

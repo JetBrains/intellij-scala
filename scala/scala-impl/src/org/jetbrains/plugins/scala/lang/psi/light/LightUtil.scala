@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -30,7 +29,7 @@ object LightUtil {
 
         val classes = annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
           _.`type`() match {
-            case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass match {
+            case Right(ParameterizedType(des, Seq(arg))) => des.extractClass match {
               case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
                 arg.toPsiType match {
                   case c: PsiClassType =>
@@ -48,15 +47,15 @@ object LightUtil {
         if (classes.isEmpty) {
           annotation.constructor.typeArgList match {
             case Some(args) =>
-              val classes = args.typeArgs.map(_.`type`()).filter(_.isDefined).map(_.get).flatMap {
-                _.toPsiType match {
-                  case c: PsiClassType =>
-                    c.resolve() match {
-                      case clazz: PsiClass => Seq(clazz.getQualifiedName)
-                      case _ => Seq.empty
-                    }
-                  case _ => Seq.empty
-                }
+              val classes = args.typeArgs
+                .flatMap(_.`type`().toOption)
+                .flatMap {
+                  _.toPsiType match {
+                    case c: PsiClassType => Option(c.resolve())
+                    case _ => None
+                  }
+                }.collect {
+                case c: PsiClass => c.getQualifiedName
               }
               if (classes.nonEmpty) accumulator :+ classes.mkString(sep = ", ")
               else accumulator

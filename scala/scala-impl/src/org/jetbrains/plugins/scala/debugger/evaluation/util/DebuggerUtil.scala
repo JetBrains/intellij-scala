@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, Sca
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotations, ScExpression, ScForStatement, ScNewTemplateDefinition}
@@ -26,18 +26,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ValueClassType}
-
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.reflect.NameTransformer
+
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 
 /**
  * User: Alefas
  * Date: 19.10.11
  */
 object DebuggerUtil {
+  val packageSuffix = ".package$"
+
   class JVMNameBuffer {
     def append(evaluator: JVMName) {
       buffer += evaluator
@@ -535,15 +540,14 @@ object DebuggerUtil {
   }
 
   @tailrec
-  def isLocalClass(td: PsiClass): Boolean = {
-    td.getParent match {
-      case _: ScTemplateBody =>
-        val parent = PsiTreeUtil.getParentOfType(td, classOf[PsiClass], true)
-        if (parent == null || parent.isInstanceOf[ScNewTemplateDefinition]) return true
-        isLocalClass(parent)
-      case _: ScPackaging | _: ScalaFile => false
-      case _ => true
-    }
+  def isLocalClass(td: PsiClass): Boolean = td.getParent match {
+    case _: ScTemplateBody =>
+      td.parentOfType(classOf[PsiClass]) match {
+        case Some(_: ScNewTemplateDefinition) | None => true
+        case Some(clazz) => isLocalClass(clazz)
+      }
+    case _: ScPackaging | _: ScalaFile => false
+    case _ => true
   }
 
   def getContainingMethod(elem: PsiElement): Option[PsiElement] = {
@@ -575,5 +579,37 @@ object DebuggerUtil {
         firstSignificant.getOrElse(elem)
       case _ => elem
     }
+  }
+
+  def findClassByQName(qName: String, isScalaObject: Boolean)(implicit elementScope: ElementScope): Option[PsiClass] = {
+    val project = elementScope.project
+
+    val cacheManager = ScalaShortNamesCacheManager.getInstance(project)
+    val classes =
+      if (qName.endsWith(packageSuffix))
+        Option(cacheManager.getPackageObjectByName(qName.stripSuffix(packageSuffix), elementScope.scope)).toSeq
+      else
+        cacheManager.getClassesByFQName(qName.replace(packageSuffix, "."), elementScope.scope)
+
+    val clazz =
+      if (classes.length == 1) classes.headOption
+      else if (classes.length >= 2) {
+        if (isScalaObject) classes.find(_.isInstanceOf[ScObject])
+        else classes.find(!_.isInstanceOf[ScObject])
+      }
+      else None
+    clazz.filter(_.isValid)
+  }
+
+  def findPsiClassByQName(refType: ReferenceType)(implicit elementScope: ElementScope): Option[PsiClass] = {
+    val originalQName = NameTransformer.decode(refType.name)
+    val endsWithPackageSuffix = originalQName.endsWith(packageSuffix)
+    val withoutSuffix =
+      if (endsWithPackageSuffix) originalQName.stripSuffix(packageSuffix)
+      else originalQName.stripSuffix("$").stripSuffix("$class")
+    val withDots = withoutSuffix.replace(packageSuffix, ".").replace('$', '.')
+    val transformed = if (endsWithPackageSuffix) withDots + packageSuffix else withDots
+
+    findClassByQName(transformed, originalQName.endsWith("$"))
   }
 }

@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScC
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.{IntentionAvailabilityChecker, SideEffectsUtil}
 
 /**
@@ -63,7 +64,7 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
     }
     def isInReturnPositionForUnitFunction: Boolean = {
       Option(PsiTreeUtil.getParentOfType(expr, classOf[ScFunctionDefinition])) match {
-        case Some(fun) if fun.returnType.exists(_.isUnit) => fun.returnUsages().contains(expr)
+        case Some(fun) if fun.returnType.exists(_.isUnit) => fun.returnUsages(expr)
         case _ => false
       }
     }

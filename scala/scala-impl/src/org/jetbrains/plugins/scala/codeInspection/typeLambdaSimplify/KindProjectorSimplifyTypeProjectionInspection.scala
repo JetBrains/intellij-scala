@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * Author: Svyatoslav Ilinskiy
@@ -63,7 +63,7 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
       }
 
       alias.aliasedType match {
-        case Success(paramType: ScParameterizedType, _) =>
+        case Right(paramType: ScParameterizedType) =>
           val typeParam: Seq[ScTypeParam] = alias.typeParameters
           val valid =
             typeParam.nonEmpty &&

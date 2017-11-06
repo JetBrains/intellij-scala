@@ -5,12 +5,11 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 
 /**
 * @author ilyas
 */
-class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock {
+class ScBlockImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScBlock {
   override def toString: String = "BlockOfExpressions"
 }

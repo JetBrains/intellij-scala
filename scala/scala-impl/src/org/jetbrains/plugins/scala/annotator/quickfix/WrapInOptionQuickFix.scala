@@ -8,15 +8,15 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
  * Nikolay.Tropin
  * 6/27/13
  */
-class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult[ScType], exprType: TypeResult[ScType]) extends IntentionAction {
+class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult, exprType: TypeResult) extends IntentionAction {
 
   override def getText: String = ScalaBundle.message("wrap.in.option.hint")
 
@@ -39,7 +39,7 @@ class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult[ScType],
 
 object WrapInOptionQuickFix {
 
-  def isAvailable(expr: ScExpression, expectedType: TypeResult[ScType], exprType: TypeResult[ScType]): Boolean = {
+  def isAvailable(expr: ScExpression, expectedType: TypeResult, exprType: TypeResult): Boolean = {
     var result = false
     for {
       scType <- exprType

@@ -10,9 +10,11 @@ import com.intellij.execution.process.{OSProcessHandler, ProcessHandler}
 import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory
 import com.intellij.execution.ui.layout.PlaceInGrid
 import com.intellij.execution.ui.{RunContentDescriptor, RunnerLayoutUi}
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
 import com.intellij.ui.content.{Content, ContentFactory}
 import com.pty4j.{PtyProcess, WinSize}
@@ -26,13 +28,17 @@ import scala.collection.JavaConverters._
   * Created by jast on 2016-5-29.
   */
 class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Option[RemoteConnection])
-  extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath) {
+  extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath)
+  with Disposable
+{
 
   private val toolWindowTitle = project.getName
 
   private lazy val myConsoleView: LanguageConsoleImpl =
     ShellUIUtil.inUIsync {
-      SbtShellConsoleView(project, debugConnection)
+      val cv = SbtShellConsoleView(project, debugConnection)
+      Disposer.register(this, cv)
+      cv
     }
 
   // lazy so that getProcessHandler will return something initialized when this is first accessed
@@ -88,9 +94,8 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
         whenReady = scrollToEnd(),
         whenWorking = scrollToEnd()
       )
-      val processManager = SbtProcessManager.forProject(project)
-      processManager.attachListener(shellPromptChanger)
-      processManager.attachListener(scrollOnStateChange)
+      myProcessHandler.addProcessListener(shellPromptChanger)
+      myProcessHandler.addProcessListener(scrollOnStateChange)
       SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
 
       if (!SbtRunner.isInTest) {
@@ -134,13 +139,13 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       toolWindow.getContentManager.setSelectedContent(content, focus)
   }
 
-  def addToolWindowContent(@NotNull toolWindow: ToolWindow, @NotNull content: Content): Unit = {
+  private def addToolWindowContent(@NotNull toolWindow: ToolWindow, @NotNull content: Content): Unit = {
     val twContentManager = toolWindow.getContentManager
     twContentManager.removeAllContents(true)
     twContentManager.addContent(content)
   }
 
-  def createToolWindowContent: Content = {
+  private def createToolWindowContent: Content = {
     //Create runner UI layout
     val factory = RunnerLayoutUi.Factory.getInstance(project)
     val layoutUi = factory.create("sbt-shell-toolwindow-runner", "", "session", project)
@@ -162,6 +167,8 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
     content
   }
 
+  override def dispose(): Unit = {}
+
   object SbtShellRootType extends ConsoleRootType("sbt.shell", getConsoleTitle)
 
   class SbtShellExecuteActionHandler(processHandler: ProcessHandler)
@@ -176,4 +183,3 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
     }
   }
 }
-

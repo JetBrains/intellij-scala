@@ -6,7 +6,7 @@ import com.intellij.psi.impl.light.LightElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * @author Alefas
@@ -32,7 +32,7 @@ class ScLightFieldId(rt: ScType, val f: ScFieldId)
   override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T =
     throw new UnsupportedOperationException("Operation on light element")
 
-  override def `type`(): TypeResult[ScType] = Success(rt)
+  override def `type`(): TypeResult = Right(rt)
 
   override def getParent: PsiElement = f.getParent //to find right context
 }

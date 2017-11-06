@@ -5,7 +5,6 @@ package api
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /** 
@@ -18,5 +17,5 @@ trait ScAnnotTypeElement extends ScTypeElement {
 
   def typeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  protected def innerType: TypeResult[ScType] = typeElement.`type`()
+  protected def innerType: TypeResult = typeElement.`type`()
 }

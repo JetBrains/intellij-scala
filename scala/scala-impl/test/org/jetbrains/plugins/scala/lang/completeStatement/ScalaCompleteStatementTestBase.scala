@@ -32,7 +32,7 @@ abstract class ScalaCompleteStatementTestBase extends ScalaLightCodeInsightFixtu
     getCurrentCodeStyleSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
   }
 
-  override protected def tearDown(): Unit = {
+  override def tearDown(): Unit = {
     getCurrentCodeStyleSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = false
 
     super.tearDown()

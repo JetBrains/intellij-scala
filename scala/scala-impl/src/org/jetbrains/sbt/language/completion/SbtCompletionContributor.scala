@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -53,7 +53,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
       def extractSeqType: Option[ScType] = {
         if (operator.getText != "+=") return None
         operator.`type`() match {
-          case Success(ParameterizedType(_, typeArgs), _) =>
+          case Right(ParameterizedType(_, typeArgs)) =>
             typeArgs.last match {
               case ParameterizedType(settingType, Seq(seqFullType)) if qualifiedName(settingType) == "sbt.Init.Setting" =>
                 val collectionTypeNames = Seq("scala.collection.Seq", "scala.collection.immutable.Set")
