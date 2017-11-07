@@ -1273,6 +1273,11 @@
                          displayName="Change to filter" groupPath="Scala,Collections" groupName="Options"
                          shortName="IfElseToFilterdOption" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SomeToOptionInspection"
+                         displayName="Some to Option" groupPath="Scala,Collections" groupName="Options"
+                         shortName="SomeToOption" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+
         <!--other-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
                          displayName="Filter after sort" groupPath="Scala,Collections" groupName="Other"
