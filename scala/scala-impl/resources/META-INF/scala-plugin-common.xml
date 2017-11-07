@@ -642,6 +642,11 @@
         </intentionAction>
 
         <intentionAction>
+          <category>Scala/Expressions</category>
+          <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.OptionWithLiteralToSomeIntention</className>
+        </intentionAction>
+
+        <intentionAction>
             <category>Scala/Boolean</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.FlipComparisonInInfixExprIntention</className>
         </intentionAction>
@@ -1267,10 +1272,6 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.IfElseToFilteredOptionInspection"
                          displayName="Change to filter" groupPath="Scala,Collections" groupName="Options"
                          shortName="IfElseToFilterdOption" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OptionWithConstantInspection"
-                         displayName="Option with constant to Some" groupPath="Scala,Collections" groupName="Options"
-                         shortName="OptionWithConstant" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <!--other-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
