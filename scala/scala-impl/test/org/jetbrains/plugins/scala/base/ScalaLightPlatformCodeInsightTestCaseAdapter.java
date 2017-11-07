@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.base;
 
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -26,7 +25,6 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 import scala.collection.Seq;
 import scala.collection.immutable.Vector$;
 import scala.collection.mutable.Buffer;
-import scala.collection.mutable.Buffer$;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -93,15 +91,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     @NotNull
     @Override
     protected LightProjectDescriptor getProjectDescriptor() {
-        return new DelegatingProjectDescriptor(super.getProjectDescriptor()) {
-            @Override
-            public void setUpProject(Project project, SetupHandler handler) {
-                super.setUpProject(project, handler);
-                WriteAction.run(() -> {
-                    afterSetUpProject();
-                });
-            }
-        };
+        return DelegatingProjectDescriptor.withAfterSetupProject(super.getProjectDescriptor(), this::afterSetUpProject);
     }
 
     protected void afterSetUpProject() {
