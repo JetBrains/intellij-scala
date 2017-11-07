@@ -152,7 +152,7 @@ object DependencyGroups {
   val runners = Seq(
     "org.specs2" %% "specs2" % "2.3.11" % "provided"  excludeAll ExclusionRule(organization = "org.ow2.asm"),
     "org.scalatest" % "scalatest_2.11" % "2.2.1" % "provided",
-    "com.lihaoyi" %% "utest" % "0.3.1" % "provided"
+    "com.lihaoyi" %% "utest" % "0.5.4" % "provided"
   )
 
   val sbtLaunchTestDownloader: Seq[ModuleID] =
@@ -172,6 +172,7 @@ object DependencyGroups {
     "com.lihaoyi" % "utest_2.10" % "0.3.1" % "provided",
     "com.lihaoyi" % "utest_2.11" % "0.4.3" % "provided",
     "com.lihaoyi" % "utest_2.10" % "0.4.3" % "provided",
+    "com.lihaoyi" % "utest_2.11" % "0.5.4" % "provided",
     "org.scalaz" % "scalaz-core_2.11" % "7.1.0",
     "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0",
     "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.5",

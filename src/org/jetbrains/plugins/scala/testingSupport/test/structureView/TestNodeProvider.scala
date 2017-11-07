@@ -441,7 +441,7 @@ object TestNodeProvider {
           processChildren(getInnerExprs(expr), extractUTestInner, project)))
       } else None
     }
-    if (isUTestSuiteApplyCall(expr)) {
+    if (isUTestSuiteApplyCall(expr) || isUTestTestsCall(expr)) {
       import scala.collection.JavaConversions._
       expr.args.findFirstChildByType(ScalaElementTypes.BLOCK_EXPR) match {
         case blockExpr: ScBlockExpr => (for (methodExpr <- blockExpr.children if methodExpr.isInstanceOf[ScInfixExpr] || methodExpr.isInstanceOf[ScMethodCall])
@@ -469,6 +469,11 @@ object TestNodeProvider {
           checkClauses(funDef.getParameterList.clauses, List("scala.Symbol"))
         }
       }
+    case _ => false
+  }
+
+  def isUTestTestsCall(psiElement: PsiElement): Boolean = psiElement match {
+    case methodCall: ScMethodCall => checkScMethodCallApply(methodCall, "Tests", List("void"))
     case _ => false
   }
 
@@ -513,7 +518,8 @@ object TestNodeProvider {
           tuple.exprs(index)
         case _ => null
       }) match {
-        case suite: ScMethodCall if TestNodeProvider.isUTestSuiteApplyCall(suite) => Some(suite) //getTestSuiteName(suite).orNull
+        case suite: ScMethodCall if TestNodeProvider.isUTestSuiteApplyCall(suite) ||
+          TestNodeProvider.isUTestTestsCall(suite) => Some(suite) //getTestSuiteName(suite).orNull
         case _ => None
       }
     case _ => None

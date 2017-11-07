@@ -52,6 +52,10 @@ public class UTestPath {
     return new UTestPath(qualifiedClassName);
   }
 
+  public UTestPath getMethodPath() {
+    return new UTestPath(qualifiedClassName, new LinkedList<String>(), method);
+  }
+
   public UTestPath parent() {
     if (path.isEmpty() && method == null) {
       return null;
