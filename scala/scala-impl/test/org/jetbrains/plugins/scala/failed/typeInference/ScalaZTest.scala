@@ -13,7 +13,7 @@ import org.junit.experimental.categories.Category
 class ScalaZTest extends TypeInferenceTestBase {
 
   override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
-    Seq(ScalaZCoreLoader()(module))
+    Seq(ScalaZCoreLoader())
 
   def testSCL5706(): Unit = {
     doTest(

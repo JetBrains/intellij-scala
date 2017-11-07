@@ -72,15 +72,14 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     @Override
     public Seq<LibraryLoader> librariesLoaders() {
-        Module module = module();
         ArrayList<LibraryLoader> back = new ArrayList<>();
 
-        ScalaLibraryLoader scalaLoader = new ScalaLibraryLoader(isIncludeReflectLibrary(), module);
+        ScalaLibraryLoader scalaLoader = new ScalaLibraryLoader(isIncludeReflectLibrary());
         back.add(scalaLoader);
 
         String path = rootPath();
         if (path != null) {
-            back.add(new SourcesLoader(path, module));
+            back.add(new SourcesLoader(path));
         }
 
         Buffer<LibraryLoader> result = scala.collection.JavaConverters.asScalaBuffer(back);

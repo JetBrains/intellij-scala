@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 abstract class Scalatest2_11_2_2_1_Base extends ScalaTestTestCase {
 
   override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = {
-    implicit val module: Module = getModule
     Seq(ScalaTestLoader("2.2.1", IvyLibraryLoader.Bundles), ScalaXmlLoader())
   }
 }

@@ -29,7 +29,7 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
 
   override implicit protected def module: Module = getModule
 
-  override protected lazy val librariesLoaders: Seq[LibraryLoader] = Seq(
+  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaLibraryLoader(isIncludeReflectLibrary = true),
     JdkLoader(getTestProjectJdk),
     SourcesLoader(project.getBasePath),
@@ -65,7 +65,7 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
 
 object LibraryInjectorTest {
 
-  case class InjectorLibraryLoader()(implicit val module: Module) extends ThirdPartyLibraryLoader {
+  case class InjectorLibraryLoader() extends ThirdPartyLibraryLoader {
     override protected val name: String = "injector"
 
     override protected def path(implicit sdkVersion: ScalaVersion): String = {

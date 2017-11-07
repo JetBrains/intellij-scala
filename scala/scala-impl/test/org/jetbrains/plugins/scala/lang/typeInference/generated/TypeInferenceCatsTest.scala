@@ -12,7 +12,7 @@ import org.junit.experimental.categories.Category
 class TypeInferenceCatsTest extends TypeInferenceTestBase {
 
   override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
-    Seq(CatsLoader()(module))
+    Seq(CatsLoader())
 
   override protected def folderPath: String = super.folderPath + "cats/"
 

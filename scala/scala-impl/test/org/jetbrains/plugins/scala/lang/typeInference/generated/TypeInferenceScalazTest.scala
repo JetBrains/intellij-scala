@@ -15,7 +15,7 @@ class TypeInferenceScalazTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "scalaz/"
 
   override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
-    Seq(ScalaZCoreLoader()(module))
+    Seq(ScalaZCoreLoader())
 
   def testSCL3819() {
     doTest()

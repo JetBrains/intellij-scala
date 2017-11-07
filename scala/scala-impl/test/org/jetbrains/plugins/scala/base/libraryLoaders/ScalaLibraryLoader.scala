@@ -19,18 +19,17 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import scala.collection.JavaConverters._
 
 case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
-                             (implicit val module: Module)
   extends LibraryLoader {
 
   import ScalaLibraryLoader._
 
   private var library: Library = _
 
-  def init(implicit version: ScalaVersion): Unit = {
+  def init(implicit module: Module, version: ScalaVersion) = {
     addScalaSdk
   }
 
-  override def dispose(): Unit = {
+  override def clean(implicit module: Module): Unit = {
     if (library != null) {
       inWriteAction {
         module.detach(library)
@@ -39,7 +38,7 @@ case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
     }
   }
 
-  private def addScalaSdk(implicit version: ScalaVersion): Unit = {
+  private def addScalaSdk(implicit module: Module, version: ScalaVersion): Unit = {
     val loaders = Seq(ScalaCompilerLoader(), ScalaRuntimeLoader()) ++
       (if (isIncludeReflectLibrary) Seq(ScalaReflectLoader()) else Seq.empty)
 
@@ -68,8 +67,7 @@ object ScalaLibraryLoader {
 
   ScalaLoader.loadScala()
 
-  abstract class ScalaLibraryLoaderAdapter(implicit module: Module)
-    extends IvyLibraryLoader {
+  abstract class ScalaLibraryLoaderAdapter extends IvyLibraryLoader {
 
     override val vendor: String = "org.scala-lang"
 
@@ -80,7 +78,7 @@ object ScalaLibraryLoader {
       Option(fileSystem.refreshAndFindFileByPath(s"$path!/")).toSeq
     }
 
-    override def init(implicit version: ScalaVersion): Unit = ()
+    override def init(implicit module: Module, version: ScalaVersion): Unit = ()
 
     override def folder(implicit version: ScalaVersion): String =
       name
@@ -89,14 +87,12 @@ object ScalaLibraryLoader {
       s"$name-${version.minor}"
   }
 
-  case class ScalaCompilerLoader()(implicit val module: Module)
-    extends ScalaLibraryLoaderAdapter {
+  case class ScalaCompilerLoader() extends ScalaLibraryLoaderAdapter {
 
     override val name: String = "scala-compiler"
   }
 
   case class ScalaRuntimeLoader(override val ivyType: IvyType = Jars)
-                               (implicit val module: Module)
     extends ScalaLibraryLoaderAdapter {
 
     override val name: String = "scala-library"
@@ -110,18 +106,16 @@ object ScalaLibraryLoader {
     }
   }
 
-  case class ScalaReflectLoader()(implicit val module: Module)
-    extends ScalaLibraryLoaderAdapter {
+  case class ScalaReflectLoader() extends ScalaLibraryLoaderAdapter {
 
     override val name: String = "scala-reflect"
   }
 
 }
 
-case class JdkLoader(jdk: Sdk = TestUtils.createJdk())
-                    (implicit val module: Module) extends LibraryLoader {
+case class JdkLoader(jdk: Sdk = TestUtils.createJdk()) extends LibraryLoader {
 
-  override def init(implicit version: ScalaVersion): Unit = {
+  override def init(implicit module: Module, version: ScalaVersion): Unit = {
     val model = module.modifiableModel
     model.setSdk(jdk)
     inWriteAction {
@@ -129,7 +123,7 @@ case class JdkLoader(jdk: Sdk = TestUtils.createJdk())
     }
   }
 
-  override def dispose(): Unit = {
+  override def clean(implicit module: Module): Unit = {
     val model = module.modifiableModel
     model.setSdk(null)
     inWriteAction {

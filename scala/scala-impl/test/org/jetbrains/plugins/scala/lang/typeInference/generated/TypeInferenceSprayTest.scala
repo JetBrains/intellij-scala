@@ -14,7 +14,7 @@ class TypeInferenceSprayTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "spray/"
 
   override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
-    Seq(SprayLoader()(module))
+    Seq(SprayLoader())
 
   def testSCL8274(): Unit = doTest()
 }

@@ -12,7 +12,7 @@ import org.junit.experimental.categories.Category
 class ScalazTest extends FailedResolveTest("scalaz") {
 
   override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
-    Seq(ScalaZCoreLoader()(module))
+    Seq(ScalaZCoreLoader())
 
   def testSCL7213(): Unit = doTest()
 

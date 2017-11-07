@@ -44,7 +44,7 @@ class AdjustTypesTests extends AdjustTypesTestBase {
 class AdjustCatsTypeTest extends AdjustTypesTestBase {
 
   override protected def additionalLibraries(): Seq[CatsLoader] =
-    Seq(CatsLoader()(module))
+    Seq(CatsLoader())
 
   def testSCL10006(): Unit = doTest()
 }

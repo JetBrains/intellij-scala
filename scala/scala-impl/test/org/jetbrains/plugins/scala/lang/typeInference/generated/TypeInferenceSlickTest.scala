@@ -15,7 +15,7 @@ class TypeInferenceSlickTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "slick/"
 
   override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
-    Seq(SlickLoader()(module))
+    Seq(SlickLoader())
 
   def testSCL9261(): Unit = doTest()
 

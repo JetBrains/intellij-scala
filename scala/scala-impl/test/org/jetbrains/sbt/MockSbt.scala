@@ -91,8 +91,8 @@ trait MockSbt_1_0 extends MockSbtBase {
     scalaLoaders ++
       sbt_1_0_modules.map(sbtLoader) ++
       sbt_1_0_modules_cross.map(sbtLoader_cross) ++
-      util_cross.map(sbtLoader_cross(_)(utilVersion,module)) ++
-      lm_cross.map(sbtLoader_cross(_)(lmVersion,module)) ++
+      util_cross.map(sbtLoader_cross(_)(utilVersion)) ++
+      lm_cross.map(sbtLoader_cross(_)(lmVersion)) ++
       Seq(compilerInterfaceLoader, ioLoader, utilInterfaceLoader)
 }
 
@@ -105,7 +105,7 @@ private[sbt] object MockSbt {
     VfsUtil.getUrlForLibraryRoot(file)
   }
 
-  abstract class SbtBaseLoader(implicit val version: String, val module: Module) extends ScalaLibraryLoaderAdapter {
+  abstract class SbtBaseLoader(implicit val version: String) extends ScalaLibraryLoaderAdapter {
     override val vendor: String = "org.scala-sbt"
 
     override def fileName(implicit version: ScalaVersion): String =
@@ -113,16 +113,16 @@ private[sbt] object MockSbt {
   }
 
   /** Loads library with cross-versioning. */
-  abstract class SbtBaseLoader_Cross(implicit val version: String, val module: Module) extends IvyLibraryLoaderAdapter {
+  abstract class SbtBaseLoader_Cross(implicit val version: String) extends IvyLibraryLoaderAdapter {
     override val vendor: String = "org.scala-sbt"
   }
 
-  def sbtLoader(libraryName: String)(implicit version: String, module: Module): SbtBaseLoader =
+  def sbtLoader(libraryName: String)(implicit version: String): SbtBaseLoader =
     new SbtBaseLoader() {
       override val name: String = libraryName
     }
 
-  def sbtLoader_cross(libraryName: String)(implicit version: String, module: Module): SbtBaseLoader_Cross =
+  def sbtLoader_cross(libraryName: String)(implicit version: String): SbtBaseLoader_Cross =
     new SbtBaseLoader_Cross() {
       override val name: String = libraryName
     }
