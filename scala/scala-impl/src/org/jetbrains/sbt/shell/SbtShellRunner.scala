@@ -12,6 +12,7 @@ import com.intellij.execution.ui.layout.PlaceInGrid
 import com.intellij.execution.ui.{RunContentDescriptor, RunnerLayoutUi}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -19,11 +20,10 @@ import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
 import com.intellij.ui.content.{Content, ContentFactory}
 import com.pty4j.{PtyProcess, WinSize}
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.sbt.project.structure.SbtRunner
 import org.jetbrains.annotations.NotNull
 
 import scala.collection.JavaConverters._
-
+import SbtShellRunner._
 /**
   * Created by jast on 2016-5-29.
   */
@@ -58,7 +58,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
   //don't init UI for unit tests
   override def createContentDescriptorAndActions(): Unit =
-    if (!SbtRunner.isInTest) super.createContentDescriptorAndActions()
+    if (notInTest) super.createContentDescriptorAndActions()
 
   override def initAndRun(): Unit = {
     super.initAndRun()
@@ -68,7 +68,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       // on Windows the terminal defaults to 80 columns which wraps and breaks highlighting.
       // Use a wider value that should be reasonable in most cases. Has no effect on Unix.
       // TODO perhaps determine actual width of window and adapt accordingly
-      if (!SbtRunner.isInTest) {
+      if (notInTest) {
         myProcessHandler.getProcess match {
           case proc: PtyProcess => proc.setWinSize(new WinSize(2000, 100))
         }
@@ -80,8 +80,8 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
       // TODO update icon with ready/working state
       val shellPromptChanger = new SbtShellReadyListener(
-        whenReady = if (!SbtRunner.isInTest) myConsoleView.setPrompt(">"),
-        whenWorking = if (!SbtRunner.isInTest) myConsoleView.setPrompt("(busy) >")
+        whenReady = if (notInTest) myConsoleView.setPrompt(">"),
+        whenWorking = if (notInTest) myConsoleView.setPrompt("(busy) >")
       )
 
       def scrollToEnd(): Unit = inUI {
@@ -98,7 +98,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       myProcessHandler.addProcessListener(scrollOnStateChange)
       SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
 
-      if (!SbtRunner.isInTest) {
+      if (notInTest) {
         val twm = ToolWindowManager.getInstance(project)
         val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
         val content = createToolWindowContent
@@ -182,4 +182,8 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       super.execute(text, console)
     }
   }
+}
+
+object SbtShellRunner {
+  private def notInTest = ! ApplicationManager.getApplication.isUnitTestMode
 }

@@ -1,9 +1,10 @@
 package org.jetbrains.sbt
 package project
 
-import java.io.File
+import java.io.{File, FileNotFoundException}
 import java.util.UUID
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.project.{ProjectData => ESProjectData, _}
 import com.intellij.openapi.externalSystem.model.task.event._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
@@ -13,73 +14,112 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.sbt.SbtUtil.{binaryVersion, detectSbtVersion}
 import org.jetbrains.sbt.project.SbtProjectResolver._
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
+import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.structure.ProjectData
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.{structure => sbtStructure}
-import scala.collection.JavaConverters._
 
-import scala.util.{Failure, Success}
+import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
+import scala.xml.{Elem, XML}
 
 /**
  * @author Pavel Fatin
  */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] with ExternalSourceRootResolution {
 
-  //noinspection ConvertNullInitializerToUnderscore
-  private var myRunner: Option[SbtRunner] = None
+  @volatile private var processDumper: Option[SbtProcessDump] = None
 
-  protected var taskListener: TaskListener = SilentTaskListener
-
-  override def resolveProjectInfo(id: ExternalSystemTaskId,
-                         wrongProjectPathDontUseIt: String,
-                         isPreview: Boolean,
-                         settings: SbtExecutionSettings,
-                         listener: ExternalSystemTaskNotificationListener): DataNode[ESProjectData] = {
-
-    taskListener = new ExternalTaskListener(listener, id)
+  override def resolveProjectInfo(taskId: ExternalSystemTaskId,
+                                  wrongProjectPathDontUseIt: String,
+                                  isPreview: Boolean,
+                                  settings: SbtExecutionSettings,
+                                  listener: ExternalSystemTaskNotificationListener): DataNode[ESProjectData] = {
 
     val root = {
       val file = new File(settings.realProjectPath)
-      if (file.isDirectory) file.getPath else file.getParent
+      if (file.isDirectory) file else file.getParentFile
     }
 
     val options = if (isPreview) Seq.empty else dumpOptions(!isPreview, settings)
 
-    val runner = new SbtRunner(settings.vmExecutable, settings.vmOptions, settings.environment,
-      settings.customLauncher, settings.customSbtStructureFile, id, listener)
-    myRunner = Option(runner)
-
-    val results = runner.read(new File(root), options, importFromShell = settings.useShellForImport)
+    val sbtLauncher = settings.customLauncher.getOrElse(getDefaultLauncher)
+    val sbtVersion = Version(detectSbtVersion(root, sbtLauncher))
+    lazy val project = taskId.findProject()
+    val useShellImport = settings.useShellForImport && shellImportSupported(sbtVersion) && project != null
 
     val importTaskId = s"import:${UUID.randomUUID()}"
     val importTaskDescriptor =
       new TaskOperationDescriptorImpl("import to IntelliJ project model", System.currentTimeMillis(), "project-model-import")
 
+    val structureDump: Try[(Elem, String)] =
+      if (!sbtLauncher.isFile) {
+        val error = s"sbt launcher not found at ${sbtLauncher.getCanonicalPath}"
+        Failure(new FileNotFoundException(error))
+      } else if (!importSupported(sbtVersion)) {
+        val message = s"sbt $sinceSbtVersion+ required. Please update project build.properties."
+        Failure(new UnsupportedOperationException(message))
+      }
+      else usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
+        val structureFilePath = path(structureFile)
+        val launcherDir = getSbtLauncherDir
+        val sbtStructureVersion = binaryVersion(sbtVersion).major(2).presentation
+
+        val messageResult: Try[String] = {
+          if (useShellImport) {
+            val shell = SbtShellCommunication.forProject(project)
+            SbtShellDump.dumpFromShell(taskId, root, shell, structureFilePath, options, listener)
+          }
+          else {
+            val sbtStructureJar = settings.customSbtStructureFile.getOrElse(launcherDir / s"sbt-structure-$sbtStructureVersion.jar")
+            val structureFilePath = path(structureFile)
+            val dumper = new SbtProcessDump()
+            processDumper = Option(dumper)
+            dumper.dumpFromProcess(
+              root, structureFilePath, options,
+              settings.vmExecutable, settings.vmOptions, settings.environment,
+              sbtLauncher, sbtStructureJar, taskId, listener)
+          }
+        }
+        processDumper = None
+
+        messageResult.flatMap { messages =>
+          if (structureFile.length > 0) Try {
+            val elem = XML.load(structureFile.toURI.toURL)
+            (elem, messages)
+          }
+          else Failure(SbtException.fromSbtLog(messages))
+        }
+      }
+
 
     // side-effecty status reporting
-    results.foreach { case (_, messages) =>
+    // TODO move to dump process for real-time feedback
+    structureDump.foreach { case (_, messages) =>
       val convertStartEvent = new ExternalSystemStartEventImpl(importTaskId, null, importTaskDescriptor)
-      val event = new ExternalSystemTaskExecutionEvent(id, convertStartEvent)
+      val event = new ExternalSystemTaskExecutionEvent(taskId, convertStartEvent)
       listener.onStatusChange(event)
 
       val warnings = messages.lines.filter(isWarningOrError)
       if (warnings.nonEmpty)
-        listener.onTaskOutput(id, WarningMessage(warnings.mkString(System.lineSeparator)), false)
+        listener.onTaskOutput(taskId, WarningMessage(warnings.mkString(System.lineSeparator)), false)
     }
 
-    val conversionResult = results
+    val conversionResult = structureDump
       .map { case (elem, _) =>
         val data = elem.deserialize[sbtStructure.StructureData].right.get
-        convert(root, data, settings.jdk).toDataNode
+        val warningsCallback: String=>Unit = msg => listener.onTaskOutput(taskId, msg, false) // TODO build-toolwindow compatible callback
+        convert(path(root), data, settings.jdk, warningsCallback).toDataNode
       }
       .recoverWith {
-        case SbtRunner.ImportCancelledException =>
+        case ImportCancelledException =>
           // sorry, ExternalSystem expects a null when resolving is not possible
           Success(null)
         case x: Exception =>
@@ -98,7 +138,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val convertFinishedEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
         importTaskId, null, importTaskDescriptor, result
       )
-      val event = new ExternalSystemTaskExecutionEvent(id, convertFinishedEvent)
+      val event = new ExternalSystemTaskExecutionEvent(taskId, convertFinishedEvent)
       listener.onStatusChange(event)
     }
 
@@ -116,7 +156,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def isWarningOrError(message: String) =
     message.startsWith("[error] ") || message.startsWith("[warn] ")
 
-  private def convert(root: String, data: sbtStructure.StructureData, settingsJdk: Option[String]): Node[ESProjectData] = {
+  private def convert(root: String,
+                      data: sbtStructure.StructureData,
+                      settingsJdk: Option[String],
+                      warnings: String => Unit): Node[ESProjectData] = {
     val projects: Seq[sbtStructure.ProjectData] = data.projects
     val rootProject: sbtStructure.ProjectData =
       projects.find(p => FileUtil.filesEqual(p.base, new File(root)))
@@ -143,7 +186,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode.addAll(moduleNodes)
 
     val projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode] = projects.zip(moduleNodes).toMap
-    val sharedSourceModules = createSharedSourceModules(projectToModuleNode, libraryNodes, moduleFilesDirectory)
+
+    val sharedSourceModules = createSharedSourceModules(projectToModuleNode, libraryNodes, moduleFilesDirectory, warnings)
     projectNode.addAll(sharedSourceModules)
 
     val buildModuleForProject: (ProjectData) => ModuleNode = createBuildModule(_, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath))
@@ -494,25 +538,58 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       DependencyScope.COMPILE
   }
 
-  def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean =
-    myRunner.exists { r => r.cancel(); true }
+  override def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean =
+    //noinspection UnitInMap
+    processDumper
+      .map(_.cancel())
+      .isDefined
+
 }
 
 object SbtProjectResolver {
-  trait TaskListener {
-    def onTaskOutput(message: String, stdOut: Boolean): Unit
+
+
+  case object ImportCancelledException extends Exception
+
+  val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
+
+  private def isInTest: Boolean = ApplicationManager.getApplication.isUnitTestMode
+
+  // TODO shared code, move to a more suitable object
+  def getSbtLauncherDir: File = {
+    val file: File = jarWith[this.type]
+    val deep = if (file.getName == "classes") 1 else 2
+    val res = (file << deep) / "launcher"
+    if (!res.exists() && isInTest) {
+      val start = jarWith[this.type].parent
+      start.flatMap(findLauncherDir)
+        .getOrElse(throw new RuntimeException(s"could not find sbt launcher dir at or above ${start.get}"))
+    }
+    else res
   }
 
-  object SilentTaskListener extends TaskListener {
-    override def onTaskOutput(message: String, stdOut: Boolean): Unit = {}
+  // TODO shared code, move to a more suitable object
+  def getDefaultLauncher: File = getSbtLauncherDir / "sbt-launch.jar"
+
+  // TODO shared code, move to a more suitable object
+  def path(file: File): String = file.getAbsolutePath.replace('\\', '/')
+
+  def shellImportSupported(sbtVersion: Version): Boolean =
+    sbtVersion >= sinceSbtVersionShell
+
+  def importSupported(sbtVersion: Version): Boolean =
+    sbtVersion >= sinceSbtVersion
+
+  private def findLauncherDir(from: File): Option[File] = {
+    val launcherDir = from / "target" / "plugin" / "Scala" / "launcher"
+    if (launcherDir.exists) Option(launcherDir)
+    else from.parent.flatMap(findLauncherDir)
   }
 
-  class ExternalTaskListener(
-    val listener: ExternalSystemTaskNotificationListener,
-    val taskId: ExternalSystemTaskId)
-      extends TaskListener {
-    def onTaskOutput(message: String, stdOut: Boolean): Unit =
-      listener.onTaskOutput(taskId, message, stdOut)
-  }
+  // TODO shared code, move to a more suitable object
+  val sinceSbtVersion = Version("0.12.4")
+
+  // TODO shared code, move to a more suitable object
+  val sinceSbtVersionShell = Version("0.13.5")
 
 }
