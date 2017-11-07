@@ -18,7 +18,7 @@ import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.util.text.StringUtil
 import org.jdom.Element
 import org.jetbrains.android.sdk.AndroidSdkType
-import org.jetbrains.sbt.project.structure.SbtRunner
+import org.jetbrains.sbt.project.SbtProjectResolver
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
 /**
@@ -118,8 +118,9 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
         params.getClassPath.add(sbtSystemSettings.getCustomLauncherPath)
         params.setMainClass(determineMainClass(sbtSystemSettings.getCustomLauncherPath))
       } else {
-        params.getClassPath.add(SbtRunner.getDefaultLauncher)
-        params.setMainClass(determineMainClass(SbtRunner.getDefaultLauncher.getAbsolutePath))
+        val launcher = SbtProjectResolver.getDefaultLauncher
+        params.getClassPath.add(launcher)
+        params.setMainClass(determineMainClass(launcher.getAbsolutePath))
       }
       params.setEnv(environmentVariables)
       params.getVMParametersList.addParametersString(javaOptions)
