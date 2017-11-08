@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 abstract class InAsyncTestBase extends ScalaDebuggerTestCase {
 
   override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = {
-    implicit val module = getModule
     Seq(ScalaAsyncLoader())
   }
 

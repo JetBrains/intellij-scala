@@ -104,7 +104,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
   private def canEvaluateLong(srr: ScalaResolveResult, place: PsiElement, evaluationContext: EvaluationContext) = {
     def tryEvaluate(name: String, place: PsiElement, evaluationContext: EvaluationContext): Try[AnyRef] = {
       Try {
-        val evaluator = {
+        val evaluator = inReadAction {
           val twi = toTextWithImports(name)
           val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(twi, place, evaluationContext.getProject)
           val location = evaluationContext.getFrameProxy.location()

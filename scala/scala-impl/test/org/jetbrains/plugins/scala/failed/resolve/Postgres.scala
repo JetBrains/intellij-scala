@@ -13,7 +13,7 @@ import org.junit.experimental.categories.Category
 class Postgres extends FailedResolveTest("postgresql") {
 
   override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
-    Seq(PostgresLoader()(module))
+    Seq(PostgresLoader())
 
   def testSCL8556(): Unit = doTest()
 }

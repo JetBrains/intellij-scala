@@ -1,20 +1,21 @@
 package scala.meta.annotations
 
+import scala.meta.{ScalaMetaLibrariesOwner, _}
+
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, TestActionEvent}
-import org.jetbrains.plugins.scala.{ScalaBundle, SlowTests}
-import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil.findJdk8
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.{ScalaBundle, SlowTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
-
-import scala.meta.{ScalaMetaLibrariesOwner, _}
 
 /**
   * @author mutcianm
@@ -25,7 +26,10 @@ import scala.meta.{ScalaMetaLibrariesOwner, _}
 class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMetaLibrariesOwner {
   override protected def getTestDataPath: String = TestUtils.getTestDataPath + "/scalameta"
 
-  override protected def librariesLoaders = Seq(new DisposableScalaLibraryLoader()) ++ additionalLibraries
+  override protected def librariesLoaders = Seq(
+    JdkLoader(findJdk8()),
+    ScalaLibraryLoader(isIncludeReflectLibrary = true)
+  ) ++ additionalLibraries
 
   protected lazy val testJarPath = s"/addFoo_${version.major}_$paradiseVersion.jar"
 

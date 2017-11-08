@@ -22,7 +22,6 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] = {
     import MonocleLensesTest._
 
-    implicit val module: Module = getModuleAdapter
     Seq(MonocleCoreLoader(), MonocleMacroLoader(), MonocleGeneric())
   }
 
@@ -105,20 +104,20 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
 object MonocleLensesTest {
 
-  private abstract class MonocleBaseLoader()(implicit module: Module) extends IvyLibraryLoaderAdapter {
+  private abstract class MonocleBaseLoader extends IvyLibraryLoaderAdapter {
     override val version: String = "1.4.0"
     override val vendor: String = "com.github.julien-truffaut"
   }
 
-  private case class MonocleCoreLoader()(implicit val module: Module) extends MonocleBaseLoader {
+  private case class MonocleCoreLoader() extends MonocleBaseLoader {
     override val name: String = "monocle-core"
   }
 
-  private case class MonocleMacroLoader()(implicit val module: Module) extends MonocleBaseLoader {
+  private case class MonocleMacroLoader() extends MonocleBaseLoader {
     override val name: String = "monocle-macro"
   }
 
-  private case class MonocleGeneric()(implicit val module: Module) extends MonocleBaseLoader {
+  private case class MonocleGeneric() extends MonocleBaseLoader {
     override val name: String = "monocle-generic"
   }
 

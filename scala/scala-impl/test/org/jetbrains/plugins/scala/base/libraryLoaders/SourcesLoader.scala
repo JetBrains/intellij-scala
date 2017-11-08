@@ -11,15 +11,14 @@ import org.jetbrains.plugins.scala.debugger.ScalaVersion
 /**
   * @author adkozlov
   */
-case class SourcesLoader(rootPath: String)
-                        (implicit val module: Module) extends LibraryLoader {
+case class SourcesLoader(rootPath: String) extends LibraryLoader {
 
-  override def init(implicit version: ScalaVersion): Unit = {
+  override def init(implicit module: Module, version: ScalaVersion): Unit = {
     FileUtil.createIfDoesntExist(new File(rootPath))
     PsiTestUtil.addSourceRoot(module, rootFile)
   }
 
-  override def dispose(): Unit = {
+  override def clean(implicit module: Module): Unit = {
     PsiTestUtil.removeSourceRoot(module, rootFile)
   }
 

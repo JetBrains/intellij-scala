@@ -128,13 +128,13 @@ case object <caret>Caz
 
 object StalactiteTest {
 
-  case class StalactiteLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+  case class StalactiteLoader() extends IvyLibraryLoaderAdapter {
     val vendor: String = "com.fommil"
     val name: String = "stalactite"
     val version: String = "0.0.3"
   }
 
-  case class SimulacrumLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+  case class SimulacrumLoader() extends IvyLibraryLoaderAdapter {
     val vendor: String = "com.github.mpilquist"
     val name: String = "simulacrum"
     val version: String = "0.10.0"

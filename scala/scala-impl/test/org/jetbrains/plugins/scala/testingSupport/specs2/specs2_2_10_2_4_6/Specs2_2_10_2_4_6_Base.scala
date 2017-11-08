@@ -15,7 +15,6 @@ trait Specs2_2_10_2_4_6_Base extends Specs2TestCase {
   override implicit val version: ScalaVersion = Scala_2_10
 
   override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = {
-    implicit val module: Module = getModule
     Seq(Specs2Loader("2.4.6"), ScalaZCoreLoader(), ScalaZConcurrentLoader())
   }
 }
