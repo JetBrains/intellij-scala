@@ -11,6 +11,7 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.{LabeledComponent, TextFieldWithBrowseButton}
 import com.intellij.openapi.util.{JDOMExternalizer, SystemInfo}
 import com.intellij.openapi.util.io.FileUtil
@@ -53,6 +54,12 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new MyEditor
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState = {
+    def patchSdkVersion(cmd: GeneralCommandLine) {
+      Option(ProjectRootManager.getInstance(project).getProjectSdk).foreach {
+        sdk => cmd.getEnvironment.put("JAVA_HOME", sdk.getHomePath)
+      }
+    }
+    
     val state = new CommandLineState(environment) {
       override def startProcess(): ProcessHandler = {
         val cmd = new GeneralCommandLine()
@@ -78,6 +85,8 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
         }
         scriptParameters.foreach(cmd.getParametersList.addParametersString(_))
 
+        patchSdkVersion(cmd)
+        
         JavaCommandLineStateUtil.startProcess(cmd)
       }
     }
