@@ -1311,7 +1311,10 @@
                          displayName="Deprecated with type" groupPath="Scala" groupName="Other"
                          shortName="DottyDeprecatedWith" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.UnzipSingleElementInspection"
+                         displayName="Unzip for extracting a single element" groupPath="Scala,Collections" groupName="Other"
+                         shortName="UnzipSingleElement" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
         <!-- scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"

@@ -1,0 +1,21 @@
+<html>
+<body>
+Replaces unzip for extracting a single element with map.
+
+<p>
+Before:
+<pre>
+Seq((1, 11), (2, 22)).unzip._1
+Seq((1, 11, 111), (2, 22, 222)).unzip3._1
+</pre>
+
+<br>
+After:
+<pre>
+Seq((1, 11), (2, 22)).map(_._1)
+Seq((1, 11, 111), (2, 22, 222)).map(_._1)
+</pre>
+</p>
+
+</body>
+</html>

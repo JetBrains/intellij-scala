@@ -78,6 +78,8 @@ package object collections {
   private[collections] val `.iterator` = invocation("iterator").from(likeCollectionClasses)
   private[collections] val `.apply` = invocation("apply")
   private[collections] val `.zip` = invocation("zip").from(likeCollectionClasses)
+  private[collections] val `.unzip` = invocation("unzip").from(likeCollectionClasses)
+  private[collections] val `.unzip3` = invocation("unzip3").from(likeCollectionClasses)
   private[collections] val `.indices` = invocation("indices").from(likeCollectionClasses)
   private[collections] val `.take` = invocation("take").from(likeCollectionClasses)
   private[collections] val `.drop` = invocation("drop").from(likeCollectionClasses)
