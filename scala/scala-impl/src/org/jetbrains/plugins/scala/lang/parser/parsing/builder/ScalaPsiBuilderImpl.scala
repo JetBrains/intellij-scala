@@ -17,7 +17,7 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
   extends PsiBuilderAdapter(builder) with ScalaPsiBuilder {
   private final val newlinesEnabled: mutable.Stack[Boolean] = new mutable.Stack[Boolean]
   
-  private lazy val trailingCommasEnabled = Option(getDelegate.getUserDataUnprotected(FileContextUtil.CONTAINING_FILE_KEY)).flatMap(
+  private lazy val trailingCommasEnabled = ParserUtils.getPsiFile(this).flatMap(
     ScalaUtil.getScalaVersion).map(Version(_)).exists(v => v >= Version("2.12.2")) 
 
   def newlineBeforeCurrentToken: Boolean = {
