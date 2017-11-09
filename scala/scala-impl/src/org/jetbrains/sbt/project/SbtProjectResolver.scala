@@ -37,7 +37,7 @@ import scala.xml.{Elem, XML}
  */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] with ExternalSourceRootResolution {
 
-  @volatile private var activeProcessDumper: Option[SbtProcessDump] = None
+  @volatile private var activeProcessDumper: Option[SbtStructureDump] = None
 
   override def resolveProjectInfo(taskId: ExternalSystemTaskId,
                                   wrongProjectPathDontUseIt: String,
@@ -184,6 +184,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     * Also sbt boot makes the whole process way too slow.
     */
   private def dummyProject(projectRoot: File, settings: SbtExecutionSettings, sbtVersion: Version): Node[ESProjectData] = {
+
+    // TODO add default scala sdk and sbt libs (newest versions or so)
 
     val projectPath = projectRoot.getAbsolutePath
     val projectName = projectRoot.getName

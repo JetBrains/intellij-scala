@@ -28,16 +28,20 @@ import SbtStructureDump._
 
 class SbtStructureDump {
 
-  def dumpFromShell(id: ExternalSystemTaskId,
+  private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
+
+  def cancel(): Unit = cancellationFlag.set(true)
+
+  def dumpFromShell(taskId: ExternalSystemTaskId,
                     dir: File,
                     structureFilePath: String,
                     options: Seq[String],
                     notifications: ExternalSystemTaskNotificationListener,
                    ): Future[ImportMessages] = {
 
-    notifications.onStart(id, dir.getCanonicalPath)
+    notifications.onStart(taskId, dir.getCanonicalPath)
 
-    val project = id.findProject() // assume responsibility of caller not to call dumpFromShell with null project
+    val project = taskId.findProject() // assume responsibility of caller not to call dumpFromShell with null project
     val viewManager = ServiceManager.getService(project, classOf[SyncViewManager])
     val shell = SbtShellCommunication.forProject(project)
 
@@ -47,90 +51,10 @@ class SbtStructureDump {
 
     val taskDescriptor =
       new TaskOperationDescriptorImpl("dump project structure from sbt shell", System.currentTimeMillis(), "project-structure-dump")
-    val aggregator = messageAggregator(id, s"dump:${UUID.randomUUID()}", taskDescriptor, shell, notifications, viewManager)
+    val aggregator = dumpMessageAggregator(taskId, s"dump:${UUID.randomUUID()}", taskDescriptor, shell, notifications, viewManager)
 
     shell.command(cmd, ImportMessages.empty, aggregator, showShell = false)
   }
-
-  private def messageAggregator(id: ExternalSystemTaskId,
-                                dumpTaskId: String,
-                                taskDescriptor: TaskOperationDescriptor,
-                                shell: SbtShellCommunication,
-                                notifications: ExternalSystemTaskNotificationListener,
-                                viewManager: SyncViewManager
-                               ): EventAggregator[ImportMessages] = {
-    case (stats, TaskStart) =>
-      val startEvent = new ExternalSystemStartEventImpl[TaskOperationDescriptor](dumpTaskId, null, taskDescriptor)
-      val statusEvent = new ExternalSystemTaskExecutionEvent(id, startEvent)
-      notifications.onStatusChange(statusEvent)
-      stats
-
-    case (stats, TaskComplete) =>
-      val result =
-        if (stats.errors.isEmpty)
-          new SuccessResultImpl(taskDescriptor.getEventTime, System.currentTimeMillis(), true)
-        else {
-          val fails = stats.errors.map { msg =>
-            new FailureImpl(msg, msg, Collections.emptyList())
-          }
-          new FailureResultImpl(taskDescriptor.getEventTime, System.currentTimeMillis(), fails.asJava)
-        }
-
-      val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](dumpTaskId, null, taskDescriptor, result)
-      val statusEvent = new ExternalSystemTaskExecutionEvent(id, finishEvent)
-      notifications.onStatusChange(statusEvent)
-      stats
-
-    case (stats, ErrorWaitForInput) =>
-      val msg = "Error importing sbt project. Please check sbt shell output."
-      val ex = new ExternalSystemException(msg)
-      val failure = new FailureImpl(msg, "error during sbt import", Collections.emptyList())
-      val timestamp = System.currentTimeMillis()
-      val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
-        dumpTaskId, null, taskDescriptor,
-        new FailureResultImpl(taskDescriptor.getEventTime, timestamp, Collections.singletonList(failure))
-      )
-      val statusEvent = new ExternalSystemTaskExecutionEvent(id, finishEvent)
-      val buildEvent = SbtBuildEvent(dumpTaskId, MessageEvent.Kind.ERROR, "errors", msg)
-
-      notifications.onStatusChange(statusEvent)
-      notifications.onFailure(id, ex) // TODO redundant?
-      viewManager.onEvent(buildEvent)
-
-      // TODO check if this works correctly at all, or why not
-      shell.send("i" + System.lineSeparator)
-
-      stats.addError(msg)
-
-    case (stats, Output(text)) =>
-      // report warnings / errors
-      val buildEv = buildEvent(text, dumpTaskId)
-
-      buildEv.foreach { ev =>
-        viewManager.onEvent(ev)
-      }
-
-      val msgsize = stats.log.length // TODO some more informative metric?
-    val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
-      dumpTaskId, null, taskDescriptor, msgsize, -1, "chars"
-    )
-      val event = new ExternalSystemTaskExecutionEvent(id, progressEvent)
-
-      notifications.onStatusChange(event)
-      notifications.onTaskOutput(id, text, true)
-
-      stats.appendMessage(text)
-  }
-
-  def buildEvent(line: String, dumpTaskId: String): Option[MessageEvent] = {
-    val text = line.trim
-    if (text.startsWith("[warn]")) {
-      Option(SbtBuildEvent(dumpTaskId, MessageEvent.Kind.WARNING, "warnings", text.stripPrefix("[warn]").trim))
-    } else if (text.startsWith("[error]")) {
-      Option(SbtBuildEvent(dumpTaskId, MessageEvent.Kind.ERROR, "errors", text.stripPrefix("[error]").trim))
-    } else None
-  }
-
 
   def dumpFromProcess(directory: File,
                       structureFilePath: String,
@@ -146,6 +70,8 @@ class SbtStructureDump {
 
     val startTime = System.currentTimeMillis()
     val optString = options.mkString(", ")
+    // assuming here that this method might still be called without valid project
+    val viewManager = Option(taskId.findProject()).map(ServiceManager.getService(_, classOf[SyncViewManager]))
 
     val setCommands = Seq(
       s"""shellPrompt := { _ => "" }""",
@@ -187,7 +113,7 @@ class SbtStructureDump {
         // exit needs to be in a separate command, otherwise it will never execute when a previous command in the chain errors
         writer.println("exit")
         writer.flush()
-        handle(process, taskId, dumpTaskId, taskDescriptor, notifications)
+        handle(process, taskId, dumpTaskId, taskDescriptor, viewManager, notifications)
       }
       result.getOrElse(ImportMessages(Seq.empty, Seq("no output from sbt shell process available"), ""))
     }.orElse(Failure(ImportCancelledException))
@@ -218,19 +144,35 @@ class SbtStructureDump {
                      taskId: ExternalSystemTaskId,
                      dumpTaskId: String,
                      taskDescriptor: TaskOperationDescriptor,
+                     viewManager: Option[SyncViewManager],
                      notifications: ExternalSystemTaskNotificationListener): Try[ImportMessages] = {
-    var lines = 0
 
+
+    var lines = 0
     var messages = ImportMessages.empty
 
     def update(textRaw: String): Unit = {
       val text = textRaw.trim
       messages = messages.appendMessage(text)
+
       if (text.nonEmpty) {
+        val buildEv = buildEvent(text, dumpTaskId, ProcessImport)
+        for {
+          event <- buildEv
+          vm <- viewManager
+        } {
+          import MessageEvent.Kind._
+          vm.onEvent(event)
+          event.getKind match {
+            case WARNING => messages = messages.addWarning(text)
+            case ERROR => messages = messages.addError(text)
+            case INFO | SIMPLE | STATISTICS => //ignore
+          }
+        }
+
         lines += 1
         val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
-          dumpTaskId, null, taskDescriptor, lines, -1, "lines"
-        )
+          dumpTaskId, null, taskDescriptor, lines, -1, "lines")
         val statusEvent = new ExternalSystemTaskExecutionEvent(taskId, progressEvent)
 
         notifications.onStatusChange(statusEvent)
@@ -267,15 +209,106 @@ class SbtStructureDump {
       } else messages
     }
   }
-
-  private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
-
-  def cancel(): Unit = cancellationFlag.set(true)
 }
 
 object SbtStructureDump {
 
   private val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
+
+  private val WARN_PREFIX = "[warn]"
+  private val ERROR_PREFIX = "[error]"
+
+  private def buildEvent(line: String, dumpTaskId: String, importType: ImportType): Option[MessageEvent] = {
+    val text = line.trim
+    if (text.startsWith("[warn]")) {
+      val strippedText = text.stripPrefix(WARN_PREFIX).trim
+      importType match {
+        case ShellImport => Option(SbtShellBuildWarning(dumpTaskId, strippedText))
+        case ProcessImport => Option(SbtProcessBuildWarning(dumpTaskId, strippedText))
+      }
+    } else if (text.startsWith("[error]")) {
+      val strippedText = text.stripPrefix(ERROR_PREFIX).trim
+      importType match {
+        case ShellImport => Option(SbtShellBuildError(dumpTaskId, strippedText))
+        case ProcessImport => Option(SbtProcessBuildError(dumpTaskId, strippedText))
+      }
+    } else None
+    // okay, that wasn't very nice.
+  }
+
+  private def dumpMessageAggregator(id: ExternalSystemTaskId,
+                                    dumpTaskId: String,
+                                    taskDescriptor: TaskOperationDescriptor,
+                                    shell: SbtShellCommunication,
+                                    notifications: ExternalSystemTaskNotificationListener,
+                                    viewManager: SyncViewManager
+                                   ): EventAggregator[ImportMessages] = {
+    case (stats, TaskStart) =>
+      val startEvent = new ExternalSystemStartEventImpl[TaskOperationDescriptor](dumpTaskId, null, taskDescriptor)
+      val statusEvent = new ExternalSystemTaskExecutionEvent(id, startEvent)
+      notifications.onStatusChange(statusEvent)
+      stats
+
+    case (stats, TaskComplete) =>
+      val result =
+        if (stats.errors.isEmpty)
+          new SuccessResultImpl(taskDescriptor.getEventTime, System.currentTimeMillis(), true)
+        else {
+          val fails = stats.errors.map { msg =>
+            new FailureImpl(msg, msg, Collections.emptyList())
+          }
+          new FailureResultImpl(taskDescriptor.getEventTime, System.currentTimeMillis(), fails.asJava)
+        }
+
+      val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](dumpTaskId, null, taskDescriptor, result)
+      val statusEvent = new ExternalSystemTaskExecutionEvent(id, finishEvent)
+      notifications.onStatusChange(statusEvent)
+      stats
+
+    case (stats, ErrorWaitForInput) =>
+      val msg = "Error importing sbt project. Please check sbt shell output."
+      val ex = new ExternalSystemException(msg)
+      val failure = new FailureImpl(msg, "error during sbt import", Collections.emptyList())
+      val timestamp = System.currentTimeMillis()
+      val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
+        dumpTaskId, null, taskDescriptor,
+        new FailureResultImpl(taskDescriptor.getEventTime, timestamp, Collections.singletonList(failure))
+      )
+      val statusEvent = new ExternalSystemTaskExecutionEvent(id, finishEvent)
+      val buildEvent = SbtShellBuildError(dumpTaskId, msg)
+
+      notifications.onStatusChange(statusEvent)
+      notifications.onFailure(id, ex) // TODO redundant?
+      viewManager.onEvent(buildEvent)
+
+      shell.send("i" + System.lineSeparator)
+
+      stats.addError(msg)
+
+    case (stats, Output(text)) =>
+      // report warnings / errors
+      val buildEv = buildEvent(text, dumpTaskId, ShellImport)
+
+      buildEv.foreach { ev =>
+        viewManager.onEvent(ev)
+      }
+
+      val msgsize = stats.log.length // TODO some more informative metric?
+    val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
+      dumpTaskId, null, taskDescriptor, msgsize, -1, "chars"
+    )
+      val event = new ExternalSystemTaskExecutionEvent(id, progressEvent)
+
+      notifications.onStatusChange(event)
+      notifications.onTaskOutput(id, text, true)
+
+      stats.appendMessage(text)
+  }
+
+
+  sealed trait ImportType
+  case object ShellImport extends ImportType
+  case object ProcessImport extends ImportType
 
   case class ImportMessages(warnings: Seq[String], errors: Seq[String], log: String) {
 
@@ -292,8 +325,9 @@ object SbtStructureDump {
     def empty = ImportMessages(Seq.empty, Seq.empty, "")
   }
 
-  case class SbtBuildEvent(parentId: Any, kind: MessageEvent.Kind, group: String, message: String)
+  abstract class SbtBuildEvent(parentId: Any, kind: MessageEvent.Kind, group: String, message: String)
     extends AbstractBuildEvent(new Object, parentId, System.currentTimeMillis(), message) with MessageEvent {
+
     override def getKind: MessageEvent.Kind = kind
     override def getGroup: String = group
 
@@ -301,12 +335,32 @@ object SbtStructureDump {
       new MessageEventResult() {
         override def getKind: MessageEvent.Kind = kind
       }
+  }
 
+  trait SbtShellBuildEvent extends MessageEvent {
     override def getNavigatable(project: Project): Navigatable = {
       val shell = SbtProcessManager.forProject(project).acquireShellRunner
       SbtShellNavigatable(shell) // TODO pass some kind of position info
     }
   }
+
+  trait SbtProcessBuildEvent extends MessageEvent {
+    // TODO open log or something?
+    override def getNavigatable(project: Project): Navigatable = null
+  }
+
+  case class SbtProcessBuildWarning(parentId: Any, message: String)
+    extends SbtBuildEvent(parentId, MessageEvent.Kind.WARNING, "warnings", message) with SbtProcessBuildEvent
+
+  case class SbtProcessBuildError(parentId: Any, message: String)
+    extends SbtBuildEvent(parentId, MessageEvent.Kind.ERROR, "errors", message) with SbtProcessBuildEvent
+
+  case class SbtShellBuildWarning(parentId: Any, message: String)
+    extends SbtBuildEvent(parentId, MessageEvent.Kind.WARNING, "warnings", message) with SbtShellBuildEvent
+
+  case class SbtShellBuildError(parentId: Any, message: String)
+    extends SbtBuildEvent(parentId, MessageEvent.Kind.ERROR, "errors", message) with SbtShellBuildEvent
+
 
   case class SbtShellNavigatable(shell: SbtShellRunner) extends Navigatable {
 
