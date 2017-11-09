@@ -4,14 +4,16 @@ import java.io.File
 import java.util.{Collections, UUID}
 
 import com.intellij.build.SyncViewManager
-import com.intellij.build.events.MessageEvent
-import com.intellij.build.events.impl.MessageEventImpl
+import com.intellij.build.events.impl.AbstractBuildEvent
+import com.intellij.build.events.{MessageEvent, MessageEventResult}
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.task.event._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
-import org.jetbrains.sbt.shell.SbtShellCommunication
-import org.jetbrains.sbt.shell.SbtShellCommunication.{EventAggregator, Output, TaskComplete, TaskStart}
+import com.intellij.openapi.project.Project
+import com.intellij.pom.Navigatable
+import org.jetbrains.sbt.shell.SbtShellCommunication._
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellRunner}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -58,6 +60,7 @@ object SbtShellDump {
       val event = new ExternalSystemTaskExecutionEvent(id, startEvent)
       notifications.onStatusChange(event)
       messages
+
     case (messages, TaskComplete) =>
       val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
         dumpTaskId, null, taskDescriptor,
@@ -66,38 +69,79 @@ object SbtShellDump {
       val event = new ExternalSystemTaskExecutionEvent(id, finishEvent)
       notifications.onStatusChange(event)
       messages
+
+    case (messages, ErrorWaitForInput) =>
+      val msg = "Error importing sbt project. Please check sbt shell output."
+      val ex = new ExternalSystemException(msg)
+      val failure = new FailureImpl(msg, "error during sbt import", Collections.emptyList())
+      val timestamp = System.currentTimeMillis()
+      val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
+        dumpTaskId, null, taskDescriptor,
+        new FailureResultImpl(taskDescriptor.getEventTime, timestamp, Collections.singletonList(failure))
+      )
+      val statusEvent = new ExternalSystemTaskExecutionEvent(id, finishEvent)
+      val buildEvent = SbtBuildEvent(dumpTaskId, MessageEvent.Kind.ERROR, "errors", msg)
+
+      notifications.onStatusChange(statusEvent)
+      notifications.onFailure(id, ex) // TODO redundant?
+      viewManager.onEvent(buildEvent)
+
+      // TODO check if this works correctly at all, or why not
+      shell.send("i" + System.lineSeparator)
+
+      messages
+
     case (messages, Output(text)) =>
-      if (text.contains("(i)gnore")) {
-        // TODO check if this works correctly at all, or why not
-        shell.send("i" + System.lineSeparator)
-        val msg = "Error importing sbt project. Please check sbt shell output."
-        val ex = new ExternalSystemException(msg)
-        val failure = new FailureImpl(msg, "error during sbt import", Collections.emptyList())
-        val timestamp = System.currentTimeMillis()
-        val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
-          dumpTaskId, null, taskDescriptor,
-          new FailureResultImpl(taskDescriptor.getEventTime, timestamp, Collections.singletonList(failure))
-        )
-        val event = new ExternalSystemTaskExecutionEvent(id, finishEvent)
-        notifications.onFailure(id, ex) // TODO redundant?
-        notifications.onStatusChange(event)
-      } else if (text.startsWith("[warn]")) {
-        val messageEvent = new MessageEventImpl(dumpTaskId, MessageEvent.Kind.WARNING, "warnings", text.stripPrefix("[warn]"))
-        viewManager.onEvent(messageEvent)
-      } else if (text.startsWith("[error]")) {
-        val messageEvent = new MessageEventImpl(dumpTaskId, MessageEvent.Kind.ERROR, "errors", text.stripPrefix("[error]"))
-        viewManager.onEvent(messageEvent)
-      } else {
+      // report warnings / errors
+      buildEvent(text, dumpTaskId).foreach(viewManager.onEvent(_))
 
-        val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
-          dumpTaskId, null, taskDescriptor, messages.size, -1, "lines"
-        )
-        val event = new ExternalSystemTaskExecutionEvent(id, progressEvent)
+      val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
+        dumpTaskId, null, taskDescriptor, messages.size, -1, "lines"
+      )
+      val event = new ExternalSystemTaskExecutionEvent(id, progressEvent)
 
-        notifications.onStatusChange(event)
-        notifications.onTaskOutput(id, text, true)
-      }
+      notifications.onStatusChange(event)
+      notifications.onTaskOutput(id, text, true)
+
       messages.append(System.lineSeparator).append(text.trim)
+  }
+
+  def buildEvent(line: String, dumpTaskId: String): Option[MessageEvent] = {
+    val text = line.trim
+    if (text.startsWith("[warn]")) {
+      Option(SbtBuildEvent(dumpTaskId, MessageEvent.Kind.WARNING, "warnings", text.stripPrefix("[warn]")))
+    } else if (text.startsWith("[error]")) {
+      Option(SbtBuildEvent(dumpTaskId, MessageEvent.Kind.ERROR, "errors", text.stripPrefix("[error]")))
+    } else None
+  }
+
+
+  case class SbtBuildEvent(parentId: Any, kind: MessageEvent.Kind, group: String, message: String)
+    extends AbstractBuildEvent(new Object, parentId, System.currentTimeMillis(), message) with MessageEvent {
+    override def getKind: MessageEvent.Kind = kind
+    override def getGroup: String = group
+
+    override def getResult: MessageEventResult =
+      new MessageEventResult() {
+        override def getKind: MessageEvent.Kind = kind
+      }
+
+    override def getNavigatable(project: Project): Navigatable = {
+      val shell = SbtProcessManager.forProject(project).acquireShellRunner
+      SbtShellNavigatable(shell) // TODO pass some kind of position info
+    }
+  }
+
+  case class SbtShellNavigatable(shell: SbtShellRunner) extends Navigatable {
+
+    override def navigate(requestFocus: Boolean): Unit =
+      if (canNavigate) {
+        shell.openShell(requestFocus)
+      }
+
+    override def canNavigate: Boolean = true
+
+    override def canNavigateToSource: Boolean = true
   }
 
 }
