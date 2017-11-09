@@ -1,16 +1,18 @@
-package org.jetbrains.plugins.hydra.caches
+package org.jetbrains.plugins.hydra
 
 import java.io.File
 
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.hydra.compiler.HydraRepositorySettings
 import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
+import org.jetbrains.plugins.scala.project.Platform
 import org.jetbrains.plugins.scala.project.template.{Downloader, FileExt}
 
 /**
   * @author Maris Alexandru
   */
-object HydraArtifactsCache {
+object HydraDownloader {
+
   private val Log = Logger.getInstance(this.getClass)
   private val hydraGlobalSettings = HydraApplicationSettings.getInstance()
   private val SplitRegex = "\\* Attributed\\(|\\)".r
@@ -26,7 +28,7 @@ object HydraArtifactsCache {
 
     if (artifacts.isEmpty) {
       val sbtBufferedOutput = new StringBuilder
-      Downloader.downloadHydra(repositorySettings, s"${scalaVersion}_$hydraVersion", (text: String) => {
+      HydraDownloader.downloadHydra(repositorySettings, s"${scalaVersion}_$hydraVersion", (text: String) => {
         sbtBufferedOutput.append(text)
         listener(text)
       })
@@ -56,5 +58,19 @@ object HydraArtifactsCache {
     } else {
       Log.warn(s"Hydra artifacts couldn't be cached for $scalaVersion (scala version), $hydraVersion (hydra version) because one or more artifacts doesn't exist")
     }
+  }
+
+  def downloadHydra(repositorySettings: HydraRepositorySettings, version: String, listener: String => Unit): Unit = {
+    Downloader.createTempSbtProject(Platform.Scala, version, listener, sbtCommandsForHydra(repositorySettings))
+  }
+
+  private def sbtCommandsForHydra(repositorySettings: HydraRepositorySettings)(platform: Platform, version: String) = {
+    Seq(
+      s"""set scalaVersion := "${version.split("_")(0)}"""",
+      s"""set credentials := Seq(Credentials("${repositorySettings.repositoryRealm}", "${repositorySettings.repositoryName}", "${repositorySettings.login}", "${repositorySettings.password}"))""",
+      s"""set resolvers := Seq(Resolver.url("Triplequote Plugins Ivy Releases", url("${repositorySettings.repositoryURL}/ivy-releases/"))(Resolver.ivyStylePatterns), Resolver.url("Triplequote sbt-plugin-relseases", url("${repositorySettings.repositoryURL}/sbt-plugins-release/"))(Resolver.ivyStylePatterns),  "Triplequote Plugins Releases" at "${repositorySettings.repositoryURL}/libs-release-local/")""",
+      s"""set libraryDependencies := Seq("com.triplequote" % "hydra_${version.split("_")(0)}" % "${version.split("_")(1)}", ("com.triplequote" % "hydra-bridge_1_0" % "${version.split("_")(1)}").sources())""",
+      "updateClassifiers",
+      "show dependencyClasspath")
   }
 }

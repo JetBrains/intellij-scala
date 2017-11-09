@@ -4,7 +4,6 @@ import java.io.{File, FileNotFoundException}
 
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.hydra.compiler.HydraRepositorySettings
 import org.jetbrains.plugins.scala.project.Platform
 
 /**
@@ -15,11 +14,7 @@ object Downloader {
     createTempSbtProject(platform, version, listener, sbtCommandsFor)
   }
 
-  def downloadHydra(repositorySettings: HydraRepositorySettings, version: String, listener: String => Unit): Unit = {
-    createTempSbtProject(Platform.Scala, version, listener, sbtCommandsForHydra(repositorySettings))
-  }
-
-  private def createTempSbtProject(platform: Platform, version: String, listener: String => Unit, sbtCommands: (Platform, String) => Seq[String]): Unit = {
+  def createTempSbtProject(platform: Platform, version: String, listener: String => Unit, sbtCommands: (Platform, String) => Seq[String]): Unit = {
     val buffer = new StringBuffer()
 
     usingTempFile("sbt-commands") { file =>
@@ -69,16 +64,6 @@ object Downloader {
     case Platform.Dotty => Seq(
       s"""set libraryDependencies := Seq("ch.epfl.lamp" % "dotty_2.11" % "$version" % "scala-tool")""",
       "updateClassifiers")
-  }
-
-  private def sbtCommandsForHydra(repositorySettings: HydraRepositorySettings)(platform: Platform, version: String) = {
-    Seq(
-      s"""set scalaVersion := "${version.split("_")(0)}"""",
-      s"""set credentials := Seq(Credentials("${repositorySettings.repositoryRealm}", "${repositorySettings.repositoryName}", "${repositorySettings.login}", "${repositorySettings.password}"))""",
-      s"""set resolvers := Seq(Resolver.url("Triplequote Plugins Ivy Releases", url("${repositorySettings.repositoryURL}/ivy-releases/"))(Resolver.ivyStylePatterns), Resolver.url("Triplequote sbt-plugin-relseases", url("${repositorySettings.repositoryURL}/sbt-plugins-release/"))(Resolver.ivyStylePatterns),  "Triplequote Plugins Releases" at "${repositorySettings.repositoryURL}/libs-release-local/")""",
-      s"""set libraryDependencies := Seq("com.triplequote" % "hydra_${version.split("_")(0)}" % "${version.split("_")(1)}", ("com.triplequote" % "hydra-bridge_1_0" % "${version.split("_")(1)}").sources())""",
-      "updateClassifiers",
-      "show dependencyClasspath")
   }
 }
 
