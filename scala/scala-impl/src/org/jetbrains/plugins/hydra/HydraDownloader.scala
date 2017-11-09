@@ -67,7 +67,7 @@ object HydraDownloader {
   private def sbtCommandsForHydra(repositorySettings: HydraRepositorySettings)(platform: Platform, version: String) = {
     Seq(
       s"""set scalaVersion := "${version.split("_")(0)}"""",
-      s"""set credentials := Seq(Credentials("${repositorySettings.repositoryRealm}", "${repositorySettings.repositoryName}", "${repositorySettings.login}", "${repositorySettings.password}"))""",
+      s"""set credentials := Seq(Credentials("${repositorySettings.repositoryRealm}", "${repositorySettings.repositoryName}", "${repositorySettings.login}", \"\"\"${repositorySettings.password}\"\"\"))""",
       s"""set resolvers := Seq("Triplequote Plugins Ivy Releases" at "${repositorySettings.repositoryURL}")""",
       s"""set libraryDependencies := Seq("com.triplequote" % "hydra_${version.split("_")(0)}" % "${version.split("_")(1)}", ("com.triplequote" % "hydra-bridge_1_0" % "${version.split("_")(1)}").sources())""",
       "updateClassifiers",
