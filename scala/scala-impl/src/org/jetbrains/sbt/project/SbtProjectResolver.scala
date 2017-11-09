@@ -19,7 +19,7 @@ import org.jetbrains.sbt.project.SbtProjectResolver._
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
-import org.jetbrains.sbt.project.structure.SbtShellDump.ImportMessages
+import org.jetbrains.sbt.project.structure.SbtStructureDump.ImportMessages
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
@@ -37,7 +37,7 @@ import scala.xml.{Elem, XML}
  */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] with ExternalSourceRootResolution {
 
-  @volatile private var processDumper: Option[SbtProcessDump] = None
+  @volatile private var activeProcessDumper: Option[SbtProcessDump] = None
 
   override def resolveProjectInfo(taskId: ExternalSystemTaskId,
                                   wrongProjectPathDontUseIt: String,
@@ -78,10 +78,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val convertStartEvent = new ExternalSystemStartEventImpl(importTaskId, null, importTaskDescriptor)
       val event = new ExternalSystemTaskExecutionEvent(taskId, convertStartEvent)
       notifications.onStatusChange(event)
-
-      val warnings = messages.lines.filter(isWarningOrError)
-      if (warnings.nonEmpty)
-        notifications.onTaskOutput(taskId, WarningMessage(warnings.mkString(System.lineSeparator)), false)
     }
 
     val conversionResult = structureDump
@@ -124,7 +120,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
                             settings:SbtExecutionSettings,
                             taskId: ExternalSystemTaskId,
                             notifications: ExternalSystemTaskNotificationListener
-                           ): Try[(Elem, String)] = {
+                           ): Try[(Elem, ImportMessages)] = {
 
     lazy val project = taskId.findProject()
     val useShellImport = settings.useShellForImport && shellImportSupported(sbtVersion) && project != null
@@ -142,30 +138,31 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val launcherDir = getSbtLauncherDir
       val sbtStructureVersion = binaryVersion(sbtVersion).major(2).presentation
 
+      val dumper = new SbtStructureDump()
+      activeProcessDumper = Option(dumper)
+
       val messageResult: Try[ImportMessages] = {
         if (useShellImport) {
-          val messagesF = SbtShellDump.dumpFromShell(taskId, projectRoot, structureFilePath, options, notifications)
+          val messagesF = dumper.dumpFromShell(taskId, projectRoot, structureFilePath, options, notifications)
           Try(Await.result(messagesF, Duration.Inf)) // TODO some kind of timeout / cancel mechanism
         }
         else {
           val sbtStructureJar = settings.customSbtStructureFile.getOrElse(launcherDir / s"sbt-structure-$sbtStructureVersion.jar")
           val structureFilePath = path(structureFile)
-          val dumper = new SbtProcessDump()
-          processDumper = Option(dumper)
-          val resultsTry = dumper.dumpFromProcess(
+
+          // TODO add error/warning messages during dump, report directly
+          dumper.dumpFromProcess(
             projectRoot, structureFilePath, options,
             settings.vmExecutable, settings.vmOptions, settings.environment,
             sbtLauncher, sbtStructureJar, taskId, notifications)
-          // TODO add error/warning messages during dump, report directly
-          resultsTry.map(msgs => ImportMessages(Seq.empty, Seq.empty, msgs))
         }
       }
-      processDumper = None
+      activeProcessDumper = None
 
       messageResult.flatMap { messages =>
         if (messages.errors.isEmpty && structureFile.length > 0) Try {
           val elem = XML.load(structureFile.toURI.toURL)
-          (elem, messages.log)
+          (elem, messages)
         }
         else Failure(SbtException.fromSbtLog(messages.log))
       }
@@ -602,7 +599,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   override def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean =
     //noinspection UnitInMap
-    processDumper
+    activeProcessDumper
       .map(_.cancel())
       .isDefined
 

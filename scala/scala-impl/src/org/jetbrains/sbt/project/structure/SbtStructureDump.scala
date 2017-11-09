@@ -1,24 +1,32 @@
 package org.jetbrains.sbt.project.structure
 
-import java.io.File
+import java.io.{BufferedWriter, File, OutputStreamWriter, PrintWriter}
+import java.nio.charset.Charset
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.{Collections, UUID}
 
 import com.intellij.build.SyncViewManager
 import com.intellij.build.events.impl.AbstractBuildEvent
 import com.intellij.build.events.{MessageEvent, MessageEventResult}
+import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.task.event._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
+import org.jetbrains.sbt.project.SbtProjectResolver.{ImportCancelledException, path}
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellRunner}
+import org.jetbrains.sbt.using
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
-object SbtShellDump {
+import SbtStructureDump._
+
+class SbtStructureDump {
 
   def dumpFromShell(id: ExternalSystemTaskId,
                     dir: File,
@@ -41,7 +49,7 @@ object SbtShellDump {
       new TaskOperationDescriptorImpl("dump project structure from sbt shell", System.currentTimeMillis(), "project-structure-dump")
     val aggregator = messageAggregator(id, s"dump:${UUID.randomUUID()}", taskDescriptor, shell, notifications, viewManager)
 
-    shell.command(cmd, ImportMessages(Seq.empty, Seq.empty, ""), aggregator, showShell = false)
+    shell.command(cmd, ImportMessages.empty, aggregator, showShell = false)
   }
 
   private def messageAggregator(id: ExternalSystemTaskId,
@@ -103,9 +111,9 @@ object SbtShellDump {
       }
 
       val msgsize = stats.log.length // TODO some more informative metric?
-      val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
-        dumpTaskId, null, taskDescriptor, msgsize, -1, "chars"
-      )
+    val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
+      dumpTaskId, null, taskDescriptor, msgsize, -1, "chars"
+    )
       val event = new ExternalSystemTaskExecutionEvent(id, progressEvent)
 
       notifications.onStatusChange(event)
@@ -123,6 +131,152 @@ object SbtShellDump {
     } else None
   }
 
+
+  def dumpFromProcess(directory: File,
+                      structureFilePath: String,
+                      options: Seq[String],
+                      vmExecutable: File,
+                      vmOptions: Seq[String],
+                      environment: Map[String, String],
+                      sbtLauncher: File,
+                      sbtStructureJar: File,
+                      taskId: ExternalSystemTaskId,
+                      notifications: ExternalSystemTaskNotificationListener
+                     ): Try[ImportMessages] = {
+
+    val startTime = System.currentTimeMillis()
+    val optString = options.mkString(", ")
+
+    val setCommands = Seq(
+      s"""shellPrompt := { _ => "" }""",
+      s"""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("$structureFilePath"))""",
+      s"""SettingKey[_root_.java.lang.String]("sbtStructureOptions") in _root_.sbt.Global := "$optString""""
+    ).mkString("set _root_.scala.collection.Seq(", ",", ")")
+
+    val sbtCommands = Seq(
+      setCommands,
+      s"""apply -cp "${path(sbtStructureJar)}" org.jetbrains.sbt.CreateTasks""",
+      s"*/*:dumpStructure"
+    ).mkString(";", ";", "")
+
+    val processCommandsRaw =
+      path(vmExecutable) +:
+        "-Djline.terminal=jline.UnsupportedTerminal" +:
+        "-Dsbt.log.noformat=true" +:
+        "-Dfile.encoding=UTF-8" +:
+        (vmOptions ++ SbtOpts.loadFrom(directory)) :+
+        "-jar" :+
+        path(sbtLauncher)
+
+    val processCommands = processCommandsRaw.filterNot(_.isEmpty)
+
+    val taskDescriptor =
+      new TaskOperationDescriptorImpl("dump project structure from sbt", System.currentTimeMillis(), "project-structure-dump")
+    val dumpTaskId = s"dump:${UUID.randomUUID()}"
+    val startEvent = new ExternalSystemStartEventImpl[TaskOperationDescriptor](dumpTaskId, null, taskDescriptor)
+    val taskStartEvent = new ExternalSystemTaskExecutionEvent(taskId, startEvent)
+    notifications.onStatusChange(taskStartEvent)
+
+    val result = Try {
+      val processBuilder = new ProcessBuilder(processCommands.asJava)
+      processBuilder.directory(directory)
+      processBuilder.environment().putAll(environment.asJava)
+      val process = processBuilder.start()
+      val result = using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
+        writer.println(sbtCommands)
+        // exit needs to be in a separate command, otherwise it will never execute when a previous command in the chain errors
+        writer.println("exit")
+        writer.flush()
+        handle(process, taskId, dumpTaskId, taskDescriptor, notifications)
+      }
+      result.getOrElse(ImportMessages(Seq.empty, Seq("no output from sbt shell process available"), ""))
+    }.orElse(Failure(ImportCancelledException))
+
+    val endTime = System.currentTimeMillis()
+    val operationResult = result match {
+      case Success(messages) =>
+        if (messages.errors.isEmpty)
+          new SuccessResultImpl(startTime, endTime, true)
+        else {
+          val fails = messages.errors.map(msg => new FailureImpl(msg, msg, Collections.emptyList()))
+          new FailureResultImpl(startTime, endTime, fails.asJava)
+        }
+      case Failure(x) =>
+        val fail = new FailureImpl(x.getMessage, x.getClass.getName, Collections.emptyList())
+        new FailureResultImpl(startTime, endTime, Collections.singletonList(fail))
+    }
+    val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
+      dumpTaskId, null, taskDescriptor, operationResult
+    )
+    val taskFinishEvent = new ExternalSystemTaskExecutionEvent(taskId, finishEvent)
+    notifications.onStatusChange(taskFinishEvent)
+
+    result
+  }
+
+  private def handle(process: Process,
+                     taskId: ExternalSystemTaskId,
+                     dumpTaskId: String,
+                     taskDescriptor: TaskOperationDescriptor,
+                     notifications: ExternalSystemTaskNotificationListener): Try[ImportMessages] = {
+    var lines = 0
+
+    var messages = ImportMessages.empty
+
+    def update(textRaw: String): Unit = {
+      val text = textRaw.trim
+      messages = messages.appendMessage(text)
+      if (text.nonEmpty) {
+        lines += 1
+        val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
+          dumpTaskId, null, taskDescriptor, lines, -1, "lines"
+        )
+        val statusEvent = new ExternalSystemTaskExecutionEvent(taskId, progressEvent)
+
+        notifications.onStatusChange(statusEvent)
+      }
+    }
+
+    val processListener: (OutputType, String) => Unit = {
+      case (OutputType.StdOut, text) =>
+        if (text.contains("(q)uit")) {
+          val writer = new PrintWriter(process.getOutputStream)
+          writer.println("q")
+          writer.close()
+        } else {
+          update(text)
+        }
+      case (OutputType.StdErr, text) =>
+        update(text)
+    }
+
+    Try {
+      val handler = new OSProcessHandler(process, "sbt import", Charset.forName("UTF-8"))
+      handler.addProcessListener(new ListenerAdapter(processListener))
+      handler.startNotify()
+
+      var processEnded = false
+      while (!processEnded && !cancellationFlag.get())
+        processEnded = handler.waitFor(SBT_PROCESS_CHECK_TIMEOUT_MSEC)
+
+      if (!processEnded) {
+        // task was cancelled
+        handler.setShouldDestroyProcessRecursively(false)
+        handler.destroyProcess()
+        throw ImportCancelledException
+      } else messages
+    }
+  }
+
+  private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
+
+  def cancel(): Unit = cancellationFlag.set(true)
+}
+
+object SbtStructureDump {
+
+  private val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
+
   case class ImportMessages(warnings: Seq[String], errors: Seq[String], log: String) {
 
     def appendMessage(text: String): ImportMessages = copy(
@@ -132,6 +286,10 @@ object SbtShellDump {
     def addError(msg: String): ImportMessages = copy(errors = errors :+ msg)
 
     def addWarning(msg: String): ImportMessages = copy(warnings = warnings :+ msg)
+  }
+
+  case object ImportMessages {
+    def empty = ImportMessages(Seq.empty, Seq.empty, "")
   }
 
   case class SbtBuildEvent(parentId: Any, kind: MessageEvent.Kind, group: String, message: String)
