@@ -359,4 +359,23 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
       "packageObject.package$$anonfun$packageMethod$1$$anonfun$apply$mcVI$sp$1"
     )
   }
+
+  setupFile("ValueClass.scala",
+    s"""
+       |object ValueClass {
+       |  def main(args: Array[String]): Unit = {
+       |    new Wrapper("").double
+       |    ""$bp
+       |  }
+       |
+       |  class Wrapper(val s: String) extends AnyVal {
+       |    def double: String = {
+       |      ${offsetMarker}s + s
+       |    }
+       |  }
+       |}
+    """.stripMargin.trim)
+  def testValueClass(): Unit = {
+    checkGetAllClasses("ValueClass$Wrapper$")
+  }
 }
