@@ -68,7 +68,7 @@ object HydraDownloader {
     Seq(
       s"""set scalaVersion := "${version.split("_")(0)}"""",
       s"""set credentials := Seq(Credentials("${repositorySettings.repositoryRealm}", "${repositorySettings.repositoryName}", "${repositorySettings.login}", "${repositorySettings.password}"))""",
-      s"""set resolvers := Seq(Resolver.url("Triplequote Plugins Ivy Releases", url("${repositorySettings.repositoryURL}/ivy-releases/"))(Resolver.ivyStylePatterns), Resolver.url("Triplequote sbt-plugin-relseases", url("${repositorySettings.repositoryURL}/sbt-plugins-release/"))(Resolver.ivyStylePatterns),  "Triplequote Plugins Releases" at "${repositorySettings.repositoryURL}/libs-release-local/")""",
+      s"""set resolvers := Seq("Triplequote Plugins Ivy Releases" at "${repositorySettings.repositoryURL}")""",
       s"""set libraryDependencies := Seq("com.triplequote" % "hydra_${version.split("_")(0)}" % "${version.split("_")(1)}", ("com.triplequote" % "hydra-bridge_1_0" % "${version.split("_")(1)}").sources())""",
       "updateClassifiers",
       "show dependencyClasspath")

@@ -19,9 +19,9 @@ object HydraVersions {
   private val CompilerRegex = """.*scala-compiler-(\d+\.\d+\.\d+)(-SNAPSHOT)?\.jar""".r
 
   private val Pattern = ".+>(.*\\d+\\.\\d+\\.\\d+.*)/<.*".r
-  private val HydraURL = "ivy-releases/com.triplequote/"
-  private val MinHydraVersion = Version("0.9.5")
-  private val HardcodedHydraVersions = Seq("0.9.5")
+  private val HydraURL = "com/triplequote/"
+  private val MinHydraVersion = Version("0.9.7")
+  private val HardcodedHydraVersions = Seq(MinHydraVersion.presentation)
 
   private final val Log: Logger = Logger.getInstance(this.getClass.getName)
 
