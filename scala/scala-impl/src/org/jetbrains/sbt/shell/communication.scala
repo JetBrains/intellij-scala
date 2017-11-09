@@ -116,13 +116,18 @@ object SbtShellCommunication {
   sealed trait ShellEvent
   case object TaskStart extends ShellEvent
   case object TaskComplete extends ShellEvent
+  case object ErrorWaitForInput extends ShellEvent
   case class Output(line: String) extends ShellEvent
+
+  sealed trait ErrorReaction
+  case object Quit extends ErrorReaction
+  case object Ignore extends ErrorReaction
 
   type EventAggregator[A] = (A, ShellEvent) => A
 
   /** Aggregates the output of a shell task. */
   val messageAggregator: EventAggregator[StringBuilder] = (builder, e) => e match {
-    case TaskStart | TaskComplete => builder
+    case TaskStart | TaskComplete | ErrorWaitForInput => builder
     case Output(text) => builder.append("\n").append(text)
   }
 
@@ -157,6 +162,8 @@ private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[
     if (!promise.isCompleted && promptReady(text)) {
       aggregate(TaskComplete)
       promise.complete(Success(a))
+    } else if (promptError(text)) {
+      aggregate(ErrorWaitForInput)
     } else {
       aggregate(Output(text))
     }
@@ -192,10 +199,11 @@ private[shell] object SbtProcessUtil {
   val IDEA_PROMPT_MARKER = "[IJ]"
 
   // the prompt marker is inserted by the sbt-idea-shell plugin
-  def promptReady(line: String): Boolean = line.trim match {
-    case x if x.startsWith(IDEA_PROMPT_MARKER) => true
-    case _ => false
-  }
+  def promptReady(line: String): Boolean =
+    line.trim.startsWith(IDEA_PROMPT_MARKER)
+
+  def promptError(line: String): Boolean =
+    line.trim.contains("(r)etry, (q)uit, (l)ast, or (i)gnore")
 }
 
 /**
@@ -223,7 +231,8 @@ private[shell] abstract class LineListener extends ProcessAdapter with AnsiEscap
       case t =>
         builder.append(t)
         val lineSoFar = builder.result()
-        if (promptReady(lineSoFar)) lineDone()
+        if (promptReady(lineSoFar) || promptError(lineSoFar))
+          lineDone()
     }
   }
 
