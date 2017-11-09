@@ -1271,7 +1271,7 @@
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.IfElseToFilteredOptionInspection"
                          displayName="Change to filter" groupPath="Scala,Collections" groupName="Options"
-                         shortName="IfElseToFilterdOption" level="WARNING"
+                         shortName="IfElseToFilteredOption" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <!--other-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
