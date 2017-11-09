@@ -206,8 +206,4 @@ object CompileServerManager {
   def showCompileServerSettingsDialog(project: Project): Unit = {
     ShowSettingsUtil.getInstance().showSettingsDialog(project, "Scala Compile Server")
   }
-
-  def showHydraCompileSettingsDialog(project: Project): Unit = {
-    ShowSettingsUtil.getInstance().showSettingsDialog(project, "Hydra Compiler")
-  }
 }
