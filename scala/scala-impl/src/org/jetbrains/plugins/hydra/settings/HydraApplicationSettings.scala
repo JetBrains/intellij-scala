@@ -85,7 +85,7 @@ class HydraApplicationSettingsState {
 }
 
 object HydraApplicationSettings {
-  val DefaultHydraRepositoryUrl = "https://repo.triplequote.com/artifactory/"
+  val DefaultHydraRepositoryUrl = "https://repo.triplequote.com/artifactory/libs-release/"
   val DefaultHydraRepositoryRealm = "Artifactory Realm"
   def getInstance(): HydraApplicationSettings = ServiceManager.getService(classOf[HydraApplicationSettings])
 }

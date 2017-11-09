@@ -8,8 +8,7 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{Messages, TextComponentAccessor}
 import com.intellij.ui.{DocumentAdapter, EditorNotifications}
-import org.jetbrains.plugins.hydra.HydraVersions
-import org.jetbrains.plugins.hydra.caches.HydraArtifactsCache
+import org.jetbrains.plugins.hydra.{HydraDownloader, HydraVersions}
 import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
 import org.jetbrains.plugins.scala.extensions
 
@@ -128,7 +127,7 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
 
   private def downloadArtifacts(scalaVersions: Seq[String], hydraVersion: String): (String => Unit) => Unit =
     (listener: (String) => Unit) => scalaVersions.foreach(version =>
-      HydraArtifactsCache.downloadIfNotPresent(HydraRepositorySettings(getHydraRepositoryName, getHydraRepository,
+      HydraDownloader.downloadIfNotPresent(HydraRepositorySettings(getHydraRepositoryName, getHydraRepository,
         getHydraRepositoryRealm, getUsername, getPassword), version, hydraVersion, listener))
 
   private def setHydraVersions: Unit = {

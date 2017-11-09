@@ -5,9 +5,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
 import org.jetbrains.plugins.hydra.HydraVersions
-import org.jetbrains.plugins.hydra.compiler.HydraCompilerSettings
+import org.jetbrains.plugins.hydra.compiler.{HydraCompilerSettings, HydraCompilerSettingsManager}
 import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
-import org.jetbrains.plugins.scala.compiler.CompileServerManager
 import org.jetbrains.plugins.scala.project.notification.AbstractNotificationProvider
 import org.jetbrains.plugins.hydra.notification.HydraArtifactsNotificationProvider._
 
@@ -31,15 +30,17 @@ class HydraArtifactsNotificationProvider(project: Project, notifications: Editor
     }
   }
 
-  override protected def createTask(module: Module): Runnable = () => CompileServerManager.showHydraCompileSettingsDialog(project)
+  override protected def createTask(module: Module): Runnable = () => HydraCompilerSettingsManager.showHydraCompileSettingsDialog(project)
 
   override protected def panelText: String = s"No $developerKitTitle artifacts in module. Please download the artifacts."
 
   override protected def developerKitTitle: String = HydraTitle
+
 }
 
 object HydraArtifactsNotificationProvider {
   private val HydraTitle = "Hydra"
 
   private val ProviderKey = Key.create[EditorNotificationPanel](HydraTitle)
+
 }

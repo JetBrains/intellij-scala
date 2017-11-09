@@ -11,6 +11,7 @@ import org.jetbrains.jps.incremental.scala.model.{IncrementalityType, LibrarySet
 import org.jetbrains.jps.model.java.JpsJavaSdkType
 import org.jetbrains.jps.model.module.JpsModule
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
+import org.jetbrains.jps.cmdline.ProjectDescriptor
 
 import scala.collection.JavaConverters._
 
@@ -27,34 +28,11 @@ object CompilerData {
     val target = chunk.representativeTarget
     val module = target.getModule
 
-    def useHydraCompiler(jars: CompilerJars): Boolean = {
-      val hydraGlobalSettings = SettingsManager.getGlobalHydraSettings(project.getModel.getGlobal)
-      val hydraProjectSettings = SettingsManager.getHydraSettings(project.getProject)
-
-      val enabled = hydraProjectSettings.isHydraEnabled
-      val compilerVer = compilerVersion(module)
-      val hydraArtifactsExist = compilerVer.map(v => hydraGlobalSettings.containsArtifactsFor(v, hydraProjectSettings.getHydraVersion)).getOrElse(false)
-      val res = enabled && hydraArtifactsExist
-
-      if (enabled && !res) {
-        val reason =
-          if (compilerVer.isEmpty) s"could not extract compiler version from module $module, ${compilerJarsIn(module)}"
-          else s"Hydra artifacts not found for ${compilerVer.get} and ${hydraProjectSettings.getHydraVersion}."
-
-        Log.error(s"Not using Hydra compiler for ${module.getName} because $reason")
-      }
-      res
-    }
-
     val compilerJars = if (SettingsManager.hasScalaSdk(module)) {
       compilerJarsIn(module).flatMap { case jars: CompilerJars =>
         val compileJars =
-          if (useHydraCompiler(jars)) {
-            val scalaVersion = compilerVersion(module).get
-            val hydraData = HydraData(project.getProject, scalaVersion)
-            val hydraOtherJars = hydraData.otherJars
-            val extraJars = if(hydraOtherJars.nonEmpty) hydraOtherJars else jars.extra
-            CompilerJars(jars.library, hydraData.getCompilerJar.getOrElse(jars.compiler), extraJars)
+          if (useHydraCompiler(project, module, jars)) {
+            getHydraCompilerJars(project, module, jars)
           } else jars
         Log.info("Compiler jars: " + compileJars.files.map(_.getName))
         val absentJars = compileJars.files.filter(!_.exists)
@@ -176,4 +154,30 @@ object CompilerData {
 
   private def version(compiler: File): Option[String] = readProperty(compiler, "compiler.properties", "version.number")
 
+  private def useHydraCompiler(project: ProjectDescriptor, module: JpsModule, jars: CompilerJars): Boolean = {
+    val hydraGlobalSettings = SettingsManager.getGlobalHydraSettings(project.getModel.getGlobal)
+    val hydraProjectSettings = SettingsManager.getHydraSettings(project.getProject)
+
+    val enabled = hydraProjectSettings.isHydraEnabled
+    val compilerVer = compilerVersion(module)
+    val hydraArtifactsExist = compilerVer.map(v => hydraGlobalSettings.containsArtifactsFor(v, hydraProjectSettings.getHydraVersion)).getOrElse(false)
+    val res = enabled && hydraArtifactsExist
+
+    if (enabled && !res) {
+      val reason =
+        if (compilerVer.isEmpty) s"could not extract compiler version from module $module, ${compilerJarsIn(module)}"
+        else s"Hydra artifacts not found for ${compilerVer.get} and ${hydraProjectSettings.getHydraVersion}."
+
+      Log.error(s"Not using Hydra compiler for ${module.getName} because $reason")
+    }
+    res
+  }
+
+  private def getHydraCompilerJars(project: ProjectDescriptor, module: JpsModule, jars: CompilerJars) = {
+    val scalaVersion = compilerVersion(module).get
+    val hydraData = HydraData(project.getProject, scalaVersion)
+    val hydraOtherJars = hydraData.otherJars
+    val extraJars = if(hydraOtherJars.nonEmpty) hydraOtherJars else jars.extra
+    CompilerJars(jars.library, hydraData.getCompilerJar.getOrElse(jars.compiler), extraJars)
+  }
 }
