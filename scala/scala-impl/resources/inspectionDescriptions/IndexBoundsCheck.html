@@ -1,0 +1,19 @@
+<html>
+<body>
+Don’t check index bounds explicitly.
+
+<p>
+Before:
+<pre>
+if (i &lt; seq.length) Some(seq(i)) else None
+</pre>
+
+<br>
+After:
+<pre>
+seq.lift(i)
+</pre>
+</p>
+
+</body>
+</html>
