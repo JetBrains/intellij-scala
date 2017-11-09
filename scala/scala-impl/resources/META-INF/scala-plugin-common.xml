@@ -1235,6 +1235,11 @@
                          displayName="Collect and headOption to collectFirst" groupPath="Scala,Collections" groupName="Simplifications: other"
                          shortName="CollectHeadOption" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.IndexBoundsCheckInspection"
+                         displayName="Index bounds check" groupPath="Scala,Collections" groupName="Simplifications: other"
+                         shortName="IndexBoundsCheck" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+
         <!--maps-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
                          displayName="Get and getOrElse to getOrElse" groupPath="Scala,Collections" groupName="Maps"
