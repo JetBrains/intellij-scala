@@ -21,14 +21,9 @@ object SbtException {
     val lines = log.lines.toSeq
 
     if (lines.exists(_.startsWith("sbt.ResolveException")))
-      return handleUnresolvedDeps(lines)
-
-    trimLogIfNecessary(lines) match {
-      case NotTrimmed =>
-        new SbtException(SbtBundle("sbt.import.error", log))
-      case Trimmed(whatsLeft) =>
-        new SbtException(SbtBundle("sbt.import.errorLogIsTooLong", whatsLeft, dumpLog(log).toURI.toString))
-    }
+      handleUnresolvedDeps(lines)
+    else
+      new SbtException(SbtBundle("sbt.import.error", log))
   }
 
   private def handleUnresolvedDeps(lines: Seq[String]): SbtException = {
@@ -49,16 +44,6 @@ object SbtException {
   private object Utils {
     def joinLines(lines: Seq[String]): String =
       lines.mkString(System.getProperty("line.separator"))
-
-    trait TrimResult
-    object NotTrimmed extends TrimResult
-    case class Trimmed(whatsLeft: String) extends TrimResult
-
-    def trimLogIfNecessary(lines: Seq[String]): TrimResult =
-      if (lines.length > ACCEPTABLE_TO_DISPLAY_LOG_SIZE)
-        Trimmed(joinLines(lines.takeRight(ACCEPTABLE_TO_DISPLAY_LOG_SIZE)))
-      else
-        NotTrimmed
 
     def dumpLog(log: String): File = {
       val logDir = new File(PathManager.getLogPath)

@@ -19,6 +19,7 @@ import org.jetbrains.sbt.project.SbtProjectResolver._
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
+import org.jetbrains.sbt.project.structure.SbtShellDump.ImportMessages
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
@@ -26,6 +27,8 @@ import org.jetbrains.sbt.structure.{BuildData, ConfigurationData, DependencyData
 import org.jetbrains.sbt.{structure => sbtStructure}
 
 import scala.collection.JavaConverters._
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 import scala.xml.{Elem, XML}
 
@@ -139,29 +142,32 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val launcherDir = getSbtLauncherDir
       val sbtStructureVersion = binaryVersion(sbtVersion).major(2).presentation
 
-      val messageResult: Try[String] = {
+      val messageResult: Try[ImportMessages] = {
         if (useShellImport) {
-          SbtShellDump.dumpFromShell(taskId, projectRoot, structureFilePath, options, notifications)
+          val messagesF = SbtShellDump.dumpFromShell(taskId, projectRoot, structureFilePath, options, notifications)
+          Try(Await.result(messagesF, Duration.Inf)) // TODO some kind of timeout / cancel mechanism
         }
         else {
           val sbtStructureJar = settings.customSbtStructureFile.getOrElse(launcherDir / s"sbt-structure-$sbtStructureVersion.jar")
           val structureFilePath = path(structureFile)
           val dumper = new SbtProcessDump()
           processDumper = Option(dumper)
-          dumper.dumpFromProcess(
+          val resultsTry = dumper.dumpFromProcess(
             projectRoot, structureFilePath, options,
             settings.vmExecutable, settings.vmOptions, settings.environment,
             sbtLauncher, sbtStructureJar, taskId, notifications)
+          // TODO add error/warning messages during dump, report directly
+          resultsTry.map(msgs => ImportMessages(Seq.empty, Seq.empty, msgs))
         }
       }
       processDumper = None
 
       messageResult.flatMap { messages =>
-        if (structureFile.length > 0) Try {
+        if (messages.errors.isEmpty && structureFile.length > 0) Try {
           val elem = XML.load(structureFile.toURI.toURL)
-          (elem, messages)
+          (elem, messages.log)
         }
-        else Failure(SbtException.fromSbtLog(messages))
+        else Failure(SbtException.fromSbtLog(messages.log))
       }
     }
   }

@@ -15,9 +15,8 @@ import com.intellij.pom.Navigatable
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellRunner}
 
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import scala.util.Try
+import scala.collection.JavaConverters._
+import scala.concurrent.Future
 
 object SbtShellDump {
 
@@ -26,7 +25,7 @@ object SbtShellDump {
                     structureFilePath: String,
                     options: Seq[String],
                     notifications: ExternalSystemTaskNotificationListener,
-                   ): Try[String] = {
+                   ): Future[ImportMessages] = {
 
     notifications.onStart(id, dir.getCanonicalPath)
 
@@ -41,11 +40,8 @@ object SbtShellDump {
     val taskDescriptor =
       new TaskOperationDescriptorImpl("dump project structure from sbt shell", System.currentTimeMillis(), "project-structure-dump")
     val aggregator = messageAggregator(id, s"dump:${UUID.randomUUID()}", taskDescriptor, shell, notifications, viewManager)
-    val output = shell.command(cmd, new StringBuilder, aggregator, showShell = false)
 
-    Await.ready(output, Duration.Inf) // TODO some kind of timeout / cancel mechanism
-
-    output.value.get.map(_.toString())
+    shell.command(cmd, ImportMessages(Seq.empty, Seq.empty, ""), aggregator, showShell = false)
   }
 
   private def messageAggregator(id: ExternalSystemTaskId,
@@ -54,23 +50,30 @@ object SbtShellDump {
                                 shell: SbtShellCommunication,
                                 notifications: ExternalSystemTaskNotificationListener,
                                 viewManager: SyncViewManager
-                               ): EventAggregator[StringBuilder] = {
-    case (messages, TaskStart) =>
+                               ): EventAggregator[ImportMessages] = {
+    case (stats, TaskStart) =>
       val startEvent = new ExternalSystemStartEventImpl[TaskOperationDescriptor](dumpTaskId, null, taskDescriptor)
-      val event = new ExternalSystemTaskExecutionEvent(id, startEvent)
-      notifications.onStatusChange(event)
-      messages
+      val statusEvent = new ExternalSystemTaskExecutionEvent(id, startEvent)
+      notifications.onStatusChange(statusEvent)
+      stats
 
-    case (messages, TaskComplete) =>
-      val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
-        dumpTaskId, null, taskDescriptor,
-        new SuccessResultImpl(taskDescriptor.getEventTime, System.currentTimeMillis(), true)
-      )
-      val event = new ExternalSystemTaskExecutionEvent(id, finishEvent)
-      notifications.onStatusChange(event)
-      messages
+    case (stats, TaskComplete) =>
+      val result =
+        if (stats.errors.isEmpty)
+          new SuccessResultImpl(taskDescriptor.getEventTime, System.currentTimeMillis(), true)
+        else {
+          val fails = stats.errors.map { msg =>
+            new FailureImpl(msg, msg, Collections.emptyList())
+          }
+          new FailureResultImpl(taskDescriptor.getEventTime, System.currentTimeMillis(), fails.asJava)
+        }
 
-    case (messages, ErrorWaitForInput) =>
+      val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](dumpTaskId, null, taskDescriptor, result)
+      val statusEvent = new ExternalSystemTaskExecutionEvent(id, finishEvent)
+      notifications.onStatusChange(statusEvent)
+      stats
+
+    case (stats, ErrorWaitForInput) =>
       val msg = "Error importing sbt project. Please check sbt shell output."
       val ex = new ExternalSystemException(msg)
       val failure = new FailureImpl(msg, "error during sbt import", Collections.emptyList())
@@ -89,32 +92,47 @@ object SbtShellDump {
       // TODO check if this works correctly at all, or why not
       shell.send("i" + System.lineSeparator)
 
-      messages
+      stats.addError(msg)
 
-    case (messages, Output(text)) =>
+    case (stats, Output(text)) =>
       // report warnings / errors
-      buildEvent(text, dumpTaskId).foreach(viewManager.onEvent(_))
+      val buildEv = buildEvent(text, dumpTaskId)
 
+      buildEv.foreach { ev =>
+        viewManager.onEvent(ev)
+      }
+
+      val msgsize = stats.log.length // TODO some more informative metric?
       val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
-        dumpTaskId, null, taskDescriptor, messages.size, -1, "lines"
+        dumpTaskId, null, taskDescriptor, msgsize, -1, "chars"
       )
       val event = new ExternalSystemTaskExecutionEvent(id, progressEvent)
 
       notifications.onStatusChange(event)
       notifications.onTaskOutput(id, text, true)
 
-      messages.append(System.lineSeparator).append(text.trim)
+      stats.appendMessage(text)
   }
 
   def buildEvent(line: String, dumpTaskId: String): Option[MessageEvent] = {
     val text = line.trim
     if (text.startsWith("[warn]")) {
-      Option(SbtBuildEvent(dumpTaskId, MessageEvent.Kind.WARNING, "warnings", text.stripPrefix("[warn]")))
+      Option(SbtBuildEvent(dumpTaskId, MessageEvent.Kind.WARNING, "warnings", text.stripPrefix("[warn]").trim))
     } else if (text.startsWith("[error]")) {
-      Option(SbtBuildEvent(dumpTaskId, MessageEvent.Kind.ERROR, "errors", text.stripPrefix("[error]")))
+      Option(SbtBuildEvent(dumpTaskId, MessageEvent.Kind.ERROR, "errors", text.stripPrefix("[error]").trim))
     } else None
   }
 
+  case class ImportMessages(warnings: Seq[String], errors: Seq[String], log: String) {
+
+    def appendMessage(text: String): ImportMessages = copy(
+        log = log + System.lineSeparator + text.trim
+      )
+
+    def addError(msg: String): ImportMessages = copy(errors = errors :+ msg)
+
+    def addWarning(msg: String): ImportMessages = copy(warnings = warnings :+ msg)
+  }
 
   case class SbtBuildEvent(parentId: Any, kind: MessageEvent.Kind, group: String, message: String)
     extends AbstractBuildEvent(new Object, parentId, System.currentTimeMillis(), message) with MessageEvent {
