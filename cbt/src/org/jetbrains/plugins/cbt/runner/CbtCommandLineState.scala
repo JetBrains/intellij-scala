@@ -25,7 +25,7 @@ class CbtCommandLineState(task: String,
     val arguments = 
       Seq(CbtProcess.cbtExePath(environment.getProject)) ++
       options ++
-      (if (useDirect) Seq("direct") else Seq.empty) ++
+      (if (useDirect && !options.contains("direct")) Seq("direct") else Seq.empty) ++
       task.split(' ').map(_.trim).toSeq
     val commandLine = new GeneralCommandLine(arguments.asJava)
       .withWorkDirectory(workingDir)
