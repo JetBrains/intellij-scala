@@ -7,6 +7,8 @@ Replace different ways of checking emptiness of collections and options with <co
 <p><code>seq.size == 0 -> seq.isEmpty</code></p>
 <p><code>seq.size != 0 -> seq.nonEmpty</code></p>
 <p><code>!(seq.length > 1) -> seq.isEmpty</code></p>
+<p><code>seq.exists(_ => true) -> seq.nonEmpty</code></p>
+<p><code>seq.exists(const(true)) -> seq.nonEmpty</code></p>
 <p><code>!option.isEmpty -> option.isDefined</code></p>
 <p><code>option == None -> option.isEmpty</code></p>
 <p><code>option != None -> option.isDefined</code></p>

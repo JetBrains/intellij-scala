@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 /**
  * @author Nikolay.Tropin
@@ -62,6 +63,9 @@ object CheckNonEmpty extends SimplificationType {
       case (qual`.sizeOrLength`()) `!=` literal("0") => Some((qual, qual.end, expr.end))
       case (qual`.sizeOrLength`()) `>` literal("0") => Some((qual, qual.end, expr.end))
       case (qual`.sizeOrLength`()) `>=` literal("1") => Some((qual, qual.end, expr.end))
+      case qual`.exists`(ScFunctionExpr(_, Some(literal("true")))) => Some((qual, qual.end, expr.end))
+      case qual`.exists`(ScMethodCall(f: ScReferenceExpression, Seq(literal("true")))) if isConstFunction(f) =>
+        Some((qual, qual.end, expr.end))
       case `!`(CheckIsEmpty(qual, _, _)) => Some(qual, expr.start, expr.end)
       case qual `!=` scalaNone() if isOption(qual) => Some(qual, qual.end, expr.end)
       case scalaNone() `!=` qual if isOption(qual) => Some(qual, expr.start, qual.start)
@@ -70,6 +74,12 @@ object CheckNonEmpty extends SimplificationType {
     }
     CheckIsEmpty.extractInner(firstLevel)
   }
+
+  private def isConstFunction(f: ScReferenceExpression) = f.getText.endsWith("const") && (f.resolve() match {
+    case d: ScFunctionDefinition => d.containingClass.qualifiedName == "scala.Function"
+    case _ => false
+  })
+
 }
 
 object CheckIsDefined extends SimplificationType {
