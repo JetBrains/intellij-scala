@@ -2,16 +2,20 @@ package org.jetbrains.sbt.language.completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns._
 import com.intellij.patterns.StandardPatterns._
+import com.intellij.psi.PsiFile
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.sbt.language.SbtFileType
+import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.resolvers.SbtResolverUtils
 
 /**
@@ -19,10 +23,7 @@ import org.jetbrains.sbt.resolvers.SbtResolverUtils
   * @since 24.07.16
   */
 
-class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor {
-  override def fillCompletionVariants(parameters: CompletionParameters, result: CompletionResultSet): Unit = {
-    super.fillCompletionVariants(parameters, result)
-  }
+class SbtMavenDependencyCompletionContributor extends CompletionContributor {
 
   val MAX_ITEMS = 6000
 
@@ -43,7 +44,6 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
     )
   extend(CompletionType.BASIC, pattern, new CompletionProvider[CompletionParameters] {
     override def addCompletions(params: CompletionParameters, context: ProcessingContext, results: CompletionResultSet): Unit = {
-      import org.jetbrains.plugins.scala.project._
 
       def addResult(result: String, addPercent: Boolean = false): Unit = {
         if (addPercent)
@@ -60,10 +60,14 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
           results.addElement(LookupElementBuilder.create(result))
       }
 
-      val place = positionFromParameters(params)
+      val place = ScalaCompletionUtil.positionFromParameters(params)
       implicit val p: Project = place.getProject
 
-      val resolvers = SbtResolverUtils.getProjectResolversForFile(Option(ScalaPsiUtil.fileContext(place)))
+      if (place.getText == CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
+        return
+
+      val file = Option(ScalaPsiUtil.fileContext(place))
+      val resolvers = SbtResolverUtils.getProjectResolversForFile(file)
 
       def completeGroup(artifactId: String): Unit = {
         for {
@@ -96,9 +100,6 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
 
         results.stopHere()
       }
-
-      if (place.getText == CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
-        return
 
       val cleanText = place.getText.replaceAll(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED, "").replaceAll("\"", "")
 
