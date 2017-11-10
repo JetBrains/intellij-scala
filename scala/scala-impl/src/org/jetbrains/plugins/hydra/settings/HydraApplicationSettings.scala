@@ -4,8 +4,7 @@ import java.io.File
 import java.util
 
 import com.intellij.openapi.components._
-
-import scala.beans.BeanProperty
+import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.collection.JavaConverters._
 
 /**
@@ -17,6 +16,7 @@ import scala.collection.JavaConverters._
 )
 class HydraApplicationSettings extends PersistentStateComponent[HydraApplicationSettingsState]{
 
+  var isHydraSettingsEnabled: Boolean = false
   var artifactPaths: Map[(String, String), List[String]] = Map.empty
   var hydraVersions: Array[String] = Array.empty
   private var hydraRepositoryUrl: String = HydraApplicationSettings.DefaultHydraRepositoryUrl
@@ -25,6 +25,7 @@ class HydraApplicationSettings extends PersistentStateComponent[HydraApplication
 
   override def loadState(state: HydraApplicationSettingsState): Unit = {
     state.removeMapEntriesThatDontExist()
+    isHydraSettingsEnabled = state.isHydraSettingsEnabled
     artifactPaths = convertArtifactsFromStateToSettings(state.getGlobalArtifactPaths)
     hydraVersions = state.getHydraVersions.asScala.toArray
     hydraRepositoryUrl = state.getHydraRepositoryUrl
@@ -34,6 +35,7 @@ class HydraApplicationSettings extends PersistentStateComponent[HydraApplication
   override def getState: HydraApplicationSettingsState = {
     val state = new HydraApplicationSettingsState
     val artifacts = artifactPaths map { case((scalaVer, hydraVer), value) => (scalaVer + KeySeparator + hydraVer, value.asJava)}
+    state.setHydraSettingsEnabled(isHydraSettingsEnabled)
     state.setGlobalArtifactPaths(artifacts.asJava)
     state.removeMapEntriesThatDontExist()
     state.setHydraRepositoryUrl(hydraRepositoryUrl.toString)
@@ -63,6 +65,9 @@ class HydraApplicationSettings extends PersistentStateComponent[HydraApplication
 }
 
 class HydraApplicationSettingsState {
+  @BooleanBeanProperty
+  var hydraSettingsEnabled: Boolean = false
+
   @BeanProperty
   var globalArtifactPaths: java.util.Map[String, java.util.List[String]] = new java.util.HashMap()
 

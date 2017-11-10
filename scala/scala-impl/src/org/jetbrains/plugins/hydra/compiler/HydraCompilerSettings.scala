@@ -21,8 +21,6 @@ class HydraCompilerSettings(project: Project) extends PersistentStateComponent[H
 
   var isHydraEnabled: Boolean = false
 
-  var isHydraSettingsEnabled: Boolean = false
-
   var hydraVersion: String = ""
 
   var noOfCores: String = Math.ceil(Runtime.getRuntime.availableProcessors()/2D).toInt.toString
@@ -39,7 +37,6 @@ class HydraCompilerSettings(project: Project) extends PersistentStateComponent[H
     state.hydraStorePath = hydraStorePath
     state.sourcePartitioner = sourcePartitioner
     state.projectRoot = ProjectRoot
-    state.isHydraSettingsEnabled = isHydraSettingsEnabled
     state
   }
 
@@ -49,7 +46,6 @@ class HydraCompilerSettings(project: Project) extends PersistentStateComponent[H
     noOfCores = state.noOfCores
     hydraStorePath = state.hydraStorePath
     sourcePartitioner = state.sourcePartitioner
-    isHydraSettingsEnabled = state.isHydraSettingsEnabled
   }
 
   def getDefaultHydraStorePath: String = Paths.get(ProjectRoot, ".hydra", "idea").toString
@@ -79,9 +75,6 @@ class HydraCompilerSettingsState {
 
   @BeanProperty
   var projectRoot: String = ""
-
-  @BeanProperty
-  var isHydraSettingsEnabled: Boolean = false
 }
 
 object SourcePartitioner {
