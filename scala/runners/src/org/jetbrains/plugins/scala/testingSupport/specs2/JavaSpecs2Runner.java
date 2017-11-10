@@ -8,8 +8,7 @@ import org.jetbrains.plugins.scala.testingSupport.specs2.MyNotifierRunner;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -35,10 +34,10 @@ public class JavaSpecs2Runner {
     }
     boolean isSpecs2_3 = isSpecs2_3(runnerClass);
     ArrayList<String> specialArgs = new ArrayList<String>();
-    ArrayList<String> classes = new ArrayList<String>();
+    HashMap<String, Set<String>> classesToTests = new HashMap<>();
+    String currentClass = null;
     boolean failedUsed = false;
     ArrayList<String> failedTests = new ArrayList<String>();
-    String testName = "";
     boolean showProgressMessages = true;
     int i = 0;
     String[] newArgs  = TestRunnerUtil.getNewArgs(args);
@@ -46,12 +45,13 @@ public class JavaSpecs2Runner {
       if (newArgs[i].equals("-s")) {
         ++i;
         while (i < newArgs.length && !newArgs[i].startsWith("-")) {
-          classes.add(newArgs[i]);
+          currentClass = newArgs[i];
+          classesToTests.put(currentClass, new HashSet<String>());
           ++i;
         }
       } else if (newArgs[i].equals("-testName")) {
         ++i;
-        testName = TestRunnerUtil.unescapeTestName(newArgs[i]);
+        classesToTests.get(currentClass).add(TestRunnerUtil.unescapeTestName(newArgs[i]));
         ++i;
       } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;
@@ -83,20 +83,16 @@ public class JavaSpecs2Runner {
 
     if (failedUsed) {
       i = 0;
+      TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
       while (i + 1 < failedTests.size()) {
-        TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
         runSingleTest(failedTests.get(i), failedTests.get(i + 1), isSpecs2_3, specialArgs, notifier);
         i += 2;
       }
-    } else if (testName.equals("")) {
-      for (String clazz : classes) {
-        TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-        runSingleTest(clazz, "", isSpecs2_3, specialArgs, notifier);
-      }
     } else {
-      for (String clazz : classes) {
-        TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-        runSingleTest(clazz, testName, isSpecs2_3, specialArgs, notifier);
+      TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
+      for (String className : classesToTests.keySet()) {
+        Set<String> tests = classesToTests.get(className);
+        runTests(className, tests, isSpecs2_3, specialArgs, notifier);
       }
     }
     System.exit(0);
@@ -202,6 +198,11 @@ public class JavaSpecs2Runner {
   private final static String specInstantiationMessage = "can not create specification";
 
   private static void runSingleTest(String className, String testName, boolean isSpecs2_3, ArrayList<String> argsArray, JavaSpecs2Notifier notifier)
+          throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    runTests(className, testName.equals("") ? Collections.EMPTY_LIST : Collections.singletonList(testName), isSpecs2_3, argsArray, notifier);
+  }
+
+  private static void runTests(String className, Collection<String> tests, boolean isSpecs2_3, ArrayList<String> argsArray, JavaSpecs2Notifier notifier)
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
     List<String> runnerArgs = new ArrayList<String>();
     runnerArgs.add(className);
@@ -211,9 +212,9 @@ public class JavaSpecs2Runner {
       runnerArgs.add("-notifier");
       runnerArgs.add(reporterQualName);
     }
-    if (!testName.equals("")) {
+    if (!tests.isEmpty()) {
       runnerArgs.add("-ex");
-      runnerArgs.add("\"\\A" + testName + "\\Z\"");
+      runnerArgs.add("\"\\A" + String.join("|", tests) + "\\Z\"");
     }
     Object runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
     if (isSpecs2_3) {
