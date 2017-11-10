@@ -130,4 +130,29 @@ class ReplaceWithNonEmptyTest extends CheckEmptinessTest {
     val result = "Seq().nonEmpty"
     testQuickFix(text, result, hint)
   }
+
+  def testExistTrue(): Unit = {
+    val selected = s"Seq()$START.exists(_ => true)$END"
+    checkTextHasError(selected)
+    val text = "Seq().exists(_ => true)"
+    val result = "Seq().nonEmpty"
+    testQuickFix(text, result, hint)
+  }
+
+  def testExistConstTrue(): Unit = {
+    val selected = s"import scala.Function.const; Seq()$START.exists(const(true))$END"
+    checkTextHasError(selected)
+    val text = "import scala.Function.const; Seq().exists(const(true))"
+    val result = "import scala.Function.const; Seq().nonEmpty"
+    testQuickFix(text, result, hint)
+  }
+
+  def testExistConstTrue2(): Unit = {
+    val selected = s"Seq()$START.exists(scala.Function.const(true))$END"
+    checkTextHasError(selected)
+    val text = "Seq().exists(scala.Function.const(true))"
+    val result = "Seq().nonEmpty"
+    testQuickFix(text, result, hint)
+  }
+
 }
