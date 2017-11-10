@@ -160,7 +160,7 @@ object DependencyGroups {
   val testDownloader = Seq(
 
     "com.chuusai" % "shapeless_2.11" % "2.0.0",
-    "com.chuusai" %% "shapeless_2.11" % "2.3.2",
+    "com.chuusai" % "shapeless_2.11" % "2.3.2",
     "com.fommil" % "stalactite_2.11" % "0.0.3",
     "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
     "com.github.julien-truffaut" %% "monocle-generic" % monocleVersion,
