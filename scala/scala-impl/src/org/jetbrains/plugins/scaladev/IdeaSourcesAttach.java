@@ -17,14 +17,12 @@ import com.intellij.openapi.vfs.VirtualFileVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.project.notification.source.AttachSourcesUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class IdeaSourcesAttach extends AbstractProjectComponent {
     private static final Pattern PATTERN = Pattern.compile("^sources\\.(zip|jar)$");
+    private static final HashSet PRJ_NAMES = new HashSet<>(Arrays.asList("scalaUltimate", "scalaCommunity"));
 
     protected IdeaSourcesAttach(Project project) {
         super(project);
@@ -51,40 +49,39 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
 
     void attachIdeaSources() {
         if (!ApplicationManager.getApplication().isInternal()) return;
-        final Set<LibraryOrderEntry> libs = getLibsWithoutSourceRoots();
-        LOG.info("Got " + libs.size() + " total IDEA libraries with missing source roots");
-        if (libs.isEmpty()) return;
-        LibraryOrderEntry pivot = null;
-        for (LibraryOrderEntry lib : libs) {
-            Library library = lib.getLibrary();
-            if (library != null && library.getFiles(OrderRootType.CLASSES).length > 0) {
-                pivot = lib;
-                break;
-            }
-        }
-        if (pivot == null) {
-            LOG.error("No libraries with valid class roots found");
-            return;
-        }
+        if (!PRJ_NAMES.contains(myProject.getName())) return;
 
-        final VirtualFile zip = findSourcesZip(findCurrentSDKDir(pivot));
-        if (zip == null) return;
-        LOG.info("Found related sources archive: " + zip.getCanonicalPath());
         new Task.Backgroundable(myProject, "Attaching Idea Sources", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
+                final Set<LibraryOrderEntry> libs = getLibsWithoutSourceRoots();
+                LOG.info("Got " + libs.size() + " total IDEA libraries with missing source roots");
+                if (libs.isEmpty()) return;
+                LibraryOrderEntry pivot = null;
+                for (LibraryOrderEntry lib : libs) {
+                    Library library = lib.getLibrary();
+                    if (library != null && library.getFiles(OrderRootType.CLASSES).length > 0) {
+                        pivot = lib;
+                        break;
+                    }
+                }
+                if (pivot == null) {
+                    LOG.error("No libraries with valid class roots found");
+                    return;
+                }
+
+                final VirtualFile zip = findSourcesZip(findCurrentSDKDir(pivot));
+                if (zip == null) return;
+                LOG.info("Found related sources archive: " + zip.getCanonicalPath());
                 setTitle("Scanning for Sources Archive");
                 final Collection<VirtualFile> roots = new LibraryJavaSourceRootDetector().detectRoots(zip, indicator);
                 setTitle("Attaching Source Roots");
                 for (LibraryOrderEntry lib : libs) {
                     final Library library = lib.getLibrary();
                     if (library != null && library.getUrls(OrderRootType.SOURCES).length == 0) {
-                        TransactionGuard.getInstance().submitTransactionLater(myProject, new Runnable() {
-                            @Override
-                            public void run() {
-                                AttachSourcesUtil.appendSources(library, roots.toArray(new VirtualFile[roots.size()]));
-                            }
-                        });
+                        TransactionGuard.getInstance().submitTransactionLater(myProject, () ->
+                                AttachSourcesUtil.appendSources(library, roots.toArray(new VirtualFile[roots.size()]))
+                        );
                     }
                 }
                 LOG.info("Finished attaching IDEA sources");
@@ -109,7 +106,7 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
                 if (orderEntry instanceof LibraryOrderEntry) libs.add((LibraryOrderEntry) orderEntry);
             }
         }
-        return new HashSet<LibraryOrderEntry>(libs);
+        return new HashSet<>(libs);
     }
 
     private Set<LibraryOrderEntry> needsAttaching(final Set<LibraryOrderEntry> libs) {
