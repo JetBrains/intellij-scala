@@ -316,7 +316,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
       val languageLevel: LanguageLevel =
         processor match {
           case methodProcessor: MethodsProcessor => methodProcessor.getLanguageLevel
-          case _ => PsiUtil.getLanguageLevel(place)
+          case _ => PsiUtil.getLanguageLevel(getProject)
         }
       return PsiClassImplUtil.processDeclarationsInClass(this, processor, oldState, null, lastChild, place, languageLevel, false)
     }

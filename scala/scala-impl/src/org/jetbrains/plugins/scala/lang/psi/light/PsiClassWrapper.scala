@@ -246,7 +246,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
       val languageLevel: LanguageLevel =
         processor match {
           case methodProcessor: MethodsProcessor => methodProcessor.getLanguageLevel
-          case _ => PsiUtil.getLanguageLevel(place)
+          case _ => PsiUtil.getLanguageLevel(getProject)
         }
       return PsiClassImplUtil.processDeclarationsInClass(this, processor, state, null, lastParent, place, languageLevel, false)
     }
