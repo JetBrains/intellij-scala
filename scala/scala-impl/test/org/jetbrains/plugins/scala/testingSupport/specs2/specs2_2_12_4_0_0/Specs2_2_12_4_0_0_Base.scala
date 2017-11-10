@@ -17,7 +17,7 @@ trait Specs2_2_12_4_0_0_Base extends Specs2TestCase {
   override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = {
     import Specs2_2_12_4_0_0_Base._
 
-    Seq(Specs2CommonLoader(), Specs2CoreLoader(), Specs2MatcherLoader(), Specs2FpLoader())
+    Seq(Specs2CommonLoader(), Specs2CoreLoader(), Specs2MatcherLoader(), Specs2FpLoader(), ScalaXmlLoader())
   }
 }
 
