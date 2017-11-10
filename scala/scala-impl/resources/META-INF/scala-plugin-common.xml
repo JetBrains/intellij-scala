@@ -271,6 +271,7 @@
 
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider"/>
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider"/>
+        <editorNotificationProvider implementation="org.jetbrains.plugins.hydra.notification.HydraArtifactsNotificationProvider"/>
 
         <!--Enter Handler for ScalaDoc -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaDocParamEnterHandlerDelegate"/>
@@ -421,6 +422,12 @@
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
 
+        <applicationService serviceInterface="org.jetbrains.plugins.hydra.settings.HydraApplicationSettings"
+                            serviceImplementation="org.jetbrains.plugins.hydra.settings.HydraApplicationSettings"/>
+
+        <projectService serviceInterface="org.jetbrains.plugins.hydra.compiler.HydraCompilerSettings"
+                        serviceImplementation="org.jetbrains.plugins.hydra.compiler.HydraCompilerSettings"/>
+
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
 
@@ -431,7 +438,6 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler" dynamic="true"
                              instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable" />
-
         <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>
 
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaAttributeValueSelectioner"/>
@@ -1486,6 +1492,9 @@
         </action>
         <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction">
             <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
+        </action>
+        <action id="Hydra.EnableSettings" class="org.jetbrains.plugins.hydra.actions.EnableHydraSettingsAction"
+                text="Open Hydra Settings" description="Show the Hydra Settings Panel">
         </action>
         <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.ScalaConsoleExecuteAction" text="Execute Console Statement">
             <keyboard-shortcut first-keystroke="control ENTER" keymap="$default"/>

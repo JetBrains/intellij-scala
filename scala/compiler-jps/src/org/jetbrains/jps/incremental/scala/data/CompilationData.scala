@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package data
 
 import java.io.{File, IOException}
+import java.nio.file.Paths
 import java.util
 import java.util.Collections
 
@@ -12,7 +13,8 @@ import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
-import org.jetbrains.plugin.scala.compiler.NameHashing
+import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
+import org.jetbrains.jps.model.module.JpsModule
 
 import scala.collection.JavaConverters._
 
@@ -35,6 +37,7 @@ case class CompilationData(sources: Seq[File],
 }
 
 object CompilationData {
+  private val Log: JpsLogger = JpsLogger.getInstance(CompilationData.getClass.getName)
   private val compilationStamp = System.nanoTime()
 
   def from(sources: Seq[File], allSources: Seq[File], context: CompileContext, chunk: ModuleChunk): Either[String, CompilationData] = {
@@ -81,7 +84,9 @@ object CompilationData {
         !JavaBuilderUtil.isCompileJavaIncrementally(context) &&
           !JavaBuilderUtil.isForcedRecompilationAllJavaModules(context)
 
-      CompilationData(canonicalSources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions,
+      val hydraOptions = getHydraCompilerOptions(target, context, module, outputGroups)
+
+      CompilationData(canonicalSources, classpath, output, commonOptions ++ scalaOptions ++ hydraOptions, commonOptions ++ javaOptions,
         order, cacheFile, relevantOutputToCacheMap, outputGroups,
         ZincData(allSources, compilationStamp, isCompile))
     }
@@ -212,5 +217,23 @@ object CompilationData {
     if (errors.isEmpty) None else Some(errors.mkString("\n") +
             "\nPlease configure separate output paths to proceed with the compilation." +
             "\nTIP: you can use Project Artifacts to combine compiled classes if needed.")
+  }
+
+  private def getHydraCompilerOptions(target: ModuleBuildTarget, context: CompileContext, module: JpsModule, outputGroups: Seq[(File, File)]) = {
+    val hydraSettings = SettingsManager.getHydraSettings(context.getProjectDescriptor.getProject)
+    val hydraGlobalSettings = SettingsManager.getGlobalHydraSettings(context.getProjectDescriptor.getModel.getGlobal)
+    val scalaVersion = CompilerData.compilerVersion(module)
+    val hydraConfigFolder = if (target.isTests) "test" else "main"
+    val hydraOptions =
+      if (hydraSettings.isHydraEnabled && scalaVersion.nonEmpty && hydraGlobalSettings.containsArtifactsFor(scalaVersion.get, hydraSettings.getHydraVersion))
+        Seq("-sourcepath", outputGroups.map(_._1).mkString(File.pathSeparator), "-cpus", hydraSettings.getNumberOfCores,
+          "-YsourcePartitioner:" + hydraSettings.getSourcePartitioner, "-YhydraStore", Paths.get(hydraSettings.getHydraStorePath, module.getName, hydraConfigFolder).toString,
+          "-YpartitionFile", Paths.get(hydraSettings.getHydraStorePath, module.getName).toString, "-YrootDirectory", hydraSettings.getProjectRoot,
+          "-YtimingsFile", Paths.get(hydraSettings.getHydraStorePath, "timings.csv").toString, "-YhydraTag", s"${module.getName}/${hydraConfigFolder}")
+      else
+        Seq.empty
+    Log.debug("Hydra options: " + hydraOptions.mkString(" "))
+
+    hydraOptions
   }
 }

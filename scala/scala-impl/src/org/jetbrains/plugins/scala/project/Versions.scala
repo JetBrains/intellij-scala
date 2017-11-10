@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.project
 
+import java.net.HttpURLConnection
+
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
@@ -31,11 +33,12 @@ object Versions  {
         case entity.pattern(number) => number
       })
 
-    loaded
-      .getOrElse(entity.hardcodedVersions)
-      .map(Version(_))
-      .filter(_ >= entity.minVersion)
+      loaded
+        .getOrElse(entity.hardcodedVersions)
+        .map(Version(_))
+        .filter(_ >= entity.minVersion)
     }
+
     allVersions
       .sortWith(_ >= _)
       .map(_.presentation)
@@ -43,12 +46,13 @@ object Versions  {
   }
 
   private def loadVersionsFrom(url: String, filter: PartialFunction[String, String]): Try[Seq[String]] = {
-    loadLinesFrom(url).map { lines => lines.collect(filter) }
+    loadLinesFrom(url)().map { lines => lines.collect(filter) }
   }
 
-  private def loadLinesFrom(url: String): Try[Seq[String]] = {
+  def loadLinesFrom(url: String)(prepareConnection: HttpURLConnection => Unit = _ => ()): Try[Seq[String]] = {
     Try(HttpConfigurable.getInstance().openHttpConnection(url)).map { connection =>
       try {
+        prepareConnection(connection)
         Source.fromInputStream(connection.getInputStream).getLines().toVector
       } finally {
         connection.disconnect()
