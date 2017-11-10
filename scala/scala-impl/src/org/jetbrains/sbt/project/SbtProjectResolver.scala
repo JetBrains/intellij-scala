@@ -164,7 +164,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           val elem = XML.load(structureFile.toURI.toURL)
           (elem, messages)
         }
-        else Failure(SbtException.fromSbtLog(messages.log))
+        else Failure(SbtException.fromSbtLog(messages.log.mkString("\n")))
       }
     }
   }

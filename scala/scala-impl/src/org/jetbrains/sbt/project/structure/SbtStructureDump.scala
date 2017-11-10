@@ -115,7 +115,7 @@ class SbtStructureDump {
         writer.flush()
         handle(process, taskId, dumpTaskId, taskDescriptor, viewManager, notifications)
       }
-      result.getOrElse(ImportMessages(Seq.empty, Seq("no output from sbt shell process available"), ""))
+      result.getOrElse(ImportMessages.empty.addError("no output from sbt shell process available"))
     }.orElse(Failure(ImportCancelledException))
 
     val endTime = System.currentTimeMillis()
@@ -310,11 +310,9 @@ object SbtStructureDump {
   case object ShellImport extends ImportType
   case object ProcessImport extends ImportType
 
-  case class ImportMessages(warnings: Seq[String], errors: Seq[String], log: String) {
+  case class ImportMessages(warnings: Seq[String], errors: Seq[String], log: Seq[String]) {
 
-    def appendMessage(text: String): ImportMessages = copy(
-        log = log + System.lineSeparator + text.trim
-      )
+    def appendMessage(text: String): ImportMessages = copy(log = log :+ text.trim)
 
     def addError(msg: String): ImportMessages = copy(errors = errors :+ msg)
 
@@ -322,7 +320,7 @@ object SbtStructureDump {
   }
 
   case object ImportMessages {
-    def empty = ImportMessages(Seq.empty, Seq.empty, "")
+    def empty = ImportMessages(Vector.empty, Vector.empty, Vector.empty)
   }
 
   abstract class SbtBuildEvent(parentId: Any, kind: MessageEvent.Kind, group: String, message: String)
