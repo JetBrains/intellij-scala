@@ -56,6 +56,7 @@
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
         <testFinder implementation="org.jetbrains.plugins.scala.testingSupport.ScalaTestFinder"/>
         <exceptionFilter implementation="org.jetbrains.plugins.scala.testingSupport.util.scalatest.ScalaTestFailureLocationFilterFactory"/>
+        <exceptionFilter implementation="org.jetbrains.plugins.scala.stacktrace.ScalaPackageObjectFilterFactory" order="first"/>
         <compileServer.plugin classpath="scala-library.jar;compiler-shared.jar;jps/nailgun.jar;jps/compiler-jps.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar"/>
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.ScalaBuildProcessParametersProvider"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>
@@ -133,7 +134,7 @@
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
         <externalSystemTaskNotificationListener implementation="org.jetbrains.plugins.scaladev.ExternalSystemRefreshListener"/>
 
-      <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
+        <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
         <completion.contributor language="Scala" id="keywordCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor"/>
@@ -235,7 +236,7 @@
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.XmlRenameHandler" />
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenameHandler" order="first" />
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaLocalInplaceRenameHandler" order="first" />
-      <nameSuggestionProvider
+        <nameSuggestionProvider
               implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider"
               id="scalaNameSuggestionProvider" order="last"/>
         <definitionsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.MethodImplementationsSearch"/>
@@ -645,6 +646,11 @@
         <intentionAction>
           <category>Scala/Expressions</category>
           <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ReplaceTypeCheckWithMatchIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+          <category>Scala/Expressions</category>
+          <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.OptionWithLiteralToSomeIntention</className>
         </intentionAction>
 
         <intentionAction>
@@ -1273,10 +1279,6 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.IfElseToFilteredOptionInspection"
                          displayName="Change to filter" groupPath="Scala,Collections" groupName="Options"
                          shortName="IfElseToFilterdOption" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OptionWithConstantInspection"
-                         displayName="Option with constant to Some" groupPath="Scala,Collections" groupName="Options"
-                         shortName="OptionWithConstant" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <!--other-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"

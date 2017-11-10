@@ -4,7 +4,7 @@ import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
 
 import com.intellij.debugger.impl.{DebuggerManagerImpl, GenericDebuggerRunnerSettings}
 import com.intellij.execution.configurations._
-import com.intellij.execution.process.{ColoredProcessHandler, ProcessAdapter}
+import com.intellij.execution.process.ColoredProcessHandler
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
@@ -14,10 +14,10 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.project.SbtExternalSystemManager
+import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver}
 import org.jetbrains.sbt.project.data.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
-import org.jetbrains.sbt.project.structure.{SbtOpts, SbtRunner}
+import org.jetbrains.sbt.project.structure.SbtOpts
 
 import scala.collection.JavaConverters._
 /**
@@ -62,7 +62,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     lazy val launcher = launcherJar(sbtSettings)
 
     val projectSbtVersion = Version(SbtUtil.detectSbtVersion(workingDir, launcher))
-    val autoPluginsSupported = projectSbtVersion >= SbtRunner.sinceSbtVersionShell
+    val autoPluginsSupported = projectSbtVersion >= SbtProjectResolver.sinceSbtVersionShell
 
     // an id to identify this boot of sbt as being launched from idea, so that any plugins it injects are never ever loaded otherwise
     // use sbtStructureVersion as approximation of compatible versions of IDEA this is allowed to launch with.
@@ -114,7 +114,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   private def getSbtSettings(dir: String) = SbtExternalSystemManager.executionSettingsFor(project, dir)
 
   private def launcherJar(sbtSettings: SbtExecutionSettings): File =
-    sbtSettings.customLauncher.getOrElse(SbtRunner.getDefaultLauncher)
+    sbtSettings.customLauncher.getOrElse(SbtProjectResolver.getDefaultLauncher)
 
   /**
     * Because the regular GeneralCommandLine process doesn't mesh well with JLine on Windows, use a

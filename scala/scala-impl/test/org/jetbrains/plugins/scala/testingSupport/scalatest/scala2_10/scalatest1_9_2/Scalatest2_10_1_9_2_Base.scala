@@ -13,7 +13,6 @@ abstract class Scalatest2_10_1_9_2_Base extends ScalaTestTestCase {
   override implicit val version: ScalaVersion = Scala_2_10
 
   override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = {
-    implicit val module = getModule
     Seq(ScalaTestLoader("1.9.2"))
   }
 }

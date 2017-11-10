@@ -7,8 +7,9 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert.{assertFalse, assertTrue, fail}
-
 import scala.collection.JavaConverters._
+
+import com.intellij.testFramework.EditorTestUtil
 
 /**
   * @author Ksenia.Sautina
@@ -19,6 +20,8 @@ abstract class ScalaIntentionTestBase extends ScalaLightCodeInsightFixtureTestAd
   import ScalaLightCodeInsightFixtureTestAdapter._
 
   def familyName: String
+
+  def caretTag: String = EditorTestUtil.CARET_TAG
 
   protected def doTest(text: String, resultText: String): Unit = {
     val project = getProject

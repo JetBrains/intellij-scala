@@ -5,6 +5,7 @@ import java.io.File
 
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
+import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskNotificationListener
 import org.jetbrains.sbt.project.data.{ContentRootNode, LibraryNode, ModuleDependencyNode, ModuleNode}
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.{structure => sbtStructure}
@@ -13,9 +14,12 @@ import org.jetbrains.sbt.{structure => sbtStructure}
  * @author Pavel Fatin
  */
 trait ExternalSourceRootResolution { self: SbtProjectResolver =>
+
   def createSharedSourceModules(projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
-          libraryNodes: Seq[LibraryNode],
-          moduleFilesDirectory: File): Seq[ModuleNode] = {
+                                libraryNodes: Seq[LibraryNode],
+                                moduleFilesDirectory: File,
+                                warnings: String => Unit
+                               ): Seq[ModuleNode] = {
 
     val projects = projectToModuleNode.keys.toSeq
 
@@ -33,7 +37,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
           | <strong>Solution:</strong> declare an sbt project for these sources and include the project in dependencies.
           | </p>
         """.stripMargin
-      self.taskListener.onTaskOutput(WarningMessage(msg), stdOut = false)
+
+      warnings(msg)
     }
 
     groupSharedRoots(sharedRoots).map { group =>

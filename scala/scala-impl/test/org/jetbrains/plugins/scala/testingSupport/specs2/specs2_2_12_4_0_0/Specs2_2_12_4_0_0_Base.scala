@@ -17,30 +17,29 @@ trait Specs2_2_12_4_0_0_Base extends Specs2TestCase {
   override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = {
     import Specs2_2_12_4_0_0_Base._
 
-    implicit val module: Module = getModule
     Seq(Specs2CommonLoader(), Specs2CoreLoader(), Specs2MatcherLoader(), Specs2FpLoader())
   }
 }
 
 object Specs2_2_12_4_0_0_Base {
 
-  abstract class Specs2_4_BaseLoader(implicit module: Module) extends Specs2BaseLoader {
+  abstract class Specs2_4_BaseLoader extends Specs2BaseLoader {
     override val version: String = "4.0.0"
   }
 
-  case class Specs2CommonLoader()(implicit val module: Module) extends Specs2_4_BaseLoader {
+  case class Specs2CommonLoader() extends Specs2_4_BaseLoader {
     override val name: String = "specs2-common"
   }
 
-  case class Specs2CoreLoader()(implicit val module: Module) extends Specs2_4_BaseLoader {
+  case class Specs2CoreLoader() extends Specs2_4_BaseLoader {
     override val name: String = "specs2-core"
   }
 
-  case class Specs2MatcherLoader()(implicit val module: Module) extends Specs2_4_BaseLoader {
+  case class Specs2MatcherLoader() extends Specs2_4_BaseLoader {
     override val name: String = "specs2-matcher"
   }
 
-  case class Specs2FpLoader()(implicit val module: Module) extends Specs2_4_BaseLoader {
+  case class Specs2FpLoader() extends Specs2_4_BaseLoader {
     override val name: String = "specs2-fp"
   }
 }

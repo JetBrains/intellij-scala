@@ -157,10 +157,6 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
           else firstName.compareTo(secondName) < 0
       }
   }
-
-  override def accept(visitor: ScalaElementVisitor): Unit = {
-    visitor.visitExpression(this)
-  }
 }
 
 object ScExpression {

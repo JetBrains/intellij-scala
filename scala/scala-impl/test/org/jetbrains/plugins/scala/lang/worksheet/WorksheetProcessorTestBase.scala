@@ -26,7 +26,7 @@ abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
   import WorksheetProcessorTestBase._
 
   override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] =
-    Seq(WorksheetProcessorTestBase.MacroPrinterLoader(this.getClass.getClassLoader)(getModule))
+    Seq(WorksheetProcessorTestBase.MacroPrinterLoader(this.getClass.getClassLoader))
 
   protected def doTest(text: String): Unit = {
     val psiFile = PsiFileFactory.getInstance(myProject).createFileFromText(defaultFileName(WORKSHEET_EXTENSION), ScalaLanguage.INSTANCE, text)
@@ -58,14 +58,13 @@ object WorksheetProcessorTestBase {
 
   private def defaultFileName(extension: String) = s"dummy.$extension"
 
-  case class MacroPrinterLoader(classLoader: ClassLoader)
-                               (implicit val module: Module) extends ThirdPartyLibraryLoader {
+  case class MacroPrinterLoader(classLoader: ClassLoader) extends ThirdPartyLibraryLoader {
 
     override protected val name: String = "WorksheetLibrary"
 
     import MacroPrinterLoader.CLASS_NAME
 
-    override def init(implicit version: ScalaVersion): Unit = {
+    override def init(implicit module: Module, version: ScalaVersion): Unit = {
       val printerClazz = classLoader.loadClass(CLASS_NAME)
       assertNotNull(s"Worksheet printer class $CLASS_NAME is null", printerClazz)
 

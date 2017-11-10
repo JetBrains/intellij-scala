@@ -8,10 +8,8 @@ import org.jetbrains.plugins.scala.debugger.ScalaVersion
 /**
   * @author adkozlov
   */
-trait LibraryLoader extends Disposable {
-  implicit val module: Module
+trait LibraryLoader {
+  def init(implicit module: Module, version: ScalaVersion)
 
-  def init(implicit version: ScalaVersion): Unit
-
-  override def dispose(): Unit = ()
+  def clean(implicit module: Module): Unit = ()
 }

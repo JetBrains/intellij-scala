@@ -16,8 +16,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
-import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.debugger.{CompilationCache, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -30,10 +29,11 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
-
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import scala.meta.ScalaMetaLibrariesOwner.MetaBaseLoader
 import scala.meta.{Compilable, ScalaMetaLibrariesOwner}
+
+import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil.findJdk8
 
 @Category(Array(classOf[SlowTests]))
 abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaLibrariesOwner with Compilable {
@@ -57,7 +57,10 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   override protected def getTestDataPath: String = TestUtils.getTestDataPath + "/scalameta"
 
   override def librariesLoaders: Seq[LibraryLoader] =
-    Seq(new DisposableScalaLibraryLoader()) ++ additionalLibraries
+    Seq(
+      JdkLoader(findJdk8()),
+      ScalaLibraryLoader(isIncludeReflectLibrary = true)
+    ) ++ additionalLibraries
 
   override def setUp(): Unit = {
     super.setUp()
@@ -113,7 +116,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   protected def enableParadisePlugin(): Unit = {
     val profile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
     val settings = profile.getSettings
-    val path = MetaParadiseLoader()(metaModule).path
+    val path = MetaParadiseLoader().path
     assert(new File(path).exists(), "Paradise plugin not found, aborting compilation")
     settings.plugins :+= path
     profile.setSettings(settings)
@@ -172,7 +175,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 
 object MetaAnnotationTestBase {
 
-  private case class MetaParadiseLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaParadiseLoader() extends MetaBaseLoader {
     override val name: String = "paradise"
     override val version: String = "3.0.0-M10" // FIXME version from buildinfo
 
@@ -181,7 +184,7 @@ object MetaAnnotationTestBase {
 
     override def path(implicit version: ScalaVersion): String = super.path
 
-    override def init(implicit version: ScalaVersion): Unit = {}
+    override def init(implicit module: Module, version: ScalaVersion): Unit = {}
   }
 
   def mkAnnot(name: String, body: String): String = {
