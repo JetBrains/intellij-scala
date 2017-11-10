@@ -34,8 +34,7 @@ object TestConfigurationUtil {
     if (pack == null) return null
     val settings = RunManager.getInstance(location.getProject).createRunConfiguration(displayName, confFactory)
     val configuration = settings.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
-    configuration.setTestPackagePath(pack.getQualifiedName)
-    configuration.setTestKind(TestRunConfigurationForm.TestKind.ALL_IN_PACKAGE)
+    configuration.setTestConfigurationData(AllInPackageTestData(configuration, pack.getQualifiedName))
     configuration.setGeneratedName(displayName)
     configuration.setModule(location.getModule)
     configuration.initWorkingDir()
@@ -51,7 +50,7 @@ object TestConfigurationUtil {
     if (pack == null) return false
     configuration match {
       case configuration: AbstractTestRunConfiguration =>
-        configuration.getTestKind == TestRunConfigurationForm.TestKind.ALL_IN_PACKAGE &&
+        configuration.getTestConfigurationData.isInstanceOf[AllInPackageTestData] &&
           configuration.getTestPackagePath == pack.getQualifiedName
       case _ => false
     }

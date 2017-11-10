@@ -12,8 +12,7 @@ import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl.TestItemRepresentation
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
-import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, AllInPackageTestData, ClassTestData, SingleTestData}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -76,15 +75,18 @@ trait IntegrationTest {
   protected def checkPackageConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, packageName: String = "", generatedName: String = ""): Boolean = {
     val config = configAndSettings.getConfiguration
     val testConfig = config.asInstanceOf[AbstractTestRunConfiguration]
-    testConfig.testKind == TestKind.ALL_IN_PACKAGE && testConfig.getTestPackagePath == packageName
+    testConfig.testConfigurationData match {
+      case packageData: AllInPackageTestData => packageData.getTestPackagePath == packageName
+      case _ => false
+    }
   }
 
   protected def checkConfig(testClass: String, testNames: Seq[String], config: AbstractTestRunConfiguration): Boolean = {
-    config.getTestClassPath == testClass && (config.getTestName match {
-      case "" => testNames.isEmpty
-      case configTestName =>
-        val configTests = parseTestName(configTestName)
+    config.getTestClassPath == testClass && (config.testConfigurationData match {
+      case testData: SingleTestData =>
+        val configTests = parseTestName(testData.testName)
         configTests.size == testNames.size && ((configTests zip testNames) forall { case (actual, required) => actual == required })
+      case _: ClassTestData => testNames.isEmpty
     })
   }
 
