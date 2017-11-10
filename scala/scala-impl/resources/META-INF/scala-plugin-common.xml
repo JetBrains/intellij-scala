@@ -1166,6 +1166,10 @@
                          displayName="Filter and contains to intersect or diff" groupPath="Scala,Collections" groupName="Simplifications: filter and exists"
                          shortName="FilterOtherContains" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSetContainsInspection"
+                         displayName="Redundant contains in filter" groupPath="Scala,Collections" groupName="Simplifications: filter and exists"
+                         shortName="FilterSetContains" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsForallReplaceInspection"
                        displayName="Double negation in forall and exists" groupPath="Scala,Collections" groupName="Simplifications: forall and exists"
                        shortName="ExistsForallReplace" level="WARNING"
