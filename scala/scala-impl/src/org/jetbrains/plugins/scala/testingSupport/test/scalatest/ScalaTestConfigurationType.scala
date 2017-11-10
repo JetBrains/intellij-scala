@@ -4,6 +4,7 @@ package testingSupport.test.scalatest
 import javax.swing.Icon
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
+import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.icons.Icons
 
 /**
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.icons.Icons
  * Date: 22.02.2009
  */
 
-class ScalaTestConfigurationType extends ConfigurationType {
+class ScalaTestConfigurationType extends ConfigurationType with DumbAware {
 
   val confFactory = new ScalaTestRunConfigurationFactory(this)
 

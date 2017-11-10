@@ -10,9 +10,8 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
-import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, TestConfigurationUtil}
+import org.jetbrains.plugins.scala.testingSupport.test.{ClassTestData, SingleTestData, TestConfigurationProducer, TestConfigurationUtil}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -54,8 +53,6 @@ class Specs2ConfigurationProducer extends {
     val (testClass, testName) = getLocationClassAndTest(location)
     if (testClass == null) return None
     val testClassPath = testClass.qualifiedName
-    runConfiguration.setTestClassPath(testClassPath)
-    runConfiguration.setTestKind(TestKind.CLASS)
     runConfiguration.initWorkingDir()
 
     // If the selected element is a non-empty string literal, we assume that this
@@ -63,12 +60,12 @@ class Specs2ConfigurationProducer extends {
     if (testName != null) {
       val options = runConfiguration.getJavaOptions
       runConfiguration.setJavaOptions(options)
-      val name = testClassPath + "::" + testName
-      runConfiguration.setGeneratedName(name)
-      runConfiguration.setName(name)
-      runConfiguration.setTestName(testName)
-      runConfiguration.setTestKind(TestKind.TEST_NAME)
+      val testNamePrefixed = testClassPath + "::" + testName
+      runConfiguration.setGeneratedName(testNamePrefixed)
+      runConfiguration.setName(testNamePrefixed)
     }
+    runConfiguration.setTestConfigurationData(ClassTestData(runConfiguration, testClassPath, testName))
+
     try {
       val module = ScalaPsiUtil.getModule(element)
       if (module != null) {
@@ -104,12 +101,12 @@ class Specs2ConfigurationProducer extends {
     val testClassPath = testClass.qualifiedName
 
     configuration match {
-      case configuration: Specs2RunConfiguration if configuration.getTestKind == TestKind.CLASS &&
-        testName == null =>
-        testClassPath == configuration.getTestClassPath
-      case configuration: Specs2RunConfiguration if configuration.getTestKind == TestKind.TEST_NAME =>
-        testClassPath == configuration.getTestClassPath && testName != null &&
-          testName == configuration.getTestName
+      case configuration: Specs2RunConfiguration =>
+        configuration.testConfigurationData match {
+          case testData: SingleTestData => testData.testClassPath == testClassPath && testData.testName == testName
+          case classData: ClassTestData => classData.testClassPath == testClassPath && testName == null
+          case _ => false
+        }
       case _ => false
     }
   }

@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2.specs2_2_12_4_0_0
 
-import com.intellij.openapi.module.Module
-import org.jetbrains.plugins.scala.base.libraryLoaders.IvyLibraryLoader.{Bundles, IvyType}
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.testingSupport.specs2.Specs2TestCase

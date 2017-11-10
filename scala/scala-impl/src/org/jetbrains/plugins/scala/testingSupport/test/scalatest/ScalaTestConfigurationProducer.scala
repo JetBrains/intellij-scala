@@ -18,8 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
-import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
-import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, TestConfigurationUtil}
+import org.jetbrains.plugins.scala.testingSupport.test.{ClassTestData, SingleTestData, TestConfigurationProducer, TestConfigurationUtil}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -58,11 +57,9 @@ class ScalaTestConfigurationProducer extends {
       createRunConfiguration(StringUtil.getShortName(testClassPath) +
       (if (testName != null) "." + testName else ""), confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
-    runConfiguration.setTestClassPath(testClassPath)
     runConfiguration.initWorkingDir()
-    if (testName != null) runConfiguration.setTestName(testName)
-    val kind = if (testName == null) TestKind.CLASS else TestKind.TEST_NAME
-    runConfiguration.setTestKind(kind)
+    runConfiguration.setTestConfigurationData(ClassTestData(runConfiguration, testClassPath, testName))
+
     try {
       val module = ScalaPsiUtil.getModule(element)
       if (module != null) {
@@ -87,12 +84,12 @@ class ScalaTestConfigurationProducer extends {
     if (testClass == null) return false
     val testClassPath = testClass.qualifiedName
     configuration match {
-      case configuration: ScalaTestRunConfiguration if configuration.getTestKind == TestKind.CLASS &&
-        testName == null =>
-        testClassPath == configuration.getTestClassPath
-      case configuration: ScalaTestRunConfiguration if configuration.getTestKind == TestKind.TEST_NAME =>
-        testClassPath == configuration.getTestClassPath && testName != null &&
-          testName == configuration.getTestName
+      case configuration: ScalaTestRunConfiguration =>
+        configuration.testConfigurationData match {
+          case testData: SingleTestData => testData.testClassPath == testClassPath && testData.testName == testName
+          case classData: ClassTestData => classData.testClassPath == testClassPath && testName == null
+          case _ => false
+        }
       case _ => false
     }
   }
