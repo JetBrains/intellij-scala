@@ -11,12 +11,9 @@ import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
 import org.apache.ivy.plugins.resolver.URLResolver
 
-import scala.collection.mutable
-
 class DependencyManager {
   import DependencyManager._
 
-  private val libs = mutable.ArrayBuffer[ResolvedDependency]()
   private val homePrefix = sys.props.get("tc.idea.prefix").orElse(sys.props.get("user.home")).map(new File(_)).get
   private val ivyHome = Option(System.getProperty("sbt.ivy.home")).orElse(Option(".ivy2")).map(new File(homePrefix, _)).get
 
@@ -78,10 +75,9 @@ class DependencyManager {
   def load(deps: Dependency*)(implicit module: Module): Unit = {
     deps.foreach { d =>
       resolve(d) match {
-        case Some(r@ResolvedDependency(_, file)) =>
+        case Some(ResolvedDependency(_, file)) =>
           VfsRootAccess.allowRootAccess(file.getCanonicalPath)
           PsiTestUtil.addLibrary(module, file.getName, file.getParent, file.getName)
-          libs += r
         case None => println(s"failed ro resolve dependency: $d")
       }
     }
@@ -91,8 +87,6 @@ class DependencyManager {
 object DependencyManager {
 
   def apply(): DependencyManager = new DependencyManager()
-
-//  def apply(deps: Dependency*)(implicit module: Module): Unit = new DependencyManager().load(deps:_*)
 
   case class Dependency(org: String, artId: String, version: String) {
     def %(version: String): Dependency = this.copy(version = version)

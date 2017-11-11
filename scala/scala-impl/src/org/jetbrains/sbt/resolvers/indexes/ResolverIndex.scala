@@ -22,7 +22,8 @@ trait ResolverIndex {
   def searchVersion(groupId: String, artifactId: String)
                    (implicit project: ProjectContext): Set[String]
 
-  def searchArtifactInfo(fqName: String): Set[ArtifactInfo]
+  def searchArtifactInfo(fqName: String)
+                        (implicit project: ProjectContext): Set[ArtifactInfo]
 
   def doUpdate(progressIndicator: Option[ProgressIndicator] = None)
               (implicit project: ProjectContext): Unit
