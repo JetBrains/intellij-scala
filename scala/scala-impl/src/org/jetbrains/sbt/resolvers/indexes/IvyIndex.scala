@@ -108,10 +108,15 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     progressIndicator foreach { _.checkCanceled() }
     progressIndicator foreach { _.setText2(SbtBundle("sbt.resolverIndexer.progress.saving")) }
 
-    agMap  foreach { element => artifactToGroupMap.put(element._1, element._2.toSet) }
-    gaMap  foreach { element => groupToArtifactMap.put(element._1, element._2.toSet) }
-    gavMap foreach { element => groupArtifactToVersionMap.put(element._1, element._2.toSet) }
-    fqNameGavMap foreach { element => fqNameToGroupArtifactVersionMap.put(element._1, element._2.toSet) }
+    def mergeIntoMap(map: PersistentHashMap[String, Set[String]])(element: (String, mutable.Set[String])): Unit= {
+      val existingValue = Option(map.get(element._1)).getOrElse(Set.empty)
+      map.put(element._1, existingValue ++ element._2)
+    }
+
+    agMap  foreach { mergeIntoMap(artifactToGroupMap) }
+    gaMap  foreach { mergeIntoMap(groupToArtifactMap) }
+    gavMap foreach { mergeIntoMap(groupArtifactToVersionMap) }
+    fqNameGavMap foreach { mergeIntoMap(fqNameToGroupArtifactVersionMap) }
 
     innerTimestamp = System.currentTimeMillis()
     store()
