@@ -90,6 +90,7 @@ object Dependencies {
 
   val commonsLang: ModuleID = "commons-lang" % "commons-lang" % "2.6"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
+  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.4.0" % "test"
 
   val scalastyle: ModuleID = "org.scalastyle" %% "scalastyle" % "1.0.0"
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.2"
@@ -160,7 +161,6 @@ object DependencyGroups {
   val testDownloader = Seq(
 
     "com.chuusai" % "shapeless_2.11" % "2.0.0",
-    "com.chuusai" % "shapeless_2.11" % "2.3.2",
     "com.fommil" % "stalactite_2.11" % "0.0.3",
     "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
     "com.github.julien-truffaut" %% "monocle-generic" % monocleVersion,
