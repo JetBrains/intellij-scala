@@ -44,7 +44,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     finally { checkStorage() }
   }
 
-  override def searchGroup(artifactId: String)(implicit project: ProjectContext): Set[String] = {
+  override def searchGroup(artifactId: String): Set[String] = {
     withStorageCheck {
       if (artifactId.isEmpty)
         Option(groupToArtifactMap.getAllKeysWithExistingMapping)
@@ -55,7 +55,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     }
   }
 
-  override def searchArtifact(groupId: String)(implicit project: ProjectContext): Set[String] = {
+  override def searchArtifact(groupId: String): Set[String] = {
     withStorageCheck {
       if (groupId.isEmpty)
         Option(artifactToGroupMap.getAllKeysWithExistingMapping)
@@ -66,7 +66,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     }
   }
 
-  override def searchVersion(groupId: String, artifactId: String)(implicit project: ProjectContext): Set[String] = {
+  override def searchVersion(groupId: String, artifactId: String): Set[String] = {
     withStorageCheck {
       Option(groupArtifactToVersionMap.get(SbtResolverUtils.joinGroupArtifact(groupId, artifactId))).getOrElse(Set.empty)
     }
@@ -82,7 +82,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
   }
 
 
-  override def doUpdate(progressIndicator: Option[ProgressIndicator] = None)(implicit project: ProjectContext): Unit = {
+  override def doUpdate(progressIndicator: Option[ProgressIndicator] = None): Unit = {
     val agMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gaMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gavMap = mutable.HashMap.empty[String, mutable.Set[String]]
@@ -117,7 +117,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     store()
   }
 
-  override def getUpdateTimeStamp(implicit project: ProjectContext): Long = innerTimestamp
+  override def getUpdateTimeStamp: Long = innerTimestamp
 
   private def deleteIndex(): Unit = SbtIndexesManager.cleanUpCorruptedIndex(indexDir)
 

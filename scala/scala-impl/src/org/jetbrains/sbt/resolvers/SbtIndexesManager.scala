@@ -35,7 +35,7 @@ class SbtIndexesManager(val project: Project) extends AbstractProjectComponent(p
         override def run(indicator: ProgressIndicator): Unit = {
           indicator.setIndeterminate(true)
           indicator.setText(s"Updating: $name")
-          index.doUpdate(Some(indicator))(project)
+          index.doUpdate(Some(indicator))
         }
       })
     }

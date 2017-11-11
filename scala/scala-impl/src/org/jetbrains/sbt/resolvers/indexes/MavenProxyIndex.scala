@@ -11,11 +11,11 @@ import scala.collection.JavaConverters._
   * @author Mikhail Mutcianko
   * @since 26.07.16
   */
-class MavenProxyIndex(val root: String, val name: String) extends ResolverIndex {
+class MavenProxyIndex(val root: String, val name: String, implicit val project: ProjectContext) extends ResolverIndex {
 
   private val MAX_RESULTS = 1000
 
-  override def doUpdate(progressIndicator: Option[ProgressIndicator] = None)(implicit project: ProjectContext): Unit = {
+  override def doUpdate(progressIndicator: Option[ProgressIndicator] = None): Unit = {
     findPlatformMavenResolver
       .foreach(i =>
         MavenProjectIndicesManager.getInstance(project)
@@ -23,13 +23,13 @@ class MavenProxyIndex(val root: String, val name: String) extends ResolverIndex 
       )
   }
 
-  override def getUpdateTimeStamp(implicit project: ProjectContext): Long = {
+  override def getUpdateTimeStamp: Long = {
     findPlatformMavenResolver.map(_.getUpdateTimestamp).getOrElse(ResolverIndex.NO_TIMESTAMP)
   }
 
   override def close(): Unit = ()
 
-  override def searchGroup(artifactId: String)(implicit project: ProjectContext): Set[String] = {
+  override def searchGroup(artifactId: String): Set[String] = {
     findPlatformMavenResolver.map { r =>
       if (artifactId != "")
         r.getGroupIds.asScala.filter(r.hasArtifactId(_, artifactId)).toSet
@@ -38,19 +38,19 @@ class MavenProxyIndex(val root: String, val name: String) extends ResolverIndex 
     }.getOrElse(Set.empty)
   }
 
-  override def searchArtifact(groupId: String)(implicit project: ProjectContext): Set[String] = {
+  override def searchArtifact(groupId: String): Set[String] = {
     findPlatformMavenResolver.map {
       _.getArtifactIds(groupId).asScala.toSet
     }.getOrElse(Set.empty)
   }
 
-  override def searchVersion(groupId: String, artifactId: String)(implicit project: ProjectContext): Set[String] = {
+  override def searchVersion(groupId: String, artifactId: String): Set[String] = {
     findPlatformMavenResolver.map {
       _.getVersions(groupId, artifactId).asScala.toSet
     }.getOrElse(Set.empty)
   }
 
-  private def findPlatformMavenResolver(implicit project: ProjectContext): Option[MavenIndex] = {
+  private def findPlatformMavenResolver: Option[MavenIndex] = {
     MavenProjectIndicesManager.getInstance(project)
       .getIndices
       .asScala
