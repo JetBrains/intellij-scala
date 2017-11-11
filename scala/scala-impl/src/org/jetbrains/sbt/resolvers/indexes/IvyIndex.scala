@@ -200,9 +200,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     val fqNameToArtifacts: mutable.Map[String, mutable.Set[ArtifactInfo]] = mutable.Map.empty
 
     private val ivyFileFilter = new FileFilter {
-      override def accept(file: File): Boolean =
-        file.name.endsWith(".xml") &&
-          (file.lastModified() > innerTimestamp)
+      override def accept(file: File): Boolean = file.name.endsWith(".xml")
     }
 
     def artifacts: Stream[ArtifactInfo] = listArtifacts(cacheDir)
@@ -250,7 +248,11 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
       if (!dir.isDirectory)
         throw InvalidRepository(dir.getAbsolutePath)
 
-      val artifactsHere = dir.listFiles(ivyFileFilter).flatMap(extractArtifact).toStream
+      val artifactsHere = dir.listFiles(ivyFileFilter)
+          .flatMap(extractArtifact)
+          .filterNot(artifact => searchVersion(artifact.groupId, artifact.artifactId).contains(artifact.version))
+          .toStream
+
       if (artifactsHere.nonEmpty) {
         val artifactToFqNames = listFqNames(dir, artifactsHere)
         for {
