@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.testingSupport.utest.UTestTestCase
 abstract class UTestTestBase_2_11_0_3_1 extends UTestTestCase {
 
   override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = {
-    implicit val module: Module = getModule
     Seq(UTestLoader("0.3.1"))
   }
 }

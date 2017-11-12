@@ -5,8 +5,6 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -19,16 +17,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 /**
   * @author Alexander Podkhalyuzin
   */
-
-class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryStmt {
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
-    }
-  }
-
-  override def toString: String = "TryStatement"
+class ScTryStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTryStmt {
 
   import ScTryStmtImpl._
 
@@ -52,6 +41,8 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
         case _ => Right(tryBlockType)
       }
     }
+
+  override def toString: String = "TryStatement"
 }
 
 object ScTryStmtImpl {

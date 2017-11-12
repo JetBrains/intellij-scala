@@ -112,21 +112,27 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           nonStrictParents.find(p => ScalaEvaluatorBuilderUtil.isGenerateNonAnonfunClass(p))
         } else None
 
-      def addExactClasses(name: String) = {
-        exactClasses ++= debugProcess.getVirtualMachineProxy.classesByName(name).asScala
+      def addExactClasses(td: ScTypeDefinition) = {
+        val qName = getSpecificNameForDebugger(td)
+        val additional = td match {
+          case _: ScTrait =>
+            qName.stripSuffix("$class") :: Nil
+          case c: ScClass if ValueClassType.isValueClass(c) =>
+            s"$qName$$" :: Nil
+          case c if isDelayedInit(c) =>
+            s"$qName$delayedInitBody" :: Nil
+          case _ => Nil
+        }
+        (qName :: additional).foreach { name =>
+          exactClasses ++= debugProcess.getVirtualMachineProxy.classesByName(name).asScala
+        }
       }
 
       val sourceImages = onTheLine ++ nonLambdaParent
       sourceImages.foreach {
         case null =>
-        case tr: ScTrait if !isLocalClass(tr) =>
-          val traitImplName = getSpecificNameForDebugger(tr)
-          val simpleName = traitImplName.stripSuffix("$class")
-          Seq(simpleName, traitImplName).foreach(addExactClasses)
         case td: ScTypeDefinition if !isLocalClass(td) =>
-          val qName = getSpecificNameForDebugger(td)
-          val delayedBodyName = if (isDelayedInit(td)) Seq(s"$qName$delayedInitBody") else Nil
-          (qName +: delayedBodyName).foreach(addExactClasses)
+          addExactClasses(td)
         case elem =>
           val namePattern = NamePattern.forElement(elem)
           namePatterns ++= Option(namePattern)

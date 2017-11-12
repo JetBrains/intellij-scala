@@ -14,7 +14,9 @@ abstract class Scalatest2_12_3_0_4_Base extends ScalaTestTestCase {
   override implicit val version: ScalaVersion = Scala_2_12
 
   override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = {
-    implicit val module: Module = getModule
-    Seq(ScalaTestLoader("3.0.4", IvyLibraryLoader.Bundles), ScalaXmlLoader(), ScalacticLoader("3.0.4", IvyLibraryLoader.Bundles))
+    Seq(
+      ScalaTestLoader("3.0.4", IvyLibraryLoader.Bundles),
+      ScalaXmlLoader(),
+      ScalacticLoader("3.0.4", IvyLibraryLoader.Bundles))
   }
 }

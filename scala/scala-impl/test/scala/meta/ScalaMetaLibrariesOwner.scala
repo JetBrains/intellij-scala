@@ -10,7 +10,7 @@ trait ScalaMetaLibrariesOwner extends ScalaSdkOwner {
 
   import ScalaMetaLibrariesOwner._
 
-  protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] = Array(
+  protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] = Seq(
     MetaCommonLoader(),
     MetaDialectsLoader(),
     MetaInlineLoader(),
@@ -32,7 +32,7 @@ object ScalaMetaLibrariesOwner {
 
   val metaVersion = "1.8.0"
 
-  abstract class MetaBaseLoader(implicit module: Module) extends IvyLibraryLoaderAdapter {
+  abstract class MetaBaseLoader extends IvyLibraryLoaderAdapter {
     override protected val version: String = metaVersion
     override val vendor: String = "org.scalameta"
 
@@ -40,59 +40,59 @@ object ScalaMetaLibrariesOwner {
       super.path(version)
   }
 
-  private case class MetaCommonLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaCommonLoader() extends MetaBaseLoader {
     override val name: String = "common"
   }
 
-  private case class MetaDialectsLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaDialectsLoader() extends MetaBaseLoader {
     override val name: String = "dialects"
   }
 
-  private case class MetaInlineLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaInlineLoader() extends MetaBaseLoader {
     override val name: String = "inline"
   }
 
-  private case class MetaInputsLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaInputsLoader() extends MetaBaseLoader {
     override val name: String = "inputs"
   }
 
-  private case class MetaParsersLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaParsersLoader() extends MetaBaseLoader {
     override val name: String = "parsers"
   }
 
-  private case class MetaQuasiquotesLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaQuasiquotesLoader() extends MetaBaseLoader {
     override val name: String = "quasiquotes"
   }
 
-  private case class MetaScalametaLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaScalametaLoader() extends MetaBaseLoader {
     override val name: String = "scalameta"
   }
 
-  private case class MetaTokenizersLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaTokenizersLoader() extends MetaBaseLoader {
     override val name: String = "tokenizers"
   }
 
-  private case class MetaTokensLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaTokensLoader() extends MetaBaseLoader {
     override val name: String = "tokens"
   }
 
-  private case class MetaTransversersLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaTransversersLoader() extends MetaBaseLoader {
     override val name: String = "transversers"
   }
 
-  private case class MetaTreesLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaTreesLoader() extends MetaBaseLoader {
     override val name: String = "trees"
   }
 
-  private case class MetaSemanticLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaSemanticLoader() extends MetaBaseLoader {
     override val name: String = "semantic"
   }
 
-  private case class MetaIOLoader()(implicit val module: Module) extends MetaBaseLoader {
+  private case class MetaIOLoader() extends MetaBaseLoader {
     override val name: String = "io"
   }
 
-  private case class FastParseLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+  private case class FastParseLoader() extends IvyLibraryLoaderAdapter {
     override val version: String = "0.4.3"
     override val name: String = "fastparse"
     override val vendor: String = "com.lihaoyi"

@@ -2,12 +2,16 @@ package org.jetbrains.sbt.shell
 
 import java.io.File
 import java.util
+import java.util.UUID
 
+import com.intellij.build.events.impl._
+import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor}
 import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.compiler.ex.CompilerPathsEx
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
@@ -130,6 +134,14 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     indicator.setText("queued sbt build ...")
 
     val shell = SbtShellCommunication.forProject(project)
+    val viewManager = ServiceManager.getService(project, classOf[BuildViewManager])
+
+    val taskId = UUID.randomUUID()
+    val buildDescriptor = new DefaultBuildDescriptor(taskId, "sbt build", project.getBasePath, System.currentTimeMillis())
+    val startEvent = new StartBuildEventImpl(buildDescriptor, "queued sbt build ...")
+
+    viewManager.onEvent(startEvent)
+
 
     val resultAggregator: (TaskResultData,ShellEvent) => TaskResultData = { (data,event) =>
       event match {
@@ -138,10 +150,12 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
           indicator.setIndeterminate(true)
           indicator.setFraction(0.1)
           indicator.setText("building ...")
-        case Output(text) =>
-          indicator.setText2(text)
         case TaskComplete =>
           indicator.setText("")
+        case ErrorWaitForInput =>
+          // TODO should be a build error, but can only actually happen during reload anyway
+        case Output(text) =>
+          indicator.setText2(text)
       }
 
       taskResultAggregator(data,event)
@@ -152,7 +166,6 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
     // TODO consider running module build tasks separately
     // may require collecting results individually and aggregating
-    // and shell communication should do proper queueing
     val commandFuture = shell.command(command, defaultTaskResult, resultAggregator, showShell = true)
       .map(data => new ProjectTaskResult(data.aborted, data.errors, data.warnings))
       .recover {
@@ -170,10 +183,18 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
           indicator.setFraction(1)
           indicator.setText("sbt build completed")
           indicator.setText2("")
-        case Failure(x) =>
+          val successResult = new SuccessResultImpl
+          val successEvent =
+            new FinishEventImpl(taskId, null, System.currentTimeMillis(), "sbt build completed", successResult)
+          viewManager.onEvent(successEvent)
+        case Failure(err) =>
           callbackOpt.foreach(_.finished(failedResult))
           indicator.setText("sbt build failed")
-          indicator.setText2(x.getMessage)
+          indicator.setText2(err.getMessage)
+          val failureResult = new FailureResultImpl(err)
+          val failureEvent =
+            new FinishEventImpl(taskId, null, System.currentTimeMillis(), "sbt build failed", failureResult)
+          viewManager.onEvent(failureEvent)
       }
 
     // block thread to make indicator available :(
@@ -181,7 +202,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
   }
 
   // remove this if/when external system handles this refresh on its own
-  private def refreshRoots(modules: Array[Module], indicator: ProgressIndicator) = {
+  private def refreshRoots(modules: Array[Module], indicator: ProgressIndicator): Unit = {
     indicator.setText("Synchronizing output directories...")
 
     // simply refresh all the source roots to catch any generated files -- this MAY have a performance impact

@@ -5,9 +5,8 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -22,9 +21,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  * @author Alexander Podkhalyuzin, ilyas
  */
 
-class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScUnderscoreSection {
-  override def toString: String = "UnderscoreSection"
-
+class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScUnderscoreSection {
   protected override def innerType: TypeResult = {
     bindingExpr match {
       case Some(ref: ScReferenceExpression) =>
@@ -116,14 +113,5 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     }
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
-    visitor.visitUnderscoreExpression(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => visitor.visitUnderscoreExpression(this)
-      case _ => super.accept(visitor)
-    }
-  }
+  override def toString: String = "UnderscoreSection"
 }

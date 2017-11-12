@@ -6,21 +6,21 @@ package expr
 
 import com.intellij.psi.PsiElement
 
-
-/** 
-* @author Alexander Podkhalyuzin
-*/
-
+/**
+  * @author Alexander Podkhalyuzin
+  */
 trait ScWhileStmt extends ScExpression {
   def condition: Option[ScExpression]
 
   def body: Option[ScExpression]
 
-  def getLeftParenthesis : Option[PsiElement]
+  def getLeftParenthesis: Option[PsiElement]
 
-  def getRightParenthesis : Option[PsiElement]
+  def getRightParenthesis: Option[PsiElement]
 
-  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitWhileStatement(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitWhileStatement(this)
+  }
 }
 
 object ScWhileStmt {

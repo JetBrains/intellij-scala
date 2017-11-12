@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 class ScExpressionImplBase(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExpression {
 
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override final def accept(visitor: PsiElementVisitor): Unit = {
     visitor match {
       case scalaVisitor: ScalaElementVisitor => accept(scalaVisitor)
       case _ => super.accept(visitor)

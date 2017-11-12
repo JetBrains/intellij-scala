@@ -7,11 +7,10 @@ package expr
 import com.intellij.psi.{PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
-
+/**
+  * @author Alexander Podkhalyuzin
+  *         Date: 22.02.2008
+  */
 trait ScSelfInvocation extends ScalaPsiElement with PsiReference {
   def args: Option[ScArgumentExprList] = findChild(classOf[ScArgumentExprList])
 
@@ -26,4 +25,8 @@ trait ScSelfInvocation extends ScalaPsiElement with PsiReference {
   def multiType(i: Int): Seq[TypeResult]
 
   def thisElement: PsiElement = getFirstChild
+
+  override def accept(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitSelfInvocation(this)
+  }
 }

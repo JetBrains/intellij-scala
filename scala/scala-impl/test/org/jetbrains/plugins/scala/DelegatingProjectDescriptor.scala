@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala
 
+import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ContentEntry, ModifiableRootModel}
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.LightProjectDescriptor
-import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
-import org.jetbrains.plugins.scala.debugger.ScalaVersion
+import com.intellij.util.ThrowableRunnable
 
 /**
   * Nikolay.Tropin
@@ -27,4 +25,15 @@ abstract class DelegatingProjectDescriptor(val delegate: LightProjectDescriptor)
 
   override def getSdk =
     delegate.getSdk
+}
+
+object DelegatingProjectDescriptor {
+  def withAfterSetupProject(delegate: LightProjectDescriptor)(work: ThrowableRunnable[Nothing]): LightProjectDescriptor = {
+    new DelegatingProjectDescriptor(delegate) {
+      override def setUpProject(project: Project, handler: LightProjectDescriptor.SetupHandler): Unit = {
+        super.setUpProject(project, handler)
+        WriteAction.run(work)
+      }
+    }
+  }
 }

@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.testingSupport.specs2.Specs2TestCase
 trait Specs2_2_11_2_4_15_Base extends Specs2TestCase {
 
   override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = {
-    implicit val module: Module = getModule
     Seq(Specs2Loader("2.4.15"), ScalaZCoreLoader(), ScalaZConcurrentLoader(), ScalaXmlLoader())
   }
 }

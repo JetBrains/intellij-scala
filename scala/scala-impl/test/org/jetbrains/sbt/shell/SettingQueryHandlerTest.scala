@@ -62,8 +62,9 @@ abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
       comm.command(commandBefore, showShell = false).flatMap { _ => handler.getSettingValue() },
       Duration(timeoutSeconds, TimeUnit.SECONDS))
     runner.getConsoleView.flushDeferredText()
-    assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found")
-    assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix))
+    val log = logger.getLog
+    assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
+    assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix), s"log contained errors. Full log:\n $log")
   }
 
   protected def doTestSetSetting(settingName: String, expectedValue: String, timeoutSeconds: Int,
@@ -74,8 +75,9 @@ abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
     val res = Await.result(setHandler.setSettingValue(expectedValue).flatMap { _ => handler.getSettingValue() },
       Duration(timeoutSeconds, "second"))
     runner.getConsoleView.flushDeferredText()
-    assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found")
-    assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix))
+    val log = logger.getLog
+    assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
+    assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix), s"log contained errors. Full log:\n $log")
   }
 
   protected def doTestAddToSetting(settingName: String, setCommand: String, addValue: String, expectedValue: String,
@@ -90,8 +92,9 @@ abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
       _ => handler.getSettingValue()
     }, Duration(timeoutSeconds, "second")).trim
     runner.getConsoleView.flushDeferredText()
-    assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found")
-    assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix))
+    val log = logger.getLog
+    assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
+    assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix), s"log contained errors. Full log:\n $log")
   }
 
   protected def getScalaTestProjectUri: String = "file:" + getBasePath.replace("\\", "/") + "/" + getPath + "/"

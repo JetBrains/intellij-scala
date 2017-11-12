@@ -7,14 +7,12 @@ package expr
 import com.intellij.psi.{PsiElement, PsiField}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
-
 
 /**
- * @author Alexander Podkhalyuzin
- */
-
+  * @author Alexander Podkhalyuzin
+  */
 trait ScAssignStmt extends ScExpression {
   def getLExpression: ScExpression = findChildByClassScala(classOf[ScExpression])
 
@@ -25,13 +23,9 @@ trait ScAssignStmt extends ScExpression {
 
   def assignName: Option[String] = {
     getLExpression match {
-      case ref: ScReferenceExpression if ref.qualifier == None => Some(ref.getText)
+      case ref: ScReferenceExpression if ref.qualifier.isEmpty => Some(ref.getText)
       case _ => None
     }
-  }
-
-  override def accept(visitor: ScalaElementVisitor) {
-    visitor.visitAssignmentStatement(this)
   }
 
   def isNamedParameter: Boolean = {
@@ -48,16 +42,17 @@ trait ScAssignStmt extends ScExpression {
   def mirrorMethodCall: Option[ScMethodCall]
 
   /**
-   * Has sense only in case if left token resolves to parameterless function
-   * @return parameterless function setter, or None otherwise
-   */
+    * Has sense only in case if left token resolves to parameterless function
+    *
+    * @return parameterless function setter, or None otherwise
+    */
   def resolveAssignment: Option[ScalaResolveResult]
 
   def shapeResolveAssignment: Option[ScalaResolveResult]
 
   /**
-   * @return element to which equals sign should navigate
-   */
+    * @return element to which equals sign should navigate
+    */
   def assignNavigationElement: PsiElement = {
     getLExpression match {
       case methodCall: ScMethodCall =>
@@ -104,6 +99,10 @@ trait ScAssignStmt extends ScExpression {
       case _ =>
     }
     false
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitAssignmentStatement(this)
   }
 }
 
