@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
+import scala.annotation.tailrec
+
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElement, LookupElementDecorator}
 import com.intellij.openapi.editor.Document
@@ -16,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager.getLookupElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaCompletionSorting
+import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaCompletionSorting._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -38,8 +40,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, 
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
-import scala.annotation.tailrec
-
 /**
  * @author Alexander Podkhalyuzin
  * Date: 16.05.2008
@@ -47,9 +47,11 @@ import scala.annotation.tailrec
 abstract class ScalaCompletionContributor extends CompletionContributor {
   def positionFromParameters(parameters: CompletionParameters): PsiElement = ScalaCompletionUtil.positionFromParameters(parameters)
 
-  override def fillCompletionVariants(parameters: CompletionParameters, _result: CompletionResultSet): Unit = {
-    val result = ScalaCompletionSorting.addScalaSorting(parameters, _result)
-    super.fillCompletionVariants(parameters, result)
+  override def fillCompletionVariants(parameters: CompletionParameters, result: CompletionResultSet): Unit = {
+    val updatedSet = result
+      .withBacktickMatcher()
+      .withScalaSorting(parameters)
+    super.fillCompletionVariants(parameters, updatedSet)
   }
 }
 
