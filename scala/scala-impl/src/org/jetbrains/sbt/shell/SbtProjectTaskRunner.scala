@@ -5,7 +5,8 @@ import java.util
 import java.util.UUID
 
 import com.intellij.build.events.impl._
-import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor}
+import com.intellij.build.events.{SuccessResult, Warning}
+import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, events}
 import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
@@ -129,9 +130,6 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
   import CommandTask._
 
   override def run(indicator: ProgressIndicator): Unit = {
-    indicator.setIndeterminate(true)
-    indicator.setFraction(0) // TODO how does the fraction thing work?
-    indicator.setText("queued sbt build ...")
 
     val shell = SbtShellCommunication.forProject(project)
     val viewManager = ServiceManager.getService(project, classOf[BuildViewManager])
@@ -143,10 +141,10 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     viewManager.onEvent(startEvent)
 
 
-    val resultAggregator: (TaskResultData,ShellEvent) => TaskResultData = { (data,event) =>
+    // TODO build events instead of indicator
+    val resultAggregator: (BuildMessages,ShellEvent) => BuildMessages = { (data,event) =>
       event match {
         case TaskStart =>
-          // TODO looks like this isn't called?
           indicator.setIndeterminate(true)
           indicator.setFraction(0.1)
           indicator.setText("building ...")
@@ -161,41 +159,50 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
       taskResultAggregator(data,event)
     }
 
-    val defaultTaskResult = TaskResultData(aborted = false, 0, 0)
     val failedResult = new ProjectTaskResult(true, 1, 0)
 
     // TODO consider running module build tasks separately
     // may require collecting results individually and aggregating
-    val commandFuture = shell.command(command, defaultTaskResult, resultAggregator, showShell = true)
-      .map(data => new ProjectTaskResult(data.aborted, data.errors, data.warnings))
-      .recover {
-        case _ =>
-          // TODO some kind of feedback / rethrow
-          failedResult
-      }
+    val commandFuture = shell.command(command, BuildMessages.empty, resultAggregator, showShell = true)
+
+    // build effects
+    commandFuture
       .andThen {
         case _ => refreshRoots(modules, indicator)
       }
+
+    // handle callback
+    commandFuture
+      .map(messages => new ProjectTaskResult(messages.aborted, messages.errors.size, messages.warnings.size))
       .andThen {
-        case Success(taskResult) =>
-          // TODO progress monitoring
-          callbackOpt.foreach(_.finished(taskResult))
-          indicator.setFraction(1)
-          indicator.setText("sbt build completed")
-          indicator.setText2("")
-          val successResult = new SuccessResultImpl
+        case Success(taskResult) => callbackOpt.foreach(_.finished(taskResult))
+        case Failure(_) => callbackOpt.foreach(_.finished(failedResult))
+      }
+
+
+    // build state reporting
+    commandFuture
+      .andThen {
+        case Success(messages) =>
+          val result =
+            if (messages.errors.isEmpty)
+              new SuccessResultImpl
+            else {
+              val fails: util.List[events.Failure] = messages.errors.map(msg => new FailureImpl(msg, msg): events.Failure).asJava
+              new FailureResultImpl(fails)
+            }
+
           val successEvent =
-            new FinishEventImpl(taskId, null, System.currentTimeMillis(), "sbt build completed", successResult)
+            new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), "sbt build completed", result)
           viewManager.onEvent(successEvent)
         case Failure(err) =>
-          callbackOpt.foreach(_.finished(failedResult))
-          indicator.setText("sbt build failed")
-          indicator.setText2(err.getMessage)
           val failureResult = new FailureResultImpl(err)
           val failureEvent =
-            new FinishEventImpl(taskId, null, System.currentTimeMillis(), "sbt build failed", failureResult)
+            new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), "sbt build failed", failureResult)
           viewManager.onEvent(failureEvent)
       }
+
+
 
     // block thread to make indicator available :(
     Await.ready(commandFuture, Duration.Inf)
@@ -230,17 +237,45 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
 object CommandTask {
 
-  private case class TaskResultData(aborted: Boolean, errors: Int, warnings: Int)
+  // some code duplication here with SbtStructureDump
+  private val WARN_PREFIX = "[warn]"
+  private val ERROR_PREFIX = "[error]"
 
-  private val taskResultAggregator: EventAggregator[TaskResultData] = (result, event) =>
+  private val taskResultAggregator: EventAggregator[BuildMessages] = (result, event) =>
     event match {
       case TaskStart => result
       case TaskComplete => result
+      case ErrorWaitForInput =>
+        result
+          .addError("Error reloading project.")
+          .abort // build should be aborted if this happens (but it shouldn't happen)
       case Output(text) =>
-        if (text startsWith "[error]")
-          result.copy(errors = result.errors+1)
+        if (text startsWith ERROR_PREFIX)
+          result.addError(text.stripPrefix(ERROR_PREFIX))
         else if (text startsWith "[warning]")
-          result.copy(warnings = result.warnings+1)
+          result.addWarning(text.stripPrefix(WARN_PREFIX))
         else result
     }
+}
+
+private case class BuildMessages(warnings: Seq[String], errors: Seq[String], log: Seq[String], aborted: Boolean) {
+  def appendMessage(text: String): BuildMessages = copy(log = log :+ text.trim)
+  def addError(msg: String): BuildMessages = copy(errors = errors :+ msg.trim)
+  def addWarning(msg: String): BuildMessages = copy(warnings = warnings :+ msg.trim)
+  def abort: BuildMessages = copy(aborted = true)
+  def toTaskResult: ProjectTaskResult = new ProjectTaskResult(aborted, errors.size, warnings.size)
+}
+
+private case object BuildMessages {
+  def empty = BuildMessages(Vector.empty, Vector.empty, Vector.empty, aborted = false)
+}
+
+private case class SbtBuildResult(warnings: Seq[String] = Seq.empty) extends SuccessResult {
+  override def isUpToDate = false
+  override def getWarnings: util.List[Warning] = warnings.map(SbtWarning.apply(_) : Warning).asJava
+}
+
+private case class SbtWarning(message: String) extends Warning {
+  override def getMessage: String = message
+  override def getDescription: String = message
 }

@@ -368,7 +368,6 @@ object SbtStructureDump {
       }
 
     override def canNavigate: Boolean = true
-
     override def canNavigateToSource: Boolean = true
   }
 
