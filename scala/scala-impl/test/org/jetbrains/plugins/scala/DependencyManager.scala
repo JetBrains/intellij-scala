@@ -10,12 +10,27 @@ import org.apache.ivy.Ivy
 import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
 import org.apache.ivy.plugins.resolver.URLResolver
+import org.jetbrains.plugins.scala.DependencyManager.Dependency
+import org.jetbrains.plugins.scala.debugger.ScalaVersion
 
-class DependencyManager {
+/**
+  * SBT-like dependency manager for libraries to be used in tests.
+  *
+  * To use, override [[org.jetbrains.plugins.scala.debugger.ScalaSdkOwner#loadIvyDependencies()]],<br/>
+  * create a new manager and call<br/> [[org.jetbrains.plugins.scala.DependencyManager#loadAll]] or [[org.jetbrains.plugins.scala.DependencyManager#load]]<br/>
+  * {{{
+  * override protected def loadIvyDependencies(): Unit =
+  *     DependencyManager("com.chuusai" %% "shapeless" % "2.3.2").loadAll
+  * }}}
+  *
+  * One can also do this outside loadIvyDependencies, but make sure that all loading is done before [[com.intellij.testFramework.LightPlatformTestCase#setUp()]]
+  * is finished to avoid getting "Virtual pointer hasn't been disposed: " errors on tearDown()
+  */
+class DependencyManager(val deps: Dependency*) {
   import DependencyManager._
 
   private val homePrefix = sys.props.get("tc.idea.prefix").orElse(sys.props.get("user.home")).map(new File(_)).get
-  private val ivyHome = Option(System.getProperty("sbt.ivy.home")).orElse(Option(".ivy2")).map(new File(homePrefix, _)).get
+  private val ivyHome = sys.props.get("sbt.ivy.home").map(new File(_)).orElse(Option(new File(homePrefix, ".ivy2"))).get
 
   private def mkIvyXml(dep: Dependency): String = {
     s"""
@@ -82,20 +97,23 @@ class DependencyManager {
       }
     }
   }
+  def loadAll(implicit module: Module): Unit = load(deps:_*)(module)
 }
 
 object DependencyManager {
 
-  def apply(): DependencyManager = new DependencyManager()
+  def apply(deps: Dependency*): DependencyManager = new DependencyManager(deps:_*)
 
   case class Dependency(org: String, artId: String, version: String) {
-    def %(version: String): Dependency = this.copy(version = version)
+    def %(version: String): Dependency = copy(version = version)
   }
 
   case class ResolvedDependency(info: Dependency, file: File)
 
   implicit class RichStr(value: String) {
     def %(right: String) = Dependency(value, right, "UNKNOWN")
+    def %%(right: String)(implicit scalaVersion: ScalaVersion): Dependency =
+      Dependency(value, s"${right}_${scalaVersion.major}", "UNKNOWN")
   }
 
 }

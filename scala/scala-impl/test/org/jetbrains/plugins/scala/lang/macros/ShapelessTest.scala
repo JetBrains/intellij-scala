@@ -8,14 +8,11 @@ import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
 class ShapelessTest extends TypeInferenceTestBase {
 
+  implicit private def moduleContext: Module = module()
   override implicit val version: ScalaVersion = Scala_2_11
 
-  implicit private def moduleContext: Module = module()
-
-  override protected def afterSetUpProject(): Unit = {
-    super.afterSetUpProject()
-    DependencyManager().load("com.chuusai" % "shapeless_2.11" % "2.3.2")
-  }
+  override protected def loadIvyDependencies(): Unit =
+    DependencyManager("com.chuusai" %% "shapeless" % "2.3.2").loadAll
 
   def testGeneric(): Unit = doTest(
     s"""
