@@ -21,10 +21,9 @@ class HydraCompilerConfigurable (project: Project) extends AbstractConfigurable(
   override def isModified: Boolean = form.isHydraEnabled != settings.isHydraEnabled ||
     form.getUsername != HydraCredentialsManager.getLogin ||
     form.getPassword != HydraCredentialsManager.getPlainPassword ||
-    form.selectedVersion != settings.hydraVersion ||
+    form.getHydraVersion != settings.hydraVersion ||
     form.selectedNoOfCores != settings.noOfCores ||
     form.selectedSourcePartitioner != settings.sourcePartitioner ||
-    form.getHydraStoreDirectory != settings.hydraStorePath ||
     form.getHydraRepository != hydraGlobalSettings.getHydraRepositoryUrl ||
     form.getHydraRepositoryRealm != hydraGlobalSettings.hydraRepositoryRealm
 
@@ -33,20 +32,18 @@ class HydraCompilerConfigurable (project: Project) extends AbstractConfigurable(
     form.setPassword(HydraCredentialsManager.getPlainPassword)
     form.setIsHydraEnabled(settings.isHydraEnabled)
     form.setSelectedNoOfCores(settings.noOfCores)
-    form.setSelectedVersion(settings.hydraVersion)
+    form.setHydraVersion(settings.hydraVersion)
     form.setSelectedSourcePartitioner(settings.sourcePartitioner)
-    form.setHydraStoreDirectory(settings.hydraStorePath)
     form.setHydraRepository(hydraGlobalSettings.getHydraRepositoryUrl)
     form.setHydraRepositoryRealm(hydraGlobalSettings.hydraRepositoryRealm)
   }
 
   override def apply() {
     BuildManager.getInstance().clearState(project)
-    settings.hydraVersion = form.selectedVersion
+    settings.hydraVersion = form.getHydraVersion
     settings.isHydraEnabled = form.isHydraEnabled
     settings.noOfCores = form.selectedNoOfCores
     settings.sourcePartitioner = form.selectedSourcePartitioner
-    settings.hydraStorePath = form.getHydraStoreDirectory
     hydraGlobalSettings.setHydraRepositopryUrl(form.getHydraRepository)
     hydraGlobalSettings.hydraRepositoryRealm = form.getHydraRepositoryRealm
     HydraCredentialsManager.setCredentials(form.getUsername, form.getPassword)
