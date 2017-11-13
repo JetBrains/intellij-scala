@@ -69,7 +69,7 @@ object CbtProcess {
       case 0 =>
         Success(outputHandler.stdOut)
       case _ =>
-        Failure(new CbtProjectImporingException(outputHandler.errors.mkString("\n")))
+        Failure(new CbtProjectImporingException(outputHandler.stdErr.mkString("\n")))
     }
   }
 
