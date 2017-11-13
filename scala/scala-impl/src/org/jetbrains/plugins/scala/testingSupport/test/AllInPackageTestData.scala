@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -73,7 +74,7 @@ class AllInPackageTestData(override val config: AbstractTestRunConfiguration) ex
     }
     if (classes.isEmpty)
       throw new ExecutionException(s"Did not find suite classes in package ${pack.getQualifiedName}")
-    val classFqns = classes.map(_.getQualifiedName)
+    val classFqns = classes.map(_.qualifiedName)
     classBuf = classFqns
     aMap(classFqns)
   }

@@ -7,6 +7,7 @@ import com.intellij.psi.PsiClass
 import org.jdom.Element
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 
 class ClassTestData(override val config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
 
@@ -34,7 +35,7 @@ class ClassTestData(override val config: AbstractTestRunConfiguration) extends T
     val clazz = getClassPathClazz
     if (clazz == null) config.classNotFoundError
     if (config.isInvalidSuite(clazz)) throw new ExecutionException(s"$clazz is not a valid test suite")
-    Map(clazz.getQualifiedName -> Set[String]())
+    Map(clazz.qualifiedName -> Set[String]())
   }
 
 
