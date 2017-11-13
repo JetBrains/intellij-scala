@@ -7,7 +7,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScParameterizedType, ScType}
 
-object ShapelessMkSelector  extends ScalaMacroTypeable with ShapelessUtils {
+/**
+  * Generates accessor types for shapeless LabelledGeneric
+  *
+  * Extracts type of case class parameter by it's name that has previously been serialized into compound type by
+  * [[ShapelessDefaultSymbolicLabelling]]
+  */
+object ShapelessMkSelector extends ScalaMacroTypeable with ShapelessUtils {
 
   private def findValType(name: String)(labelled: ScType): Option[ScType] = {
     def extractKey(tp: ScCompoundType): Option[String] = tp.components.last match {

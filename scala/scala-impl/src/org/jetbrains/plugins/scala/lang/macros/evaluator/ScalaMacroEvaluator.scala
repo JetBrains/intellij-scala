@@ -35,9 +35,8 @@ class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(pro
     MatchRule("product", "shapeless.Generic", ShapelessForProduct),
     MatchRule("apply", "shapeless.LowPriorityGeneric", ShapelessForProduct),
     MatchRule("materialize", "shapeless.Generic", ShapelessMaterializeGeneric),
-    MatchRule("mkDefaultSymbolicLabelling", "shapeless.DefaultSymbolicLabelling", ShapelessMaterializeLabelledGeneric),
+    MatchRule("mkDefaultSymbolicLabelling", "shapeless.DefaultSymbolicLabelling", ShapelessDefaultSymbolicLabelling),
     MatchRule("mkSelector", "shapeless.ops.record.Selector", ShapelessMkSelector),
-//    MatchRule("apply", "shapeless.Witness", ShapelessApplyWitness),
     DefaultRule
   )
 

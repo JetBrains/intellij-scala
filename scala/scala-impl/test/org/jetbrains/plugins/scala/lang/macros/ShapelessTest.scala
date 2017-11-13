@@ -38,4 +38,13 @@ class ShapelessTest extends TypeInferenceTestBase {
       |//Int
     """.stripMargin
   )
+
+  def testTupleSyntax(): Unit = doTest(
+    s"""
+      |import shapeless.syntax.std.tuple._
+      |val x = (1,2) :+ 1
+      |${START}x$END
+      |//(Int, Int, Int)
+    """.stripMargin
+  )
 }
