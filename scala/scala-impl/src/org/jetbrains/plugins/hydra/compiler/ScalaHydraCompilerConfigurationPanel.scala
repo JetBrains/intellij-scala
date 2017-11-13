@@ -26,6 +26,8 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
 
   hydraGlobalSettings.getState
 
+  HydraCompilerSettingsManager.setHydraLogSystemProperty(project)
+
   hydraRepository.setText(hydraGlobalSettings.getHydraRepositoryUrl)
   hydraRepository.getDocument.addDocumentListener(documentAdapter)
 
