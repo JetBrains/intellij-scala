@@ -23,8 +23,8 @@ import org.jetbrains.sbt.using
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
-
 import SbtStructureDump._
+import org.jetbrains.sbt.shell.event.{SbtBuildEvent, SbtShellBuildError, SbtShellBuildWarning}
 
 class SbtStructureDump {
 
@@ -323,53 +323,16 @@ object SbtStructureDump {
     def empty = ImportMessages(Vector.empty, Vector.empty, Vector.empty)
   }
 
-  abstract class SbtBuildEvent(parentId: Any, kind: MessageEvent.Kind, group: String, message: String)
-    extends AbstractBuildEvent(new Object, parentId, System.currentTimeMillis(), message) with MessageEvent {
-
-    override def getKind: MessageEvent.Kind = kind
-    override def getGroup: String = group
-
-    override def getResult: MessageEventResult =
-      new MessageEventResult() {
-        override def getKind: MessageEvent.Kind = kind
-      }
-  }
-
-  trait SbtShellBuildEvent extends MessageEvent {
-    override def getNavigatable(project: Project): Navigatable = {
-      val shell = SbtProcessManager.forProject(project).acquireShellRunner
-      SbtShellNavigatable(shell) // TODO pass some kind of position info
-    }
-  }
-
   trait SbtProcessBuildEvent extends MessageEvent {
     // TODO open log or something?
     override def getNavigatable(project: Project): Navigatable = null
   }
+
 
   case class SbtProcessBuildWarning(parentId: Any, message: String)
     extends SbtBuildEvent(parentId, MessageEvent.Kind.WARNING, "warnings", message) with SbtProcessBuildEvent
 
   case class SbtProcessBuildError(parentId: Any, message: String)
     extends SbtBuildEvent(parentId, MessageEvent.Kind.ERROR, "errors", message) with SbtProcessBuildEvent
-
-  case class SbtShellBuildWarning(parentId: Any, message: String)
-    extends SbtBuildEvent(parentId, MessageEvent.Kind.WARNING, "warnings", message) with SbtShellBuildEvent
-
-  case class SbtShellBuildError(parentId: Any, message: String)
-    extends SbtBuildEvent(parentId, MessageEvent.Kind.ERROR, "errors", message) with SbtShellBuildEvent
-
-
-  case class SbtShellNavigatable(shell: SbtShellRunner) extends Navigatable {
-
-    override def navigate(requestFocus: Boolean): Unit =
-      if (canNavigate) {
-        shell.openShell(requestFocus)
-      }
-
-    override def canNavigate: Boolean = true
-
-    override def canNavigateToSource: Boolean = true
-  }
 
 }
