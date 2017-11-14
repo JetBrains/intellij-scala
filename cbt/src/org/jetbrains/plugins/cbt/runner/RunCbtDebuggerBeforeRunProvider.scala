@@ -53,8 +53,8 @@ class RunCbtDebuggerBeforeRunProvider extends BeforeRunTaskProvider[RunCbtDebugg
     }
 
     val environment =
-      CbtProjectTaskRunner.createExecutionEnv(beforeTunTask.taskName,
-        beforeTunTask.module,
+      CbtProjectTaskRunner.createExecutionEnv(beforeTunTask.task.task,
+        beforeTunTask.task.moduleOpt.get,
         project,
         listener,
         options = Seq("direct", "-debug"))
@@ -71,7 +71,7 @@ object RunCbtDebuggerBeforeRunProvider {
   val NAME = "CBT Debug"
 }
 
-class RunCbtDebuggerBeforeRunTask(val taskName: String, val module: Module)
+class RunCbtDebuggerBeforeRunTask(val task: CbtTask)
   extends BeforeRunTask[RunCbtDebuggerBeforeRunTask](RunCbtDebuggerBeforeRunProvider.ID) {
   setEnabled(true)
 }

@@ -15,8 +15,8 @@ import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.{CbtExecutionSettings, CbtSystemSettings}
 import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
-import org.jetbrains.plugins.cbt.runner.internal.{CbtImportConfigurationFactory, CbtImportConfigurationType}
-import org.jetbrains.plugins.cbt.runner.{CbtOutputFilter, CbtProcessListener}
+import org.jetbrains.plugins.cbt.runner.internal.{CbtImportConfigurationFactory, CbtTaskConfigurationType}
+import org.jetbrains.plugins.cbt.runner.{CbtOutputFilter, CbtProcessListener, CbtTask}
 import org.jetbrains.plugins.cbt.settings.CbtGlobalSettings
 
 import scala.sys.process.{Process, ProcessLogger}
@@ -29,7 +29,7 @@ object CbtProcess {
                    project: Project,
                    taskListener: Option[(ExternalSystemTaskId,
                      ExternalSystemTaskNotificationListener)]): Try[Elem] = {
-    val buildParams = {
+    val taskArguments = {
       val extraModulesStr = settings.extraModules.mkString(":")
       val needCbtLibsStr = settings.isCbt.unary_!.toString
       Seq("--extraModules", extraModulesStr, "--needCbtLibs", needCbtLibsStr)
@@ -54,14 +54,22 @@ object CbtProcess {
     val outputFilter = new CbtOutputFilter {
       override def filter(text: String, outputType: Key[_]): Boolean = outputType match {
         case ProcessOutputTypes.STDERR => true
+        case ProcessOutputTypes.SYSTEM => true
         case _ => false
       }
     }
 
-    val configuration = new CbtImportConfigurationFactory(settings.useDirect,
-      CbtImportConfigurationType.instance,
-      listener, Some(outputFilter))
-      .createTemplateConfiguration(project)
+    val configuration =
+      new CbtImportConfigurationFactory(
+        CbtTask("buildInfoXml",
+          settings.useDirect,
+          project,
+          taskArguments = taskArguments,
+          listenerOpt = Some(listener),
+          filterOpt = Some(outputFilter)
+        ),
+        CbtTaskConfigurationType.instance)
+        .createTemplateConfiguration(project)
     val runnerSettings =
       new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
     runnerSettings.setSingleton(true)

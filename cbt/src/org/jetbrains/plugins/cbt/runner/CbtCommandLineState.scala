@@ -5,30 +5,26 @@ import com.intellij.execution.process._
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationSource}
 import com.intellij.openapi.util.Key
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.cbt.process.{CbtOutputListener, CbtProcess}
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 
 import scala.collection.JavaConverters._
 
 
-class CbtCommandLineState(task: String,
-                          useDirect: Boolean,
-                          workingDir: String,
-                          cbtListener: CbtProcessListener,
-                          outputFilterOpt: Option[CbtOutputFilter],
-                          environment: ExecutionEnvironment,
-                          options: Seq[String] = Seq.empty)
+class CbtCommandLineState(taskData: CbtTask, environment: ExecutionEnvironment)
   extends CommandLineState(environment) {
+
+  import taskData._
 
   override def startProcess(): ProcessHandler = {
     ExternalSystemNotificationManager.getInstance(environment.getProject)
       .clearNotifications(NotificationSource.TASK_EXECUTION, CbtProjectSystem.Id)
     val arguments =
       Seq(CbtProcess.cbtExePath(environment.getProject)) ++
-      options ++
-      (if (useDirect && !options.contains("direct")) Seq("direct") else Seq.empty) ++
-      task.split(' ').map(_.trim).toSeq
+        cbtOptions ++
+        (if (useDirect && !cbtOptions.contains("direct")) Seq("direct") else Seq.empty) ++
+        Seq(task) ++
+        taskArguments
     val commandLine = new GeneralCommandLine(arguments.asJava)
       .withWorkDirectory(workingDir)
     val hanlder = new CbtProcessHandler(commandLine)
@@ -46,7 +42,7 @@ class CbtCommandLineState(task: String,
       override def startNotified(event: ProcessEvent): Unit = {}
 
       override def processTerminated(event: ProcessEvent): Unit =
-        cbtListener.onComplete(event.getExitCode)
+        listenerOpt.foreach(_.onComplete(event.getExitCode))
 
       override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {}
     })
@@ -55,10 +51,6 @@ class CbtCommandLineState(task: String,
       new AnsiEscapeDecoder
     private val cbtOutputListener =
       new CbtOutputListener(onOutput, Option(environment.getProject), NotificationSource.TASK_EXECUTION)
-
-    private def onOutput(text: String, stderr: Boolean): Unit = {
-      cbtListener.onTextAvailable(text, stderr)
-    }
 
     override def notifyTextAvailable(text: String, outputType: Key[_]): Unit = {
       outputType match {
@@ -73,13 +65,17 @@ class CbtCommandLineState(task: String,
 
     override def coloredTextAvailable(text: String, outputType: Key[_]): Unit = {
       val printText =
-        outputFilterOpt.forall(_.filter(text, outputType))
+        filterOpt.forall(_.filter(text, outputType))
       if (printText)
         textAvailable(text, outputType)
     }
 
     protected def textAvailable(text: String, attributes: Key[_]): Unit = {
       super.notifyTextAvailable(text, attributes)
+    }
+
+    private def onOutput(text: String, stderr: Boolean): Unit = {
+      listenerOpt.foreach(_.onTextAvailable(text, stderr))
     }
 
   }

@@ -16,7 +16,7 @@ import com.intellij.task.impl.ExecuteRunConfigurationTaskImpl
 import com.intellij.util.Alarm
 import org.jetbrains.plugins.cbt._
 import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
-import org.jetbrains.plugins.cbt.runner.internal.{CbtBuildConfigurationFactory, CbtBuildConfigurationType, CbtDebugConfigurationFactory, CbtDebugConfigurationType}
+import org.jetbrains.plugins.cbt.runner.internal.{CbtDebugConfigurationFactory, CbtDebugConfigurationType, CbtModuleTaskConfigurationFactory, CbtModuleTaskConfigurationType}
 
 import scala.collection.JavaConverters._
 
@@ -53,14 +53,14 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
         case task: ModuleBuildTask => task
       }
       .toList
-    val taskOpt = if (moduleBuildTasks.length == 1)  // If build single module task selected
+    val taskOpt = if (moduleBuildTasks.length == 1) // If build single module task selected
       moduleBuildTasks.headOption
     else if (moduleBuildTasks.length > 1) // build the whole project selected
       moduleBuildTasks
         .find(_.getModule.getModuleFile.getParent.getCanonicalPath == project.getBaseDir.getCanonicalPath)
     else None
     taskOpt.foreach { task =>
-      val taskModuleData =  task.getModule
+      val taskModuleData = task.getModule
       buildTask(project, taskModuleData, callback)
     }
   }
@@ -99,12 +99,11 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
         (s"runMain $mainClass", module)
     }
     if (debug)
-      CbtProjectTaskRunner.createDebugExecutionEnv(taskName, module,  project)
+      CbtProjectTaskRunner.createDebugExecutionEnv(taskName, module, project)
     else
       CbtProjectTaskRunner.createExecutionEnv(taskName, module, project, CbtProcessListener.Dummy)
   }
 }
-
 
 
 object CbtProjectTaskRunner {
@@ -115,9 +114,15 @@ object CbtProjectTaskRunner {
                          options: Seq[String] = Seq.empty): ExecutionEnvironment = {
     val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
     val configuration =
-        new CbtBuildConfigurationFactory(task, projectSettings.useDirect,
-          module, options, CbtBuildConfigurationType.getInstance, listener)
-          .createTemplateConfiguration(project)
+      new CbtModuleTaskConfigurationFactory(
+        CbtTask(task,
+          projectSettings.useDirect,
+          project,
+          cbtOptions = options,
+          moduleOpt = Some(module),
+          listenerOpt = Some(listener)),
+        CbtModuleTaskConfigurationType.getInstance)
+        .createTemplateConfiguration(project)
     val runnerSettings =
       new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
     runnerSettings.setSingleton(true)
@@ -130,7 +135,13 @@ object CbtProjectTaskRunner {
                               module: Module,
                               project: Project,
                               listener: CbtProcessListener = CbtProcessListener.Dummy): ExecutionEnvironment = {
-    val configFactory = new CbtDebugConfigurationFactory(task, module, CbtDebugConfigurationType.getInstance)
+    val configFactory =
+      new CbtDebugConfigurationFactory(
+        CbtTask(task,
+          useDirect = true,
+          project,
+          moduleOpt = Some(module)),
+        CbtDebugConfigurationType.getInstance)
     val configuration = configFactory.createTemplateConfiguration(project)
     val runnerSettings =
       new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(project), configuration)
