@@ -11,10 +11,12 @@ import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 
 import scala.collection.JavaConverters._
 
+
 class CbtCommandLineState(task: String,
                           useDirect: Boolean,
                           workingDir: String,
                           cbtListener: CbtProcessListener,
+                          outputFilterOpt: Option[CbtOutputFilter],
                           environment: ExecutionEnvironment,
                           options: Seq[String] = Seq.empty)
   extends CommandLineState(environment) {
@@ -36,6 +38,7 @@ class CbtCommandLineState(task: String,
   class CbtProcessHandler(commandLine: GeneralCommandLine)
     extends KillableProcessHandler(commandLine)
       with AnsiEscapeDecoder.ColoredTextAcceptor {
+
     setShouldKillProcessSoftly(false)
     addProcessListener(new ProcessListener {
       override def processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean): Unit = {}
@@ -48,8 +51,6 @@ class CbtCommandLineState(task: String,
       override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {}
     })
 
-    private val myColoredTextListeners =
-      ContainerUtil.newArrayList[AnsiEscapeDecoder.ColoredTextAcceptor]
     private val myAnsiEscapeDecoder =
       new AnsiEscapeDecoder
     private val cbtOutputListener =
@@ -70,28 +71,17 @@ class CbtCommandLineState(task: String,
       myAnsiEscapeDecoder.escapeText(text, outputType, this)
     }
 
-    override def coloredTextAvailable(text: String, attributes: Key[_]): Unit = {
-      textAvailable(text, attributes)
-      notifyColoredListeners(text, attributes)
-    }
-
-    protected def notifyColoredListeners(text: String, attributes: Key[_]): Unit = {
-      for (listener <- myColoredTextListeners.asScala) {
-        listener.coloredTextAvailable(text, attributes)
-      }
+    override def coloredTextAvailable(text: String, outputType: Key[_]): Unit = {
+      val printText =
+        outputFilterOpt.forall(_.filter(text, outputType))
+      if (printText)
+        textAvailable(text, outputType)
     }
 
     protected def textAvailable(text: String, attributes: Key[_]): Unit = {
       super.notifyTextAvailable(text, attributes)
     }
 
-    def addColoredTextListener(listener: AnsiEscapeDecoder.ColoredTextAcceptor): Unit = {
-      myColoredTextListeners.add(listener)
-    }
-
-    def removeColoredTextListener(listener: AnsiEscapeDecoder.ColoredTextAcceptor): Unit = {
-      myColoredTextListeners.remove(listener)
-    }
   }
 
 }

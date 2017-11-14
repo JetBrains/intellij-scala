@@ -36,5 +36,5 @@ class CbtBuildConfiguration(val task: String,
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = null
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState =
-    new CbtCommandLineState(task, useDirect, module.baseDir, listener, environment, options)
+    new CbtCommandLineState(task, useDirect, module.baseDir, listener, None, environment, options)
 }

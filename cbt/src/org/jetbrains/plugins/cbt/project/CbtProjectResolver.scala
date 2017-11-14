@@ -22,11 +22,12 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
                                   listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
     val projectPath = settings.realProjectPath
     val root = new File(projectPath)
-    val projectOpt =
+    val project =
       ProjectManager.getInstance.getOpenProjects
         .toSeq
         .find(_.getBaseDir.getCanonicalPath == projectPath)
-    CbtProcess.buildInfoXml(root, settings, projectOpt, Some(id, listener))
+        .get
+    CbtProcess.buildInfoXml(root, settings, project, Some(id, listener))
       .flatMap(CbtProjectImporter.importProject(_, settings))
       .recoverWith { case ex => Failure(new ExternalSystemException(ex)) }
       .get
