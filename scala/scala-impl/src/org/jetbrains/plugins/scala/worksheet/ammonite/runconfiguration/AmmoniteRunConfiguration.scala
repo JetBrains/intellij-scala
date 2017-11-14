@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration
 
-import java.io.File
+import java.io.{File, IOException}
+import javax.swing.event.{HyperlinkEvent, HyperlinkListener}
 import javax.swing.{BoxLayout, JComponent, JPanel}
 
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations._
 import com.intellij.execution.filters.TextConsoleBuilderImpl
-import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.impl.EditConfigurationsDialog
+import com.intellij.execution.process.{ProcessHandler, ProcessNotCreatedException}
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.options.SettingsEditor
@@ -19,7 +21,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.RawCommandLineEditor
 import org.jdom.Element
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder
-import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfiguration.MyEditor
+import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfiguration.{AmmNotFoundException, MyEditor}
 
 /**
   * User: Dmitry.Naydanov
@@ -87,7 +89,26 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
 
         patchSdkVersion(cmd)
         
-        JavaCommandLineStateUtil.startProcess(cmd)
+        try {
+          JavaCommandLineStateUtil.startProcess(cmd)
+        } catch {
+          case pne: ProcessNotCreatedException => 
+            pne.getCause match {
+              case ioe: IOException =>
+                ioe.getCause match {
+                  case ioe2: IOException if ioe2.getMessage.contains("error=2") =>
+                    throw new AmmNotFoundException(
+                      s"<br>Can't find Ammonite distributive:<br> ${ioe2.getMessage} <br>" + "<br> <a href=\"azaza\">Specify path?</a>", 
+                      pne.getCommandLine, 
+                      project
+                    )
+                  case _ => 
+                }
+              case _ => 
+            }
+            
+            throw pne
+        }
       }
     }
     state.setConsoleBuilder(new TextConsoleBuilderImpl(project))
@@ -147,6 +168,14 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
 
 object AmmoniteRunConfiguration {
   val AMMONITE_RUN_NAME = "Ammonite script"
+  
+  class AmmNotFoundException(message: String, commandLine: GeneralCommandLine, project: Project) extends ProcessNotCreatedException(message, commandLine) with HyperlinkListener {
+    override def hyperlinkUpdate(e: HyperlinkEvent): Unit = {
+      if (e.getEventType != HyperlinkEvent.EventType.ACTIVATED) return 
+      
+      new EditConfigurationsDialog(project).show()
+    }
+  }
   
   private class MyEditor extends SettingsEditor[AmmoniteRunConfiguration]() {
     private val form = new AmmoniteRunConfigurationForm
