@@ -37,7 +37,7 @@ class CbtLineMarkerProvider extends RunLineMarkerContributor {
         wrapper <- Option(parent.getParent.getParent.getParent)
         f <- Try(parent.asInstanceOf[ScFunction]).toOption
         c <- Try(wrapper.asInstanceOf[ScClass]).toOption
-        if f.nameId == element && isBuildClass(c)
+        if f.nameId == element && isBuildClass(c) && c.name == "Build"
         m <- createRunMarker(project, range, f)
       } yield m).orNull
     } else null
@@ -48,13 +48,13 @@ class CbtLineMarkerProvider extends RunLineMarkerContributor {
                               scFun: ScFunction): Option[RunLineMarkerContributor.Info] = {
     val task = scFun.asInstanceOf[ScFunctionDefinitionImpl].getName
     val tooltipHandler = (_: PsiElement) => s"Run or Debug task '$task'"
-    val module =
+    val moduleOption =
       CBT.moduleByPath(scFun.getContainingFile.getVirtualFile.getPath, project)
         .flatMap { buildModule =>
           val moudleDir = buildModule.baseDir.toFile.toPath.getParent.toString
           CBT.moduleByPath(moudleDir, project)
         }
-    module.map { m =>
+    moduleOption.map { m =>
       val actions: Array[AnAction] =
         Array(new RunTaskAction(task, m, project), new DebugTaskAction(task, m, project))
       new RunLineMarkerContributor.Info(AllIcons.General.Run, tooltipHandler, actions: _ *)

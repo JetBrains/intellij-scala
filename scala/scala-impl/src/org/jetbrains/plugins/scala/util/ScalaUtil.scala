@@ -3,13 +3,17 @@ package org.jetbrains.plugins.scala.util
 import java.io.File
 
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.PathUtil
 import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.project.ModuleExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -52,4 +56,17 @@ object ScalaUtil {
       case _ => None
     })
   }
+
+  def getScalaVersion(file: PsiFile): Option[String] = {
+    findVirtualFile(file) flatMap {
+      vFile => getModuleForFile(vFile, file.getProject)
+    } flatMap {
+      module => module.scalaSdk
+    } flatMap {
+      sdk => sdk.compilerVersion
+    }
+  }
+
+  def getModuleForFile(virtualFile: VirtualFile, project: Project): Option[Module] =
+    Option(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
 }

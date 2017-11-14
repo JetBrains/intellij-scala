@@ -2,14 +2,12 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import java.io.File
 
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.roots.{OrderRootType, ProjectRootManager}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.containers.ContainerUtilRt
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
@@ -19,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
-import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -39,7 +36,9 @@ object AmmoniteUtil {
   private val ROOT_IVY = "$ivy"
   private val PARENT_FILE = "^"
   
-  private val DEFAULT_IMPORTS = Seq("ammonite.main.Router._") //todo more default imports ? 
+  private val DEFAULT_IMPORTS = Seq("ammonite.main.Router._", "ammonite.runtime.tools.grep", "ammonite.runtime.tools.browse", 
+    "ammonite.runtime.tools.time", "ammonite.repl.tools.desugar", "ammonite.repl.tools.source") //todo more default imports ?
+  private val DEFAULT_BUILTINS = Seq(("repl", "ammonite.repl.ReplAPI"), ("interp", "ammonite.interp.InterpAPI"))
 
   def isAmmoniteFile(file: ScalaFile): Boolean = {
     ScalaUtil.findVirtualFile(file) match {
@@ -74,6 +73,12 @@ object AmmoniteUtil {
   def executeImplicitImportsDeclarations(processor: PsiScopeProcessor, file: FileDeclarationsHolder, state: ResolveState): Boolean = {
     file match {
       case ammoniteFile: ScalaFile if isAmmoniteFile(ammoniteFile) =>
+        DEFAULT_BUILTINS.foreach {
+          case (name, txt) =>
+            ScalaPsiElementFactory.createDeclaration(name, txt, isVariable = false, null)(
+              ammoniteFile.projectContext).getContainingClass.processDeclarations(processor, state, null, ammoniteFile)
+        }
+        
         DEFAULT_IMPORTS.foreach {
           imp =>
             val importStmt = ScalaPsiElementFactory.createImportFromText(s"import $imp")(ammoniteFile.projectContext)
@@ -278,13 +283,7 @@ object AmmoniteUtil {
   }
   
   private def getScalaVersion(element: ScalaPsiElement): String = {
-    Option(PsiUtilCore getVirtualFile element).flatMap {
-      file => getModuleForFile(file, element.getProject)
-    } flatMap {
-      module => module.scalaSdk
-    } flatMap {
-      sdk => sdk.compilerVersion
-    } map {
+    ScalaUtil.getScalaVersion(element.getContainingFile) map {
       version => version.lastIndexOf('.') match {
         case a if a < 2 => version
         case i => version.substring(0, i)
@@ -319,7 +318,4 @@ object AmmoniteUtil {
   def getDefaultCachePath: String = System.getProperty("user.home") + "/.ivy2/cache"
   
   def getCoursierCachePath: String = System.getProperty("user.home") + "/.coursier/cache/v1"
-  
-  def getModuleForFile(virtualFile: VirtualFile, project: Project): Option[Module] =
-    Option(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
 }

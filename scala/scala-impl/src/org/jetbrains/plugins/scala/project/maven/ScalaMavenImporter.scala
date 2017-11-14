@@ -132,7 +132,8 @@ private object ScalaMavenImporter {
 
     private def compilerPlugin: Option[MavenPlugin] =
       project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.filter(!_.isDefault).orElse(
-        project.findPlugin("net.alchim31.maven", "scala-maven-plugin").toOption.filter(!_.isDefault))
+        project.findPlugin("net.alchim31.maven", "scala-maven-plugin").toOption.filter(!_.isDefault)).orElse(
+        project.findPlugin("com.triplequote.maven", "scala-maven-plugin").toOption.filter(!_.isDefault))
 
     private def compilerConfigurations: Seq[Element] = compilerPlugin.toSeq.flatMap { plugin =>
       plugin.getConfigurationElement.toOption.toSeq ++

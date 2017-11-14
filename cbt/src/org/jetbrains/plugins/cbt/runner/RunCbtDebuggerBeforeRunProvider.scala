@@ -57,7 +57,7 @@ class RunCbtDebuggerBeforeRunProvider extends BeforeRunTaskProvider[RunCbtDebugg
         beforeTunTask.module,
         project,
         listener,
-        options = Seq("-debug"))
+        options = Seq("direct", "-debug"))
     ExecutionManager.getInstance(project)
       .restartRunProfile(environment)
     finished.waitFor()

@@ -4,6 +4,7 @@ import java.io._
 import java.util.Properties
 import java.util.jar.JarFile
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -23,22 +24,33 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
 
   private val indexDir: File = getIndexDirectory(root)
   ensureIndexDir()
-  private val artifactToGroupMap = createPersistentMap(indexDir / Paths.ARTIFACT_TO_GROUP_FILE)
-  private val groupToArtifactMap = createPersistentMap(indexDir / Paths.GROUP_TO_ARTIFACT_FILE)
-  private val groupArtifactToVersionMap = createPersistentMap(indexDir / Paths.GROUP_ARTIFACT_TO_VERSION_FILE)
-  private val fqNameToGroupArtifactVersionMap = createPersistentMap(indexDir / Paths.FQ_NAME_TO_GROUP_ARTIFACT_VERSION_FILE)
+  private var artifactToGroupMap = createPersistentMap(indexDir / Paths.ARTIFACT_TO_GROUP_FILE)
+  private var groupToArtifactMap = createPersistentMap(indexDir / Paths.GROUP_TO_ARTIFACT_FILE)
+  private var groupArtifactToVersionMap = createPersistentMap(indexDir / Paths.GROUP_ARTIFACT_TO_VERSION_FILE)
+  private var fqNameToGroupArtifactVersionMap = createPersistentMap(indexDir / Paths.FQ_NAME_TO_GROUP_ARTIFACT_VERSION_FILE)
   private var (_, _, innerTimestamp, currentVersion) = loadProps()
 
-  private def checkStorage(): Unit = {
+  private def checkStorage()(implicit project: ProjectContext): Unit = {
     if (artifactToGroupMap.isCorrupted ||
         groupToArtifactMap.isCorrupted ||
         groupArtifactToVersionMap.isCorrupted ||
         fqNameToGroupArtifactVersionMap.isCorrupted ||
         currentVersion.toInt < CURRENT_INDEX_VERSION.toInt)
+    {
+      close()
       deleteIndex()
+      artifactToGroupMap = createPersistentMap(indexDir / Paths.ARTIFACT_TO_GROUP_FILE)
+      groupToArtifactMap = createPersistentMap(indexDir / Paths.GROUP_TO_ARTIFACT_FILE)
+      groupArtifactToVersionMap = createPersistentMap(indexDir / Paths.GROUP_ARTIFACT_TO_VERSION_FILE)
+      fqNameToGroupArtifactVersionMap = createPersistentMap(indexDir / Paths.FQ_NAME_TO_GROUP_ARTIFACT_VERSION_FILE)
+      val (_, _, a, b) = loadProps()
+      innerTimestamp = a
+      currentVersion = b
+      SbtIndexesManager.getInstance(project).get.doUpdateResolverIndexWithProgress("Local Ivy cache", this)
+    }
   }
 
-  private def withStorageCheck[T](f: => Set[T]): Set[T] = {
+  private def withStorageCheck[T](f: => Set[T])(implicit project: ProjectContext): Set[T] = {
     try     { f }
     catch   { case _: Exception => Set.empty }
     finally { checkStorage() }
@@ -72,7 +84,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     }
   }
 
-  override def searchArtifactInfo(fqName: String): Set[ArtifactInfo] = {
+  override def searchArtifactInfo(fqName: String)(implicit project: ProjectContext): Set[ArtifactInfo] = {
     withStorageCheck {
       Option(fqNameToGroupArtifactVersionMap.get(fqName)).getOrElse(Set.empty).map(s => {
         val info: Array[String] = s.split(":")
@@ -83,6 +95,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
 
 
   override def doUpdate(progressIndicator: Option[ProgressIndicator] = None)(implicit project: ProjectContext): Unit = {
+    checkStorage()
     val agMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gaMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gavMap = mutable.HashMap.empty[String, mutable.Set[String]]

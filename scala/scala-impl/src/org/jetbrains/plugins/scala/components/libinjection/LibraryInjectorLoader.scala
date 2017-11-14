@@ -130,7 +130,7 @@ class LibraryInjectorLoader(val project: Project) extends AbstractProjectCompone
   }
 
   override def projectClosed(): Unit = {
-    jarCache.saveJarCache()
+    if (jarCache != null) jarCache.saveJarCache()
     LibraryTablesRegistrar.getInstance().getLibraryTable(project).removeListener(myLibraryTableListener)
   }
 

@@ -48,10 +48,10 @@ public class ScalaTestRunner {
 
   private static void runScalaTest2(String[] args) throws IOException {
     ArrayList<String> argsArray = new ArrayList<String>();
-    HashSet<String> classes = new HashSet<String>();
     HashMap<String, Set<String>> failedTestMap = new HashMap<String, Set<String>>();
     boolean failedUsed = false;
-    List<String> testNames = new LinkedList<String>();
+    HashMap<String, Set<String>> classesToTests = new HashMap<>();
+    String currentClass = null;
     boolean showProgressMessages = true;
     boolean useVersionFromOptions = false;
     boolean isOlderScalaVersionFromOptions = false;
@@ -61,12 +61,14 @@ public class ScalaTestRunner {
       if (newArgs[i].equals("-s")) {
         ++i;
         while (i < newArgs.length && !newArgs[i].startsWith("-")) {
-          classes.add(newArgs[i]);
+          classesToTests.put(newArgs[i], new HashSet<String>());
+          currentClass = newArgs[i];
           ++i;
         }
       } else if (newArgs[i].equals("-testName")) {
+        if (currentClass == null) throw new RuntimeException("Failed to run tests: no suite class specified for test " + newArgs[i]);
         ++i;
-        testNames.add(TestRunnerUtil.unescapeTestName(newArgs[i]));
+        classesToTests.get(currentClass).add(TestRunnerUtil.unescapeTestName(newArgs[i]));
         ++i;
       } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;
@@ -115,25 +117,16 @@ public class ScalaTestRunner {
         }
       }
 
-    } else if (testNames.isEmpty()) {
-      for (String clazz : classes) {
-        argsArray.add("-s");
-        argsArray.add(clazz);
-      }
-
     } else {
-      //'test' kind of run should only contain one class, better fail then try to run something irrelevant
-      assert(classes.size() == 1);
-      for (String clazz : classes) {
-          argsArray.add("-s");
-          argsArray.add(clazz);
-
-          for (String tn : testNames) {
-          // Should encounter problem if the suite class does not have the specified test name.
+      for (String className : classesToTests.keySet()) {
+        argsArray.add("-s");
+        argsArray.add(className);
+        for (String test: classesToTests.get(className)) {
           argsArray.add("-t");
-          argsArray.add(tn);
+          argsArray.add(test);
         }
       }
+
     }
     Runner.run(argsArray.toArray(new String[argsArray.size()]));
   }

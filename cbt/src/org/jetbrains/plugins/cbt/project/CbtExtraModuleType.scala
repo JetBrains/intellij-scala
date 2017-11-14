@@ -2,13 +2,10 @@ package org.jetbrains.plugins.cbt.project
 
 import javax.swing.Icon
 
-import com.intellij.openapi.module.ModuleType
-import org.jetbrains.plugins.cbt.project.template.CbtModuleBuilder
+import com.intellij.openapi.module.JavaModuleType
 import org.jetbrains.plugins.scala.icons.Icons
 
-class CbtExtraModuleType extends ModuleType[CbtModuleBuilder](CbtExtraModuleType.ID) {
-  override def createModuleBuilder = new CbtModuleBuilder
-
+class CbtExtraModuleType extends JavaModuleType(CbtExtraModuleType.ID) {
   override def getName: String = CbtExtraModuleType.NAME
 
   override def getDescription: String = CbtExtraModuleType.NAME

@@ -18,7 +18,7 @@ package org.jetbrains.plugins.scala.lang.macros.evaluator
 import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.lang.macros.evaluator.impl.ShapelessForProduct
+import org.jetbrains.plugins.scala.lang.macros.evaluator.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -34,6 +34,9 @@ class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(pro
   lazy val typingRules = Seq(
     MatchRule("product", "shapeless.Generic", ShapelessForProduct),
     MatchRule("apply", "shapeless.LowPriorityGeneric", ShapelessForProduct),
+    MatchRule("materialize", "shapeless.Generic", ShapelessMaterializeGeneric),
+    MatchRule("mkDefaultSymbolicLabelling", "shapeless.DefaultSymbolicLabelling", ShapelessDefaultSymbolicLabelling),
+    MatchRule("mkSelector", "shapeless.ops.record.Selector", ShapelessMkSelector),
     DefaultRule
   )
 
@@ -41,7 +44,7 @@ class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(pro
     n match {
       case f: ScMacroDefinition => Some(f)
       //todo: fix decompiler to avoid this check:
-      case f: ScFunction if f.hasAnnotation("scala.reflect.macros.internal.macroImpl") => Some(f)
+      case f: ScFunction if f.findAnnotationNoAliases("scala.reflect.macros.internal.macroImpl") != null => Some(f)
       case _ => None
     }
   }

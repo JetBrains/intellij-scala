@@ -9,7 +9,9 @@ import org.jetbrains.plugins.cbt.CBT
 class CbtProjectTemplate extends ProjectTemplate {
   override def getName: String = "CBT"
 
-  override def getDescription: String = "CBT-based Scala project"
+  override def getDescription: String =
+    """CBT-based Scala project.<br/>
+      | More information about CBT can be found <a href="https://github.com/cvogt/cbt">here</a>""".stripMargin
 
   override def getIcon: Icon = CBT.Icon
 

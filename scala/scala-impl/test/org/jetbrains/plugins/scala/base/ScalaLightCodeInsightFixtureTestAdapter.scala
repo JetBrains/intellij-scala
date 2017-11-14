@@ -39,6 +39,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     if (loadScalaLibrary) {
       getFixture.allowTreeAccessForAllFiles()
       setUpLibraries()
+      loadIvyDependencies()
     }
   }
 
