@@ -22,11 +22,14 @@ class CbtOutputListener(onOutput: (String, Boolean) => Unit,
     val escapedText = AnsiCodesEscaper.escape(text)
     if (stderr) {
       errorBuffer.append(escapedText)
-      handleErrorOrWarning(escapedText)
     } else {
       outBuffer.append(escapedText)
     }
     onOutput(escapedText, stderr)
+  }
+
+  def onCompleted(): Unit = {
+    errorBuffer.split('\n').foreach(handleErrorOrWarning)
   }
 
   def stdErr: String =
@@ -40,6 +43,7 @@ class CbtOutputListener(onOutput: (String, Boolean) => Unit,
 
   def warnngs: Seq[String] =
     warningsList
+
 
   private def handleErrorOrWarning(text: String): Unit = {
     if (isError(text))

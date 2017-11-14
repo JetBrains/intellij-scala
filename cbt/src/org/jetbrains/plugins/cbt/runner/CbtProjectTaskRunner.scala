@@ -69,7 +69,7 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
                         module: Module,
                         callback: ProjectTaskNotification): Unit = {
     val listener = new CbtProcessListener {
-      override def onComplete(): Unit =
+      override def onComplete(exitCode: Int): Unit =
         Option(callback)
           .foreach { f =>
             val request = runnable {

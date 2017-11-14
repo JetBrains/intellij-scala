@@ -14,7 +14,7 @@ import scala.collection.JavaConverters._
 class CbtCommandLineState(task: String,
                           useDirect: Boolean,
                           workingDir: String,
-                          listener: CbtProcessListener,
+                          cbtListener: CbtProcessListener,
                           environment: ExecutionEnvironment,
                           options: Seq[String] = Seq.empty)
   extends CommandLineState(environment) {
@@ -22,7 +22,7 @@ class CbtCommandLineState(task: String,
   override def startProcess(): ProcessHandler = {
     ExternalSystemNotificationManager.getInstance(environment.getProject)
       .clearNotifications(NotificationSource.TASK_EXECUTION, CbtProjectSystem.Id)
-    val arguments = 
+    val arguments =
       Seq(CbtProcess.cbtExePath(environment.getProject)) ++
       options ++
       (if (useDirect && !options.contains("direct")) Seq("direct") else Seq.empty) ++
@@ -37,6 +37,16 @@ class CbtCommandLineState(task: String,
     extends KillableProcessHandler(commandLine)
       with AnsiEscapeDecoder.ColoredTextAcceptor {
     setShouldKillProcessSoftly(false)
+    addProcessListener(new ProcessListener {
+      override def processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean): Unit = {}
+
+      override def startNotified(event: ProcessEvent): Unit = {}
+
+      override def processTerminated(event: ProcessEvent): Unit =
+        cbtListener.onComplete(event.getExitCode)
+
+      override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {}
+    })
 
     private val myColoredTextListeners =
       ContainerUtil.newArrayList[AnsiEscapeDecoder.ColoredTextAcceptor]
@@ -46,7 +56,7 @@ class CbtCommandLineState(task: String,
       new CbtOutputListener(onOutput, Option(environment.getProject), NotificationSource.TASK_EXECUTION)
 
     private def onOutput(text: String, stderr: Boolean): Unit = {
-      listener.onTextAvailable(text, stderr)
+      cbtListener.onTextAvailable(text, stderr)
     }
 
     override def notifyTextAvailable(text: String, outputType: Key[_]): Unit = {

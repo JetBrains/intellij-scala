@@ -2,12 +2,20 @@ package org.jetbrains.plugins.cbt.process
 
 import java.io.File
 
+import com.intellij.execution.ExecutionManager
+import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
+import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationSource}
 import com.intellij.openapi.project.Project
+import com.intellij.util.concurrency.Semaphore
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 import org.jetbrains.plugins.cbt.project.settings.{CbtExecutionSettings, CbtSystemSettings}
-import org.jetbrains.plugins.cbt.project.structure.{CbtParsingBuildInfoXmlException, CbtProjectImporingException}
+import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
+import org.jetbrains.plugins.cbt.runner.CbtProcessListener
+import org.jetbrains.plugins.cbt.runner.internal.{CbtImportConfigurationFactory, CbtImportConfigurationType}
 import org.jetbrains.plugins.cbt.settings.CbtGlobalSettings
 
 import scala.sys.process.{Process, ProcessLogger}
@@ -25,13 +33,40 @@ object CbtProcess {
       val needCbtLibsStr = settings.isCbt.unary_!.toString
       Seq("--extraModules", extraModulesStr, "--needCbtLibs", needCbtLibsStr)
     }
+    val finished = new Semaphore
+    finished.down()
 
-    runAction("buildInfoXml" +: buildParams, settings.useDirect, root, projectOpt, taskListener)
-      .flatMap { xml =>
-        Try(XML.loadString(xml))
-          .recoverWith { case _ => Failure(new CbtParsingBuildInfoXmlException) }
+
+    val listener = new CbtProcessListener {
+      val textBuilder = new StringBuilder
+      override def onComplete(exitCode: Int): Unit = {
+        Thread.sleep(500)
+        finished.up()
       }
+
+      override def onTextAvailable(text: String, stderr: Boolean): Unit = {
+        if(!stderr)
+          textBuilder.append(text)
+      }
+    }
+
+    val configuration =
+      new CbtImportConfigurationFactory(settings.useDirect,
+        CbtImportConfigurationType.instance,
+        listener)
+        .createTemplateConfiguration(projectOpt.get)
+    val runnerSettings =
+      new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(projectOpt.get), configuration)
+    runnerSettings.setSingleton(true)
+    val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance,
+      DefaultJavaProgramRunner.getInstance, runnerSettings, projectOpt.get)
+    ExecutionManager.getInstance(projectOpt.get).restartRunProfile(environment)
+    finished.waitFor()
+    Try(XML.loadString(listener.textBuilder.mkString))
   }
+
+  def generateGiter8Template(template: String, project: Project, root: File): Try[String] =
+    runAction(Seq("tools", "g8", template), useDirect = true, root, Option(project), None)
 
   def runAction(action: Seq[String],
                 useDirect: Boolean,
@@ -81,7 +116,4 @@ object CbtProcess {
 
   def lastUsedCbtExePath: String =
     CbtGlobalSettings.instance.lastUsedCbtExePath
-
-  def generateGiter8Template(template: String, project: Project, root: File): Try[String] =
-    runAction(Seq("tools", "g8", template), useDirect = true, root, Option(project), None)
 }
