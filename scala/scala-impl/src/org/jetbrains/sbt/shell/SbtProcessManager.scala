@@ -82,7 +82,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     javaParameters.setJarPath(launcher.getCanonicalPath)
     val debugConnection: Option[RemoteConnection] = if (sbtSettings.shellDebugMode) {
       val debuggerSettings = new GenericDebuggerRunnerSettings()
-      debuggerSettings.setLocal(false) // I guess this means the thing being debugged is???
+      debuggerSettings.setLocal(false) // FIXME when false, server listens on 0.0.0.0 (bad!). but when true, connect fails.
       // this will actually patch the javaParameters as a side effect
       Option(DebuggerManagerImpl.createDebugParameters(javaParameters, debuggerSettings, true))
     } else None
