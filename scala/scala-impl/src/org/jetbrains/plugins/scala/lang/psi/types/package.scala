@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType, PsiTypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
@@ -232,7 +233,14 @@ package object types {
               definition.aliasedType.toOption.flatMap {
                 extractFrom(_, visitedAliases + definition)
               }
-            case elem => filter(elem, ScSubstitutor.empty)
+            case elem: ScTemplateDefinition if needSubstitutor =>
+              val substitutor = elem.superTypes.foldLeft(ScSubstitutor.empty) {
+                case (subst, parameterizedType: ParameterizedType) => subst.followed(parameterizedType.substitutor)
+                case (subst, _) => subst
+              }
+              filter(elem, substitutor)
+            case elem =>
+              filter(elem, ScSubstitutor.empty)
           }
         case parameterizedType: ParameterizedType =>
           extractFrom(parameterizedType.designator, visitedAliases).map {
