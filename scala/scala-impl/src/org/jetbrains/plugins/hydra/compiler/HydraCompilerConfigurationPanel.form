@@ -141,8 +141,8 @@
           </component>
           <component id="1186c" class="javax.swing.JTextField" binding="versionTextField">
             <constraints>
-              <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <preferred-size width="100" height="-1"/>
+              <grid row="4" column="1" row-span="1" col-span="8" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="-1"/>
               </grid>
             </constraints>
             <properties/>
