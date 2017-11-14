@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import scala.annotation.tailrec
+
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
-
-import scala.annotation.tailrec
 
 /**
   * @author adkozlov
@@ -22,10 +22,9 @@ sealed trait FunctionTypeFactory {
     ScalaPsiManager.instance(elementScope.project)
       .getCachedClass(elementScope.scope, fullyQualifiedName)
       .collect {
-        case definition: ScTypeDefinition => definition
-      }.filter(isValid)
-      .map(ScalaType.designator)
-      .map(ScParameterizedType(_, parameters))
+        case definition: ScTypeDefinition if isValid(definition) =>
+          ScParameterizedType(ScalaType.designator(definition), parameters)
+      }
       .getOrElse(Nothing)
   }
 
@@ -56,16 +55,9 @@ sealed trait FunctionTypeFactory {
         _.startsWith(prefix)
       }
 
-    parameterizedType.designator.extractClassType.collect {
-      case (definition: ScTypeDefinition, substitutor) if startsWith(definition) =>
-        (definition, substitutor.followed(parameterizedType.substitutor))
-    }.flatMap {
-      case (definition, followedSubstitutor) =>
-        definition.`type`().toOption.map {
-          followedSubstitutor.subst
-        }.collect {
-          case ParameterizedType(_, typeArgs) => typeArgs
-        }
+    parameterizedType.designator.extractClass.collect {
+      case definition: ScTypeDefinition if startsWith(definition) =>
+        parameterizedType.typeArguments
     }
   }
 }
@@ -94,10 +86,8 @@ object PartialFunctionType extends FunctionTypeFactory {
     innerApply(typeName, Seq(parameter, returnType))
 
   def unapply(`type`: ScType): Option[(ScType, ScType)] =
-    innerUnapply(`type`).filter {
-      _.length == 2
-    }.map { typeArguments =>
-      (typeArguments(1), typeArguments.head)
+    innerUnapply(`type`).map {
+      case Seq(retType, param) => (param, retType)
     }
 }
 
