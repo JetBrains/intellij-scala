@@ -302,6 +302,43 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
     checkCodeHasNoErrors(code)
   }
 
+  def testSCL11156_1(): Unit = {
+    val code =
+      """
+        |trait F[T, R] {
+        |  def apply(a: T): R
+        |}
+        |
+        |trait Specific extends F[String, Int]
+        |
+        |val ok: F[Int, Int] = _ => 1
+        |val error: Specific = _ => 1
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSCL11156_2(): Unit = {
+    val code =
+      """
+        |object Test {
+        |
+        |  trait Parser[T] extends (String => T)
+        |
+        |  val item: Parser[Char] = _ => 'q'
+        |}
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSCL11156_Java(): Unit = {
+    val javaCode = Some {
+      "public interface StringSupplier extends java.util.function.Supplier<String> {}"
+    }
+    val code =
+      """val x: StringSupplier = () => "ab" """
+    checkCodeHasNoErrors(code, javaCode)
+  }
+
   def testOverload(): Unit = {
     val code =
       """

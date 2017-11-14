@@ -9,7 +9,7 @@ import com.intellij.openapi.module.{JavaModuleType, Module, ModuleUtil}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
-import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.light.LightModifierList
@@ -54,7 +54,6 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
@@ -1817,21 +1816,21 @@ object ScalaPsiUtil {
     }
 
     expected.extractClassType.flatMap {
-      case (templDef: ScTemplateDefinition, substitutor) =>
+      case (templDef: ScTemplateDefinition, typeSubst) =>
         if (!isSAMable(templDef)) None
         else {
           val abstractMembers = templDef.allSignatures.filter(TypeDefinitionMembers.ParameterlessNodes.isAbstract)
           val singleAbstractMethod = abstractMembers match {
-            case Seq(PhysicalSignature(fun: ScFunction, _)) => Some(fun)
+            case Seq(PhysicalSignature(fun: ScFunction, subst)) => Some((fun, subst))
             case _ => None
           }
 
           for {
-            f <- singleAbstractMethod
-            if f.paramClauses.clauses.length == 1 && !f.hasTypeParameters
-            tp <- f.`type`().toOption
+            (fun, methodSubst) <- singleAbstractMethod
+            if fun.paramClauses.clauses.length == 1 && !fun.hasTypeParameters
+            tp <- fun.`type`().toOption
           } yield {
-            val substituted = substitutor.subst(tp)
+            val substituted = methodSubst.followed(typeSubst).subst(tp)
             extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse {
               substituted
             }
@@ -1840,7 +1839,7 @@ object ScalaPsiUtil {
       case (cl, substitutor) =>
         def isAbstract(m: PsiMethod): Boolean = m.hasAbstractModifier && m.findSuperMethods().forall(_.hasAbstractModifier)
 
-        val abstractMethods: Array[PsiMethod] = cl.getMethods.filter(isAbstract)
+        val abstractMethods: Array[PsiMethod] = cl.getAllMethods.filter(isAbstract)
 
         // must have exactly one abstract member and SAM must be monomorphic
         val singleAbstract =
@@ -1854,9 +1853,18 @@ object ScalaPsiUtil {
 
         if (!validConstructorExists) None
         else singleAbstract.map { method =>
-          val returnType = method.getReturnType
-          val parametersTypes = method.parameters.map {
-            _.getTypeElement.getType
+          val methodWithSubst =
+            cl.findMethodsAndTheirSubstitutorsByName(method.getName, /*checkBases*/ true)
+              .asScala
+              .find(pair => isAbstract(pair.first))
+
+          val methodSubst = methodWithSubst match {
+            case Some(p: Pair[_, _]) => p.second
+            case _ => PsiSubstitutor.EMPTY
+          }
+          val returnType = methodSubst.substitute(method.getReturnType)
+          val parametersTypes = method.parameters.map { p =>
+            methodSubst.substitute(p.getTypeElement.getType)
           }
 
           val functionType = FunctionType(returnType.toScType(), parametersTypes.map(_.toScType()))
