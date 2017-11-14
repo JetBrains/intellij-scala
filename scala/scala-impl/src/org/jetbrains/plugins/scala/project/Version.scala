@@ -6,16 +6,20 @@ import Ordering.Implicits._
 /**
  * @author Pavel Fatin
  */
+// TODO Make universal (it seems that this class is now used in lots of places ourside the "proect" package).
 case class Version(presentation: String) extends Ordered[Version] {
   private val groups: Seq[Group] = presentation.split('-').map(Group(_))
 
+  private val essentialGroups: Seq[Group] =
+    groups.reverse.dropWhile(_.essentialNumbers.forall(_ == 0L)).reverse
+
   def compare(other: Version): Int =
-    implicitly[Ordering[Seq[Group]]].compare(groups, other.groups)
+    implicitly[Ordering[Seq[Group]]].compare(essentialGroups, other.essentialGroups)
 
   /** Returns whether this version is equal to or more specific than the other version. */
   def ~=(other: Version): Boolean =
-    groups.zip(other.groups).forall(p => p._1 ~= p._2) &&
-      groups.lengthCompare(other.groups.length) >= 0
+    essentialGroups.zip(other.essentialGroups).forall(p => p._1 ~= p._2) &&
+      essentialGroups.lengthCompare(other.essentialGroups.length) >= 0
 
   /**
     * The major version of this version, in terms of the first n numbers of the dotted-numbers format.
@@ -25,7 +29,7 @@ case class Version(presentation: String) extends Ordered[Version] {
 
   def toLanguageLevel: Option[ScalaLanguageLevel] = ScalaLanguageLevel.from(this)
 
-  override def toString: String = groups.map(_.numbers.mkString(".")).mkString("-")
+  override def toString: String = groups.map(_.toString).mkString("-")
 }
 
 object Version {
@@ -33,12 +37,17 @@ object Version {
 }
 
 private case class Group(numbers: Seq[Long]) extends Comparable[Group] {
+  val essentialNumbers: Seq[Long] =
+    numbers.reverse.dropWhile(_ == 0L).reverse
+
   override def compareTo(other: Group): Int =
-    implicitly[Ordering[Seq[Long]]].compare(numbers, other.numbers)
+    implicitly[Ordering[Seq[Long]]].compare(essentialNumbers, other.essentialNumbers)
 
   def ~=(other: Group): Boolean =
-    numbers.zip(other.numbers).forall(p => p._1 == p._2) &&
-      numbers.lengthCompare(other.numbers.length) >= 0
+    essentialNumbers.zip(other.essentialNumbers).forall(p => p._1 == p._2) &&
+      essentialNumbers.lengthCompare(other.essentialNumbers.length) >= 0
+
+  override def toString: String = numbers.mkString(".")
 }
 
 private object Group {
