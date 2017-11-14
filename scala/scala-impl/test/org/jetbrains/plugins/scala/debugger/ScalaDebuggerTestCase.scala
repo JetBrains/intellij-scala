@@ -179,29 +179,16 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   }
 
   private def waitForBreakpointInner(): (SuspendContextImpl, Boolean) = {
-    val semaphore = new Semaphore()
-    semaphore.down()
-
-    val result = Ref.create[(SuspendContextImpl, Boolean)]((null, false))
-
-    getDebugProcess.addDebugProcessListener(new DebugProcessAdapterImpl {
-      override def paused(suspendContext: SuspendContextImpl) = {
-        wasAtBreakpoint = true
-        getDebugProcess.removeDebugProcessListener(this)
-        result.set(suspendContext, false)
-        semaphore.up()
-      }
-
-      override def processDetached(process: DebugProcessImpl, closedByUser: Boolean) = {
-        process.removeDebugProcessListener(this)
-        result.set(null, true)
-        semaphore.up()
-      }
-    })
-
-    semaphore.waitFor(30000)
-
-    result.get
+    def processTerminated: Boolean = getDebugProcess.getExecutionResult.getProcessHandler.isProcessTerminated
+    var i = 0
+    while (i < 1000 && suspendContext == null && !processTerminated) {
+      Thread.sleep(30)
+      i += 1
+    }
+    if (!processTerminated) {
+      wasAtBreakpoint = true
+    }
+    (suspendContext, processTerminated)
   }
 
   protected def suspendManager = getDebugProcess.getSuspendManager
