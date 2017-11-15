@@ -2,12 +2,14 @@ package org.jetbrains.plugins.hydra.compiler
 
 import java.awt.event.ActionEvent
 import java.net.URL
+import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
 
-import com.intellij.openapi.fileChooser.FileChooserDescriptor
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{Messages, TextComponentAccessor}
+import com.intellij.openapi.ui.Messages
 import com.intellij.ui.{DocumentAdapter, EditorNotifications}
+import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.plugins.hydra.{HydraDownloader, HydraVersions}
 import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
 import org.jetbrains.plugins.scala.extensions
@@ -41,6 +43,8 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
   versionTextField.setText(settings.hydraVersion)
 
   downloadButton.addActionListener((_: ActionEvent) => onDownload())
+  checkConnectionButton.addActionListener((_: ActionEvent) => onCheck())
+
   noOfCoresComboBox.setItems(Array.range(1, Runtime.getRuntime.availableProcessors() + 1).map(_.toString).sortWith(_ > _))
   sourcePartitionerComboBox.setItems(SourcePartitioner.values.map(_.value).toArray)
 
@@ -74,6 +78,34 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
       case Success(_) => downloadHydraForProjectScalaVersions()
       case _ => Messages.showErrorDialog(contentPanel, s"$getHydraRepository is not a valid URL.", "Invalid URL")
     }
+  }
+
+  def onCheck(): Unit = {
+    val settings = HttpConfigurable.getInstance
+    val title = "Check Credential and Repository Settings"
+
+    checkConnectionButton.setEnabled(false)
+
+    ApplicationManager.getApplication.executeOnPooledThread(new Runnable {
+      override def run(): Unit = {
+        Try({
+          val connection = settings.openHttpConnection(getHydraRepository)
+          val credentials = s"${getUsername}:${getPassword}"
+          connection.setRequestProperty("Authorization", s"Basic ${HydraCredentialsManager.encode(credentials)}")
+          connection.getInputStream
+          connection.disconnect()
+        }) match {
+          case Success(_) =>
+            SwingUtilities.invokeLater(() => Messages.showInfoMessage(contentPanel, "Connection successful", title))
+          case Failure(_) =>
+            SwingUtilities.invokeLater(() => Messages.showErrorDialog(contentPanel, "Connection failed: Check your credentials and repository URL", title))
+        }
+
+        checkConnectionButton.setEnabled(true)
+        checkConnectionButton.setText("Check connection")
+      }
+    }
+    )
   }
 
   private def downloadHydraForProjectScalaVersions(): Unit = {
