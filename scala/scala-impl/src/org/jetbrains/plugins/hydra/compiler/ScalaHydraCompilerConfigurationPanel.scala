@@ -85,7 +85,6 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
     val title = "Check Credential and Repository Settings"
 
     checkConnectionButton.setEnabled(false)
-    checkConnectionButton.setText("Check connection (in progress...)")
 
     ApplicationManager.getApplication.executeOnPooledThread(new Runnable {
       override def run(): Unit = {
@@ -99,7 +98,7 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
           case Success(_) =>
             SwingUtilities.invokeLater(() => Messages.showInfoMessage(contentPanel, "Connection successful", title))
           case Failure(_) =>
-            SwingUtilities.invokeLater(() => Messages.showErrorDialog(contentPanel, "Bad Credentials or Repository URL", title))
+            SwingUtilities.invokeLater(() => Messages.showErrorDialog(contentPanel, "Connection failed: Check your credentials and repository URL", title))
         }
 
         checkConnectionButton.setEnabled(true)
