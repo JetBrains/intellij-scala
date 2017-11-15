@@ -34,6 +34,8 @@ object AmmoniteUtil {
   private val ROOT_FILE = "$file"
   private val ROOT_EXEC = "$exec"
   private val ROOT_IVY = "$ivy"
+  private val ROOT_PLUGIN = "$plugin"
+  
   private val PARENT_FILE = "^"
   
   private val DEFAULT_IMPORTS = Seq("ammonite.main.Router._", "ammonite.runtime.tools.grep", "ammonite.runtime.tools.browse", 
@@ -60,7 +62,7 @@ object AmmoniteUtil {
   def findAllIvyImports(file: ScalaFile): Seq[LibInfo] = {
     file.getChildren.flatMap {
       case imp: ScImportStmt =>
-        imp.importExprs.filter(_.getText.startsWith(ROOT_IVY)).flatMap(_.reference.flatMap(extractLibInfo))
+        imp.importExprs.filter(expr => expr.getText.startsWith(ROOT_IVY) || expr.getText.startsWith(ROOT_PLUGIN)).flatMap(_.reference.flatMap(extractLibInfo))
       case _ => Seq.empty
     }
   }
@@ -128,6 +130,7 @@ object AmmoniteUtil {
 
   def scriptResolveSbtDependency(refElement: ScStableCodeReferenceElement): Option[PsiDirectory] = {
     def scriptResolveIvy(refElement: ScStableCodeReferenceElement) = refElement.getText == ROOT_IVY
+    def scriptResolvePlugin(refElement: ScStableCodeReferenceElement) = refElement.getText == ROOT_PLUGIN
 
     def qual(scRef: ScStableCodeReferenceElement) = {
       scRef.getParent match {
@@ -140,11 +143,13 @@ object AmmoniteUtil {
     }
     
     qual(refElement) match {
-      case Some(q) if scriptResolveIvy(q) =>
+      case Some(q) if scriptResolvePlugin(q) && refElement.getReference.getCanonicalText == ROOT_IVY => //refElement.getReference.getCanonicalText
+        Option(refElement.getContainingFile.getContainingDirectory)
+      case Some(q) if scriptResolveIvy(q) || scriptResolvePlugin(q) =>
         findLibrary(refElement) flatMap {
           lib => getResolveItem(lib, refElement.getProject)
         }
-      case None if scriptResolveIvy(refElement) =>
+      case None if scriptResolveIvy(refElement) || scriptResolvePlugin(refElement) =>
         Option(refElement.getContainingFile.getContainingDirectory)
       case _ => None
     }
@@ -179,7 +184,7 @@ object AmmoniteUtil {
   
   def isAmmoniteSpecificImport(expr: ScImportExpr): Boolean = {
     val txt = expr.getText
-    txt.startsWith(ROOT_EXEC) || txt.startsWith(ROOT_FILE) || txt.startsWith(ROOT_IVY)
+    txt.startsWith(ROOT_EXEC) || txt.startsWith(ROOT_FILE) || txt.startsWith(ROOT_IVY) || txt.startsWith(ROOT_PLUGIN)
   }
   
   private def findFileByPattern(pattern: String, predicate: File => Boolean): Option[File] = {
