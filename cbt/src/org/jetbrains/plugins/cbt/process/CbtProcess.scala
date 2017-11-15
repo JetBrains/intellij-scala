@@ -35,7 +35,7 @@ object CbtProcess {
     val outputFilter = new CbtOutputFilter {
       override def filter(text: String, outputType: Key[_]): Boolean = outputType match {
         case outputType: ProcessOutputType
-          if !outputType.isStdout => true
+          if outputType.isStderr => true
         case _ => false
       }
     }
