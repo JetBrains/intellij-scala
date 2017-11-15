@@ -5,7 +5,7 @@ import java.io.File
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
-import com.intellij.execution.process.{ProcessOutputType, ProcessOutputTypes}
+import com.intellij.execution.process.ProcessOutputType
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
@@ -33,8 +33,8 @@ object CbtProcess {
 
     val outputFilter = new CbtOutputFilter {
       override def filter(text: String, outputType: Key[_]): Boolean = outputType match {
-        case ProcessOutputTypes.STDERR => true
-        case ProcessOutputTypes.SYSTEM => true
+        case outputType: ProcessOutputType
+          if !outputType.isStdout => true
         case _ => false
       }
     }
