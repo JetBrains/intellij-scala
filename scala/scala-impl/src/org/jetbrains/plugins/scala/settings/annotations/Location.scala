@@ -80,6 +80,8 @@ object Location {
   }
 
   private class InsideClassLocation(aClass: PsiClass) extends ElementAnchorLocation(aClass) {
+    override def isInLocalScope: Boolean = false
+
     override def isInsideAnonymousClass: Boolean =
       aClass.isInstanceOf[ScNewTemplateDefinition]
 
