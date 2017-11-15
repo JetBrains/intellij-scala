@@ -15,5 +15,13 @@ case class CbtTask(task: String,
   def workingDir: String =
     moduleOpt.map(_.baseDir).getOrElse(project.getBasePath)
 
+  def appendListener(other: CbtProcessListener): CbtTask =
+    this.copy(
+      listenerOpt = listenerOpt match {
+        case Some(listener) => Some(listener.append(other))
+        case None => Some(other)
+      }
+    )
+
   override def toString: String = task
 }
