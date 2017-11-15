@@ -2,6 +2,8 @@ package org.jetbrains.plugins.cbt.project
 
 import java.io.File
 
+import com.intellij.openapi.application.{Application, ApplicationManager}
+import com.intellij.openapi.components.ComponentManager
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
@@ -23,11 +25,10 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
                                   listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
     val projectPath = settings.realProjectPath
     val root = new File(projectPath)
-    val project =
+    val projectOpt =
       ProjectManager.getInstance.getOpenProjects
         .toSeq
         .find(_.getBaseDir.getCanonicalPath == projectPath)
-        .get
 
     val cbtListener =
       new CbtProcessListener {
@@ -38,10 +39,17 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
         override def onComplete(exitCode: Int): Unit = ()
       }
 
-    CbtProcess.buildInfoXml(root, settings, cbtListener, project)
-      .flatMap(CbtProjectImporter.importProject(_, settings))
-      .recoverWith { case ex => Failure(new ExternalSystemException(ex)) }
-      .get
+    projectOpt match {
+      case Some(project) => // On project creation project should already be opened
+        CbtProcess.buildInfoXml(root, settings, cbtListener, project)
+          .flatMap(CbtProjectImporter.importProject(_, settings))
+          .recoverWith { case ex => Failure(new ExternalSystemException(ex)) }
+          .get
+      case None => // On project importing refresh will be called again when the project will be available :)
+        null
+    }
+
+
   }
 
   override def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean = true
