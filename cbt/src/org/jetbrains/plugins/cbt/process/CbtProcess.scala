@@ -37,14 +37,31 @@ object CbtProcess {
       }
     }
 
-    runTask(
-      CbtTask("buildInfoXml",
+    val task =
+      CbtTask(
+        "buildInfoXml",
         settings.useDirect,
         project,
         taskArguments = taskArguments,
         listenerOpt = Some(listener),
-        filterOpt = Some(outputFilter))
-    ).flatMap(xml => Try(XML.loadString(xml)))
+        filterOpt = Some(outputFilter),
+        nameOpt = Some("Importing Project")
+      )
+    runTask(task)
+      .flatMap(xml => Try(XML.loadString(xml)))
+  }
+
+  def generateGiter8Template(template: String, project: Project, root: File): Try[String] = {
+    val task =
+      CbtTask(
+        "tools",
+        useDirect = true,
+        project,
+        taskArguments = Seq("g8", template),
+        directoryOpt = Some(root.getAbsolutePath),
+        nameOpt = Some("Generating giter8 template")
+      )
+    runTask(task)
   }
 
   def runTask(task: CbtTask): Try[String] = {
@@ -77,13 +94,6 @@ object CbtProcess {
     ExecutionManager.getInstance(task.project).restartRunProfile(environment)
     finished.waitFor()
     Try(listener.textBuilder.mkString)
-  }
-
-  def generateGiter8Template(template: String, project: Project, root: File): Try[String] = {
-    val task = new CbtTask("tools", true, project, taskArguments = Seq("g8", template)) {
-      override def workingDir: String = root.getAbsolutePath
-    }
-    runTask(task)
   }
 
   def cbtExePath(project: Project): String = {

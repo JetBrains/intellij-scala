@@ -14,7 +14,7 @@ class CbtDebugConfiguration(task: CbtTask, configurationFactory: ConfigurationFa
   extends RemoteConfiguration(task.project, configurationFactory) {
   private val module = task.moduleOpt.get
   setModule(module)
-  setName(s"Debug ${module.getName}: ${task.task}")
+  setName(s"Debug ${module.getName}: ${task.name}")
 
   PORT = "5005"
   HOST = "localhost"

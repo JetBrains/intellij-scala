@@ -11,9 +11,16 @@ case class CbtTask(task: String,
                    cbtOptions: Seq[String] = Seq.empty,
                    moduleOpt: Option[Module] = None,
                    listenerOpt: Option[CbtProcessListener] = None,
-                   filterOpt: Option[CbtOutputFilter] = None) {
-  def workingDir: String =
-    moduleOpt.map(_.baseDir).getOrElse(project.getBasePath)
+                   filterOpt: Option[CbtOutputFilter] = None,
+                   nameOpt: Option[String] = None,
+                   directoryOpt: Option[String] = None) {
+  final def workingDir: String =
+    directoryOpt
+      .orElse(moduleOpt.map(_.baseDir))
+      .getOrElse(project.getBasePath)
+
+  final def name: String =
+    nameOpt.getOrElse(task)
 
   def appendListener(other: CbtProcessListener): CbtTask =
     this.copy(
@@ -23,5 +30,5 @@ case class CbtTask(task: String,
       }
     )
 
-  override def toString: String = task
+  override def toString: String = name
 }

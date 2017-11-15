@@ -7,7 +7,7 @@ import com.intellij.openapi.options.SettingsEditor
 import org.jetbrains.plugins.cbt.runner.{CbtCommandLineState, CbtTask}
 
 class CbtTaskConfiguration(task: CbtTask, configurationFactory: ConfigurationFactory)
-  extends RunConfigurationBase(task.project, configurationFactory, s"CBT ${task.task}") {
+  extends RunConfigurationBase(task.project, configurationFactory, s"CBT ${task.name}") {
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = null
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState =

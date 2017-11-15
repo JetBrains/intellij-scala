@@ -15,7 +15,7 @@ import org.jetbrains.plugins.cbt._
 
 
 class CbtModuleTaskConfiguration(taskData: CbtTask, configurationFactory: ConfigurationFactory)
-  extends ModuleBasedConfiguration[RunConfigurationModule](s"${taskData.moduleOpt.get.getName}: ${taskData.task}",
+  extends ModuleBasedConfiguration[RunConfigurationModule](s"${taskData.moduleOpt.get.getName}: ${taskData.name}",
     new RunConfigurationModule(taskData.project), configurationFactory) {
   setModule(taskData.moduleOpt.get)
 
