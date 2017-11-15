@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.cbt.runner
 
+import java.io.OutputStream
+
+import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.{CommandLineState, GeneralCommandLine}
 import com.intellij.execution.process._
 import com.intellij.execution.runners.ExecutionEnvironment
@@ -17,18 +20,30 @@ class CbtCommandLineState(taskData: CbtTask, environment: ExecutionEnvironment)
   import taskData._
 
   override def startProcess(): ProcessHandler = {
-    ExternalSystemNotificationManager.getInstance(environment.getProject)
-      .clearNotifications(NotificationSource.TASK_EXECUTION, CbtProjectSystem.Id)
-    val arguments =
-      Seq(CbtProcess.cbtExePath(environment.getProject)) ++
-        cbtOptions ++
-        (if (useDirect && !cbtOptions.contains("direct")) Seq("direct") else Seq.empty) ++
-        Seq(task) ++
-        taskArguments
-    val commandLine = new GeneralCommandLine(arguments.asJava)
-      .withWorkDirectory(workingDir)
-    val hanlder = new CbtProcessHandler(commandLine)
-    hanlder
+    val isGlobalTask = taskData.moduleOpt.isEmpty
+    val canRun =
+      if (isGlobalTask)
+        Option(environment.getUserData(CbtProcess.firstRunKey)).getOrElse(false)
+      else true
+    if (isGlobalTask)
+      environment.putUserData(CbtProcess.firstRunKey, false)
+    if (canRun) {
+      ExternalSystemNotificationManager.getInstance(environment.getProject)
+        .clearNotifications(NotificationSource.TASK_EXECUTION, CbtProjectSystem.Id)
+      val arguments =
+        Seq(CbtProcess.cbtExePath(environment.getProject)) ++
+          cbtOptions ++
+          (if (useDirect && !cbtOptions.contains("direct")) Seq("direct") else Seq.empty) ++
+          Seq(task) ++
+          taskArguments
+      val commandLine = new GeneralCommandLine(arguments.asJava)
+        .withWorkDirectory(workingDir)
+      val hanlder = new CbtProcessHandler(commandLine)
+      hanlder
+    } else
+      throw new ExecutionException(
+        """The action can not be performed.
+          | To reimport yout project, please use CBT project panel""".stripMargin)
   }
 
   class CbtProcessHandler(commandLine: GeneralCommandLine)

@@ -5,7 +5,7 @@ import java.io.File
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
-import com.intellij.execution.process.ProcessOutputTypes
+import com.intellij.execution.process.{ProcessOutputType, ProcessOutputTypes}
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
@@ -19,6 +19,8 @@ import scala.util.Try
 import scala.xml.{Elem, XML}
 
 object CbtProcess {
+  val firstRunKey: Key[Boolean] = Key.create("CbtTaskFirstRun")
+
   def buildInfoXml(root: File,
                    settings: CbtExecutionSettings,
                    listener: CbtProcessListener,
@@ -51,19 +53,6 @@ object CbtProcess {
       .flatMap(xml => Try(XML.loadString(xml)))
   }
 
-  def generateGiter8Template(template: String, project: Project, root: File): Try[String] = {
-    val task =
-      CbtTask(
-        "tools",
-        useDirect = true,
-        project,
-        taskArguments = Seq("g8", template),
-        directoryOpt = Some(root.getAbsolutePath),
-        nameOpt = Some("Generating giter8 template")
-      )
-    runTask(task)
-  }
-
   def runTask(task: CbtTask): Try[String] = {
     val finished = new Semaphore
     finished.down()
@@ -91,9 +80,23 @@ object CbtProcess {
     runnerSettings.setSingleton(true)
     val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance,
       DefaultJavaProgramRunner.getInstance, runnerSettings, task.project)
+    environment.putUserData(firstRunKey, true)
     ExecutionManager.getInstance(task.project).restartRunProfile(environment)
     finished.waitFor()
     Try(listener.textBuilder.mkString)
+  }
+
+  def generateGiter8Template(template: String, project: Project, root: File): Try[String] = {
+    val task =
+      CbtTask(
+        "tools",
+        useDirect = true,
+        project,
+        taskArguments = Seq("g8", template),
+        directoryOpt = Some(root.getAbsolutePath),
+        nameOpt = Some("Generating giter8 template")
+      )
+    runTask(task)
   }
 
   def cbtExePath(project: Project): String = {
@@ -105,3 +108,5 @@ object CbtProcess {
   def lastUsedCbtExePath: String =
     CbtGlobalSettings.instance.lastUsedCbtExePath
 }
+
+
