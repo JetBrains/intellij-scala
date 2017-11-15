@@ -4,7 +4,6 @@ import java.nio.file.Paths
 
 import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.hydra.HydraVersions
 import org.jetbrains.plugins.hydra.compiler.SourcePartitioner.Auto
 
 import scala.beans.BeanProperty
@@ -22,7 +21,7 @@ class HydraCompilerSettings(project: Project) extends PersistentStateComponent[H
 
   var isHydraEnabled: Boolean = false
 
-  var hydraVersion: String = HydraVersions.DefaultHydraVersion
+  var hydraVersion: String = ""
 
   var noOfCores: String = Math.ceil(Runtime.getRuntime.availableProcessors()/2D).toInt.toString
 
