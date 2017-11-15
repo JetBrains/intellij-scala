@@ -11,11 +11,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.cbt.project.settings.{CbtExecutionSettings, CbtSystemSettings}
+import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
 import org.jetbrains.plugins.cbt.runner.internal.{CbtTaskConfigurationFactory, CbtTaskConfigurationType}
 import org.jetbrains.plugins.cbt.runner.{CbtOutputFilter, CbtProcessListener, CbtTask}
 import org.jetbrains.plugins.cbt.settings.CbtGlobalSettings
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 import scala.xml.{Elem, XML}
 
 object CbtProcess {
@@ -59,8 +60,11 @@ object CbtProcess {
 
     val listener = new CbtProcessListener {
       val textBuilder = new StringBuilder
+      var success = false
 
       override def onComplete(exitCode: Int): Unit = {
+        if (exitCode == 0)
+          success = true
         Thread.sleep(500)
         finished.up()
       }
@@ -83,7 +87,10 @@ object CbtProcess {
     environment.putUserData(firstRunKey, true)
     ExecutionManager.getInstance(task.project).restartRunProfile(environment)
     finished.waitFor()
-    Try(listener.textBuilder.mkString)
+    if (listener.success)
+      Success(listener.textBuilder.mkString)
+    else
+      Failure(new CbtProjectImporingException("Project can not be imported. See CBT output"))
   }
 
   def generateGiter8Template(template: String, project: Project, root: File): Try[String] = {
