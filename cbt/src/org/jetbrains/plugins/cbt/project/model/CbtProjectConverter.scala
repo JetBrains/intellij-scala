@@ -131,12 +131,12 @@ class CbtProjectConverter(project: Project, settings: CbtExecutionSettings) {
         module.name,
         module.root.getPath,
         module.root.getPath)
-    if (settings.useCbtForInternalTasks) {
-      moduleData.setInheritProjectCompileOutputPath(false)
-      val scalaVersionWithoutMinor = module.scalaVersion.split('.').dropRight(1).mkString(".")
-      val outputPath = module.root / "target" / s"scala-$scalaVersionWithoutMinor" / "classes"
-      moduleData.setCompileOutputPath(ExternalSystemSourceType.SOURCE, outputPath.getAbsolutePath)
-    }
+
+    moduleData.setInheritProjectCompileOutputPath(false)
+    val scalaVersionWithoutMinor = module.scalaVersion.split('.').dropRight(1).mkString(".")
+    val outputPath = module.root / "target" / s"scala-$scalaVersionWithoutMinor" / "classes"
+    moduleData.setCompileOutputPath(ExternalSystemSourceType.SOURCE, outputPath.getAbsolutePath)
+
     moduleData
   }
 
