@@ -4,50 +4,46 @@ package refactoring
 package namesSuggester
 package genericTypes
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
 /**
   * @author adkozlov
   */
-abstract class TwoTypesNamesProvider extends GenericTypeNamesProvider {
+abstract class TwoTypesNamesProvider extends GenericTypeNamesProviderBase {
 
-  protected val separator: String
+  import GenericTypeNamesProviderBase.argumentNames
 
-  override def isValid(`type`: ScType): Boolean =
-    `type` match {
-      case ParameterizedType(_, Seq(_, _)) => true
-      case _ => false
-    }
+  override protected def isValid(`type`: ScParameterizedType): Boolean =
+    `type`.typeArguments.length == 2
 
-  override protected def names(designator: ScType, arguments: Seq[ScType]): Seq[String] = {
-    val Seq(first, second) = arguments
-    NameSuggester.compoundNames(argumentNames(first), argumentNames(second), separator)
-  }
+  override protected def firstNames(designator: ScType, arguments: Seq[ScType]): Seq[String] =
+    argumentNames(arguments)
+
+  override protected def secondNames(designator: ScType, arguments: Seq[ScType]): Seq[String] =
+    argumentNames(arguments, 1)
 }
 
 class EitherTypeNamesProvider extends TwoTypesNamesProvider {
 
   override protected val separator: String = "Or"
 
-  override def isValid(`type`: ScType): Boolean =
+  override protected def isValid(`type`: ScParameterizedType): Boolean =
     super.isValid(`type`) &&
-      (`type`.asInstanceOf[ParameterizedType].designator.canonicalText == "_root_.scala.util.Either")
+      (`type`.designator.canonicalText == "_root_.scala.util.Either")
 }
 
 class FromTypeToTypeNamesProvider extends TwoTypesNamesProvider {
 
   override protected val separator: String = "To"
 
-  override def isValid(`type`: ScType): Boolean =
-    super.isValid(`type`) &&
-      (GenericTypeNamesProvider.isInheritor(`type`, "scala.collection.GenMap", "java.util.Map") ||
-        isFunction1(`type`))
+  import GenericTypeNamesProvider.isInheritor
 
-  private def isFunction1(`type`: ScType): Boolean =
-    `type` match {
-      case FunctionType(_, Seq(_)) => true
-      case _ => false
-    }
+  override protected def isValid(`type`: ScParameterizedType): Boolean =
+    super.isValid(`type`) &&
+      (`type` match {
+        case FunctionType(_, Seq(_)) => true
+        case _ => isInheritor(`type`, "scala.collection.GenMap", "java.util.Map")
+      })
 }
 

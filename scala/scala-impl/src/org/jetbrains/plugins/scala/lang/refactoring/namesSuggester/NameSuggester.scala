@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.GenericTypeNamesProvider
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.{GenericTypeNamesProvider, TypePluralNamesProvider}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaTypeValidator, ScalaValidator, ScalaVariableValidator}
 
 /**
@@ -96,7 +96,12 @@ object NameSuggester {
       case parameterType: TypeParameterType => byName(parameterType.name)
       case ScProjectionType(_, e, _) => byName(e.name)
       case ScCompoundType(Seq(head, _*), _, _) => namesByType(head, withPlurals)
-      case _ => GenericTypeNamesProvider.providers.flatMap(_.names(`type`))
+      case JavaArrayType(argument) =>
+        TypePluralNamesProvider.pluralizeNames(argument)
+      case genericType: ScParameterizedType =>
+        GenericTypeNamesProvider.providers
+          .flatMap(_.names(genericType))
+      case _ => Seq.empty
     }
   }
 
