@@ -468,7 +468,7 @@ package object extensions {
 
       node.info.namedElement match {
         case fun: ScFunction if !fun.isConstructor =>
-          val wrappers = fun.getFunctionWrappers(isStatic, isInterface = fun.isAbstractMember, concreteClassFor(fun))
+          val wrappers = fun.getFunctionWrappers(isStatic, isInterface = fun.isAbstractMember)
           wrappers.foreach(processMethod)
           wrappers.foreach(w => processName(w.name))
         case method: PsiMethod if !method.isConstructor =>
