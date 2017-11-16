@@ -77,12 +77,12 @@
         <projectConfigurable groupId="build.tools" displayName="sbt" instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable" />
 
         <toolWindow id="sbt" anchor="right"
-                    icon="/org/jetbrains/plugins/scala/images/sbtToolwindow.png"
+                    icon="/org/jetbrains/plugins/scala/images/sbt_toolwin.png"
                     factoryClass="org.jetbrains.sbt.project.ScalaToolWindowFactory"
                     conditionClass="org.jetbrains.sbt.project.ScalaToolWindowFactoryCondition"/>
 
         <toolWindow id="sbt-shell-toolwindow" anchor="bottom" canCloseContents="false"
-                    icon="/org/jetbrains/plugins/scala/images/sbtShellToolwindow.png"
+                    icon="/org/jetbrains/plugins/scala/images/sbt_shell_toolwin.png"
                     factoryClass="org.jetbrains.sbt.shell.SbtShellToolWindowFactory"
                     conditionClass="org.jetbrains.sbt.project.ScalaToolWindowFactoryCondition" />
 
