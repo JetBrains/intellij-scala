@@ -36,9 +36,7 @@ class CbtProjectTaskRunner extends ProjectTaskRunner {
         }
       case _ => None
     }.exists { project =>
-      val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
-      project.isCbtProject &&
-        projectSettings.useCbtForInternalTasks
+      project.isCbtProject
     }
   }
 

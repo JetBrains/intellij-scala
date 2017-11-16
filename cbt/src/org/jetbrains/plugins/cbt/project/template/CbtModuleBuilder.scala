@@ -164,7 +164,6 @@ class CbtModuleBuilder
 
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
     getExternalProjectSettings.isCbt = false
-    getExternalProjectSettings.useCbtForInternalTasks = selections.useCbtForInternalTasks
     getExternalProjectSettings.useDirect = selections.useDirect
     super.createModule(moduleModel)
   }

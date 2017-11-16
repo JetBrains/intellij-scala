@@ -33,7 +33,6 @@ class CbtExternalSystemManager
         val projectSettings = CbtProjectSettings.getInstance(project, path)
         new CbtExecutionSettings(path,
           projectSettings.isCbt,
-          projectSettings.useCbtForInternalTasks,
           projectSettings.useDirect,
           projectSettings.extraModules.asScala)
       }
