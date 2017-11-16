@@ -14,9 +14,6 @@ class CbtProjectSettings extends ExternalProjectSettings {
   var isCbt = false
 
   @BeanProperty
-  var useCbtForInternalTasks = true
-
-  @BeanProperty
   var useDirect: Boolean = false
 
   @BeanProperty
@@ -27,7 +24,6 @@ class CbtProjectSettings extends ExternalProjectSettings {
     copyTo(result)
     result.isCbt = isCbt
     result.extraModules = extraModules
-    result.useCbtForInternalTasks = useCbtForInternalTasks
     result.useDirect = useDirect
     result
   }

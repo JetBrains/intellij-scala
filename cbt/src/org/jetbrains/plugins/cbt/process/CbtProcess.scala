@@ -65,7 +65,6 @@ object CbtProcess {
       override def onComplete(exitCode: Int): Unit = {
         if (exitCode == 0)
           success = true
-        Thread.sleep(500)
         finished.up()
       }
 
