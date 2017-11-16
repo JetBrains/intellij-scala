@@ -12,7 +12,7 @@ class CbtImportControl
     CbtProjectSettings.default) {
 
   def getLinkedProjectChooserDescriptor: FileChooserDescriptor =
-    new FileChooserDescriptor(false, true, true, true, true, true)
+    new FileChooserDescriptor(true, true, false, false, false, false)
 
   def onLinkedProjectPathChange(path: String): Unit = {}
 
