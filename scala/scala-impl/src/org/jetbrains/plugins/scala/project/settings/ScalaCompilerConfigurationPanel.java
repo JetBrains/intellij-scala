@@ -4,7 +4,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.jetbrains.plugins.scala.project.IncrementalityType;
-import org.jetbrains.plugins.scala.project.NamedValueRenderer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +18,7 @@ public class ScalaCompilerConfigurationPanel {
   private JPanel myContentPanel;
 
   public ScalaCompilerConfigurationPanel(Project project) {
-    myIncrementalityType.setRenderer(new NamedValueRenderer());
+    myIncrementalityType.setRenderer(new IncrementalityTypeRenderer());
     myIncrementalityType.setModel(new DefaultComboBoxModel(IncrementalityType.values()));
 
     myProfilesPanel = new ScalaCompilerProfilesPanel(project);
