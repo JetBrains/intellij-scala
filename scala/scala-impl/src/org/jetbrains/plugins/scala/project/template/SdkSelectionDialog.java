@@ -99,9 +99,11 @@ public class SdkSelectionDialog extends JDialog {
         }
     }
 
-    private int rowIndexOf(String source, String version) {
+    private int rowIndexOf(String location, String platform, String version) {
         for (int i = 0; i < myTable.getRowCount(); i++) {
-            if (source.equals(myTable.getValueAt(i, 0)) && version.equals(myTable.getValueAt(i, 2))) {
+            if (location.equals(myTable.getValueAt(i, 0)) &&
+                    platform.equals(myTable.getValueAt(i, 1)) &&
+                    version.equals(myTable.getValueAt(i, 2))) {
                 return i;
             }
         }
@@ -130,7 +132,7 @@ public class SdkSelectionDialog extends JDialog {
 
         updateTable();
 
-        int rowIndex = rowIndexOf("Ivy", version);
+        int rowIndex = rowIndexOf("Ivy", platform.name(), version);
 
         if (rowIndex >= 0) {
             myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
