@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizer
 import org.jdom.Element
 import org.jetbrains.plugins.cbt._
+import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 
 
 class CbtRunConfiguration(val project: Project,
@@ -34,12 +35,15 @@ class CbtRunConfiguration(val project: Project,
     new CbtRunConfigurationEditor(project, this)
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState =
-    new CbtCommandLineState(
-      CbtTask(task,
-        useDirect = false,
-        project,
-        moduleOpt = Some(module)),
-      environment)
+    new CbtCommandLineState(toCbtTask, environment)
+
+  def toCbtTask: CbtTask = {
+    val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
+    CbtTask(task,
+      useDirect = projectSettings.useDirect,
+      project,
+      moduleOpt = Some(module))
+  }
 
   def getTask: String = task
 
