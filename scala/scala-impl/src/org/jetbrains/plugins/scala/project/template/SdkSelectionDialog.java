@@ -123,20 +123,22 @@ public class SdkSelectionDialog extends JDialog {
                 format("Downloading %s %s", platform.name(), version),
                 downloadVersion(platform, version));
 
-        if (result.isFailure()) {
-            Throwable exception = ((Failure) result).exception();
-            Messages.showErrorDialog(contentPane, exception.getMessage(),
-                    format("Error Downloading %s %s", platform.name(), version));
-            return;
-        }
+        if (result.isSuccess()) {
+            updateTable();
 
-        updateTable();
+            int rowIndex = rowIndexOf("Ivy", platform.name(), version);
 
-        int rowIndex = rowIndexOf("Ivy", platform.name(), version);
-
-        if (rowIndex >= 0) {
-            myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
-            onOK();
+            if (rowIndex >= 0) {
+                myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
+                onOK();
+            } else {
+                throw new RuntimeException(
+                        format("No %s %s in the Ivy repository", platform.name(), version));
+            }
+        } else {
+            Messages.showErrorDialog(contentPane,
+                    ((Failure) result).exception().getMessage(),
+                    format("Error downloading %s %s", platform.name(), version));
         }
     }
 
