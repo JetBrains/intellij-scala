@@ -101,7 +101,7 @@ public class SdkSelectionDialog extends JDialog {
 
     private int rowIndexOf(String source, String version) {
         for (int i = 0; i < myTable.getRowCount(); i++) {
-            if (source.equals(myTable.getValueAt(i, 0)) && version.equals(myTable.getValueAt(i, 1))) {
+            if (source.equals(myTable.getValueAt(i, 0)) && version.equals(myTable.getValueAt(i, 2))) {
                 return i;
             }
         }
