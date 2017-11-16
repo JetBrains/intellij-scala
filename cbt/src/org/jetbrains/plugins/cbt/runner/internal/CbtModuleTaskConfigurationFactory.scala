@@ -4,8 +4,8 @@ import com.intellij.execution.configurations.{ConfigurationFactory, Configuratio
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.runner.CbtTask
 
-class CbtDebugConfigurationFactory(task: CbtTask, configType: ConfigurationType)
-  extends ConfigurationFactory(configType) {
+class CbtModuleTaskConfigurationFactory(task: CbtTask, configurationType: ConfigurationType)
+  extends ConfigurationFactory(configurationType) {
   override def createTemplateConfiguration(project: Project): RunConfiguration =
-    new CbtDebugConfiguration(task.copy(project = project), this)
+    new CbtModuleTaskConfiguration(task, this)
 }

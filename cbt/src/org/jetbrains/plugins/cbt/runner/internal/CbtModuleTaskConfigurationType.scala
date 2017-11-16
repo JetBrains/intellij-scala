@@ -6,7 +6,7 @@ import com.intellij.execution.configurations.{ConfigurationFactory, Configuratio
 import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.cbt.CBT
 
-class CbtBuildConfigurationType extends ConfigurationType with DumbAware {
+class CbtModuleTaskConfigurationType extends ConfigurationType with DumbAware {
   def getIcon: Icon = CBT.Icon
 
   def getDisplayName: String = "CBT Internal Task"
@@ -15,11 +15,11 @@ class CbtBuildConfigurationType extends ConfigurationType with DumbAware {
 
   def getConfigurationFactories: Array[ConfigurationFactory] = Array.empty
 
-  def getId: String = "CbtBuildConfiguration"
+  def getId: String = "CbtModuleTaskConfiguration"
 }
 
-object CbtBuildConfigurationType {
-  def getInstance = new CbtBuildConfigurationType
+object CbtModuleTaskConfigurationType {
+  def getInstance = new CbtModuleTaskConfigurationType
 }
 
 

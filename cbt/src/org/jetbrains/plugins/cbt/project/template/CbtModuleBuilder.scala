@@ -203,7 +203,7 @@ class CbtModuleBuilder
 object CbtModuleBuilder {
   val templates: Seq[CbtTemplate] =
     Seq(
-      new DefaultCbtTemplate,
-      new Giter8CbtTemplate("darthorimar/cbt-seed.g8")
+      new DefaultCbtTemplate
+//      new Giter8CbtTemplate("darthorimar/cbt-seed.g8")
     )
 }
