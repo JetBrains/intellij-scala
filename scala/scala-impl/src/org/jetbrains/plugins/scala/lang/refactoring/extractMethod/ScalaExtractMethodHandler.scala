@@ -225,7 +225,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       }
       else {
         val innerClassSettings = {
-          val text = editor.getDocument.getText
+          val text = editor.getDocument.getImmutableCharSequence
           val isCase = text.startsWith("//case class")
           val isInner = text.startsWith("//inner class")
           val out = output.map(ScalaExtractMethodUtils.convertVariableData(_, elements)).map(ExtractMethodOutput.from)

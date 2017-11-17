@@ -11,6 +11,7 @@ import com.intellij.openapi.util.Condition
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.CharSeqExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes.PatchedXmlLexer
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
@@ -44,7 +45,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     if (element == null) return Result.CONTINUE
 
     val document = editor.getDocument
-    val text = document.getText
+    val text = document.getImmutableCharSequence
     var myTask: (Document, Project, PsiElement, Int) => Unit = null
 
     def chooseXmlTask(withAttr: Boolean) {
@@ -260,7 +261,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     }
   }
 
-  private def getScaladocTask(text: String, offset: Int): (Document, Project, PsiElement, Int) => Unit = {
+  private def getScaladocTask(text: CharSequence, offset: Int): (Document, Project, PsiElement, Int) => Unit = {
     import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
     if (offset < 3 || text.length <= offset) return null
     

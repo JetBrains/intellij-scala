@@ -30,7 +30,7 @@ class EnterInHashCommentHandler extends EnterHandlerDelegateAdapter {
         if (psiAtOffset != null && psiAtOffset.getTextOffset < caretOffset) {
           val token = psiAtOffset.getNode
           val document = editor.getDocument
-          val text = document.getText
+          val text = document.getImmutableCharSequence
           if (token.getElementType == HoconTokenType.HashComment) {
             val offset = CharArrayUtil.shiftForward(text, caretOffset, " \t")
             if (offset < document.getTextLength && text.charAt(offset) != '\n') {

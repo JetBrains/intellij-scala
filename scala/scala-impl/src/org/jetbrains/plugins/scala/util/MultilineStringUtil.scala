@@ -196,7 +196,9 @@ object MultilineStringUtil {
         val literalStart = literalOffsets(0)
         val (startLineOffset, startLineEndOffset) = (document.getLineStartOffset(startLineNumber), document.getLineEndOffset(startLineNumber))
 
-        val startsOnNewLine = document.getText.substring(startLineOffset, startLineEndOffset).trim.startsWith(firstMLQuote)
+        val text = document.getImmutableCharSequence
+        val startLine = text.substring(startLineOffset, startLineEndOffset)
+        val startsOnNewLine = startLine.trim.startsWith(firstMLQuote)
         val multipleLines = endLineNumber != startLineNumber
         val needNewLineBefore = settings.quotesOnNewLine && multipleLines && !startsOnNewLine
         val marginChar = getMarginChar(literal)
@@ -204,13 +206,13 @@ object MultilineStringUtil {
         extensions.inWriteAction {
           if (multipleLines) insertStripMargin(document, literal, marginChar)
           if (!needNewLineBefore) {
-            val quotesIndent = settings.getSmartLength(document.getText.substring(startLineOffset, literalStart))
+            val quotesIndent = settings.getSmartLength(text.subSequence(startLineOffset, literalStart))
             val marginIndent = quotesIndent + interpolatorPrefixLength(literal) + settings.marginIndent
             for (lineNumber <- startLineNumber + 1 to endLineNumber) {
               insertIndent(lineNumber, marginIndent, Some(marginChar))
             }
           } else {
-            val oldIndent = settings.prefixLength(document.getText.substring(startLineOffset, literalStart))
+            val oldIndent = settings.prefixLength(text.subSequence(startLineOffset, literalStart))
             val quotesIndent = oldIndent + settings.regularIndent
             val marginIndent = quotesIndent + interpolatorPrefixLength(literal) + settings.marginIndent
             for (lineNumber <- startLineNumber + 1 to endLineNumber) {
@@ -296,11 +298,12 @@ class MultilineStringSettings(project: Project) {
     StringUtil.repeat(" ", count)
   }
 
-  def getSmartLength(line: String): Int = if (useTabs) line.length + line.count(_ == '\t')*(tabSize - 1) else line.length
+  def getSmartLength(line: CharSequence): Int =
+    if (useTabs) line.length + line.count(_ == '\t')*(tabSize - 1) else line.length
 
-  def prefixLength(line: String): Int = if (useTabs) {
+  def prefixLength(line: CharSequence): Int = if (useTabs) {
     val tabsCount = line prefixLength (_ == '\t')
-    tabsCount*tabSize + line.substring(tabsCount).prefixLength(_ == ' ')
+    tabsCount*tabSize + line.subSequence(tabsCount, line.length() - 1).prefixLength(_ == ' ')
   } else {
     line prefixLength (_ == ' ')
   }

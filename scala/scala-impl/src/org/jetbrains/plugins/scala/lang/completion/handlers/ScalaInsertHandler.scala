@@ -165,7 +165,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         endOffset += shift
         editor.getCaretModel.moveToOffset(endOffset + (if (withSomeNum) someNum else 0))
       }
-      val documentText: String = document.getText
+      val documentText = document.getImmutableCharSequence
       val nextChar: Char =
         if (endOffset < document.getTextLength) documentText.charAt(endOffset)
         else 0.toChar
@@ -308,7 +308,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
       case _: ScTypeDefinition =>
         if (context.getCompletionChar != '[') {
           //add space between the added element and the '{' in extends block when necessary
-          val documentText = document.getText
+          val documentText = document.getImmutableCharSequence
           val isInClassParents =
             PsiTreeUtil.getParentOfType(element, classOf[ScClassParents], false, classOf[ScExtendsBlock]) != null
           val lBraceAtCaret = endOffset < documentText.length() && documentText.charAt(endOffset) == '{'
