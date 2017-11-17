@@ -57,17 +57,15 @@ class ScalaDocHeaderBalanceQuickFix(opening: PsiElement, closing: PsiElement)
 
   override def getFamilyName: String = InspectionsUtil.SCALADOC
 
-  def doApplyFix(project: Project) {
-    val op = getFirstElement
-    val cl = getSecondElement
-    if (!op.isValid || !cl.isValid) return
+  override protected def doApplyFix(op: PsiElement, cl: PsiElement)
+                                   (implicit project: Project): Unit = {
     if (op.getNode.getElementType != ScalaDocTokenType.VALID_DOC_HEADER ||
             cl.getNode.getElementType != ScalaDocTokenType.DOC_HEADER &&
                     cl.getNode.getElementType != ScalaDocTokenType.DOC_HEADER) {
       return
     }
 
-    cl.replace(createDocHeaderElement(op.getText.length())(op.getManager))
+    cl.replace(createDocHeaderElement(op.getText.length()))
   }
 }
 

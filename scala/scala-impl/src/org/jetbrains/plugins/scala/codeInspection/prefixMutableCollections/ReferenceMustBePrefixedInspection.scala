@@ -49,10 +49,9 @@ object ReferenceMustBePrefixedInspection {
 
 class AddPrefixFix(ref: ScReferenceElement, clazz: PsiClass)
   extends AbstractFixOnTwoPsiElements(AddPrefixFix.hint, ref, clazz) {
-  def doApplyFix(project: Project) {
-    val refElem = getFirstElement
-    val cl = getSecondElement
-    if (!refElem.isValid || !cl.isValid) return
+
+  override protected def doApplyFix(refElem: ScReferenceElement, cl: PsiClass)
+                                   (implicit project: Project): Unit = {
     val parts = cl.qualifiedName.split('.')
     if (parts.length < 2) return
 
@@ -65,7 +64,7 @@ class AddPrefixFix(ref: ScReferenceElement, clazz: PsiClass)
     val newRefText = parts.takeRight(2).mkString(".")
     refElem match {
       case stRef: ScStableCodeReferenceElement =>
-        val replaced = stRef.replace(createReferenceFromText(newRefText)(stRef.getManager))
+        val replaced = stRef.replace(createReferenceFromText(newRefText))
         bindQualifier(replaced, element)
       case ref: ScReferenceExpression =>
         val replaced = ref.replace(createExpressionWithContextFromText(newRefText, ref.getContext, ref))
