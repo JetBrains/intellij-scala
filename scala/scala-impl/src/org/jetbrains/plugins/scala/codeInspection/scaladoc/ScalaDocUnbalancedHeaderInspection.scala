@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * User: Dmitry Naidanov
@@ -73,13 +72,10 @@ class ScalaDocMoveTextToNewLineQuickFix(textData: PsiElement)
         extends AbstractFixOnPsiElement(ScalaBundle.message("move.text.after.header.to.new.line"), textData) {
   override def getFamilyName: String = InspectionsUtil.SCALADOC
 
-  def doApplyFix(project: Project) {
-    implicit val ctx: ProjectContext = project
-
-    val data = getElement
-    if (!data.isValid) return
-
-    data.getParent.addBefore(createDocWhiteSpace, data)
-    data.getParent.addBefore(createLeadingAsterisk, data)
+  override protected def doApplyFix(data: PsiElement)
+                                   (implicit project: Project): Unit = {
+    val parent = data.getParent
+    parent.addBefore(createDocWhiteSpace, data)
+    parent.addBefore(createLeadingAsterisk, data)
   }
 }

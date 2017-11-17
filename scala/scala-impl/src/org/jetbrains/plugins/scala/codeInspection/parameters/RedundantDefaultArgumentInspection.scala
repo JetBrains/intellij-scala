@@ -19,21 +19,23 @@ class RedundantDefaultArgumentInspection extends AbstractInspection("RedundantDe
         case function: ScFunction =>
           arguments.indices
             .filter(index => RedundantDefaultArgumentUtil.isRedundantArgumentAt(arguments, index, function.parameters))
-            .foreach(index => registerProblem(holder, arguments(index)))
+            .foreach(index => registerProblem(arguments(index)))
         case _ =>
       }
     case _ =>
   }
 
-  private def registerProblem(holder: ProblemsHolder, expr: ScExpression) = {
+  private def registerProblem(expr: ScExpression)
+                             (implicit holder: ProblemsHolder): Unit = {
     holder.registerProblem(expr, getDisplayName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new DeleteRedundantDefaultArgumentQuickFix(expr))
   }
 }
 
 class DeleteRedundantDefaultArgumentQuickFix(arg: ScExpression) extends AbstractFixOnPsiElement("Delete redundant default argument", arg) {
-  override def doApplyFix(project: Project): Unit = {
-    val element = getElement
-    if (element.isValid) RedundantDefaultArgumentUtil.deleteFromCommaSeparatedList(element)
+
+  override protected def doApplyFix(element: ScExpression)
+                                   (implicit project: Project): Unit = {
+    RedundantDefaultArgumentUtil.deleteFromCommaSeparatedList(element)
   }
 }
 

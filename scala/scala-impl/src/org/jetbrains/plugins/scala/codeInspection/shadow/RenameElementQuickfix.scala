@@ -13,29 +13,27 @@ import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.refactoring.actions.RenameElementAction
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.extensions._
-import scala.collection.JavaConverters._
+
+import scala.collection.{JavaConverters, mutable}
 
 /**
  * User: Alefas
  * Date: 06.02.12
  */
-
 class RenameElementQuickfix(myRef: PsiElement, name: String) extends AbstractFixOnPsiElement(name, myRef) {
-  def doApplyFix(project: Project) {
-    val elem = getElement
-    if (!elem.isValid) return
+
+  override protected def doApplyFix(element: PsiElement)
+                                   (implicit project: Project): Unit = {
     val action: AnAction = new RenameElementAction
-    val event: AnActionEvent = actionEventForElement(project, action)
+    val event: AnActionEvent = actionEventForElement(element, action)
     invokeLater {
       action.actionPerformed(event)
     }
   }
 
-  private def actionEventForElement(project: Project, action: AnAction): AnActionEvent = {
-    import scala.collection.mutable
-
-    val ref = getElement
-    val map = mutable.Map[String, AnyRef]()
+  private def actionEventForElement(ref: PsiElement, action: AnAction)
+                                   (implicit project: Project): AnActionEvent = {
+    val map = mutable.Map.empty[String, AnyRef]
     val containingFile = ref.getContainingFile
     val editor: Editor = InjectedLanguageUtil.openEditorFor(containingFile, project)
     if (editor.isInstanceOf[EditorWindow]) {
@@ -46,6 +44,8 @@ class RenameElementQuickfix(myRef: PsiElement, name: String) extends AbstractFix
         editor, editor.getCaretModel.getCurrentCaret)
       map.put(CommonDataKeys.PSI_ELEMENT.getName, element)
     }
+
+    import JavaConverters._
     val dataContext = SimpleDataContext.getSimpleContext(map.asJava, DataManager.getInstance.getDataContext(editor.getComponent))
     new AnActionEvent(null, dataContext, "", action.getTemplatePresentation, ActionManager.getInstance, 0)
   }

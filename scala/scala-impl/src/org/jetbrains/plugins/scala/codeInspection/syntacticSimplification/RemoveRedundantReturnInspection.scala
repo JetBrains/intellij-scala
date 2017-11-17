@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.calculateRetur
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturnStmt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 
-
 class RemoveRedundantReturnInspection extends AbstractInspection("ScalaRedundantReturn", "Redundant Return") {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
@@ -33,9 +32,10 @@ class RemoveRedundantReturnInspection extends AbstractInspection("ScalaRedundant
 
 class RemoveReturnKeywordQuickFix(r: ScReturnStmt)
         extends AbstractFixOnPsiElement(ScalaBundle.message("remove.return.keyword"), r) {
-  def doApplyFix(project: Project) {
-    val ret = getElement
-    if (!ret.isValid) return
+
+
+  override protected def doApplyFix(ret: ScReturnStmt)
+                                   (implicit project: Project): Unit = {
     ret.expr match {
       case Some(e) => ret.replace(e.copy())
       case None => ret.delete()

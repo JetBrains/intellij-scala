@@ -63,7 +63,9 @@ object TypeAnnotationInspection {
   }
 
   private class MakePrivateQuickFix(element: ScModifierListOwner) extends AbstractFixOnPsiElement("Make private", element) {
-    override def doApplyFix(project: Project): Unit = {
+
+    override protected def doApplyFix(element: ScModifierListOwner)
+                                     (implicit project: Project): Unit = {
       element.setModifierProperty("private", value = true)
     }
   }

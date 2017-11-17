@@ -38,10 +38,11 @@ class VariablePatternShadowInspection extends AbstractInspection("VariablePatter
 }
 
 class ConvertToStableIdentifierPatternFix(r: ScReferencePattern)
-        extends AbstractFixOnPsiElement("Convert to Stable Identifier Pattern `%s`".format(r.getText), r) {
-  def doApplyFix(project: Project) {
-    val ref = getElement
-    val stableIdPattern = createPatternFromText("`%s`".format(ref.getText))(ref.getManager)
+  extends AbstractFixOnPsiElement(s"Convert to Stable Identifier Pattern `${r.getText}`", r) {
+
+  override protected def doApplyFix(ref: ScReferencePattern)
+                                   (implicit project: Project): Unit = {
+    val stableIdPattern = createPatternFromText("`%s`".format(ref.getText))
     ref.replace(stableIdPattern)
   }
 }

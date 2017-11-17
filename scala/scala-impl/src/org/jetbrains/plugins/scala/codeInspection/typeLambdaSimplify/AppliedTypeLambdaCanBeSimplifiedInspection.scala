@@ -111,8 +111,9 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
 class SimplifyAppliedTypeLambdaQuickFix(paramType: ScParameterizedTypeElement, replacement: => String)
         extends AbstractFixOnPsiElement(InspectionBundle.message("simplify.type"), paramType) {
 
-  def doApplyFix(project: Project): Unit = {
-    getElement.replace(createTypeElementFromText(replacement)(getElement.getManager))
+  override protected def doApplyFix(element: ScParameterizedTypeElement)
+                                   (implicit project: Project): Unit = {
+    element.replace(createTypeElementFromText(replacement))
   }
 }
 

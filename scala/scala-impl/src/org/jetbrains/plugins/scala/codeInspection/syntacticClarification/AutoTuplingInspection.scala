@@ -27,16 +27,16 @@ object AutoTuplingInspection {
 }
 
 class MakeTuplesExplicitFix(invoc: MethodInvocation) extends AbstractFixOnPsiElement(hint, invoc) {
-  override def doApplyFix(project: Project): Unit = {
-    val mInvoc = getElement
-    mInvoc match {
-      case mc: ScMethodCall =>
-        val newArgsText = s"(${mc.args.getText})"
-        val invokedExprText = mc.getInvokedExpr.getText
-        val newCall = createExpressionFromText(s"$invokedExprText$newArgsText")(mc.getManager)
-        mc.replaceExpression(newCall, removeParenthesis = false)
-      case _ =>
-    }
+
+  override protected def doApplyFix(element: MethodInvocation)
+                                   (implicit project: Project): Unit = element match {
+    case mc: ScMethodCall =>
+      val newArgsText = s"(${mc.args.getText})"
+      val invokedExprText = mc.getInvokedExpr.getText
+      val newCall = createExpressionFromText(s"$invokedExprText$newArgsText")
+      mc.replaceExpression(newCall, removeParenthesis = false)
+    case _ =>
+
   }
 }
 

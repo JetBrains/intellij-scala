@@ -13,11 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 class AddUnitTypeToDeclaration(functionDecl: ScFunctionDeclaration)
         extends AbstractFixOnPsiElement(InspectionBundle.message("add.unit.type.to.declaration"), functionDecl) {
 
-  def doApplyFix(project: Project) {
-    val funDef = getElement
-    implicit val projectContext = funDef.projectContext
-    funDef.getNode.addChild(createColon.getNode)
-    funDef.getNode.addChild(createWhitespace.getNode)
-    funDef.getNode.addChild(createTypeElementFromText("Unit").getNode)
+  override protected def doApplyFix(funDef: ScFunctionDeclaration)
+                                   (implicit project: Project): Unit = {
+    val node = funDef.getNode
+    node.addChild(createColon.getNode)
+    node.addChild(createWhitespace.getNode)
+    node.addChild(createTypeElementFromText("Unit").getNode)
   }
 }

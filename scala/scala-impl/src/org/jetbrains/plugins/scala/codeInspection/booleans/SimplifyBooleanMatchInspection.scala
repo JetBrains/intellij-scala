@@ -24,9 +24,10 @@ class SimplifyBooleanMatchInspection extends AbstractInspection("SimplifyBoolean
 }
 
 class SimplifyBooleanMatchToIfStmtQuickFix(stmt: ScMatchStmt) extends AbstractFixOnPsiElement("Simplify match to if statement", stmt) {
-  override def doApplyFix(project: Project) {
-    val scStmt = getElement
-    if (scStmt.isValid && SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(scStmt)) {
+
+  override protected def doApplyFix(scStmt: ScMatchStmt)
+                                   (implicit project: Project): Unit = {
+    if (SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(scStmt)) {
       scStmt.replaceExpression(SimpleBooleanMatchUtil.simplifyMatchStmt(scStmt), removeParenthesis = false)
     }
   }

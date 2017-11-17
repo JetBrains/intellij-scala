@@ -4,7 +4,6 @@ package packageNameInspection
 
 
 import com.intellij.CommonBundle
-import com.intellij.codeInsight.FileModificationService
 import com.intellij.ide.util.PackageUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -25,10 +24,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveUtil
 
 class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packQualName: String)
       extends AbstractFixOnPsiElement(ScalaMoveToPackageQuickFix.hint(myFile.name, packQualName), myFile) {
-  def doApplyFix(project: Project): Unit = {
-    val file = getElement
-    if (!file.isValid) return
-    if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
+
+  override protected def doApplyFix(file: ScalaFile)
+                                   (implicit project: Project): Unit = {
     val packageName = packQualName
     val fileIndex: ProjectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
     val currentModule: Module = fileIndex.getModuleForFile(file.getVirtualFile)

@@ -97,11 +97,10 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
 
 class ReplaceExpressionWithSAMQuickFix(elem: PsiElement, replacement: => String)
   extends AbstractFixOnPsiElement(inspectionName, elem) {
-  
-  override def doApplyFix(project: Project): Unit = {
-    val element = getElement
-    if (!element.isValid) return
-    element.replace(createExpressionFromText(replacement)(element.getManager))
+
+  override protected def doApplyFix(element: PsiElement)
+                                   (implicit project: Project): Unit = {
+    element.replace(createExpressionFromText(replacement))
   }
 }
 

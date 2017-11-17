@@ -69,9 +69,9 @@ object FunctionTupleSyntacticSugarInspection {
 
   class TupleTypeSyntacticSugarQuickFix(te: ScParameterizedTypeElement)
           extends AbstractFixOnPsiElement(ScalaBundle.message("replace.tuple.type"), te) {
-    def doApplyFix(project: Project): Unit = {
-      val typeElement = getElement
 
+    override protected def doApplyFix(typeElement: ScParameterizedTypeElement)
+                                     (implicit project: Project): Unit = {
       val typeTextWithParens = {
         val needParens = typeElement.getContext match {
           case _: ScFunctionalTypeElement => true // (Tuple2[A, B]) => B  ==>> ((A, B)) => C
@@ -79,14 +79,15 @@ object FunctionTupleSyntacticSugarInspection {
         }
         ("(" + typeElement.typeArgList.getText.drop(1).dropRight(1) + ")").parenthesize(needParens)
       }
-      typeElement.replace(createTypeElementFromText(typeTextWithParens)(typeElement.getManager))
+      typeElement.replace(createTypeElementFromText(typeTextWithParens))
     }
   }
 
   class FunctionTypeSyntacticSugarQuickFix(te: ScParameterizedTypeElement)
           extends AbstractFixOnPsiElement(ScalaBundle.message("replace.fun.type"), te) {
-    def doApplyFix(project: Project): Unit = {
-      val typeElement = getElement
+
+    override protected def doApplyFix(typeElement: ScParameterizedTypeElement)
+                                     (implicit project: Project): Unit = {
       val paramTypes = typeElement.typeArgList.typeArgs.dropRight(1)
       val returnType = typeElement.typeArgList.typeArgs.last
       val elemsInParamTypes = if (paramTypes.isEmpty) Seq.empty else ScalaPsiUtil.getElementsRange(paramTypes.head, paramTypes.last)
@@ -109,7 +110,7 @@ object FunctionTupleSyntacticSugarInspection {
         val arrow = ScalaPsiUtil.functionArrow(project)
         s"(${elemsInParamTypes.map(_.getText).mkString}) $arrow $returnTypeTextWithParens".parenthesize(needParens)
       }
-      typeElement.replace(createTypeElementFromText(typeTextWithParens)(typeElement.getManager))
+      typeElement.replace(createTypeElementFromText(typeTextWithParens))
     }
   }
 }

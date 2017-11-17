@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 
 class RemoveValQuickFix(param: ScClassParameter)
         extends AbstractFixOnPsiElement(ScalaBundle.message("remove.val"), param) {
-  def doApplyFix(project: Project) {
-    val p = getElement
-    if (!p.isValid) return
+
+  override protected def doApplyFix(p: ScClassParameter)
+                                   (implicit project: Project): Unit = {
     p.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
     CodeStyleManager.getInstance(p.getProject).reformatText(p.getContainingFile,
       p.getModifierList.getTextRange.getStartOffset,

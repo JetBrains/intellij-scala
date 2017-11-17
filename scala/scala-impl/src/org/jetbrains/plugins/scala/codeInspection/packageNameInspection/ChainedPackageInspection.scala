@@ -40,9 +40,10 @@ class ChainedPackageInspection extends LocalInspectionTool {
 
 class UseChainedPackageQuickFix(myFile: ScalaFile, basePackage: String)
         extends AbstractFixOnPsiElement(s"Use chained package clauses: package $basePackage; package ...", myFile) {
-  def doApplyFix(project: Project) {
-    val file = getElement
-    if (file.isValid) file.setPackageName(file.packageName)
+
+  override protected def doApplyFix(file: ScalaFile)
+                                   (implicit project: Project): Unit = {
+    file.setPackageName(file.packageName)
   }
 
   override def getFamilyName = "Use chained package clauses"

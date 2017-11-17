@@ -42,11 +42,8 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase extends AbstractInspect
 class UnnecessaryParenthesesQuickFix(parenthesized: ScParenthesisedExpr, textOfStripped: String)
         extends AbstractFixOnPsiElement("Remove unnecessary parentheses " + getShortText(parenthesized), parenthesized){
 
-  def doApplyFix(project: Project) {
-    val parenthExpr = getElement
-    if (!parenthExpr.isValid) return
-
-    val newExpr = createExpressionFromText(textOfStripped)(parenthExpr.getManager)
+  override protected def doApplyFix(parenthExpr: ScParenthesisedExpr)(implicit project: Project): Unit = {
+    val newExpr = createExpressionFromText(textOfStripped)
     val replaced = parenthExpr.replaceExpression(newExpr, removeParenthesis = true)
 
     val comments = Option(parenthExpr.expr.get).map(expr => IntentionUtil.collectComments(expr))

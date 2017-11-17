@@ -16,22 +16,25 @@ class FloatLiteralEndingWithDecimalPointInspection extends AbstractInspection("F
 }
 
 class MakeDoubleFix(lit: ScLiteral) extends AbstractFixOnPsiElement("Convert to %s".format(lit.getText.dropRight(1) + "d"), lit) {
-  def doApplyFix(project: Project) {
-    val l = getElement
-    l.replace(createExpressionFromText(l.getText.dropRight(1) + "d")(l.getManager))
+
+  override protected def doApplyFix(l: ScLiteral)
+                                   (implicit project: Project): Unit = {
+    l.replace(createExpressionFromText(l.getText.dropRight(1) + "d"))
   }
 }
 
 class MakeFloatFix(lit: ScLiteral) extends AbstractFixOnPsiElement("Convert to %s".format(lit.getText.dropRight(1) + "f"), lit) {
-  def doApplyFix(project: Project) {
-    val l = getElement
-    l.replace(createExpressionFromText(l.getText.dropRight(1) + "f")(l.getManager))
+
+  override protected def doApplyFix(l: ScLiteral)
+                                   (implicit project: Project): Unit = {
+    l.replace(createExpressionFromText(l.getText.dropRight(1) + "f"))
   }
 }
 
 class AddZeroAfterDecimalPoint(lit: ScLiteral) extends AbstractFixOnPsiElement("Convert to %s".format(lit.getText + "0"), lit) {
-  def doApplyFix(project: Project) {
-    val l = getElement
-    l.replace(createExpressionFromText(l.getText + "0")(l.getManager))
+
+  override protected def doApplyFix(l: ScLiteral)
+                                   (implicit project: Project): Unit = {
+    l.replace(createExpressionFromText(l.getText + "0"))
   }
 }
