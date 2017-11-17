@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.ide.util.treeView.AbstractTreeNode
+import com.intellij.openapi.util.io.FileUtilRt
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
@@ -27,12 +28,9 @@ package object projectView {
 
   object SingularDefinition {
     def unapply(file: ScalaFile): Option[(ScTypeDefinition)] = Some(file.typeDefinitions) collect {
-      case Seq(definition) if matchesFileName(definition) => definition
+      case Seq(definition @ MatchesFileName()) => definition
       case Seq(definition) if definition.isPackageObject => definition
     }
-
-    private def matchesFileName(definition: ScTypeDefinition): Boolean =
-      definition.containingVirtualFile.forall(_.getNameWithoutExtension == definition.name)
   }
 
   object ClassAndCompanionObject {
@@ -51,8 +49,13 @@ package object projectView {
 
   private object PairedTypeDefinitions {
     def unapply(definitions: Seq[ScTypeDefinition]): Option[(ScTypeDefinition, ScTypeDefinition)] = Some(definitions) collect {
-      case Seq(definition1: ScTypeDefinition, definition2: ScTypeDefinition) if definition1.name == definition2.name =>
-        (definition1, definition2)
+      case Seq((definition1: ScTypeDefinition) && MatchesFileName(), definition2: ScTypeDefinition)
+        if definition1.name == definition2.name => (definition1, definition2)
     }
+  }
+
+  private object MatchesFileName {
+    def unapply(definition: ScTypeDefinition): Boolean =
+      definition.containingFile.forall(file => FileUtilRt.getNameWithoutExtension(file.getName) == definition.name)
   }
 }
