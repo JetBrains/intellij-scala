@@ -66,6 +66,26 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
     assertNothing(errorsFromJavaCode(scala, java, "Test"))
   }
 
+  def testSCL12286(): Unit = {
+    val java =
+      """
+        |import scala.Option;
+        |import scala.Option$;
+        |
+        |import java.sql.Connection;
+        |
+        |public class Temp {
+        |    static void test(Connection con, String s) {
+        |        Option<Connection> conOpt = Option$.MODULE$.apply(con);
+        |        Option<String> stringOpt = Option$.MODULE$.apply(s);
+        |    }
+        |}
+        |
+      """.stripMargin
+    assertNothing(errorsFromJavaCode("", java, "Temp"))
+
+  }
+
   def testProtected(): Unit = {
     val scala =
       """
