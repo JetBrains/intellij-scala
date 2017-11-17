@@ -27,6 +27,8 @@ class HydraCompilerSettings(project: Project) extends PersistentStateComponent[H
 
   var hydraStorePath: String = getDefaultHydraStorePath
 
+  var hydraLogLocation: String = Paths.get(getDefaultHydraStorePath, "hydra.log").toString
+
   var sourcePartitioner: String = Auto.value
 
   override def getState: HydraCompilerSettingsState = {
