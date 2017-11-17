@@ -40,7 +40,7 @@ object AmmoniteUtil {
   
   private val DEFAULT_IMPORTS = Seq("ammonite.main.Router._", "ammonite.runtime.tools.grep", "ammonite.runtime.tools.browse", 
     "ammonite.runtime.tools.time", "ammonite.repl.tools.desugar", "ammonite.repl.tools.source") //todo more default imports ?
-  private val DEFAULT_BUILTINS = Seq(("repl", "ammonite.repl.ReplAPI"), ("interp", "ammonite.interp.InterpAPI"))
+  private val DEFAULT_BUILTINS = Seq(("repl", "ammonite.repl.ReplAPI"), ("interp", "ammonite.runtime.Interpreter"))
 
   def isAmmoniteFile(file: ScalaFile): Boolean = {
     ScalaUtil.findVirtualFile(file) match {
@@ -77,8 +77,7 @@ object AmmoniteUtil {
       case ammoniteFile: ScalaFile if isAmmoniteFile(ammoniteFile) =>
         DEFAULT_BUILTINS.foreach {
           case (name, txt) =>
-            ScalaPsiElementFactory.createDeclaration(name, txt, isVariable = false, null)(
-              ammoniteFile.projectContext).getContainingClass.processDeclarations(processor, state, null, ammoniteFile)
+            ScalaPsiElementFactory.createElementFromText(s"class A { val $name: $txt = ??? }")(ammoniteFile.projectContext).processDeclarations(processor, state, null, ammoniteFile)
         }
         
         DEFAULT_IMPORTS.foreach {
