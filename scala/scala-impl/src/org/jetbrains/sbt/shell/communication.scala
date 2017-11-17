@@ -182,7 +182,8 @@ class SbtShellReadyListener(whenReady: =>Unit, whenWorking: =>Unit) extends Line
   private var readyState: Boolean = false
 
   def onLine(line: String): Unit = {
-    val sbtReady = promptReady(line)
+    val sbtReady = promptReady(line) || (readyState && debuggerMessage(line))
+
     if (sbtReady && !readyState) {
       readyState = true
       whenReady
@@ -203,7 +204,11 @@ private[shell] object SbtProcessUtil {
     line.trim.startsWith(IDEA_PROMPT_MARKER)
 
   def promptError(line: String): Boolean =
-    line.trim.contains("(r)etry, (q)uit, (l)ast, or (i)gnore")
+    line.contains("(r)etry, (q)uit, (l)ast, or (i)gnore")
+
+  // sucky workaround for jdwp printling this line on the console when deactivating debugger
+  def debuggerMessage(line: String): Boolean =
+    line.contains("Listening for transport")
 }
 
 /**
