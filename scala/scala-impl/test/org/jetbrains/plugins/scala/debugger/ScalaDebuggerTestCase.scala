@@ -47,9 +47,10 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   //safety net against not running tests at all
   private var wasAtBreakpoint: Boolean = false
+
   protected def shouldStopAtBreakpointAtLeastOnce(): Boolean = true
 
-  override def setUp() = {
+  override def setUp(): Unit = {
     super.setUp()
     if (needMake) {
       make()
@@ -61,7 +62,6 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     setupBreakpoints()
     val processHandler = runProcess(mainClass, debug)
     val debugProcess = getDebugProcess
-
     try {
       callback
     } finally {
@@ -121,8 +121,15 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   protected def getDebugProcess: DebugProcessImpl =
     DebuggerManagerEx.getInstanceEx(getProject).getContext.getDebugProcess
 
+  protected def positionManager: ScalaPositionManager = {
+    val process = getDebugProcess
+    ScalaPositionManager.instance(process).getOrElse {
+      new ScalaPositionManager(process)
+    }
+  }
+
   protected def resume() {
-    val resumeCommand = getDebugProcess.createResumeCommand(suspendContext)
+    val resumeCommand = getDebugProcess.createResumeCommand(currentSuspendContext())
     getDebugProcess.getManagerThread.invokeAndWait(resumeCommand)
   }
 
@@ -169,7 +176,9 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       if (processTerminated) "process terminated before breakpoint"
       else "too long waiting for breakpoint"
 
-    assert(suspendContext != null, message)
+    Assert.assertTrue(message, suspendContext != null)
+    Assert.assertTrue("resumed context is not expected on breakpoint", !suspendContext.isResumed)
+
     suspendContext
   }
 
@@ -179,28 +188,55 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   }
 
   private def waitForBreakpointInner(): (SuspendContextImpl, Boolean) = {
-    def processTerminated: Boolean = getDebugProcess.getExecutionResult.getProcessHandler.isProcessTerminated
-    var i = 0
-    while (i < 1000 && suspendContext == null && !processTerminated) {
-      Thread.sleep(30)
-      i += 1
+    val debugProcess = getDebugProcess
+    val breakpointSemaphore = new Semaphore()
+
+    val breakpointListener = new DebugProcessAdapterImpl {
+      override def paused(suspendContext: SuspendContextImpl): Unit = {
+        wasAtBreakpoint = true
+        breakpointSemaphore.up()
+        debugProcess.removeDebugProcessListener(this)
+      }
+
+      override def processDetached(process: DebugProcessImpl, closedByUser: Boolean): Unit = {
+        breakpointSemaphore.up()
+        debugProcess.removeDebugProcessListener(this)
+      }
     }
-    if (!processTerminated) {
-      wasAtBreakpoint = true
+
+    managed {
+      val ctx = currentSuspendContext()
+      if (Option(ctx).forall(_.isResumed)) {
+        debugProcess.addDebugProcessListener(breakpointListener)
+        breakpointSemaphore.down()
+      }
     }
-    (suspendContext, processTerminated)
+    Assert.assertTrue("Waiting on manager thread will cause deadlock",
+      !DebuggerManagerThreadImpl.isManagerThread)
+
+    breakpointSemaphore.waitFor(30000)
+
+    (currentSuspendContext(), !getDebugProcess.isAttached)
   }
 
-  protected def suspendManager = getDebugProcess.getSuspendManager
+  protected def currentSuspendContext() = {
+    Option(getDebugProcess)
+      .map(_.getSuspendManager)
+      .flatMap(_.getPausedContext.toOption)
+      .orNull
+  }
 
-  protected def suspendContext = suspendManager.getPausedContext
+  protected def currentLocation() = managed {
+    val suspendContext = currentSuspendContext()
+    suspendContext.getFrameProxy.getStackFrame.location
+  }
 
   protected def evaluationContext() = managed {
-    new EvaluationContextImpl(suspendContext, suspendContext.getFrameProxy, suspendContext.getFrameProxy.thisObject())
+    new EvaluationContextImpl(currentSuspendContext(), currentSuspendContext().getFrameProxy, currentSuspendContext().getFrameProxy.thisObject())
   }
 
   protected def currentSourcePosition = managed {
-    ContextUtil.getSourcePosition(suspendContext)
+    ContextUtil.getSourcePosition(currentSuspendContext())
   }
 
   protected def evalResult(codeText: String): String = {
@@ -260,14 +296,12 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   }
 
   protected def inSuspendContextAction[T](timeout: Duration, timeoutMsg: String)(callback: => T): T = {
-    val context = suspendContext
+    val context = currentSuspendContext()
     val process = getDebugProcess
 
     waitScheduledAction(timeout, timeoutMsg, callback) { body =>
       process.getManagerThread.schedule(new SuspendContextCommandImpl(context) {
-        override def contextAction(suspendContext: SuspendContextImpl): Unit = {
-          body
-        }
+        override def contextAction(suspendContext: SuspendContextImpl): Unit = body
       })
     }
   }
@@ -305,17 +339,15 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   protected def addOtherLibraries(): Unit = {}
 
-  def checkLocation(source: String, methodName: String, lineNumber: Int): Unit = {
+  def checkLocation(source: String, methodName: String, lineNumber: Int)(implicit suspendContext: SuspendContextImpl): Unit = {
     def format(s: String, mn: String, ln: Int) = s"$s:$mn:$ln"
-    managed {
-      val location = suspendContext.getFrameProxy.getStackFrame.location
-      val expected = format(source, methodName, lineNumber)
-      val actualLine = inReadAction {
-        new ScalaPositionManager(getDebugProcess).getSourcePosition(location).getLine
-      }
-      val actual = format(location.sourceName, location.method().name(), actualLine + 1)
-      Assert.assertEquals("Wrong location:", expected, actual)
+    val location = currentLocation()
+    val expected = format(source, methodName, lineNumber)
+    val actualLine = inReadAction {
+      positionManager.getSourcePosition(location).getLine
     }
+    val actual = format(location.sourceName, location.method().name(), actualLine + 1)
+    Assert.assertEquals("Wrong location:", expected, actual)
   }
 
   protected def addFileWithBreakpoints(path: String, fileText: String): Unit = {
