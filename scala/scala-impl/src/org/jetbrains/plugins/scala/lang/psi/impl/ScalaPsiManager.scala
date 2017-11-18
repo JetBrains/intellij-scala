@@ -25,7 +25,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticPackageCreator}
@@ -247,7 +247,7 @@ class ScalaPsiManager(val project: Project) {
     StubIndex.getElements(key,
       ScalaNamesUtil.cleanFqn(fullyQualifiedName),
       project,
-      new ScalaSourceFilterScope(scope, project),
+      ScalaFilterScope(project, scope),
       clazz).asScala.toSeq
   }
 

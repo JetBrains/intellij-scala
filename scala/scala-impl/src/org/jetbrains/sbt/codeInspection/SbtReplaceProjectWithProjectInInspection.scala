@@ -50,11 +50,11 @@ class SbtReplaceProjectWithProjectInInspection extends AbstractInspection {
 class SbtReplaceProjectWithProjectInQuickFix(call: ScMethodCall)
         extends AbstractFixOnPsiElement(SbtBundle("sbt.inspection.projectIn.name"), call) {
 
-  def doApplyFix(project: Project): Unit = {
-    val place = getElement
-    place match {
+  override protected def doApplyFix(element: ScMethodCall)
+                                   (implicit project: Project): Unit = {
+    element match {
       case ScMethodCall(_, Seq(_, pathElt)) =>
-        place.replace(createExpressionFromText("project.in(" + pathElt.getText + ")")(place.getManager))
+        element.replace(createExpressionFromText("project.in(" + pathElt.getText + ")"))
       case _ => // do nothing
     }
   }

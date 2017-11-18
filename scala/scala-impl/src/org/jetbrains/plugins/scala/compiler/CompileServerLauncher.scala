@@ -110,7 +110,7 @@ class CompileServerLauncher extends ApplicationComponent {
         } else Nil
 
         val commands = jdk.executable.canonicalPath +: bootclasspathArg ++: "-cp" +: classpath +: jvmParameters ++: shutdownDelayArg ++:
-          HydraCompilerSettingsManager.getHydraLogJvmParameter(project) +: ngRunnerFqn +: freePort.toString +: id.toString +: Nil
+          HydraCompilerSettingsManager.getHydraLogJvmParameter(project) ++: ngRunnerFqn +: freePort.toString +: id.toString +: Nil
 
         val builder = new ProcessBuilder(commands.asJava)
 

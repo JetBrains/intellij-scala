@@ -73,8 +73,9 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
 }
 
 class AddReturnQuickFix(e: ScExpression) extends AbstractFixOnPsiElement("Add return keyword", e) {
-  override def doApplyFix(project: Project): Unit = {
-    val expr = getElement
+
+  override protected def doApplyFix(expr: ScExpression)
+                                   (implicit project: Project): Unit = {
     val retStmt = ScalaPsiElementFactory.createExpressionWithContextFromText(s"return ${expr.getText}", expr.getContext, expr)
     expr.replaceExpression(retStmt, removeParenthesis = true)
   }

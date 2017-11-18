@@ -1,17 +1,15 @@
 package org.jetbrains.plugins.scala.project.migration
 
 import com.intellij.codeInspection.{InspectionManager, ProblemsHolder}
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.psi.{PsiDirectory, PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationReport}
-import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationLocalFixHolderImpl
+import org.jetbrains.plugins.scala.project.migration.api._
 import org.jetbrains.plugins.scala.project.migration.defaultimpl.MyRecursiveVisitorWrapper
 
 import scala.collection.mutable
@@ -44,42 +42,39 @@ class ScalaMigrationRunner(project: Project) {
 
        
         val inspectionManager = InspectionManager.getInstance(project)
-        val myIterator = projectStructure.inReadAction(new FilteringFileIterator/*new FileTreeIterator(project)*/)
+        val myIterator = inReadAction(new FilteringFileIterator /*new FileTreeIterator(project)*/)
 
-        while (myIterator.hasNext) projectStructure.inReadAction(myIterator.next()) match {
+        while (myIterator.hasNext) inReadAction(myIterator.next()) match {
           case scalaFile: ScalaFile if !scalaFile.isCompiled && !scalaFile.isWorksheetFile =>
             checkForUserCancel()
             
             val holder = new ProblemsHolder(inspectionManager, scalaFile, false)
-            val fixHolder = new MigrationLocalFixHolderImpl(holder)
 
-            val myCompoundAction = migrators.flatMap {
-              migrator => 
+            val myCompoundAction = migrators.flatMap { migrator =>
                 checkForUserCancel()
-                migrator.migrateLocal(scalaFile, fixHolder)
+              migrator.migrateLocal(scalaFile, holder)
             }
 
             val visitor = new MyRecursiveVisitorWrapper(myCompoundAction)
-            projectStructure.inReadAction(scalaFile.acceptChildren(visitor))
+            inReadAction(scalaFile.acceptChildren(visitor))
 
-            fixHolder.getFixes.foreach {
-              case fix: AbstractFixOnPsiElement[_] =>
-                checkForUserCancel()
-                
-                ApplicationManager.getApplication.invokeLater(new Runnable {
-                  override def run(): Unit = CommandProcessor.getInstance().executeCommand(project, new Runnable {
-                    override def run(): Unit = {
-                      catchRun {
-                        service =>
-                          service.inWriteAction(fix doApplyFix project)
-                          None
-                      }
-                    }
-                  }, "ScalaMigrator", null)
-                })
-              case _ =>
+            val fixes = holder.getResultsArray
+              .flatMap(_.getFixes).collect {
+              case fix: AbstractFixOnPsiElement[_] => fix
             }
 
+            fixes.foreach { fix =>
+              checkForUserCancel()
+
+              invokeLater {
+                startCommand(project, () => {
+                  catchRun { _ =>
+                    inWriteAction(fix.invoke(project, scalaFile, null, null))
+                    None
+                  }
+                }, "ScalaMigrator")
+              }
+            }
           case _ =>
         }
 

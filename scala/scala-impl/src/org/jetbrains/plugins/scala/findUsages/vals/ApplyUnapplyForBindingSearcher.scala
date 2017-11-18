@@ -8,7 +8,7 @@ import com.intellij.psi.search.{PsiSearchHelper, SearchScope, TextOccurenceProce
 import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.inReadAction
-import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
@@ -24,7 +24,7 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
   def execute(queryParameters: SearchParameters, consumer: Processor[PsiReference]): Boolean = {
     val project = queryParameters.getProject
     val scope = inReadAction {
-      ScalaSourceFilterScope(queryParameters)
+      ScalaFilterScope(queryParameters)
     }
     val element = queryParameters.getElementToSearch
     element match {

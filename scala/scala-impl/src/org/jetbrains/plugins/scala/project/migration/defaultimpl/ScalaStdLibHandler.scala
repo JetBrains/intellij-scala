@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project.migration.defaultimpl
 
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.externalSystem.model.project.LibraryData
 import com.intellij.openapi.projectRoots.JavaSdkVersion
 import com.intellij.openapi.roots.ProjectRootManager
@@ -8,11 +9,11 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.migration.ScalaLibraryMigrator
-import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationLocalFixHolder, MigrationReport}
-import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationLocalFixHolderImpl
+import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationReport}
 import org.jetbrains.plugins.scala.project.migration.defaultimpl.ScalaStdLibHandler._
 import org.jetbrains.plugins.scala.project.migration.handlers.VersionedArtifactHandlerBase
 import org.jetbrains.plugins.scala.project.template.Artifact.ScalaLibrary
@@ -32,7 +33,7 @@ class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(
     private val samInspection = new ConvertExpressionToSAMInspection
 
     override def migrateGlobal(projectStructure: MigrationApiService): Option[MigrationReport] = {
-      val project = projectStructure.getProject
+      val project = projectStructure.project
       val sdksModel = new ProjectSdksModel
 
       import JavaSdkVersion.fromVersionString
@@ -45,7 +46,7 @@ class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(
 
         sdks.find(sdk => fromVersionString(sdk.getVersionString) == JavaSdkVersion.JDK_1_8) match {
           case Some(jdk) =>
-            if(sdksModel.getProjectSdk != jdk) projectStructure.inWriteAction(ProjectRootManager.getInstance(project).setProjectSdk(jdk))
+            if (sdksModel.getProjectSdk != jdk) inWriteAction(ProjectRootManager.getInstance(project).setProjectSdk(jdk))
           case None => MigrationReport.createSingleMessageReport(MigrationReport.Warning, "No JDK 1.8 found. Scala 2.12 supports Java 1.8 only")
         }
       }
@@ -53,10 +54,9 @@ class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(
       None
     }
 
-    override def migrateLocal(file: PsiFile, localFixHolder: MigrationLocalFixHolder): Option[PartialFunction[PsiElement, Any]] = {
+    override def migrateLocal(file: PsiFile, holder: ProblemsHolder): Option[PartialFunction[PsiElement, Any]] = {
       file match {
-        case scalaFile: ScalaFile =>
-          Some(samInspection actionFor localFixHolder.asInstanceOf[MigrationLocalFixHolderImpl].getHolder)
+        case scalaFile: ScalaFile => Some(samInspection.actionFor(holder))
         case _ => None
       }
     }

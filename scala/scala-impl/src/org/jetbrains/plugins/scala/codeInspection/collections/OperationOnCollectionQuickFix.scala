@@ -7,13 +7,24 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
- * Nikolay.Tropin
- * 5/28/13
- */
-class OperationOnCollectionQuickFix(expr: ScExpression, simpl: Simplification) extends AbstractFixOnPsiElement(simpl.hint, expr){
-  def doApplyFix(project: Project) {
-    val toReplace = simpl.exprToReplace.getElement
-    if (!toReplace.isValid) return
-    toReplace.replaceExpression(createExpressionFromText(simpl.replacementText)(toReplace.getManager), removeParenthesis = true)
+  * Nikolay.Tropin
+  * 5/28/13
+  */
+class OperationOnCollectionQuickFix(hint: String,
+                                    expression: ScExpression,
+                                    replacementText: String) extends AbstractFixOnPsiElement(hint, expression) {
+
+  override protected def doApplyFix(expression: ScExpression)
+                                   (implicit project: Project): Unit = {
+    val replacement = createExpressionFromText(replacementText)
+    expression.replaceExpression(replacement, removeParenthesis = true)
+  }
+}
+
+object OperationOnCollectionQuickFix {
+
+  def apply(simplification: Simplification): OperationOnCollectionQuickFix = {
+    val Simplification(toReplace, replacementText, hint, _) = simplification
+    new OperationOnCollectionQuickFix(hint, toReplace.getElement, replacementText)
   }
 }

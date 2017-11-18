@@ -6,7 +6,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.searches.ReferencesSearch.SearchParameters
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.{Both, ContainingClass, inReadAction}
-import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -29,7 +29,7 @@ abstract class ApplyUnapplyMethodSearcherBase extends QueryExecutor[PsiReference
     val data = inReadAction {
       element match {
         case Both(fun: ScFunctionDefinition, ContainingClass(obj: ScObject)) if names.contains(fun.name) =>
-          val scope = ScalaSourceFilterScope(queryParameters)
+          val scope = ScalaFilterScope(queryParameters)
           Some((fun, obj, scope))
         case _ => None
       }

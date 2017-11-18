@@ -66,9 +66,9 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
 }
 
 class RemoveSemicolonFix(element: PsiElement) extends AbstractFixOnPsiElement("Remove unnecessary semicolon", element) {
-  def doApplyFix(project: Project) {
-    val elem = getElement
-    if (!elem.isValid) return
+
+  override protected def doApplyFix(elem: PsiElement)
+                                   (implicit project: Project): Unit = {
     elem.delete()
   }
 }

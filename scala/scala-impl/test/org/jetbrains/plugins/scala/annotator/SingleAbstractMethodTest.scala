@@ -539,6 +539,27 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
     }
   }
 
+  def testSCL11064(): Unit = {
+    val code =
+      """
+        |import scala.language.higherKinds
+        |
+        |object FBound212 {
+        |  trait Parser[A, F[X] <: Parser[X, F]] {
+        |    def parse(s: String): A
+        |
+        |    def map[B](f: A ⇒ B): F[B]
+        |  }
+        |
+        |  trait Foo[A] extends Parser[A, Foo]{
+        |    self ⇒
+        |    override def map[B](f: (A) ⇒ B) = s ⇒ f(self.parse(s))
+        |  }
+        |}
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
   def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None) {
     assertNothing(messages(scalaCode, javaCode))
   }

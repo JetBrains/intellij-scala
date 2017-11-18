@@ -9,7 +9,7 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope;
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
@@ -47,22 +47,22 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
     String cleanName = ScalaNamesUtil.cleanFqn(name);
     final Collection<ScFunction> methods =
         StubIndex.getElements(ScalaIndexKeys.METHOD_NAME_KEY(), cleanName, project,
-            new ScalaSourceFilterScope(scope, project), ScFunction.class);
+            new ScalaFilterScope(scope, project), ScFunction.class);
     final Collection<ScTypeAlias> types =
         StubIndex.getElements(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY(), cleanName, project,
-            new ScalaSourceFilterScope(scope, project), ScTypeAlias.class);
+            new ScalaFilterScope(scope, project), ScTypeAlias.class);
     final Collection<ScValue> values =
         StubIndex.getElements(ScalaIndexKeys.VALUE_NAME_KEY(), cleanName, project,
-            new ScalaSourceFilterScope(scope, project), ScValue.class);
+            new ScalaFilterScope(scope, project), ScValue.class);
     final Collection<ScVariable> vars =
         StubIndex.getElements(ScalaIndexKeys.VARIABLE_NAME_KEY(), cleanName, project,
-            new ScalaSourceFilterScope(scope, project), ScVariable.class);
+            new ScalaFilterScope(scope, project), ScVariable.class);
     final Collection<ScClassParameter> params =
         StubIndex.getElements(ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY(), cleanName, project,
-            new ScalaSourceFilterScope(scope, project), ScClassParameter.class);
+            new ScalaFilterScope(scope, project), ScClassParameter.class);
     final Collection<PsiClass> notVisibleInJava =
         StubIndex.getElements(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY(), cleanName, project,
-            new ScalaSourceFilterScope(scope, project), PsiClass.class);
+            new ScalaFilterScope(scope, project), PsiClass.class);
 
     final ArrayList<NavigationItem> items = new ArrayList<NavigationItem>();
 

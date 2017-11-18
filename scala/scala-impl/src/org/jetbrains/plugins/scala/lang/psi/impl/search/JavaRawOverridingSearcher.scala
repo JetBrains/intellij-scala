@@ -8,7 +8,7 @@ import com.intellij.psi.search.searches.{AllOverridingMethodsSearch, OverridingM
 import com.intellij.psi.util.PsiUtil
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMemberExt, PsiTypeExt, inReadAction}
-import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.search.JavaRawOverridingSearcher._
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiMethodWrapper, ScFunctionWrapper}
@@ -33,7 +33,7 @@ class JavaRawOverridingSearcher extends QueryExecutor[PsiMethod, OverridingMetho
         if (cClass == null) return true
 
         val wrapper = rawMethodWrapper(m, cClass)
-        val scalaScope = ScalaSourceFilterScope(wrapper.getProject, qParams.getScope)
+        val scalaScope = ScalaFilterScope(wrapper.getProject, qParams.getScope)
 
         val newParams = new OverridingMethodsSearch.SearchParameters(wrapper, scalaScope, qParams.isCheckDeep)
         val newProcessor = new Processor[PsiMethod] {
@@ -63,7 +63,7 @@ class JavaRawAllOverridingSearcher extends QueryExecutor[Pair[PsiMethod, PsiMeth
     for (superMethod <- potentials) {
       inReadAction {
         val wrapper = rawMethodWrapper(superMethod, clazz)
-        val scalaScope = ScalaSourceFilterScope(wrapper.getProject, qParams.getScope)
+        val scalaScope = ScalaFilterScope(wrapper.getProject, qParams.getScope)
 
         val params = new OverridingMethodsSearch.SearchParameters(wrapper, scalaScope, /*checkDeep*/ true)
         val processor = new Processor[PsiMethod] {

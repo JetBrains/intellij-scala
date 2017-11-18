@@ -12,10 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
   * 5/7/16.
   */
 class RemoveNewQuickFix(param: ScNewTemplateDefinition) extends AbstractFixOnPsiElement(ScalaBundle.message("new.on.case.class.instantiation.redundant"), param) {
-  override def doApplyFix(project: Project): Unit = {
-    val p = getElement
-    if (!p.isValid) return
+
+  override protected def doApplyFix(p: ScNewTemplateDefinition)
+                                   (implicit project: Project): Unit = {
     p.findFirstChildByType(ScalaTokenTypes.kNEW).delete()
-    p.replaceExpression(createExpressionFromText(p.getText)(p.getManager), false)
+    p.replaceExpression(createExpressionFromText(p.getText), removeParenthesis = false)
   }
 }

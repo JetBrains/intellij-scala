@@ -27,23 +27,17 @@ abstract class AbstractFixOnPsiElement[T <: PsiElement](name: String, startEleme
 
   override def getFamilyName: String = getText
 
-  def getElement: T = {
-    try {
-      val elem = getStartElement.asInstanceOf[T]
-      if (elem.isValid) elem
-      else null.asInstanceOf[T]
-    } catch {
-      case _: ClassCastException => null.asInstanceOf[T]
-    }
-  }
+  import QuickFixHelper.validStartElement
 
-  override def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
+  override final def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
     if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
-    if (getElement == null) return
-    doApplyFix(project)
+
+    val element = validStartElement[T](getStartElement)
+    if (element != null) doApplyFix(element)(project)
   }
 
-  def doApplyFix(project: Project)
+  protected def doApplyFix(element: T)
+                          (implicit project: Project): Unit
 }
 
 abstract class AbstractFixOnTwoPsiElements[T <: PsiElement, S <: PsiElement](name: String, first: T, second: S)
@@ -56,27 +50,30 @@ abstract class AbstractFixOnTwoPsiElements[T <: PsiElement, S <: PsiElement](nam
 
   override def getFamilyName: String = getText
 
-  import AbstractFixOnTwoPsiElements.validElement
+  import QuickFixHelper._
 
   override final def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
     if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
 
-    val first = try {
-      validElement(getStartElement.asInstanceOf[T])
-    } catch {
-      case _: ClassCastException => null
-    }
+    val first = validStartElement[T](getStartElement)
     val second = validElement(secondReference.getElement)
 
-    if (first != null && second != null) doApplyFix(first.asInstanceOf[T], second)(project)
+    if (first != null && second != null) doApplyFix(first, second)(project)
   }
 
   protected def doApplyFix(first: T, second: S)
                           (implicit project: Project): Unit
 }
 
-object AbstractFixOnTwoPsiElements {
+object QuickFixHelper {
 
-  private def validElement[T <: PsiElement](element: T): T =
+  private[codeInspection] def validElement[T <: PsiElement](element: T): T =
     if (element != null && element.isValid) element else null.asInstanceOf[T]
+
+  private[codeInspection] def validStartElement[T <: PsiElement](element: PsiElement): T =
+    try {
+      validElement(element.asInstanceOf[T])
+    } catch {
+      case _: ClassCastException => null.asInstanceOf[T]
+    }
 }
