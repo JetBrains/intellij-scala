@@ -14,10 +14,10 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver}
 import org.jetbrains.sbt.project.data.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.SbtOpts
+import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver}
 
 import scala.collection.JavaConverters._
 /**
@@ -80,11 +80,22 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     javaParameters.configureByProject(project, 1, sdk)
     javaParameters.setWorkingDirectory(workingDir)
     javaParameters.setJarPath(launcher.getCanonicalPath)
+
     val debugConnection: Option[RemoteConnection] = if (sbtSettings.shellDebugMode) {
       val debuggerSettings = new GenericDebuggerRunnerSettings()
-      debuggerSettings.setLocal(false) // FIXME when false, server listens on 0.0.0.0 (bad!). but when true, connect fails.
+      debuggerSettings.setLocal(false)
       // this will actually patch the javaParameters as a side effect
-      Option(DebuggerManagerImpl.createDebugParameters(javaParameters, debuggerSettings, true))
+      val rc = DebuggerManagerImpl.createDebugParameters(javaParameters, debuggerSettings, true)
+      val vmParams = javaParameters.getVMParametersList
+      vmParams.getParameters.asScala
+        .find(_.contains("address="))
+        .foreach { param =>
+          // if the address is a port only, patch it with the localhost prefix for security reasons
+          val patchedAddress = param.replaceAll("address=\\d+,", s"address=${DebuggerManagerImpl.LOCALHOST_ADDRESS_FALLBACK}:${rc.getAddress},")
+          vmParams.replaceOrPrepend(param, patchedAddress)
+        }
+
+      Option(rc)
     } else None
 
     val vmParams = javaParameters.getVMParametersList
