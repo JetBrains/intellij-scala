@@ -852,5 +852,36 @@ class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase {
 
     checkCodeHasNoErrors(code)
   }
-}
 
+  def testClassWithOverridenAbstract(): Unit = {
+    val javaCode =
+      """
+        |public class Abstracts {
+        |    public static abstract class Base {
+        |        public abstract void first(String s);
+        |    }
+        |
+        |    public static abstract class Derived extends Base {
+        |        @Override
+        |        public void first(String s) {
+        |            second(s);
+        |        }
+        |
+        |        public abstract void second(String s);
+        |    }
+        |}
+      """.stripMargin
+    val code =
+      """
+        |object Test {
+        |  def foo(x: Abstracts.Base) = ???
+        |  def bar(x: Abstracts.Derived) = ???
+        |
+        |  foo(_ => ())
+        |  bar(_ => ())
+        |}
+      """.stripMargin
+
+    checkCodeHasNoErrors(code, Some(javaCode))
+  }
+}

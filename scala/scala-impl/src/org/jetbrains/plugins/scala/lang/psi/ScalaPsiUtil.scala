@@ -1839,7 +1839,8 @@ object ScalaPsiUtil {
       case (cl, substitutor) =>
         def isAbstract(m: PsiMethod): Boolean = m.hasAbstractModifier && m.findSuperMethods().forall(_.hasAbstractModifier)
 
-        val abstractMethods: Array[PsiMethod] = cl.getAllMethods.filter(isAbstract)
+        val visibleMethods = cl.getVisibleSignatures.asScala.map(_.getMethod).toList
+        val abstractMethods = visibleMethods.filter(isAbstract)
 
         // must have exactly one abstract member and SAM must be monomorphic
         val singleAbstract =
