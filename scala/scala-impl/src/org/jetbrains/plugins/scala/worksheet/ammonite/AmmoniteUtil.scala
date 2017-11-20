@@ -144,7 +144,7 @@ object AmmoniteUtil {
     qual(refElement) match {
       case Some(q) if scriptResolvePlugin(q) && refElement.getReference.getCanonicalText == ROOT_IVY => 
         Option(refElement.getContainingFile.getContainingDirectory)
-      case Some(q) if scriptResolveIvy(q) || scriptResolvePlugin(q) =>
+      case Some(q) if scriptResolveIvy(q) || scriptResolvePlugin(q) || q.getReference.refName == ROOT_IVY =>
         findLibrary(refElement) flatMap {
           lib => getResolveItem(lib, refElement.getProject)
         }
