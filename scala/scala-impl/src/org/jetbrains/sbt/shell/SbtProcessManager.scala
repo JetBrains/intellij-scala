@@ -2,7 +2,7 @@ package org.jetbrains.sbt.shell
 
 import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
 
-import com.intellij.debugger.impl.{DebuggerManagerImpl, GenericDebuggerRunnerSettings}
+import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.execution.configurations._
 import com.intellij.execution.process.ColoredProcessHandler
 import com.intellij.openapi.components.AbstractProjectComponent
@@ -47,9 +47,9 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     sbtMajorVersion.presentation match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
       case _ => Seq(
-          s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor" % "$sbtStructureVersion")""",
-          s"""addSbtPlugin("org.jetbrains" % "sbt-idea-shell" % "$sbtIdeaShellVersion")"""
-        ) // works for 0.13.5+, for older versions it will be ignored
+        s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor" % "$sbtStructureVersion")""",
+        s"""addSbtPlugin("org.jetbrains" % "sbt-idea-shell" % "$sbtIdeaShellVersion")"""
+      ) // works for 0.13.5+, for older versions it will be ignored
     }
   }
 
@@ -81,22 +81,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     javaParameters.setWorkingDirectory(workingDir)
     javaParameters.setJarPath(launcher.getCanonicalPath)
 
-    val debugConnection: Option[RemoteConnection] = if (sbtSettings.shellDebugMode) {
-      val debuggerSettings = new GenericDebuggerRunnerSettings()
-      debuggerSettings.setLocal(false)
-      // this will actually patch the javaParameters as a side effect
-      val rc = DebuggerManagerImpl.createDebugParameters(javaParameters, debuggerSettings, true)
-      val vmParams = javaParameters.getVMParametersList
-      vmParams.getParameters.asScala
-        .find(_.contains("address="))
-        .foreach { param =>
-          // if the address is a port only, patch it with the localhost prefix for security reasons
-          val patchedAddress = param.replaceAll("address=\\d+,", s"address=${DebuggerManagerImpl.LOCALHOST_ADDRESS_FALLBACK}:${rc.getAddress},")
-          vmParams.replaceOrPrepend(param, patchedAddress)
-        }
-
-      Option(rc)
-    } else None
+    val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
 
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
@@ -120,6 +105,24 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val cpty = new ColoredProcessHandler(pty)
 
     (cpty, debugConnection)
+  }
+
+  /**
+    * add debug parameters to java parameters and create remote connection
+    * @return
+    */
+  private def addDebugParameters(javaParameters: JavaParameters): RemoteConnection = {
+
+    val host = "localhost"
+    val port = DebuggerUtils.getInstance.findAvailableDebugAddress(true)
+    val remoteConnection = new RemoteConnection(true, host, port, false)
+
+    val shellDebugProperties = s"-agentlib:jdwp=transport=dt_socket,address=$host:$port,suspend=n,server=y"
+    val vmParams = javaParameters.getVMParametersList
+    vmParams.prepend("-Xdebug")
+    vmParams.replaceOrPrepend("-agentlib:jdwp=", shellDebugProperties)
+
+    remoteConnection
   }
 
   private def getSbtSettings(dir: String) = SbtExternalSystemManager.executionSettingsFor(project, dir)
