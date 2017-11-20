@@ -216,7 +216,8 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
     breakpointSemaphore.waitFor(30000)
 
-    (currentSuspendContext(), !getDebugProcess.isAttached)
+    val isAttached = Option(getDebugProcess).exists(_.isAttached)
+    (currentSuspendContext(), !isAttached)
   }
 
   protected def currentSuspendContext() = {
