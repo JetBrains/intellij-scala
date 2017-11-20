@@ -14,6 +14,7 @@ import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder
 import com.intellij.debugger.engine.events.SuspendContextCommandImpl
 import com.intellij.debugger.impl._
+import com.intellij.diagnostic.ThreadDumper
 import com.intellij.execution.Executor
 import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationType}
 import com.intellij.execution.configurations.RunnerSettings
@@ -295,8 +296,13 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     val finished = semaphore.waitFor(timeout.toMillis)
     if (!finished) {
       semaphore.up()
+      val messageWithDump =
+        s"""$timeoutMsg
+           |
+           |${ThreadDumper.dumpThreadsToString()}
+          """.stripMargin
+      Assert.fail(messageWithDump)
     }
-    Assert.assertTrue(timeoutMsg, finished)
     result.get
   }
 
