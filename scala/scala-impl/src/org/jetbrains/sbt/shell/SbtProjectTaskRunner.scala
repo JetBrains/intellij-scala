@@ -5,7 +5,7 @@ import java.util
 import java.util.UUID
 
 import com.intellij.build.events.impl._
-import com.intellij.build.events.{MessageEvent, SuccessResult, Warning}
+import com.intellij.build.events.{BuildEvent, MessageEvent, SuccessResult, Warning}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, FilePosition, events}
 import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.execution.Executor
@@ -142,11 +142,13 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
     viewManager.onEvent(startEvent)
 
+    val outputEvent: String => BuildEvent = msg => new OutputBuildEventImpl(taskId, msg.trim + System.lineSeparator(), true)
     val warnEvent: String => MessageEvent = SbtShellBuildWarning(taskId, _)
-    val errorEvent: String => MessageEvent = buildError(taskId, _)
+    val errorEvent: String => MessageEvent = SbtShellBuildError(taskId, _)
 
     // TODO build events instead of indicator
     val resultAggregator: (BuildMessages,ShellEvent) => BuildMessages = { (messages,event) =>
+
       event match {
         case TaskStart =>
           // handled for main task
@@ -159,18 +161,25 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
           viewManager.onEvent(errorEvent("build interrupted"))
           messages.addError("ERROR: build interrupted")
           messages
-        case Output(text) if text startsWith ERROR_PREFIX =>
-          val msg = text.stripPrefix(ERROR_PREFIX)
-          viewManager.onEvent(errorEvent(msg))
-          messages.addError(msg)
-          messages.appendMessage(text)
-        case Output(text) if text startsWith WARN_PREFIX =>
-          val msg = text.stripPrefix(WARN_PREFIX)
-          viewManager.onEvent(warnEvent(msg))
-          messages.addWarning(msg)
-          messages.appendMessage(text)
-        case Output(text) =>
-          messages.appendMessage(text)
+        case Output(raw) =>
+          val text = raw.trim
+
+          val messagesWithErrors = if (text startsWith ERROR_PREFIX) {
+            val msg = text.stripPrefix(ERROR_PREFIX)
+            // only report first error until we can get a good mapping message -> error
+            if (messages.errors.isEmpty)
+              viewManager.onEvent(errorEvent("errors in build"))
+            messages.addError(msg)
+          } else if (text startsWith WARN_PREFIX) {
+            val msg = text.stripPrefix(WARN_PREFIX)
+            // only report first warning
+            if (messages.warnings.isEmpty)
+              viewManager.onEvent(warnEvent("warnings in build"))
+            messages.addWarning(msg)
+          } else messages
+
+          viewManager.onEvent(outputEvent(text))
+          messagesWithErrors.appendMessage(text)
       }
     }
 
@@ -194,30 +203,27 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
         case Failure(_) => callbackOpt.foreach(_.finished(failedResult))
       }
 
-
     // build state reporting
     commandFuture
       .andThen {
         case Success(messages) =>
-          val result =
+          val (result, resultMessage) =
             if (messages.errors.isEmpty)
-              new SuccessResultImpl
+              (new SuccessResultImpl, "success")
             else {
               val fails: util.List[events.Failure] = messages.errors.asJava
-              new FailureResultImpl(fails)
+              (new FailureResultImpl(fails), "failed")
             }
 
-          val successEvent =
-            new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), "completed", result)
-          viewManager.onEvent(successEvent)
+          val finishEvent =
+            new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), resultMessage, result)
+          viewManager.onEvent(finishEvent)
         case Failure(err) =>
           val failureResult = new FailureResultImpl(err)
-          val failureEvent =
+          val finishEvent =
             new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), "failed", failureResult)
-          viewManager.onEvent(failureEvent)
+          viewManager.onEvent(finishEvent)
       }
-
-
 
     // block thread to make indicator available :(
     Await.ready(commandFuture, Duration.Inf)
@@ -225,7 +231,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
   private val myPattern = fileWithLinePattern(project)
 
-  // TODO figure out if we can filter away irrelevant lines for an error message
+  // TODO unused for now. use this when we can parse error messages so that one output corresponds to one error
   // but probably this needs sbt server support or it gets too messy
   private def buildError(taskId: Any, message: String): MessageEvent = {
     val matcher = myPattern.matcher(message)
@@ -293,4 +299,3 @@ private case class SbtBuildResult(warnings: Seq[String] = Seq.empty) extends Suc
   override def isUpToDate = false
   override def getWarnings: util.List[Warning] = warnings.map(SbtBuildWarning.apply(_) : Warning).asJava
 }
-

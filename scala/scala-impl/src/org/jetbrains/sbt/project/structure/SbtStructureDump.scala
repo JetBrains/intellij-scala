@@ -6,8 +6,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.{Collections, UUID}
 
 import com.intellij.build.SyncViewManager
-import com.intellij.build.events.impl.AbstractBuildEvent
-import com.intellij.build.events.{MessageEvent, MessageEventResult}
+import com.intellij.build.events.MessageEvent
+import com.intellij.build.events.MessageEvent.Kind._
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
@@ -16,15 +16,15 @@ import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, Ext
 import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
 import org.jetbrains.sbt.project.SbtProjectResolver.{ImportCancelledException, path}
+import org.jetbrains.sbt.project.structure.SbtStructureDump._
+import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication._
-import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellRunner}
+import org.jetbrains.sbt.shell.event.{SbtBuildEvent, SbtShellBuildError}
 import org.jetbrains.sbt.using
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
-import SbtStructureDump._
-import org.jetbrains.sbt.shell.event.{SbtBuildEvent, SbtShellBuildError, SbtShellBuildWarning}
 
 class SbtStructureDump {
 
@@ -147,8 +147,6 @@ class SbtStructureDump {
                      viewManager: Option[SyncViewManager],
                      notifications: ExternalSystemTaskNotificationListener): Try[ImportMessages] = {
 
-
-    var lines = 0
     var messages = ImportMessages.empty
 
     def update(textRaw: String): Unit = {
@@ -156,26 +154,20 @@ class SbtStructureDump {
       messages = messages.appendMessage(text)
 
       if (text.nonEmpty) {
-        val buildEv = buildEvent(text, dumpTaskId, ProcessImport)
+        val buildEv = buildEvent(text, SbtProcessBuildWarning(taskId, _), SbtProcessBuildError(taskId, _))
         for {
           event <- buildEv
           vm <- viewManager
         } {
-          import MessageEvent.Kind._
-          vm.onEvent(event)
-          event.getKind match {
-            case WARNING => messages = messages.addWarning(text)
-            case ERROR => messages = messages.addError(text)
-            case INFO | SIMPLE | STATISTICS => //ignore
-          }
+          messages = reportEvent(messages, vm, event)
         }
 
-        lines += 1
         val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
-          dumpTaskId, null, taskDescriptor, lines, -1, "lines")
+          dumpTaskId, null, taskDescriptor, 1, -1, "events")
         val statusEvent = new ExternalSystemTaskExecutionEvent(taskId, progressEvent)
 
         notifications.onStatusChange(statusEvent)
+        notifications.onTaskOutput(taskId, text + System.lineSeparator, true)
       }
     }
 
@@ -218,22 +210,35 @@ object SbtStructureDump {
   private val WARN_PREFIX = "[warn]"
   private val ERROR_PREFIX = "[error]"
 
-  private def buildEvent(line: String, dumpTaskId: String, importType: ImportType): Option[MessageEvent] = {
-    val text = line.trim
+  private def buildEvent(text: String, toWarning: String => MessageEvent, toError: String => MessageEvent): Option[MessageEvent] =
     if (text.startsWith("[warn]")) {
       val strippedText = text.stripPrefix(WARN_PREFIX).trim
-      importType match {
-        case ShellImport => Option(SbtShellBuildWarning(dumpTaskId, strippedText))
-        case ProcessImport => Option(SbtProcessBuildWarning(dumpTaskId, strippedText))
-      }
+      Option(toWarning(strippedText))
     } else if (text.startsWith("[error]")) {
       val strippedText = text.stripPrefix(ERROR_PREFIX).trim
-      importType match {
-        case ShellImport => Option(SbtShellBuildError(dumpTaskId, strippedText))
-        case ProcessImport => Option(SbtProcessBuildError(dumpTaskId, strippedText))
-      }
+      Option(toError(strippedText))
     } else None
-    // okay, that wasn't very nice.
+
+  private def reportEvent(messages: ImportMessages, viewManager:SyncViewManager, event: MessageEvent): ImportMessages = {
+    val taskId = event.getId
+    event.getKind match {
+      case WARNING =>
+        // report only that there is an error, until we can parse output more precisely
+        if (messages.warnings.isEmpty) {
+          val reportedWarning = SbtProcessBuildWarning(taskId, "error during import")
+          viewManager.onEvent(reportedWarning)
+        }
+        messages.addWarning(event.getMessage)
+      case ERROR =>
+        // report only that there is an error, until we can parse output more precisely
+        if (messages.errors.isEmpty) {
+          val reportedError = SbtProcessBuildError(taskId, "error during import")
+          viewManager.onEvent(reportedError)
+        }
+        messages.addError(event.getMessage)
+      case INFO | SIMPLE | STATISTICS =>
+        messages
+    }
   }
 
   private def dumpMessageAggregator(id: ExternalSystemTaskId,
@@ -243,18 +248,18 @@ object SbtStructureDump {
                                     notifications: ExternalSystemTaskNotificationListener,
                                     viewManager: SyncViewManager
                                    ): EventAggregator[ImportMessages] = {
-    case (stats, TaskStart) =>
+    case (messages, TaskStart) =>
       val startEvent = new ExternalSystemStartEventImpl[TaskOperationDescriptor](dumpTaskId, null, taskDescriptor)
       val statusEvent = new ExternalSystemTaskExecutionEvent(id, startEvent)
       notifications.onStatusChange(statusEvent)
-      stats
+      messages
 
-    case (stats, TaskComplete) =>
+    case (messages, TaskComplete) =>
       val result =
-        if (stats.errors.isEmpty)
+        if (messages.errors.isEmpty)
           new SuccessResultImpl(taskDescriptor.getEventTime, System.currentTimeMillis(), true)
         else {
-          val fails = stats.errors.map { msg =>
+          val fails = messages.errors.map { msg =>
             new FailureImpl(msg, msg, Collections.emptyList())
           }
           new FailureResultImpl(taskDescriptor.getEventTime, System.currentTimeMillis(), fails.asJava)
@@ -263,10 +268,10 @@ object SbtStructureDump {
       val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](dumpTaskId, null, taskDescriptor, result)
       val statusEvent = new ExternalSystemTaskExecutionEvent(id, finishEvent)
       notifications.onStatusChange(statusEvent)
-      stats
+      messages
 
-    case (stats, ErrorWaitForInput) =>
-      val msg = "Error importing sbt project. Please check sbt shell output."
+    case (messages, ErrorWaitForInput) =>
+      val msg = "import errors, project reload aborted"
       val ex = new ExternalSystemException(msg)
       val failure = new FailureImpl(msg, "error during sbt import", Collections.emptyList())
       val timestamp = System.currentTimeMillis()
@@ -283,26 +288,23 @@ object SbtStructureDump {
 
       shell.send("i" + System.lineSeparator)
 
-      stats.addError(msg)
+      messages.addError(msg)
 
-    case (stats, Output(text)) =>
+    case (messages, Output(raw)) =>
+      val text = raw.trim
       // report warnings / errors
-      val buildEv = buildEvent(text, dumpTaskId, ShellImport)
+      val buildEv = buildEvent(text, SbtProcessBuildWarning(dumpTaskId, _), SbtShellBuildError(dumpTaskId, _))
+      buildEv.foreach(reportEvent(messages, viewManager, _))
 
-      buildEv.foreach { ev =>
-        viewManager.onEvent(ev)
-      }
-
-      val msgsize = stats.log.length // TODO some more informative metric?
-    val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
-      dumpTaskId, null, taskDescriptor, msgsize, -1, "chars"
-    )
+      val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
+        dumpTaskId, null, taskDescriptor, 1, -1, "events"
+      )
       val event = new ExternalSystemTaskExecutionEvent(id, progressEvent)
 
       notifications.onStatusChange(event)
-      notifications.onTaskOutput(id, text, true)
+      notifications.onTaskOutput(id, text + System.lineSeparator, true)
 
-      stats.appendMessage(text)
+      messages.appendMessage(text)
   }
 
 
