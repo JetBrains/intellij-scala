@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.stepInto
 
+import com.intellij.debugger.engine.SuspendContextImpl
 import com.intellij.debugger.settings.DebuggerSettings
 import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
 import org.jetbrains.plugins.scala.debugger._
@@ -14,9 +15,7 @@ class StepIntoTest extends StepIntoTestBase {
 
   override def testPrivateMethodUsedInLambda(): Unit = {
     runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("PrivateMethodUsedInLambda.scala", "PrivateMethodUsedInLambda$$privateMethod", 3)
+      waitBreakpointAndStepInto("PrivateMethodUsedInLambda.scala", "PrivateMethodUsedInLambda$$privateMethod", 3)
     }
   }
 }
@@ -27,11 +26,15 @@ class StepIntoTest_212 extends StepIntoTestBase {
 }
 
 abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
-  def doStepInto(): Unit = {
-    val stepIntoCommand = getDebugProcess.createStepIntoCommand(suspendContext, false, null)
+  protected def waitBreakpointAndStepInto(fileName: String, methodName: String, line: Int): Unit = {
+    val breakpointCtx = waitForBreakpoint()
+    val stepIntoCommand = getDebugProcess.createStepIntoCommand(breakpointCtx, false, null)
     getDebugProcess.getManagerThread.invokeAndWait(stepIntoCommand)
-    waitForBreakpoint()
+
+    implicit val stepIntoCtx: SuspendContextImpl = waitForBreakpoint()
+    checkLocation(fileName, methodName, line)
   }
+
 
   addFileWithBreakpoints("Simple.scala",
     s"""
@@ -41,7 +44,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |  }
        |}
        |
-        |object AAA {
+       |object AAA {
        |  def foo(s: String) = {
        |    s.substring(1) //should step here
        |  }
@@ -52,9 +55,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   def testSimple() {
     addBreakpoint(2, "Simple.scala")
     runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("Simple.scala", "foo", 9)
+      waitBreakpointAndStepInto("Simple.scala", "foo", 9)
     }
   }
 
@@ -79,9 +80,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   def testConstructor() {
     addBreakpoint(2, "Constructor.scala")
     runDebugger("Constructor") {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("ZZZ.scala", "<init>", 1)
+      waitBreakpointAndStepInto("ZZZ.scala", "<init>", 1)
     }
   }
 
@@ -112,9 +111,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   def testApplyMethod(): Unit = {
     runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("QQQ.scala", "apply", 9)
+      waitBreakpointAndStepInto("QQQ.scala", "apply", 9)
     }
   }
 
@@ -143,9 +140,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   def testIntoPackageObject(): Unit = {
     addBreakpoint(4, "IntoPackageObject.scala")
     runDebugger("test.IntoPackageObject") {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("package.scala", "foo", 3)
+      waitBreakpointAndStepInto("package.scala", "foo", 3)
     }
   }
 
@@ -177,9 +172,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   def testFromPackageObject(): Unit = {
     runDebugger("test1.FromPackageObject") {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("FromPackageObject.scala", "bar", 9)
+      waitBreakpointAndStepInto("FromPackageObject.scala", "bar", 9)
     }
   }
 
@@ -203,9 +196,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   def testWithDefaultParam() {
     runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("EEE.scala", "withDefault", 3)
+      waitBreakpointAndStepInto("EEE.scala", "withDefault", 3)
     }
   }
 
@@ -229,9 +220,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   def testTraitMethod() {
     runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("RRR.scala", "foo", 3)
+      waitBreakpointAndStepInto("RRR.scala", "foo", 3)
     }
   }
 
@@ -259,9 +248,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   def testUnapplyMethod() {
     runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("TTT.scala", "unapply", 2)
+      waitBreakpointAndStepInto("TTT.scala", "unapply", 2)
     }
   }
 
@@ -287,9 +274,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   def testImplicitConversion() {
     runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("ImplicitConversion.scala", "a2B", 7)
+      waitBreakpointAndStepInto("ImplicitConversion.scala", "a2B", 7)
     }
   }
 
@@ -307,9 +292,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   def testLazyVal(): Unit = {
     runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("LazyVal.scala", "lzy$lzycompute", 2)
+      waitBreakpointAndStepInto("LazyVal.scala", "lzy$lzycompute", 2)
     }
   }
 
@@ -332,9 +315,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   def testLazyVal2(): Unit = {
     runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("LazyVal2.scala", "foo", 10)
+      waitBreakpointAndStepInto("LazyVal2.scala", "foo", 10)
     }
   }
 
@@ -364,12 +345,8 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   def testSimpleGetters(): Unit = {
     DebuggerSettings.getInstance().SKIP_GETTERS = true
     runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("SimpleGetters.scala", "main", 7)
-
-      doStepInto()
-      checkLocation("SimpleGetters.scala", "sum", 10)
+      waitBreakpointAndStepInto("SimpleGetters.scala", "main", 7)
+      waitBreakpointAndStepInto("SimpleGetters.scala", "sum", 10)
       DebuggerSettings.getInstance().SKIP_GETTERS = false
     }
   }
@@ -397,12 +374,8 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   def testCustomizedPatternMatching(): Unit = {
     runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("CustomizedPatternMatching.scala", "foo", 8)
-
-      doStepInto()
-      checkLocation("CustomizedPatternMatching.scala", "b", 16)
+      waitBreakpointAndStepInto("CustomizedPatternMatching.scala", "foo", 8)
+      waitBreakpointAndStepInto("CustomizedPatternMatching.scala", "b", 16)
     }
   }
 
@@ -421,9 +394,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   def testPrivateMethodUsedInLambda(): Unit = {
     runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("PrivateMethodUsedInLambda.scala", "privateMethod", 3)
+      waitBreakpointAndStepInto("PrivateMethodUsedInLambda.scala", "privateMethod", 3)
     }
   }
 
@@ -456,17 +427,11 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   def testSpecialization(): Unit = {
     runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("Specialization.scala", "apply$mcII$sp", 3)
-
+      waitBreakpointAndStepInto("Specialization.scala", "apply$mcII$sp", 3)
       resume()
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("Specialization.scala", "apply", 10)
+      waitBreakpointAndStepInto("Specialization.scala", "apply", 10)
     }
   }
-
 
   addFileWithBreakpoints("CustomTraitForwarder.scala",
     s"""|object CustomTraitForwarder {
@@ -500,9 +465,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
     debuggerSettings.SKIP_SYNTHETIC_METHODS = true
     runDebugger() {
       try {
-        waitForBreakpoint()
-        doStepInto()
-        checkLocation("CustomTraitForwarder.scala", "foo", 10)
+        waitBreakpointAndStepInto("CustomTraitForwarder.scala", "foo", 10)
       } finally {
         debuggerSettings.SKIP_SYNTHETIC_METHODS = old
       }

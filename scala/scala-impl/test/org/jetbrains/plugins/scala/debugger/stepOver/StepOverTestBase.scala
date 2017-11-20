@@ -11,7 +11,7 @@ import scala.io.Source
  */
 abstract class StepOverTestBase extends ScalaDebuggerTestCase {
   def doStepOver(): Unit = {
-    val stepOverCommand = getDebugProcess.createStepOverCommand(suspendContext, false)
+    val stepOverCommand = getDebugProcess.createStepOverCommand(currentSuspendContext(), false)
     getDebugProcess.getManagerThread.invokeAndWait(stepOverCommand)
   }
 
@@ -48,11 +48,9 @@ abstract class StepOverTestBase extends ScalaDebuggerTestCase {
   }
 
   private def currentLineNumber: Int = {
-    managed[Integer] {
-      val location = suspendContext.getFrameProxy.location
-      inReadAction {
-        new ScalaPositionManager(getDebugProcess).getSourcePosition(location).getLine
-      }
+    val location = currentLocation()
+    inReadAction {
+      positionManager.getSourcePosition(location).getLine
     }
   }
 }

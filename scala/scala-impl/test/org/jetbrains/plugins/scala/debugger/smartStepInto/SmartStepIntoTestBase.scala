@@ -6,8 +6,9 @@ import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 import org.junit.experimental.categories.Category
-
 import scala.collection.JavaConverters._
+
+import com.intellij.debugger.engine.SuspendContextImpl
 
 /**
  * @author Nikolay.Tropin
@@ -54,15 +55,15 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
       availableSmartStepTargets().find(_.getPresentation == target)
     }
     Assert.assertTrue(s"Cannot find such target: $target", sst.isDefined)
-    doSmartStepInto(sst.get)
+    implicit val ctx: SuspendContextImpl = doSmartStepInto(sst.get)
     checkLocation(source, methodName, line)
   }
 
-  private def doSmartStepInto(target: SmartStepTarget): Unit = {
+  private def doSmartStepInto(target: SmartStepTarget): SuspendContextImpl = {
     val filter = inReadAction {
       handler.createMethodFilter(target)
     }
-    val stepIntoCommand = getDebugProcess.createStepIntoCommand(suspendContext, false, filter)
+    val stepIntoCommand = getDebugProcess.createStepIntoCommand(currentSuspendContext(), false, filter)
     getDebugProcess.getManagerThread.invokeAndWait(stepIntoCommand)
     waitForBreakpoint()
   }

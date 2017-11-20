@@ -24,10 +24,9 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
 
     runDebugger() {
       waitForBreakpoint()
-      val posManager = new ScalaPositionManager(getDebugProcess)
       for ((position, className) <- sourcePositions.zip(expectedClassNames)) {
         val classes = managed {
-          posManager.getAllClasses(position)
+          positionManager.getAllClasses(position)
         }
         val classNames = classes.asScala.map(_.name())
         Assert.assertTrue(
@@ -46,11 +45,10 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
 
     runDebugger() {
       waitForBreakpoint()
-      val posManager = new ScalaPositionManager(getDebugProcess)
 
       def checkSourcePosition(initialPosition: SourcePosition, location: Location) = {
         inReadAction {
-          val newPosition = posManager.getSourcePosition(location)
+          val newPosition = positionManager.getSourcePosition(location)
           Assert.assertEquals(initialPosition.getFile, newPosition.getFile)
           Assert.assertEquals(initialPosition.getLine, newPosition.getLine)
         }
@@ -58,8 +56,8 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
 
       for ((position, locationSet) <- sourcePositions.zip(expectedLocations)) {
         val foundLocations: Set[Loc] = managed {
-          val classes = posManager.getAllClasses(position)
-          val locations = classes.asScala.flatMap(refType => posManager.locationsOfLine(refType, position).asScala)
+          val classes = positionManager.getAllClasses(position)
+          val locations = classes.asScala.flatMap(refType => positionManager.locationsOfLine(refType, position).asScala)
           locations.foreach(checkSourcePosition(position, _))
           locations.map(toSimpleLocation).toSet
         }
