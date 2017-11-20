@@ -211,13 +211,17 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
         breakpointSemaphore.down()
       }
     }
-    Assert.assertTrue("Waiting on manager thread will cause deadlock",
-      !DebuggerManagerThreadImpl.isManagerThread)
+    assertNotManagerThread()
 
     breakpointSemaphore.waitFor(30000)
 
     val isAttached = Option(getDebugProcess).exists(_.isAttached)
     (currentSuspendContext(), !isAttached)
+  }
+
+  private def assertNotManagerThread(): Unit = {
+    Assert.assertTrue("Waiting on manager thread will cause deadlock",
+      !DebuggerManagerThreadImpl.isManagerThread)
   }
 
   protected def currentSuspendContext() = {
@@ -300,6 +304,8 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     val context = currentSuspendContext()
     val process = getDebugProcess
 
+    assertNotManagerThread()
+
     waitScheduledAction(timeout, timeoutMsg, callback) { body =>
       process.getManagerThread.schedule(new SuspendContextCommandImpl(context) {
         override def contextAction(suspendContext: SuspendContextImpl): Unit = body
@@ -308,8 +314,11 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   }
 
   protected def managed[T >: Null](callback: => T): T = {
-    waitScheduledAction(30.seconds, "Too long debugger action", callback) { body =>
-      getDebugProcess.getManagerThread.invoke(() => body)
+    if (DebuggerManagerThreadImpl.isManagerThread) callback
+    else {
+      waitScheduledAction(30.seconds, "Too long debugger action", callback) { body =>
+        getDebugProcess.getManagerThread.invoke(() => body)
+      }
     }
   }
 
