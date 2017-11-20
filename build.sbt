@@ -32,8 +32,8 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
-    .dependsOn(scalaImpl % "test->test;compile->compile", cbt % "test->test;compile->compile")
-    .aggregate(scalaImpl, cbt)
+    .dependsOn(scalaImpl %  "test->test;compile->compile")
+    .aggregate(scalaImpl)
     .settings(
       aggregate.in(updateIdea) := false,
       ideExcludedDirectories := Seq(baseDirectory.value / "target")
@@ -257,9 +257,7 @@ iLoopWrapperPath := baseDirectory.in(compilerJps).value / "resources" / "ILoopWr
 lazy val scalaPluginJarPackager =
   newProject("scalaPluginJarPackager", file("target/tools/scalaPluginJarPackager"))
     .settings(
-      products in Compile :=
-        products.in(scalaImpl, Compile).value ++
-        products.in(cbt, Compile).value,
+      products in Compile := products.in(scalaImpl, Compile).value,
       ideSkipProject := true
     )
 
