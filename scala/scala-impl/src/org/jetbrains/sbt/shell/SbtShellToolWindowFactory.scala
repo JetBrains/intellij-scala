@@ -21,8 +21,6 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
   override def init(toolWindow: ToolWindow): Unit = {
     toolWindow.setStripeTitle(SbtShellToolWindowFactory.title)
     toolWindow.setIcon(Icons.SBT_SHELL_TOOLWINDOW)
-    toolWindow.setAnchor(ToolWindowAnchor.BOTTOM, null)
-    toolWindow.setType(ToolWindowType.DOCKED, null)
 
     val toolwindowId = toolWindow.asInstanceOf[ToolWindowImpl].getId
     val actionId = ActivateToolWindowAction.getActionIdForToolWindow(toolwindowId)
@@ -31,7 +29,7 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
     val pm = SbtProcessManager.forProject(project)
-    pm.openShellRunner()
+    pm.acquireShellRunner.openShell(false)
   }
 
   // don't auto-activate because starting sbt shell is super heavy weight
@@ -53,6 +51,6 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 }
 
 object SbtShellToolWindowFactory {
-  val title = "sbt Shell"
+  val title = "sbt shell"
   val ID = "sbt-shell-toolwindow"
 }

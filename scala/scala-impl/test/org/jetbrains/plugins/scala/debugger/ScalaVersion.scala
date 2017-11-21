@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.debugger
 
+import scala.collection.mutable.ListBuffer
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.TestFixtureProvider
+import org.jetbrains.plugins.scala.{DependencyManager, TestFixtureProvider}
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 
 /**
@@ -47,11 +48,25 @@ trait ScalaSdkOwner {
 
   protected def librariesLoaders: Seq[LibraryLoader]
 
-  protected def setUpLibraries(): Unit =
-    librariesLoaders.foreach(_.init)
+  private lazy val myLoaders: ListBuffer[LibraryLoader] = ListBuffer()
 
-  protected def tearDownLibraries(): Unit =
-    librariesLoaders.foreach(_.clean())
+  protected def setUpLibraries(): Unit = {
+    librariesLoaders.foreach { loader =>
+      myLoaders += loader
+      loader.init
+    }
+  }
+
+  protected def disposeLibraries(): Unit = {
+    myLoaders.foreach(_.clean)
+    myLoaders.clear()
+  }
+
+  /**
+    * @see [[org.jetbrains.plugins.scala.DependencyManager]]
+    */
+  protected def loadIvyDependencies(): Unit = ()
+
 }
 
 // Java compatibility

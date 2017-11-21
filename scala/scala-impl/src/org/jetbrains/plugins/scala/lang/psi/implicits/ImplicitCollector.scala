@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, Typeable}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, MostSpecificUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -351,7 +352,7 @@ class ImplicitCollector(place: PsiElement,
       case typeable: Typeable =>
         val subst = c.substitutor
         typeable.`type`() match {
-          case Success(t: ScType, _) =>
+          case Right(t) =>
             if (!subst.subst(t).conforms(tp))
               reportWrong(c, subst, TypeDoesntConformResult)
             else
@@ -383,9 +384,9 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def updateNonValueType(nonValueType0: ScType): TypeResult[ScType] = {
+  private def updateNonValueType(nonValueType0: ScType): TypeResult = {
     InferUtil.updateAccordingToExpectedType(
-      Success(nonValueType0),
+      Right(nonValueType0),
       fromImplicitParameters = true,
       filterTypeParams = isImplicitConversion,
       expectedType = Some(tp),
@@ -448,7 +449,7 @@ class ImplicitCollector(place: PsiElement,
 
     val nonValueType: ScType =
       try updateNonValueType(nonValueType0) match {
-        case Success(tpe, _) => tpe
+        case Right(tpe) => tpe
         case _ => return wrongTypeParam(BadTypeResult)
       }
       catch {
@@ -580,7 +581,8 @@ class ImplicitCollector(place: PsiElement,
 
     ft match {
       case Some(_funType: ScType) =>
-        val funType = MacroInferUtil.checkMacro(fun, Some(tp), place) getOrElse _funType
+        val macroEvaluator = ScalaMacroEvaluator.getInstance(project)
+        val funType = macroEvaluator.checkMacro(fun, MacroContext(place, Some(tp))) getOrElse _funType
 
         val substedFunTp = substedFunType(fun, funType, subst, withLocalTypeInference, noReturnType) match {
           case Some(t) => t

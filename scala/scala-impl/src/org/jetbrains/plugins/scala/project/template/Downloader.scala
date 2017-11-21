@@ -11,10 +11,14 @@ import org.jetbrains.plugins.scala.project.Platform
   */
 object Downloader {
   def downloadScala(platform: Platform, version: String, listener: String => Unit): Unit = {
+    createTempSbtProject(platform, version, listener, sbtCommandsFor)
+  }
+
+  def createTempSbtProject(platform: Platform, version: String, listener: String => Unit, sbtCommands: (Platform, String) => Seq[String]): Unit = {
     val buffer = new StringBuffer()
 
     usingTempFile("sbt-commands") { file =>
-      writeLinesTo(file, sbtCommandsFor(platform, version): _*)
+      writeLinesTo(file, sbtCommands(platform, version): _*)
       usingTempDirectory("sbt-project") { directory =>
         val process = Runtime.getRuntime.exec(osCommandsFor(file).toArray, null, directory)
 
@@ -30,7 +34,6 @@ object Downloader {
         handler.addProcessListener(listenerAdapter)
         handler.startNotify()
         handler.waitFor()
-
         if (process.exitValue != 0) {
           throw new DownloadException(buffer.toString)
         }

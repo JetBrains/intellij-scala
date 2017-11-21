@@ -36,9 +36,8 @@ class ScalaDocInlinedTagDeleteQuickFix(inlinedTag: ScDocInlinedTag)
         extends AbstractFixOnPsiElement(ScalaBundle.message("delete.inlined.tag"), inlinedTag) {
   override def getFamilyName: String = InspectionsUtil.SCALADOC
 
-  def doApplyFix(project: Project) {
-    val tag = getElement
-    if (!tag.isValid) return
+  override protected def doApplyFix(tag: ScDocInlinedTag)
+                                   (implicit project: Project): Unit = {
     tag.delete()
   }
 }
@@ -47,14 +46,12 @@ class ScalaDocInlinedTagReplaceQuickFix(inlinedTag: ScDocInlinedTag)
         extends AbstractFixOnPsiElement(ScalaBundle.message("replace.with.wiki.syntax"), inlinedTag) {
   override def getFamilyName: String = InspectionsUtil.SCALADOC
 
-  def doApplyFix(project: Project) {
-    val tag = getElement
-    if (!tag.isValid) return
-
+  override protected def doApplyFix(tag: ScDocInlinedTag)
+                                   (implicit project: Project): Unit = {
     val text = Option(tag.getValueElement).map {
       _.getText.replace("`", MyScaladocParsing.escapeSequencesForWiki("`"))
     }.getOrElse("")
 
-    tag.replace(createMonospaceSyntaxFromText(text)(tag.getManager))
+    tag.replace(createMonospaceSyntaxFromText(text))
   }
 }

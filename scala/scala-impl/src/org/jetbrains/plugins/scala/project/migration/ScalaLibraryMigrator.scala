@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.project.migration
 
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationLocalFixHolder, MigrationReport}
-
+import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationReport}
 
 /**
   * User: Dmitry.Naydanov
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, M
 protected trait ScalaLibraryMigrator {
   def migrateGlobal(projectStructure: MigrationApiService): Option[MigrationReport]
 
-  def migrateLocal(file: PsiFile, localFixHolder: MigrationLocalFixHolder): Option[PartialFunction[PsiElement, Any]] 
+  def migrateLocal(file: PsiFile, localFixHolder: ProblemsHolder): Option[PartialFunction[PsiElement, Any]]
 
   def getName: String
   

@@ -28,7 +28,7 @@ object Implementation {
 
   private class Definition(element: PsiElement) extends Implementation {
     override def containsReturn: Boolean = element match {
-      case f: ScFunctionDefinition => f.returnUsages().exists {
+      case f: ScFunctionDefinition => f.returnUsages.exists {
         case _: ScReturnStmt => true
         case _ => false
       }

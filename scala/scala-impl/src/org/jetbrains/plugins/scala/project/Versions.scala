@@ -31,11 +31,12 @@ object Versions  {
         case entity.pattern(number) => number
       })
 
-    loaded
-      .getOrElse(entity.hardcodedVersions)
-      .map(Version(_))
-      .filter(_ >= entity.minVersion)
+      loaded
+        .getOrElse(entity.hardcodedVersions)
+        .map(Version(_))
+        .filter(_ >= entity.minVersion)
     }
+
     allVersions
       .sortWith(_ >= _)
       .map(_.presentation)
@@ -46,7 +47,7 @@ object Versions  {
     loadLinesFrom(url).map { lines => lines.collect(filter) }
   }
 
-  private def loadLinesFrom(url: String): Try[Seq[String]] = {
+  def loadLinesFrom(url: String): Try[Seq[String]] = {
     Try(HttpConfigurable.getInstance().openHttpConnection(url)).map { connection =>
       try {
         Source.fromInputStream(connection.getInputStream).getLines().toVector
@@ -64,7 +65,7 @@ object Versions  {
     val Scala = Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
       Version("2.10.0"),
-      Seq("2.10.6", "2.11.11", "2.12.3"))
+      Seq("2.10.6", "2.11.11", "2.12.4"))
 
     val Sbt013 = Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,

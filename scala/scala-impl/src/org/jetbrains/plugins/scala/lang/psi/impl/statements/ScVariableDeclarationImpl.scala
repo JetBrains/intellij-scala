@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScVariableStub
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 
@@ -30,7 +29,7 @@ class ScVariableDeclarationImpl private (stub: ScVariableStub, node: ASTNode)
 
   override def toString: String = "ScVariableDeclaration: " + ifReadAllowed(declaredNames.mkString(", "))("")
 
-  def `type`(): TypeResult[ScType] = this.flatMapType(typeElement)
+  def `type`(): TypeResult = this.flatMapType(typeElement)
 
   def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 

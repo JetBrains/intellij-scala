@@ -67,16 +67,14 @@ private class EnableFullQualifiedImports extends LocalQuickFix {
 private class MakeFullQualifiedImportFix(q: ScStableCodeReferenceElement, fqn: String)
         extends AbstractFixOnPsiElement(ScalaBundle.message("make.import.fully.qualified"), q) {
 
-  override def doApplyFix(project: Project): Unit = {
-    val ref = getElement
-    if (ref == null || !ref.isValid) return
+  override protected def doApplyFix(ref: ScStableCodeReferenceElement)
+                                   (implicit project: Project): Unit = {
     val newRef = createReferenceFromText(fqn, ref.getContext, ref)
-    import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
-    val newFqn = qual(newRef).resolve() match {
+    val newFqn = RelativeImportInspection.qual(newRef).resolve() match {
       case p: PsiPackage if p.getQualifiedName.contains(".") => "_root_." + fqn
       case _: PsiPackage => fqn
       case _ => "_root_." + fqn
     }
-    ref.replace(createReferenceFromText(newFqn)(ref.getManager))
+    ref.replace(createReferenceFromText(newFqn))
   }
 }

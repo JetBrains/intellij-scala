@@ -25,10 +25,11 @@ abstract class ScalaFixtureTestCase
   override protected def setUp(): Unit = {
     super.setUp()
     setUpLibraries()
+    loadIvyDependencies()
   }
 
   override def tearDown(): Unit = {
-    tearDownLibraries()
+    disposeLibraries()
     super.tearDown()
   }
 }

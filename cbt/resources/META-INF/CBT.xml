@@ -38,7 +38,7 @@
 
 
         <toolWindow id="CBT" anchor="right"
-                    icon="/org/jetbrains/plugins/scala/images/cbt_16.png"
+                    icon="/org/jetbrains/plugins/scala/images/cbt_toolwin.png"
                     factoryClass="org.jetbrains.plugins.cbt.project.CbtToolWindowFactory"
                     conditionClass="org.jetbrains.plugins.cbt.project.CbtToolWindowFactoryCondition"/>
     </extensions>

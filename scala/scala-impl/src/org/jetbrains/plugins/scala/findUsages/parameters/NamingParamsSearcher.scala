@@ -7,7 +7,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.inReadAction
-import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignStmt}
@@ -22,7 +22,7 @@ import scala.collection.mutable
 class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
     val project = queryParameters.getProject
-    val scope = inReadAction(ScalaSourceFilterScope(queryParameters))
+    val scope = inReadAction(ScalaFilterScope(queryParameters))
 
     val data = inReadAction {
       queryParameters.getElementToSearch match {

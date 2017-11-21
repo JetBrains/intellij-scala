@@ -175,7 +175,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   @Cached(ModCount.getBlockModificationCount, this)
   private def getModuleField: Option[PsiField] = {
-    if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this)))) None
+    if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this.getProject)))) None
     else {
       val field: LightField = new LightField(getManager, JavaPsiFacade.getInstance(getProject).getElementFactory.createFieldFromText(
         "public final static " + getQualifiedName + " MODULE$", this

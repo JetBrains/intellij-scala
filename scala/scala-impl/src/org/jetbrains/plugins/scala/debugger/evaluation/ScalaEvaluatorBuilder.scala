@@ -78,8 +78,16 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
 
   override implicit def projectContext: ProjectContext = codeFragment.projectContext
 
-  val contextClass: PsiElement =
-    Option(position).map(pos => getContextClass(pos.getElementAt, strict = false)).orNull
+  val contextClass: PsiElement = {
+    val maybeContextClass =
+      for {
+        pos <- Option(position)
+        elem <- Option(pos.getElementAt)
+      } yield {
+        getContextClass(elem, strict = false)
+      }
+    maybeContextClass.orNull
+  }
 
   def getEvaluator: Evaluator = new UnwrapRefEvaluator(fragmentEvaluator(codeFragment))
 
@@ -143,7 +151,7 @@ private[evaluation] trait SyntheticVariablesHelper {
     result
   }
 
-  protected def createSyntheticVariable(name: String) = currentHolder.setInitialValue(name, null)
+  protected def createSyntheticVariable(name: String): Unit = currentHolder.setInitialValue(name, null)
   protected def syntheticVariableEvaluator(name: String) = new SyntheticVariableEvaluator(currentHolder, name)
 }
 

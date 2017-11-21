@@ -51,10 +51,11 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
   private val settings = ScalaApplicationSettings.getInstance()
 
   override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case expr: ScExpression  =>
-      for (s <- simplifications(expr)) {
-        holder.registerProblem(s.exprToReplace.getElement, s.hint, highlightType, s.rangeInParent, new OperationOnCollectionQuickFix(expr, s))
-      }
+    case expr: ScExpression => simplifications(expr).foreach {
+      case s@Simplification(toReplace, _, hint, rangeInParent) =>
+        val quickFix = OperationOnCollectionQuickFix(s)
+        holder.registerProblem(toReplace.getElement, hint, highlightType, rangeInParent, quickFix)
+    }
   }
 
   def highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING

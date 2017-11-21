@@ -5,7 +5,7 @@ import java.io.{File, IOException}
 import javax.swing.event.HyperlinkEvent
 
 import com.intellij.compiler.server.BuildManager
-import com.intellij.ide.plugins.{PluginManager, IdeaPluginDescriptor}
+import com.intellij.ide.plugins.{IdeaPluginDescriptor, PluginManager}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
@@ -20,6 +20,7 @@ import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
 import gnu.trove.TByteArrayList
 import org.jetbrains.jps.incremental.BuilderService
+import org.jetbrains.plugins.hydra.compiler.HydraCompilerSettingsManager
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{Platform, ProjectExt}
@@ -109,7 +110,7 @@ class CompileServerLauncher extends ApplicationComponent {
         } else Nil
 
         val commands = jdk.executable.canonicalPath +: bootclasspathArg ++: "-cp" +: classpath +: jvmParameters ++: shutdownDelayArg ++:
-                ngRunnerFqn +: freePort.toString +: id.toString +: Nil
+          HydraCompilerSettingsManager.getHydraLogJvmParameter(project) ++: ngRunnerFqn +: freePort.toString +: id.toString +: Nil
 
         val builder = new ProcessBuilder(commands.asJava)
 

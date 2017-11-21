@@ -33,7 +33,7 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       for {
         declared <- variable.declaredType
         expr <- variable.expr
-        tp <- expr.`type`()
+        tp <- expr.`type`().toOption
         if computeBaseTypes(declared, tp).nonEmpty
       } setText(message("make.type.more.specific"))
 
@@ -45,7 +45,7 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       for {
         declared <- value.declaredType
         expr <- value.expr
-        tp <- expr.`type`()
+        tp <- expr.`type`().toOption
         if computeBaseTypes(declared, tp).nonEmpty
       } setText(message("make.type.more.specific"))
 
@@ -57,7 +57,7 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       for {
         declared <- function.returnType
         expr <- function.body
-        tp <- expr.`type`()
+        tp <- expr.`type`().toOption
         if computeBaseTypes(declared, tp).nonEmpty
       } setText(message("make.type.more.specific.fun"))
 

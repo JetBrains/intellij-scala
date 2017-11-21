@@ -16,8 +16,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInl
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
-import scala.{meta=>m}
-import scala.{Seq => _}
+import scala.{meta => m, Seq => _}
 
 trait TreeConverterBuilder {
   self: TreeConverter =>
@@ -49,7 +48,7 @@ trait TreeConverterBuilder {
         ret = m.Defn.Def(convertMods(fun), toTermName(fun),
           Seq(fun.typeParameters map toTypeParams:_*),
           Seq(fun.paramClauses.clauses.map(convertParamClause):_*),
-          fun.definedReturnType.map(toType(_)).toOption,
+          fun.definedReturnType.toOption.map(toType(_)),
           body
         )
       }

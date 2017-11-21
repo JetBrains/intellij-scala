@@ -99,9 +99,11 @@ public class SdkSelectionDialog extends JDialog {
         }
     }
 
-    private int rowIndexOf(String source, String version) {
+    private int rowIndexOf(String location, String platform, String version) {
         for (int i = 0; i < myTable.getRowCount(); i++) {
-            if (source.equals(myTable.getValueAt(i, 0)) && version.equals(myTable.getValueAt(i, 1))) {
+            if (location.equals(myTable.getValueAt(i, 0)) &&
+                    platform.equals(myTable.getValueAt(i, 1)) &&
+                    version.equals(myTable.getValueAt(i, 2))) {
                 return i;
             }
         }
@@ -121,20 +123,22 @@ public class SdkSelectionDialog extends JDialog {
                 format("Downloading %s %s", platform.name(), version),
                 downloadVersion(platform, version));
 
-        if (result.isFailure()) {
-            Throwable exception = ((Failure) result).exception();
-            Messages.showErrorDialog(contentPane, exception.getMessage(),
-                    format("Error Downloading %s %s", platform.name(), version));
-            return;
-        }
+        if (result.isSuccess()) {
+            updateTable();
 
-        updateTable();
+            int rowIndex = rowIndexOf("Ivy", platform.name(), version);
 
-        int rowIndex = rowIndexOf("Ivy", version);
-
-        if (rowIndex >= 0) {
-            myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
-            onOK();
+            if (rowIndex >= 0) {
+                myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
+                onOK();
+            } else {
+                throw new RuntimeException(
+                        format("No %s %s in the Ivy repository", platform.name(), version));
+            }
+        } else {
+            Messages.showErrorDialog(contentPane,
+                    ((Failure) result).exception().getMessage(),
+                    format("Error downloading %s %s", platform.name(), version));
         }
     }
 

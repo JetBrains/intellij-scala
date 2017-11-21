@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIfStmt, ScParenthesisedExpr}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
 
 
@@ -24,8 +25,8 @@ class ScalaWithIfConditionSurrounder extends ScalaExpressionSurrounder {
   override def isApplicable(elements: Array[PsiElement]): Boolean = {
     if (elements.length != 1) return false
     elements(0) match {
-      case x: ScExpression if x.getTypeIgnoreBaseType.getOrAny.
-        conforms(api.Boolean(x.projectContext)) => true
+      case x: ScExpression if x.getTypeIgnoreBaseType.getOrAny
+        .conforms(api.Boolean(x.projectContext)) => true
       case _ => false
     }
   }

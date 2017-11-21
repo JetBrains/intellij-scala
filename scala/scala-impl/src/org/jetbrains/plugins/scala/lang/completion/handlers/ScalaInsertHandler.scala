@@ -3,6 +3,8 @@ package lang
 package completion
 package handlers
 
+import scala.annotation.tailrec
+
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.{AutoPopupController, CodeInsightSettings}
@@ -16,12 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-
-import scala.annotation.tailrec
 
 /**
  * User: Alexander Podkhalyuzin
@@ -165,7 +165,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         endOffset += shift
         editor.getCaretModel.moveToOffset(endOffset + (if (withSomeNum) someNum else 0))
       }
-      val documentText: String = document.getText
+      val documentText = document.getImmutableCharSequence
       val nextChar: Char =
         if (endOffset < document.getTextLength) documentText.charAt(endOffset)
         else 0.toChar
@@ -308,9 +308,11 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
       case _: ScTypeDefinition =>
         if (context.getCompletionChar != '[') {
           //add space between the added element and the '{' in extends block when necessary
-          val documentText = document.getText
-          if (PsiTreeUtil.getParentOfType(element, classOf[ScClassParents], false, classOf[ScExtendsBlock]) != null &&
-            documentText.charAt(endOffset) == '{') {
+          val documentText = document.getImmutableCharSequence
+          val isInClassParents =
+            PsiTreeUtil.getParentOfType(element, classOf[ScClassParents], false, classOf[ScExtendsBlock]) != null
+          val lBraceAtCaret = endOffset < documentText.length() && documentText.charAt(endOffset) == '{'
+          if (lBraceAtCaret && isInClassParents) {
             document.insertString(endOffset, " ")
             endOffset += 1
             editor.getCaretModel.moveToOffset(endOffset)

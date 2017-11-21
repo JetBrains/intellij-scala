@@ -71,9 +71,9 @@ object ScalaOIUtil {
 
   def invokeOverrideImplement(project: Project, editor: Editor, file: PsiFile, isImplement: Boolean,
                               methodName: String = null) {
-    val elem = file.findElementAt(editor.getCaretModel.getOffset - 1)
-    val clazz = PsiTreeUtil.getParentOfType(elem, classOf[ScTemplateDefinition], /*strict = */false)
-    if (clazz == null) return
+    val clazz = file.findElementAt(editor.getCaretModel.getOffset - 1)
+      .parentOfType(classOf[ScTemplateDefinition], strict = false)
+      .getOrElse(return)
 
     val classMembers =
       if (isImplement) getMembersToImplement(clazz, withSelfType = true)

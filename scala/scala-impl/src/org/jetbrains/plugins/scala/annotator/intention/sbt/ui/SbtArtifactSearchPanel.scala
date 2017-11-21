@@ -1,114 +1,53 @@
 package org.jetbrains.plugins.scala.annotator.intention.sbt.ui
 
-import java.awt.{BorderLayout, Component}
+import java.awt.BorderLayout
 import javax.swing._
-import javax.swing.event.{TreeModelListener, TreeSelectionEvent, TreeSelectionListener}
-import javax.swing.tree.{TreeCellRenderer, TreeModel, TreePath, TreeSelectionModel}
+import javax.swing.event._
 
 import com.intellij.icons.AllIcons
-import com.intellij.ui.treeStructure.Tree
-import com.intellij.ui.{ScrollPaneFactory, SimpleColoredComponent, SimpleTextAttributes}
-import com.intellij.util.ui.UIUtil
+import com.intellij.util.text.VersionComparatorUtil.compare
+import com.intellij.ui._
+import com.intellij.ui.components.JBList
 import org.jetbrains.sbt.resolvers.ArtifactInfo
+
+import scala.collection.JavaConverters.asJavaCollectionConverter
 
 /**
   * Created by afonichkin on 7/13/17.
   */
 class SbtArtifactSearchPanel(wizard: SbtArtifactSearchWizard, artifactInfoSet: Set[ArtifactInfo]) extends JPanel {
-  var canGoNext: Boolean = false
-  val myResultList: Tree = new Tree()
+  val myResultList = new JBList[ArtifactInfo]()
 
   init()
 
   def init(): Unit = {
-    myResultList.setExpandableItemsEnabled(false)
+    val artifacts = artifactInfoSet
+      .toSeq
+      .sortWith((a, b) =>
+        a.groupId >= b.groupId &&
+        a.artifactId >= b.artifactId &&
+        compare(a.version, b.version) >= 0
+      )
 
-    if (artifactInfoSet.isEmpty)
-      myResultList.getEmptyText.setText("Nothing to show")
-    else
-      myResultList.getEmptyText.setText("Loading...")
-
-    myResultList.setRootVisible(false)
-    myResultList.setShowsRootHandles(true)
-
-    myResultList.setModel(new MyTreeModel(artifactInfoSet.toSeq))
-    myResultList.getSelectionModel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION)
-
+    myResultList.setModel(new DependencyListModel(artifacts))
+    myResultList.getSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
     setLayout(new BorderLayout())
 
     val pane = ScrollPaneFactory.createScrollPane(myResultList)
     pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS) // Don't remove this line.
-
     add(pane, BorderLayout.CENTER)
 
-    myResultList.setCellRenderer(new MyCellRenderer)
-
-    myResultList.addTreeSelectionListener(new TreeSelectionListener {
-      override def valueChanged(treeSelectionEvent: TreeSelectionEvent): Unit = {
-        canGoNext = treeSelectionEvent.getNewLeadSelectionPath != null
-        wizard.updateWizardButtons()
-      }
-    })
+    myResultList.setCellRenderer(new DependencyListCellRenderer())
+    myResultList.addListSelectionListener((_: ListSelectionEvent) => wizard.updateButtons(false, !myResultList.isSelectionEmpty, true))
   }
 
-  def getResult: Option[ArtifactInfo] = {
-    for (path: TreePath <- myResultList.getSelectionPaths) {
-      path.getLastPathComponent match {
-        case info: ArtifactInfo => return Some(info)
-        case _ =>
-      }
+  private class DependencyListModel(elems: Seq[ArtifactInfo]) extends CollectionListModel[ArtifactInfo](elems.asJavaCollection)
+  private class DependencyListCellRenderer extends ColoredListCellRenderer[ArtifactInfo] {
+    override def customizeCellRenderer(list: JList[_ <: ArtifactInfo], value: ArtifactInfo, index: Int, selected: Boolean, hasFocus: Boolean): Unit = {
+      setIcon(AllIcons.Modules.Library)
+      append(s"${value.groupId}:", SimpleTextAttributes.GRAY_ATTRIBUTES)
+      append(value.artifactId)
+      append(s":${value.version}", SimpleTextAttributes.GRAY_ATTRIBUTES)
     }
-    None
-  }
-
-  private class MyTreeModel(elements: Seq[ArtifactInfo]) extends TreeModel {
-    override def getIndexOfChild(parent: scala.Any, child: scala.Any): Int = elements.indexOf(child)
-
-    override def valueForPathChanged(treePath: TreePath, o: scala.Any): Unit = {}
-
-    override def getChild(parent: scala.Any, index: Int): AnyRef = elements(index)
-
-    override def addTreeModelListener(treeModelListener: TreeModelListener): Unit = {}
-
-    override def isLeaf(node: scala.Any): Boolean = node != elements
-
-    override def removeTreeModelListener(treeModelListener: TreeModelListener): Unit = {}
-
-    override def getChildCount(o: scala.Any): Int = elements.size
-
-    override def getRoot: AnyRef = elements
-  }
-
-  private class MyCellRenderer extends JPanel with TreeCellRenderer {
-    val myComponent: SimpleColoredComponent = new SimpleColoredComponent
-
-    init()
-
-    def init(): Unit = {
-      myComponent.setOpaque(false)
-      myComponent.setIconOpaque(false)
-      add(myComponent)
-    }
-
-    override def getTreeCellRendererComponent(tree: JTree, value: scala.Any, selected: Boolean, expanded: Boolean,
-                                              leaf: Boolean, row: Int, hasFocus: Boolean): Component = {
-      myComponent.clear()
-
-      setBackground(if (selected) UIUtil.getTreeSelectionBackground else tree.getBackground)
-
-      value match {
-        case info: ArtifactInfo =>
-          myComponent.setIcon(AllIcons.Nodes.PpLib)
-          myComponent.append(info.groupId + ":", getGrayAttributes(selected))
-          myComponent.append(info.artifactId, SimpleTextAttributes.REGULAR_ATTRIBUTES)
-          myComponent.append(":" + info.version, getGrayAttributes(selected))
-        case _ =>
-      }
-
-      this
-    }
-
-    private def getGrayAttributes(selected: Boolean): SimpleTextAttributes =
-      if (!selected) SimpleTextAttributes.GRAY_ATTRIBUTES else SimpleTextAttributes.REGULAR_ATTRIBUTES
   }
 }

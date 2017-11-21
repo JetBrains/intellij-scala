@@ -24,9 +24,10 @@ class WithTypeInspection extends AbstractInspection(id, name) {
 }
 
 class ReplaceWithTypeQuickFix(token: PsiElement) extends AbstractFixOnPsiElement(name, token) {
-  override def doApplyFix(project: Project): Unit = getElement match {
-    case element if element.isValid =>
-      element.replace(createElement(tAND.toString, _ => {})(element.getManager))
+
+  override protected def doApplyFix(element: PsiElement)
+                                   (implicit project: Project): Unit = {
+    element.replace(createElement(tAND.toString, _ => {}))
   }
 }
 

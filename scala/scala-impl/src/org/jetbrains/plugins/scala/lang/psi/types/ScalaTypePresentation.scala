@@ -147,19 +147,26 @@ trait ScalaTypePresentation extends api.TypePresentation {
             ta.typeParameters.map(typeParamText(_, ScSubstitutor.empty)).mkString("[", ", ", "]")
           else ""
           val decl = s"type ${ta.name}$paramsText"
-          val defnText = ta match {
+          val defnText: Iterable[String] = ta match {
             case tad: ScTypeAliasDefinition =>
-              tad.aliasedType.map {
-                case tpe if tpe.isNothing => ""
-                case tpe => s" = ${typeText0(tpe)}"
-              }.getOrElse("")
+              tad.aliasedType.toOption
+                .filterNot(_.isNothing)
+                .map(typeText0)
+                .map(" = " + _)
             case _ =>
-              val (lowerBound, upperBound) = (ta.lowerBound.getOrNothing, ta.upperBound.getOrAny)
-              val lowerText = if (lowerBound == Nothing) "" else s" >: ${typeText0(lowerBound)}"
-              val upperText = if (upperBound == Any) "" else s" <: ${typeText0(upperBound)}"
-              lowerText + upperText
+              val maybeLowerText = ta.lowerBound.toOption
+                .filterNot(_.isNothing)
+                .map(typeText0)
+                .map(" >: " + _)
+
+              val maybeUpperText = ta.upperBound.toOption
+                .filterNot(_.isAny)
+                .map(typeText0)
+                .map(" <: " + _)
+
+              maybeLowerText ++ maybeUpperText
           }
-          Seq(decl + defnText)
+          Seq(decl + defnText.mkString)
         case _ => Seq.empty
       }
 

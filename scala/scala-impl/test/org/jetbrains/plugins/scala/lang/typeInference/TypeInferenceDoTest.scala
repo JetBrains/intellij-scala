@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.junit.Assert._
 
 /**
@@ -26,11 +26,11 @@ trait TypeInferenceDoTest {
     val scalaFile: ScalaFile = configureFromFileText(fileName, fileText)
     val expr: ScExpression = findExpression(scalaFile)
     val typez = expr.`type`() match {
-      case Success(t, _) if t.isUnit => expr.getTypeIgnoreBaseType
+      case Right(t) if t.isUnit => expr.getTypeIgnoreBaseType
       case x => x
     }
     typez match {
-      case Success(ttypez, _) =>
+      case Right(ttypez) =>
         val res = ttypez.presentableText
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
         val text = lastPsi.getText

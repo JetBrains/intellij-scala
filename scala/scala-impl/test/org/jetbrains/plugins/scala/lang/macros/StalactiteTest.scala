@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -55,7 +55,7 @@ class StalactiteTest extends ScalaLightCodeInsightFixtureTestAdapter {
       } match {
         case Some(method) =>
           method.returnType match {
-            case Success(t, _) => assertEquals(s"${t.presentableText} != $expectedType", expectedType, t.presentableText)
+            case Right(t) => assertEquals(s"${t.presentableText} != $expectedType", expectedType, t.presentableText)
             case Failure(cause) => fail(cause)
           }
 
@@ -128,13 +128,13 @@ case object <caret>Caz
 
 object StalactiteTest {
 
-  case class StalactiteLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+  case class StalactiteLoader() extends IvyLibraryLoaderAdapter {
     val vendor: String = "com.fommil"
     val name: String = "stalactite"
     val version: String = "0.0.3"
   }
 
-  case class SimulacrumLoader()(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+  case class SimulacrumLoader() extends IvyLibraryLoaderAdapter {
     val vendor: String = "com.github.mpilquist"
     val name: String = "simulacrum"
     val version: String = "0.10.0"

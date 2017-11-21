@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.worksheet.ScalaScriptImportsUtil
 
 import scala.collection.mutable
 import scala.collection.Set
@@ -54,6 +55,6 @@ object ImportTracker {
           }
       }
     }
-    buff.toSeq
+    ScalaScriptImportsUtil.filterScriptImportsInUnused(file, buff.toSeq)
   }
 }

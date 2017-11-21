@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScExistentialType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -43,7 +43,7 @@ abstract class ExistentialSimplificationTestBase extends ScalaLightPlatformCodeI
     val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
     assert(expr != null, "Not specified expression in range to infer type.")
     expr.`type`() match {
-      case Success(ttypez: ScExistentialType, _) =>
+      case Right(ttypez: ScExistentialType) =>
 
         val res = ttypez.simplify().presentableText
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
@@ -55,7 +55,7 @@ abstract class ExistentialSimplificationTestBase extends ScalaLightPlatformCodeI
           case _ => assertTrue("Test result must be in last comment statement.", false)
         }
         assertEquals(output, res)
-      case Success(_, _) => fail("Expression has not existential type")
+      case Right(_) => fail("Expression has not existential type")
       case Failure(msg) => fail(msg)
     }
   }

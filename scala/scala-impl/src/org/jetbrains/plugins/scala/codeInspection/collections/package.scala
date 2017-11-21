@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaRecursiveElemen
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -156,7 +156,7 @@ package object collections {
       import expr.projectContext
 
       expr.`type`() match {
-        case Success(result, _) =>
+        case Right(result) =>
           result match {
             case FunctionType(returnType, _) => returnType.conforms(api.Boolean)
             case _ => false
@@ -367,19 +367,17 @@ package object collections {
     }
   }
 
-  def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = Option(expr).flatMap {
-    _.`type`().toOption
-  }.flatMap {
-    _.tryExtractDesignatorSingleton.extractClass
-  }.exists {
-    qualifiedNameFitToPatterns(_, patterns)
-  }
+  def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean =
+    expr.`type`().toOption.exists(isOfClassFrom(_, patterns))
 
-  private def qualifiedNameFitToPatterns(clazz: PsiClass, patterns: Array[String]) = Option(clazz).flatMap {
-    _.qualifiedName.toOption
-  }.exists {
-    ScalaNamesUtil.nameFitToPatterns(_, patterns, strict = false)
-  }
+  def isOfClassFrom(`type`: ScType, patterns: Array[String]): Boolean =
+    `type`.tryExtractDesignatorSingleton.extractClass.exists(qualifiedNameFitToPatterns(_, patterns))
+
+  private def qualifiedNameFitToPatterns(clazz: PsiClass, patterns: Array[String]) =
+    Option(clazz).flatMap(c => Option(c.qualifiedName))
+      .exists(ScalaNamesUtil.nameFitToPatterns(_, patterns, strict = false))
+
+  def isOption(`type`: ScType): Boolean = isOfClassFrom(`type`, likeOptionClasses)
 
   def isOption(expr: ScExpression): Boolean = isOfClassFrom(expr, likeOptionClasses)
 

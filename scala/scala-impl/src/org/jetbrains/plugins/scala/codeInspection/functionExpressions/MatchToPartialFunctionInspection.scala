@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 import scala.collection.JavaConverters._
@@ -41,7 +40,7 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId) 
 
   private def notExpectedType(expr: ScExpression) = {
     (expr.`type`(), expr.expectedType()) match {
-      case (Success(tpe: ScType, _), Some(expType: ScType)) => !expType.equiv(tpe)
+      case (Right(tpe), Some(expType: ScType)) => !expType.equiv(tpe)
       case _ => true
     }
   }
@@ -93,22 +92,22 @@ object MatchToPartialFunctionInspection {
 
 class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScExpression)
         extends AbstractFixOnTwoPsiElements(inspectionName, matchStmt, fExprToReplace) {
-  def doApplyFix(project: Project) {
-    val mStmt = getFirstElement
-    val fExpr = getSecondElement
+
+  override protected def doApplyFix(mStmt: ScMatchStmt, fExpr: ScExpression)
+                                   (implicit project: Project): Unit = {
     val matchStmtCopy = mStmt.copy.asInstanceOf[ScMatchStmt]
     val leftBrace = matchStmtCopy.findFirstChildByType(ScalaTokenTypes.tLBRACE)
     if (leftBrace == null) return
 
     addNamingPatterns(matchStmtCopy, needNamingPattern(mStmt))
     matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, leftBrace.getPrevSibling)
-    val newBlock = createExpressionFromText(matchStmtCopy.getText)(mStmt.getManager)
+    val newBlock = createExpressionFromText(matchStmtCopy.getText)
     CodeEditUtil.setOldIndentation(newBlock.getNode.asInstanceOf[TreeElement], CodeEditUtil.getOldIndentation(matchStmtCopy.getNode))
     extensions.inWriteAction {
       fExpr.getParent match {
         case (argList: ScArgumentExprList) childOf (call: ScMethodCall) if argList.exprs.size == 1 =>
           val newMethCall =
-            createExpressionFromText(call.getInvokedExpr.getText + " " + newBlock.getText)(fExpr.getManager)
+            createExpressionFromText(call.getInvokedExpr.getText + " " + newBlock.getText)
           call.replace(newMethCall)
         case block@ScBlock(`fExpr`) =>
           block.replace(newBlock)

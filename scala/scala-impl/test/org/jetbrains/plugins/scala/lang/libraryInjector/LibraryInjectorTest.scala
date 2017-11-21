@@ -45,15 +45,13 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
     CompilerTestUtil.enableExternalCompiler()
     DebuggerTestUtil.enableCompileServer(true)
     DebuggerTestUtil.forceJdk8ForBuildProcess()
-
-    setUpLibraries()
   }
 
   protected override def tearDown() {
+    disposeLibraries()
     CompilerTestUtil.disableExternalCompiler(getProject)
     CompileServerLauncher.instance.stop()
 
-    tearDownLibraries()
     super.tearDown()
   }
 
@@ -67,7 +65,7 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
 
 object LibraryInjectorTest {
 
-  case class InjectorLibraryLoader()(implicit val module: Module) extends ThirdPartyLibraryLoader {
+  case class InjectorLibraryLoader() extends ThirdPartyLibraryLoader {
     override protected val name: String = "injector"
 
     override protected def path(implicit sdkVersion: ScalaVersion): String = {

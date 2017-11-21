@@ -35,8 +35,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-
 import scala.collection.{JavaConverters, mutable}
+
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 
 /**
   * @author Alexander Podkhalyuzin
@@ -151,7 +152,7 @@ object ScalaGlobalMembersCompletionContributor {
       ScalaIndexKeys.IMPLICITS_KEY,
       "implicit",
       reference.getContainingFile.getProject,
-      reference.resolveScope,
+      ScalaFilterScope(reference.getProject, reference.resolveScope),
       classOf[ScMember]
     ).asScala
   }

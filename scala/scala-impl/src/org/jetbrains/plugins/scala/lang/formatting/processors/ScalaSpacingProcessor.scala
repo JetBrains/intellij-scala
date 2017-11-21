@@ -38,8 +38,9 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
-
 import scala.annotation.tailrec
+
+import com.intellij.util.text.ImmutableCharSequence
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
@@ -49,8 +50,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     TokenSet.create(BLOCK_EXPR, TEMPLATE_BODY, PACKAGING, TRY_BLOCK, MATCH_STMT, CATCH_BLOCK)
   }
 
-  private def getText(node: ASTNode, fileText: String): String = {
-    node.getTextRange.substring(fileText)
+  private def getText(node: ASTNode, fileText: CharSequence): String = {
+    fileText.substring(node.getTextRange)
   }
 
   private def nextNotWithspace(elem: PsiElement): PsiElement = {
@@ -67,7 +68,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     prev
   }
 
-  private def spacesToPreventNewIds(left: ScalaBlock, right: ScalaBlock, fileText: String, textRange: TextRange): Integer = {
+  private def spacesToPreventNewIds(left: ScalaBlock, right: ScalaBlock, fileText: CharSequence, textRange: TextRange): Integer = {
     if (ScalaXmlTokenTypes.XML_ELEMENTS.contains(left.getNode.getElementType) ||
       ScalaXmlTokenTypes.XML_ELEMENTS.contains(right.getNode.getElementType)) return 0
     @tailrec
@@ -80,7 +81,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val leftNode = dfsChildren(left.myLastNode.getOrElse(left.getNode), _.getChildren(null).toList.reverse)
     val rightNode = dfsChildren(right.getNode, _.getChildren(null).toList)
     val concatString = if (textRange.contains(rightNode.getTextRange) && textRange.contains(leftNode.getTextRange)) {
-      leftNode.getTextRange.substring(fileText) + rightNode.getTextRange.substring(fileText)
+      val left = fileText.substring(leftNode.getTextRange)
+      val right = fileText.substring(rightNode.getTextRange)
+      left + right
     } else return 0
     (leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
       case (ScalaElementTypes.INTERPOLATED_STRING_LITERAL, _) => 0
@@ -111,7 +114,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val leftNode = left.getNode
     val rightNode = right.getNode
     val fileText = Option(PsiDocumentManager.getInstance(leftNode.getPsi.getProject)).
-      flatMap(m => Option(m.getDocument(leftNode.getPsi.getContainingFile))).map(_.getText).
+      flatMap(m => Option(m.getDocument(leftNode.getPsi.getContainingFile))).map(_.getImmutableCharSequence).
       getOrElse(leftNode.getPsi.getContainingFile.getText)
 
     //new formatter spacing
@@ -130,8 +133,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         LOG.error("File text: \n%s\n\nDoesn't contains nodes:\n(%s, %s)".
           format(fileText, leftPsi.getText, rightPsi.getText))
         (leftPsi.getText, rightPsi.getText)
-      } else (left.getTextRange.substring(fileText),
-            right.getTextRange.substring(fileText))
+      } else (fileText.substring(left.getTextRange),
+            fileText.substring(right.getTextRange))
 
     val spacesMin: Integer = spacesToPreventNewIds(left, right, fileText, fileTextRange)
     val WITHOUT_SPACING = getSpacing(keepBlankLinesInCode, spacesMin, 0)
@@ -339,7 +342,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case l: ScLiteral if l.isMultiLineString && rightNode == leftNode =>
         val marginChar = "" + MultilineStringUtil.getMarginChar(leftPsi)
 
-        return if (allLinesHaveMargin(l.getTextRange.substring(fileText)) &&
+        return if (allLinesHaveMargin(fileText.substring(l.getTextRange)) &&
           (leftString != marginChar || rightString == marginChar)) NO_SPACING_WITH_NEWLINE else Spacing.getReadOnlySpacing
       case _ =>
     }
@@ -1154,7 +1157,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaTokenTypes.tFUNTYPE, ScalaElementTypes.BLOCK, ScalaElementTypes.FUNCTION_EXPR, _)
         if !scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE =>
         if (rightString.startsWith("{")) WITH_SPACING
-        else if (leftNode.getTreeParent.getTextRange.substring(fileText).contains("\n")) ON_NEW_LINE
+        else if (fileText.substring(leftNode.getTreeParent.getTextRange).contains("\n")) ON_NEW_LINE
         else WITH_SPACING
       //annotation
       case (_, ScalaElementTypes.ANNOTATIONS, ScalaElementTypes.ANNOT_TYPE, _) => WITHOUT_SPACING

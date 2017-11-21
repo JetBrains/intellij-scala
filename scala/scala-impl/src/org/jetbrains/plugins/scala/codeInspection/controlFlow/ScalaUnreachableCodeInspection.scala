@@ -90,27 +90,23 @@ class ScalaUnreachableCodeInspection extends AbstractInspection("ScalaUnreachabl
 }
 
 class RemoveFragmentQuickFix(fragment: Seq[PsiElement]) extends AbstractFixOnPsiElement("Remove unreachable code", fragment.head, fragment.last){
-  override def doApplyFix(project: Project): Unit = {
-    val startElement: PsiElement = getStartElement
-    if (startElement == null) return
 
-    val parent = startElement.getParent
-    val endElem = getEndElement
-    if (endElem != null)
-      parent.deleteChildRange(startElement, getEndElement)
-    else startElement.delete()
+  override protected def doApplyFix(element: PsiElement)
+                                   (implicit project: Project): Unit = {
+    getEndElement match {
+      case null => element.delete()
+      case endElement => element.getParent.deleteChildRange(element, endElement)
+    }
   }
 }
 
 class UnwrapDoStmtFix(doStmt: ScDoStmt) extends AbstractFixOnPsiElement("Unwrap do-statement", doStmt) {
-  override def doApplyFix(project: Project): Unit = {
-    val doSt = Option(getElement)
-    doSt.flatMap(_.getExprBody) match {
-      case Some(_) =>
-        val unwrapContext = new ScalaUnwrapContext
-        unwrapContext.setIsEffective(true)
-        new ScalaWhileUnwrapper().doUnwrap(doSt.get, unwrapContext)
-      case _ =>
+
+  override protected def doApplyFix(doSt: ScDoStmt)(implicit project: Project): Unit = {
+    doSt.getExprBody.foreach { _ =>
+      val unwrapContext = new ScalaUnwrapContext
+      unwrapContext.setIsEffective(true)
+      new ScalaWhileUnwrapper().doUnwrap(doSt, unwrapContext)
     }
   }
 }

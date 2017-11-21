@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator.intention.sbt
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.intention.sbt.SbtDependenciesVisitor._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -10,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
@@ -25,6 +26,8 @@ object AddSbtDependencyUtils {
   val SBT_PROJECT_TYPE = "_root_.sbt.Project"
   val SBT_SEQ_TYPE = "_root_.scala.collection.Seq"
   val SBT_SETTING_TYPE = "_root_.sbt.Def.Setting"
+
+  private val InfixOpsSet = Set(":=", "+=", "++=")
 
   def getPossiblePlacesToAddFromProjectDefinition(proj: ScPatternDefinition): Seq[PsiElement] = {
     var res: Seq[PsiElement] = List()
@@ -60,7 +63,7 @@ object AddSbtDependencyUtils {
         if (pat.expr.isEmpty)
           return
 
-        if (pat.expr.get.`type`().get.canonicalText != SBT_PROJECT_TYPE)
+        if (pat.expr.get.`type`().getOrAny.canonicalText != SBT_PROJECT_TYPE)
           return
 
         res = res ++ Seq(pat)
@@ -141,19 +144,17 @@ object AddSbtDependencyUtils {
     }
   }
 
-  def addDependencyToSeq(seqCall: ScMethodCall, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] =
-    for {
-      formalSeq <- ScalaPsiElementFactory.createTypeFromText(SBT_SEQ_TYPE, seqCall, seqCall)
-      formalSetting <- ScalaPsiElementFactory.createTypeFromText(SBT_SETTING_TYPE, seqCall, seqCall)
-      Typeable(ParameterizedType(designator, typeArguments)) <- Some(seqCall)
-      if designator.equiv(formalSeq)
-      Typeable(ParameterizedType(innerDesignator, _)) <- typeArguments.headOption
-      if innerDesignator.equiv(formalSetting)
-    } yield {
-      val addedExpr: ScInfixExpr = generateLibraryDependency(info)
-      doInSbtWriteCommandAction(seqCall.args.addExpr(addedExpr), seqCall.getContainingFile)
-      addedExpr
+  def addDependencyToSeq(seqCall: ScMethodCall, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] = {
+    def isValid(expr: ScInfixExpr) = InfixOpsSet.contains(expr.operation.refName)
+    val parentDef = Option(PsiTreeUtil.getParentOfType(seqCall, classOf[ScInfixExpr]))
+    val addedExpr = parentDef match {
+      case Some(expr) if isValid(expr) && expr.lOp.textMatches(LIBRARY_DEPENDENCIES) =>
+        generateArtifactPsiExpression(info)
+      case _ => generateLibraryDependency(info)
     }
+    doInSbtWriteCommandAction(seqCall.args.addExpr(addedExpr), seqCall.getContainingFile)
+    Some(addedExpr)
+  }
 
   def addDependencyToTypedSeq(typedSeq: ScTypedStmt, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] =
     typedSeq.expr match {
@@ -226,15 +227,20 @@ object AddSbtDependencyUtils {
 
   private def generateNewLine(implicit ctx: ProjectContext): PsiElement = ScalaPsiElementFactory.createElementFromText("\n")
 
-  private def generateArtifactText(info: ArtifactInfo): String =
-    s""""${info.groupId}" % "${info.artifactId}" % "${info.version}""""
+  private def generateArtifactText(info: ArtifactInfo): String = {
+    if (info.artifactId.matches("^.+_\\d+\\.\\d+$"))
+      s""""${info.groupId}" %% "${info.artifactId.replaceAll("_\\d+\\.\\d+$", "")}" % "${info.version}""""
+    else
+      s""""${info.groupId}" % "${info.artifactId}" % "${info.version}""""
+  }
 
-  def getRelativePath(elem: PsiElement)(implicit project: ProjectContext): Option[String] =
+  def getRelativePath(elem: PsiElement)(implicit project: ProjectContext): Option[String] = {
     for {
       path <- Option(elem.getContainingFile.getVirtualFile.getCanonicalPath)
-      if !path.startsWith(project.getBasePath)
+      if path.startsWith(project.getBasePath)
     } yield
       path.substring(project.getBasePath.length + 1)
+  }
 
   def toDependencyPlaceInfo(elem: PsiElement, affectedProjects: Seq[String])(implicit ctx: ProjectContext): Option[DependencyPlaceInfo] = {
     val offset =

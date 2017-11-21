@@ -37,7 +37,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
           val table = ProjectJdkTable.getInstance()
           if (!table.getAllJdks.contains(sdk)) table.addJdk(sdk)
         }
-        true
+        false
       }
     }
 

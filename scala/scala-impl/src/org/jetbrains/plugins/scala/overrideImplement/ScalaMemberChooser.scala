@@ -127,7 +127,7 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
 
   private def typeAnnotationNeeded(element: PsiElement): Boolean =
     ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
-      Declaration(element), Location(targetClass), implementation = None)
+      Declaration(element), Location.inside(targetClass), implementation = None)
 }
 
 object ScalaMemberChooser {

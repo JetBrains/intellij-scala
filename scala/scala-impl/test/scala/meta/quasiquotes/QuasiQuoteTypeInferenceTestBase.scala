@@ -7,8 +7,8 @@ import scala.meta.ScalaMetaLibrariesOwner
 
 abstract class QuasiQuoteTypeInferenceTestBase extends TypeInferenceTestBase with ScalaMetaLibrariesOwner {
 
-  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
-    super.additionalLibraries()
+  override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
+    super[ScalaMetaLibrariesOwner].additionalLibraries()
 
   override protected def doTest(fileText: String): Unit =
     super.doTest(

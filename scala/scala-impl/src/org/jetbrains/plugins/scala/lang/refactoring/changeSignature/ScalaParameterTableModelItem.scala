@@ -5,6 +5,7 @@ import com.intellij.refactoring.changeSignature.ParameterTableModelItemBase
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 import scala.collection.mutable.ListBuffer
 
@@ -52,13 +53,14 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
     if (parameter.isByName && parameter.isRepeatedParameter) {
       problems += "Parameter could not be repeated and by-name in the same time"
     }
-    val typeElem = ScalaPsiElementFactory.createTypeElementFromText(trimmed, typeCodeFragment, typeCodeFragment)
-    if (typeElem == null || typeElem.`type`().isEmpty) {
-      problems += s"Could not understand type $trimmed"
-      parameter.scType = null
+
+    parameter.scType = ScalaPsiElementFactory.createTypeElementFromText(trimmed, typeCodeFragment, typeCodeFragment) match {
+      case Typeable(scType) => scType
+      case _ => null
     }
-    else {
-      parameter.scType = typeElem.`type`().getOrAny
+
+    if (parameter.scType == null) {
+      problems += s"Could not understand type $trimmed"
     }
   }
 

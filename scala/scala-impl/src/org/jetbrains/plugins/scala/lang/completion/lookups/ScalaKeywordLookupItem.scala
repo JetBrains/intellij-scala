@@ -43,7 +43,7 @@ object ScalaKeywordLookupItem {
             }
 
             context.setAddCompletionChar(addCompletionChar)
-            if (document.getTextLength <= offset || document.getText.charAt(offset) != ' ')
+            if (document.getTextLength <= offset || document.getImmutableCharSequence.charAt(offset) != ' ')
               document.insertString(offset, " ")
             editor.getCaretModel.moveToOffset(offset + 1)
           }

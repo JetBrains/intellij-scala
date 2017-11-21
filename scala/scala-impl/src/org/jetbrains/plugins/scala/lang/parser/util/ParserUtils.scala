@@ -5,11 +5,15 @@ package util
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiBuilder.Marker
+import com.intellij.lang.impl.PsiBuilderAdapter
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.PsiFile
+import com.intellij.psi.impl.source.resolve.FileContextUtil
 import com.intellij.psi.tree.{IElementType, TokenSet}
+import com.intellij.testFramework.LightVirtualFileBase
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import org.jetbrains.plugins.scala.util.DebugPrint
 
 import scala.annotation.tailrec
@@ -17,7 +21,6 @@ import scala.collection.immutable.IndexedSeq
 
 
 object ParserUtils extends ParserUtilsBase {
-
   def lookAheadSeq(n: Int)(builder: PsiBuilder): IndexedSeq[IElementType] = (1 to n).map(_ => {
     val token = if (!builder.eof) builder.getTokenType else null
     builder.advanceLexer()
@@ -185,8 +188,11 @@ object ParserUtils extends ParserUtilsBase {
     else 1
   }
   
-  def isTrailingCommasEnabled(builder: ScalaPsiBuilder): Boolean = 
-    ScalaProjectSettings.getInstance(builder.getProject).isTrailingCommasEnabled
+  def isTrailingCommasEnabled(builder: ScalaPsiBuilder): Boolean = {
+    ApplicationManager.getApplication.isUnitTestMode && 
+      getPsiFile(builder).exists(file => file.getVirtualFile.isInstanceOf[LightVirtualFileBase]) ||
+      builder.asInstanceOf[ScalaPsiBuilderImpl].isTrailingCommasEnabled
+  }
 
   def isTrailingComma(builder: ScalaPsiBuilder, expectedBrace: IElementType): Boolean = {
     if (builder.getTokenType != ScalaTokenTypes.tCOMMA) return false
@@ -209,5 +215,14 @@ object ParserUtils extends ParserUtilsBase {
     builder.advanceLexer() //eat `,`
 
     true
+  }
+  
+  def getPsiFile(builder: PsiBuilder): Option[PsiFile] = {
+    val delegate = builder match {
+      case adapterBuilder: PsiBuilderAdapter => adapterBuilder.getDelegate
+      case _ => builder
+    }
+    
+    Option(delegate.getUserDataUnprotected(FileContextUtil.CONTAINING_FILE_KEY))
   }
 }

@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParame
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, ScTypeExt, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
@@ -29,14 +28,14 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
         ta match {
           case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
             ta.aliasedType match {
-              case Success(tp, _) =>
+              case Right(tp) =>
                 tp match {
                   case ParameterizedType(des, typeArgs) =>
                     val taArgs = ta.typeParameters
                     if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
                       case (tParam: ScTypeParam, TypeParameterType(_, _, _, param)) if tParam == param => true
                       case _ => false
-                    }) return Some(AliasType(ta, Success(des), Success(des)))
+                    }) return Some(AliasType(ta, Right(des), Right(des)))
                   case _ =>
                 }
               case _ =>

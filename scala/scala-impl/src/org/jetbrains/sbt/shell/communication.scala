@@ -36,7 +36,7 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
                  eventHandler: EventAggregator[A],
                  showShell: Boolean): Future[A] = {
     val listener = new CommandListener(default, eventHandler)
-    if (showShell) process.openShellRunner()
+    process.acquireShellRunner
     commands.put((cmd, listener))
     listener.future
   }
@@ -74,14 +74,16 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
         val (cmd, listener) = next
 
         listener.started()
-        process.attachListener(listener)
+
+        val handler = process.acquireShellProcessHandler
+        handler.addProcessListener(listener)
 
         process.usingWriter { shell =>
           shell.println(cmd)
           shell.flush()
         }
         listener.future.onComplete { _ =>
-          process.removeListener(listener)
+          handler.removeProcessListener(listener)
         }
       } else shellQueueReady.release()
     }
@@ -114,13 +116,18 @@ object SbtShellCommunication {
   sealed trait ShellEvent
   case object TaskStart extends ShellEvent
   case object TaskComplete extends ShellEvent
+  case object ErrorWaitForInput extends ShellEvent
   case class Output(line: String) extends ShellEvent
+
+  sealed trait ErrorReaction
+  case object Quit extends ErrorReaction
+  case object Ignore extends ErrorReaction
 
   type EventAggregator[A] = (A, ShellEvent) => A
 
   /** Aggregates the output of a shell task. */
   val messageAggregator: EventAggregator[StringBuilder] = (builder, e) => e match {
-    case TaskStart | TaskComplete => builder
+    case TaskStart | TaskComplete | ErrorWaitForInput => builder
     case Output(text) => builder.append("\n").append(text)
   }
 
@@ -155,6 +162,8 @@ private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[
     if (!promise.isCompleted && promptReady(text)) {
       aggregate(TaskComplete)
       promise.complete(Success(a))
+    } else if (promptError(text)) {
+      aggregate(ErrorWaitForInput)
     } else {
       aggregate(Output(text))
     }
@@ -173,7 +182,8 @@ class SbtShellReadyListener(whenReady: =>Unit, whenWorking: =>Unit) extends Line
   private var readyState: Boolean = false
 
   def onLine(line: String): Unit = {
-    val sbtReady = promptReady(line)
+    val sbtReady = promptReady(line) || (readyState && debuggerMessage(line))
+
     if (sbtReady && !readyState) {
       readyState = true
       whenReady
@@ -190,10 +200,15 @@ private[shell] object SbtProcessUtil {
   val IDEA_PROMPT_MARKER = "[IJ]"
 
   // the prompt marker is inserted by the sbt-idea-shell plugin
-  def promptReady(line: String): Boolean = line.trim match {
-    case x if x.startsWith(IDEA_PROMPT_MARKER) => true
-    case _ => false
-  }
+  def promptReady(line: String): Boolean =
+    line.trim.startsWith(IDEA_PROMPT_MARKER)
+
+  def promptError(line: String): Boolean =
+    line.contains("(r)etry, (q)uit, (l)ast, or (i)gnore")
+
+  // sucky workaround for jdwp printling this line on the console when deactivating debugger
+  def debuggerMessage(line: String): Boolean =
+    line.contains("Listening for transport")
 }
 
 /**
@@ -221,7 +236,8 @@ private[shell] abstract class LineListener extends ProcessAdapter with AnsiEscap
       case t =>
         builder.append(t)
         val lineSoFar = builder.result()
-        if (promptReady(lineSoFar)) lineDone()
+        if (promptReady(lineSoFar) || promptError(lineSoFar))
+          lineDone()
     }
   }
 

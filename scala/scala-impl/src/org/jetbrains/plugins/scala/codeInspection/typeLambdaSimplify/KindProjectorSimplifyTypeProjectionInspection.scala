@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * Author: Svyatoslav Ilinskiy
@@ -63,7 +63,7 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
       }
 
       alias.aliasedType match {
-        case Success(paramType: ScParameterizedType, _) =>
+        case Right(paramType: ScParameterizedType) =>
           val typeParam: Seq[ScTypeParam] = alias.typeParameters
           val valid =
             typeParam.nonEmpty &&
@@ -166,11 +166,10 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
 
 class KindProjectorSimplifyTypeProjectionQuickFix(e: PsiElement, replacement: => String) extends
 AbstractFixOnPsiElement(inspectionName, e) {
-  override def doApplyFix(project: Project): Unit = {
-    val elem = getElement
-    if (!elem.isValid) return
 
-    elem.replace(createTypeElementFromText(replacement)(elem.getManager))
+  override protected def doApplyFix(elem: PsiElement)
+                                   (implicit project: Project): Unit = {
+    elem.replace(createTypeElementFromText(replacement))
   }
 }
 

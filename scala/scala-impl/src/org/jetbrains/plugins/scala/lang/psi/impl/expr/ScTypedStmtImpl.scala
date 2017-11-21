@@ -5,21 +5,17 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * @author Alexander Podkhalyuzin
  * Date: 06.03.2008
  */
 
-class ScTypedStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypedStmt {
-  override def toString: String = "TypedStatement"
+class ScTypedStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTypedStmt {
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     typeElement match {
       case Some(te) => te.`type`()
       case None if !expr.isInstanceOf[ScUnderscoreSection] => expr.`type`()
@@ -27,14 +23,5 @@ class ScTypedStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTy
     }
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
-    visitor.visitTypedStmt(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => visitor.visitTypedStmt(this)
-      case _ => super.accept(visitor)
-    }
-  }
+  override def toString: String = "TypedStatement"
 }

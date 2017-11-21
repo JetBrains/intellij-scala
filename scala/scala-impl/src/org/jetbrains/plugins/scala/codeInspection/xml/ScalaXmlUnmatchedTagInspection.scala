@@ -57,10 +57,8 @@ class DeleteUnmatchedTagQuickFix(s: ScalaPsiElement)
         extends AbstractFixOnPsiElement(ScalaBundle.message("xml.delete.unmatched.tag"), s) {
   override def getFamilyName: String = InspectionsUtil.SCALA
 
-  def doApplyFix(project: Project) {
-    val elem = getElement
-    if (!elem.isValid) return
-
+  override protected def doApplyFix(elem: ScalaPsiElement)
+                                   (implicit project: Project): Unit = {
     elem.delete()
   }
 }
@@ -69,11 +67,9 @@ class RenameClosingTagQuickFix(s: ScXmlStartTag)
         extends AbstractFixOnPsiElement(ScalaBundle.message("xml.rename.closing.tag"), s) {
   override def getFamilyName: String = InspectionsUtil.SCALA
 
-  def doApplyFix(project: Project) {
-    val elem = getElement
-    if (!elem.isValid) return
-
-    elem.getClosingTag.replace(createXmlEndTag(elem.getTagName)(elem.getManager))
+  override protected def doApplyFix(elem: ScXmlStartTag)
+                                   (implicit project: Project): Unit = {
+    elem.getClosingTag.replace(createXmlEndTag(elem.getTagName))
   }
 }
 
@@ -81,14 +77,14 @@ class RenameOpeningTagQuickFix(s: ScXmlEndTag)
         extends AbstractFixOnPsiElement(ScalaBundle.message("xml.rename.opening.tag"), s) {
   override def getFamilyName: String = InspectionsUtil.SCALA
 
-  def doApplyFix(project: Project) {
-    val elem = getElement
-    if (!elem.isValid) return
+
+  override protected def doApplyFix(elem: ScXmlEndTag)
+                                   (implicit project: Project): Unit = {
     val openingTag = elem.getOpeningTag
     val attributes = openingTag.findChildrenByType(ScalaElementTypes.XML_ATTRIBUTE).map(_.getText)
 
     elem.getOpeningTag.replace(createXmlStartTag(elem.getTagName,
-      if (attributes.isEmpty) "" else attributes.mkString(" ", " ", ""))(elem.getManager))
+      if (attributes.isEmpty) "" else attributes.mkString(" ", " ", "")))
   }
 }
 

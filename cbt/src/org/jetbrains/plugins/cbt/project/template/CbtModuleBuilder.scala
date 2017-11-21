@@ -164,7 +164,6 @@ class CbtModuleBuilder
 
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
     getExternalProjectSettings.isCbt = false
-    getExternalProjectSettings.useCbtForInternalTasks = selections.useCbtForInternalTasks
     getExternalProjectSettings.useDirect = selections.useDirect
     super.createModule(moduleModel)
   }
@@ -203,7 +202,7 @@ class CbtModuleBuilder
 object CbtModuleBuilder {
   val templates: Seq[CbtTemplate] =
     Seq(
-      new DefaultCbtTemplate,
-      new Giter8CbtTemplate("darthorimar/cbt-seed.g8")
+      new DefaultCbtTemplate
+//      new Giter8CbtTemplate("darthorimar/cbt-seed.g8")
     )
 }

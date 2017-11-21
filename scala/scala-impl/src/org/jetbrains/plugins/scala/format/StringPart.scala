@@ -7,8 +7,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.ScalaType.expandAliases
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -55,21 +55,16 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
     case _ => false
   }
 
-  def problem: Option[InjectionProblem] = specifier.flatMap {
-    it =>
-      val _type = expressionType.map(ScalaType.expandAliases(_)).getOrElse(new Object())
-      _type match {
-        case Success(result, _) => result match {
-          case res: ScType =>
-            try {
-              val value = Types.valueOf(res)
-              value.formatted(it.format)
-              None
-            } catch {
-              case _: IllegalFormatConversionException => Some(Inapplicable)
-              case _: IllegalFormatException => Some(Malformed)
-            }
-          case _ => Some(Malformed)
+  def problem: Option[InjectionProblem] = specifier.flatMap { it =>
+    expressionType.flatMap(expandAliases(_).toOption) match {
+      case Some(result) =>
+        try {
+          val value = Types.valueOf(result)
+          value.formatted(it.format)
+          None
+        } catch {
+          case _: IllegalFormatConversionException => Some(Inapplicable)
+          case _: IllegalFormatException => Some(Malformed)
         }
         case _ => Some(Malformed)
       }

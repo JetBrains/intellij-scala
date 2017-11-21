@@ -13,13 +13,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends IntentionAction {
 
   val getText: String = {
     val (oldTypeDescripton, newTypeDescription) = typeElement.`type`() match {
-      case Success(oldType, _) => ScTypePresentation.different(oldType, newType)
+      case Right(oldType) => ScTypePresentation.different(oldType, newType)
       case _ => (typeElement.getText, newType.presentableText)
     }
     s"Change type '$oldTypeDescripton' to '$newTypeDescription'"

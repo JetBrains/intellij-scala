@@ -4,7 +4,6 @@ package codeInspection.syntacticSimplification
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ConvertibleToMethodValueInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
@@ -19,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -41,10 +40,8 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
       if (allArgsUnderscores(args) && qualOpt.forall(onlyStableValuesUsed))
         registerProblem(holder, expr, InspectionBundle.message("convertible.to.method.value.anonymous.hint"))
     case und: ScUnderscoreSection if und.bindingExpr.isDefined =>
-      val isInParameterOfParameterizedClass = PsiTreeUtil.getParentOfType(und, classOf[ScClassParameter]) match {
-        case null => false
-        case cp => cp.containingClass.hasTypeParameters
-      }
+      val isInParameterOfParameterizedClass = und.parentOfType(classOf[ScClassParameter])
+        .exists(_.containingClass.hasTypeParameters)
       def mayReplace() = und.bindingExpr.get match {
         case ResolvesTo(fun) if hasByNameParam(fun) => false
         case ScReferenceExpression.withQualifier(qual) => onlyStableValuesUsed(qual)
@@ -103,7 +100,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
         conformsExpected(oldExpr) && conformsExpected(newExpr) && oldExpr.`type`().getOrAny.conforms(newExpr.`type`().getOrNothing)
       case None if newExprText endsWith "_" =>
         (oldExpr.`type`(), newExpr.`type`()) match {
-          case (Success(oldType, _), Success(newType, _)) => oldType.equiv(newType)
+          case (Right(oldType), Right(newType)) => oldType.equiv(newType)
           case _ => false
         }
       case _ => false
@@ -128,12 +125,11 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
 }
 
 class ConvertibleToMethodValueQuickFix(expr: ScExpression, replacement: String, hint: String)
-        extends AbstractFixOnPsiElement(hint, expr){
+  extends AbstractFixOnPsiElement(hint, expr) {
 
-  def doApplyFix(project: Project) {
-    val scExpr = getElement
-    if (!scExpr.isValid) return
-    val newExpr = createExpressionFromText(replacement)(scExpr.getManager)
+  override protected def doApplyFix(scExpr: ScExpression)
+                                   (implicit project: Project): Unit = {
+    val newExpr = createExpressionFromText(replacement)
     scExpr.replaceExpression(newExpr, removeParenthesis = true)
   }
 }

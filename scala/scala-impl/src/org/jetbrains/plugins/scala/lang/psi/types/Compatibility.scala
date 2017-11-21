@@ -50,12 +50,12 @@ object Compatibility {
     }
 
 
-    @CachedWithRecursionGuard(place, (Success(typez), Set.empty), ModCount.getBlockModificationCount)
-    private def eval(typez: ScType, expectedOption: Option[ScType]): (TypeResult[ScType], Set[ImportUsed]) = {
+    @CachedWithRecursionGuard(place, (Right(typez), Set.empty), ModCount.getBlockModificationCount)
+    private def eval(typez: ScType, expectedOption: Option[ScType]): (TypeResult, Set[ImportUsed]) = {
       expectedOption match {
-        case Some(expected) if typez.conforms(expected) => (Success(typez), Set.empty)
+        case Some(expected) if typez.conforms(expected) => (Right(typez), Set.empty)
         case Some(expected) =>
-          val defaultResult: (TypeResult[ScType], Set[ImportUsed]) = (Success(typez), Set.empty)
+          val defaultResult: (TypeResult, Set[ImportUsed]) = (Right(typez), Set.empty)
           implicit val elementScope = place.elementScope
 
           val functionType = FunctionType(expected, Seq(typez))
@@ -77,24 +77,24 @@ object Compatibility {
             }
 
             maybeType.map {
-              (result: ScType) => Success(result)
+              (result: ScType) => Right(result)
             }.map {
               (_, res.importsUsed)
             }.getOrElse(defaultResult)
           } else defaultResult
-        case _ => (Success(typez), Set.empty)
+        case _ => (Right(typez), Set.empty)
       }
     }
 
     def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
-                                       expectedOption: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
+                                       expectedOption: Option[ScType]): (TypeResult, collection.Set[ImportUsed]) = {
       if (expr != null) {
         val expressionTypeResult = expr.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
         (expressionTypeResult.tr, expressionTypeResult.importsUsed)
       } else {
         import scala.collection.Set
 
-        def default: (Success[ScType], Set[ImportUsed]) = (Success(typez), Set.empty)
+        def default: (TypeResult, Set[ImportUsed]) = (Right(typez), Set.empty)
 
         if (isShape || !checkImplicits || place == null) default
         else eval(typez, expectedOption)
@@ -255,14 +255,13 @@ object Compatibility {
               val tp = ScParameterizedType(seqType, Seq(param.paramType))
               val expectedType = ScParameterizedType(seqType, Seq(param.expectedType))
 
-              for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
-                val conforms = exprType.weakConforms(tp)
-                if (!conforms) {
-                  return ConformanceExtResult(Seq(TypeMismatch(expr, tp)), undefSubst, defaultParameterUsed, matched, matchedTypes)
-                } else {
+              for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr.toOption) {
+                if (exprType.weakConforms(tp)) {
                   matched ::= (param, expr)
                   matchedTypes ::= (param, exprType)
                   undefSubst += exprType.conforms(tp, ScUndefinedSubstitutor(), checkWeak = true)._2
+                } else {
+                  return ConformanceExtResult(Seq(TypeMismatch(expr, tp)), undefSubst, defaultParameterUsed, matched, matchedTypes)
                 }
               }
             case _ =>
@@ -308,14 +307,13 @@ object Compatibility {
                   (param.paramType, param.expectedType)
                 }
 
-                for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
-                  val conforms = exprType.weakConforms(paramType)
-                  if (!conforms) {
-                    problems ::= TypeMismatch(expr, paramType)
-                  } else {
+                for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr.toOption) {
+                  if (exprType.weakConforms(paramType)) {
                     matched ::= (param, expr)
                     matchedTypes ::= (param, exprType)
                     undefSubst += exprType.conforms(paramType, ScUndefinedSubstitutor(), checkWeak = true)._2
+                  } else {
+                    problems ::= TypeMismatch(expr, paramType)
                   }
                 }
               case _ =>

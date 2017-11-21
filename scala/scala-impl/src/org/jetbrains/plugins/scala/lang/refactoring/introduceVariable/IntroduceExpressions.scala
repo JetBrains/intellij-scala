@@ -350,7 +350,7 @@ object IntroduceExpressions {
                 case _ =>
               }
               replaced
-            } else container(commonParent, file)
+            } else container(commonParent).getOrElse(file)
         }
         val anchor = parent.getChildren.find(_.getTextRange.contains(firstRange)).getOrElse(parent.getLastChild)
         if (anchor != null) {

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * @author Alefas
@@ -26,11 +26,11 @@ class ScLightFunctionDefinition(pTypes: Seq[Seq[ScType]], tParams: Seq[TypeParam
 
   override def paramClauses: ScParameters = new ScLightParameters(pTypes, fun)
 
-  override protected def returnTypeInner: TypeResult[ScType] = Success(rt)
+  override protected def returnTypeInner: TypeResult = Right(rt)
 
-  override def definedReturnType: TypeResult[ScType] = Success(rt)
+  override def definedReturnType: TypeResult = Right(rt)
 
-  override def declaredType: TypeResult[ScType] = Success(rt)
+  override def declaredType: TypeResult = Right(rt)
 
   override def hasExplicitType: Boolean = true
 

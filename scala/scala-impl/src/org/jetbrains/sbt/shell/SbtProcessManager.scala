@@ -2,22 +2,22 @@ package org.jetbrains.sbt.shell
 
 import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
 
-import com.intellij.debugger.impl.{DebuggerManagerImpl, GenericDebuggerRunnerSettings}
+import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.execution.configurations._
-import com.intellij.execution.process.{ColoredProcessHandler, ProcessAdapter}
+import com.intellij.execution.process.ColoredProcessHandler
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.data.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
-import org.jetbrains.sbt.project.structure.{SbtOpts, SbtRunner}
+import org.jetbrains.sbt.project.structure.SbtOpts
+import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver}
 
 import scala.collection.JavaConverters._
 /**
@@ -47,9 +47,9 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     sbtMajorVersion.presentation match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
       case _ => Seq(
-          s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor" % "$sbtStructureVersion")""",
-          s"""addSbtPlugin("org.jetbrains" % "sbt-idea-shell" % "$sbtIdeaShellVersion")"""
-        ) // works for 0.13.5+, for older versions it will be ignored
+        s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor" % "$sbtStructureVersion")""",
+        s"""addSbtPlugin("org.jetbrains" % "sbt-idea-shell" % "$sbtIdeaShellVersion")"""
+      ) // works for 0.13.5+, for older versions it will be ignored
     }
   }
 
@@ -62,7 +62,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     lazy val launcher = launcherJar(sbtSettings)
 
     val projectSbtVersion = Version(SbtUtil.detectSbtVersion(workingDir, launcher))
-    val autoPluginsSupported = projectSbtVersion >= SbtRunner.sinceSbtVersionShell
+    val autoPluginsSupported = projectSbtVersion >= SbtProjectResolver.sinceSbtVersionShell
 
     // an id to identify this boot of sbt as being launched from idea, so that any plugins it injects are never ever loaded otherwise
     // use sbtStructureVersion as approximation of compatible versions of IDEA this is allowed to launch with.
@@ -80,12 +80,8 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     javaParameters.configureByProject(project, 1, sdk)
     javaParameters.setWorkingDirectory(workingDir)
     javaParameters.setJarPath(launcher.getCanonicalPath)
-    val debugConnection: Option[RemoteConnection] = if (sbtSettings.shellDebugMode) {
-      val debuggerSettings = new GenericDebuggerRunnerSettings()
-      debuggerSettings.setLocal(false) // I guess this means the thing being debugged is???
-      // this will actually patch the javaParameters as a side effect
-      Option(DebuggerManagerImpl.createDebugParameters(javaParameters, debuggerSettings, true))
-    } else None
+
+    val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
 
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
@@ -111,10 +107,28 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     (cpty, debugConnection)
   }
 
+  /**
+    * add debug parameters to java parameters and create remote connection
+    * @return
+    */
+  private def addDebugParameters(javaParameters: JavaParameters): RemoteConnection = {
+
+    val host = "localhost"
+    val port = DebuggerUtils.getInstance.findAvailableDebugAddress(true)
+    val remoteConnection = new RemoteConnection(true, host, port, false)
+
+    val shellDebugProperties = s"-agentlib:jdwp=transport=dt_socket,address=$host:$port,suspend=n,server=y"
+    val vmParams = javaParameters.getVMParametersList
+    vmParams.prepend("-Xdebug")
+    vmParams.replaceOrPrepend("-agentlib:jdwp=", shellDebugProperties)
+
+    remoteConnection
+  }
+
   private def getSbtSettings(dir: String) = SbtExternalSystemManager.executionSettingsFor(project, dir)
 
   private def launcherJar(sbtSettings: SbtExecutionSettings): File =
-    sbtSettings.customLauncher.getOrElse(SbtRunner.getDefaultLauncher)
+    sbtSettings.customLauncher.getOrElse(SbtProjectResolver.getDefaultLauncher)
 
   /**
     * Because the regular GeneralCommandLine process doesn't mesh well with JLine on Windows, use a
@@ -182,25 +196,19 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
     val pd = ProcessData(handler, runner)
 
-    processData = Option(pd)
+    processData.synchronized { processData = Option(pd) }
     pd.runner.initAndRun()
     pd
   }
 
-  def attachListener(listener: ProcessAdapter): Unit =
-    acquireShellProcessHandler.addProcessListener(listener)
-
-  def removeListener(listener: ProcessAdapter): Unit =
-    acquireShellProcessHandler.removeProcessListener(listener)
-
-  /** Supply a printwriter that writes to the current process. */
+  /** Supply a PrintWriter that writes to the current process. */
   def usingWriter[T](f: PrintWriter => T): T = {
     val writer = new PrintWriter(new OutputStreamWriter(acquireShellProcessHandler.getProcessInput))
     f(writer)
   }
 
-  /** Creates the SbtShellRunner view, or focuses it if it already exists. */
-  def openShellRunner(focus: Boolean = false): SbtShellRunner = {
+  /** Creates the SbtShellRunner view, and focuses it if requested. */
+  def acquireShellRunner: SbtShellRunner = processData.synchronized {
 
     val theRunner = processData match {
       case Some(ProcessData(_, runner)) if runner.getConsoleView.isRunning =>
@@ -208,8 +216,6 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
       case _ =>
         updateProcessData().runner
     }
-
-    ShellUIUtil.inUIsync(if (!SbtRunner.isInTest) theRunner.openShell(focus))
 
     theRunner
   }
@@ -221,7 +227,8 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
   def destroyProcess(): Unit = processData.synchronized {
     processData match {
-      case Some(ProcessData(handler, _)) =>
+      case Some(ProcessData(handler, runner)) =>
+        Disposer.dispose(runner)
         handler.destroyProcess()
         processData = None
       case None => // nothing to do

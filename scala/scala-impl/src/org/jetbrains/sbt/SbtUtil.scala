@@ -48,6 +48,8 @@ object SbtUtil {
     // 1.0.0 milestones are regarded as not bincompat by sbt
     if ((sbtVersion ~= Version("1.0.0")) && sbtVersion.presentation.contains("-M"))
       sbtVersion
+    // sbt uses binary version x.0 for [x.0,x+1.0[
+    else if (sbtVersion.major(1) == Version("1")) Version("1.0")
     else sbtVersion.major(2)
 
   def detectSbtVersion(directory: File, sbtLauncher: => File): String =

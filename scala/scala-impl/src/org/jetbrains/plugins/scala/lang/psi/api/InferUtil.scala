@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, Typeable}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
@@ -236,17 +236,17 @@ object InferUtil {
     * @param canThrowSCE            we fail to get right type then if canThrowSCE throw SafeCheckException
     * @return updated type
     */
-  def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType],
+  def updateAccordingToExpectedType(_nonValueType: TypeResult,
                                     fromImplicitParameters: Boolean,
                                     filterTypeParams: Boolean,
                                     expectedType: Option[ScType], expr: PsiElement,
-                                    canThrowSCE: Boolean): TypeResult[ScType] = {
+                                    canThrowSCE: Boolean): TypeResult = {
     implicit val ctx: ProjectContext = expr
     val Unit = ctx.stdTypes.Unit
 
     var nonValueType = _nonValueType
     nonValueType match {
-      case Success(ScTypePolymorphicType(m@ScMethodType(internal, _, impl), typeParams), _)
+      case Right(ScTypePolymorphicType(m@ScMethodType(internal, _, impl), typeParams))
         if expectedType.isDefined && (!fromImplicitParameters || impl) =>
         def updateRes(expected: ScType) {
           if (expected.equiv(Unit)) return //do not update according to Unit type
@@ -263,13 +263,13 @@ object InferUtil {
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(undefineSubstitutor(typeParams).subst(valueType))),
             typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE, filterTypeParams = filterTypeParams)
-          nonValueType = Success(update) //here should work in different way:
+          nonValueType = Right(update) //here should work in different way:
         }
         updateRes(expectedType.get)
       //todo: Something should be unified, that's bad to have fromImplicitParameters parameter.
-      case Success(ScTypePolymorphicType(internal, typeParams), _) if expectedType.isDefined && fromImplicitParameters =>
+      case Right(ScTypePolymorphicType(internal, typeParams)) if expectedType.isDefined && fromImplicitParameters =>
         def updateRes(expected: ScType) {
-          nonValueType = Success(localTypeInference(internal,
+          nonValueType = Right(localTypeInference(internal,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE,
@@ -325,10 +325,10 @@ object InferUtil {
     }
 
     nonValueType match {
-      case Success(tpt@ScTypePolymorphicType(mt: ScMethodType, _), elem) =>
-        Success(tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType)))
-      case Success(mt: ScMethodType, elem) =>
-        Success(applyImplicitViewToResult(mt, expectedType))
+      case Right(tpt@ScTypePolymorphicType(mt: ScMethodType, _)) =>
+        Right(tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType)))
+      case Right(mt: ScMethodType) =>
+        Right(applyImplicitViewToResult(mt, expectedType))
       case tr => tr
     }
   }

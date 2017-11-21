@@ -1,76 +1,108 @@
 package org.jetbrains.plugins.cbt.process
 
 import java.io.File
-import java.nio.file.{Path, Paths}
 
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
-import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationSource}
+import com.intellij.execution.ExecutionManager
+import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
+import com.intellij.execution.process.ProcessOutputType
+import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.cbt.project.CbtProjectSystem
-import org.jetbrains.plugins.cbt._
-import org.jetbrains.plugins.cbt.project.settings.{CbtExecutionSettings, CbtProjectSettings, CbtSystemSettings}
+import com.intellij.openapi.util.Key
+import com.intellij.util.concurrency.Semaphore
+import org.jetbrains.plugins.cbt.project.settings.{CbtExecutionSettings, CbtSystemSettings}
 import org.jetbrains.plugins.cbt.project.structure.CbtProjectImporingException
+import org.jetbrains.plugins.cbt.runner.internal.{CbtTaskConfigurationFactory, CbtTaskConfigurationType}
+import org.jetbrains.plugins.cbt.runner.{CbtOutputFilter, CbtProcessListener, CbtTask}
 import org.jetbrains.plugins.cbt.settings.CbtGlobalSettings
 
-import scala.sys.process.{Process, ProcessLogger}
 import scala.util.{Failure, Success, Try}
 import scala.xml.{Elem, XML}
 
 object CbtProcess {
+  val firstRunKey: Key[Boolean] = Key.create("CbtTaskFirstRun")
+
   def buildInfoXml(root: File,
                    settings: CbtExecutionSettings,
-                   projectOpt: Option[Project],
-                   taskListener: Option[(ExternalSystemTaskId,
-                     ExternalSystemTaskNotificationListener)]): Try[Elem] = {
-    def buildParams: Seq[String] = {
+                   listener: CbtProcessListener,
+                   project: Project): Try[Elem] = {
+    val taskArguments = {
       val extraModulesStr = settings.extraModules.mkString(":")
       val needCbtLibsStr = settings.isCbt.unary_!.toString
       Seq("--extraModules", extraModulesStr, "--needCbtLibs", needCbtLibsStr)
     }
 
-    val xml =
-      runAction("buildInfoXml" +: buildParams, settings.useDirect, root, projectOpt, taskListener)
-    xml.map(XML.loadString)
-  }
-
-  def runAction(action: Seq[String],
-                useDirect: Boolean,
-                root: File,
-                projectOpt: Option[Project],
-                taskListener: Option[(ExternalSystemTaskId,
-                  ExternalSystemTaskNotificationListener)]): Try[String] = {
-    projectOpt.foreach { project =>
-      ExternalSystemNotificationManager.getInstance(project)
-        .clearNotifications(NotificationSource.PROJECT_SYNC, CbtProjectSystem.Id)
-    }
-    val onOutput = (text: String, stderr: Boolean) => {
-      if (stderr) {
-        taskListener.foreach {
-          case (id, l) =>
-            l.onStatusChange(new ExternalSystemTaskNotificationEvent(id, text))
-        }
+    val outputFilter = new CbtOutputFilter {
+      override def filter(text: String, outputType: Key[_]): Boolean = outputType match {
+        case outputType: ProcessOutputType
+          if outputType.isStderr => true
+        case _ => false
       }
     }
 
-    val outputHandler =
-      new CbtOutputListener(onOutput, projectOpt, NotificationSource.PROJECT_SYNC)
-    val logger = ProcessLogger(
-      text => outputHandler.parseLine(text, stderr = false),
-      text => outputHandler.parseLine(text + '\n', stderr = true))
+    val task =
+      CbtTask(
+        "buildInfoXml",
+        settings.useDirect,
+        project,
+        taskArguments = taskArguments,
+        listenerOpt = Some(listener),
+        filterOpt = Some(outputFilter),
+        nameOpt = Some("Importing Project")
+      )
+    runTask(task)
+      .flatMap(xml => Try(XML.loadString(xml)))
+  }
 
-    val cbtExecutable =
-      projectOpt
-        .map(cbtExePath)
-        .getOrElse(lastUsedCbtExePath)
+  def runTask(task: CbtTask): Try[String] = {
+    val finished = new Semaphore
+    finished.down()
 
-    val task = Seq(cbtExecutable) ++ (if (useDirect) Seq("direct") else Seq.empty) ++ action
-    val exitCode = Process(task, root) ! logger
-    exitCode match {
-      case 0 =>
-        Success(outputHandler.stdOut)
-      case _ =>
-        Failure(new CbtProjectImporingException(outputHandler.errors.mkString("\n")))
+    val listener = new CbtProcessListener {
+      val textBuilder = new StringBuilder
+      var success = false
+
+      override def onComplete(exitCode: Int): Unit = {
+        if (exitCode == 0)
+          success = true
+        finished.up()
+      }
+
+      override def onTextAvailable(text: String, stderr: Boolean): Unit = {
+        if (!stderr)
+          textBuilder.append(text)
+      }
     }
+
+    val configuration =
+      new CbtTaskConfigurationFactory(task.appendListener(listener),
+        CbtTaskConfigurationType.instance)
+        .createTemplateConfiguration(task.project)
+    val runnerSettings =
+      new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(task.project), configuration)
+    runnerSettings.setSingleton(true)
+    val environment = new ExecutionEnvironment(DefaultRunExecutor.getRunExecutorInstance,
+      DefaultJavaProgramRunner.getInstance, runnerSettings, task.project)
+    environment.putUserData(firstRunKey, true)
+    ExecutionManager.getInstance(task.project).restartRunProfile(environment)
+    finished.waitFor()
+    if (listener.success)
+      Success(listener.textBuilder.mkString)
+    else
+      Failure(new CbtProjectImporingException("Project can not be imported. See CBT output"))
+  }
+
+  def generateGiter8Template(template: String, project: Project, root: File): Try[String] = {
+    val task =
+      CbtTask(
+        "tools",
+        useDirect = true,
+        project,
+        taskArguments = Seq("g8", template),
+        directoryOpt = Some(root.getAbsolutePath),
+        nameOpt = Some("Generating giter8 template")
+      )
+    runTask(task)
   }
 
   def cbtExePath(project: Project): String = {
@@ -81,7 +113,6 @@ object CbtProcess {
 
   def lastUsedCbtExePath: String =
     CbtGlobalSettings.instance.lastUsedCbtExePath
-
-  def generateGiter8Template(template: String, project: Project, root: File): Try[String] =
-    runAction(Seq("tools", "g8", template), useDirect = true, root, Option(project), None)
 }
+
+

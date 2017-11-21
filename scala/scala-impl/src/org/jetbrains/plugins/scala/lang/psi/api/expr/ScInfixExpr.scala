@@ -10,17 +10,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
-* @author Alexander Podkhalyuzin
-*/
-
+  * @author Alexander Podkhalyuzin
+  */
 trait ScInfixExpr extends ScExpression with ScSugarCallExpr {
+
   def lOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0)
 
-  def operation : ScReferenceExpression = {
+  def operation: ScReferenceExpression = {
     val children = findChildrenByClassScala(classOf[ScExpression])
     if (children.length < 2) throw new RuntimeException("Wrong infix expression: " + getText)
     children.apply(1) match {
-      case re : ScReferenceExpression => re
+      case re: ScReferenceExpression => re
       case _ => throw new RuntimeException("Wrong infix expression: " + getText)
     }
   }
@@ -53,6 +53,10 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr {
   def getInvokedExpr: ScExpression = operation
 
   def argsElement: PsiElement = getArgExpr
+
+  override def accept(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitInfixExpression(this)
+  }
 }
 
 object ScInfixExpr {

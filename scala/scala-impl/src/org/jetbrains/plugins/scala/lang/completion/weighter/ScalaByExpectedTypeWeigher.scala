@@ -1,41 +1,48 @@
 package org.jetbrains.plugins.scala.lang.completion.weighter
 
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher, WeighingContext}
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiField, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiTypeExt}
-import org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor
+import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionUtil, ScalaSmartCompletionContributor}
+import org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor.ReferenceWithElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScalaType}
 
 /**
   * Created by Kate Ustyuzhanina on 11/24/16.
   */
-class ScalaByExpectedTypeWeigher(expectedTypes: Seq[ScType], position: PsiElement) extends LookupElementWeigher("scalaExpectedType") {
+class ScalaByExpectedTypeWeigher(position: PsiElement, isAfterNew: Boolean) extends LookupElementWeigher("scalaExpectedType") {
 
   private implicit def project = position.projectContext
 
-  override def weigh(element: LookupElement, context: WeighingContext): Comparable[_] = {
-    import KindWeights._
+  private final val EXPECTED = 0
+  private final val NORMAL = 1
+
+  private lazy val expectedTypes: Array[ScType] = ScalaSmartCompletionContributor.extractReference(position) match {
+    case Some(ReferenceWithElement(reference, _)) => reference.expectedTypes()
+    case _ if isAfterNew =>
+      Option(PsiTreeUtil.getContextOfType(position, classOf[ScNewTemplateDefinition])).map(_.expectedTypes()).getOrElse(Array.empty);
+    case _ => Array.empty
+  }
+
+  override def weigh(element: LookupElement, context: WeighingContext): Integer = {
     ScalaLookupItem.original(element) match {
       case s: ScalaLookupItem if expectedTypes.nonEmpty =>
         val (_, uType) = computeType(s)
 
         Option(uType) match {
-          case Some(tp) if expectedType(tp, s) => expected
-          case _ => normal
+          case Some(tp) if expectedType(tp, s) => EXPECTED
+          case _ => NORMAL
         }
-      case _ => normal
+      case _ => NORMAL
     }
-  }
-
-  object KindWeights extends Enumeration {
-    val expected, normal = Value
   }
 
   def expectedType(scType: ScType, el: ScalaLookupItem): Boolean = {
@@ -84,10 +91,10 @@ class ScalaByExpectedTypeWeigher(expectedTypes: Seq[ScType], position: PsiElemen
             val subst = ScalaPsiUtil.inferMethodTypesArgs(fun, scalaLookupItem.substitutor)
 
             fun.returnType match {
-              case Success(tp, _) => (tp, helper(tp, subst))
+              case Right(tp) => (tp, helper(tp, subst))
               case _ =>
                 fun.`type`() match {
-                  case Success(tp, _) => (tp, helper(tp, subst))
+                  case Right(tp) => (tp, helper(tp, subst))
                   case _ => (null, null)
                 }
             }
@@ -98,7 +105,7 @@ class ScalaByExpectedTypeWeigher(expectedTypes: Seq[ScType], position: PsiElemen
             (tp, helper(tp, subst))
           case typed: ScTypedDefinition =>
             typed.`type`() match {
-              case Success(tp, _) => (tp, helper(tp))
+              case Right(tp) => (tp, helper(tp))
               case _ => (null, null)
             }
           case f: PsiField =>

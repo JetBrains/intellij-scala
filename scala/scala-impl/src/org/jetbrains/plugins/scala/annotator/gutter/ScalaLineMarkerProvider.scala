@@ -201,19 +201,25 @@ private object GutterUtil {
     for (member <- members if !member.isInstanceOf[PsiMethod] || !member.asInstanceOf[PsiMethod].isConstructor) {
       ProgressManager.checkCanceled()
       val range = new TextRange(member.getTextOffset, member.getTextOffset)
-      val members = member match {
-        case d: ScDeclaredElementsHolder => d.declaredElements.toArray
-        case td: ScTypeDefinition => Array[PsiNamedElement](td)
-        case ta: ScTypeAlias => Array[PsiNamedElement](ta)
-        case _ => Array[PsiNamedElement]()
+      val namedElems: Seq[ScNamedElement] = member match {
+        case d: ScDeclaredElementsHolder => d.declaredElements.filterBy(classOf[ScNamedElement])
+        case td: ScTypeDefinition => Seq(td)
+        case ta: ScTypeAlias => Seq(ta)
+        case _ => Seq.empty
       }
       val overrides = new ArrayBuffer[PsiNamedElement]
-      for (member <- members) overrides ++= ScalaOverridingMemberSearcher.search(member, deep = false, withSelfType = true)
+      for (named <- namedElems) overrides ++= ScalaOverridingMemberSearcher.search(named, deep = false, withSelfType = true)
+
       if (overrides.nonEmpty) {
         val icon = if (!GutterUtil.isAbstract(member)) OVERRIDEN_METHOD_MARKER_RENDERER else IMPLEMENTED_INTERFACE_MARKER_RENDERER
         val typez = ScalaMarkerType.OVERRIDDEN_MEMBER
-        val info = new LineMarkerInfo[PsiElement](member match {case memb: ScNamedElement => memb.nameId
-          case _ => member}, range, icon, Pass.LINE_MARKERS, typez.fun, typez.handler, GutterIconRenderer.Alignment.RIGHT)
+        val leafElement =
+          namedElems
+            .headOption
+            .map(_.nameId)
+            .getOrElse(PsiTreeUtil.firstChild(member))
+
+        val info = new LineMarkerInfo[PsiElement](leafElement, range, icon, Pass.LINE_MARKERS, typez.fun, typez.handler, GutterIconRenderer.Alignment.RIGHT)
         result.add(info)
       }
     }

@@ -10,26 +10,26 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
  */
 
 class AddCallParentheses(e: ScExpression) extends AbstractFixOnPsiElement("Add call parentheses", e) {
-  def doApplyFix(project: Project) {
-    val expr = getElement
-    if (!expr.isValid) return
+
+  override protected def doApplyFix(expr: ScExpression)
+                                   (implicit project: Project): Unit = {
     val exprToFix = expr.getParent match {
       case postf: ScPostfixExpr => postf
       case call: ScGenericCall => call
       case _ => expr
     }
     val text = s"${exprToFix.getText}()"
-    val call = createExpressionFromText(text)(expr.getManager)
+    val call = createExpressionFromText(text)
     exprToFix.replace(call)
   }
 }
 
 class AddGenericCallParentheses(e: ScGenericCall) extends AbstractFixOnPsiElement("Add call parentheses", e) {
-  def doApplyFix(project: Project) {
-    val expr = getElement
-    if (!expr.isValid) return
+
+  override protected def doApplyFix(expr: ScGenericCall)
+                                   (implicit project: Project): Unit = {
     val text = s"${expr.getText}()"
-    val call = createExpressionFromText(text)(expr.getManager)
+    val call = createExpressionFromText(text)
     expr.replace(call)
   }
 }

@@ -59,7 +59,7 @@ trait BuildFileModifier {
             res = false
         }
       }
-    }, "Sbt build file modification", this)
+    }, "sbt build file modification", this)
     if (res)
       ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
     res

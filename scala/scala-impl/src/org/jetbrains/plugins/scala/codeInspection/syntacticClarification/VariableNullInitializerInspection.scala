@@ -19,20 +19,16 @@ class VariableNullInitializerInspection extends AbstractInspection(inspectionId,
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case definition: ScVariableDefinition if !definition.isLocal =>
-      definition.expr.filter {
-        _.isValid
-      }.filter {
-        isNull
-      }.foreach { expression =>
-        def registerProblem() = holder.registerProblem(expression,
-          inspectionName,
-          new NullToUnderscoreQuickFix(definition))
+      val maybeDeclaredType = definition.declaredType
+        .filter(isApplicable)
 
-        definition.declaredType.filter {
-          isApplicable
-        }.foreach { _ =>
-          registerProblem()
-        }
+      val maybeExpression = definition.expr
+        .filter(_.isValid)
+        .filter(isNull)
+
+      maybeExpression.zip(maybeDeclaredType).foreach {
+        case (expression, _) =>
+          holder.registerProblem(expression, inspectionName, new NullToUnderscoreQuickFix(definition))
       }
   }
 }
@@ -65,11 +61,10 @@ object VariableNullInitializerInspection {
 class NullToUnderscoreQuickFix(definition: ScVariableDefinition)
   extends AbstractFixOnPsiElement(inspectionName, definition) {
 
-  override def doApplyFix(project: Project): Unit = Option(getElement).flatMap {
-    _.expr
-  }.filter {
-    isNull
-  }.foreach { definition =>
-    definition.replace(createExpressionFromText("_")(definition.getManager))
+  override protected def doApplyFix(element: ScVariableDefinition)
+                                   (implicit project: Project): Unit = {
+    element.expr
+      .filter(isNull)
+      .foreach(_.replace(createExpressionFromText("_")))
   }
 }

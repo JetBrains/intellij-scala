@@ -20,11 +20,11 @@ class LegacyStringFormattingInspection extends AbstractInspection {
   }
 
   private class QuickFix(e: PsiElement) extends AbstractFixOnPsiElement("Convert to interpolated string", e) {
-    def doApplyFix(project: Project) {
-      val elem = getElement
-      FormattedStringParser.parse(elem).foreach { parts =>
 
-        val expression = createExpressionFromText(InterpolatedStringFormatter.format(parts))(elem.getManager)
+    override protected def doApplyFix(elem: PsiElement)
+                                     (implicit project: Project): Unit = {
+      FormattedStringParser.parse(elem).foreach { parts =>
+        val expression = createExpressionFromText(InterpolatedStringFormatter.format(parts))
         elem.replace(expression)
       }
     }

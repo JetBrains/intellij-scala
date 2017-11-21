@@ -10,47 +10,47 @@ import org.jetbrains.plugins.scala.lang.adjustTypes.AdjustTypesTestBase
   */
 class AdjustTypesTests extends AdjustTypesTestBase {
 
-  def testSimpleJava() = doTest()
+  def testSimpleJava(): Unit = doTest()
 
-  def testParameterizedJava() = doTest()
+  def testParameterizedJava(): Unit = doTest()
 
-  def testJavaWithImportAlias() = doTest()
+  def testJavaWithImportAlias(): Unit = doTest()
 
-  def testNameConflicts() = doTest()
+  def testNameConflicts(): Unit = doTest()
 
-  def testJavaInnerClasses() = doTest()
+  def testJavaInnerClasses(): Unit = doTest()
 
-  def testPackagings() = doTest()
+  def testPackagings(): Unit = doTest()
 
-  def testAmbiguity() = doTest()
+  def testAmbiguity(): Unit = doTest()
 
-  def testSeveralLevelImports() = doTest()
+  def testSeveralLevelImports(): Unit = doTest()
 
-  def testTypeAlias() = doTest()
+  def testTypeAlias(): Unit = doTest()
 
-  def testTypeProjection() = doTest()
+  def testTypeProjection(): Unit = doTest()
 
-  def testThisType() = doTest()
+  def testThisType(): Unit = doTest()
 
-  def testPrefixed() = doTest()
+  def testPrefixed(): Unit = doTest()
 
-  def testImportedInnerClass() = doTest()
+  def testImportedInnerClass(): Unit = doTest()
 
-  def testInheritedTypeInObject() = doTest()
+  def testInheritedTypeInObject(): Unit = doTest()
 
-  def testRecursiveTypeAlias() = doTest()
+  def testRecursiveTypeAlias(): Unit = doTest()
 }
 
 class AdjustCatsTypeTest extends AdjustTypesTestBase {
 
-  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
-    Array(CatsLoader()(module))
+  override protected def additionalLibraries(): Seq[CatsLoader] =
+    Seq(CatsLoader())
 
-  def testSCL10006() = doTest()
+  def testSCL10006(): Unit = doTest()
 }
 
 class AdjustTypeScalaReflectTest extends AdjustTypesTestBase {
   override def isIncludeReflectLibrary: Boolean = true
 
-  def testClassTag() = doTest()
+  def testClassTag(): Unit = doTest()
 }

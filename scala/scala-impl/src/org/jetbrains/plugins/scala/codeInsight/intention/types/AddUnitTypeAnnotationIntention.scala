@@ -23,7 +23,7 @@ class AddUnitTypeAnnotationIntention extends PsiElementBaseIntentionAction {
       body <- function.body
       if !body.isAncestorOf(element)
     } {
-      new InsertReturnTypeAndEquals(function).doApplyFix(project)
+      new InsertReturnTypeAndEquals(function).invoke(project, element.getContainingFile, null, null)
     }
   }
 

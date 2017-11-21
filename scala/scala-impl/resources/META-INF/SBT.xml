@@ -77,12 +77,12 @@
         <projectConfigurable groupId="build.tools" displayName="sbt" instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable" />
 
         <toolWindow id="sbt" anchor="right"
-                    icon="/org/jetbrains/plugins/scala/images/sbtToolwindow.png"
+                    icon="/org/jetbrains/plugins/scala/images/sbt_toolwin_old.png"
                     factoryClass="org.jetbrains.sbt.project.ScalaToolWindowFactory"
                     conditionClass="org.jetbrains.sbt.project.ScalaToolWindowFactoryCondition"/>
 
         <toolWindow id="sbt-shell-toolwindow" anchor="bottom" canCloseContents="false"
-                    icon="/org/jetbrains/plugins/scala/images/sbtShellToolwindow.png"
+                    icon="/org/jetbrains/plugins/scala/images/sbt_shell_toolwin.png"
                     factoryClass="org.jetbrains.sbt.shell.SbtShellToolWindowFactory"
                     conditionClass="org.jetbrains.sbt.project.ScalaToolWindowFactoryCondition" />
 
@@ -122,51 +122,41 @@
     </extensions>
 
     <actions>
-        <action id="Scala.Sbt.StartShell"
-                class="org.jetbrains.sbt.shell.action.SbtShellStartAction"
-                text="Start sbt Shell"
-        />
         <action id="Scala.Sbt.RunTask"
                 class="org.jetbrains.sbt.shell.action.RunTaskAction"
                 text="Run"
-                description="Run task in sbt Shell"
+                description="Run task in sbt shell"
         />
         <action id="Scala.Sbt.ShowTask"
                 class="org.jetbrains.sbt.shell.action.ShowTaskAction"
                 text="Show result"
-                description="Show task result in sbt Shell"
+                description="Show task result in sbt shell"
         />
         <action id="Scala.Sbt.InspectTask"
                 class="org.jetbrains.sbt.shell.action.InspectTaskAction"
                 text="Inspect"
-                description="Inspect task in sbt Shell"
+                description="Inspect task in sbt shell"
         />
         <action id="Scala.Sbt.ShowSetting"
                 class="org.jetbrains.sbt.shell.action.ShowSettingAction"
                 text="Show value"
-                description="Show setting in sbt Shell"
+                description="Show setting in sbt shell"
         />
         <action id="Scala.Sbt.InspectSetting"
                 class="org.jetbrains.sbt.shell.action.InspectSettingAction"
                 text="Inspect"
-                description="Inspect setting in sbt Shell"
+                description="Inspect setting in sbt shell"
         />
         <action id="Scala.Sbt.RunCommand"
                 class="org.jetbrains.sbt.shell.action.RunCommandAction"
                 text="Run"
-                description="Run command in sbt Shell"
+                description="Run command in sbt shell"
         />
         <action id="Scala.Sbt.Help"
                 class="org.jetbrains.sbt.shell.action.SbtHelpAction"
                 text="Help"
-                description="Get help in sbt Shell"
+                description="Get help in sbt shell"
         />
-
-        <group>
-            <separator/>
-            <reference id="Scala.Sbt.StartShell"/>
-            <add-to-group group-id="ExternalSystemView.ActionsToolbar.LeftPanel"/>
-        </group>
 
         <group id="Scala.Sbt.TaskMenu" popup="true">
             <reference ref="RunContextGroup"/>

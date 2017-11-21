@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
@@ -314,21 +313,21 @@ abstract class MixinNodes {
     var place: Option[PsiElement] = None
     val map = new Map
     val superTypesBuff = new ListBuffer[Map]
-    val (superTypes, subst, thisTypeSubst): (Seq[ScType], ScSubstitutor, ScSubstitutor) = tp match {
+    val (superTypes, thisTypeSubst): (Seq[ScType], ScSubstitutor) = tp match {
       case cp: ScCompoundType =>
         processRefinement(cp, map, place)
         val thisTypeSubst = compoundThisType match {
           case Some(_) => ScSubstitutor(Map.empty, compoundThisType)
           case _ => ScSubstitutor(Predef.Map.empty, Some(tp))
         }
-        (MixinNodes.linearization(cp), ScSubstitutor.empty, thisTypeSubst)
+        (MixinNodes.linearization(cp), thisTypeSubst)
       case _ =>
         val clazz = tp match {
           case ScDesignatorType(clazz: PsiClass) => clazz
           case ScProjectionType(_, clazz: PsiClass, _) => clazz
           case _ => null
         }
-        if (clazz == null) (Seq.empty, ScSubstitutor.empty, ScSubstitutor.empty)
+        if (clazz == null) (Seq.empty, ScSubstitutor.empty)
         else
           clazz match {
             case template: ScTypeDefinition =>
@@ -347,7 +346,7 @@ abstract class MixinNodes {
                 }
                 placer = placer.getContext
               }
-              (if (lin.nonEmpty) lin.tail else lin, ScSubstitutor.empty, zSubst)
+              (if (lin.nonEmpty) lin.tail else lin, zSubst)
             case template: ScTemplateDefinition =>
               place = template.lastChildStub
               processScala(template, ScSubstitutor.empty, map, place, base = true)
@@ -362,18 +361,16 @@ abstract class MixinNodes {
                 }
                 placer = placer.getContext
               }
-              (MixinNodes.linearization(template), ScSubstitutor.empty, zSubst)
+              (MixinNodes.linearization(template), zSubst)
             case syn: ScSyntheticClass =>
-              (syn.getSuperTypes.map { psiType => psiType.toScType() }: Seq[ScType],
-                ScSubstitutor.empty, ScSubstitutor.empty)
+              (syn.getSuperTypes.map { psiType => psiType.toScType() }: Seq[ScType], ScSubstitutor.empty)
             case clazz: PsiClass =>
               place = Option(clazz.getLastChild)
               processJava(clazz, ScSubstitutor.empty, map, place)
               val lin = MixinNodes.linearization(clazz)
-              (if (lin.nonEmpty) lin.tail else lin,
-                ScSubstitutor.empty, ScSubstitutor.empty)
+              (if (lin.nonEmpty) lin.tail else lin, ScSubstitutor.empty)
             case _ =>
-              (Seq.empty, ScSubstitutor.empty, ScSubstitutor.empty)
+              (Seq.empty, ScSubstitutor.empty)
           }
     }
     val iter = superTypes.iterator
@@ -388,7 +385,7 @@ abstract class MixinNodes {
               case ParameterizedType(p@ScProjectionType(proj, _, _), _) => ScSubstitutor(proj).followed(p.actualSubst)
               case _ => ScSubstitutor.empty
             }
-            val newSubst = combine(s, subst, superClass).followed(thisTypeSubst).followed(dependentSubst)
+            val newSubst = combine(s, superClass).followed(thisTypeSubst).followed(dependentSubst)
             val newMap = new Map
             superClass match {
               case template: ScTemplateDefinition => processScala(template, newSubst, newMap, place, base = false)
@@ -419,10 +416,10 @@ abstract class MixinNodes {
     map
   }
 
-  def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass): ScSubstitutor = {
+  def combine(superSubst : ScSubstitutor, superClass : PsiClass): ScSubstitutor = {
     var res : ScSubstitutor = ScSubstitutor.empty
     for (typeParameter <- superClass.getTypeParameters) {
-      res = res bindT(typeParameter.nameAndId, derived.subst(superSubst.subst(TypeParameterType(typeParameter, None))))
+      res = res bindT(typeParameter.nameAndId, superSubst.subst(TypeParameterType(typeParameter, None)))
     }
     superClass match {
       case td : ScTypeDefinition =>
@@ -535,7 +532,7 @@ object MixinNodes {
       @tailrec
       def updateTp(tp: ScType, depth: Int = 0): ScType = {
         tp.isAliasType match {
-          case Some(AliasType(_, _, Success(upper, _))) =>
+          case Some(AliasType(_, _, Right(upper))) =>
             if (tp != upper && depth < 100) updateTp(upper, depth + 1)
             else tp
           case _ =>

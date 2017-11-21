@@ -144,8 +144,10 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
         val element = getVariable
         val subst = getSubstituted
         val offset = editor.getCaretModel.getOffset
-        val text = editor.getDocument.getText
-        val aroundCaret = text.substring(offset - 50, offset) + "<caret>" + text.substring(offset, offset + 50)
+        val text = editor.getDocument.getImmutableCharSequence
+        val before = text.subSequence(offset - 50, offset).toString
+        val after = text.subSequence(offset, offset + 50)
+        val aroundCaret = before + "<caret>" + after
         val message =
           s"""Could not perform inplace rename:
              |element to rename: $element ${element.getName}

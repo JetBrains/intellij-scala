@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParamet
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 /**
@@ -110,8 +111,9 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
 class SimplifyAppliedTypeLambdaQuickFix(paramType: ScParameterizedTypeElement, replacement: => String)
         extends AbstractFixOnPsiElement(InspectionBundle.message("simplify.type"), paramType) {
 
-  def doApplyFix(project: Project): Unit = {
-    getElement.replace(createTypeElementFromText(replacement)(getElement.getManager))
+  override protected def doApplyFix(element: ScParameterizedTypeElement)
+                                   (implicit project: Project): Unit = {
+    element.replace(createTypeElementFromText(replacement))
   }
 }
 

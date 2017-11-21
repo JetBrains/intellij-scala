@@ -41,6 +41,14 @@ abstract class GetAllClassesTest_212_Base extends GetAllClassesTestBase {
   override def testSimpleTrait(): Unit = {
     checkGetAllClasses("Test")
   }
+
+  override def testAnonfunsInPackageObject() = {
+    checkGetAllClassesInFile("packageObject/package.scala") (
+      "packageObject.package$",
+      "packageObject.package$",
+      "packageObject.package$"
+    )
+  }
 }
 
 abstract class GetAllClassesTestBase extends PositionManagerTestBase {
@@ -312,5 +320,62 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
     """.stripMargin.trim)
   def testPartialFunctionArg(): Unit = {
     checkGetAllClasses("PartialFunctionArg$", "PartialFunctionArg$$anonfun$main$1", "PartialFunctionArg$$anonfun$main$1")
+  }
+
+
+  setupFile("packageObject/package.scala",
+  s"""
+    |package object packageObject {
+    |
+    |  def packageMethod(): Unit = {
+    |    for {
+    |      ${offsetMarker}i <- 1 to 3
+    |      ${offsetMarker}j <- 1 to 3
+    |    } {
+    |      if (i < j)
+    |        ()
+    |      else {
+    |         ${offsetMarker}println("!")
+    |      }
+    |    }
+    |  }
+    |}
+  """.stripMargin)
+  setupFile("AnonfunsInPackageObject.scala",
+    s"""
+      |import packageObject._
+      |
+      |object AnonfunsInPackageObject {
+      |  def main(args: Array[String]): Unit = {
+      |    packageMethod()
+      |    $bp""
+      |  }
+      |}
+    """.stripMargin, hasOffsets = false)
+  def testAnonfunsInPackageObject(): Unit = {
+    checkGetAllClassesInFile("packageObject/package.scala")(
+      "packageObject.package$",
+      "packageObject.package$$anonfun$packageMethod$1",
+      "packageObject.package$$anonfun$packageMethod$1$$anonfun$apply$mcVI$sp$1"
+    )
+  }
+
+  setupFile("ValueClass.scala",
+    s"""
+       |object ValueClass {
+       |  def main(args: Array[String]): Unit = {
+       |    new Wrapper("").double
+       |    ""$bp
+       |  }
+       |
+       |  class Wrapper(val s: String) extends AnyVal {
+       |    def double: String = {
+       |      ${offsetMarker}s + s
+       |    }
+       |  }
+       |}
+    """.stripMargin.trim)
+  def testValueClass(): Unit = {
+    checkGetAllClasses("ValueClass$Wrapper$")
   }
 }

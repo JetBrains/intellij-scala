@@ -14,7 +14,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.{ToolWindowId, ToolWindowManager}
 import com.intellij.ui.content.{Content, ContentFactory, MessageView}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
-import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationReport, SettingsDescriptor}
 import org.jetbrains.plugins.scala.util.NotificationUtil
 
@@ -22,14 +21,12 @@ import org.jetbrains.plugins.scala.util.NotificationUtil
   * User: Dmitry.Naydanov
   * Date: 07.09.16.
   */
-class MigrationApiImpl(project: Project) extends AbstractProjectComponent(project) with MigrationApiService {
+class MigrationApiImpl(val project: Project) extends AbstractProjectComponent(project) with MigrationApiService {
   override def getComponentName: String = "ScalaLibraryMigrationApi"
-
-  override def getProject: Project = project
 
   override def showPopup(txt: String, title: String, handler: (String) => Unit): Unit = {
     NotificationUtil.showMessage(
-      project = getProject,
+      project = project,
       message = txt,
       title = title,
       notificationType = NotificationType.INFORMATION,
@@ -84,9 +81,9 @@ class MigrationApiImpl(project: Project) extends AbstractProjectComponent(projec
         val field = new JTextField(defaultValue)
         addSettingControl(field, txt)
     }
-    
-    
-    val builder = new DialogBuilder(getProject)
+
+
+    val builder = new DialogBuilder(project)
     builder setOkActionEnabled true
     builder setCenterPanel myCenterPanel
     builder setTitle title
@@ -130,7 +127,7 @@ class MigrationApiImpl(project: Project) extends AbstractProjectComponent(projec
       */
     def convertMessageType(tpe: MigrationReport.MessageType) = tpe.code
 
-    val myProject = getProject
+    val myProject = project
     val messagesTree = new CompilerErrorTreeView(project, null)
 
     report.getAllMessages foreach {
@@ -155,10 +152,6 @@ class MigrationApiImpl(project: Project) extends AbstractProjectComponent(projec
       }
     })
   }
-
-  override def inReadAction[T](action: => T): T = extensions.inReadAction( action )
-
-  override def inWriteAction[T](action: => T): T = extensions.inWriteAction( action )
 }
 
 object MigrationApiImpl {

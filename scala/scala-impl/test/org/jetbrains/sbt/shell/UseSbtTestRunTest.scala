@@ -2,18 +2,41 @@ package org.jetbrains.sbt.shell
 
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.runners.ExecutionEnvironmentBuilder
+import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
+import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
+import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.roots.ProjectRootManager
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
+import org.jetbrains.plugins.scala.testingSupport.test._
 import org.junit.experimental.categories.Category
+
+import scala.concurrent.{Await, Promise}
+import scala.concurrent.duration._
+
+import com.intellij.testFramework.EdtTestUtil
 
 /**
   * Created by Roman.Shein on 13.04.2017.
   */
 @Category(Array(classOf[SlowTests]))
 abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
+
+  override def runInDispatchThread(): Boolean = false
+
+  override def setUp(): Unit = {
+    EdtTestUtil.runInEdtAndWait { () =>
+      super.setUp()
+    }
+  }
+
+  override def tearDown(): Unit = {
+    EdtTestUtil.runInEdtAndWait { () =>
+      super.tearDown()
+    }
+  }
 
   def testScalaTestSimpleTest(): Unit =
     runSingleTest(ScalaTestingTestCase.getScalaTestTemplateConfig(getProject), "test.scalaTest.SimpleScalaTest",
@@ -48,7 +71,7 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
     runPackage(ScalaTestingTestCase.getSpecs2TemplateConfig(getProject), "test.specs2", "specs2",
       inSpecsPackage)
 
-  //TODO: this test is not taking into aaccount tests in OtherUTest/otherTests because sbt test detection detects only 'test'
+  //TODO: this test is not taking into account tests in OtherUTest/otherTests because sbt test detection detects only 'test'
   def testUTestAllInPackage(): Unit =
     runPackage(ScalaTestingTestCase.getUTestTemplateConfig(getProject), "test.uTest", "uTest",
       inUTestPackage)
@@ -89,49 +112,79 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
   protected def runRegexps(config: AbstractTestRunConfiguration, classRegexps: Array[String], testRegexps: Array[String],
                           moduleName: String, expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq(),
                            exampleCount: Int = 3): Unit = {
-    config.testKind = TestRunConfigurationForm.TestKind.REGEXP
-    config.classRegexps = classRegexps
-    config.testRegexps = testRegexps
+    config.setTestConfigurationData(RegexpTestData(config, classRegexps, testRegexps))
     config.setModule(ModuleManager.getInstance(getProject).findModuleByName(moduleName))
     runConfig(config, expectedStrings, unexpectedStrings, exampleCount)
   }
 
   protected def runPackage(config: AbstractTestRunConfiguration, packageFqn: String, moduleName: String,
                            expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit = {
-    config.testKind = TestRunConfigurationForm.TestKind.ALL_IN_PACKAGE
-    config.setTestPackagePath(packageFqn)
+    config.setTestConfigurationData(AllInPackageTestData(config, packageFqn))
     config.setModule(ModuleManager.getInstance(getProject).findModuleByName(moduleName))
     runConfig(config, expectedStrings, unexpectedStrings, 2)
   }
 
   protected def runWholeSuite(config: AbstractTestRunConfiguration, classFqn: String, moduleName: String,
                               expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit = {
-    config.testKind = TestRunConfigurationForm.TestKind.CLASS
-    config.setTestClassPath(classFqn)
+    config.setTestConfigurationData(ClassTestData(config, classFqn))
     config.setModule(ModuleManager.getInstance(getProject).findModuleByName(moduleName))
     runConfig(config, expectedStrings, unexpectedStrings)
   }
 
   protected def runSingleTest(config: AbstractTestRunConfiguration, classFqn: String, testName: String, moduleName: String,
                     expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit = {
-    config.testKind = TestRunConfigurationForm.TestKind.TEST_NAME
-    config.testName = testName
-    config.setTestClassPath(classFqn)
-    config.setModule(ModuleManager.getInstance(getProject).findModuleByName(moduleName))
+    config.setTestConfigurationData(ClassTestData(config, classFqn, testName))
+    val module = ModuleManager.getInstance(getProject).findModuleByName(moduleName)
+    assert(module != null, s"Could not find module '$moduleName' in project '$getProject'")
+    config.setModule(module)
     runConfig(config, expectedStrings, unexpectedStrings)
   }
 
   protected def runConfig(config: AbstractTestRunConfiguration, expectedStrings: Seq[String],
                           unexpectedStrings: Seq[String], commandsExpected: Int = 1): Unit = {
     config.useSbt = true
-    val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(classOf[DefaultRunExecutor])
-    val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =
-      new ExecutionEnvironmentBuilder(config.getProject, executor)
-    executionEnvironmentBuilder.runProfile(config).buildAndExecute()
-    runner.getConsoleView.flushDeferredText()
+    val project = config.getProject
+    val sdk = ProjectRootManager.getInstance(project).getProjectSdk
+    assert(sdk != null, s"project sdk was null in project ${project.getName}")
+
+    val runComplete = Promise[Int]
+
+    EdtTestUtil.runInEdtAndWait { () =>
+      val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(classOf[DefaultRunExecutor])
+      val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =
+        new ExecutionEnvironmentBuilder(project, executor)
+
+      // we need this whole setup to get the SbtProcessHandlerWrapper that the run config uses
+      // rather than the sbt shell process handler since it isn't terminated by the time the test run completes
+      val executionEnvironment = executionEnvironmentBuilder
+        .runProfile(config)
+        .build()
+
+      val runCompleteListener = new ProcessAdapter {
+        override def processTerminated(event: ProcessEvent): Unit =
+          if (!runComplete.isCompleted)
+          runComplete.success(event.getExitCode)
+      }
+
+      val callback = new ProgramRunner.Callback {
+        override def processStarted(descriptor: RunContentDescriptor): Unit = {
+          descriptor.getProcessHandler.addProcessListener(runCompleteListener)
+        }
+      }
+
+      executionEnvironment.getRunner.execute(executionEnvironment, callback)
+      runner.getConsoleView.flushDeferredText()
+    }
+
+    val exitCode = Await.result(runComplete.future, 3.minutes)
     val log = logger.getLog
-    expectedStrings.foreach(str => assert(log.contains(str), s"Sbt shell console did not contain $str"))
-    unexpectedStrings.foreach(str => assert(!log.contains(str), s"Sbt shell console contained $str"))
-    assert(!log.contains(SbtProjectPlatformTestCase.errorPrefix))
+    assert(exitCode == 0, s"sbt shell completed with nonzero exit code. Full log:\n$log")
+    expectedStrings.foreach(str => assert(log.contains(str), s"sbt shell console did not contain expected string '$str'. Full log:\n$log"))
+    unexpectedStrings.foreach(str => assert(!log.contains(str), s"sbt shell console contained unexpected string '$str'. Full log:\n$log"))
+    val logSplitted = logLines(log)
+    val errorline = logSplitted.find(line => line contains SbtProjectPlatformTestCase.errorPrefix)
+    assert(errorline.isEmpty, s"log contained errors: $errorline")
   }
+
+  private def logLines(log: String) = log.split("\n").toVector
 }

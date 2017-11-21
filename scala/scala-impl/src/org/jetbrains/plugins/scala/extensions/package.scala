@@ -12,7 +12,7 @@ import com.intellij.openapi.application.{ApplicationManager, Result, Transaction
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Computable, Ref, ThrowableComputable}
+import com.intellij.openapi.util.{Computable, Ref, TextRange, ThrowableComputable}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.SharedImplUtil
@@ -20,7 +20,7 @@ import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.{getNonStrictParentOfType, getParentOfType, isAncestor}
 import com.intellij.util.{ArrayFactory, Processor}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
@@ -38,10 +38,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
-
 import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.ArrayBuffer
@@ -210,6 +210,31 @@ package object extensions {
       if (needParenthesis) s"($string)" else string
   }
 
+  implicit class CharSeqExt(val cs: CharSequence) extends AnyVal {
+    private def iterator = new Iterator[Char] {
+      var idx = 0
+
+      override def hasNext: Boolean = idx < cs.length()
+
+      override def next(): Char = {
+        idx += 1
+        cs.charAt(idx - 1)
+      }
+    }
+
+    def count(pred: Char => Boolean): Int = iterator.count(pred)
+
+    def prefixLength(pred: Char => Boolean): Int = iterator.takeWhile(pred).size
+
+    def startsWith(s: String): Boolean = cs.substring(0, s.length) == s
+
+    def substring(start: Int, end: Int): String =
+      cs.subSequence(start, end).toString
+
+    def substring(range: TextRange): String =
+      cs.subSequence(range.getStartOffset, range.getEndOffset).toString
+  }
+
   implicit class StringsExt(val strings: Seq[String]) extends AnyVal {
     def commaSeparated: String =
       strings.mkString(", ")
@@ -266,6 +291,17 @@ package object extensions {
 
     def parent: Option[PsiElement] = Option(element.getParent)
 
+    def parentOfType[E <: PsiElement](clazz: Class[E], strict: Boolean = true): Option[E] =
+      Option(getParentOfType(element, clazz, strict))
+
+    def parentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
+      Option(getParentOfType(element, classes: _*))
+
+    def nonStrictParentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
+      Option(getNonStrictParentOfType(element, classes: _*))
+
+    def isAncestorOf(otherElement: PsiElement): Boolean = isAncestor(element, otherElement, true)
+
     def parents: Iterator[PsiElement] = new ParentsIterator(element)
 
     def withParents: Iterator[PsiElement] = new ParentsIterator(element, strict = false)
@@ -294,8 +330,6 @@ package object extensions {
     def nextSiblings: Iterator[PsiElement] = new NextSiblignsIterator(element)
 
     def nextSibilingsWithSelf: Iterator[PsiElement] = Iterator(element) ++ nextSiblings
-
-    def isAncestorOf(e: PsiElement): Boolean = PsiTreeUtil.isAncestor(element, e, true)
 
     def contexts: Iterator[PsiElement] = new ContextsIterator(element)
 
@@ -458,7 +492,7 @@ package object extensions {
 
       node.info.namedElement match {
         case fun: ScFunction if !fun.isConstructor =>
-          val wrappers = fun.getFunctionWrappers(isStatic, isInterface = fun.isAbstractMember, concreteClassFor(fun))
+          val wrappers = fun.getFunctionWrappers(isStatic, isInterface = fun.isAbstractMember)
           wrappers.foreach(processMethod)
           wrappers.foreach(w => processName(w.name))
         case method: PsiMethod if !method.isConstructor =>
@@ -703,8 +737,12 @@ package object extensions {
       ApplicationManager.getApplication.invokeAndWait(() => body)
     }
 
-  def inTransactionLater(disposable: Disposable)(body: => Unit): Runnable = {
+  def callbackInTransaction(disposable: Disposable)(body: => Unit): Runnable = {
     TransactionGuard.getInstance().submitTransactionLater(disposable, body)
+  }
+
+  def invokeAndWaitInTransaction(disposable: Disposable)(body: => Unit): Unit = {
+    TransactionGuard.getInstance().submitTransactionAndWait(disposable, body)
   }
 
   private def preservingControlFlow(body: => Unit) {

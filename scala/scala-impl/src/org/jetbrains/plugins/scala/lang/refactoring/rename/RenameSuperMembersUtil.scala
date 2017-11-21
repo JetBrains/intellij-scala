@@ -11,9 +11,9 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -87,7 +87,8 @@ object RenameSuperMembersUtil {
       return
     }
     val allElements = superMembers :+ element
-    val classes: Seq[PsiClass] = allElements.map(PsiTreeUtil.getParentOfType(_, classOf[PsiClass], false))
+    val classes = allElements.flatMap(_.parentOfType(classOf[PsiClass], strict = false))
+
     val oneSuperClass = superMembers.size == 1
     val additional = if (oneSuperClass) Nil else Seq((renameAllMarker(element), null)) //option for rename all
     val classesToNamed = additional ++: Map(classes.zip(allElements): _*)
@@ -97,7 +98,7 @@ object RenameSuperMembersUtil {
       def execute(aClass: PsiClass): Boolean = {
         if (aClass != renameAllMarker(aClass)) action(classesToNamed(aClass))
         else {
-          val mainOne = classesToNamed(classes(0))
+          val mainOne = classesToNamed(classes.head)
           superMembersToRename.clear()
           superMembersToRename ++= classes.dropRight(1).drop(1).map(classesToNamed)
           action(mainOne)
@@ -107,7 +108,7 @@ object RenameSuperMembersUtil {
     }
 
     if (ApplicationManager.getApplication.isUnitTestMode) {
-      processor.execute(if (oneSuperClass) classes(0) else renameAllMarker(element)) //in unit tests uses base member or all base members
+      processor.execute(if (oneSuperClass) classes.head else renameAllMarker(element)) //in unit tests uses base member or all base members
       return
     }
 

@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDeclarat
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
@@ -170,15 +170,15 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     false
   }
 
-  def definedReturnType: TypeResult[ScType] = {
+  def definedReturnType: TypeResult = {
     returnTypeElement match {
       case Some(ret) => ret.`type`()
-      case _ if !hasAssign => Success(Unit)
+      case _ if !hasAssign => Right(Unit)
       case _ =>
         superMethod match {
           case Some(f: ScFunction) => f.definedReturnType
           case Some(m: PsiMethod) =>
-            Success(m.getReturnType.toScType())
+            Right(m.getReturnType.toScType())
           case _ => Failure("No defined return type")
         }
     }
@@ -216,8 +216,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    */
   def returnTypeElement: Option[ScTypeElement]
 
-  def returnTypeIsDefined: Boolean = !definedReturnType.isEmpty
-
   def hasExplicitType: Boolean = returnTypeElement.isDefined
 
   def removeExplicitType() {
@@ -234,9 +232,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def isProcedure: Boolean = paramClauses.clauses.isEmpty
 
-  protected def returnTypeInner: TypeResult[ScType]
+  protected def returnTypeInner: TypeResult
 
-  def declaredType: TypeResult[ScType] = this.flatMapType(returnTypeElement)
+  def declaredType: TypeResult = this.flatMapType(returnTypeElement)
 
   def clauses: Option[ScParameters] = Some(paramClauses)
 
@@ -484,7 +482,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         case Some(annotation) =>
           annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
             _.`type`() match {
-              case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass match {
+              case Right(ParameterizedType(des, Seq(arg))) => des.extractClass match {
                 case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
                   arg.toPsiType match {
                     case c: PsiClassType => Seq(c)
@@ -500,17 +498,17 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  def `type`(): TypeResult[ScType] = {
+  def `type`(): TypeResult = {
     this.returnType match {
-      case Success(tp: ScType, _) =>
-        var res: TypeResult[ScType] = Success(tp)
+      case Right(tp) =>
+        var res: TypeResult = Right(tp)
         var i = paramClauses.clauses.length - 1
         while (i >= 0) {
           res match {
-            case Success(t: ScType, _) =>
+            case Right(t) =>
               val parameters = paramClauses.clauses.apply(i).parameters
               val paramTypes = parameters.map(_.`type`().getOrNothing)
-              res = Success(FunctionType(t, paramTypes))
+              res = Right(FunctionType(t, paramTypes))
             case _ =>
           }
           i = i - 1
@@ -568,18 +566,17 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   private def collectReverseParamTypesNoImplicits: Option[Seq[Seq[ScType]]] = {
-    var i = paramClauses.clauses.length - 1
-    val res: ArrayBuffer[Seq[ScType]] = ArrayBuffer.empty
-    while (i >= 0) {
-      val cl = paramClauses.clauses.apply(i)
-      if (!cl.isImplicit) {
-        val paramTypes: Seq[TypeResult[ScType]] = cl.parameters.map(_.`type`())
-        if (paramTypes.exists(_.isEmpty)) return None
-        res += paramTypes.map(_.get)
+    val buffer = ArrayBuffer.empty[Seq[ScType]]
+    for (cl <- paramClauses.clauses.reverse
+         if !cl.isImplicit) {
+      val paramTypes: Seq[TypeResult] = cl.parameters.map(_.`type`())
+      if (paramTypes.exists(_.isLeft)) return None
+
+      buffer += paramTypes.collect {
+        case Right(value) => value
       }
-      i = i - 1
     }
-    Some(res)
+    Some(buffer)
   }
 }
 
@@ -597,7 +594,7 @@ object ScFunction {
     /** Is this function sometimes invoked without it's name appearing at the call site? */
     def isSpecial: Boolean = Special(function.name)
 
-    def returnType: TypeResult[ScType] = {
+    def returnType: TypeResult = {
       if (importantOrderFunction(function)) {
         val parent = function.getParent
         val isCalculating = isCalculatingFor(parent)

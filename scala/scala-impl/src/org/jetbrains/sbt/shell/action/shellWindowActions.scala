@@ -34,7 +34,7 @@ class RestartAction(project: Project) extends DumbAwareAction {
 
   val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Restart)
-  templatePresentation.setText("Restart sbt Shell") // TODO i18n / language-bundle
+  templatePresentation.setText("Restart sbt shell") // TODO i18n / language-bundle
 
   def actionPerformed(e: AnActionEvent): Unit = {
     val twm = ToolWindowManager.getInstance(project)
@@ -49,7 +49,7 @@ class StopAction(project: Project) extends DumbAwareAction {
   copyFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_STOP_PROGRAM))
   val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Process.Stop)
-  templatePresentation.setText("Stop sbt Shell") // TODO i18n / language-bundle
+  templatePresentation.setText("Stop sbt shell") // TODO i18n / language-bundle
   templatePresentation.setDescription(null)
 
   override def actionPerformed(e: AnActionEvent): Unit = {
@@ -89,10 +89,10 @@ class DebugShellAction(project: Project, remoteConnection: RemoteConnection) ext
 
   private val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.StartDebugger)
-  templatePresentation.setText("Attach debugger to sbt Shell")
+  templatePresentation.setText("Attach debugger to sbt shell")
 
   private val configType = new RemoteConfigurationType
-  private val configName = "Debug sbt Shell"
+  private val configName = "Debug sbt shell"
   private val configFactory = configType.getFactory
 
   override def setSelected(e: AnActionEvent, toSet: Boolean): Unit = {

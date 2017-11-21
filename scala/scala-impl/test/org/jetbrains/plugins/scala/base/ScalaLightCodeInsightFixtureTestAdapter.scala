@@ -30,28 +30,21 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     JdkLoader()
   )
 
-  override protected def setUp(): Unit = {
-    super.setUp()
-  }
-
-  override protected def getProjectDescriptor = new DelegatingProjectDescriptor(super.getProjectDescriptor) {
-    override def setUpProject(project: Project, handler: LightProjectDescriptor.SetupHandler) = {
-      super.setUpProject(project, handler)
-      WriteAction.run(() => {
-        afterSetUpProject()
-      })
+  override protected def getProjectDescriptor =
+    DelegatingProjectDescriptor.withAfterSetupProject(super.getProjectDescriptor) { () =>
+      afterSetUpProject()
     }
-  }
 
   protected def afterSetUpProject(): Unit = {
     if (loadScalaLibrary) {
       getFixture.allowTreeAccessForAllFiles()
       setUpLibraries()
+      loadIvyDependencies()
     }
   }
 
-  protected override def tearDown() = {
-    tearDownLibraries()
+  override def tearDown(): Unit = {
+    disposeLibraries()
     super.tearDown()
   }
 

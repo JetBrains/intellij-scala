@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.caches
 
 import java.util
-import java.util.Objects
 import java.util.concurrent.ConcurrentMap
+import java.util.{Objects, Map => JMap}
+
+import scala.collection.JavaConverters._
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Computable
-import com.intellij.util.containers.{ContainerUtil, SoftHashMap, SoftKeySoftValueHashMap}
+import com.intellij.util.containers.ContainerUtil
 import gnu.trove.{THashMap, THashSet}
-import scala.collection.JavaConverters._
 
 /**
   * Nikolay.Tropin
@@ -127,7 +128,7 @@ object RecursionManager {
     var depth: Int = 0
     val progressMap: util.LinkedHashMap[MyKey[_], Integer] = new util.LinkedHashMap[MyKey[_], Integer]
     val key2ReentrancyDuringItsCalculation: THashMap[MyKey[_], MyKey[_]] = new THashMap[MyKey[_], MyKey[_]]
-    val intermediateCache: SoftHashMap[MyKey[_], SoftKeySoftValueHashMap[MyKey[_], AnyRef]] = new SoftHashMap[MyKey[_], SoftKeySoftValueHashMap[MyKey[_], AnyRef]]
+    val intermediateCache: JMap[MyKey[_], JMap[MyKey[_], AnyRef]] = ContainerUtil.createSoftMap()
     var enters: Int = 0
     var exits: Int = 0
     

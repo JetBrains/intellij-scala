@@ -8,7 +8,6 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
@@ -59,16 +58,16 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
    * Another usecase is when our type inference failed to decide to which method
    * we should resolve. If all methods has same result type, then we will give valid completion and resolve.
    */
-  def multiType: Array[TypeResult[ScType]]
+  def multiType: Array[TypeResult]
 
   /**
    * @return types in the same order as shapeResolve
    */
-  def shapeMultiType: Array[TypeResult[ScType]]
+  def shapeMultiType: Array[TypeResult]
 
   def shapeResolve: Array[ResolveResult]
 
-  def shapeType: TypeResult[ScType]
+  def shapeType: TypeResult
 
   override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReferenceElement = {
     if (useFullQualifiedName) {

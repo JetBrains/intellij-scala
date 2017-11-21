@@ -7,7 +7,7 @@ import com.intellij.psi.search.SearchRequestCollector
 import com.intellij.psi.search.searches.{MethodReferencesSearch, ReferencesSearch}
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 
 /**
  * Searches for scala methods defined inside of local scopes, ie methods for which .getContainingClass == null.
@@ -24,7 +24,7 @@ class NonMemberMethodUsagesSearcher extends QueryExecutorBase[PsiReference, Meth
           consumer.process(t)
         }
       }
-      ReferencesSearch.searchOptimized(method, ScalaSourceFilterScope(p), false, collector, newConsumer)
+      ReferencesSearch.searchOptimized(method, ScalaFilterScope(p), false, collector, newConsumer)
     }
   }
 }

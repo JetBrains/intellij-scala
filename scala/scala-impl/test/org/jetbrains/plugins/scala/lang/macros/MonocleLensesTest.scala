@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -19,11 +19,10 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   override implicit val version: ScalaVersion = Scala_2_12
 
-  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] = {
+  override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] = {
     import MonocleLensesTest._
 
-    implicit val module: Module = getModuleAdapter
-    Array(MonocleCoreLoader(), MonocleMacroLoader(), MonocleGeneric())
+    Seq(MonocleCoreLoader(), MonocleMacroLoader(), MonocleGeneric())
   }
 
   protected def folderPath: String = TestUtils.getTestDataPath
@@ -34,7 +33,7 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val exp = PsiTreeUtil.findElementOfClassAtOffset(getFileAdapter, caretPos, classOf[ScalaPsiElement], false).asInstanceOf[ScObject]
     exp.allMethods.find(_.name == methodName) match {
       case Some(x) => x.method.asInstanceOf[ScFunctionDefinition].returnType match {
-        case Success(t, _) => assertEquals(s"${t.toString} != $expectedType", expectedType, t.toString)
+        case Right(t) => assertEquals(s"${t.toString} != $expectedType", expectedType, t.toString)
         case Failure(cause) => fail(cause)
       }
       case None => fail("method not found")
@@ -105,20 +104,20 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
 object MonocleLensesTest {
 
-  private abstract class MonocleBaseLoader()(implicit module: Module) extends IvyLibraryLoaderAdapter {
+  private abstract class MonocleBaseLoader extends IvyLibraryLoaderAdapter {
     override val version: String = "1.4.0"
     override val vendor: String = "com.github.julien-truffaut"
   }
 
-  private case class MonocleCoreLoader()(implicit val module: Module) extends MonocleBaseLoader {
+  private case class MonocleCoreLoader() extends MonocleBaseLoader {
     override val name: String = "monocle-core"
   }
 
-  private case class MonocleMacroLoader()(implicit val module: Module) extends MonocleBaseLoader {
+  private case class MonocleMacroLoader() extends MonocleBaseLoader {
     override val name: String = "monocle-macro"
   }
 
-  private case class MonocleGeneric()(implicit val module: Module) extends MonocleBaseLoader {
+  private case class MonocleGeneric() extends MonocleBaseLoader {
     override val name: String = "monocle-generic"
   }
 

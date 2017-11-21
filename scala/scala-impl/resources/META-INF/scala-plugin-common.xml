@@ -56,6 +56,7 @@
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
         <testFinder implementation="org.jetbrains.plugins.scala.testingSupport.ScalaTestFinder"/>
         <exceptionFilter implementation="org.jetbrains.plugins.scala.testingSupport.util.scalatest.ScalaTestFailureLocationFilterFactory"/>
+        <exceptionFilter implementation="org.jetbrains.plugins.scala.stacktrace.ScalaPackageObjectFilterFactory" order="first"/>
         <compileServer.plugin classpath="scala-library.jar;compiler-shared.jar;jps/nailgun.jar;jps/compiler-jps.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar"/>
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.ScalaBuildProcessParametersProvider"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>
@@ -133,7 +134,7 @@
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
         <externalSystemTaskNotificationListener implementation="org.jetbrains.plugins.scaladev.ExternalSystemRefreshListener"/>
 
-      <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
+        <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
         <completion.contributor language="Scala" id="keywordCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor"/>
@@ -235,7 +236,7 @@
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.XmlRenameHandler" />
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenameHandler" order="first" />
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaLocalInplaceRenameHandler" order="first" />
-      <nameSuggestionProvider
+        <nameSuggestionProvider
               implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider"
               id="scalaNameSuggestionProvider" order="last"/>
         <definitionsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.MethodImplementationsSearch"/>
@@ -270,9 +271,10 @@
 
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider"/>
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider"/>
+        <editorNotificationProvider implementation="org.jetbrains.plugins.hydra.notification.HydraArtifactsNotificationProvider"/>
 
         <!--Enter Handler for ScalaDoc -->
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.lang.completion.handlers.ScalaDocParamEnterHandlerDelegate"/>
+        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaDocParamEnterHandlerDelegate"/>
         <!--/Handler-->
 
         <!--Enter Handler for inserting "+" in interpolated strings-->
@@ -420,6 +422,12 @@
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
 
+        <applicationService serviceInterface="org.jetbrains.plugins.hydra.settings.HydraApplicationSettings"
+                            serviceImplementation="org.jetbrains.plugins.hydra.settings.HydraApplicationSettings"/>
+
+        <projectService serviceInterface="org.jetbrains.plugins.hydra.compiler.HydraCompilerSettings"
+                        serviceImplementation="org.jetbrains.plugins.hydra.compiler.HydraCompilerSettings"/>
+
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
 
@@ -430,7 +438,6 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler" dynamic="true"
                              instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable" />
-
         <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>
 
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaAttributeValueSelectioner"/>
@@ -639,6 +646,11 @@
         <intentionAction>
           <category>Scala/Expressions</category>
           <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ReplaceTypeCheckWithMatchIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+          <category>Scala/Expressions</category>
+          <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.OptionWithLiteralToSomeIntention</className>
         </intentionAction>
 
         <intentionAction>
@@ -1217,7 +1229,6 @@
                          displayName="Collect and headOption to collectFirst" groupPath="Scala,Collections" groupName="Simplifications: other"
                          shortName="CollectHeadOption" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-
         <!--maps-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
                          displayName="Get and getOrElse to getOrElse" groupPath="Scala,Collections" groupName="Maps"
@@ -1235,6 +1246,11 @@
                          displayName="Redundant get when getting a value from Map" groupPath="Scala,Collections" groupName="Maps"
                          shortName="MapGetGet" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapLiftInspection"
+                         displayName="Lift to Get" groupPath="Scala,Collections" groupName="Maps"
+                         shortName="MapLift" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+
         <!--options-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantHeadOrLastOptionInspection"
                          displayName="Redundant headOption or lastOption" groupPath="Scala,Collections" groupName="Options"
@@ -1257,13 +1273,13 @@
                          shortName="GetOrElseNull" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.IfElseToOptionInspection"
-                       displayName="Emulated Option(x)" groupPath="Scala,Collections" groupName="Options"
-                       shortName="IfElseToOption" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.IfElseToFilteredOptionInspection"
-                       displayName="Change to filter" groupPath="Scala,Collections" groupName="Options"
-                       shortName="IfElseToFilterdOption" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
+                         displayName="Emulated Option(x)" groupPath="Scala,Collections" groupName="Options"
+                         shortName="IfElseToOption" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.IfElseToFilteredOptionInspection"
+                         displayName="Change to filter" groupPath="Scala,Collections" groupName="Options"
+                         shortName="IfElseToFilterdOption" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <!--other-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
                          displayName="Filter after sort" groupPath="Scala,Collections" groupName="Other"
@@ -1476,6 +1492,9 @@
         </action>
         <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction">
             <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
+        </action>
+        <action id="Hydra.EnableSettings" class="org.jetbrains.plugins.hydra.actions.EnableHydraSettingsAction"
+                text="Open Hydra Settings" description="Show the Hydra Settings Panel">
         </action>
         <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.ScalaConsoleExecuteAction" text="Execute Console Statement">
             <keyboard-shortcut first-keystroke="control ENTER" keymap="$default"/>

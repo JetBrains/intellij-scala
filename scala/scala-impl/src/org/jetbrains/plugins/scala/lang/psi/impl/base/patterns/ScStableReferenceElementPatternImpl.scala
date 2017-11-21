@@ -9,7 +9,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /**
@@ -26,5 +25,5 @@ class ScStableReferenceElementPatternImpl(node : ASTNode) extends ScalaPsiElemen
 
   override def toString: String = "StableElementPattern"
 
-  override def `type`(): TypeResult[ScType] = this.flatMapType(getReferenceExpression)
+  override def `type`(): TypeResult = this.flatMapType(getReferenceExpression)
 }

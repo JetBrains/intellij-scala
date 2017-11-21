@@ -4,7 +4,6 @@ package refactoring
 package delete
 
 import java.util
-import java.util._
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.{Condition, TextRange}
@@ -325,7 +324,7 @@ object SafeDeleteProcessorUtil {
               usages.add(new SafeDeleteFieldWriteReference(assignExpr, psiField))
             case _ =>
               val range: TextRange = reference.getRangeInElement
-              usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(reference.getElement, psiField, range.getStartOffset, range.getEndOffset, false, PsiTreeUtil.getParentOfType(element, classOf[PsiImportStaticStatement]) != null))
+              usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(reference.getElement, psiField, range.getStartOffset, range.getEndOffset, false, element.parentOfType(classOf[PsiImportStaticStatement]).isDefined))
           }
         }
         true

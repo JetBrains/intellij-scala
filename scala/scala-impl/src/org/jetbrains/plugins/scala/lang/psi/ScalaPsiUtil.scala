@@ -9,7 +9,7 @@ import com.intellij.openapi.module.{JavaModuleType, Module, ModuleUtil}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
-import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.light.LightModifierList
@@ -45,7 +45,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
@@ -54,7 +54,6 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
@@ -218,12 +217,12 @@ object ScalaPsiUtil {
   }
 
   def processImportLastParent(processor: PsiScopeProcessor, state: ResolveState, place: PsiElement,
-                              lastParent: PsiElement, typeResult: => TypeResult[ScType]): Boolean = {
+                              lastParent: PsiElement, typeResult: => TypeResult): Boolean = {
     val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty)
     lastParent match {
       case _: ScImportStmt =>
         typeResult match {
-          case Success(t, _) =>
+          case Right(t) =>
             (processor, place) match {
               case (b: BaseProcessor, p: ScalaPsiElement) => b.processType(subst subst t, p, state)
               case _ => true
@@ -363,9 +362,8 @@ object ScalaPsiUtil {
       case expression => (expression, tp, Seq.empty)
     }
     val invoked = call.getInvokedExpr
-    val typeParams = invoked.getNonValueType().map {
+    val typeParams = invoked.getNonValueType().toOption.collect {
       case ScTypePolymorphicType(_, tps) => tps
-      case _ => Seq.empty
     }.getOrElse(Seq.empty)
     val emptyStringExpression = createExpressionFromText("\"\"")
     val processor = new MethodResolveProcessor(expr, methodName, if (!isDynamic) args :: Nil
@@ -494,9 +492,9 @@ object ScalaPsiUtil {
       }
     }
 
-    def collectPartsTr(option: TypeResult[ScType]): Unit = {
+    def collectPartsTr(option: TypeResult): Unit = {
       option match {
-        case Success(t, _) => collectParts(t)
+        case Right(t) => collectParts(t)
         case _ =>
       }
     }
@@ -506,7 +504,7 @@ object ScalaPsiUtil {
       if (visited.contains(tp)) return
       visited += tp
       tp.isAliasType match {
-        case Some(AliasType(_, _, Success(t, _))) => collectParts(t)
+        case Some(AliasType(_, _, Right(t))) => collectParts(t)
         case _ =>
       }
 
@@ -1038,32 +1036,6 @@ object ScalaPsiUtil {
     getMethodsForName(clazz, "update")
   }
 
-  /**
-    * For one classOf use PsiTreeUtil.getParenteOfType instead
-    */
-  def getParentOfType(element: PsiElement, clazz: Class[_ <: PsiElement]): PsiElement = {
-    getParentOfType(element, false, clazz)
-  }
-
-  /**
-    * For one classOf use PsiTreeUtil.getParenteOfType instead
-    */
-  def getParentOfType(element: PsiElement, classes: Class[_ <: PsiElement]*): PsiElement = {
-    getParentOfType(element, false, classes: _*)
-  }
-
-  /**
-    * For one classOf use PsiTreeUtil.getParenteOfType instead
-    */
-  def getParentOfType(element: PsiElement, strict: Boolean, classes: Class[_ <: PsiElement]*): PsiElement = {
-    var el: PsiElement = if (!strict) element else {
-      if (element == null) return null
-      element.getParent
-    }
-    while (el != null && !classes.exists(_.isInstance(el))) el = el.getParent
-    el
-  }
-
   @tailrec
   def getParentWithProperty(element: PsiElement, strict: Boolean, property: PsiElement => Boolean): Option[PsiElement] = {
     if (element == null) None
@@ -1427,28 +1399,16 @@ object ScalaPsiUtil {
   /**
     * If `param` is a synthetic parameter with a corresponding real parameter, return Some(realParameter), otherwise None
     */
-  def parameterForSyntheticParameter(param: ScParameter): Option[ScParameter] = {
-    val fun = PsiTreeUtil.getParentOfType(param, classOf[ScFunction], true)
-
-    def paramFromConstructor(td: ScClass) = td.constructor match {
-      case Some(constr) => constr.parameters.find(p => p.name == param.name) // TODO multiple parameter sections.
+  def parameterForSyntheticParameter(param: ScParameter): Option[ScParameter] =
+    param.parentOfType(classOf[ScFunction]).flatMap {
+      case fun if fun.isSyntheticCopy => Option(fun.containingClass)
+      case fun if fun.isSyntheticApply => getCompanionModule(fun.containingClass)
       case _ => None
-    }
-
-    if (fun == null) {
-      None
-    } else if (fun.isSyntheticCopy) {
-      fun.containingClass match {
-        case td: ScClass if td.isCase => paramFromConstructor(td)
-        case _ => None
-      }
-    } else if (fun.isSyntheticApply) {
-      getCompanionModule(fun.containingClass) match {
-        case Some(td: ScClass) if td.isCase => paramFromConstructor(td)
-        case _ => None
-      }
-    } else None
-  }
+    }.collect {
+      case td: ScClass if td.isCase => td
+    }.flatMap(_.constructor).toSeq
+      .flatMap(_.parameters)
+      .find(_.name == param.name) // TODO multiple parameter sections.
 
   def isReadonly(e: PsiElement): Boolean = {
     e match {
@@ -1831,11 +1791,11 @@ object ScalaPsiUtil {
       def selfTypeValid: Boolean = {
         td.selfType match {
           case Some(selfParam: ScParameterizedType) => td.`type`() match {
-            case Success(classParamTp: ScParameterizedType, _) => selfParam.designator.conforms(classParamTp.designator)
+            case Right(classParamTp: ScParameterizedType) => selfParam.designator.conforms(classParamTp.designator)
             case _ => false
           }
           case Some(selfTp) => td.`type`() match {
-            case Success(classType, _) => selfTp.conforms(classType)
+            case Right(classType) => selfTp.conforms(classType)
             case _ => false
           }
           case _ => true
@@ -1856,21 +1816,21 @@ object ScalaPsiUtil {
     }
 
     expected.extractClassType.flatMap {
-      case (templDef: ScTemplateDefinition, substitutor) =>
+      case (templDef: ScTemplateDefinition, typeSubst) =>
         if (!isSAMable(templDef)) None
         else {
           val abstractMembers = templDef.allSignatures.filter(TypeDefinitionMembers.ParameterlessNodes.isAbstract)
           val singleAbstractMethod = abstractMembers match {
-            case Seq(PhysicalSignature(fun: ScFunction, _)) => Some(fun)
+            case Seq(PhysicalSignature(fun: ScFunction, subst)) => Some((fun, subst))
             case _ => None
           }
 
           for {
-            f <- singleAbstractMethod
-            if f.paramClauses.clauses.length == 1 && !f.hasTypeParameters
-            tp <- f.`type`().toOption
+            (fun, methodSubst) <- singleAbstractMethod
+            if fun.paramClauses.clauses.length == 1 && !fun.hasTypeParameters
+            tp <- fun.`type`().toOption
           } yield {
-            val substituted = substitutor.subst(tp)
+            val substituted = methodSubst.followed(typeSubst).subst(tp)
             extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse {
               substituted
             }
@@ -1879,7 +1839,8 @@ object ScalaPsiUtil {
       case (cl, substitutor) =>
         def isAbstract(m: PsiMethod): Boolean = m.hasAbstractModifier && m.findSuperMethods().forall(_.hasAbstractModifier)
 
-        val abstractMethods: Array[PsiMethod] = cl.getMethods.filter(isAbstract)
+        val visibleMethods = cl.getVisibleSignatures.asScala.map(_.getMethod).toList
+        val abstractMethods = visibleMethods.filter(isAbstract)
 
         // must have exactly one abstract member and SAM must be monomorphic
         val singleAbstract =
@@ -1893,9 +1854,18 @@ object ScalaPsiUtil {
 
         if (!validConstructorExists) None
         else singleAbstract.map { method =>
-          val returnType = method.getReturnType
-          val parametersTypes = method.parameters.map {
-            _.getTypeElement.getType
+          val methodWithSubst =
+            cl.findMethodsAndTheirSubstitutorsByName(method.getName, /*checkBases*/ true)
+              .asScala
+              .find(pair => isAbstract(pair.first))
+
+          val methodSubst = methodWithSubst match {
+            case Some(p: Pair[_, _]) => p.second
+            case _ => PsiSubstitutor.EMPTY
+          }
+          val returnType = methodSubst.substitute(method.getReturnType)
+          val parametersTypes = method.parameters.map { p =>
+            methodSubst.substitute(p.getTypeElement.getType)
           }
 
           val functionType = FunctionType(returnType.toScType(), parametersTypes.map(_.toScType()))

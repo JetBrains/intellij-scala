@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -37,7 +38,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionE
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.projectView.{ClassAndCompanionObject, SingularDefinition, TraitAndCompanionObject}
 
@@ -51,6 +52,11 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition with PsiClassFake {
 
   override def hasTypeParameters: Boolean = typeParameters.nonEmpty
+
+  override def typeParameters: Seq[ScTypeParam] = desugaredElement match {
+    case Some(td: ScTypeDefinition) => td.typeParameters
+    case _ => super.typeParameters
+  }
 
   override def add(element: PsiElement): PsiElement = {
     element match {
@@ -86,26 +92,26 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
       .exists(isInheritor(_, deep = true))
   }
 
-  def `type`(): Success[ScType] = {
+  def `type`(): TypeResult = {
     val parentClass: ScTemplateDefinition = containingClass
     if (typeParameters.isEmpty) {
       if (parentClass != null) {
-        Success(ScProjectionType(ScThisType(parentClass), this, superReference = false))
+        Right(ScProjectionType(ScThisType(parentClass), this, superReference = false))
       } else {
-        Success(ScalaType.designator(this))
+        Right(ScalaType.designator(this))
       }
     } else {
       if (parentClass != null) {
-        Success(ScParameterizedType(ScProjectionType(ScThisType(parentClass), this, superReference = false),
+        Right(ScParameterizedType(ScProjectionType(ScThisType(parentClass), this, superReference = false),
           typeParameters.map(TypeParameterType(_))))
       } else {
-        Success(ScParameterizedType(ScalaType.designator(this),
+        Right(ScParameterizedType(ScalaType.designator(this),
           typeParameters.map(TypeParameterType(_))))
       }
     }
   }
 
-  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult[ScType] = {
+  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult = {
     def args = typeParameters.map(TypeParameterType(_))
     def innerType = if (typeParameters.isEmpty) ScalaType.designator(this)
     else ScParameterizedType(ScalaType.designator(this), args)
@@ -116,9 +122,9 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
       else ScThisType(parentClazz)
 
       val innerProjection = ScProjectionType(tpe, this, superReference = false)
-      Success(if (typeParameters.isEmpty) innerProjection
+      Right(if (typeParameters.isEmpty) innerProjection
       else ScParameterizedType(innerProjection, args))
-    } else Success(innerType)
+    } else Right(innerType)
   }
 
   override def getModifierList: ScModifierList = super[ScTypeDefinition].getModifierList

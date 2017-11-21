@@ -12,13 +12,14 @@ import com.intellij.psi.search.searches.AnnotatedElementsSearch
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAnnotations}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 10.01.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 10.01.2009
+  */
 
 class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedElementsSearch.Parameters] {
 
@@ -28,10 +29,12 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
     val annotationFQN = annClass.qualifiedName
     assert(annotationFQN != null)
 
-    val scope = p.getScope match {case x: GlobalSearchScope => x case _ => return true}
-
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
       def compute: Boolean = {
+        val scope = p.getScope match {
+          case x: GlobalSearchScope => new ScalaFilterScope(x, annClass.getProject)
+          case _ => return true
+        }
         val candidates = StubIndex.getElements(ScalaIndexKeys.ANNOTATED_MEMBER_KEY,
           annClass.name, annClass.getProject, scope, classOf[ScAnnotation])
         val iter = candidates.iterator

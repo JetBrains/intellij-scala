@@ -5,28 +5,25 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
- * @author Alexander Podkhalyuzin
- * Date: 06.03.2008
- */
+  * @author Alexander Podkhalyuzin
+  *         Date: 06.03.2008
+  */
+class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScThisReference {
 
-class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScThisReference {
-  override def toString: String = "ThisReference"
-
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     import scala.meta.intellij.psiExt.TemplateDefExt
     refTemplate match {
-      case Some(td) if td.isMetaAnnotatationImpl => TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText("scala.meta.Stat", this, null))
+      case Some(td) if td.isMetaAnnotatationImpl => createTypeFromText("scala.meta.Stat", this, null).asTypeResult
       case Some(td) => ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this)
       case _ => Failure("Cannot infer type")
     }
@@ -42,20 +39,11 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
       if (encl != null) Some(PsiTreeUtil.getContextOfType(encl, false, classOf[ScTemplateDefinition])) else None
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
-    visitor.visitThisReference(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => visitor.visitThisReference(this)
-      case _ => super.accept(visitor)
-    }
-  }
+  override def toString: String = "ThisReference"
 }
 
 object ScThisReferenceImpl {
-  def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult[ScType] = {
+  def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult = {
     import td.projectContext
     // SLS 6.5:  If the expression’s expected type is a stable type,
     // or C .this occurs as the prefix of a selection, its type is C.this.type,
@@ -73,11 +61,11 @@ object ScThisReferenceImpl {
           td.getTypeWithProjections(thisProjections = true).map {
             case scType => td.selfType.map(scType.glb(_)).getOrElse(scType)
           } match {
-            case Success(scType, _) => scType
+            case Right(scType) => scType
             case _ => return Failure("No clazz type found")
           }
       }
     }
-    Success(result)
+    Right(result)
   }
 }

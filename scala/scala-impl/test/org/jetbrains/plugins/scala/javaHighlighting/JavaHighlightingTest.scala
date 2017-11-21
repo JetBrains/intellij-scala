@@ -43,6 +43,29 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
     assertNothing(errorsFromScalaCode(scala, java))
   }
 
+  def testSCL11645(): Unit = {
+    val scala =
+      """
+        |trait Base {
+        |  def foo(): String = "foo"
+        |}
+        |
+        |class A1 extends Base
+        |
+        |trait A2 extends Base
+      """.stripMargin
+
+    val java =
+      """
+        |public class Test extends A1 implements A2 {
+        |    {
+        |        foo();
+        |    }
+        |}
+      """.stripMargin
+    assertNothing(errorsFromJavaCode(scala, java, "Test"))
+  }
+
   def testProtected(): Unit = {
     val scala =
       """

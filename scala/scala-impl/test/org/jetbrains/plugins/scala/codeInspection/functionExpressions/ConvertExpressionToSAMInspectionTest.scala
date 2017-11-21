@@ -390,4 +390,19 @@ class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
       """.stripMargin
     testQuickFix(text, res, description)
   }
+
+  def testHasExpressions(): Unit = {
+    val code =
+      s"""
+         |new Thread(${START}new Runnable $END{
+         |
+         |  println("Creating runnable")
+         |
+         |  def run() {
+         |    println(foo(10))
+         |  }
+         |})
+      """.stripMargin
+    checkTextHasNoErrors(code)
+  }
 }

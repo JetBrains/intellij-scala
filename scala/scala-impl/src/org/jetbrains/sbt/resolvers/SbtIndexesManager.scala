@@ -29,7 +29,7 @@ class SbtIndexesManager(val project: Project) extends AbstractProjectComponent(p
 
   private val indexes = new mutable.HashMap[String, ResolverIndex]()
 
-  private def doUpdateResolverIndexWithProgress(name: String, index: ResolverIndex): Unit = {
+  def doUpdateResolverIndexWithProgress(name: String, index: ResolverIndex): Unit = {
     if (!project.isDisposed) {
       ProgressManager.getInstance().run(new Task.Backgroundable(project, "Updating indexes") {
         override def run(indicator: ProgressIndicator): Unit = {
@@ -84,7 +84,7 @@ object SbtIndexesManager {
   def cleanUpCorruptedIndex(indexDir: File): Unit = {
     try {
       FileUtil.delete(indexDir)
-      notifyWarning(SbtBundle("sbt.resolverIndexer.indexDirIsCorruptedAndRemoved", indexDir.getAbsolutePath))
+//      notifyWarning(SbtBundle("sbt.resolverIndexer.indexDirIsCorruptedAndRemoved", indexDir.getAbsolutePath))
     } catch {
       case _ : Throwable =>
         notifyWarning(SbtBundle("sbt.resolverIndexer.indexDirIsCorruptedCantBeRemoved", indexDir.getAbsolutePath))

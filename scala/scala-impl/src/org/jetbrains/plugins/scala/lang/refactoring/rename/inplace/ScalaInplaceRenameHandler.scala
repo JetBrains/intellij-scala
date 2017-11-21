@@ -6,12 +6,11 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.psi.util.PsiUtilBase
+import com.intellij.psi.util.PsiUtilBase.getElementAtCaret
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
-import org.jetbrains.plugins.scala.extensions.{Both, inTransactionLater}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.extensions.{Both, PsiElementExt, callbackInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -45,7 +44,7 @@ trait ScalaInplaceRenameHandler {
     def showSubstitutePopup(title: String, positive: String, subst: => PsiNamedElement): Unit = {
       val cancel = ScalaBundle.message("rename.cancel")
       val list = JListCompatibility.createJBListFromListData(positive, cancel)
-      val callback = inTransactionLater(editor.getProject) {
+      val callback = callbackInTransaction(editor.getProject) {
         list.getSelectedValue match {
           case s: String if s == positive =>
             val file = subst.getContainingFile.getVirtualFile
@@ -85,13 +84,13 @@ trait ScalaInplaceRenameHandler {
       showSubstitutePopup(title, positive, ScalaRenameUtil.findSubstituteElement(elementToRename))
     }
 
-    val atCaret = PsiUtilBase.getElementAtCaret(editor)
-    val selected = ScalaPsiUtil.getParentOfType(atCaret, classOf[ScReferenceElement], classOf[ScNamedElement])
-    val nameId = selected match {
+    val selected = getElementAtCaret(editor)
+      .nonStrictParentOfType(Seq(classOf[ScReferenceElement], classOf[ScNamedElement]))
+    val nameId = selected.collect {
       case ref: ScReferenceElement => ref.nameId
       case named: ScNamedElement => named.nameId
-      case _ => null
-    }
+    }.orNull
+
     elementToRename match {
       case Both(`selected`, fun: ScFunction) if Seq("apply", "unapply", "unapplySeq").contains(fun.name) || fun.isConstructor =>
         specialMethodPopup(fun)

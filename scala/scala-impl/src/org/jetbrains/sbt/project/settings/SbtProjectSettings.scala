@@ -15,10 +15,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
 
   def jdkName: Option[String] = Option(jdk)
 
-  def jdkName_=(name: Option[String]): Unit = jdk = name.orNull
-
   @Nullable
-  @BeanProperty
   var jdk: String = null
 
   @BeanProperty

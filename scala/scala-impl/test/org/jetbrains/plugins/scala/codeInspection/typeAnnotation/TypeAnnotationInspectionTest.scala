@@ -88,6 +88,57 @@ class MembersTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
      """.stripMargin
 }
 
+class TypeAnnotationInspectionFromSuperTest extends TypeAnnotationInspectionTest {
+  
+  def testImplementingMethod(): Unit = testQuickFix (
+    text  =
+      s"""
+         |trait Test {
+         |  def test(i: Int): Option[Int]
+         |}
+         |
+          |class TestImpl extends Test {
+         |  override def ${START}test$END(i: Int) = ???
+         |}
+        """.stripMargin,
+    expected =
+      """
+        |trait Test {
+        |  def test(i: Int): Option[Int]
+        |}
+        |
+        |class TestImpl extends Test {
+        |  override def test(i: Int): Option[Int] = ???
+        |}
+      """.stripMargin
+  )
+
+  def testImplementingValue(): Unit = testQuickFix (
+    text  =
+      s"""
+         |trait Test {
+         |  val foo: Option[Int]
+         |}
+         |
+         |class TestImpl extends Test {
+         |  override val ${START}foo$END = ???
+         |}
+        """.stripMargin,
+    expected =
+      s"""
+         |trait Test {
+         |  val foo: Option[Int]
+         |}
+         |
+         |class TestImpl extends Test {
+         |  override val foo: Option[Int] = ???
+         |}
+        """.stripMargin
+  )
+
+  override protected def createTestText(text: String): String = text
+}
+
 class LocalTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
 
   def testLocal(): Unit =

@@ -76,15 +76,17 @@ public interface Icons {
   Icon LIGHTBEND_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/lightbend_logo.png");
 
   // sbt
-  Icon SBT = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt.png");
+  Icon SBT = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt_icon_old.png");
   // used from SBT.xml
-  Icon SBT_TOOLWINDOW = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbtToolwindow.png");
-  Icon SBT_FILE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt-file.png");
-  Icon SBT_SHELL = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbtShell.png");
+  Icon SBT_TOOLWINDOW = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt_toolwin_old.png");
+  Icon SBT_FILE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt_file.png");
+  Icon SBT_SHELL = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt_shell.png");
   // used from SBT.xml
-  Icon SBT_SHELL_TOOLWINDOW = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbtShellToolwindow.png");
+  Icon SBT_SHELL_TOOLWINDOW = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt_shell_toolwin.png");
 
-  Icon CBT = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/cbt_16.png");
-  Icon CBT_EXTRA_MODULE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/cbt_extra_16.png");
-  Icon CBT_TEST_MODULE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/cbt_test_16.png");
+  Icon CBT = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/cbt.png");
+  Icon CBT_EXTRA_MODULE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/cbt_extra.png");
+  Icon CBT_TEST_MODULE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/cbt_test.png");
+  // used from CBT.xml
+  Icon CBT_TOOLWINDOW = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/cbt_toolwin.png");
 }

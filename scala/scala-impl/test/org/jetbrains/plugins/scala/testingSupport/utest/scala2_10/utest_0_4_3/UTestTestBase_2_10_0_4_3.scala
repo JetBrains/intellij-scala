@@ -14,7 +14,6 @@ abstract class UTestTestBase_2_10_0_4_3 extends UTestTestCase {
   override implicit val version: ScalaVersion = Scala_2_10
 
   override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = {
-    implicit val module: Module = getModule
     Seq(UTestLoader("0.4.3"), QuasiQuotesLoader())
   }
 

@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.xmlb.annotations.AbstractCollection
 import org.jetbrains.plugins.cbt.settings.CbtGlobalSettings
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 import scala.beans.BeanProperty
 
@@ -63,7 +62,7 @@ class CbtSystemSettingsState extends AbstractExternalSystemSettings.State[CbtPro
 
   override def getLinkedExternalProjectsSettings: util.Set[CbtProjectSettings] = projectSettings
 
-  @AbstractCollection(surroundWithTag = false, elementTypes = Array(classOf[SbtProjectSettings]))
+  @AbstractCollection(surroundWithTag = false, elementTypes = Array(classOf[CbtProjectSettings]))
   def setLinkedExternalProjectsSettings(settings: util.Set[CbtProjectSettings]): Unit = {
     if (settings != null) {
       projectSettings.addAll(settings)

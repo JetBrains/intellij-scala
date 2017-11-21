@@ -10,13 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil.isUnderscore
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ListBuffer
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
-
 trait ScUnderscoreSection extends ScExpression {
   def bindingExpr: Option[ScExpression] = {
     findChildByClassScala(classOf[ScExpression]) match {
@@ -88,6 +86,10 @@ trait ScUnderscoreSection extends ScExpression {
       case t: ScTypedStmt => go(removeParentheses(t))
       case _ => go(removeParentheses(this))
     }
+  }
+
+  override def accept(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitUnderscoreExpression(this)
   }
 }
 

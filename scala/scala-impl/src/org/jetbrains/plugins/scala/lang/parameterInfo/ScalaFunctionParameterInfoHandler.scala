@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner,
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitCompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
@@ -594,28 +595,27 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
       case self: ScSelfInvocation =>
         val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
         val i = self.arguments.indexOf(args.element)
-        val clazz = PsiTreeUtil.getParentOfType(self, classOf[ScClass], true)
-        clazz match {
-          case clazz: ScClass =>
-            clazz.constructor match {
-              case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameterClauses.length =>
-                res += ((constr, ScSubstitutor.empty, i))
-              case Some(_) if i == 0 => res += ""
-              case None => res += ""
-              case _ =>
+
+        self.parentOfType(classOf[ScClass]).foreach { clazz =>
+          clazz.constructor match {
+            case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameterClauses.length =>
+              res += ((constr, ScSubstitutor.empty, i))
+            case Some(_) if i == 0 => res += ""
+            case None => res += ""
+            case _ =>
+          }
+
+          for {
+            constr <- clazz.functions
+            if !constr.isInstanceOf[ScPrimaryConstructor] &&
+              constr.isConstructor &&
+              constr.clauses.map(_.clauses.length).getOrElse(1) > i
+          } {
+            if (!PsiTreeUtil.isAncestor(constr, self, true) &&
+              constr.getTextRange.getStartOffset < self.getTextRange.getStartOffset) {
+              res += ((new PhysicalSignature(constr, ScSubstitutor.empty), i))
             }
-            for {
-              constr <- clazz.functions
-              if !constr.isInstanceOf[ScPrimaryConstructor] &&
-                constr.isConstructor &&
-                constr.clauses.map(_.clauses.length).getOrElse(1) > i
-            } {
-              if (!PsiTreeUtil.isAncestor(constr, self, true) &&
-                constr.getTextRange.getStartOffset < self.getTextRange.getStartOffset) {
-                res += ((new PhysicalSignature(constr, ScSubstitutor.empty), i))
-              }
-            }
-          case _ =>
+          }
         }
         res
     }

@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.cbt.annotator
 
-import java.nio.file.Paths
-
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.cbt._
+import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
+import org.jetbrains.plugins.cbt.runner.CbtTask
 import org.jetbrains.plugins.cbt.runner.action.{DebugTaskAction, RunTaskAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -37,7 +36,7 @@ class CbtLineMarkerProvider extends RunLineMarkerContributor {
         wrapper <- Option(parent.getParent.getParent.getParent)
         f <- Try(parent.asInstanceOf[ScFunction]).toOption
         c <- Try(wrapper.asInstanceOf[ScClass]).toOption
-        if f.nameId == element && isBuildClass(c)
+        if f.nameId == element && isBuildClass(c) && c.name == "Build"
         m <- createRunMarker(project, range, f)
       } yield m).orNull
     } else null
@@ -46,17 +45,23 @@ class CbtLineMarkerProvider extends RunLineMarkerContributor {
   private def createRunMarker(project: Project,
                               range: TextRange,
                               scFun: ScFunction): Option[RunLineMarkerContributor.Info] = {
-    val task = scFun.asInstanceOf[ScFunctionDefinitionImpl].getName
-    val tooltipHandler = (_: PsiElement) => s"Run or Debug task '$task'"
-    val module =
+    val taskName = scFun.asInstanceOf[ScFunctionDefinitionImpl].getName
+    val tooltipHandler = (_: PsiElement) => s"Run or Debug task '$taskName'"
+    val moduleOption =
       CBT.moduleByPath(scFun.getContainingFile.getVirtualFile.getPath, project)
         .flatMap { buildModule =>
           val moudleDir = buildModule.baseDir.toFile.toPath.getParent.toString
           CBT.moduleByPath(moudleDir, project)
         }
-    module.map { m =>
+    moduleOption.map { m =>
+      val projectSettings = CbtProjectSettings.getInstance(project, project.getBasePath)
+
+      val task =
+        CbtTask(taskName,
+          projectSettings.useDirect,
+          project, moduleOpt = Some(m))
       val actions: Array[AnAction] =
-        Array(new RunTaskAction(task, m, project), new DebugTaskAction(task, m, project))
+        Array(new RunTaskAction(task), new DebugTaskAction(task))
       new RunLineMarkerContributor.Info(AllIcons.General.Run, tooltipHandler, actions: _ *)
     }
   }

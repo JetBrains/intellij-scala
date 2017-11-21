@@ -9,13 +9,13 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScalaTypeSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     val expression = elements(0).asInstanceOf[ScExpression]
-    val typeResult = expression.`type`()
-    val typeText = typeResult.map(_.presentableText).getOrElse("Any")
-    "(" + super.getTemplateAsString(elements) + ": " + typeText + ")"
+    val result = expression.`type`().getOrAny
+    s"(${super.getTemplateAsString(elements)}: ${result.presentableText})"
   }
 
   override def getTemplateDescription: String = "(expr: Type)"

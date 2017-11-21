@@ -14,13 +14,12 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.SUPER_CLASS_NAME_KEY
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -38,7 +37,7 @@ object ScalaStubsUtil {
     if (name == null || clazz.isEffectivelyFinal) return Seq.empty
 
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
-    val scalaScope = new ScalaSourceFilterScope(scope, clazz.getProject)
+    val scalaScope = new ScalaFilterScope(scope, clazz.getProject)
 
     val extendsBlocks =
       StubIndex.getElements(SUPER_CLASS_NAME_KEY, name, clazz.getProject, scalaScope, classOf[ScExtendsBlock]).iterator
@@ -60,7 +59,7 @@ object ScalaStubsUtil {
   def getSelfTypeInheritors(clazz: PsiClass): Seq[ScTemplateDefinition] = {
     @CachedInsidePsiElement(clazz, CachesUtil.enclosingModificationOwner(clazz))
     def selfTypeInheritorsInner(): Seq[ScTemplateDefinition] = {
-      val scope = clazz.resolveScope
+      val scope = new ScalaFilterScope(clazz.resolveScope, clazz.getProject)
       val inheritors = new ArrayBuffer[ScTemplateDefinition]
       val project = clazz.getProject
       val name = clazz.name
@@ -88,7 +87,7 @@ object ScalaStubsUtil {
             selfTypeElement.typeElement match {
               case Some(typeElement) =>
                 typeElement.`type`() match {
-                  case Success(tp, _) =>
+                  case Right(tp) =>
                     if (checkTp(tp)) {
                       val clazz = PsiTreeUtil.getContextOfType(selfTypeElement, classOf[ScTemplateDefinition])
                       if (clazz != null) inheritors += clazz

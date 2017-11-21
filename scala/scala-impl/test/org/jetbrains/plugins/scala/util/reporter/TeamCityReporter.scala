@@ -7,7 +7,7 @@ import com.intellij.openapi.util.TextRange
   * @author mutcianm
   * @since 16.05.17.
   */
-class TeamCityReporter(reportSuccess: Boolean) extends ConsoleReporter {
+class TeamCityReporter(name: String, reportSuccess: Boolean) extends ConsoleReporter {
   import TeamCityReporter._
 
   protected var totalErrors = 0
@@ -17,7 +17,7 @@ class TeamCityReporter(reportSuccess: Boolean) extends ConsoleReporter {
   override def reportError(file: String, range: TextRange, message: String): Unit = {
     totalErrors += 1
     val escaped = escapeTC(Option(message).getOrElse(""))
-    val testName = s"${getClass.getName}.${Option(file).getOrElse("UNKNOWN")}${Option(range).map(_.toString).getOrElse("(UNKNOWN)")}"
+    val testName = s"$name.${Option(file).getOrElse("UNKNOWN")}${Option(range).map(_.toString).getOrElse("(UNKNOWN)")}"
     tcPrint(s"testStarted name='$testName'")
     tcPrint(s"testFailed name='$testName' message='Highlighting error' details='$escaped'")
     tcPrint(s"testFinished name='$testName'")

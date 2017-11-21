@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
-package editor.enterHandler
+package editor
+package enterHandler
 
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
@@ -8,10 +9,12 @@ import com.intellij.lexer.StringLiteralLexer
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.util.Ref
 import com.intellij.psi.{PsiElement, PsiFile, StringEscapesTokenTypes}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 /**
@@ -22,7 +25,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
   override def preprocessEnter(file: PsiFile, editor: Editor, caretOffset: Ref[Integer], caretAdvance: Ref[Integer],
                                dataContext: DataContext, originalHandler: EditorActionHandler): Result = {
-    var offset = editor.getCaretModel.getOffset
+
+    var offset = caretOffset.get().intValue()
+
+    if (!file.isInstanceOf[ScalaFile] || !editor.inScalaString(offset)) return Result.Continue
+
+    editor.commitDocument(file.getProject)
+
     val element = file.findElementAt(offset)
 
     import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._

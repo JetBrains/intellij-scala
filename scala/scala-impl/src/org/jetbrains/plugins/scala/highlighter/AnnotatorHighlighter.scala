@@ -1,14 +1,13 @@
 package org.jetbrains.plugins.scala
 package highlighter
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -17,10 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
@@ -47,7 +47,7 @@ object AnnotatorHighlighter {
   }
 
   def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
-    implicit val project = refElement.projectContext
+    implicit val project: ProjectContext = refElement.projectContext
 
     def annotateCollectionByType(resolvedType: ScType) {
       if (ScalaNamesUtil.isOperatorName(
@@ -118,12 +118,11 @@ object AnnotatorHighlighter {
         }, fun.getProject)
     }
 
-    val c = ScalaPsiUtil.getParentOfType(refElement, classOf[ScConstructor])
-
-    if (c != null && c.getParent.isInstanceOf[ScAnnotationExpr]) return
+    if (refElement.parentOfType(classOf[ScConstructor], strict = false)
+      .exists(_.getParent.isInstanceOf[ScAnnotationExpr])) return
 
     val resolvedElement = refElement.resolve()
-    if (PsiTreeUtil.getParentOfType(refElement, classOf[ScImportExpr]) == null && resolvedElement.isInstanceOf[PsiClass]) {
+    if (refElement.parentOfType(classOf[ScImportExpr]).isEmpty && resolvedElement.isInstanceOf[PsiClass]) {
       annotateCollection(resolvedElement.asInstanceOf[PsiClass])
     }
 
@@ -201,10 +200,7 @@ object AnnotatorHighlighter {
       case _: ScParameter => annotation.setTextAttributes(DefaultHighlighter.PARAMETER)
       case x@(_: ScFunctionDefinition | _: ScFunctionDeclaration | _: ScMacroDefinition) =>
         if (SCALA_FACTORY_METHODS_NAMES.contains(x.asInstanceOf[PsiMethod].getName) || x.asInstanceOf[PsiMethod].isConstructor) {
-          val clazz = PsiTreeUtil.getParentOfType(x, classOf[PsiClass])
-          if (clazz != null) {
-            annotateCollection(clazz)
-          }
+          x.parentOfType(classOf[PsiClass]).foreach(annotateCollection)
         }
         if (isHighlightableScalaTestKeyword(x.asInstanceOf[ScFunction])) {
           annotation.setTextAttributes(DefaultHighlighter.SCALATEST_KEYWORD)
@@ -232,8 +228,7 @@ object AnnotatorHighlighter {
         }
       case x: PsiMethod =>
         if (x.isConstructor) {
-          val clazz: PsiClass = PsiTreeUtil.getParentOfType(x, classOf[PsiClass])
-          if (clazz != null) annotateCollection(clazz)
+          x.parentOfType(classOf[PsiClass]).foreach(annotateCollection)
         }
         if (x.getModifierList != null && x.getModifierList.hasModifierProperty("static")) {
           annotation.setTextAttributes(DefaultHighlighter.OBJECT_METHOD_CALL)

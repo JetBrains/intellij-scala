@@ -4,20 +4,25 @@ package psi
 package api
 package expr
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
+/**
+  * @author Alexander Podkhalyuzin
+  *         Date: 06.03.2008
+  */
 trait ScPostfixExpr extends ScExpression with ScSugarCallExpr {
+
   def operand: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0)
-  def operation : ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(1) match {
-    case re : ScReferenceExpression => re
+
+  def operation: ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(1) match {
+    case re: ScReferenceExpression => re
     case _ =>
       throw new UnsupportedOperationException("Postfix Expr Operation is not reference expression: " + this.getText)
   }
 
   def getBaseExpr: ScExpression = operand
+
+  override def accept(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitPostfixExpression(this)
+  }
 }
 
 object ScPostfixExpr {

@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Char, Int, Nothing, Null}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
@@ -37,7 +37,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
 
   override def toString: String = "Literal"
 
-  protected override def innerType: TypeResult[ScType] = {
+  protected override def innerType: TypeResult = {
     val child = getFirstChild.getNode
     val inner = child.getElementType match {
       case ScalaTokenTypes.kNULL => Null
@@ -61,7 +61,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => api.Boolean
       case _ => return Failure("Wrong Psi to get Literal type")
     }
-    Success(inner)
+    Right(inner)
   }
 
   @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)

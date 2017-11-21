@@ -2,27 +2,46 @@ package org.jetbrains.plugins.scala.lang
 package psi
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 package object result {
 
-  implicit class TypeResultExt(val typeResult: TypeResult[ScType]) extends AnyVal {
+  import scala.util.{Either, Left, Right}
 
-    def getOrNothing: ScType = typeResult.getOrElse(api.Nothing)
+  type TypeResult = Either[Failure, ScType]
 
-    def getOrAny: ScType = typeResult.getOrElse(api.Any)
+  implicit class OptionTypeExt(val maybeRight: Option[ScType]) extends AnyVal {
 
-    private implicit def context: ProjectContext = typeResult.projectContext
+    def asTypeResult(implicit context: ProjectContext): TypeResult = maybeRight match {
+      case Some(result) => Right(result)
+      case None => Failure("")
+    }
+  }
+
+  implicit class TypeResultExt(val result: TypeResult) extends AnyVal {
+
+    def get: ScType = getOrApiType(null)
+
+    def getOrAny: ScType = getOrApiType(_.Any)
+
+    def getOrNothing: ScType = getOrApiType(_.Nothing)
+
+    private def getOrApiType(apiType: StdTypes => ScType): ScType = result match {
+      case Right(value) => value
+      case Left(failure) if apiType != null => apiType(failure.context.stdTypes)
+      case _ => throw new NoSuchElementException("Failure.get")
+    }
   }
 
   implicit class TypeableExt(val typeable: ScalaPsiElement with Typeable) extends AnyVal {
 
     def flatMap[E <: ScalaPsiElement](maybeElement: Option[E])
-                                     (function: E => TypeResult[ScType]): TypeResult[ScType] =
+                                     (function: E => TypeResult): TypeResult =
       maybeElement.map(function)
         .getOrElse(Failure("No element found"))
 
-    def flatMapType[E <: ScalaPsiElement with Typeable](maybeElement: Option[E]): TypeResult[ScType] =
+    def flatMapType[E <: ScalaPsiElement with Typeable](maybeElement: Option[E]): TypeResult =
       flatMap(maybeElement)(_.`type`())
 
     private implicit def context: ProjectContext = typeable

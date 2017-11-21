@@ -41,7 +41,7 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val settings = new SbtProjectSettings
     val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
-    settings.setJdk(internalSdk.getName)
+    settings.jdk = internalSdk.getName
     settings
   }
 
