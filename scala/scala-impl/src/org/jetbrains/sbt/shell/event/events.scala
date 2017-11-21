@@ -65,13 +65,7 @@ case class SbtShellNavigatable(shell: SbtShellRunner) extends Navigatable {
   override def canNavigateToSource: Boolean = true
 }
 
-
-case class SbtBuildFailure(message: String) extends events.Failure {
-  override def getMessage: String = message
-  override def getDescription: String = null
-  override def getError: Throwable = null
-  override def getCauses: java.util.List[events.Failure] = Collections.emptyList()
-}
+case class SbtBuildFailure(message: String) extends events.impl.FailureImpl(message, /*description*/ null: String)
 
 case class SbtBuildWarning(message: String) extends Warning {
   override def getMessage: String = message
