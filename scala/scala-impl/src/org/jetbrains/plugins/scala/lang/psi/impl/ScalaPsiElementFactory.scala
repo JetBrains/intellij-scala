@@ -16,6 +16,7 @@ import com.intellij.psi.impl.source.DummyHolderFactory
 import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
@@ -142,6 +143,8 @@ class ScalaPsiElementFactoryImpl(implicit val ctx: ProjectContext) extends JVMEl
 }
 
 object ScalaPsiElementFactory {
+
+  import ScalaTokenTypes._
 
   def createExpressionFromText(text: String, context: PsiElement): PsiElement = {
     try {
@@ -374,20 +377,36 @@ object ScalaPsiElementFactory {
     }
   }
 
-  def createValFromVarDefinition(variable: ScVariable)
-                                (implicit ctx: ProjectContext): ScValue =
-    createValueOrVariable(variable, "val").asInstanceOf[ScValue]
+  def createValFromVarDefinition(parameter: ScClassParameter): ScClassParameter = {
+    val clauseText = replaceKeywordTokenIn(parameter).parenthesize(needParenthesis = true)
 
-  def createVarFromValDeclaration(value: ScValue)
-                                 (implicit ctx: ProjectContext): ScVariable =
-    createValueOrVariable(value, "var").asInstanceOf[ScVariable]
+    val classParameters = createClassParamClausesWithContext(clauseText, parameter).params
+    classParameters.head.asInstanceOf[ScClassParameter]
+  }
 
-  private def createValueOrVariable(valOrVar: ScValueOrVariable, keyword: String)
-                                   (implicit ctx: ProjectContext): ScValueOrVariable = {
-    val startOffset = valOrVar.keywordToken.getStartOffsetInParent
-    val elementText = valOrVar.getText
-    val text = elementText.substring(0, startOffset) + keyword + elementText.substring(startOffset + 3)
-    createClassDefinitionFromText(text = text).members.head.asInstanceOf[ScValueOrVariable]
+  def createValFromVarDefinition(variable: ScVariable): ScValue =
+    createValueOrVariable(variable, kVAR, kVAL).asInstanceOf[ScValue]
+
+  def createVarFromValDeclaration(value: ScValue): ScVariable =
+    createValueOrVariable(value, kVAL, kVAR).asInstanceOf[ScVariable]
+
+  private[this] def createValueOrVariable(valOrVar: ScValueOrVariable,
+                                          fromToken: IElementType,
+                                          toToken: IElementType)
+                                         (implicit context: ProjectContext = valOrVar.projectContext): ScMember = {
+    val text = replaceKeywordTokenIn(valOrVar, fromToken, toToken)
+    createClassDefinitionFromText(text = text).members.head
+  }
+
+  private[this] def replaceKeywordTokenIn(member: ScMember,
+                                          fromToken: IElementType = kVAR,
+                                          toToken: IElementType = kVAL) = {
+    val offset = member.findFirstChildByType(fromToken).getStartOffsetInParent
+    val memberText = member.getText
+
+    memberText.substring(0, offset) +
+      toToken +
+      memberText.substring(offset + fromToken.toString.length)
   }
 
   def createEnumerator(name: String, expr: ScExpression, typeName: String)
@@ -434,11 +453,15 @@ object ScalaPsiElementFactory {
           |${expr.result.map(_.getText).getOrElse("")}
           |}""".stripMargin)
 
+  def createPatternDefinition(text: String)
+                             (implicit context: ProjectContext): ScPatternDefinition =
+    createClassDefinitionFromText(text).members.head.asInstanceOf[ScPatternDefinition]
+
   private def getExprFromFirstDef(text: String)
-                                 (implicit ctx: ProjectContext): ScExpression = {
-    val p = createClassDefinitionFromText(text).members.head.asInstanceOf[ScPatternDefinition]
-    p.expr.getOrElse(throw new IllegalArgumentException("Expression not found"))
-  }
+                                 (implicit context: ProjectContext): ScExpression =
+    createPatternDefinition(text).expr.getOrElse {
+      throw new IllegalArgumentException("Expression not found")
+    }
 
   def createBodyFromMember(elementText: String)
                           (implicit ctx: ProjectContext): ScTemplateBody =
@@ -453,7 +476,7 @@ object ScalaPsiElementFactory {
       s"""class a extends $superName {
           |}""".stripMargin
     val extendsBlock = createScalaFileFromText(text).typeDefinitions.head.extendsBlock
-    (extendsBlock.findFirstChildByType(ScalaTokenTypes.kEXTENDS), extendsBlock.templateParents.get)
+    (extendsBlock.findFirstChildByType(kEXTENDS), extendsBlock.templateParents.get)
   }
 
   def createMethodFromSignature(signature: PhysicalSignature, needsInferType: Boolean, body: String,
@@ -837,13 +860,13 @@ object ScalaPsiElementFactory {
       .getFirstChild.asInstanceOf[ScFunctionExpr].parameters.head.paramType.get
 
   def createColon(implicit ctx: ProjectContext): PsiElement =
-    createElementFromText("var f: Int", classOf[ScalaPsiElement]).findChildrenByType(ScalaTokenTypes.tCOLON).head
+    createElementFromText("var f: Int", classOf[ScalaPsiElement]).findChildrenByType(tCOLON).head
 
   def createComma(implicit ctx: ProjectContext): PsiElement =
-    createScalaFileFromText(",").findChildrenByType(ScalaTokenTypes.tCOMMA).head
+    createScalaFileFromText(",").findChildrenByType(tCOMMA).head
 
   def createAssign(implicit ctx: ProjectContext): PsiElement =
-    createScalaFileFromText("val x = 0").findChildrenByType(ScalaTokenTypes.tASSIGN).head
+    createScalaFileFromText("val x = 0").findChildrenByType(tASSIGN).head
 
   def createWhitespace(implicit ctx: ProjectContext): PsiElement =
     createExpressionFromText("1 + 1").findElementAt(1)
