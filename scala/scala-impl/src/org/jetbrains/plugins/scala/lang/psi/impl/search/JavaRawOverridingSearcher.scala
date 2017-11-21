@@ -122,7 +122,7 @@ private[search] object JavaRawOverridingSearcher {
 
   def isSuperMethodForScala(superMethod: PsiMethod, subMethod: PsiMethod): Boolean = {
     val scFun = subMethod match {
-      case wr: ScFunctionWrapper => wr.delegate
+      case ScFunctionWrapper(delegate) => delegate
       case fun: ScFunction => fun
       case _ => return false
     }

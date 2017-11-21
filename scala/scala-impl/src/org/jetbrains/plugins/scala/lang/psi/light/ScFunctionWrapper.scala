@@ -134,6 +134,9 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
 }
 
 object ScFunctionWrapper {
+
+  def unapply(wrapper: ScFunctionWrapper): Option[ScFunction] = Some(wrapper.delegate)
+
   /**
     * This is for Java only.
     */

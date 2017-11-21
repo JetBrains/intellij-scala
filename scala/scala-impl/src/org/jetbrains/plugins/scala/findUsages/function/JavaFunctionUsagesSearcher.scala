@@ -29,7 +29,7 @@ class JavaFunctionUsagesSearcher extends QueryExecutor[PsiReference, ReferencesS
                 ref match {
                   case refElement: PsiReferenceExpression =>
                     refElement.resolve match {
-                      case f: ScFunctionWrapper if f.delegate == method && !consumer.process(refElement) => return false
+                      case ScFunctionWrapper(delegate) if delegate == method && !consumer.process(refElement) => return false
                       case t: StaticPsiMethodWrapper if t.getNavigationElement == method && !consumer.process(refElement) => return false
                       case _ =>
                     }

@@ -897,7 +897,7 @@ object ScalaDocumentationProvider {
   private def getDocedElement(originalElement: PsiElement): PsiElement = {
     originalElement match {
       case null => null
-      case wrapper: ScFunctionWrapper => wrapper.delegate
+      case ScFunctionWrapper(delegate) => delegate
       case _: ScTypeDefinition | _: ScTypeAlias | _: ScValue
            | _: ScVariable | _: ScFunction | _: ScParameter | _: ScBindingPattern => originalElement
       case _ => getDocedElement(originalElement.getParent)
