@@ -40,7 +40,7 @@ object AmmoniteUtil {
   
   private val DEFAULT_IMPORTS = Seq("ammonite.main.Router._", "ammonite.runtime.tools.grep", "ammonite.runtime.tools.browse", 
     "ammonite.runtime.tools.time", "ammonite.repl.tools.desugar", "ammonite.repl.tools.source") //todo more default imports ?
-  private val DEFAULT_BUILTINS = Seq(("repl", "ammonite.repl.ReplAPI"), ("interp", "ammonite.runtime.Interpreter"))
+  private val DEFAULT_BUILTINS = Seq(("repl", "ammonite.repl.ReplAPI"), ("interp", "ammonite.runtime.Interpreter with ammonite.interp.Interpreter"))
 
   def isAmmoniteFile(file: ScalaFile): Boolean = {
     ScalaUtil.findVirtualFile(file) match {
