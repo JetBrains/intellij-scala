@@ -50,7 +50,7 @@ trait OverridingAnnotator {
     if (!isInSources) return
     element.getParent match {
       case _: ScRefinement =>
-        if (supers.isEmpty) Stats.trigger("scala.structural.type")
+        if (supers.isEmpty) Stats.trigger(ScalaBundle.message("structural.type.id"))
       case _ =>
     }
   }

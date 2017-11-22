@@ -64,7 +64,7 @@ object RunWorksheetAction {
   private val runnerClassName = "org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner"
 
   def runCompiler(project: Project, auto: Boolean) {
-    Stats.trigger("scala.worksheet")
+    Stats.trigger(ScalaBundle.message("run.worksheet.id"))
 
     if (project == null) return
 

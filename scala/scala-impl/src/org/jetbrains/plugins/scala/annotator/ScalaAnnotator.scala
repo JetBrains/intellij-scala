@@ -81,8 +81,8 @@ abstract class ScalaAnnotator extends Annotator
       case file: ScalaFile =>
         val isInSources: Boolean = ScalaUtils.isUnderSources(file)
         if (isInSources && (element eq file)) {
-          if (typeAware) Stats.trigger("scala.file.with.type.aware.annotated")
-          else Stats.trigger("scala.file.without.type.aware.annotated")
+          if (typeAware) Stats.trigger(ScalaBundle.message("annotator.type.aware.id"))
+          else Stats.trigger(ScalaBundle.message("annotator.not.type.aware.id"))
         }
         (file.isCompiled, isInSources)
       case _ => (false, false)
@@ -139,7 +139,7 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitMacroDefinition(fun: ScMacroDefinition): Unit = {
-        if (isInSources) Stats.trigger("scala.macro.definition")
+        if (isInSources) Stats.trigger(ScalaBundle.message("macro.definition.id"))
         super.visitMacroDefinition(fun)
       }
 
@@ -344,7 +344,7 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitExistentialTypeElement(exist: ScExistentialTypeElement): Unit = {
-        if (isInSources) Stats.trigger("scala.existential.type")
+        if (isInSources) Stats.trigger(ScalaBundle.message("existential.type.id"))
         super.visitExistentialTypeElement(exist)
       }
 

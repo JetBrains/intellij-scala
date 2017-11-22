@@ -65,7 +65,7 @@ object AnnotatorHighlighter {
         case ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_ALL =>
       }
 
-      Stats.trigger("scala.collection.pack.highlighting")
+      Stats.trigger(ScalaBundle.message("collection.pack.highlighting.id"))
 
       def conformsByNames(tp: ScType, qn: List[String]): Boolean =
         qn.flatMap {

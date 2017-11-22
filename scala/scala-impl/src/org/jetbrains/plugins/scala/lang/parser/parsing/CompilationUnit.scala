@@ -34,7 +34,7 @@ trait CompilationUnit {
         topStatSeq.parse(builder, waitBrace = false, hasPackage = hasPackage) match {
           case ParserState.EMPTY_STATE =>
           case ParserState.SCRIPT_STATE =>
-            Stats.trigger("scala.file.script.parsed")
+            Stats.trigger(ScalaBundle.message("parser.scala.script.id"))
             parseState = ParserState.SCRIPT_STATE
           case ParserState.FILE_STATE if parseState != ParserState.SCRIPT_STATE => parseState = ParserState.FILE_STATE
           case _ => 

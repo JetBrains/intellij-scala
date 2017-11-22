@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.statistics.Stats
 class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefactoringActionHandler {
 
   def invokeWithDialog(project: Project, fun: ScMethodLike) {
-    Stats.trigger(ScalaChangeSignatureHandler.id)
+    Stats.trigger(ScalaBundle.message("change.signature.id"))
     val dialog = new ScalaChangeSignatureDialog(project, new ScalaMethodDescriptor(fun), needSpecifyTypeChb = true)
     dialog.show()
   }
@@ -146,8 +146,4 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
       }
     }
   }
-}
-
-object ScalaChangeSignatureHandler {
-  val id = "scala.change.signature"
 }

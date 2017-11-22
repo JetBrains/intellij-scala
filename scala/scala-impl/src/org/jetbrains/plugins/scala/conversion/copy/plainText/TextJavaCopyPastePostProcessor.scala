@@ -74,7 +74,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
       val needShowDialog = !ScalaProjectSettings.getInstance(project).isDontShowConversionDialog
 
       if (!needShowDialog || ConverterUtil.shownDialog(ScalaBundle.message("scala.copy.from.text"), project).isOK) {
-        Stats.trigger(ScalaBundle.message("scala.convert.from.java.text"))
+        Stats.trigger(ScalaBundle.message("convert.from.java.text"))
 
         extensions.inWriteAction {
           val project = javaCodeWithContext.project

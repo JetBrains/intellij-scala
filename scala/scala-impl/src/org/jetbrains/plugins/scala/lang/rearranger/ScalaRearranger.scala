@@ -46,7 +46,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
 
   override def parse(root: PsiElement, document: Document,
                               ranges: java.util.Collection[TextRange], settings: ArrangementSettings): util.List[ScalaArrangementEntry] = {
-    Stats.trigger(ScalaRearranger.featureId)
+    Stats.trigger(ScalaBundle.message("rearrange.id"))
     val info = new ScalaArrangementParseInfo
     root.accept(new ScalaArrangementVisitor(info, document, ranges.asScala, getGroupingRules(settings)))
     if (settings != null) {
@@ -186,9 +186,6 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
 }
 
 object ScalaRearranger {
-
-  private val featureId = "scala.rearrange"
-
   private def addCondition(matchRules: immutable.List[ArrangementSectionRule], conditions: ArrangementSettingsToken*) = {
     if (conditions.length == 1) {
       ArrangementSectionRule.create(
