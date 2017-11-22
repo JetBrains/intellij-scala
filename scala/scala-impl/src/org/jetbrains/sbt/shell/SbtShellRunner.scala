@@ -35,7 +35,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
   private val toolWindowTitle = project.getName
 
-  private lazy val myConsoleView: LanguageConsoleImpl =
+  private lazy val sbtConsoleView: LanguageConsoleImpl =
     ShellUIUtil.inUIsync {
       val cv = SbtShellConsoleView(project, debugConnection)
       Disposer.register(this, cv)
@@ -53,7 +53,8 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
   override def createProcessHandler(process: Process): OSProcessHandler = myProcessHandler
 
-  override def createConsoleView(): LanguageConsoleImpl = myConsoleView
+  override def getConsoleView: LanguageConsoleImpl = sbtConsoleView
+  override def createConsoleView(): LanguageConsoleImpl = sbtConsoleView
 
   override def createProcess(): Process = myProcessHandler.getProcess
 
@@ -78,12 +79,12 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
       // assume initial state is Working
       // this is not correct when shell process was started without view, but we avoid that
-      myConsoleView.setPrompt("(initializing) >")
+      sbtConsoleView.setPrompt("(initializing) >")
 
       // TODO update icon with ready/working state
       val shellPromptChanger = new SbtShellReadyListener(
-        whenReady = if (notInTest) myConsoleView.setPrompt(">"),
-        whenWorking = if (notInTest) myConsoleView.setPrompt("(busy) >")
+        whenReady = if (notInTest) sbtConsoleView.setPrompt(">"),
+        whenWorking = if (notInTest) sbtConsoleView.setPrompt("(busy) >")
       )
 
       def scrollToEnd(): Unit = inUI {
@@ -155,9 +156,9 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
     // Adding actions
     val group = new DefaultActionGroup
     layoutUi.getOptions.setLeftToolbar(group, ActionPlaces.UNKNOWN)
-    val console = layoutUi.createContent(SbtShellToolWindowFactory.ID, myConsoleView.getComponent, "sbt-shell-toolwindow-console", null, null)
+    val console = layoutUi.createContent(SbtShellToolWindowFactory.ID, sbtConsoleView.getComponent, "sbt-shell-toolwindow-console", null, null)
 
-    myConsoleView.createConsoleActions.foreach(group.add)
+    sbtConsoleView.createConsoleActions.foreach(group.add)
 
     layoutUi.addContent(console, 0, PlaceInGrid.right, false)
 

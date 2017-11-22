@@ -193,11 +193,15 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
     val title = project.getName
     val runner = new SbtShellRunner(project, title, debugConnection)
+    runner.createConsoleView() // force creation now so that it's not null later and to avoid UI hanging
 
     val pd = ProcessData(handler, runner)
 
-    processData.synchronized { processData = Option(pd) }
-    pd.runner.initAndRun()
+    processData.synchronized {
+      processData = Option(pd)
+      runner.initAndRun()
+    }
+
     pd
   }
 
@@ -207,17 +211,15 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     f(writer)
   }
 
-  /** Creates the SbtShellRunner view, and focuses it if requested. */
+  /** Creates the SbtShellRunner view if necessary. */
   def acquireShellRunner: SbtShellRunner = processData.synchronized {
 
-    val theRunner = processData match {
+    processData match {
       case Some(ProcessData(_, runner)) if runner.getConsoleView.isRunning =>
         runner
       case _ =>
         updateProcessData().runner
     }
-
-    theRunner
   }
 
   def restartProcess(): Unit = processData.synchronized {
