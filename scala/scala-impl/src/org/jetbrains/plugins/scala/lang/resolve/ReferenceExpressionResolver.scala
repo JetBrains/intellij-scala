@@ -558,7 +558,10 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         val argumentExpressions = callOption.toSeq.flatMap {
           _.argumentExpressions
         }
-        val name = callOption.map {
+        
+        val name = callOption.filterNot(
+          me => me.isInstanceOf[ScPostfixExpr] && argumentExpressions.isEmpty
+        ).map {
           getDynamicNameForMethodInvocation
         }.getOrElse {
           ref.getContext match {
