@@ -32,12 +32,14 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.shell.event._
-
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
+
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
   * Created by jast on 2016-11-25.
@@ -73,6 +75,8 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
                    context: ProjectTaskContext,
                    callback: ProjectTaskNotification,
                    tasks: util.Collection[_ <: ProjectTask]): Unit = {
+
+    Stats.trigger(ScalaBundle.message("sbt.shell.build"))
 
     val validTasks = tasks.asScala.collect {
       case task: ModuleBuildTask => task

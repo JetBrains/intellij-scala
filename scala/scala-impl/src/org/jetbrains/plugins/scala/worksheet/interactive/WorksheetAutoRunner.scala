@@ -27,9 +27,9 @@ object WorksheetAutoRunner extends WorksheetPerFileConfig {
   
   private val AUTORUN = new FileAttribute("ScalaWorksheetAutoRun", 1, true)
 
-  def isSetEnabled(file: PsiFile): Boolean = FileAttributeUtilCache.readAttribute(AUTORUN, file) contains enabled
+  def isSetEnabled(file: PsiFile): Boolean = isEnabled(file, AUTORUN)
 
-  def isSetDisabled(file: PsiFile): Boolean = FileAttributeUtilCache.readAttribute(AUTORUN, file) contains disabled
+  def isSetDisabled(file: PsiFile): Boolean = isDisabled(file, AUTORUN)
 
   def setAutorun(file: PsiFile, autorun: Boolean) {
     setEnabled(file, AUTORUN, autorun)

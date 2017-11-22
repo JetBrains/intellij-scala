@@ -11,7 +11,9 @@ import com.intellij.openapi.options.Configurable.Composite
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.hydra.compiler.HydraCompilerConfigurable
 import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.AbstractConfigurable
+import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
  * @author Pavel Fatin
@@ -34,7 +36,12 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
   }
 
   override def apply(): Unit = {
-    configuration.incrementalityType = form.getIncrementalityType
+    val newIncType = form.getIncrementalityType
+    if (newIncType != configuration.incrementalityType) {
+      Stats.trigger(ScalaBundle.message("incrementality.type.set.id", newIncType.name()))
+    }
+
+    configuration.incrementalityType = newIncType
     configuration.defaultProfile = profiles.getDefaultProfile
     configuration.customProfiles = profiles.getModuleProfiles.asScala
     DaemonCodeAnalyzer.getInstance(project).restart()

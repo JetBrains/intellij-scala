@@ -14,6 +14,9 @@ import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.ui.Messages
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.converter.ScalaCompilerSettings
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
  * Pavel Fatin
@@ -24,53 +27,57 @@ class ServerMediator(project: Project) extends AbstractProjectComponent(project)
   private def isScalaProject = project.hasScala
   private val settings = ScalaCompileServerSettings.getInstance
 
-  private val checkSettingsTask = new CompileTask {
-    def execute(context: CompileContext): Boolean = {
-      if (isScalaProject) {
-        if (!checkCompilationSettings()) false
-        else true
-      }
+  private def checkSettings(): Boolean =
+    if (isScalaProject) {
+      if (!checkCompilationSettings()) false
       else true
     }
-  }
+    else true
 
-  private val checkCompileServerDottyTask = new CompileTask {
-    override def execute(context: CompileContext): Boolean = {
-      if (!settings.COMPILE_SERVER_ENABLED && project.hasDotty) {
-        val title = "Enable Scala Compile Server"
-        val content = s"<html><body>Dotty projects require Scala Compile Server<br> <a href=''>Configure</a></body></html>"
-        Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR, new CompileServerLauncher.ConfigureLinkListener(project)))
-        false
-      }
-      else true
+  private def checkCompileServerDotty(): Boolean =
+    if (!settings.COMPILE_SERVER_ENABLED && project.hasDotty) {
+      val title = "Enable Scala Compile Server"
+      val content = s"<html><body>Dotty projects require Scala Compile Server<br> <a href=''>Configure</a></body></html>"
+      Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR, new CompileServerLauncher.ConfigureLinkListener(project)))
+      false
     }
-  }
+    else true
 
-  private val startCompileServerTask = new CompileTask {
-    def execute(context: CompileContext): Boolean = {
-      if (settings.COMPILE_SERVER_ENABLED && isScalaProject) {
+  private def startCompileServer(): Boolean = {
+    if (settings.COMPILE_SERVER_ENABLED && isScalaProject) {
+      invokeAndWait {
+        CompileServerManager.configureWidget(project)
+      }
+
+      if (CompileServerLauncher.needRestart(project)) {
+        CompileServerLauncher.instance.stop()
+      }
+
+      if (!CompileServerLauncher.instance.running) {
         invokeAndWait {
-          CompileServerManager.configureWidget(project)
-        }
-
-        if (CompileServerLauncher.needRestart(project)) {
-          CompileServerLauncher.instance.stop()
-        }
-
-        if (!CompileServerLauncher.instance.running) {
-          invokeAndWait {
-            CompileServerLauncher.instance.tryToStart(project)
-          }
+          CompileServerLauncher.instance.tryToStart(project)
         }
       }
-
-      true
     }
+
+    true
   }
 
-  CompilerManager.getInstance(project).addBeforeTask(checkSettingsTask)
-  CompilerManager.getInstance(project).addBeforeTask(checkCompileServerDottyTask)
-  CompilerManager.getInstance(project).addBeforeTask(startCompileServerTask)
+  private def collectStats(): Boolean = {
+    val incType = ScalaCompilerConfiguration.instanceIn(project).incrementalityType
+    val compileServerUsed = settings.COMPILE_SERVER_ENABLED
+
+    Stats.trigger(ScalaBundle.message("incrementality.type.used.id", incType.name()))
+    Stats.trigger(ScalaBundle.message("compile.server.used"))
+    true
+  }
+
+  private def addBeforeTask(compileTask: CompileTask): Unit =
+    CompilerManager.getInstance(project).addBeforeTask(compileTask)
+
+  addBeforeTask(_ => checkSettings())
+  addBeforeTask(_ => checkCompileServerDotty())
+  addBeforeTask(_ => startCompileServer())
 
   private def checkCompilationSettings(): Boolean = {
     def hasClashes(module: Module) = module.hasScala && {
