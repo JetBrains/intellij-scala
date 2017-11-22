@@ -19,7 +19,7 @@ import scala.xml.XML
   * @author Mikhail Mutcianko
   * @since 26.07.16
   */
-class IvyIndex(val root: String, val name: String) extends ResolverIndex {
+class IvyIndex(val root: String, val name: String, implicit val project: ProjectContext) extends ResolverIndex {
   import ResolverIndex._
 
   private val indexDir: File = getIndexDirectory(root)
@@ -30,7 +30,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
   private var fqNameToGroupArtifactVersionMap = createPersistentMap(indexDir / Paths.FQ_NAME_TO_GROUP_ARTIFACT_VERSION_FILE)
   private var (_, _, innerTimestamp, currentVersion) = loadProps()
 
-  private def checkStorage()(implicit project: ProjectContext): Unit = {
+  private def checkStorage(): Unit = {
     if (artifactToGroupMap.isCorrupted ||
         groupToArtifactMap.isCorrupted ||
         groupArtifactToVersionMap.isCorrupted ||
@@ -50,7 +50,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     }
   }
 
-  private def withStorageCheck[T](f: => Set[T])(implicit project: ProjectContext): Set[T] = {
+  private def withStorageCheck[T](f: => Set[T]): Set[T] = {
     try     { f }
     catch   { case _: Exception => Set.empty }
     finally { checkStorage() }
