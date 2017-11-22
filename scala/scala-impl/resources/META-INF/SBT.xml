@@ -77,7 +77,7 @@
         <projectConfigurable groupId="build.tools" displayName="sbt" instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable" />
 
         <toolWindow id="sbt" anchor="right"
-                    icon="/org/jetbrains/plugins/scala/images/sbt_toolwin_old.png"
+                    icon="/org/jetbrains/plugins/scala/images/sbt_toolwin.png"
                     factoryClass="org.jetbrains.sbt.project.ScalaToolWindowFactory"
                     conditionClass="org.jetbrains.sbt.project.ScalaToolWindowFactoryCondition"/>
 

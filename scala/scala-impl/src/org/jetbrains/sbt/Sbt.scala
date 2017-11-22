@@ -55,9 +55,11 @@ object Sbt {
 
   val Latest_0_13: String = BuildInfo.sbtLatest_0_13
 
-  lazy val Icon: Icon = Icons.SBT
+  val Icon: Icon = Icons.SBT
 
-  lazy val FileIcon: Icon = Icons.SBT_FILE
+  val FileIcon: Icon = Icons.SBT_FILE
+
+  val FolderIcon: Icon = Icons.SBT_FOLDER
 
   def isProjectDefinitionFile(project: Project, file: File): Boolean = {
     val baseDir = new File(project.getBasePath)
