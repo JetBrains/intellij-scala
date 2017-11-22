@@ -22,7 +22,6 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugin.scala.util.MacroExpansion
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteCommandAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -31,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScM
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 
 class MacroExpandAction extends AnAction {
@@ -39,7 +38,7 @@ class MacroExpandAction extends AnAction {
   import MacroExpandAction._
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    Stats.trigger(ScalaBundle.message("macro.expand.action.id"))
+    Stats.trigger(FeatureKey.macroExpandAction)
 
     val sourceEditor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
     val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument).asInstanceOf[ScalaFile]

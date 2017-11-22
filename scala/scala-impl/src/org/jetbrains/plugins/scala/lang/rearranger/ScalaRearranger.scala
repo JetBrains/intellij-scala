@@ -20,7 +20,7 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Order._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens._
 import com.intellij.psi.codeStyle.arrangement.std._
 import com.intellij.psi.codeStyle.arrangement.{ArrangementSettings, _}
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * @author Roman.Shein
@@ -46,7 +46,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
 
   override def parse(root: PsiElement, document: Document,
                               ranges: java.util.Collection[TextRange], settings: ArrangementSettings): util.List[ScalaArrangementEntry] = {
-    Stats.trigger(ScalaBundle.message("rearrange.id"))
+    Stats.trigger(FeatureKey.rearrange)
     val info = new ScalaArrangementParseInfo
     root.accept(new ScalaArrangementVisitor(info, document, ranges.asScala, getGroupingRules(settings)))
     if (settings != null) {

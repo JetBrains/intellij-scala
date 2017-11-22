@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.debugger.breakpoints
 import java.util.{Collections, List => JList}
 import javax.swing.Icon
 
+import scala.collection.JavaConverters._
+
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.ui.breakpoints._
 import com.intellij.icons.AllIcons
@@ -19,7 +21,7 @@ import com.intellij.xdebugger.impl.XSourcePositionImpl
 import com.intellij.xdebugger.impl.breakpoints.XLineBreakpointImpl
 import com.intellij.xdebugger.{XDebuggerUtil, XSourcePosition}
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.java.debugger.breakpoints.properties.{JavaBreakpointProperties, JavaLineBreakpointProperties}
+import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -30,11 +32,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.UIFreezingGuard
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
-import scala.collection.JavaConverters._
-
-import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
  * @author Nikolay.Tropin
@@ -117,7 +117,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     if (!breakpoint.isInstanceOf[RunToCursorBreakpoint] && lambdaOrd == null) return true
 
     if (isScalaLambda(lambdaOrd, method)) {
-      Stats.trigger(ScalaBundle.message("scala.debugger.lambda.breakpoint.id"))
+      Stats.trigger(FeatureKey.debuggerLambdaBreakpoint)
     }
 
     DebuggerUtil.inTheMethod(position, method)

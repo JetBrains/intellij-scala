@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
@@ -64,7 +64,7 @@ object RunWorksheetAction {
   private val runnerClassName = "org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner"
 
   def runCompiler(project: Project, auto: Boolean) {
-    Stats.trigger(ScalaBundle.message("run.worksheet.id"))
+    Stats.trigger(FeatureKey.runWorksheet)
 
     if (project == null) return
 

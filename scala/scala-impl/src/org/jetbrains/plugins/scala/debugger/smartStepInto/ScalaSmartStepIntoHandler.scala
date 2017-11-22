@@ -2,6 +2,10 @@ package org.jetbrains.plugins.scala.debugger.smartStepInto
 
 import java.util.{Collections, List => JList}
 
+import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
+
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, MethodSmartStepTarget, SmartStepTarget}
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -21,12 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
-import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
-
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -40,7 +39,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       return Collections.emptyList[SmartStepTarget]
     }
 
-    Stats.trigger(ScalaBundle.message("scala.debugger.smart.step.into.id"))
+    Stats.trigger(FeatureKey.debuggerSmartStepInto)
 
     val (element, doc) =
       (for {

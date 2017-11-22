@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandler
 import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * Nikolay.Tropin
@@ -91,7 +91,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
   private def invokeOnClass(clazz: ScTemplateDefinition, project: Project, editor: Editor) {
     if (clazz == null) return
 
-    Stats.trigger(ScalaBundle.message("extract.trait.id"))
+    Stats.trigger(FeatureKey.extractTrait)
 
     val dialog = new ScalaExtractTraitDialog(project, clazz)
     dialog.show()

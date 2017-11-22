@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -50,7 +50,7 @@ trait OverridingAnnotator {
     if (!isInSources) return
     element.getParent match {
       case _: ScRefinement =>
-        if (supers.isEmpty) Stats.trigger(ScalaBundle.message("structural.type.id"))
+        Stats.trigger(supers.isEmpty, FeatureKey.structuralType)
       case _ =>
     }
   }

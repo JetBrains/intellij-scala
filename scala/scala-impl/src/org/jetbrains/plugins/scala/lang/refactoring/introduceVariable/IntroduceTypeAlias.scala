@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DefaultListCellRendererAdapter, ScalaDirectoryService, ScalaRefactoringUtil}
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
 /**
@@ -42,7 +42,7 @@ trait IntroduceTypeAlias {
   def invokeTypeElement(file: PsiFile, inTypeElement: ScTypeElement)
                        (implicit project: Project, editor: Editor): Unit = {
     try {
-      Stats.trigger(ScalaBundle.message("introduce.type.alias.id"))
+      Stats.trigger(FeatureKey.introduceTypeAlias)
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       writableScalaFile(file, INTRODUCE_TYPEALIAS_REFACTORING_NAME)

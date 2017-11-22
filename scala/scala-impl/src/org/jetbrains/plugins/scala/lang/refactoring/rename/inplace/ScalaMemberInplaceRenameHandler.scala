@@ -9,7 +9,7 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, MemberInplaceRenameHandler, MemberInplaceRenamer}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * Nikolay.Tropin
@@ -25,7 +25,7 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
 
 
   override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
-    Stats.trigger(ScalaBundle.message("rename.member.id"))
+    Stats.trigger(FeatureKey.renameMember)
     super.invoke(project, editor, file, dataContext)
   }
 

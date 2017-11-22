@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.Dup
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -46,7 +46,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     if (!file.isInstanceOf[ScalaFile]) return
 
-    Stats.trigger(ScalaBundle.message("extract.method.id"))
+    Stats.trigger(FeatureKey.extractMethod)
 
     afterExpressionChoosing(file, REFACTORING_NAME) {
       invokeOnEditor(file)

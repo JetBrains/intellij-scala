@@ -58,7 +58,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeRef
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
 
 /**
@@ -81,9 +81,10 @@ abstract class ScalaAnnotator extends Annotator
       case file: ScalaFile =>
         val isInSources: Boolean = ScalaUtils.isUnderSources(file)
         if (isInSources && (element eq file)) {
-          if (typeAware) Stats.trigger(ScalaBundle.message("annotator.type.aware.id"))
-          else Stats.trigger(ScalaBundle.message("annotator.not.type.aware.id"))
+          val key = if (typeAware) FeatureKey.annotatorTypeAware else FeatureKey.annotatorNotTypeAware
+          Stats.trigger(key)
         }
+
         (file.isCompiled, isInSources)
       case _ => (false, false)
     }
@@ -139,7 +140,7 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitMacroDefinition(fun: ScMacroDefinition): Unit = {
-        if (isInSources) Stats.trigger(ScalaBundle.message("macro.definition.id"))
+        Stats.trigger(isInSources, FeatureKey.macroDefinition)
         super.visitMacroDefinition(fun)
       }
 
@@ -344,7 +345,7 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitExistentialTypeElement(exist: ScExistentialTypeElement): Unit = {
-        if (isInSources) Stats.trigger(ScalaBundle.message("existential.type.id"))
+        Stats.trigger(isInSources, FeatureKey.existentialType)
         super.visitExistentialTypeElement(exist)
       }
 

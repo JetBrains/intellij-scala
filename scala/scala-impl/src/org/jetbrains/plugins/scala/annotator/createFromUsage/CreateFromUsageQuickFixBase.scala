@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * Nikolay.Tropin
@@ -38,6 +39,7 @@ abstract class CreateFromUsageQuickFixBase(ref: ScReferenceElement, description:
     PsiDocumentManager.getInstance(project).commitAllDocuments()
     if (!ref.isValid) return
 
+    Stats.trigger(FeatureKey.createFromUsage)
     invokeInner(project, editor, file)
   }
 

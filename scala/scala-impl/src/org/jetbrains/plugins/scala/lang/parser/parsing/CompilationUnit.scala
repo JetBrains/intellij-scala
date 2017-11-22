@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -34,7 +34,7 @@ trait CompilationUnit {
         topStatSeq.parse(builder, waitBrace = false, hasPackage = hasPackage) match {
           case ParserState.EMPTY_STATE =>
           case ParserState.SCRIPT_STATE =>
-            Stats.trigger(ScalaBundle.message("parser.scala.script.id"))
+            Stats.trigger(FeatureKey.parserScalaScript)
             parseState = ParserState.SCRIPT_STATE
           case ParserState.FILE_STATE if parseState != ParserState.SCRIPT_STATE => parseState = ParserState.FILE_STATE
           case _ => 

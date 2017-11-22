@@ -9,12 +9,12 @@ import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassHandler;
 import com.intellij.usageView.UsageInfo;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
+import org.jetbrains.plugins.scala.statistics.FeatureKey;
 import org.jetbrains.plugins.scala.statistics.Stats;
 
 import java.util.Collection;
@@ -37,7 +37,7 @@ public class MoveScalaClassHandler implements MoveClassHandler {
   @Override
   public void prepareMove(@NotNull PsiClass aClass) {
     if (aClass.getContainingFile() instanceof ScalaFile) {
-      Stats.trigger(ScalaBundle.message("move.class.id"));
+      Stats.trigger(FeatureKey.moveClass());
       ScalaMoveUtil.collectAssociations(aClass, ScalaApplicationSettings.getInstance().MOVE_COMPANION);
     }
   }

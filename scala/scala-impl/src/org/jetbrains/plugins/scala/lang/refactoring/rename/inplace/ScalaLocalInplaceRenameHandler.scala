@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, VariableInplaceRenameHandler, VariableInplaceRenamer}
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * Nikolay.Tropin
@@ -29,7 +29,7 @@ class ScalaLocalInplaceRenameHandler extends VariableInplaceRenameHandler with S
   }
 
   override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
-    Stats.trigger(ScalaBundle.message("rename.local.id"))
+    Stats.trigger(FeatureKey.renameLocal)
     super.invoke(project, editor, file, dataContext)
   }
 

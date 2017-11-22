@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * Nikolay.Tropin
@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.statistics.Stats
 class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefactoringActionHandler {
 
   def invokeWithDialog(project: Project, fun: ScMethodLike) {
-    Stats.trigger(ScalaBundle.message("change.signature.id"))
+    Stats.trigger(FeatureKey.changeSignature)
     val dialog = new ScalaChangeSignatureDialog(project, new ScalaMethodDescriptor(fun), needSpecifyTypeChb = true)
     dialog.show()
   }

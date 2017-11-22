@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntr
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaVariableValidator}
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -88,7 +88,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
 
   private def invoke(file: ScalaFile)
                     (implicit project: Project, editor: Editor): Unit = {
-    Stats.trigger(ScalaBundle.message("introduce.parameter.id"))
+    Stats.trigger(FeatureKey.introduceParameter)
 
     trimSpacesAndComments(editor, file)
     PsiDocumentManager.getInstance(project).commitAllDocuments()

@@ -4,6 +4,13 @@ package debugger
 import java.util
 import java.util.Collections
 
+import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+import scala.reflect.NameTransformer
+import scala.util.Try
+
 import com.intellij.debugger.engine._
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import com.intellij.debugger.requests.ClassPrepareRequestor
@@ -29,26 +36,19 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil._
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
-import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
-import scala.reflect.NameTransformer
-import scala.util.Try
-
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
   * @author ilyas
@@ -67,7 +67,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   def getSourcePosition(@Nullable location: Location): SourcePosition = {
     if (shouldSkip(location)) return null
 
-    Stats.trigger(ScalaBundle.message("scala.debugger.total.id"))
+    Stats.trigger(FeatureKey.debuggerTotal)
 
     val position =
       for {

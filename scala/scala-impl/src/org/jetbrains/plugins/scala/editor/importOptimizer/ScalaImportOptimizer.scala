@@ -5,6 +5,11 @@ package editor.importOptimizer
 import java.util
 import java.util.concurrent.atomic.AtomicInteger
 
+import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{immutable, mutable}
+
 import com.intellij.concurrency.JobLauncher
 import com.intellij.lang.{ImportOptimizer, LanguageImportStatements}
 import com.intellij.openapi.editor.Document
@@ -31,11 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-
-import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.{immutable, mutable}
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -74,6 +75,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
         multiRootFile.getViewProvider.getPsi(ScalaLanguage.INSTANCE).asInstanceOf[ScalaFile]
       case _ => return EmptyRunnable.getInstance()
     }
+
+    Stats.trigger(FeatureKey.optimizeImports)
 
     val project: Project = scalaFile.getProject
     val documentManager = PsiDocumentManager.getInstance(project)

@@ -1,12 +1,9 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import java.util.UUID
-
-import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
+import com.intellij.openapi.compiler.{CompileTask, CompilerManager}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
@@ -14,9 +11,8 @@ import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.ui.Messages
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.converter.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * Pavel Fatin
@@ -67,8 +63,8 @@ class ServerMediator(project: Project) extends AbstractProjectComponent(project)
     val incType = ScalaCompilerConfiguration.instanceIn(project).incrementalityType
     val compileServerUsed = settings.COMPILE_SERVER_ENABLED
 
-    Stats.trigger(ScalaBundle.message("incrementality.type.used.id", incType.name()))
-    Stats.trigger(ScalaBundle.message("compile.server.used"))
+    Stats.trigger(FeatureKey.incrementalTypeUsed(incType.name))
+    Stats.trigger(compileServerUsed, FeatureKey.compileServerUsed)
     true
   }
 

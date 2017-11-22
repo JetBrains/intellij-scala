@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.conversion.{ConverterUtil, JavaToScala}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.statistics.Stats
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 
 /**
@@ -74,7 +74,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
       val needShowDialog = !ScalaProjectSettings.getInstance(project).isDontShowConversionDialog
 
       if (!needShowDialog || ConverterUtil.shownDialog(ScalaBundle.message("scala.copy.from.text"), project).isOK) {
-        Stats.trigger(ScalaBundle.message("convert.from.java.text"))
+        Stats.trigger(FeatureKey.convertFromJavaText)
 
         extensions.inWriteAction {
           val project = javaCodeWithContext.project
