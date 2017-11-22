@@ -16,20 +16,20 @@ import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 /**
- * IntelliJ's equivalent of stalactite's built-in PresentationCompilerTest
+ * IntelliJ's equivalent of scalaz-deriving's built-in PresentationCompilerTest
  *
  * @author Sam Halliday
  * @since  24/08/2017
  */
 @Category(Array(classOf[SlowTests]))
-class StalactiteTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ScalazDerivingTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override implicit val version: ScalaVersion = Scala_2_11
 
   override def librariesLoaders =
     super.librariesLoaders :+
-      StalactiteTest.StalactiteLoader() :+
-      StalactiteTest.SimulacrumLoader()
+      ScalazDerivingTest.ScalazDerivingLoader() :+
+      ScalazDerivingTest.SimulacrumLoader()
 
 
   protected def folderPath: String = TestUtils.getTestDataPath
@@ -68,7 +68,7 @@ class StalactiteTest extends ScalaLightCodeInsightFixtureTestAdapter {
     val fileText: String = """
 package wibble
 
-import stalactite._
+import stalactite.deriving
 import simulacrum.typeclass
 
 @typeclass trait Wibble[T] {}
@@ -87,7 +87,7 @@ final case class <caret>Foo(string: String, int: Int)
     val fileText: String = """
 package wibble
 
-import stalactite._
+import stalactite.deriving
 import simulacrum.typeclass
 
 @typeclass trait Wibble[T] {}
@@ -109,7 +109,7 @@ final case class Foo(string: String, int: Int) extends Baz
     val fileText: String = """
 package wibble
 
-import stalactite._
+import stalactite.deriving
 import simulacrum.typeclass
 
 @typeclass trait Wibble[T] {}
@@ -126,17 +126,17 @@ case object <caret>Caz
 
 }
 
-object StalactiteTest {
+object ScalazDerivingTest {
 
-  case class StalactiteLoader() extends IvyLibraryLoaderAdapter {
+  case class ScalazDerivingLoader() extends IvyLibraryLoaderAdapter {
     val vendor: String = "com.fommil"
     val name: String = "stalactite"
-    val version: String = "0.0.3"
+    val version: String = "0.0.5"
   }
 
   case class SimulacrumLoader() extends IvyLibraryLoaderAdapter {
     val vendor: String = "com.github.mpilquist"
     val name: String = "simulacrum"
-    val version: String = "0.10.0"
+    val version: String = "0.11.0"
   }
 }

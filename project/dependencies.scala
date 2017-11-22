@@ -161,11 +161,11 @@ object DependencyGroups {
   val testDownloader = Seq(
 
     "com.chuusai" % "shapeless_2.11" % "2.0.0",
-    "com.fommil" % "stalactite_2.11" % "0.0.3",
+    "com.fommil" % "stalactite_2.11" % "0.0.5",
     "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
     "com.github.julien-truffaut" %% "monocle-generic" % monocleVersion,
     "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion,
-    "com.github.mpilquist" % "simulacrum_2.11" % "0.10.0",
+    "com.github.mpilquist" % "simulacrum_2.11" % "0.11.0",
     "com.lihaoyi" % "utest_2.10" % "0.3.1" % "provided",
     "com.lihaoyi" % "utest_2.10" % "0.4.3" % "provided",
     "com.lihaoyi" % "utest_2.11" % "0.3.1" % "provided",
