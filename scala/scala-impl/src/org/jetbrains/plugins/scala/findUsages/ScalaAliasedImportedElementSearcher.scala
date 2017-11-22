@@ -8,7 +8,7 @@ import com.intellij.psi.search._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
@@ -23,7 +23,7 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
           val name = named.name
           ScalaPsiUtil.nameContext(named) match {
             case _: PsiNamedElement | _: PsiMember | _: ScTypeAlias if name != null && !StringUtil.isEmptyOrSpaces(name) =>
-              val scope = ScalaSourceFilterScope(parameters)
+              val scope = ScalaFilterScope(parameters)
               Some((named, name, scope))
             case _ => None
           }

@@ -5,8 +5,8 @@ package namesSuggester
 package genericTypes
 
 import org.atteo.evo.inflector.English
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.namesByType
 
 /**
   * @author adkozlov
@@ -15,35 +15,38 @@ class TypePluralNamesProvider extends GenericTypeNamesProvider {
 
   import TypePluralNamesProvider._
 
-  override def names(`type`: ScType): Seq[String] =
-    `type` match {
-      case JavaArrayType(argument) => pluralizeNames(argument)
-      case _: ParameterizedType => super.names(`type`)
-      case _ => Seq.empty
-    }
+  override def names(`type`: ScParameterizedType): Seq[String] = `type` match {
+    case IsTraversable(designator, argument) =>
+      val argumentNames = argument match {
+        case IsTraversable(_, _) => Seq.empty
+        case _ => pluralizeNames(argument)
+      }
 
-  override protected def names(designator: ScType, arguments: Seq[ScType]): Seq[String] =
-    pluralizeNames(arguments.head)
+      namesByType(designator) ++ argumentNames
+    case _ => Seq.empty
+  }
 
-  override def isValid(`type`: ScType): Boolean =
-    `type` match {
-      case _: JavaArrayType => true
-      case ParameterizedType(designator, Seq(_)) =>
-        designator.canonicalText == "_root_.scala.Array" ||
-          GenericTypeNamesProvider.isInheritor(`type`, "scala.collection.GenTraversableOnce", "java.lang.Iterable")
-      case _ => false
-    }
 }
 
 object TypePluralNamesProvider {
 
-  private def pluralizeNames(`type`: ScType): Seq[String] =
-    NameSuggester.namesByType(`type`, withPlurals = false, shortVersion = false)
-      .map(plural)
+  private[namesSuggester] def pluralizeNames(`type`: ScType): Seq[String] =
+    namesByType(`type`, withPlurals = false, shortVersion = false).map {
+      case "x" => "xs"
+      case "index" => "indices"
+      case string => English.plural(string)
+    }
 
-  private[this] def plural: String => String = {
-    case "x" => "xs"
-    case "index" => "indices"
-    case string => English.plural(string)
+  private object IsTraversable {
+
+    import GenericTypeNamesProvider.isInheritor
+
+    def unapply(arg: ScType): Option[(ScType, ScType)] = arg match {
+      case genericType@ScParameterizedType(designator, Seq(argument))
+        if designator.canonicalText == "_root_.scala.Array" || isInheritor(genericType, "scala.collection.GenTraversableOnce", "java.lang.Iterable") =>
+        Some(designator, argument)
+      case _ => None
+    }
   }
+
 }

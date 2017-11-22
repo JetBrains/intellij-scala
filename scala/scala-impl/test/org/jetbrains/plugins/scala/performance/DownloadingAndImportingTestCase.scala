@@ -39,7 +39,7 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
     val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
     val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk18
     else internalSdk
-    settings.setJdk(sdk.getName)
+    settings.jdk = sdk.getName
     settings.setCreateEmptyContentRootDirectories(true)
     settings
   }

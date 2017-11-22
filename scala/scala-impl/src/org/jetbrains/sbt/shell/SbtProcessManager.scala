@@ -2,7 +2,7 @@ package org.jetbrains.sbt.shell
 
 import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
 
-import com.intellij.debugger.impl.{DebuggerManagerImpl, GenericDebuggerRunnerSettings}
+import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.execution.configurations._
 import com.intellij.execution.process.ColoredProcessHandler
 import com.intellij.openapi.components.AbstractProjectComponent
@@ -14,10 +14,10 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver}
 import org.jetbrains.sbt.project.data.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.SbtOpts
+import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver}
 
 import scala.collection.JavaConverters._
 /**
@@ -47,9 +47,9 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     sbtMajorVersion.presentation match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
       case _ => Seq(
-          s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor" % "$sbtStructureVersion")""",
-          s"""addSbtPlugin("org.jetbrains" % "sbt-idea-shell" % "$sbtIdeaShellVersion")"""
-        ) // works for 0.13.5+, for older versions it will be ignored
+        s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor" % "$sbtStructureVersion")""",
+        s"""addSbtPlugin("org.jetbrains" % "sbt-idea-shell" % "$sbtIdeaShellVersion")"""
+      ) // works for 0.13.5+, for older versions it will be ignored
     }
   }
 
@@ -80,12 +80,8 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     javaParameters.configureByProject(project, 1, sdk)
     javaParameters.setWorkingDirectory(workingDir)
     javaParameters.setJarPath(launcher.getCanonicalPath)
-    val debugConnection: Option[RemoteConnection] = if (sbtSettings.shellDebugMode) {
-      val debuggerSettings = new GenericDebuggerRunnerSettings()
-      debuggerSettings.setLocal(false) // I guess this means the thing being debugged is???
-      // this will actually patch the javaParameters as a side effect
-      Option(DebuggerManagerImpl.createDebugParameters(javaParameters, debuggerSettings, true))
-    } else None
+
+    val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
 
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
@@ -109,6 +105,24 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val cpty = new ColoredProcessHandler(pty)
 
     (cpty, debugConnection)
+  }
+
+  /**
+    * add debug parameters to java parameters and create remote connection
+    * @return
+    */
+  private def addDebugParameters(javaParameters: JavaParameters): RemoteConnection = {
+
+    val host = "localhost"
+    val port = DebuggerUtils.getInstance.findAvailableDebugAddress(true)
+    val remoteConnection = new RemoteConnection(true, host, port, false)
+
+    val shellDebugProperties = s"-agentlib:jdwp=transport=dt_socket,address=$host:$port,suspend=n,server=y"
+    val vmParams = javaParameters.getVMParametersList
+    vmParams.prepend("-Xdebug")
+    vmParams.replaceOrPrepend("-agentlib:jdwp=", shellDebugProperties)
+
+    remoteConnection
   }
 
   private def getSbtSettings(dir: String) = SbtExternalSystemManager.executionSettingsFor(project, dir)

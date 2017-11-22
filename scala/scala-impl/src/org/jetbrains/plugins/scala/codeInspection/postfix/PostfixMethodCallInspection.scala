@@ -33,8 +33,9 @@ class PostfixMethodCallInspection extends AbstractInspection("UseOfPostfixMethod
 }
 
 class AddDotFix(pexpr: ScPostfixExpr) extends AbstractFixOnPsiElement("Add dot to method call", pexpr) {
-  def doApplyFix(project: Project) {
-    val postfix = getElement
+
+  override protected def doApplyFix(postfix: ScPostfixExpr)
+                                   (implicit project: Project): Unit = {
     val expr = ScalaPsiElementFactory.createEquivQualifiedReference(postfix)
     postfix.replaceExpression(expr, removeParenthesis = true)
   }

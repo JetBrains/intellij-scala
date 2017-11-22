@@ -96,6 +96,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     protected void afterSetUpProject() {
         setUpLibraries();
+        loadIvyDependencies();
     }
 
 

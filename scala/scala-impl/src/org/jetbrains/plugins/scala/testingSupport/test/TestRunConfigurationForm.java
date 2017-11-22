@@ -298,7 +298,7 @@ public class TestRunConfigurationForm {
             kindComboBox.addItem(testKind);
         }
 
-        switch (configuration.getTestKind()) {
+        switch (configuration.getTestConfigurationData().getKind()) {
             case ALL_IN_PACKAGE:
                 setPackageEnabled();
                 break;
@@ -430,8 +430,7 @@ public class TestRunConfigurationForm {
         setJavaOptions(configuration.getJavaOptions());
         setTestArgs(configuration.getTestArgs());
         setTestPackagePath(configuration.getTestPackagePath());
-        setRegexps(configuration.getClassRegexps(), configuration.getTestRegexps());
-        switch (configuration.getTestKind()) {
+        switch (configuration.getTestConfigurationData().getKind()) {
             case ALL_IN_PACKAGE:
                 setPackageEnabled();
                 break;
@@ -439,9 +438,13 @@ public class TestRunConfigurationForm {
                 setClassEnabled();
                 break;
             case TEST_NAME:
+                SingleTestData singleData = (SingleTestData) configuration.getTestConfigurationData();
+                setTestName(singleData.getTestName());
                 setTestNameEnabled();
                 break;
             case REGEXP:
+                RegexpTestData regexpData = (RegexpTestData) configuration.getTestConfigurationData();
+                setRegexps(regexpData.getClassRegexps(), regexpData.getTestRegexps());
                 setRegexpEnabled();
         }
         boolean hasSbt = hasSbt(configuration.getProject());
@@ -452,7 +455,6 @@ public class TestRunConfigurationForm {
         setWorkingDirectory(configuration.getWorkingDirectory());
         myModuleSelector.applyTo(configuration);
         searchForTestsComboBox.setSelectedItem(configuration.getSearchTest());
-        setTestName(configuration.getTestName());
         environmentVariables.setEnvs(configuration.getEnvVariables());
         setShowProgressMessages(configuration.getShowProgressMessages());
     }

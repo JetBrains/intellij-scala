@@ -18,8 +18,8 @@ object UnnecessaryPartialFunctionQuickFix {
 class UnnecessaryPartialFunctionQuickFix(expression: ScBlockExpr)
   extends AbstractFixOnPsiElement(hint, expression) {
 
-  override def doApplyFix(project: Project): Unit = {
-    val expr = getElement
+  override protected def doApplyFix(expr: ScBlockExpr)
+                                   (implicit project: Project): Unit = {
     val expressionCopy = expr.copy().asInstanceOf[ScBlockExpr]
     expressionCopy.caseClauses.map(_.caseClauses).foreach {
       case Seq(singleCaseClause) =>
@@ -29,7 +29,7 @@ class UnnecessaryPartialFunctionQuickFix(expression: ScBlockExpr)
           deleteLeadingWhitespace(expressionCopy)
           deleteTrailingWhitespace(expressionCopy)
         }
-        expr.replace(createExpressionFromText(expressionCopy.getText)(expr.getManager))
+        expr.replace(createExpressionFromText(expressionCopy.getText))
       case _ => 
     }
   }

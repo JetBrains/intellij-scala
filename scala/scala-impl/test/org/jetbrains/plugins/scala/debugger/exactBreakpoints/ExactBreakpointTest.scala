@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 import org.junit.experimental.categories.Category
-
 import scala.collection.JavaConverters._
+import scala.concurrent.duration.DurationLong
 
 /**
  * @author Nikolay.Tropin
@@ -54,13 +54,11 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
     runDebugger() {
       for (expected <- sourcePositions) {
         waitForBreakpoint()
-        managed {
-          val location = suspendContext.getFrameProxy.getStackFrame.location
-          inReadAction {
-            val sourcePosition = ScalaPositionManager.instance(getDebugProcess).get.getSourcePosition(location)
-            val text: String = highlightedText(sourcePosition)
-            Assert.assertTrue(message(expected, text), text.startsWith(expected.stripSuffix("...")))
-          }
+        val location = currentLocation()
+        inReadAction {
+          val sourcePosition = positionManager.getSourcePosition(location)
+          val text: String = highlightedText(sourcePosition)
+          Assert.assertTrue(message(expected, text), text.startsWith(expected.stripSuffix("...")))
         }
         resume()
       }

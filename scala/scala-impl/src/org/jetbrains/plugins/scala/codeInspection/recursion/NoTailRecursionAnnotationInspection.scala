@@ -20,8 +20,10 @@ class NoTailRecursionAnnotationInspection extends AbstractInspection("No tail re
 
   class AddAnnotationQuickFix(holder: ScAnnotationsHolder)
           extends AbstractFixOnPsiElement("Add @tailrec annotation", holder) {
-    def doApplyFix(project: Project) {
-      getElement.addAnnotation("scala.annotation.tailrec")
+
+    override protected def doApplyFix(element: ScAnnotationsHolder)
+                                     (implicit project: Project): Unit = {
+      element.addAnnotation("scala.annotation.tailrec")
     }
   }
 }

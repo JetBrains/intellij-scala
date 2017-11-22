@@ -4,7 +4,6 @@ import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.{BeforeRunTask, BeforeRunTaskProvider, ExecutionManager}
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Key
 import com.intellij.util.concurrency.Semaphore
 
@@ -37,7 +36,8 @@ class RunCbtDebuggerBeforeRunProvider extends BeforeRunTaskProvider[RunCbtDebugg
     var result: Boolean = false
     finished.down()
     val listener = new CbtProcessListener {
-      override def onComplete(): Unit = ()
+      override def onComplete(exitCode: Int): Unit = ()
+
       override def onTextAvailable(text: String, stderr: Boolean): Unit = {
         if (text startsWith "Listening for transport") {
           result = true
@@ -52,14 +52,8 @@ class RunCbtDebuggerBeforeRunProvider extends BeforeRunTaskProvider[RunCbtDebugg
       }
     }
 
-    val environment =
-      CbtProjectTaskRunner.createExecutionEnv(beforeTunTask.taskName,
-        beforeTunTask.module,
-        project,
-        listener,
-        options = Seq("direct", "-debug"))
-    ExecutionManager.getInstance(project)
-      .restartRunProfile(environment)
+    val environment = CbtProjectTaskRunner.createExecutionEnv(beforeTunTask.task.appendListener(listener))
+    ExecutionManager.getInstance(project).restartRunProfile(environment)
     finished.waitFor()
     result
   }
@@ -71,7 +65,7 @@ object RunCbtDebuggerBeforeRunProvider {
   val NAME = "CBT Debug"
 }
 
-class RunCbtDebuggerBeforeRunTask(val taskName: String, val module: Module)
+class RunCbtDebuggerBeforeRunTask(val task: CbtTask)
   extends BeforeRunTask[RunCbtDebuggerBeforeRunTask](RunCbtDebuggerBeforeRunProvider.ID) {
   setEnabled(true)
 }

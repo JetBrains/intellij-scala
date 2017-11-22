@@ -54,7 +54,7 @@ class StalactiteInjector extends SyntheticMembersInjector {
 
   private def fqn(annotParam: ScExpression): Option[String] = {
     annotParam match {
-      case ResolvesTo(c: PsiClass) => Option(c.qualifiedName).map("_root_." + _)
+      case ResolvesTo(c: PsiClass) => Option(c.qualifiedName)
       case _ => None
     }
   }

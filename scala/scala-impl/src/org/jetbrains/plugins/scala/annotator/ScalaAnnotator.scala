@@ -488,7 +488,15 @@ abstract class ScalaAnnotator extends Annotator
       data = (count, calculate())
       containingFile.putUserData(ScalaAnnotator.ignoreHighlightingKey, data)
     }
-    val offset = element.getTextOffset
+    val noCommentWhitespace = element.children.filter {
+      case _: PsiComment | _: PsiWhiteSpace => false
+      case _ => true
+    }
+    val offset =
+      noCommentWhitespace.headOption
+        .map(_.getTextOffset)
+        .getOrElse(element.getTextOffset)
+
     data._2.forall(!_.contains(offset))
   }
 

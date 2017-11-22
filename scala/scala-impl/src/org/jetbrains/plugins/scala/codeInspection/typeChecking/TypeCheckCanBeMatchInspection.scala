@@ -66,10 +66,10 @@ class TypeCheckCanBeMatchInspection extends AbstractInspection(inspectionId, ins
 
 class TypeCheckCanBeMatchQuickFix(isInstOfUnderFix: ScGenericCall, ifStmt: ScIfStmt)
         extends AbstractFixOnTwoPsiElements(inspectionName, isInstOfUnderFix, ifStmt) {
-  def doApplyFix(project: Project) {
-    val isInstOf = getFirstElement
-    val ifSt = getSecondElement
-    if (!ifSt.isValid || !isInstOf.isValid) return
+
+
+  override protected def doApplyFix(isInstOf: ScGenericCall, ifSt: ScIfStmt)
+                                   (implicit project: Project): Unit = {
     val (matchStmtOption, renameData) = buildMatchStmt(ifSt, isInstOf, onlyFirst = true)
     for (matchStmt <- matchStmtOption) {
       val newMatch = inWriteAction {
@@ -87,9 +87,8 @@ class TypeCheckCanBeMatchQuickFix(isInstOfUnderFix: ScGenericCall, ifStmt: ScIfS
 object TypeCheckToMatchUtil {
   type RenameData = collection.mutable.ArrayBuffer[(Int, Seq[String])]
 
-  def buildMatchStmt(ifStmt: ScIfStmt, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean): (Option[ScMatchStmt], RenameData) = {
-    import ifStmt.projectContext
-
+  def buildMatchStmt(ifStmt: ScIfStmt, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean)
+                    (implicit project: Project): (Option[ScMatchStmt], RenameData) =
     baseExpr(isInstOfUnderFix) match {
       case Some(expr: ScExpression) =>
         val matchedExprText = expr.getText
@@ -99,7 +98,6 @@ object TypeCheckToMatchUtil {
         (Some(matchStmt), renameData)
       case _ => (None, null)
     }
-  }
 
   private def buildCaseClauseText(ifStmt: ScIfStmt, isInstOf: ScGenericCall, caseClauseIndex: Int, renameData: RenameData): Option[String] = {
     var definedName: Option[String] = None

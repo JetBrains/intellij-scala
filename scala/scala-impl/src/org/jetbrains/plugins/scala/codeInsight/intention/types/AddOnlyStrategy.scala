@@ -4,18 +4,21 @@ package intention
 package types
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText}
-import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScCompoundType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScCompoundType, ScType, Signature}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.annotations.Implementation
 
@@ -37,7 +40,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   override def underscoreSectionWithType(underscore: ScUnderscoreSection) = true
 
   override def functionWithoutType(function: ScFunctionDefinition): Boolean = {
-    function.returnType.foreach {
+    typeForMember(function).foreach {
       addTypeAnnotation(_, function, function.paramClauses)
     }
 
@@ -45,7 +48,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   }
 
   override def valueWithoutType(value: ScPatternDefinition): Boolean = {
-    value.`type`().foreach {
+    typeForMember(value).foreach {
       addTypeAnnotation(_, value, value.pList)
     }
 
@@ -53,7 +56,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   }
 
   override def variableWithoutType(variable: ScVariableDefinition): Boolean = {
-    variable.`type`().foreach {
+    typeForMember(variable).foreach {
       addTypeAnnotation(_, variable, variable.pList)
     }
 
@@ -135,6 +138,68 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
     case ScGenericCall(referenced, _) if Implementation.isEmptyCollectionFactory(referenced) =>
       implicit val context = referenced.projectContext
       createExpressionFromText(referenced.getText)
+  }
+
+  private def typeForMember(element: ScMember): Option[ScType] = {
+
+    def signatureType(sign: Signature): Option[ScType] = {
+      val substitutor = sign.substitutor
+      sign.namedElement match {
+        case f: ScFunction =>
+          f.returnType.toOption.map(substitutor.subst)
+        case m: PsiMethod =>
+          implicit val ctx: Project = m.getProject
+          Option(m.getReturnType).map(psiType => substitutor.subst(psiType.toScType()))
+        case t: ScTypedDefinition =>
+          t.`type`().toOption.map(substitutor.subst)
+        case _ => None
+      }
+    }
+
+    def superSignatures(member: ScMember): Seq[Signature] = {
+      val named = member match {
+        case n: ScNamedElement => n
+        case v: ScValueOrVariable if v.declaredElements.size == 1 => v.declaredElements.head
+        case _ => return Seq.empty
+      }
+
+      val aClass = member match {
+        case ContainingClass(c) => c
+        case _ => return Seq.empty
+      }
+
+      val signatureMap = TypeDefinitionMembers.getSignatures(aClass)
+      val signaturesForNamed =
+        signatureMap
+          .forName(named.name)._1
+          .filter(sign => sign._1.namedElement == named)
+      signaturesForNamed.flatMap(_._2.supers.map(_.info))
+    }
+
+    val computedType = element match {
+      case function: ScFunctionDefinition =>
+        function.returnType.toOption
+      case value: ScPatternDefinition =>
+        value.`type`().toOption
+      case variable: ScVariableDefinition =>
+        variable.`type`().toOption
+      case _ =>
+        None
+    }
+
+    val shouldTrySuperMember = computedType match {
+      case None => true
+      case Some(t) => t.isNothing || t.isAny
+    }
+
+    if (shouldTrySuperMember) {
+      val supers = superSignatures(element).iterator
+      supers
+        .map(signatureType)
+        .find(_.nonEmpty)
+        .flatten
+    }
+    else computedType
   }
 }
 

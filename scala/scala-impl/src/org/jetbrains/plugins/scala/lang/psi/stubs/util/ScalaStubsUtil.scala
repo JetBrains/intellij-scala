@@ -14,7 +14,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -37,7 +37,7 @@ object ScalaStubsUtil {
     if (name == null || clazz.isEffectivelyFinal) return Seq.empty
 
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
-    val scalaScope = new ScalaSourceFilterScope(scope, clazz.getProject)
+    val scalaScope = new ScalaFilterScope(scope, clazz.getProject)
 
     val extendsBlocks =
       StubIndex.getElements(SUPER_CLASS_NAME_KEY, name, clazz.getProject, scalaScope, classOf[ScExtendsBlock]).iterator
@@ -59,7 +59,7 @@ object ScalaStubsUtil {
   def getSelfTypeInheritors(clazz: PsiClass): Seq[ScTemplateDefinition] = {
     @CachedInsidePsiElement(clazz, CachesUtil.enclosingModificationOwner(clazz))
     def selfTypeInheritorsInner(): Seq[ScTemplateDefinition] = {
-      val scope = clazz.resolveScope
+      val scope = new ScalaFilterScope(clazz.resolveScope, clazz.getProject)
       val inheritors = new ArrayBuffer[ScTemplateDefinition]
       val project = clazz.getProject
       val name = clazz.name

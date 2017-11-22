@@ -11,6 +11,7 @@ import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.extensions.CharSeqExt
 import org.jetbrains.plugins.scala.format.StringConcatenationParser
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -88,9 +89,13 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
 
     if (supportLevel == ScalaCodeStyleSettings.MULTILINE_STRING_NONE || offset - literalOffset < firstMLQuoteLength) return Result.Continue
 
-    def getLineByNumber(number: Int): String =
-      document.getText(new TextRange(document.getLineStartOffset(number), document.getLineEndOffset(number)))
-    
+    def getLineByNumber(number: Int): String = {
+      val sequence = document.getImmutableCharSequence
+      val start = document.getLineStartOffset(number)
+      val end = document.getLineEndOffset(number)
+      sequence.substring(start, end)
+    }
+
     def getSpaces(count: Int) = StringUtil.repeat(" ", count)
     
     def getSmartSpaces(count: Int) = if (useTabs) {
@@ -99,7 +104,8 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
       StringUtil.repeat(" ", count)
     }
     
-    def getSmartLength(line: String) = if (useTabs) line.length + line.count(_ == '\t')*(tabSize - 1) else line.length 
+    def getSmartLength(line: CharSequence) =
+      if (useTabs) line.length + line.count(_ == '\t')*(tabSize - 1) else line.length
     
     def insertNewLine(nlOffset: Int, indent: Int, trimPreviousLine: Boolean) {
       document.insertString(nlOffset, "\n")
@@ -160,7 +166,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
           if (inConcatenation.isDefined) inConcatenation.map { expr =>
             val exprStart = expr.getTextRange.getStartOffset
             val lineStart = document.getLineStartOffset(document.getLineNumber(exprStart))
-            getSmartLength(document.getText.substring(lineStart, exprStart))
+            getSmartLength(document.getImmutableCharSequence.subSequence(lineStart, exprStart))
           }.get
           else prefixLength(prevLine)
 

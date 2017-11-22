@@ -42,11 +42,10 @@ class KindProjectorUseCorrectLambdaKeywordInspection extends AbstractInspection(
 }
 
 class KindProjectorUseCorrectLambdaKeywordQuickFix(e: PsiElement, replacement: String) extends AbstractFixOnPsiElement(inspectionName, e) {
-  override def doApplyFix(project: Project): Unit = {
-    val elem = getElement
-    if (!elem.isValid) return
 
-    elem.replace(createTypeElementFromText(replacement)(elem.getManager))
+  override protected def doApplyFix(elem: PsiElement)
+                                   (implicit project: Project): Unit = {
+    elem.replace(createTypeElementFromText(replacement))
   }
 }
 

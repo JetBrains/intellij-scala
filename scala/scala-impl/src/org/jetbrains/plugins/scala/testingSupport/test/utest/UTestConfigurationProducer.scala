@@ -13,9 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationProducer, TestConfigurationUtil}
+import org.jetbrains.plugins.scala.testingSupport.test._
 
 class UTestConfigurationProducer extends {
   val confType = new UTestConfigurationType
@@ -29,16 +28,16 @@ class UTestConfigurationProducer extends {
       if (!configuration.isInstanceOf[UTestRunConfiguration]) return false
       return TestConfigurationUtil.isPackageConfiguration(element, configuration)
     }
-    val (testClass, testClassName) = getLocationClassAndTest(location)
+    val (testClass, testName) = getLocationClassAndTest(location)
     if (testClass == null) return false
     val testClassPath = testClass.qualifiedName
     configuration match {
-      case configuration: UTestRunConfiguration if configuration.getTestKind == TestKind.CLASS &&
-        testClassName == null =>
-        testClassPath == configuration.getTestClassPath
-      case configuration: UTestRunConfiguration if configuration.getTestKind == TestKind.TEST_NAME =>
-        testClassPath == configuration.getTestClassPath && testClassName != null &&
-          testClassName == configuration.getTestName
+      case configuration: UTestRunConfiguration =>
+        configuration.testConfigurationData match {
+          case testData: SingleTestData => testData.testClassPath == testClassPath && testData.testName == testName
+          case classData: ClassTestData => classData.testClassPath == testClassPath && testName == null
+          case _ => false
+        }
       case _ => false
     }
   }
@@ -62,11 +61,8 @@ class UTestConfigurationProducer extends {
       createRunConfiguration(StringUtil.getShortName(testClassPath) +
         (if (testName != null) "\\" + testName else ""), confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[UTestRunConfiguration]
-    runConfiguration.setTestClassPath(testClassPath)
     runConfiguration.initWorkingDir()
-    if (testName != null) runConfiguration.setTestName(testName)
-    val kind = if (testName == null) TestKind.CLASS else TestKind.TEST_NAME
-    runConfiguration.setTestKind(kind)
+    runConfiguration.setTestConfigurationData(ClassTestData(runConfiguration, testClassPath, testName))
     try {
       val module = ScalaPsiUtil.getModule(element)
       if (module != null) {

@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -580,7 +581,8 @@ class ImplicitCollector(place: PsiElement,
 
     ft match {
       case Some(_funType: ScType) =>
-        val funType = MacroInferUtil.checkMacro(fun, Some(tp), place) getOrElse _funType
+        val macroEvaluator = ScalaMacroEvaluator.getInstance(project)
+        val funType = macroEvaluator.checkMacro(fun, MacroContext(place, Some(tp))) getOrElse _funType
 
         val substedFunTp = substedFunType(fun, funType, subst, withLocalTypeInference, noReturnType) match {
           case Some(t) => t

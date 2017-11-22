@@ -14,10 +14,15 @@ class VersionTest {
   def parsing(): Unit = {
     assertEquals("", Version("").toString)
 
+    assertEquals("0", Version("0").toString)
+    assertEquals("0.0", Version("0.0").toString)
+
     assertEquals("1", Version("1").toString)
+    assertEquals("1.0", Version("1.0").toString)
     assertEquals("1.2", Version("1.2").toString)
     assertEquals("1.2.3", Version("1.2.3").toString)
 
+    assertEquals("1-0", Version("1-0").toString)
     assertEquals("1-2", Version("1-2").toString)
     assertEquals("1-2-3", Version("1-2-3").toString)
 
@@ -30,6 +35,11 @@ class VersionTest {
 
   @Test
   def comparison(): Unit = {
+    assertEquals(0, Version("0").compareTo(Version("0")))
+
+    assertEquals(0, Version("1").compareTo(Version("1.0")))
+    assertEquals(0, Version("1.0").compareTo(Version("1")))
+
     assertEquals(0, Version("1").compareTo(Version("1")))
     assertEquals(0, Version("1.1").compareTo(Version("1.1")))
     assertEquals(0, Version("1.1.1").compareTo(Version("1.1.1")))
@@ -49,6 +59,9 @@ class VersionTest {
 
   @Test
   def comparisonGroups(): Unit = {
+    assertEquals(0, Version("1").compareTo(Version("1-0")))
+    assertEquals(0, Version("1-0").compareTo(Version("1")))
+
     assertEquals(0, Version("1-1").compareTo(Version("1-1")))
 
     assertEquals(-1, Version("1-1").compareTo(Version("2-1")))
@@ -63,6 +76,9 @@ class VersionTest {
 
   @Test
   def equivalence(): Unit = {
+    assertTrue(Version("1") ~= Version("1.0"))
+    assertTrue(Version("1.0") ~= Version("1"))
+
     assertTrue(Version("1") ~= Version("1"))
     assertTrue(Version("1.1") ~= Version("1.1"))
     assertTrue(Version("1.1.1") ~= Version("1.1.1"))
@@ -82,6 +98,9 @@ class VersionTest {
 
   @Test
   def equivalenceGroups(): Unit = {
+    assertTrue(Version("1") ~= Version("1-0"))
+    assertTrue(Version("1-0") ~= Version("1"))
+
     assertTrue(Version("1-1") ~= Version("1-1"))
 
     assertFalse(Version("1-1") ~= Version("2-1"))
@@ -95,11 +114,12 @@ class VersionTest {
   }
 
   @Test
-  def majorVersions() = {
+  def majorVersions(): Unit = {
     assertTrue(Version("1.2.3").major(0) == Version(""))
     assertTrue(Version("1.2.3").major(1) == Version("1"))
     assertTrue(Version("1.2.3").major(10) == Version("1.2.3"))
     assertTrue(Version("1.2.3.4-RC2").major(2) == Version("1.2"))
+    assertTrue(Version("1.0").major(2) == Version("1.0"))
     assertTrue(Version("1").major(2) == Version("1"))
     assertTrue(Version("").major(2) == Version(""))
   }

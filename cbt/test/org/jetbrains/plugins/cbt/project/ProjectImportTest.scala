@@ -216,7 +216,7 @@ class ProjectImportTest {
     try {
       val project = testFixture.getProject
       val settings =
-        new CbtExecutionSettings(project.getBasePath, false, true, true, Seq.empty)
+        new CbtExecutionSettings(project.getBasePath, isCbt = false, useDirect = true, Seq.empty)
       val projectInfoWithActualPaths = replacePaths(projectInfo, name, project.getBasePath)
       createJarFiles(projectInfoWithActualPaths)
       val projectNode = CbtProjectConverter(projectInfoWithActualPaths, settings)

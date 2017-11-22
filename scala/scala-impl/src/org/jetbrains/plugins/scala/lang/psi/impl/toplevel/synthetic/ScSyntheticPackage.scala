@@ -5,6 +5,9 @@ package impl
 package toplevel
 package synthetic
 
+import scala.collection.JavaConverters._
+import scala.collection.mutable
+
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
@@ -14,15 +17,13 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndexKey
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-
-import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 /**
  * @author ilyas
@@ -73,6 +74,9 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
 
 
 object ScSyntheticPackage {
+  private def allScalaFiles(project: Project): GlobalSearchScope =
+    new ScalaFilterScope(GlobalSearchScope.allScope(project), project)
+
   def get(fqn: String, project: Project): ScSyntheticPackage = {
     val i = fqn.lastIndexOf(".")
     val name = if (i < 0) fqn else fqn.substring(i + 1)
@@ -83,12 +87,12 @@ object ScSyntheticPackage {
 
     val packages = StubIndex.getElements(
       ScalaIndexKeys.PACKAGE_FQN_KEY.asInstanceOf[StubIndexKey[Any, ScPackaging]],
-      cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[ScPackaging]).asScala
+      cleanName.hashCode(), project, allScalaFiles(project), classOf[ScPackaging]).asScala
 
     if (packages.isEmpty) {
       StubIndex.getElements(
         ScalaIndexKeys.PACKAGE_OBJECT_KEY.asInstanceOf[StubIndexKey[Any, PsiClass]],
-        cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[PsiClass])
+        cleanName.hashCode(), project, allScalaFiles(project), classOf[PsiClass])
           .asScala
           .find(pc => {
           ScalaNamesUtil.equivalentFqn(pc.qualifiedName, fqn)

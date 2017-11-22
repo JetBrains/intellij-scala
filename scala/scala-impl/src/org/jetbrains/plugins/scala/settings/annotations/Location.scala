@@ -30,9 +30,15 @@ trait Location {
 }
 
 object Location {
-  def apply(anchor: PsiElement): Location = new LocationImpl(anchor)
+  def apply(anchor: PsiElement): Location = anchor match {
+    case member: ScMember => new MemberAnchorLocation(member)
+    case element => new ElementAnchorLocation(element)
+  }
 
-  private class LocationImpl(element: PsiElement) extends Location {
+  def inside(aClass: PsiClass): Location =
+    new InsideClassLocation(aClass)
+
+  private class ElementAnchorLocation(element: PsiElement) extends Location {
     override def isInLocalScope: Boolean = Some(element) match {
       case Some(_: ScTemplateBody | Parent(_: ScTemplateBody)) => false
       case Some(Parent(file: ScalaFile)) if !file.isScriptFile => false
@@ -53,34 +59,42 @@ object Location {
       vFile.exists(index.isInTestSourceContent)
     }
 
-    override def isInsideAnonymousClass: Boolean = element match {
-      case member: ScMember => member.getContainingClass.isInstanceOf[ScNewTemplateDefinition]
-      case _ => false
-    }
+    override def isInsideAnonymousClass: Boolean = false
 
-    override def isInsidePrivateClass: Boolean = element match {
-      case member: ScMember => member.getContainingClass match {
-        case owner: ScModifierListOwner => owner.hasModifierPropertyScala(PsiModifier.PRIVATE)
-        case _ => false
-      }
-      case _ => false
-    }
+    override def isInsidePrivateClass: Boolean = false
 
-    override def isInsideOf(classes: Set[String]): Boolean = element match {
-      case member: ScMember => isMemberOf(member, classes)
-      case _ => false
-    }
+    override def isInsideOf(classes: Set[String]): Boolean = false
   }
 
-  private def isMemberOf(member: ScMember, classes: Set[String]): Boolean = {
-    Option(member.getContainingClass).flatMap { containingClass =>
-      Option(getModule(member)).map { module =>
-        val scope = ElementScope(member.getProject, moduleWithDependenciesAndLibrariesScope(module))
-        classes.flatMap(scope.getCachedClass).exists(it => containingClass.equals(it) || containingClass.isInheritor(it, true))
-      }
+  private class MemberAnchorLocation(member: ScMember) extends ElementAnchorLocation(member) {
+    private val insideClassLocation = Option(member.getContainingClass).map(new InsideClassLocation(_))
+
+    override def isInsideAnonymousClass: Boolean =
+      insideClassLocation.exists(_.isInsideAnonymousClass)
+
+    override def isInsidePrivateClass: Boolean =
+      insideClassLocation.exists(_.isInsidePrivateClass)
+
+    override def isInsideOf(classes: Set[String]): Boolean =
+      insideClassLocation.exists(_.isInsideOf(classes))
+  }
+
+  private class InsideClassLocation(aClass: PsiClass) extends ElementAnchorLocation(aClass) {
+    override def isInLocalScope: Boolean = false
+
+    override def isInsideAnonymousClass: Boolean =
+      aClass.isInstanceOf[ScNewTemplateDefinition]
+
+    override def isInsidePrivateClass: Boolean = aClass match {
+      case owner: ScModifierListOwner => owner.hasModifierPropertyScala(PsiModifier.PRIVATE)
+      case _ => false
+    }
+
+    override def isInsideOf(classes: Set[String]): Boolean = Option(getModule(aClass)).map { module =>
+      val scope = ElementScope(aClass.getProject, moduleWithDependenciesAndLibrariesScope(module))
+      classes.flatMap(scope.getCachedClass).exists(it => aClass.equals(it) || aClass.isInheritor(it, true))
     } getOrElse {
       false
     }
   }
 }
-

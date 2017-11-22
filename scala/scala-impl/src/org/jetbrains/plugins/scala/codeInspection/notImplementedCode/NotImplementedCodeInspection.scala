@@ -24,8 +24,9 @@ class NotImplementedCodeInspection extends AbstractInspection {
   }
 
   private class ImplementQuickFix(e: PsiElement) extends AbstractFixOnPsiElement("Implement", e) {
-    def doApplyFix(project: Project) {
-      val elem = getElement
+
+    override protected def doApplyFix(elem: PsiElement)
+                                     (implicit project: Project): Unit = {
       val builder = new TemplateBuilderImpl(elem)
       builder.replaceElement(elem, elem.getText)
       CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(elem)

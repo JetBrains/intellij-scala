@@ -2,14 +2,12 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import java.io.File
 
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.roots.{OrderRootType, ProjectRootManager}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.containers.ContainerUtilRt
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
@@ -19,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
-import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -37,9 +34,13 @@ object AmmoniteUtil {
   private val ROOT_FILE = "$file"
   private val ROOT_EXEC = "$exec"
   private val ROOT_IVY = "$ivy"
+  private val ROOT_PLUGIN = "$plugin"
+  
   private val PARENT_FILE = "^"
   
-  private val DEFAULT_IMPORTS = Seq("ammonite.main.Router._") //todo more default imports ? 
+  private val DEFAULT_IMPORTS = Seq("ammonite.main.Router._", "ammonite.runtime.tools.grep", "ammonite.runtime.tools.browse", 
+    "ammonite.runtime.tools.time", "ammonite.repl.tools.desugar", "ammonite.repl.tools.source") //todo more default imports ?
+  private val DEFAULT_BUILTINS = Seq(("repl", "ammonite.repl.ReplAPI"), ("interp", "ammonite.runtime.Interpreter with ammonite.interp.Interpreter"))
 
   def isAmmoniteFile(file: ScalaFile): Boolean = {
     ScalaUtil.findVirtualFile(file) match {
@@ -61,7 +62,7 @@ object AmmoniteUtil {
   def findAllIvyImports(file: ScalaFile): Seq[LibInfo] = {
     file.getChildren.flatMap {
       case imp: ScImportStmt =>
-        imp.importExprs.filter(_.getText.startsWith(ROOT_IVY)).flatMap(_.reference.flatMap(extractLibInfo))
+        imp.importExprs.filter(expr => expr.getText.startsWith(ROOT_IVY) || expr.getText.startsWith(ROOT_PLUGIN)).flatMap(_.reference.flatMap(extractLibInfo))
       case _ => Seq.empty
     }
   }
@@ -74,6 +75,11 @@ object AmmoniteUtil {
   def executeImplicitImportsDeclarations(processor: PsiScopeProcessor, file: FileDeclarationsHolder, state: ResolveState): Boolean = {
     file match {
       case ammoniteFile: ScalaFile if isAmmoniteFile(ammoniteFile) =>
+        DEFAULT_BUILTINS.foreach {
+          case (name, txt) =>
+            ScalaPsiElementFactory.createElementFromText(s"class A { val $name: $txt = ??? }")(ammoniteFile.projectContext).processDeclarations(processor, state, null, ammoniteFile)
+        }
+        
         DEFAULT_IMPORTS.foreach {
           imp =>
             val importStmt = ScalaPsiElementFactory.createImportFromText(s"import $imp")(ammoniteFile.projectContext)
@@ -123,6 +129,7 @@ object AmmoniteUtil {
 
   def scriptResolveSbtDependency(refElement: ScStableCodeReferenceElement): Option[PsiDirectory] = {
     def scriptResolveIvy(refElement: ScStableCodeReferenceElement) = refElement.getText == ROOT_IVY
+    def scriptResolvePlugin(refElement: ScStableCodeReferenceElement) = refElement.getText == ROOT_PLUGIN
 
     def qual(scRef: ScStableCodeReferenceElement) = {
       scRef.getParent match {
@@ -135,11 +142,13 @@ object AmmoniteUtil {
     }
     
     qual(refElement) match {
-      case Some(q) if scriptResolveIvy(q) =>
+      case Some(q) if scriptResolvePlugin(q) && refElement.getReference.getCanonicalText == ROOT_IVY => 
+        Option(refElement.getContainingFile.getContainingDirectory)
+      case Some(q) if scriptResolveIvy(q) || scriptResolvePlugin(q) || q.getReference.refName == ROOT_IVY =>
         findLibrary(refElement) flatMap {
           lib => getResolveItem(lib, refElement.getProject)
         }
-      case None if scriptResolveIvy(refElement) =>
+      case None if scriptResolveIvy(refElement) || scriptResolvePlugin(refElement) =>
         Option(refElement.getContainingFile.getContainingDirectory)
       case _ => None
     }
@@ -149,10 +158,15 @@ object AmmoniteUtil {
     AmmoniteUtil.extractLibInfo(refElement).flatMap {
       case LibInfo(group, name, version, scalaVersion) =>
         val existsPredicate = (f: File) => f.exists()
-        val nv = s"${name}_$scalaVersion"
         
-        val ivyPath = s"$group/$nv/jars|bundles/$version.jar"
-        val mavenPath = s"maven2/${group.replace('.', '/')}/$nv|$name/$version/$nv-$version.jar|$name-$version.jar"
+        val nv = s"${name}_$scalaVersion"
+        val fullVersion = s"$nv|$nv.${ScalaUtil.getScalaVersion(refElement.getContainingFile).flatMap(_.split('.').lastOption).getOrElse("0")}"
+        
+        val ivyPath = s"$group/$fullVersion/jars|bundles"
+        val mavenPath = s"maven2/${group.replace('.', '/')}/$nv|$name/$version"
+        
+        val prefixPatterns = Seq(name, version)
+        
         
         def tryIvy() = findFileByPattern(
           s"$getDefaultCachePath/$ivyPath", 
@@ -163,18 +177,24 @@ object AmmoniteUtil {
           s"$getCoursierCachePath/https/repo1.maven.org/$mavenPath",
           existsPredicate
         )
-        
-        tryIvy() orElse tryCoursier() flatMap { //todo more variants? 
-          jarModuleRoot =>
-            val jarRoot = JarFileSystem.getInstance().findLocalVirtualFileByPath(jarModuleRoot.getCanonicalPath)
-            Option(jarRoot)
+
+        tryIvy() orElse tryCoursier() flatMap {
+          parent =>
+            parent.listFiles().find{
+              cf =>
+                val name = cf.getName
+                prefixPatterns.exists(name.startsWith) && name.endsWith(".jar")
+            } flatMap { //todo more variants? 
+              jarModuleRoot =>
+                Option(JarFileSystem.getInstance().findLocalVirtualFileByPath(jarModuleRoot.getCanonicalPath))
+            }
         }
     }
   }
   
   def isAmmoniteSpecificImport(expr: ScImportExpr): Boolean = {
     val txt = expr.getText
-    txt.startsWith(ROOT_EXEC) || txt.startsWith(ROOT_FILE) || txt.startsWith(ROOT_IVY)
+    txt.startsWith(ROOT_EXEC) || txt.startsWith(ROOT_FILE) || txt.startsWith(ROOT_IVY) || txt.startsWith(ROOT_PLUGIN)
   }
   
   private def findFileByPattern(pattern: String, predicate: File => Boolean): Option[File] = {
@@ -278,13 +298,7 @@ object AmmoniteUtil {
   }
   
   private def getScalaVersion(element: ScalaPsiElement): String = {
-    Option(PsiUtilCore getVirtualFile element).flatMap {
-      file => getModuleForFile(file, element.getProject)
-    } flatMap {
-      module => module.scalaSdk
-    } flatMap {
-      sdk => sdk.compilerVersion
-    } map {
+    ScalaUtil.getScalaVersion(element.getContainingFile) map {
       version => version.lastIndexOf('.') match {
         case a if a < 2 => version
         case i => version.substring(0, i)
@@ -319,7 +333,4 @@ object AmmoniteUtil {
   def getDefaultCachePath: String = System.getProperty("user.home") + "/.ivy2/cache"
   
   def getCoursierCachePath: String = System.getProperty("user.home") + "/.coursier/cache/v1"
-  
-  def getModuleForFile(virtualFile: VirtualFile, project: Project): Option[Module] =
-    Option(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
 }

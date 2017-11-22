@@ -2,12 +2,14 @@ package org.jetbrains.plugins.hydra.compiler
 
 import java.awt.event.ActionEvent
 import java.net.URL
+import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
 
-import com.intellij.openapi.fileChooser.FileChooserDescriptor
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{Messages, TextComponentAccessor}
+import com.intellij.openapi.ui.Messages
 import com.intellij.ui.{DocumentAdapter, EditorNotifications}
+import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.plugins.hydra.{HydraDownloader, HydraVersions}
 import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
 import org.jetbrains.plugins.scala.extensions
@@ -19,15 +21,14 @@ import scala.util.{Failure, Success, Try}
   */
 class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraCompilerSettings, hydraGlobalSettings: HydraApplicationSettings) extends HydraCompilerConfigurationPanel {
 
-  private val fileChooserDescriptor = new FileChooserDescriptor(false, true, false, false, false, false)
-
   private val documentAdapter = new DocumentAdapter {
     override def textChanged(documentEvent: DocumentEvent): Unit =
       downloadButton.setEnabled(getUsername.nonEmpty && getPassword.nonEmpty && getHydraRepository.nonEmpty && getHydraRepositoryRealm.nonEmpty)
   }
 
   hydraGlobalSettings.getState
-  setHydraVersions
+
+  HydraCompilerSettingsManager.setHydraLogSystemProperty(project)
 
   hydraRepository.setText(hydraGlobalSettings.getHydraRepositoryUrl)
   hydraRepository.getDocument.addDocumentListener(documentAdapter)
@@ -39,24 +40,13 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
 
   passwordTextField.getDocument.addDocumentListener(documentAdapter)
 
+  versionTextField.setText(settings.hydraVersion)
+
   downloadButton.addActionListener((_: ActionEvent) => onDownload())
-  downloadVersionButton.addActionListener((_: ActionEvent) => onDownloadVersions())
+  checkConnectionButton.addActionListener((_: ActionEvent) => onCheck())
+
   noOfCoresComboBox.setItems(Array.range(1, Runtime.getRuntime.availableProcessors() + 1).map(_.toString).sortWith(_ > _))
   sourcePartitionerComboBox.setItems(SourcePartitioner.values.map(_.value).toArray)
-
-  hydraStoreDirectoryField.addBrowseFolderListener("", "Hydra Store Path", null, fileChooserDescriptor, TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT)
-  hydraStoreDirectoryField.setText(settings.hydraStorePath)
-
-  hydraStoreDirectoryField.getTextField.getDocument.addDocumentListener(new DocumentAdapter() {
-    override protected def textChanged(e: DocumentEvent): Unit = {
-      hydraStoreDirectoryField.getTextField.setForeground(if (hydraStoreDirectoryField.getText == settings.getDefaultHydraStorePath) getDefaultValueColor
-      else getChangedValueColor)
-    }
-  })
-
-  def selectedVersion: String = hydraVersionComboBox.getSelectedItem.toString
-
-  def setSelectedVersion(version: String): Unit = hydraVersionComboBox.setSelectedItem(version)
 
   def selectedNoOfCores: String = noOfCoresComboBox.getSelectedItem.toString
 
@@ -65,10 +55,6 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
   def selectedSourcePartitioner: String = sourcePartitionerComboBox.getSelectedItem.toString
 
   def setSelectedSourcePartitioner(sourcePartitioner: String): Unit = sourcePartitionerComboBox.setSelectedItem(sourcePartitioner)
-
-  def getHydraStoreDirectory: String = hydraStoreDirectoryField.getText
-
-  def setHydraStoreDirectory(path: String): Unit = hydraStoreDirectoryField.setText(path)
 
   def getHydraRepository: String = hydraRepository.getText
 
@@ -83,6 +69,10 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
     case _ => ""
   }
 
+  def getHydraVersion: String = versionTextField.getText
+
+  def setHydraVersion(version: String) = versionTextField.setText(version)
+
   def onDownload(): Unit = {
     Try(new URL(hydraGlobalSettings.getHydraRepositoryUrl)) match {
       case Success(_) => downloadHydraForProjectScalaVersions()
@@ -90,10 +80,32 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
     }
   }
 
-  def onDownloadVersions(): Unit = {
-    val hydraVersions = HydraVersions.downloadHydraVersions(getHydraRepository, getUsername, getPassword)
-    hydraGlobalSettings.hydraVersions = hydraVersions
-    setHydraVersions(hydraVersions)
+  def onCheck(): Unit = {
+    val settings = HttpConfigurable.getInstance
+    val title = "Check Credential and Repository Settings"
+
+    checkConnectionButton.setEnabled(false)
+
+    ApplicationManager.getApplication.executeOnPooledThread(new Runnable {
+      override def run(): Unit = {
+        Try({
+          val connection = settings.openHttpConnection(getHydraRepository)
+          val credentials = s"${getUsername}:${getPassword}"
+          connection.setRequestProperty("Authorization", s"Basic ${HydraCredentialsManager.encode(credentials)}")
+          connection.getInputStream
+          connection.disconnect()
+        }) match {
+          case Success(_) =>
+            SwingUtilities.invokeLater(() => Messages.showInfoMessage(contentPanel, "Connection successful", title))
+          case Failure(_) =>
+            SwingUtilities.invokeLater(() => Messages.showErrorDialog(contentPanel, "Connection failed: Check your credentials and repository URL", title))
+        }
+
+        checkConnectionButton.setEnabled(true)
+        checkConnectionButton.setText("Check connection")
+      }
+    }
+    )
   }
 
   private def downloadHydraForProjectScalaVersions(): Unit = {
@@ -102,8 +114,8 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
     if (scalaVersions.isEmpty)
       Messages.showErrorDialog("Could not determine Scala version in this project.", "Hydra Plugin Error")
     else {
-      downloadArtifactsWithProgress(scalaVersions, selectedVersion)
-      settings.hydraVersion = selectedVersion
+      downloadArtifactsWithProgress(scalaVersions, getHydraVersion)
+      settings.hydraVersion = getHydraVersion
       EditorNotifications.updateAll()
     }
   }
@@ -129,19 +141,6 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
     (listener: (String) => Unit) => scalaVersions.foreach(version =>
       HydraDownloader.downloadIfNotPresent(HydraRepositorySettings(getHydraRepositoryName, getHydraRepository,
         getHydraRepositoryRealm, getUsername, getPassword), version, hydraVersion, listener))
-
-  private def setHydraVersions: Unit = {
-    val hydraVersions = (hydraGlobalSettings.hydraVersions :+ settings.hydraVersion).distinct
-    setHydraVersions(hydraVersions)
-  }
-
-  private def setHydraVersions(hydraVersions: Array[String]): Unit = {
-    hydraVersionComboBox.setItems(hydraVersions)
-    if(settings.hydraVersion.nonEmpty)
-      setSelectedVersion(settings.hydraVersion)
-    else
-      setSelectedVersion(hydraVersions.head)
-  }
 }
 
 sealed case class HydraRepositorySettings(repositoryName: String, repositoryURL: String, repositoryRealm: String, login: String, password: String)

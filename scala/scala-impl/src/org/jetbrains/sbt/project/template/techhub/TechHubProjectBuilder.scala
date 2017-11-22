@@ -2,9 +2,8 @@ package org.jetbrains.sbt.project.template.techhub
 
 
 import java.io.File
-import javax.swing.{Icon, JTextField}
+import javax.swing.Icon
 
-import com.intellij.ide.projectWizard.ProjectSettingsStep
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
@@ -12,15 +11,13 @@ import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
-import com.intellij.openapi.util.io.{FileUtil, FileUtilRt}
-import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.io.ZipUtil
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-
-import scala.collection.JavaConverters._
+import org.jetbrains.sbt.project.template.SbtModuleBuilder.tryToSetupRootModel
 
 /**
  * User: Dmitry.Naydanov
@@ -62,19 +59,19 @@ class TechHubProjectBuilder extends
     module
   }
 
-  override def setupRootModel(modifiableRootModel: ModifiableRootModel): Unit = {
+  override def setupRootModel(model: ModifiableRootModel): Unit ={
     val info = settingsComponents.getSelectedTemplate
-
     for {
       contentPath <- Option(getContentEntryPath)
-      if contentPath.nonEmpty
-      contentRootDir = new File(contentPath)
-      if FileUtilRt createDirectory contentRootDir
-      vContentRootDir <- Option(LocalFileSystem.getInstance refreshAndFindFileByIoFile contentRootDir)
+      moduleDir = new File(contentPath)
+      if moduleDir.exists() || moduleDir.mkdirs()
     } {
-      createStub(info, contentPath)
-      modifiableRootModel.inheritSdk()
-      callForRefresh(modifiableRootModel.getProject)
+      doWithProgress(
+        createTemplate(info, moduleDir, getName),
+        "Downloading template..."
+      )
+
+      tryToSetupRootModel(model, getContentEntryPath, getExternalProjectSettings)
     }
   }
 
@@ -93,16 +90,6 @@ class TechHubProjectBuilder extends
         val selected = settingsComponents.getSelectedTemplate
         if (selected == null) error("Select template")
 
-        settingsStep match {
-          case projectSettingsStep: ProjectSettingsStep =>
-            projectSettingsStep.getPreferredFocusedComponent match {
-              case field: JTextField =>
-                val txt = field.getText
-              case _ =>
-            }
-          case _ =>
-        }
-
         val text = settingsStep.getModuleNameField.getText
         if (!isIdentifier(text))
           error("sbt Project name must be valid Scala identifier")
@@ -113,16 +100,6 @@ class TechHubProjectBuilder extends
   }
 
   private def error(msg: String) = throw new ConfigurationException(msg, "Error")
-
-  private def createStub(info: IndexEntry, path: String): Unit = {
-    val moduleDir = new File(path)
-    if (!moduleDir.exists()) moduleDir.mkdirs()
-
-    doWithProgress(
-      createTemplate(info, moduleDir, getName),
-      "Downloading template..."
-    )
-  }
 
   private def downloadTemplateList(): Unit =
     doWithProgress(
@@ -137,7 +114,7 @@ class TechHubProjectBuilder extends
       title, false, null
     )
 
-  private def createTemplate(template: IndexEntry, createIn: File, name: String) {
+  private def createTemplate(template: IndexEntry, createIn: File, name: String): Unit = {
     val contentDir = FileUtil.createTempDirectory(s"${template.templateName}-template-content", "", true)
     val contentFile =  new File(contentDir, "content.zip")
 
@@ -149,7 +126,7 @@ class TechHubProjectBuilder extends
 
     // there should be just the one directory that contains the prepared project
     val dirs = contentDir.listFiles(f => f.isDirectory)
-    assert(dirs.size == 1)
+    assert(dirs.size == 1, "Expected only one directory in archive. Did Lightbend API change?")
     val projectDir = dirs.head
     FileUtil.copyDirContent(projectDir, createIn)
   }

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaSbtSettings">
+    <option name="linkedExternalProjectsSettings">
+      <SbtProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/cbt" />
+            <option value="$PROJECT_DIR$/cbt/project" />
+            <option value="$PROJECT_DIR$/project" />
+            <option value="$PROJECT_DIR$/scala/compiler-jps" />
+            <option value="$PROJECT_DIR$/scala/compiler-jps/project" />
+            <option value="$PROJECT_DIR$/scala/compiler-shared" />
+            <option value="$PROJECT_DIR$/scala/compiler-shared/project" />
+            <option value="$PROJECT_DIR$/scala/decompiler" />
+            <option value="$PROJECT_DIR$/scala/decompiler/project" />
+            <option value="$PROJECT_DIR$/scala/macros" />
+            <option value="$PROJECT_DIR$/scala/macros/project" />
+            <option value="$PROJECT_DIR$/scala/nailgun" />
+            <option value="$PROJECT_DIR$/scala/nailgun/project" />
+            <option value="$PROJECT_DIR$/scala/runners" />
+            <option value="$PROJECT_DIR$/scala/runners/project" />
+            <option value="$PROJECT_DIR$/scala/scala-impl" />
+            <option value="$PROJECT_DIR$/scala/scala-impl/project" />
+            <option value="$PROJECT_DIR$/target/tools/idea-runner" />
+            <option value="$PROJECT_DIR$/target/tools/idea-runner/project" />
+          </set>
+        </option>
+        <option name="resolveSbtClassifiers" value="true" />
+        <option name="sbtVersion" value="0.13.16" />
+        <option name="useSbtShell" value="true" />
+      </SbtProjectSettings>
+    </option>
+    <option name="maximumHeapSize" value="2048" />
+    <option name="vmParameters" value="" />
+  </component>
+</project>

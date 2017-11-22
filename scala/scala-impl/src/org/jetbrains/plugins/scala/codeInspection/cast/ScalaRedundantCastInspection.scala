@@ -43,8 +43,10 @@ class ScalaRedundantCastInspection extends AbstractInspection("Redundant cast") 
 
   class RemoveCastQuickFix(c: ScGenericCall, e: ScExpression)
           extends AbstractFixOnTwoPsiElements("Remove Redundant Cast", c, e) {
-    def doApplyFix(project: Project) {
-      val (call, expr) = (getFirstElement, getSecondElement)
+
+
+    override protected def doApplyFix(call: ScGenericCall, expr: ScExpression)
+                                     (implicit project: Project): Unit = {
       call.getParent.addBefore(expr, call)
       call.delete()
     }

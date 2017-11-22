@@ -6,9 +6,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile, SmartPointerManager}
 
 /**
-* Nikolay.Tropin
-* 2014-11-12
-*/
+  * Nikolay.Tropin
+  * 2014-11-12
+  */
 
 /**
   * The purpose of this class is to avoid holding references to instances of PsiElement in a quickfix.
@@ -19,7 +19,7 @@ import com.intellij.psi.{PsiElement, PsiFile, SmartPointerManager}
   * arguments.
   */
 abstract class AbstractFixOnPsiElement[T <: PsiElement](name: String, startElement: T, endElement: T)
-        extends LocalQuickFixOnPsiElement(startElement, endElement) {
+  extends LocalQuickFixOnPsiElement(startElement, endElement) {
 
   def this(name: String, element: T) = this(name, element, element)
 
@@ -27,55 +27,53 @@ abstract class AbstractFixOnPsiElement[T <: PsiElement](name: String, startEleme
 
   override def getFamilyName: String = getText
 
-  def getElement: T = {
-    try {
-      val elem = getStartElement.asInstanceOf[T]
-      if (elem.isValid) elem
-      else null.asInstanceOf[T]
-    } catch {
-      case _: ClassCastException => null.asInstanceOf[T]
-    }
-  }
+  import QuickFixHelper.validStartElement
 
-  override def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
+  override final def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
     if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
-    if (getElement == null) return
-    doApplyFix(project)
+
+    val element = validStartElement[T](getStartElement)
+    if (element != null) doApplyFix(element)(project)
   }
 
-  def doApplyFix(project: Project)
+  protected def doApplyFix(element: T)
+                          (implicit project: Project): Unit
 }
 
 abstract class AbstractFixOnTwoPsiElements[T <: PsiElement, S <: PsiElement](name: String, first: T, second: S)
-        extends LocalQuickFixOnPsiElement(first) {
+  extends LocalQuickFixOnPsiElement(first) {
 
-  private val secondRef = SmartPointerManager.getInstance(second.getProject).createSmartPsiElementPointer(second)
+  private val secondReference = SmartPointerManager.getInstance(second.getProject)
+    .createSmartPsiElementPointer(second)
 
   override def getText: String = name
 
   override def getFamilyName: String = getText
 
-  def getFirstElement: T = {
+  import QuickFixHelper._
+
+  override final def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
+    if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
+
+    val first = validStartElement[T](getStartElement)
+    val second = validElement(secondReference.getElement)
+
+    if (first != null && second != null) doApplyFix(first, second)(project)
+  }
+
+  protected def doApplyFix(first: T, second: S)
+                          (implicit project: Project): Unit
+}
+
+object QuickFixHelper {
+
+  private[codeInspection] def validElement[T <: PsiElement](element: T): T =
+    if (element != null && element.isValid) element else null.asInstanceOf[T]
+
+  private[codeInspection] def validStartElement[T <: PsiElement](element: PsiElement): T =
     try {
-      val elem = getStartElement.asInstanceOf[T]
-      if (elem.isValid) elem
-      else null.asInstanceOf[T]
+      validElement(element.asInstanceOf[T])
     } catch {
       case _: ClassCastException => null.asInstanceOf[T]
     }
-  }
-
-  def getSecondElement: S = {
-    val elem = secondRef.getElement
-    if (elem != null && elem.isValid) elem
-    else null.asInstanceOf[S]
-  }
-
-  override def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
-    if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
-    if (getFirstElement == null || getSecondElement == null) return
-    doApplyFix(project)
-  }
-
-  def doApplyFix(project: Project)
 }

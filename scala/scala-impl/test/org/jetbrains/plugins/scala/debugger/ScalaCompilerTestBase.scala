@@ -52,6 +52,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
     DebuggerTestUtil.enableCompileServer(useCompileServer)
     DebuggerTestUtil.forceJdk8ForBuildProcess()
     setUpLibraries()
+    loadIvyDependencies()
   }
 
   protected def compilerVmOptions: Option[String] = None

@@ -45,14 +45,13 @@ class ScalaDocEscapeTagQuickFix(s: ScDocSyntaxElement)
         extends AbstractFixOnPsiElement(ScalaBundle.message("replace.tag.with.esc.seq"), s) {
   override def getFamilyName: String = InspectionsUtil.SCALADOC
 
-  def doApplyFix(project: Project) {
-    val syntElem = getElement
-    if (!syntElem.isValid) return
 
+  override protected def doApplyFix(syntElem: ScDocSyntaxElement)
+                                   (implicit project: Project): Unit = {
     val replaceText = if (syntElem.getFirstChild.getText.contains("=")) {
-      StringUtils.repeat(MyScaladocParsing.escapeSequencesForWiki.get("=").get, syntElem.getFirstChild.getText.length())
+      StringUtils.repeat(MyScaladocParsing.escapeSequencesForWiki("="), syntElem.getFirstChild.getText.length())
     } else {
-      MyScaladocParsing.escapeSequencesForWiki.get(syntElem.getFirstChild.getText).get
+      MyScaladocParsing.escapeSequencesForWiki(syntElem.getFirstChild.getText)
     }
     val doc = FileDocumentManager.getInstance().getDocument(syntElem.getContainingFile.getVirtualFile)
     val range: TextRange = syntElem.getFirstChild.getTextRange

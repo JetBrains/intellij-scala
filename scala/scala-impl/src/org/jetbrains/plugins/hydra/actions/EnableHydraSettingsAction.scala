@@ -8,7 +8,7 @@ import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
 /**
   * @author Maris Alexandru
   */
-class EnableHydraSettingsAction extends AnAction{
+class EnableHydraSettingsAction extends AnAction {
   def actionPerformed(e: AnActionEvent): Unit = {
     CommonDataKeys.PROJECT.getData(e.getDataContext) match {
       case project: Project =>

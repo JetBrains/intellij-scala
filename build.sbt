@@ -32,8 +32,8 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
-    .dependsOn(scalaImpl % "test->test;compile->compile", cbt % "test->test;compile->compile")
-    .aggregate(scalaImpl, cbt)
+    .dependsOn(scalaImpl %  "test->test;compile->compile")
+    .aggregate(scalaImpl)
     .settings(
       aggregate.in(updateIdea) := false,
       ideExcludedDirectories := Seq(baseDirectory.value / "target")
@@ -146,8 +146,8 @@ lazy val ideaRunner =
       "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005",
       "-Didea.is.internal=true",
       "-Didea.debug.mode=true",
-      s"-Didea.system.path=${System.getProperty("user.home")}/.ScalaPluginIC/system",
-      s"-Didea.config.path=${System.getProperty("user.home")}/.ScalaPluginIC/config",
+      s"-Didea.system.path=${homePrefix.getCanonicalPath}/.ScalaPluginIC/system",
+      s"-Didea.config.path=${homePrefix.getCanonicalPath}/.ScalaPluginIC/config",
       "-Dapple.laf.useScreenMenuBar=true",
       s"-Dplugin.path=${packagedPluginDir.value}",
       "-Didea.ProcessCanceledException=disabled"
@@ -257,9 +257,7 @@ iLoopWrapperPath := baseDirectory.in(compilerJps).value / "resources" / "ILoopWr
 lazy val scalaPluginJarPackager =
   newProject("scalaPluginJarPackager", file("target/tools/scalaPluginJarPackager"))
     .settings(
-      products in Compile :=
-        products.in(scalaImpl, Compile).value ++
-        products.in(cbt, Compile).value,
+      products in Compile := products.in(scalaImpl, Compile).value,
       ideSkipProject := true
     )
 

@@ -92,22 +92,22 @@ object MatchToPartialFunctionInspection {
 
 class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScExpression)
         extends AbstractFixOnTwoPsiElements(inspectionName, matchStmt, fExprToReplace) {
-  def doApplyFix(project: Project) {
-    val mStmt = getFirstElement
-    val fExpr = getSecondElement
+
+  override protected def doApplyFix(mStmt: ScMatchStmt, fExpr: ScExpression)
+                                   (implicit project: Project): Unit = {
     val matchStmtCopy = mStmt.copy.asInstanceOf[ScMatchStmt]
     val leftBrace = matchStmtCopy.findFirstChildByType(ScalaTokenTypes.tLBRACE)
     if (leftBrace == null) return
 
     addNamingPatterns(matchStmtCopy, needNamingPattern(mStmt))
     matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, leftBrace.getPrevSibling)
-    val newBlock = createExpressionFromText(matchStmtCopy.getText)(mStmt.getManager)
+    val newBlock = createExpressionFromText(matchStmtCopy.getText)
     CodeEditUtil.setOldIndentation(newBlock.getNode.asInstanceOf[TreeElement], CodeEditUtil.getOldIndentation(matchStmtCopy.getNode))
     extensions.inWriteAction {
       fExpr.getParent match {
         case (argList: ScArgumentExprList) childOf (call: ScMethodCall) if argList.exprs.size == 1 =>
           val newMethCall =
-            createExpressionFromText(call.getInvokedExpr.getText + " " + newBlock.getText)(fExpr.getManager)
+            createExpressionFromText(call.getInvokedExpr.getText + " " + newBlock.getText)
           call.replace(newMethCall)
         case block@ScBlock(`fExpr`) =>
           block.replace(newBlock)

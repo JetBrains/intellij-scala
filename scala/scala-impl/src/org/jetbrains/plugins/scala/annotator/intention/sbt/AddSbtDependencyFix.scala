@@ -72,7 +72,7 @@ class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReferenceElement]
         def error(msg: String): Unit = Bus.notify(new Notification(getText, getText, msg, NotificationType.ERROR))
         def getDeps: Set[ArtifactInfo] = {
           def doSearch(name: String): Set[ArtifactInfo] = resolver.getIndex(project)
-            .map(_.searchArtifactInfo(name))
+            .map(_.searchArtifactInfo(name)(project))
             .getOrElse(Set.empty)
           indicator.setText("Searching for artifacts...")
           val fqName = extensions.inReadAction(getReferenceText)

@@ -6,7 +6,7 @@ object Versions {
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   val sbtVersion: String = Sbt.latest
   val zincVersion = "1.0.3"
-  val ideaVersion = "173.3531.6"
+  val ideaVersion = "173.3727.22"
   val sbtStructureVersion: String = "2017.2"
   val sbtIdeaShellVersion: String = "2017.2"
   val aetherVersion = "1.0.0.v20140518"
@@ -28,8 +28,8 @@ object Versions {
     // ATTENTION: When changing any of these versions,
     // they currently need to be updated in org.jetbrains.plugins.scala.debugger.ScalaVersion
     val latest_2_9 = "2.9.3"
-    val latest_2_10 = "2.10.6"
-    val latest_2_11 = "2.11.11"
+    val latest_2_10 = "2.10.7"
+    val latest_2_11 = "2.11.12"
     val latest_2_12 = "2.12.3" // don't upgrade to 2.12.4 because it breaks compilation. https://github.com/scala/bug/issues/10568
     val latest: String = latest_2_12
 
@@ -90,6 +90,7 @@ object Dependencies {
 
   val commonsLang: ModuleID = "commons-lang" % "commons-lang" % "2.6"
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
+  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.4.0" % "test"
 
   val scalastyle: ModuleID = "org.scalastyle" %% "scalastyle" % "1.0.0"
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.2"

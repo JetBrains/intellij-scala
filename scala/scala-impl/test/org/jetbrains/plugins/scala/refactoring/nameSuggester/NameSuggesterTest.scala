@@ -6,7 +6,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider
-import org.junit.Assert.{assertArrayEquals, assertNotNull}
+import org.junit.Assert.{assertEquals, assertNotNull}
+
 import scala.collection.JavaConverters._
 
 /**
@@ -40,6 +41,12 @@ class NameSuggesterTest extends AbstractNameSuggesterTest {
     testNamesByType("scala.collection.immutable.Vector[String]", "strings", "vector")
     testNamesByType("scala.collection.SeqLike[String]", "strings", "like", "seqLike")
     testNamesByType("scala.collection.IterableView[String]", "strings", "view", "iterableView")
+  }
+
+  def testCollectionsOfCollections(): Unit = {
+    testNamesByType("List[List[String]]", "list")
+    testNamesByType("Set[List[Object]]", "set")
+    testNamesByType("scala.collection.IterableView[Set[List[Int]]]", "view", "iterableView")
   }
 
   def testJavaCollections(): Unit = {
@@ -91,6 +98,6 @@ abstract class AbstractNameSuggesterTest extends ScalaLightCodeInsightFixtureTes
     val actual = new java.util.LinkedHashSet[String]
     new ScalaNameSuggestionProvider().getSuggestedNames(element, getFile, actual)
 
-    assertArrayEquals(expected.toArray[AnyRef], actual.asScala.toArray[AnyRef])
+    assertEquals(expected, actual.asScala.toSeq)
   }
 }

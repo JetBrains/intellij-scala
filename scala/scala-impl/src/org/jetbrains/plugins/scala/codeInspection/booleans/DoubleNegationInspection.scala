@@ -26,10 +26,11 @@ class DoubleNegationInspection extends AbstractInspection("DoubleNegationScala",
 }
 
 class DoubleNegationQuickFix(expr: ScExpression)
-        extends AbstractFixOnPsiElement("Remove double negation", expr){
-  def doApplyFix(project: Project) {
-    val scExpr = getElement
-    if (!scExpr.isValid || !DoubleNegationUtil.hasDoubleNegation(scExpr)) return
+  extends AbstractFixOnPsiElement("Remove double negation", expr) {
+
+  override protected def doApplyFix(scExpr: ScExpression)
+                                   (implicit project: Project): Unit = {
+    if (!DoubleNegationUtil.hasDoubleNegation(scExpr)) return
 
     val newExpr = DoubleNegationUtil.removeDoubleNegation(scExpr)
     scExpr.replaceExpression(newExpr, removeParenthesis = true)

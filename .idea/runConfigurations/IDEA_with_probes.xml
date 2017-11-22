@@ -12,8 +12,6 @@
     <option name="PASS_PARENT_ENVS" value="true" />
     <module name="idea-runner" />
     <envs />
-    <method>
-      <option name="Make" enabled="false" />
-    </method>
+    <method />
   </configuration>
 </component>

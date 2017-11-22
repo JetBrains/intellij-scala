@@ -21,8 +21,9 @@ import scala.collection.mutable
 class AddTypeAnnotationQuickFix(element: PsiElement)
   extends AbstractFixOnPsiElement(AddTypeAnnotationQuickFix.Name, element) with BatchQuickFix[CommonProblemDescriptor] {
 
-  def doApplyFix(project: Project): Unit = {
-    complete(getElement)
+  override protected def doApplyFix(element: PsiElement)
+                                   (implicit project: Project): Unit = {
+    complete(element)
   }
 
   override def applyFix(project: Project,
@@ -59,7 +60,8 @@ object AddTypeAnnotationQuickFix {
 
     override def run(): Unit = inReadAction {
       val quickFixesCount = quickFixes.length
-      quickFixes.map(_.getElement)
+      quickFixes.map(_.getStartElement)
+        .filter(_.isValid)
         .foreach { element =>
           complete(element, strategy)
           updateProcessIndicator(element.getText, quickFixesCount)

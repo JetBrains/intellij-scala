@@ -47,7 +47,9 @@ case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
     val classRoots = loaders.flatMap(_.rootFiles)
     val srcRoots = ScalaRuntimeLoader(Sources).rootFiles
 
-    library = PsiTestUtil.addProjectLibrary(module, "scala-sdk", classRoots.asJava, srcRoots.asJava)
+    val versionOpt = classRoots.headOption.map(f => "-" + f.getNameWithoutExtension.split('-').last)
+    
+    library = PsiTestUtil.addProjectLibrary(module, s"scala-sdk${versionOpt.getOrElse("")}", classRoots.asJava, srcRoots.asJava)
     Disposer.register(module, library)
 
     inWriteAction {

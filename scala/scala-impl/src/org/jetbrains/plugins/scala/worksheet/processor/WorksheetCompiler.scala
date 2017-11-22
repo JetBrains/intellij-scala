@@ -23,10 +23,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFi
 import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.NotificationUtil
-import worksheet.actions.RunWorksheetAction
-import worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
-import worksheet.server._
-import worksheet.ui.{WorksheetEditorPrinterBase, WorksheetEditorPrinterFactory}
+import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
+import org.jetbrains.plugins.scala.worksheet.server._
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, WorksheetEditorPrinterFactory}
 
 /**
   * User: Dmitry Naydanov

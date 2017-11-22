@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull
 
 import scala.collection.JavaConverters._
 import SbtShellRunner._
+import com.pty4j.unix.UnixPtyProcess
 /**
   * Created by jast on 2016-5-29.
   */
@@ -70,6 +71,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       // TODO perhaps determine actual width of window and adapt accordingly
       if (notInTest) {
         myProcessHandler.getProcess match {
+          case _: UnixPtyProcess => // don't need to do stuff
           case proc: PtyProcess => proc.setWinSize(new WinSize(2000, 100))
         }
       }

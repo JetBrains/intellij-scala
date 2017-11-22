@@ -31,9 +31,9 @@ class SimplifyBooleanInspection extends AbstractInspection("SimplifyBoolean", "S
 
 class SimplifyBooleanQuickFix(expr: ScExpression) extends AbstractFixOnPsiElement("Simplify " + getShortText(expr), expr) {
 
-  def doApplyFix(project: Project) {
-    val scExpr = getElement
-    if (scExpr.isValid && SimplifyBooleanUtil.canBeSimplified(scExpr)) {
+  override protected def doApplyFix(scExpr: ScExpression)
+                                   (implicit project: Project): Unit = {
+    if (SimplifyBooleanUtil.canBeSimplified(scExpr)) {
       val simplified = SimplifyBooleanUtil.simplify(scExpr)
       scExpr.replaceExpression(simplified, removeParenthesis = true)
     }

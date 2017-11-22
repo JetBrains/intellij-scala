@@ -10,10 +10,12 @@ import com.intellij.openapi.roots.ProjectRootManager
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
+import org.jetbrains.plugins.scala.testingSupport.test._
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.{Await, Promise}
 import scala.concurrent.duration._
+
 import com.intellij.testFramework.EdtTestUtil
 
 /**
@@ -110,34 +112,28 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
   protected def runRegexps(config: AbstractTestRunConfiguration, classRegexps: Array[String], testRegexps: Array[String],
                           moduleName: String, expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq(),
                            exampleCount: Int = 3): Unit = {
-    config.testKind = TestRunConfigurationForm.TestKind.REGEXP
-    config.classRegexps = classRegexps
-    config.testRegexps = testRegexps
+    config.setTestConfigurationData(RegexpTestData(config, classRegexps, testRegexps))
     config.setModule(ModuleManager.getInstance(getProject).findModuleByName(moduleName))
     runConfig(config, expectedStrings, unexpectedStrings, exampleCount)
   }
 
   protected def runPackage(config: AbstractTestRunConfiguration, packageFqn: String, moduleName: String,
                            expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit = {
-    config.testKind = TestRunConfigurationForm.TestKind.ALL_IN_PACKAGE
-    config.setTestPackagePath(packageFqn)
+    config.setTestConfigurationData(AllInPackageTestData(config, packageFqn))
     config.setModule(ModuleManager.getInstance(getProject).findModuleByName(moduleName))
     runConfig(config, expectedStrings, unexpectedStrings, 2)
   }
 
   protected def runWholeSuite(config: AbstractTestRunConfiguration, classFqn: String, moduleName: String,
                               expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit = {
-    config.testKind = TestRunConfigurationForm.TestKind.CLASS
-    config.setTestClassPath(classFqn)
+    config.setTestConfigurationData(ClassTestData(config, classFqn))
     config.setModule(ModuleManager.getInstance(getProject).findModuleByName(moduleName))
     runConfig(config, expectedStrings, unexpectedStrings)
   }
 
   protected def runSingleTest(config: AbstractTestRunConfiguration, classFqn: String, testName: String, moduleName: String,
                     expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit = {
-    config.testKind = TestRunConfigurationForm.TestKind.TEST_NAME
-    config.testName = testName
-    config.setTestClassPath(classFqn)
+    config.setTestConfigurationData(ClassTestData(config, classFqn, testName))
     val module = ModuleManager.getInstance(getProject).findModuleByName(moduleName)
     assert(module != null, s"Could not find module '$moduleName' in project '$getProject'")
     config.setModule(module)

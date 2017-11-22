@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -23,13 +24,25 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case definition: ScNewTemplateDefinition if ScalaPsiUtil.isSAMEnabled(definition) =>
+    case definition: ScNewTemplateDefinition
+      if ScalaPsiUtil.isSAMEnabled(definition) && containsSingleFunction(definition) =>
       definition.expectedTypes().toSeq.flatMap {
         ScalaPsiUtil.toSAMType(_, definition)
       } match {
         case Seq(expectedMethodType) => inspectAccordingToExpectedType(expectedMethodType, definition, holder)
         case _ =>
       }
+  }
+
+  private def containsSingleFunction(newTd: ScNewTemplateDefinition): Boolean = {
+    def hasSingleFunction(tb: ScTemplateBody) =
+      tb.exprs ++ tb.members ++ tb.selfTypeElement match {
+        case Seq(_: ScFunctionDefinition) => true
+        case _ => false
+      }
+
+    newTd.extendsBlock.templateBody
+      .exists(hasSingleFunction)
   }
 
   private def inspectAccordingToExpectedType(expected: ScType, definition: ScNewTemplateDefinition, holder: ProblemsHolder) {
@@ -84,11 +97,10 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
 
 class ReplaceExpressionWithSAMQuickFix(elem: PsiElement, replacement: => String)
   extends AbstractFixOnPsiElement(inspectionName, elem) {
-  
-  override def doApplyFix(project: Project): Unit = {
-    val element = getElement
-    if (!element.isValid) return
-    element.replace(createExpressionFromText(replacement)(element.getManager))
+
+  override protected def doApplyFix(element: PsiElement)
+                                   (implicit project: Project): Unit = {
+    element.replace(createExpressionFromText(replacement))
   }
 }
 

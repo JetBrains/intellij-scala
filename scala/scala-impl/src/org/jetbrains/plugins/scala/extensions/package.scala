@@ -12,7 +12,7 @@ import com.intellij.openapi.application.{ApplicationManager, Result, Transaction
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Computable, Ref, ThrowableComputable}
+import com.intellij.openapi.util.{Computable, Ref, TextRange, ThrowableComputable}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.SharedImplUtil
@@ -42,7 +42,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
-
 import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.ArrayBuffer
@@ -209,6 +208,31 @@ package object extensions {
   implicit class StringExt(val string: String) extends AnyVal {
     def parenthesize(needParenthesis: Boolean): String =
       if (needParenthesis) s"($string)" else string
+  }
+
+  implicit class CharSeqExt(val cs: CharSequence) extends AnyVal {
+    private def iterator = new Iterator[Char] {
+      var idx = 0
+
+      override def hasNext: Boolean = idx < cs.length()
+
+      override def next(): Char = {
+        idx += 1
+        cs.charAt(idx - 1)
+      }
+    }
+
+    def count(pred: Char => Boolean): Int = iterator.count(pred)
+
+    def prefixLength(pred: Char => Boolean): Int = iterator.takeWhile(pred).size
+
+    def startsWith(s: String): Boolean = cs.substring(0, s.length) == s
+
+    def substring(start: Int, end: Int): String =
+      cs.subSequence(start, end).toString
+
+    def substring(range: TextRange): String =
+      cs.subSequence(range.getStartOffset, range.getEndOffset).toString
   }
 
   implicit class StringsExt(val strings: Seq[String]) extends AnyVal {
@@ -468,7 +492,7 @@ package object extensions {
 
       node.info.namedElement match {
         case fun: ScFunction if !fun.isConstructor =>
-          val wrappers = fun.getFunctionWrappers(isStatic, isInterface = fun.isAbstractMember, concreteClassFor(fun))
+          val wrappers = fun.getFunctionWrappers(isStatic, isInterface = fun.isAbstractMember)
           wrappers.foreach(processMethod)
           wrappers.foreach(w => processName(w.name))
         case method: PsiMethod if !method.isConstructor =>

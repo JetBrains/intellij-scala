@@ -4,9 +4,10 @@ package testingSupport.test.utest
 import javax.swing.Icon
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
+import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.icons.Icons
 
-class UTestConfigurationType extends ConfigurationType {
+class UTestConfigurationType extends ConfigurationType with DumbAware {
   val confFactory = new UTestRunConfigurationFactory(this)
 
   def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory)

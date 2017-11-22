@@ -21,8 +21,9 @@ class DeprecatedViewBoundInspection extends AbstractInspection(id, description) 
 }
 
 class ConvertToImplicitParametersQuickFix(owner: ScTypeBoundsOwner) extends AbstractFixOnPsiElement(fixDescription, owner) {
-  override def doApplyFix(project: Project): Unit = {
-    val boundOwner = getElement
+
+  override protected def doApplyFix(boundOwner: ScTypeBoundsOwner)
+                                   (implicit project: Project): Unit = {
     val addedParams = doConversion(boundOwner)
     runRenamingTemplate(addedParams)
   }

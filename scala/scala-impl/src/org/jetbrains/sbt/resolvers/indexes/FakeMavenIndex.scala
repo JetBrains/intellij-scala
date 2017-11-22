@@ -21,5 +21,5 @@ class FakeMavenIndex (val root: String, val name: String, implicit val project: 
 
   override def close(): Unit = ()
 
-  override def searchArtifactInfo(fqName: String): Set[ArtifactInfo] = Set.empty
+  override def searchArtifactInfo(fqName: String)(implicit project: ProjectContext): Set[ArtifactInfo] = Set.empty
 }

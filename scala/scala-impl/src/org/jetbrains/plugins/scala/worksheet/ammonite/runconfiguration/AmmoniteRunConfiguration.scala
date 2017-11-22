@@ -1,22 +1,27 @@
 package org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration
 
-import java.io.File
+import java.io.{File, IOException}
+import javax.swing.event.{HyperlinkEvent, HyperlinkListener}
 import javax.swing.{BoxLayout, JComponent, JPanel}
 
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations._
 import com.intellij.execution.filters.TextConsoleBuilderImpl
-import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.impl.EditConfigurationsDialog
+import com.intellij.execution.process.{ProcessHandler, ProcessNotCreatedException}
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.{LabeledComponent, TextFieldWithBrowseButton}
 import com.intellij.openapi.util.{JDOMExternalizer, SystemInfo}
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.RawCommandLineEditor
 import org.jdom.Element
-import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfiguration.MyEditor
+import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder
+import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunConfiguration.{AmmNotFoundException, MyEditor}
 
 /**
   * User: Dmitry.Naydanov
@@ -51,6 +56,12 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new MyEditor
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState = {
+    def patchSdkVersion(cmd: GeneralCommandLine) {
+      Option(ProjectRootManager.getInstance(project).getProjectSdk).foreach {
+        sdk => cmd.getEnvironment.put("JAVA_HOME", sdk.getHomePath)
+      }
+    }
+    
     val state = new CommandLineState(environment) {
       override def startProcess(): ProcessHandler = {
         val cmd = new GeneralCommandLine()
@@ -76,10 +87,39 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
         }
         scriptParameters.foreach(cmd.getParametersList.addParametersString(_))
 
-        JavaCommandLineStateUtil.startProcess(cmd)
+        patchSdkVersion(cmd)
+        
+        try {
+          JavaCommandLineStateUtil.startProcess(cmd)
+        } catch {
+          case pne: ProcessNotCreatedException => 
+            pne.getCause match {
+              case ioe: IOException =>
+                ioe.getCause match {
+                  case ioe2: IOException if ioe2.getMessage.contains("error=2") =>
+                    throw new AmmNotFoundException(
+                      s"<br>Can't find Ammonite distributive:<br> ${ioe2.getMessage} <br>" + "<br> <a href=\"azaza\">Specify amm executable path?</a>", 
+                      pne.getCommandLine, 
+                      project
+                    )
+                  case _ => 
+                }
+              case _ => 
+            }
+            
+            throw pne
+        }
       }
     }
     state.setConsoleBuilder(new TextConsoleBuilderImpl(project))
+    
+    fileName.foreach {
+      fn =>
+        Option(LocalFileSystem.getInstance().findFileByIoFile(new File(fn))) foreach {
+          vFile =>
+            AmmoniteScriptWrappersHolder.getInstance(project).onAmmoniteRun(vFile)
+        }
+    }
     state
   }
 
@@ -128,6 +168,14 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
 
 object AmmoniteRunConfiguration {
   val AMMONITE_RUN_NAME = "Ammonite script"
+  
+  class AmmNotFoundException(message: String, commandLine: GeneralCommandLine, project: Project) extends ProcessNotCreatedException(message, commandLine) with HyperlinkListener {
+    override def hyperlinkUpdate(e: HyperlinkEvent): Unit = {
+      if (e.getEventType != HyperlinkEvent.EventType.ACTIVATED) return 
+      
+      new EditConfigurationsDialog(project).show()
+    }
+  }
   
   private class MyEditor extends SettingsEditor[AmmoniteRunConfiguration]() {
     private val form = new AmmoniteRunConfigurationForm

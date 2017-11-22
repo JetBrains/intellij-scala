@@ -10,6 +10,7 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.daemon.ModuleProj
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.util.ScalaUtil
 
 /**
   * User: Dmitry.Naydanov
@@ -47,7 +48,7 @@ class CreateImportedLibraryQuickFix(private val myPsi: PsiElement) extends Local
               model.commit()
               tableModel.commit()
 
-              Option(file.getVirtualFile).flatMap(f => AmmoniteUtil.getModuleForFile(f, project)).foreach {
+              Option(file.getVirtualFile).flatMap(f => ScalaUtil.getModuleForFile(f, project)).foreach {
                 module =>
                   val moduleModel = ModuleRootManager.getInstance(module).getModifiableModel
                   moduleModel.addLibraryEntry(lib)

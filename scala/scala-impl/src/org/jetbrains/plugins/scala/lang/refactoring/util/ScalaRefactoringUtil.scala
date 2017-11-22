@@ -716,7 +716,7 @@ object ScalaRefactoringUtil {
     val nextLineStart = editor.visualToLogicalPosition(new VisualPosition(lineNumber + 1, 0))
     val start = editor.logicalPositionToOffset(lineStart)
     val end = editor.logicalPositionToOffset(nextLineStart)
-    editor.getDocument.getText.substring(start, end)
+    editor.getDocument.getImmutableCharSequence.substring(start, end)
   }
 
   def getExpressionsAtOffset(file: PsiFile, offset: Int): Seq[ScExpression] = {

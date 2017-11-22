@@ -57,6 +57,6 @@ class MavenProxyIndex(val root: String, val name: String, implicit val project: 
       .find(_.getRepositoryPathOrUrl == MavenIndex.normalizePathOrUrl(root))
   }
 
-  override def searchArtifactInfo(fqName: String): Set[ArtifactInfo] = Set.empty
+  override def searchArtifactInfo(fqName: String)(implicit project: ProjectContext): Set[ArtifactInfo] = Set.empty
 }
 
