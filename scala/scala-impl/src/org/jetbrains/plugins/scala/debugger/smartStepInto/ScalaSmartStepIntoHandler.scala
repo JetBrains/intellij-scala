@@ -21,10 +21,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
-
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
+
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
  * User: Alexander Podkhalyuzin
@@ -37,6 +39,9 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     if (line < 0) {
       return Collections.emptyList[SmartStepTarget]
     }
+
+    Stats.trigger(ScalaBundle.message("scala.debugger.smart.step.into.id"))
+
     val (element, doc) =
       (for {
         sf @ (_sf: ScalaFile) <- position.getFile.toOption

@@ -48,6 +48,7 @@ import scala.util.Try
 
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
   * @author ilyas
@@ -65,6 +66,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   @Nullable
   def getSourcePosition(@Nullable location: Location): SourcePosition = {
     if (shouldSkip(location)) return null
+
+    Stats.trigger(ScalaBundle.message("scala.debugger.total.id"))
 
     val position =
       for {

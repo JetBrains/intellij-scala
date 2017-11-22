@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
+import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
  * Nikolay.Tropin
@@ -27,6 +28,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
   def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
     if (codeFragment.getLanguage.isInstanceOf[JavaLanguage])
       return EvaluatorBuilderImpl.getInstance().build(codeFragment, position) //java builder (e.g. SCL-6117)
+
+    Stats.trigger(ScalaBundle.message("scala.debugger.evaluator.id"))
 
     val scalaFragment = codeFragment match {
       case sf: ScalaCodeFragment => sf
@@ -62,6 +65,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
     catch {
       case _: NeedCompilationException =>
+        Stats.trigger(ScalaBundle.message("scala.debugger.compiling.evaluator.id"))
         new ScalaCompilingExpressionEvaluator(buildCompilingEvaluator)
       case e: EvaluateException => throw e
     }

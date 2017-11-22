@@ -19,7 +19,7 @@ import com.intellij.xdebugger.impl.XSourcePositionImpl
 import com.intellij.xdebugger.impl.breakpoints.XLineBreakpointImpl
 import com.intellij.xdebugger.{XDebuggerUtil, XSourcePosition}
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
+import org.jetbrains.java.debugger.breakpoints.properties.{JavaBreakpointProperties, JavaLineBreakpointProperties}
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -32,8 +32,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTyp
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.util.UIFreezingGuard
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
-
 import scala.collection.JavaConverters._
+
+import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
  * @author Nikolay.Tropin
@@ -111,9 +112,19 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     val method = getContainingMethod(breakpoint)
     if (method == null) return false
 
-    if (!breakpoint.isInstanceOf[RunToCursorBreakpoint] && lambdaOrdinal(breakpoint) == null) return true
+    val lambdaOrd = lambdaOrdinal(breakpoint)
+
+    if (!breakpoint.isInstanceOf[RunToCursorBreakpoint] && lambdaOrd == null) return true
+
+    if (isScalaLambda(lambdaOrd, method)) {
+      Stats.trigger(ScalaBundle.message("scala.debugger.lambda.breakpoint.id"))
+    }
 
     DebuggerUtil.inTheMethod(position, method)
+  }
+
+  private def isScalaLambda(lambdaOrdinal: Integer, elem: PsiElement) = {
+    lambdaOrdinal != null && lambdaOrdinal >= 0 && elem.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
   }
 
   @Nullable
