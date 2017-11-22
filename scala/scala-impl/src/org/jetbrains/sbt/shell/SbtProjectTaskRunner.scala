@@ -3,6 +3,7 @@ package org.jetbrains.sbt.shell
 import java.io.File
 import java.util
 import java.util.UUID
+import javax.swing.JComponent
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
@@ -18,6 +19,7 @@ import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.filters.RegexpFilter
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.compiler.ex.CompilerPathsEx
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.ProjectKeys
@@ -137,11 +139,18 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
   override def run(indicator: ProgressIndicator): Unit = {
 
     val shell = SbtShellCommunication.forProject(project)
+    val shellRunner = SbtProcessManager.forProject(project).acquireShellRunner
     val viewManager = ServiceManager.getService(project, classOf[BuildViewManager])
 
     val taskId = UUID.randomUUID()
     val buildDescriptor = new DefaultBuildDescriptor(taskId, "sbt build", project.getBasePath, System.currentTimeMillis())
     val startEvent = new StartBuildEventImpl(buildDescriptor, "queued ...")
+      .withContentDescriptorSupplier { () => // dummy runContentDescriptor to set autofocus of build toolwindow off
+        val descriptor = new RunContentDescriptor(null, null, new JComponent {}, "sbt build")
+        descriptor.setActivateToolWindowWhenAdded(false)
+        descriptor.setAutoFocusContent(false)
+        descriptor
+      }
 
     viewManager.onEvent(startEvent)
 
@@ -161,6 +170,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
           messages
         case ErrorWaitForInput =>
           // can only actually happen during reload, but handle it here to be sure
+          shellRunner.openShell(true)
           viewManager.onEvent(errorEvent("build interrupted"))
           messages.addError("ERROR: build interrupted")
           messages
@@ -170,8 +180,10 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
           val messagesWithErrors = if (text startsWith ERROR_PREFIX) {
             val msg = text.stripPrefix(ERROR_PREFIX)
             // only report first error until we can get a good mapping message -> error
-            if (messages.errors.isEmpty)
+            if (messages.errors.isEmpty) {
+              shellRunner.openShell(true)
               viewManager.onEvent(errorEvent("errors in build"))
+            }
             messages.addError(msg)
           } else if (text startsWith WARN_PREFIX) {
             val msg = text.stripPrefix(WARN_PREFIX)
