@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package highlighter
 
-import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
@@ -22,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
   * User: Alexander Podkhalyuzin
@@ -65,7 +65,7 @@ object AnnotatorHighlighter {
         case ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_ALL =>
       }
 
-      UsageTrigger.trigger("scala.collection.pack.highlighting")
+      Stats.trigger("scala.collection.pack.highlighting")
 
       def conformsByNames(tp: ScType, qn: List[String]): Boolean =
         qn.flatMap {

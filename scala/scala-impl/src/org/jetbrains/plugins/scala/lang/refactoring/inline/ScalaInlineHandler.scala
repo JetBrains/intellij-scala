@@ -4,7 +4,9 @@ package refactoring
 package inline
 
 
-import com.intellij.internal.statistic.UsageTrigger
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.collection.mutable.ArrayBuffer
+
 import com.intellij.lang.refactoring.InlineHandler
 import com.intellij.lang.refactoring.InlineHandler.Settings
 import com.intellij.openapi.application.ApplicationManager
@@ -33,9 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.highlightOccurrences
-
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
-import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
  * User: Alexander Podkhalyuzin
@@ -197,7 +197,7 @@ class ScalaInlineHandler extends InlineHandler {
 
     def isParametrizedTypeAlias(typeAlias: ScTypeAliasDefinition) = typeAlias.typeParameters.nonEmpty
 
-    UsageTrigger.trigger(ScalaBundle.message("inline.id"))
+    Stats.trigger(ScalaBundle.message("inline.id"))
 
     implicit val project = element.projectContext
 

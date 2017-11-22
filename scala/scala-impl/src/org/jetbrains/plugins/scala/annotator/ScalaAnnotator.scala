@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala
 package annotator
 
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, mutable}
+import scala.meta.intellij.MetaExpansionsManager
+
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection._
@@ -54,11 +58,8 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeRef
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.statistics.Stats
 import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
-
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Seq, mutable}
-import scala.meta.intellij.MetaExpansionsManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -434,9 +435,9 @@ abstract class ScalaAnnotator extends Annotator
   }
 
   private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Unit = {
-    import ScalaProjectSettings.ScalaMetaMode
-
     import scala.meta.intellij.psiExt._
+
+    import ScalaProjectSettings.ScalaMetaMode
     if (annotation.isMetaMacro) {
       if (!MetaExpansionsManager.isUpToDate(annotation)) {
         val warning = holder.createWarningAnnotation(annotation, ScalaBundle.message("scala.meta.recompile"))

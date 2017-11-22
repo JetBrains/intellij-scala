@@ -3,7 +3,9 @@ package lang.rearranger
 
 import java.util
 
-import com.intellij.internal.statistic.UsageTrigger
+import scala.collection.JavaConverters._
+import scala.collection.{immutable, mutable}
+
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi.PsiElement
@@ -18,9 +20,7 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Order._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens._
 import com.intellij.psi.codeStyle.arrangement.std._
 import com.intellij.psi.codeStyle.arrangement.{ArrangementSettings, _}
-
-import scala.collection.{immutable, mutable}
-import scala.collection.JavaConverters._
+import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
  * @author Roman.Shein
@@ -46,7 +46,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
 
   override def parse(root: PsiElement, document: Document,
                               ranges: java.util.Collection[TextRange], settings: ArrangementSettings): util.List[ScalaArrangementEntry] = {
-    UsageTrigger.trigger(ScalaRearranger.featureId)
+    Stats.trigger(ScalaRearranger.featureId)
     val info = new ScalaArrangementParseInfo
     root.accept(new ScalaArrangementVisitor(info, document, ranges.asScala, getGroupingRules(settings)))
     if (settings != null) {

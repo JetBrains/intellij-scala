@@ -3,8 +3,9 @@ package lang
 package refactoring
 package introduceParameter
 
+import scala.collection.mutable.ArrayBuffer
+
 import com.intellij.ide.util.SuperMethodWarningUtil
-import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
@@ -33,8 +34,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntr
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaVariableValidator}
-
-import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
  * User: Alexander Podkhalyuzin
@@ -88,7 +88,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
 
   private def invoke(file: ScalaFile)
                     (implicit project: Project, editor: Editor): Unit = {
-    UsageTrigger.trigger(ScalaBundle.message("introduce.parameter.id"))
+    Stats.trigger(ScalaBundle.message("introduce.parameter.id"))
 
     trimSpacesAndComments(editor, file)
     PsiDocumentManager.getInstance(project).commitAllDocuments()

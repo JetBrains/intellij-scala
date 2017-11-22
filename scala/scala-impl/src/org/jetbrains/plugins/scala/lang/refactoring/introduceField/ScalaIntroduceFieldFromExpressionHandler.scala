@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.introduceField
 
-import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Document, Editor}
@@ -20,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduc
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.statistics.Stats
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
 
@@ -34,7 +34,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
   def invoke(file: PsiFile, startOffset: Int, endOffset: Int)
             (implicit project: Project, editor: Editor): Unit = {
     try {
-      UsageTrigger.trigger(ScalaBundle.message("introduce.field.id"))
+      Stats.trigger(ScalaBundle.message("introduce.field.id"))
 
       trimSpacesAndComments(editor, file)
       PsiDocumentManager.getInstance(project).commitAllDocuments()

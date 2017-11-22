@@ -3,13 +3,13 @@ package lang
 package parser
 package parsing
 
-import org.jetbrains.plugins.scala.annotator.Stats
+import scala.annotation.tailrec
+
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-
-import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
   * @author Alexander Podkhalyuzin

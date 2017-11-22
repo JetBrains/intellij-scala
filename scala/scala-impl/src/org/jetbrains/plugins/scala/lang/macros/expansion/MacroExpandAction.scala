@@ -3,7 +3,10 @@ package org.jetbrains.plugins.scala.lang.macros.expansion
 import java.io._
 import java.util.regex.Pattern
 
-import com.intellij.internal.statistic.UsageTrigger
+import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
+import scala.meta.intellij.MetaExpansionsManager
+
 import com.intellij.notification.{NotificationGroup, NotificationType}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.PathManager
@@ -28,10 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScM
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-
-import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
-import scala.meta.intellij.MetaExpansionsManager
+import org.jetbrains.plugins.scala.statistics.Stats
 
 
 class MacroExpandAction extends AnAction {
@@ -39,7 +39,7 @@ class MacroExpandAction extends AnAction {
   import MacroExpandAction._
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    UsageTrigger.trigger(ScalaBundle.message("macro.expand.action.id"))
+    Stats.trigger(ScalaBundle.message("macro.expand.action.id"))
 
     val sourceEditor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
     val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument).asInstanceOf[ScalaFile]
@@ -204,9 +204,9 @@ class MacroExpandAction extends AnAction {
 
   private def suggestUsingCompilerFlag(e: AnActionEvent, file: PsiFile): Unit = {
 
-    import org.jetbrains.plugins.scala.project._
-
     import scala.collection._
+
+    import org.jetbrains.plugins.scala.project._
 
     val module = ProjectRootManager.getInstance(e.getProject).getFileIndex.getModuleForFile(file.getVirtualFile)
     if (module == null) return

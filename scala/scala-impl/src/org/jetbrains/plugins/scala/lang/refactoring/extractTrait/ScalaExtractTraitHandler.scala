@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.extractTrait
 
-import com.intellij.internal.statistic.UsageTrigger
+import scala.collection.JavaConverters._
+import scala.collection.mutable
+
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
@@ -23,9 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandler
 import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
-
-import scala.collection.JavaConverters._
-import scala.collection.mutable
+import org.jetbrains.plugins.scala.statistics.Stats
 
 /**
  * Nikolay.Tropin
@@ -91,7 +91,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
   private def invokeOnClass(clazz: ScTemplateDefinition, project: Project, editor: Editor) {
     if (clazz == null) return
 
-    UsageTrigger.trigger(ScalaBundle.message("extract.trait.id"))
+    Stats.trigger(ScalaBundle.message("extract.trait.id"))
 
     val dialog = new ScalaExtractTraitDialog(project, clazz)
     dialog.show()
