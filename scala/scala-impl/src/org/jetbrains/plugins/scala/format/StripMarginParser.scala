@@ -3,7 +3,7 @@ package format
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.extensions.{Both, childOf}
+import org.jetbrains.plugins.scala.extensions.{&&, childOf}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall
 object StripMarginParser extends StringParser {
 
   override def parse(element: PsiElement): Option[Seq[StringPart]] = Some(element) collect {
-    case Both(lit: ScInterpolatedStringLiteral, WithStrippedMargin(_, marginChar)) =>
+    case (lit: ScInterpolatedStringLiteral) && WithStrippedMargin(_, marginChar) =>
       val parts = InterpolatedStringParser.parse(lit, checkStripMargin = false).getOrElse(return None)
       parts.flatMap {
         case Text(s) =>
@@ -23,7 +23,7 @@ object StripMarginParser extends StringParser {
           Text(stripped).withEscapedPercent(element.getManager)
         case part => List(part)
       }
-    case Both(lit: ScLiteral, WithStrippedMargin(_, marginChar)) =>
+    case (lit: ScLiteral) && WithStrippedMargin(_, marginChar) =>
       Text(lit.getValue.toString.stripMargin(marginChar)).withEscapedPercent(element.getManager)
   }
 

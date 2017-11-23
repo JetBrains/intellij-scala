@@ -795,7 +795,7 @@ abstract class ScalaAnnotator extends Annotator
         case mc: ScMethodCall =>
           val messageKey = "cannot.resolve.apply.method"
           if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateApplyQuickFix(td, mc))) return
-        case Both(p: ScPattern, (_: ScConstructorPattern | _: ScInfixPattern)) =>
+        case (p: ScPattern) && (_: ScConstructorPattern | _: ScInfixPattern) =>
           val messageKey = "cannot.resolve.unapply.method"
           if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateUnapplyQuickFix(td, p))) return
         case scalaDocTag: ScDocTag if scalaDocTag.getName == MyScaladocParsing.THROWS_TAG => return //see SCL-9490

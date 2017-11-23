@@ -7,7 +7,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ConvertibleToMethodValueInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
-import org.jetbrains.plugins.scala.extensions.{Both, PsiElementExt, PsiModifierListOwnerExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions.{&&, PsiElementExt, PsiModifierListOwnerExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -67,7 +67,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
 
     qual.depthFirst(e => !e.isInstanceOf[ScImportStmt]).forall {
       case _: ScNewTemplateDefinition => false
-      case Both(_: ScReferenceExpression | ScConstructor.byReference(_), ResolvesTo(named: PsiNamedElement)) => isStable(named)
+      case (_: ScReferenceExpression | ScConstructor.byReference(_)) && ResolvesTo(named: PsiNamedElement) => isStable(named)
       case _ => true
     }
   }

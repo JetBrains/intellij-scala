@@ -10,7 +10,7 @@ import com.intellij.psi.util.PsiUtilBase.getElementAtCaret
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
-import org.jetbrains.plugins.scala.extensions.{Both, PsiElementExt, callbackInTransaction}
+import org.jetbrains.plugins.scala.extensions.{&&, PsiElementExt, callbackInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -92,7 +92,7 @@ trait ScalaInplaceRenameHandler {
     }.orNull
 
     elementToRename match {
-      case Both(`selected`, fun: ScFunction) if Seq("apply", "unapply", "unapplySeq").contains(fun.name) || fun.isConstructor =>
+      case `selected` && (fun: ScFunction) if Seq("apply", "unapply", "unapplySeq").contains(fun.name) || fun.isConstructor =>
         specialMethodPopup(fun)
         null
       case _ =>

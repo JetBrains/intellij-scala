@@ -217,7 +217,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
 
     inReadAction {
       element match {
-        case Both(named: ScNamedElement, inNameContext(member: ScMember)) if !member.isLocal =>
+        case (named: ScNamedElement) && inNameContext(member: ScMember) if !member.isLocal =>
           for (elem <- ScalaOverridingMemberSearcher.search(named, deep = true)) {
             val processed = super.processElementUsages(elem, processor, options)
             if (!processed) return false

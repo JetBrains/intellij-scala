@@ -8,7 +8,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.extensions.{Both, LazyVal, PsiElementExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions.{&&, LazyVal, PsiElementExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
@@ -202,7 +202,7 @@ private object byNameParameterFunction {
       if (refText.endsWith(byNameFunctionSuffix)) {
         val paramName = refText.stripSuffix(byNameFunctionSuffix)
         createExpressionWithContextFromText(paramName, ref.getContext, ref) match {
-          case Both(ref: ScReferenceExpression, ResolvesTo(p: ScParameter)) if p.isCallByNameParameter => Some((p, ref))
+          case (ref: ScReferenceExpression) && ResolvesTo(p: ScParameter) if p.isCallByNameParameter => Some((p, ref))
           case _ => throw EvaluationException(s"Cannot find by-name parameter with such name: $paramName")
         }
       }

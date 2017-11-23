@@ -1038,7 +1038,7 @@ object ScalaRefactoringUtil {
       case tb: ScTryBlock if !tb.hasRBrace => true
       case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
       case _: ScFunction => true
-      case Both(_: ScFunction, _ childOf (_: ScTemplateBody | _: ScEarlyDefinitions)) => true
+      case (_: ScFunction) && (_ childOf (_: ScTemplateBody | _: ScEarlyDefinitions)) => true
       case ifSt: ScIfStmt if Seq(ifSt.thenBranch, ifSt.elseBranch) contains Option(parExpr) => true
       case forSt: ScForStatement if forSt.body.orNull == parExpr => true
       case _: ScForStatement => false

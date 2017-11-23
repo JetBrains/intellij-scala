@@ -205,7 +205,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
             val clazz = PsiTreeUtil.getParentOfType(ed, classOf[ScTypeDefinition])
             if (clazz != null) s"early definitions of ${clazz.name}"
             else "line in containing block"
-          case Both(_: ScFunction, named: ScNamedElement) => s"line in function ${named.name}"
+          case (_: ScFunction) && (named: ScNamedElement) => s"line in function ${named.name}"
           case _: ScalaFile => "line in containing file"
           case _ => "line in containing block"
         }
