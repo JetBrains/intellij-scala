@@ -117,11 +117,11 @@ package object extensions {
     def foreachDefined(pf: PartialFunction[A, Unit]): Unit =
       value.foreach(pf.applyOrElse(_, (_: A) => Unit))
 
-    def filterBy[T](aClass: Class[T])(implicit cbf: CanBuildTo[T, CC]): CC[T] =
-      value.filter(aClass.isInstance(_)).map[T, CC[T]](_.asInstanceOf[T])(collection.breakOut)
+    def filterBy[T: ClassTag](implicit cbf: CanBuildTo[T, CC]): CC[T] =
+      value.filter(implicitly[ClassTag[T]].runtimeClass.isInstance).map[T, CC[T]](_.asInstanceOf[T])(collection.breakOut)
 
-    def findBy[T](aClass: Class[T]): Option[T] =
-      value.find(aClass.isInstance(_)).map(_.asInstanceOf[T])
+    def findBy[T: ClassTag]: Option[T] =
+      value.find(implicitly[ClassTag[T]].runtimeClass.isInstance).map(_.asInstanceOf[T])
 
     def mkParenString(implicit ev: A <:< String): String = value.mkString("(", ", ", ")")
   }

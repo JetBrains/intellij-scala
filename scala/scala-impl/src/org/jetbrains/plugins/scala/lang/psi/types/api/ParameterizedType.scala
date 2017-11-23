@@ -45,8 +45,8 @@ trait ParameterizedType extends ValueType {
     }
   }
 
-  override def isFinalType: Boolean = designator.isFinalType && typeArguments.filterBy(classOf[TypeParameterType])
-    .forall(_.isInvariant)
+  override def isFinalType: Boolean =
+    designator.isFinalType && typeArguments.filterBy[TypeParameterType].forall(_.isInvariant)
 }
 
 object ParameterizedType {

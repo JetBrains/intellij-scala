@@ -202,7 +202,7 @@ private object GutterUtil {
       ProgressManager.checkCanceled()
       val range = new TextRange(member.getTextOffset, member.getTextOffset)
       val namedElems: Seq[ScNamedElement] = member match {
-        case d: ScDeclaredElementsHolder => d.declaredElements.filterBy(classOf[ScNamedElement])
+        case d: ScDeclaredElementsHolder => d.declaredElements.filterBy[ScNamedElement]
         case td: ScTypeDefinition => Seq(td)
         case ta: ScTypeAlias => Seq(ta)
         case _ => Seq.empty
