@@ -70,7 +70,7 @@ private object SbtViewContributor {
       // presentation.setIcon(sbtIcon) TODO
     }
 
-    override def getName: String = "sbt Tasks"
+    override def getName: String = "sbt tasks"
   }
 
   class SbtSettingsGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtSettings)) {
@@ -80,7 +80,7 @@ private object SbtViewContributor {
       // presentation.setIcon(sbtIcon) TODO
     }
 
-    override def getName: String = "sbt Settings"
+    override def getName: String = "sbt settings"
   }
 
   class SbtCommandsGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtCommands)) {
@@ -90,7 +90,7 @@ private object SbtViewContributor {
       // presentation.setIcon(sbtIcon) TODO
     }
 
-    override def getName: String = "sbt Commands"
+    override def getName: String = "sbt commands"
   }
 
   class SbtTaskViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtTaskData])
