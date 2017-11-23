@@ -583,9 +583,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
                 _: ScTryBlock | _: ScCatchBlock) =>
 
           val oneLineNonEmpty = leftString != "{" && !getText(block.getNode, fileText).contains('\n')
-          val spaceInsideOneLineMethod = scalaSettings.SPACES_IN_ONE_LINE_BLOCKS &&
+          lazy val spaceInsideOneLineMethod = scalaSettings.SPACES_IN_ONE_LINE_BLOCKS &&
             rightNode.getTreeParent.getTreeParent != null && rightNode.getTreeParent.getTreeParent.getPsi.isInstanceOf[ScFunction]
-          val spaceInsideClosure = scalaSettings.SPACE_INSIDE_CLOSURE_BRACES && (leftNode.getElementType match {
+          lazy val spaceInsideClosure = scalaSettings.SPACE_INSIDE_CLOSURE_BRACES && (leftNode.getElementType match {
             case ScalaElementTypes.FUNCTION_EXPR => true
             case ScalaElementTypes.CASE_CLAUSES => block.getParent.isInstanceOf[ScArgumentExprList] ||
                 block.getParent.isInstanceOf[ScInfixExpr]
@@ -594,7 +594,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
                   (leftPsi.isInstanceOf[ScFunctionExpr] || leftPsi.isInstanceOf[ScCaseClauses] ||
                     block.isInstanceOf[ScBlockExpr] && Option(rightNode.getTreeParent.getTreeParent).forall(_.getElementType != ScalaElementTypes.INTERPOLATED_STRING_LITERAL))
           })
-          val spaceInSelfTypeBraces = scalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES &&
+          lazy val spaceInSelfTypeBraces = scalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES &&
             leftPsi.getParent.getFirstChild.getNextSiblingNotWhitespace.isInstanceOf[ScSelfTypeElement]
           val needsSpace = (oneLineNonEmpty && (scalaSettings.SPACES_IN_ONE_LINE_BLOCKS ||
             spaceInsideOneLineMethod || spaceInsideClosure || spaceInSelfTypeBraces)) ||
