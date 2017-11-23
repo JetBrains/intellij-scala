@@ -610,13 +610,15 @@ object AbstractTestRunConfiguration extends SuiteValidityChecker {
     def getRunConfigurationBase: RunConfigurationBase
   }
 
-  protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean = {
+  override protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean = lackSuitableConstructorWithParams(clazz)
+
+  protected[test] def lackSuitableConstructorWithParams(clazz: PsiClass, maxParamsCount: Int = 0): Boolean = {
     val constructors = clazz match {
       case c: ScClass => c.secondaryConstructors.filter(_.isConstructor).toList ::: c.constructor.toList
       case _ => clazz.getConstructors.toList
     }
     for (con <- constructors) {
-      if (con.isConstructor && con.getParameterList.getParametersCount == 0) {
+      if (con.isConstructor && con.getParameterList.getParametersCount <= maxParamsCount) {
         con match {
           case owner: ScModifierListOwner =>
             if (owner.hasModifierProperty(PsiModifier.PUBLIC)) return false
