@@ -16,10 +16,19 @@ public class UTestSuite540Runner extends UTestSuiteRunner {
   public void runTestSuites(String className, Collection<UTestPath> tests, UTestReporter reporter) {
     Collection<UTestPath> testsToRun;
     Class clazz;
+    Object testObject;
     try {
       clazz = Class.forName(className);
+      Class testObjClass = Class.forName(className + "$");
+      testObject = testObjClass.getField("MODULE$").get(null);
     } catch (ClassNotFoundException e) {
       System.out.println("ClassNotFoundException for " + className + ": " + e.getMessage());
+      return;
+    } catch (IllegalAccessException e) {
+      System.out.println("IllegalAccessException for instance field of " + className + ": " + e.getMessage());
+      return;
+    } catch (NoSuchFieldException e) {
+      System.out.println("ClassNotFoundException for instance field of  " + className + ": " + e.getMessage());
       return;
     }
     if (!tests.isEmpty()) {
@@ -97,8 +106,8 @@ public class UTestSuite540Runner extends UTestSuiteRunner {
       if (subtree != null) {
         treeList.add(subtree);
       }
-      TestRunner.runAsync(resolveResult, reportFunction, JavaConverters.asScalaBufferConverter(treeList).asScala(),
-        Executor$.MODULE$, ExecutionContext.RunNow$.MODULE$);
+        TestRunner.runAsync(resolveResult, reportFunction, JavaConverters.asScalaBufferConverter(treeList).asScala(),
+                (Executor) testObject, ExecutionContext.RunNow$.MODULE$);
     }
   }
 
