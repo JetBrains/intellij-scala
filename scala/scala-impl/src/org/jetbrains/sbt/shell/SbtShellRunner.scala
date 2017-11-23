@@ -134,7 +134,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
     twm.getFocusManager.requestFocusInProject(toolWindow.getComponent, project)
   }
 
-  def openShell(focus: Boolean): Unit = {
+  def openShell(focus: Boolean): Unit = ShellUIUtil.inUI {
     val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(SbtShellToolWindowFactory.ID)
     toolWindow.activate(null, focus)
     val content = toolWindow.getContentManager.findContent(toolWindowTitle)

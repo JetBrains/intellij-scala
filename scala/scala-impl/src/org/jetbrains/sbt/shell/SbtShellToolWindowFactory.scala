@@ -3,6 +3,9 @@ package org.jetbrains.sbt.shell
 import java.awt.event.{InputEvent, KeyEvent}
 import javax.swing.KeyStroke
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 import com.intellij.ide.actions.ActivateToolWindowAction
 import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.keymap.KeymapManager
@@ -29,7 +32,8 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
     val pm = SbtProcessManager.forProject(project)
-    pm.acquireShellRunner.openShell(false)
+    Future(pm.acquireShellRunner)
+      .foreach(_.openShell(false))
   }
 
   // don't auto-activate because starting sbt shell is super heavy weight
