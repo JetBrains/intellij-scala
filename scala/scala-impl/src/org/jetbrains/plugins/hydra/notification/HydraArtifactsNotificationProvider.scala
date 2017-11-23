@@ -19,11 +19,12 @@ class HydraArtifactsNotificationProvider(project: Project, notifications: Editor
   override def getKey: Key[EditorNotificationPanel] = ProviderKey
 
   override protected def hasDeveloperKit(module: Module): Boolean = {
-    val downloadedScalaVersions = HydraApplicationSettings.getInstance().getDownloadedScalaVersions
     val hydraSettings = HydraCompilerSettings.getInstance(project)
-    val scalaVersions = HydraVersions.getSupportedScalaVersions(project)
 
-    if(hydraSettings.isHydraEnabled) {
+    if (hydraSettings.isHydraEnabled) {
+      val downloadedScalaVersions = HydraApplicationSettings.getInstance().getDownloadedScalaVersions
+      val scalaVersions = HydraVersions.getSupportedScalaVersions(project)
+
       scalaVersions.forall(downloadedScalaVersions.contains(_))
     } else {
       true
