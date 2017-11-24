@@ -17,11 +17,10 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.project.template.SbtModuleBuilder.tryToSetupRootModel
+import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.tryToSetupRootModel
 
 /**
- * User: Dmitry.Naydanov
- * Date: 21.01.15.
+ * Creates sbt projects based on Lightbend tech hub project starter API.
  */
 class TechHubProjectBuilder extends
   AbstractExternalModuleBuilder[SbtProjectSettings](SbtProjectSystem.Id, new SbtProjectSettings) with SbtRefreshCaller {

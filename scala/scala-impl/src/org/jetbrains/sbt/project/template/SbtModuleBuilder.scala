@@ -7,29 +7,20 @@ import javax.swing._
 import javax.swing.border.EmptyBorder
 
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
-import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
-import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
-import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil._
-import com.intellij.openapi.util.io.FileUtilRt
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
 import org.jetbrains.plugins.scala.project.{Platform, Version, Versions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.project.template.SbtModuleBuilder._
+import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil._
 
 import scala.collection.mutable
 
@@ -279,46 +270,4 @@ private object SbtModuleBuilder {
   }
 
   def formatSbtProperties(sbtVersion: String) = s"sbt.version = $sbtVersion"
-
-  def tryToSetupRootModel(model: ModifiableRootModel, @Nullable contentEntryPath: String, projectSettings: SbtProjectSettings): Boolean = {
-    val attempt = for {
-      contentPath <- Option(contentEntryPath)
-      if contentPath.nonEmpty
-      contentRootDir = new File(contentPath)
-      if FileUtilRt.createDirectory(contentRootDir)
-      vContentRootDir <- Option(LocalFileSystem.getInstance.refreshAndFindFileByIoFile(contentRootDir))
-    } yield {
-      doSetupRootModel(model, projectSettings, contentRootDir, vContentRootDir)
-      true
-    }
-
-    attempt.getOrElse(false)
-  }
-
-  private def doSetupRootModel(model: ModifiableRootModel, externalProjectSettings: SbtProjectSettings,
-                       contentRootDir: File, vContentRootDir: VirtualFile): Unit = {
-
-    model.addContentEntry(vContentRootDir)
-    model.inheritSdk()
-    val settings =
-      ExternalSystemApiUtil.getSettings(model.getProject, SbtProjectSystem.Id)
-        .asInstanceOf[
-          AbstractExternalSystemSettings[
-            _ <: AbstractExternalSystemSettings[_, SbtProjectSettings, _],
-            SbtProjectSettings,
-            _ <: ExternalSystemSettingsListener[SbtProjectSettings]]
-        ]
-
-    externalProjectSettings.setExternalProjectPath(contentRootDir.getAbsolutePath)
-    settings.linkProject(externalProjectSettings)
-
-    if (!externalProjectSettings.isUseAutoImport) {
-      FileDocumentManager.getInstance.saveAllDocuments()
-      ApplicationManager.getApplication.invokeLater(() => ExternalSystemUtil.refreshProjects(
-        new ImportSpecBuilder(model.getProject, SbtProjectSystem.Id)
-          .forceWhenUptodate()
-          .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-      ))
-    }
-  }
 }
