@@ -474,7 +474,7 @@ package object extensions {
         ScalaPsiUtil.nameContext(typedDef) match {
           case m: ScMember =>
             m.containingClass match {
-              case t: ScTrait =>
+              case t: ScTrait if isStatic =>
                 val linearization = MixinNodes.linearization(clazz)
                   .flatMap(_.extractClass)
                 var index = linearization.indexWhere(_ == t)
@@ -492,7 +492,7 @@ package object extensions {
 
       node.info.namedElement match {
         case fun: ScFunction if !fun.isConstructor =>
-          val wrappers = fun.getFunctionWrappers(isStatic, isInterface = fun.isAbstractMember)
+          val wrappers = fun.getFunctionWrappers(isStatic, isInterface = fun.isAbstractMember, concreteClassFor(fun))
           wrappers.foreach(processMethod)
           wrappers.foreach(w => processName(w.name))
         case method: PsiMethod if !method.isConstructor =>
