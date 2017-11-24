@@ -558,11 +558,19 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         val argumentExpressions = callOption.toSeq.flatMap {
           _.argumentExpressions
         }
-        val name = callOption.map {
+        
+        val name = callOption.filterNot(
+          me => me.isInstanceOf[ScPostfixExpr] && argumentExpressions.isEmpty
+        ).map {
           getDynamicNameForMethodInvocation
         }.getOrElse {
-          ref.getContext match {
-            case a: ScAssignStmt if a.getLExpression == ref => UPDATE_DYNAMIC
+          val (actualLe, actualContext) = ref.getContext match {
+            case postfix: ScPostfixExpr => (postfix, postfix.getContext)
+            case other => (ref, other)
+          }
+          
+          actualContext match {
+            case a: ScAssignStmt if a.getLExpression == actualLe => UPDATE_DYNAMIC
             case _ => SELECT_DYNAMIC
           }
         }

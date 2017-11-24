@@ -26,18 +26,16 @@ class ExpandDynamicCall extends AbstractTransformer {
       val assignments = r.breadthFirst().filter(_.isInstanceOf[ScAssignStmt]).toVector
       e.replace(code"$l.applyDynamicNamed(${quote(id)})(${@@(assignments.map(asTuple))})")
 
-    case (e: ScReferenceExpression) && (r @ RenamedReference(id, "selectDynamic")) =>
+    case (e: ScReferenceExpression) && (r @ RenamedReference(id, "selectDynamic")) if r.qualifier.isDefined =>
       e.replace(code"${r.qualifier.get}.selectDynamic(${quote(id)})")
 
-    // TODO fix an error in the implementation of resolve (must point to "selectDynamic")
-    case e @ ScPostfixExpr(l, RenamedReference(id, "applyDynamic")) =>
+    case e @ ScPostfixExpr(l, RenamedReference(id, "selectDynamic")) =>
       e.replace(code"$l.selectDynamic(${quote(id)})")
 
     case e @ ScAssignStmt(l @ RenamedReference(id, "updateDynamic"), Some(r)) =>
       e.replace(code"${l.qualifier.get}.updateDynamic(${quote(id)})($r)")
 
-    // TODO fix an error in the implementation of resolve (must point to "updateDynamic")
-    case e @ ScAssignStmt(ScPostfixExpr(l, RenamedReference(id, "applyDynamic")), Some(r)) =>
+    case e @ ScAssignStmt(ScPostfixExpr(l, RenamedReference(id, "updateDynamic")), Some(r)) =>
       e.replace(code"$l.updateDynamic(${quote(id)})($r)")
   }
 

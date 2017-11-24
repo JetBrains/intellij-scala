@@ -14,4 +14,5 @@ class DynamicTest extends ResolveTestBase {
   def testApplyDynamicNoMethod() { doTest() }
   def testApplyDynamicOrdinaryType() { doTest() }
   def testApplyDynamicWrongSygnature() { doTest() }
+  def testSelectDynamicPostfix() { doTest() }
 }
