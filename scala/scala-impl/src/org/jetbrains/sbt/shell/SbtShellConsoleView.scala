@@ -32,16 +32,18 @@ class SbtShellConsoleView private(project: Project, debugConnection: Option[Remo
       toggleSoftWrapsAction,
       new SbtShellScrollToTheEndToolbarAction(getEditor),
       clearAllAction,
-      new EOFAction(project),
       new RestartAction(project),
       new StopAction(project),
       new ExecuteTaskAction(this, "products", Option(AllIcons.Actions.Compile))
     )
 
-    val all = conditionalActions ++ myToolbarActions
-    all.foreach {act => act.registerCustomShortcutSet(act.getShortcutSet, this) }
+    val toolbarActions = conditionalActions ++ myToolbarActions
+    toolbarActions.foreach {act => act.registerCustomShortcutSet(act.getShortcutSet, this) }
 
-    all
+    val shortcutOnlyActions = Seq(new EOFAction(project))
+    shortcutOnlyActions.foreach {act => act.registerCustomShortcutSet(act.getShortcutSet, this) }
+
+    toolbarActions
   }
 
 }
