@@ -15,6 +15,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.tree._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -37,9 +38,9 @@ import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.JavaConverters._
 
 
 object getDummyBlocks {
@@ -194,11 +195,8 @@ object getDummyBlocks {
         }
         return subBlocks
       case interpolated: ScInterpolatedStringLiteral =>
-        //create and store alignment; required for support of multi-line interploated strings (SCL-8665)
-        val project = interpolated.getProject
-        val pointerManager = SmartPointerManager.getInstance(project)
-        val pointer = pointerManager.createSmartPsiElementPointer(interpolated)
-        alignmentsMap(project).put(pointer, Alignment.createAlignment())
+        //create and store alignment; required for support of multi-line interpolated strings (SCL-8665)
+        alignmentsMap(interpolated.getProject).put(interpolated.createSmartPointer, Alignment.createAlignment())
       case _: ScValue | _: ScVariable | _: ScFunction if node.getFirstChildNode.getPsi.isInstanceOf[PsiComment] =>
         val childrenFiltered = children.filter(isCorrectBlock)
         subBlocks.add(getSubBlock(block, scalaSettings, childrenFiltered.head))

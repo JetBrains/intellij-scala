@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala
 package codeInspection.collections
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiElement, SmartPointerManager, SmartPsiElementPointer}
+import com.intellij.psi.{PsiElement, SmartPsiElementPointer}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 import scala.language.implicitConversions
@@ -55,7 +56,7 @@ class SimplificationBuilder private[collections] (val exprToReplace: ScExpressio
   }
 
   def toSimplification: Simplification = {
-    val smartPointer = SmartPointerManager.getInstance(exprToReplace.getProject).createSmartPsiElementPointer(exprToReplace)
+    val smartPointer = exprToReplace.createSmartPointer
     Simplification(smartPointer, replacementText, hint, rangeInParent)
   }
 }

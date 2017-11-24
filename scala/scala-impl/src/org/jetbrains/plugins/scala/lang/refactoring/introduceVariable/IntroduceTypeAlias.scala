@@ -17,7 +17,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfType, getParentOfType}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, callbackInTransaction, inWriteAction, startCommand}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, callbackInTransaction, inWriteAction, startCommand}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -105,10 +105,10 @@ trait IntroduceTypeAlias {
               case typeAlias: ScTypeAliasDefinition => typeAlias
             }
 
-            val maybeTypeElement = Option(typeElementReference.getElement)
-
-            maybeTypeElement.filter(_.isValid).foreach { typeElement =>
-              editor.getCaretModel.moveToOffset(typeElement.getTextOffset)
+            Some(typeElementReference).collect {
+              case ValidSmartPointer(e) => e.getTextOffset
+            }.foreach { offset =>
+              editor.getCaretModel.moveToOffset(offset)
               editor.getSelectionModel.removeSelection()
 
               if (isInplaceAvailable(editor)) {
@@ -223,8 +223,8 @@ trait IntroduceTypeAlias {
       usualOccurrences.apply(typeElementIdx)
     }
 
-    val manager = SmartPointerManager.getInstance(file.getProject)
-    (manager.createSmartPsiElementPointer(typeAlias), manager.createSmartPsiElementPointer(resultTypeElement))
+    implicit val manager: SmartPointerManager = SmartPointerManager.getInstance(file.getProject)
+    (typeAlias.createSmartPointer, resultTypeElement.createSmartPointer)
   }
 
   def runRefactoringForTypes(file: PsiFile, typeElement: ScTypeElement, typeName: String,

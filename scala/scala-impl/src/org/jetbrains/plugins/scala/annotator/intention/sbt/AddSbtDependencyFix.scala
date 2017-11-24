@@ -15,9 +15,9 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.annotator.intention.sbt.AddSbtDependencyUtils._
 import org.jetbrains.plugins.scala.annotator.intention.sbt.ui.SbtArtifactSearchWizard
-import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions.ValidSmartPointer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
@@ -33,27 +33,31 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
   * Created by afonichkin on 7/7/17.
   */
 class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReferenceElement]) extends IntentionAction with LowPriorityAction {
-  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
-    val element = refElement.getElement
-    element.isValid &&
-    file != null &&
-    file.isInstanceOf[ScalaFile] &&
-      element.getManager.isInProject(file) &&
-    ! file.isInstanceOf[ScalaCodeFragment] &&
-    ! SbtSystemSettings.getInstance(project).getLinkedProjectsSettings.isEmpty
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = file match {
+    case _: ScalaCodeFragment => false
+    case scalaFile: ScalaFile =>
+      val isInProject = refElement match {
+        case ValidSmartPointer(element) => element.getManager.isInProject(scalaFile)
+        case _ => false
+      }
+
+      isInProject && !SbtSystemSettings.getInstance(project).getLinkedProjectsSettings.isEmpty
+    case _ => false
   }
 
   override def getText: String = "Add sbt dependency..."
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     val element = refElement.getElement
+
     def filterByScalaVer(artifacts: Set[ArtifactInfo]): Set[ArtifactInfo] = {
       val scalaVer = element.module.flatMap(_.scalaSdk.map(_.languageLevel.version))
       scalaVer
         .map(version => artifacts.filter(_.artifactId.endsWith(version)))
-          .map(res => if (res.nonEmpty) res else artifacts)
-          .getOrElse(artifacts)
+        .map(res => if (res.nonEmpty) res else artifacts)
+        .getOrElse(artifacts)
     }
+
     val baseDir: VirtualFile = project.getBaseDir
     val sbtFileOpt: Option[VirtualFile] = {
       val buildSbt = baseDir.findChild(Sbt.BuildFile)
@@ -70,10 +74,12 @@ class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReferenceElement]
       override def run(indicator: ProgressIndicator): Unit = {
         import com.intellij.notification.Notifications.Bus
         def error(msg: String): Unit = Bus.notify(new Notification(getText, getText, msg, NotificationType.ERROR))
+
         def getDeps: Set[ArtifactInfo] = {
           def doSearch(name: String): Set[ArtifactInfo] = resolver.getIndex(project)
             .map(_.searchArtifactInfo(name)(project))
             .getOrElse(Set.empty)
+
           indicator.setText("Searching for artifacts...")
           val fqName = extensions.inReadAction(getReferenceText)
           val artifactInfoSet = if (fqName.endsWith("._")) { // search wildcard imports by containing package

@@ -42,6 +42,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
+
 import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.ArrayBuffer
@@ -245,7 +246,7 @@ package object extensions {
       node.findChildByType(elementType) != null
   }
 
-  implicit class PsiElementExt(val element: PsiElement) extends AnyVal {
+  implicit class PsiElementExt[E <: PsiElement](val element: E) extends AnyVal {
     def startOffsetInParent: Int =
       element match {
         case s: ScalaPsiElement => s.startOffsetInParent
@@ -380,6 +381,9 @@ package object extensions {
       val parent = element.getParent
       elements.foldRight(List.empty[PsiElement])(parent.addAfter(_, element) :: _)
     }
+
+    def createSmartPointer(implicit manager: SmartPointerManager = SmartPointerManager.getInstance(element.getProject)): SmartPsiElementPointer[E] =
+      manager.createSmartPsiElementPointer(element)
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {

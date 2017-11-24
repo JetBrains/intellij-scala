@@ -369,7 +369,7 @@ object IntroduceExpressions {
 
     setPrivateModifier(createdDeclaration)
     ScalaPsiUtil.adjustTypes(createdDeclaration)
-    SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(createdDeclaration)
+    createdDeclaration.createSmartPointer(SmartPointerManager.getInstance(file.getProject))
   }
 
   private[this] def replaceRangeByDeclaration(text: String, range: TextRange)

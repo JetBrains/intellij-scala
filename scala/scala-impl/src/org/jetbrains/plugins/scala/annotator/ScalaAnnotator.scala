@@ -808,7 +808,7 @@ abstract class ScalaAnnotator extends Annotator
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
       if (PsiTreeUtil.getParentOfType(refElement, classOf[ScImportExpr]) != null)
-        annotation.registerFix(new AddSbtDependencyFix(SmartPointerManager.getInstance(refElement.getProject).createSmartPsiElementPointer(refElement)))
+        annotation.registerFix(new AddSbtDependencyFix(refElement.createSmartPointer))
     }
   }
 
@@ -879,7 +879,7 @@ abstract class ScalaAnnotator extends Annotator
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
       if (PsiTreeUtil.getParentOfType(refElement, classOf[ScImportExpr]) != null)
-        annotation.registerFix(new AddSbtDependencyFix(SmartPointerManager.getInstance(refElement.getProject).createSmartPsiElementPointer(refElement)))
+        annotation.registerFix(new AddSbtDependencyFix(refElement.createSmartPointer))
     }
   }
 
