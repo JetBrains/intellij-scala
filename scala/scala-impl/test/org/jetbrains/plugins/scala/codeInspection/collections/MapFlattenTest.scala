@@ -56,4 +56,25 @@ class MapFlattenTest extends OperationsOnCollectionInspectionTest {
       "Seq(1).flatMap(_.toString)"
     )
   }
+
+  def testSCL10574(): Unit = {
+    checkTextHasNoErrors("Seq(1).map(Option.apply).flatten")
+  }
+
+  def testSCL12675(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |val r = Map(1 -> List(1,2,3), 2 -> List(3,4,5))
+        |r.map(n => n._2.map(z => (n._1, z))).flatten
+      """.stripMargin)
+  }
+
+  def testSCL10483(): Unit ={
+    checkTextHasNoErrors(
+      """
+        |def f(a: String, b: String) = a + b
+        |val seq = Seq(("foo", "bar"))
+        |seq.map((f _).tupled).flatten.headOption
+      """.stripMargin)
+  }
 }
