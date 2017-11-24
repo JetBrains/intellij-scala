@@ -21,10 +21,11 @@ import com.intellij.ui.content.{Content, ContentFactory}
 import com.pty4j.{PtyProcess, WinSize}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.annotations.NotNull
-
 import scala.collection.JavaConverters._
+
 import SbtShellRunner._
 import com.pty4j.unix.UnixPtyProcess
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 /**
   * Created by jast on 2016-5-29.
   */
@@ -181,8 +182,16 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
     setAddCurrentToHistory(false)
 
     override def execute(text: String, console: LanguageConsoleView): Unit = {
+      Stats.trigger(FeatureKey.sbtShellCommand)
+      Stats.trigger(isTestCommand(text), FeatureKey.sbtShellTestCommand)
+
       EditorUtil.scrollToTheEnd(console.getHistoryViewer)
       super.execute(text, console)
+    }
+
+    private def isTestCommand(line: String): Boolean = {
+      val trimmed = line.trim
+      trimmed == "test" || trimmed.startsWith("testOnly") || trimmed.startsWith("testQuick")
     }
   }
 }

@@ -76,8 +76,6 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
                    callback: ProjectTaskNotification,
                    tasks: util.Collection[_ <: ProjectTask]): Unit = {
 
-    Stats.trigger(FeatureKey.sbtShellBuild)
-
     val validTasks = tasks.asScala.collect {
       case task: ModuleBuildTask => task
     }

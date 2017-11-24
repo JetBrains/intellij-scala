@@ -67,8 +67,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   def getSourcePosition(@Nullable location: Location): SourcePosition = {
     if (shouldSkip(location)) return null
 
-    Stats.trigger(FeatureKey.debuggerTotal)
-
     val position =
       for {
         loc <- location.toOption

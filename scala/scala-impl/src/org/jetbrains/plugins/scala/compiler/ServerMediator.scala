@@ -59,15 +59,6 @@ class ServerMediator(project: Project) extends AbstractProjectComponent(project)
     true
   }
 
-  private def collectStats(): Boolean = {
-    val incType = ScalaCompilerConfiguration.instanceIn(project).incrementalityType
-    val compileServerUsed = settings.COMPILE_SERVER_ENABLED
-
-    Stats.trigger(FeatureKey.incrementalTypeUsed(incType.name))
-    Stats.trigger(compileServerUsed, FeatureKey.compileServerUsed)
-    true
-  }
-
   private def addBeforeTask(compileTask: CompileTask): Unit =
     CompilerManager.getInstance(project).addBeforeTask(compileTask)
 

@@ -33,6 +33,7 @@ object FeatureKey {
   final val optimizeImports                   : FeatureKey = "scala.optimize.imports"
   final val createFromUsage                   : FeatureKey = "scala.createFromUsage"
   final val overrideImplement                 : FeatureKey = "scala.overrideImplement"
+  final val desugarCode                       : FeatureKey = "scala.desugar.code"
 
   final val structuralType                    : FeatureKey = "scala.structural.type"
   final val existentialType                   : FeatureKey = "scala.existential.type"
@@ -40,11 +41,11 @@ object FeatureKey {
   final val runWorksheet                      : FeatureKey = "scala.worksheet"
   final def worksheetReplMode(mode: String)   : FeatureKey = s"scala.worksheet.repl.$mode"
   final def scFileModeSet(state: String)      : FeatureKey = s"scala.sc.file.set.$state"
-
   final def incrementalTypeSet(name: String)  : FeatureKey = s"scala.compiler.inc.type.set.$name"
-  final def incrementalTypeUsed(name: String) : FeatureKey = s"scala.compiler.inc.type.used.$name"
-  final val compileServerUsed                 : FeatureKey = "scala.compiler.compile.server.used"
-  final val sbtShellBuild                     : FeatureKey = "scala.compiler.sbt.shell"
+
+  final val sbtShellCommand                   : FeatureKey = "scala.sbt.shell.execute.command"
+  final val sbtShellTestCommand               : FeatureKey = "scala.sbt.shell.test.command"
+  final val sbtShellTestRunConfig             : FeatureKey = "scala.sbt.shell.test.run.config"
 
   final val convertFromJavaText               : FeatureKey = "scala.convert.javatext"
   final val rearrange                         : FeatureKey = "scala.rearrange"

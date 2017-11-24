@@ -42,13 +42,14 @@ import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtProcessHandlerWra
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
-
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
   * @author Ksenia.Sautina
@@ -497,6 +498,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           case _ =>
         }
         if (useSbt) {
+          Stats.trigger(FeatureKey.sbtShellTestRunConfig)
+
           val commands = buildSbtParams(suitesToTestsMap).
             map(SettingQueryHandler.getProjectIdPrefix(SbtUtil.getSbtProjectIdSeparated(getModule)) + "testOnly" + _)
           val comm = SbtShellCommunication.forProject(project)
