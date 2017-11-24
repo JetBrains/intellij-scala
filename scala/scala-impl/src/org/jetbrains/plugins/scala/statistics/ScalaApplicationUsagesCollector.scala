@@ -3,19 +3,18 @@ package statistics
 
 import java.util
 
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+
 import com.intellij.internal.statistic.AbstractProjectsUsagesCollector
 import com.intellij.internal.statistic.beans.{GroupDescriptor, UsageDescriptor}
-import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.module.{JavaModuleType, Module, ModuleUtil}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.JavaSdk
+import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.util.PlatformUtils
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.project._
-
-import scala.collection.mutable
-import scala.collection.JavaConverters._
+import org.jetbrains.sbt.settings.SbtSystemSettings
 
 /**
  * @author Alefas
@@ -24,38 +23,34 @@ import scala.collection.JavaConverters._
 class ScalaApplicationUsagesCollector extends AbstractProjectsUsagesCollector {
   override def getProjectUsages(project: Project): util.Set[UsageDescriptor] = {
     extensions.inReadAction {
-      val set: mutable.HashSet[UsageDescriptor] = new mutable.HashSet[UsageDescriptor]
+      val set: util.HashSet[UsageDescriptor] = new util.HashSet[UsageDescriptor]()
 
-      if (ScalaPsiUtil.kindProjectorPluginEnabled(project)) set += new UsageDescriptor("Compiler plugin: Kind Projector", 1)
-
-      //collecting Scala version
-      var scala_version: Option[String] = None
-      var java_version: Option[String] = None
-      for (module <- ModuleManager.getInstance(project).getModules) {
-        module.scalaSdk.flatMap(_.compilerVersion).foreach { version => 
-          scala_version = Some(version)
-        }
-
-        ModuleRootManager.getInstance(module).getSdk match {
-          case jsdk: JavaSdk => java_version = Option(jsdk.getVersionString)
-          case _ =>
-        }
-      }
-
-      scala_version.foreach {
-        version: String => set += new UsageDescriptor(s"Scala: $version", 1)
+      def addUsage(key: String): Unit = {
+        set.add(new UsageDescriptor(key, 1))
       }
 
       def checkLibrary(qual: String, library: String) {
         if (JavaPsiFacade.getInstance(project).findPackage(qual) != null) {
-          set += new UsageDescriptor("Library: " + library, 1)
+          addUsage("Library: " + library)
         }
       }
 
+      project.anyScalaModule
+        .map(_.sdk)
+        .flatMap(_.compilerVersion)
+        .foreach(v => addUsage(s"Scala: $v"))
+
+      project.modules.collectFirst {
+        case SbtVersion(version) => addUsage(s"Sbt version: $version")
+      }
+
+      compilerPluginsUsed(project).foreach { name =>
+        addUsage(s"Compiler plugin: $name")
+      }
 
       val isPlayInstalled = PlatformUtils.isIdeaUltimate
 
-      if (scala_version.isDefined) {
+      if (project.hasScala) {
         checkLibrary("org.apache.spark", "Spark")
         checkLibrary("io.prediction", "PredictionIO")
         checkLibrary("com.stratio.sparkta", "Sparkta")
@@ -96,18 +91,61 @@ class ScalaApplicationUsagesCollector extends AbstractProjectsUsagesCollector {
         checkLibrary("net.liftweb", "Lift Framework")
         checkLibrary("spray", "Spray")
         checkLibrary("monocle", "Monocle")
+        checkLibrary("com.twitter.util", "Twitter Util")
 
-        java_version.foreach {
-          version: String => set += new UsageDescriptor(s"Java version: $version", 1)
+        project.modules.collectFirst {
+          case JavaVersion(version) => addUsage(s"Java version: $version")
         }
+
       } else {
         checkLibrary("play.api.mvc", s"Play2 for Java|$isPlayInstalled")
         checkLibrary("akka.actor", "Akka for Java")
+        checkLibrary("org.apache.spark", "Spark for Java")
       }
 
-      set.asJava
+      set
     }
   }
 
   override def getGroupId: GroupDescriptor = GroupDescriptor.create("Scala")
+
+  private object JavaVersion {
+    def unapply(m: Module): Option[String] = {
+      val manager = ModuleRootManager.getInstance(m)
+      manager.getSdk match {
+        case jsdk: Sdk if jsdk.getSdkType.isInstanceOf[JavaSdk] && jsdk.getVersionString != null =>
+          Option(jsdk.getVersionString)
+        case _ => None
+      }
+    }
+  }
+
+  private object SbtVersion {
+    def unapply(m: Module): Option[String] = {
+      SbtSystemSettings.getInstance(m.getProject)
+        .getLinkedProjectSettings(m)
+        .safeMap(_.sbtVersion)
+    }
+  }
+
+  private val compilerPluginHints: Map[String, String] = Map (
+    "kind-projector" -> "Kind Projector",
+    "paradise" -> "Macro/Meta paradise",
+    "miniboxing" -> "Miniboxing"
+  )
+
+  def compilerPluginsUsed(p: Project): Set[String] = {
+    val modules = ModuleUtil.getModulesOfType(p, JavaModuleType.getModuleType).asScala.filter(_.hasScala)
+
+    val plugins = modules.flatMap(mod => mod.scalaCompilerSettings.plugins)
+    var result = Set.empty[String]
+    for {
+      plugin <- plugins
+      (hint, name) <- compilerPluginHints
+      if plugin.contains(hint)
+    } {
+      result += name
+    }
+    result
+  }
 }

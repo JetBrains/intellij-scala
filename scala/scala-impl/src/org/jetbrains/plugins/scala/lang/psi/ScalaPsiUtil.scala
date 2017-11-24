@@ -1739,17 +1739,6 @@ object ScalaPsiUtil {
   }
 
   /**
-    * @see https://github.com/non/kind-projector
-    */
-  def kindProjectorPluginEnabled(p: Project): Boolean = {
-    val modules = ModuleUtil.getModulesOfType(p, JavaModuleType.getModuleType)
-
-    modules.asScala.exists { mod =>
-      mod.hasScala && mod.scalaCompilerSettings.plugins.exists(_.contains("kind-projector"))
-    }
-  }
-
-  /**
     * Should we check if it's a Single Abstract Method?
     * In 2.11 works with -Xexperimental
     * In 2.12 works by default
