@@ -564,8 +564,13 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         ).map {
           getDynamicNameForMethodInvocation
         }.getOrElse {
-          ref.getContext match {
-            case a: ScAssignStmt if a.getLExpression == ref => UPDATE_DYNAMIC
+          val (actualLe, actualContext) = ref.getContext match {
+            case postfix: ScPostfixExpr => (postfix, postfix.getContext)
+            case other => (ref, other)
+          }
+          
+          actualContext match {
+            case a: ScAssignStmt if a.getLExpression == actualLe => UPDATE_DYNAMIC
             case _ => SELECT_DYNAMIC
           }
         }
