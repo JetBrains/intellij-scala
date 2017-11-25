@@ -6,7 +6,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.dependency.Dependency.DependencyProcessor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
@@ -18,8 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createParameterFromText}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult.ResolverStateBuilder
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitResolveResult, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -534,58 +534,44 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         }
         collectImplicits(e, processor, noImplicitsForArgs = candidates.nonEmpty)
 
-        if (processor.candidates.length == 0)
-          return processDynamic(fromType, e, processor)
-      }
-
-      processor
+        (processor, processor.candidates) match {
+          case (methodProcessor: MethodResolveProcessor, Array()) => processDynamic(fromType, e, methodProcessor)
+          case _ => processor
+        }
+      } else processor
     }
 
-    def processDynamic(`type`: ScType, e: ScExpression, baseProcessor: BaseProcessor): BaseProcessor =
-    ScalaPsiManager.instance(ref.getProject).getCachedClass(ref.resolveScope, "scala.Dynamic").map {
-      ScDesignatorType(_)
-    }.filter {
-      `type`.conforms(_)
-    }.flatMap { _ =>
-      Option(baseProcessor).collect {
-        case processor: MethodResolveProcessor => processor
-      }.map { processor =>
-        val callOption = ref.getContext match {
-          case m: MethodInvocation if m.getInvokedExpr == ref => Some(m)
-          case _ => None
-        }
+    def processDynamic(`type`: ScType, expression: ScExpression, processor: MethodResolveProcessor): BaseProcessor = {
+      val maybeDynamicType = ref.elementScope.getCachedClass("scala.Dynamic")
+        .map(ScDesignatorType(_))
 
-        val argumentExpressions = callOption.toSeq.flatMap {
-          _.argumentExpressions
-        }
-        
-        val name = callOption.filterNot(
-          me => me.isInstanceOf[ScPostfixExpr] && argumentExpressions.isEmpty
-        ).map {
-          getDynamicNameForMethodInvocation
-        }.getOrElse {
-          val (actualLe, actualContext) = ref.getContext match {
-            case postfix: ScPostfixExpr => (postfix, postfix.getContext)
-            case other => (ref, other)
-          }
-          
-          actualContext match {
-            case a: ScAssignStmt if a.getLExpression == actualLe => UPDATE_DYNAMIC
+      if (!maybeDynamicType.exists(`type`.conforms)) return processor
+
+      val expressionsOrContext = ref.getContext match {
+        case postfix: ScPostfixExpr => Left(postfix)
+        case MethodInvocation(`ref`, expressions) => Right(expressions)
+        case _ => Left(ref)
+      }
+
+      val name = expressionsOrContext match {
+        case Right(expressions) => getDynamicNameForMethodInvocation(expressions)
+        case Left(reference) =>
+          reference.getContext match {
+            case ScAssignStmt(`reference`, _) => UPDATE_DYNAMIC
             case _ => SELECT_DYNAMIC
           }
-        }
-
-        val emptyStringExpression = createExpressionFromText("\"\"")(e.getManager)
-
-        val newProcessor = new MethodResolveProcessor(e, name, List(List(emptyStringExpression), argumentExpressions),
-          processor.typeArgElements, processor.prevTypeInfo, processor.kinds, processor.expectedOption,
-          processor.isUnderscore, processor.isShapeResolve, processor.constructorResolve, processor.noImplicitsForArgs,
-          processor.enableTupling, processor.selfConstructorResolve, isDynamic = true)
-
-        newProcessor.processType(`type`, e, ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, `type`))
-        newProcessor
       }
-    }.getOrElse(baseProcessor)
+
+      val emptyStringExpression = createExpressionFromText("\"\"")(expression.projectContext)
+
+      val newProcessor = new MethodResolveProcessor(expression, name, List(List(emptyStringExpression), expressionsOrContext.getOrElse(Seq.empty)),
+        processor.typeArgElements, processor.prevTypeInfo, processor.kinds, processor.expectedOption,
+        processor.isUnderscore, processor.isShapeResolve, processor.constructorResolve, processor.noImplicitsForArgs,
+        processor.enableTupling, processor.selfConstructorResolve, isDynamic = true)
+
+      newProcessor.processType(`type`, expression, ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, `type`))
+      newProcessor
+    }
 
     def collectImplicits(e: ScExpression, processor: BaseProcessor, noImplicitsForArgs: Boolean) {
       def builder(result: ImplicitResolveResult): ResolverStateBuilder = {

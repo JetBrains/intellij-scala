@@ -5,7 +5,7 @@ package psi
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.{JavaModuleType, Module, ModuleUtil}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
@@ -48,12 +48,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.getDynamicNameForMethodInvocation
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
@@ -335,11 +337,13 @@ object ScalaPsiUtil {
 
   def processTypeForUpdateOrApplyCandidates(call: MethodInvocation, tp: ScType, isShape: Boolean,
                                             isDynamic: Boolean): Array[ScalaResolveResult] = {
-    implicit val projectContext: ProjectContext = call.projectContext
+    import call.projectContext
     val isUpdate = call.isUpdateCall
 
+    val MethodInvocation(invoked, arguments) = call
+
     val methodName =
-      if (isDynamic) DynamicResolveProcessor.getDynamicNameForMethodInvocation(call)
+      if (isDynamic) getDynamicNameForMethodInvocation(arguments)
       else if (isUpdate) "update"
       else "apply"
     val args: Seq[ScExpression] = call.argumentExpressions ++ (
@@ -361,7 +365,6 @@ object ScalaPsiUtil {
         }
       case expression => (expression, tp, Seq.empty)
     }
-    val invoked = call.getInvokedExpr
     val typeParams = invoked.getNonValueType().toOption.collect {
       case ScTypePolymorphicType(_, tps) => tps
     }.getOrElse(Seq.empty)
