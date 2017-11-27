@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.codeInspection.unused
+package org.jetbrains.plugins.scala.codeInspection
+package unused
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
-import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.{VarCouldBeValInspection, VarToValFix}
+import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection
 
 /**
   * Created by Svyatoslav Ilinskiy on 11.07.16.
@@ -15,38 +15,29 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[VarCouldBeValInspection]
 
-  override protected val description: String =
-    VarCouldBeValInspection.Annotation
+  import VarCouldBeValInspection._
 
+  override protected val description: String = DESCRIPTION
 
-  def testPrivateField(): Unit = {
-    val code =
+  def testPrivateField(): Unit = testQuickFix(
+    text =
       s"""
          |class Foo {
          |  private ${START}var$END s = 0
          |  println(s)
          |}
-      """.stripMargin
-    checkTextHasError(code)
-    val before =
-      """
-        |class Foo {
-        |  private var s = 0
-        |  println(s)
-        |}
-      """.stripMargin
-    val after =
+        """.stripMargin,
+    expected =
       """
         |class Foo {
         |  private val s = 0
         |  println(s)
         |}
       """.stripMargin
-    testQuickFix(before, after, VarToValFix.Hint)
-  }
+  )
 
-  def testLocalVar(): Unit = {
-    val code =
+  def testLocalVar(): Unit = testQuickFix(
+    text =
       s"""
          |object Foo {
          |  def foo(): Unit = {
@@ -54,18 +45,8 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
          |    val z = s
          |  }
          |}
-      """.stripMargin
-    checkTextHasError(code)
-    val before =
-      """
-        |object Foo {
-        |  def foo(): Unit = {
-        |    var s = 0
-        |    val z = s
-        |  }
-        |}
-      """.stripMargin
-    val after =
+      """.stripMargin,
+    expected =
       """
         |object Foo {
         |  def foo(): Unit = {
@@ -74,11 +55,10 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
         |  }
         |}
       """.stripMargin
-    testQuickFix(before, after, VarToValFix.Hint)
-  }
+  )
 
-  def testNonPrivateField(): Unit = {
-    val code =
+  def testNonPrivateField(): Unit = checkTextHasNoErrors(
+    text =
       """
         |class Foo {
         |  var s: String = ""
@@ -87,28 +67,18 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
         |  println(z)
         |}
       """.stripMargin
-    checkTextHasNoErrors(code)
-  }
+  )
 
-  def testMultiDeclaration(): Unit = {
-    val code =
+  def testMultiDeclaration(): Unit = testQuickFix(
+    text =
       s"""
          |class Foo {
          |  private ${START}var$END (a, b): String = ???
          |  println(b)
          |  println(a)
          |}
-      """.stripMargin
-    checkTextHasError(code)
-    val before =
-      """
-        |class Foo {
-        |  private var (a, b): String = ???
-        |  println(b)
-        |  println(a)
-        |}
-      """.stripMargin
-    val after =
+      """.stripMargin,
+    expected =
       """
         |class Foo {
         |  private val (a, b): String = ???
@@ -116,11 +86,10 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
         |  println(a)
         |}
       """.stripMargin
-    testQuickFix(before, after, VarToValFix.Hint)
-  }
+  )
 
-  def testSupressed(): Unit = {
-    val code =
+  def testSuppressed(): Unit = checkTextHasNoErrors(
+    text =
       """
         |class Bar {
         |  //noinspection VarCouldBeVal
@@ -134,11 +103,10 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
         |  }
         |}
       """.stripMargin
-    checkTextHasNoErrors(code)
-  }
+  )
 
-  def testAssignmentDetectedNoError(): Unit = {
-    val code =
+  def testAssignmentDetectedNoError(): Unit = checkTextHasNoErrors(
+    text =
       """
         |object Moo {
         | def method(): Unit = {
@@ -150,30 +118,19 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
         | }
         |}
       """.stripMargin
-    checkTextHasNoErrors(code)
-  }
+  )
 
-  def testAdd(): Unit = {
-    val code =
+  def testAdd(): Unit = testQuickFix(
+    text =
       s"""
-        |object Koo {
-        |  def foo(): Unit = {
-        |    ${START}var$END d = 1
-        |    d + 1
-        |  }
-        |}
-      """.stripMargin
-    checkTextHasError(code)
-    val before =
-      """
-        |object Koo {
-        |  def foo(): Unit = {
-        |    var d = 1
-        |    d + 1
-        |  }
-        |}
-      """.stripMargin
-    val after =
+         |object Koo {
+         |  def foo(): Unit = {
+         |    ${START}var$END d = 1
+         |    d + 1
+         |  }
+         |}
+      """.stripMargin,
+    expected =
       """
         |object Koo {
         |  def foo(): Unit = {
@@ -182,6 +139,8 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
         |  }
         |}
       """.stripMargin
-    testQuickFix(before, after, VarToValFix.Hint)
-  }
+  )
+
+  private def testQuickFix(text: String, expected: String): Unit =
+    testQuickFix(text, expected, VarToValFix.HINT)
 }
