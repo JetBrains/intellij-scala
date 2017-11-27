@@ -47,8 +47,8 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
     BuildManager.getInstance().clearState(project)
   }
 
-  override def getConfigurables(): Array[Configurable] = {
-    if (HydraApplicationSettings.getInstance().isHydraSettingsEnabled)
+  override def getConfigurables: Array[Configurable] = {
+    if (project != null && HydraApplicationSettings.getInstance().isHydraSettingsEnabled)
       Array(new HydraCompilerConfigurable(project))
     else
       Array()
