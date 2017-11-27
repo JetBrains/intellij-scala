@@ -56,7 +56,7 @@ class JavaRawAllOverridingSearcher extends QueryExecutor[Pair[PsiMethod, PsiMeth
     val clazz = qParams.getPsiClass
     val potentials = inReadAction {
       clazz.getMethods.collect {
-        case m: PsiMethodImpl if hasRawTypeParam(m) && PsiUtil.canBeOverriden(m) => m
+        case m: PsiMethodImpl if hasRawTypeParam(m) && PsiUtil.canBeOverridden(m) => m
       }
     }
 

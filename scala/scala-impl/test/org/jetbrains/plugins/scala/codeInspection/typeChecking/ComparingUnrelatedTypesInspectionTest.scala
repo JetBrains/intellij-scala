@@ -429,7 +429,7 @@ class Test30 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     InspectionBundle.message("comparing.unrelated.types.hint", "Dummy", "Int")
 
-  def testOverridenMethods(): Unit = checkTextHasNoErrors(
+  def testOverriddenMethods(): Unit = checkTextHasNoErrors(
     """
       |case class Dummy(v: Int) {
       |  def ==(value: Int): String = v + " == " + value
@@ -443,7 +443,7 @@ class Test30 extends ComparingUnrelatedTypesInspectionTest {
     """.stripMargin
   )
 
-  def testOverridenMethods2(): Unit = checkTextHasError(
+  def testOverriddenMethods2(): Unit = checkTextHasError(
     s"""
        |case class Dummy(v: Int) {
        |  def ==(value: Int): String = v + " == " + value
@@ -456,7 +456,7 @@ class Test30 extends ComparingUnrelatedTypesInspectionTest {
       """.stripMargin
   )
 
-  def testOverridenEquals(): Unit = checkTextHasError(
+  def testOverriddenEquals(): Unit = checkTextHasError(
     s"""
        |case class Dummy(v: Int) {
        |  override def equals(other: Any): Boolean = other match {
@@ -471,7 +471,7 @@ class Test30 extends ComparingUnrelatedTypesInspectionTest {
       """.stripMargin
   )
 
-  def testOverridenEquals2(): Unit = checkTextHasError(
+  def testOverriddenEquals2(): Unit = checkTextHasError(
     s"""
        |case class Dummy(v: Int) {
        |  override def equals(other: Any): Boolean = other match {
@@ -491,7 +491,7 @@ class Test31 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     InspectionBundle.message("comparing.unrelated.types.hint", "FooBinder", "String")
 
-  def testOverridenWithImplicitParam(): Unit = checkTextHasError(
+  def testOverriddenWithImplicitParam(): Unit = checkTextHasError(
     s"""
        |class Store(val foo: Int, val bar: String)
        |trait Binder[T] {

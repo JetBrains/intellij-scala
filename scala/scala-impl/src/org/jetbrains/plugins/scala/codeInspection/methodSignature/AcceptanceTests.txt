@@ -19,7 +19,7 @@ object EmptyParenMethodAccessedAsParameterless {
   foo
 }
 
-object EmptyParenMethodOverridenAsParameterless {
+object EmptyParenMethodOverriddenAsParameterless {
   trait T { def foo() = "foo" }
   class C extends T { def foo = "bar" }
 }
@@ -28,11 +28,11 @@ object JavaAccessorMethodCalledAsEmptyParen {
   new J().getFoo()
 }
 
-object JavaAccessorMethodOverridenAsEmptyParen {
+object JavaAccessorMethodOverriddenAsEmptyParen {
   class C extends J { def getFoo() = "bar" }
 }
 
-object JavaMutatorMethodOverridenAsParameterless {
+object JavaMutatorMethodOverriddenAsParameterless {
   class C extends J { def addFoo {} }
 }
 
@@ -44,7 +44,7 @@ object MutatorLikeMethodIsParameterless {
   def addFoo = true
 }
 
-object ParameterlessMemberOverridenAsEmptyParen {
+object ParameterlessMemberOverriddenAsEmptyParen {
   trait T { def foo = "foo" }
   class C extends T { def foo() = "bar" }
 }

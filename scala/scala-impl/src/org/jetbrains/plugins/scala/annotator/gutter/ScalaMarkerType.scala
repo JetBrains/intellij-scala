@@ -158,7 +158,7 @@ object ScalaMarkerType {
       elem match {
         case _: PsiMember =>
           if (GutterUtil.isAbstract(element)) ScalaBundle.message("has.implementations")
-          else ScalaBundle.message("is.overriden.by")
+          else ScalaBundle.message("is.overridden.by")
         case _ => null
       }
     }

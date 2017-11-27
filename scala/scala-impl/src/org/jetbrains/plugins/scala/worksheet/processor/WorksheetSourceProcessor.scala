@@ -466,7 +466,7 @@ object WorksheetSourceProcessor {
     }
     
     
-    //kinda utils stuff that shouldn't be overriden
+    //kinda utils stuff that shouldn't be overridden
     
     @inline final def withTempVar(callee: String, withInstance: Boolean = true): String =
       s"{val $tempVarName = " + (if (withInstance) instanceName + "." else "") + callee + " ; " + getTempVarInfo +

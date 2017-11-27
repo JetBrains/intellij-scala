@@ -11,8 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
  * Pavel Fatin
  */
 
-class JavaAccessorMethodOverridenAsEmptyParenInspection extends AbstractMethodSignatureInspection(
-  "ScalaJavaAccessorMethodOverridenAsEmptyParen", "Java accessor method overriden as empty-paren") {
+class JavaAccessorMethodOverriddenAsEmptyParenInspection extends AbstractMethodSignatureInspection(
+  "ScalaJavaAccessorMethodOverriddenAsEmptyParen", "Java accessor method overridden as empty-paren") {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case f: ScFunction if f.isEmptyParen =>

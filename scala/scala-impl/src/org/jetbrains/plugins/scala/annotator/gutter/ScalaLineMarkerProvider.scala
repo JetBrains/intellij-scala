@@ -211,7 +211,7 @@ private object GutterUtil {
       for (named <- namedElems) overrides ++= ScalaOverridingMemberSearcher.search(named, deep = false, withSelfType = true)
 
       if (overrides.nonEmpty) {
-        val icon = if (!GutterUtil.isAbstract(member)) OVERRIDEN_METHOD_MARKER_RENDERER else IMPLEMENTED_INTERFACE_MARKER_RENDERER
+        val icon = if (!GutterUtil.isAbstract(member)) OVERRIDDEN_METHOD_MARKER_RENDERER else IMPLEMENTED_INTERFACE_MARKER_RENDERER
         val typez = ScalaMarkerType.OVERRIDDEN_MEMBER
         val leafElement =
           namedElems

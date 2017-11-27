@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
  * Pavel Fatin
  */
 
-class EmptyParenMethodOverridenAsParameterlessInspection extends AbstractMethodSignatureInspection(
-  "ScalaEmptyParenMethodOverridenAsParameterless", "Empty-paren Scala method overriden as parameterless") {
+class EmptyParenMethodOverriddenAsParameterlessInspection extends AbstractMethodSignatureInspection(
+  "ScalaEmptyParenMethodOverriddenAsParameterless", "Empty-paren Scala method overridden as parameterless") {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case f: ScFunction if f.isParameterless =>

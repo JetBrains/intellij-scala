@@ -1028,25 +1028,25 @@
                          displayName="Method with accessor-like name has Unit result type" groupPath="Scala" groupName="Method signature"
                          shortName="AccessorLikeMethodIsUnit" id="AccessorLikeMethodIsUnit"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.EmptyParenMethodOverridenAsParameterlessInspection"
-                         displayName="Empty-paren Scala method overriden as parameterless" groupPath="Scala" groupName="Method signature"
-                         shortName="EmptyParenMethodOverridenAsParameterless" level="WARNING"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.EmptyParenMethodOverriddenAsParameterlessInspection"
+                         displayName="Empty-paren Scala method overridden as parameterless" groupPath="Scala" groupName="Method signature"
+                         shortName="EmptyParenMethodOverriddenAsParameterless" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorMethodOverridenAsEmptyParenInspection"
-                         displayName="Java accessor method overriden as empty-paren" groupPath="Scala" groupName="Method signature"
-                         shortName="JavaAccessorMethodOverridenAsEmptyParen" level="WARNING"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorMethodOverriddenAsEmptyParenInspection"
+                         displayName="Java accessor method overridden as empty-paren" groupPath="Scala" groupName="Method signature"
+                         shortName="JavaAccessorMethodOverriddenAsEmptyParen" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaMutatorMethodOverridenAsParameterlessInspection"
-                         displayName="Java mutator method overriden as parameterless" groupPath="Scala" groupName="Method signature"
-                         shortName="JavaMutatorMethodOverridenAsParameterless" level="WARNING"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaMutatorMethodOverriddenAsParameterlessInspection"
+                         displayName="Java mutator method overridden as parameterless" groupPath="Scala" groupName="Method signature"
+                         shortName="JavaMutatorMethodOverriddenAsParameterless" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.MutatorLikeMethodIsParameterlessInspection"
                          displayName="Mutator like method is paramaterless" groupPath="Scala" groupName="Method signature"
                          shortName="MutatorLikeMethodIsParameterless" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessMemberOverridenAsEmptyParenInspection"
-                         displayName="Parameterless Scala member overriden as empty-paren" groupPath="Scala" groupName="Method signature"
-                         shortName="ParameterlessMemberOverridenAsEmptyParen" level="WARNING"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessMemberOverriddenAsEmptyParenInspection"
+                         displayName="Parameterless Scala member overridden as empty-paren" groupPath="Scala" groupName="Method signature"
+                         shortName="ParameterlessMemberOverriddenAsEmptyParen" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.EmptyParenMethodAccessedAsParameterlessInspection"
                          displayName="Empty-paren method accessed as parameterless" groupPath="Scala" groupName="Method signature"

@@ -34,7 +34,7 @@ trait FunctionAnnotator {
     tailrecAnnotation.foreach { it =>
       if (!function.canBeTailRecursive) {
         val annotation = holder.createErrorAnnotation(function.nameId,
-          "Method annotated with @tailrec is neither private nor final (so can be overriden)")
+          "Method annotated with @tailrec is neither private nor final (so can be overridden)")
         annotation.registerFix(new AddModifierQuickFix(function, "private"))
         annotation.registerFix(new AddModifierQuickFix(function, "final"))
         annotation.registerFix(new RemoveElementQuickFix(it, "Remove @tailrec annotation"))

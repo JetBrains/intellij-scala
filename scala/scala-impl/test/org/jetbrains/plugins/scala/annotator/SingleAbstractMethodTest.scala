@@ -853,7 +853,7 @@ class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase {
     checkCodeHasNoErrors(code)
   }
 
-  def testClassWithOverridenAbstract(): Unit = {
+  def testClassWithOverriddenAbstract(): Unit = {
     val javaCode =
       """
         |public class Abstracts {
