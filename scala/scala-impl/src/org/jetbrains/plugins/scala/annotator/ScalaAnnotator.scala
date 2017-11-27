@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Seq, mutable}
-import scala.meta.intellij.MetaExpansionsManager
-
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection._
@@ -60,6 +56,10 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner,
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
+
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, mutable}
+import scala.meta.intellij.MetaExpansionsManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -436,9 +436,9 @@ abstract class ScalaAnnotator extends Annotator
   }
 
   private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Unit = {
-    import scala.meta.intellij.psiExt._
-
     import ScalaProjectSettings.ScalaMetaMode
+
+    import scala.meta.intellij.psiExt._
     if (annotation.isMetaMacro) {
       if (!MetaExpansionsManager.isUpToDate(annotation)) {
         val warning = holder.createWarningAnnotation(annotation, ScalaBundle.message("scala.meta.recompile"))
@@ -598,7 +598,7 @@ abstract class ScalaAnnotator extends Annotator
             !PsiTreeUtil.isAncestor(named, element, true)) { //to filter recursive usages
       val value: ValueUsed = element match {
         case ref: ScReferenceExpression if checkWrite &&
-                ScalaPsiUtil.isPossiblyAssignment(ref.asInstanceOf[PsiElement]) => WriteValueUsed(named)
+          ScalaPsiUtil.isPossiblyAssignment(ref) => WriteValueUsed(named)
         case _ => ReadValueUsed(named)
       }
       val holder = ScalaRefCountHolder.getInstance(file)

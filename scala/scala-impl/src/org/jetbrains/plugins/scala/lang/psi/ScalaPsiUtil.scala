@@ -1557,8 +1557,6 @@ object ScalaPsiUtil {
         result
     }
 
-  def isPossiblyAssignment(ref: PsiReference): Boolean = isPossiblyAssignment(ref.getElement)
-
   //todo: fix it
   // This is a conservative approximation, we should really resolve the operation
   // to differentiate self assignment from calling a method whose name happens to be an assignment operator.
