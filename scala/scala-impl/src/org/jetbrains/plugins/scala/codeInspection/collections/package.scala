@@ -66,6 +66,7 @@ package object collections {
 
   private[collections] val `.fold` = invocation(foldMethodNames).from(likeCollectionClasses)
   private[collections] val `.foldLeft` = invocation(Set("foldLeft", "/:")).from(likeCollectionClasses)
+  private[collections] val `.foldRight` = invocation(Set("foldRight", ":\\")).from(likeCollectionClasses)
   private[collections] val `.reduce` = invocation(reduceMethodNames).from(likeCollectionClasses)
   private[collections] val `.getOrElse` = invocation("getOrElse").from(likeOptionClasses)
   private[collections] val `.get` = invocation("get").from(likeOptionClasses)

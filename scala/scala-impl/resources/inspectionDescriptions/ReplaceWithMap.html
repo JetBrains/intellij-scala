@@ -1,0 +1,21 @@
+<html>
+<body>
+Don’t emulate <code>map</code>.
+
+<p>
+Before:
+<pre>
+seq.foldLeft(Seq.empty)((acc, x) => acc :+ f(x))
+seq.foldRight(Seq.empty)((x, acc) => f(x) +: acc)
+</pre>
+
+<br>
+After:
+<pre>
+seq.map(f)
+seq.map(f)
+</pre>
+</p>
+
+</body>
+</html>
