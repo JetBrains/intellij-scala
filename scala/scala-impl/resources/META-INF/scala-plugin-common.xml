@@ -52,6 +52,8 @@
           implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"/>
       <statistics.usagesCollector
                 implementation="org.jetbrains.plugins.scala.statistics.ScalaApplicationUsagesCollector" />
+      <statistics.usagesCollector
+                implementation="org.jetbrains.plugins.scala.statistics.ScalaProjectSettingsCollector" />
         <codeStyle.ReferenceAdjuster language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.template.ScalaReferenceAdjuster"/>
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
         <testFinder implementation="org.jetbrains.plugins.scala.testingSupport.ScalaTestFinder"/>
