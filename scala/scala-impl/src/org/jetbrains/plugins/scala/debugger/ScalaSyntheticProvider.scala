@@ -23,6 +23,8 @@ object ScalaSyntheticProvider {
   private val cache: ConcurrentMap[TypeComponent, java.lang.Boolean] = ContainerUtil.createConcurrentWeakMap()
 
   def isSynthetic(typeComponent: TypeComponent): Boolean = {
+    if (typeComponent == null) return true
+
     val fromCache = cache.get(typeComponent)
     if (fromCache != null) return fromCache
 
