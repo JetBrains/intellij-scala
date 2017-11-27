@@ -17,12 +17,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /*
  * Surrounds an expression and return an expression
@@ -39,17 +40,10 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
     }
   }
 
-  def needParenthesis(elements: Array[PsiElement]): Boolean = {
-    if (elements.length > 1) return false
-    val element = elements(0)
-    val parent = element.getParent
-    parent match {
-      case _: ScInfixExpr => true
-      case _: ScReferenceExpression => true
-      case _: ScPrefixExpr => true
-      case _: ScPostfixExpr => true
-      case _ => false
-    }
+  def needParenthesis(parent: PsiElement): Boolean = parent match {
+    case _: ScSugarCallExpr => true
+    case _: ScReferenceExpression => true
+    case _ => false
   }
 
   override def isApplicable(elements: Array[PsiElement]): Boolean = {
@@ -82,16 +76,20 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
     getSurroundSelectionRange(newNode)
   }
 
-  def surroundPsi(elements: Array[PsiElement]): ScExpression =
-    createExpressionFromText(getTemplateAsString(elements).parenthesize(needParenthesis(elements)))(elements(0).getManager)
+  def surroundPsi(elements: Array[PsiElement]): ScExpression = {
+    val element = elements.head
+    implicit val context: ProjectContext = element.projectContext
 
-  def getTemplateAsString(elements: Array[PsiElement]): String = {
-    var s: String = ""
-    for (element <- elements) {
-      s = s + element.getNode.getText
+    val needed = elements match {
+      case Array(head) => needParenthesis(head.getParent)
+      case _ => false
     }
-    s
+
+    createExpressionFromText(getTemplateAsString(elements).parenthesize(needed))
   }
+
+  def getTemplateAsString(elements: Array[PsiElement]): String =
+    elements.map(_.getNode.getText).mkString
 
   def getSurroundSelectionRange(node: ASTNode): TextRange
 }
