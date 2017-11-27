@@ -334,9 +334,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   protected def escapeTestName(test: String): String = if (test.contains(" ")) "\"" + test + "\"" else test
 
   protected def escapeClassAndTest(input: String): String = input
-
-  def getReporterParams: String = ""
-
+  
   def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
     (for ((aClass, tests) <- classToTests) yield {
       if (tests.isEmpty) Seq(s"$sbtClassKey$aClass")
