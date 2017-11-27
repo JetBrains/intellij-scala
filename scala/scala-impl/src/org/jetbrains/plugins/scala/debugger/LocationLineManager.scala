@@ -14,9 +14,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScMatchStmt, ScTryStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-
 import scala.collection.JavaConverters._
 import scala.util.Try
+
+import com.intellij.debugger.jdi.GeneratedLocation
 
 /**
   * @author Nikolay.Tropin
@@ -34,9 +35,12 @@ trait LocationLineManager {
     seenRefTypes.clear()
   }
 
-  def exactLineNumber(location: Location): Int = {
-    checkAndUpdateCaches(location.declaringType())
-    customizedLocationsCache.getOrElse(location, ScalaPositionManager.checkedLineNumber(location))
+  def exactLineNumber(location: Location): Int = location match {
+    case gen: GeneratedLocation =>
+      gen.lineNumber()
+    case _ =>
+      checkAndUpdateCaches(location.declaringType())
+      customizedLocationsCache.getOrElse(location, ScalaPositionManager.checkedLineNumber(location))
   }
 
   def shouldSkip(location: Location): Boolean = {
@@ -67,16 +71,18 @@ trait LocationLineManager {
     lineToCustomizedLocationCache.getOrElse((refType, line), Seq.empty)
   }
 
-  private def checkAndUpdateCaches(refType: ReferenceType) = {
+  private def checkAndUpdateCaches(refType: ReferenceType): Unit = {
     if (!seenRefTypes.contains(refType)) inReadAction(computeCustomizedLocationsFor(refType))
   }
 
-  private def cacheCustomLine(location: Location, customLine: Int): Unit = {
-    customizedLocationsCache.put(location, customLine)
+  private def cacheCustomLine(location: Location, customLine: Int): Unit = location match {
+    case _: GeneratedLocation => //don't cache, equals is broken
+    case _ =>
+      customizedLocationsCache.put(location, customLine)
 
-    val key = (location.declaringType(), customLine)
-    val old = lineToCustomizedLocationCache.getOrElse(key, Seq.empty)
-    lineToCustomizedLocationCache.update(key, (old :+ location).sortBy(_.codeIndex()))
+      val key = (location.declaringType(), customLine)
+      val old = lineToCustomizedLocationCache.getOrElse(key, Seq.empty)
+      lineToCustomizedLocationCache.update(key, (old :+ location).sortBy(_.codeIndex()))
   }
 
   private def computeCustomizedLocationsFor(refType: ReferenceType): Unit = {
