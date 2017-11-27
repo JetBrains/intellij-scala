@@ -207,7 +207,8 @@ package object extensions {
   }
 
   implicit class StringExt(val string: String) extends AnyVal {
-    def parenthesize(needParenthesis: Boolean): String =
+
+    def parenthesize(needParenthesis: Boolean = true): String =
       if (needParenthesis) s"($string)" else string
   }
 

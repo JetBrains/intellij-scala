@@ -86,7 +86,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
       return oldParent.asInstanceOf[ScExpression].replaceExpression(expr, removeParenthesis = true)
     }
     val newExpr = if (ScalaPsiUtil.needParentheses(this, expr)) {
-      createExpressionFromText(expr.getText.parenthesize(needParenthesis = true))
+      createExpressionFromText(expr.getText.parenthesize())
     } else expr
     val parentNode = oldParent.getNode
     val newNode = newExpr.copy.getNode

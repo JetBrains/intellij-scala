@@ -378,7 +378,7 @@ object ScalaPsiElementFactory {
   }
 
   def createValFromVarDefinition(parameter: ScClassParameter): ScClassParameter = {
-    val clauseText = replaceKeywordTokenIn(parameter).parenthesize(needParenthesis = true)
+    val clauseText = replaceKeywordTokenIn(parameter).parenthesize()
 
     val classParameters = createClassParamClausesWithContext(clauseText, parameter).params
     classParameters.head.asInstanceOf[ScClassParameter]
