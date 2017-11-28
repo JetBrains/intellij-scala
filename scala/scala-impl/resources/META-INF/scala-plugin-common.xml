@@ -1335,7 +1335,13 @@
                        displayName="Ammonite unresolved import" groupPath="Scala" shortName="AmmoniteUnresolvedLibraryInspection" 
                        level="WARNING" enabledByDefault="true" language="Scala" groupName="Other"/>
       <!---->
-      
+
+        <!-- resource leak inspections -->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.resourceLeaks.SourceNotClosedInspection"
+                         displayName="Source not closed" groupPath="Scala" shortName="SourceNotClosed"
+                         level="WARNING" enabledByDefault="true" language="Scala" groupName="Resource leaks"/>
+        <!-- end of resource leak inspections -->
+
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.specs2.BuiltinMatcherExistsInspection"
                          displayName="Specs2 Matchers" shortName="Specs2Matchers" groupName="Specs2" groupPath="Scala,Specs2"
                          level="WARNING" enabledByDefault="true" language="Scala" />
