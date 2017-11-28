@@ -16,9 +16,11 @@ object ComparingLength extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     (expr match {
       case qual `.sizeOrLength` () `>` n if isSeq(qual) => Some(qual, n, ">")
+      case qual `.sizeOrLength` () `>=` n if isSeq(qual) => Some(qual, n, ">=")
       case qual `.sizeOrLength` () `==` n if isSeq(qual) => Some(qual, n, "==")
       case qual `.sizeOrLength` () `!=` n if isSeq(qual) => Some(qual, n, "!=")
       case qual `.sizeOrLength` () `<` n if isSeq(qual) => Some(qual, n, "<")
+      case qual `.sizeOrLength` () `<=` n if isSeq(qual) => Some(qual, n, "<=")
       case _ => None
     }).map { case (qual, n, op) =>
       replace(expr).withText(s"${invocationText(qual, "lengthCompare", n)} $op 0").highlightFrom(qual)

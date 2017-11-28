@@ -40,11 +40,27 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
+  def testLengthLessThanOrEqual(): Unit = {
+    doTest(
+      s"Seq(1, 2, 3).${START}length <= 2$END",
+      "Seq(1, 2, 3).length <= 2",
+      "Seq(1, 2, 3).lengthCompare(2) <= 0"
+    )
+  }
+
   def testLengthGreaterThan(): Unit = {
     doTest(
       s"Seq(1, 2, 3).${START}length > 2$END",
       "Seq(1, 2, 3).length > 2",
       "Seq(1, 2, 3).lengthCompare(2) > 0"
+    )
+  }
+
+  def testLengthGreaterThanOrEqual(): Unit = {
+    doTest(
+      s"Seq(1, 2, 3).${START}length >= 2$END",
+      "Seq(1, 2, 3).length >= 2",
+      "Seq(1, 2, 3).lengthCompare(2) >= 0"
     )
   }
 
@@ -72,11 +88,27 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
+  def testSizeLessThanOrEqual(): Unit = {
+    doTest(
+      s"Seq(1, 2, 3).${START}size <= 2$END",
+      "Seq(1, 2, 3).size <= 2",
+      "Seq(1, 2, 3).lengthCompare(2) <= 0"
+    )
+  }
+
   def testSizeGreaterThan(): Unit = {
     doTest(
       s"Seq(1, 2, 3).${START}size > 2$END",
       "Seq(1, 2, 3).size > 2",
       "Seq(1, 2, 3).lengthCompare(2) > 0"
+    )
+  }
+
+  def testSizeGreaterThanOEqual(): Unit = {
+    doTest(
+      s"Seq(1, 2, 3).${START}size == 2$END",
+      "Seq(1, 2, 3).size >= 2",
+      "Seq(1, 2, 3).lengthCompare(2) >= 0"
     )
   }
 
