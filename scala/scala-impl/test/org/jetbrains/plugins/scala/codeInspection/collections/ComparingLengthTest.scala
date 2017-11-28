@@ -42,7 +42,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
 
   def testLengthGreaterThan(): Unit = {
     doTest(
-      s"Seq(1, 2, 3).${START}length == 2$END",
+      s"Seq(1, 2, 3).${START}length > 2$END",
       "Seq(1, 2, 3).length > 2",
       "Seq(1, 2, 3).lengthCompare(2) > 0"
     )
@@ -74,7 +74,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
 
   def testSizeGreaterThan(): Unit = {
     doTest(
-      s"Seq(1, 2, 3).${START}size == 2$END",
+      s"Seq(1, 2, 3).${START}size > 2$END",
       "Seq(1, 2, 3).size > 2",
       "Seq(1, 2, 3).lengthCompare(2) > 0"
     )
