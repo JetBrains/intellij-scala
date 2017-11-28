@@ -1,0 +1,8 @@
+<html>
+<body>
+<p>Using <code>.mkString</code> or <code>.getLines</code> directly on a <code>Source</code> opened by
+<code>fromFile</code>, <code>fromURL</code>, <code>fromURI</code> will leak the underlying file handle.</p>
+
+<p>Consider using <code>try</code> / <code>finally</code> to manage the resource lifetime.</p>
+</body>
+</html>

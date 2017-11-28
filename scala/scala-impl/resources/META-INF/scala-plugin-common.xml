@@ -1444,26 +1444,32 @@
                          displayName="Wrong scaladoc element" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocParserErrorInspection"
                          level="WARNING" enabledByDefault="true" language="Scala" />
 
-      <!-- end of scaladoc inspections -->
+        <!-- end of scaladoc inspections -->
 
-      <!-- Util ammonite inspection -->
-      <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUnresolvedLibraryInspection"
-                       displayName="Ammonite unresolved import" groupPath="Scala" shortName="AmmoniteUnresolvedLibraryInspection"
-                       level="WARNING" enabledByDefault="true" language="Scala" groupName="Other"/>
-      <!---->
+        <!-- resource leak inspections -->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.resourceLeaks.SourceNotClosedInspection"
+                            displayName="Source not closed" groupPath="Scala" shortName="SourceNotClosed"
+                            level="WARNING" enabledByDefault="true" language="Scala" groupName="Resource leaks"/>
+        <!-- end of resource leak inspections -->
+        
+        <!-- Util ammonite inspection -->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUnresolvedLibraryInspection"
+                        displayName="Ammonite unresolved import" groupPath="Scala" shortName="AmmoniteUnresolvedLibraryInspection"
+                        level="WARNING" enabledByDefault="true" language="Scala" groupName="Other"/>
+        <!---->
 
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.specs2.BuiltinMatcherExistsInspection"
                          displayName="Specs2 Matchers" shortName="Specs2Matchers" groupName="Specs2" groupPath="Scala,Specs2"
                          level="WARNING" enabledByDefault="true" language="Scala" />
         <!-- end of inspections -->
 
-        <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
-      <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.ScalaFmtDisabledIndentRangesProvider" />
+    <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
+        <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.ScalaFmtDisabledIndentRangesProvider" />
 
-      <applicationInitializedListener implementation="org.jetbrains.plugins.scala.ScalaLoader"/>
-      <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierListener"/>
-      <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
-      <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ImplicitHintsAdviser"/>
+        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.ScalaLoader"/>
+        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierListener"/>
+        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
+        <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ImplicitHintsAdviser"/>
     </extensions>
 
     <project-components>
