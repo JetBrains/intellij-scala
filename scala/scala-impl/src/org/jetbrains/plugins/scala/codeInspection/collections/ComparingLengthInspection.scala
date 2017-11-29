@@ -16,12 +16,14 @@ private object ComparingLengthInspection {
     override def hint: String = InspectionBundle.message("replace.with.lengthCompare")
 
     override def getSimplification(e: ScExpression): Option[Simplification] = Some(e).collect {
-      case q `.sizeOrLength` () `>` n if isSeq(q) => (q, ">", n)
-      case q `.sizeOrLength` () `>=` n if isSeq(q) => (q, ">=", n)
-      case q `.sizeOrLength` () `==` n if isSeq(q) => (q, "==", n)
-      case q `.sizeOrLength` () `!=` n if isSeq(q) => (q, "!=", n)
-      case q `.sizeOrLength` () `<` n if isSeq(q) => (q, "<", n)
-      case q `.sizeOrLength` () `<=` n if isSeq(q) => (q, "<=", n)
+      case q `.sizeOrLength` () `>` n => (q, ">", n)
+      case q `.sizeOrLength` () `>=` n => (q, ">=", n)
+      case q `.sizeOrLength` () `==` n => (q, "==", n)
+      case q `.sizeOrLength` () `!=` n => (q, "!=", n)
+      case q `.sizeOrLength` () `<` n => (q, "<", n)
+      case q `.sizeOrLength` () `<=` n => (q, "<=", n)
+    } filter { case (q, op, n) =>
+      isSeq(q) && !isIndexedSeq(q)
     } map { case (q, op, n) =>
       replace(e).withText(s"${invocationText(q, "lengthCompare", n)} $op 0").highlightFrom(q)
     }

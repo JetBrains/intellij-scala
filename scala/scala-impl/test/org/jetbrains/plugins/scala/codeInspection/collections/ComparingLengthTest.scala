@@ -106,10 +106,15 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
 
   def testSizeGreaterThanOEqual(): Unit = {
     doTest(
-      s"Seq(1, 2, 3).${START}size == 2$END",
+      s"Seq(1, 2, 3).${START}size >= 2$END",
       "Seq(1, 2, 3).size >= 2",
       "Seq(1, 2, 3).lengthCompare(2) >= 0"
     )
   }
 
+  def testIndexedSeq(): Unit = {
+    checkTextHasNoErrors(
+      "Vector(1, 2, 3).size == 2"
+    )
+  }
 }
