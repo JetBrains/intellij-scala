@@ -35,4 +35,13 @@ class StructuralsConformanceTest extends TypeConformanceTestBase {
         |//True
       """.stripMargin)
   }
+
+  def testSCL12611(): Unit = {
+    doTest(
+      """
+        |type Id = Short
+        |final val InvalidId: Id = -1
+        |//True
+      """.stripMargin)
+  }
 }
