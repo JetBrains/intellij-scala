@@ -82,4 +82,24 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin)
   }
+
+  def testScl12605(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |class Bug {
+        |  def main(args: Array[String]): Unit = {
+        |    val bug = new Bug()
+        |    bug.buggy(bug, (x, y) => x + y)
+        |  }
+        |
+        |  def buggy(y: Bug): Bug = ???
+        |
+        |  def buggy(y: Bug, function: DDFunction): Bug = ???
+        |}
+        |
+        |trait DDFunction {
+        |  def apply(x: Double, y: Double): Double
+        |}
+      """.stripMargin)
+  }
 }
