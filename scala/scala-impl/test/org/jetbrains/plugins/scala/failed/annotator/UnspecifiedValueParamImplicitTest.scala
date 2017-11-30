@@ -37,4 +37,30 @@ class UnspecifiedValueParamImplicitTest extends ScalaLightCodeInsightFixtureTest
         |  }
       """.stripMargin)
   }
+
+  def testSCL10845(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |object Utils {
+        |
+        |  implicit class FooPimps(f: Foo) {
+        |    def implicitMethod(): Unit = println(s"implicit foo method")
+        |  }
+        |
+        |}
+        |
+        |class Foo {
+        |
+        |  import Utils._
+        |
+        |  implicitMethod() // <- wrongly reports "Cannot resolve reference implicitMethod with such signature". "sbt run" works fine
+        |
+        |  def implicitMethod(x: String): Unit = ()
+        |}
+        |
+        |object Main extends App {
+        |  new Foo
+        |}
+      """.stripMargin)
+  }
 }
