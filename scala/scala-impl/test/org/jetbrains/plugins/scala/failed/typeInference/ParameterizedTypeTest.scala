@@ -210,4 +210,19 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}""".stripMargin
     )
   }
+
+  def testSCL12908() = {
+    val text =
+      """
+        |def check[T](array: Array[T]): Unit = {
+        |    array match {
+        |      case bytes: Array[Byte] =>
+        |        println("Got bytes!")
+        |      case _ =>
+        |        println("Got something else than bytes!")
+        |    }
+        |  }
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }
