@@ -40,4 +40,46 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
         |  def apply(list: => Iterable[String]): ErrorHighlighting = { this ("string") }
       """.stripMargin)
   }
+
+  def testScl12401(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |trait Callback {
+        |  def run(): Unit
+        |}
+        |
+        |class Target {
+        |  private[this] var callback: Callback = new Callback {
+        |    override def run(): Unit = {}
+        |  }
+        |
+        |  def setCallback(x: Callback): Target = {
+        |    callback = x
+        |    this
+        |  }
+        |
+        |  def run(): Unit = callback.run()
+        |}
+        |
+        |object Pimps {
+        |
+        |  implicit class TargetPimps(t: Target) {
+        |    def setCallback(callback: => Unit): Target = t.setCallback(new Callback {
+        |      override def run(): Unit = callback
+        |    })
+        |  }
+        |
+        |}
+        |
+        |object Main {
+        |  def main(args: Array[String]): Unit = {
+        |    import Pimps._
+        |    val target = (new Target).setCallback {
+        |      println("Hello from callback!")
+        |    } // <- Here I am getting "Expression of type Unit doesn't conform to expected type Callback"
+        |    target.run()
+        |  }
+        |}
+      """.stripMargin)
+  }
 }
