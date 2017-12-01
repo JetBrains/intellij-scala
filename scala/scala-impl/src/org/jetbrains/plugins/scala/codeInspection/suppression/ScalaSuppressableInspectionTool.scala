@@ -6,7 +6,7 @@ import java.util.regex.Matcher
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInspection.{SuppressQuickFix, SuppressionUtil}
 import com.intellij.psi.{PsiComment, PsiDirectory, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, Nullable, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
 
 /**

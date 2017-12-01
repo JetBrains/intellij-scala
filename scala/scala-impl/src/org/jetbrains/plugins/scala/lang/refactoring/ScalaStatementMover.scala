@@ -89,7 +89,7 @@ class ScalaStatementMover extends LineMover {
     val right = edges._2.flatMap(PsiTreeUtil.getParentOfType(_, cl, false).toOption)
 
     left.zip(right)
-      .collect { case (l, r) if l.withParentsInFile.contains(r) => r }
+      .collect { case (l: PsiElement, r: PsiElement) if l.withParentsInFile.contains(r) => r }
       .find(it => editor.offsetToLogicalPosition(it.getTextOffset).line == line)
   }
 

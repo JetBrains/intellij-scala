@@ -6,7 +6,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiNamedElement}
 import com.intellij.util.text.EditDistance
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.Nullable
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionUtil, ScalaCompletionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern

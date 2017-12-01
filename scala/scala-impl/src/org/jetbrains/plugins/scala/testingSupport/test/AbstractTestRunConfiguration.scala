@@ -27,7 +27,7 @@ import com.intellij.openapi.util.{Computable, Getter, JDOMExternalizer}
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import org.jdom.Element
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{Nullable => NullableExt, _}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}

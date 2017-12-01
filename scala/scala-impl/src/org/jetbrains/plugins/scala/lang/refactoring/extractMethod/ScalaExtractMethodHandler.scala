@@ -13,7 +13,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{Nullable => NullableExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._

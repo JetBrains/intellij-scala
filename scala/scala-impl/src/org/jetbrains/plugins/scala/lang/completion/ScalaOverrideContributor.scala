@@ -10,7 +10,7 @@ import com.intellij.psi.filters.position.{FilterPattern, LeftNeighbour, Position
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.util.ProcessingContext
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.Nullable
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements._

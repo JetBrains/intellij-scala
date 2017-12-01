@@ -17,7 +17,7 @@ import com.intellij.refactoring.safeDelete.usageInfo._
 import com.intellij.usageView.UsageInfo
 import com.intellij.util._
 import org.jetbrains.annotations.{NonNls, Nullable}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{Nullable => NullableExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt

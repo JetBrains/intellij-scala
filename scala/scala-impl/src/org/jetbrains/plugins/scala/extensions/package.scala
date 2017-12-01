@@ -176,17 +176,56 @@ package object extensions {
     }
   }
 
-  implicit class ObjectExt[T](val v: T) extends AnyVal {
-    def toOption: Option[T] = Option(v)
+
+  implicit class Nullable[+A >: Null](val a: A) extends AnyVal {
+
+    private def nullExt: Nullable[Null] = new Nullable(null)
+
+    @inline def nonEmpty: Boolean =
+      a != null
+
+    @inline def isEmpty: Boolean =
+      a == null
+
+    @inline def toOption: Option[A] = Option(a)
+
+    @inline def orNull: A = a
+
+    @inline def map[S >: Null](f: A => S): Nullable[S] =
+      if (nonEmpty) f(a) else nullExt
+
+    @inline def getOrElse[B >: A](other: => B): B =
+      if (nonEmpty) a else other
+
+    @inline def orElse[B >: A](other: => Nullable[B]): Nullable[B] =
+      if (nonEmpty) a else other
+
+    @inline def flatMap[S >: Null](f: A => Nullable[S]): Nullable[S] =
+      if (nonEmpty) f(a) else nullExt
+
+    @inline def exists(p: A => Boolean): Boolean =
+      if (nonEmpty) p(a) else false
+
+    @inline def forall(p: A => Boolean): Boolean =
+      if (nonEmpty) p(a) else true
+
+    @inline def foreach(f: A => Unit): Unit =
+      if (nonEmpty) f(a)
+
+    @inline def filter(p: A => Boolean): Nullable[A] =
+      if (nonEmpty && p(a)) a else nullExt
+
+    @inline def withFilter(p: A => Boolean): Nullable[A] = filter(p)
+
+    @inline def collect[B >: Null](pf: scala.PartialFunction[A, B]): Nullable[B] =
+      if (nonEmpty) pf.applyOrElse(a, null) else nullExt
 
     def asOptionOf[E: ClassTag]: Option[E] = {
-      if (classTag[E].runtimeClass.isInstance(v)) Some(v.asInstanceOf[E])
+      if (classTag[E].runtimeClass.isInstance(a)) Some(a.asInstanceOf[E])
       else None
     }
 
-    def getOrElse[H >: T](default: H): H = if (v == null) default else v
-
-    def collectOption[B](pf: scala.PartialFunction[T, B]): Option[B] = Some(v).collect(pf)
+    def collectOption[B](pf: scala.PartialFunction[A, B]): Option[B] = Option(a).collect(pf)
   }
 
   implicit class OptionExt[T](val option: Option[T]) extends AnyVal {

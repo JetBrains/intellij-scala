@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil._
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{Nullable => NullableExt, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile

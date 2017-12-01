@@ -5,7 +5,7 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.Nullable
 import org.jetbrains.plugins.scala.lang.parser.ErrMsg
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 

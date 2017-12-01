@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.template._
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.Nullable
 
 /**
   * @author Roman.Shein
