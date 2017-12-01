@@ -160,7 +160,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       activeProcessDumper = None
 
       messageResult.flatMap { messages =>
-        if (messages.errors.isEmpty && structureFile.length > 0) Try {
+        if (structureFile.length > 0) Try {
           val elem = XML.load(structureFile.toURI.toURL)
           (elem, messages)
         }
