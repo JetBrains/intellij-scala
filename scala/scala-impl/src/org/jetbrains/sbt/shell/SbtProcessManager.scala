@@ -88,6 +88,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     vmParams.addAll(SbtOpts.loadFrom(workingDir).asJava)
     vmParams.addAll(sbtSettings.vmOptions.asJava)
     vmParams.add(s"-Didea.runid=$runid")
+    vmParams.add("-Didea.managed=true")
 
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
 
