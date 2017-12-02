@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, normalize}
 import org.jetbrains.plugins.scala.extensions.startCommand
 import org.junit.Assert._
-import scala.collection.JavaConverters._
-import scala.collection.JavaConverters._
+
+import scala.collection.JavaConverters
 
 /**
   * Nikolay.Tropin
@@ -23,15 +23,16 @@ abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestA
 
   protected val classOfInspection: Class[_ <: LocalInspectionTool]
   protected val description: String
+
   protected def descriptionMatches(s: String): Boolean = s == normalize(description)
 
   protected override final def checkTextHasNoErrors(text: String): Unit = {
-    val ranges = configureByText(text).map(_._2)
+    val ranges = findRanges(text)
     assertTrue(s"Highlights found at: ${ranges.mkString(", ")}.", ranges.isEmpty)
   }
 
   protected final def checkTextHasError(text: String): Unit = {
-    val ranges = configureByText(text).map(_._2)
+    val ranges = findRanges(text)
     assertTrue(s"Highlights not found: $description", ranges.nonEmpty)
 
     val range = selectedRange(getEditor.getSelectionModel)
@@ -46,6 +47,7 @@ abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestA
     fixture.configureByText("dummy.scala", normalizedText)
     fixture.enableInspections(classOfInspection)
 
+    import JavaConverters._
     fixture.doHighlighting().asScala
       .filter(it => descriptionMatches(it.getDescription))
       .map(info => (info, highlightedRange(info)))
@@ -53,6 +55,8 @@ abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestA
   }
 
   protected def createTestText(text: String): String = text
+
+  private def findRanges(text: String): Seq[TextRange] = configureByText(text).map(_._2)
 }
 
 object ScalaInspectionTestBase {
@@ -70,28 +74,39 @@ object ScalaInspectionTestBase {
 
 abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase {
 
+  import ScalaQuickFixTestBase._
+
   protected final def testQuickFix(text: String, expected: String, hint: String): Unit = {
-    val highlights = configureByText(text).map(_._1)
-
-    import ScalaQuickFixTestBase._
-    val actions = highlights.flatMap(quickFixes)
-    assertFalse("Quick fix not found.", actions.isEmpty)
-
-    val action = actions.find(_.getText == hint).orNull
-    assertNotNull(s"Quick fix not found: $hint", action)
+    val maybeAction = findQuickFix(text, hint)
+    assertFalse(s"Quick fix not found: $hint", maybeAction.isEmpty)
 
     startCommand(getProject) {
-      action.invoke(getProject, getEditor, getFile)
+      maybeAction.get.invoke(getProject, getEditor, getFile)
     }
 
     val expectedFileText = createTestText(expected)
     getFixture.checkResult(normalize(expectedFileText), /*stripTrailingSpaces = */ true)
   }
+
+  protected final def checkNotFixable(text: String, hint: String): Unit = {
+    val maybeAction = findQuickFix(text, hint)
+    assertTrue("Quick fix found.", maybeAction.isEmpty)
+  }
+
+  private def findQuickFix(text: String, hint: String): Option[IntentionAction] =
+    configureByText(text).map(_._1) match {
+      case Seq() =>
+        fail("Errors not found.")
+        null
+      case seq => seq.flatMap(quickFixes).find(_.getText == hint)
+    }
 }
 
 object ScalaQuickFixTestBase {
   private def quickFixes(info: HighlightInfo): Seq[IntentionAction] = {
-    Option(info.quickFixActionRanges.asScala).toSeq.flatten
+    import JavaConverters._
+    Option(info.quickFixActionRanges).toSeq
+      .flatMap(_.asScala)
       .flatMap(pair => Option(pair))
       .map(_.getFirst.getAction)
   }
