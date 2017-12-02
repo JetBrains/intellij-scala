@@ -129,6 +129,11 @@ class FakePsiMethod(
   def getNameIdentifier: PsiIdentifier = null
 }
 
+object FakePsiMethod {
+
+  def unapply(method: FakePsiMethod): Option[PsiElement] = Some(method.navElement)
+}
+
 class FakePsiTypeElement(manager: PsiManager, language: Language, tp: ScType)
         extends LightElement(manager, language) with PsiTypeElement with PsiAnnotatedAdapter {
   def getTypeNoResolve(context: PsiElement): PsiType = PsiType.VOID //ScType.toPsi(tp, manager.getProject, GlobalSearchScope.allScope(manager.getProject))

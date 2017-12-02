@@ -33,11 +33,11 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
                 ref match {
                   case refElement: PsiReferenceExpression if ref.getRangeInElement.contains(offsetInElement) =>
                     refElement.resolve match {
-                      case f: FakePsiMethod if f.navElement == vals =>
+                      case FakePsiMethod(`vals`) =>
                         if (!consumer.process(refElement)) return false
-                      case t: StaticPsiTypedDefinitionWrapper if t.delegate == vals =>
+                      case StaticPsiTypedDefinitionWrapper(`vals`) =>
                         if (!consumer.process(refElement)) return false
-                      case t: PsiTypedDefinitionWrapper if t.delegate == vals =>
+                      case PsiTypedDefinitionWrapper(`vals`) =>
                         if (!consumer.process(refElement)) return false
                       case _ =>
                     }
@@ -50,8 +50,9 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
         }
         val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(queryParameters.getProject)
         helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
-      case wrapper: PsiTypedDefinitionWrapper => //only this is added for find usages factory
-        val name: String = inReadAction(wrapper.getName)
+      case wrapper@PsiTypedDefinitionWrapper(delegate) => //only this is added for find usages factory
+        val name = inReadAction(wrapper.getName)
+
         val processor = new TextOccurenceProcessor {
           def execute(element: PsiElement, offsetInElement: Int): Boolean = {
             val references = inReadAction(element.getReferences)
@@ -60,11 +61,9 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
                 ref match {
                   case refElement: PsiReferenceExpression if ref.getRangeInElement.contains(offsetInElement) =>
                     refElement.resolve match {
-                      case t: PsiTypedDefinitionWrapper if t.delegate == wrapper.delegate &&
-                        t.getName == wrapper.getName =>
+                      case otherWrapper@PsiTypedDefinitionWrapper(`delegate`) if otherWrapper.getName == name =>
                         if (!consumer.process(refElement)) return false
-                      case t: StaticPsiTypedDefinitionWrapper if t.delegate == wrapper.delegate &&
-                        t.getName == wrapper.getName =>
+                      case otherWrapper@StaticPsiTypedDefinitionWrapper(`delegate`) if otherWrapper.getName == name =>
                         if (!consumer.process(refElement)) return false
                       case _ =>
                     }

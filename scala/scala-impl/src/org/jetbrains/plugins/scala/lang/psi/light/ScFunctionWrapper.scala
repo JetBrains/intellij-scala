@@ -44,6 +44,11 @@ class ScPrimaryConstructorWrapper(val delegate: ScPrimaryConstructor, isJavaVara
   override def isWritable: Boolean = getContainingFile.isWritable
 }
 
+object ScPrimaryConstructorWrapper {
+
+  def unapply(wrapper: ScPrimaryConstructorWrapper): Option[ScPrimaryConstructor] = Some(wrapper.delegate)
+}
+
 /**
   * Represnts Scala functions for Java. It can do it in many ways including
   * default parameters. For example (forDefault = Some(1)):

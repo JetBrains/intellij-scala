@@ -14,7 +14,7 @@ class ScalaClassElementDescriptionProvider extends ElementDescriptionProvider {
   def getElementDescription(element: PsiElement, location: ElementDescriptionLocation): String = {
     element match {
       case o: ScObject => o.name
-      case wrapper: PsiClassWrapper => wrapper.definition.name
+      case PsiClassWrapper(definition) => definition.name
       case _ => null
     }
   }

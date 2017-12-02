@@ -7,7 +7,7 @@ import com.intellij.codeInsight.TargetElementEvaluatorEx
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -54,11 +54,8 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
     val setterSuffixes = Seq("_=", "_$eq")
     def unapply(ref: ScReferenceElement): Option[ScReferencePattern] = {
       ref.resolve() match {
-        case fakeMethod: FakePsiMethod if setterSuffixes.exists(fakeMethod.getName.endsWith) =>
-          fakeMethod.navElement match {
-            case refPattern: ScReferencePattern if ScalaPsiUtil.nameContext(refPattern).isInstanceOf[ScVariable] => Some(refPattern)
-            case _ => None
-          }
+        case FakePsiMethod(refPattern: ScReferencePattern)
+          if setterSuffixes.exists(refPattern.getName.endsWith) && nameContext(refPattern).isInstanceOf[ScVariable] => Some(refPattern)
         case _ => None
       }
     }
@@ -68,11 +65,8 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
     val setterSuffix = "_$eq"
     def unapply(ref: PsiReferenceExpression): Option[ScReferencePattern] = {
       ref.resolve() match {
-        case wrapper: PsiTypedDefinitionWrapper if wrapper.getName endsWith setterSuffix =>
-          wrapper.delegate match {
-            case refPattern: ScReferencePattern if ScalaPsiUtil.nameContext(refPattern).isInstanceOf[ScVariable] => Some(refPattern)
-            case _ => None
-          }
+        case PsiTypedDefinitionWrapper(refPattern: ScReferencePattern)
+          if refPattern.getName.endsWith(setterSuffix) && nameContext(refPattern).isInstanceOf[ScVariable] => Some(refPattern)
         case _ => None
       }
     }

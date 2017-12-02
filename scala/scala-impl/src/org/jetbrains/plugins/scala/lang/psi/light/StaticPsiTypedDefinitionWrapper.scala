@@ -37,6 +37,8 @@ class StaticPsiTypedDefinitionWrapper(val delegate: ScTypedDefinition,
 
 object StaticPsiTypedDefinitionWrapper {
 
+  def unapply(wrapper: StaticPsiTypedDefinitionWrapper): Option[ScTypedDefinition] = Some(wrapper.delegate)
+
   import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 
   def methodText(b: ScTypedDefinition, role: DefinitionRole, containingClass: PsiClassWrapper): String = {
@@ -44,7 +46,7 @@ object StaticPsiTypedDefinitionWrapper {
 
     ScalaPsiUtil.nameContext(b) match {
       case m: ScModifierListOwner =>
-        builder.append(JavaConversionUtil.annotationsAndModifiers(m, true))
+        builder.append(JavaConversionUtil.annotationsAndModifiers(m, isStatic = true))
       case _ =>
     }
 

@@ -471,8 +471,8 @@ package object extensions {
       def concreteClassFor(typedDef: ScTypedDefinition): Option[PsiClass] = {
         if (typedDef.isAbstractMember) return None
         clazz match {
-          case wrapper: PsiClassWrapper if wrapper.definition.isInstanceOf[ScObject] =>
-            return Some(wrapper) //this is static case, when containing class should be wrapper
+          case PsiClassWrapper(_: ScObject) =>
+            return Some(clazz) //this is static case, when containing class should be wrapper
           case _ =>
         }
 

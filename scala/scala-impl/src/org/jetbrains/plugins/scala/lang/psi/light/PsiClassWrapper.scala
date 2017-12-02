@@ -332,3 +332,8 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
   }
 }
 
+object PsiClassWrapper {
+
+  def unapply(wrapper: PsiClassWrapper): Option[ScTemplateDefinition] = Some(wrapper.definition)
+}
+

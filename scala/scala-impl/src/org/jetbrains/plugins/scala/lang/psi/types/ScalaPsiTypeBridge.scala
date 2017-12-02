@@ -103,7 +103,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     createParameter(wildcardType.lower, wildcardType.upper.orElse(maybeUpper), index)
 
   private def constructTypeForClass(clazz: PsiClass, subst: ScSubstitutor, withTypeParameters: Boolean = false): ScType = clazz match {
-    case wrapper: PsiClassWrapper => constructTypeForClass(wrapper.definition, subst)
+    case PsiClassWrapper(definition) => constructTypeForClass(definition, subst)
     case _ =>
       val designator = Option(clazz.containingClass) map {
         constructTypeForClass(_, subst, withTypeParameters = !clazz.hasModifierProperty("static"))
