@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.settings.annotations
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope
 import com.intellij.psi.{PsiClass, PsiElement, PsiModifier}
-import org.jetbrains.plugins.scala.extensions.{Nullable, Parent}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile

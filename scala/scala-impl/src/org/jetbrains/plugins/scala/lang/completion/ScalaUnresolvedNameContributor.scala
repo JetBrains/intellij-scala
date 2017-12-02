@@ -10,7 +10,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
 import com.intellij.psi.{PsiElement, PsiFile, PsiReference}
 import com.intellij.util.{ProcessingContext, Processor}
-import org.jetbrains.plugins.scala.extensions.{Nullable, PsiElementExt, childOf}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._

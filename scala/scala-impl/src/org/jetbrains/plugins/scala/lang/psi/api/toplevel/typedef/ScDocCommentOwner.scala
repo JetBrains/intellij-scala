@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api.toplevel.typedef
 
-import org.jetbrains.plugins.scala.extensions.{Nullable => NullableExt, _}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 

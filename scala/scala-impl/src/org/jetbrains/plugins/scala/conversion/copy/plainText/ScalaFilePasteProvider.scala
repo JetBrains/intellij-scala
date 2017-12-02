@@ -13,7 +13,7 @@ import com.intellij.openapi.ui.Messages.showErrorDialog
 import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.extensions.{Nullable, startCommand}
+import org.jetbrains.plugins.scala.extensions.{ToNullSafe, ObjectExt, startCommand}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ModuleExt
 
@@ -66,7 +66,7 @@ class ScalaFilePasteProvider extends PasteProvider {
     startCommand(project, new Runnable {
       def run(): Unit = {
         Try {
-          JavaDirectoryService.getInstance()
+          JavaDirectoryService.getInstance().nullSafe
             .map(_.getPackage(targetDir))
             .map(_.getQualifiedName)
             .foreach(file.setPackageName)

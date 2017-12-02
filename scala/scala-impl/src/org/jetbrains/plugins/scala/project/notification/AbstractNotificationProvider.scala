@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
-import org.jetbrains.plugins.scala.extensions.Nullable
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 /**
   * @author adkozlov

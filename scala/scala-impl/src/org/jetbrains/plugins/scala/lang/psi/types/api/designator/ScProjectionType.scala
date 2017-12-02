@@ -360,7 +360,7 @@ object ScProjectionType {
     simple.actualElement match {
       case td: ScTypeAliasDefinition if td.typeParameters.isEmpty =>
         val manager = ScalaPsiManager.instance(element.getProject)
-        manager.simpleAliasProjectionCached(simple).getOrElse(simple)
+        manager.simpleAliasProjectionCached(simple).nullSafe.getOrElse(simple)
       case _ => simple
     }
   }

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.extensions.Nullable
+import org.jetbrains.plugins.scala.extensions.ToNullSafe
 
 object IdeaUtil {
   def safeAnnotationResolve(annotation: ScAnnotation): Option[ResolveResult] = {
@@ -34,7 +34,7 @@ object IdeaUtil {
     else {
       val project = file.getProject
       val plugins =
-        file.getVirtualFile
+        file.getVirtualFile.nullSafe
           .map(ModuleUtilCore.findModuleForFile(_, project))
           .map(ScalaCompilerConfiguration.instanceIn(project).getSettingsForModule)
           .map(_.plugins)

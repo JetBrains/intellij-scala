@@ -78,7 +78,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case None => currentNode
       }
     }
-    val leftNode = dfsChildren(left.myLastNode.getOrElse(left.getNode), _.getChildren(null).toList.reverse)
+    val leftNode = dfsChildren(left.myLastNode.nullSafe.getOrElse(left.getNode), _.getChildren(null).toList.reverse)
     val rightNode = dfsChildren(right.getNode, _.getChildren(null).toList)
     val concatString = if (textRange.contains(rightNode.getTextRange) && textRange.contains(leftNode.getTextRange)) {
       val left = fileText.substring(leftNode.getTextRange)

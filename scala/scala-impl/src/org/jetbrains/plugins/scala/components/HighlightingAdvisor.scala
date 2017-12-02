@@ -14,7 +14,7 @@ import com.intellij.openapi.wm.StatusBarWidget.{PlatformType, WidgetPresentation
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.util.{Consumer, FileContentUtil}
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.extensions.Nullable
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.NotificationUtil
