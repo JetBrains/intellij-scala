@@ -1,16 +1,13 @@
-package org.jetbrains.plugins.scala.failed.annotator
+package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.junit.experimental.categories.Category
 
 /**
   * User: Dmitry.Naydanov
   * Date: 24.03.16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class CantCreateTempDefTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  def testSCL7062() = {
+  def testSCL7062(): Unit = {
     checkTextHasNoErrors(
       """  object Test {
         |
