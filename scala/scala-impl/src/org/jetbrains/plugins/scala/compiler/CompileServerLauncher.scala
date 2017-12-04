@@ -78,13 +78,13 @@ class CompileServerLauncher extends ApplicationComponent {
   } yield new File(pluginsLibs, filesPath)
 
   private def start(project: Project, jdk: JDK): Either[String, Process] = {
-    import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.{compileServerClasspath, jvmParameters}
+    import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.{compilerJars, jvmParameters}
 
     val settings = ScalaCompileServerSettings.getInstance
 
     settings.updateSdk(jdk.name)
 
-    compileServerClasspath.partition(_.exists) match {
+    compilerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
         val bootCp = bootClasspath(project)
         val bootClassPathLibs = bootCp.map(_.getAbsolutePath)
@@ -176,32 +176,26 @@ object CompileServerLauncher {
 
   def instance: CompileServerLauncher = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
 
-  def compileServerClasspath: Seq[File] = {
+  def compilerJars: Seq[File] = {
     val jpsBuildersJar = new File(PathUtil.getJarPathForClass(classOf[BuilderService]))
     val utilJar = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
     val trove4jJar = new File(PathUtil.getJarPathForClass(classOf[TByteArrayList]))
 
     val pluginRoot = pluginPath
+    val jpsRoot = new File(pluginRoot, "jps")
 
-    jpsProcessClasspath ++ Seq(
+    Seq(
       jpsBuildersJar,
       utilJar,
       trove4jJar,
-      new File(pluginRoot, "scala-reflect.jar"),
-      new File(pluginRoot, "scala-nailgun-runner.jar")
-    )
-  }
-
-  def jpsProcessClasspath: Seq[File] = {
-    val pluginRoot = pluginPath
-    val jpsRoot = new File(pluginRoot, "jps")
-    Seq(
       new File(pluginRoot, "scala-library.jar"),
+      new File(pluginRoot, "scala-reflect.jar"),
+      new File(pluginRoot, "scala-nailgun-runner.jar"),
       new File(pluginRoot, "compiler-shared.jar"),
-      new File(jpsRoot, "compiler-jps.jar"),
       new File(jpsRoot, "nailgun.jar"),
       new File(jpsRoot, "sbt-interface.jar"),
-      new File(jpsRoot, "incremental-compiler.jar")
+      new File(jpsRoot, "incremental-compiler.jar"),
+      new File(jpsRoot, "compiler-jps.jar")
     )
   }
 

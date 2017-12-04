@@ -20,13 +20,13 @@ import _root_.scala.collection.JavaConverters._
 class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = None) {
   private val SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main"
 
-  private def classPath(jdk: JDK) = (jdk.tools +: CompileServerLauncher.compileServerClasspath).map(
+  private def classPath(jdk: JDK) = (jdk.tools +: CompileServerLauncher.compilerJars).map(
     file => FileUtil toCanonicalPath file.getPath).mkString(File.pathSeparator)
 
   private val jvmParameters = CompileServerLauncher.jvmParameters
   
   def buildProcess(args: Seq[String], listener: String => Unit): CompilationProcess = {
-    CompileServerLauncher.compileServerClasspath.foreach(p => assert(p.exists(), p.getPath))
+    CompileServerLauncher.compilerJars.foreach(p => assert(p.exists(), p.getPath))
 
     CompileServerLauncher.compileServerJdk(project) match {
       case None =>
