@@ -115,4 +115,25 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin)
   }
+
+  def testScl13027(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |object Test {
+        |  class returnType[T]
+        |
+        |  object myObject {
+        |    implicit object intType
+        |    def myFunction(fun: Int => Unit)(implicit i: intType.type): returnType[Int] = new returnType[Int]
+        |
+        |    implicit object strType
+        |    def myFunction(fun: String => Unit)(implicit i: strType.type): returnType[String] = new returnType[String]
+        |  }
+        |
+        |
+        |  (myObject myFunction (_ + 1)): returnType[Int] // compiles, but red "Cannot resolve reference myFunction with such signature"
+        |  (myObject myFunction (_.toUpperCase + 1)): returnType[String] // compiles, but red "Cannot resolve reference myFunction with such signature"
+        |}
+      """.stripMargin)
+  }
 }
