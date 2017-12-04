@@ -244,8 +244,10 @@ package object extensions {
   }
 
   implicit class StringsExt(val strings: Seq[String]) extends AnyVal {
-    def commaSeparated: String =
-      strings.mkString(", ")
+    def commaSeparated(parenthesize: Boolean = false): String = {
+      val (start, end) = if (parenthesize) ("(", ")") else ("", "")
+      strings.mkString(start, ", ", end)
+    }
   }
 
   implicit class ASTNodeExt(val node: ASTNode) extends AnyVal {
