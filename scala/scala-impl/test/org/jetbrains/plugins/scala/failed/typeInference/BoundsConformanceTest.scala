@@ -70,4 +70,12 @@ class BoundsConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     )
   }
+
+  def testSCL13020(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |def f[T <: AnyRef](x: T): { def ==(y: Any) : Boolean } = x
+      """.stripMargin
+    )
+  }
 }
