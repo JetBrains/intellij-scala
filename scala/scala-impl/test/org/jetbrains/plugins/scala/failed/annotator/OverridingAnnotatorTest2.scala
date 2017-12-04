@@ -102,4 +102,17 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin)
   }
+
+  def testScl13039(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |trait Test[T] {
+        |  def foo[S](x : T) : Unit = {
+        |    val t = new Test[S] {
+        |      override def foo[U](x: S): Unit = { }
+        |    }
+        |  }
+        |}
+      """.stripMargin)
+  }
 }
