@@ -43,4 +43,17 @@ class AsteriskTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin)
   }
+
+  def testSCL13017(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |class Test {
+        |  def f(): Unit = {
+        |    val a : (Int*) => Unit = x => { val y: Seq[Int] = x }
+        |  }
+        |}
+      """.stripMargin)
+  }
+
+
 }
