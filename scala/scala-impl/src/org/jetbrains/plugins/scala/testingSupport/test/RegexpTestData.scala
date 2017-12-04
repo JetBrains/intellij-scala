@@ -128,8 +128,8 @@ class RegexpTestData(override val config: AbstractTestRunConfiguration) extends 
   }
 
   override def writeExternal(element: Element): Unit = {
-    val classRegexps: Map[String, String] = Map(zippedRegexps.zipWithIndex.map { case ((c, _), i) => (i.toString, c) }: _*)
-    val testRegexps: Map[String, String] = Map(zippedRegexps.zipWithIndex.map { case ((_, t), i) => (i.toString, t) }: _*)
+    val classRegexps: Map[String, String] = Map(zippedRegexps.sorted.zipWithIndex.map { case ((c, _), i) => (i.toString, c) }: _*)
+    val testRegexps: Map[String, String] = Map(zippedRegexps.sorted.zipWithIndex.map { case ((_, t), i) => (i.toString, t) }: _*)
     JDOMExternalizer.writeMap(element, classRegexps.asJava, "classRegexps", "pattern")
     JDOMExternalizer.writeMap(element, testRegexps.asJava, "testRegexps", "pattern")
     writeBufMap(element)
@@ -145,10 +145,10 @@ class RegexpTestData(override val config: AbstractTestRunConfiguration) extends 
 
   private def writeBufMap(element: Element): Unit = {
     val buf = new Element("buffered")
-    testsBuf.foreach { case (className, tests) =>
+    testsBuf.toSeq.sortBy(_._1).foreach { case (className, tests) =>
       val classElement = new Element("entry")
       classElement.setAttribute("class", className)
-      tests.foreach { testName =>
+      tests.toSeq.sorted.foreach { testName =>
         val testElement = new Element("test")
         testElement.setAttribute("name", testName)
         classElement.addContent(testElement)
