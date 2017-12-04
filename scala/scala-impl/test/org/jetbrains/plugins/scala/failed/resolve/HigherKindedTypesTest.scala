@@ -37,4 +37,21 @@ class HigherKindedTypesTest extends ScalaInspectionTestBase {
          |val left: Int = example.hello(123)
       """.stripMargin)
   }
+
+  def testSCL12929(): Unit = {
+    checkTextHasError(
+      s"""
+         |trait A {
+         |  val x: Int
+         |}
+         |
+         |trait B {
+         |  val y: Int
+         |}
+         |
+         |class C[T[_] <: A with B](a: T[Int]){
+         |  val b = a.x
+         |}
+      """.stripMargin)
+  }
 }
