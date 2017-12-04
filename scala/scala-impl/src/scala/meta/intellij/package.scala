@@ -24,7 +24,7 @@ package object intellij {
       !ScStubElementType.isStubBuilding &&
         !DumbService.isDumb(element.getProject) &&
         !element.isInCompiledFile &&
-        !element.containingFile.exists(IdeaUtil.inModuleWithParadisePlugin)
+        element.containingFile.exists(IdeaUtil.inModuleWithParadisePlugin)
     }
 
     implicit class AnnotExt(val annotation: ScAnnotation) extends AnyVal {

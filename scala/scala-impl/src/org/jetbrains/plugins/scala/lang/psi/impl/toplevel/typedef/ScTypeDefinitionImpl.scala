@@ -396,12 +396,12 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     ScalaPsiImplementationHelper.getOriginalClass(this)
   }
 
-  private def fromTree(tree: scala.meta.Tree): ScTemplateDefinition = {
+  @Cached(ModCount.getBlockModificationCount, this)
+  private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition = {
     ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this)
       .setDesugared(actualElement = this)
   }
 
-  @Cached(ModCount.getBlockModificationCount, this)
   override def desugaredElement: Option[ScTemplateDefinition] = {
     import scala.meta.intellij.psiExt._
     import scala.meta.{Defn, Term}
@@ -416,6 +416,6 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
       case _ => None
     }
 
-    defn.map(fromTree)
+    defn.map(cachedDesugared)
   }
 }

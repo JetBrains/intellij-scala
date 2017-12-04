@@ -238,12 +238,12 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     getSupers.filter(_.isInterface)
   }
 
-  private def fromTree(tree: scala.meta.Tree): ScTemplateDefinition = {
+  @Cached(ModCount.getBlockModificationCount, this)
+  private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition = {
     ScalaPsiElementFactory.createObjectWithContext(tree.toString(), getContext, this)
       .setDesugared(actualElement = this)
   }
 
-  @Cached(ModCount.getBlockModificationCount, this)
   override def desugaredElement: Option[ScTemplateDefinition] = {
     import scala.meta.intellij.psiExt._
     import scala.meta.{Defn, Term, Tree}
@@ -260,6 +260,6 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
       }
     }
 
-    expansion.map(fromTree)
+    expansion.map(cachedDesugared)
   }
 }
