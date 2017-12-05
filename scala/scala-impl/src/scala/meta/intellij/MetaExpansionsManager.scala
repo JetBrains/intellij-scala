@@ -124,7 +124,9 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
 
 object MetaExpansionsManager {
 
-  val META_MAJOR_VERSION = "1.8"
+  val META_MAJOR_VERSION  = "1.8"
+  val META_MINOR_VERSION  = "1.8.0"
+  val PARADISE_VERSION    = "3.0.0-M10"
 
   class MetaWrappedException(val target: Throwable) extends Exception
 
