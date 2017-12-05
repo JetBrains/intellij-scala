@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.lang.macros
 
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyLibraryLoaderAdapter
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
@@ -13,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 /**
  * IntelliJ's equivalent of scalaz-deriving's built-in PresentationCompilerTest
@@ -21,7 +18,6 @@ import org.junit.experimental.categories.Category
  * @author Sam Halliday
  * @since  24/08/2017
  */
-@Category(Array(classOf[SlowTests]))
 class ScalazDerivingTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override implicit val version: ScalaVersion = Scala_2_11

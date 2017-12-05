@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
-import org.junit.experimental.categories.Category
 
 /**
   * @author Nikolay.Tropin
   */
-@Category(Array(classOf[SlowTests]))
 class ApplicationTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testSCL9931(): Unit = {
     checkTextHasNoErrors(
@@ -86,7 +83,6 @@ class ApplicationTest extends ScalaLightCodeInsightFixtureTestAdapter {
   }
 }
 
-@Category(Array(classOf[SlowTests]))
 class ApplicationTest212 extends ScalaLightCodeInsightFixtureTestAdapter {
   override implicit val version: ScalaVersion = Scala_2_12
 

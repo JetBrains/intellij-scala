@@ -1,9 +1,5 @@
 package scala.meta.annotations
 
-import org.jetbrains.plugins.scala.SlowTests
-import org.junit.experimental.categories.Category
-
-@Category(Array(classOf[SlowTests]))
 class MetaAnnotationUndoExpansionTest extends MetaAnnotationUndoExpansionTestBase {
 
   def testUndoSingleClass(): Unit = {

@@ -8,21 +8,19 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, TestActionEvent}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil.findJdk8
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.{ScalaBundle, SlowTests}
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 /**
   * @author mutcianm
   * @since 14.03.17.
   */
 
-@Category(Array(classOf[SlowTests]))
 class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMetaLibrariesOwner {
   override protected def getTestDataPath: String = TestUtils.getTestDataPath + "/scalameta"
 

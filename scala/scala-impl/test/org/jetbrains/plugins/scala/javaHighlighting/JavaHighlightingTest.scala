@@ -2,14 +2,12 @@ package org.jetbrains.plugins.scala
 package javaHighlighting
 
 import org.jetbrains.plugins.scala.annotator._
-import org.junit.experimental.categories.Category
 
 
 /**
  * Author: Svyatoslav Ilinskiy
  * Date: 7/8/15
  */
-@Category(Array(classOf[SlowTests]))
 class JavaHighlightingTest extends JavaHighlightingTestBase() {
 
   def testSignatures(): Unit = {

@@ -1,13 +1,10 @@
 package org.jetbrains .plugins.scala
 package refactoring.rename3
 
-import org.junit.experimental.categories.Category
-
 /**
  * Nikolay.Tropin
  * 9/13/13
  */
-@Category(Array(classOf[SlowTests]))
 class ScalaRenameTest extends ScalaRenameTestBase {
 
   def testObjectAndTraitToOpChars(): Unit = doTest("+++")

@@ -2,6 +2,10 @@ package scala.meta.annotations
 
 import java.io.File
 
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.meta.ScalaMetaLibrariesOwner.MetaBaseLoader
+import scala.meta.{Compilable, ScalaMetaLibrariesOwner}
+
 import com.intellij.ProjectTopics
 import com.intellij.compiler.server.BuildManager
 import com.intellij.lang.annotation.HighlightSeverity
@@ -15,8 +19,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
-import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil.findJdk8
 import org.jetbrains.plugins.scala.debugger.{CompilationCache, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -28,14 +32,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 import org.junit.Assert.fail
-import org.junit.experimental.categories.Category
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-import scala.meta.ScalaMetaLibrariesOwner.MetaBaseLoader
-import scala.meta.{Compilable, ScalaMetaLibrariesOwner}
 
-import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil.findJdk8
-
-@Category(Array(classOf[SlowTests]))
 abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaLibrariesOwner with Compilable {
 
   import MetaAnnotationTestBase._

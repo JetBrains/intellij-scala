@@ -6,13 +6,11 @@ import com.intellij.codeInsight.completion.CompletionType.SMART
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, set}
-import org.junit.experimental.categories.Category
 
 /**
   * User: Alexander Podkhalyuzin
   * Date: 28.10.11
   */
-@Category(Array(classOf[SlowTests]))
 class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
 
   import EditorTestUtil.{CARET_TAG => CARET, SELECTION_END_TAG => E, SELECTION_START_TAG => S}

@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable
 
 import com.intellij.openapi.module.{Module, ModuleManager}
-import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_10}
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.AllTests
 
@@ -14,7 +12,6 @@ import org.junit.runners.AllTests
   * 25-Sep-17
   */
 @RunWith(classOf[AllTests])
-@Category(Array(classOf[SlowTests]))
 class IntroduceVariableTest extends AbstractIntroduceVariableTestBase(TestUtils.getTestDataPath + IntroduceVariableTest.DATA_PATH)
   with ScalaSdkOwner {
 

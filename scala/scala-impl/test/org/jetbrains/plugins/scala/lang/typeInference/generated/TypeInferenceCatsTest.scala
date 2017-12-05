@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.lang.typeInference.generated
 
-import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.{CatsLoader, ThirdPartyLibraryLoader}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
-import org.junit.experimental.categories.Category
 
 /**
   * @author Nikolay.Tropin
   */
-@Category(Array(classOf[SlowTests]))
 class TypeInferenceCatsTest extends TypeInferenceTestBase {
 
   override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =

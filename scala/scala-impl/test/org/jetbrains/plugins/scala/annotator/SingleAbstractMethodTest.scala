@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11, Scala_2_12}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.junit.experimental.categories.Category
 
 /**
   * Author: Svyatoslav Ilinskiy
@@ -600,7 +598,6 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
 
 }
 
-@Category(Array(classOf[SlowTests]))
 class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
 
   override implicit val version: ScalaVersion = Scala_2_12
@@ -768,7 +765,6 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
   }
 }
 
-@Category(Array(classOf[SlowTests]))
 class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase {
 
   override implicit val version: ScalaVersion = Scala_2_11

@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.lang.macros
 
-import com.intellij.openapi.module.Module
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyLibraryLoaderAdapter, ThirdPartyLibraryLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
@@ -12,9 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[SlowTests]))
 class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   override implicit val version: ScalaVersion = Scala_2_12

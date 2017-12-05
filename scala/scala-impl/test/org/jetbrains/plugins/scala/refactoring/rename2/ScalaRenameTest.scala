@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.refactoring.rename2
 
-import org.jetbrains.plugins.scala.SlowTests
 import org.junit.experimental.categories.Category
 
 /**
  * User: Alefas
  * Date: 04.10.11
  */
-@Category(Array(classOf[SlowTests]))
 class ScalaRenameTest extends ScalaRenameTestBase {
   def testRenameBeanProperty() {
     val fileText =

@@ -1,13 +1,9 @@
 package scala.meta.quasiquotes
 
-import org.jetbrains.plugins.scala.SlowTests
-import org.junit.experimental.categories.Category
-
 /**
   * @author mutcianm
   * @since 24.10.16.
   */
-@Category(Array(classOf[SlowTests]))
 class TypeApplyTest extends QuasiQuoteTypeInferenceTestBase {
 
   def testStdNames(): Unit = doTest(
