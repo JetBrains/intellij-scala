@@ -63,6 +63,7 @@ package object extensions {
   implicit class PsiMethodExt(val repr: PsiMethod) extends AnyVal {
 
     import PsiMethodExt._
+
     implicit private def project: ProjectContext = repr.getProject
 
     def isAccessor: Boolean = isParameterless && hasQueryLikeName && !hasVoidReturnType
@@ -391,8 +392,8 @@ package object extensions {
       elements.foldRight(List.empty[PsiElement])(parent.addAfter(_, element) :: _)
     }
 
-    def createSmartPointer(implicit manager: SmartPointerManager = SmartPointerManager.getInstance(element.getProject)): SmartPsiElementPointer[E] =
-      manager.createSmartPsiElementPointer(element)
+    def createSmartPointer: SmartPsiElementPointer[E] =
+      SmartPointerManager.getInstance(element.getProject).createSmartPsiElementPointer(element)
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
