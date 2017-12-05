@@ -206,12 +206,14 @@ import Common.TestCategory._
 
 addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOptTests")
 addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTests")
+addCommandAlias("runDebuggerTests", s"testOnly -- --include-categories=$debuggerTests")
 addCommandAlias("runHighlightingTests", s"testOnly -- --include-categories=$highlightingTests")
 addCommandAlias("runScalacTests", s"testOnly -- --include-categories=$scalacTests")
 addCommandAlias("runTypeInferenceTests", s"testOnly org.jetbrains.plugins.scala.lang.typeInference.*")
 
 val fastTestOptions = "-v -s -a +c +q " +
   s"--exclude-categories=$slowTests " +
+  s"--exclude-categories=$debuggerTests " +
   s"--exclude-categories=$perfOptTests " +
   s"--exclude-categories=$scalacTests " +
   s"--exclude-categories=$highlightingTests"

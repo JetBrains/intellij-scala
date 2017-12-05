@@ -16,11 +16,11 @@ import scala.concurrent.duration.DurationLong
 /**
  * @author Nikolay.Tropin
  */
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class ExactBreakpointTest extends ExactBreakpointTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class ExactBreakpointTest_212 extends ExactBreakpointTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }

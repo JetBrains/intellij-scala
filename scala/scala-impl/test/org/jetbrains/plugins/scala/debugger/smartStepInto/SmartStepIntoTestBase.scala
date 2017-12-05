@@ -13,12 +13,12 @@ import com.intellij.debugger.engine.SuspendContextImpl
 /**
  * @author Nikolay.Tropin
  */
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class SmartStepIntoTest extends SmartStepIntoTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
 
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class SmartStepIntoTest_212 extends SmartStepIntoTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 

@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
 /**
   * @author Nikolay.Tropin
   */
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class StepIntoTest extends StepIntoTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 
@@ -20,7 +20,7 @@ class StepIntoTest extends StepIntoTestBase {
   }
 }
 
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_212 extends StepIntoTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }

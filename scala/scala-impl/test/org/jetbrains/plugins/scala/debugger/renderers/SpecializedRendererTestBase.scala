@@ -11,11 +11,11 @@ import org.junit.experimental.categories.Category
   * Nikolay.Tropin
   * 14-Mar-17
   */
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class SpecializedRenderer_211 extends SpecializedRendererTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class SpecializedRenderer_212 extends SpecializedRendererTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }
