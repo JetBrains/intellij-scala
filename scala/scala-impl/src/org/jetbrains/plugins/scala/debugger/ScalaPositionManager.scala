@@ -97,11 +97,15 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    val possiblePositions = positionsOnLine(file, position.getLine)
-
     val exactClasses = mutable.ArrayBuffer.empty[ReferenceType]
     val namePatterns = mutable.Set[NamePattern]()
+    var packageName: Option[String] = None
+
     inReadAction {
+      val possiblePositions = positionsOnLine(file, position.getLine)
+
+      packageName = possiblePositions.headOption.flatMap(findPackageName)
+
       val onTheLine = possiblePositions.map(findGeneratingClassOrMethodParent)
       if (onTheLine.isEmpty) return ju.Collections.emptyList()
       val nonLambdaParent =
@@ -135,10 +139,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           val namePattern = NamePattern.forElement(elem)
           namePatterns ++= Option(namePattern)
       }
-    }
-    val packageName: Option[String] = inReadAction {
-      possiblePositions.headOption
-        .flatMap(findPackageName)
     }
 
     val foundWithPattern =
