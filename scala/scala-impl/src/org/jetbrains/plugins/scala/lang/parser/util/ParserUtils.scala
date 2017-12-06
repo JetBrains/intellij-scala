@@ -14,6 +14,7 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.testFramework.LightVirtualFileBase
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.DebugPrint
 
 import scala.annotation.tailrec
@@ -189,11 +190,15 @@ object ParserUtils extends ParserUtilsBase {
     else 1
   }
   
-  def isTrailingCommasEnabled(builder: ScalaPsiBuilder): Boolean = {
-    ApplicationManager.getApplication.isUnitTestMode && 
-      getPsiFile(builder).exists(file => file.getVirtualFile.isInstanceOf[LightVirtualFileBase]) ||
-      builder.asInstanceOf[ScalaPsiBuilderImpl].isTrailingCommasEnabled
-  }
+  def isTrailingCommasEnabled(builder: ScalaPsiBuilder): Boolean = 
+    ScalaProjectSettings.getInstance(builder.getProject).getTrailingCommasMode match {
+      case ScalaProjectSettings.TrailingCommasMode.Enabled => true 
+      case ScalaProjectSettings.TrailingCommasMode.Auto =>
+        ApplicationManager.getApplication.isUnitTestMode &&
+          getPsiFile(builder).exists(file => file.getVirtualFile.isInstanceOf[LightVirtualFileBase]) ||
+          builder.asInstanceOf[ScalaPsiBuilderImpl].isTrailingCommasEnabled
+      case ScalaProjectSettings.TrailingCommasMode.Disabled => false
+    }
 
   def isTrailingComma(builder: ScalaPsiBuilder, expectedBrace: IElementType): Boolean = {
     if (builder.getTokenType != ScalaTokenTypes.tCOMMA) return false
