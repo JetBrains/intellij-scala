@@ -87,6 +87,7 @@ public class ScalaProjectSettingsPanel {
     private JComboBox scalaMetaMode;
     private JCheckBox metaTrimBodies;
     private JComboBox scTypeSelectionCombobox;
+    private JComboBox trailingCommasComboBox;
     private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
     private Project myProject;
     private JBList librariesList;
@@ -155,16 +156,23 @@ public class ScalaProjectSettingsPanel {
         }
         if (injectionPrefixTable == null) injectionPrefixTable = new ScalaUiWithDependency.NullComponentWithSettings();
 
+        trailingCommasComboBox.setModel(new EnumComboBoxModel<>(ScalaProjectSettings.TrailingCommasMode.class));
+
         scTypeSelectionCombobox.setModel(new EnumComboBoxModel(ScalaProjectSettings.ScFileMode.class));
         scTypeSelectionCombobox.setRenderer(new ListCellRendererWrapper() {
             @Override
             public void customize(JList jList, Object o, int i, boolean b, boolean b1) {
                 if (!(o instanceof ScalaProjectSettings.ScFileMode)) return;
-                
+
                 switch ((ScalaProjectSettings.ScFileMode) o) {
-                    case Auto: setText("Ammonite in test sources, otherwise Worksheet"); break;
-                    case Ammonite: setText("Always Ammonite"); break;
-                    case Worksheet: setText("Always Worksheet"); 
+                    case Auto:
+                        setText("Ammonite in test sources, otherwise Worksheet");
+                        break;
+                    case Ammonite:
+                        setText("Always Ammonite");
+                        break;
+                    case Worksheet:
+                        setText("Always Worksheet");
                 }
             }
         });
@@ -243,6 +251,7 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setMetaTrimMethodBodies(metaTrimBodies.isSelected());
 
         scalaProjectSettings.setScFileMode(ScalaProjectSettings.ScFileMode.valueOf(scTypeSelectionCombobox.getSelectedItem().toString()));
+        scalaProjectSettings.setTrailingCommasMode(ScalaProjectSettings.TrailingCommasMode.valueOf(trailingCommasComboBox.getSelectedItem().toString()));
 
         if (myProject != null && myProject.isDefault())
             ((JarCacheModel) librariesList.getModel()).commit();
@@ -358,6 +367,7 @@ public class ScalaProjectSettingsPanel {
         if (scalaProjectSettings.isMetaTrimMethodBodies() != metaTrimBodies.isSelected()) return true;
 
         if (scalaProjectSettings.getScFileMode() != scTypeSelectionCombobox.getSelectedItem()) return true;
+        if (scalaProjectSettings.getTrailingCommasMode() != trailingCommasComboBox.getSelectedItem()) return true;
 
         return false;
     }
@@ -420,6 +430,7 @@ public class ScalaProjectSettingsPanel {
             scalaProjectSettings.getBundledInspectionIdsDisabled(), myProject));
 
         scTypeSelectionCombobox.setSelectedItem(scalaProjectSettings.getScFileMode());
+        trailingCommasComboBox.setSelectedItem(scalaProjectSettings.getTrailingCommasMode());
 
         injectionPrefixTable.loadSettings(scalaProjectSettings);
 
@@ -455,26 +466,6 @@ public class ScalaProjectSettingsPanel {
         injectionJPanel = new JPanel(new GridLayout(1, 1));
         injectionJPanel.setPreferredSize(new Dimension(200, 500));
         injectionJPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
-    }
-
-
-    /**
-     * @noinspection ALL
-     */
-    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
-        if (currentFont == null) return null;
-        String resultName;
-        if (fontName == null) {
-            resultName = currentFont.getName();
-        } else {
-            Font testFont = new Font(fontName, Font.PLAIN, 10);
-            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
-                resultName = fontName;
-            } else {
-                resultName = currentFont.getName();
-            }
-        }
-        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
     }
 
     /**
@@ -665,7 +656,7 @@ public class ScalaProjectSettingsPanel {
         final Spacer spacer7 = new Spacer();
         panel6.add(spacer7, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JPanel panel7 = new JPanel();
-        panel7.setLayout(new GridLayoutManager(4, 2, new Insets(9, 9, 0, 0), -1, -1));
+        panel7.setLayout(new GridLayoutManager(4, 3, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane1.addTab("Misc", panel7);
         panel7.add(injectionJPanel, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label7 = new JLabel();
@@ -676,14 +667,21 @@ public class ScalaProjectSettingsPanel {
         scalaTestDefaultSuperClass = new JTextField();
         scalaTestDefaultSuperClass.setColumns(25);
         panel7.add(scalaTestDefaultSuperClass, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel label8 = new JLabel();
+        label8.setText("Trailing commas:");
+        panel7.add(label8, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        trailingCommasComboBox = new JComboBox();
+        panel7.add(trailingCommasComboBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer9 = new Spacer();
+        panel7.add(spacer9, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JPanel panel8 = new JPanel();
         panel8.setLayout(new GridLayoutManager(2, 3, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane1.addTab("Updates", panel8);
-        final Spacer spacer9 = new Spacer();
-        panel8.add(spacer9, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final JLabel label8 = new JLabel();
-        label8.setText("Plugin update channel:");
-        panel8.add(label8, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer10 = new Spacer();
+        panel8.add(spacer10, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JLabel label9 = new JLabel();
+        label9.setText("Plugin update channel:");
+        panel8.add(label9, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         updateChannel = new JComboBox();
         updateChannel.setEditable(false);
         final DefaultComboBoxModel defaultComboBoxModel3 = new DefaultComboBoxModel();
@@ -711,10 +709,10 @@ public class ScalaProjectSettingsPanel {
         migratorsEnabledCheckBox = new JCheckBox();
         migratorsEnabledCheckBox.setText("Migrators enabled");
         panel10.add(migratorsEnabledCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer10 = new Spacer();
-        panel10.add(spacer10, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final Spacer spacer11 = new Spacer();
-        panel10.add(spacer11, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel10.add(spacer11, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final Spacer spacer12 = new Spacer();
+        panel10.add(spacer12, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         jarBundledInspectionsEnabledCheckBox = new JCheckBox();
         jarBundledInspectionsEnabledCheckBox.setText("Jar bundled inspections enabled");
         panel10.add(jarBundledInspectionsEnabledCheckBox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -785,6 +783,7 @@ public class ScalaProjectSettingsPanel {
     public JComponent $$$getRootComponent$$$() {
         return myPanel;
     }
+
 
     private class ScalaTestHighlightingDialog extends DialogWrapper {
 
