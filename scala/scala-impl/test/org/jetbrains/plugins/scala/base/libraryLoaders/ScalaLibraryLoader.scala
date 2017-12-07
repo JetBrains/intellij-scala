@@ -115,7 +115,7 @@ object ScalaLibraryLoader {
 
 }
 
-case class JdkLoader(jdk: Sdk = TestUtils.createJdk()) extends LibraryLoader {
+case class JdkLoader(jdk: Sdk = null) extends LibraryLoader {
 
   override def init(implicit module: Module, version: ScalaVersion): Unit = {
     val model = module.modifiableModel

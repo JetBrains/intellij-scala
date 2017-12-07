@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.template.Artifact.ScalaCompiler.versionOf
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.{DependencyManager, ScalaLoader}
-import org.junit.Assert.assertTrue
+import org.junit.Assert._
 
 import scala.collection.JavaConverters._
 
@@ -21,17 +21,20 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
 
     val deps = Seq(
       "org.scala-lang" % "scala-compiler" % version.minor,
-      "org.scala-lang" % "scala-library" % version.minor,
-      "org.scala-lang" % "scala-reflect" % version.minor
-    )
+      "org.scala-lang" % "scala-library"  % version.minor,
+      "org.scala-lang" % "scala-reflect"  % version.minor
+    ).filterNot(!includeScalaReflect && _.artId.contains("reflect"))
 
     val resolved = deps.flatMap(new DependencyManager().resolve(_))
-      .filterNot(!includeScalaReflect && _.info.artId.contains("reflect"))
 
     val srcsResolved = new DependencyManager()
       .resolve("org.scala-lang" % "scala-library" % version.minor % Types.SRC)
 
-    assertTrue(s"Failed to resolve scala sdk version $version", resolved.nonEmpty && resolved.forall(_.file.exists()))
+    assertEquals(s"Failed to resolve scala sdk version $version, result:\n${resolved.mkString("\n")}",
+      deps.size, resolved.size)
+
+    assertTrue(s"Local SDK files failed to verify for version $version:\n${resolved.mkString("\n")}",
+      resolved.nonEmpty && resolved.forall(_.file.exists()))
 
     val library = PsiTestUtil.addProjectLibrary(
       module,

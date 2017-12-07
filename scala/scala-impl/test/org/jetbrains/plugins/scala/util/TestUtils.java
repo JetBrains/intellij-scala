@@ -116,12 +116,6 @@ public class TestUtils {
     }
   }
 
-  public static Sdk createJdk() {
-    String path = DebuggerTestUtil$.MODULE$.discoverJDK18().get();
-    VfsRootAccess.allowRootAccess(path);
-    return JavaSdk.getInstance().createJdk("java sdk", path, false);
-  }
-
   public static String getScalaLibrarySrc() {
     return getIvyCachePath() + "/org.scala-lang/scala-library/srcs/scala-library-2.10.6-sources.jar";
   }

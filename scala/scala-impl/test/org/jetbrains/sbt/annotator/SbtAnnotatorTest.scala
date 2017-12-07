@@ -13,7 +13,7 @@ import com.intellij.psi.PsiManager
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.annotator.{Error, _}
-import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.language.SbtFileImpl
@@ -66,7 +66,7 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
     psifile.asInstanceOf[SbtFileImpl]
   }
 
-  override def getTestProjectJdk: Sdk = TestUtils.createJdk()
+  override def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
 
   protected def runTest(sbtVersion: String, expectedMessages: Seq[Message]): Unit = {
     setSbtVersion(sbtVersion)

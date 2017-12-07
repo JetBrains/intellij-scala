@@ -28,7 +28,7 @@ object SmartJDKLoader {
 
   object JDKVersion extends Enumeration {
     type JDKVersion = Value
-    val JDK17, JDK18, JDK19 = Value
+    val JDK16, JDK17, JDK18, JDK19 = Value
   }
 
   private val candidates = Seq(
