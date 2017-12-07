@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.base.libraryLoaders
 
 import java.io.File
 
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader.JDKVersion.JDKVersion
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader._
@@ -14,11 +14,13 @@ import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert
 
-//FIXME: case sensitive name warning
 case class SmartJDKLoader(jdkVersion: JDKVersion = JDKVersion.JDK18) extends LibraryLoader {
   override def init(implicit module: Module, version: ScalaVersion): Unit = {
-    val jdk = SmartJDKLoader.getOrCreateJDK(jdkVersion, module.getProject)
+    val jdk = SmartJDKLoader.getOrCreateJDK(jdkVersion)
     ModuleRootModificationUtil.setModuleSdk(module, jdk)
+    Disposer.register(module.getProject, () => inWriteAction {
+      JavaAwareProjectJdkTableImpl.getInstanceEx.removeJdk(jdk)
+    })
   }
 }
 
@@ -29,40 +31,33 @@ object SmartJDKLoader {
     val JDK17, JDK18, JDK19 = Value
   }
 
-  val candidates = Seq(
+  private val candidates = Seq(
     "/usr/lib/jvm",                     // linux style
     "C:\\Program Files\\Java\\",        // windows style
     "C:\\Program Files (x86)\\Java\\",  // windows 32bit style
     "/Library/Java/JavaVirtualMachines" // mac style
   )
 
-  def getOrCreateJDK(jdkVersion: JDKVersion = JDKVersion.JDK18, parentDisposable: Disposable): Sdk = {
+  def getOrCreateJDK(jdkVersion: JDKVersion = JDKVersion.JDK18): Sdk = {
     val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
     val jdkName = jdkVersion.toString
     Option(jdkTable.findJdk(jdkName)).getOrElse {
-      val pathOption = SmartJDKLoader.discoverJDK(jdkName.last.toString)
+      val pathOption = SmartJDKLoader.discoverJDK(jdkVersion)
       Assert.assertTrue(s"Couldn't find $jdkVersion", pathOption.isDefined)
       VfsRootAccess.allowRootAccess(pathOption.get)
       val jdk = JavaSdk.getInstance.createJdk(jdkName, pathOption.get, false)
-      inWriteAction {
-        jdkTable.addJdk(jdk, parentDisposable)
-      }
+      inWriteAction { jdkTable.addJdk(jdk) }
       jdk
     }
   }
 
-  def discoverJRE18(): Option[String] = discoverJre(candidates, "8")
+  private def discoverJDK(jdkVersion: JDKVersion): Option[String] = discoverJre(candidates, jdkVersion).map(new File(_).getParent)
 
-  def discoverJRE16(): Option[String] = discoverJre(candidates, "6")
-
-  def discoverJDK18(): Option[String] = discoverJRE18().map(new File(_).getParent)
-
-  def discoverJDK16(): Option[String] = discoverJRE16().map(new File(_).getParent)
-
-  def discoverJDK(versionMajor: String): Option[String] = discoverJre(candidates, versionMajor).map(new File(_).getParent)
-
-  def discoverJre(paths: Seq[String], versionMajor: String): Option[String] = {
+  private def discoverJre(paths: Seq[String], jdkVersion: JDKVersion): Option[String] = {
     import java.io._
+
+    val versionMajor = jdkVersion.toString.last.toString
+
     def isJDK(f: File) = f.listFiles().exists { b =>
       b.getName == "bin" && b.listFiles().exists(x => x.getName == "javac.exe" || x.getName == "javac")
     }

@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.template.Artifact.ScalaCompiler.versionOf
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.{DependencyManager, ScalaLoader}
+import org.junit.Assert.assertTrue
 
 import scala.collection.JavaConverters._
 
@@ -30,6 +31,8 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
     val srcsResolved = new DependencyManager()
       .resolve("org.scala-lang" % "scala-library" % version.minor % Types.SRC)
 
+    assertTrue(s"Failed to resolve scala sdk version $version", resolved.nonEmpty && resolved.forall(_.file.exists()))
+
     val library = PsiTestUtil.addProjectLibrary(
       module,
       "scala-sdk",
@@ -43,8 +46,6 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
       library.convertToScalaSdkWith(languageLevel(resolved.head.file), resolved.map(_.file))
       module.attach(library)
     }
-
-//    jdk.foreach { ModuleRootModificationUtil.setModuleSdk(module, _) }
 
     ScalaLoader.loadScala()
   }

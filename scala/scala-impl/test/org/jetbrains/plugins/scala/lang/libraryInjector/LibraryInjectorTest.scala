@@ -30,13 +30,13 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
   override implicit protected def module: Module = getModule
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
-    ScalaLibraryLoader(isIncludeReflectLibrary = true),
+    ScalaSDKLoader(includeScalaReflect = true),
     JdkLoader(getTestProjectJdk),
     SourcesLoader(project.getBasePath),
     InjectorLibraryLoader()
   )
 
-  override protected def getTestProjectJdk: Sdk = DebuggerTestUtil.findJdk8()
+  override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
 
   override def setUp(): Unit = {
     sys.props += (TEST_ENABLED_KEY -> "true")
