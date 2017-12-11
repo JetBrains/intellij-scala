@@ -5,6 +5,11 @@ import java.util
 import java.util.UUID
 import javax.swing.JComponent
 
+import scala.collection.JavaConverters._
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import scala.util.{Failure, Success}
+
 import com.intellij.build.events.impl._
 import com.intellij.build.events.{BuildEvent, MessageEvent, SuccessResult, Warning}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, events}
@@ -27,19 +32,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.shell.event._
-
-import scala.collection.JavaConverters._
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
-import scala.util.{Failure, Success}
 
 /**
   * Created by jast on 2016-11-25.
@@ -193,31 +191,27 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     // may require collecting results individually and aggregating
     val commandFuture = shell.command(command, BuildMessages.empty, resultAggregator, showShell = true)
 
+    // block thread to make indicator available :(
+    val buildMessages = Await.ready(commandFuture, Duration.Inf).value.get
+
     // build effects
-    commandFuture
-      .andThen {
-        case _ => refreshRoots(modules, indicator)
-      }
+    refreshRoots(modules, indicator)
 
     // handle callback
-    commandFuture
-      .map(messages => new ProjectTaskResult(messages.aborted, messages.errors.size, messages.warnings.size))
-      .andThen {
-        case Success(taskResult) => callbackOpt.foreach(_.finished(taskResult))
-        case Failure(_) =>
-          val failedResult = new ProjectTaskResult(true, 1, 0)
-          callbackOpt.foreach(_.finished(failedResult))
-      }
+    buildMessages match {
+      case Success(messages) =>
+        val taskResult = new ProjectTaskResult(messages.aborted, messages.errors.size, messages.warnings.size)
+        callbackOpt.foreach(_.finished(taskResult))
+      case Failure(_) =>
+        val failedResult = new ProjectTaskResult(true, 1, 0)
+        callbackOpt.foreach(_.finished(failedResult))
+    }
 
     // build state reporting
-    commandFuture
-      .andThen {
-        case Success(messages) => report.finish(messages)
-        case Failure(err) => report.finishWithFailure(err)
-      }
-
-    // block thread to make indicator available :(
-    Await.ready(commandFuture, Duration.Inf)
+    buildMessages match {
+      case Success(messages) => report.finish(messages)
+      case Failure(err) => report.finishWithFailure(err)
+    }
   }
 
 
