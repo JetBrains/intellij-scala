@@ -394,6 +394,8 @@ package object collections {
 
   def isIndexedSeq(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.IndexedSeqLike", expr)
 
+  def isNonIndexedSeq(expr: ScExpression): Boolean = isSeq(expr) && !isIndexedSeq(expr)
+
   def isMap(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenMapLike", expr)
 
   def isSortedSet(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.SortedSetLike", expr)
