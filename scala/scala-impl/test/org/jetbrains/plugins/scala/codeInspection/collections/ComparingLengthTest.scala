@@ -64,6 +64,33 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
+  def testLengthIndexedSeq(): Unit = {
+    checkTextHasNoErrors(
+      "Vector(1, 2, 3).length == 2"
+    )
+  }
+
+  def testLengthZero(): Unit = {
+    checkTextHasNoErrors(
+      "Seq(1, 2, 3).length == 0"
+    )
+    checkTextHasNoErrors(
+      "Seq(1, 2, 3).length != 0"
+    )
+    checkTextHasNoErrors(
+      "Seq(1, 2, 3).length > 0"
+    )
+    checkTextHasNoErrors(
+      "Seq(1, 2, 3).length => 0"
+    )
+    checkTextHasNoErrors(
+      "Seq(1, 2, 3).length < 0"
+    )
+    checkTextHasNoErrors(
+      "Seq(1, 2, 3).length <= 0"
+    )
+  }
+
   def testSizeEqual(): Unit = {
     doTest(
       s"Seq(1, 2, 3).${START}size == 2$END",
@@ -112,7 +139,28 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
-  def testIndexedSeq(): Unit = {
+  def testSizeZero(): Unit = {
+    checkTextHasNoErrors(
+      "Seq(1, 2, 3).size == 0"
+    )
+    checkTextHasNoErrors(
+      "Seq(1, 2, 3).size != 0"
+    )
+    checkTextHasNoErrors(
+      "Seq(1, 2, 3).size > 0"
+    )
+    checkTextHasNoErrors(
+      "Seq(1, 2, 3).size => 0"
+    )
+    checkTextHasNoErrors(
+      "Seq(1, 2, 3).size < 0"
+    )
+    checkTextHasNoErrors(
+      "Seq(1, 2, 3).size <= 0"
+    )
+  }
+
+  def testSizeIndexedSeq(): Unit = {
     checkTextHasNoErrors(
       "Vector(1, 2, 3).size == 2"
     )
