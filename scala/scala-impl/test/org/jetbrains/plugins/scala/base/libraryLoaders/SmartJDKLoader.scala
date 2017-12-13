@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.base.libraryLoaders
 
 import java.io.File
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
@@ -14,11 +15,11 @@ import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert
 
-case class SmartJDKLoader(jdkVersion: JDKVersion = JDKVersion.JDK18) extends LibraryLoader {
+case class SmartJDKLoader(jdkVersion: JDKVersion = JDKVersion.JDK18)(rootDisposable: Option[() => Disposable] = None) extends LibraryLoader {
   override def init(implicit module: Module, version: ScalaVersion): Unit = {
     val jdk = SmartJDKLoader.getOrCreateJDK(jdkVersion)
     ModuleRootModificationUtil.setModuleSdk(module, jdk)
-    Disposer.register(module.getProject, () => inWriteAction {
+    Disposer.register(rootDisposable.getOrElse(() => module.getProject)(), () => inWriteAction {
       JavaAwareProjectJdkTableImpl.getInstanceEx.removeJdk(jdk)
     })
   }

@@ -24,7 +24,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
 
   override def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaLibraryLoader(),
-    SmartJDKLoader()
+    SmartJDKLoader()(Some(getTestRootDisposable))
   )
 
   override protected def getProjectDescriptor =
