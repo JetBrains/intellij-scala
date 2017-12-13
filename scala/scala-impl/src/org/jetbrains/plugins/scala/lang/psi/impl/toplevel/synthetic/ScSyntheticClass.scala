@@ -36,14 +36,14 @@ import scala.collection.{Seq, mutable}
 abstract class SyntheticNamedElement(name: String)
                                     (implicit projectContext: ProjectContext)
   extends LightElement(projectContext, ScalaLanguage.INSTANCE) with PsiNameIdentifierOwner {
-  override def getName: String = name
+  override def getName = name
   override def getText = ""
   def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
   override def copy = throw new IncorrectOperationException("nonphysical element")
   override def accept(v: PsiElementVisitor) {
     throw new IncorrectOperationException("should not call")
   }
-  override def getContainingFile: PsiFile = SyntheticClasses.get(projectContext).file
+  override def getContainingFile = SyntheticClasses.get(projectContext).file
 
   def nameId: PsiElement = null
   override def getNameIdentifier: PsiIdentifier = null
@@ -60,7 +60,7 @@ class ScSyntheticTypeParameter(override val name: String, val owner: ScFun)
 
   def getContainingFileName: String = "NoFile"
 
-  override def toString: String = "Synthetic type parameter: " + name
+  override def toString = "Synthetic type parameter: " + name
 
   def isCovariant = false
   def isContravariant = false
@@ -69,8 +69,8 @@ class ScSyntheticTypeParameter(override val name: String, val owner: ScFun)
 
   def upperBound = Right(Any)
 
-  def getIndex: Int = -1
-  def getOwner: Null = null
+  def getIndex = -1
+  def getOwner = null
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     findChildrenByClass[T](clazz)
@@ -88,7 +88,7 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
   extends SyntheticNamedElement(className) with PsiClassAdapter with PsiClassFake {
   override def getPresentation: ItemPresentation = {
     new ItemPresentation {
-      val This: ScSyntheticClass = ScSyntheticClass.this
+      val This = ScSyntheticClass.this
       def getLocationString: String = "(scala)"
 
       def getTextAttributesKey: TextAttributesKey = null
@@ -103,15 +103,15 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
 
   override def toString = "Synthetic class"
 
-  def syntheticMethods(scope: GlobalSearchScope): List[ScSyntheticFunction] = methods.values.flatten.toList ++
+  def syntheticMethods(scope: GlobalSearchScope) = methods.values.flatMap(s => s).toList ++
           specialMethods.values.flatMap(s => s.map(_(scope))).toList
 
   protected object methods extends mutable.HashMap[String, mutable.Set[ScSyntheticFunction]] with mutable.MultiMap[String, ScSyntheticFunction]
   protected object specialMethods extends mutable.HashMap[String, mutable.Set[GlobalSearchScope => ScSyntheticFunction]] with
           mutable.MultiMap[String, GlobalSearchScope => ScSyntheticFunction]
 
-  def addMethod(method: ScSyntheticFunction): methods.type = methods.addBinding(method.name, method)
-  def addMethod(method: GlobalSearchScope => ScSyntheticFunction, methodName: String): specialMethods.type = specialMethods.addBinding(methodName, method)
+  def addMethod(method: ScSyntheticFunction) = methods.addBinding(method.name, method)
+  def addMethod(method: GlobalSearchScope => ScSyntheticFunction, methodName: String) = specialMethods.addBinding(methodName, method)
 
   import com.intellij.psi.scope.PsiScopeProcessor
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -170,9 +170,9 @@ class ScSyntheticFunction(val name: String, val retType: ScType, val paramClause
 
   val typeParams: Seq[ScSyntheticTypeParameter] =
     typeParameterNames.map { name => new ScSyntheticTypeParameter(name, this) }
-  override def typeParameters: Seq[ScSyntheticTypeParameter] = typeParams
+  override def typeParameters = typeParams
 
-  override def getIcon(flags: Int): Icon = icons.Icons.FUNCTION
+  override def getIcon(flags: Int) = icons.Icons.FUNCTION
 
   override def toString = "Synthetic method"
 
@@ -216,11 +216,13 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   override def initComponent(): Unit = {}
 
   override def projectClosed(): Unit = {
-    if (scriptSyntheticValues != null) scriptSyntheticValues.clear()
-    if (all != null) all.clear()
-    if (numeric != null) numeric.clear()
-    if (integer != null) integer.clear()
-    if (syntheticObjects != null) syntheticObjects.clear()
+    if (classesInitialized) {
+      scriptSyntheticValues.clear()
+      all.clear()
+      numeric.clear()
+      integer.clear()
+      syntheticObjects.clear()
+    }
 
     stringPlusMethod = null
     scriptSyntheticValues = null
@@ -231,7 +233,9 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     file = null
   }
 
+  @volatile
   private var classesInitialized: Boolean = false
+
   def isClassesRegistered: Boolean = classesInitialized
 
   var stringPlusMethod: ScType => ScSyntheticFunction = _
@@ -468,7 +472,7 @@ object Unit
     classesInitialized = true
   }
 
-  def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass): ValType = {
+  def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass) = {
     val stdTypes = ic1.projectContext.stdTypes
     import stdTypes._
 
@@ -480,29 +484,28 @@ object Unit
     }
   }
 
-  def registerClass(t: StdType, name: String): ScSyntheticClass {
-    def getQualifiedName: String
-  } = {
+  def registerClass(t: StdType, name: String) = {
     val clazz = new ScSyntheticClass(name, t) {
-      override def getQualifiedName: String = "scala." + name
+      override def getQualifiedName = "scala." + name
     }
+
     all += ((name, clazz)); clazz
   }
 
-  def registerIntegerClass(clazz : ScSyntheticClass): ScSyntheticClass = {integer += clazz; clazz}
-  def registerNumericClass(clazz : ScSyntheticClass): ScSyntheticClass = {numeric += clazz; clazz}
+  def registerIntegerClass(clazz : ScSyntheticClass) = {integer += clazz; clazz}
+  def registerNumericClass(clazz : ScSyntheticClass) = {numeric += clazz; clazz}
 
 
   def getAll: Iterable[ScSyntheticClass] = all.values
 
-  def byName(name: String): Option[ScSyntheticClass] = all.get(name)
+  def byName(name: String) = all.get(name)
 
-  val numeric_comp_ops: List[String] = "==" :: "!=" :: "<" :: ">" :: "<=" :: ">=" :: Nil
-  val numeric_arith_ops: List[String] = "+" :: "-" :: "*" :: "/" :: "%" :: Nil
-  val numeric_arith_unary_ops: List[String] = "+" :: "-" :: Nil
-  val bool_bin_ops: List[String] = "&&" :: "||" :: "&" :: "|" :: "==" :: "!=" :: "^" :: Nil
-  val bitwise_bin_ops: List[String] = "&" :: "|" :: "^" :: Nil
-  val bitwise_shift_ops: List[String] = "<<" :: ">>" :: ">>>" :: Nil
+  val numeric_comp_ops = "==" :: "!=" :: "<" :: ">" :: "<=" :: ">=" :: Nil
+  val numeric_arith_ops = "+" :: "-" :: "*" :: "/" :: "%" :: Nil
+  val numeric_arith_unary_ops = "+" :: "-" :: Nil
+  val bool_bin_ops = "&&" :: "||" :: "&" :: "|" :: "==" :: "!=" :: "^" :: Nil
+  val bitwise_bin_ops = "&" :: "|" :: "^" :: Nil
+  val bitwise_shift_ops = "<<" :: ">>" :: ">>>" :: Nil
 
   val prefix = "scala."
   def findClass(qName: String, scope: GlobalSearchScope): PsiClass = {
@@ -528,7 +531,7 @@ object Unit
     res.toArray
   }
 
-  override def getClasses(p : PsiPackage, scope : GlobalSearchScope): Array[PsiClass] = findClasses(p.getQualifiedName, scope)
+  override def getClasses(p : PsiPackage, scope : GlobalSearchScope) = findClasses(p.getQualifiedName, scope)
 
   def getScriptSyntheticValues: Seq[ScSyntheticValue] = scriptSyntheticValues.toSeq
 }
