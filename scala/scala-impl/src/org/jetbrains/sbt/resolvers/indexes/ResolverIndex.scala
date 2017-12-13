@@ -13,22 +13,18 @@ import org.jetbrains.sbt.resolvers.ArtifactInfo
   * @since 26.07.16
   */
 trait ResolverIndex {
-  def searchGroup(artifactId: String = "")
-                 (implicit project: ProjectContext): Set[String]
+  def searchGroup(artifactId: String = ""): Set[String]
 
-  def searchArtifact(groupId: String = "")
-                    (implicit project: ProjectContext): Set[String]
+  def searchArtifact(groupId: String = ""): Set[String]
 
-  def searchVersion(groupId: String, artifactId: String)
-                   (implicit project: ProjectContext): Set[String]
+  def searchVersion(groupId: String, artifactId: String): Set[String]
 
   def searchArtifactInfo(fqName: String)
                         (implicit project: ProjectContext): Set[ArtifactInfo]
 
-  def doUpdate(progressIndicator: Option[ProgressIndicator] = None)
-              (implicit project: ProjectContext): Unit
+  def doUpdate(progressIndicator: Option[ProgressIndicator] = None): Unit
 
-  def getUpdateTimeStamp(implicit project: ProjectContext): Long
+  def getUpdateTimeStamp: Long
 
   def close(): Unit
 }
