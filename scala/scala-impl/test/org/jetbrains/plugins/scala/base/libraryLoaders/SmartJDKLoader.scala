@@ -15,12 +15,6 @@ import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert
 
-class JDK18Loader(rootDisposable: Option[() => Disposable] = None) extends SmartJDKLoader(JDKVersion.JDK18)(rootDisposable)
-
-object JDK18Loader {
-  def apply(rootDisposable: Option[() => Disposable] = None): JDK18Loader = new JDK18Loader(rootDisposable)
-}
-
 case class SmartJDKLoader(jdkVersion: JDKVersion = JDKVersion.JDK18)(rootDisposable: Option[() => Disposable] = None) extends LibraryLoader {
   override def init(implicit module: Module, version: ScalaVersion): Unit = {
     val jdk = SmartJDKLoader.getOrCreateJDK(jdkVersion)

@@ -31,7 +31,7 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaSDKLoader(includeScalaReflect = true),
-    JDK18Loader(Option(()=>getTestRootDisposable)),
+    SmartJDKLoader(),
     SourcesLoader(project.getBasePath),
     InjectorLibraryLoader()
   )

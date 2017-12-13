@@ -4,7 +4,7 @@ package base
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{JDK18Loader, LibraryLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaLibraryLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
 import org.jetbrains.plugins.scala.util.TestUtils
 
@@ -24,7 +24,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
 
   override def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaLibraryLoader(),
-    JDK18Loader(Some(()=>getTestRootDisposable))
+    SmartJDKLoader()(Some(getTestRootDisposable))
   )
 
   override protected def getProjectDescriptor =
