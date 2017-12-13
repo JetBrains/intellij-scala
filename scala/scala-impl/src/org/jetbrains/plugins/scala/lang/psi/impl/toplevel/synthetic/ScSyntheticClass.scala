@@ -216,11 +216,13 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   override def initComponent(): Unit = {}
 
   override def projectClosed(): Unit = {
-    scriptSyntheticValues.clear()
-    all.clear()
-    numeric.clear()
-    integer.clear()
-    syntheticObjects.clear()
+    if (classesInitialized) {
+      scriptSyntheticValues.clear()
+      all.clear()
+      numeric.clear()
+      integer.clear()
+      syntheticObjects.clear()
+    }
 
     stringPlusMethod = null
     scriptSyntheticValues = null
@@ -231,7 +233,9 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     file = null
   }
 
+  @volatile
   private var classesInitialized: Boolean = false
+
   def isClassesRegistered: Boolean = classesInitialized
 
   var stringPlusMethod: ScType => ScSyntheticFunction = _
