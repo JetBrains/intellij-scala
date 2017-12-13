@@ -44,6 +44,11 @@ class MemoryLeakTest extends PlatformTestCase {
 
   override protected def setUpProject(): Unit = {}
 
+  override def tearDown(): Unit = {
+
+    super.tearDown()
+  }
+
   private def loadAndSetupProject(): Project = {
     implicit val project: Project = ProjectManager.getInstance.loadAndOpenProject(projectPath.toString)
     assertNotNull(project)
@@ -79,7 +84,7 @@ class MemoryLeakTest extends PlatformTestCase {
   private def librariesLoaders(implicit project: ProjectContext): Seq[LibraryLoader] = {
     Seq(
       ScalaSDKLoader(),
-      SmartJDKLoader()
+      MockJDKLoader()
     )
   }
 
