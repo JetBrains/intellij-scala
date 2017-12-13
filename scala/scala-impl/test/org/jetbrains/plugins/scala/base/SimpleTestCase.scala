@@ -37,10 +37,10 @@ abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
     super.tearDown()
   }
 
-  def parseText(@Language("Scala") s: String): ScalaFile = {
+  def parseText(@Language("Scala") s: String, enableEventSystem: Boolean = false): ScalaFile = {
     PsiFileFactory.getInstance(fixture.getProject)
-      .createFileFromText("foo.scala", ScalaFileType.INSTANCE, s)
-            .asInstanceOf[ScalaFile]
+      .createFileFromText("foo.scala", ScalaFileType.INSTANCE, s, System.currentTimeMillis(), enableEventSystem)
+      .asInstanceOf[ScalaFile]
   }
 
   def parseText(@Language("Scala") s: String, caretMarker: String): (ScalaFile, Int) = {
@@ -73,6 +73,8 @@ abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
               .replaceAll("""(?m)//.*$""", "")
 
     def parse: ScalaFile = parseText(s)
+
+    def parseWithEventSystem: ScalaFile = parseText(s, enableEventSystem = true)
 
     def parse[T <: PsiElement: ClassTag]: T =
       parse.depthFirst().findByType[T].getOrElse {

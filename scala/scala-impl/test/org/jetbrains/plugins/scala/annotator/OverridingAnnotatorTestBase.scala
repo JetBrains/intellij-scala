@@ -18,7 +18,7 @@ trait OverridingAnnotatorTestBase extends SimpleTestCase{
 
   def messages(code: String): List[Message] = {
     val annotator = new OverridingAnnotator() {}
-    val file = (Header + code).parse
+    val file = (Header + code).parseWithEventSystem
 
     val mock = new AnnotatorHolderMock(file)
 
