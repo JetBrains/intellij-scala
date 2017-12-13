@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.memoryLeaks
 
 import java.nio.file.Paths
 
-import scala.collection.JavaConverters._
 import com.intellij.codeInspection.ex.{InspectionProfileImpl, InspectionToolWrapper, LocalInspectionToolWrapper}
 import com.intellij.codeInspection.{InspectionManager, InspectionProfile}
 import com.intellij.execution.RunnerAndConfigurationSettings
@@ -31,6 +30,8 @@ import org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath
 import org.jetbrains.plugins.scala.{ScalaLanguage, SlowTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
+
+import scala.collection.JavaConverters._
 
 /**
   * @author Nikolay.Tropin
@@ -79,7 +80,7 @@ class MemoryLeakTest extends PlatformTestCase {
   private def librariesLoaders(implicit project: ProjectContext): Seq[LibraryLoader] = {
     Seq(
       ScalaSDKLoader(),
-      SmartJDKLoader()
+      JDK18Loader(Option(()=>getTestRootDisposable))
     )
   }
 
