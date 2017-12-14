@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
+import org.jetbrains.plugins.scala.DependencyManager._
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.base.libraryLoaders.{PostgresLoader, ThirdPartyLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.junit.experimental.categories.Category
 
 /**
@@ -12,8 +13,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class Postgres extends FailedResolveTest("postgresql") {
 
-  override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] =
-    Seq(PostgresLoader())
+  override protected def additionalLibraries(): Seq[LibraryLoader] =
+    IvyManagedLoader("com.wda.sdbc" % "postgresql_2.11" % "0.5") :: Nil
 
   def testSCL8556(): Unit = doTest()
 }

@@ -88,7 +88,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
     SourcesLoader(getSourceRootDir.getCanonicalPath)
   ) ++ additionalLibraries
 
-  protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = Seq.empty
+  protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 
   override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
 
