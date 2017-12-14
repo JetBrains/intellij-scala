@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package base
 
 import com.intellij.testFramework.fixtures.{CodeInsightFixtureTestCase, CodeInsightTestFixture}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
 
 /**
@@ -18,7 +18,7 @@ abstract class ScalaFixtureTestCase
   override def getFixture: CodeInsightTestFixture = myFixture
 
   override def librariesLoaders: Seq[LibraryLoader] = Seq(
-    ScalaLibraryLoader(includeReflectLibrary),
+    ScalaSDKLoader(includeReflectLibrary),
     HeavyJDKLoader()
   )
 

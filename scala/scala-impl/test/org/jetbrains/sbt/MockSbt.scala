@@ -1,7 +1,6 @@
 package org.jetbrains.sbt
 
 import org.jetbrains.plugins.scala.DependencyManager._
-import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader.{ScalaCompilerLoader, ScalaReflectLoader, ScalaRuntimeLoader}
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.debugger._
 
@@ -12,8 +11,6 @@ import org.jetbrains.plugins.scala.debugger._
 trait MockSbtBase extends ScalaSdkOwner {
 
   implicit val sbtVersion: String
-
-  protected def scalaLoaders = Seq(ScalaCompilerLoader(), ScalaRuntimeLoader(), ScalaReflectLoader())
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), IvyManagedLoader(
     "org.scala-lang" % "scala-compiler" % version.minor,
