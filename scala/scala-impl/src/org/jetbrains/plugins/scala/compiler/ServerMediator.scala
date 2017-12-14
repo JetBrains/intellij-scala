@@ -7,12 +7,11 @@ import com.intellij.openapi.compiler.{CompileTask, CompilerManager}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.CompilerModuleExtension
+import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
 import com.intellij.openapi.ui.Messages
+import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * Pavel Fatin
@@ -73,50 +72,60 @@ class ServerMediator(project: Project) extends AbstractProjectComponent(project)
       val test = extension.getCompilerOutputUrlForTests
       production == test
     }
+
+    def maySplitSilently(module: Module): Boolean = {
+      val rootManager = ModuleRootManager.getInstance(module)
+      val sourceRoots = rootManager.getSourceRoots(JavaSourceRootType.SOURCE)
+      val testRoots = rootManager.getSourceRoots(JavaSourceRootType.TEST_SOURCE)
+      sourceRoots.isEmpty || testRoots.isEmpty
+    }
+
+    def splitOutputs(module: Module): Unit = {
+      val model = module.modifiableModel
+      val extension = model.getModuleExtension(classOf[CompilerModuleExtension])
+
+      val outputUrlParts = extension.getCompilerOutputUrl match {
+        case null => Seq.empty
+        case url => url.split("/").toSeq
+      }
+      val nameForTests = if (outputUrlParts.lastOption.contains("classes")) "test-classes" else "test"
+
+      extension.inheritCompilerOutputPath(false)
+      extension.setCompilerOutputPathForTests((outputUrlParts.dropRight(1) :+ nameForTests).mkString("/"))
+
+      model.commit()
+    }
+
+    def showSplitDialog(modulesWithClashes: Seq[Module]) = {
+      Messages.showYesNoDialog(project,
+        "Production and test output paths are shared in: " + modulesWithClashes.map(_.getName).mkString(" "),
+        "Shared compile output paths in Scala module(s)",
+        "Split output path(s) automatically", "Cancel compilation", Messages.getErrorIcon)
+    }
+
     val modulesWithClashes = ModuleManager.getInstance(project).getModules.toSeq.filter(hasClashes)
 
-    var result = true
+    var mayProceedWithCompilation = true
 
     if (modulesWithClashes.nonEmpty) {
-      invokeAndWait {
-        val choice =
-          if (!ApplicationManager.getApplication.isUnitTestMode) {
-            Messages.showYesNoDialog(project,
-              "Production and test output paths are shared in: " + modulesWithClashes.map(_.getName).mkString(" "),
-              "Shared compile output paths in Scala module(s)",
-              "Split output path(s) automatically", "Cancel compilation", Messages.getErrorIcon)
-          }
-          else Messages.YES
+      val splitSilently = ApplicationManager.getApplication.isUnitTestMode ||
+        modulesWithClashes.forall(maySplitSilently)
 
-        val splitAutomatically = choice == Messages.YES
+      invokeAndWait {
+        val splitAutomatically = splitSilently || showSplitDialog(modulesWithClashes) == Messages.YES
 
         if (splitAutomatically) {
           inWriteAction {
-            modulesWithClashes.map(_.modifiableModel)
-              .foreach { model =>
-              val extension = model.getModuleExtension(classOf[CompilerModuleExtension])
-
-              val outputUrlParts = extension.getCompilerOutputUrl match {
-                case null => Seq.empty
-                case url => url.split("/").toSeq
-              }
-              val nameForTests = if (outputUrlParts.lastOption.contains("classes")) "test-classes" else "test"
-
-              extension.inheritCompilerOutputPath(false)
-              extension.setCompilerOutputPathForTests((outputUrlParts.dropRight(1) :+ nameForTests).mkString("/"))
-
-              model.commit()
-            }
-
+            modulesWithClashes.foreach(splitOutputs)
             project.save()
           }
         }
 
-        result = splitAutomatically
+        mayProceedWithCompilation = splitAutomatically
       }
     }
 
-    result
+    mayProceedWithCompilation
   }
 
   override def getComponentName: String = getClass.getSimpleName

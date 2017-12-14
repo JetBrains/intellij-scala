@@ -474,6 +474,20 @@ package object extensions {
     def processPsiMethodsForNode(node: SignatureNodes.Node, isStatic: Boolean, isInterface: Boolean)
                                 (processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit = {
 
+      //search for a class to place implementation of trait's method
+      def concreteForTrait(t: ScTrait): Option[PsiClass] = {
+        val fromLessConcrete =
+          MixinNodes.linearization(clazz)
+            .flatMap(_.extractClass)
+            .reverse
+
+        val index = fromLessConcrete.indexOf(t)
+        fromLessConcrete
+          .drop(index + 1)
+          .filterNot(_.isInterface)
+          .headOption
+      }
+
       def concreteClassFor(typedDef: ScTypedDefinition): Option[PsiClass] = {
         if (typedDef.isAbstractMember) return None
         clazz match {
@@ -485,16 +499,10 @@ package object extensions {
         ScalaPsiUtil.nameContext(typedDef) match {
           case m: ScMember =>
             m.containingClass match {
-              case t: ScTrait if isStatic =>
-                val linearization = MixinNodes.linearization(clazz)
-                  .flatMap(_.extractClass)
-                var index = linearization.indexWhere(_ == t)
-                while (index >= 0) {
-                  val cl = linearization(index)
-                  if (!cl.isInterface) return Some(cl)
-                  index -= 1
-                }
-                Some(clazz)
+              case _: ScTrait if isStatic =>
+                Some(clazz) //companion object extends some trait, static method generated in a companion class
+              case t: ScTrait =>
+                concreteForTrait(t)
               case _ => None
             }
           case _ => None
