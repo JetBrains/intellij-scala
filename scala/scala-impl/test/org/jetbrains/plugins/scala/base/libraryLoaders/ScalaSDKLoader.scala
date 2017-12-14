@@ -38,7 +38,7 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
 
     val library = PsiTestUtil.addProjectLibrary(
       module,
-      "scala-sdk",
+      s"scala-sdk-${version.minor}",
       resolved.map(_.toJarVFile).asJava,
       srcsResolved.map(_.toJarVFile).asJava
     )
