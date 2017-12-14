@@ -20,5 +20,6 @@ trait Specs2_2_12_4_0_0_Base extends Specs2TestCase {
       "org.specs2" %% "specs2-common" % specsVersion,
       "org.specs2" %% "specs2-matcher" % specsVersion,
       "org.specs2" %% "specs2-fp" % specsVersion,
-    ) :: Nil
+      "org.scala-lang.modules" %% "scala-xml" % "1.0.6"
+  ) :: Nil
 }
