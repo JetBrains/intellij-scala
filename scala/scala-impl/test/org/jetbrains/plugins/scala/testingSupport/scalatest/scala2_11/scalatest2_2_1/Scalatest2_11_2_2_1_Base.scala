@@ -11,6 +11,9 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 abstract class Scalatest2_11_2_2_1_Base extends ScalaTestTestCase {
 
   override protected def additionalLibraries: Seq[LibraryLoader] =
-    IvyManagedLoader("org.scalatest" %% "scalatest" % "2.2.1") :: Nil
+    IvyManagedLoader(
+      "org.scalatest" %% "scalatest" % "2.2.1",
+      "org.scala-lang.modules" %% "scala-xml" % "1.0.6"
+    ) :: Nil
 
 }
