@@ -60,7 +60,7 @@ class DependencyManager(val deps: Dependency*) {
     ivySettings.addResolver(chres)
     ivySettings.setDefaultResolver("default")
     ivySettings.setDefaultIvyUserDir(ivyHome)
-    val ivy: Ivy = Ivy.newInstance(ivySettings).
+    val ivy: Ivy = Ivy.newInstance(ivySettings)
     val ivyFile = File.createTempFile("ivy", ".xml")
     ivyFile.deleteOnExit()
     Files.write(Paths.get(ivyFile.toURI), mkIvyXml(d).getBytes)
