@@ -6,8 +6,6 @@ import org.junit.Assert._
 
 abstract class MetaAnnotationUndoExpansionTestBase extends MetaAnnotationTestBase {
 
-  import MetaAnnotationTestBase._
-
   protected def checkUndo(annotationText: String, testFileText: String): Unit = {
     compileMetaSource(mkAnnot(annotName, annotationText))
     val trimmed = normalize(testFileText)

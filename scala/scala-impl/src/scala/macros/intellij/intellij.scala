@@ -15,33 +15,12 @@ import scala.meta.intellij.IdeaUtil
 package object intellij {
 
   implicit class ModuleExt(val module: Module) extends AnyVal {
-    def hasMacros2: Boolean = {
-      OrderEnumerator.orderEntries(module).forEachLibrary(new Processor[Library] {
-        override def process(t: Library): Boolean = {
-          true
-        }
-      })
-      false
-    }
+    def hasMacros2: Boolean = false
   }
-
 
   object psiExt {
-
     implicit class AnnotExt(val annotation: ScAnnotation) extends AnyVal {
-      def isMacro2: Boolean = {
-        def isApplyMacro(m: ScMember) = m.isInstanceOf[ScMacroDefinition] && m.getName == "apply"
-
-        IdeaUtil.safeAnnotationResolve(annotation).exists {
-          case ScalaResolveResult(c: ScPrimaryConstructor, _) =>
-            c.containingClass.members.exists(isApplyMacro)
-          case ScalaResolveResult(o: ScTypeDefinition, _) =>
-            o.members.exists(isApplyMacro)
-          case _ => false
-        }
-      }
+      def isMacro2: Boolean = false
     }
-
   }
-
 }

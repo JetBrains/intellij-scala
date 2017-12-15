@@ -1,121 +1,83 @@
 package scala.meta.annotations
 
 import java.io.File
+import java.util.Collections
 
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-import scala.meta.ScalaMetaLibrariesOwner.MetaBaseLoader
-import scala.meta.{Compilable, ScalaMetaLibrariesOwner}
-
-import com.intellij.ProjectTopics
-import com.intellij.compiler.server.BuildManager
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.markup.GutterIconRenderer
-import com.intellij.openapi.module.{JavaModuleType, Module}
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
-import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader}
-import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil.findJdk8
-import org.jetbrains.plugins.scala.debugger.{CompilationCache, ScalaVersion}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
+import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
+import org.jetbrains.plugins.scala.DependencyManager
+import org.jetbrains.plugins.scala.DependencyManager._
+import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
+import org.jetbrains.plugins.scala.debugger.CompilationCache
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 import org.junit.Assert.fail
 
-abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaLibrariesOwner with Compilable {
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.meta.ScalaMetaTestBase
+import scala.meta.intellij.MetaExpansionsManager.{META_MINOR_VERSION, PARADISE_VERSION}
 
-  import MetaAnnotationTestBase._
+abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaTestBase {
 
-  override implicit def project: Project = getProject
-  override implicit protected def module: Module = metaModule
-  var metaModule: Module = _
-  override def rootProject = getProject
-  override def rootModule = myModule
-
-  private lazy val metaDirectory = inWriteAction {
-    val baseDir = project.getBaseDir
-    baseDir.findChild("meta") match {
-      case null => baseDir.createChildDirectory(null, "meta")
-      case directory => directory
-    }
-  }
-
+  override implicit protected def module: Module = myModule
   override protected def getTestDataPath: String = TestUtils.getTestDataPath + "/scalameta"
+  protected var compiler: CompilerTester = _
 
-  override def librariesLoaders: Seq[LibraryLoader] =
-    Seq(
-      JdkLoader(findJdk8()),
-      ScalaLibraryLoader(isIncludeReflectLibrary = true)
-    ) ++ additionalLibraries
 
   override def setUp(): Unit = {
     super.setUp()
-
-    project.getMessageBus
-      .connect(getTestRootDisposable)
-      .subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
-        override def rootsChanged(event: ModuleRootEvent) {
-          BuildManager.getInstance.clearState(project)
-        }
-      })
-
-    metaModule = PsiTestUtil.addModule(project, JavaModuleType.getModuleType, "meta", metaDirectory)
-    addRoots(metaModule)
-    addRoots(myModule)
     setUpLibraries()
-
-    inWriteAction {
-      val modifiableRootModel = myModule.modifiableModel
-      modifiableRootModel.addModuleOrderEntry(metaModule)
-      modifiableRootModel.commit()
-    }
+    PsiTestUtil.addSourceRoot(module, myFixture.getTempDirFixture.findOrCreateDir("test"), true)
+    compiler = new CompilerTester(project, Collections.singletonList(module))
   }
 
   override def tearDown(): Unit = try {
     disposeLibraries()
-
-    inWriteAction {
-      val jdkTable = ProjectJdkTable.getInstance()
-      jdkTable.getAllJdks.foreach(jdkTable.removeJdk)
-    }
+    compiler.tearDown()
+    CompileServerLauncher.instance.stop()
   } finally {
-    metaModule = null
+    compiler = null
     super.tearDown()
   }
 
-  protected def compileMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): List[String] = {
+  protected def compileMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): Unit = {
     addMetaSource(source)
-    val cache = new CompilationCache(metaModule, Seq(version.minor, ScalaMetaLibrariesOwner.metaVersion))
-    cache.withModuleOutputCache(List[String]()) {
-      setUpCompiler
+    val cache = new CompilationCache(myModule, Seq(version.minor, META_MINOR_VERSION))
+    val errors = cache.withModuleOutputCache(Iterable[String]()) {
       enableParadisePlugin()
-      runMake()
+      compiler.make()
+        .asScala
+        .filter(_.getCategory == CompilerMessageCategory.ERROR)
+        .map(_.getMessage)
     }
+    Assert.assertTrue(s"Failed to compile annotation:\n ${errors.mkString("\n")}", errors.isEmpty)
   }
 
-  protected def compileAnnotBody(body: String) = compileMetaSource(mkAnnot(annotName, body))
+  protected def compileAnnotBody(body: String): Unit = compileMetaSource(mkAnnot(annotName, body))
 
   protected def addMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): Unit = {
-    VfsTestUtil.createFile(metaDirectory, "meta.scala", source)
+    myFixture.addFileToProject("src/meta.scala", source)
   }
 
   protected def enableParadisePlugin(): Unit = {
+    val pluginArtifact = new DependencyManager().resolve("org.scalameta" % s"paradise_${version.minor}" % PARADISE_VERSION)
     val profile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
     val settings = profile.getSettings
-    val path = MetaParadiseLoader().path
-    assert(new File(path).exists(), "Paradise plugin not found, aborting compilation")
-    settings.plugins :+= path
+    assert(pluginArtifact.nonEmpty, "Paradise plugin not found, aborting compilation")
+    settings.plugins :+= pluginArtifact.head.file.getCanonicalPath
     profile.setSettings(settings)
   }
 
@@ -155,6 +117,17 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 
   protected def createFile(text: String): Unit = myFixture.configureByText(s"$testClassName.scala", text)
 
+  def mkAnnot(name: String, body: String): String = {
+    s"""
+       |import scala.meta._
+       |class $name extends scala.annotation.StaticAnnotation {
+       |  inline def apply(defn: Any): Any = meta {
+       |    $body
+       |  }
+       |}
+     """.stripMargin
+  }
+
   // because getElementAtCaret from fixture forces resolve and we don't want that
   protected def elementAtCaret = PsiTreeUtil.getParentOfType(myFixture.getFile.findElementAt(myFixture.getCaretOffset-1), classOf[ScalaPsiElement])
   protected def refAtCaret = elementAtCaret match {
@@ -168,32 +141,5 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     .headOption
     .getOrElse{Assert.fail(s"Class $testClassName not found"); throw new RuntimeException}
   protected val tq = "\"\"\""
-}
-
-object MetaAnnotationTestBase {
-
-  private case class MetaParadiseLoader() extends MetaBaseLoader {
-    override val name: String = "paradise"
-    override val version: String = "3.0.0-M10" // FIXME version from buildinfo
-
-    override protected def folder(implicit version: ScalaVersion): String =
-      s"${name}_${version.minor}"
-
-    override def path(implicit version: ScalaVersion): String = super.path
-
-    override def init(implicit module: Module, version: ScalaVersion): Unit = {}
-  }
-
-  def mkAnnot(name: String, body: String): String = {
-    s"""
-       |import scala.meta._
-       |class $name extends scala.annotation.StaticAnnotation {
-       |  inline def apply(defn: Any): Any = meta {
-       |    $body
-       |  }
-       |}
-     """.stripMargin
-  }
-
 
 }

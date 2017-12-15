@@ -5,7 +5,7 @@ package scala.meta.quasiquotes
   * @since 28.10.16.
   */
 class StatUnapplyTest extends QuasiQuoteTypeInferenceTestBase {
-  def testTraitUnapply() = doTest(
+  def testTraitUnapply(): Unit = doTest(
     s"""
        |val q"$$_ trait $$tname[..$$tparams] { ..$$stats }" = q"sealed trait Foo[A,B] { val x = 42 }"
        |$START(tname, tparams, stats)$END
