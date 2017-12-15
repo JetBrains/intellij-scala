@@ -5,6 +5,8 @@ import _root_.java.io.File
 import _root_.org.jetbrains.plugins.scala.util.TestUtils
 import _root_.org.jetbrains.sbt._
 import _root_.org.jetbrains.sbt.settings.SbtSystemSettings
+import _root_.org.jetbrains.plugins.scala.DependencyManager
+import _root_.org.jetbrains.plugins.scala.DependencyManager._
 import com.intellij.openapi.project.Project
 import plugins.scala.buildinfo.BuildInfo
 
@@ -21,7 +23,7 @@ object SbtStructureSetup {
     val sbtVersion = "0.13.16" // hardcode latest version of sbt 0.13, still need to make test 1.0-capable
     val launcherVersion: String = BuildInfo.sbtLatestVersion
     val sbtStructureVersion = BuildInfo.sbtStructureVersion
-    val customSbtLauncher = IvyCacheDir / "org.scala-sbt" / "sbt-launch" / "jars" / s"sbt-launch-$launcherVersion.jar"
+    val customSbtLauncher = DependencyManager().resolve("org.scala-sbt"  % "sbt-launch" % launcherVersion).head.file
     val customSbtStructure = IvyCacheDir / "scala_2.10" / "sbt_0.13" / "org.jetbrains" / "sbt-structure-extractor" / "jars" / s"sbt-structure-extractor-$sbtStructureVersion.jar"
 
     assert(customSbtLauncher.isFile, s"sbt launcher not found at $customSbtLauncher")

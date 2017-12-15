@@ -69,7 +69,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     public Seq<LibraryLoader> librariesLoaders() {
         ArrayList<LibraryLoader> back = new ArrayList<>();
 
-        ScalaLibraryLoader scalaLoader = new ScalaLibraryLoader(isIncludeReflectLibrary());
+        ScalaSDKLoader scalaLoader = new ScalaSDKLoader(isIncludeReflectLibrary());
         back.add(scalaLoader);
 
         String path = rootPath();

@@ -1,25 +1,32 @@
 package org.jetbrains.plugins.scala.lang.macros
 
+import com.intellij.openapi.module.Module
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyLibraryLoaderAdapter, ThirdPartyLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.DependencyManager
 import org.junit.Assert._
 
 class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+  import DependencyManager._
 
   override implicit val version: ScalaVersion = Scala_2_12
+  implicit def mainModule: Module = module()
 
-  override protected def additionalLibraries(): Seq[ThirdPartyLibraryLoader] = {
-    import MonocleLensesTest._
+  private val (monocleOrg, monocleVer) = ("com.github.julien-truffaut", "1.4.0")
 
-    Seq(MonocleCoreLoader(), MonocleMacroLoader(), MonocleGeneric())
-  }
+  override protected def additionalLibraries(): Seq[LibraryLoader] =
+    IvyManagedLoader(
+      monocleOrg %% "monocle-core"    % monocleVer,
+      monocleOrg %% "monocle-macro"   % monocleVer,
+      monocleOrg %% "monocle-generic" % monocleVer
+    ) :: Nil
 
   protected def folderPath: String = TestUtils.getTestDataPath
 
@@ -96,25 +103,4 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
     doTest(fileText, "s", "monocle.Lens[Main.A, Main.A.B]")
   }
-}
-
-object MonocleLensesTest {
-
-  private abstract class MonocleBaseLoader extends IvyLibraryLoaderAdapter {
-    override val version: String = "1.4.0"
-    override val vendor: String = "com.github.julien-truffaut"
-  }
-
-  private case class MonocleCoreLoader() extends MonocleBaseLoader {
-    override val name: String = "monocle-core"
-  }
-
-  private case class MonocleMacroLoader() extends MonocleBaseLoader {
-    override val name: String = "monocle-macro"
-  }
-
-  private case class MonocleGeneric() extends MonocleBaseLoader {
-    override val name: String = "monocle-generic"
-  }
-
 }

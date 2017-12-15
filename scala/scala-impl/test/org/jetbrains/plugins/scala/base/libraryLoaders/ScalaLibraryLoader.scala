@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 
 import scala.collection.JavaConverters._
 
+@deprecated("use ScalaSDKLoader instead")
 case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
   extends LibraryLoader {
 
@@ -115,6 +116,7 @@ object ScalaLibraryLoader {
 
 }
 
+@deprecated("use SmartJDKLoader inheritors instead")
 case class JdkLoader(jdk: Sdk = null) extends LibraryLoader {
 
   override def init(implicit module: Module, version: ScalaVersion): Unit = {

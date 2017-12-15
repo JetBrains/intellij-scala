@@ -4,7 +4,7 @@ import java.io.File
 
 import org.jetbrains.plugins.scala.ScalacTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.base.libraryLoaders.{ScalaLibraryLoader, SmartJDKLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
@@ -39,7 +39,7 @@ abstract class ScalacTestdataHighlightingTestBase
   override implicit val version: ScalaVersion = Scala_2_12
 
   override def librariesLoaders = Seq(
-    ScalaLibraryLoader(isIncludeReflectLibrary = true),
-    SmartJDKLoader()
+    ScalaSDKLoader(includeScalaReflect = true),
+    HeavyJDKLoader()
   )
 }

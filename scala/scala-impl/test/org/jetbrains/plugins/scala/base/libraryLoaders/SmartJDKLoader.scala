@@ -6,22 +6,47 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
+import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader.JDKVersion.JDKVersion
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader._
 import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert
 
-case class SmartJDKLoader(jdkVersion: JDKVersion = JDKVersion.JDK18) extends LibraryLoader {
-  override def init(implicit module: Module, version: ScalaVersion): Unit = {
-    val jdk = SmartJDKLoader.getOrCreateJDK(jdkVersion)
-    ModuleRootModificationUtil.setModuleSdk(module, jdk)
-    Disposer.register(module.getProject, () => inWriteAction {
-      JavaAwareProjectJdkTableImpl.getInstanceEx.removeJdk(jdk)
-    })
+case class InternalJDKLoader() extends SmartJDKLoader() {
+  override protected def createSdkInstance(): Sdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
+}
+
+/**
+  * Consider using this instead of HeavyJDKLoader if you don't need java interop in your tests
+  */
+case class MockJDKLoader(jdkVersion: JDKVersion = JDKVersion.JDK18) extends SmartJDKLoader(jdkVersion) {
+  override protected def createSdkInstance(): Sdk = jdkVersion match {
+    case JDKVersion.JDK19 => IdeaTestUtil.getMockJdk9
+    case JDKVersion.JDK18 => IdeaTestUtil.getMockJdk18
+    case JDKVersion.JDK17 => IdeaTestUtil.getMockJdk17
+    case _ => Assert.fail(s"JDK version $jdkVersion is unavailable in IDEA test platform"); null
   }
+}
+
+case class HeavyJDKLoader(jdkVersion: JDKVersion = JDKVersion.JDK18) extends SmartJDKLoader(jdkVersion) {
+  override protected def createSdkInstance(): Sdk = SmartJDKLoader.getOrCreateJDK(jdkVersion)
+}
+
+abstract class SmartJDKLoader(jdkVersion: JDKVersion = JDKVersion.JDK18) extends LibraryLoader {
+  override def init(implicit module: Module, version: ScalaVersion): Unit = {
+    ModuleRootModificationUtil.setModuleSdk(module, createSdkInstance())
+  }
+
+  override def clean(implicit module: Module): Unit = {
+    ModuleRootModificationUtil.setModuleSdk(module, null)
+    val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
+    val allJdks = jdkTable.getAllJdks
+    inWriteAction { allJdks.foreach(jdkTable.removeJdk) }
+  }
+
+  protected def createSdkInstance(): Sdk
 }
 
 object SmartJDKLoader {
