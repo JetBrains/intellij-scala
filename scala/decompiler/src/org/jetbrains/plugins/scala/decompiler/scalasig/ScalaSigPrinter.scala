@@ -33,6 +33,8 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
 
   def result: String = builder.toString
 
+  private var visitedTypeBoundsType: Set[TypeBoundsType] = Set.empty
+
   private val currentTypeParameters: mutable.HashMap[Symbol, String] = new mutable.HashMap[Symbol, String]()
 
   private def addTypeParameter(t: Symbol) {
@@ -590,7 +592,16 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
             symbol.get match {
               case ts: TypeSymbol =>
                 ts.infoType match {
-                  case t: TypeBoundsType => toString(t, level)
+                  case t: TypeBoundsType =>
+                    if (visitedTypeBoundsType.contains(t)) ""
+                    else {
+                      visitedTypeBoundsType += t
+                      try {
+                        toString(t, level)
+                      } finally {
+                        visitedTypeBoundsType -= t
+                      }
+                    }
                   case _ => ""
                 }
               case _ => ""

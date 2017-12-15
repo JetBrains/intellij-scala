@@ -2,17 +2,18 @@ package org.jetbrains.plugins.scala.decompiler
 
 import java.io.{File => jFile}
 
-import junit.framework.TestCase
-import org.junit.Assert
-
 import scala.tools.nsc.io.File
+
+import junit.framework.TestCase
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert
 
 /**
  * @author Alefas
  * @since  11/09/15
  */
 trait DecompilerTestBase extends TestCase {
-  def basePath(separator: Char) = s"testdata${separator}decompiler$separator"
+  def basePath: String = s"${TestUtils.getTestDataPath}/decompiler"
 
   def doTest(fileName: String): Unit = {
     val classFilePath = getClassFilePath(fileName, getName)
@@ -28,14 +29,8 @@ trait DecompilerTestBase extends TestCase {
       assert(testName.startsWith("test") && testName.length > 4)
       testName(4).toLower + testName.substring(5)
     }
-    val separator = jFile.separatorChar
-    val dirPath: String = {
-      val path = basePath(separator) + {if (name.isEmpty) "" else name + separator}
-      val communityDir = new jFile(path)
-      if (communityDir.exists()) path
-      else s"community$separator$path"
-    }
-    s"$dirPath$separator$fileName"
+    val dirPath: String = s"$basePath/$name"
+    s"$dirPath/$fileName"
   }
 
   protected def decompile(classFilePath: String): String = {
@@ -88,7 +83,7 @@ class DecompilerTest extends DecompilerTestBase {
     doTest("ResultExtractors.class")
   }
 
-  def testScl10858() = {
+  def testScl10858(): Unit = {
     doTest("LazyValBug.class")
   }
 
@@ -124,19 +119,23 @@ class DecompilerTest extends DecompilerTestBase {
     doTest("DefaultEntry.class")
   }
 
-  def testScl5865() = {
+  def testScl5865(): Unit = {
     doTest("$colon$colon.class")
   }
 
-  def testSuperInner() = {
+  def testSuperInner(): Unit = {
     doTest("ProcessBuilderImpl.class")
   }
 
-  def testScl8251() = {
+  def testScl8251(): Unit = {
     doTest("LinkedEntry.class")
   }
 
-  def testScl7997() = {
+  def testScl7997(): Unit = {
     doTest("CommentDecompilation.class")
+  }
+
+  def testConsumerActorRouteBuilder(): Unit = {
+    doTest("ConsumerActorRouteBuilder.class")
   }
 }

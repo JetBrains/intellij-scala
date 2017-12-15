@@ -17,7 +17,7 @@ abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase with 
 
   override protected val includeReflectLibrary: Boolean = true
 
-  override def basePath(separator: Char) = s"${super.basePath(separator)}highlighting$separator"
+  override def basePath = s"${super.basePath}/highlighting/"
 
   override def doTest(fileName: String) = {
     assertNothing(getMessages(fileName, decompile(getClassFilePath(fileName))))
