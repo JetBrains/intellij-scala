@@ -18,8 +18,9 @@ package org.jetbrains.plugins.scala.lang.macros.evaluator
 import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.impl._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
@@ -40,14 +41,7 @@ class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(pro
     DefaultRule
   )
 
-  def isMacro(n: PsiNamedElement): Option[ScFunction] = {
-    n match {
-      case f: ScMacroDefinition => Some(f)
-      //todo: fix decompiler to avoid this check:
-      case f: ScFunction if f.findAnnotationNoAliases("scala.reflect.macros.internal.macroImpl") != null => Some(f)
-      case _ => None
-    }
-  }
+  def isMacro(named: PsiNamedElement): Option[ScFunction] = MacroDef.unapply(named)
 
   override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
     typingRules.filter(_.isApplicable(macros)).head.typeable.checkMacro(macros, context)
