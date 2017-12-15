@@ -6,7 +6,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.dependency.Dependency.DependencyProcessor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
@@ -32,7 +32,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
-
 import scala.annotation.tailrec
 import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
@@ -542,10 +541,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     }
 
     def processDynamic(`type`: ScType, expression: ScExpression, processor: MethodResolveProcessor): BaseProcessor = {
-      val maybeDynamicType = ref.elementScope.getCachedClass("scala.Dynamic")
-        .map(ScDesignatorType(_))
-
-      if (!maybeDynamicType.exists(`type`.conforms)) return processor
+      if (!conformsToDynamic(`type`, ref.resolveScope)) return processor
 
       val expressionsOrContext = ref.getContext match {
         case postfix: ScPostfixExpr => Left(postfix)

@@ -48,7 +48,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.getDynamicNameForMethodInvocation
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.{getDynamicNameForMethodInvocation, conformsToDynamic}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
@@ -326,15 +326,6 @@ object ScalaPsiUtil {
     }
   }
 
-  def approveDynamic(tp: ScType, project: Project, scope: GlobalSearchScope): Boolean = {
-    implicit val ctx: ProjectContext = project
-
-    val cachedClass = ScalaPsiManager.instance.getCachedClass(scope, "scala.Dynamic").orNull
-    if (cachedClass == null) return false
-    val dynamicType = ScDesignatorType(cachedClass)
-    tp.conforms(dynamicType)
-  }
-
   def processTypeForUpdateOrApplyCandidates(call: MethodInvocation, tp: ScType, isShape: Boolean,
                                             isDynamic: Boolean): Array[ScalaResolveResult] = {
     import call.projectContext
@@ -376,14 +367,14 @@ object ScalaPsiUtil {
     exprTp match {
       case ScTypePolymorphicType(internal, typeParam) if typeParam.nonEmpty &&
         !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[UndefinedType] =>
-        if (!isDynamic || approveDynamic(internal, call.getProject, call.resolveScope)) {
+        if (!isDynamic || conformsToDynamic(internal, call.resolveScope)) {
           val state: ResolveState = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, internal)
           processor.processType(internal, call.getEffectiveInvokedExpr, state)
         }
         candidates = processor.candidatesS
       case _ =>
     }
-    if (candidates.isEmpty && (!isDynamic || approveDynamic(exprTp.inferValueType, call.getProject, call.resolveScope))) {
+    if (candidates.isEmpty && (!isDynamic || conformsToDynamic(exprTp.inferValueType, call.resolveScope))) {
       val state: ResolveState = ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, exprTp.inferValueType)
       processor.processType(exprTp.inferValueType, call.getEffectiveInvokedExpr, state)
       candidates = processor.candidatesS
