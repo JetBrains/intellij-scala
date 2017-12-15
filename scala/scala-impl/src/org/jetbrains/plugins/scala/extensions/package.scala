@@ -63,6 +63,7 @@ package object extensions {
   implicit class PsiMethodExt(val repr: PsiMethod) extends AnyVal {
 
     import PsiMethodExt._
+
     implicit private def project: ProjectContext = repr.getProject
 
     def isAccessor: Boolean = isParameterless && hasQueryLikeName && !hasVoidReturnType
@@ -244,8 +245,10 @@ package object extensions {
   }
 
   implicit class StringsExt(val strings: Seq[String]) extends AnyVal {
-    def commaSeparated: String =
-      strings.mkString(", ")
+    def commaSeparated(parenthesize: Boolean = false): String = {
+      val (start, end) = if (parenthesize) ("(", ")") else ("", "")
+      strings.mkString(start, ", ", end)
+    }
   }
 
   implicit class ASTNodeExt(val node: ASTNode) extends AnyVal {
@@ -389,8 +392,8 @@ package object extensions {
       elements.foldRight(List.empty[PsiElement])(parent.addAfter(_, element) :: _)
     }
 
-    def createSmartPointer(implicit manager: SmartPointerManager = SmartPointerManager.getInstance(element.getProject)): SmartPsiElementPointer[E] =
-      manager.createSmartPsiElementPointer(element)
+    def createSmartPointer: SmartPsiElementPointer[E] =
+      SmartPointerManager.getInstance(element.getProject).createSmartPsiElementPointer(element)
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
@@ -474,6 +477,20 @@ package object extensions {
     def processPsiMethodsForNode(node: SignatureNodes.Node, isStatic: Boolean, isInterface: Boolean)
                                 (processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit = {
 
+      //search for a class to place implementation of trait's method
+      def concreteForTrait(t: ScTrait): Option[PsiClass] = {
+        val fromLessConcrete =
+          MixinNodes.linearization(clazz)
+            .flatMap(_.extractClass)
+            .reverse
+
+        val index = fromLessConcrete.indexOf(t)
+        fromLessConcrete
+          .drop(index + 1)
+          .filterNot(_.isInterface)
+          .headOption
+      }
+
       def concreteClassFor(typedDef: ScTypedDefinition): Option[PsiClass] = {
         if (typedDef.isAbstractMember) return None
         clazz match {
@@ -485,16 +502,10 @@ package object extensions {
         ScalaPsiUtil.nameContext(typedDef) match {
           case m: ScMember =>
             m.containingClass match {
-              case t: ScTrait if isStatic =>
-                val linearization = MixinNodes.linearization(clazz)
-                  .flatMap(_.extractClass)
-                var index = linearization.indexWhere(_ == t)
-                while (index >= 0) {
-                  val cl = linearization(index)
-                  if (!cl.isInterface) return Some(cl)
-                  index -= 1
-                }
-                Some(clazz)
+              case _: ScTrait if isStatic =>
+                Some(clazz) //companion object extends some trait, static method generated in a companion class
+              case t: ScTrait =>
+                concreteForTrait(t)
               case _ => None
             }
           case _ => None

@@ -216,8 +216,6 @@ private[shell] object SbtProcessUtil {
   */
 private[shell] abstract class LineListener extends ProcessAdapter with AnsiEscapeDecoder.ColoredTextAcceptor {
 
-  private val builder = new StringBuilder
-
   def onLine(line: String): Unit
 
   override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit =
@@ -226,7 +224,15 @@ private[shell] abstract class LineListener extends ProcessAdapter with AnsiEscap
   override def coloredTextAvailable(text: String, attributes: Key[_]): Unit =
     updateLine(text)
 
-  private def updateLine(text: String): Unit = {
+  private[this] val builder = new StringBuilder
+
+  private def buildLine(text: String): Option[String] = builder.synchronized {
+    def lineDone(): Option[String] = {
+      val line = builder.result()
+      builder.clear()
+      Some(line)
+    }
+
     text match {
       case "\n" =>
         lineDone()
@@ -236,14 +242,15 @@ private[shell] abstract class LineListener extends ProcessAdapter with AnsiEscap
       case t =>
         builder.append(t)
         val lineSoFar = builder.result()
+
         if (promptReady(lineSoFar) || promptError(lineSoFar))
           lineDone()
+        else None
     }
   }
 
-  private def lineDone(): Unit = {
-    val line = builder.result()
-    builder.clear()
-    onLine(line)
+  private def updateLine(text: String): Unit = {
+    val ready = buildLine(text)
+    ready.foreach(onLine)
   }
 }

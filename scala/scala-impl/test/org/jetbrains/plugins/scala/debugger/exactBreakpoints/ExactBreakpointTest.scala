@@ -1,17 +1,17 @@
 package org.jetbrains.plugins.scala.debugger.exactBreakpoints
 
+import scala.collection.JavaConverters._
+
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.SourcePositionHighlighter
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.util.DocumentUtil
 import com.intellij.xdebugger.XDebuggerUtil
-import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
+import org.jetbrains.plugins.scala.DebuggerTests
 import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 import org.junit.experimental.categories.Category
-import scala.collection.JavaConverters._
-import scala.concurrent.duration.DurationLong
 
 /**
  * @author Nikolay.Tropin
@@ -33,7 +33,7 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
 
   private def addBreakpoint(b: Breakpoint): Unit = addBreakpoint(b.line, mainFileName, b.ordinal)
 
-  protected def checkVariants(lineNumber: Int, variants: String*) = {
+  protected def checkVariants(lineNumber: Int, variants: String*): Unit = {
     inReadAction {
       val xSourcePosition = XDebuggerUtil.getInstance().createPosition(getVirtualFile(getFileInSrc(mainFileName)), lineNumber)
       val foundVariants = scalaLineBreakpointType.computeVariants(getProject, xSourcePosition).asScala.map(_.getText)
@@ -41,11 +41,11 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
     }
   }
 
-  protected def checkStoppedAtBreakpointAt(breakpoints: Breakpoint*)(sourcePositionText: String) = {
+  protected def checkStoppedAtBreakpointAt(breakpoints: Breakpoint*)(sourcePositionText: String): Unit = {
     checkStopResumeSeveralTimes(breakpoints: _*)(sourcePositionText)
   }
 
-  protected def checkStopResumeSeveralTimes(breakpoints: Breakpoint*)(sourcePositions: String*) = {
+  protected def checkStopResumeSeveralTimes(breakpoints: Breakpoint*)(sourcePositions: String*): Unit = {
     def message(expected: String, actual: String) = {
       s"Wrong source position. Expected: $expected, actual: $actual"
     }
@@ -73,10 +73,10 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
     document.getText(textRange).trim
   }
 
-  protected def checkNotStoppedAtBreakpointAt(breakpoint: Breakpoint) = {
+  protected def checkNotStoppedAtBreakpointAt(breakpoint: Breakpoint): Unit = {
     clearBreakpoints()
     addBreakpoint(breakpoint)
-    runDebugger() {
+    runDebugger(shouldStopAtBreakpoint = false) {
       Assert.assertTrue(s"Stopped at breakpoint: $breakpoint", processTerminatedNoBreakpoints())
     }
   }
