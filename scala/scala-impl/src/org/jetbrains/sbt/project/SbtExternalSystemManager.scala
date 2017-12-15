@@ -158,7 +158,13 @@ object SbtExternalSystemManager {
       val optName = opt.split('=').head + "="
       userOptions.exists(_.startsWith(optName))
     }
-    Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++ userOptions ++ ideaProxyOptions
+    Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++ userOptions ++ ideaProxyOptions ++ fileEncoding(userOptions)
+  }
+
+  private def fileEncoding(userOptions: Seq[String]): Option[String] = {
+    val prefix = "-Dfile.encoding"
+    if (userOptions.exists(_.startsWith(s"$prefix="))) None
+    else Some(s"$prefix=UTF-8")
   }
 
   private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {
