@@ -1045,5 +1045,31 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
     assertNothing(errorsFromScalaCode(scala, java))
   }
 
+  def testSCL13105(): Unit = {
+    val java =
+      """
+        |public class JavaTestClass extends AbstractTestClass {
+        |
+        |    public static void main(String[] args){
+        |        JavaTestClass jtc = new JavaTestClass();
+        |        System.out.println(jtc.self());
+        |    }
+        |}
+        |
+      """.stripMargin
+
+    val scala =
+      """
+        |trait TestTrait{
+        |  implicit final val self = "self"
+        |
+        |}
+        |
+        |abstract class AbstractTestClass extends TestTrait
+      """.stripMargin
+
+    assertNothing(errorsFromJavaCode(scala, java, "JavaTestClass"))
+  }
+
 }
 
