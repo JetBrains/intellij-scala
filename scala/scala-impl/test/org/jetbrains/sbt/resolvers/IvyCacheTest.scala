@@ -5,6 +5,7 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
+import org.jetbrains.sbt.resolvers.indexes.ResolverIndex.FORCE_UPDATE_KEY
 
 /**
  * @author Nikolay Obedin
@@ -31,9 +32,14 @@ class IvyCacheTest extends IndexingTestCase with UsefulTestCaseHelper {
       }
   }
 
+  override def setUp(): Unit = {
+    super.setUp()
+    sys.props += FORCE_UPDATE_KEY -> "true"
+  }
+
   override def tearDown(): Unit = {
     super.tearDown()
-
+    sys.props -= FORCE_UPDATE_KEY
     FileUtil.delete(ResolverIndex.getIndexDirectory(root))
   }
 }

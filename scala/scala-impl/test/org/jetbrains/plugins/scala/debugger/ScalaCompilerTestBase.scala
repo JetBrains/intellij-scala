@@ -52,7 +52,6 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
     DebuggerTestUtil.enableCompileServer(useCompileServer)
     DebuggerTestUtil.forceJdk8ForBuildProcess()
     setUpLibraries()
-    loadIvyDependencies()
   }
 
   protected def compilerVmOptions: Option[String] = None
@@ -84,14 +83,14 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
   override implicit protected def module: Module = getModule
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
-    ScalaLibraryLoader(isIncludeReflectLibrary = true),
-    JdkLoader(getTestProjectJdk),
+    ScalaSDKLoader(includeScalaReflect = true),
+    HeavyJDKLoader(),
     SourcesLoader(getSourceRootDir.getCanonicalPath)
   ) ++ additionalLibraries
 
-  protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = Seq.empty
+  protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 
-  override protected def getTestProjectJdk: Sdk = DebuggerTestUtil.findJdk8()
+  override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
 
   protected def forceFSRescan(): Unit = BuildManager.getInstance.clearState(myProject)
 

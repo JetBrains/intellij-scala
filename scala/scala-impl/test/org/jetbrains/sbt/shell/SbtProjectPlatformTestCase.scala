@@ -13,6 +13,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Key
 import com.intellij.testFramework.{PlatformTestCase, ThreadTracker}
 import com.intellij.util.ui.UIUtil
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -31,9 +32,8 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
     val path = getSbtRootFile.getAbsolutePath
     val project = ProjectUtil.openOrImport(path, null, false)
     assert(project != null, s"project at path $path was null")
-    val sdk = TestUtils.createJdk()
+    val sdk = SmartJDKLoader.getOrCreateJDK()
     inWriteAction {
-      ProjectJdkTable.getInstance.addJdk(sdk)
       ProjectRootManager.getInstance(project).setProjectSdk(sdk)
     }
     // I would attach a callback here to debug errors, but that overrides the default callback which deos the project updating ...

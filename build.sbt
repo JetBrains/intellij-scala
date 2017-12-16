@@ -67,8 +67,6 @@ lazy val scalaImpl: sbt.Project =
       ideaInternalPluginsJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api"))
     ,
     Keys.aggregate.in(updateIdea) := false,
-    test in Test := test.in(Test).dependsOn(setUpTestEnvironment).value,
-    testOnly in Test := testOnly.in(Test).dependsOn(setUpTestEnvironment).evaluated,
     buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
     buildInfoKeys := Seq(
       name, version, scalaVersion, sbtVersion,
@@ -168,34 +166,6 @@ lazy val sbtRuntimeDependencies =
     ideSkipProject := true
   )
 
-lazy val testJarsDownloader =
-  newProject("testJarsDownloader", file("target/tools/test-jars-downloader"))
-  .settings(
-    conflictManager := ConflictManager.all,
-    conflictWarning := ConflictWarning.disable,
-    resolvers ++= Seq(
-      "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases",
-      "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
-    ),
-    libraryDependencies ++= DependencyGroups.testDownloader,
-    libraryDependencies ++= DependencyGroups.mockSbtDownloader,
-    libraryDependencies ++= DependencyGroups.testScalaLibraryDownloader,
-    dependencyOverrides ++= Set(
-      "com.chuusai" % "shapeless_2.11" % "2.0.0"
-    ),
-    update := update.dependsOn(update.in(sbtLaunchTestDownloader)).value,
-    ideSkipProject := true
-  )
-
-lazy val sbtLaunchTestDownloader =
-  newProject("sbtLaunchTestDownloader", file("target/tools/sbt-launch-test-downloader"))
-  .settings(
-    autoScalaLibrary := false,
-    conflictManager := ConflictManager.all,
-    libraryDependencies ++= DependencyGroups.sbtLaunchTestDownloader,
-    ideSkipProject := true
-  )
-
 //lazy val jmhBenchmarks =
 //  newProject("benchmarks", file("scala/benchmarks"))
 //    .dependsOn(scalaImpl % "test->test")
@@ -223,13 +193,6 @@ addCommandAlias("runFastTests", s"testOnly -- $fastTestOptions")
 addCommandAlias("runFastTestsComIntelliJ", s"testOnly com.intellij.* -- $fastTestOptions")
 addCommandAlias("runFastTestsOrgJetbrains", s"testOnly org.jetbrains.* -- $fastTestOptions")
 addCommandAlias("runFastTestsScala", s"testOnly scala.* -- $fastTestOptions")
-
-
-lazy val setUpTestEnvironment = taskKey[Unit]("Set up proper environment for running tests")
-
-setUpTestEnvironment in ThisBuild := {
-  update.in(testJarsDownloader).value
-}
 
 lazy val cleanUpTestEnvironment = taskKey[Unit]("Clean up IDEA test system and config directories")
 

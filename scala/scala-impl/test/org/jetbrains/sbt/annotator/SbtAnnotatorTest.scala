@@ -12,10 +12,9 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.Consumer
-import org.jetbrains.plugins.scala.annotator.{Error, _}
-import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.annotator.{Error, _}
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -51,9 +50,8 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
     }
   }
 
-  override def tearDown(): Unit = try {
+  override def tearDown(): Unit = {
     disposeLibraries()
-  } finally {
     super.tearDown()
   }
 
@@ -66,7 +64,7 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
     psifile.asInstanceOf[SbtFileImpl]
   }
 
-  override def getTestProjectJdk: Sdk = TestUtils.createJdk()
+  override def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
 
   protected def runTest(sbtVersion: String, expectedMessages: Seq[Message]): Unit = {
     setSbtVersion(sbtVersion)

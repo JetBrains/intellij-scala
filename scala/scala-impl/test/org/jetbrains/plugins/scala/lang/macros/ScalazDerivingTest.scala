@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala.lang.macros
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.DependencyManager._
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.base.libraryLoaders.IvyLibraryLoaderAdapter
+import org.jetbrains.plugins.scala.base.libraryLoaders.IvyManagedLoader
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -22,10 +23,10 @@ class ScalazDerivingTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override implicit val version: ScalaVersion = Scala_2_11
 
-  override def librariesLoaders =
-    super.librariesLoaders :+
-      ScalazDerivingTest.ScalazDerivingLoader() :+
-      ScalazDerivingTest.SimulacrumLoader()
+  override def librariesLoaders = super.librariesLoaders :+ IvyManagedLoader(
+    "com.fommil"           %% "stalactite" % "0.0.5",
+    "com.github.mpilquist" %% "simulacrum" % "0.11.0"
+  )
 
 
   protected def folderPath: String = TestUtils.getTestDataPath
@@ -120,19 +121,4 @@ case object <caret>Caz
     doTest(fileText, "Wibble[Caz.type]")
   }
 
-}
-
-object ScalazDerivingTest {
-
-  case class ScalazDerivingLoader() extends IvyLibraryLoaderAdapter {
-    val vendor: String = "com.fommil"
-    val name: String = "stalactite"
-    val version: String = "0.0.5"
-  }
-
-  case class SimulacrumLoader() extends IvyLibraryLoaderAdapter {
-    val vendor: String = "com.github.mpilquist"
-    val name: String = "simulacrum"
-    val version: String = "0.11.0"
-  }
 }

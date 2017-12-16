@@ -6,77 +6,77 @@ package scala.meta.quasiquotes
   */
 class RandomQQTest extends QuasiQuoteTypeInferenceTestBase {
 
-  def testPatVarTermApply() = doTest(
+  def testPatVarTermApply(): Unit = doTest(
     s"""
        |${START}p"Foo"$END
        |//Pat.Var.Term
      """.stripMargin
   )
 
-  def testPatCaseApply() = doTest(
+  def testPatCaseApply(): Unit = doTest(
     s"""
        |${START}p"case Foo(x) =>"$END
        |//Case
      """.stripMargin
   )
 
-  def testPatExtractApply() = doTest(
+  def testPatExtractApply(): Unit = doTest(
     s"""
        |${START}p"Some(x)"$END
        |//Pat.Extract
      """.stripMargin
   )
 
-  def testPatTypeVarApply() = doTest(
+  def testPatTypeVarApply(): Unit = doTest(
     s"""
        |${START}pt"foo"$END
        |//Pat.Var.Type
      """.stripMargin
   )
 
-  def testPatTypeWildcardApply() = doTest(
+  def testPatTypeWildcardApply(): Unit = doTest(
     s"""
        |${START}pt"_"$END
        |//Pat.Type.Wildcard
      """.stripMargin
   )
 
-  def testTermArgApply() = doTest(
+  def testTermArgApply(): Unit = doTest(
     s"""
        |${START}arg"a: Int"$END
        |//Term.Ascribe
      """.stripMargin
   )
 
-  def testModAnnotApply() = doTest(
+  def testModAnnotApply(): Unit = doTest(
     s"""
        |${START}mod"@foo"$END
        |//Mod.Annot
      """.stripMargin
   )
 
-  def testTypeArgInfixApply() = doTest(
+  def testTypeArgInfixApply(): Unit = doTest(
     s"""
        |${START}targ"T ^ U"$END
        |//Type.ApplyInfix
      """.stripMargin
   )
 
-  def testPatArgTypedApply() = doTest(
+  def testPatArgTypedApply(): Unit = doTest(
     s"""
        |${START}parg"a:Int"$END
        |//Pat.Typed
      """.stripMargin
   )
 
-  def testCtorApplyApply() = doTest(
+  def testCtorApplyApply(): Unit = doTest(
     s"""
        |${START}ctor"A(b)"$END
        |//Term.Apply
      """.stripMargin
   )
 
-  def testCtorRefNameApply() = doTest(
+  def testCtorRefNameApply(): Unit = doTest(
     s"""
        |${START}ctor"A"$END
        |//Ctor.Ref.Name
@@ -84,42 +84,42 @@ class RandomQQTest extends QuasiQuoteTypeInferenceTestBase {
   )
 
 
-  def testTermParamApply() = doTest(
+  def testTermParamApply(): Unit = doTest(
     s"""
        |${START}param"a: A"$END
        |//Term.Param
      """.stripMargin
   )
 
-  def testTypeParamApply() = doTest(
+  def testTypeParamApply(): Unit = doTest(
     s"""
        |${START}tparam"f <: A with B forSome { val x: Int }"$END
        |//Type.Param
      """.stripMargin
   )
 
-  def testSourceApply() = doTest(
+  def testSourceApply(): Unit = doTest(
     s"""
        |${START}source"class Foo"$END
        |//Source
      """.stripMargin
   )
 
-  def testImporterApply() = doTest(
+  def testImporterApply(): Unit = doTest(
     s"""
        |${START}importer"foo.bar"$END
        |//Importer
      """.stripMargin
   )
 
-  def testImporteeApply() = doTest(
+  def testImporteeApply(): Unit = doTest(
     s"""
        |${START}importee"foo"$END
        |//Importee.Name
      """.stripMargin
   )
 
-  def testEnumeratorApply() = doTest(
+  def testEnumeratorApply(): Unit = doTest(
     s"""
        |${START}enumerator"x <- y"$END
        |//Enumerator.Generator

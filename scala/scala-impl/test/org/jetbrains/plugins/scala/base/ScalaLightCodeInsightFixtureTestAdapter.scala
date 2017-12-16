@@ -2,12 +2,9 @@ package org.jetbrains.plugins.scala
 package base
 
 import com.intellij.codeInsight.folding.CodeFoldingManager
-import com.intellij.openapi.application.WriteAction
-import com.intellij.openapi.project.Project
-import com.intellij.testFramework.LightProjectDescriptor
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
 import org.jetbrains.plugins.scala.util.TestUtils
 
@@ -26,8 +23,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   protected def loadScalaLibrary: Boolean = true
 
   override def librariesLoaders: Seq[LibraryLoader] = Seq(
-    ScalaLibraryLoader(),
-    JdkLoader()
+    ScalaSDKLoader(),
+    HeavyJDKLoader()
   )
 
   override protected def getProjectDescriptor =
@@ -39,7 +36,6 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     if (loadScalaLibrary) {
       getFixture.allowTreeAccessForAllFiles()
       setUpLibraries()
-      loadIvyDependencies()
     }
   }
 

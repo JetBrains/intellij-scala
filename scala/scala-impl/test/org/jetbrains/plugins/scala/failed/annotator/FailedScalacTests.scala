@@ -3,10 +3,7 @@ package org.jetbrains.plugins.scala.failed.annotator
 import java.io.File
 
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, ScalaLibraryLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
-import org.jetbrains.plugins.scala.projectHighlighting.{ScalacTestdataHighlightingTestBase, SeveralFilesHighlightingTest}
+import org.jetbrains.plugins.scala.projectHighlighting.ScalacTestdataHighlightingTestBase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter
 import org.junit.experimental.categories.Category

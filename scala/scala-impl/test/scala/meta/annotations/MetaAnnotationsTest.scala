@@ -1,17 +1,20 @@
 package scala.meta.annotations
 
+import com.intellij.openapi.compiler.CompilerMessageCategory
+import com.intellij.testFramework.TestActionEvent
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 import org.junit.Assert
 
+import scala.collection.JavaConverters.asScalaBufferConverter
+
 /**
   * @author mutcianm
   * @since 31.10.16.
   */
 class MetaAnnotationsTest extends MetaAnnotationTestBase {
-  import MetaAnnotationTestBase._
 
   def testAddMethodToObject(): Unit = {
     val mynewcoolmethod = "myNewCoolMethod"
@@ -40,7 +43,7 @@ class MetaAnnotationsTest extends MetaAnnotationTestBase {
     Assert.assertTrue(s"Method '$mynewcoolmethod' hasn't been injected", result.exists(_.getLookupString == mynewcoolmethod))
   }
 
-  def testOutOfDateGutterIcon(): Unit = {
+  def DISABLEDtestOutOfDateGutterIcon(): Unit = {
 
     addMetaSource(
       """
@@ -51,15 +54,16 @@ class MetaAnnotationsTest extends MetaAnnotationTestBase {
         |}
       """.stripMargin
     )
-    myFixture.configureByText(ScalaFileType.INSTANCE,
+    val fileText =
       s"""
          |@main
          |class Foo
-      """.stripMargin)
+      """.stripMargin
+    myFixture.addFileToProject("test/Foo.scala", fileText)
+    myFixture.configureByFile("test/Foo.scala")
     Assert.assertEquals("Wrong tooltip text: out of date not detected", ScalaBundle.message("scala.meta.recompile"), getGutter.getTooltipText)
-    setUpCompiler(metaModule)
     enableParadisePlugin()
-    runMake()
+    getGutter.getClickAction.actionPerformed(new TestActionEvent())
     Assert.assertEquals("Wrong tooltip text: compiled class not detected", ScalaBundle.message("scala.meta.expand"), getGutter.getTooltipText)
 //    typeInAnnotationFile()
 //    Assert.assertEquals("Wrong tooltip text: out of date not detected after file edit", ScalaBundle.message("scala.meta.recompile"), getGutter.getTooltipText)
