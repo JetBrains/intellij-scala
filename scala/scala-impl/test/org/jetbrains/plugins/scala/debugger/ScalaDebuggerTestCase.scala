@@ -60,11 +60,12 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
                             debug: Boolean = false,
                             shouldStopAtBreakpoint: Boolean = true)(callback: => Unit): Unit = {
     setupBreakpoints()
+    breakpointTracker = new BreakpointTracker()
+
     val processHandler = runProcess(mainClass, debug)
     val debugProcess = getDebugProcess
 
-    breakpointTracker = new BreakpointTracker(debugProcess)
-    breakpointTracker.setup()
+    breakpointTracker.addListener(debugProcess)
 
     try {
       callback
@@ -74,7 +75,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       EdtTestUtil.runInEdtAndWait(() => {
         clearXBreakpoints()
         debugProcess.stop(true)
-        breakpointTracker.tearDown()
+        breakpointTracker.removeListener(debugProcess)
         breakpointTracker = null
         processHandler.destroyProcess()
       })
@@ -362,8 +363,10 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     breakpointLines.foreach(addBreakpoint(_, path))
   }
 
-  private class BreakpointTracker(process: DebugProcessImpl) {
+  //should be initialized before debug process is started
+  private class BreakpointTracker() {
     private val breakpointSemaphore = new Semaphore()
+    breakpointSemaphore.down()
     //safety net against not running tests at all
     private var _wasAtBreakpoint: Boolean = false
 
@@ -387,16 +390,13 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
     def wasAtBreakpoint: Boolean = _wasAtBreakpoint
 
-    def setup(): Unit = {
-      Assert.assertTrue("Process in initial state expected", process.isInInitialState)
-
-      breakpointSemaphore.down()
+    def addListener(process: DebugProcessImpl): Unit = {
       process.addDebugProcessListener(breakpointListener)
     }
 
-    def tearDown(): Unit = {
-      breakpointSemaphore.up()
+    def removeListener(process: DebugProcessImpl): Unit = {
       process.removeDebugProcessListener(breakpointListener)
+      breakpointSemaphore.up()
     }
   }
 }
