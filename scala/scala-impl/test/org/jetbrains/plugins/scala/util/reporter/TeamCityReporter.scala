@@ -16,8 +16,8 @@ class TeamCityReporter(name: String, reportSuccess: Boolean) extends ConsoleRepo
 
   override def reportError(file: String, range: TextRange, message: String): Unit = {
     totalErrors += 1
-    val escaped = escapeTC(Option(message).getOrElse(""))
-    val testName = s"$name.${Option(file).getOrElse("UNKNOWN")}${Option(range).map(_.toString).getOrElse("(UNKNOWN)")}"
+    val escaped = escapeTC(message)
+    val testName = s"$name.$file${range.toString}"
     tcPrint(s"testStarted name='$testName'")
     tcPrint(s"testFailed name='$testName' message='Highlighting error' details='$escaped'")
     tcPrint(s"testFinished name='$testName'")
