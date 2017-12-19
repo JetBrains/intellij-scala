@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.conformsToDynamic
-
 import scala.annotation.tailrec
 import scala.collection.mutable
 
@@ -248,17 +247,17 @@ object ScExpression {
       expectedTypeEx(fromUnderscore).map(_._1)
 
     def expectedTypeEx(fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] =
-      ExpectedTypes.expectedExprType(expr, fromUnderscore)
+      ExpectedTypes.instance().expectedExprType(expr, fromUnderscore)
 
     def expectedTypes(fromUnderscore: Boolean = true): Array[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
 
     @CachedWithRecursionGuard(expr, Array.empty[(ScType, Option[ScTypeElement])], ModCount.getBlockModificationCount)
     def expectedTypesEx(fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
-      ExpectedTypes.expectedExprTypes(expr, fromUnderscore = fromUnderscore)
+      ExpectedTypes.instance().expectedExprTypes(expr, fromUnderscore = fromUnderscore)
     }
 
     @CachedWithRecursionGuard(expr, None, ModCount.getBlockModificationCount)
-    def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.smartExpectedType(expr, fromUnderscore)
+    def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.instance().smartExpectedType(expr, fromUnderscore)
 
     def getTypeIgnoreBaseType: TypeResult = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
