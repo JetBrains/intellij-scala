@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api
 
-import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern.extractProductParts
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -43,7 +44,7 @@ object MacroInferUtil {
         def calcProduct() = this.calcProduct(expectedType, genericClass, genericClassCompanion, createGenericType)
 
         Option(function).collect {
-          case IsMacro(macroFunction) => macroFunction
+          case MacroDef(macroFunction) => macroFunction
         }.map {
           new Checker(_)
         }.map {
@@ -116,14 +117,6 @@ object MacroInferUtil {
           case _ => None
         }
       }
-    }
-  }
-
-  private object IsMacro {
-    def unapply(element: PsiNamedElement): Option[ScFunction] = Option(element).collect {
-      case function: ScMacroDefinition => function
-      case function: ScFunction if function.hasAnnotation("scala.reflect.macros.internal.macroImpl") =>
-        function
     }
   }
 

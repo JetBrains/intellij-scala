@@ -17,7 +17,7 @@ import scala.reflect.NameTransformer
   */
 abstract class FailedScalacTestsBase extends ScalacTestdataHighlightingTestBase {
 
-  override val reporter = new ConsoleReporter
+  override val reporter = new ConsoleReporter(filesWithProblems = Set.empty)
 
   def testDataDir: String = s"${TestUtils.getTestDataPath}/scalacTests/$testDirName/"
 

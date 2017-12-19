@@ -40,11 +40,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
-
 import scala.annotation.tailrec
 import scala.collection.{JavaConverters, mutable}
 import scala.reflect.NameTransformer
 import scala.util.Try
+
+import org.jetbrains.plugins.scala.lang.macros.MacroDef
 
 /**
   * @author ilyas
@@ -839,17 +840,6 @@ object ScalaPositionManager {
       case elem if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) || isLambda(elem) => elem
       case elem if isMacroCall(elem) => elem
       case elem => findGeneratingClassOrMethodParent(elem.getParent)
-    }
-  }
-
-  private object MacroDef {
-    val macroImpl = "scala.reflect.macros.internal.macroImpl"
-    def unapply(fun: ScFunction): Option[ScFunction] = {
-      fun match {
-        case m: ScMacroDefinition => Some(m)
-        case _ if fun.annotations.map(_.constructor.typeElement.getText).contains(macroImpl) => Some(fun)
-        case _ => None
-      }
     }
   }
 
