@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.MethodInvocationImpl.{InvocationData, InvocationDataEmpty, InvocationDataSuccess, UpdateApplyData}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.MethodInvocationImpl._
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothing, TupleType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
@@ -62,8 +62,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
     val nonValueType: TypeResult = getEffectiveInvokedExpr.getNonValueType()
     this match {
-      case _: ScPrefixExpr => return InvocationDataEmpty(nonValueType) //no arg exprs, just reference expression type
-      case _: ScPostfixExpr => return InvocationDataEmpty(nonValueType) //no arg exprs, just reference expression type
+      case _: ScPrefixExpr => return InvocationData.Empty(nonValueType) //no arg exprs, just reference expression type
+      case _: ScPostfixExpr => return InvocationData.Empty(nonValueType) //no arg exprs, just reference expression type
       case _ =>
     }
 
@@ -73,29 +73,28 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       if (useExpectedType) this.updateAccordingToExpectedType(nonValueType, canThrowSCE = true)
       else nonValueType
 
-    val invokedType: ScType = updatedNonValueType.getOrElse(return InvocationDataEmpty(updatedNonValueType))
+    val invokedType: ScType = updatedNonValueType.getOrElse(return InvocationData.Empty(updatedNonValueType))
 
-    val res: InvocationDataSuccess = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed), withExpectedType) match {
+    val res: InvocationData.Success = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed), withExpectedType) match {
       case Some(s) => s
       case None =>
         val updateApplyData =
-          MethodInvocationImpl.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
-            UpdateApplyData(Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
-          }
+          processTypeForUpdateOrApply(invokedType, this, isShape = false)
+            .getOrElse(InvocationData.Success(Nothing))
 
-        val processedType = updateApplyData.processedType
+        val processedType = updateApplyData.inferredType
         val updatedProcessedType =
           if (useExpectedType) this.updateAccordingToExpectedType(Right(processedType)).toOption.getOrElse(processedType)
           else processedType
 
         val isNamedDynamic: Boolean =
-          updateApplyData.applyOrUpdateResult.exists(result => result.isDynamic &&
+          updateApplyData.applyOrUpdateElem.exists(result => result.isDynamic &&
             result.name == DynamicResolveProcessor.APPLY_DYNAMIC_NAMED)
 
         checkApplication(updatedProcessedType, args(includeUpdateCall = true, isNamedDynamic), withExpectedType)
-          .map(_.merge(updateApplyData))
+          .map(_.withApplyUpdate(updateApplyData))
           .getOrElse {
-            InvocationDataSuccess(
+            InvocationData.Success(
               updatedProcessedType,
               Seq(new DoesNotTakeParameters),
               Seq.empty,
@@ -113,13 +112,13 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
   private def tuplizyCase(exprs: Seq[Expression])
                          (fun: (Seq[Expression]) => (ScType, scala.Seq[ApplicabilityProblem],
-                           Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)])): InvocationDataSuccess = {
+                           Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)])): InvocationData.Success = {
     val c = fun(exprs)
 
-    def tail: InvocationDataSuccess = {
+    def tail: InvocationData.Success = {
       val dependentSubst = ScSubstitutor(() => c._4.toMap)
       val scType = dependentSubst.subst(c._1)
-      InvocationDataSuccess(scType, c._2, c._3, Set.empty, None, None)
+      InvocationData.Success(scType, c._2, c._3, Set.empty, None, None)
     }
 
     if (c._2.nonEmpty) {
@@ -129,13 +128,13 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         else {
           val dependentSubst = ScSubstitutor(() => cd._4.toMap)
           val scType = dependentSubst.subst(cd._1)
-          InvocationDataSuccess(scType, cd._2, cd._3, Set.empty, None, None)
+          InvocationData.Success(scType, cd._2, cd._3, Set.empty, None, None)
         }
       }.getOrElse(tail)
     } else tail
   }
 
-  private def checkConformance(retType: ScType, psiExprs: Seq[Expression], parameters: Seq[Parameter]): InvocationDataSuccess = {
+  private def checkConformance(retType: ScType, psiExprs: Seq[Expression], parameters: Seq[Parameter]): InvocationData.Success = {
     tuplizyCase(psiExprs) { t =>
       val result = Compatibility.checkConformanceExt(checkNames = true, parameters = parameters, exprs = t,
         checkWithImplicits = true, isShapesResolve = false)
@@ -147,13 +146,13 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
                                             withExpectedType: Boolean,
                                             psiExprs: Seq[Expression],
                                             typeParams: Seq[TypeParameter],
-                                            parameters: Seq[Parameter]): InvocationDataSuccess = {
+                                            parameters: Seq[Parameter]): InvocationData.Success = {
     tuplizyCase(psiExprs) { t =>
       InferUtil.localTypeInferenceWithApplicabilityExt(retType, parameters, t, typeParams, canThrowSCE = withExpectedType)
     }
   }
 
-  private def checkApplication(tpe: ScType, args: Seq[Expression], withExpectedType: Boolean): Option[InvocationDataSuccess] = tpe match {
+  private def checkApplication(tpe: ScType, args: Seq[Expression], withExpectedType: Boolean): Option[InvocationData.Success] = tpe match {
     case ScMethodType(retType, params, _) =>
       Some(checkConformance(retType, args, params))
     case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) =>
@@ -229,47 +228,11 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 }
 
 object MethodInvocationImpl {
-  private sealed trait InvocationData {
-    def typeResult: TypeResult
-    def problems: Seq[ApplicabilityProblem]
-    def matchedParams: Seq[(Parameter, ScExpression)]
-    def importsUsed: collection.Set[ImportUsed]
-    def implicitFunction: Option[ScalaResolveResult]
-    def applyOrUpdateElem: Option[ScalaResolveResult]
-  }
-
-  private case class InvocationDataSuccess(inferredType: ScType,
-                                           problems: Seq[ApplicabilityProblem] = Seq.empty,
-                                           matchedParams: Seq[(Parameter, ScExpression)] = Seq.empty,
-                                           importsUsed: collection.Set[ImportUsed] = Set.empty,
-                                           implicitFunction: Option[ScalaResolveResult] = None,
-                                           applyOrUpdateElem: Option[ScalaResolveResult] = None) extends InvocationData {
-    def merge(updateApplyData: UpdateApplyData): InvocationDataSuccess = copy(
-      importsUsed = updateApplyData.importsUsed,
-      implicitFunction = updateApplyData.implicitFunction,
-      applyOrUpdateElem = updateApplyData.applyOrUpdateResult
-    )
-
-    override def typeResult: TypeResult = Right(inferredType)
-  }
-
-  private case class InvocationDataEmpty(typeResult: TypeResult) extends InvocationData {
-    def problems: Seq[ApplicabilityProblem] = Seq.empty
-    def matchedParams: Seq[(Parameter, ScExpression)] = Seq.empty
-    def importsUsed: collection.Set[ImportUsed] = Set.empty
-    def implicitFunction: Option[ScalaResolveResult] = None
-    def applyOrUpdateElem: Option[ScalaResolveResult] = None
-  }
-
-  private case class UpdateApplyData(processedType: ScType,
-                                     importsUsed: collection.Set[ImportUsed],
-                                     implicitFunction: Option[ScalaResolveResult],
-                                     applyOrUpdateResult: Option[ScalaResolveResult])
-
-  private def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation, isShape: Boolean): Option[UpdateApplyData] = {
+  
+  private def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation, isShape: Boolean): Option[InvocationData.Success] = {
     implicit val ctx: ProjectContext = call
 
-    def checkCandidates(withDynamic: Boolean = false): Option[UpdateApplyData] = {
+    def checkCandidates(withDynamic: Boolean = false): Option[InvocationData.Success] = {
       val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, isDynamic = withDynamic)
       PartialFunction.condOpt(candidates) {
         case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
@@ -279,19 +242,24 @@ object MethodInvocationImpl {
           }
 
           val res = fun match {
-            case fun: ScFun => UpdateApplyData(update(s.subst(fun.polymorphicType)), r.importsUsed, r.implicitConversion, Some(r))
-            case fun: ScFunction => UpdateApplyData(update(s.subst(fun.polymorphicType())), r.importsUsed, r.implicitConversion, Some(r))
-            case meth: PsiMethod => UpdateApplyData(update(ResolveUtils.javaPolymorphicType(meth, s, call.resolveScope)),
-              r.importsUsed, r.implicitConversion, Some(r))
+            case fun: ScFun =>
+              val scType = update(s.subst(fun.polymorphicType))
+              InvocationData.Success.fromApplyUpdate(scType, Some(r))
+            case fun: ScFunction =>
+              val scType = update(s.subst(fun.polymorphicType()))
+              InvocationData.Success.fromApplyUpdate(scType, Some(r))
+            case meth: PsiMethod =>
+              val scType = update(ResolveUtils.javaPolymorphicType(meth, s, call.resolveScope))
+              InvocationData.Success.fromApplyUpdate(scType, Some(r))
           }
           call.getInvokedExpr.getNonValueType() match {
             case Right(ScTypePolymorphicType(_, typeParams)) =>
-              val fixedType = res.processedType match {
+              val fixedType = res.inferredType match {
                 case ScTypePolymorphicType(internal, typeParams2) =>
                   ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2))
-                case _ => ScTypePolymorphicType(res.processedType, typeParams)
+                case _ => ScTypePolymorphicType(res.inferredType, typeParams)
               }
-              res.copy(processedType = fixedType)
+              res.copy(inferredType = fixedType)
             case _ => res
           }
       }
