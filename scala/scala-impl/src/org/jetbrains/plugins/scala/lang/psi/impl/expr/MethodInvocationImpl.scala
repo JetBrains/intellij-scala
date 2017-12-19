@@ -98,6 +98,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
               updatedProcessedType,
               Seq(new DoesNotTakeParameters),
               Seq.empty,
+              Seq.empty,
               updateApplyData.importsUsed,
               updateApplyData.implicitFunction,
               None)
@@ -111,34 +112,26 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   }
 
   private def tuplizyCase(exprs: Seq[Expression])
-                         (fun: (Seq[Expression]) => (ScType, scala.Seq[ApplicabilityProblem],
-                           Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)])): InvocationData.Success = {
-    val c = fun(exprs)
+                                      (fun: (Seq[Expression]) => InvocationData.Success): InvocationData.Success = {
 
-    def tail: InvocationData.Success = {
-      val dependentSubst = ScSubstitutor(() => c._4.toMap)
-      val scType = dependentSubst.subst(c._1)
-      InvocationData.Success(scType, c._2, c._3, Set.empty, None, None)
-    }
+    val nonTupled = fun(exprs)
 
-    if (c._2.nonEmpty) {
-      ScalaPsiUtil.tuplizy(exprs, this.resolveScope, getManager, ScalaPsiUtil.firstLeaf(this)).map { e =>
-        val cd = fun(e)
-        if (cd._2.nonEmpty) tail
-        else {
-          val dependentSubst = ScSubstitutor(() => cd._4.toMap)
-          val scType = dependentSubst.subst(cd._1)
-          InvocationData.Success(scType, cd._2, cd._3, Set.empty, None, None)
-        }
-      }.getOrElse(tail)
-    } else tail
+    def tupledWithSubstitutedType =
+      ScalaPsiUtil.tuplizy(exprs, this.resolveScope, getManager, ScalaPsiUtil.firstLeaf(this)).flatMap { e =>
+        val tupled = fun(e)
+        tupled.withSubstitutedType
+      }
+
+    nonTupled.withSubstitutedType
+      .orElse(tupledWithSubstitutedType)
+      .getOrElse(nonTupled)
   }
 
   private def checkConformance(retType: ScType, psiExprs: Seq[Expression], parameters: Seq[Parameter]): InvocationData.Success = {
     tuplizyCase(psiExprs) { t =>
       val result = Compatibility.checkConformanceExt(checkNames = true, parameters = parameters, exprs = t,
         checkWithImplicits = true, isShapesResolve = false)
-      (retType, result.problems, result.matchedArgs, result.matchedTypes)
+      InvocationData.Success(retType, result.problems, result.matchedArgs, result.matchedTypes)
     }
   }
 
@@ -148,7 +141,9 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
                                             typeParams: Seq[TypeParameter],
                                             parameters: Seq[Parameter]): InvocationData.Success = {
     tuplizyCase(psiExprs) { t =>
-      InferUtil.localTypeInferenceWithApplicabilityExt(retType, parameters, t, typeParams, canThrowSCE = withExpectedType)
+      val (inferredType, problems, matchedParams, matchedTypes) =
+        InferUtil.localTypeInferenceWithApplicabilityExt(retType, parameters, t, typeParams, canThrowSCE = withExpectedType)
+      InvocationData.Success(inferredType, problems, matchedParams, matchedTypes)
     }
   }
 
