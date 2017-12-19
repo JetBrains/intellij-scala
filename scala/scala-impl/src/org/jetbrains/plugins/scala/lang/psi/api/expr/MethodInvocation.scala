@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
 /**
@@ -187,12 +186,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       def tail: ScType = {
         problemsLocal = c._2
         matchedParamsLocal = c._3
-        val dependentSubst = ScSubstitutor(() => {
-          this.scalaLanguageLevel match {
-            case Some(level) if level < Scala_2_10 => Map.empty
-            case _ => c._4.toMap
-          }
-        })
+        val dependentSubst = ScSubstitutor(() => c._4.toMap)
         dependentSubst.subst(c._1)
       }
 
@@ -203,12 +197,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
           else {
             problemsLocal = cd._2
             matchedParamsLocal = cd._3
-            val dependentSubst = ScSubstitutor(() => {
-              this.scalaLanguageLevel match {
-                case Some(level) if level < Scala_2_10 => Map.empty
-                case _ => cd._4.toMap
-              }
-            })
+            val dependentSubst = ScSubstitutor(() => cd._4.toMap)
             dependentSubst.subst(cd._1)
           }
         }.getOrElse(tail)
