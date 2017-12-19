@@ -100,13 +100,6 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     * @return Is this method invocation in 'update' syntax sugar position.
     */
   def isUpdateCall: Boolean = false
-
-  /**
-    * This method useful in case if you want to update some polymorphic type
-    * according to method call expected type
-    */
-  def updateAccordingToExpectedType(nonValueType: TypeResult,
-                                    canThrowSCE: Boolean = false): TypeResult
 }
 
 object MethodInvocation {

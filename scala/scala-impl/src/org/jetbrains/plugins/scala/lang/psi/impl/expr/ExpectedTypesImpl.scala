@@ -7,6 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiTypeExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
@@ -16,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl.TypeResultEx
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
@@ -229,7 +231,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           if (!withResolvedFunction) mapResolves(op.shapeResolve, op.shapeMultiType)
           else mapResolves(op.multiResolve(false), op.multiType)
         tps = tps.map { case (tp, isDynamicNamed) =>
-          (infix.updateAccordingToExpectedType(tp), isDynamicNamed)
+          (tp.updateAccordingToExpectedType(infix), isDynamicNamed)
         }
         tps.foreach { case (tp, isDynamicNamed) =>
             processArgsExpected(res, zExpr, 0, tp, Seq(zExpr), Some(infix), isDynamicNamed = isDynamicNamed)
@@ -302,7 +304,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
             case _ => None
           }
           callOption.foreach(call => tps = tps.map { case (r, isDynamicNamed) =>
-            (call.updateAccordingToExpectedType(r), isDynamicNamed)
+            (r.updateAccordingToExpectedType(call), isDynamicNamed)
           })
           tps.filterNot(_._1.exists(_.equiv(Nothing)))foreach { case (r, isDynamicNamed) =>
             processArgsExpected(res, expr, i, r, exprs, callOption, isDynamicNamed = isDynamicNamed)
@@ -439,7 +441,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
                   update(ScTypePolymorphicType(internal, params ++ typeParams))
                 case tp => update(ScTypePolymorphicType(tp, typeParams))
               })
-              call.foreach(call => polyType = call.updateAccordingToExpectedType(polyType))
+              call.foreach(call => polyType = polyType.updateAccordingToExpectedType(call))
               processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isApplyDynamicNamed(r))
             case _ =>
           }
@@ -455,12 +457,25 @@ class ExpectedTypesImpl extends ExpectedTypes {
               }
 
               var polyType: TypeResult = Right(update(subst.subst(fun.polymorphicType())))
-              call.foreach(call => polyType = call.updateAccordingToExpectedType(polyType))
+              call.foreach(call => polyType = polyType.updateAccordingToExpectedType(call))
               processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isApplyDynamicNamed(r))
             case _ =>
           }
         }
       case _ =>
+    }
+  }
+}
+
+object ExpectedTypesImpl {
+  implicit class TypeResultEx(val tr: TypeResult) extends AnyVal {
+    /**
+      * This method useful in case if you want to update some polymorphic type
+      * according to method call expected type
+      */
+    def updateAccordingToExpectedType(call: MethodInvocation, canThrowSCE: Boolean = false): TypeResult = {
+      InferUtil.updateAccordingToExpectedType(tr, fromImplicitParameters = false, filterTypeParams = false,
+        expectedType = call.expectedType(), expr = call, canThrowSCE)
     }
   }
 }
