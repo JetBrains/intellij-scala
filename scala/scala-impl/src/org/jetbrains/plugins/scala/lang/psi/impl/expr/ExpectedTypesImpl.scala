@@ -90,8 +90,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     def mapResolves(resolves: Array[ResolveResult], types: Array[TypeResult]): Array[(TypeResult, Boolean)] = {
       resolves.zip(types).map {
         case (r: ScalaResolveResult, tp) =>
-          val isNamedDynamic = r.isDynamic && r.name == APPLY_DYNAMIC_NAMED
-          (tp, isNamedDynamic)
+          (tp, isApplyDynamicNamed(r))
         case (_, tp) => (tp, false)
       }
     }
@@ -430,7 +429,6 @@ class ExpectedTypesImpl extends ExpectedTypes {
         if (cand.length == 1) {
           cand(0) match {
             case r@ScalaResolveResult(fun: ScFunction, s) =>
-              val isDynamicNamed = r.isDynamic && r.name == APPLY_DYNAMIC_NAMED
               def update(tp: ScType): ScType = {
                 if (r.isDynamic) getDynamicReturn(tp)
                 else tp
@@ -442,7 +440,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
                 case tp => update(ScTypePolymorphicType(tp, typeParams))
               })
               call.foreach(call => polyType = call.updateAccordingToExpectedType(polyType))
-              processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isDynamicNamed)
+              processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isApplyDynamicNamed(r))
             case _ =>
           }
         }
@@ -451,7 +449,6 @@ class ExpectedTypesImpl extends ExpectedTypes {
         if (cand.length == 1) {
           cand(0) match {
             case r@ScalaResolveResult(fun: ScFunction, subst) =>
-              val isDynamicNamed = r.isDynamic && r.name == APPLY_DYNAMIC_NAMED
               def update(tp: ScType): ScType = {
                 if (r.isDynamic) getDynamicReturn(tp)
                 else tp
@@ -459,7 +456,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
               var polyType: TypeResult = Right(update(subst.subst(fun.polymorphicType())))
               call.foreach(call => polyType = call.updateAccordingToExpectedType(polyType))
-              processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isDynamicNamed)
+              processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isApplyDynamicNamed(r))
             case _ =>
           }
         }

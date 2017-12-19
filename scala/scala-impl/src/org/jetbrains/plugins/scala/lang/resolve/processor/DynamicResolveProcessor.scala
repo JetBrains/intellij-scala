@@ -11,6 +11,7 @@ import scala.collection.JavaConverters._
 
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 object DynamicResolveProcessor {
 
@@ -53,5 +54,8 @@ object DynamicResolveProcessor {
   def resolveDynamic(reference: ScReferenceExpression): Seq[ResolveResult] = {
     getAllResolveResult(reference).asScala
   }
+
+  def isApplyDynamicNamed(r: ScalaResolveResult): Boolean =
+    r.isDynamic && r.name == APPLY_DYNAMIC_NAMED
 }
 

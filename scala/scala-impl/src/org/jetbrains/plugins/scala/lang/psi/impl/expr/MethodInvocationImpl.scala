@@ -75,7 +75,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
     val invokedType: ScType = updatedNonValueType.getOrElse(return InvocationData.Empty(updatedNonValueType))
 
-    val res: InvocationData.Success = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed), withExpectedType) match {
+    val res: InvocationData.Success = checkApplication(invokedType, args(isNamedDynamic = resolvesToApplyDynamicNamed), withExpectedType) match {
       case Some(s) => s
       case None =>
         val updateApplyData =
@@ -88,8 +88,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           else processedType
 
         val isNamedDynamic: Boolean =
-          updateApplyData.applyOrUpdateElem.exists(result => result.isDynamic &&
-            result.name == DynamicResolveProcessor.APPLY_DYNAMIC_NAMED)
+          updateApplyData.applyOrUpdateElem.exists(DynamicResolveProcessor.isApplyDynamicNamed)
 
         checkApplication(updatedProcessedType, args(includeUpdateCall = true, isNamedDynamic), withExpectedType)
           .map(_.withApplyUpdate(updateApplyData))
@@ -213,10 +212,10 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     } else default
   }
 
-  private def isApplyDynamicNamed: Boolean = {
+  private def resolvesToApplyDynamicNamed: Boolean = {
     getEffectiveInvokedExpr match {
       case ref: ScReferenceExpression =>
-        ref.bind().exists(result => result.isDynamic && result.name == DynamicResolveProcessor.APPLY_DYNAMIC_NAMED)
+        ref.bind().exists(DynamicResolveProcessor.isApplyDynamicNamed)
       case _ => false
     }
   }
