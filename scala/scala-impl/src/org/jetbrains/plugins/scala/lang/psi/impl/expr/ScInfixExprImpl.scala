@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-class ScInfixExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScInfixExpr {
+class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScInfixExpr {
 
   override def argumentExpressions: Seq[ScExpression] = {
     if (isRightAssoc) Seq(lOp)

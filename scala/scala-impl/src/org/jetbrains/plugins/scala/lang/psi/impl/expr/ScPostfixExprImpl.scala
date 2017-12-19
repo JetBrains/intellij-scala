@@ -14,7 +14,7 @@ import scala.collection.Seq
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-class ScPostfixExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScPostfixExpr {
+class ScPostfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScPostfixExpr {
 
   def argumentExpressions: Seq[ScExpression] = Seq.empty
 

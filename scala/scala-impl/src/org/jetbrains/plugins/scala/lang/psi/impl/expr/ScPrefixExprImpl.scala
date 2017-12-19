@@ -13,7 +13,7 @@ import scala.collection.Seq
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-class ScPrefixExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScPrefixExpr {
+class ScPrefixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScPrefixExpr {
 
   def argumentExpressions: Seq[ScExpression] = Seq.empty
 
