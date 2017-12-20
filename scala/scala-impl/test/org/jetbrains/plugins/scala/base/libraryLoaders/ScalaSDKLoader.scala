@@ -25,10 +25,12 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
       "org.scala-lang" % "scala-reflect"  % version.minor
     ).filterNot(!includeScalaReflect && _.artId.contains("reflect"))
 
-    val resolved = deps.flatMap(new DependencyManager().resolve(_))
+    val dependencyManager = new DependencyManager() {
+      override protected val artifactBlackList: Set[String] = Set.empty
+    }
 
-    val srcsResolved = new DependencyManager()
-      .resolve("org.scala-lang" % "scala-library" % version.minor % Types.SRC)
+    val resolved = deps.flatMap(dependencyManager.resolve(_))
+    val srcsResolved = dependencyManager.resolve("org.scala-lang" % "scala-library" % version.minor % Types.SRC)
 
     assertEquals(s"Failed to resolve scala sdk version $version, result:\n${resolved.mkString("\n")}",
       deps.size, resolved.size)

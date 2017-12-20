@@ -4,16 +4,19 @@ import java.io.File
 import java.nio.file.{Files, Paths}
 
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
+import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
 import org.apache.ivy.Ivy
+import org.apache.ivy.core.module.id.ModuleRevisionId
 import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
-import org.apache.ivy.plugins.resolver.{ChainResolver, URLResolver}
+import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, RepositoryResolver, URLResolver}
 import org.jetbrains.plugins.scala.DependencyManager.Dependency
 import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.junit.Assert
+
+import scala.collection.JavaConverters.asScalaBufferConverter
 
 class DependencyManager(val deps: Dependency*) {
   import DependencyManager._
@@ -24,84 +27,94 @@ class DependencyManager(val deps: Dependency*) {
 
   protected var resolvers = Seq(
     Resolver("central", "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).jar"),
-    Resolver("scalaz-releases", "http://dl.bintray.com/scalaz/releases/[organisation]/[module]/[revision]/[artifact](-[revision]).jar")
+    Resolver("scalaz-releases", "http://dl.bintray.com/scalaz/releases/[organisation]/[module]/[revision]/[artifact](-[revision]).jar"),
+    Resolver("typesafe-releases", "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).jar", mavenStyle = false)
   )
 
-  private def mkIvyXml(dep: Dependency): String = {
+  private def mkIvyXml(deps: Seq[Dependency]): String = {
     s"""
        |<ivy-module version="2.0" xmlns:e="http://ant.apache.org/ivy/extra">
        |<info organisation="org.jetbrains.plugins.scala" module="ij-scala-tests"/>
        | <configurations>
-       |   <conf name="default"/>
        |   <conf name="compile"/>
-       |   <conf name="test"/>
        | </configurations>
-       |  <dependencies>
-       |    <dependency org="${dep.org}" name="${dep.artId}" rev="${dep.version}" conf="${dep.conf}">
-       |      <artifact name="${dep.artId}" type="${dep.kind}" ext="jar" ${dep.classifier} />
-       |    </dependency>
-       |  </dependencies>
+       |  <dependencies>${deps.map(mkDependencyXML).mkString("\n")}</dependencies>
        |</ivy-module>
     """.stripMargin
   }
 
-  private def resolveIvy(d: Dependency): Seq[ResolvedDependency] = {
-    def mkResolver(r: Resolver): URLResolver = {
-      val resolver: URLResolver = new URLResolver
-      resolver.setM2compatible(true)
+  private def mkDependencyXML(dep: Dependency): String = {
+    def exclude(pat: String) = pat.split(":").toSeq match {
+      case Seq(org)       => s"""<exclude org="$org"/>"""
+      case Seq(org, name) => s"""<exclude org="$org" module="$name"/>"""
+      case _ => ""
+    }
+
+    s"""
+       |<dependency org="${dep.org}" name="${dep.artId}" rev="${dep.version}" conf="${dep.conf}" transitive="${dep._transitive}" >
+       |  <artifact name="${dep.artId}" type="${dep.kind}" ext="jar" ${dep.classifier} />
+       |  ${dep.excludes.map(exclude).mkString("\n")}
+       |</dependency>
+     """.stripMargin
+  }
+
+  private def resolveIvy(deps: Seq[Dependency]): Seq[ResolvedDependency] = {
+    def artToDep(id: ModuleRevisionId) = Dependency(id.getOrganisation, id.getName, id.getRevision)
+    def mkResolver(r: Resolver): RepositoryResolver = {
+      var resolver: RepositoryResolver = null
+      if (r.mavenStyle) {
+        val resolver = new IBiblioResolver
+        resolver.setM2compatible(true)
+      } else {
+        resolver = new URLResolver
+        resolver.addArtifactPattern(r.pattern)
+      }
       resolver.setName(r.name)
-      resolver.addArtifactPattern(r.pattern)
       resolver
     }
+
+    if (deps.isEmpty) return Seq.empty
+
     val ivySettings: IvySettings = new IvySettings
-    val chres = new ChainResolver
-    chres.setName("default")
-    resolvers.foreach { r => chres.add(mkResolver(r)) }
-    ivySettings.addResolver(chres)
+    val chainResolver = new ChainResolver
+    chainResolver.setName("default")
+    resolvers.foreach { r => chainResolver.add(mkResolver(r)) }
+    ivySettings.addResolver(chainResolver)
     ivySettings.setDefaultResolver("default")
     ivySettings.setDefaultIvyUserDir(ivyHome)
     val ivy: Ivy = Ivy.newInstance(ivySettings)
     val ivyFile = File.createTempFile("ivy", ".xml")
     ivyFile.deleteOnExit()
-    Files.write(Paths.get(ivyFile.toURI), mkIvyXml(d).getBytes)
-    val resolveOptions = new ResolveOptions().setConfs(Array("default", "test", "compile"))
+    Files.write(Paths.get(ivyFile.toURI), mkIvyXml(deps).getBytes)
+    val resolveOptions = new ResolveOptions().setConfs(Array("compile"))
     val report = ivy.resolve(ivyFile.toURI.toURL, resolveOptions)
     ivyFile.delete()
     if (report.getAllProblemMessages.isEmpty && report.getAllArtifactsReports.length > 0) {
-      if (d._transitive) {
-        report
-          .getAllArtifactsReports
-          .filter(r => !artifactBlackList.contains(stripScalaVersion(r.getName)))
-          .map(a => ResolvedDependency(d, a.getLocalFile))
-      } else {
-        val foundArtifact = report.getAllArtifactsReports.find(_.getName == d.artId)
-        foundArtifact.map(a=>ResolvedDependency(d, a.getLocalFile)).toList
-      }
+      report
+        .getAllArtifactsReports
+        .filter(r => !artifactBlackList.contains(stripScalaVersion(r.getName)))
+        .map(a => ResolvedDependency(artToDep(a.getArtifact.getModuleRevisionId), a.getLocalFile))
     }
-    else Seq.empty
+    else {
+      Assert.fail(s"${report.getAllProblemMessages.asScala.mkString("\n")}")
+      Seq.empty
+    }
   }
 
 
 
-  private def resolveFast(dep: Dependency): Option[ResolvedDependency] = {
+  private def resolveFast(dep: Dependency): Either[ResolvedDependency, Dependency] = {
     val suffix = if (dep.classifierBare.nonEmpty) s"-${dep.classifierBare}" else ""
     val file = new File(ivyHome, s"cache/${dep.org}/${dep.artId}/${dep.kind}s/${dep.artId}-${dep.version}$suffix.jar")
-    if (file.exists())
-      Some(ResolvedDependency(dep, file))
+    if (!dep._transitive && file.exists())
+      Left(ResolvedDependency(dep, file))
     else
-      None
+      Right(dep)
   }
 
-  def resolve(dependency: Dependency): Seq[ResolvedDependency] = {
-    val result = if (dependency._transitive)  // TODO: parse dependency metadata to lookup local transitive dependencies
-      resolveIvy(dependency)
-    else
-      resolveFast(dependency) match {
-        case Some(resolved) => Seq(resolved)
-        case None           => resolveIvy(dependency)
-      }
-    Assert.assertTrue(s"Failed to resolve dependency: $dependency", result.nonEmpty)
-    result
+  def resolve(dependencies: Dependency*): Seq[ResolvedDependency] = {
+    val (localResolved, unresolved) = partitionEithers(dependencies.map(resolveFast))
+    localResolved ++ resolveIvy(unresolved)
   }
 
   def load(deps: Dependency*)(implicit module: Module): Unit = {
@@ -141,7 +154,8 @@ object DependencyManager {
                         version: String,
                         conf: String = "compile->default(compile)",
                         _kind: Types.Type = Types.JAR,
-                        _transitive: Boolean = false)
+                        _transitive: Boolean = false,
+                        excludes: Seq[String] = Seq.empty)
   {
     def kind: String = _kind.toString.toLowerCase
     def %(version: String): Dependency = copy(version = version)
@@ -150,6 +164,7 @@ object DependencyManager {
     def transitive(): Dependency = copy(_transitive = true)
     def classifier: String = if (classifierBare.nonEmpty) s"""e:classifier="$classifierBare"""" else ""
     def classifierBare: String = if (_kind == Types.SRC) "sources" else ""
+    def exclude(patterns: String*): Dependency = copy(excludes = patterns)
   }
 
   case class ResolvedDependency(info: Dependency, file: File) {
@@ -162,7 +177,22 @@ object DependencyManager {
       Dependency(value, s"${right}_${scalaVersion.major}", "UNKNOWN")
   }
 
-  case class Resolver(name: String, pattern: String)
+  case class Resolver(name: String, pattern: String, mavenStyle: Boolean = true)
 
+  def partitionEithers[A, B](input: Traversable[Either[A, B]]): (IndexedSeq[A], IndexedSeq[B])= {
+    val a = IndexedSeq.newBuilder[A]
+    a.sizeHint(input)
+    val b = IndexedSeq.newBuilder[B]
+    b.sizeHint(input)
+
+    for (x <- input) {
+      x match {
+        case Left(aItem) => a += aItem
+        case Right(bItem) => b += bItem
+      }
+    }
+
+    (a.result(), b.result())
+  }
 }
 
