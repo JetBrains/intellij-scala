@@ -113,7 +113,7 @@ class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReferenceElement]
 
         resolver.getIndex(project).foreach {
           indicator.setText("Updating dependency index...")
-          _.doUpdate(Some(indicator))(project)
+          _.doUpdate(Some(indicator))
         }
 
         val deps = getDeps

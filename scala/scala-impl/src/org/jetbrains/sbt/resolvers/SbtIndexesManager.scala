@@ -35,7 +35,7 @@ class SbtIndexesManager(val project: Project) extends AbstractProjectComponent(p
         override def run(indicator: ProgressIndicator): Unit = {
           indicator.setIndeterminate(true)
           indicator.setText(s"Updating: $name")
-          index.doUpdate(Some(indicator))(project)
+          index.doUpdate(Some(indicator))
         }
       })
     }
@@ -53,13 +53,13 @@ class SbtIndexesManager(val project: Project) extends AbstractProjectComponent(p
 
   private def createNewIvyIndex(name: String, root: String): ResolverIndex = {
     try {
-      new IvyIndex(root, name)
+      new IvyIndex(root, name, project)
     } catch {
       case e: Throwable =>  // workaround for severe persistent storage corruption
         val cccc = e.getMessage
         val zzz = e.getStackTrace
         cleanUpCorruptedIndex(ResolverIndex.getIndexDirectory(root))
-        new IvyIndex(root, name)
+        new IvyIndex(root, name, project)
     }
   }
 

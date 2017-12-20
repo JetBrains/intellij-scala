@@ -94,7 +94,7 @@ private class ResolversModel(val resolvers: Seq[SbtResolver], val project:Projec
           resolver <- resolvers.lift(rowIndex)
           index <- resolver.getIndex(project)
         } yield {
-          val ts = index.getUpdateTimeStamp(project)
+          val ts = index.getUpdateTimeStamp
           if (ts == ResolverIndex.NO_TIMESTAMP)
             SbtBundle("sbt.settings.resolvers.neverUpdated")
           else if (ts == ResolverIndex.MAVEN_UNAVALIABLE)
