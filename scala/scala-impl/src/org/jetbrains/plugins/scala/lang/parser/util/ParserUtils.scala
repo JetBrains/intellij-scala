@@ -28,6 +28,21 @@ object ParserUtils extends ParserUtilsBase {
     token
   })
 
+  def lookBack(psiBuilder: PsiBuilder, n: Int): IElementType = {
+    @scala.annotation.tailrec
+    def lookBackImpl(step: Int, all: Int): IElementType = {
+      psiBuilder.rawLookup(step) match {
+        case ws if TokenSets.WHITESPACE_OR_COMMENT_SET.contains(ws) => lookBackImpl(step-1, all)
+        case other if all == 0 => other
+        case other => lookBackImpl(step-1, all-1)
+      }
+    }
+
+    lookBackImpl(-1, n)
+  }
+
+  def lookBack(psiBuilder: PsiBuilder): IElementType = lookBack(psiBuilder, 1)
+  
   //Write element node
   def eatElement(builder: PsiBuilder, elem: IElementType) {
     if (!builder.eof()) {
