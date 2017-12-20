@@ -3,10 +3,7 @@ package org.jetbrains.plugins.scala
 import java.io.File
 import java.nio.file.{Files, Paths}
 
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
-import com.intellij.testFramework.PsiTestUtil
 import org.apache.ivy.Ivy
 import org.apache.ivy.core.module.id.ModuleRevisionId
 import org.apache.ivy.core.resolve.ResolveOptions
@@ -63,7 +60,7 @@ class DependencyManager(val deps: Dependency*) {
     def mkResolver(r: Resolver): RepositoryResolver = {
       var resolver: RepositoryResolver = null
       if (r.mavenStyle) {
-        val resolver = new IBiblioResolver
+        resolver = new IBiblioResolver
         resolver.setM2compatible(true)
       } else {
         resolver = new URLResolver
@@ -117,21 +114,6 @@ class DependencyManager(val deps: Dependency*) {
     localResolved ++ resolveIvy(unresolved)
   }
 
-  def load(deps: Dependency*)(implicit module: Module): Unit = {
-    deps.foreach { d =>
-      resolve(d) match {
-        case resolved if resolved.nonEmpty =>
-          resolved.foreach { res =>
-            VfsRootAccess.allowRootAccess(res.file.getCanonicalPath)
-            PsiTestUtil.addLibrary(module, res.file.getName, res.file.getParent, res.file.getName)
-          }
-        case _ => println(s"failed ro resolve dependency: $d")
-      }
-    }
-  }
-
-  def loadAll(implicit module: Module): Unit = load(deps:_*)(module)
-
   def withResolvers(_resolvers: Seq[Resolver]): DependencyManager = {
     resolvers = resolvers ++ _resolvers
     this
@@ -165,6 +147,7 @@ object DependencyManager {
     def classifier: String = if (classifierBare.nonEmpty) s"""e:classifier="$classifierBare"""" else ""
     def classifierBare: String = if (_kind == Types.SRC) "sources" else ""
     def exclude(patterns: String*): Dependency = copy(excludes = patterns)
+    override def toString: String = s"$org:$artId:$version"
   }
 
   case class ResolvedDependency(info: Dependency, file: File) {
