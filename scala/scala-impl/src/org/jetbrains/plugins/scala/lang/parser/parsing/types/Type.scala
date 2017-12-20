@@ -52,12 +52,15 @@ trait Type {
             case ScalaTokenTypes.tFUNTYPE =>
               val funMarker = typeMarker.precede()
               builder.advanceLexer() //Ate =>
-              if (!parse(builder, star = false, isPattern = isPattern)) {
+              if (!parse(builder, isPattern = isPattern)) {
                 builder error ScalaBundle.message("wrong.type")
               }
               funMarker.done(ScalaElementTypes.TYPE)
             case _ =>
           }
+          return true
+        case ScalaTokenTypes.tIDENTIFIER if builder.getTokenText == "*" => 
+          typeMarker.drop()
           return true
         case _ =>
           typeMarker.drop()
@@ -69,7 +72,7 @@ trait Type {
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE =>
         builder.advanceLexer() //Ate =>
-        if (!parse(builder, star = false, isPattern = isPattern)) {
+        if (!parse(builder, isPattern = isPattern)) {
           builder error ScalaBundle.message("wrong.type")
         }
         typeMarker.done(ScalaElementTypes.TYPE)
