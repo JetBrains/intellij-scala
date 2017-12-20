@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import java.io.File
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.collection.mutable
@@ -25,7 +26,7 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.{Key, Ref}
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.testFramework.EdtTestUtil
+import com.intellij.testFramework.{EdtTestUtil, ThreadTracker}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.xdebugger.XDebuggerManager
 import com.intellij.xdebugger.breakpoints.XBreakpointType
@@ -78,6 +79,10 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
         breakpointTracker.removeListener(debugProcess)
         breakpointTracker = null
         processHandler.destroyProcess()
+        val timeout = 10.seconds
+        Assert.assertTrue(s"Debuggee process have not exited for $timeout",
+          processHandler.waitFor(timeout.toMillis))
+        ThreadTracker.awaitJDIThreadsTermination(10, TimeUnit.SECONDS)
       })
     }
   }

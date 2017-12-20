@@ -3,6 +3,11 @@ package scala.meta.annotations
 import java.io.File
 import java.util.Collections
 
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.concurrent.duration.DurationInt
+import scala.meta.ScalaMetaTestBase
+import scala.meta.intellij.MetaExpansionsManager.{META_MINOR_VERSION, PARADISE_VERSION}
+
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.markup.GutterIconRenderer
@@ -14,7 +19,6 @@ import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
 import org.jetbrains.plugins.scala.DependencyManager
 import org.jetbrains.plugins.scala.DependencyManager._
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.debugger.CompilationCache
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -22,13 +26,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.{CompileServerUtil, TestUtils}
 import org.junit.Assert
 import org.junit.Assert.fail
-
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-import scala.meta.ScalaMetaTestBase
-import scala.meta.intellij.MetaExpansionsManager.{META_MINOR_VERSION, PARADISE_VERSION}
 
 abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaTestBase {
 
@@ -47,7 +47,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   override def tearDown(): Unit = try {
     disposeLibraries()
     compiler.tearDown()
-    CompileServerLauncher.instance.stop()
+    CompileServerUtil.stopAndWait(10.seconds)
   } finally {
     compiler = null
     super.tearDown()
