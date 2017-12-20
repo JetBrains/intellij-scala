@@ -1,14 +1,11 @@
 package scala.meta.annotations
 
-import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.testFramework.TestActionEvent
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 import org.junit.Assert
-
-import scala.collection.JavaConverters.asScalaBufferConverter
 
 /**
   * @author mutcianm
