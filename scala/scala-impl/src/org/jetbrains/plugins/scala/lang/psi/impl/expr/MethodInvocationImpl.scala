@@ -111,7 +111,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     val nonTupled = fun(exprs)
 
     def tupledWithSubstitutedType =
-      ScalaPsiUtil.tuplizy(exprs, this.resolveScope, getManager, ScalaPsiUtil.firstLeaf(this)).flatMap { e =>
+      ScalaPsiUtil.tupled(exprs, this).flatMap { e =>
         val tupled = fun(e)
         tupled.withSubstitutedType
       }

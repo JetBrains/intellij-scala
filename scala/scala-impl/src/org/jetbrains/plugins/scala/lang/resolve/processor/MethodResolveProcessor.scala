@@ -152,7 +152,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
         //tupling ok
         isShapeResolve = false
         val oldArg = argumentClauses
-        val tpl = ScalaPsiUtil.tuplizy(argumentClauses.head, ref.resolveScope, ref.getManager, ScalaPsiUtil.firstLeaf(ref))
+        val tpl = ScalaPsiUtil.tupled(argumentClauses.head, ref)
         if (tpl.isEmpty) {
           return MethodResolveProcessor.candidates(this, input)
         }
