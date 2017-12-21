@@ -16,13 +16,13 @@ import scala.beans.BeanProperty
   storages = Array(new Storage(StoragePathMacros.WORKSPACE_FILE))
 )
 class SbtLocalSettings(project: Project)
-  extends AbstractExternalSystemLocalSettings(SbtProjectSystem.Id, project)
+  extends AbstractExternalSystemLocalSettings[SbtLocalSettingsState](SbtProjectSystem.Id, project)
   with PersistentStateComponent[SbtLocalSettingsState] {
 
   var sbtSupportSuggested = false
   var lastUpdateTimestamp = 0L
 
-  def getState: SbtLocalSettingsState = {
+  override def getState: SbtLocalSettingsState = {
     val state = new SbtLocalSettingsState
     fillState(state)
     state.setSbtSupportSuggested(sbtSupportSuggested)

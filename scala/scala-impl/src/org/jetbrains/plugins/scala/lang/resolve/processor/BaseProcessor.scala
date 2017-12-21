@@ -123,14 +123,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     }
   }
 
-  def getHint[T](hintKey: Key[T]): T = {
+  override def getHint[T](hintKey: Key[T]): T = {
     hintKey match {
       case ElementClassHint.KEY => MyElementClassHint.asInstanceOf[T]
       case _ => null.asInstanceOf[T]
     }
   }
-
-  def handleEvent(event: PsiScopeProcessor.Event, associated: Object) {}
 
   protected def kindMatches(element: PsiElement): Boolean = ResolveUtils.kindMatches(element, kinds)
 

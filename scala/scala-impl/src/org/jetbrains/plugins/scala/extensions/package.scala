@@ -867,7 +867,7 @@ package object extensions {
       }
     }
 
-    def stubOrPsiChild[Psi <: PsiElement, Stub <: StubElement[_ <: Psi]](elementType: IStubElementType[Stub, Psi]): Option[Psi] = {
+    def stubOrPsiChild[Psi <: PsiElement, Stub <: StubElement[Psi]](elementType: IStubElementType[Stub, Psi]): Option[Psi] = {
       def findWithNode() = {
         val node = Option(element.getNode.findChildByType(elementType))
         node.map(_.getPsi.asInstanceOf[Psi])

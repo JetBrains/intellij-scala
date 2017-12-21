@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.cbt.project.CbtProjectSystem
 
 class CbtLocalSettings(project: Project)
-  extends AbstractExternalSystemLocalSettings(CbtProjectSystem.Id, project)
+  extends AbstractExternalSystemLocalSettings[AbstractExternalSystemLocalSettings.State](CbtProjectSystem.Id, project)
 
 object CbtLocalSettings {
   def getInstance(project: Project): CbtLocalSettings =
