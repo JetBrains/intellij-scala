@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.util.reporter.ProgressReporter.TextBasedProgr
   * @author mutcianm
   * @since 16.05.17.
   */
-class TeamCityReporter(name: String, val filesWithProblems: Set[String], reportSuccess: Boolean) extends ProgressReporter {
+class TeamCityReporter(name: String, val filesWithProblems: Map[String, Set[TextRange]], reportSuccess: Boolean) extends ProgressReporter {
   import TeamCityReporter._
 
   override def updateHighlightingProgress(percent: Int): Unit = progressMessage(s"Highlighting - $percent%")
