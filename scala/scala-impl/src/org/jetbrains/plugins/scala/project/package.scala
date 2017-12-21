@@ -109,7 +109,7 @@ package object project {
     private def manager =
       ModuleManager.getInstance(project)
 
-    private def modules: Seq[Module] =
+    def modules: Seq[Module] =
       manager.getModules.toSeq
 
     def modifiableModel: ModifiableModuleModel =

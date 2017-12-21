@@ -6,6 +6,8 @@ import java.util
 import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
 import javax.swing.{JPanel, JTree}
 
+import scala.collection.mutable.ArrayBuffer
+
 import com.intellij.ide.projectView.impl.nodes.AbstractPsiBasedNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.ide.util.treeView.{AbstractTreeBuilder, AbstractTreeNode, AbstractTreeStructure, NodeDescriptor}
@@ -34,8 +36,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
-
-import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * User: Alefas
@@ -107,6 +108,8 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
         case Some(seq) => showPopup(editor, seq)
       }
     }
+
+    Stats.trigger(FeatureKey.showImplicitParameters)
 
     if (editor.getSelectionModel.hasSelection) {
       getExpression(file).foreach(forExpr)

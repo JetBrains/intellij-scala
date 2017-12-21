@@ -8,12 +8,12 @@ import org.junit.experimental.categories.Category
  * User: Alefas
  * Date: 13.10.11
  */
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class ScalaLocalVariablesEvaluationTest extends ScalaLocalVariablesEvaluationTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
 
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class ScalaLocalVariablesEvaluationTest_212 extends ScalaLocalVariablesEvaluationTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }

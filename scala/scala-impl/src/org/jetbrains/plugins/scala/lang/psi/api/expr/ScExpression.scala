@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
-
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.conformsToDynamic
 import scala.annotation.tailrec
 import scala.collection.mutable
 
@@ -86,7 +86,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
       return oldParent.asInstanceOf[ScExpression].replaceExpression(expr, removeParenthesis = true)
     }
     val newExpr = if (ScalaPsiUtil.needParentheses(this, expr)) {
-      createExpressionFromText(expr.getText.parenthesize(needParenthesis = true))
+      createExpressionFromText(expr.getText.parenthesize())
     } else expr
     val parentNode = oldParent.getNode
     val newNode = newExpr.copy.getNode
@@ -247,17 +247,17 @@ object ScExpression {
       expectedTypeEx(fromUnderscore).map(_._1)
 
     def expectedTypeEx(fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] =
-      ExpectedTypes.expectedExprType(expr, fromUnderscore)
+      ExpectedTypes.instance().expectedExprType(expr, fromUnderscore)
 
     def expectedTypes(fromUnderscore: Boolean = true): Array[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
 
     @CachedWithRecursionGuard(expr, Array.empty[(ScType, Option[ScTypeElement])], ModCount.getBlockModificationCount)
     def expectedTypesEx(fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
-      ExpectedTypes.expectedExprTypes(expr, fromUnderscore = fromUnderscore)
+      ExpectedTypes.instance().expectedExprTypes(expr, fromUnderscore = fromUnderscore)
     }
 
     @CachedWithRecursionGuard(expr, None, ModCount.getBlockModificationCount)
-    def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.smartExpectedType(expr, fromUnderscore)
+    def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.instance().smartExpectedType(expr, fromUnderscore)
 
     def getTypeIgnoreBaseType: TypeResult = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
@@ -459,7 +459,7 @@ object ScExpression {
           cand = applyProc.candidates
         }
       }
-      if (cand.length == 0 && ScalaPsiUtil.approveDynamic(tp, expr.getProject, expr.resolveScope) && call.isDefined) {
+      if (cand.length == 0 && conformsToDynamic(tp, expr.resolveScope) && call.isDefined) {
         cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call.get, tp, isShape = true, isDynamic = true)
       }
       cand

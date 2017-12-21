@@ -40,5 +40,5 @@ class ScalaWithParenthesisSurrounder extends ScalaExpressionSurrounder {
     new TextRange(offset, offset)
   }
 
-  override def needParenthesis(elements: Array[PsiElement]) = false
+  override def needParenthesis(element: PsiElement) = false
 }

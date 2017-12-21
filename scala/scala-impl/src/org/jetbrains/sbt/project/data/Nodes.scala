@@ -14,7 +14,7 @@ class ProjectNode(val data: ProjectData)
     this(new ProjectData(SbtProjectSystem.Id, name, ideProjectFileDirectoryPath, linkedExternalProjectPath))
   }
 
-  protected def key = ProjectKeys.PROJECT
+  protected def key: Key[ProjectData] = ProjectKeys.PROJECT
 }
 
 class ModuleNode(val data: ModuleData)
@@ -23,7 +23,7 @@ class ModuleNode(val data: ModuleData)
     this(new ModuleData(id, SbtProjectSystem.Id, typeId, name, moduleFileDirectoryPath, externalConfigPath))
   }
 
-  protected def key = ProjectKeys.MODULE
+  protected def key: Key[ModuleData] = ProjectKeys.MODULE
 }
 
 class LibraryNode(val data: LibraryData)
@@ -36,7 +36,7 @@ class LibraryNode(val data: LibraryData)
     paths.foreach(data.addPath(pathType, _))
   }
 
-  protected def key = ProjectKeys.LIBRARY
+  protected def key: Key[LibraryData] = ProjectKeys.LIBRARY
 }
 
 class ContentRootNode(val data: ContentRootData)
@@ -49,7 +49,7 @@ class ContentRootNode(val data: ContentRootData)
     paths.foreach(data.storePath(sourceType, _))
   }
 
-  protected def key = ProjectKeys.CONTENT_ROOT
+  protected def key: Key[ContentRootData] = ProjectKeys.CONTENT_ROOT
 }
 
 class ModuleDependencyNode(val data: ModuleDependencyData)
@@ -58,7 +58,7 @@ class ModuleDependencyNode(val data: ModuleDependencyData)
     this(new ModuleDependencyData(ownerModule, module))
   }
 
-  protected def key = ProjectKeys.MODULE_DEPENDENCY
+  protected def key: Key[ModuleDependencyData] = ProjectKeys.MODULE_DEPENDENCY
 }
 
 class LibraryDependencyNode(val data: LibraryDependencyData)
@@ -67,11 +67,11 @@ class LibraryDependencyNode(val data: LibraryDependencyData)
     this(new LibraryDependencyData(ownerModule, library, level))
   }
 
-  protected def key = ProjectKeys.LIBRARY_DEPENDENCY
+  protected def key: Key[LibraryDependencyData] = ProjectKeys.LIBRARY_DEPENDENCY
 }
 
 class SbtProjectNode(val data: SbtProjectData) extends Node[SbtProjectData] {
-  override protected def key = SbtProjectData.Key
+  override protected def key: Key[SbtProjectData] = SbtProjectData.Key
 }
 
 class SbtModuleNode(val data: SbtModuleData) extends Node[SbtModuleData] {
@@ -91,19 +91,19 @@ class SbtCommandNode(val data: SbtCommandData) extends Node[SbtCommandData] {
 }
 
 class ModuleExtNode(val data: ModuleExtData) extends Node[ModuleExtData] {
-  protected def key = ModuleExtData.Key
+  protected def key: Key[ModuleExtData] = ModuleExtData.Key
 }
 
 class AndroidFacetNode(val data: AndroidFacetData) extends Node[AndroidFacetData] {
-  protected def key = AndroidFacetData.Key
+  protected def key: Key[AndroidFacetData] = AndroidFacetData.Key
 }
 
 class Play2ProjectNode(val data: Play2ProjectData) extends Node[Play2ProjectData] {
-  def key = Play2ProjectData.Key
+  def key: Key[Play2ProjectData] = Play2ProjectData.Key
 }
 
 class SbtBuildModuleNode(val data: SbtBuildModuleData) extends Node[SbtBuildModuleData] {
-  protected def key = SbtBuildModuleData.Key
+  protected def key: Key[SbtBuildModuleData] = SbtBuildModuleData.Key
 }
 
 

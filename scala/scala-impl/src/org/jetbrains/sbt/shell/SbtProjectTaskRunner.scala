@@ -3,15 +3,21 @@ package org.jetbrains.sbt.shell
 import java.io.File
 import java.util
 import java.util.UUID
+import javax.swing.JComponent
+
+import scala.collection.JavaConverters._
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import scala.util.{Failure, Success}
 
 import com.intellij.build.events.impl._
 import com.intellij.build.events.{BuildEvent, MessageEvent, SuccessResult, Warning}
-import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, FilePosition, events}
+import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, events}
 import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.filters.RegexpFilter
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.compiler.ex.CompilerPathsEx
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.ProjectKeys
@@ -32,12 +38,6 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.shell.event._
-
-import scala.collection.JavaConverters._
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
-import scala.util.{Failure, Success}
 
 /**
   * Created by jast on 2016-11-25.
@@ -131,20 +131,19 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
   import CommandTask._
 
+  private val taskId: UUID = UUID.randomUUID()
+  private val shellRunner: SbtShellRunner = SbtProcessManager.forProject(project).acquireShellRunner
+
+  private def showShell(): Unit = ShellUIUtil.inUI {
+    shellRunner.openShell(false)
+  }
+
   override def run(indicator: ProgressIndicator): Unit = {
 
+    val report = new IndicatorReporter(indicator)
     val shell = SbtShellCommunication.forProject(project)
-    val viewManager = ServiceManager.getService(project, classOf[BuildViewManager])
 
-    val taskId = UUID.randomUUID()
-    val buildDescriptor = new DefaultBuildDescriptor(taskId, "sbt build", project.getBasePath, System.currentTimeMillis())
-    val startEvent = new StartBuildEventImpl(buildDescriptor, "queued ...")
-
-    viewManager.onEvent(startEvent)
-
-    val outputEvent: String => BuildEvent = msg => new OutputBuildEventImpl(taskId, msg.trim + System.lineSeparator(), true)
-    val warnEvent: String => MessageEvent = SbtShellBuildWarning(taskId, _)
-    val errorEvent: String => MessageEvent = SbtShellBuildError(taskId, _)
+    report.start()
 
     // TODO build events instead of indicator
     val resultAggregator: (BuildMessages,ShellEvent) => BuildMessages = { (messages,event) =>
@@ -158,7 +157,8 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
           messages
         case ErrorWaitForInput =>
           // can only actually happen during reload, but handle it here to be sure
-          viewManager.onEvent(errorEvent("build interrupted"))
+          showShell()
+          report.error("build interrupted")
           messages.addError("ERROR: build interrupted")
           messages
         case Output(raw) =>
@@ -167,82 +167,53 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
           val messagesWithErrors = if (text startsWith ERROR_PREFIX) {
             val msg = text.stripPrefix(ERROR_PREFIX)
             // only report first error until we can get a good mapping message -> error
-            if (messages.errors.isEmpty)
-              viewManager.onEvent(errorEvent("errors in build"))
+            if (messages.errors.isEmpty) {
+              showShell()
+              report.error("errors in build")
+            }
             messages.addError(msg)
           } else if (text startsWith WARN_PREFIX) {
             val msg = text.stripPrefix(WARN_PREFIX)
             // only report first warning
-            if (messages.warnings.isEmpty)
-              viewManager.onEvent(warnEvent("warnings in build"))
+            if (messages.warnings.isEmpty) {
+              report.warning("warnings in build")
+            }
             messages.addWarning(msg)
           } else messages
 
-          viewManager.onEvent(outputEvent(text))
+          report.output(text)
+
           messagesWithErrors.appendMessage(text)
       }
     }
-
-    val failedResult = new ProjectTaskResult(true, 1, 0)
 
     // TODO consider running module build tasks separately
     // may require collecting results individually and aggregating
     val commandFuture = shell.command(command, BuildMessages.empty, resultAggregator, showShell = true)
 
+    // block thread to make indicator available :(
+    val buildMessages = Await.ready(commandFuture, Duration.Inf).value.get
+
     // build effects
-    commandFuture
-      .andThen {
-        case _ => refreshRoots(modules, indicator)
-      }
+    refreshRoots(modules, indicator)
 
     // handle callback
-    commandFuture
-      .map(messages => new ProjectTaskResult(messages.aborted, messages.errors.size, messages.warnings.size))
-      .andThen {
-        case Success(taskResult) => callbackOpt.foreach(_.finished(taskResult))
-        case Failure(_) => callbackOpt.foreach(_.finished(failedResult))
-      }
+    buildMessages match {
+      case Success(messages) =>
+        val taskResult = new ProjectTaskResult(messages.aborted, messages.errors.size, messages.warnings.size)
+        callbackOpt.foreach(_.finished(taskResult))
+      case Failure(_) =>
+        val failedResult = new ProjectTaskResult(true, 1, 0)
+        callbackOpt.foreach(_.finished(failedResult))
+    }
 
     // build state reporting
-    commandFuture
-      .andThen {
-        case Success(messages) =>
-          val (result, resultMessage) =
-            if (messages.errors.isEmpty)
-              (new SuccessResultImpl, "success")
-            else {
-              val fails: util.List[events.Failure] = messages.errors.asJava
-              (new FailureResultImpl(fails), "failed")
-            }
-
-          val finishEvent =
-            new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), resultMessage, result)
-          viewManager.onEvent(finishEvent)
-        case Failure(err) =>
-          val failureResult = new FailureResultImpl(err)
-          val finishEvent =
-            new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), "failed", failureResult)
-          viewManager.onEvent(finishEvent)
-      }
-
-    // block thread to make indicator available :(
-    Await.ready(commandFuture, Duration.Inf)
+    buildMessages match {
+      case Success(messages) => report.finish(messages)
+      case Failure(err) => report.finishWithFailure(err)
+    }
   }
 
-  private val myPattern = fileWithLinePattern(project)
-
-  // TODO unused for now. use this when we can parse error messages so that one output corresponds to one error
-  // but probably this needs sbt server support or it gets too messy
-  private def buildError(taskId: Any, message: String): MessageEvent = {
-    val matcher = myPattern.matcher(message)
-
-    if (matcher.find() && matcher.groupCount() >= 2) {
-      val file = new File(matcher.group(2))
-      val line = matcher.group(3).toInt
-      val position = new FilePosition(file, line, 0)
-      SbtFileBuildError(taskId, message, position)
-    } else SbtShellBuildError(taskId, message)
-  }
 
   // remove this if/when external system handles this refresh on its own
   private def refreshRoots(modules: Array[Module], indicator: ProgressIndicator): Unit = {
@@ -277,10 +248,99 @@ object CommandTask {
   private val WARN_PREFIX = "[warn]"
   private val ERROR_PREFIX = "[error]"
 
-  // duplication with SbtShellConsoleView.filePatternFilters
-  private val fileWithLinePatternMacro = s"${RegexpFilter.FILE_PATH_MACROS}:${RegexpFilter.LINE_MACROS}"
-  private def fileWithLinePattern(project:Project) = new RegexpFilter(project, fileWithLinePatternMacro).getPattern
+}
 
+/**
+  * Reporter inteded only for needs of SbtProjectTaskRunner
+  */
+trait BuildReporter {
+  def start()
+  def finish(messages: BuildMessages): Unit
+  def finishWithFailure(err: Throwable)
+  def warning(message: String): Unit
+  def error(message: String): Unit
+  def output(message: String): Unit
+}
+
+private class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
+  override def start(): Unit = {
+    indicator.setText("sbt build queued ...")
+  }
+
+  override def finish(messages: BuildMessages): Unit = {
+    indicator.setText2("")
+
+    if (messages.errors.isEmpty)
+      indicator.setText("sbt build completed")
+    else
+      indicator.setText("sbt build failed")
+  }
+
+  override def finishWithFailure(err: Throwable): Unit = {
+    indicator.setText(s"sbt errored: ${err.getMessage}")
+  }
+
+  override def warning(message: String): Unit = {}
+
+  override def error(message: String): Unit = {}
+
+  override def output(message: String): Unit = {
+    indicator.setText("sbt building ...")
+    indicator.setText2(message)
+  }
+}
+
+private class BuildToolWindowReporter(project: Project, taskId: UUID) extends BuildReporter {
+
+  def start(): Unit = {
+    val buildDescriptor = new DefaultBuildDescriptor(taskId, "sbt build", project.getBasePath, System.currentTimeMillis())
+    val startEvent = new StartBuildEventImpl(buildDescriptor, "queued ...")
+      .withContentDescriptorSupplier { () => // dummy runContentDescriptor to set autofocus of build toolwindow off
+        val descriptor = new RunContentDescriptor(null, null, new JComponent {}, "sbt build")
+        descriptor.setActivateToolWindowWhenAdded(false)
+        descriptor.setAutoFocusContent(false)
+        descriptor
+      }
+
+    viewManager.onEvent(startEvent)
+  }
+
+  def finish(messages: BuildMessages): Unit = {
+    val (result, resultMessage) =
+      if (messages.errors.isEmpty)
+        (new SuccessResultImpl, "success")
+      else {
+        val fails: util.List[events.Failure] = messages.errors.asJava
+        (new FailureResultImpl(fails), "failed")
+      }
+
+    val finishEvent =
+      new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), resultMessage, result)
+    viewManager.onEvent(finishEvent)
+  }
+
+  def finishWithFailure(err: Throwable): Unit = {
+    val failureResult = new FailureResultImpl(err)
+    val finishEvent =
+      new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), "failed", failureResult)
+    viewManager.onEvent(finishEvent)
+  }
+
+  def warning(message: String): Unit =
+    viewManager.onEvent(warnEvent(message))
+
+  def error(message: String): Unit =
+    viewManager.onEvent(errorEvent(message))
+
+  def output(message: String): Unit = {
+    viewManager.onEvent(outputEvent(message))
+  }
+
+  private lazy val viewManager: BuildViewManager = ServiceManager.getService(project, classOf[BuildViewManager])
+
+  private val outputEvent: String => BuildEvent = msg => new OutputBuildEventImpl(taskId, msg.trim + System.lineSeparator(), true)
+  private val warnEvent: String => MessageEvent = SbtShellBuildWarning(taskId, _)
+  private val errorEvent: String => MessageEvent = SbtShellBuildError(taskId, _)
 }
 
 private case class BuildMessages(warnings: Seq[events.Warning], errors: Seq[events.Failure], log: Seq[String], aborted: Boolean) {

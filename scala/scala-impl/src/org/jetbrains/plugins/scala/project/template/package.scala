@@ -6,7 +6,6 @@ import java.io.{Closeable, File, FileWriter, PrintWriter}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.util.PathUtil
-import org.apache.commons.io.FileUtils
 
 import scala.reflect.ClassTag
 
@@ -36,7 +35,7 @@ package object template {
     try {
       block(directory)
     } finally {
-      FileUtils.deleteDirectory(directory)
+      FileUtil.delete(directory)
     }
   }
 
@@ -49,7 +48,7 @@ package object template {
       block(directory)
     } catch handler1 finally {
       try {
-        FileUtils.deleteDirectory(directory)
+        FileUtil.delete(directory)
       } catch handler2
     }
   }
@@ -79,7 +78,7 @@ package object template {
     def children: Seq[File] = Option(delegate.listFiles).map(_.toSeq).getOrElse(Seq.empty)
 
     def directories: Seq[File] = children.filter(_.isDirectory)
-    
+
     def files: Seq[File] = children.filter(_.isFile)
 
     def findByName(name: String): Option[File] = children.find(_.getName == name)

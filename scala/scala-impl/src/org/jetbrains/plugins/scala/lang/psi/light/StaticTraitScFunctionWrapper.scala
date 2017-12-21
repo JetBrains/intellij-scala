@@ -49,6 +49,9 @@ class StaticTraitScFunctionWrapper(val function: ScFunction, containingClass: Ps
 }
 
 object StaticTraitScFunctionWrapper {
+
+  def unapply(wrapper: StaticTraitScFunctionWrapper): Option[ScFunction] = Some(wrapper.function)
+
   def methodText(function: ScFunction, containingClass: PsiClassWrapper): String = {
     val annotationsAndModifiers = JavaConversionUtil.annotationsAndModifiers(function, isStatic = true)
     val (retType, name) =

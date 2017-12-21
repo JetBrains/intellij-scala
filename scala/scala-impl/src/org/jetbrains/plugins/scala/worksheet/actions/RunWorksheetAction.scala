@@ -8,7 +8,6 @@ import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.icons.AllIcons
 import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.ide.util.EditorHelper
-import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
@@ -25,11 +24,12 @@ import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.ScalaUtil
-import worksheet.processor.WorksheetCompiler
-import worksheet.runconfiguration.WorksheetCache
-import worksheet.server.WorksheetProcessManager
-import worksheet.ui.WorksheetEditorPrinterFactory
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterFactory
 
 /**
  * @author Ksenia.Sautina
@@ -64,7 +64,7 @@ object RunWorksheetAction {
   private val runnerClassName = "org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner"
 
   def runCompiler(project: Project, auto: Boolean) {
-    UsageTrigger.trigger("scala.worksheet")
+    Stats.trigger(FeatureKey.runWorksheet)
 
     if (project == null) return
 

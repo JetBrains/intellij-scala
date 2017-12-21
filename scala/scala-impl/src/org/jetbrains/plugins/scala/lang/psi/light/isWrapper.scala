@@ -10,12 +10,12 @@ import com.intellij.psi.impl.light.LightElement
  */
 object isWrapper {
   def unapply(lightElem: LightElement): Option[PsiNamedElement] = lightElem match {
-    case wr: PsiClassWrapper => Some(wr.definition)
-    case wr: PsiTypedDefinitionWrapper => Some(wr.delegate)
-    case wr: ScFunctionWrapper => Some(wr.delegate)
-    case wr: StaticPsiMethodWrapper => Some(wr.method)
-    case wr: StaticPsiTypedDefinitionWrapper => Some(wr.delegate)
-    case wr: StaticTraitScFunctionWrapper => Some(wr.function)
+    case PsiClassWrapper(definition) => Some(definition)
+    case PsiTypedDefinitionWrapper(delegate) => Some(delegate)
+    case ScFunctionWrapper(delegate) => Some(delegate)
+    case StaticPsiMethodWrapper(method) => Some(method)
+    case StaticPsiTypedDefinitionWrapper(delegate) => Some(delegate)
+    case StaticTraitScFunctionWrapper(function) => Some(function)
     case _ => None
   }
 }

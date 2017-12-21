@@ -116,10 +116,8 @@ object ResolveUtils {
           case _ => return true
         }
       //todo: ugly workaround, probably FakePsiMethod is better to remove?
-      case f: FakePsiMethod => f.navElement match {
-        case memb: PsiMember => return isAccessible(memb, place)
-        case _ =>
-      }
+      case FakePsiMethod(method: PsiMember) => return isAccessible(method, place)
+      case _: FakePsiMethod =>
       case isLightScNamedElement(named: ScMember) => return isAccessible(named, place)
       case _ =>
     }

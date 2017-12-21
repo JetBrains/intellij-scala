@@ -26,32 +26,4 @@ class AlreadyDefinedTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |  def x() = 2
         |}
       """.stripMargin)
-
-  def testSCL11277(): Unit =
-    checkTextHasNoErrors(
-      """
-        |trait Functor[F[_]] {
-        |  def map[A, B](fa: F[A])(f: A => B): F[B]
-        |}
-        |
-        |trait Applicative[F[_]] extends Functor[F] {
-        |  def unit[A](a: A): F[A]
-        |
-        |  def apply[A, B](fa: F[A])(fab: F[A => B]): F[B] =
-        |    map2(fa, fab)((a, ab) => ab(a))
-        |
-        |  def map2[A, B, C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] =
-        |    apply(fb)(map(fa)(f.curried))
-        |
-        |  def map[A, B](fa: F[A])(f: A => B): F[B] =
-        |    map2(fa, unit(()))((a, _) => f(a))
-        |
-        |  def compose[G[_]](G: Applicative[G]): Applicative[({type f[x] = F[G[x]]})#f] = {
-        |    val self = this
-        |    new Applicative[({type f[x] = F[G[x]]})#f] {
-        |      def unit[A](a: A): F[G[A]] = self.unit(G.unit(a))
-        |    }
-        |  }
-        |}
-      """.stripMargin)
 }

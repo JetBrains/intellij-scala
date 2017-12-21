@@ -54,6 +54,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeRef
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
 
 import scala.collection.mutable.ArrayBuffer
@@ -80,9 +81,10 @@ abstract class ScalaAnnotator extends Annotator
       case file: ScalaFile =>
         val isInSources: Boolean = ScalaUtils.isUnderSources(file)
         if (isInSources && (element eq file)) {
-          if (typeAware) Stats.trigger("scala.file.with.type.aware.annotated")
-          else Stats.trigger("scala.file.without.type.aware.annotated")
+          val key = if (typeAware) FeatureKey.annotatorTypeAware else FeatureKey.annotatorNotTypeAware
+          Stats.trigger(key)
         }
+
         (file.isCompiled, isInSources)
       case _ => (false, false)
     }
@@ -138,7 +140,7 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitMacroDefinition(fun: ScMacroDefinition): Unit = {
-        if (isInSources) Stats.trigger("scala.macro.definition")
+        Stats.trigger(isInSources, FeatureKey.macroDefinition)
         super.visitMacroDefinition(fun)
       }
 
@@ -343,7 +345,7 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitExistentialTypeElement(exist: ScExistentialTypeElement): Unit = {
-        if (isInSources) Stats.trigger("scala.existential.type")
+        Stats.trigger(isInSources, FeatureKey.existentialType)
         super.visitExistentialTypeElement(exist)
       }
 
@@ -596,7 +598,7 @@ abstract class ScalaAnnotator extends Annotator
             !PsiTreeUtil.isAncestor(named, element, true)) { //to filter recursive usages
       val value: ValueUsed = element match {
         case ref: ScReferenceExpression if checkWrite &&
-                ScalaPsiUtil.isPossiblyAssignment(ref.asInstanceOf[PsiElement]) => WriteValueUsed(named)
+          ScalaPsiUtil.isPossiblyAssignment(ref) => WriteValueUsed(named)
         case _ => ReadValueUsed(named)
       }
       val holder = ScalaRefCountHolder.getInstance(file)
@@ -793,7 +795,7 @@ abstract class ScalaAnnotator extends Annotator
         case mc: ScMethodCall =>
           val messageKey = "cannot.resolve.apply.method"
           if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateApplyQuickFix(td, mc))) return
-        case Both(p: ScPattern, (_: ScConstructorPattern | _: ScInfixPattern)) =>
+        case (p: ScPattern) && (_: ScConstructorPattern | _: ScInfixPattern) =>
           val messageKey = "cannot.resolve.unapply.method"
           if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateUnapplyQuickFix(td, p))) return
         case scalaDocTag: ScDocTag if scalaDocTag.getName == MyScaladocParsing.THROWS_TAG => return //see SCL-9490
@@ -806,7 +808,7 @@ abstract class ScalaAnnotator extends Annotator
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
       if (PsiTreeUtil.getParentOfType(refElement, classOf[ScImportExpr]) != null)
-        annotation.registerFix(new AddSbtDependencyFix(SmartPointerManager.getInstance(refElement.getProject).createSmartPsiElementPointer(refElement)))
+        annotation.registerFix(new AddSbtDependencyFix(refElement.createSmartPointer))
     }
   }
 
@@ -877,7 +879,7 @@ abstract class ScalaAnnotator extends Annotator
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
       if (PsiTreeUtil.getParentOfType(refElement, classOf[ScImportExpr]) != null)
-        annotation.registerFix(new AddSbtDependencyFix(SmartPointerManager.getInstance(refElement.getProject).createSmartPsiElementPointer(refElement)))
+        annotation.registerFix(new AddSbtDependencyFix(refElement.createSmartPointer))
     }
   }
 

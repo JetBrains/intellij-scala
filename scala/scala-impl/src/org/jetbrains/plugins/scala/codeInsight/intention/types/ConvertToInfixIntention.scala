@@ -22,7 +22,7 @@ class ConvertToInfixIntention extends PsiElementBaseIntentionAction {
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
-      case Parent(Both(ref: ScStableCodeReferenceElement, Parent(Parent(param: ScParameterizedTypeElement))))
+      case Parent((ref: ScStableCodeReferenceElement) && Parent(Parent(param: ScParameterizedTypeElement)))
        if param.typeArgList.typeArgs.size == 2 && !ref.refName.forall(_.isLetterOrDigit)  => true
       case _ => false
     }

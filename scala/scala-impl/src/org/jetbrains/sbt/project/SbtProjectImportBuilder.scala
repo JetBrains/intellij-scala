@@ -2,6 +2,7 @@ package org.jetbrains.sbt
 package project
 
 import java.io.File
+import javax.swing.Icon
 
 import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.openapi.externalSystem.model.DataNode
@@ -16,9 +17,9 @@ import com.intellij.openapi.project.Project
 class SbtProjectImportBuilder(projectDataManager: ProjectDataManager)
   extends AbstractExternalProjectImportBuilder[SbtImportControl](projectDataManager, new SbtImportControl(), SbtProjectSystem.Id) {
 
-  def getName = Sbt.Name
+  def getName: String = Sbt.Name
 
-  def getIcon = Sbt.Icon
+  def getIcon: Icon = Sbt.Icon
 
   def doPrepare(context: WizardContext) {}
 

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiModifier, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -16,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -50,7 +50,7 @@ trait OverridingAnnotator {
     if (!isInSources) return
     element.getParent match {
       case _: ScRefinement =>
-        if (supers.isEmpty) UsageTrigger.trigger("scala.structural.type")
+        Stats.trigger(supers.isEmpty, FeatureKey.structuralType)
       case _ =>
     }
   }

@@ -23,11 +23,7 @@ class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, Reference
       element match {
         case _ if !element.isValid => None
         case o: ScObject => Some((o, o.name))
-        case wrapper: PsiClassWrapper =>
-          wrapper.definition match {
-            case _: ScObject | _: ScTrait => Some((wrapper, wrapper.getName))
-            case _ => None
-          }
+        case wrapper@PsiClassWrapper(_: ScObject | _: ScTrait) => Some((wrapper, wrapper.getName))
         case _ => None
       }
     }

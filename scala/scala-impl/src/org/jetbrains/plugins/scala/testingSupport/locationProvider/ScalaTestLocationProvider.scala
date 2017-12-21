@@ -73,7 +73,7 @@ class ScalaTestLocationProvider extends SMTestLocator {
             }
           case ScalaTestLineInFinePattern(classFqn, fileName, lineNumber, testName) =>
             val clazzes = ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), classFqn)
-            val found = clazzes.find(c => Option(c.getContainingFile).exists(_.name == fileName))
+            val found = clazzes.find(c => c.containingFile.exists(_.name == fileName))
             found match {
               case Some(file) =>
                 res.add(createLocationFor(project, file.getContainingFile, lineNumber.toInt, Some(testName)))

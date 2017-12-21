@@ -2616,6 +2616,21 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL12299_1(): Unit = {
+    getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = true
+    getScalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = true
+    getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
+    getCommonSettings.KEEP_SIMPLE_METHODS_IN_ONE_LINE = true
+    val before =
+      """
+        |Nil.foreach { a =>
+        |}
+        |
+        |s"Hello, ${name.toString}"
+      """.stripMargin
+    doTextTest(before)
+  }
+
   def testSCL12353(): Unit = {
     getCommonSettings.BLANK_LINES_AROUND_FIELD = 1
 

@@ -754,7 +754,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val isLocalValue = DebuggerUtil.isLocalV(resolve)
 
     resolve match {
-      case Both(isInsideLocalFunction(fun), named: PsiNamedElement) if isLocalValue =>
+      case isInsideLocalFunction(fun) && (named: PsiNamedElement) if isLocalValue =>
         ScalaDuplexEvaluator(calcLocal(named), parameterEvaluator(fun, resolve))
       case p: ScParameter if p.isCallByNameParameter =>
         byNameParamEvaluator(ref, p, computeValue = true)
@@ -1479,7 +1479,7 @@ object ScalaEvaluatorBuilderUtil {
         case b: ScBlock if b.isAnonymousFunction => false //handled in isGenerateAnonfunSimple
         case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) || ScalaPsiUtil.isArgumentOfFunctionType(e) => true
         case ScalaPsiUtil.MethodValue(_) => true
-        case Both(ChildOf(argExprs: ScArgumentExprList), InsideAsync(call))
+        case ChildOf(argExprs: ScArgumentExprList) && InsideAsync(call)
           if call.args == argExprs => true
         case _ => false
       }
@@ -1528,14 +1528,14 @@ object ScalaEvaluatorBuilderUtil {
   def localFunctionIndex(named: PsiNamedElement): Int = {
     elementsWithSameNameIndex(named, {
       case f: ScFunction if f.isLocal && f.name == named.name => true
-      case Both(ScalaPsiUtil.inNameContext(LazyVal(_)), lzy: ScBindingPattern) if lzy.name == named.name => true
+      case ScalaPsiUtil.inNameContext(LazyVal(_)) && (lzy: ScBindingPattern) if lzy.name == named.name => true
       case _ => false
     })
   }
 
   def lazyValIndex(named: PsiNamedElement): Int = {
     elementsWithSameNameIndex(named, {
-      case Both(ScalaPsiUtil.inNameContext(LazyVal(_)), lzy: ScBindingPattern) if lzy.name == named.name => true
+      case ScalaPsiUtil.inNameContext(LazyVal(_)) && (lzy: ScBindingPattern) if lzy.name == named.name => true
       case _ => false
     })
   }
@@ -1639,7 +1639,7 @@ object ScalaEvaluatorBuilderUtil {
     def unapply(elem: PsiElement): Option[ScNamedElement] = {
       elem match {
         case c: ScClassParameter if c.isPrivateThis => Some(c)
-        case Both(bp: ScBindingPattern, ScalaPsiUtil.inNameContext(v @ (_: ScVariable | _: ScValue))) =>
+        case (bp: ScBindingPattern) && ScalaPsiUtil.inNameContext(v @ (_: ScVariable | _: ScValue)) =>
           v match {
             case mo: ScModifierListOwner if mo.getModifierList.accessModifier.exists(am => am.isPrivate && am.isThis) => Some(bp)
             case _ => None

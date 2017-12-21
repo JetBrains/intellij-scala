@@ -3,7 +3,8 @@ package lang
 package refactoring
 package extractMethod
 
-import com.intellij.internal.statistic.UsageTrigger
+import scala.collection.mutable.ArrayBuffer
+
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, ScrollType}
@@ -31,8 +32,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.Dup
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-
-import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -46,7 +46,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     if (!file.isInstanceOf[ScalaFile]) return
 
-    UsageTrigger.trigger(ScalaBundle.message("extract.method.id"))
+    Stats.trigger(FeatureKey.extractMethod)
 
     afterExpressionChoosing(file, REFACTORING_NAME) {
       invokeOnEditor(file)

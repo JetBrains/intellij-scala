@@ -70,6 +70,9 @@ class PsiTypedDefinitionWrapper(val delegate: ScTypedDefinition, isStatic: Boole
 }
 
 object PsiTypedDefinitionWrapper {
+
+  def unapply(wrapper: PsiTypedDefinitionWrapper): Option[ScTypedDefinition] = Some(wrapper.delegate)
+
   object DefinitionRole extends Enumeration {
     type DefinitionRole = Value
     val SIMPLE_ROLE, GETTER, IS_GETTER, SETTER, EQ = Value

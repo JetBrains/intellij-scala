@@ -9,12 +9,12 @@ import org.junit.experimental.categories.Category
  * 8/2/13
  */
 
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class InAnonFunEvaluationTest extends InAnonFunEvaluationTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
 
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTest_212_Base {
   override implicit val version: ScalaVersion = Scala_2_12
 }

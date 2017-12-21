@@ -22,4 +22,30 @@ class ApplyConfomanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |/* True */
       """.stripMargin)
   }
+
+  def testSCL12708(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |trait T
+         |case object V extends T
+         |
+         |case class Clz(exprs: T*)
+         |
+         |def create[P](args: Seq[T], creator: (T*) => Clz) = {
+         |  creator(args :_*)
+         |}
+         |
+         |create[Clz](Seq(V,  V, V), Clz.apply)
+      """.stripMargin)
+  }
+
+  def testSCL11912(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |object test {
+         |  final case class Kleisli[F[_], A, B](run: A => F[B])
+         |  val f = Kleisli { (x: Int) => Some(x + 1) }
+         |}
+      """.stripMargin)
+  }
 }

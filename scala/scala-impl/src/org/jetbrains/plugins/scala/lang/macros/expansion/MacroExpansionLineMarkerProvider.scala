@@ -11,7 +11,7 @@ import com.intellij.navigation.GotoRelatedItem
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiElement, PsiManager, SmartPointerManager, SmartPsiElementPointer}
+import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.util.Function
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
@@ -41,7 +41,7 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
 
   protected def createNotCompiledLineMarker(element: PsiElement, annot: ScAnnotation): Marker = {
     import org.jetbrains.plugins.scala.project._
-    val eltPointer = SmartPointerManager.getInstance(element.getProject).createSmartPsiElementPointer(element)
+    val eltPointer = element.createSmartPointer
     newMarker(element, AllIcons.General.Help, ScalaBundle.message("scala.meta.recompile")) { elt =>
       CompilerManager.getInstance(elt.getProject).make(annot.constructor.reference.get.resolve().module.get,
         new CompileStatusNotification {

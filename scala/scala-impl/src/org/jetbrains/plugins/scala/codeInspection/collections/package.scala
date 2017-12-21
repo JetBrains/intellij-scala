@@ -90,6 +90,8 @@ package object collections {
   private[collections] val `==` = invocation(Set("==", "equals"))
   private[collections] val `>` = invocation(">")
   private[collections] val `>=` = invocation(">=")
+  private[collections] val `<` = invocation("<")
+  private[collections] val `<=` = invocation("<=")
   private[collections] val `!` = invocation(Set("!", "unary_!"))
   private[collections] val `-` = invocation("-")
   private[collections] val `+` = invocation("+")
@@ -391,6 +393,8 @@ package object collections {
   def isSeq(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenSeqLike", expr)
 
   def isIndexedSeq(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.IndexedSeqLike", expr)
+
+  def isNonIndexedSeq(expr: ScExpression): Boolean = isSeq(expr) && !isIndexedSeq(expr)
 
   def isMap(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenMapLike", expr)
 

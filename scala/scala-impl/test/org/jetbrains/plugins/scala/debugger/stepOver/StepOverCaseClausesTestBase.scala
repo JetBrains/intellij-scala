@@ -8,7 +8,7 @@ import org.junit.experimental.categories.Category
 /**
  * @author Nikolay.Tropin
  */
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class StepOverTest_2_11 extends StepOverTest {
   override implicit val version: ScalaVersion = Scala_2_11
 }

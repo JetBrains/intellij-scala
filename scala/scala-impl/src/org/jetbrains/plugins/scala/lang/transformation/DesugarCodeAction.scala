@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKey
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
   * @author Pavel Fatin
@@ -11,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 class DesugarCodeAction extends AnAction {
   // TODO support read-only files (create duplicate scratch buffer)
   def actionPerformed(event: AnActionEvent) {
+    Stats.trigger(FeatureKey.desugarCode)
+
     val project = event.getProject
     val file = CommonDataKeys.PSI_FILE.getData(event.getDataContext).asInstanceOf[ScalaFile]
     val editor = CommonDataKeys.EDITOR.getData(event.getDataContext)

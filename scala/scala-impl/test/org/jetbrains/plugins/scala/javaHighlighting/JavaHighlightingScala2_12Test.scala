@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.javaHighlighting
 
-import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
-import org.junit.experimental.categories.Category
 
 /**
   * @author Alefas
   * @since 22/12/2016
   */
-@Category(Array(classOf[SlowTests]))
 class JavaHighlightingScala2_12Test extends JavaHighlightingTestBase {
 
   override implicit val version: ScalaVersion = Scala_2_12

@@ -89,7 +89,7 @@ class AllInPackageTestData(override val config: AbstractTestRunConfiguration) ex
 
   override def writeExternal(element: Element): Unit = {
     JDOMExternalizer.write(element, "package", getTestPackagePath)
-    JDOMExternalizer.saveStringsList(element, "buffered", "bufClass", classBuf:_*)
+    JDOMExternalizer.saveStringsList(element, "buffered", "bufClass", classBuf.sorted:_*)
   }
 
   override def getKind: TestKind = TestKind.ALL_IN_PACKAGE

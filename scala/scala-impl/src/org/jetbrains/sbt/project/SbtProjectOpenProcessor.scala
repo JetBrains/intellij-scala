@@ -1,6 +1,8 @@
 package org.jetbrains.sbt
 package project
 
+import javax.swing.Icon
+
 import com.intellij.ide.util.newProjectWizard.AddModuleWizard
 import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.ide.wizard.Step
@@ -43,6 +45,11 @@ class SbtProjectOpenProcessor(builder: SbtProjectImportBuilder) extends ProjectO
       dialog.show()
       dialog.isOK
     } else true
+  }
+
+  override def getIcon(file: VirtualFile): Icon = {
+    if (file.isDirectory) Sbt.FolderIcon
+    else Sbt.FileIcon
   }
 
   // That's a hack to display sbt icon in the open project file chooser (this part of the IDEA API is broken)

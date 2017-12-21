@@ -1,8 +1,12 @@
 package scala.meta
 
+import scala.collection.Seq
+
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi.ResolveResult
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
@@ -10,31 +14,42 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefi
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-
-import scala.collection.Seq
 
 package object intellij {
   object psiExt {
 
+    private def metaEnabled(element: ScalaPsiElement): Boolean = {
+      !ScStubElementType.isStubBuilding &&
+        !DumbService.isDumb(element.getProject) &&
+        !element.isInCompiledFile &&
+        element.containingFile.exists(IdeaUtil.inModuleWithParadisePlugin)
+    }
+
     implicit class AnnotExt(val annotation: ScAnnotation) extends AnyVal {
+
+      private def hasMetaAnnotation(results: Array[ResolveResult]) = results.map(_.getElement).exists {
+        case c: ScPrimaryConstructor => c.containingClass.isMetaAnnotatationImpl
+        case o: ScTypeDefinition => o.isMetaAnnotatationImpl
+        case _ => false
+      }
+
       def isMetaMacro: Boolean = {
-        def hasMetaAnnotation(results: Array[ResolveResult]) = results.map(_.getElement).exists {
-          case c: ScPrimaryConstructor => c.containingClass.isMetaAnnotatationImpl
-          case o: ScTypeDefinition => o.isMetaAnnotatationImpl
-          case _ => false
-        }
-        // do not resolve anything while the stubs are building to avoid deadlocks
-        if (ScStubElementType.isStubBuilding || DumbService.isDumb(annotation.getProject))
+        if (!metaEnabled(annotation))
           return false
 
-        annotation.constructor.reference.exists {
-          case stRef: ScStableCodeReferenceElementImpl =>
-            val processor = new ResolveProcessor(stRef.getKinds(incomplete = false), stRef, stRef.refName)
-            hasMetaAnnotation(stRef.doResolve(processor))
-          case _ => false
+        @CachedInsidePsiElement(annotation, ModCount.getBlockModificationCount)
+        def cached: Boolean = {
+          annotation.constructor.reference.exists {
+            case stRef: ScStableCodeReferenceElementImpl =>
+              val processor = new ResolveProcessor(stRef.getKinds(incomplete = false), stRef, stRef.refName)
+              hasMetaAnnotation(stRef.doResolve(processor))
+            case _ => false
+          }
         }
+
+        cached
       }
     }
 
@@ -53,8 +68,7 @@ package object intellij {
           } else Left("Meta expansions disabled in settings")
         }
 
-        // no annotations must run or any non-physical PSI generated while stubs are building
-        if (ScStubElementType.isStubBuilding)
+        if (!metaEnabled(ah))
           Left("")
         else
           getMetaExpansionCached
@@ -62,6 +76,8 @@ package object intellij {
 
       def getMetaCompanionObject: Option[scala.meta.Defn.Object] = {
         import scala.{meta => m}
+
+        if (!metaEnabled(ah)) return None
 
         ah.getMetaExpansion match {
           case Left(_) => None

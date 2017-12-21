@@ -3,8 +3,9 @@ package lang
 package refactoring
 package changeSignature
 
+import scala.annotation.tailrec
+
 import com.intellij.ide.util.SuperMethodWarningUtil
-import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
@@ -19,8 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-
-import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * Nikolay.Tropin
@@ -29,7 +29,7 @@ import scala.annotation.tailrec
 class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefactoringActionHandler {
 
   def invokeWithDialog(project: Project, fun: ScMethodLike) {
-    UsageTrigger.trigger(ScalaChangeSignatureHandler.id)
+    Stats.trigger(FeatureKey.changeSignature)
     val dialog = new ScalaChangeSignatureDialog(project, new ScalaMethodDescriptor(fun), needSpecifyTypeChb = true)
     dialog.show()
   }
@@ -146,8 +146,4 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
       }
     }
   }
-}
-
-object ScalaChangeSignatureHandler {
-  val id = "scala.change.signature"
 }

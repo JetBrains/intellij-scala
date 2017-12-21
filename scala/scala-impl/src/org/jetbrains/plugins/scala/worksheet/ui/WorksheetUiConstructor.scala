@@ -147,7 +147,7 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
   
   def createReplModeChb(file: VirtualFile): JCheckBox = {
     createCheckBox(
-      "Use REPL Mode (Beta)",
+      "Use REPL Mode",
       findPsiFile(file).exists(WorksheetCompiler.isWorksheetReplMode),
       box => new ChangeListener {
         override def stateChanged(e: ChangeEvent) {

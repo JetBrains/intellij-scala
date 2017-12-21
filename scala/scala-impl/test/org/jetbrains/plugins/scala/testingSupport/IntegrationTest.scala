@@ -165,7 +165,7 @@ trait IntegrationTest {
     assert(testTreeCheck(testTreeRoot.get), s"testTreeCheck failed for root ${testTreeRoot.get}")
 
     if (checkOutputs) {
-      assert(res == expectedText, s"output was '$res' expected '$expectedText'")
+      assert(res.contains(expectedText), s"output was '$res' expected to contain '$expectedText'")
     }
   }
 

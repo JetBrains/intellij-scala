@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.debugger.breakpoints
 import java.util.{Collections, List => JList}
 import javax.swing.Icon
 
+import scala.collection.JavaConverters._
+
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.ui.breakpoints._
 import com.intellij.icons.AllIcons
@@ -30,10 +32,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.UIFreezingGuard
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
-
-import scala.collection.JavaConverters._
 
 /**
  * @author Nikolay.Tropin
@@ -111,9 +112,19 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     val method = getContainingMethod(breakpoint)
     if (method == null) return false
 
-    if (!breakpoint.isInstanceOf[RunToCursorBreakpoint] && lambdaOrdinal(breakpoint) == null) return true
+    val lambdaOrd = lambdaOrdinal(breakpoint)
+
+    if (!breakpoint.isInstanceOf[RunToCursorBreakpoint] && lambdaOrd == null) return true
+
+    if (isScalaLambda(lambdaOrd, method)) {
+      Stats.trigger(FeatureKey.debuggerLambdaBreakpoint)
+    }
 
     DebuggerUtil.inTheMethod(position, method)
+  }
+
+  private def isScalaLambda(lambdaOrdinal: Integer, elem: PsiElement) = {
+    lambdaOrdinal != null && lambdaOrdinal >= 0 && elem.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
   }
 
   @Nullable
@@ -194,7 +205,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
             val clazz = PsiTreeUtil.getParentOfType(ed, classOf[ScTypeDefinition])
             if (clazz != null) s"early definitions of ${clazz.name}"
             else "line in containing block"
-          case Both(_: ScFunction, named: ScNamedElement) => s"line in function ${named.name}"
+          case (_: ScFunction) && (named: ScNamedElement) => s"line in function ${named.name}"
           case _: ScalaFile => "line in containing file"
           case _ => "line in containing block"
         }

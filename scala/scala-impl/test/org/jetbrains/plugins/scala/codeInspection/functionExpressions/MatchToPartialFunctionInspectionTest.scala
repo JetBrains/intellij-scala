@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
-package codeInspection.functionExpressions
+package codeInspection
+package functionExpressions
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 
 /**
   * Nikolay.Tropin
@@ -12,60 +12,62 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 class MatchToPartialFunctionInspectionTest extends ScalaQuickFixTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+  import MatchToPartialFunctionInspection.DESCRIPTION
 
-  protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[MatchToPartialFunctionInspection]
-  protected val description: String = MatchToPartialFunctionInspection.inspectionName
+  protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+    classOf[MatchToPartialFunctionInspection]
 
-  def testInVal() = {
-    val text =
+  protected val description: String = DESCRIPTION
+
+  def testInVal(): Unit = testQuickFix(
+    text =
       s"""val f: (Int) => Null = ${START}_ match $END{
          |  case 0 => null
          |  case _ => null
-         |}"""
-    val result =
+         |}
+         """.stripMargin,
+    expected =
       """val f: (Int) => Null = {
         |  case 0 => null
         |  case _ => null
-        |}"""
-    checkTextHasError(text)
-    testQuickFix(text, result, description)
-  }
+        |}
+      """.stripMargin
+  )
 
-  def testInArgumentInParentheses() = {
-    val text =
+  def testInArgumentInParentheses(): Unit = testQuickFix(
+    text =
       s"""list.map(${START}x => x match $END{
          |  case Some(value) =>
          |  case None =>
-         |})"""
-    val result =
+         |})
+         """.stripMargin,
+    expected =
       """list.map {
         |  case Some(value) =>
         |  case None =>
-        |}"""
+        |}
+      """.stripMargin
+  )
 
-    checkTextHasError(text)
-    testQuickFix(text, result, description)
-  }
-
-  def testInArgumentInBraces() {
-    val text =
+  def testInArgumentInBraces(): Unit = testQuickFix(
+    text =
       s"""list.map {
          |  ${START}x => x match $END{
          |    case Some(value) =>
          |    case None =>
          |  }
-         |}"""
-    val result =
+         |}
+         """.stripMargin,
+    expected =
       """list.map {
         |  case Some(value) =>
         |  case None =>
-        |}"""
-    checkTextHasError(text)
-    testQuickFix(text, result, description)
-  }
+        |}
+      """.stripMargin
+  )
 
-  def testWithPossibleImplicitConversion() {
-    val text =
+  def testWithPossibleImplicitConversion(): Unit = testQuickFix(
+    text =
       s"""
          |val list = List(Some(1))
          |list.map {
@@ -73,37 +75,37 @@ class MatchToPartialFunctionInspectionTest extends ScalaQuickFixTestBase {
          |    case Some(value) => value
          |    case None => 0
          |  }
-         |}"""
-    val result =
+         |}
+        """.stripMargin,
+    expected =
       """
         |val list = List(Some(1))
         |list.map {
         |  case Some(value) => value
         |  case None => 0
-        |}"""
-    checkTextHasError(text)
-    testQuickFix(text, result, description)
-  }
+        |}
+      """.stripMargin
+  )
 
-  def testInArgumentList() {
-    val text =
+  def testInArgumentList(): Unit = testQuickFix(
+    text =
       s"""def foo(f: Int => Any, i: Int)
          |foo(${START}x => x match $END{
          |  case 1 => null
          |  case _ =>
-         |}, 2)"""
-    val result =
+         |}, 2)
+         """.stripMargin,
+    expected =
       """def foo(f: Int => Any, i: Int)
         |foo({
         |  case 1 => null
         |  case _ =>
-        |}, 2)"""
-    checkTextHasError(text)
-    testQuickFix(text, result, description)
-  }
+        |}, 2)
+      """.stripMargin
+  )
 
-  def testUseOfArgument() {
-    val text =
+  def testUseOfArgument(): Unit = testQuickFix(
+    text =
       s"""val f: (Int) => Null = ${START}x => x match $END{
          |  case 0 =>
          |    x + 1
@@ -111,8 +113,9 @@ class MatchToPartialFunctionInspectionTest extends ScalaQuickFixTestBase {
          |  case _ =>
          |    x
          |    null
-         |}"""
-    val result =
+         |}
+        """.stripMargin,
+    expected =
       """val f: (Int) => Null = {
         |  case x@0 =>
         |    x + 1
@@ -120,52 +123,51 @@ class MatchToPartialFunctionInspectionTest extends ScalaQuickFixTestBase {
         |  case x =>
         |    x
         |    null
-        |}"""
-    checkTextHasError(text)
-    testQuickFix(text, result, description)
-  }
+        |}
+      """.stripMargin
+  )
 
-  def testInOverloadedMethod(): Unit = {
-    val text =
-      s"""
-         |object test {
-         |  object Bar {
-         |      def bar(g: Int => Unit): Unit = {
-         |        g
-         |      }
-         |
-         |      def bar(i: Int): Unit = {}
-         |    }
-         |
-         |    Bar.bar { ${START}i => i match $END{
-         |        case int_ =>
-         |      }
-         |    }
-         |  }
-         |}
-         """.stripMargin
-    checkTextHasNoErrors(text)
-  }
-
-  def testInOverloadedMethodInfix(): Unit = {
-    val text =
-      s"""
-         |object test {
-         |  object Bar {
-         |      def bar(g: Int => Unit): Unit = {
-         |        g
-         |      }
-         |
+  def testInOverloadedMethod(): Unit = checkTextHasNoErrors(
+    s"""
+       |object test {
+       |  object Bar {
+       |      def bar(g: Int => Unit): Unit = {
+       |        g
+       |      }
+       |
        |      def bar(i: Int): Unit = {}
-         |    }
-         |
+       |    }
+       |
+       |    Bar.bar { ${START}i => i match $END{
+       |        case int_ =>
+       |      }
+       |    }
+       |  }
+       |}
+      """.stripMargin
+  )
+
+  def testInOverloadedMethodInfix(): Unit = checkTextHasNoErrors(
+    s"""
+       |object test {
+       |  object Bar {
+       |      def bar(g: Int => Unit): Unit = {
+       |        g
+       |      }
+       |
+       |      def bar(i: Int): Unit = {}
+       |    }
+       |
        |    Bar bar { ${START}i => i match $END{
-         |        case int_ =>
-         |      }
-         |    }
-         |  }
-         |}
+       |        case int_ =>
+       |      }
+       |    }
+       |  }
+       |}
      """.stripMargin
-    checkTextHasNoErrors(text)
+  )
+
+  private def testQuickFix(text: String, expected: String): Unit = {
+    testQuickFix(text, expected, description)
   }
 }

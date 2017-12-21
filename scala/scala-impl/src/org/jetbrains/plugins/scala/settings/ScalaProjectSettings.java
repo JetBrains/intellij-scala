@@ -5,6 +5,8 @@ import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.statistics.FeatureKey;
+import org.jetbrains.plugins.scala.statistics.Stats;
 
 import java.io.File;
 import java.util.*;
@@ -339,6 +341,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   }
   
   public void setScFileMode(ScFileMode mode) {
+    Stats.trigger(FeatureKey.scFileModeSet(mode.name()));
     SC_FILE_MODE = mode;
   }
   

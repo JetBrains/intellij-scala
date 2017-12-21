@@ -42,13 +42,14 @@ import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtProcessHandlerWra
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
-
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
   * @author Ksenia.Sautina
@@ -333,9 +334,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   protected def escapeTestName(test: String): String = if (test.contains(" ")) "\"" + test + "\"" else test
 
   protected def escapeClassAndTest(input: String): String = input
-
-  def getReporterParams: String = ""
-
+  
   def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
     (for ((aClass, tests) <- classToTests) yield {
       if (tests.isEmpty) Seq(s"$sbtClassKey$aClass")
@@ -497,6 +496,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           case _ =>
         }
         if (useSbt) {
+          Stats.trigger(FeatureKey.sbtShellTestRunConfig)
+
           val commands = buildSbtParams(suitesToTestsMap).
             map(SettingQueryHandler.getProjectIdPrefix(SbtUtil.getSbtProjectIdSeparated(getModule)) + "testOnly" + _)
           val comm = SbtShellCommunication.forProject(project)
@@ -610,13 +611,15 @@ object AbstractTestRunConfiguration extends SuiteValidityChecker {
     def getRunConfigurationBase: RunConfigurationBase
   }
 
-  protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean = {
+  override protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean = lackSuitableConstructorWithParams(clazz)
+
+  protected[test] def lackSuitableConstructorWithParams(clazz: PsiClass, maxParamsCount: Int = 0): Boolean = {
     val constructors = clazz match {
       case c: ScClass => c.secondaryConstructors.filter(_.isConstructor).toList ::: c.constructor.toList
       case _ => clazz.getConstructors.toList
     }
     for (con <- constructors) {
-      if (con.isConstructor && con.getParameterList.getParametersCount == 0) {
+      if (con.isConstructor && con.getParameterList.getParametersCount <= maxParamsCount) {
         con match {
           case owner: ScModifierListOwner =>
             if (owner.hasModifierProperty(PsiModifier.PUBLIC)) return false

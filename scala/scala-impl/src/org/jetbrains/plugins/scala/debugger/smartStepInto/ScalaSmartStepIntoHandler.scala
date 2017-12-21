@@ -2,6 +2,10 @@ package org.jetbrains.plugins.scala.debugger.smartStepInto
 
 import java.util.{Collections, List => JList}
 
+import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
+
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, MethodSmartStepTarget, SmartStepTarget}
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -21,10 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
-
-import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -37,6 +38,9 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     if (line < 0) {
       return Collections.emptyList[SmartStepTarget]
     }
+
+    Stats.trigger(FeatureKey.debuggerSmartStepInto)
+
     val (element, doc) =
       (for {
         sf @ (_sf: ScalaFile) <- position.getFile.toOption
@@ -179,7 +183,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
             case fun: ScFunctionDefinition if fun.name == "apply" && ref.refName != "apply" =>
               val prefix = s"${ref.refName}."
               result += new MethodSmartStepTarget(fun, prefix, ref.nameId, false, noStopAtLines)
-            case Both(f: ScFunctionDefinition, ContainingClass(cl: ScClass)) if cl.getModifierList.hasModifierProperty("implicit") =>
+            case (f: ScFunctionDefinition) && ContainingClass(cl: ScClass) if cl.getModifierList.hasModifierProperty("implicit") =>
               val isActuallyImplicit = ref.qualifier.flatMap(_.implicitElement()).isDefined
               val prefix = if (isActuallyImplicit) "implicit " else null
               result += new MethodSmartStepTarget(f, prefix, ref.nameId, false, noStopAtLines)

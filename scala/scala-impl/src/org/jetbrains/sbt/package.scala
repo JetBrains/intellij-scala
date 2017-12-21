@@ -12,7 +12,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Computable, Pair => IdeaPair}
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.util.{PathUtil, Function => IdeaFunction}
-import plugins.scala.extensions._
+import plugins.scala.extensions.ToNullSafe
 
 import scala.annotation.tailrec
 import scala.language.implicitConversions
@@ -183,7 +183,7 @@ package object sbt {
   }
 
   def isIdeaPluginEnabled(id: String): Boolean =
-    PluginId.findId(id).toOption
-      .flatMap(PluginManager.getPlugin(_).toOption)
+    PluginId.findId(id).nullSafe
+      .map(PluginManager.getPlugin)
       .exists(_.isEnabled)
 }

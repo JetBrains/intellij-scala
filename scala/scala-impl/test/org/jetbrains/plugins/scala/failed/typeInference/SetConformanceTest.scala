@@ -45,4 +45,25 @@ class SetConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |}
        |//true
     """.stripMargin)
+
+  def testSCL12832(): Unit = checkTextHasNoErrors(
+    s"""
+       |final class Example[A] {
+       |    def map[B](f: A => B): Example[B] = ???
+       |    def flatMap[B](f: A => Example[B]): Example[B] = ???
+       |  }
+       |
+       |  val x: Example[A] = ???
+       |
+       |  class A
+       |
+       |  class B extends A
+       |
+       |  def foo: Example[A] =
+       |    for {
+       |      a <- x
+       |      w = 1
+       |    } yield new B
+       |//true
+    """.stripMargin)
 }

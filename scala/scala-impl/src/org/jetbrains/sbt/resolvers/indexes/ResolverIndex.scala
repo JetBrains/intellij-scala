@@ -38,6 +38,7 @@ object ResolverIndex {
   val CURRENT_INDEX_VERSION = "5"
   val NO_TIMESTAMP: Int = -1
   val MAVEN_UNAVALIABLE: Int = -2
+  val FORCE_UPDATE_KEY = "ivy.index.force.update" // disable index building in tests for performance reasons, use this to override
   def getIndexDirectory(root: String) = new File(indexesDir, root.shaDigest)
 
   protected val indexesDir: File = {

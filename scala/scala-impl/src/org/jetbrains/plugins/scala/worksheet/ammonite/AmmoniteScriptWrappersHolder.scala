@@ -134,10 +134,7 @@ class AmmoniteScriptWrappersHolder(project: Project) extends AbstractProjectComp
           |   <body>
           |   
           |   You can import all $$ivy dependencies (present in local caches) for ${vFile.getName}
-          |   <br>
-          |   <p>
-          |   <a href="ftp://run">Run</a>
-          |   <a href="ftp://disable">Disable</a>
+          |   <a href="ftp://run">Run</a> <a href="ftp://disable">Disable</a>
           |   </body>
           |  </html>
         """.stripMargin, 

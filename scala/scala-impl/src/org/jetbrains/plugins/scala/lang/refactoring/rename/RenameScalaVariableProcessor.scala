@@ -75,7 +75,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
 
     addBeanMethods(element, newName)
 
-    for (elem <- ScalaOverridingMemberSearcher.search(namedElement, deep = true)) {
+    for (elem <- ScalaOverridingMemberSearcher.search(namedElement)) {
       val overriderName = elem.name
       val baseName = namedElement.name
       val newOverriderName = RefactoringUtil.suggestNewOverriderName(overriderName, baseName, newName)
@@ -91,7 +91,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
     element match {
-      case method: FakePsiMethod => substituteElementToRename(method.navElement, editor)
+      case FakePsiMethod(method) => substituteElementToRename(method, editor)
       case named: ScNamedElement => RenameSuperMembersUtil.chooseSuper(named)
       case _ => element
     }

@@ -1,13 +1,10 @@
 package org.jetbrains .plugins.scala
 package refactoring.rename3
 
-import org.junit.experimental.categories.Category
-
 /**
  * Nikolay.Tropin
  * 9/13/13
  */
-@Category(Array(classOf[SlowTests]))
 class ScalaRenameTest extends ScalaRenameTestBase {
 
   def testObjectAndTraitToOpChars(): Unit = doTest("+++")
@@ -40,9 +37,9 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     }
   }
 
-  def testOverridenVal(): Unit = doTest()
+  def testOverriddenVal(): Unit = doTest()
 
-  def testOverridenClassParameter(): Unit = doTest()
+  def testOverriddenClassParameter(): Unit = doTest()
 
   def testOverrideDef(): Unit = doTest()
 
@@ -52,7 +49,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 
   def testTypeAlias(): Unit = doTest()
 
-  def testOverridenFromJava(): Unit = doTest()
+  def testOverriddenFromJava(): Unit = doTest()
 
   def testMethodSameAsJavaKeyword(): Unit = doTest()
 

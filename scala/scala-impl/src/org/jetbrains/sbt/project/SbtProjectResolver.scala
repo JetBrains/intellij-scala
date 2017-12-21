@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project
 
 import java.io.{File, FileNotFoundException}
-import java.util.UUID
+import java.util.{Locale, UUID}
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.project.{ProjectData => ESProjectData, _}
@@ -160,7 +160,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       activeProcessDumper = None
 
       messageResult.flatMap { messages =>
-        if (messages.errors.isEmpty && structureFile.length > 0) Try {
+        if (structureFile.length > 0) Try {
           val elem = XML.load(structureFile.toURI.toURL)
           (elem, messages)
         }
@@ -188,7 +188,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     // TODO add default scala sdk and sbt libs (newest versions or so)
 
     val projectPath = projectRoot.getAbsolutePath
-    val projectName = projectRoot.getName
+    val projectName = normalizeModuleId(projectRoot.getName)
     val sourceDir = new File(projectRoot, "src/main/scala")
     val classDir = new File(projectRoot, "target/dummy")
     val dummyBuildData = BuildData(Seq.empty, Seq.empty, Seq.empty, Seq.empty)
@@ -216,6 +216,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projectNode
   }
+
+  /**
+    * This implementation is the same as in sbt.Project.normalizeModuleId to avoid inconsistencies in the import process.
+    * Normalize a String so that it is suitable for use as a dependency management module identifier.
+    * This is a best effort implementation, since valid characters are not documented or consistent.    *
+    */
+  private def normalizeModuleId(s: String) =
+    s.toLowerCase(Locale.ENGLISH).replaceAll("""\W+""", "-")
 
   private def convert(root: String,
                       data: sbtStructure.StructureData,

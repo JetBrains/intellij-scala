@@ -54,7 +54,7 @@ trait TreeConverterTestUtils {
     true
   }
 
-  def doTest(text: String, tree: Tree) = {
+  def doTest(text: String, tree: Tree): Unit = {
       val converted = convert(text)
       if (!structuralEquals(converted, tree)) {
         org.junit.Assert.assertEquals("Trees not equal", tree.toString(), converted.toString())

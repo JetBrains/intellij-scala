@@ -21,10 +21,11 @@ import com.intellij.ui.content.{Content, ContentFactory}
 import com.pty4j.{PtyProcess, WinSize}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.annotations.NotNull
-
 import scala.collection.JavaConverters._
+
 import SbtShellRunner._
 import com.pty4j.unix.UnixPtyProcess
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 /**
   * Created by jast on 2016-5-29.
   */
@@ -35,7 +36,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
   private val toolWindowTitle = project.getName
 
-  private lazy val myConsoleView: LanguageConsoleImpl =
+  private lazy val sbtConsoleView: LanguageConsoleImpl =
     ShellUIUtil.inUIsync {
       val cv = SbtShellConsoleView(project, debugConnection)
       Disposer.register(this, cv)
@@ -53,7 +54,8 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
   override def createProcessHandler(process: Process): OSProcessHandler = myProcessHandler
 
-  override def createConsoleView(): LanguageConsoleImpl = myConsoleView
+  override def getConsoleView: LanguageConsoleImpl = sbtConsoleView
+  override def createConsoleView(): LanguageConsoleImpl = sbtConsoleView
 
   override def createProcess(): Process = myProcessHandler.getProcess
 
@@ -78,12 +80,12 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
       // assume initial state is Working
       // this is not correct when shell process was started without view, but we avoid that
-      myConsoleView.setPrompt("(initializing) >")
+      sbtConsoleView.setPrompt("(initializing) >")
 
       // TODO update icon with ready/working state
       val shellPromptChanger = new SbtShellReadyListener(
-        whenReady = if (notInTest) myConsoleView.setPrompt(">"),
-        whenWorking = if (notInTest) myConsoleView.setPrompt("(busy) >")
+        whenReady = if (notInTest) sbtConsoleView.setPrompt(">"),
+        whenWorking = if (notInTest) sbtConsoleView.setPrompt("(busy) >")
       )
 
       def scrollToEnd(): Unit = inUI {
@@ -133,7 +135,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
     twm.getFocusManager.requestFocusInProject(toolWindow.getComponent, project)
   }
 
-  def openShell(focus: Boolean): Unit = {
+  def openShell(focus: Boolean): Unit = ShellUIUtil.inUI {
     val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(SbtShellToolWindowFactory.ID)
     toolWindow.activate(null, focus)
     val content = toolWindow.getContentManager.findContent(toolWindowTitle)
@@ -155,9 +157,9 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
     // Adding actions
     val group = new DefaultActionGroup
     layoutUi.getOptions.setLeftToolbar(group, ActionPlaces.UNKNOWN)
-    val console = layoutUi.createContent(SbtShellToolWindowFactory.ID, myConsoleView.getComponent, "sbt-shell-toolwindow-console", null, null)
+    val console = layoutUi.createContent(SbtShellToolWindowFactory.ID, sbtConsoleView.getComponent, "sbt-shell-toolwindow-console", null, null)
 
-    myConsoleView.createConsoleActions.foreach(group.add)
+    sbtConsoleView.createConsoleActions.foreach(group.add)
 
     layoutUi.addContent(console, 0, PlaceInGrid.right, false)
 
@@ -180,8 +182,16 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
     setAddCurrentToHistory(false)
 
     override def execute(text: String, console: LanguageConsoleView): Unit = {
+      Stats.trigger(FeatureKey.sbtShellCommand)
+      Stats.trigger(isTestCommand(text), FeatureKey.sbtShellTestCommand)
+
       EditorUtil.scrollToTheEnd(console.getHistoryViewer)
       super.execute(text, console)
+    }
+
+    private def isTestCommand(line: String): Boolean = {
+      val trimmed = line.trim
+      trimmed == "test" || trimmed.startsWith("testOnly") || trimmed.startsWith("testQuick")
     }
   }
 }

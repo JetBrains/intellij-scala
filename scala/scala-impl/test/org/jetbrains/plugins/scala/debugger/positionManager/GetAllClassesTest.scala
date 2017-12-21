@@ -7,11 +7,11 @@ import org.junit.experimental.categories.Category
 /**
  * @author Nikolay.Tropin
  */
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class GetAllClassesTest extends GetAllClassesTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class GetAllClassesTest_212 extends GetAllClassesTest_212_Base {
   override implicit val version: ScalaVersion = Scala_2_12
 }

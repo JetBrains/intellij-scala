@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala.lang.formatting
 
 import com.intellij.formatting.Alignment
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{PsiElement, SmartPointerManager, SmartPsiElementPointer}
 import com.intellij.psi.tree.IElementType
+import com.intellij.psi.{PsiElement, SmartPsiElementPointer}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
@@ -34,6 +35,5 @@ class ElementPointerAlignmentStrategy(val rootPointer: SmartPsiElementPointer[Ps
 
 object ElementPointerAlignmentStrategy {
   def typeMultiLevelAlignment(root: PsiElement): ElementPointerAlignmentStrategy =
-    new ElementPointerAlignmentStrategy(SmartPointerManager.getInstance(root.getProject).createSmartPsiElementPointer(root),
-      2, Some(ScalaTokenTypes.tCOLON))
+    new ElementPointerAlignmentStrategy(root.createSmartPointer, 2, Some(ScalaTokenTypes.tCOLON))
 }

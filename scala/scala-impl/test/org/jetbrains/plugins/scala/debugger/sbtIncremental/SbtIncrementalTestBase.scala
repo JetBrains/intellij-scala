@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class SbtIncrementalTest extends SbtIncrementalTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }

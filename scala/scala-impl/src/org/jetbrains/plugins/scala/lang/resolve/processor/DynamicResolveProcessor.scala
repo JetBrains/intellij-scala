@@ -1,13 +1,17 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.psi.ResolveResult
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignStmt, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver.getAllResolveResult
 import scala.collection.JavaConverters._
+
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 object DynamicResolveProcessor {
 
@@ -24,34 +28,34 @@ object DynamicResolveProcessor {
     case scType => scType
   }
 
-  def getDynamicNameForMethodInvocation(call: MethodInvocation): String = {
-    val arguments = call.argumentExpressions.collect {
-      case statement: ScAssignStmt => statement.getLExpression
+  def getDynamicNameForMethodInvocation(expressions: Seq[ScExpression]): String = {
+    val qualifiers = expressions.collect {
+      case ScAssignStmt(reference: ScReferenceExpression, _) => reference.qualifier
     }
 
-    if (arguments.exists {
-      case reference: ScReferenceExpression => reference.qualifier.isEmpty
-      case _ => false
-    }) APPLY_DYNAMIC_NAMED else APPLY_DYNAMIC
+    if (qualifiers.exists(_.isEmpty)) APPLY_DYNAMIC_NAMED
+    else APPLY_DYNAMIC
   }
 
   def isDynamicReference(reference: ScReferenceExpression): Boolean = {
-
     def qualifierType() = reference.qualifier
       .flatMap(_.getNonValueType().toOption)
 
-    def cachedClassType() =
-      ScalaPsiManager.instance(reference.getProject)
-        .getCachedClass(reference.getResolveScope, "scala.Dynamic")
-        .map(ScDesignatorType(_))
+    qualifierType().exists(conformsToDynamic(_, reference.getResolveScope))
+  }
 
-    qualifierType().zip(cachedClassType()).exists {
-      case (qualifierType, classType) => qualifierType.conforms(classType)
-    }
+  def conformsToDynamic(tp: ScType, scope: GlobalSearchScope): Boolean = {
+    val dynamicType = ElementScope(tp.projectContext, scope)
+      .getCachedClass("scala.Dynamic")
+      .map(ScDesignatorType(_))
+    dynamicType.exists(tp.conforms)
   }
 
   def resolveDynamic(reference: ScReferenceExpression): Seq[ResolveResult] = {
     getAllResolveResult(reference).asScala
   }
+
+  def isApplyDynamicNamed(r: ScalaResolveResult): Boolean =
+    r.isDynamic && r.name == APPLY_DYNAMIC_NAMED
 }
 

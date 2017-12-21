@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
-package codeInspection.functionExpressions
+package codeInspection
+package functionExpressions
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
@@ -8,147 +9,172 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
-import org.jetbrains.plugins.scala.extensions.{StringExt, childOf}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters
 
 /**
- * Nikolay.Tropin
- * 9/26/13
- */
-class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId) {
+  * Nikolay.Tropin
+  * 9/26/13
+  */
+class MatchToPartialFunctionInspection extends AbstractInspection(MatchToPartialFunctionInspection.ID) {
+
+  import MatchToPartialFunctionInspection._
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case fun @ ScFunctionExpr(Seq(param), Some(ms @ ScMatchStmt(ref: ScReferenceExpression, _)))
-      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) && checkSameResolve(fun) =>
-      registerProblem(holder, ms, fun)
-    case fun @ ScFunctionExpr(Seq(param), Some(ScBlock(ms @ ScMatchStmt(ref: ScReferenceExpression, _))))
-      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) && checkSameResolve(fun) =>
-      registerProblem(holder, ms, fun) //if fun is last statement in block, result can be block without braces
-    case ms @ ScMatchStmt(_: ScUnderscoreSection, _) if checkSameResolve(ms) =>
-      registerProblem(holder, ms, ms)
-  }
-
-  private def notExpectedType(expr: ScExpression) = {
-    (expr.`type`(), expr.expectedType()) match {
-      case (Right(tpe), Some(expType: ScType)) => !expType.equiv(tpe)
-      case _ => true
-    }
-  }
-
-  private def registerProblem(holder: ProblemsHolder, ms: ScMatchStmt, fExprToReplace: ScExpression) = {
-    def leftBraceOffset(ms: ScMatchStmt): Option[Int] = {
-      val leftBrace = ms.findFirstChildByType(ScalaTokenTypes.tLBRACE)
-      leftBrace match {
-        case elem: PsiElement => Option(elem.getTextRange.getStartOffset)
-        case _ => None
-      }
-    }
-    for (offset <- leftBraceOffset(ms)) {
-      val endOffsetInParent = offset - fExprToReplace.getTextRange.getStartOffset
-      val rangeInParent = new TextRange(0, endOffsetInParent)
-      val fix = new MatchToPartialFunctionQuickFix(ms, fExprToReplace)
-      holder.registerProblem(fExprToReplace, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, rangeInParent, fix)
-    }
-  }
-
-  private def checkSameResolve(argExpr: ScExpression): Boolean = {
-    def dummyCaseClauses = "{case _ => }"
-
-    val call = PsiTreeUtil.getParentOfType(argExpr, classOf[MethodInvocation])
-    val arg = argExpr match {
-      case _ childOf (x childOf (_: ScArgumentExprList)) => x
-      case _ childOf (x childOf (_: ScInfixExpr)) => x
-      case _ => argExpr
-    }
-    if (call == null || !call.argumentExpressions.contains(arg)) return true
-    val (refText, oldResolve) = call match {
-      case ScInfixExpr(qual, r, _) => (s"${qual.getText}.${r.refName}", r.resolve())
-      case ScMethodCall(r: ScReferenceExpression, _) => (r.getText, r.resolve())
-      case _ => return true
-    }
-
-    val newCall = createExpressionWithContextFromText(refText + dummyCaseClauses, call.getContext, call)
-    newCall match {
-      case ScMethodCall(ref: ScReferenceExpression, _) => ref.resolve() == oldResolve
-      case _ => true
-    }
+    case function@ScFunctionExpr(Seq(param), Some(statement@ScMatchStmt(ScReferenceExpression(resolved), _)))
+      if resolved == param && isValid(function) =>
+      registerProblem(statement, function)
+    case function@ScFunctionExpr(Seq(param), Some(ScBlock(statement@ScMatchStmt(ScReferenceExpression(resolved), _))))
+      if resolved == param && isValid(function) =>
+      registerProblem(statement, function) //if fun is last statement in block, result can be block without braces
+    case statement@ScMatchStmt(_: ScUnderscoreSection, _) if checkSameResolve(statement) =>
+      registerProblem(statement, statement)
   }
 }
 
 object MatchToPartialFunctionInspection {
-  val inspectionId = "MatchToPartialFunction"
-  val inspectionName = "Convert match statement to pattern matching anonymous function"
-}
 
-class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScExpression)
-        extends AbstractFixOnTwoPsiElements(inspectionName, matchStmt, fExprToReplace) {
+  private[functionExpressions] val ID = "MatchToPartialFunction"
+  private[functionExpressions] val DESCRIPTION = "Convert match statement to pattern matching anonymous function"
 
-  override protected def doApplyFix(mStmt: ScMatchStmt, fExpr: ScExpression)
-                                   (implicit project: Project): Unit = {
-    val matchStmtCopy = mStmt.copy.asInstanceOf[ScMatchStmt]
-    val leftBrace = matchStmtCopy.findFirstChildByType(ScalaTokenTypes.tLBRACE)
-    if (leftBrace == null) return
+  private def isValid(function: ScFunctionExpr): Boolean =
+    (function.parameters.head.typeElement.isEmpty ||
+      function.`type`().toOption.zip(function.expectedType()).exists {
+        case (actual, expected) => actual.equiv(expected)
+      }) && checkSameResolve(function)
 
-    addNamingPatterns(matchStmtCopy, needNamingPattern(mStmt))
-    matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, leftBrace.getPrevSibling)
-    val newBlock = createExpressionFromText(matchStmtCopy.getText)
-    CodeEditUtil.setOldIndentation(newBlock.getNode.asInstanceOf[TreeElement], CodeEditUtil.getOldIndentation(matchStmtCopy.getNode))
-    extensions.inWriteAction {
-      fExpr.getParent match {
-        case (argList: ScArgumentExprList) childOf (call: ScMethodCall) if argList.exprs.size == 1 =>
-          val newMethCall =
-            createExpressionFromText(call.getInvokedExpr.getText + " " + newBlock.getText)
-          call.replace(newMethCall)
-        case block@ScBlock(`fExpr`) =>
-          block.replace(newBlock)
-        case _ =>
-          fExpr.replace(newBlock)
+  private def checkSameResolve(expression: ScExpression): Boolean = {
+    val arg = expression.getParent match {
+      case parent childOf (_: ScArgumentExprList | _: ScInfixExpr) => parent
+      case _ => expression
+    }
+
+    val call = getParentOfType(expression, classOf[MethodInvocation])
+    val (refText, oldReference) = call match {
+      case null => return true
+      case _ if !call.argumentExpressions.contains(arg) => return true
+      case ScInfixExpr(ElementText(qualifier), r, _) => (qualifier + "." + r.refName, r)
+      case ScMethodCall(r: ScReferenceExpression, _) => (r.getText, r)
+      case _ => return true
+    }
+
+    createExpressionWithContextFromText(refText + "{case _ => }", call.getContext, call) match {
+      case ScMethodCall(ref: ScReferenceExpression, _) => ref.resolve() == oldReference.resolve()
+      case _ => true
+    }
+  }
+
+  private def registerProblem(statement: ScMatchStmt, expression: ScExpression)
+                             (implicit holder: ProblemsHolder): Unit = {
+    findLeftBrace(statement).map { token =>
+      token.getTextRange.getStartOffset - expression.getTextRange.getStartOffset
+    }.map(new TextRange(0, _)).foreach { range =>
+      val fix = MatchToPartialFunctionQuickFix(statement, expression)
+
+      import ProblemHighlightType.GENERIC_ERROR_OR_WARNING
+      holder.registerProblem(expression, DESCRIPTION, GENERIC_ERROR_OR_WARNING, range, fix)
+    }
+  }
+
+  private[this] def findLeftBrace(statement: ScMatchStmt): Option[PsiElement] =
+    Option(statement.findFirstChildByType(ScalaTokenTypes.tLBRACE))
+
+  object MatchToPartialFunctionQuickFix {
+
+    def apply(statement: ScMatchStmt, expression: ScExpression): LocalQuickFixOnPsiElement =
+      if (expression == statement) new AbstractFixOnPsiElement(DESCRIPTION, statement) {
+
+        override protected def doApplyFix(statement: ScMatchStmt)
+                                         (implicit project: Project): Unit =
+          MatchToPartialFunctionQuickFix.doApplyFix(statement, statement)
       }
-      PsiDocumentManager.getInstance(project).commitAllDocuments()
+      else new AbstractFixOnTwoPsiElements(DESCRIPTION, statement, expression) {
+
+        override protected def doApplyFix(statement: ScMatchStmt, expression: ScExpression)
+                                         (implicit project: Project): Unit =
+          MatchToPartialFunctionQuickFix.doApplyFix(statement, expression)
+      }
+
+    private def doApplyFix(statement: ScMatchStmt, expression: ScExpression)
+                          (implicit project: Project): Unit = {
+      val matchStmtCopy = statement.copy.asInstanceOf[ScMatchStmt]
+      val leftBrace = findLeftBrace(matchStmtCopy).getOrElse(return)
+
+      addNamingPatterns(matchStmtCopy, needNamingPattern(statement))
+      matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, leftBrace.getPrevSibling)
+      val newBlock = createExpressionFromText(matchStmtCopy.getText)
+      CodeEditUtil.setOldIndentation(newBlock.getNode.asInstanceOf[TreeElement], CodeEditUtil.getOldIndentation(matchStmtCopy.getNode))
+
+      inWriteAction {
+        expression.getParent match {
+          case (argList: ScArgumentExprList) childOf (call@ScMethodCall(ElementText(invoked), _)) if argList.exprs.size == 1 =>
+            val replacement = createExpressionFromText(invoked + " " + newBlock.getText)
+            call.replace(replacement)
+          case block@ScBlock(`expression`) =>
+            block.replace(newBlock)
+          case _ =>
+            expression.replace(newBlock)
+        }
+        PsiDocumentManager.getInstance(project).commitAllDocuments()
+      }
+    }
+
+    private[this] def needNamingPattern(statement: ScMatchStmt): Seq[Int] = statement match {
+      case ScMatchStmt(ScReferenceExpression(argument), _) =>
+        val references = findReferences(argument)(new LocalSearchScope(statement))
+
+        statement.caseClauses.zipWithIndex.collect {
+          case (clause, index) if references.exists(isAncestor(clause, _, false)) => index
+        }
+      case _ => Seq.empty
+    }
+
+    private[this] def addNamingPatterns(statement: ScMatchStmt, indices: Seq[Int])
+                                       (implicit projectContext: ProjectContext = statement.projectContext): Unit = {
+      val expression = statement.expr.getOrElse(return)
+      val name = expression.getText
+
+      val clauses = statement.caseClauses
+      val patterns = indices.flatMap(i => clauses(i).pattern)
+
+      patterns.collect {
+        case w: ScWildcardPattern => (w, name)
+        case p: ScPattern =>
+          val text = p.getText.parenthesize(needParentheses(p))
+          (p, name + " @ " + text)
+      }.foreach {
+        case (pattern, text) =>
+          val replacement = createPatternFromText(text)
+          pattern.replace(replacement)
+      }
+    }
+
+    private[this] def findReferences(element: PsiElement)
+                                    (scope: LocalSearchScope) = {
+      import JavaConverters._
+      ReferencesSearch.search(element, scope)
+        .findAll().asScala
+        .map(_.getElement)
+    }
+
+    private[this] def needParentheses: ScPattern => Boolean = {
+      case _: ScReferencePattern |
+           _: ScLiteralPattern |
+           _: ScConstructorPattern |
+           _: ScParenthesisedPattern |
+           _: ScTuplePattern |
+           _: ScStableReferenceElementPattern => false
+      case _ => true
     }
   }
 
-  private def needNamingPattern(matchStmt: ScMatchStmt): Seq[Int] = {
-    matchStmt match {
-      case ScMatchStmt(expr: ScReferenceExpression, _) =>
-        val arg = expr.resolve()
-        if (arg == null) return Nil
-        val refs = ReferencesSearch.search(arg, new LocalSearchScope(matchStmt)).findAll().asScala
-        for {
-          (clause, index) <- matchStmt.caseClauses.zipWithIndex
-          if refs.exists(ref => PsiTreeUtil.isAncestor(clause, ref.getElement, false))
-        } yield index
-      case _ => Nil
-    }
-  }
-
-  private def addNamingPatterns(matchStmt: ScMatchStmt, indexes: Seq[Int]): Unit = {
-    val clauses = matchStmt.caseClauses
-    val name = matchStmt.expr.map(_.getText).getOrElse(return)
-    implicit val projectContext = matchStmt.projectContext
-    indexes.map(i => clauses(i).pattern).foreach {
-      case Some(w: ScWildcardPattern) =>
-        w.replace(createPatternFromText(name))
-      case Some(p: ScPattern) =>
-        val text = p.getText.parenthesize(needParentheses(p))
-        p.replace(createPatternFromText(s"$name @ $text"))
-      case _ =>
-    }
-  }
-
-  private def needParentheses(p: ScPattern): Boolean = p match {
-    case _: ScReferencePattern | _: ScLiteralPattern | _: ScConstructorPattern |
-         _: ScParenthesisedPattern | _: ScTuplePattern | _: ScStableReferenceElementPattern => false
-    case _ => true
-  }
 }

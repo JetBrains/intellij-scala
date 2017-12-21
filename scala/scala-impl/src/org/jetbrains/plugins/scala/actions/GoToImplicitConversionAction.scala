@@ -6,6 +6,8 @@ import javax.swing._
 import javax.swing.border.Border
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 
+import scala.collection.mutable.ArrayBuffer
+
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.Editor
@@ -23,10 +25,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitFunctionListCellRenderer
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.IntentionUtils.showMakeExplicitPopup
 import org.jetbrains.plugins.scala.util.{IntentionUtils, JListCompatibility}
-
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -134,6 +135,8 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
 
       false
     }
+
+    Stats.trigger(FeatureKey.goToImplicitConversion)
 
     if (editor.getSelectionModel.hasSelection) {
       getExpression(file).foreach(forExpr)

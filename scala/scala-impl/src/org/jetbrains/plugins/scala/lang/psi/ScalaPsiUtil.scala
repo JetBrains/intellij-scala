@@ -2,10 +2,15 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
+import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, Set, mutable}
+
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.{JavaModuleType, Module, ModuleUtil}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
@@ -37,6 +42,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits._
@@ -44,7 +50,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -54,10 +60,6 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Seq, Set, mutable}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -185,8 +187,9 @@ object ScalaPsiUtil {
     *
     * See SCL-2001, SCL-3485
     */
-  def tuplizy(s: Seq[Expression], scope: GlobalSearchScope, manager: PsiManager, place: PsiElement): Option[Seq[Expression]] = {
-    implicit val project: Project = manager.getProject
+  def tupled(s: Seq[Expression], context: PsiElement): Option[Seq[Expression]] = {
+    implicit val project: Project = context.getProject
+    val place = firstLeaf(context)
     s match {
       case Seq() =>
         // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
@@ -197,10 +200,10 @@ object ScalaPsiUtil {
             case (res, _) => res.getOrAny
           }
         val qual = "scala.Tuple" + exprTypes.length
-        val tupleClass = ScalaPsiManager.instance.getCachedClass(scope, qual).orNull
-        if (tupleClass == null) None
-        else
-          Some(Seq(new Expression(ScParameterizedType(ScDesignatorType(tupleClass), exprTypes), place)))
+        val tupleClass = ScalaPsiManager.instance.getCachedClass(context.resolveScope, qual)
+        val tupleType = tupleClass.map(tpl => ScParameterizedType(ScDesignatorType(tpl), exprTypes))
+
+        tupleType.map(tt => Seq(new Expression(tt, place)))
     }
   }
 
@@ -324,83 +327,10 @@ object ScalaPsiUtil {
     }
   }
 
-  def approveDynamic(tp: ScType, project: Project, scope: GlobalSearchScope): Boolean = {
-    implicit val ctx: ProjectContext = project
-
-    val cachedClass = ScalaPsiManager.instance.getCachedClass(scope, "scala.Dynamic").orNull
-    if (cachedClass == null) return false
-    val dynamicType = ScDesignatorType(cachedClass)
-    tp.conforms(dynamicType)
-  }
-
   def processTypeForUpdateOrApplyCandidates(call: MethodInvocation, tp: ScType, isShape: Boolean,
-                                            isDynamic: Boolean): Array[ScalaResolveResult] = {
-    implicit val projectContext: ProjectContext = call.projectContext
-    val isUpdate = call.isUpdateCall
-
-    val methodName =
-      if (isDynamic) DynamicResolveProcessor.getDynamicNameForMethodInvocation(call)
-      else if (isUpdate) "update"
-      else "apply"
-    val args: Seq[ScExpression] = call.argumentExpressions ++ (
-      if (isUpdate) call.getContext.asInstanceOf[ScAssignStmt].getRExpression match {
-        case Some(x) => Seq[ScExpression](x)
-        case None =>
-          Seq[ScExpression](createExpressionFromText("{val x: Nothing = null; x}")) //we can't to not add something => add Nothing expression
-      }
-      else Seq.empty)
-    val (expr, exprTp, typeArgs: Seq[ScTypeElement]) = call.getEffectiveInvokedExpr match {
-      case gen: ScGenericCall =>
-        // The type arguments are for the apply/update method, separate them from the referenced expression. (SCL-3489)
-        val referencedType = gen.referencedExpr.getNonValueType().getOrNothing
-        referencedType match {
-          case _: ScTypePolymorphicType => //that means that generic call is important here
-            (gen, gen.`type`().getOrNothing, Seq.empty)
-          case _ =>
-            (gen.referencedExpr, gen.referencedExpr.`type`().getOrNothing, gen.arguments)
-        }
-      case expression => (expression, tp, Seq.empty)
-    }
-    val invoked = call.getInvokedExpr
-    val typeParams = invoked.getNonValueType().toOption.collect {
-      case ScTypePolymorphicType(_, tps) => tps
-    }.getOrElse(Seq.empty)
-    val emptyStringExpression = createExpressionFromText("\"\"")
-    val processor = new MethodResolveProcessor(expr, methodName, if (!isDynamic) args :: Nil
-    else List(List(emptyStringExpression), args), typeArgs, typeParams,
-      isShapeResolve = isShape, enableTupling = true, isDynamic = isDynamic)
-    var candidates: Set[ScalaResolveResult] = Set.empty
-    exprTp match {
-      case ScTypePolymorphicType(internal, typeParam) if typeParam.nonEmpty &&
-        !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[UndefinedType] =>
-        if (!isDynamic || approveDynamic(internal, call.getProject, call.resolveScope)) {
-          val state: ResolveState = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, internal)
-          processor.processType(internal, call.getEffectiveInvokedExpr, state)
-        }
-        candidates = processor.candidatesS
-      case _ =>
-    }
-    if (candidates.isEmpty && (!isDynamic || approveDynamic(exprTp.inferValueType, call.getProject, call.resolveScope))) {
-      val state: ResolveState = ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, exprTp.inferValueType)
-      processor.processType(exprTp.inferValueType, call.getEffectiveInvokedExpr, state)
-      candidates = processor.candidatesS
-    }
-
-    if (!isDynamic && candidates.forall(!_.isApplicable())) {
-      processor.resetPrecedence()
-      //should think about implicit conversions
-      findImplicitConversion(expr, methodName, call, processor, noImplicitsForArgs = candidates.nonEmpty).foreach { result =>
-        ProgressManager.checkCanceled()
-
-        val builder = new ImplicitResolveResult.ResolverStateBuilder(result).withImports
-          .withImplicitFunction
-          .withType
-
-        processor.processType(result.typeWithDependentSubstitutor, expr, builder.state)
-      }
-      candidates = processor.candidatesS
-    }
-    candidates.toArray
+                                             isDynamic: Boolean): Array[ScalaResolveResult] = {
+    val applyOrUpdateInvocation = ApplyOrUpdateInvocation(call, tp, isDynamic)
+    applyOrUpdateInvocation.collectCandidates(isShape)
   }
 
   /**
@@ -1554,8 +1484,6 @@ object ScalaPsiUtil {
         result
     }
 
-  def isPossiblyAssignment(ref: PsiReference): Boolean = isPossiblyAssignment(ref.getElement)
-
   //todo: fix it
   // This is a conservative approximation, we should really resolve the operation
   // to differentiate self assignment from calling a method whose name happens to be an assignment operator.
@@ -1736,17 +1664,6 @@ object ScalaPsiUtil {
       case _ => ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings.plugins
     }
     plugins.exists(_.contains("kind-projector"))
-  }
-
-  /**
-    * @see https://github.com/non/kind-projector
-    */
-  def kindProjectorPluginEnabled(p: Project): Boolean = {
-    val modules = ModuleUtil.getModulesOfType(p, JavaModuleType.getModuleType)
-
-    modules.asScala.exists { mod =>
-      mod.hasScala && mod.scalaCompilerSettings.plugins.exists(_.contains("kind-projector"))
-    }
   }
 
   /**

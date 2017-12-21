@@ -181,4 +181,57 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |  }""".stripMargin
     )
   }
+
+  def testSCL12656() = {
+    checkTextHasNoErrors(
+      """import scala.concurrent.{ExecutionContext, Future}
+        |import scala.util.Success
+        |
+        |object TestCase {
+        |  def f: Future[Any] = null
+        |
+        |  implicit class MyFuture[T](val f: Future[T]) {
+        |    def awaitAndDo[U <: T](func: U => String)(implicit ec: ExecutionContext): String = {
+        |      f onComplete {
+        |        case Success(value) => return func(value.asInstanceOf[U])
+        |        case _ => Unit
+        |      }
+        |      "bar"
+        |    }
+        |  }
+        |
+        |  private def foo = {
+        |    implicit val ec: ExecutionContext = null
+        |    var baz: String = f awaitAndDo[Option[String]] {
+        |      case Some(s) => s
+        |      case None => "oups"
+        |    }
+        |  }
+        |}""".stripMargin
+    )
+  }
+
+  def testSCL12908() = {
+    val text =
+      """
+        |def check[T](array: Array[T]): Unit = {
+        |    array match {
+        |      case bytes: Array[Byte] =>
+        |        println("Got bytes!")
+        |      case _ =>
+        |        println("Got something else than bytes!")
+        |    }
+        |  }
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testSCL13042() = {
+    val text =
+      """
+        |def f[R[_], T](fun: String => R[T]): String => R[T] = fun
+        |val result = f(str => Option(str))
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }

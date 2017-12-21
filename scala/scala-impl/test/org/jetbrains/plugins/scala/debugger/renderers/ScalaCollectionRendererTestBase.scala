@@ -11,11 +11,11 @@ import org.junit.experimental.categories.Category
  * User: Dmitry Naydanov
  * Date: 9/5/12
  */
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_211 extends ScalaCollectionRendererTestBase {
   override implicit val version: ScalaVersion = Scala_2_11
 }
-@Category(Array(classOf[DebuggerTests], classOf[SlowTests]))
+@Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_212 extends ScalaCollectionRendererTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }

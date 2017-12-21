@@ -9,4 +9,6 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class JavaFieldResolveTest extends FailedResolveTest("javaField") {
   def testScl6925() = doTest()
+  def testScl12413() = doTest()
+  def testScl12630() = doTest()
 }

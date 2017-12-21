@@ -47,7 +47,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
   override def createFindUsagesHandler(element: PsiElement, forHighlightUsages: Boolean): FindUsagesHandler = {
     var replacedElement = element match {
       case isWrapper(named) => named
-      case f: FakePsiMethod => f.navElement
+      case FakePsiMethod(method) => method
       case _ => element
     }
 

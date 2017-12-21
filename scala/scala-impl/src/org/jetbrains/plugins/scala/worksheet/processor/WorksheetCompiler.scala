@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompile
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
@@ -164,6 +165,9 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
   def shouldShowReplWarning(file: PsiFile): Boolean = isEnabled(file, IS_WORKSHEET_REPL_MODE) && getRunType(file.getProject) != InProcessServer
 
   def setWorksheetReplMode(file: PsiFile, isRepl: Boolean): Unit = {
+    val postfix = if (isRepl) enabled else disabled
+    Stats.trigger(FeatureKey.worksheetReplMode(postfix))
+
     setEnabled(file, IS_WORKSHEET_REPL_MODE, isRepl)
   }
 

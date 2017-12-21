@@ -42,7 +42,7 @@ abstract class AbstractTestFramework extends JavaTestFramework {
 
   def isTestClass(clazz: PsiClass, canBePotential: Boolean): Boolean = {
     val newClazz = clazz match {
-      case wrapper: PsiClassWrapper => wrapper.definition
+      case PsiClassWrapper(definition) => definition
       case _ => clazz
     }
 

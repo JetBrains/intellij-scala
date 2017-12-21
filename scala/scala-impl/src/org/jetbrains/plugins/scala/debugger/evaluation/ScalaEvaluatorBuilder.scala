@@ -8,7 +8,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.extensions.{Both, LazyVal, PsiElementExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions.{&&, LazyVal, PsiElementExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * Nikolay.Tropin
@@ -27,6 +28,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
   def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
     if (codeFragment.getLanguage.isInstanceOf[JavaLanguage])
       return EvaluatorBuilderImpl.getInstance().build(codeFragment, position) //java builder (e.g. SCL-6117)
+
+    Stats.trigger(FeatureKey.debuggerEvaluator)
 
     val scalaFragment = codeFragment match {
       case sf: ScalaCodeFragment => sf
@@ -62,6 +65,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
     catch {
       case _: NeedCompilationException =>
+        Stats.trigger(FeatureKey.debuggerCompilingEvaluator)
         new ScalaCompilingExpressionEvaluator(buildCompilingEvaluator)
       case e: EvaluateException => throw e
     }
@@ -198,7 +202,7 @@ private object byNameParameterFunction {
       if (refText.endsWith(byNameFunctionSuffix)) {
         val paramName = refText.stripSuffix(byNameFunctionSuffix)
         createExpressionWithContextFromText(paramName, ref.getContext, ref) match {
-          case Both(ref: ScReferenceExpression, ResolvesTo(p: ScParameter)) if p.isCallByNameParameter => Some((p, ref))
+          case (ref: ScReferenceExpression) && ResolvesTo(p: ScParameter) if p.isCallByNameParameter => Some((p, ref))
           case _ => throw EvaluationException(s"Cannot find by-name parameter with such name: $paramName")
         }
       }

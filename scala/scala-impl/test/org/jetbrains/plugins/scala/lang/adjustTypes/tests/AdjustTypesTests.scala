@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang.adjustTypes.tests
 
-import org.jetbrains.plugins.scala.base.libraryLoaders.{CatsLoader, ThirdPartyLibraryLoader}
+import org.jetbrains.plugins.scala.DependencyManager._
+import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.adjustTypes.AdjustTypesTestBase
 
 /**
@@ -43,8 +44,8 @@ class AdjustTypesTests extends AdjustTypesTestBase {
 
 class AdjustCatsTypeTest extends AdjustTypesTestBase {
 
-  override protected def additionalLibraries(): Seq[CatsLoader] =
-    Seq(CatsLoader())
+  override protected def additionalLibraries(): Seq[LibraryLoader] =
+    IvyManagedLoader("org.typelevel" % "cats-core_2.11" % "0.4.0") :: Nil
 
   def testSCL10006(): Unit = doTest()
 }

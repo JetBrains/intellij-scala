@@ -1,6 +1,8 @@
 package org.jetbrains.sbt
 package project.module
 
+import javax.swing.Icon
+
 import com.intellij.ide.util.projectWizard.EmptyModuleBuilder
 import com.intellij.openapi.module.{Module, ModuleType}
 
@@ -10,13 +12,11 @@ import com.intellij.openapi.module.{Module, ModuleType}
 class SbtModuleType extends ModuleType[EmptyModuleBuilder]("SBT_MODULE") {
   def createModuleBuilder() = new EmptyModuleBuilder()
 
-  def getName = Sbt.BuildModuleName
+  override def getName: String = Sbt.BuildModuleName
 
-  def getDescription = Sbt.BuildModuleDescription
+  override def getDescription: String = Sbt.BuildModuleDescription
 
-  def getBigIcon = Sbt.Icon
-
-  override def getNodeIcon(isOpened: Boolean) = Sbt.Icon
+  override def getNodeIcon(isOpened: Boolean): Icon = Sbt.FolderIcon
 }
 
 object SbtModuleType {

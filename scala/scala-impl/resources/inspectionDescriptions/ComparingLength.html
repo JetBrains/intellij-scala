@@ -1,0 +1,35 @@
+<html>
+<body>
+Replaces comparing <code>.length</code> or <code>.size</code> with <code>.lengthCompare</code>.
+
+<p>
+Before:
+<pre>
+seq.length == n
+seq.length != n
+seq.length &lt; n
+seq.length &gt; n
+
+seq.size == n
+seq.size != n
+seq.size &lt; n
+seq.size &gt; n
+</pre>
+
+<br>
+After:
+<pre>
+seq.lengthCompare(n) == 0
+seq.lengthCompare(n) != 0
+seq.lengthCompare(n) &lt; 0
+seq.lengthCompare(n) &gt; 0
+
+seq.lengthCompare(n) == 0
+seq.lengthCompare(n) != 0
+seq.lengthCompare(n) &lt; 0
+seq.lengthCompare(n) &gt; 0
+</pre>
+</p>
+
+</body>
+</html>

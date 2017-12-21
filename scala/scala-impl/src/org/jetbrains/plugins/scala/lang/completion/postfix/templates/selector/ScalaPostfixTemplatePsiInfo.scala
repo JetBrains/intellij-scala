@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScPrefixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithUnaryNotSurrounder
 
 /**
@@ -31,12 +30,12 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
     private def templateText(elements: Array[PsiElement]): String =
       elements.foldLeft(""){case (acc, elem) => acc + elem.getNode.getText}
 
-    override def needParenthesis(elements: Array[PsiElement]): Boolean = super.needParenthesis(elements) &&
+    override def needParenthesis(parent: PsiElement): Boolean = super.needParenthesis(parent) &&
       //are in boolean operation expr (operation priorities are known) we don't spend time on removing parentheses
-      elements.headOption.map(_.getParent).exists {
+      (parent match {
         case expr: ScExpression => !SimplifyBooleanUtil.isBooleanOperation(expr)
         case _ => true
-      }
+      })
 
     override def surroundPsi(elements: Array[PsiElement]): ScExpression = {
       SimplifyBooleanUtil.simplify(super.surroundPsi(elements), isTopLevel = false) match {

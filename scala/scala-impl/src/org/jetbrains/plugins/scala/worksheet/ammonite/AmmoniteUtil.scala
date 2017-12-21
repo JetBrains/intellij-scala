@@ -40,7 +40,7 @@ object AmmoniteUtil {
   
   private val DEFAULT_IMPORTS = Seq("ammonite.main.Router._", "ammonite.runtime.tools.grep", "ammonite.runtime.tools.browse", 
     "ammonite.runtime.tools.time", "ammonite.repl.tools.desugar", "ammonite.repl.tools.source") //todo more default imports ?
-  private val DEFAULT_BUILTINS = Seq(("repl", "ammonite.repl.ReplAPI"), ("interp", "ammonite.runtime.Interpreter"))
+  private val DEFAULT_BUILTINS = Seq(("repl", "ammonite.repl.ReplAPI"), ("interp", "ammonite.runtime.Interpreter with ammonite.interp.Interpreter"))
 
   def isAmmoniteFile(file: ScalaFile): Boolean = {
     ScalaUtil.findVirtualFile(file) match {
@@ -142,9 +142,9 @@ object AmmoniteUtil {
     }
     
     qual(refElement) match {
-      case Some(q) if scriptResolvePlugin(q) && refElement.getReference.getCanonicalText == ROOT_IVY => //refElement.getReference.getCanonicalText
+      case Some(q) if scriptResolvePlugin(q) && refElement.getReference.getCanonicalText == ROOT_IVY => 
         Option(refElement.getContainingFile.getContainingDirectory)
-      case Some(q) if scriptResolveIvy(q) || scriptResolvePlugin(q) =>
+      case Some(q) if scriptResolveIvy(q) || scriptResolvePlugin(q) || q.getReference.refName == ROOT_IVY =>
         findLibrary(refElement) flatMap {
           lib => getResolveItem(lib, refElement.getProject)
         }
@@ -158,10 +158,15 @@ object AmmoniteUtil {
     AmmoniteUtil.extractLibInfo(refElement).flatMap {
       case LibInfo(group, name, version, scalaVersion) =>
         val existsPredicate = (f: File) => f.exists()
-        val nv = s"${name}_$scalaVersion"
         
-        val ivyPath = s"$group/$nv/jars|bundles/$version.jar"
-        val mavenPath = s"maven2/${group.replace('.', '/')}/$nv|$name/$version/$nv-$version.jar|$name-$version.jar"
+        val nv = s"${name}_$scalaVersion"
+        val fullVersion = s"$nv|$nv.${ScalaUtil.getScalaVersion(refElement.getContainingFile).flatMap(_.split('.').lastOption).getOrElse("0")}"
+        
+        val ivyPath = s"$group/$fullVersion/jars|bundles"
+        val mavenPath = s"maven2/${group.replace('.', '/')}/$nv|$name/$version"
+        
+        val prefixPatterns = Seq(name, version)
+        
         
         def tryIvy() = findFileByPattern(
           s"$getDefaultCachePath/$ivyPath", 
@@ -172,11 +177,17 @@ object AmmoniteUtil {
           s"$getCoursierCachePath/https/repo1.maven.org/$mavenPath",
           existsPredicate
         )
-        
-        tryIvy() orElse tryCoursier() flatMap { //todo more variants? 
-          jarModuleRoot =>
-            val jarRoot = JarFileSystem.getInstance().findLocalVirtualFileByPath(jarModuleRoot.getCanonicalPath)
-            Option(jarRoot)
+
+        tryIvy() orElse tryCoursier() flatMap {
+          parent =>
+            parent.listFiles().find{
+              cf =>
+                val name = cf.getName
+                prefixPatterns.exists(name.startsWith) && name.endsWith(".jar")
+            } flatMap { //todo more variants? 
+              jarModuleRoot =>
+                Option(JarFileSystem.getInstance().findLocalVirtualFileByPath(jarModuleRoot.getCanonicalPath))
+            }
         }
     }
   }

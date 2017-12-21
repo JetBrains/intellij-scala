@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import java.{util => ju}
 
-import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Pass, TextRange}
@@ -27,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
   * Created by Kate Ustyuzhanina
@@ -42,7 +42,7 @@ trait IntroduceExpressions {
   def invokeExpression(file: PsiFile, startOffset: Int, endOffset: Int)
                       (implicit project: Project, editor: Editor): Unit = {
     try {
-      UsageTrigger.trigger(ScalaBundle.message("introduce.variable.id"))
+      Stats.trigger(FeatureKey.introduceVariable)
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       writableScalaFile(file, INTRODUCE_VARIABLE_REFACTORING_NAME)

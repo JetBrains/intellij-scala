@@ -2,14 +2,12 @@ package org.jetbrains.plugins.scala
 package javaHighlighting
 
 import org.jetbrains.plugins.scala.annotator._
-import org.junit.experimental.categories.Category
 
 
 /**
  * Author: Svyatoslav Ilinskiy
  * Date: 7/8/15
  */
-@Category(Array(classOf[SlowTests]))
 class JavaHighlightingTest extends JavaHighlightingTestBase() {
 
   def testSignatures(): Unit = {
@@ -64,6 +62,26 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
         |}
       """.stripMargin
     assertNothing(errorsFromJavaCode(scala, java, "Test"))
+  }
+
+  def testSCL12286(): Unit = {
+    val java =
+      """
+        |import scala.Option;
+        |import scala.Option$;
+        |
+        |import java.sql.Connection;
+        |
+        |public class Temp {
+        |    static void test(Connection con, String s) {
+        |        Option<Connection> conOpt = Option$.MODULE$.apply(con);
+        |        Option<String> stringOpt = Option$.MODULE$.apply(s);
+        |    }
+        |}
+        |
+      """.stripMargin
+    assertNothing(errorsFromJavaCode("", java, "Temp"))
+
   }
 
   def testProtected(): Unit = {
@@ -1025,6 +1043,32 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
       """.stripMargin
 
     assertNothing(errorsFromScalaCode(scala, java))
+  }
+
+  def testSCL13105(): Unit = {
+    val java =
+      """
+        |public class JavaTestClass extends AbstractTestClass {
+        |
+        |    public static void main(String[] args){
+        |        JavaTestClass jtc = new JavaTestClass();
+        |        System.out.println(jtc.self());
+        |    }
+        |}
+        |
+      """.stripMargin
+
+    val scala =
+      """
+        |trait TestTrait{
+        |  implicit final val self = "self"
+        |
+        |}
+        |
+        |abstract class AbstractTestClass extends TestTrait
+      """.stripMargin
+
+    assertNothing(errorsFromJavaCode(scala, java, "JavaTestClass"))
   }
 
 }

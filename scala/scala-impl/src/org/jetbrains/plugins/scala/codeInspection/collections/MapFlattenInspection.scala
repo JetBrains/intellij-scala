@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import org.jetbrains.plugins.scala.extensions.BooleanExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * @author Nikolay.Tropin
@@ -15,9 +17,21 @@ object MapFlatten extends SimplificationType {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case qual`.map`(f)`.flatten`() if implicitParameterExistsFor(expr) =>
-        Some(replace(expr).withText(invocationText(qual, "flatMap", f)).highlightFrom(qual))
+      case qual`.map`(f)`.flatten`() =>
+        val newText = invocationText(qual, "flatMap", f)
+        sameType(expr, newText).option {
+          replace(expr).withText(newText).highlightFrom(qual)
+        }
       case _ => None
+    }
+  }
+
+  private def sameType(expr: ScExpression, text: String): Boolean = {
+    val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, expr.getContext, expr)
+    expr.`type`().exists { oldType =>
+      newExpr.`type`().exists { newType =>
+        oldType.equiv(newType)
+      }
     }
   }
 }

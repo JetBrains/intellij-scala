@@ -137,9 +137,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
       .asScala
       .sortBy(myPair =>
         myPair.first match {
-          case wrapper: ScFunctionWrapper if wrapper.delegate.isInstanceOf[ScFunctionDeclaration] => 1
-          case wrapper: ScFunctionWrapper if wrapper.delegate.isInstanceOf[ScFunctionDefinition] => wrapper.containingClass match {
-            case myClass: ScTemplateDefinition if myClass.members.contains(wrapper.delegate) => 0
+          case ScFunctionWrapper(_: ScFunctionDeclaration) => 1
+          case wrapper@ScFunctionWrapper(delegate: ScFunctionDefinition) => wrapper.containingClass match {
+            case myClass: ScTemplateDefinition if myClass.members.contains(delegate) => 0
             case _ => 1
           }
           case _ => 1

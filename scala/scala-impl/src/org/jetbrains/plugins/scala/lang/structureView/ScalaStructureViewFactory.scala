@@ -7,6 +7,7 @@ import com.intellij.lang.PsiStructureViewFactory
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaLanguageConsoleView}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 class ScalaStructureViewFactory extends PsiStructureViewFactory {
   def getStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = psiFile match {
     case sf: ScalaFile =>
+      Stats.trigger(FeatureKey.structureView)
       if (sf.getName == ScalaLanguageConsoleView.SCALA_CONSOLE) {
         val console = ScalaConsoleInfo.getConsole(sf)
         new ScalaStructureViewBuilder(sf, console)

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import java.io.File
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.collection.mutable
@@ -25,7 +26,7 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.{Key, Ref}
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.testFramework.EdtTestUtil
+import com.intellij.testFramework.{EdtTestUtil, ThreadTracker}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.xdebugger.XDebuggerManager
 import com.intellij.xdebugger.breakpoints.XBreakpointType
@@ -46,10 +47,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   private val breakpoints: mutable.Set[(String, Int, Integer)] = mutable.Set.empty
 
-  //safety net against not running tests at all
-  private var wasAtBreakpoint: Boolean = false
-
-  protected def shouldStopAtBreakpointAtLeastOnce(): Boolean = true
+  private var breakpointTracker: BreakpointTracker = _
 
   override def setUp(): Unit = {
     super.setUp()
@@ -59,21 +57,34 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     }
   }
 
-  protected def runDebugger(mainClass: String = mainClassName, debug: Boolean = false)(callback: => Unit) {
+  protected def runDebugger(mainClass: String = mainClassName,
+                            debug: Boolean = false,
+                            shouldStopAtBreakpoint: Boolean = true)(callback: => Unit): Unit = {
     setupBreakpoints()
+    breakpointTracker = new BreakpointTracker()
+
     val processHandler = runProcess(mainClass, debug)
     val debugProcess = getDebugProcess
+
+    breakpointTracker.addListener(debugProcess)
+
     try {
       callback
     } finally {
+      Assert.assertTrue("Stop at breakpoint expected", breakpointTracker.wasAtBreakpoint || !shouldStopAtBreakpoint)
+
       EdtTestUtil.runInEdtAndWait(() => {
         clearXBreakpoints()
         debugProcess.stop(true)
+        breakpointTracker.removeListener(debugProcess)
+        breakpointTracker = null
         processHandler.destroyProcess()
+        val timeout = 10.seconds
+        Assert.assertTrue(s"Debuggee process have not exited for $timeout",
+          processHandler.waitFor(timeout.toMillis))
+        ThreadTracker.awaitJDIThreadsTermination(10, TimeUnit.SECONDS)
       })
     }
-
-    Assert.assertTrue("Stop at breakpoint expected", wasAtBreakpoint || !shouldStopAtBreakpointAtLeastOnce())
   }
 
   private def runProcess(mainClass: String = mainClassName, debug: Boolean = false): ProcessHandler = {
@@ -171,10 +182,10 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   protected def scalaLineBreakpointType = XBreakpointType.EXTENSION_POINT_NAME.findExtension(classOf[ScalaLineBreakpointType])
 
   protected def waitForBreakpoint(): SuspendContextImpl = {
-    val (suspendContext, processTerminated) = waitForBreakpointInner()
+    val suspendContext = waitForBreakpointInner()
 
     val message =
-      if (processTerminated) "process terminated before breakpoint"
+      if (!isAttached) "process terminated before breakpoint"
       else "too long waiting for breakpoint"
 
     Assert.assertTrue(message, suspendContext != null)
@@ -184,41 +195,19 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   }
 
   protected def processTerminatedNoBreakpoints(): Boolean = {
-    val (_, processTerminated) = waitForBreakpointInner()
-    processTerminated
+    waitForBreakpointInner()
+    !isAttached
   }
 
-  private def waitForBreakpointInner(): (SuspendContextImpl, Boolean) = {
-    val debugProcess = getDebugProcess
-    val breakpointSemaphore = new Semaphore()
-
-    val breakpointListener = new DebugProcessAdapterImpl {
-      override def paused(suspendContext: SuspendContextImpl): Unit = {
-        wasAtBreakpoint = true
-        breakpointSemaphore.up()
-        debugProcess.removeDebugProcessListener(this)
-      }
-
-      override def processDetached(process: DebugProcessImpl, closedByUser: Boolean): Unit = {
-        breakpointSemaphore.up()
-        debugProcess.removeDebugProcessListener(this)
-      }
-    }
-
-    managed {
-      val ctx = currentSuspendContext()
-      if (Option(ctx).forall(_.isResumed)) {
-        debugProcess.addDebugProcessListener(breakpointListener)
-        breakpointSemaphore.down()
-      }
-    }
+  private def waitForBreakpointInner(): SuspendContextImpl = {
     assertNotManagerThread()
 
-    breakpointSemaphore.waitFor(30000)
+    breakpointTracker.waitBreakpoint(30000)
 
-    val isAttached = Option(getDebugProcess).exists(_.isAttached)
-    (currentSuspendContext(), !isAttached)
+    currentSuspendContext()
   }
+
+  def isAttached: Boolean = Option(getDebugProcess).exists(_.isAttached)
 
   private def assertNotManagerThread(): Unit = {
     Assert.assertTrue("Waiting on manager thread will cause deadlock",
@@ -238,7 +227,8 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   }
 
   protected def evaluationContext() = managed {
-    new EvaluationContextImpl(currentSuspendContext(), currentSuspendContext().getFrameProxy, currentSuspendContext().getFrameProxy.thisObject())
+    val suspendContext = currentSuspendContext()
+    new EvaluationContextImpl(suspendContext, suspendContext.getFrameProxy, suspendContext.getFrameProxy.thisObject())
   }
 
   protected def currentSourcePosition = managed {
@@ -376,6 +366,43 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     addSourceFile(path, cleanedText)
 
     breakpointLines.foreach(addBreakpoint(_, path))
+  }
+
+  //should be initialized before debug process is started
+  private class BreakpointTracker() {
+    private val breakpointSemaphore = new Semaphore()
+    breakpointSemaphore.down()
+    //safety net against not running tests at all
+    private var _wasAtBreakpoint: Boolean = false
+
+    private val breakpointListener = new DebugProcessAdapterImpl {
+
+      override def resumed(suspendContext: SuspendContextImpl): Unit = {
+        breakpointSemaphore.down()
+      }
+
+      override def paused(suspendContext: SuspendContextImpl): Unit = {
+        _wasAtBreakpoint = true
+        breakpointSemaphore.up()
+      }
+
+      override def processDetached(process: DebugProcessImpl, closedByUser: Boolean): Unit = {
+        breakpointSemaphore.up()
+      }
+    }
+
+    def waitBreakpoint(msTimeout: Long) = breakpointSemaphore.waitFor(msTimeout)
+
+    def wasAtBreakpoint: Boolean = _wasAtBreakpoint
+
+    def addListener(process: DebugProcessImpl): Unit = {
+      process.addDebugProcessListener(breakpointListener)
+    }
+
+    def removeListener(process: DebugProcessImpl): Unit = {
+      process.removeDebugProcessListener(breakpointListener)
+      breakpointSemaphore.up()
+    }
   }
 }
 

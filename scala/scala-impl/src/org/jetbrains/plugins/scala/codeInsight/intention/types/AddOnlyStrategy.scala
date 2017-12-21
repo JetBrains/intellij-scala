@@ -214,7 +214,7 @@ object AddOnlyStrategy {
           case Parent(Parent(Parent(_: ScBlockExpr))) => p
           // ensure  that the parameter is wrapped in parentheses before we add the type annotation.
           case clause: ScParameterClause if clause.parameters.length == 1 =>
-            clause.replace(createClauseForFunctionExprFromText(p.getText.parenthesize(true)))
+            clause.replace(createClauseForFunctionExprFromText(p.getText.parenthesize()))
               .asInstanceOf[ScParameterClause].parameters.head
           case _ => p
         }

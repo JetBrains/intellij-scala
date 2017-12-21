@@ -32,11 +32,9 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
     element.isInstanceOf[ScTypeDefinition] || element.isInstanceOf[PsiClassWrapper] || element.isInstanceOf[ScTypeParam]
   }
 
-  override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
-    element match {
-      case wrapper: PsiClassWrapper => wrapper.definition
-      case _ => element
-    }
+  override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = element match {
+    case PsiClassWrapper(definition) => definition
+    case _ => element
   }
 
   override def findReferences(element: PsiElement): util.Collection[PsiReference] = ScalaRenameUtil.replaceImportClassReferences(ScalaRenameUtil.findReferences(element))
@@ -100,10 +98,8 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
   override def getElementToSearchInStringsAndComments(element: PsiElement): PsiElement = {
     element match {
       case o: ScObject => o.fakeCompanionClassOrCompanionClass
-      case wrapper: PsiClassWrapper => wrapper.definition match {
-        case _: ScObject => wrapper
-        case definition => definition
-      }
+      case PsiClassWrapper(_: ScObject) => element
+      case PsiClassWrapper(definition) => definition
       case _ => element
     }
   }

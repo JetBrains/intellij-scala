@@ -21,17 +21,12 @@ case object Scala_2_9 extends ScalaVersion {
 
 case object Scala_2_10 extends ScalaVersion {
   override final val major: String = "2.10"
-  override final val minor: String = "2.10.6"
+  override final val minor: String = "2.10.7"
 }
 
 case object Scala_2_11 extends ScalaVersion {
   override final val major: String = "2.11"
-  override final val minor: String = "2.11.11"
-}
-
-case object Scala_2_11_11 extends ScalaVersion {
-  override final val major: String = "2.11"
-  override final val minor: String = "2.11.11"
+  override final val minor: String = "2.11.12"
 }
 
 case object Scala_2_12 extends ScalaVersion {
@@ -61,11 +56,6 @@ trait ScalaSdkOwner {
     myLoaders.foreach(_.clean)
     myLoaders.clear()
   }
-
-  /**
-    * @see [[org.jetbrains.plugins.scala.DependencyManager]]
-    */
-  protected def loadIvyDependencies(): Unit = ()
 
 }
 

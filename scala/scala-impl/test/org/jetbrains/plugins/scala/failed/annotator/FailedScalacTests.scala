@@ -3,10 +3,7 @@ package org.jetbrains.plugins.scala.failed.annotator
 import java.io.File
 
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, ScalaLibraryLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
-import org.jetbrains.plugins.scala.projectHighlighting.{ScalacTestdataHighlightingTestBase, SeveralFilesHighlightingTest}
+import org.jetbrains.plugins.scala.projectHighlighting.ScalacTestdataHighlightingTestBase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter
 import org.junit.experimental.categories.Category
@@ -20,7 +17,7 @@ import scala.reflect.NameTransformer
   */
 abstract class FailedScalacTestsBase extends ScalacTestdataHighlightingTestBase {
 
-  override val reporter = new ConsoleReporter
+  override val reporter = new ConsoleReporter(filesWithProblems = Set.empty)
 
   def testDataDir: String = s"${TestUtils.getTestDataPath}/scalacTests/$testDirName/"
 
@@ -82,41 +79,33 @@ class FailedScalacTests extends FailedScalacTestsBase {
   def test_overloaded_ho_fun(): Unit = doTest()
   def test_presuperContext(): Unit = doTest()
   def `test_reflection-compat-macro-universe`(): Unit = doTest()
-  def test_sammy_extends_function(): Unit = doTest()
   def test_sammy_infer_argtype_subtypes(): Unit = doTest()
   def `test_scala-singleton`(): Unit = doTest()
   def `test_strip-tvars-for-lubbasetypes`(): Unit = doTest()
   def test_t267(): Unit = doTest()
   def test_t389(): Unit = doTest()
-  def test_t0438(): Unit = doTest()
   def test_t482(): Unit = doTest()
   def test_t694(): Unit = doTest()
   def test_t697(): Unit = doTest()
   def test_t762(): Unit = doTest()
   def test_t802(): Unit = doTest()
-  def test_t845(): Unit = doTest()
   def test_t1085(): Unit = doTest()
   def test_t1279a(): Unit = doTest()
   def test_t1803(): Unit = doTest()
   def test_t1957(): Unit = doTest()
   def `test_t2712-5`(): Unit = doTest()
-  def test_t2913(): Unit = doTest()
   def test_t3177(): Unit = doTest()
-  def test_t3240(): Unit = doTest()
   def test_t3866(): Unit = doTest()
   def test_t3880(): Unit = doTest()
   def test_t3999b(): Unit = doTest()
-  def test_t4273(): Unit = doTest()
   def test_t4853(): Unit = doTest()
   def test_t4957(): Unit = doTest()
-  def test_t5294c(): Unit = doTest()
   def test_t5313(): Unit = doTest()
   def test_t5317(): Unit = doTest()
   def test_t5444(): Unit = doTest()
   def test_t5626(): Unit = doTest()
   def test_t5683(): Unit = doTest()
   def test_t5729(): Unit = doTest()
-  def test_t5845(): Unit = doTest()
   def test_t5953(): Unit = doTest()
   def test_t5958(): Unit = doTest()
   def test_t6084(): Unit = doTest()
@@ -139,7 +128,6 @@ class FailedScalacTests extends FailedScalacTestsBase {
   def test_t9008(): Unit = doTest()
   def test_t9498(): Unit = doTest()
   def test_t9658(): Unit = doTest()
-  def test_tcpoly_infer_implicit_tuple_wrapper(): Unit = doTest()
   def test_tcpoly_seq(): Unit = doTest()
   def test_ticket2251(): Unit = doTest()
   def `test_typerep-stephane`(): Unit = doTest()

@@ -142,7 +142,7 @@ private[changeSignature] object isAnonFunUsage {
     ref match {
       case ChildOf(mc: MethodInvocation) if mc.argumentExpressions.exists(ScUnderScoreSectionUtil.isUnderscore) => Some(AnonFunUsageInfo(mc, ref))
       case ChildOf(und: ScUnderscoreSection) => Some(AnonFunUsageInfo(und, ref))
-      case Both(ResolvesTo(m: PsiMethod), ChildOf(elem))
+      case ResolvesTo(m: PsiMethod) && ChildOf(elem)
         if m.getParameterList.getParametersCount > 0 && !elem.isInstanceOf[MethodInvocation] =>
         Some(AnonFunUsageInfo(ref, ref))
       case _ => None

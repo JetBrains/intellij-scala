@@ -54,6 +54,9 @@ class StaticPsiMethodWrapper private(val method: PsiMethod, containingClass: Psi
 }
 
 object StaticPsiMethodWrapper {
+
+  def unapply(wrapper: StaticPsiMethodWrapper): Option[PsiMethod] = Some(wrapper.method)
+
   private val KEY: Key[HashMap[PsiClass, (StaticPsiMethodWrapper, Long)]] = Key.create("static.psi.method.wrapper.key")
 
   def getWrapper(method: PsiMethod, containingClass: PsiClass): StaticPsiMethodWrapper = {

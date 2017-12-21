@@ -6,7 +6,6 @@ import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
-import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.command.impl.StartMarkAction
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.markup._
@@ -18,7 +17,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfType, getParentOfType}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, callbackInTransaction, inWriteAction, startCommand}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, callbackInTransaction, inWriteAction, startCommand}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -28,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DefaultListCellRendererAdapter, ScalaDirectoryService, ScalaRefactoringUtil}
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
 /**
@@ -42,7 +42,7 @@ trait IntroduceTypeAlias {
   def invokeTypeElement(file: PsiFile, inTypeElement: ScTypeElement)
                        (implicit project: Project, editor: Editor): Unit = {
     try {
-      UsageTrigger.trigger(ScalaBundle.message("introduce.type.alias.id"))
+      Stats.trigger(FeatureKey.introduceTypeAlias)
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       writableScalaFile(file, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
@@ -105,10 +105,10 @@ trait IntroduceTypeAlias {
               case typeAlias: ScTypeAliasDefinition => typeAlias
             }
 
-            val maybeTypeElement = Option(typeElementReference.getElement)
-
-            maybeTypeElement.filter(_.isValid).foreach { typeElement =>
-              editor.getCaretModel.moveToOffset(typeElement.getTextOffset)
+            Some(typeElementReference).collect {
+              case ValidSmartPointer(e) => e.getTextOffset
+            }.foreach { offset =>
+              editor.getCaretModel.moveToOffset(offset)
               editor.getSelectionModel.removeSelection()
 
               if (isInplaceAvailable(editor)) {
@@ -223,8 +223,8 @@ trait IntroduceTypeAlias {
       usualOccurrences.apply(typeElementIdx)
     }
 
-    val manager = SmartPointerManager.getInstance(file.getProject)
-    (manager.createSmartPsiElementPointer(typeAlias), manager.createSmartPsiElementPointer(resultTypeElement))
+    implicit val manager: SmartPointerManager = SmartPointerManager.getInstance(file.getProject)
+    (typeAlias.createSmartPointer, resultTypeElement.createSmartPointer)
   }
 
   def runRefactoringForTypes(file: PsiFile, typeElement: ScTypeElement, typeName: String,

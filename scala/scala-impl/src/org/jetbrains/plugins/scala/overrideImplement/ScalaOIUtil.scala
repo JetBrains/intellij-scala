@@ -18,10 +18,11 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScalaUtils
-
 import scala.Function.const
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -71,6 +72,9 @@ object ScalaOIUtil {
 
   def invokeOverrideImplement(project: Project, editor: Editor, file: PsiFile, isImplement: Boolean,
                               methodName: String = null) {
+
+    Stats.trigger(FeatureKey.overrideImplement)
+
     val clazz = file.findElementAt(editor.getCaretModel.getOffset - 1)
       .parentOfType(classOf[ScTemplateDefinition], strict = false)
       .getOrElse(return)

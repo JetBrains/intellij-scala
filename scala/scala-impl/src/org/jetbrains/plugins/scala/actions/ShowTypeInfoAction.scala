@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 
 /**
@@ -32,6 +33,8 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
 
     val file = PsiUtilBase.getPsiFileInEditor(editor, CommonDataKeys.PROJECT.getData(context))
     if (!file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return
+
+    Stats.trigger(FeatureKey.showTypeInfo)
 
     val selectionModel = editor.getSelectionModel
     if (selectionModel.hasSelection) {

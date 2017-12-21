@@ -14,10 +14,7 @@ import com.intellij.testFramework.LightProjectDescriptor;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.DelegatingProjectDescriptor;
-import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader;
-import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader;
-import org.jetbrains.plugins.scala.base.libraryLoaders.SourcesLoader;
-import org.jetbrains.plugins.scala.base.libraryLoaders.ThirdPartyLibraryLoader;
+import org.jetbrains.plugins.scala.base.libraryLoaders.*;
 import org.jetbrains.plugins.scala.debugger.ScalaSdkOwner;
 import org.jetbrains.plugins.scala.debugger.ScalaVersion;
 import org.jetbrains.plugins.scala.debugger.Scala_2_10$;
@@ -50,7 +47,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     @Override
     protected Sdk getProjectJDK() {
-        return TestUtils.createJdk();
+        return SmartJDKLoader$.MODULE$.getOrCreateJDK(SmartJDKLoader.JDKVersion$.MODULE$.JDK18());
     }
 
     @Override
@@ -72,7 +69,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     public Seq<LibraryLoader> librariesLoaders() {
         ArrayList<LibraryLoader> back = new ArrayList<>();
 
-        ScalaLibraryLoader scalaLoader = new ScalaLibraryLoader(isIncludeReflectLibrary());
+        ScalaSDKLoader scalaLoader = new ScalaSDKLoader(isIncludeReflectLibrary());
         back.add(scalaLoader);
 
         String path = rootPath();
@@ -96,7 +93,6 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     protected void afterSetUpProject() {
         setUpLibraries();
-        loadIvyDependencies();
     }
 
 
@@ -111,7 +107,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         return false;
     }
 
-    protected Seq<ThirdPartyLibraryLoader> additionalLibraries() {
+    protected Seq<LibraryLoader> additionalLibraries() {
         return Vector$.MODULE$.empty();
     }
 

@@ -47,15 +47,13 @@ class Specs2RunConfiguration(override val project: Project,
       "Attributed(new File(\"" + ScalaUtil.runnersPath().replace("\\", "\\\\") + "\"))(AttributeMap.empty)",
       comm, !_.contains("runners.jar"), shouldRevert = false)
 
-  override def getReporterParams: String = " -- -notifier " + reporterClass
-
   override def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
     testConfigurationData match {
       case regexpData: RegexpTestData =>
         val pattern = regexpData.zippedRegexps.head
-        Seq(s"$sbtClassKey${pattern._1}$sbtTestNameKey${pattern._2}$getReporterParams")
+        Seq(s"$sbtClassKey${pattern._1}$sbtTestNameKey${pattern._2}")
       case packageData: AllInPackageTestData =>
-        Seq(s"$sbtClassKey${"\\A" + ScPackageImpl(packageData.getPackage(getTestPackagePath)).getQualifiedName + ".*"}$getReporterParams")
+        Seq(s"$sbtClassKey${"\\A" + ScPackageImpl(packageData.getPackage(getTestPackagePath)).getQualifiedName + ".*"}")
       case _ =>
         super.buildSbtParams(classToTests)
     }
@@ -69,7 +67,7 @@ object Specs2RunConfiguration extends SuiteValidityChecker {
   private def isScalaObject(clazz: PsiClass) = clazz.getQualifiedName.endsWith("$")
 
   override protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean =
-    !isScalaObject(clazz) && AbstractTestRunConfiguration.lackSuitableConstructor(clazz)
+    !isScalaObject(clazz) && AbstractTestRunConfiguration.lackSuitableConstructorWithParams(clazz, 1)
 
   override protected[test] def isInvalidClass(clazz: PsiClass): Boolean = !clazz.isInstanceOf[ScClass] && !clazz.isInstanceOf[ScObject]
 }

@@ -78,7 +78,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case None => currentNode
       }
     }
-    val leftNode = dfsChildren(left.myLastNode.getOrElse(left.getNode), _.getChildren(null).toList.reverse)
+    val leftNode = dfsChildren(left.myLastNode.nullSafe.getOrElse(left.getNode), _.getChildren(null).toList.reverse)
     val rightNode = dfsChildren(right.getNode, _.getChildren(null).toList)
     val concatString = if (textRange.contains(rightNode.getTextRange) && textRange.contains(leftNode.getTextRange)) {
       val left = fileText.substring(leftNode.getTextRange)
@@ -591,7 +591,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
                 block.getParent.isInstanceOf[ScInfixExpr]
             case _ =>
               scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST &&
-                  (leftPsi.isInstanceOf[ScFunctionExpr] || block.isInstanceOf[ScBlockExpr] || leftPsi.isInstanceOf[ScCaseClauses])
+                  (leftPsi.isInstanceOf[ScFunctionExpr] || leftPsi.isInstanceOf[ScCaseClauses] ||
+                    block.isInstanceOf[ScBlockExpr] && Option(rightNode.getTreeParent.getTreeParent).forall(_.getElementType != ScalaElementTypes.INTERPOLATED_STRING_LITERAL))
           })
           lazy val spaceInSelfTypeBraces = scalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES &&
             leftPsi.getParent.getFirstChild.getNextSiblingNotWhitespace.isInstanceOf[ScSelfTypeElement]

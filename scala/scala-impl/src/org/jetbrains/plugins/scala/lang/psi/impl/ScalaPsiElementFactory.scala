@@ -16,6 +16,7 @@ import com.intellij.psi.impl.source.DummyHolderFactory
 import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
@@ -31,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{ConstrExpr, D
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClause, ClassParamClauses, ImplicitClassParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.functionArrow
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -143,6 +145,9 @@ class ScalaPsiElementFactoryImpl(implicit val ctx: ProjectContext) extends JVMEl
 
 object ScalaPsiElementFactory {
 
+  import ScalaNamesUtil._
+  import ScalaTokenTypes._
+
   def createExpressionFromText(text: String, context: PsiElement): PsiElement = {
     try {
       createExpressionWithContextFromText(text, context, context)
@@ -217,19 +222,12 @@ object ScalaPsiElementFactory {
                           (implicit ctx: ProjectContext): ScFunction =
     createElementFromText(text, classOf[ScFunction])
 
-  def createExpressionFromText(buffer: String)
-                              (implicit ctx: ProjectContext): ScExpression = {
-    val classDef = createClassDefinitionFromText(s"val b = ($buffer)")
-    val p = classDef.members(0).asInstanceOf[ScPatternDefinition]
-    p.expr.getOrElse(throw new IllegalArgumentException("Expression not found")) match {
-      case x: ScParenthesisedExpr =>
-        x.expr match {
-          case Some(y) => y
-          case _ => x
-        }
-      case x => x
+  def createExpressionFromText(text: String)
+                              (implicit context: ProjectContext): ScExpression =
+    getExprFromFirstDef(s"val b = ($text)") match {
+      case ScParenthesisedExpr(e) => e
+      case e => e
     }
-  }
 
   def createReferenceExpressionFromText(text: String)
                                        (implicit ctx: ProjectContext): ScReferenceExpression =
@@ -291,7 +289,7 @@ object ScalaPsiElementFactory {
   def createIdentifier(name: String)
                       (implicit ctx: ProjectContext): ASTNode = {
     try {
-      createScalaFileFromText(s"package ${ScalaNamesUtil.escapeKeyword(name)}").getNode
+      createScalaFileFromText(s"package ${escapeKeyword(name)}").getNode
         .getLastChildNode.getLastChildNode.getLastChildNode
     }
     catch {
@@ -300,13 +298,13 @@ object ScalaPsiElementFactory {
     }
   }
 
-  def createModifierFromText(name: String)
-                            (implicit ctx: ProjectContext): PsiElement =
-    createClassDefinitionFromText(prefix = name).getModifierList.getFirstChild
+  def createModifierFromText(modifier: String)
+                            (implicit context: ProjectContext): PsiElement =
+    createScalaFileFromText(s"$modifier class a").typeDefinitions.head.getModifierList.getFirstChild
 
   def createImportExprFromText(name: String)
                               (implicit ctx: ProjectContext): ScImportExpr =
-    createScalaFileFromText(s"import ${ScalaNamesUtil.escapeKeywordsFqn(name)}")
+    createScalaFileFromText(s"import ${escapeKeywordsFqn(name)}")
       .getLastChild.getLastChild.asInstanceOf[ScImportExpr]
 
   def createImportFromText(text: String)
@@ -316,7 +314,7 @@ object ScalaPsiElementFactory {
   def createReferenceFromText(name: String)
                              (implicit ctx: ProjectContext): ScStableCodeReferenceElement = {
     try {
-      val importStatement = createElementFromText(s"import ${ScalaNamesUtil.escapeKeywordsFqn(name)}", classOf[ScImportStmt])
+      val importStatement = createElementFromText(s"import ${escapeKeywordsFqn(name)}", classOf[ScImportStmt])
       importStatement.importExprs.head.reference.orNull
     }
     catch {
@@ -327,67 +325,89 @@ object ScalaPsiElementFactory {
 
   def createDeclaration(`type`: ScType, name: String, isVariable: Boolean,
                         exprText: String, isPresentableText: Boolean = false)
-                       (implicit ctx: ProjectContext): ScMember = {
-    val typeText = Option(`type`).map {
+                       (implicit context: ProjectContext): ScValueOrVariable = {
+    val typeText = `type` match {
+      case null => ""
       case tp if isPresentableText => tp.presentableText
       case tp => tp.canonicalText
-    }.getOrElse("")
+    }
+
     createDeclaration(name, typeText, isVariable, createExpressionFromText(exprText))
   }
 
-  def createDeclaration(name: String, typeName: String, isVariable: Boolean, expr: ScExpression)
-                       (implicit ctx: ProjectContext): ScMember = {
-    def stmtText(stmt: ScBlockStatement): String =  stmt match {
-      case block @ ScBlock(st) if !block.hasRBrace => stmtText(st)
-      case fun @ ScFunctionExpr(parSeq, Some(result)) =>
-        val paramText =
-          if (parSeq.size == 1) {
-            val par = parSeq.head
-            if (par.typeElement.isDefined && par.getPrevSiblingNotWhitespace == null) s"(${par.getText})"
-            else fun.params.getText
-          } else fun.params.getText
+  def createDeclaration(name: String, typeName: String, isVariable: Boolean, body: ScExpression)
+                       (implicit context: ProjectContext): ScValueOrVariable =
+    createMember(name, typeName, body, isVariable = isVariable).asInstanceOf[ScValueOrVariable]
+
+  private[this] def createMember(name: String, typeName: String, body: ScExpression,
+                                 modifiers: String = "",
+                                 isVariable: Boolean = false)
+                                (implicit context: ProjectContext): ScMember = {
+    def stmtText: ScBlockStatement => String = {
+      case block@ScBlock(st) if !block.hasRBrace => stmtText(st)
+      case fun@ScFunctionExpr(parSeq, Some(result)) =>
+        val paramText = parSeq match {
+          case Seq(parameter) if parameter.typeElement.isDefined && parameter.getPrevSiblingNotWhitespace == null =>
+            parameter.getText.parenthesize()
+          case _ => fun.params.getText
+        }
+
         val resultText = result match {
           case block: ScBlock if !block.hasRBrace && block.statements.size != 1 =>
             s"""{
-                |${block.getText}
-                |}""".stripMargin
-          case block @ ScBlock(st) if !block.hasRBrace => stmtText(st)
+               |${block.getText}
+               |}""".stripMargin
+          case block@ScBlock(st) if !block.hasRBrace => stmtText(st)
           case _ => result.getText
         }
-        val arrow = ScalaPsiUtil.functionArrow(ctx)
-        s"$paramText $arrow $resultText"
+        s"$paramText $functionArrow $resultText"
       case null => ""
-      case _ => stmt.getText
+      case statement => statement.getText
     }
-    val beforeColon = if (ScalaNamesUtil.isOpCharacter(name.last)) " " else ""
-    val typeText =
-      if (typeName != null && typeName != ""){
-        createTypeElementFromText(typeName) //throws an exception if type name is incorrect
-        s"$beforeColon: $typeName"
-      }  else ""
 
-    val text = s"${if (isVariable) "var" else "val"} $name$typeText = ${stmtText(expr)}"
+    val typedName = typeName match {
+      case null | "" => name
+      case _ =>
+        // throws an exception if type name is incorrect
+        createTypeElementFromText(typeName)
 
-    createClassDefinitionFromText(text = text).members.head match {
-      case variable: ScVariable => variable
-      case value: ScValue => value
+        val space = if (isOpCharacter(name.last)) " " else ""
+        s"$name$space: $typeName"
     }
+
+    val text = s"$modifiers${if (modifiers.isEmpty) "" else " "}${if (isVariable) kVAR else kVAL} $typedName = ${stmtText(body)}"
+
+    createMemberFromText(text)
   }
 
-  def createValFromVarDefinition(variable: ScVariable)
-                                (implicit ctx: ProjectContext): ScValue =
-    createValueOrVariable(variable, "val").asInstanceOf[ScValue]
+  def createValFromVarDefinition(parameter: ScClassParameter): ScClassParameter = {
+    val clauseText = replaceKeywordTokenIn(parameter).parenthesize()
 
-  def createVarFromValDeclaration(value: ScValue)
-                                 (implicit ctx: ProjectContext): ScVariable =
-    createValueOrVariable(value, "var").asInstanceOf[ScVariable]
+    val classParameters = createClassParamClausesWithContext(clauseText, parameter).params
+    classParameters.head.asInstanceOf[ScClassParameter]
+  }
 
-  private def createValueOrVariable(valOrVar: ScValueOrVariable, keyword: String)
-                                   (implicit ctx: ProjectContext): ScValueOrVariable = {
-    val startOffset = valOrVar.keywordToken.getStartOffsetInParent
-    val elementText = valOrVar.getText
-    val text = elementText.substring(0, startOffset) + keyword + elementText.substring(startOffset + 3)
-    createClassDefinitionFromText(text = text).members.head.asInstanceOf[ScValueOrVariable]
+  def createValFromVarDefinition(variable: ScVariable): ScValue =
+    createValueOrVariable(variable, kVAR, kVAL).asInstanceOf[ScValue]
+
+  def createVarFromValDeclaration(value: ScValue): ScVariable =
+    createValueOrVariable(value, kVAL, kVAR).asInstanceOf[ScVariable]
+
+  private[this] def createValueOrVariable(valOrVar: ScValueOrVariable,
+                                          fromToken: IElementType,
+                                          toToken: IElementType)
+                                         (implicit context: ProjectContext = valOrVar.projectContext): ScMember =
+    createMemberFromText(replaceKeywordTokenIn(valOrVar, fromToken, toToken))
+
+  private[this] def replaceKeywordTokenIn(member: ScMember,
+                                          fromToken: IElementType = kVAR,
+                                          toToken: IElementType = kVAL) = {
+    val offset = member.findFirstChildByType(fromToken).getStartOffsetInParent
+    val memberText = member.getText
+
+    memberText.substring(0, offset) +
+      toToken +
+      memberText.substring(offset + fromToken.toString.length)
   }
 
   def createEnumerator(name: String, expr: ScExpression, typeName: String)
@@ -413,36 +433,43 @@ object ScalaPsiElementFactory {
   }
 
   def createNewLine(text: String = "\n")
-                   (implicit ctx: ProjectContext): PsiElement =
+                   (implicit context: ProjectContext): PsiElement =
     createNewLineNode(text).getPsi
 
   def createNewLineNode(text: String = "\n")
-                       (implicit ctx: ProjectContext): ASTNode =
+                       (implicit context: ProjectContext): ASTNode =
     createScalaFileFromText(text).getNode.getFirstChildNode
 
-  def createBlockFromExpr(expr: ScExpression)
-                         (implicit ctx: ProjectContext): ScExpression =
+  def createBlockFromExpr(expression: ScExpression)
+                         (implicit context: ProjectContext): ScExpression =
     getExprFromFirstDef(
       s"""val b = {
-          |${expr.getText}
-          |}""".stripMargin)
+         |${expression.getText}
+         |}""".stripMargin)
 
-  def createAnonFunBlockFromFunExpr(expr: ScFunctionExpr)
-                                   (implicit ctx: ProjectContext): ScExpression =
+  def createAnonFunBlockFromFunExpr(expression: ScFunctionExpr)
+                                   (implicit context: ProjectContext): ScExpression =
     getExprFromFirstDef(
-      s"""val b = {${expr.params.getText}=>
-          |${expr.result.map(_.getText).getOrElse("")}
-          |}""".stripMargin)
+      s"""val b = {${expression.params.getText}=>
+         |${expression.result.map(_.getText).getOrElse("")}
+         |}""".stripMargin)
 
-  private def getExprFromFirstDef(text: String)
-                                 (implicit ctx: ProjectContext): ScExpression = {
-    val p = createClassDefinitionFromText(text).members.head.asInstanceOf[ScPatternDefinition]
-    p.expr.getOrElse(throw new IllegalArgumentException("Expression not found"))
-  }
+  def createPatternDefinition(name: String, typeName: String, body: ScExpression,
+                              modifiers: String = "",
+                              isVariable: Boolean = false)
+                             (implicit context: ProjectContext): ScPatternDefinition =
+    createMember(name, typeName, body, modifiers, isVariable).asInstanceOf[ScPatternDefinition]
+
+  private[this] def getExprFromFirstDef(text: String)
+                                       (implicit context: ProjectContext): ScExpression =
+    createMemberFromText(text) match {
+      case ScPatternDefinition.expr(body) => body
+      case _ => throw new IllegalArgumentException("Expression not found")
+    }
 
   def createBodyFromMember(elementText: String)
                           (implicit ctx: ProjectContext): ScTemplateBody =
-    createClassDefinitionFromText(text = elementText).extendsBlock.templateBody.orNull
+    createClassWithBody(elementText).extendsBlock.templateBody.orNull
 
   def createTemplateBody(implicit ctx: ProjectContext): ScTemplateBody =
     createBodyFromMember("")
@@ -453,14 +480,14 @@ object ScalaPsiElementFactory {
       s"""class a extends $superName {
           |}""".stripMargin
     val extendsBlock = createScalaFileFromText(text).typeDefinitions.head.extendsBlock
-    (extendsBlock.findFirstChildByType(ScalaTokenTypes.kEXTENDS), extendsBlock.templateParents.get)
+    (extendsBlock.findFirstChildByType(kEXTENDS), extendsBlock.templateParents.get)
   }
 
   def createMethodFromSignature(signature: PhysicalSignature, needsInferType: Boolean, body: String,
                                 withComment: Boolean = true, withAnnotation: Boolean = true)
                                (implicit ctx: ProjectContext): ScFunction = {
     val signatureText = methodFromSignatureText(signature, needsInferType, body, withComment, withAnnotation)
-    createClassDefinitionFromText(text = signatureText).functions.head
+    createClassWithBody(signatureText).functions.head
   }
 
   def createOverrideImplementMethod(signature: PhysicalSignature,
@@ -477,7 +504,7 @@ object ScalaPsiElementFactory {
                                   comment: String = "")
                                  (implicit ctx: ProjectContext): ScTypeAlias = {
     val typeSign = getOverrideImplementTypeSign(alias, substitutor, needsOverrideModifier)
-    createClassDefinitionFromText(text = s"$comment $typeSign").aliases.head
+    createClassWithBody(s"$comment $typeSign").aliases.head
   }
 
   def createOverrideImplementVariable(variable: ScTypedDefinition,
@@ -488,7 +515,7 @@ object ScalaPsiElementFactory {
                                       withBody: Boolean = true)
                                      (implicit ctx: ProjectContext): ScMember = {
     val variableSign = getOverrideImplementVariableSign(variable, substitutor, if (withBody) Some("_") else None, needsOverrideModifier, isVal, needsInferType = true)
-    createClassDefinitionFromText(text = s"$comment $variableSign").members.head
+    createMemberFromText(s"$comment $variableSign")
   }
 
   def createOverrideImplementVariableWithClass(variable: ScTypedDefinition,
@@ -531,7 +558,7 @@ object ScalaPsiElementFactory {
   private def methodFromSignatureText(sign: PhysicalSignature, needsInferType: Boolean, inBody: String,
                                       withComment: Boolean = true, withAnnotation: Boolean = true): String = {
 
-    def methodName(method: PsiMethod): String = "def " + ScalaNamesUtil.escapeKeyword(method.name)
+    def methodName(method: PsiMethod): String = "def " + escapeKeyword(method.name)
 
     def docComment(method: PsiMethod): String =
       method.firstChild.collect{case dc: PsiDocComment if withComment => dc}.map(_.getText + "\n").getOrElse("")
@@ -589,7 +616,7 @@ object ScalaPsiElementFactory {
                   case Some(x) =>
                     val colon = this.colon(name)
                     val typeText = substitutor.subst(x.`type`().getOrAny).canonicalText
-                    val arrow = ScalaPsiUtil.functionArrow(param.getProject)
+                    val arrow = functionArrow(param.getProject)
                     name + colon + (if (param.isCallByNameParameter) arrow else "") + typeText + (if (param.isRepeatedParameter) "*" else "")
                   case _ => name
                 }
@@ -650,7 +677,7 @@ object ScalaPsiElementFactory {
                 }
                 case x => x
               }
-              val pName: String = ScalaNamesUtil.escapeKeyword(paramName)
+              val pName: String = escapeKeyword(paramName)
               val colon = if (pName.endsWith("_")) " : " else ": "
               val scType: ScType = substitutor.subst(param.getTypeElement.getType.toScType())
               val typeText = scType match {
@@ -837,13 +864,13 @@ object ScalaPsiElementFactory {
       .getFirstChild.asInstanceOf[ScFunctionExpr].parameters.head.paramType.get
 
   def createColon(implicit ctx: ProjectContext): PsiElement =
-    createElementFromText("var f: Int", classOf[ScalaPsiElement]).findChildrenByType(ScalaTokenTypes.tCOLON).head
+    createElementFromText("var f: Int", classOf[ScalaPsiElement]).findChildrenByType(tCOLON).head
 
   def createComma(implicit ctx: ProjectContext): PsiElement =
-    createScalaFileFromText(",").findChildrenByType(ScalaTokenTypes.tCOMMA).head
+    createScalaFileFromText(",").findChildrenByType(tCOMMA).head
 
   def createAssign(implicit ctx: ProjectContext): PsiElement =
-    createScalaFileFromText("val x = 0").findChildrenByType(ScalaTokenTypes.tASSIGN).head
+    createScalaFileFromText("val x = 0").findChildrenByType(tASSIGN).head
 
   def createWhitespace(implicit ctx: ProjectContext): PsiElement =
     createExpressionFromText("1 + 1").findElementAt(1)
@@ -887,10 +914,10 @@ object ScalaPsiElementFactory {
 
   def createDocCommentFromText(text: String)
                               (implicit ctx: ProjectContext): ScDocComment =
-    createClassDefinitionFromText(prefix =
+    createDocComment(
       s"""/**
-          |$text
-          |*/""".stripMargin).docComment.orNull
+         |$text
+         |*/""".stripMargin)
 
   def createMonospaceSyntaxFromText(text: String)
                                    (implicit ctx: ProjectContext): ScDocSyntaxElement =
@@ -898,7 +925,7 @@ object ScalaPsiElementFactory {
 
   def createDocHeaderElement(length: Int)
                             (implicit ctx: ProjectContext): PsiElement =
-    createClassDefinitionFromText(
+    createClassWithBody(
       s"""/**=header${StringUtils.repeat("=", length)}*/
           |""".stripMargin).docComment.orNull
       .getNode.getChildren(null)(1).getLastChildNode.getPsi
@@ -911,11 +938,11 @@ object ScalaPsiElementFactory {
 
   def createDocSimpleData(text: String)
                          (implicit ctx: ProjectContext): PsiElement =
-    createClassDefinitionFromText(prefix = s"/**$text*/").docComment.get.getNode.getChildren(null)(1).getPsi
+    createDocComment(s"/**$text*/").getNode.getChildren(null)(1).getPsi
 
   def createDocTagValue(text: String)
                        (implicit ctx: ProjectContext): PsiElement =
-    createClassDefinitionFromText(
+    createClassWithBody(
       s"""/**@param $text
           |*/""".stripMargin).docComment.orNull
       .getNode.getChildren(null)(1).getChildren(null)(2).getPsi
@@ -927,7 +954,7 @@ object ScalaPsiElementFactory {
 
   def createDocLinkValue(text: String)
                         (implicit ctx: ProjectContext): ScDocResolvableCodeReference =
-    createClassDefinitionFromText(prefix = s"/**[[$text]]*/").docComment.orNull
+    createDocComment(s"/**[[$text]]*/")
       .getNode.getChildren(null)(1).getChildren(null)(1).getPsi.asInstanceOf[ScDocResolvableCodeReference]
 
   def createXmlEndTag(tagName: String)
@@ -980,12 +1007,21 @@ object ScalaPsiElementFactory {
     expr
   }
 
-  private def createClassDefinitionFromText(text: String = "", prefix: String = "")
-                                           (implicit ctx: ProjectContext): ScTypeDefinition = {
+  private[this] def createClassWithBody(body: String)
+                                       (implicit context: ProjectContext): ScTypeDefinition = {
     val fileText =
-      s"""$prefix${if (prefix.isEmpty) "" else " "}class a {
-         |  $text
+      s"""class a {
+         |  $body
          |}""".stripMargin
     createScalaFileFromText(fileText).typeDefinitions.head
   }
+
+  private[this] def createMemberFromText(text: String)
+                                        (implicit context: ProjectContext): ScMember =
+    createClassWithBody(text).members.head
+
+  private[this] def createDocComment(prefix: String)
+                                    (implicit context: ProjectContext): ScDocComment =
+    createScalaFileFromText(s"$prefix class a").typeDefinitions.head
+      .docComment.orNull
 }

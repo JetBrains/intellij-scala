@@ -3,31 +3,24 @@ package project.template
 
 import java.awt.FlowLayout
 import java.io.File
-import javax.swing.border.EmptyBorder
 import javax.swing._
+import javax.swing.border.EmptyBorder
 
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
-import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
-import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
-import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil._
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
 import org.jetbrains.plugins.scala.project.{Platform, Version, Versions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil._
 
 import scala.collection.mutable
 
@@ -245,40 +238,13 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
   override def getNodeIcon: Icon = Sbt.Icon
 
-  override def setupRootModel(model: ModifiableRootModel) {
-    val contentPath = getContentEntryPath
-    if (StringUtil.isEmpty(contentPath)) return
+  override def setupRootModel(model: ModifiableRootModel): Unit =
+    tryToSetupRootModel(model, getContentEntryPath, getExternalProjectSettings)
 
-    val contentRootDir = contentPath.toFile
-    createDirectory(contentRootDir)
-
-    val fileSystem = LocalFileSystem.getInstance
-    val vContentRootDir = fileSystem.refreshAndFindFileByIoFile(contentRootDir)
-    if (vContentRootDir == null) return
-
-    model.addContentEntry(vContentRootDir)
-    model.inheritSdk()
-    val settings =
-      ExternalSystemApiUtil.getSettings(model.getProject, SbtProjectSystem.Id).
-        asInstanceOf[AbstractExternalSystemSettings[_ <: AbstractExternalSystemSettings[_, SbtProjectSettings, _],
-        SbtProjectSettings, _ <: ExternalSystemSettingsListener[SbtProjectSettings]]]
-
-    val externalProjectSettings = getExternalProjectSettings
-    externalProjectSettings.setExternalProjectPath(getContentEntryPath)
-    settings.linkProject(externalProjectSettings)
-
-    if (!externalProjectSettings.isUseAutoImport) {
-      FileDocumentManager.getInstance.saveAllDocuments()
-      ApplicationManager.getApplication.invokeLater(() => ExternalSystemUtil.refreshProjects(
-        new ImportSpecBuilder(model.getProject, SbtProjectSystem.Id)
-          .forceWhenUptodate()
-          .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-      ))
-    }
-  }
 }
 
 private object SbtModuleBuilder {
+
   def formatProjectDefinition(name: String, platform: Platform, scalaVersion: String): String = platform match {
     case Scala =>
       s"""name := "$name"

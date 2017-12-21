@@ -43,7 +43,7 @@ private[changeSignature] object ConflictsUtil {
 
       if (!isSimple) {
         val className = member.containingClass.qualifiedName
-        val message = s"Method is overriden in a composite $kind in $className. " +
+        val message = s"Method is overridden in a composite $kind in $className. " +
                 "Converting it to function definition is not supported."
 
         result.putValue(bp, message)
@@ -54,7 +54,7 @@ private[changeSignature] object ConflictsUtil {
   def addClassParameterConflicts(cp: ScClassParameter, change: ChangeInfo, result: ConflictsMap): Unit = {
     if (change.getNewParameters.nonEmpty) {
       val className = cp.containingClass.qualifiedName
-      val message = s"Method is overriden by class parameter of $className. " +
+      val message = s"Method is overridden by class parameter of $className. " +
               "Converting it to a function definition is not supported."
       result.putValue(cp, message)
     }

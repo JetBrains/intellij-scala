@@ -24,7 +24,20 @@ abstract class Specs2WholeSuiteTest extends Specs2TestCase {
       |}
     """.stripMargin
   )
-  def testSpecification() {
+
+  addSourceFile("paramConstructorTest.scala",
+    s"""
+       |import org.specs2.mutable.Specification
+       |
+       |class paramConstructorTest(implicit someParam: Object) extends Specification
+    """.stripMargin
+  )
+
+  def testParamConstructor(): Unit = {
+    assert(checkConfigAndSettings(createTestFromLocation(2, 10, "paramConstructorTest.scala"), "paramConstructorTest"))
+  }
+
+  def testSpecification(): Unit = {
     runTestByLocation(3, 14, "SpecificationTest.scala",
       checkConfigAndSettings(_, "SpecificationTest"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", "SpecificationTest", "The 'SpecificationTest' should", "run single test") &&

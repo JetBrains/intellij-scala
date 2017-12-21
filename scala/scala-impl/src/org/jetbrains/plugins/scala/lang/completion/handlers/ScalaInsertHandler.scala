@@ -249,7 +249,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
             import org.jetbrains.plugins.scala.extensions._
             element.getParent match {
               //case for infix expressions
-              case Both(ref: ScReferenceExpression, Parent(inf: ScInfixExpr)) if inf.operation == ref =>
+              case (ref: ScReferenceExpression) && Parent(inf: ScInfixExpr) if inf.operation == ref =>
                 if (count > 1) {
                   disableParenthesesCompletionChar()
                   if (!item.etaExpanded) {

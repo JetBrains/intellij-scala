@@ -83,12 +83,10 @@ trait ScAssignStmt extends ScExpression {
             m.getEffectiveInvokedExpr match {
               case r: ScReferenceExpression =>
                 r.bind() match {
-                  case Some(resolveResult) if resolveResult.isDynamic &&
-                    resolveResult.name == DynamicResolveProcessor.APPLY_DYNAMIC_NAMED => return true
+                  case Some(resolveResult) if DynamicResolveProcessor.isApplyDynamicNamed(resolveResult)  => return true
                   case _ =>
                     m.applyOrUpdateElement match {
-                      case Some(innerResult) if innerResult.isDynamic &&
-                        innerResult.name == DynamicResolveProcessor.APPLY_DYNAMIC_NAMED => return true
+                      case Some(innerResult) if DynamicResolveProcessor.isApplyDynamicNamed(innerResult) => return true
                       case _ =>
                     }
                 }

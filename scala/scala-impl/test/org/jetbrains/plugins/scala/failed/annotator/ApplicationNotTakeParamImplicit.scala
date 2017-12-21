@@ -39,4 +39,11 @@ class ApplicationNotTakeParamImplicit extends ScalaLightCodeInsightFixtureTestAd
         |}
       """.stripMargin)
   }
+
+  def testSCL12447(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |1.##()
+      """.stripMargin)
+  }
 }

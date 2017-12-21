@@ -90,6 +90,7 @@ class SbtStructureDump {
         "-Djline.terminal=jline.UnsupportedTerminal" +:
         "-Dsbt.log.noformat=true" +:
         "-Dfile.encoding=UTF-8" +:
+        "-Didea.managed=true" +:
         (vmOptions ++ SbtOpts.loadFrom(directory)) :+
         "-jar" :+
         path(sbtLauncher)

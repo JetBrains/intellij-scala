@@ -202,7 +202,7 @@ private object GutterUtil {
       ProgressManager.checkCanceled()
       val range = new TextRange(member.getTextOffset, member.getTextOffset)
       val namedElems: Seq[ScNamedElement] = member match {
-        case d: ScDeclaredElementsHolder => d.declaredElements.filterBy(classOf[ScNamedElement])
+        case d: ScDeclaredElementsHolder => d.declaredElements.filterBy[ScNamedElement]
         case td: ScTypeDefinition => Seq(td)
         case ta: ScTypeAlias => Seq(ta)
         case _ => Seq.empty
@@ -211,7 +211,7 @@ private object GutterUtil {
       for (named <- namedElems) overrides ++= ScalaOverridingMemberSearcher.search(named, deep = false, withSelfType = true)
 
       if (overrides.nonEmpty) {
-        val icon = if (!GutterUtil.isAbstract(member)) OVERRIDEN_METHOD_MARKER_RENDERER else IMPLEMENTED_INTERFACE_MARKER_RENDERER
+        val icon = if (!GutterUtil.isAbstract(member)) OVERRIDDEN_METHOD_MARKER_RENDERER else IMPLEMENTED_INTERFACE_MARKER_RENDERER
         val typez = ScalaMarkerType.OVERRIDDEN_MEMBER
         val leafElement =
           namedElems

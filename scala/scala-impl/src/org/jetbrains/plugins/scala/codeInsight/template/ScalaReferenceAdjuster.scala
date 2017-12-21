@@ -3,7 +3,7 @@ package codeInsight.template
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
-import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, ReferenceAdjuster}
+import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, JavaCodeStyleSettings, ReferenceAdjuster}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, TypeAdjuster}
 
@@ -35,7 +35,7 @@ class ScalaReferenceAdjuster extends ReferenceAdjuster {
   def processRange(element: ASTNode, startOffset: Int, endOffset: Int, addImports: Boolean,
                             incompleteCode: Boolean, useFqInJavadoc: Boolean, useFqInCode: Boolean): Unit = {
     val psi = element.getPsi
-    if (psi.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return
+    if (!psi.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return
     //do not process other languages
     val buffer = new ArrayBuffer[ScalaPsiElement]()
     val visitor = new ScalaRecursiveElementVisitor {
@@ -50,12 +50,12 @@ class ScalaReferenceAdjuster extends ReferenceAdjuster {
   }
 
   override def processRange(element: ASTNode, startOffset: Int, endOffset: Int, project: Project): Unit = {
-    val settings = CodeStyleSettingsManager.getSettings(project)
-    processRange(element, startOffset, endOffset, settings.USE_FQ_CLASS_NAMES_IN_JAVADOC, settings.USE_FQ_CLASS_NAMES)
+    val settings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[JavaCodeStyleSettings])
+    processRange(element, startOffset, endOffset, settings.useFqNamesInJavadocAlways, settings.USE_FQ_CLASS_NAMES)
   }
 
   override def process(element: ASTNode, addImports: Boolean, incompleteCode: Boolean, project: Project): ASTNode = {
-    val settings = CodeStyleSettingsManager.getSettings(project)
-    process(element, addImports, incompleteCode, settings.USE_FQ_CLASS_NAMES_IN_JAVADOC, settings.USE_FQ_CLASS_NAMES)
+    val settings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[JavaCodeStyleSettings])
+    process(element, addImports, incompleteCode, settings.useFqNamesInJavadocAlways, settings.USE_FQ_CLASS_NAMES)
   }
 }

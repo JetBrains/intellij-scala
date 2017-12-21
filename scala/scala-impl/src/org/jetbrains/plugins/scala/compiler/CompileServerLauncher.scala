@@ -135,7 +135,13 @@ class CompileServerLauncher extends ApplicationComponent {
   // TODO stop server more gracefully
   def stop() {
     serverInstance.foreach { it =>
-      it.destroyProcess()
+      it.destroyAndWait(0L)
+    }
+  }
+
+  def stopAndWaitTermination(timeoutMs: Long): Boolean = {
+    serverInstance.forall { it =>
+      it.destroyAndWait(timeoutMs)
     }
   }
 
@@ -304,8 +310,8 @@ private case class ServerInstance(watcher: ProcessWatcher,
 
   def errors(): Seq[String] = watcher.errors()
 
-  def destroyProcess() {
+  def destroyAndWait(timeoutMs: Long): Boolean = {
     stopped = true
-    watcher.destroyProcess()
+    watcher.destroyAndWait(timeoutMs)
   }
 }
