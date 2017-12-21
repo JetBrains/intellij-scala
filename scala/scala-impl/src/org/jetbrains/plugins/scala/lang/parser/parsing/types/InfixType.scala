@@ -89,7 +89,7 @@ trait InfixType {
           builder.advanceLexer()
           typeMarker.done(ScalaElementTypes.WILDCARD_TYPE)
         case _ =>
-          if (!componentType.parse(builder, star, isPattern)) builder error errorMessage
+          if (!componentType.parse(builder, star, isPattern)) builder error errorMessage else couldBeVarArg = false
       }
       if (assoc == 1) {
         val newMarker = infixTypeMarker.precede
@@ -100,7 +100,7 @@ trait InfixType {
     //final ops closing
     if (count>0) {
       if (assoc == 1) {
-        if (couldBeVarArg && ParserUtils.lookBack(builder) == ScalaTokenTypes.tIDENTIFIER) {
+        if (couldBeVarArg && ParserUtils.lookBack(builder) == ScalaTokenTypes.tIDENTIFIER && count == 1) {
           infixTypeMarker.rollbackTo()
           parseId(builder)
           return false

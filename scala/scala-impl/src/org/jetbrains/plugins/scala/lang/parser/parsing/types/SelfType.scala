@@ -63,8 +63,8 @@ trait SelfType {
         builder.advanceLexer() //Ate identifier
         handleLastPart()
       case ScalaTokenTypes.tLPARENTHESIS => 
-        ParserUtils.parseBalancedParenthesis(builder, TokenSets.SELF_TYPE_ID)
-        handleLastPart()
+         if (ParserUtils.parseBalancedParenthesis(builder, TokenSets.SELF_TYPE_ID))
+           handleLastPart() else selfTypeMarker.rollbackTo()
       case _ => selfTypeMarker.rollbackTo()
     }
   }

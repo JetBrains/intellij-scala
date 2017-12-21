@@ -161,7 +161,9 @@ object ParserUtils extends ParserUtilsBase {
     parseLoopUntilRBrace(builder, fun, br)
   }
   
-  def parseBalancedParenthesis(builder: ScalaPsiBuilder, accepted: TokenSet, errorMessage: Option[String] = None) {
+  def parseBalancedParenthesis(builder: ScalaPsiBuilder, accepted: TokenSet, count: Int = 1): Boolean = {
+    var seen = 0
+    
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>
         var count = 1
@@ -171,16 +173,16 @@ object ParserUtils extends ParserUtilsBase {
           builder.getTokenType match {
             case ScalaTokenTypes.tLPARENTHESIS => count += 1
             case ScalaTokenTypes.tRPARENTHESIS => count -= 1
-            case acc if accepted.contains(acc) =>
-            case o => 
-              builder.error(errorMessage.getOrElse(s"Wrong token: $o"))
-              return 
+            case acc if accepted.contains(acc) => seen += 1
+            case o => return false
           }
           
           builder.advanceLexer()
         }
       case _ => 
     }
+    
+    seen == count
   }
 
   def elementCanStartStatement(element: IElementType, builder: ScalaPsiBuilder): Boolean = {
