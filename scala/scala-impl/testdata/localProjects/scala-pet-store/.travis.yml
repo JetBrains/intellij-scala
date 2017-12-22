@@ -1,0 +1,18 @@
+language: scala
+
+scala:
+   - 2.12.3
+   
+python:
+  - "2.7"
+
+jobs:
+  include:
+    - stage: verify
+
+      before_script:
+        - sbt stage
+
+      script:
+        - sbt ++$TRAVIS_SCALA_VERSION test
+        - ./build.sh
