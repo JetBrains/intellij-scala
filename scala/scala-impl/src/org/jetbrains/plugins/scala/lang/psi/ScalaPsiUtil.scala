@@ -42,6 +42,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits._
@@ -186,8 +187,9 @@ object ScalaPsiUtil {
     *
     * See SCL-2001, SCL-3485
     */
-  def tuplizy(s: Seq[Expression], scope: GlobalSearchScope, manager: PsiManager, place: PsiElement): Option[Seq[Expression]] = {
-    implicit val project: Project = manager.getProject
+  def tupled(s: Seq[Expression], context: PsiElement): Option[Seq[Expression]] = {
+    implicit val project: Project = context.getProject
+    val place = firstLeaf(context)
     s match {
       case Seq() =>
         // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
@@ -198,10 +200,10 @@ object ScalaPsiUtil {
             case (res, _) => res.getOrAny
           }
         val qual = "scala.Tuple" + exprTypes.length
-        val tupleClass = ScalaPsiManager.instance.getCachedClass(scope, qual).orNull
-        if (tupleClass == null) None
-        else
-          Some(Seq(new Expression(ScParameterizedType(ScDesignatorType(tupleClass), exprTypes), place)))
+        val tupleClass = ScalaPsiManager.instance.getCachedClass(context.resolveScope, qual)
+        val tupleType = tupleClass.map(tpl => ScParameterizedType(ScDesignatorType(tpl), exprTypes))
+
+        tupleType.map(tt => Seq(new Expression(tt, place)))
     }
   }
 

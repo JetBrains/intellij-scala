@@ -248,15 +248,13 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       val refName = ref.refName
       for (variant <- callReference.multiResolve(false)) {
         def processResult(r: ScalaResolveResult) = r match {
-          case ScalaResolveResult(fun: ScFunction, _) if r.isDynamic &&
-            fun.name == APPLY_DYNAMIC_NAMED =>
+          case ScalaResolveResult(fun: ScFunction, _) if DynamicResolveProcessor.isApplyDynamicNamed(r) =>
             //add synthetic parameter
             if (!processor.isInstanceOf[CompletionProcessor]) {
               val state: ResolveState = ResolveState.initial().put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
               processor.execute(createParameterFromText(refName + ": Any"), state)
             }
-          case ScalaResolveResult(_, _) if call.applyOrUpdateElement.exists(_.isDynamic) &&
-            call.applyOrUpdateElement.get.name == APPLY_DYNAMIC_NAMED =>
+          case ScalaResolveResult(_, _) if call.applyOrUpdateElement.exists(DynamicResolveProcessor.isApplyDynamicNamed) =>
             //add synthetic parameter
             if (!processor.isInstanceOf[CompletionProcessor]) {
               val state: ResolveState = ResolveState.initial().put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)

@@ -43,7 +43,7 @@ trait AllProjectHighlightingTest {
 
     val fileManager = PsiManager.getInstance(getProject).asInstanceOf[PsiManagerEx].getFileManager
 
-    val size: Int = scalaFiles.size() + javaFiles.size()
+    val size: Int = files.size
 
     for ((file, index) <- files.zipWithIndex) {
       val psiFile = fileManager.findFile(file)
@@ -61,7 +61,7 @@ trait AllProjectHighlightingTest {
     reporter.reportResults()
   }
 
-  private def percent(index: Int, size: Int): Int = (index + 1) * 100 / (size + 1)
+  private def percent(index: Int, size: Int): Int = (index + 1) * 100 / size
 
   private def annotateJava(psiFile: PsiFile, codeInsightFixture: CodeInsightTestFixture): Unit = {
     codeInsightFixture.openFileInEditor(psiFile.getVirtualFile)

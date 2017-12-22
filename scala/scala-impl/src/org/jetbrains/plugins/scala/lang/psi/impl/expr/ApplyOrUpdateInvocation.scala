@@ -1,11 +1,16 @@
-package org.jetbrains.plugins.scala.lang.psi.api.expr
+package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import scala.collection.Seq
+import scala.collection.{Seq, Set}
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.ResolveState
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.findImplicitConversion
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignStmt, ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.expr
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, UndefinedType}
@@ -13,11 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.{conformsToDynamic, getDynamicNameForMethodInvocation}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
-import scala.collection.Set
-
-import com.intellij.openapi.progress.ProgressManager
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.findImplicitConversion
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult
 
 /**
   * Nikolay.Tropin
@@ -124,7 +124,7 @@ object ApplyOrUpdateInvocation {
       case expression => (expression, tp, Seq.empty)
     }
 
-    ApplyOrUpdateInvocation(call, argClauses, baseExpr, baseExprType, typeArgs, typeParams, isDynamic)
+    expr.ApplyOrUpdateInvocation(call, argClauses, baseExpr, baseExprType, typeArgs, typeParams, isDynamic)
   }
 
   private def argumentClauses(call: MethodInvocation, isDynamic: Boolean): List[Seq[Expression]] = {
