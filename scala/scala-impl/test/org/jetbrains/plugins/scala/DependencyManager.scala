@@ -23,9 +23,11 @@ class DependencyManager(val deps: Dependency*) {
   protected val artifactBlackList = Set("scala-library", "scala-reflect", "scala-compiler")
 
   protected var resolvers = Seq(
-    Resolver("central", "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).jar"),
-    Resolver("scalaz-releases", "http://dl.bintray.com/scalaz/releases/[organisation]/[module]/[revision]/[artifact](-[revision]).jar"),
-    Resolver("typesafe-releases", "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).jar", mavenStyle = false)
+    Resolver("central", "http://repo1.maven.org/maven2"),
+    Resolver("scalaz-releases", "http://dl.bintray.com/scalaz/releases"),
+    Resolver("typesafe-releases",
+      "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).jar",
+      mavenStyle = false)
   )
 
   private def mkIvyXml(deps: Seq[Dependency]): String = {
@@ -60,8 +62,10 @@ class DependencyManager(val deps: Dependency*) {
     def mkResolver(r: Resolver): RepositoryResolver = {
       var resolver: RepositoryResolver = null
       if (r.mavenStyle) {
-        resolver = new IBiblioResolver
-        resolver.setM2compatible(true)
+        val biblioResolver = new IBiblioResolver
+        biblioResolver.setRoot(r.pattern)
+        biblioResolver.setM2compatible(true)
+        resolver = biblioResolver
       } else {
         resolver = new URLResolver
         resolver.addArtifactPattern(r.pattern)
