@@ -445,28 +445,6 @@ object ScExpression {
       }
     }
 
-
-    @CachedWithRecursionGuard(expr, Array.empty[ScalaResolveResult], ModCount.getBlockModificationCount)
-    def applyShapeResolveForExpectedType(tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {
-      val applyProc =
-        new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */ ,
-          StdKinds.methodsOnly, isShapeResolve = true)
-      applyProc.processType(tp, expr)
-      var cand = applyProc.candidates
-      if (cand.length == 0 && call.isDefined) {
-        val expr = call.get.getEffectiveInvokedExpr
-        ScalaPsiUtil.findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false, Some(tp)).foreach { result =>
-          val builder = new ImplicitResolveResult.ResolverStateBuilder(result).withImplicitFunction
-          applyProc.processType(result.typeWithDependentSubstitutor, expr, builder.state)
-          cand = applyProc.candidates
-        }
-      }
-      if (cand.length == 0 && conformsToDynamic(tp, expr.resolveScope) && call.isDefined) {
-        cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call.get, tp, isShape = true, isDynamic = true)
-      }
-      cand
-    }
-
     //has side effect!
     private def updateWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean, fromUnderscore: Boolean): ScType = {
       val (newType, params) = updatedWithImplicitParameters(tpe, checkExpectedType)

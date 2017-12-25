@@ -36,6 +36,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve._
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 
 /**
@@ -386,9 +387,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         val maybeResult = fun.definedReturnType.toOption
         fun.polymorphicType(s, maybeResult)
       case result@ScalaResolveResult(fun: ScFunction, s) =>
-        val functionType = fun.polymorphicType(s)
-        if (result.isDynamic) DynamicResolveProcessor.getDynamicReturn(functionType)
-        else functionType
+        fun.polymorphicType(s).updateTypeOfDynamicCall(result.isDynamic)
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
         val result = param.`type`()
         val computeType = s.subst(result match {

@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, Compati
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -83,7 +84,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           else processedType
 
         val isNamedDynamic: Boolean =
-          updateApplyData.applyOrUpdateElem.exists(DynamicResolveProcessor.isApplyDynamicNamed)
+          updateApplyData.applyOrUpdateElem.exists(isApplyDynamicNamed)
 
         checkApplication(updatedProcessedType, args(includeUpdateCall = true, isNamedDynamic), withExpectedType)
           .map(_.withApplyUpdate(updateApplyData))
@@ -210,7 +211,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   private def resolvesToApplyDynamicNamed: Boolean = {
     getEffectiveInvokedExpr match {
       case ref: ScReferenceExpression =>
-        ref.bind().exists(DynamicResolveProcessor.isApplyDynamicNamed)
+        ref.bind().exists(isApplyDynamicNamed)
       case _ => false
     }
   }
@@ -225,13 +226,9 @@ object MethodInvocationImpl {
       val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, isDynamic = withDynamic)
       PartialFunction.condOpt(candidates) {
         case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
-          def update(tp: ScType): ScType = {
-            if (r.isDynamic) DynamicResolveProcessor.getDynamicReturn(tp)
-            else tp
-          }
 
-          val polyType = fun.polymorphicType(s)
-          val res = InvocationData.Success.fromApplyUpdate(update(polyType), Some(r))
+          val polyType = fun.polymorphicType(s).updateTypeOfDynamicCall(r.isDynamic)
+          val res = InvocationData.Success.fromApplyUpdate(polyType, Some(r))
 
           call.getInvokedExpr.getNonValueType() match {
             case Right(ScTypePolymorphicType(_, typeParams)) =>
