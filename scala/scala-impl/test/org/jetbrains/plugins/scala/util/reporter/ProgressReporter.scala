@@ -56,13 +56,10 @@ trait ProgressReporter {
 }
 
 object ProgressReporter {
-  def newInstance(name: String, filesWithProblems: Map[String, Seq[(Int, Int)]], reportSuccess: Boolean = true): ProgressReporter = {
-    if (sys.env.contains("TEAMCITY_VERSION")) new TeamCityReporter(name, textRange(filesWithProblems), reportSuccess)
-    else new ConsoleReporter(textRange(filesWithProblems))
+  def newInstance(name: String, filesWithProblems: Map[String, Set[TextRange]], reportSuccess: Boolean = true): ProgressReporter = {
+    if (sys.env.contains("TEAMCITY_VERSION")) new TeamCityReporter(name, filesWithProblems, reportSuccess)
+    else new ConsoleReporter(filesWithProblems)
   }
-
-  private def textRange(map: Map[String, Seq[(Int, Int)]]): Map[String, Set[TextRange]] =
-    map.map { case (name, ranges) => (name, ranges.map { p => new TextRange(p._1, p._2) }.toSet) }
 
   class TextBasedProgressIndicator extends ProgressIndicatorBase(false) {
     private var oldPercent = -1

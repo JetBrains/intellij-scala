@@ -50,8 +50,8 @@ class ConsoleReporter(val filesWithProblems: Map[String, Set[TextRange]]) extend
     val maxErrorsPerTip = 7
     def getEntryText(fileName: String, fileErrors: Seq[(String, TextRange, String)]): String = {
       val errorsSeq = if (fileErrors.length > maxErrorsPerTip) ""
-                      else fileErrors.map(r => s"(${r._2.getStartOffset}, ${r._2.getEndOffset})").mkString(",")
-      s"""  "$fileName" -> Seq($errorsSeq)"""
+                      else fileErrors.map(_._2).toSet.map((r: TextRange) => s"(${r.getStartOffset}, ${r.getEndOffset})").mkString(",")
+      s"""  "$fileName" -> Set($errorsSeq)"""
     }
     val errorRanges: Iterable[String] =
       for ((fileName, fileErrors) <- errors.groupBy(_._1)) yield getEntryText(fileName, fileErrors)

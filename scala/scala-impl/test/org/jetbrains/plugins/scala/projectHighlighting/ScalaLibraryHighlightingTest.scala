@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.projectHighlighting
 
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.DependencyManager._
@@ -16,7 +17,7 @@ import org.junit.experimental.categories.Category
   */
 abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  val filesWithProblems: Map[String, Seq[(Int, Int)]]
+  val filesWithProblems: Map[String, Set[TextRange]]
 
   def testHighlightScalaLibrary(): Unit = {
     val reporter = ProgressReporter.newInstance(getClass.getName, filesWithProblems, reportSuccess = false)
@@ -41,22 +42,14 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
 class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
 
   override val filesWithProblems = Map(
-    "scala/Responder.scala" ->
-      Seq((2258, 2259), (2404, 2405), (2549, 2550)),
-    "scala/ref/SoftReference.scala" ->
-      Seq((731, 741)),
-    "scala/ref/WeakReference.scala" ->
-      Seq((944, 954)),
-    "scala/ref/ReferenceQueue.scala" ->
-      Seq((664, 674)),
-    "scala/ref/PhantomReference.scala" ->
-      Seq((689, 699)),
-    "scala/ref/ReferenceWrapper.scala" ->
-      Seq((657, 667), (975, 979)),
-    "scala/collection/parallel/Tasks.scala" ->
-      Seq((12526, 12565), (12571, 12622), (12993, 13034), (13040, 13091)),
-    "scala/collection/immutable/List.scala" ->
-      Seq((6725, 6741))
+    "scala/ref/ReferenceWrapper.scala" -> Set((657, 667),(975, 979)),
+    "scala/ref/PhantomReference.scala" -> Set((689, 699)),
+    "scala/ref/WeakReference.scala" -> Set((944, 954)),
+    "scala/ref/ReferenceQueue.scala" -> Set((664, 674)),
+    "scala/collection/parallel/Tasks.scala" -> Set((12526, 12565),(12571, 12622),(12993, 13034),(13040, 13091)),
+    "scala/Responder.scala" -> Set((2258, 2259),(2404, 2405),(2549, 2550)),
+    "scala/collection/immutable/List.scala" -> Set((6725, 6741)),
+    "scala/ref/SoftReference.scala" -> Set((731, 741))
   )
 
   override implicit val version: ScalaVersion = Scala_2_12

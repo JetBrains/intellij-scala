@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.projectHighlighting
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.performance.ImportingProjectTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -29,12 +30,12 @@ class AkkaSamplesTest extends LocalSbtProjectHighlightingTest {
 class ScalaPetStoreTest extends LocalSbtProjectHighlightingTest {
   override def projectName = "scala-pet-store"
 
-  override def filesWithProblems: Map[String, Seq[(Int, Int)]] = Map(
-    "OrderEndointsSpec.scala" -> Seq((824, 840)),
-    "DoobiePetRepositoryInterpreter.scala" -> Seq(),
-    "PetEndpoints.scala" -> Seq(),
-    "PetEndpointsSpec.scala" -> Seq((911, 925),(1527, 1541)),
-    "DoobieOrderRepositoryInterpreter.scala" -> Seq(),
-    "Arbitraries.scala" -> Seq((574, 583),(574, 583))
+  override def filesWithProblems: Map[String, Set[TextRange]] = Map(
+    "OrderEndointsSpec.scala" -> Set((824, 840)),
+    "DoobiePetRepositoryInterpreter.scala" -> Set(),
+    "PetEndpoints.scala" -> Set(),
+    "PetEndpointsSpec.scala" -> Set((911, 925),(1527, 1541)),
+    "DoobieOrderRepositoryInterpreter.scala" -> Set(),
+    "Arbitraries.scala" -> Set((574, 583))
   )
 }
