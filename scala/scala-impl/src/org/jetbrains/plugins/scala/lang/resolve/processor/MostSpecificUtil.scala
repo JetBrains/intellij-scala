@@ -3,6 +3,9 @@ package lang
 package resolve
 package processor
 
+import scala.collection.Set
+import scala.collection.mutable.ArrayBuffer
+
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -13,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -22,10 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.project.ProjectContext
-
-import scala.collection.Set
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -341,16 +342,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   //todo: implement existential dual
   def getType(e: PsiNamedElement, implicitCase: Boolean): ScType = {
     val res = e match {
-      case fun: ScFun => fun.polymorphicType
-      case f: ScFunction if f.isConstructor =>
-        f.containingClass match {
-          case td: ScTypeDefinition if td.hasTypeParameters =>
-            ScTypePolymorphicType(f.methodType, td.typeParameters.map(TypeParameter(_)))
-          case _ => f.polymorphicType()
-        }
-      case f: ScFunction => f.polymorphicType()
-      case p: ScPrimaryConstructor => p.polymorphicType
-      case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, ScSubstitutor.empty, elem.resolveScope)
+      case m: PsiMethod => m.polymorphicType()
+      case fun: ScFun => fun.polymorphicType()
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
         case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, elem, true) =>
           pd.declaredType.getOrElse(Nothing)

@@ -6,17 +6,17 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+
 
 /**
   * @author Alexander Podkhalyuzin
@@ -55,18 +55,10 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     val processor = new MethodResolveProcessor(referencedExpr, methodName, args, typeArgs,
       Seq.empty /* todo: ? */ , isShapeResolve = isShape, enableTupling = true)
     processor.processType(tp, referencedExpr, ResolveState.initial)
-    val candidates = processor.candidates
-    if (candidates.length != 1) Nothing
-    else {
-      candidates(0) match {
-        case ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor) =>
-          fun match {
-            case fun: ScFun => s.subst(fun.polymorphicType)
-            case fun: ScFunction => s.subst(fun.polymorphicType())
-            case meth: PsiMethod => ResolveUtils.javaPolymorphicType(meth, s, this.resolveScope)
-          }
-        case _ => api.Nothing
-      }
+    processor.candidates match {
+      case Array(ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
+        fun.polymorphicType(s)
+      case _ => Nothing
     }
   }
 

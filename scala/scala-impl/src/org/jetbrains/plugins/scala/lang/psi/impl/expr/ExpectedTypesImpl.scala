@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 
@@ -428,39 +429,35 @@ class ExpectedTypesImpl extends ExpectedTypes {
         } else applyForParams(newParams)
       case Right(ScTypePolymorphicType(anotherType, typeParams)) if !forApply =>
         val cand = call.getOrElse(expr).applyShapeResolveForExpectedType(anotherType, exprs, call)
-        if (cand.length == 1) {
-          cand(0) match {
-            case r@ScalaResolveResult(fun: ScFunction, s) =>
-              def update(tp: ScType): ScType = {
-                if (r.isDynamic) getDynamicReturn(tp)
-                else tp
-              }
+        cand match {
+          case Array(r@ScalaResolveResult(fun: ScFunction, s)) =>
+            def update(tp: ScType): ScType = {
+              if (r.isDynamic) getDynamicReturn(tp)
+              else tp
+            }
 
-              var polyType: TypeResult = Right(s.subst(fun.polymorphicType()) match {
-                case ScTypePolymorphicType(internal, params) =>
-                  update(ScTypePolymorphicType(internal, params ++ typeParams))
-                case tp => update(ScTypePolymorphicType(tp, typeParams))
-              })
-              call.foreach(call => polyType = polyType.updateAccordingToExpectedType(call))
-              processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isApplyDynamicNamed(r))
-            case _ =>
-          }
+            var polyType: TypeResult = Right(fun.polymorphicType(s) match {
+              case ScTypePolymorphicType(internal, params) =>
+                update(ScTypePolymorphicType(internal, params ++ typeParams))
+              case tp => update(ScTypePolymorphicType(tp, typeParams))
+            })
+            call.foreach(call => polyType = polyType.updateAccordingToExpectedType(call))
+            processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isApplyDynamicNamed(r))
+          case _ =>
         }
       case Right(anotherType) if !forApply =>
         val cand = call.getOrElse(expr).applyShapeResolveForExpectedType(anotherType, exprs, call)
-        if (cand.length == 1) {
-          cand(0) match {
-            case r@ScalaResolveResult(fun: ScFunction, subst) =>
-              def update(tp: ScType): ScType = {
-                if (r.isDynamic) getDynamicReturn(tp)
-                else tp
-              }
+        cand match {
+          case Array(r@ScalaResolveResult(fun: ScFunction, s)) =>
+            def update(tp: ScType): ScType = {
+              if (r.isDynamic) getDynamicReturn(tp)
+              else tp
+            }
 
-              var polyType: TypeResult = Right(update(subst.subst(fun.polymorphicType())))
-              call.foreach(call => polyType = polyType.updateAccordingToExpectedType(call))
-              processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isApplyDynamicNamed(r))
-            case _ =>
-          }
+            var polyType: TypeResult = Right(update(fun.polymorphicType(s)))
+            call.foreach(call => polyType = polyType.updateAccordingToExpectedType(call))
+            processArgsExpected(res, expr, i, polyType, exprs, forApply = true, isDynamicNamed = isApplyDynamicNamed(r))
+          case _ =>
         }
       case _ =>
     }

@@ -4,6 +4,8 @@ package psi
 package impl
 package expr
 
+import scala.collection.mutable.ArrayBuffer
+
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
@@ -32,10 +34,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-
-import scala.collection.mutable.ArrayBuffer
 
 /**
   * @author AlexanderPodkhalyuzin
@@ -297,7 +298,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
 
     val inner: ScType = bind match {
       case ScalaResolveResult(fun: ScFun, s) =>
-        s.subst(fun.polymorphicType)
+        fun.polymorphicType(s)
       //prevent infinite recursion for recursive pattern reference
       case ScalaResolveResult(self: ScSelfTypeElement, _) =>
         val clazz = PsiTreeUtil.getContextOfType(self, true, classOf[ScTemplateDefinition])
@@ -383,9 +384,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
       case ScalaResolveResult(value: ScSyntheticValue, _) => value.tp
       case ScalaResolveResult(fun: ScFunction, s) if fun.isProbablyRecursive =>
         val maybeResult = fun.definedReturnType.toOption
-        s.subst(fun.polymorphicType(maybeResult))
+        fun.polymorphicType(s, maybeResult)
       case result@ScalaResolveResult(fun: ScFunction, s) =>
-        val functionType = s.subst(fun.polymorphicType())
+        val functionType = fun.polymorphicType(s)
         if (result.isDynamic) DynamicResolveProcessor.getDynamicReturn(functionType)
         else functionType
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
@@ -448,8 +449,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         }
       case ScalaResolveResult(pack: PsiPackage, _) => ScalaType.designator(pack)
       case ScalaResolveResult(clazz: ScClass, s) if clazz.isCase =>
-        s.subst(clazz.constructor.
-          getOrElse(return Failure("Case Class hasn't primary constructor")).polymorphicType)
+        val constructor =
+          clazz.constructor
+            .getOrElse(return Failure("Case Class hasn't primary constructor"))
+        constructor.polymorphicType(s)
       case ScalaResolveResult(clazz: ScTypeDefinition, s) if clazz.typeParameters.nonEmpty =>
         s.subst(ScParameterizedType(ScalaType.designator(clazz),
           clazz.typeParameters.map(TypeParameterType(_, Some(s)))))
@@ -509,8 +512,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
           elementScope.getCachedClass("java.lang.Class")
             .map(convertQualifier)
         }
-
-        ResolveUtils.javaPolymorphicType(method, s, this.resolveScope, returnType)
+        method.polymorphicType(s, returnType)
       case _ => return resolveFailure
     }
     qualifier match {

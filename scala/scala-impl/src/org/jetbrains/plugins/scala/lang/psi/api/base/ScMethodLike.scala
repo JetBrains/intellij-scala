@@ -9,15 +9,12 @@ import org.jetbrains.plugins.scala.lang.psi.adapters.PsiTypeParametersOwnerAdapt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createClauseFromText, createTypeParameterClauseFromTextWithContext}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
 /**
  * A member that can be converted to a ScMethodType, ie a method or a constructor.
  */
 trait ScMethodLike extends ScMember with PsiMethod with PsiTypeParametersOwnerAdapter {
-  def methodType: ScType = methodType(None)
-  def methodType(result: Option[ScType]): ScType
 
   /**
    * This method is very important for generic type inference.
