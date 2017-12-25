@@ -28,6 +28,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 import scala.annotation.tailrec
 import scala.collection.mutable
 
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
+
 /**
   * @author ilyas, Alexander Podkhalyuzin
   */
@@ -246,13 +248,13 @@ object ScExpression {
     def expectedType(fromUnderscore: Boolean = true): Option[ScType] =
       expectedTypeEx(fromUnderscore).map(_._1)
 
-    def expectedTypeEx(fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] =
+    def expectedTypeEx(fromUnderscore: Boolean = true): Option[ParameterType] =
       ExpectedTypes.instance().expectedExprType(expr, fromUnderscore)
 
     def expectedTypes(fromUnderscore: Boolean = true): Array[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
 
-    @CachedWithRecursionGuard(expr, Array.empty[(ScType, Option[ScTypeElement])], ModCount.getBlockModificationCount)
-    def expectedTypesEx(fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
+    @CachedWithRecursionGuard(expr, Array.empty[ParameterType], ModCount.getBlockModificationCount)
+    def expectedTypesEx(fromUnderscore: Boolean = true): Array[ParameterType] = {
       ExpectedTypes.instance().expectedExprTypes(expr, fromUnderscore = fromUnderscore)
     }
 

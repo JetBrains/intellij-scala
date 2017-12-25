@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -42,19 +43,19 @@ class ExpectedTypesImpl extends ExpectedTypes {
   def smartExpectedType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ScType] =
     smartExpectedTypeEx(expr, fromUnderscore).map(_._1)
 
-  def smartExpectedTypeEx(expr: ScExpression, fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] = {
+  def smartExpectedTypeEx(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType] = {
     val types = expectedExprTypes(expr, withResolvedFunction = true, fromUnderscore = fromUnderscore)
 
     onlyOne(types)
   }
 
-  def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] = {
+  def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType] = {
     val types = expr.expectedTypesEx(fromUnderscore)
 
     onlyOne(types)
   }
 
-  private def onlyOne(types: Seq[(ScType, Option[ScTypeElement])]): Option[(ScType, Option[ScTypeElement])] = {
+  private def onlyOne(types: Seq[ParameterType]): Option[ParameterType] = {
     val distinct =
       types.sortBy {
         case (_: ScAbstractType, _) => 1
@@ -73,20 +74,20 @@ class ExpectedTypesImpl extends ExpectedTypes {
    * @return (expectedType, expectedTypeElement)
    */
   def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
-                        fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
+                        fromUnderscore: Boolean = true): Array[ParameterType] = {
     import expr.projectContext
     @tailrec
-    def fromFunction(tp: (ScType, Option[ScTypeElement])): Array[(ScType, Option[ScTypeElement])] = {
+    def fromFunction(tp: ParameterType): Array[ParameterType] = {
       tp._1 match {
-        case FunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
-        case PartialFunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
+        case FunctionType(retType, _) => Array((retType, None))
+        case PartialFunctionType(retType, _) => Array((retType, None))
         case ScAbstractType(_, _, upper) => fromFunction(upper, tp._2)
         case samType if ScalaPsiUtil.isSAMEnabled(expr) =>
           ScalaPsiUtil.toSAMType(samType, expr) match {
             case Some(methodType) => fromFunction(methodType, tp._2)
-            case _ => Array[(ScType, Option[ScTypeElement])]()
+            case _ => Array.empty
           }
-        case _ => Array[(ScType, Option[ScTypeElement])]()
+        case _ => Array.empty
       }
     }
 
@@ -100,7 +101,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     val sameInContext = expr.getSameElementInContext
 
-    val result: Array[(ScType, Option[ScTypeElement])] = expr.getContext match {
+    val result: Array[ParameterType] = expr.getContext match {
       case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore = false)
       //see SLS[6.11]
       case b: ScBlockExpr => b.lastExpr match {
@@ -186,7 +187,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         }
       //method application
       case tuple: ScTuple if tuple.isCall =>
-        val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
+        val res = new ArrayBuffer[ParameterType]
         val exprs: Seq[ScExpression] = tuple.exprs
         val actExpr = expr.getDeepSameElementInContext
         val i = if (actExpr == null) 0 else exprs.indexWhere(_ == actExpr)
@@ -204,7 +205,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         }
         res.toArray
       case tuple: ScTuple =>
-        val buffer = new ArrayBuffer[(ScType, Option[ScTypeElement])]
+        val buffer = new ArrayBuffer[ParameterType]
         val exprs = tuple.exprs
         val actExpr = expr.getDeepSameElementInContext
         val index = exprs.indexOf(actExpr)
@@ -222,7 +223,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         }
         buffer.toArray
       case infix: ScInfixExpr if infix.getArgExpr == sameInContext && !expr.isInstanceOf[ScTuple] =>
-        val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
+        val res = new ArrayBuffer[ParameterType]
         val zExpr: ScExpression = expr match {
           case p: ScParenthesisedExpr => p.expr.getOrElse(return Array.empty)
           case _ => expr
@@ -277,8 +278,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case None => Array.empty
         }
       case args: ScArgumentExprList =>
-        val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
-        val exprs: Seq[ScExpression] = args.exprs
+        val res = new ArrayBuffer[ParameterType]
+        val exprs = args.exprs
         val actExpr = expr.getDeepSameElementInContext
         val i = if (actExpr == null) 0 else {
           val r = exprs.indexWhere(_ == actExpr)
@@ -286,7 +287,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         }
         val callExpression = args.callExpression
         if (callExpression != null) {
-          var tps: Array[(TypeResult, Boolean)] = callExpression match {
+          var tps = callExpression match {
             case ref: ScReferenceExpression =>
               if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
               else mapResolves(ref.multiResolve(false), ref.multiType)
@@ -350,7 +351,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
 
     if (fromUnderscore && checkIsUnderscore(expr)) {
-      val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
+      val res = new ArrayBuffer[ParameterType]
       for (tp <- result) {
         tp._1 match {
           case FunctionType(rt: ScType, _) => res += ((rt, None))
@@ -362,13 +363,13 @@ class ExpectedTypesImpl extends ExpectedTypes {
   }
 
   @tailrec
-  private def processArgsExpected(res: ArrayBuffer[(ScType, Option[ScTypeElement])], expr: ScExpression, i: Int,
+  private def processArgsExpected(res: ArrayBuffer[ParameterType], expr: ScExpression, i: Int,
                                   tp: TypeResult, exprs: Seq[ScExpression], call: Option[MethodInvocation] = None,
                                   forApply: Boolean = false, isDynamicNamed: Boolean = false) {
     import expr.projectContext
 
     def applyForParams(params: Seq[Parameter]) {
-      val p: (ScType, Option[ScTypeElement]) =
+      val p: ParameterType =
         if (i >= params.length && params.nonEmpty && params.last.isRepeated)
           (params.last.paramType, params.last.paramInCode.flatMap(_.typeElement))
         else if (i >= params.length) (Nothing, None)
