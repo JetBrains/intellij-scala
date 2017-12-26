@@ -112,7 +112,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           fun.nestedMethodType(i, Some(tp), subst).getOrElse(return FAILURE)
         case method: PsiMethod =>
           if (i > 0) return Failure("Java constructors only have one parameter section")
-          method.polymorphicType(subst)
+          subst.subst(method.methodType(Some(tp)))
       }
       val typeParameters: Seq[TypeParameter] = r.getActualElement match {
         case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
