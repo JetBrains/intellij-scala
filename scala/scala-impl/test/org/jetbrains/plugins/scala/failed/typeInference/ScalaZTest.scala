@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import org.jetbrains.plugins.scala.DependencyManager._
+import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase

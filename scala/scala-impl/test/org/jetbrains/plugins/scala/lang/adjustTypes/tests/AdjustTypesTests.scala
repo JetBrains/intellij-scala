@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.adjustTypes.tests
 
-import org.jetbrains.plugins.scala.DependencyManager._
+import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.adjustTypes.AdjustTypesTestBase
 
