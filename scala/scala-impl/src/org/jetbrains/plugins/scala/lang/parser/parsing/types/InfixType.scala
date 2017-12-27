@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -29,6 +30,8 @@ trait InfixType {
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, star = false)
   def parse(builder: ScalaPsiBuilder, star: Boolean): Boolean = parse(builder,star,isPattern = false)
   def parse(builder: ScalaPsiBuilder, star: Boolean, isPattern: Boolean): Boolean = {
+    var couldBeVarArg = false
+    
     var infixTypeMarker = builder.mark
     var markerList = List[PsiBuilder.Marker]() //This list consist of markers for right-associated op
     var count = 0
@@ -56,6 +59,8 @@ trait InfixType {
       count = count+1
       //need to know associativity
       val s = builder.getTokenText
+      couldBeVarArg = if (count == 1 && s == "*") true else false
+      
       s.charAt(s.length-1) match {
         case ':' =>
           assoc match {
@@ -84,7 +89,7 @@ trait InfixType {
           builder.advanceLexer()
           typeMarker.done(ScalaElementTypes.WILDCARD_TYPE)
         case _ =>
-          if (!componentType.parse(builder, star, isPattern)) builder error errorMessage
+          if (!componentType.parse(builder, star, isPattern)) builder error errorMessage else couldBeVarArg = false
       }
       if (assoc == 1) {
         val newMarker = infixTypeMarker.precede
@@ -95,7 +100,11 @@ trait InfixType {
     //final ops closing
     if (count>0) {
       if (assoc == 1) {
-        infixTypeMarker.drop()
+        if (couldBeVarArg && ParserUtils.lookBack(builder) == ScalaTokenTypes.tIDENTIFIER && count == 1) {
+          infixTypeMarker.rollbackTo()
+          parseId(builder)
+          return false
+        } else infixTypeMarker.drop()
       }
       else {
         markerList.head.drop()
