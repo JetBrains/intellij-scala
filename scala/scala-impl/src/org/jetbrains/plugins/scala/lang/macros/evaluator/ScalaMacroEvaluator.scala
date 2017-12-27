@@ -19,6 +19,7 @@ import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
+import org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator.MacroImpl
 import org.jetbrains.plugins.scala.lang.macros.evaluator.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -28,43 +29,34 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  * date 19.12.14
  */
 
-class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(project) with ScalaMacroTypeable {
+class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(project) {
 
   override def getComponentName = "ScalaMacroEvaluator"
 
-  lazy val typingRules = Seq(
-    MatchRule("product", "shapeless.Generic", ShapelessForProduct),
-    MatchRule("apply", "shapeless.LowPriorityGeneric", ShapelessForProduct),
-    MatchRule("materialize", "shapeless.Generic", ShapelessMaterializeGeneric),
-    MatchRule("mkDefaultSymbolicLabelling", "shapeless.DefaultSymbolicLabelling", ShapelessDefaultSymbolicLabelling),
-    MatchRule("mkSelector", "shapeless.ops.record.Selector", ShapelessMkSelector),
-    DefaultRule
-  )
-
   def isMacro(named: PsiNamedElement): Option[ScFunction] = MacroDef.unapply(named)
 
-  override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
-    typingRules.filter(_.isApplicable(macros)).head.typeable.checkMacro(macros, context)
+  def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
+    if (isMacro(macros).isEmpty) return None
+
+    val macroImpl = MacroImpl(macros.name, macros.containingClass.qualifiedName)
+
+    ScalaMacroEvaluator.typingRules
+      .getOrElse(macroImpl, ScalaMacroDummyTypeable)
+      .checkMacro(macros, context)
   }
 }
 
 object ScalaMacroEvaluator {
   def getInstance(project: Project): ScalaMacroEvaluator = ServiceManager.getService(project, classOf[ScalaMacroEvaluator])
-}
 
-trait MacroRule {
-  def isApplicable(fun: ScFunction): Boolean
-  def typeable: ScalaMacroTypeable
-}
+  private case class MacroImpl(name: String, clazz: String)
 
-case class MatchRule(name: String, clazz: String, typeable: ScalaMacroTypeable) extends MacroRule {
-  def isApplicable(fun: ScFunction): Boolean = {
-    fun.name == name && fun.containingClass.qualifiedName == clazz
-  }
-}
-
-object DefaultRule extends MacroRule {
-  override def isApplicable(fun: ScFunction) = true
-  override def typeable: ScalaMacroTypeable = ScalaMacroDummyTypeable // TODO: interpreter goes here
+  private lazy val typingRules: Map[MacroImpl, ScalaMacroTypeable] = Map(
+    MacroImpl("product", "shapeless.Generic")                                     -> ShapelessForProduct,
+    MacroImpl("apply", "shapeless.LowPriorityGeneric")                            -> ShapelessForProduct,
+    MacroImpl("materialize", "shapeless.Generic")                                 -> ShapelessMaterializeGeneric,
+    MacroImpl("mkDefaultSymbolicLabelling", "shapeless.DefaultSymbolicLabelling") -> ShapelessDefaultSymbolicLabelling,
+    MacroImpl("mkSelector", "shapeless.ops.record.Selector")                      -> ShapelessMkSelector
+  )
 }
 
