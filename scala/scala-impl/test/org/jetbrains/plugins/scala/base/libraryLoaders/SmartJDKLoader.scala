@@ -26,7 +26,7 @@ case class MockJDKLoader(jdkVersion: JDKVersion = JDKVersion.JDK18) extends Smar
     case JDKVersion.JDK19 => IdeaTestUtil.getMockJdk9
     case JDKVersion.JDK18 => IdeaTestUtil.getMockJdk18
     case JDKVersion.JDK17 => IdeaTestUtil.getMockJdk17
-    case _ => Assert.fail(s"JDK version $jdkVersion is unavailable in IDEA test platform"); null
+    case _ => Assert.fail(s"mock JDK version $jdkVersion is unavailable in IDEA test platform"); null
   }
 }
 

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.utest.scala2_11.utest_0_5_4
 
-import org.jetbrains.plugins.scala.DependencyManager._
+import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.testingSupport.utest.UTestTestCase
 

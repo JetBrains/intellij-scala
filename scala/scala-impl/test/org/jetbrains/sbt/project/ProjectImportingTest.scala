@@ -4,7 +4,7 @@ package project
 import org.jetbrains.plugins.scala.{DependencyManager, SlowTests}
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.junit.experimental.categories.Category
-import DependencyManager._
+import org.jetbrains.plugins.scala.DependencyManagerBase._
 
 @Category(Array(classOf[SlowTests]))
 class ProjectImportingTest extends ImportingTestCase with InexactMatch {
@@ -14,7 +14,7 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
   def testSimple(): Unit = runTest(
     new project("simple") {
       lazy val scalaLibrary: library = new library(s"sbt: org.scala-lang:scala-library:$scalaVersion:jar") {
-        classes += new DependencyManager().resolve("org.scala-lang" % "scala-library" % scalaVersion).head.file.getAbsolutePath
+        classes += DependencyManager.resolve("org.scala-lang" % "scala-library" % scalaVersion).head.file.getAbsolutePath
       }
 
       libraries += scalaLibrary

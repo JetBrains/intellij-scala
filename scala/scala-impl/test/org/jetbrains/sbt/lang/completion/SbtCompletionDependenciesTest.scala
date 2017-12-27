@@ -23,7 +23,7 @@ class SbtCompletionDependenciesTest extends SbtCompletionTestBase {
 
     val testResolver = new SbtIvyResolver("Test repo", root)
 
-    testResolver.getIndex(getProjectAdapter).get.doUpdate()(getProjectAdapter)
+    testResolver.getIndex(getProjectAdapter).get.doUpdate()
     val moduleManager = Option(ModuleManager.getInstance(getProjectAdapter))
     moduleManager.foreach { manager =>
       manager.getModules.toSeq.foreach { module =>
