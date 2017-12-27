@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.findImplicitConversion
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignStmt, ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.impl.expr
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -34,8 +33,10 @@ case class ApplyOrUpdateInvocation(call: MethodInvocation,
                                    isDynamic: Boolean) {
 
   def collectCandidates(isShape: Boolean): Array[ScalaResolveResult] = {
+    val nameArgForDynamic = if (isDynamic) Some("apply") else None
+
     val processor = new MethodResolveProcessor(baseExpr, methodName, argClauses, typeArgs, typeParams,
-      isShapeResolve = isShape, enableTupling = true, isDynamic = isDynamic)
+      isShapeResolve = isShape, enableTupling = true, nameArgForDynamic = nameArgForDynamic)
 
     val simpleCandidates: Set[ScalaResolveResult] = candidatesNoImplicit(processor)
 
@@ -44,7 +45,7 @@ case class ApplyOrUpdateInvocation(call: MethodInvocation,
     val candidates =
       if (simpleCandidates.forall(!_.isApplicable())) {
         val noImplicitsForArgs = simpleCandidates.nonEmpty
-        cancidatesWithConversion(processor, noImplicitsForArgs)
+        candidatesWithConversion(processor, noImplicitsForArgs)
       }
       else simpleCandidates
 
@@ -69,7 +70,7 @@ case class ApplyOrUpdateInvocation(call: MethodInvocation,
       Set.empty
   }
 
-  private def cancidatesWithConversion(processor: MethodResolveProcessor, noImplicitsForArgs: Boolean) = {
+  private def candidatesWithConversion(processor: MethodResolveProcessor, noImplicitsForArgs: Boolean) = {
     processor.resetPrecedence()
     findImplicitConversion(baseExpr, processor.refName, call, processor, noImplicitsForArgs).foreach { result =>
       ProgressManager.checkCanceled()
@@ -124,7 +125,7 @@ object ApplyOrUpdateInvocation {
       case expression => (expression, tp, Seq.empty)
     }
 
-    expr.ApplyOrUpdateInvocation(call, argClauses, baseExpr, baseExprType, typeArgs, typeParams, isDynamic)
+    ApplyOrUpdateInvocation(call, argClauses, baseExpr, baseExprType, typeArgs, typeParams, isDynamic)
   }
 
   private def argumentClauses(call: MethodInvocation, isDynamic: Boolean): List[Seq[Expression]] = {
