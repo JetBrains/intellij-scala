@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl.TypeResultEx
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.MethodInvocationImpl._
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothing, TupleType, TypeParameter}
@@ -80,7 +80,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
         val processedType = updateApplyData.inferredType
         val updatedProcessedType =
-          if (useExpectedType) Right(processedType).updateAccordingToExpectedType(this).getOrElse(processedType)
+          if (useExpectedType) processedType.updateAccordingToExpectedType(Some(this)).getOrElse(processedType)
           else processedType
 
         val isNamedDynamic: Boolean =

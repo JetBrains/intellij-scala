@@ -511,8 +511,10 @@ private object ExpectedTypesImpl {
       * according to method call expected type
       */
     def updateAccordingToExpectedType(call: MethodInvocation, canThrowSCE: Boolean = false): TypeResult = {
-      InferUtil.updateAccordingToExpectedType(tr, fromImplicitParameters = false, filterTypeParams = false,
-        expectedType = call.expectedType(), expr = call, canThrowSCE)
+      tr.map(
+        InferUtil.updateAccordingToExpectedType(_, fromImplicitParameters = false, filterTypeParams = false,
+          expectedType = call.expectedType(), expr = call, canThrowSCE)
+      )
     }
   }
 
