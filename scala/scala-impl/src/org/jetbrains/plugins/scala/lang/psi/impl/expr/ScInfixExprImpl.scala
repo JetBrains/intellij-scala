@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
   * @author Alexander Podkhalyuzin
@@ -15,31 +16,25 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
   */
 class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScInfixExpr {
 
-  override def argumentExpressions: Seq[ScExpression] = {
-    if (isRightAssoc) Seq(lOp)
-    else rOp match {
-      case tuple: ScTuple => tuple.exprs
-      case t: ScParenthesisedExpr => t.expr match {
-        case Some(expr) => Seq(expr)
-        case None => Seq(t)
-      }
-      case _: ScUnitExpr => Seq.empty
-      case expr => Seq(expr)
-    }
+  override def argumentExpressions: Seq[ScExpression] = argsElement match {
+    case right if right == lOp => Seq(right)
+    case tuple: ScTuple => tuple.exprs
+    case ScParenthesisedExpr(expression) => Seq(expression)
+    case _: ScUnitExpr => Seq.empty
+    case expression => Seq(expression)
   }
 
   protected override def innerType: TypeResult = {
-    operation.bind() match {
+    val ScInfixExpr(ElementText(left), operation, ElementText(right)) = this
+
+    import ScalaPsiElementFactory.createExpressionWithContextFromText
+    operation.bind().collect {
       //this is assignment statement: x += 1 equals to x = x + 1
-      case Some(r) if r.element.name + "=" == operation.refName =>
-        super.innerType
-        val lText = lOp.getText
-        val rText = rOp.getText
-        val exprText = s"$lText = $lText ${r.element.name} $rText"
-        val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, getContext, this)
-        newExpr.`type`()
-      case _ => super.innerType
-    }
+      case ScalaResolveResult(element, _) if element.name + "=" == operation.refName =>
+        s"$left = $left ${element.name} $right"
+    }.map {
+      createExpressionWithContextFromText(_, getContext, this).`type`()
+    }.getOrElse(super.innerType)
   }
 
   override def toString: String = "InfixExpression"

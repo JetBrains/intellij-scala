@@ -1174,27 +1174,28 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def infixExpressionEvaluator(infix: ScInfixExpr): Evaluator = {
-    val operation = infix.operation
-    def isUpdate(ref: ScReferenceExpression): Boolean = {
-      ref.refName.endsWith("=") &&
-        (ref.resolve() match {
-          case n: PsiNamedElement if n.name + "=" == ref.refName => true
-          case _ => false
-        })
+    object isUpdate {
+      private val Regex = "(.+)=$".r
+
+      def unapply(operation: ScReferenceExpression): Option[String] = operation.refName match {
+        case Regex(name) =>
+          operation.resolve() match {
+            case named: PsiNamedElement if named.name == name => Some(name)
+            case _ => None
+          }
+        case _ => None
+      }
     }
 
-    if (isUpdate(operation)) {
-      val baseExprText = infix.getBaseExpr.getText
-      val operationText = operation.refName.dropRight(1)
-      val argText = infix.getArgExpr.getText
-      val exprText = s"$baseExprText = $baseExprText $operationText $argText"
-      val expr = createExpressionWithContextFromText(exprText, infix.getContext, infix)
-      evaluatorFor(expr)
+    val newExpression = infix match {
+      case ScInfixExpr.withAssoc(ElementText(left), isUpdate(operation), ElementText(right)) =>
+        val exprText = s"$left = $left $operation $right"
+        createExpressionWithContextFromText(exprText, infix.getContext, infix)
+      case _ =>
+        createEquivMethodCall(infix)
     }
-    else {
-      val equivCall = createEquivMethodCall(infix)
-      evaluatorFor(equivCall)
-    }
+
+    evaluatorFor(newExpression)
   }
 
   def blockExprEvaluator(block: ScBlock): Evaluator = {
