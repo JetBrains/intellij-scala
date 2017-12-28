@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroInvocationContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.processTypeForUpdateOrApplyCandidates
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
@@ -117,6 +118,9 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
                                useExpectedType: Boolean,
                                resolveResult: Option[ScalaResolveResult]): Option[InvocationData.Full] = {
 
+    val fromMacroExpansion = resolveResult.flatMap(checkMacroExpansion)
+    if (fromMacroExpansion.nonEmpty) return fromMacroExpansion
+
     val includeUpdate = resolveResult.exists(_.name == "update")
     val isNamedDynamic = resolveResult.exists(isApplyDynamicNamed)
 
@@ -141,7 +145,15 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     }
   }
 
-  def checkApplyUpdateOrDynamic(invokedType: ScType, useExpectedType: Boolean): Option[InvocationData.Full] = {
+  private def checkMacroExpansion(r: ScalaResolveResult): Option[InvocationData.Full] = {
+    val macroEvaluator = ScalaMacroEvaluator.getInstance(getProject)
+    val expansion = macroEvaluator.expandMacro(r.element, MacroInvocationContext(this, r))
+    expansion
+      .flatMap(_.getNonValueType().toOption)
+      .map(InvocationData.Full(_))
+  }
+
+  private def checkApplyUpdateOrDynamic(invokedType: ScType, useExpectedType: Boolean): Option[InvocationData.Full] = {
     val applyUpdateRes =
       findApplyUpdateOrDynamic(invokedType, withDynamic = false).orElse {
         findApplyUpdateOrDynamic(invokedType, withDynamic = true)

@@ -21,6 +21,7 @@ import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator.MacroImpl
 import org.jetbrains.plugins.scala.lang.macros.evaluator.impl._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -33,16 +34,25 @@ class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(pro
 
   override def getComponentName = "ScalaMacroEvaluator"
 
-  def isMacro(named: PsiNamedElement): Option[ScFunction] = MacroDef.unapply(named)
+  def checkMacro(named: PsiNamedElement, context: MacroContext): Option[ScType] = {
+    macroSupport(named, ScalaMacroEvaluator.typingRules).flatMap {
+      case (m, x) => x.checkMacro(m, context)
+    }
+  }
 
-  def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
-    if (isMacro(macros).isEmpty) return None
+  def expandMacro(named: PsiNamedElement, context: MacroInvocationContext): Option[ScExpression] = {
+    macroSupport(named, ScalaMacroEvaluator.expansionRules).flatMap {
+      case (m, x) => x.expandMacro(m, context)
+    }
+  }
 
-    val macroImpl = MacroImpl(macros.name, macros.containingClass.qualifiedName)
-
-    ScalaMacroEvaluator.typingRules
-      .getOrElse(macroImpl, ScalaMacroDummyTypeable)
-      .checkMacro(macros, context)
+  private def macroSupport[T](named: PsiNamedElement, map: Map[MacroImpl, T]): Option[(ScFunction, T)] = {
+    named match {
+      case MacroDef(m) if !m.isLocal =>
+        val macroImpl = MacroImpl(m.name, m.containingClass.qualifiedName)
+        map.get(macroImpl).map((m, _))
+      case _ => None
+    }
   }
 }
 
@@ -51,12 +61,14 @@ object ScalaMacroEvaluator {
 
   private case class MacroImpl(name: String, clazz: String)
 
-  private lazy val typingRules: Map[MacroImpl, ScalaMacroTypeable] = Map(
+  private val typingRules: Map[MacroImpl, ScalaMacroTypeable] = Map(
     MacroImpl("product", "shapeless.Generic")                                     -> ShapelessForProduct,
     MacroImpl("apply", "shapeless.LowPriorityGeneric")                            -> ShapelessForProduct,
     MacroImpl("materialize", "shapeless.Generic")                                 -> ShapelessMaterializeGeneric,
     MacroImpl("mkDefaultSymbolicLabelling", "shapeless.DefaultSymbolicLabelling") -> ShapelessDefaultSymbolicLabelling,
     MacroImpl("mkSelector", "shapeless.ops.record.Selector")                      -> ShapelessMkSelector
   )
+
+  private val expansionRules: Map[MacroImpl, ScalaMacroExpandable] = Map()
 }
 

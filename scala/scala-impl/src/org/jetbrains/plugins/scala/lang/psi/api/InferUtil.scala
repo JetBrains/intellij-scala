@@ -24,10 +24,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
-
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
+
+import org.jetbrains.plugins.scala.lang.macros.MacroDef
 
 /**
   * @author Alexander Podkhalyuzin
@@ -185,13 +186,9 @@ object InferUtil {
           exprs ++= maybeType.map(new Expression(_))
         }
         val evaluator = ScalaMacroEvaluator.getInstance(project)
-        evaluator.isMacro(results.head.getElement) match {
-          case Some(m) =>
-            evaluator.checkMacro(m, MacroContext(place, Some(paramType))) match {
-              case Some(tp) => exprs += new Expression(polymorphicSubst subst tp)
-              case None => updateExpr()
-            }
-          case _ => updateExpr()
+        evaluator.checkMacro(results.head.getElement, MacroContext(place, Some(paramType))) match {
+          case Some(tp) => exprs += new Expression(polymorphicSubst subst tp)
+          case None => updateExpr()
         }
         paramsForInfer += param
       } else {
