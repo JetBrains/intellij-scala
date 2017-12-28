@@ -37,19 +37,11 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   def getEffectiveInvokedExpr: ScExpression = getInvokedExpr
 
   /**
-    * Important method for method calls like: foo(expr) = assign.
-    * Usually this is same as argumentExpressions
-    *
-    * @return arguments with additional argument if call in update position
-    */
-  def argumentExpressionsIncludeUpdateCall: Seq[ScExpression] = argumentExpressions
-
-  /**
     * Seq of application problems like type mismatch.
     *
     * @return seq of application problems
     */
-  def applicationProblems: Seq[ApplicabilityProblem]
+  def applicationProblems: Seq[ApplicabilityProblem] = Seq.empty
 
   /**
     * @return map of expressions and parameters
@@ -65,28 +57,28 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     matchedParametersInner.groupBy(_._1).map(t => t.copy(_2 = t._2.map(_._2)))
   }
 
-  protected def matchedParametersInner: Seq[(Parameter, ScExpression)]
+  protected def matchedParametersInner: Seq[(Parameter, ScExpression)] = Seq.empty
 
   /**
     * In case if invoked expression converted implicitly to invoke apply or update method
     *
     * @return imports used for implicit conversion
     */
-  def getImportsUsed: collection.Set[ImportUsed]
+  def getImportsUsed: collection.Set[ImportUsed] = Set.empty
 
   /**
     * In case if invoked expression converted implicitly to invoke apply or update method
     *
     * @return actual conversion element
     */
-  def getImplicitFunction: Option[ScalaResolveResult]
+  def getImplicitFunction: Option[ScalaResolveResult] = None
 
   /**
     * true if this call is syntactic sugar for apply or update method.
     */
   def isApplyOrUpdateCall: Boolean = applyOrUpdateElement.isDefined
 
-  def applyOrUpdateElement: Option[ScalaResolveResult]
+  def applyOrUpdateElement: Option[ScalaResolveResult] = None
 
   /**
     * It's arguments for method and infix call.

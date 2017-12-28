@@ -6,8 +6,9 @@ package expr
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-
 import scala.collection.Seq
+
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /**
   * @author Alexander Podkhalyuzin
@@ -20,4 +21,6 @@ class ScPrefixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with Sc
   def getInvokedExpr: ScExpression = operation
 
   override def toString: String = "PrefixExpression"
+
+  override protected def innerType: TypeResult = getEffectiveInvokedExpr.getNonValueType()
 }
