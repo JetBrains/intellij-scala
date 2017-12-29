@@ -18,7 +18,7 @@ object ShapelessMaterializeGeneric extends ScalaMacroTypeable with ShapelessUtil
     if (context.expectedType.isEmpty) return None
     val targetType = extractTargetType(context)
     val fields      = extractFields(targetType).map(_._2)
-    val reprTpStr   = fields.foldRight(fqHNil)((p, suffix) => s"$fqColonColon[${p.canonicalText}, $suffix]")
+    val reprTpStr   = hlistText(fields)
     val genericStr  = s"$fqGeneric.Aux[${targetType.canonicalText}, $reprTpStr]"
     ScalaPsiElementFactory.createTypeFromText(genericStr, context.place, null)
   }

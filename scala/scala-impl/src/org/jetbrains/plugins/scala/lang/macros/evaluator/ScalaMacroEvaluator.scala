@@ -17,9 +17,10 @@ package org.jetbrains.plugins.scala.lang.macros.evaluator
 
 import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
-import org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator.MacroImpl
+import org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -35,14 +36,22 @@ class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(pro
   override def getComponentName = "ScalaMacroEvaluator"
 
   def checkMacro(named: PsiNamedElement, context: MacroContext): Option[ScType] = {
-    macroSupport(named, ScalaMacroEvaluator.typingRules).flatMap {
+    macroSupport(named, typingRules).flatMap {
       case (m, x) => x.checkMacro(m, context)
     }
   }
 
   def expandMacro(named: PsiNamedElement, context: MacroInvocationContext): Option[ScExpression] = {
-    macroSupport(named, ScalaMacroEvaluator.expansionRules).flatMap {
-      case (m, x) => x.expandMacro(m, context)
+    if (isMacroExpansion(context.call)) return None //avoid recursive macro expansions
+
+    macroSupport(named, expansionRules).flatMap {
+      case (m, x) =>
+        if (isMacroExpansion(context.call)) None
+        else {
+          val expanded = x.expandMacro(m, context)
+          expanded.foreach(markMacroExpansion)
+          expanded
+        }
     }
   }
 
@@ -69,6 +78,13 @@ object ScalaMacroEvaluator {
     MacroImpl("mkSelector", "shapeless.ops.record.Selector")                      -> ShapelessMkSelector
   )
 
-  private val expansionRules: Map[MacroImpl, ScalaMacroExpandable] = Map()
+  private val expansionRules: Map[MacroImpl, ScalaMacroExpandable] = Map(
+    MacroImpl("applyDynamic", "shapeless.ProductArgs") -> ShapelessProductArgs
+  )
+
+  private val isMacroExpansionKey: Key[AnyRef] = Key.create("macro.original.expression")
+
+  private def isMacroExpansion(expr: ScExpression): Boolean = expr.getUserData(isMacroExpansionKey) != null
+  private def markMacroExpansion(expr: ScExpression): Unit = expr.putUserData(isMacroExpansionKey, this)
 }
 
