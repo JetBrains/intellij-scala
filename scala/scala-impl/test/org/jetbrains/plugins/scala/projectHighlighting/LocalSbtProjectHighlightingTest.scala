@@ -31,7 +31,6 @@ class ScalaPetStoreTest extends LocalSbtProjectHighlightingTest {
 
   override def filesWithProblems: Map[String, Seq[(Int, Int)]] = Map(
     "OrderEndointsSpec.scala" -> Seq((824, 840)),
-    "DoobiePetRepositoryInterpreter.scala" -> Seq(),
     "PetEndpoints.scala" -> Seq(),
     "PetEndpointsSpec.scala" -> Seq((911, 925),(1527, 1541)),
     "DoobieOrderRepositoryInterpreter.scala" -> Seq(),
