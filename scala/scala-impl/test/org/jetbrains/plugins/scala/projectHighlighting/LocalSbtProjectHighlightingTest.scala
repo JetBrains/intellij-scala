@@ -33,7 +33,6 @@ class ScalaPetStoreTest extends LocalSbtProjectHighlightingTest {
     "OrderEndointsSpec.scala" -> Seq((824, 840)),
     "PetEndpoints.scala" -> Seq(),
     "PetEndpointsSpec.scala" -> Seq((911, 925),(1527, 1541)),
-    "DoobieOrderRepositoryInterpreter.scala" -> Seq(),
     "Arbitraries.scala" -> Seq((574, 583),(574, 583))
   )
 }

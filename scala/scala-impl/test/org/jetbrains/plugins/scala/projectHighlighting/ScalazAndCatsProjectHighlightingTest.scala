@@ -13,9 +13,4 @@ class ScalazAndCatsProjectHighlightingTest extends GithubSbtAllProjectHighlighti
   override def revision = "e35a79297e06fafa7c76dda4bd74862131f2d37b"
 
   override def projectDirPath = s"$rootDirPath/$projectName/scala"
-
-  override def filesWithProblems: Map[String, Seq[(Int, Int)]] = Map(
-    "Kitties.scala" -> Seq(),
-    "Zed.scala" -> Seq()
-  )
 }
