@@ -54,7 +54,6 @@ lazy val scalaImpl: sbt.Project =
     addCompilerPlugin(Dependencies.macroParadise),
     ideaInternalPlugins := Seq(
       "copyright",
-      "Groovy",
       "IntelliLang",
       "java-i18n",
       "android",
