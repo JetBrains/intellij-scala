@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.project.maven
 
 import com.intellij.openapi.module.Module
 import org.jetbrains.idea.maven.project.MavenProjectsManager
-import org.jetbrains.plugins.scala.testingSupport.ScalaTestDefaultWorkingDirectoryProvider
+import org.jetbrains.plugins.scala.testingSupport.TestWorkingDirectoryProvider
 
 /**
  * @author Roman.Shein
  * @since 30.10.2015.
  */
-class MavenWorkingDirectoryProviderImpl extends ScalaTestDefaultWorkingDirectoryProvider {
+class MavenTestWorkingDirectoryProvider extends TestWorkingDirectoryProvider {
   override def getWorkingDirectory(module: Module): String =
     if (module == null) {
       null

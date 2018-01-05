@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.testingSupport.{ScalaTestDefaultWorkingDirectoryProvider, ScalaTestingConfiguration}
+import org.jetbrains.plugins.scala.testingSupport.{TestWorkingDirectoryProvider, ScalaTestingConfiguration}
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, SettingEntry, SettingMap}
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.SearchForTest
@@ -121,7 +121,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
   private def provideDefaultWorkingDir = {
     val module = getModule
-    ScalaTestDefaultWorkingDirectoryProvider.EP_NAME.getExtensions.find(_.getWorkingDirectory(module) != null) match {
+    TestWorkingDirectoryProvider.EP_NAME.getExtensions.find(_.getWorkingDirectory(module) != null) match {
       case Some(provider) => provider.getWorkingDirectory(module)
       case _ => Option(getProject.getBaseDir).map(_.getPath).getOrElse("")
     }

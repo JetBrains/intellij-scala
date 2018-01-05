@@ -20,7 +20,7 @@
     <importer implementation="org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter"/>
   </extensions>
   <extensions defaultExtensionNs="org.intellij.scala">
-    <scalaTestDefaultWorkingDirectoryProvider implementation="org.jetbrains.plugins.scala.project.maven.MavenWorkingDirectoryProviderImpl"/>
+    <testWorkingDirectoryProvider implementation="org.jetbrains.plugins.scala.project.maven.MavenTestWorkingDirectoryProvider"/>
   </extensions>
   <extensions defaultExtensionNs="org.jetbrains.idea.maven">
     <repositoryProvider implementation="org.jetbrains.sbt.resolvers.SbtMavenRepositoryProvider"/>
