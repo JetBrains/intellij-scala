@@ -32,8 +32,14 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
-    .dependsOn(scalaImpl % "test->test;compile->compile", mavenIntegration % "test->test;compile->compile")
-    .aggregate(scalaImpl, mavenIntegration)
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      gradleIntegration % "test->test;compile->compile",
+      mavenIntegration % "test->test;compile->compile")
+    .aggregate(
+      scalaImpl,
+      gradleIntegration,
+      mavenIntegration)
     .settings(
       aggregate.in(updateIdea) := false,
       ideExcludedDirectories := Seq(baseDirectory.value / "target")
@@ -123,18 +129,20 @@ lazy val cbt =
 
 // Integration with other IDEA plugins
 
-lazy val mavenIntegration =
-  newProject("maven", file("scala/integration/maven"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
-    .settings(
-      ideaInternalPlugins := Seq("maven")
-    )
-
 lazy val gradleIntegration =
   newProject("gradle", file("scala/integration/gradle"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
     .settings(
       ideaInternalPlugins := Seq("gradle")
+    )
+
+lazy val mavenIntegration =
+  newProject("maven", file("scala/integration/maven"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(
+      ideaInternalPlugins := Seq("maven")
     )
 
 // Utility projects
@@ -236,7 +244,10 @@ iLoopWrapperPath := baseDirectory.in(compilerJps).value / "resources" / "ILoopWr
 lazy val scalaPluginJarPackager =
   newProject("scalaPluginJarPackager", file("target/tools/scalaPluginJarPackager"))
     .settings(
-      products in Compile := products.in(scalaImpl, Compile).value,
+      products in Compile :=
+        products.in(scalaImpl, Compile).value ++
+          products.in(gradleIntegration, Compile).value ++
+          products.in(mavenIntegration, Compile).value,
       ideSkipProject := true
     )
 
