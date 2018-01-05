@@ -32,8 +32,8 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
-    .dependsOn(scalaImpl %  "test->test;compile->compile")
-    .aggregate(scalaImpl)
+    .dependsOn(scalaImpl % "test->test;compile->compile", mavenIntegration % "test->test;compile->compile")
+    .aggregate(scalaImpl, mavenIntegration)
     .settings(
       aggregate.in(updateIdea) := false,
       ideExcludedDirectories := Seq(baseDirectory.value / "target")
@@ -59,7 +59,7 @@ lazy val scalaImpl: sbt.Project =
       "IntelliLang",
       "java-i18n",
       "android",
-      "maven",
+      "maven", // TODO remove after extracting the SBT module (which depends on Maven)
       "junit",
       "properties"
     ),
@@ -122,6 +122,13 @@ lazy val cbt =
   newProject("cbt", file("cbt"))
     .enablePlugins(SbtIdeaPlugin)
     .dependsOn(scalaImpl % "test->test;compile->compile")
+
+lazy val mavenIntegration =
+  newProject("maven", file("scala/integration/maven"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .settings(
+      ideaInternalPlugins := Seq("maven")
+    )
 
 // Utility projects
 
