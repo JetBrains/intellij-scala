@@ -54,7 +54,6 @@ lazy val scalaImpl: sbt.Project =
     addCompilerPlugin(Dependencies.macroParadise),
     ideaInternalPlugins := Seq(
       "copyright",
-      "gradle",
       "Groovy",
       "IntelliLang",
       "java-i18n",
@@ -123,11 +122,20 @@ lazy val cbt =
     .enablePlugins(SbtIdeaPlugin)
     .dependsOn(scalaImpl % "test->test;compile->compile")
 
+// Integration with other IDEA plugins
+
 lazy val mavenIntegration =
   newProject("maven", file("scala/integration/maven"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
       ideaInternalPlugins := Seq("maven")
+    )
+
+lazy val gradleIntegration =
+  newProject("gradle", file("scala/integration/gradle"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .settings(
+      ideaInternalPlugins := Seq("gradle")
     )
 
 // Utility projects
