@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.project.maven
+package org.jetbrains.plugins.scala.testingSupport
 
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.module.Module

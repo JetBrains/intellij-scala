@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.project.maven
 
 import com.intellij.openapi.module.Module
 import org.jetbrains.idea.maven.project.MavenProjectsManager
+import org.jetbrains.plugins.scala.testingSupport.ScalaTestDefaultWorkingDirectoryProvider
 
 /**
  * @author Roman.Shein

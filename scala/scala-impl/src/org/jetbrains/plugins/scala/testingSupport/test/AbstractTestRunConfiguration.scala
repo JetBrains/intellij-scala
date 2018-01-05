@@ -33,8 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.maven.ScalaTestDefaultWorkingDirectoryProvider
-import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
+import org.jetbrains.plugins.scala.testingSupport.{ScalaTestDefaultWorkingDirectoryProvider, ScalaTestingConfiguration}
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, SettingEntry, SettingMap}
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.SearchForTest
