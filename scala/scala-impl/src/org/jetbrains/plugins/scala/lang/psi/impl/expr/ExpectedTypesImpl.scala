@@ -101,7 +101,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
     }
 
-    val sameInContext = expr.getSameElementInContext
+    val sameInContext = expr.getDeepSameElementInContext
 
     val result: Array[ParameterType] = expr.getContext match {
       case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore = false)
@@ -191,8 +191,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       case tuple: ScTuple if tuple.isCall =>
         val res = new ArrayBuffer[ParameterType]
         val exprs: Seq[ScExpression] = tuple.exprs
-        val actExpr = expr.getDeepSameElementInContext
-        val i = if (actExpr == null) 0 else exprs.indexWhere(_ == actExpr)
+        val i = if (sameInContext == null) 0 else exprs.indexWhere(_ == sameInContext)
         val callExpression = tuple.getContext.asInstanceOf[ScInfixExpr].operation
         if (callExpression != null) {
           val tps = callExpression match {
@@ -209,8 +208,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       case tuple: ScTuple =>
         val buffer = new ArrayBuffer[ParameterType]
         val exprs = tuple.exprs
-        val actExpr = expr.getDeepSameElementInContext
-        val index = exprs.indexOf(actExpr)
+        val index = exprs.indexOf(sameInContext)
         @tailrec
         def addType(aType: ScType): Unit = {
           aType match {
@@ -282,9 +280,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
       case args: ScArgumentExprList =>
         val res = new ArrayBuffer[ParameterType]
         val exprs = args.exprs
-        val actExpr = expr.getDeepSameElementInContext
-        val i = if (actExpr == null) 0 else {
-          val r = exprs.indexWhere(_ == actExpr)
+        val i = if (sameInContext == null) 0 else {
+          val r = exprs.indexWhere(_ == sameInContext)
           if (r == -1) 0 else r
         }
         val callExpression = args.callExpression
