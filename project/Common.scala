@@ -21,6 +21,7 @@ object Common {
       unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
       unmanagedSourceDirectories in Test += baseDirectory.value / "test",
       unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
+      unmanagedResourceDirectories in Test += baseDirectory.value / "testResources",
       libraryDependencies ++= Seq(Dependencies.junitInterface, Dependencies.ivy2),
       updateOptions := updateOptions.value.withCachedResolution(true)
     )
