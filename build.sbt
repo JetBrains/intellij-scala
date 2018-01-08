@@ -35,11 +35,13 @@ lazy val scalaCommunity: sbt.Project =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
-      mavenIntegration % "test->test;compile->compile")
+      mavenIntegration % "test->test;compile->compile",
+      propertiesIntegration % "test->test;compile->compile")
     .aggregate(
       scalaImpl,
       gradleIntegration,
-      mavenIntegration)
+      mavenIntegration,
+      propertiesIntegration)
     .settings(
       aggregate.in(updateIdea) := false,
       ideExcludedDirectories := Seq(baseDirectory.value / "target")
@@ -64,8 +66,7 @@ lazy val scalaImpl: sbt.Project =
       "java-i18n",
       "android",
       "maven", // TODO remove after extracting the SBT module (which depends on Maven)
-      "junit",
-      "properties"
+      "junit"
     ),
     ideaInternalPluginsJars :=
       ideaInternalPluginsJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api"))
@@ -143,6 +144,14 @@ lazy val mavenIntegration =
     .enablePlugins(SbtIdeaPlugin)
     .settings(
       ideaInternalPlugins := Seq("maven")
+    )
+
+lazy val propertiesIntegration =
+  newProject("properties", file("scala/integration/properties"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(
+      ideaInternalPlugins := Seq("properties")
     )
 
 // Utility projects
@@ -247,7 +256,8 @@ lazy val scalaPluginJarPackager =
       products in Compile :=
         products.in(scalaImpl, Compile).value ++
           products.in(gradleIntegration, Compile).value ++
-          products.in(mavenIntegration, Compile).value,
+          products.in(mavenIntegration, Compile).value ++
+          products.in(propertiesIntegration, Compile).value,
       ideSkipProject := true
     )
 

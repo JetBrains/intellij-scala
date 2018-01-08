@@ -23,4 +23,8 @@ class ResolvePropertyKeyTest extends ScalaResolveTestCase {
     val psiElement: PsiElement = ref.resolve
     Assert.assertTrue(psiElement.isInstanceOf[IProperty])
   }
+
+  // TODO Use a more reliable way to locate module test data.
+  override def getTestDataPath =
+    super.getTestDataPath.replace("scala-impl/testData", "integration/properties/testResources")
 }
