@@ -11,11 +11,11 @@ import org.junit.Assert
  */
 class ResolvePropertyKeyTest extends ScalaResolveTestCase {
   override def folderPath: String = {
-    super.folderPath + "resolve/propertyKey/"
+    moduleSpecific(super.folderPath) + "resolve/propertyKey/"
   }
 
   protected override def rootPath: String = {
-    super.folderPath + "resolve/propertyKey/"
+    moduleSpecific(super.folderPath) + "resolve/propertyKey/"
   }
 
   def testMain() {
@@ -25,6 +25,8 @@ class ResolvePropertyKeyTest extends ScalaResolveTestCase {
   }
 
   // TODO Use a more reliable way to locate module test data.
-  override def getTestDataPath =
-    super.getTestDataPath.replace("scala-impl/testData", "integration/properties/testResources")
+  private def moduleSpecific(path: String) = {
+    path.replace("scala-impl", "integration/properties")
+      .replace("testdata", "testResources")
+  }
 }
