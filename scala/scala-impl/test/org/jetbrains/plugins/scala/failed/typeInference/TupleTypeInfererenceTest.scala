@@ -25,4 +25,13 @@ class TupleTypeInfererenceTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |    case extractorObj(int,string) =>
         |  }
       """.stripMargin)
+
+  def testSCL13064(): Unit =
+    checkTextHasNoErrors(
+      """
+        |def apply[T](x: T) = 0
+        |def update[T](y: T): T = y
+        |
+        |val z: ((Int, Int), Int) = this (1, 2) += 3
+      """.stripMargin)
 }
