@@ -17,7 +17,7 @@ env:
 
 before_script:
   # relies on travis supporting sbt-extras launcher
-  - sbt -jvm-opts travis/package.jvmopts packagePluginCommunity test:compile setUpTestEnvironment
+  - sbt -jvm-opts travis/package.jvmopts packagePluginCommunity test:compile
 
 script:
   # only typeInference tests are run because Travis times out even for the fastTests selection
