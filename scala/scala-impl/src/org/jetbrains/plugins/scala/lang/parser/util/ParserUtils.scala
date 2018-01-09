@@ -229,6 +229,13 @@ object ParserUtils extends ParserUtilsBase {
     else 1
   }
   
+  def isBackticked(name: String): Boolean = name != "`" && name.startsWith("`") && name.endsWith("`")
+  
+  def isCurrentVarId(builder: PsiBuilder): Boolean = {
+    val txt = builder.getTokenText
+    !txt.isEmpty && Character.isUpperCase(txt.charAt(0)) || isBackticked(txt)
+  }
+  
   def isTrailingCommasEnabled(builder: ScalaPsiBuilder): Boolean = 
     ScalaProjectSettings.getInstance(builder.getProject).getTrailingCommasMode match {
       case ScalaProjectSettings.TrailingCommasMode.Enabled => true 

@@ -27,11 +27,10 @@ trait Patterns {
         case ScalaTokenTypes.tUNDER =>
           builder.advanceLexer()
           builder.getTokenText match {
-            case "*" => {
-              builder.advanceLexer
+            case "*" =>
+              builder.advanceLexer()
               patternsMarker.done(ScalaElementTypes.SEQ_WILDCARD)
               return true
-            }
             case _ =>
           }
         case _ =>
@@ -41,38 +40,32 @@ trait Patterns {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tCOMMA =>
-        builder.advanceLexer //Ate ,
+        builder.advanceLexer() //Ate ,
       var end = false
         while ((!end || !underParams) && pattern.parse(builder)) {
           builder.getTokenType match {
-            case ScalaTokenTypes.tCOMMA => {
-              builder.advanceLexer //Ate ,
+            case ScalaTokenTypes.tCOMMA =>
+              builder.advanceLexer() //Ate ,
               if (ParserUtils.eatSeqWildcardNext(builder) && underParams) end = true
-            }
-            case _ => {
+            case _ =>
               patternsMarker.done(ScalaElementTypes.PATTERNS)
               return true
-            }
           }
         }
         if (underParams) {
           ParserUtils.eatSeqWildcardNext(builder)
         }
         patternsMarker.done(ScalaElementTypes.PATTERNS)
-        return true
+        true
       case _ =>
-        patternsMarker.rollbackTo
-        return false
+        patternsMarker.rollbackTo()
+        false
     }
   }
 }
 
 object XmlPatterns extends ParserNode {
   def parse(builder: ScalaPsiBuilder): Boolean = {
-    def isVarId = builder.getTokenText.substring(0, 1).toLowerCase ==
-            builder.getTokenText.substring(0, 1) && !(
-            builder.getTokenText.apply(0) == '`' && builder.getTokenText.apply(builder.getTokenText.length - 1) == '`'
-            )
     val args = builder.mark
     def parseSeqWildcard(withComma: Boolean): Boolean = {
       if (if (withComma)
@@ -103,7 +96,7 @@ object XmlPatterns extends ParserNode {
         if (withComma) builder.advanceLexer() // ,
         val wild = builder.mark
         builder.getTokenType
-        if (isVarId) {
+        if (!ParserUtils.isCurrentVarId(builder)) {
           builder.advanceLexer() // id
         } else {
           wild.rollbackTo()
@@ -121,7 +114,7 @@ object XmlPatterns extends ParserNode {
           return false
         }
       }
-      return false
+      false
     }
 
     if (!parseSeqWildcard(false) && !parseSeqWildcardBinding(false) && Pattern.parse(builder)) {
@@ -131,6 +124,6 @@ object XmlPatterns extends ParserNode {
       }
     }
     args.done(ScalaElementTypes.PATTERNS)
-    return true
+    true
   }
 }
