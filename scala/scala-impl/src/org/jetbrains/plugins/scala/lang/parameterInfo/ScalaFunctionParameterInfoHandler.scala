@@ -415,12 +415,12 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     }
 
     def getInvocation(elem: PsiElement): Option[Invocation] = {
-      def create[T <: PsiElement](elem: T)(f: T => Invocation): Option[Invocation] = {
+      def create[T <: PsiElement](elem: T)
+                                 (f: T => Invocation): Option[Invocation] =
         elem.getParent match {
-          case i: ScInfixExpr if i.getArgExpr == elem => Some(f(elem))
+          case ScInfixExpr.withAssoc(_, _, `elem`) => Some(f(elem))
           case _ => None
         }
-      }
 
       elem match {
         case args: ScArgumentExprList => Some(new CallInvocation(args))

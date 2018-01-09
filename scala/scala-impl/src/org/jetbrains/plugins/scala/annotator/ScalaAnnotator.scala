@@ -970,15 +970,15 @@ abstract class ScalaAnnotator extends Annotator
           expr.getParent match {
             case a: ScAssignStmt if a.getRExpression.contains(expr) && a.isDynamicNamedAssignment => return
             case _: ScArgumentExprList => return
-            case inf: ScInfixExpr if inf.getArgExpr == expr => return
+            case inf: ScInfixExpr if inf.argsElement == expr => return
             case tuple: ScTuple if tuple.getContext.isInstanceOf[ScInfixExpr] &&
-                    tuple.getContext.asInstanceOf[ScInfixExpr].getArgExpr == tuple => return
+              tuple.getContext.asInstanceOf[ScInfixExpr].argsElement == tuple => return
             case e: ScParenthesisedExpr if e.getContext.isInstanceOf[ScInfixExpr] &&
-                    e.getContext.asInstanceOf[ScInfixExpr].getArgExpr == e => return
+              e.getContext.asInstanceOf[ScInfixExpr].argsElement == e => return
             case t: ScTypedStmt if t.isSequenceArg => return
             case parent@(_: ScTuple | _: ScParenthesisedExpr) =>
               parent.getParent match {
-                case inf: ScInfixExpr if inf.getArgExpr == parent => return
+                case inf: ScInfixExpr if inf.argsElement == parent => return
                 case _ =>
               }
             case param: ScParameter =>

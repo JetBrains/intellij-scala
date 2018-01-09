@@ -1,18 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
-
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiTypeExt, SeqExt}
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -24,12 +20,16 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author ilyas
@@ -222,20 +222,21 @@ class ExpectedTypesImpl extends ExpectedTypes {
           for (tp: ScType <- tuple.expectedTypes(fromUnderscore = true)) addType(tp)
         }
         buffer.toArray
-      case infix: ScInfixExpr if infix.getArgExpr == sameInContext && !expr.isInstanceOf[ScTuple] =>
-        val res = new ArrayBuffer[ParameterType]
+      case infix@ScInfixExpr.withAssoc(_, operation, `sameInContext`) if !expr.isInstanceOf[ScTuple] =>
         val zExpr: ScExpression = expr match {
           case p: ScParenthesisedExpr => p.expr.getOrElse(return Array.empty)
           case _ => expr
         }
-        val op = infix.operation
-        var tps =
-          if (!withResolvedFunction) mapResolves(op.shapeResolve, op.shapeMultiType)
-          else mapResolves(op.multiResolve(false), op.multiType)
-        tps = tps.map { case (tp, isDynamicNamed) =>
+        val tps =
+          if (withResolvedFunction) mapResolves(operation.multiResolve(false), operation.multiType)
+          else mapResolves(operation.shapeResolve, operation.shapeMultiType)
+
+        val updated = tps.map { case (tp, isDynamicNamed) =>
           (tp.updateAccordingToExpectedType(infix), isDynamicNamed)
         }
-        tps.foreach { case (tp, isDynamicNamed) =>
+
+        val res = new ArrayBuffer[ParameterType]
+        updated.foreach { case (tp, isDynamicNamed) =>
             processArgsExpected(res, zExpr, tp, Seq(zExpr), 0, Some(infix), isDynamicNamed = isDynamicNamed)
         }
         res.toArray
@@ -522,8 +523,9 @@ private object ExpectedTypesImpl {
   }
 
   implicit class ScExpressionForExpectedTypesEx(val expr: ScExpression) extends AnyVal {
-    import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._
+
     import expr.projectContext
+    import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._
 
     @CachedWithRecursionGuard(expr, Array.empty[ScalaResolveResult], ModCount.getBlockModificationCount)
     def shapeResolveApplyMethod(tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {

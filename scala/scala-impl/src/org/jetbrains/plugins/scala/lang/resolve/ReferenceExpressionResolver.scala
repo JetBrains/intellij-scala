@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
+
 import scala.annotation.tailrec
 import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
@@ -62,8 +63,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         val args = call.argumentExpressions ++ call.getContext.asInstanceOf[ScAssignStmt].getRExpression.toList
         ContextInfo(Some(args), () => None, isUnderscore = false)
       case section: ScUnderscoreSection => ContextInfo(None, () => section.expectedType(), isUnderscore = true)
-      case inf: ScInfixExpr if ref == inf.operation =>
-        ContextInfo(inf.getArgExpr match {
+      case ScInfixExpr.withAssoc(_, `ref`, right) =>
+        ContextInfo(right match {
           case tuple: ScTuple => Some(tuple.exprs) // See SCL-2001
           case _: ScUnitExpr => Some(Nil) // See SCL-3485
           case e: ScParenthesisedExpr => e.expr match {
@@ -230,13 +231,13 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
             case None => processConstructorReference(args, assign, processor)
           }
         case tuple: ScTuple => tuple.getContext match {
-          case inf: ScInfixExpr if inf.getArgExpr == tuple =>
-            processAnyAssignment(tuple.exprs, inf, inf.operation, 1, assign, processor)
+          case infix@ScInfixExpr.withAssoc(_, operation, `tuple`) =>
+            processAnyAssignment(tuple.exprs, infix, operation, 1, assign, processor)
           case _ =>
         }
         case p: ScParenthesisedExpr => p.getContext match {
-          case inf: ScInfixExpr if inf.getArgExpr == p =>
-            processAnyAssignment(p.expr.toSeq, inf, inf.operation, 1, assign, processor)
+          case infix@ScInfixExpr.withAssoc(_, operation, `p`) =>
+            processAnyAssignment(p.expr.toSeq, infix, operation, 1, assign, processor)
           case _ =>
         }
         case _ =>

@@ -6,21 +6,19 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScIfStmt, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScIfStmt, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
- * @author Ksenia.Sautina
- * @since 6/6/12
- */
-
-object InvertIfConditionIntention {
-  def familyName = "Invert If condition"
-}
-
+  * @author Ksenia.Sautina
+  * @since 6/6/12
+  */
 class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = InvertIfConditionIntention.familyName
+
+  import InvertIfConditionIntention._
+
+  def getFamilyName: String = familyName
 
   override def getText: String = getFamilyName
 
@@ -28,7 +26,7 @@ class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
     if (ifStmt == null) return false
 
-    val thenBranch =  ifStmt.thenBranch.orNull
+    val thenBranch = ifStmt.thenBranch.orNull
     if (thenBranch == null) return false
 
     val condition = ifStmt.condition.orNull
@@ -38,42 +36,36 @@ class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     if (!(ifStmt.getTextRange.getStartOffset <= offset && offset <= condition.getTextRange.getStartOffset - 1))
       return false
 
-    val elseBranch =  ifStmt.elseBranch.orNull
+    val elseBranch = ifStmt.elseBranch.orNull
     if (elseBranch != null) return elseBranch.isInstanceOf[ScBlockExpr]
 
     true
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val ifStmt : ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
+    val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
     if (ifStmt == null || !ifStmt.isValid) return
+
+    import IntentionUtils.negate
 
     val expr = new StringBuilder
     val newCond = ifStmt.condition.get match {
-      case infixExpr: ScInfixExpr =>
-        val oper = infixExpr.operation.nameId.getText
-        val first = if (oper == "||" || oper == "&&") {
-          IntentionUtils.negate(infixExpr.getBaseExpr)
-        } else {
-          infixExpr.getBaseExpr.getText
+      case ScInfixExpr.withAssoc(left, operation, right) =>
+        val refName = operation.refName
+
+        def negateBoolOperation(expression: ScExpression) = refName match {
+          case "||" | "&&" => negate(expression)
+          case _ => expression.getText
         }
-        val second = if (oper == "||" || oper == "&&") {
-          IntentionUtils.negate(infixExpr.getArgExpr)
-        } else {
-          infixExpr.getArgExpr.getText
-        }
-        val replaceOper = Map("==" -> "!=", "!=" -> "==", ">" -> "<=", "<" -> ">=", ">=" -> "<", "<=" -> ">",
-          "&&" -> "||", "||" -> "&&")
-        val buf = new StringBuilder
-        buf.append(first).append(" ").append(replaceOper(oper)).append(" ").append(second)
-        buf.toString()
-      case _ => IntentionUtils.negate(ifStmt.condition.get)
+
+        s"${negateBoolOperation(left)} ${Replacement(refName)} ${negateBoolOperation(right)}"
+      case condition => negate(condition)
     }
 
-    val elseBranch =  ifStmt.elseBranch.orNull
+    val elseBranch = ifStmt.elseBranch.orNull
     val newThenBranch = if (elseBranch != null) elseBranch.asInstanceOf[ScBlockExpr].getText else "{\n\n}"
     expr.append("if (").append(newCond).append(")").append(newThenBranch).append(" else ")
-    val res =  ifStmt.thenBranch.get match {
+    val res = ifStmt.thenBranch.get match {
       case e: ScBlockExpr => e.getText
       case _ => "{\n" + ifStmt.thenBranch.get.getText + "\n}"
     }
@@ -84,4 +76,20 @@ class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }
+}
+
+object InvertIfConditionIntention {
+
+  def familyName = "Invert If condition"
+
+  private val Replacement = Map(
+    "==" -> "!=",
+    "!=" -> "==",
+    ">" -> "<=",
+    "<" -> ">=",
+    ">=" -> "<",
+    "<=" -> ">",
+    "&&" -> "||",
+    "||" -> "&&"
+  )
 }
