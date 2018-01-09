@@ -65,6 +65,9 @@ lazy val scalaImpl: sbt.Project =
       "IntelliLang",
       "java-i18n",
       "android",
+      "gradle", // requierd by Android
+      "Groovy", // requierd by Gradle
+      "properties", // required by Gradle
       "maven", // TODO remove after extracting the SBT module (which depends on Maven)
       "junit"
     ),
@@ -135,7 +138,10 @@ lazy val gradleIntegration =
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .enablePlugins(SbtIdeaPlugin)
     .settings(
-      ideaInternalPlugins := Seq("gradle")
+      ideaInternalPlugins := Seq(
+        "gradle",
+        "groovy", // required by Gradle
+        "properties") // required by Gradle
     )
 
 lazy val mavenIntegration =
@@ -151,7 +157,9 @@ lazy val propertiesIntegration =
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .enablePlugins(SbtIdeaPlugin)
     .settings(
-      ideaInternalPlugins := Seq("properties")
+      ideaInternalPlugins := Seq(
+        "properties"
+      )
     )
 
 // Utility projects
