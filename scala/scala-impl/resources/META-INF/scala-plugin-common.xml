@@ -779,6 +779,11 @@
             <className>org.jetbrains.plugins.scala.codeInsight.intention.format.ConvertStringConcatenationToInterpolatedString</className>
         </intentionAction>
 
+        <intentionAction>
+            <category>Scala/Collections</category>
+            <className>org.jetbrains.plugins.scala.codeInspection.collections.ComparingLengthIntention</className>
+        </intentionAction>
+
         <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
                                  implementationClass="org.jetbrains.plugins.scala.injection.ScalaInjectedStringLiteralManipulator"/>
 
@@ -1131,7 +1136,7 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ComparingLengthInspection"
                          displayName="Comparing length to lengthCompare" groupPath="Scala,Collections" groupName="Comparing"
                          shortName="ComparingLength" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         enabledByDefault="false" language="Scala"/>
         <!--indices-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZipWithIndexInspection"
                          displayName="Manually zipping with indices" groupPath="Scala,Collections" groupName="Indices"

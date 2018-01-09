@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import org.jetbrains.plugins.scala.codeInsight.intention.InspectionBasedIntention
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.ComparingLengthInspection._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScIntLiteral
@@ -12,8 +13,10 @@ class ComparingLengthInspection extends OperationOnCollectionInspection{
   override def possibleSimplificationTypes: Array[SimplificationType] = Array(ComparingLength)
 }
 
+class ComparingLengthIntention extends InspectionBasedIntention("Comparing length", ComparingLength.hint, new ComparingLengthInspection)
+
 private object ComparingLengthInspection {
-  private val ComparingLength: SimplificationType = new SimplificationType() {
+  val ComparingLength: SimplificationType = new SimplificationType() {
     override def hint: String = InspectionBundle.message("replace.with.lengthCompare")
 
     override def getSimplification(e: ScExpression): Option[Simplification] = Some(e).collect {
@@ -24,13 +27,14 @@ private object ComparingLengthInspection {
       case q `.sizeOrLength` () `<` n => (q, "<", n)
       case q `.sizeOrLength` () `<=` n => (q, "<=", n)
     } filter { case (q, _, n) =>
-      isNonIndexedSeq(q) && !intLiteralValue(n).contains(0)
+      isNonIndexedSeq(q) && !isZero(n)
     } map { case (q, op, n) =>
       replace(e).withText(s"${invocationText(q, "lengthCompare", n)} $op 0").highlightFrom(q)
     }
   }
 
-  private def intLiteralValue(e: ScExpression) = Some(e).collect {
-    case ScIntLiteral(n) => n
+  private def isZero(e: ScExpression): Boolean = e match {
+    case ScIntLiteral(0) => true
+    case _ => false
   }
 }
