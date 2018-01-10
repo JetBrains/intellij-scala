@@ -236,6 +236,22 @@ object ParserUtils extends ParserUtilsBase {
     !txt.isEmpty && Character.isUpperCase(txt.charAt(0)) || isBackticked(txt)
   }
   
+  def parseVarIdWithWildcardBinding(builder: PsiBuilder, rollbackMarker: PsiBuilder.Marker): Boolean = {
+    if (!ParserUtils.isCurrentVarId(builder)) builder.advanceLexer() else {
+      rollbackMarker.rollbackTo()
+      return false
+    }
+    
+    builder.advanceLexer() // @
+    if (ParserUtils.eatSeqWildcardNext(builder)) {
+      rollbackMarker.done(ScalaElementTypes.NAMING_PATTERN)
+      true
+    } else {
+      rollbackMarker.rollbackTo()
+      false
+    }
+  }
+  
   def isTrailingCommasEnabled(builder: ScalaPsiBuilder): Boolean = 
     ScalaProjectSettings.getInstance(builder.getProject).getTrailingCommasMode match {
       case ScalaProjectSettings.TrailingCommasMode.Enabled => true 

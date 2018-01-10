@@ -156,26 +156,8 @@ trait SimplePattern extends ParserNode {
               ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
               val wild = builder.mark
               if (withComma) builder.advanceLexer() // ,
-              builder.getTokenType
-              if (!ParserUtils.isCurrentVarId(builder)) {
-                builder.advanceLexer() // id
-              } else {
-                wild.rollbackTo()
-                return false
-              }
-              builder.getTokenType
-              builder.advanceLexer() // @
-              builder.getTokenType
-              if (ParserUtils.eatSeqWildcardNext(builder)) {
-                wild.done(ScalaElementTypes.NAMING_PATTERN)
-                return true
-              }
-              else {
-                wild.rollbackTo()
-                return false
-              }
-            }
-            false
+              ParserUtils.parseVarIdWithWildcardBinding(builder, wild)
+            } else false
           }
 
           if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false) && pattern.parse(builder)) {

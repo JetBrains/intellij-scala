@@ -94,27 +94,8 @@ object XmlPatterns extends ParserNode {
       else lookAhead(builder, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
         ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
         if (withComma) builder.advanceLexer() // ,
-        val wild = builder.mark
-        builder.getTokenType
-        if (!ParserUtils.isCurrentVarId(builder)) {
-          builder.advanceLexer() // id
-        } else {
-          wild.rollbackTo()
-          return false
-        }
-        builder.getTokenType
-        builder.advanceLexer() // @
-        builder.getTokenType
-        if (ParserUtils.eatSeqWildcardNext(builder)) {
-          wild.done(ScalaElementTypes.NAMING_PATTERN)
-          return true
-        }
-        else {
-          wild.rollbackTo()
-          return false
-        }
-      }
-      false
+        ParserUtils.parseVarIdWithWildcardBinding(builder, builder.mark())
+      } else false
     }
 
     if (!parseSeqWildcard(false) && !parseSeqWildcardBinding(false) && Pattern.parse(builder)) {
