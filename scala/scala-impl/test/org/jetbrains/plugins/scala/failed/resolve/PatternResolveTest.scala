@@ -111,4 +111,15 @@ class PatternResolveTest extends FailedResolveCaretTestBase {
         |}
       """.stripMargin)
   }
+
+  def testSCL13148(): Unit = {
+    doResolveCaretTest(
+      """
+        |trait A[T <: Comparable[T]]
+        |
+        |object X {
+        |  def f(x : Any): Any = x match { case _ : A[t] => (y : t, z : t) => y.<caret>compareTo(z) }
+        |}
+      """.stripMargin)
+  }
 }
