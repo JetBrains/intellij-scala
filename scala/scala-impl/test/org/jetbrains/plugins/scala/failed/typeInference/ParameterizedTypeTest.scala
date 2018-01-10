@@ -234,4 +234,20 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL13089() = {
+    val text =
+      """
+        |import scala.language.implicitConversions
+        |import scala.language.higherKinds
+        |trait Foo[T]
+        |trait FooBuild[M[_], Face] {
+        |  implicit def fromNum[T <: Face, Out <: T](value : T) : M[Out] = ???
+        |}
+        |implicit object Foo extends FooBuild[Foo, scala.Int]
+        |def tryme[T](t : Foo[T]) = ???
+        |tryme(40)
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }
