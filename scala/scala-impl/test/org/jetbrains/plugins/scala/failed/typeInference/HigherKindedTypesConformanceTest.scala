@@ -145,4 +145,15 @@ class HigherKindedTypesConformanceTest extends TypeConformanceTestBase {
        |}
        |//true""".stripMargin
   }
+
+  def testSCL13114(): Unit = doTest {
+    s"""object X {
+       |  val v : List[Int] = Nil
+       |}
+       |
+       |object Z {
+       |  ${caretMarker}val x : { val v : List[T] } forSome { type T } = X
+       |}
+       |//true""".stripMargin
+  }
 }
