@@ -384,9 +384,9 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def updateNonValueType(nonValueType0: ScType): TypeResult = {
+  private def updateNonValueType(nonValueType0: ScType): ScType = {
     InferUtil.updateAccordingToExpectedType(
-      Right(nonValueType0),
+      nonValueType0,
       fromImplicitParameters = true,
       filterTypeParams = isImplicitConversion,
       expectedType = Some(tp),
@@ -448,10 +448,7 @@ class ImplicitCollector(place: PsiElement,
     }
 
     val nonValueType: ScType =
-      try updateNonValueType(nonValueType0) match {
-        case Right(tpe) => tpe
-        case _ => return wrongTypeParam(BadTypeResult)
-      }
+      try updateNonValueType(nonValueType0)
       catch {
         case _: SafeCheckException => return wrongTypeParam(CantInferTypeParameterResult)
       }

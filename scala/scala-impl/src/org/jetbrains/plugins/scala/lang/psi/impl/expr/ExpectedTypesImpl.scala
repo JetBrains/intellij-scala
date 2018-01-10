@@ -398,11 +398,11 @@ class ExpectedTypesImpl extends ExpectedTypes {
             case anotherType => anotherType
           }
 
-          val typeResult = polyType
+          val applyMethodType = polyType
             .updateTypeOfDynamicCall(r.isDynamic)
-            .updateAccordingToExpectedType(call)
+            .updateAccordingToExpectedTypeOpt(call)
 
-          Some((typeResult, isApplyDynamicNamed(r)))
+          Some((Right(applyMethodType), isApplyDynamicNamed(r)))
         case _ =>
           None
       }
@@ -509,16 +509,21 @@ private object ExpectedTypesImpl {
       * according to method call expected type
       */
     def updateAccordingToExpectedType(call: MethodInvocation, canThrowSCE: Boolean = false): TypeResult = {
-      InferUtil.updateAccordingToExpectedType(tr, fromImplicitParameters = false, filterTypeParams = false,
-        expectedType = call.expectedType(), expr = call, canThrowSCE)
+      tr.map(_.updateAccordingToExpectedType(useExpectedType = true, call, canThrowSCE))
     }
   }
 
   implicit class ScTypeForExpectedTypesEx(val tp: ScType) extends AnyVal {
-    def updateAccordingToExpectedType(call: Option[MethodInvocation], canThrowSCE: Boolean = false): TypeResult = {
-      val typeResult = Right(tp)
-      call.map(typeResult.updateAccordingToExpectedType(_, canThrowSCE))
-        .getOrElse(typeResult)
+    def updateAccordingToExpectedTypeOpt(call: Option[MethodInvocation], canThrowSCE: Boolean = false): ScType = {
+      call.map(tp.updateAccordingToExpectedType(useExpectedType = true, _, canThrowSCE))
+        .getOrElse(tp)
+    }
+
+    def updateAccordingToExpectedType(useExpectedType: Boolean, call: MethodInvocation, canThrowSCE: Boolean = false): ScType = {
+      if (!useExpectedType) return tp
+
+      InferUtil.updateAccordingToExpectedType(tp, fromImplicitParameters = false, filterTypeParams = false,
+        expectedType = call.expectedType(), expr = call, canThrowSCE)
     }
   }
 
