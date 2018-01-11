@@ -229,6 +229,11 @@ object ParserUtils extends ParserUtilsBase {
     else 1
   }
   
+  private def isTestFile(builder: ScalaPsiBuilder): Boolean = {
+    ApplicationManager.getApplication.isUnitTestMode &&
+      getPsiFile(builder).exists(file => file.getVirtualFile.isInstanceOf[LightVirtualFileBase])
+  }
+  
   def isBackticked(name: String): Boolean = name != "`" && name.startsWith("`") && name.endsWith("`")
   
   def isCurrentVarId(builder: PsiBuilder): Boolean = {
@@ -252,13 +257,14 @@ object ParserUtils extends ParserUtilsBase {
     }
   }
   
+  def isIdBindingEnabled(builder: ScalaPsiBuilder): Boolean = 
+    isTestFile(builder) || builder.asInstanceOf[ScalaPsiBuilderImpl].isIdBindingEnabled
+  
   def isTrailingCommasEnabled(builder: ScalaPsiBuilder): Boolean = 
     ScalaProjectSettings.getInstance(builder.getProject).getTrailingCommasMode match {
       case ScalaProjectSettings.TrailingCommasMode.Enabled => true 
       case ScalaProjectSettings.TrailingCommasMode.Auto =>
-        ApplicationManager.getApplication.isUnitTestMode &&
-          getPsiFile(builder).exists(file => file.getVirtualFile.isInstanceOf[LightVirtualFileBase]) ||
-          builder.asInstanceOf[ScalaPsiBuilderImpl].isTrailingCommasEnabled
+        isTestFile(builder) || builder.asInstanceOf[ScalaPsiBuilderImpl].isTrailingCommasEnabled
       case ScalaProjectSettings.TrailingCommasMode.Disabled => false
     }
 
