@@ -10,7 +10,7 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[PerfCycleTests]))
 class ImportOption extends ScalaLightCodeInsightFixtureTestAdapter{
-
+  override protected def shouldPass: Boolean = false
   //excluding Some, None from import fix highlighting problems
   //e.g. import scala.{Some => _, None => _, Option => _, Either => _, _}
   def testSCL9818(): Unit = {

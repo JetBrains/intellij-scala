@@ -14,6 +14,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class FunScopeResolveTest extends SimpleTestCase {
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL5869(): Unit = {
     val code =
       """

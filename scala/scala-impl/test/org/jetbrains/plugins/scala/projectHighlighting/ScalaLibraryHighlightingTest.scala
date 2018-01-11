@@ -40,14 +40,9 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
 class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
 
   override val filesWithProblems = Map(
-    "scala/ref/ReferenceWrapper.scala" -> Set((657, 667),(975, 979)),
-    "scala/ref/PhantomReference.scala" -> Set((689, 699)),
-    "scala/ref/WeakReference.scala" -> Set((944, 954)),
-    "scala/ref/ReferenceQueue.scala" -> Set((664, 674)),
     "scala/collection/parallel/Tasks.scala" -> Set((12526, 12565),(12571, 12622),(12993, 13034),(13040, 13091)),
     "scala/Responder.scala" -> Set((2258, 2259),(2404, 2405),(2549, 2550)),
     "scala/collection/immutable/List.scala" -> Set((6725, 6741)),
-    "scala/ref/SoftReference.scala" -> Set((731, 741))
   )
 
   override implicit val version: ScalaVersion = Scala_2_12

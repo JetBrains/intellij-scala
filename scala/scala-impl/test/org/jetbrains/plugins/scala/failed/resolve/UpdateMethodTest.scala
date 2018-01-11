@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
+import com.intellij.psi.ResolveResult
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 /**
@@ -10,14 +10,12 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class UpdateMethodTest extends FailedResolveTest("updateMethod") {
-  def testSCL5739() = {
-    findReferenceAtCaret() match {
-      case ref: ScReferenceElement =>
-        val variants = ref.multiResolveScala(false)
-        assertTrue(s"Single resolve expected, was: ${variants.length}", variants.length == 1)
+  def testSCL5739() = doTest()
 
-        val elementFile = variants(0).getElement.getContainingFile
-        assertTrue(s"Should resolve to the same file, was: ${elementFile.getName}", elementFile == ref.getContainingFile)
-    }
+  override protected def additionalAsserts(variants: Array[ResolveResult], ref: ScReferenceElement): Boolean = {
+    val elementFile = variants(0).getElement.getContainingFile
+    val res = elementFile == ref.getContainingFile
+    if (!res) println(s"Should resolve to the same file, was: ${elementFile.getName}")
+    res
   }
 }

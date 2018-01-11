@@ -23,6 +23,10 @@ abstract class BadCodeGreenTestBase extends ScalaLightCodeInsightFixtureTestAdap
 
     val warnings = infos.filter(i => StringUtil.isNotEmpty(i.getDescription) && isAroundCaret(i))
 
-    assert(warnings.nonEmpty, "No highlightings found")
+    if (shouldPass) {
+      assert(warnings.nonEmpty, "No highlightings found")
+    } else if (warnings.nonEmpty) {
+      failingTestPassed()
+    }
   }
 }

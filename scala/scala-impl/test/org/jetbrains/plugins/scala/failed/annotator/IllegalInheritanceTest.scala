@@ -10,6 +10,7 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class IllegalInheritanceTest extends AnnotatorTestBase(IllegalInheritance){
+  override protected def shouldPass: Boolean = false
   def testSCL8628(): Unit = {
     assertNothing(
       messages(

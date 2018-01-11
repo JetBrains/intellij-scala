@@ -10,6 +10,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class MissingParameterTypeTest extends BadCodeGreenTestBase {
 
+  override protected def shouldPass: Boolean = false
+
   import CodeInsightTestFixture.CARET_MARKER
 
   def testScl4692(): Unit = {

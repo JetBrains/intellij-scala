@@ -11,6 +11,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class HigherKindedFunctionsVarargsTest extends TypeInferenceTestBase {
 
+  override protected def shouldPass: Boolean = false
+
   def testSCL4789(): Unit = {
     doTest(
       s"""

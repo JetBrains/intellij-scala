@@ -9,7 +9,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement}
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.{FailableTest, ScalaLightPlatformCodeInsightTestCaseAdapter}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -24,7 +24,7 @@ import org.junit.Assert.fail
   * Date: 10.03.2009
   */
 
-abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter with FailableTest {
   protected val caretMarker = "/*caret*/"
 
   def folderPath: String = baseRootPath() + "typeConformance/"
@@ -41,29 +41,32 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
        |rhs type:        ${rhsType.presentableText}""".stripMargin
   }
 
-  private def doTestInner(checkEquivalence: Boolean) = {
+  private def doTestInner(checkEquivalence: Boolean): Unit = {
     val (declaredType, rhsType) = declaredAndExpressionTypes()
     val expected = expectedResult
     if (checkEquivalence) {
       val equiv1 = rhsType.equiv(declaredType)
       val equiv2 = declaredType.equiv(rhsType)
       if (equiv1 != expected || equiv2 != expected) {
+        if (!shouldPass) return
         fail(errorMessage("Equivalence failure", expected, declaredType, rhsType))
       }
 
       if (expected) {
         val conforms = rhsType.conforms(declaredType)
         if (!conforms) {
+          if (!shouldPass) return
           fail(errorMessage("Conformance failure", expected, declaredType, rhsType))
         }
       }
-
     }
     else {
       val res: Boolean = rhsType.conforms(declaredType)
       if (expected != res)
+        if (!shouldPass) return
         fail(errorMessage("Conformance failure", expected, declaredType, rhsType))
     }
+    if (!shouldPass) fail(failingPassed)
   }
 
   protected def doTest() {
@@ -143,6 +146,6 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
              |Arg   tp: ${exprTp.presentableText}
           """.stripMargin
     }
-    assertTrue("Conformance failure:\n"+ errors.mkString("\n\n").trim, errors.isEmpty)
+    assertTrue(if (shouldPass) "Conformance failure:\n"+ errors.mkString("\n\n").trim else failingPassed, !shouldPass ^ errors.isEmpty)
   }
 }

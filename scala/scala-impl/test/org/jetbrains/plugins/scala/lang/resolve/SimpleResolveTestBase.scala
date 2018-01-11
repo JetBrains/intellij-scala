@@ -9,6 +9,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.TestFixtureProvider
+import org.jetbrains.plugins.scala.base.FailableTest
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
@@ -19,7 +20,7 @@ import org.junit.Assert
   * @since 05.04.16.
   */
 trait SimpleResolveTestBase {
-  this: TestFixtureProvider with UsefulTestCase =>
+  this: TestFixtureProvider with UsefulTestCase with FailableTest =>
 
   import SimpleResolveTestBase._
 
@@ -46,10 +47,17 @@ trait SimpleResolveTestBase {
     }
     Assert.assertNotNull("Failed to locate source element", src)
     val result = src.resolve()
-    Assert.assertNotNull(s"Failed to resolve element - '${src.getText}'", result)
+    if (shouldPass) {
+      Assert.assertNotNull(s"Failed to resolve element - '${src.getText}'", result)
+    } else if (result == null) return
+
     // we might want to check if reference simply resolves to something
     if (tgt != null)
-      Assert.assertTrue(s"Reference(${src.getText}) resolves to wrong place(${result.getText})", tgt == result)
+      if (shouldPass) {
+        Assert.assertTrue(s"Reference(${src.getText}) resolves to wrong place(${result.getText})", tgt == result)
+      } else {
+        Assert.assertFalse(failingPassed, tgt == result)
+      }
   }
 
   protected def doResolveTest(source: String, fileName: String = "dummy.scala"): Unit = doResolveTest(Seq(source -> fileName))

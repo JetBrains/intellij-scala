@@ -10,6 +10,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class CollectionsTest extends TypeInferenceTestBase {
 
+  override protected def shouldPass: Boolean = false
+
   def testSCL10414(): Unit = {
     val text =
       s"""

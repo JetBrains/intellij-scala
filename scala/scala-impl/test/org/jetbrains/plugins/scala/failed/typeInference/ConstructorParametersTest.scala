@@ -17,6 +17,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class ConstructorParametersTest extends SimpleTestCase {
 
+  override protected def shouldPass: Boolean = false
+
   def testSCL4504() = {
     assertNothing(messages(
       """

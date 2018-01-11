@@ -12,6 +12,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class Specs2ToScalaCheckImplicitTest extends TypeInferenceTestBase {
 
+  override protected def shouldPass: Boolean = false
+
   override protected def additionalLibraries(): Seq[LibraryLoader] =
     IvyManagedLoader(
       "org.specs2" %% "specs2" % "2.4.15",

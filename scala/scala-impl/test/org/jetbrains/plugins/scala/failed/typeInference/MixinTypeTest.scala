@@ -10,6 +10,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class MixinTypeTest extends ScalaLightCodeInsightFixtureTestAdapter{
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL6573() = {
     val text =
       """
