@@ -9,8 +9,7 @@ import org.junit.Assert
 trait AssertMatches extends FailableTest {
   def assertNothing[T](actual: Option[T]) {
     assertMatches(actual) {
-      case None if !shouldPass =>
-      case Some(Nil) =>
+      case Nil =>
     }
   }
 
