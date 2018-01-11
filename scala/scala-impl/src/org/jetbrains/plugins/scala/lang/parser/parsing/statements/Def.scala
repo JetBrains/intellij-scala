@@ -56,7 +56,8 @@ trait Def {
       val modifierMarker = builder.mark
       if (isMod) {
         while (Modifier.parse(builder)) {}
-        while (builder.getTokenText == ScalaTokenTypes.kINLINE.toString) {
+        
+        if (builder.isMetaEnabled) while (builder.getTokenText == ScalaTokenTypes.kINLINE.toString) {
 //          val inlineMarker = builder.mark()
           builder.remapCurrentToken(ScalaTokenTypes.kINLINE)
           builder.advanceLexer()

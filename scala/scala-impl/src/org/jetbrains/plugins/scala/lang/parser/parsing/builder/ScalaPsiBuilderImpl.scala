@@ -2,12 +2,15 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.builder
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
-import com.intellij.psi.impl.source.resolve.FileContextUtil
+import com.intellij.openapi.project.DumbService
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.util.ScalaUtil
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.getPsiFile
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.collection.mutable
+import scala.meta.intellij.IdeaUtil
 
 /**
   * @author Alexander Podkhalyuzin
@@ -18,6 +21,11 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
   private final val newlinesEnabled: mutable.Stack[Boolean] = new mutable.Stack[Boolean]
   
   private lazy val scalaVersion: Option[Version] = ParserUtils.getPsiFile(this).flatMap(ScalaUtil.getScalaVersion).map(Version(_))
+  private lazy val hasMeta: Boolean = 
+    !ScStubElementType.isStubBuilding &&
+    !DumbService.isDumb(getProject) && getPsiFile(this).exists {
+      file => IdeaUtil.inModuleWithParadisePlugin(file)
+    }
   
   def newlineBeforeCurrentToken: Boolean = {
     countNewlineBeforeCurrentToken() > 0
@@ -54,8 +62,10 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
     assert(newlinesEnabled.nonEmpty)
     newlinesEnabled.pop()
   }
-  
-  def isTrailingCommasEnabled: Boolean = scalaVersion.exists(_ >= Version("2.12.2"))
-  
-  def isIdBindingEnabled: Boolean = scalaVersion.exists(_ >= Version("2.12"))
+
+  override def isTrailingCommasEnabled: Boolean = scalaVersion.exists(_ >= Version("2.12.2"))
+
+  override def isIdBindingEnabled: Boolean = scalaVersion.exists(_ >= Version("2.12"))
+
+  override def isMetaEnabled: Boolean = hasMeta
 }

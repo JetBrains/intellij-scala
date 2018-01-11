@@ -7,6 +7,7 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiBuilder.Marker
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.resolve.FileContextUtil
@@ -14,11 +15,13 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.testFramework.LightVirtualFileBase
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.DebugPrint
 
 import scala.annotation.tailrec
 import scala.collection.immutable.IndexedSeq
+import scala.meta.intellij.IdeaUtil
 
 
 object ParserUtils extends ParserUtilsBase {
@@ -257,14 +260,12 @@ object ParserUtils extends ParserUtilsBase {
     }
   }
   
-  def isIdBindingEnabled(builder: ScalaPsiBuilder): Boolean = 
-    isTestFile(builder) || builder.asInstanceOf[ScalaPsiBuilderImpl].isIdBindingEnabled
+  def isIdBindingEnabled(builder: ScalaPsiBuilder): Boolean = isTestFile(builder) || builder.isIdBindingEnabled
   
   def isTrailingCommasEnabled(builder: ScalaPsiBuilder): Boolean = 
     ScalaProjectSettings.getInstance(builder.getProject).getTrailingCommasMode match {
       case ScalaProjectSettings.TrailingCommasMode.Enabled => true 
-      case ScalaProjectSettings.TrailingCommasMode.Auto =>
-        isTestFile(builder) || builder.asInstanceOf[ScalaPsiBuilderImpl].isTrailingCommasEnabled
+      case ScalaProjectSettings.TrailingCommasMode.Auto => isTestFile(builder) || builder.isTrailingCommasEnabled
       case ScalaProjectSettings.TrailingCommasMode.Disabled => false
     }
 
@@ -289,6 +290,11 @@ object ParserUtils extends ParserUtilsBase {
     builder.advanceLexer() //eat `,`
 
     true
+  }
+  
+  def hasMeta(builder: PsiBuilder): Boolean = !ScStubElementType.isStubBuilding &&
+    !DumbService.isDumb(builder.getProject) && getPsiFile(builder).exists {
+    file => IdeaUtil.inModuleWithParadisePlugin(file)
   }
   
   def getPsiFile(builder: PsiBuilder): Option[PsiFile] = {
