@@ -2995,17 +2995,17 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL12461(): Unit = {
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
-    val before =
-      """
-        |test("Some test") {
-        |  val a = "1"
-        |  val b = "2"
-        |}
-      """.stripMargin
-    doTextTest(before)
-  }
+//  def testSCL12461(): Unit = {
+//    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+//    val before =
+//      """
+//        |test("Some test") {
+//        |  val a = "1"
+//        |  val b = "2"
+//        |}
+//      """.stripMargin
+//    doTextTest(before)
+//  }
 
 
   def doTextTest(value: String): Unit = doTextTest(value, value)
