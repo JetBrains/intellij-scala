@@ -558,7 +558,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         val startElem = file.findElementAt(offset)
         startElem.parentsInFile.find(isAppropriateCandidate)
       }
-      if (lastRefTypeLine - firstRefTypeLine >= 2) {
+      if (lastRefTypeLine - firstRefTypeLine >= 2 && firstRefTypeLine + 1 <= document.getLineCount - 1) {
         val offsetsInTheMiddle = Seq(
           document.getLineEndOffset(firstRefTypeLine),
           document.getLineEndOffset(firstRefTypeLine + 1)
