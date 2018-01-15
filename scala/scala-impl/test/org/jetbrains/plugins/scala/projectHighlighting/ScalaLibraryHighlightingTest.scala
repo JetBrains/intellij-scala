@@ -42,7 +42,6 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
   override val filesWithProblems = Map(
     "scala/collection/parallel/Tasks.scala" -> Set((12526, 12565),(12571, 12622),(12993, 13034),(13040, 13091)),
     "scala/Responder.scala" -> Set((2258, 2259),(2404, 2405),(2549, 2550)),
-    "scala/collection/immutable/List.scala" -> Set((6725, 6741)),
   )
 
   override implicit val version: ScalaVersion = Scala_2_12

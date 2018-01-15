@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.psi.PsiElement
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -9,15 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 
-class VarianceTestBase extends SimpleTestCase {
+abstract class VarianceTestBase extends SimpleTestCase {
   final val Header = "class A; class B\n"
 
-  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val annotator = ScalaAnnotator.forProject
-    val file: ScalaFile = (Header + code).parse
-    val mock = new AnnotatorHolderMock(file)
-
-    file.depthFirst().foreach {
+  protected def annotateFun(element: PsiElement, annotator: ScalaAnnotator, mock: AnnotatorHolderMock): Unit = {
+    element match {
       case fun: ScFunction => annotator.annotate(fun, mock)
       case varr: ScVariable => annotator.annotate(varr, mock)
       case v: ScValue => annotator.annotate(v, mock)
@@ -26,6 +23,14 @@ class VarianceTestBase extends SimpleTestCase {
       case td: ScTypeDefinition => annotator.annotate(td, mock)
       case _ =>
     }
+  }
+
+  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
+    val annotator = ScalaAnnotator.forProject
+    val file: ScalaFile = (Header + code).parse
+    val mock = new AnnotatorHolderMock(file)
+
+    file.depthFirst().foreach {annotateFun(_, annotator, mock)}
 
     mock.annotations.filter((p: Message) => !p.isInstanceOf[Info])
   }

@@ -31,11 +31,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ReadValueUsed, ValueUsed, WriteValueUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
@@ -397,12 +397,18 @@ abstract class ScalaAnnotator extends Annotator
         if (typeAware && !compiled) {
           checkOverrideClassParameters(parameter, holder)
         }
+        checkClassParameterVariance(parameter, holder)
         super.visitClassParameter(parameter)
       }
 
       override def visitClass(cl: ScClass): Unit = {
         if (typeAware && ValueClassType.extendsAnyVal(cl)) annotateValueClass(cl, holder)
         super.visitClass(cl)
+      }
+
+      override def visitTemplateParents(tp: ScTemplateParents): Unit = {
+        checkTemplateParentsVariance(tp, holder)
+        super.visitTemplateParents(tp)
       }
     }
     annotateScope(element, holder)
@@ -428,7 +434,8 @@ abstract class ScalaAnnotator extends Annotator
     }
 
     element match {
-      case sTypeParam: ScTypeBoundsOwner =>
+      case sTypeParam: ScTypeBoundsOwner
+        if !Option(PsiTreeUtil.getParentOfType(sTypeParam, classOf[ScTypeParamClause])).flatMap(_.parent).exists(_.isInstanceOf[ScFunction]) =>
         checkTypeParamBounds(sTypeParam, holder)
       case _ =>
     }
@@ -1172,7 +1179,7 @@ abstract class ScalaAnnotator extends Annotator
     //todo: check annotation is inheritor for class scala.Annotation
   }
 
-  def childHasAnnotation(teOption: Option[ScTypeElement], annotation: String): Boolean = teOption match {
+  def childHasAnnotation(teOption: Option[PsiElement], annotation: String): Boolean = teOption match {
     case Some(te) => te.breadthFirst().exists {
       case annot: ScAnnotationExpr =>
         annot.constr.reference match {
@@ -1209,19 +1216,34 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
+  private def checkTypeVariance(typeable: Typeable, variance: Variance, toHighlight: PsiElement, checkParentOf: PsiElement,
+                                holder: AnnotationHolder): Unit = {
+    typeable.`type`() match {
+      case Right(tp) =>
+        ScalaType.expandAliases(tp) match {
+          case Right(newTp) => checkVariance(newTp, variance, toHighlight, checkParentOf, holder)
+          case _ => checkVariance(tp, variance, toHighlight, checkParentOf, holder)
+        }
+      case _ =>
+    }
+  }
+
+  def checkClassParameterVariance(toCheck: ScClassParameter, holder: AnnotationHolder): Unit = {
+    if (toCheck.isVar && !childHasAnnotation(Some(toCheck), "uncheckedVariance")) checkTypeVariance(toCheck, Contravariant, toCheck.nameId, toCheck, holder)
+  }
+
+  def checkTemplateParentsVariance(parents: ScTemplateParents, holder: AnnotationHolder): Unit = {
+    for (typeElement <- parents.typeElements) {
+      if (!childHasAnnotation(Some(typeElement), "uncheckedVariance") && !parents.parent.flatMap(_.parent).exists(_.isInstanceOf[ScNewTemplateDefinition]))
+        checkTypeVariance(typeElement, Covariant, typeElement, parents, holder)
+    }
+  }
+
   def checkValueAndVariableVariance(toCheck: ScDeclaredElementsHolder, variance: Variance,
                                     declaredElements: Seq[Typeable with ScNamedElement], holder: AnnotationHolder) {
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {
-        element.`type`() match {
-          case Right(tp) =>
-            ScalaType.expandAliases(tp) match {
-              //so type alias is highlighted
-              case Right(newTp) => checkVariance(newTp, variance, element.nameId, toCheck, holder)
-              case _ => checkVariance(tp, variance, element.nameId, toCheck, holder)
-            }
-          case _ =>
-        }
+        checkTypeVariance(element, variance, element.nameId, toCheck, holder)
       }
     }
   }
