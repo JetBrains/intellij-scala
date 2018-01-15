@@ -5,7 +5,6 @@ import java.io.File
 
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
-import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskNotificationListener
 import org.jetbrains.sbt.project.data.{ContentRootNode, LibraryNode, ModuleDependencyNode, ModuleNode}
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.{structure => sbtStructure}
@@ -41,7 +40,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       warnings(msg)
     }
 
-    groupSharedRoots(sharedRoots).map { group =>
+    val grouped = groupSharedRoots(sharedRoots)
+    grouped.map { group =>
       createSourceModuleNodesAndDependencies(group, projectToModuleNode, libraryNodes, moduleFilesDirectory)
     }
   }
@@ -149,9 +149,21 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
   }
 
   private case class RootGroup(name: String, roots: Seq[Root], projects: Seq[sbtStructure.ProjectData]) {
-    def base: File = {
-      val root = roots.head
-      root.base.getOrElse(root.directory)
+    def base: File = commonBase(roots)
+
+    private def commonBase(roots: Seq[Root]) = {
+      import scala.collection.JavaConverters._
+      val paths = roots.map { root =>
+        root.base.getOrElse(root.directory)
+          .getCanonicalFile.toPath.normalize
+      }
+
+      paths.foldLeft(paths.head) { case (common, it) =>
+        common.iterator().asScala.zip(it.iterator().asScala)
+            .takeWhile { case (c,p) => c==p}
+            .map(_._1)
+            .foldLeft(paths.head.getRoot) { case (base,child) => base.resolve(child)}
+      }.toFile
     }
   }
 
