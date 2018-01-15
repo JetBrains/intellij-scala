@@ -62,9 +62,10 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     }
     else {
       val res: Boolean = rhsType.conforms(declaredType)
-      if (expected != res)
+      if (expected != res) {
         if (!shouldPass) return
         fail(errorMessage("Conformance failure", expected, declaredType, rhsType))
+      }
     }
     if (!shouldPass) fail(failingPassed)
   }
