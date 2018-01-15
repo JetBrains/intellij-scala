@@ -126,12 +126,12 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
     InspectionBundle.message("comparing.unrelated.types.hint", firstTypeText, secondTypeText)
   }
 
-  private def holderTypeSystem(holder: ProblemsHolder) = holder.getProject.typeSystem
-
   private def mayNeedHighlighting(fun: ScFunction): Boolean = {
-    if (!seqFunctions.contains(fun.name)) return false
-    val className = fun.containingClass.qualifiedName
-    className.startsWith("scala.collection") && className.contains("Seq") && seqFunctions.contains(fun.name) ||
+    if (!seqFunctions.contains(fun.name) || fun.isLocal) return false
+
+    val className = Option(fun.containingClass).map(_.qualifiedName).getOrElse("")
+
+    className.startsWith("scala.collection") && className.contains("Seq") ||
       Seq("scala.Option", "scala.Some").contains(className) && fun.name == "contains"
   }
 }
