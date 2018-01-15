@@ -2,15 +2,12 @@ package org.jetbrains.sbt.project.data
 
 import java.io.File
 
-import com.intellij.openapi.projectRoots
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
+import com.intellij.openapi.projectRoots.{Sdk, JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
 import org.jetbrains.plugins.scala.extensions.inReadAction
 
-import scala.collection.JavaConverters._
 
 /**
  * @author Nikolay Obedin
@@ -25,34 +22,33 @@ final case class JdkByVersion(version: String) extends SdkReference
 final case class AndroidJdk(version: String) extends SdkReference
 
 object SdkUtils {
-  def findProjectSdk(sdk: SdkReference): Option[projectRoots.Sdk] = {
-
-    sdk match {
-      case AndroidJdk(version) =>
-        findAndroidJdkByVersion(version)
-      case JdkByVersion(version) =>
-        findMostRecentJdk { sdk: projectRoots.Sdk =>
-          Option(sdk.getVersionString).exists(s => s.contains(version))
+  def findProjectSdk(sdk: SdkReference): Option[Sdk] = {
+    SdkResolver.EP_NAME.getExtensions
+      .view
+      .flatMap(_.sdkOf(sdk))
+      .headOption
+      .orElse {
+        sdk match {
+          case JdkByVersion(version) => findMostRecentJdk(sdk => Option(sdk.getVersionString).exists(_.contains(version)))
+          case JdkByName(version) => findMostRecentJdk(_.getName.contains(version))
+          case JdkByHome(homeFile) => findMostRecentJdk(sdk => FileUtil.comparePaths(homeFile.getCanonicalPath, sdk.getHomePath) == 0)
+          case _ => None
         }
-      case JdkByName(version) =>
-        findMostRecentJdk { sdk: projectRoots.Sdk => sdk.getName.contains(version) }
-      case JdkByHome(homeFile) =>
-        findMostRecentJdk {sdk: projectRoots.Sdk =>
-          FileUtil.comparePaths(homeFile.getCanonicalPath, sdk.getHomePath) == 0
-        }
-    }
+      }
   }
 
-  def findMostRecentJdk(condition: projectRoots.Sdk => Boolean): Option[projectRoots.Sdk] = {
-    val jdkCondition = { sdk: projectRoots.Sdk => sdk.getSdkType == JavaSdk.getInstance }
-    val combinedCondition = { sdk: projectRoots.Sdk => sdk != null && condition(sdk) && jdkCondition(sdk) }
+  private def findMostRecentJdk(condition: Sdk => Boolean): Option[Sdk] = {
+    val jdkCondition = (sdk: Sdk) => sdk.getSdkType == JavaSdk.getInstance
+    val combinedCondition = (sdk: Sdk) => sdk != null && condition(sdk) && jdkCondition(sdk)
+    implicit def asCondition[A](f: A => Boolean): Condition[A] = (a: A) => f(a)
     Option(inReadAction(ProjectJdkTable.getInstance().findMostRecentSdk(combinedCondition)))
   }
 
-  def mostRecentJdk: Option[projectRoots.Sdk] =
+  def mostRecentJdk: Option[Sdk] =
     findMostRecentJdk(_ => true)
 
-  def defaultJavaLanguageLevelIn(jdk: projectRoots.Sdk): Option[LanguageLevel] = {
+  def defaultJavaLanguageLevelIn(jdk: Sdk): Option[LanguageLevel] = {
+    // TODO either store or convert to 'match'
     val JavaLanguageLevels = Map(
       "1.3" -> LanguageLevel.JDK_1_3,
       "1.4" -> LanguageLevel.JDK_1_4,
@@ -75,29 +71,4 @@ object SdkUtils {
       languageLevel <- Option(LanguageLevel.parse(sourceValue))
     } yield languageLevel
   }
-
-  private def findAndroidJdkByVersion(version: String): Option[projectRoots.Sdk] = {
-    def isGEQAsInt(fst: String, snd: String): Boolean =
-      try {
-        val fstInt = fst.toInt
-        val sndInt = snd.toInt
-        fstInt >= sndInt
-      } catch {
-        case _: NumberFormatException => false
-      }
-
-    val matchingSdks = for {
-      sdk <- allAndroidSdks
-      platform <- Option(AndroidPlatform.getInstance(sdk))
-      platformVersion = platform.getApiLevel.toString
-      if isGEQAsInt(platformVersion, version)
-    } yield sdk
-
-    matchingSdks.headOption
-  }
-
-  private def allAndroidSdks: Seq[projectRoots.Sdk] =
-    inReadAction(ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala)
-
-  private implicit def asCondition[A](f: A => Boolean): Condition[A] = (a: A) => f(a)
 }

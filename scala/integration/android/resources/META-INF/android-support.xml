@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
+<!--TODO Move to the extracted SBT support -->
 <idea-plugin version="2">
 
   <extensions defaultExtensionNs="com.intellij">
     <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.AndroidFacetDataService"/>
+  </extensions>
+
+  <extensions defaultExtensionNs="org.intellij.scala">
+    <sdkResolver implementation="org.jetbrains.sbt.project.data.service.AndroidSdkResolver" />
   </extensions>
 
 </idea-plugin>
