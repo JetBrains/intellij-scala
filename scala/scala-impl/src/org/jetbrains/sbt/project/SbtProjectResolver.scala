@@ -270,7 +270,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     */
   private def chooseJdk(project: sbtStructure.ProjectData, defaultJdk: Option[String]): Option[Sdk] = {
     // TODO put some of this logic elsewhere in resolving process?
-    val androidSdk = project.android.map(android => Android(android.targetVersion))
+    val androidSdk = project.android.map(android => AndroidJdk(android.targetVersion))
     val jdkHomeInSbtProject = project.java.flatMap(_.home).map(JdkByHome)
 
     // default either from project structure or initial import settings
@@ -360,7 +360,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val scalacClasspath = project.scala.fold(Seq.empty[File])(s => s.jars)
     val scalacOptions = project.scala.fold(Seq.empty[String])(_.options)
     val javacOptions = project.java.fold(Seq.empty[String])(_.options)
-    val jdk = project.android.map(android => Android(android.targetVersion))
+    val jdk = project.android.map(android => AndroidJdk(android.targetVersion))
       .orElse(project.java.flatMap(java => java.home.map(JdkByHome)))
     new ModuleExtNode(ModuleExtData(scalaOrganization, scalaVersion, scalacClasspath, scalacOptions, jdk, javacOptions))
   }

@@ -3,7 +3,7 @@ package org.jetbrains.sbt.project.data
 import java.io.File
 
 import com.intellij.openapi.projectRoots
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk => OaSdk}
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
@@ -18,16 +18,17 @@ import scala.collection.JavaConverters._
  */
 sealed abstract class Sdk
 
+// TODO Refactor
 final case class JdkByName(name: String) extends Sdk
 final case class JdkByHome(home: File) extends Sdk
 final case class JdkByVersion(version: String) extends Sdk
-final case class Android(version: String) extends Sdk
+final case class AndroidJdk(version: String) extends Sdk
 
 object SdkUtils {
   def findProjectSdk(sdk: Sdk): Option[projectRoots.Sdk] = {
 
     sdk match {
-      case Android(version) =>
+      case AndroidJdk(version) =>
         findAndroidJdkByVersion(version)
       case JdkByVersion(version) =>
         findMostRecentJdk { sdk: projectRoots.Sdk =>
@@ -50,10 +51,6 @@ object SdkUtils {
 
   def mostRecentJdk: Option[projectRoots.Sdk] =
     findMostRecentJdk(_ => true)
-
-  def allAndroidSdks: Seq[projectRoots.Sdk] =
-    inReadAction(ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala)
-
 
   def defaultJavaLanguageLevelIn(jdk: projectRoots.Sdk): Option[LanguageLevel] = {
     val JavaLanguageLevels = Map(
@@ -99,7 +96,8 @@ object SdkUtils {
     matchingSdks.headOption
   }
 
-  private implicit def asCondition[A](f: A => Boolean): Condition[A] = new Condition[A] {
-    override def value(a: A): Boolean = f(a)
-  }
+  private def allAndroidSdks: Seq[projectRoots.Sdk] =
+    inReadAction(ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala)
+
+  private implicit def asCondition[A](f: A => Boolean): Condition[A] = (a: A) => f(a)
 }
