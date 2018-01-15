@@ -34,11 +34,13 @@ lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
+      androidIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile")
     .aggregate(
       scalaImpl,
+      androidIntegration,
       gradleIntegration,
       mavenIntegration,
       propertiesIntegration)
@@ -132,6 +134,18 @@ lazy val cbt =
     .dependsOn(scalaImpl % "test->test;compile->compile")
 
 // Integration with other IDEA plugins
+
+lazy val androidIntegration =
+  newProject("android", file("scala/integration/android"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(
+      ideaInternalPlugins := Seq(
+        "android",
+        "gradle",// required by Android
+        "groovy", // required by Gradle
+        "properties") // required by Gradle
+    )
 
 lazy val gradleIntegration =
   newProject("gradle", file("scala/integration/gradle"))
@@ -263,6 +277,7 @@ lazy val scalaPluginJarPackager =
     .settings(
       products in Compile :=
         products.in(scalaImpl, Compile).value ++
+          products.in(androidIntegration, Compile).value ++
           products.in(gradleIntegration, Compile).value ++
           products.in(mavenIntegration, Compile).value ++
           products.in(propertiesIntegration, Compile).value,
