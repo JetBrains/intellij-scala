@@ -85,7 +85,7 @@ object ModuleExtDataService {
       }
     }
 
-    private def configureOrInheritSdk(module: Module, sdk: Option[Sdk]): Unit = {
+    private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference]): Unit = {
       val model = getModifiableRootModel(module)
       model.inheritSdk()
       sdk.flatMap(SdkUtils.findProjectSdk).foreach(model.setSdk)

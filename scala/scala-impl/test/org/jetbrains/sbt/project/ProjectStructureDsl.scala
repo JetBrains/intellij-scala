@@ -3,7 +3,7 @@ package project
 
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.sbt.project.data.Sdk
+import org.jetbrains.sbt.project.data.SdkReference
 
 import scala.language.implicitConversions
 
@@ -25,7 +25,7 @@ object ProjectStructureDsl {
   val modules =
     new Attribute[Seq[module]]("modules") with ProjectAttribute
   val sdk =
-    new Attribute[Sdk]("sdk") with ProjectAttribute with ModuleAttribute
+    new Attribute[SdkReference]("sdk") with ProjectAttribute with ModuleAttribute
   val languageLevel =
     new Attribute[LanguageLevel]("languageLevel") with ProjectAttribute with ModuleAttribute
 

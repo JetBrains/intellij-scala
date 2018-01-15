@@ -16,16 +16,16 @@ import scala.collection.JavaConverters._
  * @author Nikolay Obedin
  * @since 7/14/15.
  */
-sealed abstract class Sdk
+sealed abstract class SdkReference
 
 // TODO Refactor
-final case class JdkByName(name: String) extends Sdk
-final case class JdkByHome(home: File) extends Sdk
-final case class JdkByVersion(version: String) extends Sdk
-final case class AndroidJdk(version: String) extends Sdk
+final case class JdkByName(name: String) extends SdkReference
+final case class JdkByHome(home: File) extends SdkReference
+final case class JdkByVersion(version: String) extends SdkReference
+final case class AndroidJdk(version: String) extends SdkReference
 
 object SdkUtils {
-  def findProjectSdk(sdk: Sdk): Option[projectRoots.Sdk] = {
+  def findProjectSdk(sdk: SdkReference): Option[projectRoots.Sdk] = {
 
     sdk match {
       case AndroidJdk(version) =>
