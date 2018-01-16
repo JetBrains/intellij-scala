@@ -35,12 +35,14 @@ lazy val scalaCommunity: sbt.Project =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       androidIntegration % "test->test;compile->compile",
+      copyrightIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile")
     .aggregate(
       scalaImpl,
       androidIntegration,
+      copyrightIntegration,
       gradleIntegration,
       mavenIntegration,
       propertiesIntegration)
@@ -145,6 +147,16 @@ lazy val androidIntegration =
         "gradle",// required by Android
         "groovy", // required by Gradle
         "properties") // required by Gradle
+    )
+
+lazy val copyrightIntegration =
+  newProject("copyright", file("scala/integration/copyright"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(
+      ideaInternalPlugins := Seq(
+        "copyright"
+      )
     )
 
 lazy val gradleIntegration =
@@ -278,6 +290,7 @@ lazy val scalaPluginJarPackager =
       products in Compile :=
         products.in(scalaImpl, Compile).value ++
           products.in(androidIntegration, Compile).value ++
+          products.in(copyrightIntegration, Compile).value ++
           products.in(gradleIntegration, Compile).value ++
           products.in(mavenIntegration, Compile).value ++
           products.in(propertiesIntegration, Compile).value,
