@@ -22,7 +22,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
@@ -203,7 +203,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       if (currentGroupIndex <= prevGroupIndex || prevGroupIndex == -1) ""
       else if (scalastyleGroups.nonEmpty) newLineWithIndent
       else {
-        def isBlankLine(i: Int) = importLayout(i) == ScalaCodeStyleSettings.BLANK_LINE
+        def isBlankLine(i: Int) = importLayout(i) == BLANK_LINE
         val blankLineNumber =
           Range(currentGroupIndex - 1, prevGroupIndex, -1).dropWhile(!isBlankLine(_)).takeWhile(isBlankLine).size
         newLineWithIndent * blankLineNumber
@@ -718,23 +718,19 @@ object ScalaImportOptimizer {
         patterns.indexWhere(_.matcher(prefix).matches())
       case _ =>
         val groups = settings.importLayout
-        val suitable = groups.filter { group =>
-          group != ScalaCodeStyleSettings.BLANK_LINE && (group == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS ||
-            prefix.startsWith(group))
-        }
-        if (suitable.length == 0) 0
-        else {
-          val elem = suitable.tail.foldLeft(suitable.head) { (l, r) =>
-            if (l == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) r
-            else if (r == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) l
-            else if (r.startsWith(l)) r
-            else l
+
+        val mostSpecific = groups
+          .filterNot(_ == BLANK_LINE)
+          .filter(packagePattern => prefix.startsWith(packagePattern + "."))
+          .sortBy(_.length)
+          .lastOption
+
+        mostSpecific
+          .map(groups.indexOf)
+          .getOrElse {
+            0 max groups.indexOf(ALL_OTHER_IMPORTS)
           }
-
-          groups.indexOf(elem)
         }
-
-    }
   }
 
   def greater(lPrefix: String, rPrefix: String, lText: String, rText: String, settings: OptimizeImportSettings): Boolean = {
