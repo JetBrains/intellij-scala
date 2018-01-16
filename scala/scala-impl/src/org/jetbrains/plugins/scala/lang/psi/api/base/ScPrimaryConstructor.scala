@@ -4,19 +4,19 @@ package psi
 package api
 package base
 
+import scala.collection.mutable.ArrayBuffer
+
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
-
-import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin
@@ -38,6 +38,8 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
   def parameterList: ScParameters
 
   def parameters : Seq[ScClassParameter] = parameterList.clauses.flatMap(_.unsafeClassParameters)
+
+  override def containingClass: ScTypeDefinition = getParent.asInstanceOf[ScTypeDefinition]
 
   /**
    * return only parameters, which are additionally members.
@@ -85,17 +87,11 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
         ScParameterizedType(designatorType, typeParameters.map(TypeParameterType(_)))
       }
     })
-    if (clauses.isEmpty) return new ScMethodType(returnType, Seq.empty, false)
+    if (clauses.isEmpty) return ScMethodType(returnType, Seq.empty, false)
     val res = clauses.foldRight[ScType](returnType){(clause: ScParameterClause, tp: ScType) =>
-      new ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
+      ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
     }
     res.asInstanceOf[ScMethodType]
-  }
-
-  def polymorphicType: ScType = {
-    val typeParameters = getParent.asInstanceOf[ScTypeDefinition].typeParameters
-    if (typeParameters.isEmpty) methodType
-    else ScTypePolymorphicType(methodType, typeParameters.map(TypeParameter(_)))
   }
 
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {

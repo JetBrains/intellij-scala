@@ -4,7 +4,6 @@ package psi
 package api
 package expr
 
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -14,52 +13,58 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
   */
 trait ScInfixExpr extends ScExpression with ScSugarCallExpr {
 
-  def lOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0)
+  import ScInfixExpr._
 
-  def operation: ScReferenceExpression = {
-    val children = findChildrenByClassScala(classOf[ScExpression])
-    if (children.length < 2) throw new RuntimeException("Wrong infix expression: " + getText)
-    children.apply(1) match {
-      case re: ScReferenceExpression => re
-      case _ => throw new RuntimeException("Wrong infix expression: " + getText)
-    }
+  def lOp: ScExpression = unapply._1
+
+  def operation: ScReferenceExpression = unapply._2
+
+  def rOp: ScExpression = unapply._3
+
+  def typeArgs: Option[ScTypeArgs] = findChildrenByClassScala(classOf[ScTypeArgs]) match {
+    case Array(args) => Some(args)
+    case _ => None
   }
 
-  def typeArgs: Option[ScTypeArgs] = {
-    findChildrenByClassScala(classOf[ScTypeArgs]) match {
-      case Array(tpArg: ScTypeArgs) => Some(tpArg)
-      case _ => None
-    }
+  def getBaseExpr: ScExpression = {
+    val withAssoc(left, _, _) = this
+    left
   }
-
-  def rOp: ScExpression = {
-    val exprs: Array[ScExpression] = findChildrenByClassScala(classOf[ScExpression])
-    assert(exprs.length > 2,
-      s"Infix expression contains less than 3 expressions: ${exprs.mkString("(", ", ", ")")}, exprssion: $getText, full code: ${getContainingFile.getText}")
-    exprs.apply(2)
-  }
-
-  def getBaseExpr: ScExpression = if (isRightAssoc) rOp else lOp
-
-  def getArgExpr: ScExpression = if (isRightAssoc) lOp else rOp
-
-  def isRightAssoc: Boolean = {
-    val opText = ScalaNamesUtil.clean(operation.refName)
-    opText.endsWith(":")
-  }
-
-  def isAssignmentOperator: Boolean = ParserUtils.isAssignmentOperator(operation.getText)
 
   def getInvokedExpr: ScExpression = operation
 
-  def argsElement: PsiElement = getArgExpr
+  def argsElement: ScExpression = {
+    val withAssoc(_, _, right) = this
+    right
+  }
+
+  def isAssignmentOperator: Boolean =
+    ParserUtils.isAssignmentOperator(operation.getText)
 
   override def accept(visitor: ScalaElementVisitor): Unit = {
     visitor.visitInfixExpression(this)
   }
+
+  private def unapply = findChildrenByClassScala(classOf[ScExpression]) match {
+    case Array(left, operation: ScReferenceExpression, right) =>
+      (left, operation, right)
+    case _ => throw new RuntimeException("Wrong infix expression: " + getText)
+  }
 }
 
 object ScInfixExpr {
-  def unapply(it: ScInfixExpr): Some[(ScExpression, ScReferenceExpression, ScExpression)] =
-    Some(it.lOp, it.operation, it.rOp)
+
+  def unapply(expression: ScInfixExpr): Some[(ScExpression, ScReferenceExpression, ScExpression)] =
+    Some(expression.unapply)
+
+  object withAssoc {
+
+    def unapply(expression: ScInfixExpr): Some[(ScExpression, ScReferenceExpression, ScExpression)] = {
+      val (left, operation, right) = expression.unapply
+
+      if (ScalaNamesUtil.clean(operation.refName).endsWith(":")) Some(right, operation, left)
+      else Some(left, operation, right)
+    }
+  }
+
 }

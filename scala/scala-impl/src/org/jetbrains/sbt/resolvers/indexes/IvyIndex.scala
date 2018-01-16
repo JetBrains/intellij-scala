@@ -19,7 +19,7 @@ import scala.xml.XML
   * @author Mikhail Mutcianko
   * @since 26.07.16
   */
-class IvyIndex(val root: String, val name: String) extends ResolverIndex {
+class IvyIndex(val root: String, val name: String, implicit val project: ProjectContext) extends ResolverIndex {
   import ResolverIndex._
 
   private val indexDir: File = getIndexDirectory(root)
@@ -30,7 +30,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
   private var fqNameToGroupArtifactVersionMap = createPersistentMap(indexDir / Paths.FQ_NAME_TO_GROUP_ARTIFACT_VERSION_FILE)
   private var (_, _, innerTimestamp, currentVersion) = loadProps()
 
-  private def checkStorage()(implicit project: ProjectContext): Unit = {
+  private def checkStorage(): Unit = {
     if (artifactToGroupMap.isCorrupted ||
         groupToArtifactMap.isCorrupted ||
         groupArtifactToVersionMap.isCorrupted ||
@@ -50,13 +50,13 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     }
   }
 
-  private def withStorageCheck[T](f: => Set[T])(implicit project: ProjectContext): Set[T] = {
+  private def withStorageCheck[T](f: => Set[T]): Set[T] = {
     try     { f }
     catch   { case _: Exception => Set.empty }
     finally { checkStorage() }
   }
 
-  override def searchGroup(artifactId: String)(implicit project: ProjectContext): Set[String] = {
+  override def searchGroup(artifactId: String): Set[String] = {
     withStorageCheck {
       if (artifactId.isEmpty)
         Option(groupToArtifactMap.getAllKeysWithExistingMapping)
@@ -67,7 +67,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     }
   }
 
-  override def searchArtifact(groupId: String)(implicit project: ProjectContext): Set[String] = {
+  override def searchArtifact(groupId: String): Set[String] = {
     withStorageCheck {
       if (groupId.isEmpty)
         Option(artifactToGroupMap.getAllKeysWithExistingMapping)
@@ -78,7 +78,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     }
   }
 
-  override def searchVersion(groupId: String, artifactId: String)(implicit project: ProjectContext): Set[String] = {
+  override def searchVersion(groupId: String, artifactId: String): Set[String] = {
     withStorageCheck {
       Option(groupArtifactToVersionMap.get(SbtResolverUtils.joinGroupArtifact(groupId, artifactId))).getOrElse(Set.empty)
     }
@@ -94,7 +94,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
   }
 
 
-  override def doUpdate(progressIndicator: Option[ProgressIndicator] = None)(implicit project: ProjectContext): Unit = {
+  override def doUpdate(progressIndicator: Option[ProgressIndicator] = None): Unit = {
 
     if (ApplicationManager.getApplication.isUnitTestMode && sys.props.get(FORCE_UPDATE_KEY).isEmpty)
       return
@@ -125,16 +125,21 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     progressIndicator foreach { _.checkCanceled() }
     progressIndicator foreach { _.setText2(SbtBundle("sbt.resolverIndexer.progress.saving")) }
 
-    agMap  foreach { element => artifactToGroupMap.put(element._1, element._2.toSet) }
-    gaMap  foreach { element => groupToArtifactMap.put(element._1, element._2.toSet) }
-    gavMap foreach { element => groupArtifactToVersionMap.put(element._1, element._2.toSet) }
-    fqNameGavMap foreach { element => fqNameToGroupArtifactVersionMap.put(element._1, element._2.toSet) }
+    def mergeIntoMap(map: PersistentHashMap[String, Set[String]])(element: (String, mutable.Set[String])): Unit= {
+      val existingValue = Option(map.get(element._1)).getOrElse(Set.empty)
+      map.put(element._1, existingValue ++ element._2)
+    }
+
+    agMap  foreach { mergeIntoMap(artifactToGroupMap) }
+    gaMap  foreach { mergeIntoMap(groupToArtifactMap) }
+    gavMap foreach { mergeIntoMap(groupArtifactToVersionMap) }
+    fqNameGavMap foreach { mergeIntoMap(fqNameToGroupArtifactVersionMap) }
 
     innerTimestamp = System.currentTimeMillis()
     store()
   }
 
-  override def getUpdateTimeStamp(implicit project: ProjectContext): Long = innerTimestamp
+  override def getUpdateTimeStamp: Long = innerTimestamp
 
   private def deleteIndex(): Unit = SbtIndexesManager.cleanUpCorruptedIndex(indexDir)
 
@@ -217,9 +222,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     val fqNameToArtifacts: mutable.Map[String, mutable.Set[ArtifactInfo]] = mutable.Map.empty
 
     private val ivyFileFilter = new FileFilter {
-      override def accept(file: File): Boolean =
-        file.name.endsWith(".xml") &&
-          (file.lastModified() > innerTimestamp)
+      override def accept(file: File): Boolean = file.name.endsWith(".xml")
     }
 
     def artifacts: Stream[ArtifactInfo] = listArtifacts(cacheDir)
@@ -267,7 +270,11 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
       if (!dir.isDirectory)
         throw InvalidRepository(dir.getAbsolutePath)
 
-      val artifactsHere = dir.listFiles(ivyFileFilter).flatMap(extractArtifact).toStream
+      val artifactsHere = dir.listFiles(ivyFileFilter)
+          .flatMap(extractArtifact)
+          .filterNot(artifact => searchVersion(artifact.groupId, artifact.artifactId).contains(artifact.version))
+          .toStream
+
       if (artifactsHere.nonEmpty) {
         val artifactToFqNames = listFqNames(dir, artifactsHere)
         for {

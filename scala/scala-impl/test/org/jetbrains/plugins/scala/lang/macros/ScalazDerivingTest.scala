@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.macros
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.DependencyManager._
+import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyManagedLoader
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}

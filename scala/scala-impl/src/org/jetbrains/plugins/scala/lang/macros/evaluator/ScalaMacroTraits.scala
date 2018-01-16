@@ -16,9 +16,10 @@
 package org.jetbrains.plugins.scala.lang.macros.evaluator
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * @author Mikhail.Mutcianko
@@ -27,14 +28,12 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 
 case class MacroContext(place: PsiElement, expectedType: Option[ScType])
 
-trait ScalaMacroExpandable {
-  def expandMacro(macros: ScFunction, context: MacroContext): Option[ScalaPsiElement]
-}
-
 trait ScalaMacroTypeable {
   def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType]
 }
 
-object ScalaMacroDummyTypeable extends ScalaMacroTypeable{
-  def checkMacro(macros: ScFunction, context: MacroContext) = None
+case class MacroInvocationContext(call: MethodInvocation, resolveResult: ScalaResolveResult)
+
+trait ScalaMacroExpandable {
+  def expandMacro(macros: ScFunction, context: MacroInvocationContext): Option[ScExpression]
 }

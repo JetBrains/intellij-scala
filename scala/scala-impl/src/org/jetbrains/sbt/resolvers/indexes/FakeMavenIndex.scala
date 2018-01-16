@@ -8,18 +8,18 @@ import org.jetbrains.sbt.resolvers.ArtifactInfo
   * @since 26.08.16
   * @usecase if maven plugin is not enabled
   */
-class FakeMavenIndex (val root: String, val name: String) extends ResolverIndex {
-  override def searchGroup(artifactId: String)(implicit project: ProjectContext) = Set.empty
+class FakeMavenIndex (val root: String, val name: String, implicit val project: ProjectContext) extends ResolverIndex {
+  override def searchGroup(artifactId: String): Set[String] = Set.empty
 
-  override def searchArtifact(groupId: String)(implicit project: ProjectContext) = Set.empty
+  override def searchArtifact(groupId: String): Set[String] = Set.empty
 
-  override def searchVersion(groupId: String, artifactId: String)(implicit project: ProjectContext) = Set.empty
+  override def searchVersion(groupId: String, artifactId: String): Set[String] = Set.empty
 
-  override def doUpdate(progressIndicator: Option[ProgressIndicator])(implicit project: ProjectContext) = ()
+  override def doUpdate(progressIndicator: Option[ProgressIndicator]): Unit = ()
 
-  override def getUpdateTimeStamp(implicit project: ProjectContext) = ResolverIndex.MAVEN_UNAVALIABLE
+  override def getUpdateTimeStamp: Long = ResolverIndex.MAVEN_UNAVALIABLE
 
-  override def close() = ()
+  override def close(): Unit = ()
 
   override def searchArtifactInfo(fqName: String)(implicit project: ProjectContext): Set[ArtifactInfo] = Set.empty
 }

@@ -103,4 +103,57 @@ class HigherKindedTypesConformanceTest extends TypeConformanceTestBase {
         |}
         |//true""".stripMargin
   }
+
+  def testSCL13103(): Unit = doTest {
+    s"""
+       |import scala.language.higherKinds
+       |
+       |sealed trait Context
+       |object Local extends Context
+       |object Editing extends Context
+       |
+       |abstract class DataModel[C <: Context](val ctx: C)
+       |
+       |trait DataModelAccessor {
+       |  type DM[X <: Context] <: DataModel[X]
+       |  protected def buildDataModel[C <: Context](ctx: C): DM[C]
+       |  final val dataModel: DM[Local.type] = buildDataModel(Local)
+       |}
+       |
+       |trait DataModelAccessorProvider {
+       |  protected type DMA <: DataModelAccessor
+       |  final val dataModelAccessor: DMA = buildDataModelAccessor
+       |  protected def buildDataModelAccessor: DMA
+       |}
+       |
+       |class ApplicationDataModel[C <: Context](ctx: C) extends DataModel(ctx) {
+       |  val foo: Int = 42
+       |}
+       |
+       |class ApplicationDataModelAccessor extends DataModelAccessor {
+       |  override type DM[X <: Context] = ApplicationDataModel[X]
+       |  override def buildDataModel[C <: Context](ctx: C): ApplicationDataModel[C] = new ApplicationDataModel(ctx)
+       |}
+       |
+       |class ApplicationDataModelAccessorProvider extends DataModelAccessorProvider {
+       |  override protected type DMA = ApplicationDataModelAccessor
+       |  override protected def buildDataModelAccessor: ApplicationDataModelAccessor = new ApplicationDataModelAccessor
+       |}
+       |
+       |class Test(app: ApplicationDataModelAccessorProvider) {
+       |  ${caretMarker}val x: ApplicationDataModel[Local.type] = app.dataModelAccessor.dataModel
+       |}
+       |//true""".stripMargin
+  }
+
+  def testSCL13114(): Unit = doTest {
+    s"""object X {
+       |  val v : List[Int] = Nil
+       |}
+       |
+       |object Z {
+       |  ${caretMarker}val x : { val v : List[T] } forSome { type T } = X
+       |}
+       |//true""".stripMargin
+  }
 }

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.macros.evaluator.MacroContext
+import org.jetbrains.plugins.scala.lang.macros.evaluator.impl.ShapelessMaterializeGeneric.{fqColonColon, fqHNil}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -43,4 +44,7 @@ trait ShapelessUtils {
       extractFiledsFromClass(elem)
     case _ => Seq.empty
   }
+
+  protected def hlistText(componentTypes: Seq[ScType]): String =
+    componentTypes.foldRight(fqHNil)((p, suffix) => s"$fqColonColon[${p.canonicalText}, $suffix]")
 }

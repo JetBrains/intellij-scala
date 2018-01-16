@@ -289,9 +289,8 @@ trait TreeAdapter {
         t.withSubstitutionCaching { tp =>
           m.Term.Apply(expression(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs): _*))
         }
-      case t: ScInfixExpr =>
-        m.Term.ApplyInfix(expression(t.getBaseExpr), toTermName(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr)))
-
+      case ScInfixExpr.withAssoc(left, operation, right) =>
+        m.Term.ApplyInfix(expression(left), toTermName(operation), Nil, Seq(expression(right)))
       case t: ScPrefixExpr =>
         m.Term.ApplyUnary(toTermName(t.operation), expression(t.operand))
       case t: ScPostfixExpr =>

@@ -38,10 +38,10 @@ object SbtResolver {
 class SbtMavenResolver(val name: String, val root: String) extends SbtResolver {
   override def getIndex(project: Project): Option[ResolverIndex] = try {
       MavenIndicesManager.getInstance()
-      Some(new MavenProxyIndex(root, name))
+      Some(new MavenProxyIndex(root, name, project))
     } catch {
       case e:NoClassDefFoundError if e.getMessage.contains("MavenIndicesManager") =>
-        Some(new FakeMavenIndex(root, name))
+        Some(new FakeMavenIndex(root, name, project))
     }
 
   override def toString = s"$root|maven|$name"

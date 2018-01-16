@@ -10,11 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.DependencyManager
+import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.junit.Assert._
 
 class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  import DependencyManager._
 
   override implicit val version: ScalaVersion = Scala_2_12
   implicit def mainModule: Module = module()

@@ -3,73 +3,61 @@ package org.jetbrains.plugins.scala.codeInsight.intention.controlflow
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIfStmt, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIfStmt, ScInfixExpr, ScParenthesisedExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
- * @author Ksenia.Sautina
- * @since 6/8/12
- */
-
-object SplitIfIntention {
-  def familyName = "Split If"
-}
-
+  * @author Ksenia.Sautina
+  * @since 6/8/12
+  */
 class SplitIfIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = SplitIfIntention.familyName
+
+  import IntentionUtils._
+  import SplitIfIntention._
+
+  def getFamilyName: String = familyName
 
   override def getText: String = "Split into 2 'if's"
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
-    if (ifStmt == null) return false
-
-    val cond = ifStmt.condition.orNull
-    if (cond == null || !cond.isInstanceOf[ScInfixExpr]) return false
-
-    val range: TextRange = cond.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange
-    val offset = editor.getCaretModel.getOffset
-    if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
-
-    if (cond.asInstanceOf[ScInfixExpr].operation.nameId.getText == "&&") return true
-
-    false
-  }
-
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
-    if (ifStmt == null || !ifStmt.isValid) return
-
-    val start = ifStmt.getTextRange.getStartOffset
-    val expr = new StringBuilder
-    val cond: ScInfixExpr = ifStmt.condition.get.asInstanceOf[ScInfixExpr]
-
-    val firstCond =
-      if (cond.getBaseExpr.getText.trim.startsWith("(") && cond.getBaseExpr.getText.trim.endsWith(")"))
-        cond.getBaseExpr.getText.trim
-      else "(" + cond.getBaseExpr.getText.trim + ")"
-    val secondCond =
-      if (cond.getArgExpr.getText.trim.startsWith("(") && cond.getArgExpr.getText.trim.endsWith(")"))
-        cond.getArgExpr.getText.trim
-      else "(" + cond.getArgExpr.getText.trim + ")"
-
-    expr.append("if ").append(firstCond).append("\n").append("if ").append(secondCond).append(" ").
-      append(ifStmt.thenBranch.get.getText)
-
-    val elseBranch = ifStmt.elseBranch.orNull
-    if (elseBranch != null) {
-      if (expr.toString().trim.endsWith("}")) expr.append(" else ")
-      else expr.append("\nelse ")
-      expr.append(elseBranch.getText).append("\nelse ").append(elseBranch.getText)
+  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
+    element.parentOfType(classOf[ScIfStmt], strict = false).exists {
+      case ScIfStmt(Some(ScInfixExpr(_, operation, _)), _, _) if caretIsInRange(operation)(editor) =>
+        operation.refName == "&&"
+      case _ => false
     }
 
-    val newIfStmt: ScExpression = createExpressionFromText(expr.toString())(element.getManager)
-    val diff = newIfStmt.asInstanceOf[ScIfStmt].condition.get.getTextRange.getStartOffset -
-      newIfStmt.asInstanceOf[ScIfStmt].getTextRange.getStartOffset
+  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+    val ifStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
+    if (ifStmt == null || !ifStmt.isValid) return
+
+    val ScIfStmt(Some(infix: ScInfixExpr), Some(ElementText(thenBranchText)), maybeElseBranch) = ifStmt
+    val ScInfixExpr.withAssoc(left, _, right) = infix
+
+    def conditionText(e: ScExpression): String = (e match {
+      case ScParenthesisedExpr(expression) => expression
+      case expression => expression
+    }).getText.trim
+
+    val prefix =
+      s"""if (${conditionText(left)})
+         |if (${conditionText(right)}) $thenBranchText""".stripMargin
+
+    val suffix = maybeElseBranch match {
+      case Some(ElementText(text)) =>
+        val separator = if (prefix.trim.endsWith("}")) ' ' else '\n'
+        s"""${separator}else $text
+           |else $text""".stripMargin
+      case _ => ""
+    }
+
+    import ifStmt.projectContext
+    val start = ifStmt.getTextRange.getStartOffset
+    val newIfStmt = createExpressionFromText(prefix + suffix).asInstanceOf[ScIfStmt]
+    val diff = newIfStmt.condition.get.getTextRange.getStartOffset - newIfStmt.getTextRange.getStartOffset
 
     inWriteAction {
       ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)
@@ -77,6 +65,10 @@ class SplitIfIntention extends PsiElementBaseIntentionAction {
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }
+}
+
+object SplitIfIntention {
+  def familyName = "Split If"
 }
 
 

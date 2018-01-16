@@ -385,23 +385,20 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
 
   override def visitInfixExpression(infix: ScInfixExpr): Unit = {
-    val matchedParams = infix.matchedParameters
-    val byNameParam = matchedParams.exists(_._2.isByName)
-    if (byNameParam) {
-      startNode(Some(infix)) {
-        infixInstr =>
-          checkPendingEdges(infixInstr)
-          addPendingEdge(infix, infixInstr)
-          infix.getBaseExpr.accept(this)
-          infix.operation.accept(this)
-          infix.getArgExpr.accept(this)
-          if (myHead == null) moveHead(infixInstr)
-      }
-    } else {
-      infix.getBaseExpr.accept(this)
-      infix.operation.accept(this)
-      infix.getArgExpr.accept(this)
+    def accept(): Unit = {
+      val ScInfixExpr.withAssoc(left, operation, right) = infix
+      left.accept(this)
+      operation.accept(this)
+      right.accept(this)
     }
+
+    val byNameParam = infix.matchedParameters.exists(_._2.isByName)
+    if (byNameParam) startNode(Some(infix)) { infixInstr =>
+      checkPendingEdges(infixInstr)
+      addPendingEdge(infix, infixInstr)
+      accept()
+      if (myHead == null) moveHead(infixInstr)
+    } else accept()
   }
 
   override def visitFunction(fun: ScFunction) {

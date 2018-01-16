@@ -2,11 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Seq, Set, mutable}
-
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
@@ -19,7 +14,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
+import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
@@ -60,6 +55,11 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
+import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, Set, mutable}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -1309,16 +1309,11 @@ object ScalaPsiUtil {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
           case named: ScAssignStmt => parameterOf(named)
           case block: ScBlock if block.statements == Seq(exp) => parameterOf(block)
-          case ie: ScInfixExpr if exp == ie.getArgExpr =>
-            ie.operation match {
-              case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(Parameter(_))
-              case ResolvesTo(method: PsiMethod) =>
-                method.parameters match {
-                  case Seq(p) => Some(Parameter(p))
-                  case _ => None
-                }
-              case _ => None
-            }
+          case ScInfixExpr.withAssoc(_, ResolvesTo(method: PsiMethod), `exp`) =>
+            (method match {
+              case function: ScFunction => function.parameters
+              case _ => method.parameters
+            }).headOption.map(Parameter(_))
           case (_: ScTuple) childOf (inf: ScInfixExpr) => fromMatchedParams(inf.matchedParameters)
           case args: ScArgumentExprList => fromMatchedParams(args.matchedParameters)
           case _ => None

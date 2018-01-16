@@ -1,0 +1,11 @@
+# requirements.txt v1.0
+# ---------------------
+# Add project specific python requirements to this file.
+# Do not commit them in the project!
+
+pyhamcrest==1.8.0
+pytz>=2014
+pytest==2.6.4
+mock==1.0.1
+pyformance==0.3.2
+requests

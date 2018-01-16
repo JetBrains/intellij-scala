@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.functionArrow
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScIdList, ScModifierList, ScPatternList, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -971,30 +971,29 @@ object ScalaPsiElementFactory {
                                     (implicit ctx: ProjectContext): PsiElement =
     createScalaFileFromText(prefix + "\"blah\"").getFirstChild.getFirstChild
 
-  def createEquivMethodCall(infixExpr: ScInfixExpr): ScMethodCall = {
-    val baseText = infixExpr.getBaseExpr.getText
-    val opText = infixExpr.operation.getText
-    val typeArgText = infixExpr.typeArgs match {
-      case Some(tpArg) => tpArg.getText
-      case _ => ""
-    }
-    val argText = infixExpr.getArgExpr.getText
-    val clauseText = infixExpr.getArgExpr match {
-      case _: ScTuple | _: ScParenthesisedExpr | _: ScUnitExpr => argText
-      case _ =>  s"($argText)"
-    }
-    val exprText = s"($baseText).$opText$typeArgText$clauseText"
+  def createEquivMethodCall(infix: ScInfixExpr): ScMethodCall = {
+    val ScInfixExpr.withAssoc(left, ElementText(operationText), right) = infix
 
-    val exprA : ScExpression = createExpressionWithContextFromText(baseText, infixExpr, infixExpr.getBaseExpr)
-
-    val methodCallExpr =
-      createExpressionWithContextFromText(exprText.toString, infixExpr.getContext, infixExpr).asInstanceOf[ScMethodCall]
-    val referenceExpr = methodCallExpr.getInvokedExpr match {
-      case ref: ScReferenceExpression => ref
-      case call: ScGenericCall => call.referencedExpr.asInstanceOf[ScReferenceExpression]
+    val clauseText = right match {
+      case _: ScTuple | _: ScParenthesisedExpr | _: ScUnitExpr => right.getText
+      case ElementText(text) => text.parenthesize()
     }
-    referenceExpr.qualifier.get.replaceExpression(exprA, removeParenthesis = true)
-    methodCallExpr
+
+    val typeArgText = infix.typeArgs.map(_.getText).getOrElse("")
+    val exprText = s"(${left.getText}).$operationText$typeArgText$clauseText"
+
+    val exprA = createExpressionWithContextFromText(left.getText, infix, left)
+
+    val methodCall = createExpressionWithContextFromText(exprText.toString, infix.getContext, infix)
+    val referenceExpression = methodCall match {
+      case ScMethodCall(reference: ScReferenceExpression, _) => reference
+      case ScMethodCall(ScGenericCall(reference, _), _) => reference
+    }
+
+    referenceExpression.qualifier.foreach {
+      _.replaceExpression(exprA, removeParenthesis = true)
+    }
+    methodCall.asInstanceOf[ScMethodCall]
   }
 
   def createEquivQualifiedReference(postfix: ScPostfixExpr): ScReferenceExpression = {

@@ -4,9 +4,11 @@ package service
 
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.compiler.{CompilerConfiguration, CompilerConfigurationImpl}
-import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
+import com.intellij.openapi.externalSystem.service.project.manage.ContentRootDataService
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
@@ -25,8 +27,16 @@ class SbtProjectDataService extends AbstractDataService[SbtProjectData, Project]
   override def createImporter(toImport: Seq[DataNode[SbtProjectData]],
                               projectData: ProjectData,
                               project: Project,
-                              modelsProvider: IdeModifiableModelsProvider): Importer[SbtProjectData] =
+                              modelsProvider: IdeModifiableModelsProvider): Importer[SbtProjectData] = {
+    for {
+      head <- toImport.headOption
+      projectData <- Option(ExternalSystemApiUtil.findParent(head, ProjectKeys.PROJECT))
+    } {
+      projectData.removeUserData(ContentRootDataService.CREATE_EMPTY_DIRECTORIES) //we don't need creating empty dirs anyway
+    }
+    
     new SbtProjectDataService.Importer(toImport, projectData, project, modelsProvider)
+  }
 }
 
 object SbtProjectDataService {

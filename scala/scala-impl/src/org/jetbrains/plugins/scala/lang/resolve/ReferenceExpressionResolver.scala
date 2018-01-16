@@ -2,6 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
+import scala.annotation.tailrec
+import scala.collection.Set
+import scala.collection.mutable.ArrayBuffer
+import scala.language.implicitConversions
+
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -32,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
+
 import scala.annotation.tailrec
 import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
@@ -62,8 +68,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         val args = call.argumentExpressions ++ call.getContext.asInstanceOf[ScAssignStmt].getRExpression.toList
         ContextInfo(Some(args), () => None, isUnderscore = false)
       case section: ScUnderscoreSection => ContextInfo(None, () => section.expectedType(), isUnderscore = true)
-      case inf: ScInfixExpr if ref == inf.operation =>
-        ContextInfo(inf.getArgExpr match {
+      case ScInfixExpr.withAssoc(_, `ref`, right) =>
+        ContextInfo(right match {
           case tuple: ScTuple => Some(tuple.exprs) // See SCL-2001
           case _: ScUnitExpr => Some(Nil) // See SCL-3485
           case e: ScParenthesisedExpr => e.expr match {
@@ -230,13 +236,13 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
             case None => processConstructorReference(args, assign, processor)
           }
         case tuple: ScTuple => tuple.getContext match {
-          case inf: ScInfixExpr if inf.getArgExpr == tuple =>
-            processAnyAssignment(tuple.exprs, inf, inf.operation, 1, assign, processor)
+          case infix@ScInfixExpr.withAssoc(_, operation, `tuple`) =>
+            processAnyAssignment(tuple.exprs, infix, operation, 1, assign, processor)
           case _ =>
         }
         case p: ScParenthesisedExpr => p.getContext match {
-          case inf: ScInfixExpr if inf.getArgExpr == p =>
-            processAnyAssignment(p.expr.toSeq, inf, inf.operation, 1, assign, processor)
+          case infix@ScInfixExpr.withAssoc(_, operation, `p`) =>
+            processAnyAssignment(p.expr.toSeq, infix, operation, 1, assign, processor)
           case _ =>
         }
         case _ =>
@@ -248,13 +254,13 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       val refName = ref.refName
       for (variant <- callReference.multiResolve(false)) {
         def processResult(r: ScalaResolveResult) = r match {
-          case ScalaResolveResult(fun: ScFunction, _) if DynamicResolveProcessor.isApplyDynamicNamed(r) =>
+          case ScalaResolveResult(fun: ScFunction, _) if isApplyDynamicNamed(r) =>
             //add synthetic parameter
             if (!processor.isInstanceOf[CompletionProcessor]) {
               val state: ResolveState = ResolveState.initial().put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
               processor.execute(createParameterFromText(refName + ": Any"), state)
             }
-          case ScalaResolveResult(_, _) if call.applyOrUpdateElement.exists(DynamicResolveProcessor.isApplyDynamicNamed) =>
+          case ScalaResolveResult(_, _) if call.applyOrUpdateElement.exists(isApplyDynamicNamed) =>
             //add synthetic parameter
             if (!processor.isInstanceOf[CompletionProcessor]) {
               val state: ResolveState = ResolveState.initial().put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
@@ -561,7 +567,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       val newProcessor = new MethodResolveProcessor(expression, name, List(List(emptyStringExpression), expressionsOrContext.getOrElse(Seq.empty)),
         processor.typeArgElements, processor.prevTypeInfo, processor.kinds, processor.expectedOption,
         processor.isUnderscore, processor.isShapeResolve, processor.constructorResolve, processor.noImplicitsForArgs,
-        processor.enableTupling, processor.selfConstructorResolve, isDynamic = true)
+        processor.enableTupling, processor.selfConstructorResolve, nameArgForDynamic = Some(ref.refName))
 
       newProcessor.processType(`type`, expression, ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, `type`))
       newProcessor

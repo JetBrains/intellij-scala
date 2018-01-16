@@ -2,19 +2,21 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
+import _root_.scala.collection.Set
+
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.JavaResolveUtil
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -25,16 +27,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-
-import _root_.scala.collection.Set
 
 /**
  * @author ven
@@ -79,33 +77,6 @@ object ResolveUtils {
             case _: PsiParameter => kinds contains VAL //to enable named Parameters resolve in Play 2.0 routing file for java methods
             case _ => false
           })
-
-  def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope, returnType: Option[ScType] = None): ScMethodType = {
-    implicit val elementScope = ElementScope(m.getProject, scope)
-
-    val retType: ScType = (m, returnType) match {
-      case (f: FakePsiMethod, None) => s.subst(f.retType)
-      case (_, None) => s.subst(m.getReturnType.toScType())
-      case (_, Some(x)) => x
-    }
-
-    ScMethodType(retType,
-      m match {
-        case f: FakePsiMethod => f.params.toSeq
-        case _ =>
-          m.parameters.map { param =>
-            val scType = s.subst(param.paramType())
-            Parameter("", None, scType, scType, isDefault = false, isRepeated = param.isVarArgs, isByName = false, param.index, Some(param))
-          }
-      }, isImplicit = false)
-  }
-
-  def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {
-    if (m.getTypeParameters.isEmpty) javaMethodType(m, s, scope, returnType)
-    else {
-      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(TypeParameter(_)))
-    }
-  }
 
   def isAccessible(memb: PsiMember, _place: PsiElement, forCompletion: Boolean = false): Boolean = {
     var place = _place

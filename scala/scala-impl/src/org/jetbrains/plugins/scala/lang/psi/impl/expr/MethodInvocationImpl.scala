@@ -3,26 +3,26 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroInvocationContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.processTypeForUpdateOrApplyCandidates
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl.TypeResultEx
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.MethodInvocationImpl._
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothing, TupleType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TupleType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, Compatibility, DoesNotTakeParameters, ScSubstitutor, ScType, ScalaType}
-import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, Compatibility, ScSubstitutor, ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 
 /**
@@ -37,7 +37,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
   override def getImportsUsed: collection.Set[ImportUsed] = innerTypeExt.importsUsed
 
-  override def getImplicitFunction: Option[ScalaResolveResult] = innerTypeExt.implicitFunction
+  override def getImplicitFunction: Option[ScalaResolveResult] = innerTypeExt.implicitConversion
 
   override def applyOrUpdateElement: Option[ScalaResolveResult] = innerTypeExt.applyOrUpdateElem
 
@@ -53,60 +53,33 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     }
   }
 
+  //this method works for ScInfixExpression and ScMethodCall
   private def tryToGetInnerTypeExt(useExpectedType: Boolean): InvocationData = {
 
-    val nonValueType: TypeResult = getEffectiveInvokedExpr.getNonValueType()
-    this match {
-      case _: ScPrefixExpr => return InvocationData.Empty(nonValueType) //no arg exprs, just reference expression type
-      case _: ScPostfixExpr => return InvocationData.Empty(nonValueType) //no arg exprs, just reference expression type
-      case _ =>
+    val nonValueType = getEffectiveInvokedExpr.getNonValueType() match {
+      case Right(nv) =>
+        nv.updateAccordingToExpectedType(useExpectedType, this, canThrowSCE = true)
+      case failure =>
+        return InvocationData.Plain(failure)
     }
 
-    val withExpectedType = useExpectedType && this.expectedType().isDefined //optimization to avoid except
+    def simpleApplication = checkApplication(nonValueType, useExpectedType, invokedResolveResult)
 
-    val updatedNonValueType =
-      if (useExpectedType) nonValueType.updateAccordingToExpectedType(this, canThrowSCE = true)
-      else nonValueType
+    def applyUpdateOrDynamic = checkApplyUpdateOrDynamic(nonValueType, useExpectedType)
 
-    val invokedType: ScType = updatedNonValueType.getOrElse(return InvocationData.Empty(updatedNonValueType))
-
-    val res: InvocationData.Success = checkApplication(invokedType, args(isNamedDynamic = resolvesToApplyDynamicNamed), withExpectedType) match {
-      case Some(s) => s
+    val data = simpleApplication.orElse(applyUpdateOrDynamic)
+    data match {
+      case Some(res) =>
+        val (newType, params) = this.updatedWithImplicitParameters(res.inferredType, useExpectedType)
+        setImplicitParameters(params)
+        res.copy(inferredType = newType)
       case None =>
-        val updateApplyData =
-          processTypeForUpdateOrApply(invokedType, this, isShape = false)
-            .getOrElse(InvocationData.Success(Nothing))
-
-        val processedType = updateApplyData.inferredType
-        val updatedProcessedType =
-          if (useExpectedType) Right(processedType).updateAccordingToExpectedType(this).getOrElse(processedType)
-          else processedType
-
-        val isNamedDynamic: Boolean =
-          updateApplyData.applyOrUpdateElem.exists(DynamicResolveProcessor.isApplyDynamicNamed)
-
-        checkApplication(updatedProcessedType, args(includeUpdateCall = true, isNamedDynamic), withExpectedType)
-          .map(_.withApplyUpdate(updateApplyData))
-          .getOrElse {
-            InvocationData.Success(
-              updatedProcessedType,
-              Seq(new DoesNotTakeParameters),
-              Seq.empty,
-              Seq.empty,
-              updateApplyData.importsUsed,
-              updateApplyData.implicitFunction,
-              None)
-          }
+        InvocationData.Plain(Failure("Suitable method not found"))
     }
-
-    val (newType, params) = this.updatedWithImplicitParameters(res.inferredType, useExpectedType)
-    setImplicitParameters(params)
-
-    res.copy(inferredType = newType)
   }
 
   private def tuplizyCase(exprs: Seq[Expression])
-                                      (fun: (Seq[Expression]) => InvocationData.Success): InvocationData.Success = {
+                         (fun: (Seq[Expression]) => InvocationData.Full): InvocationData.Full = {
 
     val nonTupled = fun(exprs)
 
@@ -121,11 +94,11 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       .getOrElse(nonTupled)
   }
 
-  private def checkConformance(retType: ScType, psiExprs: Seq[Expression], parameters: Seq[Parameter]): InvocationData.Success = {
+  private def checkConformance(retType: ScType, psiExprs: Seq[Expression], parameters: Seq[Parameter]): InvocationData.Full = {
     tuplizyCase(psiExprs) { t =>
       val result = Compatibility.checkConformanceExt(checkNames = true, parameters = parameters, exprs = t,
         checkWithImplicits = true, isShapesResolve = false)
-      InvocationData.Success(retType, result.problems, result.matchedArgs, result.matchedTypes)
+      InvocationData.Full(retType, result.problems, result.matchedArgs, result.matchedTypes)
     }
   }
 
@@ -133,30 +106,72 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
                                             withExpectedType: Boolean,
                                             psiExprs: Seq[Expression],
                                             typeParams: Seq[TypeParameter],
-                                            parameters: Seq[Parameter]): InvocationData.Success = {
+                                            parameters: Seq[Parameter]): InvocationData.Full = {
     tuplizyCase(psiExprs) { t =>
       val (inferredType, problems, matchedParams, matchedTypes) =
         InferUtil.localTypeInferenceWithApplicabilityExt(retType, parameters, t, typeParams, canThrowSCE = withExpectedType)
-      InvocationData.Success(inferredType, problems, matchedParams, matchedTypes)
+      InvocationData.Full(inferredType, problems, matchedParams, matchedTypes)
     }
   }
 
-  private def checkApplication(tpe: ScType, args: Seq[Expression], withExpectedType: Boolean): Option[InvocationData.Success] = tpe match {
-    case ScMethodType(retType, params, _) =>
-      Some(checkConformance(retType, args, params))
-    case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) =>
-      Some(checkConformanceWithInference(retType, withExpectedType, args, typeParams, params))
-    case ScTypePolymorphicType(FunctionType(retType, params), typeParams) =>
-      Some(checkConformanceWithInference(retType, withExpectedType, args, typeParams, functionParams(params)))
-    case any if ScalaPsiUtil.isSAMEnabled(this) =>
-      ScalaPsiUtil.toSAMType(any, this) match {
-        case Some(FunctionType(retType: ScType, params: Seq[ScType])) =>
-          Some(checkConformance(retType, args, functionParams(params)))
-        case _ => None
-      }
-    case _ => None
+  private def checkApplication(invokedNonValueType: ScType,
+                               useExpectedType: Boolean,
+                               resolveResult: Option[ScalaResolveResult]): Option[InvocationData.Full] = {
+
+    val fromMacroExpansion = resolveResult.flatMap(checkMacroExpansion)
+    if (fromMacroExpansion.nonEmpty) return fromMacroExpansion
+
+    val includeUpdate = resolveResult.exists(_.name == "update")
+    val isNamedDynamic = resolveResult.exists(isApplyDynamicNamed)
+
+    val withExpectedType = useExpectedType && this.expectedType().isDefined //optimization to avoid except
+
+    val args = arguments(includeUpdate, isNamedDynamic)
+
+    invokedNonValueType match {
+      case ScMethodType(retType, params, _) =>
+        Some(checkConformance(retType, args, params))
+      case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) =>
+        Some(checkConformanceWithInference(retType, withExpectedType, args, typeParams, params))
+      case ScTypePolymorphicType(FunctionType(retType, params), typeParams) =>
+        Some(checkConformanceWithInference(retType, withExpectedType, args, typeParams, functionParams(params)))
+      case any if ScalaPsiUtil.isSAMEnabled(this) =>
+        ScalaPsiUtil.toSAMType(any, this) match {
+          case Some(FunctionType(retType: ScType, params: Seq[ScType])) =>
+            Some(checkConformance(retType, args, functionParams(params)))
+          case _ => None
+        }
+      case _ => None
+    }
   }
 
+  private def checkMacroExpansion(r: ScalaResolveResult): Option[InvocationData.Full] = {
+    val macroEvaluator = ScalaMacroEvaluator.getInstance(getProject)
+    val expansion = macroEvaluator.expandMacro(r.element, MacroInvocationContext(this, r))
+    expansion
+      .flatMap(_.getNonValueType().toOption)
+      .map(InvocationData.Full(_))
+  }
+
+  private def checkApplyUpdateOrDynamic(invokedType: ScType, useExpectedType: Boolean): Option[InvocationData.Full] = {
+    val applyUpdateRes =
+      findApplyUpdateOrDynamic(invokedType, withDynamic = false).orElse {
+        findApplyUpdateOrDynamic(invokedType, withDynamic = true)
+    }
+
+    applyUpdateRes match {
+      case Some(ApplyUpdateResult(processedType, result)) =>
+
+        val updatedProcessedType = processedType.updateAccordingToExpectedType(useExpectedType, this)
+
+        checkApplication(updatedProcessedType, useExpectedType, Some(result))
+          .map(_.withApplyUpdate(result))
+          .orElse(InvocationData.noSuitableParameters(updatedProcessedType, result).toOption)
+      case _ =>
+        None
+    }
+
+  }
 
   private def functionParams(params: Seq[ScType]): Seq[Parameter] = {
     val functionName = s"scala.Function${params.length}"
@@ -171,13 +186,16 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     }
   }
 
-  private def args(includeUpdateCall: Boolean = false, isNamedDynamic: Boolean = false): Seq[Expression] = {
-    def default: Seq[ScExpression] =
-      if (includeUpdateCall) argumentExpressionsIncludeUpdateCall
-      else argumentExpressions
+  private def arguments(includeUpdateCall: Boolean = false, isNamedDynamic: Boolean = false): Seq[Expression] = {
+    val updateArg = getContext match {
+      case ScAssignStmt(mc: ScMethodCall, rExpr) if includeUpdateCall && mc == this => rExpr
+      case _ => None
+    }
+
+    val defaultArgs: Seq[ScExpression] = argumentExpressions ++ updateArg
 
     if (isNamedDynamic) {
-      default.map {
+      defaultArgs.map {
         expr =>
           val actualExpr = expr match {
             case a: ScAssignStmt =>
@@ -195,66 +213,43 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
                 case t => t
               }
               val (res, imports) = super.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
-              implicit val project = getProject
-              implicit val scope = MethodInvocationImpl.this.resolveScope
+              val scope = MethodInvocationImpl.this.resolveScope
 
-              val str = ScalaPsiManager.instance(project).getCachedClass(scope, "java.lang.String")
+              val str = ScalaPsiManager.instance.getCachedClass(scope, "java.lang.String")
               val stringType = str.map(ScalaType.designator(_)).getOrElse(Any)
               (res.map(tp => TupleType(Seq(stringType, tp))), imports)
             }
           }
       }
-    } else default
+    } else defaultArgs
   }
 
-  private def resolvesToApplyDynamicNamed: Boolean = {
-    getEffectiveInvokedExpr match {
-      case ref: ScReferenceExpression =>
-        ref.bind().exists(DynamicResolveProcessor.isApplyDynamicNamed)
-      case _ => false
+  private def invokedResolveResult: Option[ScalaResolveResult] = getEffectiveInvokedExpr match {
+    case ref: ScReferenceExpression => ref.bind()
+    case _ => None
+  }
+
+  private def findApplyUpdateOrDynamic(invokedType: ScType, withDynamic: Boolean): Option[ApplyUpdateResult] = {
+    val candidates = processTypeForUpdateOrApplyCandidates(this, invokedType, isShape = false, isDynamic = withDynamic)
+    PartialFunction.condOpt(candidates) {
+      case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
+
+        val polyType = fun.polymorphicType(s).updateTypeOfDynamicCall(r.isDynamic)
+
+        val fixedType = invokedType match {
+          case ScTypePolymorphicType(_, typeParams) =>
+            polyType match {
+              case ScTypePolymorphicType(internal, typeParams2) =>
+                ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2))
+              case _ => ScTypePolymorphicType(polyType, typeParams)
+            }
+          case _ => polyType
+        }
+        ApplyUpdateResult(fixedType, r)
     }
   }
 }
 
 object MethodInvocationImpl {
-  
-  private def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation, isShape: Boolean): Option[InvocationData.Success] = {
-    implicit val ctx: ProjectContext = call
-
-    def checkCandidates(withDynamic: Boolean = false): Option[InvocationData.Success] = {
-      val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, isDynamic = withDynamic)
-      PartialFunction.condOpt(candidates) {
-        case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
-          def update(tp: ScType): ScType = {
-            if (r.isDynamic) DynamicResolveProcessor.getDynamicReturn(tp)
-            else tp
-          }
-
-          val res = fun match {
-            case fun: ScFun =>
-              val scType = update(s.subst(fun.polymorphicType))
-              InvocationData.Success.fromApplyUpdate(scType, Some(r))
-            case fun: ScFunction =>
-              val scType = update(s.subst(fun.polymorphicType()))
-              InvocationData.Success.fromApplyUpdate(scType, Some(r))
-            case meth: PsiMethod =>
-              val scType = update(ResolveUtils.javaPolymorphicType(meth, s, call.resolveScope))
-              InvocationData.Success.fromApplyUpdate(scType, Some(r))
-          }
-          call.getInvokedExpr.getNonValueType() match {
-            case Right(ScTypePolymorphicType(_, typeParams)) =>
-              val fixedType = res.inferredType match {
-                case ScTypePolymorphicType(internal, typeParams2) =>
-                  ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2))
-                case _ => ScTypePolymorphicType(res.inferredType, typeParams)
-              }
-              res.copy(inferredType = fixedType)
-            case _ => res
-          }
-      }
-    }
-
-    checkCandidates().orElse(checkCandidates(withDynamic = true))
-  }
-
+  private case class ApplyUpdateResult(invokedType: ScType, result: ScalaResolveResult)
 }

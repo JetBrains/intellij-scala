@@ -72,7 +72,7 @@ object Dependency {
     ref.contexts.take(3).toSeq match {
       case Seq(ScAssignStmt(`ref`, _), _: ScArgumentExprList, _: MethodInvocation | _: ScSelfInvocation | _: ScConstructor) => return None
       case Seq(ScAssignStmt(`ref`, _), _: ScTuple, _: ScInfixExpr) => return None
-      case Seq(ScAssignStmt(`ref`, _), p: ScParenthesisedExpr, inf: ScInfixExpr) if inf.getArgExpr == p => return None
+      case Seq(ScAssignStmt(`ref`, _), p: ScParenthesisedExpr, inf: ScInfixExpr) if inf.argsElement == p => return None
       case _ =>
     }
 

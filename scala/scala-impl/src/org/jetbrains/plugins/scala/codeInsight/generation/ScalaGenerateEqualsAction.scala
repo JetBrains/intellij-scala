@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createMethodFromText, createMethodWithContext}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodWithContext
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor, ScType, Signature}
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -178,30 +178,37 @@ class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
       classAtCaret(editor, file).exists(!_.isCase)
 
   private def hasEquals(clazz: ScClass): Option[ScFunction] = {
-    import clazz.projectContext
+    val stdTypes = clazz.projectContext.stdTypes
+    import stdTypes.{Any, Boolean}
 
-    val method = createMethodFromText("def equals(that: Any): Boolean")
-    findSuchMethod(clazz, "equals", method.methodType)
+    findSuchMethod(clazz, "equals", Boolean, Seq(Any))
   }
 
   private def hasHashCode(clazz: ScClass): Option[ScFunction] = {
-    import clazz.projectContext
+    val stdTypes = clazz.projectContext.stdTypes
+    import stdTypes.Int
 
-    val method = createMethodFromText("def hashCode(): Int")
-    findSuchMethod(clazz, "hashCode", method.methodType)
+    findSuchMethod(clazz, "hashCode", Int, Seq.empty)
   }
 
   private def hasCanEqual(clazz: ScClass): Option[ScFunction] = {
-    import clazz.projectContext
+    val stdTypes = clazz.projectContext.stdTypes
+    import stdTypes.{Any, Boolean}
 
-    val method = createMethodFromText("def canEqual(that: Any): Boolean")
-    findSuchMethod(clazz, "canEqual", method.methodType)
+    findSuchMethod(clazz, "canEqual", Boolean, Seq(Any))
   }
 
-  private def findSuchMethod(clazz: ScClass, name: String, methodType: ScType): Option[ScFunction] = {
-    clazz.functions
-      .filter(_.name == name)
-      .find(fun => fun.methodType(None) equiv methodType)
+  private def findSuchMethod(clazz: ScClass, name: String, returnType: ScType, paramTypes: Seq[ScType]): Option[ScFunction] = {
+    def equivParamTypes(f: ScFunction): Boolean = {
+      val funParamTypes = f.parameters.flatMap(_.`type`().toOption)
+      funParamTypes.lengthCompare(paramTypes.size) == 0 && funParamTypes.zip(paramTypes).forall {
+        case (t1, t2) => t1.equiv(t2)
+      }
+    }
+
+    clazz.functions.find { fun =>
+      fun.name == name && fun.returnType.exists(_.equiv(returnType)) && equivParamTypes(fun)
+    }
   }
 
   private def overrideModifier(aClass: ScTemplateDefinition, signature: Signature): String = {

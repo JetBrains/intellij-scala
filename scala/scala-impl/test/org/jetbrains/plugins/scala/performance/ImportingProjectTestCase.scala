@@ -4,7 +4,6 @@ import java.io.File
 import java.util
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
@@ -58,7 +57,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     settings
   }
 
-  def filesWithProblems: Set[String] = Set.empty
+  def filesWithProblems: Map[String, Seq[(Int, Int)]] = Map.empty
 
   protected val reporter = ProgressReporter.newInstance(getClass.getName, filesWithProblems)
 

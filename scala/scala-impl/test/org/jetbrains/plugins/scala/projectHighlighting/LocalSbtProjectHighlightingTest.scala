@@ -24,3 +24,15 @@ abstract class LocalSbtProjectHighlightingTest extends ImportingProjectTestCase 
 class AkkaSamplesTest extends LocalSbtProjectHighlightingTest {
   override def projectName = "akka-samples"
 }
+
+@Category(Array(classOf[HighlightingTests]))
+class ScalaPetStoreTest extends LocalSbtProjectHighlightingTest {
+  override def projectName = "scala-pet-store"
+
+  override def filesWithProblems: Map[String, Seq[(Int, Int)]] = Map(
+    "OrderEndointsSpec.scala" -> Seq((824, 840)),
+    "PetEndpoints.scala" -> Seq(),
+    "PetEndpointsSpec.scala" -> Seq((911, 925),(1527, 1541)),
+    "Arbitraries.scala" -> Seq((574, 583),(574, 583))
+  )
+}

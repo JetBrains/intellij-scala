@@ -40,10 +40,6 @@ trait SimplePattern extends ParserNode {
   protected def patterns: Patterns
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
-    def isVarId = builder.getTokenText.substring(0, 1).toLowerCase ==
-            builder.getTokenText.substring(0, 1) && !(
-            builder.getTokenText.apply(0) == '`' && builder.getTokenText.apply(builder.getTokenText.length - 1) == '`'
-            )
     val simplePatternMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tUNDER =>
@@ -58,11 +54,11 @@ trait SimplePattern extends ParserNode {
         return true
       case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
-        builder.disableNewlines
+        builder.disableNewlines()
         builder.getTokenType match {
           case ScalaTokenTypes.tRPARENTHESIS =>
             builder.advanceLexer() //Ate )
-            builder.restoreNewlinesState
+            builder.restoreNewlinesState()
             simplePatternMarker.done(ScalaElementTypes.TUPLE_PATTERN)
             return true
           case _ =>
@@ -71,12 +67,12 @@ trait SimplePattern extends ParserNode {
           builder.getTokenType match {
             case ScalaTokenTypes.tRPARENTHESIS =>
               builder.advanceLexer() //Ate )
-              builder.restoreNewlinesState
+              builder.restoreNewlinesState()
               simplePatternMarker.done(ScalaElementTypes.TUPLE_PATTERN)
               return true
             case _ =>
               builder error ScalaBundle.message("rparenthesis.expected")
-              builder.restoreNewlinesState
+              builder.restoreNewlinesState()
               simplePatternMarker.done(ScalaElementTypes.TUPLE_PATTERN)
               return true
           }
@@ -88,7 +84,7 @@ trait SimplePattern extends ParserNode {
             case _ =>
               builder error ScalaBundle.message("rparenthesis.expected")
           }
-          builder.restoreNewlinesState
+          builder.restoreNewlinesState()
           simplePatternMarker.done(ScalaElementTypes.PATTERN_IN_PARENTHESIS)
           return true
         }
@@ -111,7 +107,7 @@ trait SimplePattern extends ParserNode {
     if (lookAhead(builder, ScalaTokenTypes.tIDENTIFIER) &&
             !lookAhead(builder, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tDOT) &&
             !lookAhead(builder, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tLPARENTHESIS) &&
-            isVarId) {
+            !ParserUtils.isCurrentVarId(builder)) {
       val rpm = builder.mark
       builder.getTokenText
       builder.advanceLexer()
@@ -128,7 +124,7 @@ trait SimplePattern extends ParserNode {
           StableId parse (builder, ScalaElementTypes.REFERENCE)
           val args = builder.mark
           builder.advanceLexer() //Ate (
-          builder.disableNewlines
+          builder.disableNewlines()
 
           def parseSeqWildcard(withComma: Boolean): Boolean = {
             if (if (withComma)
@@ -160,26 +156,8 @@ trait SimplePattern extends ParserNode {
               ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
               val wild = builder.mark
               if (withComma) builder.advanceLexer() // ,
-              builder.getTokenType
-              if (isVarId) {
-                builder.advanceLexer() // id
-              } else {
-                wild.rollbackTo()
-                return false
-              }
-              builder.getTokenType
-              builder.advanceLexer() // @
-              builder.getTokenType
-              if (ParserUtils.eatSeqWildcardNext(builder)) {
-                wild.done(ScalaElementTypes.NAMING_PATTERN)
-                return true
-              }
-              else {
-                wild.rollbackTo()
-                return false
-              }
-            }
-            false
+              ParserUtils.parseVarIdWithWildcardBinding(builder, wild)
+            } else false
           }
 
           if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false) && pattern.parse(builder)) {
@@ -194,7 +172,7 @@ trait SimplePattern extends ParserNode {
             case _ =>
               builder error ErrMsg("rparenthesis.expected")
           }
-          builder.restoreNewlinesState
+          builder.restoreNewlinesState()
           args.done(ScalaElementTypes.PATTERN_ARGS)
           simplePatternMarker.done(ScalaElementTypes.CONSTRUCTOR_PATTERN)
           return true

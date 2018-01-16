@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2.specs2_2_11_2_4_15
 
-import org.jetbrains.plugins.scala.DependencyManager._
+import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.testingSupport.specs2.Specs2TestCase
 

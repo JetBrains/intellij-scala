@@ -1,16 +1,15 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
+import scala.collection.JavaConverters._
+
 import com.intellij.psi.ResolveResult
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver.getAllResolveResult
-import scala.collection.JavaConverters._
-
-import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 object DynamicResolveProcessor {
@@ -20,13 +19,6 @@ object DynamicResolveProcessor {
   val SELECT_DYNAMIC = "selectDynamic"
   val UPDATE_DYNAMIC = "updateDynamic"
   val NAMED = "Named"
-
-  def getDynamicReturn: ScType => ScType = {
-    case methodType: ScMethodType => methodType.returnType
-    case ScTypePolymorphicType(methodType: ScMethodType, parameters) =>
-      ScTypePolymorphicType(getDynamicReturn(methodType), parameters)
-    case scType => scType
-  }
 
   def getDynamicNameForMethodInvocation(expressions: Seq[ScExpression]): String = {
     val qualifiers = expressions.collect {
@@ -57,5 +49,16 @@ object DynamicResolveProcessor {
 
   def isApplyDynamicNamed(r: ScalaResolveResult): Boolean =
     r.isDynamic && r.name == APPLY_DYNAMIC_NAMED
+
+  private def getDynamicReturn: ScType => ScType = {
+    case methodType: ScMethodType => methodType.returnType
+    case ScTypePolymorphicType(methodType: ScMethodType, parameters) =>
+      ScTypePolymorphicType(getDynamicReturn(methodType), parameters)
+    case scType => scType
+  }
+
+  implicit class ScTypeForDynamicProcessorEx(val tp: ScType) extends AnyVal {
+    def updateTypeOfDynamicCall(isDynamic: Boolean): ScType = if (isDynamic) getDynamicReturn(tp) else tp
+  }
 }
 

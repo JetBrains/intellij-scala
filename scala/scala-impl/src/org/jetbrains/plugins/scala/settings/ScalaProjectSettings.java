@@ -54,6 +54,9 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
 
   private boolean ENABLE_LIBRARY_EXTENSIONS = true;
+  
+  public enum TrailingCommasMode {Enabled, Disabled, Auto}
+  private TrailingCommasMode TRAILING_COMMAS_ENABLED = TrailingCommasMode.Auto;
 
   //SCALA.META
   public enum ScalaMetaMode {Enabled, Disabled, Manual}
@@ -434,6 +437,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     this.GENERATE_TOSTRING_WITH_FIELD_NAMES = generateToStringWithFieldNames;
   }
   
+  public TrailingCommasMode getTrailingCommasMode() {
+    return TRAILING_COMMAS_ENABLED;
+  }
+
+  public void setTrailingCommasMode(TrailingCommasMode mode) {
+    TRAILING_COMMAS_ENABLED = mode;
+  }
+
   public boolean isEnableLibraryExtensions() {
     return ENABLE_LIBRARY_EXTENSIONS;
   }

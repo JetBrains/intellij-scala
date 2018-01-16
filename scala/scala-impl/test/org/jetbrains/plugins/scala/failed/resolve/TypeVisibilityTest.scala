@@ -41,4 +41,15 @@ class TypeVisibilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL13138() = {
+    val text =
+      """
+        |trait A[T] {
+        |  type T
+        |  def f(x : T) : Unit
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }

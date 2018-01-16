@@ -5,12 +5,12 @@ import java.io.File
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Disposer
 import com.intellij.testFramework.PsiTestUtil
-import org.jetbrains.plugins.scala.DependencyManager._
+import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.template.Artifact.ScalaCompiler.versionOf
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ScalaLanguageLevel}
-import org.jetbrains.plugins.scala.{DependencyManager, ScalaLoader}
+import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaLoader}
 import org.junit.Assert._
 
 import scala.collection.JavaConverters._
@@ -25,10 +25,12 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
       "org.scala-lang" % "scala-reflect"  % version.minor
     ).filterNot(!includeScalaReflect && _.artId.contains("reflect"))
 
-    val resolved = deps.flatMap(new DependencyManager().resolve(_))
+    val dependencyManager = new DependencyManagerBase {
+      override protected val artifactBlackList: Set[String] = Set.empty
+    }
 
-    val srcsResolved = new DependencyManager()
-      .resolve("org.scala-lang" % "scala-library" % version.minor % Types.SRC)
+    val resolved = deps.flatMap(dependencyManager.resolve(_))
+    val srcsResolved = dependencyManager.resolve("org.scala-lang" % "scala-library" % version.minor % Types.SRC)
 
     assertEquals(s"Failed to resolve scala sdk version $version, result:\n${resolved.mkString("\n")}",
       deps.size, resolved.size)

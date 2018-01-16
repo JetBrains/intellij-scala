@@ -106,15 +106,14 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
     val text = expr.toString()
 
     createExpressionFromText(text) match {
-      case infixExpr: ScInfixExpr =>
-        infixExpr.asInstanceOf[ScInfixExpr].getBaseExpr.replaceExpression(createExpressionFromText(forA), removeParenthesis = true)
-        infixExpr.asInstanceOf[ScInfixExpr].getArgExpr.replaceExpression(createExpressionFromText(forB), removeParenthesis = true)
+      case infix@ScInfixExpr.withAssoc(left, operation, right) =>
+        left.replaceExpression(createExpressionFromText(forA), removeParenthesis = true)
+        right.replaceExpression(createExpressionFromText(forB), removeParenthesis = true)
 
-        val size = infixExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
-          infixExpr.getTextRange.getStartOffset
+        val size = operation.nameId.getTextRange.getStartOffset - infix.getTextRange.getStartOffset
 
         inWriteAction {
-          methodCallExpr.replaceExpression(infixExpr, removeParenthesis = true)
+          methodCallExpr.replaceExpression(infix, removeParenthesis = true)
           editor.getCaretModel.moveToOffset(start + diff + size)
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
         }

@@ -257,4 +257,41 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
     }
   }
 
+  def testSCL13039(): Unit = {
+    val code =
+      """
+        |trait Test[T] {
+        |  def foo[S](x: T): Unit = {
+        |    val t = new Test[S] {
+        |      override def foo[U](x: S): Unit = {}
+        |    }
+        |  }
+        |}
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case Nil =>
+    }
+  }
+
+  def testSCL13039_1(): Unit = {
+    val code =
+      """
+        |trait Test[T] {
+        |  def foo[S](x: T): Unit = {
+        |//    val t = new Test[S] {
+        |//      override def foo[U](x: S): Unit = {}
+        |//    }
+        |  }
+        |  def other[S](x: T): Unit = {
+        |    val t = new Test[S] {
+        |      override def foo[U](x: S): Unit = {}
+        |    }
+        |  }
+        |}
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case Nil =>
+    }
+  }
+
 }

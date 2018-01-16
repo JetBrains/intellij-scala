@@ -42,7 +42,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              val enableTupling: Boolean = false,
                              var noImplicitsForArgs: Boolean = false,
                              val selfConstructorResolve: Boolean = false,
-                             val isDynamic: Boolean = false)
+                             val nameArgForDynamic: Option[String] = None)
   extends ResolveProcessor(kinds, ref, refName) {
 
   private def isUpdate: Boolean = {
@@ -52,6 +52,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
       case _ => false
     }
   }
+
+  def isDynamic: Boolean = nameArgForDynamic.nonEmpty
 
   override def execute(element : PsiElement, state: ResolveState): Boolean = {
     val named = element match {
@@ -137,7 +139,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
   override def candidatesS: Set[ScalaResolveResult] = {
     if (isDynamic) {
-      collectCandidates(super.candidatesS.map(_.copy(isDynamic = true))).filter(_.isApplicable())
+      collectCandidates(super.candidatesS.map(_.copy(nameArgForDynamic = nameArgForDynamic))).filter(_.isApplicable())
     } else {
       collectCandidates(super.candidatesS)
     }
