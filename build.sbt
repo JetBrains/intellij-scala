@@ -37,6 +37,7 @@ lazy val scalaCommunity: sbt.Project =
       androidIntegration % "test->test;compile->compile",
       copyrightIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
+      intellilangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile")
     .aggregate(
@@ -44,6 +45,7 @@ lazy val scalaCommunity: sbt.Project =
       androidIntegration,
       copyrightIntegration,
       gradleIntegration,
+      intellilangIntegration,
       mavenIntegration,
       propertiesIntegration)
     .settings(
@@ -65,8 +67,6 @@ lazy val scalaImpl: sbt.Project =
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
     addCompilerPlugin(Dependencies.macroParadise),
     ideaInternalPlugins := Seq(
-      "copyright",
-      "IntelliLang",
       "java-i18n",
       "android",
       "gradle", // requierd by Android
@@ -168,6 +168,16 @@ lazy val gradleIntegration =
         "gradle",
         "groovy", // required by Gradle
         "properties") // required by Gradle
+    )
+
+lazy val intellilangIntegration =
+  newProject("intellilang", file("scala/integration/intellilang"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(
+      ideaInternalPlugins := Seq(
+        "IntelliLang"
+      )
     )
 
 lazy val mavenIntegration =
@@ -292,6 +302,7 @@ lazy val scalaPluginJarPackager =
           products.in(androidIntegration, Compile).value ++
           products.in(copyrightIntegration, Compile).value ++
           products.in(gradleIntegration, Compile).value ++
+          products.in(intellilangIntegration, Compile).value ++
           products.in(mavenIntegration, Compile).value ++
           products.in(propertiesIntegration, Compile).value,
       ideSkipProject := true
