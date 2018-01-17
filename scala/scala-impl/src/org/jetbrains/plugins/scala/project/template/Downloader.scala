@@ -23,7 +23,7 @@ object Downloader {
     usingTempFile("sbt-commands") { file =>
       writeLinesTo(file, sbtCommands(platform, version): _*)
       usingTempDirectory("sbt-project") { directory =>
-        val proxyOptions = HttpConfigurable.getInstance.getJvmProperties(false, null).asScala.map(p => s"${p.getFirst}=${p.getSecond}")
+        val proxyOptions = HttpConfigurable.getInstance.getJvmProperties(false, null).asScala.map(p => s"-D${p.getFirst}=${p.getSecond}")
 
         val process = Runtime.getRuntime.exec(osCommandsFor(file, proxyOptions).toArray, null, directory)
 
