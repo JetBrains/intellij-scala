@@ -4,7 +4,6 @@ package psi
 package api
 package base
 
-import com.intellij.psi.ResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReferenceElement, ScalaResolveResult}
 
@@ -26,9 +25,7 @@ trait ScStableCodeReferenceElement extends ScReferenceElement with ResolvableSta
 
   def getResolveResultVariants: Array[ScalaResolveResult]
 
-  protected def processQualifier(processor: BaseProcessor): Unit
-
-  protected def processQualifierResolveResult(res: ScalaResolveResult, processor: BaseProcessor): Unit
+  protected def processQualifier(processor: BaseProcessor): Array[ScalaResolveResult]
 
   def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult]
 }

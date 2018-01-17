@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScRe
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
@@ -32,20 +32,24 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
     }
   }
 
-  override def getKinds(incomplete: Boolean, completion: Boolean): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = stableImportSelector
+  override def getKinds(incomplete: Boolean, completion: Boolean): ResolveTargets.ValueSet = stableImportSelector
 
   override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReferenceElement =
     if (is2_10plus) super.createReplacingElementWithClassName(true, clazz)
     else createDocLinkValue(clazz.qualifiedName)(clazz.element.getManager)
 
-  override protected def processQualifier(processor: BaseProcessor): Unit = {
-    if (is2_10plus) super.processQualifier(processor) else pathQualifier match {
+  override protected def processQualifier(processor: BaseProcessor): Array[ScalaResolveResult] = {
+    if (is2_10plus) super.processQualifier(processor)
+    else pathQualifier match {
       case None =>
         val defaultPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
         defaultPackage.processDeclarations(processor, ResolveState.initial(), null, this)
+        processor.candidates
       case Some(q: ScDocResolvableCodeReference) =>
-        q.multiResolveScala(true).foreach(processQualifierResolveResult(_, processor))
+        q.multiResolveScala(true)
+          .flatMap(processQualifierResolveResult(_, processor))
       case _ =>
+        processor.candidates
     }
   }
 }
