@@ -4,7 +4,7 @@ package shadow
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveResult}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
@@ -26,11 +26,8 @@ class VariablePatternShadowInspection extends AbstractInspection("VariablePatter
       if (dummyRef == null) return //can happen in invalid code, e.g. if ')' is absent in case pattern
       val proc = new ResolveProcessor(StdKinds.valuesRef, dummyRef, refPat.name)
       val results = dummyRef.asInstanceOf[ScStableCodeReferenceElement].doResolve(proc)
-      def isAccessible(rr: ResolveResult): Boolean = rr.getElement match {
-        case named: PsiNamedElement => proc.isAccessible(named, refPat)
-        case _ => false
-      }
-      if (results.exists(isAccessible)) {
+
+      if (results.exists(rr => proc.isAccessible(rr.getElement, refPat))) {
         holder.registerProblem(refPat.nameId, getDisplayName, new ConvertToStableIdentifierPatternFix(refPat), new RenameVariablePatternFix(refPat))
       }
     }

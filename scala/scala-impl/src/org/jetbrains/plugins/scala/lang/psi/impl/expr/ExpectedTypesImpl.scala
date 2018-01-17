@@ -93,9 +93,9 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
     }
 
-    def mapResolves(resolves: Array[ResolveResult], types: Array[TypeResult]): Array[(TypeResult, Boolean)] = {
+    def mapResolves(resolves: Array[ScalaResolveResult], types: Array[TypeResult]): Array[(TypeResult, Boolean)] = {
       resolves.zip(types).map {
-        case (r: ScalaResolveResult, tp) =>
+        case (r, tp) =>
           (tp, isApplyDynamicNamed(r))
         case (_, tp) => (tp, false)
       }
@@ -197,7 +197,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           val tps = callExpression match {
             case ref: ScReferenceExpression =>
               if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
-              else mapResolves(ref.multiResolve(false), ref.multiType)
+              else mapResolves(ref.multiResolveScala(false), ref.multiType)
             case _ => Array((callExpression.getNonValueType(), false))
           }
           tps.foreach { case (r, isDynamicNamed) =>
@@ -228,7 +228,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case _ => expr
         }
         val tps =
-          if (withResolvedFunction) mapResolves(operation.multiResolve(false), operation.multiType)
+          if (withResolvedFunction) mapResolves(operation.multiResolveScala(false), operation.multiType)
           else mapResolves(operation.shapeResolve, operation.shapeMultiType)
 
         val updated = tps.map { case (tp, isDynamicNamed) =>
@@ -290,7 +290,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           var tps = callExpression match {
             case ref: ScReferenceExpression =>
               if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
-              else mapResolves(ref.multiResolve(false), ref.multiType)
+              else mapResolves(ref.multiResolveScala(false), ref.multiType)
             case gen: ScGenericCall =>
               if (!withResolvedFunction) {
                 val multiType = gen.shapeMultiType

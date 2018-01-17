@@ -289,7 +289,7 @@ object ScalaRefactoringUtil {
 
     object ReferenceToFunction {
       def unapply(refExpr: ScReferenceExpression): Option[ScFunction] = refExpr.bind() match {
-        case Some(srr: ScalaResolveResult) if srr.element.isInstanceOf[ScFunction] => Some(srr.element.asInstanceOf[ScFunction])
+        case Some(ScalaResolveResult(f: ScFunction, _)) => Some(f)
         case _ => None
       }
     }

@@ -105,7 +105,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     }
   }
 
-  def resolve(reference: ScReferenceExpression, shapesOnly: Boolean, incomplete: Boolean): Array[ResolveResult] = {
+  def resolve(reference: ScReferenceExpression, shapesOnly: Boolean, incomplete: Boolean): Array[ScalaResolveResult] = {
     val name = if (reference.isUnaryOperator) "unary_" + reference.refName else reference.refName
     val info = getContextInfo(reference, reference)
 
@@ -124,7 +124,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         override def candidatesS: Set[ScalaResolveResult] = {
           if (!smartProcessor) super.candidatesS
           else {
-            val iterator = reference.shapeResolve.map(_.asInstanceOf[ScalaResolveResult]).iterator
+            val iterator = reference.shapeResolve.iterator
             while (iterator.hasNext) {
               levelSet.add(iterator.next())
             }
@@ -135,7 +135,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
     def smartResolve(): Array[ScalaResolveResult] = processor(smartProcessor = true).candidates
 
-    def fallbackResolve(found: Array[ScalaResolveResult]): Array[ResolveResult] = {
+    def fallbackResolve(found: Array[ScalaResolveResult]): Array[ScalaResolveResult] = {
       // it has another resolve only in one case:
       // clazz.ref(expr)
       // clazz has method ref with one argument, but it's not ok
@@ -166,9 +166,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         enableTupling = true)
 
       doResolve(reference, assignProcessor)
-        .collect {
-          case r: ScalaResolveResult => r.copy(isAssignment = true): ResolveResult
-        }
+        .map(_.copy(isAssignment = true))
     }
 
     val result =
@@ -184,12 +182,12 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     if (result.isEmpty && reference.isAssignmentOperator) {
       assignmentResolve()
     } else {
-      result.toArray
+      result
     }
   }
 
   def doResolve(ref: ScReferenceExpression, processor: BaseProcessor, accessibilityCheck: Boolean = true,
-                tryThisQualifier: Boolean = false): Array[ResolveResult] = {
+                tryThisQualifier: Boolean = false): Array[ScalaResolveResult] = {
     def resolveUnqalified(processor: BaseProcessor): BaseProcessor = {
       ref.getContext match {
         case ScSugarCallExpr(operand, operation, _) if ref == operation =>
@@ -252,7 +250,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     def processAnyAssignment(exprs: Seq[ScExpression], call: MethodInvocation, callReference: ScReferenceExpression, invocationCount: Int,
                              assign: PsiElement, processor: BaseProcessor) {
       val refName = ref.refName
-      for (variant <- callReference.multiResolve(false)) {
+      for (variant <- callReference.multiResolveScala(false)) {
         def processResult(r: ScalaResolveResult) = r match {
           case ScalaResolveResult(fun: ScFunction, _) if isApplyDynamicNamed(r) =>
             //add synthetic parameter
@@ -301,13 +299,9 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           case _ =>
         }
 
-        variant match {
-          case x: ScalaResolveResult =>
-            processResult(x)
-            // Consider named parameters of apply method; see SCL-2407
-            x.innerResolveResult.foreach(processResult)
-          case _ =>
-        }
+        processResult(variant)
+        // Consider named parameters of apply method; see SCL-2407
+        variant.innerResolveResult.foreach(processResult)
       }
     }
 
@@ -614,7 +608,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       case Some(q) =>
         processTypes(q, processor)
     }
-    var res = actualProcessor.rrcandidates
+    var res = actualProcessor.candidates
     if (accessibilityCheck && res.length == 0) {
       res = doResolve(ref, processor, accessibilityCheck = false)
     }

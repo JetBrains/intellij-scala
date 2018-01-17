@@ -53,20 +53,14 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
 
   def getVariants: Array[Object] = {
     val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
-    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
-      case res: ScalaResolveResult =>
-        val qualifier = res.fromType.getOrElse(Nothing)
-        LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = true)
-      case r => Seq(r.getElement)
+    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap { res =>
+      val qualifier = res.fromType.getOrElse(Nothing)
+      LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = true)
     }
   }
 
-  def getResolveResultVariants: Array[ScalaResolveResult] = {
-    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
-      case res: ScalaResolveResult => Seq(res)
-      case _ => Seq.empty
-    }
-  }
+  def getResolveResultVariants: Array[ScalaResolveResult] =
+    doResolve(new CompletionProcessor(getKinds(incomplete = true), this))
 
   def getConstructor: Option[ScConstructor] = {
     getContext match {
@@ -268,8 +262,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
          |$contextText""".stripMargin)
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
-
+  def getSameNameVariants: Array[ScalaResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
     override protected val forName = Some(refName)
   })
 
@@ -281,8 +274,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
     }
   }
 
-  @CachedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
-  override def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
+  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
+  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = {
     val resolver = new StableCodeReferenceElementResolver(ScStableCodeReferenceElementImpl.this, false, false, false)
     resolver.resolve(ScStableCodeReferenceElementImpl.this, incomplete)
   }
@@ -323,7 +316,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
           case _ =>
         }
       case Some(q: ScDocResolvableCodeReference) =>
-        q.multiResolve(/*incomplete = */ true).foreach((res: ResolveResult) => processQualifierResolveResult(res, processor))
+        q.multiResolveScala(/*incomplete = */ true).foreach(processQualifierResolveResult(_, processor))
       case Some(q: ScStableCodeReferenceElement) =>
         q.bind() match {
           case Some(res) => processQualifierResolveResult(res, processor)
@@ -335,7 +328,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
     }
   }
 
-  protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor): Unit = {
+  protected def processQualifierResolveResult(res: ScalaResolveResult, processor: BaseProcessor): Unit = {
     res match {
       case r@ScalaResolveResult(td: ScTypeDefinition, substitutor) =>
         td match {
@@ -380,7 +373,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
       case ScalaResolveResult(pack: ScPackage, s) =>
         pack.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, s),
           null, this)
-      case other: ScalaResolveResult =>
+      case other =>
         other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
           null, this)
       case _ =>
@@ -396,7 +389,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
     }
   }
 
-  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult] = {
+  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] = {
     def candidatesFilter(result: ScalaResolveResult) = {
       result.element match {
         case c: PsiClass if c.name == c.qualifiedName => c.getContainingFile match {
@@ -414,7 +407,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
 
     getContainingFile match {
       case ammoniteScript: ScalaFile if AmmoniteUtil.isAmmoniteFile(ammoniteScript) =>
-        def psi2result(psiElement: PsiNamedElement): Array[ResolveResult] = Array(new ScalaResolveResult(psiElement))
+        def psi2result(psiElement: PsiNamedElement) = Array(new ScalaResolveResult(psiElement))
         
         val fsi = AmmoniteUtil.scriptResolveQualifier(this)
 

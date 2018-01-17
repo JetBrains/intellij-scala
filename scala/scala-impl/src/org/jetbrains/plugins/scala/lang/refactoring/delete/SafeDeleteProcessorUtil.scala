@@ -66,7 +66,7 @@ object SafeDeleteProcessorUtil {
 
           val shouldDelete = element match {
             case ref: ScStableCodeReferenceElement =>
-              val results = ref.multiResolve(false)
+              val results = ref.multiResolveScala(false)
               def isSyntheticObject(e: PsiElement) = e.asOptionOf[ScObject].exists(_.isSyntheticObject)
               val nonSyntheticTargets = results.map(_.getElement).filterNot(isSyntheticObject)
               nonSyntheticTargets.toSet subsetOf allElementsToDelete.toSet

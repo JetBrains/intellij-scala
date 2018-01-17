@@ -44,7 +44,7 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
         final PsiElement element = host.getParent();
         if (element instanceof ScReferenceExpression) {
           final ScReferenceExpression expression = (ScReferenceExpression) element;
-          for (final ResolveResult result : expression.multiResolve(false))
+          for (final ResolveResult result : expression.multiResolveScala(false))
             if (methodPattern.accepts(result.getElement(), context))
               return true;
         }
@@ -67,7 +67,7 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
             final ScalaPsiElement expression = ((ScMethodCall) element).getEffectiveInvokedExpr();
             if (expression instanceof ScReferenceElement) {
               final ScReferenceElement ref = (ScReferenceElement) expression;
-              for (ResolveResult result : ref.multiResolve(false))
+              for (ResolveResult result : ref.multiResolveScala(false))
                 if (methodPattern.accepts(result.getElement(), context))
                   return true;
             }

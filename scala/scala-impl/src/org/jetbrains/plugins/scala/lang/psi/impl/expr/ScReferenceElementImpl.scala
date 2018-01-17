@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 abstract class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReferenceElement {
 
   def resolve(): PsiElement = {
-    this.bind() match {
+    bind() match {
       case Some(result) if !result.isCyclicReference => result.element
       case _ => null
     }
@@ -23,7 +23,7 @@ abstract class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl
 
   @TestOnly
   def advancedResolve: Option[ScalaResolveResult] = {
-    this.bind() match {
+    bind() match {
       case Some(result) if !result.isCyclicReference =>  Some(result)
       case _ => None
     }
@@ -32,7 +32,9 @@ abstract class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl
   @inline
   def bind(): Option[ScalaResolveResult] = {
     ProgressManager.checkCanceled()
-    val results = this.multiResolve(false).collect{case srr: ScalaResolveResult => srr}
-    if (results.length == 1) Some(results(0)) else None
+    multiResolveScala(false) match {
+      case Array(r) => Some(r)
+      case _ => None
+    }
   }
 }

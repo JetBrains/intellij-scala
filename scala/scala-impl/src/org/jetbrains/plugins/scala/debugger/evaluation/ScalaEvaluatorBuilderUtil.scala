@@ -83,7 +83,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def thisOrImportedQualifierEvaluator(ref: ScReferenceElement): Evaluator = {
     ref.bind() match {
-      case Some(resolveResult: ScalaResolveResult) =>
+      case Some(resolveResult) =>
         if (resolveResult.importsUsed.nonEmpty) importedQualifierEvaluator(ref, resolveResult)
         else thisEvaluator(resolveResult)
       case None => new ScalaThisEvaluator()

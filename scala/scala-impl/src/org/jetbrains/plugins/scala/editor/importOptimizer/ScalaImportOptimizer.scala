@@ -463,19 +463,19 @@ object ScalaImportOptimizer {
       if (rangeStartPsi == null) false
       else {
         val ref = ScalaPsiElementFactory.createReferenceFromText(name, rangeStartPsi.getContext, rangeStartPsi)
-        ref.bind().exists {
-          case ScalaResolveResult(p: PsiPackage, _) =>
+        ref.bind().map(_.element).exists {
+          case p: PsiPackage =>
             p.getParentPackage != null && p.getParentPackage.getName != null
-          case ScalaResolveResult(o: ScObject, _) if o.isPackageObject => o.qualifiedName.contains(".")
-          case ScalaResolveResult(o: ScObject, _) =>
+          case o: ScObject if o.isPackageObject => o.qualifiedName.contains(".")
+          case o: ScObject =>
             o.getParent match {
               case _: ScalaFile => false
               case _ => true
             }
-          case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => true
-          case ScalaResolveResult(_: ScTypeDefinition, _) => false
-          case ScalaResolveResult(_: PsiClass, _) => true
-          case ScalaResolveResult(f: PsiField, _) if f.hasFinalModifier => true
+          case td: ScTypedDefinition if td.isStable => true
+          case _: ScTypeDefinition => false
+          case _: PsiClass => true
+          case f: PsiField if f.hasFinalModifier => true
           case _ => false
         }
       }
@@ -799,18 +799,12 @@ object ScalaImportOptimizer {
       case impQual: ScStableCodeReferenceElement
         if impQual.qualifier.isEmpty && PsiTreeUtil.getParentOfType(impQual, classOf[ScImportStmt]) != null =>
         //don't add as ImportUsed to be able to optimize it away if it is used only in unused imports
-        val hasImportUsed = impQual.multiResolve(false).exists {
-          case srr: ScalaResolveResult => srr.importsUsed.nonEmpty
-          case _ => false
-        }
+        val hasImportUsed = impQual.multiResolveScala(false).exists(_.importsUsed.nonEmpty)
         if (hasImportUsed) {
           names.add(UsedName(impQual.refName, impQual.getTextRange.getStartOffset))
         }
       case ref: ScReferenceElement if PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null =>
-        ref.multiResolve(false) foreach {
-          case scalaResult: ScalaResolveResult => addWithImplicits(scalaResult, ref)
-          case _ =>
-        }
+        ref.multiResolveScala(false).foreach(addWithImplicits(_, ref))
       case simple: ScSimpleTypeElement =>
         simple.findImplicitParameters match {
           case Some(parameters) =>

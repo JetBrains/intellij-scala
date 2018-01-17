@@ -4,7 +4,8 @@ package resolve
 package imports
 
 
-import com.intellij.psi.{PsiField, PsiMethod, PsiPolyVariantReference, PsiReference}
+import com.intellij.psi.{PsiField, PsiMethod, PsiReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
@@ -55,13 +56,11 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
 
   def testaaa() {
     findReferenceAtCaret() match {
-      case r: PsiPolyVariantReference =>
-        val results = r.multiResolve(false)
+      case r: ScReferenceElement =>
+        val results = r.multiResolveScala(false)
 
         assert(results.length == 1)
-        val res = results(0)
-        assert(res.isInstanceOf[ScalaResolveResult])
-        val srr = res.asInstanceOf[ScalaResolveResult]
+        val srr = results(0)
 
         assert(srr.getElement != null)
         val imports = srr.importsUsed
@@ -74,13 +73,11 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
 
   def testSimpleImport() {
     findReferenceAtCaret() match {
-      case r: PsiPolyVariantReference =>
-        val results = r.multiResolve(false)
+      case r: ScReferenceElement =>
+        val results = r.multiResolveScala(false)
 
         assert(results.length == 1)
-        val res = results(0)
-        assert(res.isInstanceOf[ScalaResolveResult])
-        val srr = res.asInstanceOf[ScalaResolveResult]
+        val srr = results(0)
 
         assert(srr.getElement != null)
         val imports = srr.importsUsed
@@ -94,13 +91,11 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
 
   def testImportSelector() {
     findReferenceAtCaret() match {
-      case r: PsiPolyVariantReference =>
-        val results = r.multiResolve(false)
+      case r: ScReferenceElement =>
+        val results = r.multiResolveScala(false)
 
         assert(results.length == 1)
-        val res = results(0)
-        assert(res.isInstanceOf[ScalaResolveResult])
-        val srr = res.asInstanceOf[ScalaResolveResult]
+        val srr = results(0)
 
         assert(srr.getElement != null)
         val imports = srr.importsUsed
@@ -113,13 +108,11 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
 
   def testShadow1() {
     findReferenceAtCaret() match {
-      case r: PsiPolyVariantReference =>
-        val results = r.multiResolve(false)
+      case r: ScReferenceElement =>
+        val results = r.multiResolveScala(false)
 
         assert(results.length == 1)
-        val res = results(0)
-        assert(res.isInstanceOf[ScalaResolveResult])
-        val srr = res.asInstanceOf[ScalaResolveResult]
+        val srr = results(0)
 
         assert(srr.getElement != null)
         val imports = srr.importsUsed
@@ -132,13 +125,11 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
 
   def testShadow() {
     findReferenceAtCaret() match {
-      case r: PsiPolyVariantReference =>
-        val results = r.multiResolve(false)
+      case r: ScReferenceElement =>
+        val results = r.multiResolveScala(false)
 
         assert(results.length == 1)
-        val res = results(0)
-        assert(res.isInstanceOf[ScalaResolveResult])
-        val srr = res.asInstanceOf[ScalaResolveResult]
+        val srr = results(0)
 
         assert(srr.getElement != null)
         val imports = srr.importsUsed
@@ -151,13 +142,11 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
 
   def testimplicits() {
     findReferenceAtCaret() match {
-      case r: PsiPolyVariantReference =>
-        val results = r.multiResolve(false)
+      case r: ScReferenceElement =>
+        val results = r.multiResolveScala(false)
 
         assert(results.length == 1)
-        val res = results(0)
-        assert(res.isInstanceOf[ScalaResolveResult])
-        val srr = res.asInstanceOf[ScalaResolveResult]
+        val srr = results(0)
 
         assert(srr.getElement != null)
         val imports = srr.importsUsed

@@ -43,6 +43,11 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
     nameId.getText
   }
 
+  def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult]
+
+  @deprecated("Is required for compatibility. Prefer `multiResolveScala` for better type inference.")
+  override final def multiResolve(incomplete: Boolean): Array[ResolveResult] = multiResolveScala(incomplete).toArray
+
   def bind(): Option[ScalaResolveResult]
 
   @TestOnly
@@ -100,7 +105,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
         }
       case _ =>
     }
-    val iterator = multiResolve(false).iterator
+    val iterator = multiResolveScala(false).iterator
     while (iterator.hasNext) {
       val resolved = iterator.next()
       if (isReferenceTo(element, resolved.getElement, Some(resolved))) return true
@@ -111,7 +116,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReferenceElement =
     createReferenceFromText(if (useFullQualifiedName) clazz.qualifiedName else clazz.name)(clazz.element.getManager)
 
-  def isReferenceTo(element: PsiElement, resolved: PsiElement, rr: Option[ResolveResult]): Boolean = {
+  def isReferenceTo(element: PsiElement, resolved: PsiElement, rr: Option[ScalaResolveResult]): Boolean = {
     if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true
     resolved match {
       case isLightScNamedElement(named) => return isReferenceTo(element, named, rr)
@@ -128,7 +133,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
             if (isSyntheticForCaseClass(method, td)) return true
 
             rr match {
-              case Some(srr: ScalaResolveResult) =>
+              case Some(srr) =>
                 srr.getActualElement match {
                   case c: PsiClass if sameOrInheritor(c, td) => return true
                   case _ =>
@@ -150,7 +155,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
         }
       case _: ScTypeAliasDefinition if resolved.isInstanceOf[ScPrimaryConstructor] =>
         this.bind() match {
-          case Some(r: ScalaResolveResult) =>
+          case Some(r) =>
             r.parentElement match {
               case Some(ta: ScTypeAliasDefinition) if ScEquivalenceUtil.smartEquivalence(ta, element) => return true
               case _ =>
@@ -191,7 +196,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
         typeAlias.isExactAliasFor(cls)
       case (_: ScPrimaryConstructor, cls: PsiClass) =>
         this.bind() match {
-          case Some(r: ScalaResolveResult) =>
+          case Some(r) =>
             r.parentElement match {
               case Some(ta: ScTypeAliasDefinition) => ta.isExactAliasFor(cls)
               case _ => false
@@ -214,7 +219,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
 
   def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = getVariants
 
-  def getSameNameVariants: Array[ResolveResult]
+  def getSameNameVariants: Array[ScalaResolveResult]
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitReference(this)
@@ -226,22 +231,22 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
     val last = parts.last
     assert(!last.trim.isEmpty, s"Empty last part with safe bind to element with qualName: '$qualName'")
     val anotherRef: T = referenceCreator(last, true)
-    val resolve: Array[ResolveResult] = anotherRef.multiResolve(false)
+    val resolve = anotherRef.multiResolveScala(false)
     def checkForPredefinedTypes(): Boolean = {
       if (resolve.isEmpty) return true
-      val usedNames = new mutable.HashSet[String]()
-      val res = resolve.forall {
-        case r: ScalaResolveResult if r.importsUsed.isEmpty => usedNames += r.name; true
-        case _ => false
-      }
-      if (!res) return false
+
+      val hasUsedImports = resolve.exists(_.importsUsed.nonEmpty)
+      if (hasUsedImports) return false
+
+      val usedNames = resolve.map(_.name).toSet
+
       var reject = false
       getContainingFile.accept(new ScalaRecursiveElementVisitor {
         override def visitReference(ref: ScReferenceElement) {
           if (reject) return
           if (usedNames.contains(ref.refName)) {
             ref.bind() match {
-              case Some(r: ScalaResolveResult) if ref != ScReferenceElement.this && r.importsUsed.isEmpty =>
+              case Some(r) if ref != ScReferenceElement.this && r.importsUsed.isEmpty =>
                 reject = true
                 return
               case _ =>
@@ -266,13 +271,13 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
           val ref: T = referenceCreator(toReplace, true)
           var qual = ref
           while (qual.qualifier.isDefined) qual = qual.qualifier.get.asInstanceOf[T]
-          val resolve: Array[ResolveResult] = qual.multiResolve(false)
+          val resolve = qual.multiResolveScala(false)
           def isOk: Boolean = {
             if (packagePart == "java.util") return true //todo: fix possible clashes?
             if (resolve.length == 0) true
             else if (resolve.length > 1) false
             else {
-              val result: ResolveResult = resolve(0)
+              val result = resolve(0)
               def smartCheck: Boolean = {
                 val holder = ScalaImportTypeFix.getImportHolder(this, getProject)
                 var res = true
@@ -324,7 +329,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
           val importHolder = ScalaImportTypeFix.getImportHolder(ref = this, project = getProject)
           val imported = importHolder.getAllImportUsed.exists {
             case ImportExprUsed(expr) => expr.reference.exists { ref =>
-              ref.multiResolve(false).exists(rr => rr.getElement match {
+              ref.multiResolveScala(false).exists(rr => rr.getElement match {
                 case p: ScPackage => p.getQualifiedName == qualifiedName
                 case p: PsiPackage => p.getQualifiedName == qualifiedName
                 case _ => false
