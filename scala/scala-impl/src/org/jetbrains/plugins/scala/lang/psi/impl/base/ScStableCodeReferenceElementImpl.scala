@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
-import org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
@@ -322,11 +322,12 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
         }
         processor.candidates
       case Some(q: ScDocResolvableCodeReference) =>
-        q.multiResolveScala(/*incomplete = */ true).flatMap(processQualifierResolveResult(_, processor))
+        q.multiResolveScala(incomplete = true)
+          .flatMap(processQualifierResolveResult(q, _, processor))
       case Some(q: ScStableCodeReferenceElement) =>
         q.bind() match {
           case Some(res) =>
-            processQualifierResolveResult(res, processor)
+            processQualifierResolveResult(q, res, processor)
           case _ =>
             processor.candidates
         }
@@ -341,7 +342,9 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
     }
   }
 
-  protected def processQualifierResolveResult(res: ScalaResolveResult, processor: BaseProcessor): Array[ScalaResolveResult] = {
+  protected def processQualifierResolveResult(qualifier: ScStableCodeReferenceElement,
+                                              res: ScalaResolveResult,
+                                              processor: BaseProcessor): Array[ScalaResolveResult] = {
     var withDynamicResult: Option[Array[ScalaResolveResult]] = None
     res match {
       case r@ScalaResolveResult(td: ScTypeDefinition, substitutor) =>
@@ -367,6 +370,10 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
           case _: ScClass | _: ScTrait =>
             td.processDeclarations(processor, state, null, this)
         }
+      case ScalaResolveResult(fun: ScFunction, _) =>
+        val macroEvaluator = ScalaMacroEvaluator.getInstance(fun.getProject)
+        val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(qualifier, None))
+        typeFromMacro.foreach(processor.processType(_, qualifier))
       case ScalaResolveResult((_: ScTypedDefinition) && Typeable(tp), s) =>
         val fromType = s.subst(tp)
         processor.processType(fromType, this, ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType))

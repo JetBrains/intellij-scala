@@ -46,8 +46,8 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
         defaultPackage.processDeclarations(processor, ResolveState.initial(), null, this)
         processor.candidates
       case Some(q: ScDocResolvableCodeReference) =>
-        q.multiResolveScala(true)
-          .flatMap(processQualifierResolveResult(_, processor))
+        q.multiResolveScala(incomplete = true)
+          .flatMap(processQualifierResolveResult(q, _, processor))
       case _ =>
         processor.candidates
     }
