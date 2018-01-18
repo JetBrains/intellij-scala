@@ -717,11 +717,14 @@ object ScalaImportOptimizer {
       case Some(patterns) =>
         patterns.indexWhere(_.matcher(prefix).matches())
       case _ =>
+        def matches(packagePattern: String) =
+          prefix == packagePattern || prefix.startsWith(packagePattern + ".")
+
         val groups = settings.importLayout
 
         val mostSpecific = groups
           .filterNot(_ == BLANK_LINE)
-          .filter(packagePattern => prefix.startsWith(packagePattern + "."))
+          .filter(matches)
           .sortBy(_.length)
           .lastOption
 
