@@ -36,18 +36,17 @@ class PermuteArgumentsIntention extends PsiElementBaseIntentionAction {
 
     val argExprs = argList.exprs
 
-    val sorted = argList.matchedParameters.sortBy {
+    val newArgsExprs = argList.matchedParameters.sortBy {
       case (expr, p) => (p.index, expr.getTextRange.getStartOffset)
     }.flatMap {
       case (expr, p) => argOrNamedArg(expr)
     }
 
-    if (sorted.size != argExprs.size || sorted == argExprs)
+    if (newArgsExprs.size != argExprs.size || newArgsExprs == argExprs)
       return None
 
-    val copies = sorted.map(_.copy)
-    Some(() => argExprs.zip(copies).foreach {
-      case (arg, newArg) => arg.replace(newArg)
+    Some(() => argExprs.zip(newArgsExprs).foreach {
+      case (arg, newArg) => arg.replace(newArg.copy)
     })
   }
 
