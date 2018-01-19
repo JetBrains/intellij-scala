@@ -108,12 +108,13 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement): Unit = {
     import AddOnlyStrategy._
     val tps = annotationsFor(t, context)
+    val validVariants = tps.reverse.flatMap(_.`type`().toOption).map(ScTypeText)
+
     val added = addActualType(tps.head, anchor)
 
     editor match {
-      case Some(e) if tps.size > 1 =>
-        val texts = tps.reverse.flatMap(_.`type`().toOption).map(ScTypeText)
-        val expr = new ChooseTypeTextExpression(texts)
+      case Some(e) if validVariants.size > 1 =>
+        val expr = new ChooseTypeTextExpression(validVariants)
         // TODO Invoke the simplification
         IntentionUtil.startTemplate(added, context, expr, e)
       case _ =>
