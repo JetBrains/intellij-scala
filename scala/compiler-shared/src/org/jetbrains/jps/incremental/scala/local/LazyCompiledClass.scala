@@ -11,8 +11,8 @@ import org.jetbrains.jps.incremental.{BinaryContent, CompiledClass}
  * 11/18/13
  */
 // TODO expect future JPS API to load the generated file content lazily (on demand)
-private class LazyCompiledClass(outputFile: File, sourceFile: File, className: String)
-        extends CompiledClass(outputFile, sourceFile, className, new BinaryContent(Array.empty)){
+class LazyCompiledClass(outputFile: File, sourceFile: File, className: String)
+        extends CompiledClass(outputFile, sourceFile, className, new BinaryContent(Array.empty)) {
 
   private var loadedContent: Option[BinaryContent] = None
   private var contentIsSet = false
