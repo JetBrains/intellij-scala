@@ -16,4 +16,6 @@ class OptimizeImportsGroupsTest extends OptimizeImportsTestBase {
   def testGroups5() = doTest()
 
   def testLongerNames() = doTest()
+
+  def testExactPackage() = doTest()
 }

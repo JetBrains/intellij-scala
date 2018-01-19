@@ -500,9 +500,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     {collectForType(typez)}
                 }
               } else {
-                val variants: Array[ResolveResult] = {
+                val variants = {
                   val sameName = ref.getSameNameVariants
-                  if (sameName.isEmpty) ref.multiResolve(false)
+                  if (sameName.isEmpty) ref.multiResolveScala(false)
                   else sameName
                 }
                 for {

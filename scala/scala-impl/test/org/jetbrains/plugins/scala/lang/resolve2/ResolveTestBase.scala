@@ -91,7 +91,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
     references.zip(options).foreach(it => {
       it._1 match {
         case ref: ScReferenceElement =>
-          doEachTest(it._1.asInstanceOf[ScReferenceElement], it._2)
+          doEachTest(ref, it._2)
         case ref: PsiMultiReference =>
           val hostReferences = ref.getReferences
           if (hostReferences.length == 2) {

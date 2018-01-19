@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
-import org.jetbrains.plugins.scala.codeInsight.intention.InspectionBasedIntention
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.ComparingLengthInspection._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScIntLiteral
@@ -13,11 +12,11 @@ class ComparingLengthInspection extends OperationOnCollectionInspection{
   override def possibleSimplificationTypes: Array[SimplificationType] = Array(ComparingLength)
 }
 
-class ComparingLengthIntention extends InspectionBasedIntention("Comparing length", ComparingLength.hint, new ComparingLengthInspection)
+object ComparingLengthInspection {
+  val hint: String = InspectionBundle.message("replace.with.lengthCompare")
 
-private object ComparingLengthInspection {
-  val ComparingLength: SimplificationType = new SimplificationType() {
-    override def hint: String = InspectionBundle.message("replace.with.lengthCompare")
+  private val ComparingLength: SimplificationType = new SimplificationType() {
+    override def hint: String = ComparingLengthInspection.hint
 
     override def getSimplification(e: ScExpression): Option[Simplification] = Some(e).collect {
       case q `.sizeOrLength` () `>` n => (q, ">", n)

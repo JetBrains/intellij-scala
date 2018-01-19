@@ -40,18 +40,16 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) w
 
   def getKinds(incomplete: Boolean, completion: Boolean): ResolveTargets.ValueSet = StdKinds.stableClass
 
-  @CachedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
-  def multiResolve(incomplete: Boolean): Array[ResolveResult] =
+  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
+  def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] =
     doResolve(new ResolveProcessor(getKinds(incomplete), ScTypeProjectionImpl.this, refName))
 
   def getVariants: Array[Object] = {
     val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
-    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
-      case res: ScalaResolveResult =>
+    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap { res =>
         import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
         val qualifier = res.fromType.getOrElse(Nothing)
         LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = false)
-      case r => Seq(r.getElement)
     }
   }
 
@@ -59,22 +57,22 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) w
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
   def qualifier = None
 
-  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult] = {
+  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] = {
     if (!accessibilityCheck) processor.doNotCheckAccessibility()
     val projected = typeElement.`type`().getOrAny
     processor.processType(projected, this)
-    val res = processor.candidates.map { r : ScalaResolveResult =>
+    val res = processor.candidates.map { r =>
       r.element match {
         case mem: PsiMember if mem.containingClass != null =>
-          new ScalaResolveResult(mem, r.substitutor/*.bindO(mem.getContainingClass, projected, this)*/, r.importsUsed)
-        case _ => r : ResolveResult
+          new ScalaResolveResult(mem, r.substitutor, r.importsUsed)
+        case _ => r
       }
     }
     if (accessibilityCheck && res.length == 0) return doResolve(processor, accessibilityCheck = false)
     res
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
+  def getSameNameVariants: Array[ScalaResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
 
     override protected val forName = Some(refName)
   })

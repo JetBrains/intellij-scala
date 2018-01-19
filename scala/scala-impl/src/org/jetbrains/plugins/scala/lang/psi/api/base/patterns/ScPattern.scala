@@ -233,12 +233,9 @@ object ScPattern {
                 case _ => None
               }))
           }
-          if (resolve.length != 1) None
-          else {
-            resolve(0) match {
-              case s: ScalaResolveResult => Some(s)
-              case _ => None
-            }
+          resolve match {
+            case Array(r) => Some(r)
+            case _ => None
           }
         case m => m
       }

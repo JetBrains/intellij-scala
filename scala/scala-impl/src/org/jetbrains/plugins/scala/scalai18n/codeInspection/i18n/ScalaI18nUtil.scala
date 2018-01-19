@@ -17,11 +17,10 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, ResolvesTo}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScStringLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement, ScStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
-
 import scala.collection.mutable
 
 /**

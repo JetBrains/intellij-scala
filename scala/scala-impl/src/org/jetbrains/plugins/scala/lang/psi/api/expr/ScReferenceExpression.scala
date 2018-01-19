@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 /** 
@@ -23,16 +23,16 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
 
   def qualifier: Option[ScExpression] = getFirstChild match {case e: ScExpression => Some(e) case _ => None}
 
-  protected var resolveFunction: () => Array[ResolveResult] = null
+  protected var resolveFunction: () => Array[ScalaResolveResult] = null
 
-  protected var shapeResolveFunction: () => Array[ResolveResult] = null
+  protected var shapeResolveFunction: () => Array[ScalaResolveResult] = null
 
-  def setupResolveFunctions(resolveFunction: () => Array[ResolveResult], shapeResolveFunction: () => Array[ResolveResult]) {
+  def setupResolveFunctions(resolveFunction: () => Array[ScalaResolveResult], shapeResolveFunction: () => Array[ScalaResolveResult]) {
     this.resolveFunction = resolveFunction
     this.shapeResolveFunction = shapeResolveFunction
   }
 
-  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult]
+  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult]
 
   /**
    * Includes qualifier for Infix, Postfix and Prefix expression
@@ -65,7 +65,7 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
    */
   def shapeMultiType: Array[TypeResult]
 
-  def shapeResolve: Array[ResolveResult]
+  def shapeResolve: Array[ScalaResolveResult]
 
   def shapeType: TypeResult
 
@@ -81,7 +81,7 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
 
   def getPrevTypeInfoParams: Seq[TypeParameter]
 
-  def getSimpleVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[ResolveResult]
+  def getSimpleVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[ScalaResolveResult]
 }
 
 object ScReferenceExpression {

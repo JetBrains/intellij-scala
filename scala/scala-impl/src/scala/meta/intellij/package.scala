@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -29,7 +30,7 @@ package object intellij {
 
     implicit class AnnotExt(val annotation: ScAnnotation) extends AnyVal {
 
-      private def hasMetaAnnotation(results: Array[ResolveResult]) = results.map(_.getElement).exists {
+      private def hasMetaAnnotation(results: Array[ScalaResolveResult]) = results.map(_.getElement).exists {
         case c: ScPrimaryConstructor => c.containingClass.isMetaAnnotatationImpl
         case o: ScTypeDefinition => o.isMetaAnnotatationImpl
         case _ => false

@@ -29,6 +29,8 @@ object ScalaResolveResult {
   object withActual {
     def unapply(r: ScalaResolveResult): Option[PsiNamedElement] = Some(r.getActualElement)
   }
+
+  val EMPTY_ARRAY = Array.empty[ScalaResolveResult]
 }
 
 class ScalaResolveResult(val element: PsiNamedElement,

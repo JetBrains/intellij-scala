@@ -122,8 +122,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   def implicitConversion(fromUnderscore: Boolean = false,
                          expectedOption: => Option[ScType] = this.smartExpectedType()): Option[ScalaResolveResult] = {
 
-    def conversionForReference(reference: ScReferenceExpression) = reference.multiResolve(false) match {
-      case Array(result: ScalaResolveResult) => result.implicitConversion
+    def conversionForReference(reference: ScReferenceExpression) = reference.multiResolveScala(false) match {
+      case Array(result) => result.implicitConversion
       case _ => None
     }
 

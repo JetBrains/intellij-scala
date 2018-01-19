@@ -42,8 +42,15 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
                      dirtyFilesHolder: DirtyFilesHolder,
                      outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
+    val modules = chunk.getModules.asScala.toSet
+
+    //DirtyFilesHolder is invalidated after build of the chunk is finished,
+    //so we have to collect and store dirty files for shared source modules
+    val dirtyFilesStorage = dirtyFilesMap(context, chunk)
     if (isSharedSource(chunk)) {
-      storeDirtyFiles(context, chunk, dirtyFilesHolder)
+      modules.foreach {
+        dirtyFilesStorage.put(_, collectDirtyFiles(dirtyFilesHolder))
+      }
     }
 
     if (isDisabled(context) || ChunkExclusionService.isExcluded(chunk))
@@ -55,9 +62,9 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
 
-    val dirtyFilesFromIntellij = allDirtyFiles(context, chunk, dirtyFilesHolder)
+    val dirtyFilesFromIntellij =
+      collectDirtyFiles(dirtyFilesHolder) ++ sourceDependenciesDirtyFiles(chunk, dirtyFilesStorage)
 
-    val modules = chunk.getModules.asScala.toSet
     val moduleNames = modules.map(_.getName).toSeq
 
     val compilerOptionsChanged = CompilerOptionsStore.updateCompilerOptionsCache(context, chunk, moduleNames)
@@ -140,17 +147,13 @@ object SbtBuilder {
     }
   }
 
-  //from the chunk and shared sources dependencies
-  private def allDirtyFiles(context: CompileContext, chunk: ModuleChunk, dirtyFilesHolder: DirtyFilesHolder): Seq[File] = {
-    val fromCurrentChunk = collectDirtyFiles(dirtyFilesHolder)
-    val sourceDependenciesDirtyFiles = {
-      val sourceDependencies = SourceDependenciesProviderService.getSourceDependenciesFor(chunk)
-      sourceDependencies.flatMap(cachedDirtyFiles(context, _, chunk.containsTests()))
-    }
-    fromCurrentChunk ++ sourceDependenciesDirtyFiles
+  private def sourceDependenciesDirtyFiles(chunk: ModuleChunk,
+                                           dirtyFilesStorage: util.Map[JpsModule, Seq[File]]): Seq[File] = {
+    val sourceDependencies = SourceDependenciesProviderService.getSourceDependenciesFor(chunk)
+    sourceDependencies.flatMap(dirtyFilesStorage.getOrDefault(_, Seq.empty))
   }
 
-  //from current chunk only
+  //in current chunk only
   private def collectDirtyFiles(dirtyFilesHolder: DirtyFilesHolder): Seq[File] = {
     val result = collection.mutable.Buffer.empty[File]
     dirtyFilesHolder.processDirtyFiles((_, file, _) => {
@@ -216,29 +219,8 @@ object SbtBuilder {
       _.getModuleType == SharedSourcesModuleType.INSTANCE
     }
 
-  //DirtyFilesHolder is invalidated after build of the chunk is finished,
-  //so we have to collect and store dirty files for shared source modules in advance
-  private def storeDirtyFiles(context: CompileContext,
-                              chunk: ModuleChunk,
-                              dirtyFilesHolder: DirtyFilesHolder): Unit = {
-    val modules = chunk.getModules.asScala
-    val map = dirtyFilesMap(context, chunk.containsTests())
-    val dirtyFiles = collectDirtyFiles(dirtyFilesHolder)
-
-    modules.foreach(map.put(_, dirtyFiles))
-  }
-
-  private def cachedDirtyFiles(context: CompileContext,
-                               module: JpsModule,
-                               isTests: Boolean): Seq[File] = {
-    val map = dirtyFilesMap(context, isTests)
-    Option(map.get(module))
-      .getOrElse(Seq.empty)
-  }
-
-
-  private def dirtyFilesMap(context: CompileContext, isTests: Boolean) = {
-    val key = if (isTests) dirtyFilesTestKey else dirtyFilesProductionKey
+  private def dirtyFilesMap(context: CompileContext, chunk: ModuleChunk) = {
+    val key = if (chunk.containsTests()) dirtyFilesTestKey else dirtyFilesProductionKey
 
     Option(context.getUserData(key)).getOrElse {
       val result = new ConcurrentHashMap[JpsModule, Seq[File]]()

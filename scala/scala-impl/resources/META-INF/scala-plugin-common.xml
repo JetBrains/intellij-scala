@@ -781,7 +781,7 @@
 
         <intentionAction>
             <category>Scala/Collections</category>
-            <className>org.jetbrains.plugins.scala.codeInspection.collections.ComparingLengthIntention</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.collections.ComparingLengthIntention</className>
         </intentionAction>
 
         <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
