@@ -983,7 +983,7 @@ object JavaToScala {
 
     val file = new ScalaCodeFragment(element.getProject, text)
 
-    ConverterUtil.cleanCode(file, element.getProject, 0, file.getText.length)
+    ConverterUtil.cleanCode(file, element.getProject, 0, file.getTextLength)
     file.getText
   }
 
