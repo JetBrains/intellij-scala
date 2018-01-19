@@ -44,7 +44,7 @@ trait AnnotatorPart[T <: ScalaPsiElement] {
 object AnnotatorPart {
 
   private def collectSuperRefs[T](td: ScTemplateDefinition, extractor: ScType => Option[T]) = {
-    val superTypeElements = td.extendsBlock.templateParents.toSeq.flatMap(_.typeElements)
+    val superTypeElements = td.physicalExtendsBlock.templateParents.toSeq.flatMap(_.typeElements)
     for {
       typeElem <- superTypeElements
       tp <- typeElem.`type`().toOption

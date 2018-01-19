@@ -21,7 +21,7 @@ object UndefinedMember extends AnnotatorPart[ScTemplateDefinition] {
 
     if (!isNew && !isObject) return
 
-    definition.members.foreach {
+    definition.physicalExtendsBlock.members.foreach {
       case td: ScTypeAliasDeclaration => //abstract type declarations are allowed
       case declaration: ScDeclaration => 
         val isNative = declaration match {
