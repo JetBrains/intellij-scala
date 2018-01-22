@@ -226,10 +226,10 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
 
   protected def handleInfixUsage(change: ChangeInfo, usage: InfixExprUsageInfo): Unit = {
     val infix = usage.infix
-    val ScInfixExpr.withAssoc(ElementText(qualText), operation, right) = infix
+    val ScInfixExpr.withAssoc(ElementText(qualText), operation, argument) = infix
 
     if (change.getNewParameters.length != 1) {
-      right match {
+      argument match {
         case t: ScTuple if !hasSeveralClauses(change) =>
           val tupleText = argsText(change, usage)
           val newTuple = createExpressionWithContextFromText(tupleText, infix, t)
@@ -245,8 +245,8 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
         case Some(Seq(text)) => text
         case _ => "()"
       }
-      val expr = createExpressionWithContextFromText(argText, infix, right)
-      right.replaceExpression(expr, removeParenthesis = true)
+      val expr = createExpressionWithContextFromText(argText, infix, argument)
+      argument.replaceExpression(expr, removeParenthesis = true)
     }
   }
 

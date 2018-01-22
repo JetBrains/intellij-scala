@@ -39,8 +39,8 @@ class NegateComparisonIntention extends PsiElementBaseIntentionAction {
     val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null || !infixExpr.isValid) return
 
-    val ScInfixExpr(ElementText(left), operation, ElementText(right)) = infixExpr
-    val text = s"$left ${Replacement(operation.refName)} $right"
+    val ScInfixExpr(ElementText(baseText), operation, ElementText(argumentText)) = infixExpr
+    val text = s"$baseText ${Replacement(operation.refName)} $argumentText"
     negateAndValidateExpression(infixExpr, text)(project, editor)
   }
 }

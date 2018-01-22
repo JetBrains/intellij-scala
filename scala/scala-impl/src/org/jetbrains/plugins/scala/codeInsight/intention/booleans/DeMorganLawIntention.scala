@@ -38,8 +38,8 @@ class DeMorganLawIntention extends PsiElementBaseIntentionAction {
     val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null || !infixExpr.isValid) return
 
-    val ScInfixExpr(left, operation, right) = infixExpr
-    val text = s"${negate(left)} ${Replacement(operation.refName)} ${negate(right)}"
+    val ScInfixExpr(base, operation, argument) = infixExpr
+    val text = s"${negate(base)} ${Replacement(operation.refName)} ${negate(argument)}"
 
     negateAndValidateExpression(infixExpr, text)(project, editor)
   }

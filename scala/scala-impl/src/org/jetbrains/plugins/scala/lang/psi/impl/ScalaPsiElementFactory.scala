@@ -34,9 +34,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamCla
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.functionArrow
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -972,17 +972,17 @@ object ScalaPsiElementFactory {
     createScalaFileFromText(prefix + "\"blah\"").getFirstChild.getFirstChild
 
   def createEquivMethodCall(infix: ScInfixExpr): ScMethodCall = {
-    val ScInfixExpr.withAssoc(left, ElementText(operationText), right) = infix
+    val ScInfixExpr.withAssoc(base, ElementText(operationText), argument) = infix
 
-    val clauseText = right match {
-      case _: ScTuple | _: ScParenthesisedExpr | _: ScUnitExpr => right.getText
+    val clauseText = argument match {
+      case _: ScTuple | _: ScParenthesisedExpr | _: ScUnitExpr => argument.getText
       case ElementText(text) => text.parenthesize()
     }
 
     val typeArgText = infix.typeArgs.map(_.getText).getOrElse("")
-    val exprText = s"(${left.getText}).$operationText$typeArgText$clauseText"
+    val exprText = s"(${base.getText}).$operationText$typeArgText$clauseText"
 
-    val exprA = createExpressionWithContextFromText(left.getText, infix, left)
+    val exprA = createExpressionWithContextFromText(base.getText, infix, base)
 
     val methodCall = createExpressionWithContextFromText(exprText.toString, infix.getContext, infix)
     val referenceExpression = methodCall match {

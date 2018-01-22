@@ -386,10 +386,10 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
   override def visitInfixExpression(infix: ScInfixExpr): Unit = {
     def accept(): Unit = {
-      val ScInfixExpr.withAssoc(left, operation, right) = infix
-      left.accept(this)
+      val ScInfixExpr.withAssoc(base, operation, argument) = infix
+      base.accept(this)
       operation.accept(this)
-      right.accept(this)
+      argument.accept(this)
     }
 
     val byNameParam = infix.matchedParameters.exists(_._2.isByName)

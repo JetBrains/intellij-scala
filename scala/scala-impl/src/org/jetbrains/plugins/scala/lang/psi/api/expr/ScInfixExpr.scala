@@ -27,15 +27,15 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr {
   }
 
   def getBaseExpr: ScExpression = {
-    val withAssoc(left, _, _) = this
-    left
+    val withAssoc(base, _, _) = this
+    base
   }
 
   def getInvokedExpr: ScExpression = operation
 
   def argsElement: ScExpression = {
-    val withAssoc(_, _, right) = this
-    right
+    val withAssoc(_, _, argument) = this
+    argument
   }
 
   def isAssignmentOperator: Boolean =
