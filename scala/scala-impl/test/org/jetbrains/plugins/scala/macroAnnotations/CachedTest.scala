@@ -39,7 +39,7 @@ class CachedTest extends CachedTestBase {
     val firstRes = Foo.currentTime
     Thread.sleep(1)
     Assert.assertEquals(firstRes, Foo.currentTime)
-    Foo.getModTracker.incOutOfCodeBlockModificationCounter()
+    Foo.getModTracker.incCounter()
     Assert.assertTrue(firstRes < Foo.currentTime)
   }
 
