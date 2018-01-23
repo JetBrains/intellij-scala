@@ -167,6 +167,7 @@ object SbtExternalSystemManager {
     else Some(s"$prefix=UTF-8")
   }
 
+  // TODO We should probably rely on the more complete HttpConfigurable.getInstance.getJvmProperties()
   private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {
     val useProxy = http.USE_HTTP_PROXY && !http.PROXY_TYPE_IS_SOCKS
     val useCredentials = useProxy && http.PROXY_AUTHENTICATION
