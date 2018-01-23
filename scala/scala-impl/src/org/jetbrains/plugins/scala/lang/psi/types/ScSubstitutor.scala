@@ -11,8 +11,10 @@ import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{NameAndId, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor.LazyDepMethodTypes
@@ -23,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.annotation.tailrec
+import scala.collection.Seq
 import scala.language.implicitConversions
 
 /**
@@ -44,19 +47,31 @@ object ScSubstitutor {
 
   val cache: scala.collection.mutable.Map[(String, Long), ScType] = scala.collection.mutable.Map()
 
-  def apply(updateThisType: ScType): ScSubstitutor = {
-    new ScSubstitutor(Map.empty, Some(updateThisType))
+  def apply(updateThisType: ScType): ScSubstitutor =
+    new ScSubstitutor(updateThisType = Some(updateThisType))
+
+  def apply(tvMap: Iterable[((String, Long), ScType)]): ScSubstitutor =
+    new ScSubstitutor(tvMap.toMap)
+
+  def apply(keys: Seq[(String, Long)], values: Seq[ScType]): ScSubstitutor =
+    ScSubstitutor(keys.zip(values))
+
+  def apply(dependentMethodTypes: () => Map[Parameter, ScType]): ScSubstitutor =
+    new ScSubstitutor(depMethodTypes = Some(dependentMethodTypes))
+
+  def bind[T: NameAndId](typeParamsLike: Seq[T])(toScType: T => ScType): ScSubstitutor = {
+    val tvMap = buildMap(typeParamsLike, typeParamsLike)(toScType)
+    new ScSubstitutor(tvMap)
   }
 
-  def apply(tvMap: Map[(String, Long), ScType],
-            updateThisType: Option[ScType] = None,
-            follower: Option[ScSubstitutor] = None,
-            depMethodTypes: Option[LazyDepMethodTypes] = None): ScSubstitutor = {
-    new ScSubstitutor(tvMap, updateThisType, follower, depMethodTypes)
+  def bind[T: NameAndId, S](typeParamsLike: Seq[T], targets: Seq[S])(toScType: S => ScType): ScSubstitutor = {
+    val tvMap = buildMap(typeParamsLike, targets)(toScType)
+    new ScSubstitutor(tvMap)
   }
 
-  def apply(dependentMethodTypes: () => Map[Parameter, ScType]): ScSubstitutor = {
-    new ScSubstitutor(Map.empty, None, None, Some(dependentMethodTypes))
+  def bind[T: NameAndId](typeParamsLike: Seq[T], types: Seq[ScType]): ScSubstitutor = {
+    val tvMap = buildMap(typeParamsLike, types)(identity)
+    ScSubstitutor(tvMap)
   }
 
   class LazyDepMethodTypes(private var fun: () => Map[Parameter, ScType]) {
@@ -71,12 +86,38 @@ object ScSubstitutor {
     implicit def toValue(lz: LazyDepMethodTypes): Map[Parameter, ScType] = lz.value
     implicit def toLazy(fun: () => Map[Parameter, ScType]): LazyDepMethodTypes = new LazyDepMethodTypes(fun)
   }
+
+  @tailrec
+  def updateThisTypeDeep(subst: ScSubstitutor): Option[ScType] = {
+    subst.updateThisType match {
+      case s if s.isDefined => s
+      case _ =>
+        val follower = subst.follower
+
+        if (follower.nonEmpty) updateThisTypeDeep(follower.get)
+        else None
+    }
+  }
+
+  private def buildMap[T, S](typeParamsLike: Seq[T],
+                             types: Seq[S],
+                             initial: Map[(String, Long), ScType] = Map.empty)
+                            (toScType: S => ScType)
+                            (implicit ev: NameAndId[T]): Map[(String, Long), ScType] = {
+    val iterator1 = typeParamsLike.iterator
+    val iterator2 = types.iterator
+    var result = initial
+    while (iterator1.hasNext && iterator2.hasNext) {
+      result = result.updated(ev.nameAndId(iterator1.next()), toScType(iterator2.next()))
+    }
+    result
+  }
 }
 
-class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
-                             val updateThisType: Option[ScType],
-                             val follower: Option[ScSubstitutor] = None,
-                             val depMethodTypes: Option[LazyDepMethodTypes] = None) {
+class ScSubstitutor private (private val tvMap: Map[(String, Long), ScType] = Map.empty,
+                             private val updateThisType: Option[ScType] = None,
+                             private val follower: Option[ScSubstitutor] = None,
+                             private val depMethodTypes: Option[LazyDepMethodTypes] = None) {
 
   override def toString: String = {
     val followerText = if (follower.nonEmpty) " >> " + follower.get.toString else ""
@@ -94,8 +135,14 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
     case _ => false
   }
 
-  def bindT(name : (String, Long), t: ScType): ScSubstitutor = {
-    ScSubstitutor(tvMap + ((name, t)), updateThisType, follower, depMethodTypes)
+  def withBindings(from: Seq[TypeParameter], target: Seq[TypeParameter]): ScSubstitutor = {
+    val fromIter = from.iterator
+    val targetIter = target.iterator
+    var res = Map.empty[(String, Long), ScType]
+    while (fromIter.hasNext && targetIter.hasNext) {
+      res += (fromIter.next().nameAndId -> TypeParameterType(targetIter.next()))
+    }
+    new ScSubstitutor(tvMap ++ res, updateThisType, follower, depMethodTypes)
   }
 
   def followUpdateThisType(tp: ScType): ScSubstitutor = {
@@ -118,11 +165,6 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
   }
   def followed(s: ScSubstitutor): ScSubstitutor = followed(s, 0)
 
-  def isUpdateThisSubst: Option[ScType] = {
-    if (tvMap.isEmpty && depMethodTypes.isEmpty) updateThisType
-    else None
-  }
-
   private def followed(s: ScSubstitutor, level: Int): ScSubstitutor = {
     @tailrec
     def hasFollower(th: ScSubstitutor, s: ScSubstitutor): Boolean = th.follower match {
@@ -139,7 +181,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
     else if (this.isEmpty) s
     else {
       val newFollower = Option(if (follower.nonEmpty) follower.get.followed(s, level + 1) else s)
-      ScSubstitutor(tvMap, updateThisType, newFollower, depMethodTypes)
+      new ScSubstitutor(tvMap, updateThisType, newFollower, depMethodTypes)
     }
   }
 
@@ -338,8 +380,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
 
       override def visitExistentialType(ex: ScExistentialType): Unit = {
         val ScExistentialType(q, wildcards) = ex
-        val substCopy = ScSubstitutor(tvMap, updateThisType, follower, depMethodTypes)
-        result = new ScExistentialType(substCopy.substInternal(q),
+        result = new ScExistentialType(substInternal(q),
           wildcards.map(ex => substInternal(ex).asInstanceOf[ScExistentialArgument]))
       }
 

@@ -8,6 +8,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions.{ConcurrentMapExt, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
 import scala.language.implicitConversions
@@ -40,16 +41,43 @@ package object params {
 
   private def cachedId(element: PsiElement): Long = element.getOrUpdateUserData(typeParameterIdKey, Long.box(freshTypeParamId()))
 
-  implicit class PsiTypeParameterExt(val typeParameter: PsiTypeParameter) extends AnyVal {
-    def nameAndId: (String, Long) = (typeParameter.name, typeParamId)
+  implicit class PsiTypeParameterExt[T](val t: T) extends AnyVal {
+    def nameAndId(implicit ev: NameAndId[T]): (String, Long) = ev.nameAndId(t)
 
-    def typeParamId: Long = typeParameter match {
-      case sc: ScTypeParam => sc.typeParamId
-      case psiTp =>
-        Option(psiTp.getOwner)
-          .flatMap(owner => Option(owner.containingClass))
-          .map(cachedId)
-          .getOrElse(-1L)
+    def typeParamId(implicit ev: NameAndId[T]): Long = ev.typeParamId(t)
+  }
+
+  trait NameAndId[-T] {
+    def typeParamName(t: T): String
+
+    def typeParamId(t: T): Long
+
+    def nameAndId(t: T): (String, Long) = (typeParamName(t), typeParamId(t))
+  }
+
+  object NameAndId {
+    implicit val psi: NameAndId[PsiTypeParameter] = new NameAndId[PsiTypeParameter] {
+      override def typeParamName(t: PsiTypeParameter): String = t.name
+
+      override def typeParamId(t: PsiTypeParameter): Long = t match {
+        case sc: ScTypeParam => sc.typeParamId
+        case psiTp =>
+          Option(psiTp.getOwner)
+            .flatMap(owner => Option(owner.containingClass))
+            .map(cachedId)
+            .getOrElse(-1L)
+      }
+    }
+
+    implicit val typeParam: NameAndId[TypeParameter] = new NameAndId[TypeParameter] {
+      override def typeParamName(t: TypeParameter): String = t.name
+      override def typeParamId(t: TypeParameter): Long = psi.typeParamId(t.psiTypeParameter)
+    }
+
+    implicit val typeParamType: NameAndId[TypeParameterType] = new NameAndId[TypeParameterType] {
+      override def typeParamName(t: TypeParameterType): String = t.name
+      override def typeParamId(t: TypeParameterType): Long = psi.typeParamId(t.psiTypeParameter)
     }
   }
+
 }

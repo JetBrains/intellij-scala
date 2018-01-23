@@ -41,7 +41,7 @@ trait TypeAdapter {
             case None => m.Type.Name(t.getText)
           }
         case t: ScSimpleTypeElement =>
-          val s = ScSubstitutor(ScSubstitutor.cache.toMap)
+          val s = ScSubstitutor(ScSubstitutor.cache)
           toType(s.subst(t.calcType))
 //        case t: ScReferenceElement if dumbMode =>
 //          t.qualifier.map(qual=>m.Type.Select(getTypeQualifier(qual.asInstanceOf[ScReferenceElement]), toTypeName(t)))
@@ -109,7 +109,7 @@ trait TypeAdapter {
         case t: typedef.ScTemplateDefinition if dumbMode =>
           m.Type.Name(t.name)
         case t: typedef.ScTemplateDefinition =>
-          val s = ScSubstitutor(ScSubstitutor.cache.toMap)
+          val s = ScSubstitutor(ScSubstitutor.cache)
           toType(s.subst(t.`type`().get)) // FIXME: what about typing context?
         case t: ScPackaging =>
           m.Type.Singleton(toTermName(t.reference.get))//.setTypechecked
@@ -124,7 +124,7 @@ trait TypeAdapter {
         case t: ScParameter if dumbMode =>
           m.Type.Name(t.getText)
         case t: ScParameter =>
-          val s = ScSubstitutor(ScSubstitutor.cache.toMap)
+          val s = ScSubstitutor(ScSubstitutor.cache)
           toType(s.subst(t.typeElement.get.`type`().get))
         case t: ScTypedDefinition if dumbMode =>
           m.Type.Name(t.name)

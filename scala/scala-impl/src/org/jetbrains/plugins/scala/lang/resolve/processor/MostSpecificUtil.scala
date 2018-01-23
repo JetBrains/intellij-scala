@@ -3,9 +3,6 @@ package lang
 package resolve
 package processor
 
-import scala.collection.Set
-import scala.collection.mutable.ArrayBuffer
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -27,6 +24,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.project.ProjectContext
+
+import scala.collection.Set
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -115,40 +115,28 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) =>
         val (t1, t2) = (r1.substitutor.subst(getType(m1, r1.implicitCase)), r2.substitutor.subst(getType(m2, r2.implicitCase)))
         def calcParams(tp: ScType, existential: Boolean): Either[Seq[Parameter], ScType] = {
+
+          def toExistentialArg(tp: TypeParameter) =
+            ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType, tp.upperType)
+
           tp match {
             case ScMethodType(_, params, _) => Left(params)
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) =>
               if (!existential) {
-                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-                  (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT(tp.nameAndId,
-                      UndefinedType(TypeParameterType(tp.psiTypeParameter, None)))
-                }
+                val s: ScSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
                 Left(params.map(p => p.copy(paramType = s.subst(p.paramType))))
               } else {
-                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-                  (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT(tp.nameAndId,
-                      ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType, tp.upperType))
-                }
+                val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
                 val arguments = typeParams.toList.map(tp =>
                   ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType)))
                 Left(params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType), arguments))))
               }
             case ScTypePolymorphicType(internal, typeParams) =>
               if (!existential) {
-                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-                  (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT(tp.nameAndId,
-                      UndefinedType(TypeParameterType(tp.psiTypeParameter, None)))
-                }
+                val s: ScSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
                 Right(s.subst(internal))
               } else {
-                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-                  (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT(tp.nameAndId,
-                      ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType, tp.upperType))
-                }
+                val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
                 val arguments = typeParams.toList.map(tp =>
                   ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType)))
                 Right(ScExistentialType(s.subst(internal), arguments))

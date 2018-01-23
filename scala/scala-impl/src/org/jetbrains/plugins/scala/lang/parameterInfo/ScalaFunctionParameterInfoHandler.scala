@@ -18,11 +18,11 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentati
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler.AnnotationParameters
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement, ScTypeElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -448,17 +448,12 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
           val gen = args.callGeneric.getOrElse(null: ScGenericCall)
           def collectSubstitutor(element: PsiElement): ScSubstitutor = {
             if (gen == null) return ScSubstitutor.empty
-            val tp: Array[(String, Long)] = element match {
-              case tpo: ScTypeParametersOwner => tpo.typeParameters.map(_.nameAndId).toArray
-              case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(_.nameAndId)
+            val typeParams = element match {
+              case tpo: ScTypeParametersOwner => tpo.typeParameters.toArray
+              case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters
               case _ => return ScSubstitutor.empty
             }
-            val typeArgs: Seq[ScTypeElement] = gen.arguments
-            val map = new collection.mutable.HashMap[(String, Long), ScType]
-            for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
-              map += ((tp(i), typeArgs(i).calcType))
-            }
-            ScSubstitutor(map.toMap)
+            ScSubstitutor.bind(typeParams, gen.arguments)(_.calcType)
           }
           def collectForType(typez: ScType): Unit = {
             def process(functionName: String): Unit = {
@@ -546,13 +541,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameterClauses.length =>
                     typeElement match {
                       case gen: ScParameterizedTypeElement =>
-                        val tp = clazz.typeParameters.map(_.nameAndId)
-                        val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
-                        val map = new collection.mutable.HashMap[(String, Long), ScType]
-                        for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
-                          map += ((tp(i), typeArgs(i).calcType))
-                        }
-                        val substitutor = ScSubstitutor(map.toMap)
+                        val substitutor = ScSubstitutor.bind(clazz.typeParameters, gen.typeArgList.typeArgs)(_.calcType)
                         res += ((constr, substitutor.followed(subst), i))
                       case _ => res += ((constr, subst, i))
                     }
@@ -576,13 +565,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 for (constructor <- clazz.getConstructors) {
                   typeElement match {
                     case gen: ScParameterizedTypeElement =>
-                      val tp = clazz.getTypeParameters.map(_.nameAndId)
-                      val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
-                      val map = new collection.mutable.HashMap[(String, Long), ScType]
-                      for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
-                        map += ((tp(i), typeArgs(i).calcType))
-                      }
-                      val substitutor = ScSubstitutor(map.toMap)
+                      val substitutor = ScSubstitutor.bind(clazz.getTypeParameters, gen.typeArgList.typeArgs)(_.calcType)
                       res += ((new PhysicalSignature(constructor, substitutor.followed(subst)), i))
                     case _ => res += ((new PhysicalSignature(constructor, subst), i))
                   }

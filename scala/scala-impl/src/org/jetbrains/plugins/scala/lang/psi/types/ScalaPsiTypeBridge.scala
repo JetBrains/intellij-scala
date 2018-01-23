@@ -28,7 +28,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
         val result = classType.resolveGenerics
         result.getElement match {
           case null => Nothing
-          case psiTypeParameter: PsiTypeParameter => TypeParameterType(psiTypeParameter, None)
+          case psiTypeParameter: PsiTypeParameter => TypeParameterType(psiTypeParameter)
           case clazz if clazz.qualifiedName == "java.lang.Object" =>
             if (paramTopLevel && treatJavaObjectAsAny) Any
             else AnyRef
@@ -63,14 +63,14 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
 
                 Option(substitutor.substitute(tp))
                   .map(convertTypeParameter)
-                  .getOrElse(TypeParameterType(tp, None))
+                  .getOrElse(TypeParameterType(tp))
               }
             }
 
             val scSubst = substitutor match {
               case impl: PsiSubstitutorImpl =>
                 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-                ScSubstitutor(impl.getSubstitutionMap.asScala.toMap.filter{case (key,_) => key.isInstanceOf[PsiTypeParameter]}.map {
+                ScSubstitutor(impl.getSubstitutionMap.asScala.collect {
                   case (key: PsiTypeParameter, value) => (key.nameAndId, value.toScType(visitedRawTypes))
                 })
               case _ => ScSubstitutor.empty

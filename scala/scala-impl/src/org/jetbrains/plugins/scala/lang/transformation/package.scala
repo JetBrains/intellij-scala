@@ -88,23 +88,11 @@ package object transformation {
   }
 
   def targetFor(result: ScalaResolveResult): String = {
-    updateThisTypeDeep(result.substitutor).collect {
+    ScSubstitutor.updateThisTypeDeep(result.substitutor).collect {
       case t: ScThisType => t.element.qualifiedName + "." + result.element.name
       case t: ScDesignatorType => qualifiedNameOf(t.element) + "." + result.element.name
     } getOrElse {
       qualifiedNameOf(result.element)
-    }
-  }
-
-  @scala.annotation.tailrec
-  private def updateThisTypeDeep(subst: ScSubstitutor): Option[ScType] = {
-    subst.updateThisType match {
-      case s if s.isDefined => s
-      case _ =>
-        val follower = subst.follower
-
-        if (follower.nonEmpty) updateThisTypeDeep(follower.get)
-        else None
     }
   }
 

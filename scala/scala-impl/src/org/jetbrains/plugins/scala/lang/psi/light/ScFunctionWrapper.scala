@@ -4,7 +4,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -101,18 +101,12 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
     if (isConstructor) null
     else {
       val typeParameters = delegate.typeParameters
+      val methodTypeParameters = getTypeParameters
       val generifySubst: ScSubstitutor =
-        if (typeParameters.nonEmpty) {
-          val methodTypeParameters = getTypeParameters
-          if (typeParameters.length == methodTypeParameters.length) {
-            val tvs =
-              typeParameters.zip(methodTypeParameters).map {
-                case (param: ScTypeParam, parameter: PsiTypeParameter) =>
-                  (param.nameAndId, ScDesignatorType(parameter))
-              }
-            ScSubstitutor(tvs.toMap)
-          } else ScSubstitutor.empty
-        } else ScSubstitutor.empty
+        if (typeParameters.nonEmpty && typeParameters.length == getTypeParameters.length)
+          ScSubstitutor.bind(typeParameters, methodTypeParameters.map(ScDesignatorType(_)))
+        else ScSubstitutor.empty
+
 
       val substitutor: ScSubstitutor = ScFunctionWrapper.getSubstitutor(cClass, delegate)
       val scalaType = forDefault match {

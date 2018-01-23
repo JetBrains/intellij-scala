@@ -8,13 +8,18 @@ package impl
 package toplevel
 package typedef
 
+import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.collection.generic.FilterMonadic
+import scala.collection.mutable
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiClass, PsiClassType, PsiElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParameterExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -25,12 +30,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-
-import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.generic.FilterMonadic
-import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 abstract class MixinNodes {
   type T
@@ -317,8 +316,8 @@ abstract class MixinNodes {
       case cp: ScCompoundType =>
         processRefinement(cp, map, place)
         val thisTypeSubst = compoundThisType match {
-          case Some(_) => ScSubstitutor(Map.empty, compoundThisType)
-          case _ => ScSubstitutor(Predef.Map.empty, Some(tp))
+          case Some(comp) => ScSubstitutor(comp)
+          case _ => ScSubstitutor(tp)
         }
         (MixinNodes.linearization(cp), thisTypeSubst)
       case _ =>
@@ -335,12 +334,12 @@ abstract class MixinNodes {
               place = Option(template.extendsBlock)
               processScala(template, ScSubstitutor.empty, map, place, base = true)
               val lin = MixinNodes.linearization(template)
-              var zSubst = ScSubstitutor(Map.empty, Some(ScThisType(template)))
+              var zSubst = ScSubstitutor(ScThisType(template))
               var placer = template.getContext
               while (placer != null) {
                 placer match {
                   case t: ScTemplateDefinition => zSubst = zSubst.followed(
-                    ScSubstitutor(Map.empty, Some(ScThisType(t)))
+                    ScSubstitutor(ScThisType(t))
                   )
                   case _ =>
                 }
@@ -350,12 +349,12 @@ abstract class MixinNodes {
             case template: ScTemplateDefinition =>
               place = template.lastChildStub
               processScala(template, ScSubstitutor.empty, map, place, base = true)
-              var zSubst = ScSubstitutor(Map.empty, Some(ScThisType(template)))
+              var zSubst = ScSubstitutor(ScThisType(template))
               var placer = template.getContext
               while (placer != null) {
                 placer match {
                   case t: ScTemplateDefinition => zSubst = zSubst.followed(
-                    ScSubstitutor(Map.empty, Some(ScThisType(t)))
+                    ScSubstitutor(ScThisType(t))
                   )
                   case _ =>
                 }
@@ -416,17 +415,10 @@ abstract class MixinNodes {
     map
   }
 
-  def combine(superSubst : ScSubstitutor, superClass : PsiClass): ScSubstitutor = {
-    var res : ScSubstitutor = ScSubstitutor.empty
-    for (typeParameter <- superClass.getTypeParameters) {
-      res = res bindT(typeParameter.nameAndId, superSubst.subst(TypeParameterType(typeParameter, None)))
-    }
-    superClass match {
-      case td : ScTypeDefinition =>
-        res = ScSubstitutor(res.tvMap, None)
-      case _ => ()
-    }
-    res
+  def combine(superSubst: ScSubstitutor, superClass : PsiClass): ScSubstitutor = {
+    val typeParameters = superClass.getTypeParameters
+    val substedTpts = typeParameters.map(tp => superSubst.subst(TypeParameterType(tp)))
+    ScSubstitutor.bind(typeParameters, substedTpts)
   }
 
   def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
@@ -452,7 +444,7 @@ object MixinNodes {
             def default =
               if (clazz.getTypeParameters.isEmpty) ScalaType.designator(clazz)
               else ScParameterizedType(ScalaType.designator(clazz),
-                clazz.getTypeParameters.map(TypeParameterType(_, None)))
+                clazz.getTypeParameters.map(TypeParameterType(_)))
             clazz match {
               case td: ScTypeDefinition => td.`type`().getOrElse(default)
               case _ => default

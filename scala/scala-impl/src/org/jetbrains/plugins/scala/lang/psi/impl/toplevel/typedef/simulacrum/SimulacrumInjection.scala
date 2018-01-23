@@ -94,8 +94,8 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                     names.map { name =>
                         val substOpt = funTypeParamToLift match {
                           case Some(typeParam) if tpAdditional.nonEmpty =>
-                            val subst = ScSubstitutor.empty.bindT(typeParam.nameAndId,
-                              TypeParameterType(createTypeParameterFromText(tpAdditional.get)(source.getManager)))
+                            val parameterType = TypeParameterType(createTypeParameterFromText(tpAdditional.get)(source.getManager))
+                            val subst = ScSubstitutor.bind(Seq(typeParam), Seq(parameterType))
                             Some(subst)
                           case _ => None
                         }

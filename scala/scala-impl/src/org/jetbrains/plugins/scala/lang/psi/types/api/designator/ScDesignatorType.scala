@@ -2,16 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.types.api.designator
 
 import com.intellij.psi.{PsiClass, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, ScTypeExt, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScSubstitutor, ScType, ScTypeExt, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
-
-import scala.collection.mutable.ArrayBuffer
 
 /**
   * This type means normal designator type.
@@ -42,17 +39,13 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
             }
           case _ =>
         }
-        val args: ArrayBuffer[ScExistentialArgument] = new ArrayBuffer[ScExistentialArgument]()
-        val genericSubst = ScalaPsiUtil.
-          typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
-            ta.typeParameters.map(tp => {
-              val name = tp.name + "$$"
-              val ex = new ScExistentialArgument(name, Nil, Nothing, Any)
-              args += ex
-              ex
-            }))
-        Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(genericSubst.subst(scType), args.toList)),
-          ta.upperBound.map(scType => ScExistentialType(genericSubst.subst(scType), args.toList))))
+        val existentialArgs = ta.typeParameters
+          .map(tp => ScExistentialArgument(tp.name + "$$", Nil, Nothing, Any))
+          .toList
+
+        val genericSubst = ScSubstitutor.bind(ta.typeParameters, existentialArgs)
+        Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(genericSubst.subst(scType), existentialArgs)),
+          ta.upperBound.map(scType => ScExistentialType(genericSubst.subst(scType), existentialArgs))))
       case _ => None
     }
   }

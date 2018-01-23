@@ -58,10 +58,12 @@ sealed trait TypeParameterType extends ValueType with NamedType {
 }
 
 object TypeParameterType {
-  def apply(tp: TypeParameter): TypeParameterType = LazyTpt(tp, Some(ScSubstitutor.empty))
+  def apply(tp: TypeParameter): TypeParameterType = LazyTpt(tp, None)
 
-  def apply(psiTp: PsiTypeParameter, maybeSubstitutor: Option[ScSubstitutor] = Some(ScSubstitutor.empty)): TypeParameterType =
-    LazyTpt(TypeParameter(psiTp), maybeSubstitutor)
+  def apply(psiTp: PsiTypeParameter): TypeParameterType = LazyTpt(TypeParameter(psiTp), None)
+
+  def apply(psiTp: PsiTypeParameter, substitutor: ScSubstitutor): TypeParameterType =
+    LazyTpt(TypeParameter(psiTp), Some(substitutor))
 
   def apply(arguments: Seq[TypeParameterType],
             lowerType: ScType,
@@ -72,7 +74,7 @@ object TypeParameterType {
     Some(tpt.arguments, tpt.lowerType, tpt.upperType, tpt.psiTypeParameter)
 
 
-  private case class LazyTpt(typeParameter: TypeParameter, maybeSubstitutor: Option[ScSubstitutor] = Some(ScSubstitutor.empty))
+  private case class LazyTpt(typeParameter: TypeParameter, maybeSubstitutor: Option[ScSubstitutor] = None)
     extends TypeParameterType {
 
     val arguments: Seq[TypeParameterType] = typeParameter.typeParameters.map(LazyTpt(_, maybeSubstitutor))

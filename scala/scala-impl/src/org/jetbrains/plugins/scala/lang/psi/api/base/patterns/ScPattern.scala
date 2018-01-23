@@ -297,32 +297,33 @@ object ScPattern {
           }
         case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapply" &&
           fun.parameters.count(!_.isImplicitParameter) == 1 =>
-          val subst = if (fun.typeParameters.isEmpty) substitutor else {
-            var undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty) { (s, p) =>
-              s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor))))
+          val funTypeParams: Seq[ScTypeParam] = fun.typeParameters
+
+          val subst =
+            if (funTypeParams.isEmpty) substitutor
+            else {
+              val undefSubst = ScSubstitutor.bind(funTypeParams)(UndefinedType(_, substitutor))
+              val clazz = ScalaPsiUtil.getContextOfType(pattern, true, classOf[ScTemplateDefinition])
+              val withThisType = clazz match {
+                case clazz: ScTemplateDefinition =>
+                  undefSubst.followed(ScSubstitutor(ScThisType(clazz)))
+                case _ => undefSubst
+              }
+              val firstParameterType = fun.parameters.head.`type`() match {
+                case Right(tp) => tp
+                case _ => return None
+              }
+              val funType = withThisType.subst(firstParameterType)
+              expected match {
+                case Some(tp) => calculateSubstitutor(tp, funType, substitutor)
+                case _ => substitutor
+              }
             }
-            val clazz = ScalaPsiUtil.getContextOfType(pattern, true, classOf[ScTemplateDefinition])
-            clazz match {
-              case clazz: ScTemplateDefinition =>
-                undefSubst = undefSubst.followed(ScSubstitutor(ScThisType(clazz)))
-              case _ =>
-            }
-            val firstParameterType = fun.parameters.head.`type`() match {
-              case Right(tp) => tp
-              case _ => return None
-            }
-            val funType = undefSubst.subst(firstParameterType)
-            expected match {
-              case Some(tp) => calculateSubstitutor(tp, funType, substitutor)
-              case _ => substitutor
-            }
-          }
           fun.returnType match {
             case Right(rt) =>
               def updateRes(tp: ScType): ScType = {
-                val parameters: Seq[ScTypeParam] = fun.typeParameters
                 tp.recursiveVarianceUpdate {
-                  case (tp: TypeParameterType, variance) if parameters.contains(tp.psiTypeParameter) =>
+                  case (tp: TypeParameterType, variance) if funTypeParams.contains(tp.psiTypeParameter) =>
                     (true, if (variance == Contravariant) substitutor.subst(tp.lowerType)
                     else substitutor.subst(tp.upperType))
                   case (typez, _) => (false, typez)
@@ -340,20 +341,21 @@ object ScPattern {
           }
         case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapplySeq" &&
           fun.parameters.count(!_.isImplicitParameter) == 1 =>
-          val subst = if (fun.typeParameters.isEmpty) substitutor else {
-            val undefSubst = substitutor followed fun.typeParameters.foldLeft(ScSubstitutor.empty) { (s, p) =>
-              s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor))))
+          val typeParameters = fun.typeParameters
+          val subst =
+            if (typeParameters.isEmpty) substitutor
+            else {
+              val undefSubst = substitutor followed ScSubstitutor.bind(typeParameters)(UndefinedType(_, substitutor))
+              val firstParameterRetTp = fun.parameters.head.`type`() match {
+                case Right(tp) => tp
+                case _ => return None
+              }
+              val funType = undefSubst.subst(firstParameterRetTp)
+              expected match {
+                case Some(tp) => calculateSubstitutor(tp, funType, substitutor)
+                case _ => substitutor
+              }
             }
-            val firstParameterRetTp = fun.parameters.head.`type`() match {
-              case Right(tp) => tp
-              case _ => return None
-            }
-            val funType = undefSubst.subst(firstParameterRetTp)
-            expected match {
-              case Some(tp) => calculateSubstitutor(tp, funType, substitutor)
-              case _ => substitutor
-            }
-          }
           fun.returnType match {
             case Right(rt) =>
               val args = ScPattern.extractorParameters(subst.subst(rt), pattern, ScPattern.isOneArgCaseClassMethod(fun))

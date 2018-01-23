@@ -6,7 +6,6 @@ package processor
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
@@ -212,7 +211,7 @@ object MethodResolveProcessor {
       )
     }
 
-    val substitutor = tempSubstitutor.followed(InferUtil.undefineSubstitutor(prevTypeInfo))
+    val substitutor = tempSubstitutor.followed(ScSubstitutor.bind(prevTypeInfo)(UndefinedType(_)))
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
       case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
@@ -468,15 +467,13 @@ object MethodResolveProcessor {
     }
     maybeTypeParameters match {
       case Some(typeParameters: Seq[PsiTypeParameter]) =>
-        s.followed(
-          if (typeArgElements.nonEmpty && typeParameters.length == typeArgElements.length) {
-            ScalaPsiUtil.genericCallSubstitutor(typeParameters.map(_.nameAndId), typeArgElements)
-          } else {
-            typeParameters.foldLeft(ScSubstitutor.empty) {
-              case (subst, typeParameter) =>
-                subst.bindT(typeParameter.nameAndId, UndefinedType(TypeParameterType(typeParameter)))
-            }
-          })
+        val follower =
+          if (typeArgElements.nonEmpty && typeParameters.length == typeArgElements.length)
+            ScSubstitutor.bind(typeParameters, typeArgElements)(_.calcType)
+          else
+            ScSubstitutor.bind(typeParameters)(UndefinedType(_))
+
+        s.followed(follower)
       case _ => s
     }
   }

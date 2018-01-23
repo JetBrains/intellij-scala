@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{UndefinedType, ValueType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 object UnnecessaryPartialFunctionInspection {
@@ -57,12 +57,7 @@ class UnnecessaryPartialFunctionInspection
     findType(file, PartialFunctionClassName, undefinedTypeParameters)
 
   private def undefinedTypeParameters(clazz: PsiClass): Seq[UndefinedType] = {
-    implicit val ctx: ProjectContext = clazz
-
-    clazz
-      .getTypeParameters
-      .map(typeParameter => UndefinedType(TypeParameterType(typeParameter)))
-      .toSeq
+    clazz.getTypeParameters.map(UndefinedType(_))
   }
 
   private def canBeConvertedToFunction(caseClause: ScCaseClause, conformsToExpectedType: (ScType, ScType) => Boolean) =

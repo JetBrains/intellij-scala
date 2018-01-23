@@ -84,9 +84,7 @@ case class ScExistentialType(quantified: ScType,
     if (this != simplified) return simplified.equiv(r, undefinedSubst, falseUndef)
     (quantified, r) match {
       case (ParameterizedType(ScAbstractType(parameterType, lowerBound, upperBound), args), _) if !falseUndef =>
-        val subst = ScSubstitutor(parameterType.arguments.zip(args).map {
-          case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)
-        }.toMap)
+        val subst = ScSubstitutor.bind(parameterType.arguments, args)
         val upper: ScType =
           subst.subst(upperBound) match {
             case ParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args), wildcards)
@@ -120,17 +118,14 @@ case class ScExistentialType(quantified: ScType,
         if (!res._1) return res
         conformance.extractParams(rType) match {
           case Some(iter) =>
-            val myMap = Map(args zip iter.toList filter {case (arg, _) => wildcards.contains(arg)} filter {
-              case (arg: ScExistentialArgument, rParam: ScTypeParam) =>
-                rParam.isCovariant || rParam.isContravariant
-              case _ => false
-            } map {
-              case (arg: ScExistentialArgument, rParam: ScTypeParam) if rParam.isCovariant =>
-                ((arg.name, -1L), arg.upper)
-              case (arg: ScExistentialArgument, rParam: ScTypeParam) if rParam.isContravariant =>
-                ((arg.name, -1L), arg.lower)
-              //TODO: here we should check variantness for rArg and substitute args with lower/upper bound according to variantness
-            } :_*)
+            val myMap =
+              args.zip(iter.toList).collect {
+                case (arg: ScExistentialArgument, rParam: ScTypeParam)
+                  if rParam.isCovariant && wildcards.contains(arg) => ((arg.name, -1L), arg.upper)
+                case (arg: ScExistentialArgument, rParam: ScTypeParam)
+                  if rParam.isContravariant && wildcards.contains(arg) => ((arg.name, -1L), arg.lower)
+                //TODO: here we should check variantness for rArg and substitute args with lower/upper bound according to variantness
+              }
             val subst = ScSubstitutor(myMap)
             return subst.subst(quantified).equiv(r, undefinedSubst, falseUndef)
           case _ =>
@@ -161,9 +156,7 @@ case class ScExistentialType(quantified: ScType,
           t = w.upper.equivInner(tp.upperType, t._2, falseUndef)
           if (!t._1) return (false, undefinedSubst)
         }
-        val polySubst = ScSubstitutor(poly.typeParameters.zip(wildcards).map{case (tp, wildcard) =>
-          (tp.nameAndId, wildcard)
-        }.toMap)
+        val polySubst = ScSubstitutor.bind(poly.typeParameters, wildcards)
         quantified.equiv(polySubst.subst(poly.internalType), t._2, falseUndef)
       case _ => (false, undefinedSubst)
     }
@@ -513,7 +506,8 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
     r match {
       case exist: ScExistentialArgument =>
         var undefinedSubst = uSubst
-        val s = (exist.args zip args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1.name, -1), p._2)}
+        val keys = exist.args.map(tpt => (tpt.name, -1L))
+        val s = ScSubstitutor(keys, args)
         val t = lower.equiv(s.subst(exist.lower), undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2

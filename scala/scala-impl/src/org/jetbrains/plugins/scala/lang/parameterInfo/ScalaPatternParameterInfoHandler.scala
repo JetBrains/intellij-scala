@@ -17,12 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScPattern, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParameterExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable.ArrayBuffer
@@ -220,10 +218,10 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                   r.element match {
                     case fun: ScFunction if fun.parameters.nonEmpty =>
                       val substitutor = r.substitutor
-                      val subst = if (fun.typeParameters.isEmpty) substitutor
+                      val typeParameters = fun.typeParameters
+                      val subst = if (typeParameters.isEmpty) substitutor
                       else {
-                        val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-                          s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor)))))
+                        val undefSubst = ScSubstitutor.bind(typeParameters)(UndefinedType(_, substitutor))
                         fun.parameters.head.`type`() match {
                           case Right(result) =>
                             val funType = undefSubst.subst(result)

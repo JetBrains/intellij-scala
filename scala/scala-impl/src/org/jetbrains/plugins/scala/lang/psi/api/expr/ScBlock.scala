@@ -121,7 +121,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                 ex
               case clazz: ScTypeDefinition =>
                 val t = existize(leastClassType(clazz), visitedWithT)
-                val vars = clazz.typeParameters.map(TypeParameterType(_, None)).toList
+                val vars = clazz.typeParameters.map(TypeParameterType(_)).toList
                 val ex = ScExistentialArgument(clazz.name, vars, t, t)
                 m.put(clazz.name, ex)
                 ex

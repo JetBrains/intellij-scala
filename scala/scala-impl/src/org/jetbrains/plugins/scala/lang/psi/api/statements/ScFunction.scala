@@ -7,11 +7,6 @@ package statements
 
 import java.util
 
-import scala.annotation.tailrec
-import scala.collection.Seq
-import scala.collection.immutable.Set
-import scala.collection.mutable.ArrayBuffer
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
@@ -33,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, ScSyntheticFunction, ScSyntheticTypeParameter, SyntheticClasses}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, ScSyntheticFunction, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDeclaration, ScLightFunctionDefinition}
@@ -44,6 +39,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
+
+import scala.annotation.tailrec
+import scala.collection.Seq
+import scala.collection.immutable.Set
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -118,25 +118,19 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       case None =>
         val superReturnType = superMethodAndSubstitutor match {
           case Some((fun: ScFunction, subst)) =>
-            var typeParamSubst = ScSubstitutor.empty
-            fun.typeParameters.zip(typeParameters).foreach {
-              case (oldParam: ScTypeParam, newParam: ScTypeParam) =>
-                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, Some(subst)))
-            }
+            val typeParamSubst =
+              ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_, subst))
+
             fun.returnType.toOption.map(typeParamSubst.followed(subst).subst)
           case Some((fun: ScSyntheticFunction, subst)) =>
-            var typeParamSubst = ScSubstitutor.empty
-            fun.typeParameters.zip(typeParameters).foreach {
-              case (oldParam: ScSyntheticTypeParameter, newParam: ScTypeParam) =>
-                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, Some(subst)))
-            }
-            Some(subst.subst(fun.retType))
+            val typeParamSubst =
+              ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_, subst))
+
+            Some(typeParamSubst.subst(fun.retType))
           case Some((fun: PsiMethod, subst)) =>
-            var typeParamSubst = ScSubstitutor.empty
-            fun.getTypeParameters.zip(typeParameters).foreach {
-              case (oldParam: PsiTypeParameter, newParam: ScTypeParam) =>
-                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, Some(subst)))
-            }
+            val typeParamSubst =
+              ScSubstitutor.bind(fun.getTypeParameters, typeParameters)(TypeParameterType(_, subst))
+
             Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType()))
           case _ => None
         }

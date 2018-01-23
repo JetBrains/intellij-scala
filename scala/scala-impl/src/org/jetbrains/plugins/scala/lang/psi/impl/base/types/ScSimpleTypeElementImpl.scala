@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaElementVisitor}
@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing, TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing, TypeParameter, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -68,7 +68,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       if (clazz.getTypeParameters.isEmpty) {
         tp
       } else {
-        ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_, Some(subst))))
+        ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_, subst)))
       }
     }
 
@@ -116,14 +116,11 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       val clazz = constr.containingClass
       val (constrTypParameters: Seq[ScTypeParam], constrSubst: ScSubstitutor) = parentElement match {
         case _: ScTypeAliasDefinition => (Seq.empty, ScSubstitutor.empty)
-        case s: ScTypeParametersOwner if s.typeParameters.nonEmpty =>
+        case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
           constr match {
             case method: ScMethodLike =>
               val params = method.getConstructorTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
-              val subst = ScSubstitutor(s.typeParameters.zip(params).map {
-                case (tpClass: ScTypeParam, tpConstr: ScTypeParam) =>
-                  (tpClass.nameAndId, TypeParameterType(tpConstr))
-              }.toMap)
+              val subst = ScSubstitutor.bind(owner.typeParameters, params)(TypeParameterType(_))
               (params, subst)
             case _ => (Seq.empty, ScSubstitutor.empty)
           }
@@ -155,11 +152,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
       getContext match {
         case p: ScParameterizedTypeElement =>
-          val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-          val appSubst = ScSubstitutor(zipped.map {
-            case (arg, typeParam) =>
-              (typeParam.nameAndId, arg.`type`().getOrAny)
-          }.toMap)
+          val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList.typeArgs)(_.calcType)
           val newRes = appSubst.subst(res)
           updateImplicits(newRes, withExpected = false, params = params, lastImplicit = lastImplicit)
           return newRes
@@ -194,7 +187,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 def updateRes(expected: ScType): ScTypePolymorphicType = {
                   InferUtil.localTypeInference(previous.internalType,
                     Seq(Parameter(expected, isRepeated = false, index = 0)),
-                      Seq(new Expression(InferUtil.undefineSubstitutor(previous.typeParameters).subst(res.inferValueType))),
+                      Seq(new Expression(ScSubstitutor.bind(previous.typeParameters)(UndefinedType(_)).subst(res.inferValueType))),
                     previous.typeParameters, shouldUndefineParameters = false, filterTypeParams = false) //here should work in different way:
                 }
                 val fromUnderscore = c.newTemplate match {
@@ -278,11 +271,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             case _ => return (res, ScSubstitutor.empty)
           }
 
-          val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-          val appSubst = ScSubstitutor(zipped.map {
-            case (arg, typeParam) =>
-              (typeParam.nameAndId, arg.`type`().getOrAny)
-          }.toMap)
+          val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList.typeArgs)(_.calcType)
           (appSubst.subst(res), appSubst)
         }
         val constrRef = ref.isConstructorReference && !noConstructor
@@ -304,7 +293,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
         ref.resolveNoConstructor match {
           case Array(ScalaResolveResult(psiTypeParameter: PsiTypeParameter, _)) =>
-            Right(TypeParameterType(psiTypeParameter, None))
+            Right(TypeParameterType(psiTypeParameter))
           case Array(ScalaResolveResult(tvar: ScTypeVariableTypeElement, _)) =>
             Right(tvar.`type`().getOrAny)
           case Array(ScalaResolveResult(synth: ScSyntheticClass, _)) =>
@@ -336,7 +325,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) if !noConstructor =>
                 Right(typeForConstructor(ref, method, subst, r.getActualElement))
               case Some(ScalaResolveResult(ta: ScTypeAlias, _: ScSubstitutor)) if ta.isExistentialTypeAlias =>
-                Right(ScExistentialArgument(ta.name, ta.typeParameters.map(TypeParameterType(_, None)).toList,
+                Right(ScExistentialArgument(ta.name, ta.typeParameters.map(TypeParameterType(_)).toList,
                   ta.lowerBound.getOrNothing, ta.upperBound.getOrAny))
               case _ => calculateReferenceType(ref, shapesOnly = false)
             }

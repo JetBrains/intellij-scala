@@ -9,17 +9,17 @@ import com.intellij.openapi.util.Computable
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.sun.jdi.{Field, ObjectReference, ReferenceType, Value}
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaEvaluatorBuilderUtil}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotations, ScExpression, ScForStatement, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging, ScTypedDefinition}
@@ -28,13 +28,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ValueClassType}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
-
-import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 
 /**
  * User: Alefas
@@ -169,9 +168,8 @@ object DebuggerUtil {
         }
       case _ => Seq.empty
     }
-    val subst = typeParams.foldLeft(ScSubstitutor.empty) {
-      (subst, tp) => subst.bindT(tp.nameAndId, tp.upperBound.getOrAny)
-    }
+    val upperBounds = typeParams.map(_.upperBound.getOrAny)
+    val subst = ScSubstitutor.bind(typeParams, upperBounds)
     val localParameters = function match {
       case fun: ScFunctionDefinition if fun.isLocal => localParamsForFunDef(fun)
       case fun if fun.isConstructor =>

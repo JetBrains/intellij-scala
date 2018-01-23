@@ -241,14 +241,11 @@ object ScalaPsiUtil {
     */
   def inferMethodTypesArgs(fun: PsiMethod, classSubst: ScSubstitutor): ScSubstitutor = {
     implicit val ctx: ProjectContext = fun
-    (fun match {
+    val typeParameters = fun match {
       case fun: ScFunction => fun.typeParameters
       case fun: PsiMethod => fun.getTypeParameters.toSeq
-    }).foldLeft(ScSubstitutor.empty) {
-      (subst, tp) =>
-        subst.bindT(tp.nameAndId,
-          UndefinedType(TypeParameterType(tp, Some(classSubst)), 1))
     }
+    ScSubstitutor.bind(typeParameters)(UndefinedType(_, classSubst, level = 1))
   }
 
   def findImplicitConversion(baseExpr: ScExpression, refName: String, ref: ScExpression, processor: BaseProcessor,
@@ -539,19 +536,15 @@ object ScalaPsiUtil {
               addResult(o.qualifiedName, ScDesignatorType(o))
             }
           case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
-          case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
-            collectObjects(p.actualSubst.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
-              aliasedType.getOrAny))
+          case ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst) =>
+            collectObjects(actualSubst.subst(actualElem.aliasedType.getOrAny))
           case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
-            val genericSubst = ScalaPsiUtil.
-              typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
+            val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
             collectObjects(genericSubst.subst(ta.aliasedType.getOrAny))
-          case ParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
-            val genericSubst = ScalaPsiUtil.
-              typesCallSubstitutor(p.actualElement.asInstanceOf[ScTypeAliasDefinition].typeParameters.map(_.nameAndId), args)
-            val s = p.actualSubst.followed(genericSubst)
-            collectObjects(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
-              aliasedType.getOrAny))
+          case ParameterizedType(ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst), args) =>
+            val genericSubst = ScSubstitutor.bind(actualElem.typeParameters, args)
+            val s = actualSubst.followed(genericSubst)
+            collectObjects(s.subst(actualElem.aliasedType.getOrAny))
           case _ =>
             tp.extractClass match {
               case Some(obj: ScObject) if !visited.contains(obj) => addResult(obj.qualifiedName, tp)
@@ -776,29 +769,6 @@ object ScalaPsiUtil {
     if (newTd == null) return false
     if (newTd == td) return true
     isPlaceTdAncestor(td, newTd)
-  }
-
-  def typesCallSubstitutor(tp: Seq[(String, Long)], typeArgs: Seq[ScType]): ScSubstitutor = {
-    val map = new collection.mutable.HashMap[(String, Long), ScType]
-    for (i <- 0 until math.min(tp.length, typeArgs.length)) {
-      map += ((tp(i), typeArgs(i)))
-    }
-    ScSubstitutor(map.toMap)
-  }
-
-  def genericCallSubstitutor(tp: Seq[(String, Long)], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
-    val map = new collection.mutable.HashMap[(String, Long), ScType]
-    var i = 0
-    while (i < Math.min(tp.length, typeArgs.length)) {
-      map += ((tp(tp.length - 1 - i), typeArgs(typeArgs.length - 1 - i).`type`().getOrAny))
-      i += 1
-    }
-    ScSubstitutor(map.toMap)
-  }
-
-  def genericCallSubstitutor(tp: Seq[(String, Long)], gen: ScGenericCall): ScSubstitutor = {
-    val typeArgs: Seq[ScTypeElement] = gen.arguments
-    genericCallSubstitutor(tp, typeArgs)
   }
 
   def namedElementSig(x: PsiNamedElement): Signature =
@@ -1074,7 +1044,7 @@ object ScalaPsiUtil {
       }
 
       def substitute(typeParameter: PsiTypeParameter): PsiType = {
-        substitutor.subst(TypeParameterType(typeParameter, Some(substitutor))).toPsiType
+        substitutor.subst(TypeParameterType(typeParameter, substitutor)).toPsiType
       }
 
       def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY

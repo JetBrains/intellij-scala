@@ -133,7 +133,7 @@ trait Utils {
       if (dumbMode) {
         expr.definedReturnType.getOrElse(ptype.api.Any)
       } else {
-        val substitutor = ScSubstitutor(ScSubstitutor.cache.toMap)
+        val substitutor = ScSubstitutor(ScSubstitutor.cache)
         substitutor.subst(expr.`type`().get)
       }
     }
@@ -149,7 +149,7 @@ trait Utils {
           case _ => Right(ptype.api.Any)
         }
       } else {
-        val substitutor = ScSubstitutor(ScSubstitutor.cache.toMap)
+        val substitutor = ScSubstitutor(ScSubstitutor.cache)
         expr.`type`().map(substitutor.subst)
       }
     }

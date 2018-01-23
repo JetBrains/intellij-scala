@@ -24,11 +24,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
+
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
-
-import org.jetbrains.plugins.scala.lang.macros.MacroDef
 
 /**
   * @author Alexander Podkhalyuzin
@@ -258,7 +257,7 @@ object InferUtil {
           }).inferValueType
           val update: ScTypePolymorphicType = localTypeInference(m,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
-            Seq(new Expression(undefineSubstitutor(typeParams).subst(valueType))),
+            Seq(new Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).subst(valueType))),
             typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE, filterTypeParams = filterTypeParams)
           nonValueType = update //here should work in different way:
         }
@@ -268,7 +267,7 @@ object InferUtil {
         def updateRes(expected: ScType) {
           nonValueType = localTypeInference(internal,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
-            Seq(new Expression(undefineSubstitutor(typeParams).subst(internal.inferValueType))),
+            Seq(new Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE,
             filterTypeParams = filterTypeParams) //here should work in different way:
         }
@@ -345,13 +344,6 @@ object InferUtil {
       maybeType.map(substitutor.subst)
     }
 
-  def undefineSubstitutor(typeParams: Seq[TypeParameter]): ScSubstitutor = {
-    typeParams.foldLeft(ScSubstitutor.empty) {
-      (subst: ScSubstitutor, tp: TypeParameter) =>
-        subst.bindT(tp.nameAndId, UndefinedType(TypeParameterType(tp.psiTypeParameter)))
-    }
-  }
-
   def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                          typeParams: Seq[TypeParameter],
                          shouldUndefineParameters: Boolean = true,
@@ -387,7 +379,7 @@ object InferUtil {
 
     // See SCL-3052, SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
-    val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
+    val s: ScSubstitutor = if (shouldUndefineParameters) ScSubstitutor.bind(typeParams)(UndefinedType(_)) else ScSubstitutor.empty
     val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
       expectedType = abstractSubst.subst(p.paramType), defaultType = p.defaultType.map(s.subst)))
@@ -399,9 +391,7 @@ object InferUtil {
       subst.getSubstitutorWithBounds(canThrowSCE) match {
         case Some((unSubst, lMap, uMap)) =>
           if (!filterTypeParams) {
-            val undefiningSubstitutor = ScSubstitutor(typeParams.map(typeParam => {
-              (typeParam.nameAndId, UndefinedType(TypeParameterType(typeParam.psiTypeParameter)))
-            }).toMap)
+            val undefiningSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
             ScTypePolymorphicType(retType, typeParams.map {
               case tp@TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
                 val nameAndId = tp.nameAndId
