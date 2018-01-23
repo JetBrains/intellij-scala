@@ -468,15 +468,15 @@ abstract class ScalaAnnotator extends Annotator
     }
     val containingFile = element.getContainingFile
     def calculate(): mutable.HashSet[TextRange] = {
-      val text = containingFile.getText
+      val chars = containingFile.charSequence
       val indexes = new ArrayBuffer[Int]
       var lastIndex = 0
-      while (text.indexOf("/*_*/", lastIndex) >= 0) {
-        lastIndex = text.indexOf("/*_*/", lastIndex) + 5
+      while (chars.indexOf("/*_*/", lastIndex) >= 0) {
+        lastIndex = chars.indexOf("/*_*/", lastIndex) + 5
         indexes += lastIndex
       }
       if (indexes.isEmpty) return mutable.HashSet.empty
-      if (indexes.length % 2 != 0) indexes += text.length
+      if (indexes.length % 2 != 0) indexes += chars.length
 
       val res = new mutable.HashSet[TextRange]
       for (i <- indexes.indices by 2) {

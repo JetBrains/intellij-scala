@@ -106,7 +106,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
 
     def newLine(text: String): String = if (text == "") text else text + lineSeparator
 
-    val javaFileLen = javaFile.getText.length
+    val javaFileLen = javaFile.getTextLength
     val (begin, end) = context match {
       case _: FileContext => (0, javaFileLen)
       case part =>

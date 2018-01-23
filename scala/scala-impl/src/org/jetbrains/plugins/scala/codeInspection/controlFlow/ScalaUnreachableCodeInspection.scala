@@ -34,10 +34,10 @@ class ScalaUnreachableCodeInspection extends AbstractInspection("ScalaUnreachabl
           fragment <- fragments(unreachable)
           fix <- createQuickFix(fragment)
 
-          descriptor = new ProblemDescriptorImpl(fragment.head, fragment.last,
+        } {
+          val descriptor = new ProblemDescriptorImpl(fragment.head, fragment.last,
             "Unreachable code", Array(fix),
             ProblemHighlightType.LIKE_UNUSED_SYMBOL, false, null, null, false)
-        } {
           holder.registerProblem(descriptor)
         }
       case _ =>
@@ -47,7 +47,7 @@ class ScalaUnreachableCodeInspection extends AbstractInspection("ScalaUnreachabl
 
 object ScalaUnreachableCodeInspection {
 
-  private def fragments(instructions: Set[Instruction]): Iterable[Set[PsiElement]] = {
+  private def fragments(instructions: Set[Instruction]): Iterable[Seq[PsiElement]] = {
     @tailrec
     def parentStatement(element: PsiElement): Option[PsiElement] = element.getParent match {
       case _: ScBlock |
@@ -57,15 +57,17 @@ object ScalaUnreachableCodeInspection {
       case parent => parentStatement(parent)
     }
 
-    implicit val ordering: Ordering[Instruction] = Ordering.by((_: Instruction).num)
-    val elements = (SortedSet.empty[Instruction] ++ instructions)
+    val elements = instructions.toSeq
       .flatMap(_.element)
       .map(e => parentStatement(e).getOrElse(e))
+      .distinct
 
     elements.groupBy(_.getParent).values
+      .filter(_.nonEmpty)
+      .map(_.sortBy(_.getTextRange.getStartOffset))
   }
 
-  private def createQuickFix(fragment: Set[PsiElement]): Option[LocalQuickFixOnPsiElement] =
+  private def createQuickFix(fragment: Seq[PsiElement]): Option[LocalQuickFixOnPsiElement] =
     fragment.headOption.collect {
       case head childOf (doStatement@ScDoStmt(_, Some(condition))) if condition == head => new UnwrapDoStmtFix(doStatement)
       case head if fragment.size == 1 => new RemoveFragmentQuickFix(head)

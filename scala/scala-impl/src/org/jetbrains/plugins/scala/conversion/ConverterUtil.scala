@@ -14,14 +14,13 @@ import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.Refer
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.{RemoveRedundantReturnInspection, ScalaUnnecessarySemicolonInspection}
 import org.jetbrains.plugins.scala.conversion.ast.CommentsCollector
 import org.jetbrains.plugins.scala.conversion.copy.{Association, ScalaPasteFromJavaDialog}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
-
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -208,13 +207,13 @@ object ConverterUtil {
   case class TextPart(text: String) extends Part
 
   def getTextBetweenOffsets(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): String = {
-    val builder = new StringBuilder()
+    val builder = new java.lang.StringBuilder()
     val textGaps = startOffsets.zip(endOffsets).sortWith(_._1 < _._1)
     for ((start, end) <- textGaps) {
       if (start != end && start < end)
-        builder.append(file.getText.substring(start, end))
+        builder.append(file.charSequence.subSequence(start, end))
     }
-    builder.toString()
+    builder.toString
   }
 
   def compareTextNEq(text1: String, text2: String): Boolean = {

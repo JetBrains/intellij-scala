@@ -22,7 +22,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugin.scala.util.MacroExpansion
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteCommandAction}
+import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiElementExt, PsiFileExt, inWriteCommandAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -148,7 +148,7 @@ class MacroExpandAction extends AnAction {
       // handle macro calls with incorrect offset pointing to macro annotation
       // most likely it means given call is located inside another macro expansion
       case e: LeafPsiElement if expansion.place.macroApplication.matches("^[^\\)]+\\)$") =>
-        val pos = e.getContainingFile.getText.indexOf(expansion.place.macroApplication)
+        val pos = e.getContainingFile.charSequence.indexOf(expansion.place.macroApplication)
         if (pos != -1)
           Some(e.getContainingFile.findElementAt(pos))
         else
