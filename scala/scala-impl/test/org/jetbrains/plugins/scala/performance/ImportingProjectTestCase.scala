@@ -10,6 +10,7 @@ import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScopesCore}
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
@@ -57,7 +58,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     settings
   }
 
-  def filesWithProblems: Map[String, Seq[(Int, Int)]] = Map.empty
+  def filesWithProblems: Map[String, Set[TextRange]] = Map.empty
 
   protected val reporter = ProgressReporter.newInstance(getClass.getName, filesWithProblems)
 

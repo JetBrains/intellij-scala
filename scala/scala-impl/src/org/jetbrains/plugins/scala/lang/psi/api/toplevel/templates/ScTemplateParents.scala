@@ -49,9 +49,9 @@ object ScTemplateParents {
 
       def refTail(reference: ScStableCodeReferenceElement): Option[PsiClass] =
         reference.resolveNoConstructor match {
-          case Array(head) => head match {
-            case ScalaResolveResult(c: PsiClass, _) => Some(c)
-            case ScalaResolveResult(ta: ScTypeAliasDefinition, _) =>
+          case Array(head) => head.element match {
+            case c: PsiClass => Some(c)
+            case ta: ScTypeAliasDefinition =>
               ta.aliasedType.toOption
                 .flatMap(_.extractClass)
             case _ => tail()

@@ -25,7 +25,7 @@ trait ConstructorAnnotator {
     resolved match {
       case List() =>
         holder.createErrorAnnotation(constructor.typeElement, "Cannot resolve constructor")
-      case List(r: ScalaResolveResult) =>
+      case List(r) =>
 
         val missed = for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
         val argsElement = constructor.args.getOrElse(constructor.typeElement)

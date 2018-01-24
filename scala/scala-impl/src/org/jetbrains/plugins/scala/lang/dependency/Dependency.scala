@@ -82,12 +82,10 @@ object Dependency {
     val results = ref match {
       case rExpr: ScReferenceExpressionImpl => rExpr.doResolve(processor)
       case stRef: ScStableCodeReferenceElementImpl => stRef.doResolve(processor)
-      case _ => Array.empty
+      case _ => ScalaResolveResult.EMPTY_ARRAY
     }
 
-    results.collectFirst {
-      case srr: ScalaResolveResult => srr
-    }
+    results.headOption
   }
 
   private def dependencyFor(reference: ScReferenceElement, target: PsiElement, fromType: Option[ScType]): Option[Dependency] = {

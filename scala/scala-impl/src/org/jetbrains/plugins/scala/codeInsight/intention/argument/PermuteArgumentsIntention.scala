@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 /**
  * Jason Zaugg
@@ -32,21 +31,28 @@ class PermuteArgumentsIntention extends PsiElementBaseIntentionAction {
 
   private def check(project: Project, editor: Editor, element: PsiElement): Option[() => Unit] = {
     val argList = PsiTreeUtil.getParentOfType(element, classOf[ScArgumentExprList])
-    if (argList == null) return None
+    if (argList == null)
+      return None
 
-    val argsAndMatchingParams: Seq[(ScExpression, Parameter)] = argList.matchedParameters.sortBy(_._1.getTextOffset)
-    val argumentParamIndices: Seq[Int] = argsAndMatchingParams.map(_._2.index)
-    val sorted: Seq[Int] = argumentParamIndices.sorted
-    if (argumentParamIndices != sorted) {
-      val doIt = () => {
-        val argsCopy = argList.exprs.map(_.copy)
-        argList.exprs.zipWithIndex.foreach {
-          case (argExpr, i) =>
-            val i2 = argumentParamIndices.indexOf(sorted(i))
-            argExpr.replace(argsCopy(i2))
-        }
-      }
-      Some(doIt)
-    } else None
+    val argExprs = argList.exprs
+
+    val newArgsExprs = argList.matchedParameters.sortBy {
+      case (expr, p) => (p.index, expr.getTextRange.getStartOffset)
+    }.flatMap {
+      case (expr, p) => argOrNamedArg(expr)
+    }
+
+    if (newArgsExprs.size != argExprs.size || newArgsExprs == argExprs)
+      return None
+
+    Some(() => argExprs.zip(newArgsExprs).foreach {
+      case (arg, newArg) => arg.replace(newArg.copy)
+    })
+  }
+
+  private def argOrNamedArg(expr: ScExpression): Option[ScExpression] = expr.getContext match {
+    case argList: ScArgumentExprList => Some(expr)
+    case context: ScExpression => argOrNamedArg(context)
+    case _ => None
   }
 }

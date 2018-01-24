@@ -122,7 +122,7 @@ object ImportInfo {
     var hasNonUsedImplicits = false
 
     def addAllNames(ref: ScStableCodeReferenceElement, nameToAdd: String): Unit = {
-      if (ref.multiResolve(false).exists(shouldAddName)) allNames += nameToAdd
+      if (ref.multiResolveScala(false).exists(shouldAddName)) allNames += nameToAdd
     }
 
     val deepRef = deepestQualifier(qualifier)
@@ -313,26 +313,27 @@ object ImportInfo {
       override val includePrefixImports = false
     }
 
-    reference.doResolve(processor).foreach {
-      case rr: ScalaResolveResult if shouldAddName(rr) =>
-        val element = rr.element
-        val nameToAdd = fixName(element.name)
-        namesForWildcard += nameToAdd
-        if (ScalaPsiUtil.isImplicit(element))
-          implicitNames += nameToAdd
-      case _ =>
+    for {
+      rr <- reference.doResolve(processor)
+      if shouldAddName(rr)
+    } {
+      val named = rr.element
+      val nameToAdd = fixName(named.name)
+      namesForWildcard += nameToAdd
+      if (ScalaPsiUtil.isImplicit(named))
+        implicitNames += nameToAdd
     }
     (namesForWildcard.toSet, implicitNames.toSet)
   }
 
-  private def shouldAddName(resolveResult: ResolveResult): Boolean = {
-    resolveResult match {
-      case ScalaResolveResult(_: PsiPackage, _) => true
-      case ScalaResolveResult(m: PsiMethod, _) => m.containingClass != null
-      case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => true
-      case ScalaResolveResult(_: ScTypeAlias, _) => true
-      case ScalaResolveResult(_: PsiClass, _) => true
-      case ScalaResolveResult(f: PsiField, _) => f.hasFinalModifier
+  private def shouldAddName(resolveResult: ScalaResolveResult): Boolean = {
+    resolveResult.element match {
+      case _: PsiPackage => true
+      case m: PsiMethod => m.containingClass != null
+      case td: ScTypedDefinition if td.isStable => true
+      case _: ScTypeAlias => true
+      case _: PsiClass => true
+      case f: PsiField => f.hasFinalModifier
       case _ => false
     }
   }

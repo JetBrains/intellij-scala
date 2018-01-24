@@ -84,7 +84,7 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
           case None => ref.qualifier.getOrElse(return true)
         }
 
-        val resolve: Array[ResolveResult] = processor match {
+        val resolve = processor match {
           case p:ResolveProcessor=>
             ref match {
               // do not process methodrefs when importing a type from a type
@@ -95,9 +95,9 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
                 ref.resolveTypesOnly(false)
               case ref: ScStableCodeReferenceElement if p.kinds.contains(ResolveTargets.METHOD) =>
                 ref.resolveMethodsOnly(false)
-              case _ => ref.multiResolve(false)
+              case _ => ref.multiResolveScala(false)
             }
-          case _ => ref.multiResolve(false)
+          case _ => ref.multiResolveScala(false)
         }
 
         //todo: making lazy next two definitions leads to compiler failure
@@ -109,13 +109,9 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
 
         val exprQualRefType = () => ScSimpleTypeElementImpl.calculateReferenceType(exprQual, shapesOnly = false)
 
-        def checkResolve(resolve: ResolveResult): Boolean = {
-          resolve match {
-            case ScalaResolveResult(elem, _) =>
-              PsiTreeUtil.getContextOfType(elem, true, classOf[ScTypeDefinition]) match {
-                case obj: ScObject if obj.isPackageObject => true
-                case _ => false
-              }
+        def checkResolve(resolve: ScalaResolveResult): Boolean = {
+          PsiTreeUtil.getContextOfType(resolve.element, true, classOf[ScTypeDefinition]) match {
+            case obj: ScObject if obj.isPackageObject => true
             case _ => false
           }
         }
@@ -135,21 +131,18 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
 
         val resolveIterator = resolve.iterator
         while (resolveIterator.hasNext) {
-          val next = resolveIterator.next()
-          val (elem, importsUsed, s) = next match {
-            case s: ScalaResolveResult =>
-              @tailrec
-              def getFirstReference(ref: ScStableCodeReferenceElement): ScStableCodeReferenceElement = {
-                ref.qualifier match {
-                  case Some(qual) => getFirstReference(qual)
-                  case _ => ref
-                }
-              }
-              (s.getElement,
-                getFirstReference(exprQual).bind().fold(s.importsUsed)(r => r.importsUsed ++ s.importsUsed),
-                s.substitutor)
-            case r: ResolveResult => (r.getElement, Set[ImportUsed](), ScSubstitutor.empty)
+          @tailrec
+          def getFirstReference(ref: ScStableCodeReferenceElement): ScStableCodeReferenceElement = {
+            ref.qualifier match {
+              case Some(qual) => getFirstReference(qual)
+              case _ => ref
+            }
           }
+          val next = resolveIterator.next()
+          val elem = next.getElement
+          val importsUsed = getFirstReference(exprQual).bind().fold(next.importsUsed)(r => r.importsUsed ++ next.importsUsed)
+          val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty).followed(next.substitutor)
+
           (elem, processor) match {
             case (pack: PsiPackage, completionProcessor: CompletionProcessor) if completionProcessor.includePrefixImports =>
               val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(getProject)
@@ -191,7 +184,6 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
               elem.processDeclarations(importsProcessor, newState, this, place)
             case _ =>
           }
-          val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty).followed(s)
           ProgressManager.checkCanceled()
           importExpr.selectorSet match {
             case None =>
@@ -225,7 +217,7 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
                   case Some(reference) =>
                     val isImportAlias = selector.isAliasedImport && !selector.importedName.contains(reference.refName)
                     if (isImportAlias) {
-                      for (result <- reference.multiResolve(false)) {
+                      for (result <- reference.multiResolveScala(false)) {
                         //Resolve the name imported by selector
                         //Collect shadowed elements
                         shadowed += ((selector, result.getElement))
@@ -313,13 +305,10 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
               set.selectors.foreach { selector =>
                   ProgressManager.checkCanceled()
                 for (element <- selector.reference;
-                     result <- element.multiResolve(false)) {
+                     result <- element.multiResolveScala(false)) {
                     var newState: ResolveState = state
                   if (!selector.isAliasedImport || selector.importedName == selector.reference.map(_.refName)) {
-                      val rSubst = result match {
-                        case result: ScalaResolveResult => result.substitutor
-                        case _ => ScSubstitutor.empty
-                      }
+                      val rSubst = result.substitutor
                       newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
                         put(ScSubstitutor.key, subst.followed(rSubst))
                       calculateRefType(checkResolve(result)).foreach {tp =>

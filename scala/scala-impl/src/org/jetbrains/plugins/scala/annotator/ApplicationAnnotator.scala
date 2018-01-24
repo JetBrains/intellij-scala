@@ -30,8 +30,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
  */
 trait ApplicationAnnotator {
   def annotateReference(reference: ScReferenceElement, holder: AnnotationHolder) {
-    for {result <- reference.multiResolve(false)
-         r = result.asInstanceOf[ScalaResolveResult]} {
+    for {r <- reference.multiResolveScala(false)} {
 
       ImportTracker.registerUsedImports(reference, r)
 

@@ -42,7 +42,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
-
 import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.ArrayBuffer
@@ -53,6 +52,8 @@ import scala.runtime.NonLocalReturnControl
 import scala.util.control.Exception.catching
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
+
+import com.intellij.util.text.CharArrayUtil
 
 /**
   * Pavel Fatin
@@ -103,6 +104,12 @@ package object extensions {
 
     def isParameterless: Boolean =
       repr.getParameterList.getParametersCount == 0
+  }
+
+  implicit class PsiFileExt(val file: PsiFile) extends AnyVal {
+    def charSequence: CharSequence =
+      if (file.isValid) file.getViewProvider.getContents
+      else file.getText
   }
 
   object PsiMethodExt {
@@ -235,13 +242,20 @@ package object extensions {
 
     def prefixLength(pred: Char => Boolean): Int = iterator.takeWhile(pred).size
 
-    def startsWith(s: String): Boolean = cs.substring(0, s.length) == s
+    def startsWith(prefix: String): Boolean =
+      prefix.length <= cs.length && cs.substring(0, prefix.length) == prefix
 
-    def substring(start: Int, end: Int): String =
+    def endsWith(suffix: String): Boolean =
+      suffix.length <= cs.length && cs.substring(cs.length() - suffix.length) == suffix
+
+    def substring(start: Int, end: Int = cs.length()): String =
       cs.subSequence(start, end).toString
 
     def substring(range: TextRange): String =
       cs.subSequence(range.getStartOffset, range.getEndOffset).toString
+
+    def indexOf(pattern: CharSequence, fromIndex: Int = 0): Int =
+      CharArrayUtil.indexOf(cs, pattern, fromIndex)
   }
 
   implicit class StringsExt(val strings: Seq[String]) extends AnyVal {

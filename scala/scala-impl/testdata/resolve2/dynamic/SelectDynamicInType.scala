@@ -5,4 +5,4 @@ trait Foo {
 object Foo extends Dynamic {
   def selectDynamic(name: String) : Foo = new Foo {}
 }
-type A = Foo.<ref>`5`.T
+type A = Foo./* resolved: false */`5`.T

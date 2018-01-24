@@ -97,7 +97,8 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       new ConverterUtil.ConvertedCode(text, updatedAssociations.toArray, ConverterUtil.compareTextNEq(oldText, text))
     } catch {
       case e: Exception =>
-        val selections = (startOffsets, endOffsets).zipped.map((a, b) => file.getText.substring(a, b))
+        val charSequence = file.charSequence
+        val selections = (startOffsets, endOffsets).zipped.map((a, b) => charSequence.substring(a, b))
         val attachments = selections.zipWithIndex.map(p => new Attachment("Selection-%d.java".format(p._2 + 1), p._1))
         Log.error(LogMessageEx.createEvent(e.getMessage, ExceptionUtil.getThrowableText(e), attachments: _*))
         null

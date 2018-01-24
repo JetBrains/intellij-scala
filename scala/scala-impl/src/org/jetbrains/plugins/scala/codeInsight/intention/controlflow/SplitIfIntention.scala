@@ -35,7 +35,7 @@ class SplitIfIntention extends PsiElementBaseIntentionAction {
     if (ifStmt == null || !ifStmt.isValid) return
 
     val ScIfStmt(Some(infix: ScInfixExpr), Some(ElementText(thenBranchText)), maybeElseBranch) = ifStmt
-    val ScInfixExpr.withAssoc(left, _, right) = infix
+    val ScInfixExpr.withAssoc(base, _, argument) = infix
 
     def conditionText(e: ScExpression): String = (e match {
       case ScParenthesisedExpr(expression) => expression
@@ -43,8 +43,8 @@ class SplitIfIntention extends PsiElementBaseIntentionAction {
     }).getText.trim
 
     val prefix =
-      s"""if (${conditionText(left)})
-         |if (${conditionText(right)}) $thenBranchText""".stripMargin
+      s"""if (${conditionText(base)})
+         |if (${conditionText(argument)}) $thenBranchText""".stripMargin
 
     val suffix = maybeElseBranch match {
       case Some(ElementText(text)) =>

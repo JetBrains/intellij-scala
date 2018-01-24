@@ -640,9 +640,7 @@ object ScalaPsiUtil {
             res = res ++ call.getImportsUsed
             super.visitExpression(expr)
           case ref: ScReferenceExpression =>
-            for (rr <- ref.multiResolve(false) if rr.isInstanceOf[ScalaResolveResult]) {
-              res = res ++ rr.asInstanceOf[ScalaResolveResult].importsUsed
-            }
+            res ++= ref.multiResolveScala(false).flatMap(_.importsUsed)
             super.visitExpression(expr)
           case _ =>
             super.visitExpression(expr)
@@ -1177,7 +1175,7 @@ object ScalaPsiUtil {
       if (from == parent.lOp) false
       else {
         parent.operation.bind() match {
-          case Some(resolveResult: ResolveResult) =>
+          case Some(resolveResult) =>
             val startInParent: Int = from.getStartOffsetInParent
             val endInParent: Int = startInParent + from.getTextLength
             val parentText = parent.getText
@@ -1520,11 +1518,8 @@ object ScalaPsiUtil {
     def correctResolve(alias: (ScReferenceElement, String)): Boolean = {
       val (aliasRef, text) = alias
       val ref = createReferenceFromText(text, position.getContext, position)
-      val resolves = aliasRef.multiResolve(false)
-      resolves.exists {
-        case rr: ScalaResolveResult => ref.isReferenceTo(rr.element)
-        case _ => false
-      }
+      aliasRef.multiResolveScala(false)
+        .exists(rr => ref.isReferenceTo(rr.element))
     }
 
     aliases.filter(_._1.getTextRange.getEndOffset < position.getTextOffset).filter(correctResolve).toSet
@@ -1534,7 +1529,7 @@ object ScalaPsiUtil {
     val importAliases = availableImportAliases(refPosition)
     val suitableAliases = importAliases.collect {
       case (aliasRef, aliasName)
-        if aliasRef.multiResolve(false).exists(rr => ScEquivalenceUtil.smartEquivalence(rr.getElement, element)) => aliasName
+        if aliasRef.multiResolveScala(false).exists(rr => ScEquivalenceUtil.smartEquivalence(rr.getElement, element)) => aliasName
     }
     if (suitableAliases.nonEmpty) {
       val newRef: ScStableCodeReferenceElement = createReferenceFromText(suitableAliases.head)(refPosition.getManager)

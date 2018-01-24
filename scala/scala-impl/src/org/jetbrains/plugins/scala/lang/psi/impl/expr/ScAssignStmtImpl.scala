@@ -74,7 +74,7 @@ class ScAssignStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
     getLExpression match {
       case ref: ScReferenceExpression =>
         ref.bind() match {
-          case Some(r: ScalaResolveResult) =>
+          case Some(r) =>
             ScalaPsiUtil.nameContext(r.element) match {
               case _: ScVariable => None
               case c: ScClassParameter if c.isVar => None

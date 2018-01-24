@@ -12,9 +12,11 @@ class ComparingLengthInspection extends OperationOnCollectionInspection{
   override def possibleSimplificationTypes: Array[SimplificationType] = Array(ComparingLength)
 }
 
-private object ComparingLengthInspection {
+object ComparingLengthInspection {
+  val hint: String = InspectionBundle.message("replace.with.lengthCompare")
+
   private val ComparingLength: SimplificationType = new SimplificationType() {
-    override def hint: String = InspectionBundle.message("replace.with.lengthCompare")
+    override def hint: String = ComparingLengthInspection.hint
 
     override def getSimplification(e: ScExpression): Option[Simplification] = Some(e).collect {
       case q `.sizeOrLength` () `>` n => (q, ">", n)
@@ -24,13 +26,14 @@ private object ComparingLengthInspection {
       case q `.sizeOrLength` () `<` n => (q, "<", n)
       case q `.sizeOrLength` () `<=` n => (q, "<=", n)
     } filter { case (q, _, n) =>
-      isNonIndexedSeq(q) && !intLiteralValue(n).contains(0)
+      isNonIndexedSeq(q) && !isZero(n)
     } map { case (q, op, n) =>
       replace(e).withText(s"${invocationText(q, "lengthCompare", n)} $op 0").highlightFrom(q)
     }
   }
 
-  private def intLiteralValue(e: ScExpression) = Some(e).collect {
-    case ScIntLiteral(n) => n
+  private def isZero(e: ScExpression): Boolean = e match {
+    case ScIntLiteral(0) => true
+    case _ => false
   }
 }

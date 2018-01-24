@@ -54,20 +54,20 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
       while (exprIter.hasNext) {
         val expr = exprIter.next()
         if (expr.isSingleWildcard && qualNoPoint != null) {
-          for (resolve <- expr.qualifier.multiResolve(false))
-            resolve match {
-              case ScalaResolveResult(pack: PsiPackage, _) =>
+          for (resolve <- expr.qualifier.multiResolveScala(false))
+            resolve.element match {
+              case pack: PsiPackage =>
                 if (qualNoPoint == pack.getQualifiedName) return Some(4)
-              case ScalaResolveResult(clazz: PsiClass, _) =>
+              case clazz: PsiClass =>
                 if (qualNoPoint == clazz.qualifiedName) return Some(4)
               case _ =>
             }
         } else if (expr.selectorSet.isDefined) {
           for (selector <- expr.selectors) {
-            for (element <- selector.reference;
-                 resolve <- element.multiResolve(false)) {
-              resolve match {
-                case ScalaResolveResult(clazz: PsiClass, _) =>
+            for (ref <- selector.reference;
+                 resolve <- ref.multiResolveScala(false)) {
+              resolve.element match {
+                case clazz: PsiClass =>
                   if (qual == clazz.qualifiedName) return Some(4)
                 case _ =>
               }
@@ -76,9 +76,9 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
         } else {
           expr.reference match {
             case Some(ref) =>
-              for (resolve <- ref.multiResolve(false))
-                resolve match {
-                  case ScalaResolveResult(clazz: PsiClass, _) =>
+              for (resolve <- ref.multiResolveScala(false))
+                resolve.element match {
+                  case clazz: PsiClass =>
                     if (qual == clazz.qualifiedName) return Some(4)
                   case _ =>
                 }

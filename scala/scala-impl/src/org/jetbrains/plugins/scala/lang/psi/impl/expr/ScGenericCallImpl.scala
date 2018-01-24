@@ -107,7 +107,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     typeResult.map(shapeType(_))
   }
 
-  override def shapeMultiResolve: Option[Array[ResolveResult]] = {
+  override def shapeMultiResolve: Option[Array[ScalaResolveResult]] = {
     referencedExpr match {
       case ref: ScReferenceExpression => Some(ref.shapeResolve)
       case _ => None
@@ -122,9 +122,9 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     typeResult.map(convertReferencedType)
   }
 
-  override def multiResolve: Option[Array[ResolveResult]] = {
+  override def multiResolve: Option[Array[ScalaResolveResult]] = {
     referencedExpr match {
-      case ref: ScReferenceExpression => Some(ref.multiResolve(false))
+      case ref: ScReferenceExpression => Some(ref.multiResolveScala(false))
       case _ => None
     }
   }

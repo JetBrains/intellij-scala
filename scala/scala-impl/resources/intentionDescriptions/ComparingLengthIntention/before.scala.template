@@ -1,0 +1,3 @@
+seq.length == n
+
+seq.size > n

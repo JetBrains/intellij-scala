@@ -18,6 +18,9 @@ object CBT {
   def isCbtModuleDir(entry: VirtualFile): Boolean =
     entry.containsDirectory("build")
 
+  def isCbtBuildFile(entry: VirtualFile): Boolean =
+    entry.isFile && entry.getName == "build.scala"
+
   val cbtBuildClassNames: Seq[String] =
     Seq("BaseBuild", "BasicBuild", "BuildBuild", "Plugin")
 

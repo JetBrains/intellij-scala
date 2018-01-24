@@ -57,7 +57,7 @@ object ScalaRenameUtil {
       case ref: ScStableCodeReferenceElement =>
         val isInImport = ref.parentOfType(classOf[ScImportStmt]).isDefined
         if (isInImport && ref.resolve() == null) {
-          val multiResolve = ref.multiResolve(false)
+          val multiResolve = ref.multiResolveScala(false)
           if (multiResolve.length > 1 && multiResolve.forall(_.getElement.isInstanceOf[ScTypeDefinition])) {
             new PsiReference {
               def getVariants: Array[AnyRef] = ref.getVariants

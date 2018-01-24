@@ -215,9 +215,8 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
               val ref: ScStableCodeReferenceElement = constr.ref
               val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
               if (ref != null) {
-                val variants: Array[ResolveResult] = ref.multiResolve(false)
-                for (variant <- variants if variant.isInstanceOf[ScalaResolveResult]) {
-                  val r = variant.asInstanceOf[ScalaResolveResult]
+                val variants = ref.multiResolveScala(false)
+                for (r <- variants) {
                   r.element match {
                     case fun: ScFunction if fun.parameters.nonEmpty =>
                       val substitutor = r.substitutor

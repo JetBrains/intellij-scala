@@ -5,6 +5,7 @@ package formatting
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIfStmt
@@ -32,10 +33,13 @@ object FormatterUtil {
     }
   }
   def calcAbsolutePosition(node: ASTNode): Int = {
-    val text = node.getPsi.getContainingFile.getText
+    val text = node.getPsi.getContainingFile.charSequence
     var offset = node.getTextRange.getStartOffset - 1
     var result = 0
-    while (offset >= 0 && text(offset) != '\n') {offset += -1; result += 1}
+    while (offset >= 0 && text.charAt(offset) != '\n') {
+      offset += -1
+      result += 1
+    }
     result
   }
 

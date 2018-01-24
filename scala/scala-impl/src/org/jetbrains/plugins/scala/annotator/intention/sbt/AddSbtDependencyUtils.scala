@@ -6,6 +6,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.intention.sbt.SbtDependenciesVisitor._
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
@@ -89,7 +90,7 @@ object AddSbtDependencyUtils {
   }
 
   def getTopLevelPlaceToAdd(psiFile: ScalaFile)(implicit project: Project): Option[DependencyPlaceInfo] = {
-    val line: Int = StringUtil.offsetToLineNumber(psiFile.getText, psiFile.getTextLength) + 1
+    val line: Int = StringUtil.offsetToLineNumber(psiFile.charSequence, psiFile.getTextLength) + 1
     getRelativePath(psiFile).map { relpath =>
       DependencyPlaceInfo(relpath, psiFile.getTextLength, line, psiFile, Seq())
     }
@@ -253,7 +254,7 @@ object AddSbtDependencyUtils {
         case _ => elem.getTextOffset
       }
 
-    val line: Int = StringUtil.offsetToLineNumber(elem.getContainingFile.getText, offset) + 1
+    val line: Int = StringUtil.offsetToLineNumber(elem.getContainingFile.charSequence, offset) + 1
 
     getRelativePath(elem).map { relpath =>
       DependencyPlaceInfo(relpath, offset, line, elem, affectedProjects)

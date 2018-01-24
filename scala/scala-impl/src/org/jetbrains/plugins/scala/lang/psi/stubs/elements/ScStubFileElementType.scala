@@ -18,7 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.AbstractFileStub
 class ScStubFileElementType(val debugName: String = "file",
                             language: Language = ScalaLanguage.INSTANCE)
   extends IStubFileElementType[ScFileStub](debugName, language) with DefaultStubSerializer[ScFileStub] {
-  override def getStubVersion: Int = StubVersion.STUB_VERSION
+
+  override def getStubVersion: Int = StubVersion.STUB_VERSION + super.getStubVersion
 
   override def getBuilder: StubBuilder = new ScalaFileStubBuilder
 

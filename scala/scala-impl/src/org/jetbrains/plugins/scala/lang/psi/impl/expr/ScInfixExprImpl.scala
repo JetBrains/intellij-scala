@@ -25,13 +25,13 @@ class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScI
   }
 
   protected override def innerType: TypeResult = {
-    val ScInfixExpr(ElementText(left), operation, ElementText(right)) = this
+    val ScInfixExpr(ElementText(baseText), operation, ElementText(argumentText)) = this
 
     import ScalaPsiElementFactory.createExpressionWithContextFromText
     operation.bind().collect {
       //this is assignment statement: x += 1 equals to x = x + 1
       case ScalaResolveResult(element, _) if element.name + "=" == operation.refName =>
-        s"$left = $left ${element.name} $right"
+        s"$baseText = $baseText ${element.name} $argumentText"
     }.map {
       createExpressionWithContextFromText(_, getContext, this).`type`()
     }.getOrElse(super.innerType)
