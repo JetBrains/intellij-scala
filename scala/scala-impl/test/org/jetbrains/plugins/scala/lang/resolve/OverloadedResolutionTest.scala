@@ -23,7 +23,7 @@ class OverloadedResolutionTest extends ScalaResolveTestCase {
   private def doTest() = {
     findReferenceAtCaret() match {
       case ref: ScReferenceElement =>
-        val variants = ref.multiResolve(false)
+        val variants = ref.multiResolveScala(false)
         assertTrue(s"Single resolve expected, was: ${variants.length}", variants.length == 1)
     }
   }

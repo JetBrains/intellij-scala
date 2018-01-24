@@ -11,5 +11,4 @@ class EscapeSymbolsTest extends FailedResolveTest("escapeSymbols") {
   def testSCL10116(): Unit = doTest()
   def testSCL5375(): Unit = doTest()
   def testSCL10630(): Unit = doTest()
-  def testSCL12503(): Unit = doTest()
 }

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.projectHighlighting
 
+import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.junit.experimental.categories.Category
 
@@ -11,8 +12,8 @@ class ThreeJSProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest
 
   override def revision = "d8417746908daaaac14436b486123ec284d67cdd"
 
-  override def filesWithProblems: Map[String, Seq[(Int, Int)]] = Map(
-    "Routes.scala" -> Seq(),
-    "ThreeJSExample.scala" -> Seq((1242, 1295),(1242, 1295),(1220, 1239))
+  override def filesWithProblems: Map[String, Set[TextRange]] = Map(
+    "Routes.scala" -> Set(),
+    "ThreeJSExample.scala" -> Set((1242, 1295),(1220, 1239))
   )
 }

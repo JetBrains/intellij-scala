@@ -156,66 +156,66 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
 
   override def processElementUsages(element: PsiElement, processor: Processor[UsageInfo], options: FindUsagesOptions): Boolean = {
     if (!super.processElementUsages(element, processor, options)) return false
-    options match {
-      case s: ScalaTypeDefinitionFindUsagesOptions if element.isInstanceOf[ScTypeDefinition] =>
-        val definition = element.asInstanceOf[ScTypeDefinition]
-        if (s.isMembersUsages) {
-          definition.members.foreach {
-            case fun: ScFunction =>
-              if (!super.processElementUsages(fun, processor, options)) return false
-            case v: ScValue =>
-              v.declaredElements.foreach { d =>
-                if (!super.processElementUsages(d, processor, options)) return false
-              }
-            case v: ScVariable =>
-              v.declaredElements.foreach { d =>
-                if (!super.processElementUsages(d, processor, options)) return false
-              }
-            case ta: ScTypeAlias =>
-              if (!super.processElementUsages(ta, processor, options)) return false
-            case c: ScTypeDefinition =>
-              if (!super.processElementUsages(c, processor, options)) return false
-            case c: ScPrimaryConstructor =>
-              if (!super.processElementUsages(c, processor, options)) return false
-          }
-          definition match {
-            case c: ScClass =>
-              c.constructor match {
-                case Some(constr) => constr.effectiveParameterClauses.foreach {clause =>
-                  clause.effectiveParameters.foreach { _ =>
-                    if (!super.processElementUsages(c, processor, options)) return false
-                  }
-                }
-                case _ =>
-              }
-            case _ =>
-          }
-        }
-        if (s.isSearchCompanionModule) {
-          definition.baseCompanionModule.foreach { companion =>
-            if (!super.processElementUsages(companion, processor, options)) return false
-          }
-        }
-        if (s.isImplementingTypeDefinitions) {
-          val res = new mutable.HashSet[PsiClass]()
-          ClassInheritorsSearch.search(definition, true).forEach(new Processor[PsiClass] {
-            def process(t: PsiClass): Boolean = {
-              t match {
-                case _: PsiClassWrapper =>
-                case _ => res += t
-              }
-              true
-            }
-          })
-          res.foreach { c =>
-            val processed = inReadAction(processor.process(new UsageInfo(c)))
-            if (!processed) return false
-          }
-        }
-      case _ =>
-    }
-
     inReadAction {
+      options match {
+        case s: ScalaTypeDefinitionFindUsagesOptions if element.isInstanceOf[ScTypeDefinition] =>
+          val definition = element.asInstanceOf[ScTypeDefinition]
+          if (s.isMembersUsages) {
+            definition.members.foreach {
+              case fun: ScFunction =>
+                if (!super.processElementUsages(fun, processor, options)) return false
+              case v: ScValue =>
+                v.declaredElements.foreach { d =>
+                  if (!super.processElementUsages(d, processor, options)) return false
+                }
+              case v: ScVariable =>
+                v.declaredElements.foreach { d =>
+                  if (!super.processElementUsages(d, processor, options)) return false
+                }
+              case ta: ScTypeAlias =>
+                if (!super.processElementUsages(ta, processor, options)) return false
+              case c: ScTypeDefinition =>
+                if (!super.processElementUsages(c, processor, options)) return false
+              case c: ScPrimaryConstructor =>
+                if (!super.processElementUsages(c, processor, options)) return false
+            }
+            definition match {
+              case c: ScClass =>
+                c.constructor match {
+                  case Some(constr) => constr.effectiveParameterClauses.foreach { clause =>
+                    clause.effectiveParameters.foreach { _ =>
+                      if (!super.processElementUsages(c, processor, options)) return false
+                    }
+                  }
+                  case _ =>
+                }
+              case _ =>
+            }
+          }
+          if (s.isSearchCompanionModule) {
+            definition.baseCompanionModule.foreach { companion =>
+              if (!super.processElementUsages(companion, processor, options)) return false
+            }
+          }
+          if (s.isImplementingTypeDefinitions) {
+            val res = new mutable.HashSet[PsiClass]()
+            ClassInheritorsSearch.search(definition, true).forEach(new Processor[PsiClass] {
+              def process(t: PsiClass): Boolean = {
+                t match {
+                  case _: PsiClassWrapper =>
+                  case _ => res += t
+                }
+                true
+              }
+            })
+            res.foreach { c =>
+              val processed = processor.process(new UsageInfo(c))
+              if (!processed) return false
+            }
+          }
+        case _ =>
+      }
+
       element match {
         case (named: ScNamedElement) && inNameContext(member: ScMember) if !member.isLocal =>
           for (elem <- ScalaOverridingMemberSearcher.search(named, deep = true)) {

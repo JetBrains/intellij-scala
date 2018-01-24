@@ -78,4 +78,14 @@ class ShapelessTest extends TypeInferenceTestBase {
        |//::[String, ::[Int, HNil]]
      """.stripMargin
   }
+
+  def testWitnessSelectDynamic(): Unit = {
+    s"""
+       |object Test {
+       |  type `"foo"` = shapeless.Witness.`"foo"`.T
+       |
+       |  val foo: `"foo"` = "foo"
+       |}
+     """.stripMargin
+  }
 }

@@ -155,8 +155,9 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
       })
     }
 
-    maybeSelectedType.foreach {
-      case selectedType if !forceInferType =>
+    maybeSelectedType
+      .filterNot(_ => forceInferType)
+      .foreach { selectedType =>
         mySpecifyTypeChb = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.specify.type.explicitly"))
         mySpecifyTypeChb.setSelected(needTypeDefault)
         mySpecifyTypeChb.setMnemonic('t')

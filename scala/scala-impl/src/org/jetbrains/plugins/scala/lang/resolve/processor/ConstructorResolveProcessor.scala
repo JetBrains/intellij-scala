@@ -104,7 +104,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
     candidates.toSeq match {
       case _ if allConstructors => candidates
       case Seq() => Set.empty
-      case Seq(result: ScalaResolveResult) => Set(result)
+      case Seq(result) => Set(result)
       case _ => candidates.map(updateResult)
     }
   }

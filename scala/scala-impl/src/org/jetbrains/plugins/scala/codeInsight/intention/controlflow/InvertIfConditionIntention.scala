@@ -50,7 +50,7 @@ class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
 
     val expr = new StringBuilder
     val newCond = ifStmt.condition.get match {
-      case ScInfixExpr.withAssoc(left, operation, right) =>
+      case ScInfixExpr.withAssoc(base, operation, argument) =>
         val refName = operation.refName
 
         def negateBoolOperation(expression: ScExpression) = refName match {
@@ -58,7 +58,7 @@ class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
           case _ => expression.getText
         }
 
-        s"${negateBoolOperation(left)} ${Replacement(refName)} ${negateBoolOperation(right)}"
+        s"${negateBoolOperation(base)} ${Replacement(refName)} ${negateBoolOperation(argument)}"
       case condition => negate(condition)
     }
 

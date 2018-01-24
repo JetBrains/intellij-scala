@@ -99,16 +99,17 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
       forB = argsBuilder.toString().drop(1).dropRight(1)
     }
 
-    val expr = putArgsFirst match {
-      case true => argsBuilder.append(" ").append(invokedExprBuilder)
-      case false =>  invokedExprBuilder.append(" ").append(argsBuilder)
+    val expr = if (putArgsFirst) {
+      argsBuilder.append(" ").append(invokedExprBuilder)
+    } else {
+      invokedExprBuilder.append(" ").append(argsBuilder)
     }
     val text = expr.toString()
 
     createExpressionFromText(text) match {
-      case infix@ScInfixExpr.withAssoc(left, operation, right) =>
-        left.replaceExpression(createExpressionFromText(forA), removeParenthesis = true)
-        right.replaceExpression(createExpressionFromText(forB), removeParenthesis = true)
+      case infix@ScInfixExpr.withAssoc(base, operation, argument) =>
+        base.replaceExpression(createExpressionFromText(forA), removeParenthesis = true)
+        argument.replaceExpression(createExpressionFromText(forB), removeParenthesis = true)
 
         val size = operation.nameId.getTextRange.getStartOffset - infix.getTextRange.getStartOffset
 

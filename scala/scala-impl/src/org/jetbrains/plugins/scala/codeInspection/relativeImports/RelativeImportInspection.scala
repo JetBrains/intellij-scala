@@ -25,8 +25,8 @@ class RelativeImportInspection extends AbstractInspection("RelativeImport", "Rel
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScImportExpr if expr.qualifier != null =>
       val q = qual(expr.qualifier)
-      val resolve = q.multiResolve(false)
-      for (elem <- resolve) {
+      val resolve = q.multiResolveScala(false)
+      for (result <- resolve) {
         def applyProblem(qualifiedName: String) {
           val fixes = new ArrayBuffer[LocalQuickFix]()
           if (!ScalaCodeStyleSettings.getInstance(q.getProject).isAddFullQualifiedImports) {
@@ -35,10 +35,10 @@ class RelativeImportInspection extends AbstractInspection("RelativeImport", "Rel
           fixes += new MakeFullQualifiedImportFix(q, qualifiedName)
           holder.registerProblem(q, "Relative import detected", fixes: _*)
         }
-        elem match {
-          case ScalaResolveResult(p: PsiPackage, _) if p.getQualifiedName.contains(".") =>
+        result.element match {
+          case p: PsiPackage if p.getQualifiedName.contains(".") =>
             applyProblem(p.getQualifiedName)
-          case ScalaResolveResult(c: ScObject, _) if c.isTopLevel && c.qualifiedName.contains(".") =>
+          case c: ScObject if c.isTopLevel && c.qualifiedName.contains(".") =>
             applyProblem(c.qualifiedName)
           case _ =>
         }

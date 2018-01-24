@@ -6,6 +6,7 @@ package filters.other
 import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiElement, _}
 import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -22,7 +23,11 @@ class WithFilter extends ElementFilter {
     val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
       var i = context.getTextRange.getStartOffset - 1
-      while (i >= 0 && context.getContainingFile.getText.charAt(i) == ' ') i = i - 1
+      val file = context.getContainingFile
+      val text = file.charSequence
+      while (i >= 0 && text.charAt(i) == ' ') {
+        i = i - 1
+      }
       if (i >= 0) {
         var leaf1 = getLeafByOffset(i, context)
         while (leaf1 != null &&

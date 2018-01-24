@@ -351,7 +351,7 @@ object ResolveUtils {
     }
   }
 
-  def processSuperReference(superRef: ScSuperReference, processor : BaseProcessor, place : ScalaPsiElement) {
+  def processSuperReference(superRef: ScSuperReference, processor : BaseProcessor, place : ScalaPsiElement): BaseProcessor = {
     if (superRef.isHardCoded) {
       superRef.drvTemplate match {
         case Some(c) => processor.processType(ScThisType(c), place)
@@ -367,6 +367,7 @@ object ResolveUtils {
         }
       }
     }
+    processor
   }
 
   def getPlacePackage(place: PsiElement): String = {

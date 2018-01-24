@@ -46,12 +46,9 @@ class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(pro
 
     macroSupport(named, expansionRules).flatMap {
       case (m, x) =>
-        if (isMacroExpansion(context.call)) None
-        else {
-          val expanded = x.expandMacro(m, context)
-          expanded.foreach(markMacroExpansion)
-          expanded
-        }
+        val expanded = x.expandMacro(m, context)
+        expanded.foreach(markMacroExpansion)
+        expanded
     }
   }
 
@@ -75,7 +72,8 @@ object ScalaMacroEvaluator {
     MacroImpl("apply", "shapeless.LowPriorityGeneric")                            -> ShapelessForProduct,
     MacroImpl("materialize", "shapeless.Generic")                                 -> ShapelessMaterializeGeneric,
     MacroImpl("mkDefaultSymbolicLabelling", "shapeless.DefaultSymbolicLabelling") -> ShapelessDefaultSymbolicLabelling,
-    MacroImpl("mkSelector", "shapeless.ops.record.Selector")                      -> ShapelessMkSelector
+    MacroImpl("mkSelector", "shapeless.ops.record.Selector")                      -> ShapelessMkSelector,
+    MacroImpl("selectDynamic", "shapeless.Witness")                               -> ShapelessWitnessSelectDynamic
   )
 
   private val expansionRules: Map[MacroImpl, ScalaMacroExpandable] = Map(

@@ -258,10 +258,10 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
   def testSCL12582(): Unit = {
     compileAnnotBody("defn")
     createFile(s"@$annotName class $testClassName[T] { type K = T<caret> }")
-    val resClass = refAtCaret.multiResolve(false)
+    val resClass = refAtCaret.multiResolveScala(false)
     assertEquals("Reference should resolve to single element in class", 1, resClass.size)
     createFile(s"@$annotName trait $testClassName[T] { type K = T<caret> }")
-    val resTrait = refAtCaret.multiResolve(false)
+    val resTrait = refAtCaret.multiResolveScala(false)
     assertEquals("Reference should resolve to single element in trait", 1, resTrait.size)
   }
 

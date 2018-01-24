@@ -4,14 +4,9 @@ package psi
 package api
 package expr
 
-import com.intellij.openapi.project.DumbService
-import com.intellij.psi.{PsiAnnotation, ResolveResult}
+import com.intellij.psi.PsiAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
-import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 
 /**
  * @author Alexander Podkhalyuzin

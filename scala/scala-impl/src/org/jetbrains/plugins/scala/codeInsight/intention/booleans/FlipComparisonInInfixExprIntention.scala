@@ -42,13 +42,13 @@ class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
     val infixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null || !infixExpr.isValid) return
 
-    val ScInfixExpr.withAssoc(ElementText(left), operation, ElementText(right)) = infixExpr
+    val ScInfixExpr.withAssoc(ElementText(baseText), operation, ElementText(argumentText)) = infixExpr
 
     val start = infixExpr.getTextRange.getStartOffset
     val diff = editor.getCaretModel.getOffset - operation.nameId.getTextRange.getStartOffset
 
     import infixExpr.projectContext
-    val newInfixExpr = createExpressionFromText(s"$right ${Replacement(operation.refName)} $left")
+    val newInfixExpr = createExpressionFromText(s"$argumentText ${Replacement(operation.refName)} $baseText")
 
     val size = newInfixExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
       newInfixExpr.getTextRange.getStartOffset

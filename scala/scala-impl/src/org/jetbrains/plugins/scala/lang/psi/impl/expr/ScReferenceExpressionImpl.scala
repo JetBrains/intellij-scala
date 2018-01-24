@@ -59,18 +59,18 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     visitor.visitReferenceExpression(this)
   }
 
-  def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
+  def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = {
     if (resolveFunction != null) resolveFunction()
     else this.multiResolveImpl(incomplete)
   }
 
-  def shapeResolve: Array[ResolveResult] = {
+  def shapeResolve: Array[ScalaResolveResult] = {
     ProgressManager.checkCanceled()
     if (shapeResolveFunction != null) shapeResolveFunction()
     else this.shapeResolveImpl
   }
 
-  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult] =
+  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] =
     new ReferenceExpressionResolver().doResolve(this, processor, accessibilityCheck)
 
   def bindToElement(element: PsiElement): PsiElement = bindToElement(element, None)
@@ -147,15 +147,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
     val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
 
-    getSimpleVariants(implicits, filterNotNamedVariants).flatMap {
-      case res: ScalaResolveResult =>
-        val qualifier = res.fromType.getOrElse(Nothing)
-        LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier)
-      case r => Seq(r.getElement)
+    getSimpleVariants(implicits, filterNotNamedVariants).flatMap { res =>
+      val qualifier = res.fromType.getOrElse(Nothing)
+      LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier)
     }
   }
 
-  def getSimpleVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[ResolveResult] = {
+  def getSimpleVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[ScalaResolveResult] = {
     val kinds = getKinds(incomplete = true)
     val processor = if (implicits) new ImplicitCompletionProcessor(kinds, this)
     else new CompletionProcessor(kinds, this)
@@ -167,7 +165,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     }
   }
 
-  def getSameNameVariants: Array[ResolveResult] = this.doResolve(
+  def getSameNameVariants: Array[ScalaResolveResult] = this.doResolve(
     new ImplicitCompletionProcessor(getKinds(incomplete = true), this) {
 
       override protected val forName = Some(refName)
@@ -186,12 +184,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
 
   def multiType: Array[TypeResult] = {
     val buffer = ArrayBuffer[TypeResult]()
-    val iterator = multiResolve(incomplete = false).iterator
+    val iterator = multiResolveScala(incomplete = false).iterator
     while (iterator.hasNext) {
-      iterator.next() match {
-        case srr: ScalaResolveResult => buffer += convertBindToType(srr)
-        case _ =>
-      }
+      buffer += convertBindToType(iterator.next())
     }
     buffer.toArray
   }
@@ -205,7 +200,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
 
   def shapeType: TypeResult = {
     shapeResolve match {
-      case Array(bind: ScalaResolveResult) if bind.isApplicable() => convertBindToType(bind)
+      case Array(bind) if bind.isApplicable() => convertBindToType(bind)
       case _ => resolveFailure
     }
   }
@@ -214,10 +209,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     val buffer = ArrayBuffer[TypeResult]()
     val iterator = shapeResolve.iterator
     while (iterator.hasNext) {
-      iterator.next() match {
-        case srr: ScalaResolveResult => buffer += convertBindToType(srr)
-        case _ =>
-      }
+      buffer += convertBindToType(iterator.next())
     }
     buffer.toArray
   }

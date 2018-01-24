@@ -83,7 +83,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def thisOrImportedQualifierEvaluator(ref: ScReferenceElement): Evaluator = {
     ref.bind() match {
-      case Some(resolveResult: ScalaResolveResult) =>
+      case Some(resolveResult) =>
         if (resolveResult.importsUsed.nonEmpty) importedQualifierEvaluator(ref, resolveResult)
         else thisEvaluator(resolveResult)
       case None => new ScalaThisEvaluator()
@@ -1188,8 +1188,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
 
     val newExpression = infix match {
-      case ScInfixExpr.withAssoc(ElementText(left), isUpdate(operation), ElementText(right)) =>
-        val exprText = s"$left = $left $operation $right"
+      case ScInfixExpr.withAssoc(ElementText(baseText), isUpdate(operation), ElementText(argumentText)) =>
+        val exprText = s"$baseText = $baseText $operation $argumentText"
         createExpressionWithContextFromText(exprText, infix.getContext, infix)
       case _ =>
         createEquivMethodCall(infix)
