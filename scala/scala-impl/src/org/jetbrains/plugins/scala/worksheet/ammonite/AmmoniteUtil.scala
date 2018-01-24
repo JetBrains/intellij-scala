@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.matching.Regex
@@ -32,16 +33,16 @@ import scala.util.matching.Regex
   */
 object AmmoniteUtil {
   val AMMONITE_EXTENSION = "sc"
-  val DEFAULT_VERSION = "2.12"
-
+  
+   val DEFAULT_VERSION = "2.12"
   private val ROOT_FILE = "$file"
   private val ROOT_EXEC = "$exec"
   private val ROOT_IVY = "$ivy"
   private val ROOT_PLUGIN = "$plugin"
-  
+
   private val PARENT_FILE = "^"
-  
-  private val DEFAULT_IMPORTS = Seq("ammonite.main.Router._", "ammonite.runtime.tools.grep", "ammonite.runtime.tools.browse", 
+
+  private val DEFAULT_IMPORTS = Seq("ammonite.main.Router._", "ammonite.runtime.tools.grep", "ammonite.runtime.tools.browse",
     "ammonite.runtime.tools.time", "ammonite.repl.tools.desugar", "ammonite.repl.tools.source") //todo more default imports ?
   private val DEFAULT_BUILTINS = Seq(("repl", "ammonite.repl.ReplAPI"), ("interp", "ammonite.runtime.Interpreter with ammonite.interp.Interpreter"))
 
@@ -51,12 +52,12 @@ object AmmoniteUtil {
       case _ => false
     }
   }
-  
+
   def isAmmoniteFile(virtualFile: VirtualFile, project: Project): Boolean = {
     virtualFile.getExtension == AMMONITE_EXTENSION && (ScalaProjectSettings.getInstance(project).getScFileMode match {
       case ScalaProjectSettings.ScFileMode.Ammonite => true
       case ScalaProjectSettings.ScFileMode.Worksheet => false
-      case ScalaProjectSettings.ScFileMode.Auto => 
+      case ScalaProjectSettings.ScFileMode.Auto =>
         ProjectRootManager.getInstance(project).getFileIndex.isUnderSourceRootOfType(virtualFile, ContainerUtilRt.newHashSet(JavaSourceRootType.TEST_SOURCE))
       case _ => false
     })
@@ -74,7 +75,7 @@ object AmmoniteUtil {
     case scalaFile: ScalaFile => AmmoniteScriptWrappersHolder.getInstance(file.getProject).findWrapper(scalaFile)
     case _ => None
   }
-  
+
   def executeImplicitImportsDeclarations(processor: PsiScopeProcessor, file: FileDeclarationsHolder, state: ResolveState): Boolean = {
     file match {
       case ammoniteFile: ScalaFile if isAmmoniteFile(ammoniteFile) =>
@@ -82,7 +83,7 @@ object AmmoniteUtil {
           case (name, txt) =>
             ScalaPsiElementFactory.createElementFromText(s"class A { val $name: $txt = ??? }")(ammoniteFile.projectContext).processDeclarations(processor, state, null, ammoniteFile)
         }
-        
+
         DEFAULT_IMPORTS.foreach {
           imp =>
             val importStmt = ScalaPsiElementFactory.createImportFromText(s"import $imp")(ammoniteFile.projectContext)
@@ -90,7 +91,7 @@ object AmmoniteUtil {
         }
       case _ =>
     }
-    
+
     true
   }
 
@@ -136,16 +137,16 @@ object AmmoniteUtil {
 
     def qual(scRef: ScStableCodeReferenceElement) = {
       scRef.getParent match {
-        case selector: ScImportSelector => 
+        case selector: ScImportSelector =>
           new ParentsIterator(selector).collectFirst {
-            case expr: ScImportExpr => expr.qualifier 
+            case expr: ScImportExpr => expr.qualifier
           }
         case _ => scRef.qualifier
       }
     }
-    
+
     qual(refElement) match {
-      case Some(q) if scriptResolvePlugin(q) && refElement.getReference.getCanonicalText == ROOT_IVY => 
+      case Some(q) if scriptResolvePlugin(q) && refElement.getReference.getCanonicalText == ROOT_IVY =>
         Option(refElement.getContainingFile.getContainingDirectory)
       case Some(q) if scriptResolveIvy(q) || scriptResolvePlugin(q) || q.getReference.refName == ROOT_IVY =>
         findLibrary(refElement) flatMap {
@@ -161,145 +162,104 @@ object AmmoniteUtil {
     AmmoniteUtil.extractLibInfo(refElement).flatMap {
       case LibInfo(group, name, version, scalaVersion) =>
         val existsPredicate = (f: File) => f.exists()
-        
-        val nv = s"${name}_$scalaVersion"
-        val fullVersion = s"$nv|$nv.${ScalaUtil.getScalaVersion(refElement.getContainingFile).flatMap(_.split('.').lastOption).getOrElse("0")}"
-        
-        val ivyPath = s"$group/$fullVersion/jars|bundles"
-        val mavenPath = s"maven2/${group.replace('.', '/')}/$nv|$name/$version"
-        
-        val prefixPatterns = Seq(name, version)
-        
-        
-        def tryIvy() = findFileByPattern(
-          s"$getDefaultCachePath/$ivyPath", 
-          existsPredicate
-        )
-        
-        def tryCoursier() = findFileByPattern(
-          s"$getCoursierCachePath/https/repo1.maven.org/$mavenPath",
-          existsPredicate
-        )
 
-        tryIvy() orElse tryCoursier() flatMap {
-          parent =>
-            parent.listFiles().find{
-              cf =>
-                val name = cf.getName
-                prefixPatterns.exists(name.startsWith) && name.endsWith(".jar")
-            } flatMap { //todo more variants? 
-              jarModuleRoot =>
-                Option(JarFileSystem.getInstance().findLocalVirtualFileByPath(jarModuleRoot.getCanonicalPath))
-            }
+        val n = name
+        val nv = s"${name}_$scalaVersion"
+        val fullVersion =
+          s"$n|$nv|$nv.${ScalaUtil.getScalaVersion(refElement.getContainingFile).flatMap(_.split('.').lastOption).getOrElse("0")}"
+
+        val ivyPath = s"$group/$fullVersion/jars|bundles"
+        val mavenPath = s"${group.replace('.', '/')}/$nv|$name/$version"
+
+        val prefixPatterns = Seq(name, version)
+
+        def tryIvy() =
+          firstFileMatchingPattern(s"/$ivyPath", new File(getDefaultCachePath))
+            .find(existsPredicate)
+
+        def tryCoursier() =
+          firstFileMatchingPattern(s"/https/*/*/$mavenPath", new File(getCoursierCachePath))
+            .find(existsPredicate)
+
+        tryIvy() orElse tryCoursier() flatMap { parent =>
+          parent.listFiles().find { cf =>
+            val name = cf.getName
+            prefixPatterns.exists(name.startsWith) &&
+            name.endsWith(".jar") &&
+            !name.endsWith("-sources.jar") &&
+            !name.endsWith("-javadoc.jar")
+          } flatMap { //todo more variants?
+            jarModuleRoot =>
+              Option(
+                JarFileSystem
+                  .getInstance()
+                  .findLocalVirtualFileByPath(jarModuleRoot.getCanonicalPath))
+          }
         }
     }
   }
-  
+
   def isAmmoniteSpecificImport(expr: ScImportExpr): Boolean = {
     val txt = expr.getText
     txt.startsWith(ROOT_EXEC) || txt.startsWith(ROOT_FILE) || txt.startsWith(ROOT_IVY) || txt.startsWith(ROOT_PLUGIN)
   }
-  
-  private def findFileByPattern(pattern: String, predicate: File => Boolean): Option[File] = {
-    abstract class PathPart[T] {
-      protected var current: Option[T] = None
-      def getCurrent: Option[T] = current
-      def hasNext: Boolean = false
 
-      def add(): Boolean
-      def reset()
-    }
+  sealed trait FileTree
+  final case class OneSegment(segment: String, next: FileTree) extends FileTree
+  final case class AlternativeSegments(segments: List[String], next: FileTree)
+      extends FileTree
+  final case class AnySegment(next: FileTree) extends FileTree
+  final case object Empty extends FileTree
 
-    case class SimplePart(p: String) extends PathPart[String] {
-      reset()
-      override def add(): Boolean = {
-        current = None
-        false
-      }
-      override def reset(): Unit = current = Option(p)
-    }
-
-    case class OrPart(ps: Iterable[String]) extends PathPart[String] {
-      private var it = ps.iterator
-      setCurrent()
-
-      override def add(): Boolean = {it.hasNext && {setCurrent(); true} || {current = None; false}}
-      override def hasNext: Boolean = it.hasNext
-      override def reset(): Unit = {
-        it = ps.iterator
-        setCurrent()
-      }
-
-      private def setCurrent() {
-        current = Option(it.next())
-      }
-    }
-
-    case class PathIterator(pathParts: Iterable[PathPart[String]]) extends Iterator[File] {
-      private var it = pathParts.iterator
-      private var currentDigit = pathParts.head
-      private var currentVal: Option[String] = Option(gluePath)
-
-      private def gluePath: String = pathParts.flatMap(_.getCurrent.toList).mkString(File.separator)
-
-      private def advance() {
-        if (!currentDigit.add()) {
-          while (!currentDigit.add() && it.hasNext) currentDigit = it.next()
-          if (currentDigit.getCurrent.isEmpty) return
-          pathParts.takeWhile(_ != currentDigit).foreach(_.reset())
-          currentDigit = pathParts.head
-          it = pathParts.iterator
-        }
-
-        currentVal = Option(gluePath)
-      }
-
-      def hasNext: Boolean = currentVal.isDefined
-
-      def next(): File = {
-        val c = currentVal.get
-        currentVal = None
-        advance()
-        new File(c)
-      }
-    }
-    
-    PathIterator {
-      pattern.split('/').map {
-        part => part.split('|') match {
-          case Array(single) => SimplePart(single)
-          case multiple => OrPart(multiple)
-        }
-      }.foldRight(List.empty[PathPart[String]]){
-        case (SimplePart(part), SimplePart(pp) :: tail) =>
-          SimplePart(part + File.separator + pp) :: tail
-        case (otherPart, list) =>
-          otherPart :: list
-      }
-    }.find(predicate)
+  private def segment(s: String, down: FileTree) = s.split('|').toList match {
+    case "*" :: Nil => AnySegment(down)
+    case str :: Nil => OneSegment(str, down)
+    case array      => AlternativeSegments(array, down)
   }
 
-  private def getResolveItem(library: Library, project: Project): Option[PsiDirectory] = getLibraryDirs(library, project).headOption
+  def patternToTree(pattern: String): FileTree =
+    pattern.split("/").filter(_.nonEmpty).foldRight[FileTree](Empty)(segment)
 
-  private def getLibraryDirs(library: Library, project: Project): Array[PsiDirectory] = {
-    library.getFiles(OrderRootType.CLASSES).flatMap {
-      root => Option(PsiManager.getInstance(project).findDirectory(root))
+  @tailrec
+  def treeToFiles(tree: FileTree, acc: List[File]): List[File] = tree match {
+    case Empty => acc
+    case OneSegment(segment, next) =>
+      treeToFiles(next, acc.filter(_.isDirectory).flatMap(_.listFiles().filter(_.getName == segment)))
+    case AlternativeSegments(segments, next) =>
+      treeToFiles(next, acc.filter(_.isDirectory).flatMap(_.listFiles().filter(f => segments.contains(f.getName))))
+    case AnySegment(next) =>
+      treeToFiles(next, acc.filter(_.isDirectory).flatMap(_.listFiles()))
+  }
+
+  def firstFileMatchingPattern(pattern: String, rootFile: File): List[File] =
+    treeToFiles(patternToTree(pattern), List(rootFile))
+
+  private def getResolveItem(library: Library,
+                             project: Project): Option[PsiDirectory] =
+    getLibraryDirs(library, project).headOption
+
+  private def getLibraryDirs(library: Library,
+                             project: Project): Array[PsiDirectory] = {
+    library.getFiles(OrderRootType.CLASSES).flatMap { root =>
+      Option(PsiManager.getInstance(project).findDirectory(root))
     }
   }
 
-  private def findLibrary(refElement: ScStableCodeReferenceElement): Option[Library] = {
-    extractLibInfo(refElement).map(convertLibName) flatMap {
-      name =>
-        Option(LibraryTablesRegistrar.getInstance() getLibraryTable refElement.getProject getLibraryByName name)
+  private def findLibrary(
+      refElement: ScStableCodeReferenceElement): Option[Library] = {
+    extractLibInfo(refElement).map(convertLibName) flatMap { name =>
+      Option(
+        LibraryTablesRegistrar
+          .getInstance() getLibraryTable refElement.getProject getLibraryByName name)
     }
   }
 
   def convertLibName(info: LibInfo): String = {
     import info._
-    
+
     List(SbtProjectSystem.Id.getId, " " + groupId, name + "_" + scalaVersion, version, "jar").mkString(":")
   }
-  
+
   private def getScalaVersion(element: ScalaPsiElement): String = {
     ScalaUtil.getScalaVersion(element.getContainingFile) map {
       version => version.lastIndexOf('.') match {
@@ -310,13 +270,13 @@ object AmmoniteUtil {
   }
 
   case class LibInfo(groupId: String, name: String, version: String, scalaVersion: String)
-  
+
   def extractLibInfo(ref: ScReferenceElement): Option[LibInfo] = {
     val name = ref.refName.stripPrefix("`").stripSuffix("`")
     val result = ArrayBuffer[String]()
 
     var scalaVersion: Option[String] = None
-    
+
     name.split(':').foreach {
       p => if (p.nonEmpty) {
         if (p contains "_") {
@@ -330,11 +290,11 @@ object AmmoniteUtil {
       }
     }
 
-    if (result.length == 3) Some(LibInfo(result.head, result(1), result(2), scalaVersion getOrElse getScalaVersion(ref))) else None 
+    if (result.length == 3) Some(LibInfo(result.head, result(1), result(2), scalaVersion getOrElse getScalaVersion(ref))) else None
   }
 
   def getDefaultCachePath: String = System.getProperty("user.home") + "/.ivy2/cache"
-  
+
   def getCoursierCachePath: String = System.getProperty("user.home") + "/.coursier/cache/v1"
   
   class RegexExtractor {
