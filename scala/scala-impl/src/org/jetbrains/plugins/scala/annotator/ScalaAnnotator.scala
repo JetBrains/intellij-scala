@@ -1064,7 +1064,7 @@ abstract class ScalaAnnotator extends Annotator
 
   private def checkUnboundUnderscore(under: ScUnderscoreSection, holder: AnnotationHolder) {
     if (under.getText == "_") {
-      under.parentOfType(classOf[ScVariableDefinition], strict = false).foreach {
+      under.parentOfType(classOf[ScValueOrVariable], strict = false).foreach {
         case varDef @ ScVariableDefinition.expr(_) if varDef.expr.contains(under) =>
           if (varDef.containingClass == null) {
             val error = ScalaBundle.message("local.variables.must.be.initialized")
@@ -1075,6 +1075,8 @@ abstract class ScalaAnnotator extends Annotator
             val annotation: Annotation = holder.createErrorAnnotation(under, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
           }
+        case valDef @ ScPatternDefinition.expr(_) if valDef.expr.contains(under) =>
+          holder.createErrorAnnotation(under, ScalaBundle.message("unbound.placeholder.parameter"))
         case _ =>
           // TODO SCL-2610 properly detect unbound placeholders, e.g. ( { _; (_: Int) } ) and report them.
           //  val error = ScalaBundle.message("unbound.placeholder.parameter")
