@@ -25,6 +25,7 @@ trait ScalaPsiCreator extends PsiCreator {
 
   protected def types(node: ASTNode): PsiElement = node.getElementType match {
     case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeElementImpl(node)
+    case ScalaElementTypes.LITERAL_TYPE => new ScLiteralTypeElementImpl(node)
     case ScalaElementTypes.TUPLE_TYPE => new ScTupleTypeElementImpl(node)
     case ScalaElementTypes.TYPE => new ScFunctionalTypeElementImpl(node)
     case ScalaElementTypes.INFIX_TYPE => new ScInfixTypeElementImpl(node)

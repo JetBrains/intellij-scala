@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project.settings;
 
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Tag;
 import org.jetbrains.jps.incremental.scala.data.SbtIncrementalOptions;
@@ -55,6 +56,10 @@ public class ScalaCompilerSettingsState {
   public boolean continuations = false;
 
   public DebuggingInfoLevel debuggingInfoLevel = DebuggingInfoLevel.Vars;
+
+  public boolean hasOption(String optionKey) {
+    return ArrayUtil.contains(optionKey, additionalCompilerOptions);
+  }
 
   // Why serialization doesn't work when elementTag is "option"?
   @Tag("parameters")

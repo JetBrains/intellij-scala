@@ -119,6 +119,7 @@ object ScalaElementTypes {
   }
   val TYPE_PROJECTION = new ScalaElementType("type projection")
   val TYPE_GENERIC_CALL = new ScalaElementType("type generic call")
+  val LITERAL_TYPE = new ScalaElementType("Literal type")
   val SEQUENCE_ARG = new ScalaElementType("sequence argument type") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScSequenceArgImpl(node)
   }

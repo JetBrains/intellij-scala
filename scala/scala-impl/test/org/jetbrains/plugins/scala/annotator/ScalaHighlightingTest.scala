@@ -88,4 +88,16 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
       """.stripMargin
     assertNothing(errorsFromScalaCode(scalaText))
   }
+
+  def testScl11193(): Unit = {
+    val scalaText =
+      """
+        |class Test {
+        |  val a: 42 = 42
+        |}
+      """.stripMargin
+    assertMatches(errorsFromScalaCode(scalaText)) {
+      case Error(_, "Wrong type '42', for literal types support please use '-Yliteral-types' compiler flag") :: Nil =>
+    }
+  }
 }

@@ -176,6 +176,7 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitTypeElement(te: ScTypeElement) {
+        checkLiteralTypesAllowed(te, holder)
         checkTypeElementForm(te, holder)
         super.visitTypeElement(te)
       }
@@ -1120,6 +1121,14 @@ abstract class ScalaAnnotator extends Annotator
       val annotation: Annotation = holder.createErrorAnnotation(impExpr.getTextRange,
         ScalaBundle.message("import.expr.should.be.qualified"))
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+    }
+  }
+
+  private def checkLiteralTypesAllowed(typeElement: ScTypeElement, holder: AnnotationHolder): Unit = {
+    if (typeElement.isInstanceOf[ScLiteralTypeElement]) {
+      import org.jetbrains.plugins.scala.project._
+      if (!holder.getCurrentAnnotationSession.getFile.module.map(_.scalaCompilerSettings).exists(_.literalTypes))
+        holder.createErrorAnnotation(typeElement, ScalaBundle.message("wrong.type.no.literal.types", typeElement.getText))
     }
   }
 

@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiBuilder.Marker
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Literal
 
 import scala.annotation.tailrec
 
@@ -26,11 +27,13 @@ import scala.annotation.tailrec
 object SimpleType extends SimpleType {
   override protected def typeArgs = TypeArgs
   override protected def types = Types
+  override protected def literal = Literal
 }
 
 trait SimpleType {
   protected def typeArgs: TypeArgs
   protected def types: Types
+  protected def literal: Literal
 
   def parse(builder: ScalaPsiBuilder, isPattern: Boolean, multipleSQBrackets: Boolean = true): Boolean = {
     @tailrec
@@ -56,6 +59,16 @@ trait SimpleType {
         case _ =>
           curMarker.drop()
       }
+    }
+    def parseLiteral(curMarker: PsiBuilder.Marker): Boolean = {
+      curMarker.drop()
+      val newMarker = builder.mark
+      if (!literal.parse(builder)) {
+        newMarker.rollbackTo()
+        return false
+      }
+      newMarker.done(ScalaElementTypes.LITERAL_TYPE)
+      true
     }
 
     val simpleMarker = builder.mark
@@ -91,6 +104,7 @@ trait SimpleType {
             else tupleMarker.done(ScalaElementTypes.TYPE_IN_PARENTHESIS)
         }
         builder.restoreNewlinesState()
+      case ScalaTokenTypes.tIDENTIFIER if builder.getTokenText == "-" => return parseLiteral(simpleMarker)
       case ScalaTokenTypes.kTHIS |
               ScalaTokenTypes.tIDENTIFIER |
               ScalaTokenTypes.kSUPER =>
@@ -115,6 +129,9 @@ trait SimpleType {
             StableId parse (builder, ScalaElementTypes.REFERENCE)
             fMarker.done(ScalaElementTypes.SIMPLE_TYPE)
         }
+      case ScalaTokenTypes.tINTEGER | ScalaTokenTypes.tFLOAT | ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE |
+           ScalaTokenTypes.tCHAR | ScalaTokenTypes.tSYMBOL => return parseLiteral(simpleMarker)
+      case tokenType if ScalaTokenTypes.STRING_LITERAL_TOKEN_SET.contains(tokenType) => return parseLiteral(simpleMarker)
       case _ => return rollbackCase(builder, simpleMarker)
     }
     parseTail(simpleMarker)

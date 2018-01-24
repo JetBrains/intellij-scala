@@ -37,7 +37,7 @@ trait Types extends ParserNode {
     val typesMarker = builder.mark
     if (!typesParse) {
       typesMarker.drop()
-      return (false,isTuple)
+      return (false, isTuple)
     }
     var exit = true
     while (exit && builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRPARENTHESIS)) {
@@ -50,6 +50,6 @@ trait Types extends ParserNode {
     }
     if (isTuple) typesMarker.done(ScalaElementTypes.TYPES)
     else typesMarker.drop()
-    return (true,isTuple)
+    (true, isTuple)
   }
 }
