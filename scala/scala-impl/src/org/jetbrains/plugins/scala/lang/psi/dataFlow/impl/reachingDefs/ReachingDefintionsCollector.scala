@@ -51,7 +51,7 @@ object ReachingDefintionsCollector {
   private def isVisible(element: PsiNamedElement, place: PsiElement): Boolean = {
     def checkResolve(ref: PsiElement) = ref match {
       case r: ScReferenceElement =>
-        r.multiResolve(false).map(_.getElement).exists(PsiEquivalenceUtil.areElementsEquivalent(_, element))
+        r.multiResolveScala(false).map(_.getElement).exists(PsiEquivalenceUtil.areElementsEquivalent(_, element))
       case _ => false
     }
     val isInstanceMethod = element match {

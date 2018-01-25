@@ -3,7 +3,7 @@ package lang
 package resolve
 package imports
 
-import com.intellij.psi.PsiPolyVariantReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 
 /**
  * @author jzaugg
@@ -13,8 +13,8 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
 
   def testlowPriorityImplicits() {
     findReferenceAtCaret() match {
-      case r: PsiPolyVariantReference =>
-        val results = r.multiResolve(false)
+      case r: ScReferenceElement =>
+        val results = r.multiResolveScala(false)
         assert(results.length == 1, results.mkString(","))
       case x => throw new Exception("Wrong reference!" + x)
     }
@@ -22,8 +22,8 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
 
   def testlowPriorityImplicits2() {
     findReferenceAtCaret() match {
-      case r: PsiPolyVariantReference =>
-        val results = r.multiResolve(false)
+      case r: ScReferenceElement =>
+        val results = r.multiResolveScala(false)
         assert(results.length == 1, results.mkString(","))
       case x => throw new Exception("Wrong reference!" + x)
     }
@@ -31,8 +31,8 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
 
   def testmostSpecificImplicit() {
     findReferenceAtCaret() match {
-      case r: PsiPolyVariantReference =>
-        val results = r.multiResolve(false)
+      case r: ScReferenceElement =>
+        val results = r.multiResolveScala(false)
         assert(results.length == 1, results.mkString(","))
       case x => throw new Exception("Wrong reference!" + x)
     }

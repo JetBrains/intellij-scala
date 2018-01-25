@@ -34,12 +34,12 @@ object MethodRepr {
           case methCall: ScMethodCall => Some(expr, Some(methCall), None, args)
           case _ => Some(expr, None, None, args)
         }
-      case infix: ScInfixExpr =>
-        val args = infix.getArgExpr match {
+      case ScInfixExpr.withAssoc(base, operation, argument) =>
+        val args = argument match {
           case tuple: ScTuple => tuple.exprs
-          case _ => Seq(infix.getArgExpr)
+          case _ => Seq(argument)
         }
-        Some(expr, Some(stripped(infix.getBaseExpr)), Some(infix.operation), args)
+        Some(expr, Some(stripped(base)), Some(operation), args)
       case prefix: ScPrefixExpr => Some(expr, Some(stripped(prefix.getBaseExpr)), Some(prefix.operation), Seq())
       case postfix: ScPostfixExpr => Some(expr, Some(stripped(postfix.getBaseExpr)), Some(postfix.operation), Seq())
       case refExpr: ScReferenceExpression =>

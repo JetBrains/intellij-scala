@@ -25,4 +25,18 @@ class MixinTypeTest extends ScalaLightCodeInsightFixtureTestAdapter{
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL13112() = {
+    val text =
+      """
+        |trait A
+        |trait B
+        |trait C[T]
+        |
+        |object X {
+        |  def f(x : C[A with B]) : C[B with A] = x
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }

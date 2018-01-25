@@ -7,6 +7,7 @@ package expr
 import com.intellij.psi.ResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
   * @author Alexander Podkhalyuzin
@@ -27,11 +28,11 @@ trait ScGenericCall extends ScExpression {
 
   def shapeMultiType: Array[TypeResult]
 
-  def shapeMultiResolve: Option[Array[ResolveResult]]
+  def shapeMultiResolve: Option[Array[ScalaResolveResult]]
 
   def multiType: Array[TypeResult]
 
-  def multiResolve: Option[Array[ResolveResult]]
+  def multiResolve: Option[Array[ScalaResolveResult]]
 
   override def accept(visitor: ScalaElementVisitor): Unit = {
     visitor.visitGenericCallExpression(this)

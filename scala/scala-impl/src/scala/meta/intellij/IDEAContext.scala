@@ -7,7 +7,7 @@ import scala.meta.trees.TreeConverter
 
 class IDEAContext(project: =>Project) extends TreeConverter {
 
-  override def getCurrentProject = project
+  override def getCurrentProject: Project = project
 
   // annotations filtering isn't required in converter tests
   override protected val annotationToSkip: ScAnnotation = null

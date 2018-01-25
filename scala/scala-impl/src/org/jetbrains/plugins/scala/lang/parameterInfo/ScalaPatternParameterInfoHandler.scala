@@ -37,7 +37,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?
   }
 
-  def getParameterCloseChars: String = "{},);\n"
+  override def getParameterCloseChars: String = "{},);\n"
 
   def couldShowInLookup: Boolean = true
 
@@ -63,7 +63,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     findCall(context)
   }
 
-  def getParametersForDocumentation(p: Any, context: ParameterInfoContext): Array[Object] = ArrayUtil.EMPTY_OBJECT_ARRAY
+  override def getParametersForDocumentation(p: Any, context: ParameterInfoContext): Array[Object] = ArrayUtil.EMPTY_OBJECT_ARRAY
 
   def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = null
 
@@ -198,7 +198,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     context.setCurrentParameter(i)
   }
 
-  def tracksParameterIndex: Boolean = true
+  override def tracksParameterIndex: Boolean = true
 
   private def findCall(context: ParameterInfoContext): ScPatternArgumentList = {
     val (file, offset) = (context.getFile, context.getOffset)
@@ -215,9 +215,8 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
               val ref: ScStableCodeReferenceElement = constr.ref
               val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
               if (ref != null) {
-                val variants: Array[ResolveResult] = ref.multiResolve(false)
-                for (variant <- variants if variant.isInstanceOf[ScalaResolveResult]) {
-                  val r = variant.asInstanceOf[ScalaResolveResult]
+                val variants = ref.multiResolveScala(false)
+                for (r <- variants) {
                   r.element match {
                     case fun: ScFunction if fun.parameters.nonEmpty =>
                       val substitutor = r.substitutor

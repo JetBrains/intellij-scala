@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.ResolveResult;
 import com.intellij.util.ArrayFactory;
 import org.jetbrains.plugins.scala.lang.psi.api.base.*;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
@@ -33,12 +32,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult;
  * @author Alexander Podkhalyuzin
  */
 public class JavaArrayFactoryUtil {
-  public static ArrayFactory<ResolveResult> ResolveResultFactory = new ArrayFactory<ResolveResult>() {
-    @Override
-    public ResolveResult[] create(int count) {
-      return new ResolveResult[count];
-    }
-  };
 
   public static ArrayFactory<ScalaResolveResult> ScalaResolveResultFactory = new ArrayFactory<ScalaResolveResult>() {
     @Override

@@ -7,7 +7,7 @@ import com.siyeh.ig.psiutils.MethodUtils
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectExt
-
 import scala.annotation.tailrec
 
 /**
@@ -126,12 +125,12 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
     InspectionBundle.message("comparing.unrelated.types.hint", firstTypeText, secondTypeText)
   }
 
-  private def holderTypeSystem(holder: ProblemsHolder) = holder.getProject.typeSystem
-
   private def mayNeedHighlighting(fun: ScFunction): Boolean = {
-    if (!seqFunctions.contains(fun.name)) return false
-    val className = fun.containingClass.qualifiedName
-    className.startsWith("scala.collection") && className.contains("Seq") && seqFunctions.contains(fun.name) ||
+    if (!seqFunctions.contains(fun.name) || fun.isLocal) return false
+
+    val className = fun.containingClass.qualifiedName.toOption.getOrElse("")
+
+    className.startsWith("scala.collection") && className.contains("Seq") ||
       Seq("scala.Option", "scala.Some").contains(className) && fun.name == "contains"
   }
 }

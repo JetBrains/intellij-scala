@@ -24,12 +24,5 @@ class ScMethodCallImpl(node: ASTNode) extends MethodInvocationImpl(node) with Sc
     }
   }
 
-  override def argumentExpressionsIncludeUpdateCall: Seq[ScExpression] = {
-    updateExpression() match {
-      case Some(expr) => argumentExpressions ++ Seq(expr)
-      case _ => argumentExpressions
-    }
-  }
-
   override def toString: String = "MethodCall"
 }

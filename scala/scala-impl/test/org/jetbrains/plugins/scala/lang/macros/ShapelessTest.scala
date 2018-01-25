@@ -42,4 +42,50 @@ class ShapelessTest extends TypeInferenceTestBase {
       |//(Int, Int, Int)
     """.stripMargin
   )
+
+  def testProductArgs(): Unit = doTest(
+    s"""
+       |import shapeless._
+       |
+       |object Foo extends ProductArgs {
+       |  def applyProduct[L](args: L): L = args
+       |  def listProduct[L](args: L): List[L] = List(args)
+       |}
+       |
+       |val apply = Foo(1)
+       |val apply2 = Foo.apply(1)
+       |val list = Foo.list(1)
+       |
+       |$START(apply, apply2, list)$END
+       |//(::[Int, HNil], ::[Int, HNil], List[::[Int, HNil]])
+     """.stripMargin
+  )
+
+  def testProductArgsStringInterpolator(): Unit = {
+    s"""
+       |import shapeless._
+       |
+       |trait Bar[T]
+       |implicit val barString: Bar[String] = ???
+       |
+       |implicit class barInterpolator(val sc: StringContext) {
+       |  object bar extends ProductArgs {
+       |    def applyProduct[T, A <: HList](a: A)(implicit ev: Bar[T]): T :: A = ???
+       |  }
+       |}
+       |val x = 1
+       |${START}bar"$$x"$END
+       |//::[String, ::[Int, HNil]]
+     """.stripMargin
+  }
+
+  def testWitnessSelectDynamic(): Unit = {
+    s"""
+       |object Test {
+       |  type `"foo"` = shapeless.Witness.`"foo"`.T
+       |
+       |  val foo: `"foo"` = "foo"
+       |}
+     """.stripMargin
+  }
 }

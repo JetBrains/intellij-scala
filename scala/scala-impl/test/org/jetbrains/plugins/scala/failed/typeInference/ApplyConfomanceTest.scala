@@ -48,4 +48,21 @@ class ApplyConfomanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |}
       """.stripMargin)
   }
+
+  def testSCL13046(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |trait Test {
+         |  type Repr
+         |}
+         |
+         |object Test {
+         |  def getRepr(t: Test): t.Repr = ???
+         |
+         |  def whatever(t: Test): Unit = {
+         |    val value: t.Repr = getRepr(t)
+         |  }
+         |}
+      """.stripMargin)
+  }
 }

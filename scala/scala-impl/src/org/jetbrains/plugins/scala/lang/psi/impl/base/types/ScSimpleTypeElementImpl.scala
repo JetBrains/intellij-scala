@@ -380,7 +380,7 @@ object ScSimpleTypeElementImpl {
       } else ref.bind()
     } else {
       ref.shapeResolve match {
-        case Array(r: ScalaResolveResult) => Some(r)
+        case Array(r) => Some(r)
         case _ => None
       }
     }) match {

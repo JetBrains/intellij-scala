@@ -4,6 +4,7 @@ import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, P
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
@@ -30,8 +31,7 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
           if (nextLeaf.isInstanceOf[PsiWhiteSpace] && nextLeaf.getText.contains("\n")) {
             val whitespaceOffset = endOffset(nextLeaf)
             val offset = startOffset(element)
-            val text = file.getText
-            val textWithoutSemicolon = text.take(offset) + text.drop(offset + 1)
+            val textWithoutSemicolon = removeChar(file.charSequence, offset)
             val newFile = createScalaFileFromText(textWithoutSemicolon)(element.getManager)
             var elem1 = file.findElementAt(offset - 1)
             var elem2 = newFile.findElementAt(offset - 1)
@@ -62,6 +62,13 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
         super.visitElement(element)
       }
     }
+  }
+
+  private def removeChar(cs: CharSequence, offset: Int): String = {
+    val builder = new java.lang.StringBuilder(cs.length() - 1)
+    builder.append(cs.subSequence(0, offset))
+    builder.append(cs.subSequence(offset + 1, cs.length()))
+    builder.toString
   }
 }
 

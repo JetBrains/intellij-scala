@@ -58,21 +58,6 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   protected var accessibility = true
   def doNotCheckAccessibility() {accessibility = false}
 
-  def rrcandidates: Array[ResolveResult] = {
-    val set = candidatesS
-    val size = set.size
-    val res = JavaArrayFactoryUtil.ResolveResultFactory.create(size)
-    if (size == 0) return res
-    val iter = set.iterator
-    var count = 0
-    while (iter.hasNext) {
-      val next = iter.next()
-      res(count) = next
-      count += 1
-    }
-    res
-  }
-
   def candidates: Array[ScalaResolveResult] = {
     val set = candidatesS
     val size = set.size
@@ -123,14 +108,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     }
   }
 
-  def getHint[T](hintKey: Key[T]): T = {
+  override def getHint[T](hintKey: Key[T]): T = {
     hintKey match {
       case ElementClassHint.KEY => MyElementClassHint.asInstanceOf[T]
       case _ => null.asInstanceOf[T]
     }
   }
-
-  def handleEvent(event: PsiScopeProcessor.Event, associated: Object) {}
 
   protected def kindMatches(element: PsiElement): Boolean = ResolveUtils.kindMatches(element, kinds)
 

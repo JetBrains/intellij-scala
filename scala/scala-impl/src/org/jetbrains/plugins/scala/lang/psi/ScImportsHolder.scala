@@ -241,7 +241,7 @@ trait ScImportsHolder extends ScalaPsiElement {
 
   private def hasValidQualifier(importInfo: ImportInfo, place: PsiElement): Boolean = {
     val ref = createReferenceFromText(importInfo.prefixQualifier, this, place)
-    ref.multiResolve(false).nonEmpty
+    ref.multiResolveScala(false).nonEmpty
   }
 
   private def createInfoFromPath(path: String, place: PsiElement): Seq[ImportInfo] = {

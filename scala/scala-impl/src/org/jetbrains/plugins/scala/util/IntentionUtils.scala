@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
@@ -92,7 +93,7 @@ object IntentionUtils {
     * @param methodCallArgs
     * @param argsBuilder
     */
-  def analyzeMethodCallArgs(methodCallArgs: ScArgumentExprList, argsBuilder: scala.StringBuilder) {
+  def analyzeMethodCallArgs(methodCallArgs: ScArgumentExprList, argsBuilder: StringBuilder) {
     if (methodCallArgs.exprs.length == 1) {
       methodCallArgs.exprs.head match {
         case _: ScLiteral | _: ScTuple | _: ScReferenceExpression | _: ScGenericCall | _: ScXmlExpr | _: ScMethodCall =>
@@ -104,36 +105,55 @@ object IntentionUtils {
     }
   }
 
-  def negateAndValidateExpression(expr: ScExpression, buf: scala.StringBuilder): (ScExpression, ScExpression, Int) = {
-    import expr.projectContext
+  def caretIsInRange(operation: ScReferenceExpression)
+                    (implicit editor: Editor): Boolean = {
+    val range = operation.nameId.getTextRange
+    val offset = editor.getCaretModel.getOffset
+    range.getStartOffset <= offset && offset <= range.getEndOffset
+  }
 
-    val parent =
-      if (expr.getParent != null && expr.getParent.isInstanceOf[ScParenthesisedExpr]) expr.getParent.getParent
-      else expr.getParent
+  def negateAndValidateExpression(infix: ScInfixExpr, text: String)
+                                 (implicit project: Project, editor: Editor): Unit = {
+    val start = infix.getTextRange.getStartOffset
+    val diff = editor.getCaretModel.getOffset - infix.operation.nameId.getTextRange.getStartOffset
 
-    if (parent != null && parent.isInstanceOf[ScPrefixExpr] &&
-            parent.asInstanceOf[ScPrefixExpr].operation.getText == "!") {
+    val (anchor, replacement, size) = negateAndValidateExpressionImpl(infix, text)
 
-      val newExpr = createExpressionFromText(buf.toString())
+    inWriteAction {
+      anchor.replaceExpression(replacement, removeParenthesis = true)
+      editor.getCaretModel.moveToOffset(start + diff + size)
+      PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+    }
+  }
 
-      val size = newExpr match {
-        case infix: ScInfixExpr =>infix.operation.nameId.getTextRange.getStartOffset -
-              newExpr.getTextRange.getStartOffset - 2
-        case _ => 0
-      }
+  private def negateAndValidateExpressionImpl(infix: ScInfixExpr, text: String)
+                                             (implicit context: ProjectContext): (ScExpression, ScExpression, Int) = {
+    val parent = infix.getParent match {
+      case p: ScParenthesisedExpr => p.getParent
+      case p => p
+    }
 
-      (parent.asInstanceOf[ScPrefixExpr], newExpr, size)
-    } else {
-      buf.insert(0, "!(").append(")")
-      val newExpr = createExpressionFromText(buf.toString())
+    parent match {
+      case prefix: ScPrefixExpr if prefix.operation.getText == "!" =>
+        val newExpr = createExpressionFromText(text)
 
-      val children = newExpr.asInstanceOf[ScPrefixExpr].getLastChild.asInstanceOf[ScParenthesisedExpr].getChildren
-      val size = children(0) match {
-        case infix: ScInfixExpr => infix.operation.
-              nameId.getTextRange.getStartOffset - newExpr.getTextRange.getStartOffset
-        case _ => 0
-      }
-      (expr, newExpr, size)
+        val size = newExpr match {
+          case infix: ScInfixExpr => infix.operation.nameId.getTextRange.getStartOffset -
+            newExpr.getTextRange.getStartOffset - 2
+          case _ => 0
+        }
+
+        (parent.asInstanceOf[ScPrefixExpr], newExpr, size)
+      case _ =>
+        val newExpr = createExpressionFromText("!(" + text + ")")
+
+        val children = newExpr.asInstanceOf[ScPrefixExpr].getLastChild.asInstanceOf[ScParenthesisedExpr].getChildren
+        val size = children(0) match {
+          case infix: ScInfixExpr => infix.operation.
+            nameId.getTextRange.getStartOffset - newExpr.getTextRange.getStartOffset
+          case _ => 0
+        }
+        (infix, newExpr, size)
     }
   }
 

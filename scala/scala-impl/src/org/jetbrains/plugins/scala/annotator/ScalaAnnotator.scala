@@ -468,15 +468,15 @@ abstract class ScalaAnnotator extends Annotator
     }
     val containingFile = element.getContainingFile
     def calculate(): mutable.HashSet[TextRange] = {
-      val text = containingFile.getText
+      val chars = containingFile.charSequence
       val indexes = new ArrayBuffer[Int]
       var lastIndex = 0
-      while (text.indexOf("/*_*/", lastIndex) >= 0) {
-        lastIndex = text.indexOf("/*_*/", lastIndex) + 5
+      while (chars.indexOf("/*_*/", lastIndex) >= 0) {
+        lastIndex = chars.indexOf("/*_*/", lastIndex) + 5
         indexes += lastIndex
       }
       if (indexes.isEmpty) return mutable.HashSet.empty
-      if (indexes.length % 2 != 0) indexes += text.length
+      if (indexes.length % 2 != 0) indexes += chars.length
 
       val res = new mutable.HashSet[TextRange]
       for (i <- indexes.indices by 2) {
@@ -649,7 +649,7 @@ abstract class ScalaAnnotator extends Annotator
       Seq[IntentionAction](new ScalaImportTypeFix(classes, refElement))
     }
 
-    val resolve: Array[ResolveResult] = refElement.multiResolve(false)
+    val resolve = refElement.multiResolveScala(false)
     def processError(countError: Boolean, fixes: => Seq[IntentionAction]) {
       //todo remove when resolve of unqualified expression will be fully implemented
       if (refElement.getManager.isInProject(refElement) && resolve.length == 0 &&
@@ -704,7 +704,7 @@ abstract class ScalaAnnotator extends Annotator
       refElement.getContainingFile match {
         case file: ScalaFile if !file.allowsForwardReferences =>
           resolve(0) match {
-            case r: ScalaResolveResult if r.isForwardReference =>
+            case r if r.isForwardReference =>
               ScalaPsiUtil.nameContext(r.getActualElement) match {
                 case v: ScValue if !v.hasModifierProperty("lazy") => showError()
                 case _: ScVariable => showError()
@@ -737,8 +737,7 @@ abstract class ScalaAnnotator extends Annotator
       }
     }
     for {
-      result <- resolve if result.isInstanceOf[ScalaResolveResult]
-      scalaResult = result.asInstanceOf[ScalaResolveResult]
+      scalaResult <- resolve
     } {
       registerUsedImports(refElement, scalaResult)
       registerUsedElement(refElement, scalaResult, checkWrite = true)
@@ -747,7 +746,7 @@ abstract class ScalaAnnotator extends Annotator
     checkAccessForReference(resolve, refElement, holder)
 
     if (resolve.length == 1) {
-      val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
+      val resolveResult = resolve(0)
       refElement match {
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScPrefixExpr] &&
                 e.getParent.asInstanceOf[ScPrefixExpr].operation == e =>
@@ -775,7 +774,7 @@ abstract class ScalaAnnotator extends Annotator
       val parent = refElement.getParent
       def addCreateApplyOrUnapplyFix(messageKey: String, fix: ScTypeDefinition => IntentionAction): Boolean = {
         val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, parent.getContext, parent)
-        if (refWithoutArgs != null && refWithoutArgs.multiResolve(false).exists(!_.getElement.isInstanceOf[PsiPackage])) {
+        if (refWithoutArgs != null && refWithoutArgs.multiResolveScala(false).exists(!_.getElement.isInstanceOf[PsiPackage])) {
           // We can't resolve the method call A(arg1, arg2), but we can resolve A. Highlight this differently.
           val error = ScalaBundle.message(messageKey, refElement.refName)
           val annotation = holder.createErrorAnnotation(refElement.nameId, error)
@@ -843,17 +842,15 @@ abstract class ScalaAnnotator extends Annotator
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
-    var resolve: Array[ResolveResult] = null
-    resolve = refElement.multiResolve(false)
-    for (result <- resolve if result.isInstanceOf[ScalaResolveResult];
-         scalaResult = result.asInstanceOf[ScalaResolveResult]) {
-      registerUsedImports(refElement, scalaResult)
-      registerUsedElement(refElement, scalaResult, checkWrite = true)
+    var resolve = refElement.multiResolveScala(false)
+    for (result <- resolve) {
+      registerUsedImports(refElement, result)
+      registerUsedElement(refElement, result, checkWrite = true)
     }
     checkAccessForReference(resolve, refElement, holder)
-    if (refElement.isInstanceOf[ScExpression] &&
-            resolve.length == 1) {
-      val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
+    val resolveCount = resolve.length
+    if (refElement.isInstanceOf[ScExpression] && resolveCount == 1) {
+      val resolveResult = resolve(0)
       resolveResult.implicitFunction match {
         case Some(fun) =>
           val qualifier = refElement.qualifier.get
@@ -863,14 +860,14 @@ abstract class ScalaAnnotator extends Annotator
       }
     }
 
-    if (refElement.isInstanceOf[ScDocResolvableCodeReference] && resolve.length > 0 || refElement.isSoft) return
-    if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1) {
-      if (resolve.count(_.isInstanceOf[ScalaResolveResult]) == 1) {
+    if (refElement.isInstanceOf[ScDocResolvableCodeReference] && resolveCount > 0 || refElement.isSoft) return
+    if (isAdvancedHighlightingEnabled(refElement) && resolveCount != 1) {
+      if (resolveCount == 1) {
         return
       }
 
       refElement.getParent match {
-        case _: ScImportSelector | _: ScImportExpr if resolve.length > 0 => return
+        case _: ScImportSelector | _: ScImportExpr if resolveCount > 0 => return
         case _ =>
       }
       val error = ScalaBundle.message("cannot.resolve", refElement.refName)
@@ -883,10 +880,10 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  private def checkAccessForReference(resolve: Array[ResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {
+  private def checkAccessForReference(resolve: Array[ScalaResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {
     if (resolve.length != 1 || refElement.isSoft || refElement.isInstanceOf[ScDocResolvableCodeReferenceImpl]) return
     resolve(0) match {
-      case r: ScalaResolveResult if !r.isAccessible =>
+      case r if !r.isAccessible =>
         val error = "Symbol %s is inaccessible from this place".format(r.element.name)
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
@@ -970,15 +967,15 @@ abstract class ScalaAnnotator extends Annotator
           expr.getParent match {
             case a: ScAssignStmt if a.getRExpression.contains(expr) && a.isDynamicNamedAssignment => return
             case _: ScArgumentExprList => return
-            case inf: ScInfixExpr if inf.getArgExpr == expr => return
+            case inf: ScInfixExpr if inf.argsElement == expr => return
             case tuple: ScTuple if tuple.getContext.isInstanceOf[ScInfixExpr] &&
-                    tuple.getContext.asInstanceOf[ScInfixExpr].getArgExpr == tuple => return
+              tuple.getContext.asInstanceOf[ScInfixExpr].argsElement == tuple => return
             case e: ScParenthesisedExpr if e.getContext.isInstanceOf[ScInfixExpr] &&
-                    e.getContext.asInstanceOf[ScInfixExpr].getArgExpr == e => return
+              e.getContext.asInstanceOf[ScInfixExpr].argsElement == e => return
             case t: ScTypedStmt if t.isSequenceArg => return
             case parent@(_: ScTuple | _: ScParenthesisedExpr) =>
               parent.getParent match {
-                case inf: ScInfixExpr if inf.getArgExpr == parent => return
+                case inf: ScInfixExpr if inf.argsElement == parent => return
                 case _ =>
               }
             case param: ScParameter =>

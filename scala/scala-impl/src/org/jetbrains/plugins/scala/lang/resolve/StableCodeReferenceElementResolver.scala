@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import com.intellij.psi.ResolveResult
-import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
@@ -11,9 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 
 class StableCodeReferenceElementResolver(reference: ScStableCodeReferenceElement, shapeResolve: Boolean,
-                                         allConstructorResults: Boolean, noConstructorResolve: Boolean)
-        extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElement] {
-  def resolve(ref: ScStableCodeReferenceElement, incomplete: Boolean): Array[ResolveResult] = {
+                                         allConstructorResults: Boolean, noConstructorResolve: Boolean) {
+
+  def resolve(ref: ScStableCodeReferenceElement, incomplete: Boolean): Array[ScalaResolveResult] = {
     import ref.projectContext
 
     val kinds = getKindsFor(ref)

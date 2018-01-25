@@ -29,6 +29,8 @@ object ScalaResolveResult {
   object withActual {
     def unapply(r: ScalaResolveResult): Option[PsiNamedElement] = Some(r.getActualElement)
   }
+
+  val EMPTY_ARRAY = Array.empty[ScalaResolveResult]
 }
 
 class ScalaResolveResult(val element: PsiNamedElement,
@@ -52,7 +54,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val isAccessible: Boolean = true,
                          val resultUndef: Option[ScUndefinedSubstitutor] = None,
                          val prefixCompletion: Boolean = false,
-                         val isDynamic: Boolean = false,
+                         val nameArgForDynamic: Option[String] = None, //argument to a dynamic call
                          val isForwardReference: Boolean = false,
                          val implicitParameterType: Option[ScType] = None,
                          val implicitParameters: Seq[ScalaResolveResult] = Seq.empty,
@@ -96,6 +98,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
   def implicitFunction: Option[PsiNamedElement] = implicitConversion.map(_.element)
 
+  def isDynamic: Boolean = nameArgForDynamic.nonEmpty
+
   def copy(subst: ScSubstitutor = substitutor, problems: Seq[ApplicabilityProblem] = problems,
            defaultParameterUsed: Boolean = defaultParameterUsed,
            innerResolveResult: Option[ScalaResolveResult] = innerResolveResult,
@@ -104,7 +108,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
            isAssignment: Boolean = isAssignment,
            notCheckedResolveResult: Boolean = notCheckedResolveResult,
            isAccessible: Boolean = isAccessible, resultUndef: Option[ScUndefinedSubstitutor] = None,
-           isDynamic: Boolean = isDynamic,
+           nameArgForDynamic: Option[String] = nameArgForDynamic,
            isForwardReference: Boolean = isForwardReference,
            implicitParameterType: Option[ScType] = implicitParameterType,
            importsUsed: collection.Set[ImportUsed] = importsUsed,
@@ -115,7 +119,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
       implicitConversion, implicitType, defaultParameterUsed, innerResolveResult, parentElement,
       isNamedParameter, fromType, tuplingUsed, isSetterFunction, isAssignment, notCheckedResolveResult,
-      isAccessible, resultUndef, isDynamic = isDynamic, isForwardReference = isForwardReference,
+      isAccessible, resultUndef, nameArgForDynamic = nameArgForDynamic, isForwardReference = isForwardReference,
       implicitParameterType = implicitParameterType, implicitParameters = implicitParameters,
       implicitReason = implicitReason, implicitSearchState = implicitSearchState, unresolvedTypeParameters = unresolvedTypeParameters)
 

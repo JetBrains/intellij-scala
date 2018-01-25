@@ -20,14 +20,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
-
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
+
+import org.jetbrains.plugins.scala.lang.macros.MacroDef
 
 /**
   * @author Alexander Podkhalyuzin
@@ -185,13 +186,9 @@ object InferUtil {
           exprs ++= maybeType.map(new Expression(_))
         }
         val evaluator = ScalaMacroEvaluator.getInstance(project)
-        evaluator.isMacro(results.head.getElement) match {
-          case Some(m) =>
-            evaluator.checkMacro(m, MacroContext(place, Some(paramType))) match {
-              case Some(tp) => exprs += new Expression(polymorphicSubst subst tp)
-              case None => updateExpr()
-            }
-          case _ => updateExpr()
+        evaluator.checkMacro(results.head.getElement, MacroContext(place, Some(paramType))) match {
+          case Some(tp) => exprs += new Expression(polymorphicSubst subst tp)
+          case None => updateExpr()
         }
         paramsForInfer += param
       } else {
@@ -236,17 +233,17 @@ object InferUtil {
     * @param canThrowSCE            we fail to get right type then if canThrowSCE throw SafeCheckException
     * @return updated type
     */
-  def updateAccordingToExpectedType(_nonValueType: TypeResult,
+  def updateAccordingToExpectedType(_nonValueType: ScType,
                                     fromImplicitParameters: Boolean,
                                     filterTypeParams: Boolean,
                                     expectedType: Option[ScType], expr: PsiElement,
-                                    canThrowSCE: Boolean): TypeResult = {
+                                    canThrowSCE: Boolean): ScType = {
     implicit val ctx: ProjectContext = expr
     val Unit = ctx.stdTypes.Unit
 
     var nonValueType = _nonValueType
     nonValueType match {
-      case Right(ScTypePolymorphicType(m@ScMethodType(internal, _, impl), typeParams))
+      case ScTypePolymorphicType(m@ScMethodType(internal, _, impl), typeParams)
         if expectedType.isDefined && (!fromImplicitParameters || impl) =>
         def updateRes(expected: ScType) {
           if (expected.equiv(Unit)) return //do not update according to Unit type
@@ -263,17 +260,17 @@ object InferUtil {
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(undefineSubstitutor(typeParams).subst(valueType))),
             typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE, filterTypeParams = filterTypeParams)
-          nonValueType = Right(update) //here should work in different way:
+          nonValueType = update //here should work in different way:
         }
         updateRes(expectedType.get)
       //todo: Something should be unified, that's bad to have fromImplicitParameters parameter.
-      case Right(ScTypePolymorphicType(internal, typeParams)) if expectedType.isDefined && fromImplicitParameters =>
+      case ScTypePolymorphicType(internal, typeParams) if expectedType.isDefined && fromImplicitParameters =>
         def updateRes(expected: ScType) {
-          nonValueType = Right(localTypeInference(internal,
+          nonValueType = localTypeInference(internal,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE,
-            filterTypeParams = filterTypeParams)) //here should work in different way:
+            filterTypeParams = filterTypeParams) //here should work in different way:
         }
         updateRes(expectedType.get)
       case _ =>
@@ -325,11 +322,11 @@ object InferUtil {
     }
 
     nonValueType match {
-      case Right(tpt@ScTypePolymorphicType(mt: ScMethodType, _)) =>
-        Right(tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType)))
-      case Right(mt: ScMethodType) =>
-        Right(applyImplicitViewToResult(mt, expectedType))
-      case tr => tr
+      case tpt@ScTypePolymorphicType(mt: ScMethodType, _) =>
+        tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
+      case mt: ScMethodType =>
+        applyImplicitViewToResult(mt, expectedType)
+      case t => t
     }
   }
 
