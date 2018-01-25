@@ -69,6 +69,7 @@ lazy val scalaImpl: sbt.Project =
     ideaInternalPlugins := Seq(
       "java-i18n",
       "android",
+      "smali", // required by Android
       "gradle", // requierd by Android
       "Groovy", // requierd by Gradle
       "properties", // required by Gradle
@@ -144,6 +145,7 @@ lazy val androidIntegration =
     .settings(
       ideaInternalPlugins := Seq(
         "android",
+        "smali", // required by Android
         "gradle",// required by Android
         "groovy", // required by Gradle
         "properties") // required by Gradle
