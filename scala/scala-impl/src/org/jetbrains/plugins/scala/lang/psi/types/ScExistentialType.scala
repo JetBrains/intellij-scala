@@ -7,7 +7,7 @@ import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, TypeParamId}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
@@ -118,15 +118,14 @@ case class ScExistentialType(quantified: ScType,
         if (!res._1) return res
         conformance.extractParams(rType) match {
           case Some(iter) =>
-            val myMap =
+            val (names, existArgsBounds) =
               args.zip(iter.toList).collect {
                 case (arg: ScExistentialArgument, rParam: ScTypeParam)
-                  if rParam.isCovariant && wildcards.contains(arg) => ((arg.name, -1L), arg.upper)
+                  if rParam.isCovariant && wildcards.contains(arg) => (arg.name, arg.upper)
                 case (arg: ScExistentialArgument, rParam: ScTypeParam)
-                  if rParam.isContravariant && wildcards.contains(arg) => ((arg.name, -1L), arg.lower)
-                //TODO: here we should check variantness for rArg and substitute args with lower/upper bound according to variantness
-              }
-            val subst = ScSubstitutor(myMap)
+                  if rParam.isContravariant && wildcards.contains(arg) => (arg.name, arg.lower)
+              }.unzip
+            val subst = ScSubstitutor.bind(names, existArgsBounds)(TypeParamId.nameBased)
             return subst.subst(quantified).equiv(r, undefinedSubst, falseUndef)
           case _ =>
         }
@@ -506,8 +505,7 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
     r match {
       case exist: ScExistentialArgument =>
         var undefinedSubst = uSubst
-        val keys = exist.args.map(tpt => (tpt.name, -1L))
-        val s = ScSubstitutor(keys, args)
+        val s = ScSubstitutor.bind(exist.args.map(_.name), args)(TypeParamId.nameBased)
         val t = lower.equiv(s.subst(exist.lower), undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible._
@@ -245,8 +245,8 @@ object ScImplicitlyConvertible {
     var uSubst = undefinedSubstitutor
     uSubst.getSubstitutor match {
       case Some(unSubst) =>
-        val nameAndIds = function.typeParameters.map(_.nameAndId).toSet
-        def hasRecursiveTypeParameters(`type`: ScType): Boolean = `type`.hasRecursiveTypeParameters(nameAndIds)
+        val typeParamIds = function.typeParameters.map(_.typeParamId).toSet
+        def hasRecursiveTypeParameters(`type`: ScType): Boolean = `type`.hasRecursiveTypeParameters(typeParamIds)
 
         def substitute(maybeType: TypeResult) = maybeType
           .toOption
@@ -255,14 +255,14 @@ object ScImplicitlyConvertible {
           .withFilter(!hasRecursiveTypeParameters(_))
 
         function.typeParameters.foreach { typeParameter =>
-          val nameAndId = typeParameter.nameAndId
+          val typeParamId = typeParameter.typeParamId
 
           substitute(typeParameter.lowerBound).foreach { lower =>
-            uSubst = uSubst.addLower(nameAndId, lower, additional = true)
+            uSubst = uSubst.addLower(typeParamId, lower, additional = true)
           }
 
           substitute(typeParameter.upperBound).foreach { upper =>
-            uSubst = uSubst.addUpper(nameAndId, upper, additional = true)
+            uSubst = uSubst.addUpper(typeParamId, upper, additional = true)
           }
         }
 

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamIdOwner, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
@@ -428,20 +428,20 @@ object MethodResolveProcessor {
         case None =>
           result.copy(problems = Seq(WrongTypeParameterInferred))
         case Some(unSubst) =>
-          val nameAndIds = typeParameters.map(_.nameAndId).toSet
-          def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
+          val typeParamIds = typeParameters.map(_.typeParamId).toSet
+          def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
 
           for (TypeParameter(_, lowerType, upperType, tParam) <- typeParameters) {
             if (lowerType != Nothing) {
               val substedLower = s.subst(unSubst.subst(lowerType))
               if (!hasRecursiveTypeParameters(substedLower)) {
-                uSubst = uSubst.addLower(tParam.nameAndId, substedLower, additional = true)
+                uSubst = uSubst.addLower(tParam.typeParamId, substedLower, additional = true)
               }
             }
             if (upperType != Any) {
               val substedUpper = s.subst(unSubst.subst(upperType))
               if (!hasRecursiveTypeParameters(substedUpper)) {
-                uSubst = uSubst.addUpper(tParam.nameAndId, substedUpper, additional = true)
+                uSubst = uSubst.addUpper(tParam.typeParamId, substedUpper, additional = true)
               }
             }
           }

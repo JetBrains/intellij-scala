@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.psi.PsiTypeParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -23,12 +24,12 @@ case class UndefinedType(parameterType: TypeParameterType, var level: Int = 0) e
       case _ if falseUndef => substitutor
       case UndefinedType(_, thatLevel) if thatLevel == level => substitutor
       case UndefinedType(thatParameterType, thatLevel) if thatLevel > level =>
-        substitutor.addUpper(thatParameterType.nameAndId, this)
+        substitutor.addUpper(thatParameterType.typeParamId, this)
       case that: UndefinedType if that.level < level =>
-        substitutor.addUpper(parameterType.nameAndId, that)
+        substitutor.addUpper(parameterType.typeParamId, that)
       case that =>
-        val name = parameterType.nameAndId
-    substitutor.addLower(name, that).addUpper(name, that)
+        val name = parameterType.typeParamId
+        substitutor.addLower(name, that).addUpper(name, that)
     }
 
     (!falseUndef, result)

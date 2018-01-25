@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamIdOwner, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -190,20 +190,20 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
             u.getSubstitutor match {
               case Some(uSubst) =>
 
-                val nameAndIds = typeParams.map(_.nameAndId).toSet
-                def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
+                val typeParamIds = typeParams.map(_.typeParamId).toSet
+                def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
 
                 typeParams.foreach(tp => {
                   if (tp.lowerType != Nothing) {
                     val substedLower = uSubst.subst(tp.lowerType)
                     if (!hasRecursiveTypeParameters(tp.lowerType)) {
-                      u = u.addLower(tp.nameAndId, substedLower, additional = true)
+                      u = u.addLower(tp.typeParamId, substedLower, additional = true)
                     }
                   }
                   if (tp.upperType != Any) {
                     val substedUpper = uSubst.subst(tp.upperType)
                     if (!hasRecursiveTypeParameters(tp.upperType)) {
-                      u = u.addUpper(tp.nameAndId, substedUpper, additional = true)
+                      u = u.addUpper(tp.typeParamId, substedUpper, additional = true)
                     }
                   }
                 })

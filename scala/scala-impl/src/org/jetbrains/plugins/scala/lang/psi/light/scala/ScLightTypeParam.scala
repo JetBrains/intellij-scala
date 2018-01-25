@@ -89,7 +89,7 @@ class ScExistentialLightTypeParam(override val name: String)(implicit pc: Projec
 
   override def typeParameterText: String = name
 
-  override val typeParamId: Long = params.freshTypeParamId()
+  override val typeParamId: Long = params.freshTypeParamId(this)
 
   override def isHigherKindedTypeParameter: Boolean = false
 

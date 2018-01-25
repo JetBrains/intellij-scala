@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -19,8 +19,6 @@ sealed trait TypeParameter {
   val psiTypeParameter: PsiTypeParameter
 
   def name: String = psiTypeParameter.name
-
-  def nameAndId: (String, Long) = psiTypeParameter.nameAndId
 
   def update(function: ScType => ScType): TypeParameter = TypeParameter.StrictTp(
     typeParameters.map(_.update(function)),

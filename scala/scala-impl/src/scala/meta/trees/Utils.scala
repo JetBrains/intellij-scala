@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
+import scala.collection.immutable.LongMap
 import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
 import scala.{meta => m, Seq => _}
@@ -116,12 +117,15 @@ trait Utils {
 
         fun(maybeType.asTypeResult)
       } else {
-        ScSubstitutor.cacheSubstitutions = true
-        val tp = expr.`type`()
-        ScSubstitutor.cacheSubstitutions = false
-        val res = fun(tp)
-        ScSubstitutor.cache.clear()
-        res
+        try {
+          ScSubstitutor.cacheSubstitutions = true
+          val tp = expr.`type`()
+          ScSubstitutor.cacheSubstitutions = false
+          fun(tp)
+        } finally {
+          ScSubstitutor.cacheSubstitutions = false
+          ScSubstitutor.cache = LongMap.empty
+        }
       }
     }
   }

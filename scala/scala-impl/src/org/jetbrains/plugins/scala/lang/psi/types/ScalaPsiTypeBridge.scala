@@ -69,10 +69,10 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
 
             val scSubst = substitutor match {
               case impl: PsiSubstitutorImpl =>
-                import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-                ScSubstitutor(impl.getSubstitutionMap.asScala.collect {
-                  case (key: PsiTypeParameter, value) => (key.nameAndId, value.toScType(visitedRawTypes))
-                })
+                val entries = impl.getSubstitutionMap.entrySet().asScala.toSeq
+                val psiParams = entries.map(_.getKey)
+                val scTypes = entries.map(e => e.getValue.toScType(visitedRawTypes))
+                ScSubstitutor.bind(psiParams, scTypes)
               case _ => ScSubstitutor.empty
             }
 

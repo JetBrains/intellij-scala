@@ -4,7 +4,7 @@ package lang.psi.types.nonvalue
 import com.intellij.psi.PsiParameter
 import org.jetbrains.plugins.scala.extensions.PsiParameterExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamIdOwner, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -169,14 +169,14 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       var coOrInVariant = 0
       internalType.recursiveVarianceUpdate {
         case (typez: ScType, v: Variance) =>
-          val pair = typez match {
-            case tp: TypeParameterType => tp.nameAndId
-            case UndefinedType(tp, _) => tp.nameAndId
-            case ScAbstractType(tp, _, _) => tp.nameAndId
-            case _ => null
+          val typeParamId = typez match {
+            case t: TypeParameterType => t.typeParamId
+            case UndefinedType(t, _) => t.typeParamId
+            case ScAbstractType(t, _, _) => t.typeParamId
+            case _ => -1L
           }
-          if (pair != null) {
-            if (tp.nameAndId == pair) {
+          if (typeParamId > 0) {
+            if (tp.typeParamId == typeParamId) {
               if (v == Contravariant) contraVariant += 1
               else coOrInVariant += 1
             }
@@ -206,9 +206,9 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       else lowerType
     }
 
-  private lazy val nameAndIds = typeParameters.map(_.nameAndId).toSet
+  private lazy val typeParamIds = typeParameters.map(_.typeParamId).toSet
 
-  private def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
+  private def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
 
   def typeParameterTypeSubstitutor: ScSubstitutor =
     ScSubstitutor.bind(typeParameters)(TypeParameterType(_))

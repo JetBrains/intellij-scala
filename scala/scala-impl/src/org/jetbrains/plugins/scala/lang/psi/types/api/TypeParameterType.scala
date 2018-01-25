@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScSubstitutor, ScType, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -21,8 +21,6 @@ sealed trait TypeParameterType extends ValueType with NamedType {
   override implicit def projectContext: ProjectContext = psiTypeParameter
 
   override val name: String = psiTypeParameter.name
-
-  def nameAndId: (String, Long) = psiTypeParameter.nameAndId
 
   def isInvariant: Boolean = psiTypeParameter match {
     case typeParam: ScTypeParam => !typeParam.isCovariant && !typeParam.isContravariant

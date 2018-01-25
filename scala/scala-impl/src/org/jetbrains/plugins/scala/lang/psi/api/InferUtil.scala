@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamIdOwner, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createParameterFromText}
@@ -374,8 +374,8 @@ object InferUtil {
                                             ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)]) = {
     implicit val projectContext = retType.projectContext
 
-    val nameAndIds = typeParams.map(_.nameAndId).toSet
-    def hasRecursiveTypeParams(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
+    val typeParamIds = typeParams.map(_.typeParamId).toSet
+    def hasRecursiveTypeParams(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
 
     // See SCL-3052, SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
@@ -394,8 +394,8 @@ object InferUtil {
             val undefiningSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
             ScTypePolymorphicType(retType, typeParams.map {
               case tp@TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
-                val nameAndId = tp.nameAndId
-                val lower = lMap.get(nameAndId) match {
+                val typeParamId = tp.typeParamId
+                val lower = lMap.get(typeParamId) match {
                   case Some(_addLower) =>
                     val substedLower = unSubst.subst(lowerType)
                     val withParams = tryAddParameters(_addLower, typeParameters)
@@ -405,7 +405,7 @@ object InferUtil {
                   case None =>
                     unSubst.subst(lowerType)
                 }
-                val upper = uMap.get(nameAndId) match {
+                val upper = uMap.get(typeParamId) match {
                   case Some(_addUpper) =>
                     val substedUpper = unSubst.subst(upperType)
                     val withParams = tryAddParameters(_addUpper, typeParameters)
@@ -425,19 +425,19 @@ object InferUtil {
             })
           } else {
             typeParams.foreach { tp =>
-              val nameAndId = tp.nameAndId
-              if (un.names.contains(nameAndId) || tp.lowerType != Nothing) {
+              val typeParamId = tp.typeParamId
+              if (un.typeParamIds.contains(typeParamId) || tp.lowerType != Nothing) {
                 //todo: add only one of them according to variance
                 if (tp.lowerType != Nothing) {
                   val substedLowerType = unSubst.subst(tp.lowerType)
                   if (!hasRecursiveTypeParams(substedLowerType)) {
-                    un = un.addLower(nameAndId, substedLowerType, additional = true)
+                    un = un.addLower(typeParamId, substedLowerType, additional = true)
                   }
                 }
                 if (tp.upperType != Any) {
                   val substedUpperType = unSubst.subst(tp.upperType)
                   if (!hasRecursiveTypeParams(substedUpperType)) {
-                    un = un.addUpper(nameAndId, substedUpperType, additional = true)
+                    un = un.addUpper(typeParamId, substedUpperType, additional = true)
                   }
                 }
               }
@@ -446,7 +446,7 @@ object InferUtil {
             def updateWithSubst(sub: ScSubstitutor): ScTypePolymorphicType = {
               ScTypePolymorphicType(sub.subst(retType), typeParams.filter {
                 case tp =>
-                  val removeMe: Boolean = un.names.contains(tp.nameAndId)
+                  val removeMe: Boolean = un.typeParamIds.contains(tp.typeParamId)
                   if (removeMe && canThrowSCE) {
                     //let's check type parameter kinds
                     def checkTypeParam(typeParam: ScTypeParam, tp: => ScType): Boolean = {

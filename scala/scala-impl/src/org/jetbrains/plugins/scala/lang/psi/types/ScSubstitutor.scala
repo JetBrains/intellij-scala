@@ -11,10 +11,8 @@ import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{NameAndId, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, params}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamIdOwner, ScParameter, TypeParamId}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor.LazyDepMethodTypes
@@ -26,13 +24,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.annotation.tailrec
 import scala.collection.Seq
+import scala.collection.immutable.LongMap
 import scala.language.implicitConversions
 
 /**
 * @author ven
 */
 object ScSubstitutor {
-  val empty: ScSubstitutor = new ScSubstitutor(Map.empty, None) {
+  val empty: ScSubstitutor = new ScSubstitutor(LongMap.empty, None) {
     override def toString: String = "Empty substitutor"
 
     override def subst(t: ScType): ScType = t
@@ -45,33 +44,30 @@ object ScSubstitutor {
 
   var cacheSubstitutions = false
 
-  val cache: scala.collection.mutable.Map[(String, Long), ScType] = scala.collection.mutable.Map()
+  var cache: LongMap[ScType] = LongMap.empty
+
+  def apply(tvMap: LongMap[ScType]) =
+    new ScSubstitutor(tvMap)
 
   def apply(updateThisType: ScType): ScSubstitutor =
     new ScSubstitutor(updateThisType = Some(updateThisType))
 
-  def apply(tvMap: Iterable[((String, Long), ScType)]): ScSubstitutor =
-    new ScSubstitutor(tvMap.toMap)
-
-  def apply(keys: Seq[(String, Long)], values: Seq[ScType]): ScSubstitutor =
-    ScSubstitutor(keys.zip(values))
-
   def apply(dependentMethodTypes: () => Map[Parameter, ScType]): ScSubstitutor =
     new ScSubstitutor(depMethodTypes = Some(dependentMethodTypes))
 
-  def bind[T: NameAndId](typeParamsLike: Seq[T])(toScType: T => ScType): ScSubstitutor = {
+  def bind[T: TypeParamId](typeParamsLike: Seq[T])(toScType: T => ScType): ScSubstitutor = {
     val tvMap = buildMap(typeParamsLike, typeParamsLike)(toScType)
     new ScSubstitutor(tvMap)
   }
 
-  def bind[T: NameAndId, S](typeParamsLike: Seq[T], targets: Seq[S])(toScType: S => ScType): ScSubstitutor = {
+  def bind[T: TypeParamId, S](typeParamsLike: Seq[T], targets: Seq[S])(toScType: S => ScType): ScSubstitutor = {
     val tvMap = buildMap(typeParamsLike, targets)(toScType)
     new ScSubstitutor(tvMap)
   }
 
-  def bind[T: NameAndId](typeParamsLike: Seq[T], types: Seq[ScType]): ScSubstitutor = {
+  def bind[T: TypeParamId](typeParamsLike: Seq[T], types: Seq[ScType]): ScSubstitutor = {
     val tvMap = buildMap(typeParamsLike, types)(identity)
-    ScSubstitutor(tvMap)
+    new ScSubstitutor(tvMap)
   }
 
   class LazyDepMethodTypes(private var fun: () => Map[Parameter, ScType]) {
@@ -101,27 +97,31 @@ object ScSubstitutor {
 
   private def buildMap[T, S](typeParamsLike: Seq[T],
                              types: Seq[S],
-                             initial: Map[(String, Long), ScType] = Map.empty)
+                             initial: LongMap[ScType] = LongMap.empty)
                             (toScType: S => ScType)
-                            (implicit ev: NameAndId[T]): Map[(String, Long), ScType] = {
+                            (implicit ev: TypeParamId[T]): LongMap[ScType] = {
     val iterator1 = typeParamsLike.iterator
     val iterator2 = types.iterator
     var result = initial
     while (iterator1.hasNext && iterator2.hasNext) {
-      result = result.updated(ev.nameAndId(iterator1.next()), toScType(iterator2.next()))
+      result = result.updated(ev.typeParamId(iterator1.next()), toScType(iterator2.next()))
     }
     result
   }
 }
 
-class ScSubstitutor private (private val tvMap: Map[(String, Long), ScType] = Map.empty,
+class ScSubstitutor private (private val tvMap: LongMap[ScType] = LongMap.empty,
                              private val updateThisType: Option[ScType] = None,
                              private val follower: Option[ScSubstitutor] = None,
                              private val depMethodTypes: Option[LazyDepMethodTypes] = None) {
 
   override def toString: String = {
+    val mapText = tvMap.map {
+      case (id, tp) => params.typeParamName(id) + " -> " + tp.toString
+    }.mkString("Map(", ", ", ")")
+
     val followerText = if (follower.nonEmpty) " >> " + follower.get.toString else ""
-    s"ScSubstitutor($tvMap, $updateThisType)$followerText"
+    s"ScSubstitutor($mapText, $updateThisType)$followerText"
   }
 
   override def hashCode(): Int = Objects.hash(tvMap, updateThisType, follower, depMethodTypes)
@@ -136,13 +136,8 @@ class ScSubstitutor private (private val tvMap: Map[(String, Long), ScType] = Ma
   }
 
   def withBindings(from: Seq[TypeParameter], target: Seq[TypeParameter]): ScSubstitutor = {
-    val fromIter = from.iterator
-    val targetIter = target.iterator
-    var res = Map.empty[(String, Long), ScType]
-    while (fromIter.hasNext && targetIter.hasNext) {
-      res += (fromIter.next().nameAndId -> TypeParameterType(targetIter.next()))
-    }
-    new ScSubstitutor(tvMap ++ res, updateThisType, follower, depMethodTypes)
+    val newMap = ScSubstitutor.buildMap(from, target, tvMap)(TypeParameterType(_))
+    new ScSubstitutor(newMap, updateThisType, follower, depMethodTypes)
   }
 
   def followUpdateThisType(tp: ScType): ScSubstitutor = {
@@ -223,7 +218,7 @@ class ScSubstitutor private (private val tvMap: Map[(String, Long), ScType] = Ma
 
       override def visitAbstractType(a: ScAbstractType): Unit = {
         val parameterType = a.parameterType
-        result = tvMap.get(parameterType.nameAndId) match {
+        result = tvMap.get(parameterType.typeParamId) match {
           case None => a
           case Some(v) => v match {
             case tpt: TypeParameterType if tpt.psiTypeParameter == parameterType.psiTypeParameter => a
@@ -242,7 +237,7 @@ class ScSubstitutor private (private val tvMap: Map[(String, Long), ScType] = Ma
 
       override def visitUndefinedType(u: UndefinedType): Unit = {
         val parameterType = u.parameterType
-        result = tvMap.get(parameterType.nameAndId) match {
+        result = tvMap.get(parameterType.typeParamId) match {
           case None => u
           case Some(v) => v match {
             case tpt: TypeParameterType if tpt.psiTypeParameter == parameterType.psiTypeParameter => u
@@ -252,7 +247,7 @@ class ScSubstitutor private (private val tvMap: Map[(String, Long), ScType] = Ma
       }
 
       override def visitTypeParameterType(tpt: TypeParameterType): Unit = {
-        result = tvMap.get(tpt.nameAndId) match {
+        result = tvMap.get(tpt.typeParamId) match {
           case None => tpt
           case Some(v) => extractTpt(tpt, v)
         }
@@ -388,7 +383,7 @@ class ScSubstitutor private (private val tvMap: Map[(String, Long), ScType] = Ma
         val typeArgs = pt.typeArguments
         result = pt.designator match {
           case tpt: TypeParameterType =>
-            tvMap.get(tpt.nameAndId) match {
+            tvMap.get(tpt.typeParamId) match {
               case Some(param: ScParameterizedType) if pt != param =>
                 if (tpt.arguments.isEmpty) {
                   substInternal(param) //to prevent types like T[A][A]
@@ -402,7 +397,7 @@ class ScSubstitutor private (private val tvMap: Map[(String, Long), ScType] = Ma
                 }
             }
           case u@UndefinedType(parameterType, _) =>
-            tvMap.get(parameterType.nameAndId) match {
+            tvMap.get(parameterType.typeParamId) match {
               case Some(param: ScParameterizedType) if pt != param =>
                 if (parameterType.arguments.isEmpty) {
                   substInternal(param) //to prevent types like T[A][A]
@@ -416,7 +411,7 @@ class ScSubstitutor private (private val tvMap: Map[(String, Long), ScType] = Ma
                 }
             }
           case a@ScAbstractType(parameterType, _, _) =>
-            tvMap.get(parameterType.nameAndId) match {
+            tvMap.get(parameterType.typeParamId) match {
               case Some(param: ScParameterizedType) if pt != param =>
                 if (parameterType.arguments.isEmpty) {
                   substInternal(param) //to prevent types like T[A][A]

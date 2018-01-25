@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType, PsiTypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
@@ -172,11 +173,11 @@ package object types {
 
     def tryExtractDesignatorSingleton: ScType = extractDesignatorSingleton.getOrElse(scType)
 
-    def hasRecursiveTypeParameters[T](nameAndIds: Set[(String, Long)]): Boolean = {
+    def hasRecursiveTypeParameters[T](typeParamIds: Set[Long]): Boolean = {
       var found = false
       scType.recursiveUpdate {
         case tpt: TypeParameterType =>
-          if (nameAndIds.contains(tpt.nameAndId)) {
+          if (typeParamIds.contains(tpt.typeParamId)) {
             found = true
             Stop
           }
