@@ -59,6 +59,7 @@ lazy val scalaImpl: sbt.Project =
       "IntelliLang",
       "java-i18n",
       "android",
+      "smali",
       "maven",
       "junit",
       "properties"
