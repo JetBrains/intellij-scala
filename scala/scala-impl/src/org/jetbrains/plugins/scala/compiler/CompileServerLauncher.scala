@@ -163,7 +163,7 @@ class CompileServerLauncher extends ApplicationComponent {
 }
 
 object CompileServerLauncher {
-  def compileServerSdk(project: Project): Sdk = {
+  def compileServerSdk(project: Project): Option[Sdk] = {
     def defaultSdk = BuildManager.getBuildProcessRuntimeSdk(project).first
 
     val settings = ScalaCompileServerSettings.getInstance()
@@ -172,12 +172,12 @@ object CompileServerLauncher {
       if (settings.USE_DEFAULT_SDK) defaultSdk
       else ProjectJdkTable.getInstance().findJdk(settings.COMPILE_SERVER_SDK)
 
-    sdk
+    Option(sdk)
   }
 
   def compileServerJdk(project: Project): Option[JDK] = {
     val sdk = compileServerSdk(project)
-    toJdk(sdk)
+    sdk.flatMap(toJdk)
   }
 
   def instance: CompileServerLauncher = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
