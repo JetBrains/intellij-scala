@@ -318,4 +318,19 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
 
     checkCaretResolves()
   }
+
+  // synthetic elements' containingFile should be same as parent's rather than DummyHolder
+  def testSCL12620(): Unit = {
+    compileAnnotBody("defn")
+    createFile(
+      s"""
+        |@$annotName
+        |class $testClassName {
+        |  sealed trait A
+        |  class B extends A
+        |}
+      """.stripMargin
+    )
+    checkNoErrorHighlights()
+  }
 }
