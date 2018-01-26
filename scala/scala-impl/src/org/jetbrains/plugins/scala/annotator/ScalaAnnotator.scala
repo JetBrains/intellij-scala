@@ -806,7 +806,7 @@ abstract class ScalaAnnotator extends Annotator
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
       registerCreateFromUsageFixesFor(refElement, annotation)
-      UnresolvedReferenceFixProvider.EP_NAME.getExtensions
+      UnresolvedReferenceFixProvider.implementations
         .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
     }
   }
@@ -876,7 +876,7 @@ abstract class ScalaAnnotator extends Annotator
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
       registerCreateFromUsageFixesFor(refElement, annotation)
-      UnresolvedReferenceFixProvider.EP_NAME.getExtensions
+      UnresolvedReferenceFixProvider.implementations
         .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
     }
   }
