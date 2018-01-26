@@ -11,8 +11,8 @@ import org.jetbrains.sbt.resolvers.ArtifactInfo
 class SbtArtifactSearchWizard(project: Project, artifactInfoSet: Set[ArtifactInfo], fileLines: Seq[DependencyPlaceInfo])
   extends AbstractWizard[Step]("", project) {
 
-  val sbtArtifactSearchStep = new SbtArtifactChooseDependencyStep(this, artifactInfoSet)
-  val sbtPossiblePlacesStep = new SbtPossiblePlacesStep(this, project, fileLines)
+  private val sbtArtifactSearchStep = new SbtArtifactChooseDependencyStep(this, artifactInfoSet)
+  private val sbtPossiblePlacesStep = new SbtPossiblePlacesStep(this, project, fileLines)
 
   var resultArtifact: Option[ArtifactInfo] = _
   var resultFileLine: Option[DependencyPlaceInfo] = _

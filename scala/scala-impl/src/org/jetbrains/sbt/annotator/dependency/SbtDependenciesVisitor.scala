@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 /**
   * Created by afonichkin on 8/28/17.
   */
-object SbtDependenciesVisitor {
+private object SbtDependenciesVisitor {
   @scala.annotation.tailrec
   private def getScPatternDefinition(psiElement: PsiElement): ScPatternDefinition = {
     psiElement match {

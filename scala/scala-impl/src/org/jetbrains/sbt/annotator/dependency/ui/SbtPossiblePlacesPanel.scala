@@ -23,7 +23,7 @@ import scala.collection.JavaConverters.asJavaCollectionConverter
 /**
   * Created by afonichkin on 7/19/17.
   */
-class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, fileLines: Seq[DependencyPlaceInfo]) extends JPanel {
+private class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearchWizard, fileLines: Seq[DependencyPlaceInfo]) extends JPanel {
   val myResultList: JBList[DependencyPlaceInfo] = new JBList[DependencyPlaceInfo]()
   var myCurEditor: Editor = createEditor()
 

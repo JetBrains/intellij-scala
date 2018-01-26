@@ -15,7 +15,7 @@ import scala.collection.JavaConverters.asJavaCollectionConverter
 /**
   * Created by afonichkin on 7/13/17.
   */
-class SbtArtifactSearchPanel(wizard: SbtArtifactSearchWizard, artifactInfoSet: Set[ArtifactInfo]) extends JPanel {
+private class SbtArtifactSearchPanel(wizard: SbtArtifactSearchWizard, artifactInfoSet: Set[ArtifactInfo]) extends JPanel {
   val myResultList = new JBList[ArtifactInfo]()
 
   init()

@@ -32,7 +32,7 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
 /**
   * Created by afonichkin on 7/7/17.
   */
-class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReferenceElement]) extends IntentionAction with LowPriorityAction {
+private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReferenceElement]) extends IntentionAction with LowPriorityAction {
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = file match {
     case _: ScalaCodeFragment => false
     case scalaFile: ScalaFile =>

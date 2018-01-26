@@ -9,7 +9,7 @@ import org.jetbrains.sbt.resolvers.ArtifactInfo
 /**
   * Created by afonichkin on 7/19/17.
   */
-class SbtArtifactChooseDependencyStep(wizard: SbtArtifactSearchWizard, artifactInfoSet: Set[ArtifactInfo]) extends Step {
+private class SbtArtifactChooseDependencyStep(wizard: SbtArtifactSearchWizard, artifactInfoSet: Set[ArtifactInfo]) extends Step {
 
   private val panel = new SbtArtifactSearchPanel(wizard, artifactInfoSet)
 

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions
 /**
   * Created by afonichkin on 7/19/17.
   */
-class SbtPossiblePlacesStep(wizard: SbtArtifactSearchWizard, project: Project, fileLines: Seq[DependencyPlaceInfo])
+private class SbtPossiblePlacesStep(wizard: SbtArtifactSearchWizard, project: Project, fileLines: Seq[DependencyPlaceInfo])
   extends  Step {
 
   val panel = new SbtPossiblePlacesPanel(project, wizard, fileLines)
