@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, params}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamIdOwner, ScParameter, TypeParamId}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor.LazyDepMethodTypes
@@ -28,13 +28,14 @@ import scala.collection.immutable.LongMap
 import scala.language.implicitConversions
 
 /**
-* @author ven
-*/
+  * @author ven
+  */
 object ScSubstitutor {
   val empty: ScSubstitutor = new ScSubstitutor(LongMap.empty, None) {
     override def toString: String = "Empty substitutor"
 
     override def subst(t: ScType): ScType = t
+
     override def substInternal(t: ScType): ScType = t
   }
 
@@ -80,6 +81,7 @@ object ScSubstitutor {
 
   object LazyDepMethodTypes {
     implicit def toValue(lz: LazyDepMethodTypes): Map[Parameter, ScType] = lz.value
+
     implicit def toLazy(fun: () => Map[Parameter, ScType]): LazyDepMethodTypes = new LazyDepMethodTypes(fun)
   }
 
@@ -110,10 +112,10 @@ object ScSubstitutor {
   }
 }
 
-class ScSubstitutor private (private val tvMap: LongMap[ScType] = LongMap.empty,
-                             private val updateThisType: Option[ScType] = None,
-                             private val follower: Option[ScSubstitutor] = None,
-                             private val depMethodTypes: Option[LazyDepMethodTypes] = None) {
+class ScSubstitutor private(private val tvMap: LongMap[ScType] = LongMap.empty,
+                            private val updateThisType: Option[ScType] = None,
+                            private val follower: Option[ScSubstitutor] = None,
+                            private val depMethodTypes: Option[LazyDepMethodTypes] = None) {
 
   override def toString: String = {
     val mapText = tvMap.map {
@@ -158,6 +160,7 @@ class ScSubstitutor private (private val tvMap: LongMap[ScType] = LongMap.empty,
       case _ => ScSubstitutor(tp).followed(this)
     }
   }
+
   def followed(s: ScSubstitutor): ScSubstitutor = followed(s, 0)
 
   private def followed(s: ScSubstitutor, level: Int): ScSubstitutor = {
@@ -198,7 +201,7 @@ class ScSubstitutor private (private val tvMap: LongMap[ScType] = LongMap.empty,
     }
   }
 
-  protected def substInternal(t: ScType) : ScType = {
+  protected def substInternal(t: ScType): ScType = {
     import t.projectContext
 
     var result: ScType = t
@@ -261,8 +264,7 @@ class ScSubstitutor private (private val tvMap: LongMap[ScType] = LongMap.empty,
       }
 
       override def visitThisType(th: ScThisType): Unit = {
-        val clazz = th.element
-        def hasRecursiveThisType(tp: ScType): Boolean = {
+        def hasRecursiveThisType(tp: ScType, clazz: ScTemplateDefinition): Boolean = {
           var found = false
           tp.recursiveUpdate {
             case ScThisType(`clazz`) if !found =>
@@ -272,98 +274,78 @@ class ScSubstitutor private (private val tvMap: LongMap[ScType] = LongMap.empty,
           }
           found
         }
-        result = updateThisType match {
-          case Some(oldTp) if !hasRecursiveThisType(oldTp) => //todo: hack to avoid infinite recursion during type substitution
-            var tp = oldTp
-            def update(typez: ScType): ScType = {
-              typez.extractDesignated(expandAliases = true) match {
-                case Some(t: ScTypeDefinition) =>
-                  if (t == clazz) tp
-                  else if (isInheritorDeep(t, clazz)) tp
-                  else {
-                    t.selfType match {
-                      case Some(selfType) =>
-                        selfType.extractDesignated(expandAliases = true) match {
-                          case Some(cl: PsiClass) =>
-                            if (cl == clazz) tp
-                            else if (isInheritorDeep(cl, clazz)) tp
-                            else null
-                          case _ =>
-                            selfType match {
-                              case ScCompoundType(types, _, _) =>
-                                val iter = types.iterator
-                                while (iter.hasNext) {
-                                  val tps = iter.next()
-                                  tps.extractClass match {
-                                    case Some(cl) =>
-                                      if (cl == clazz) return tp
-                                    case _ =>
-                                  }
-                                }
-                              case _ =>
-                            }
-                            null
-                        }
-                      case None => null
-                    }
-                  }
-                case Some(cl: PsiClass) =>
-                  typez match {
-                    case t: TypeParameterType => return update(t.upperType)
-                    case p@ParameterizedType(_, _) =>
-                      p.designator match {
-                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper))
-                        case _ =>
-                      }
+
+        def containingClassType(tp: ScType): ScType = tp match {
+          case ScThisType(template) =>
+            template.containingClass match {
+              case td: ScTemplateDefinition => ScThisType(td)
+              case _ => null
+            }
+          case ScProjectionType(newType, _, _) => newType
+          case ParameterizedType(ScProjectionType(newType, _, _), _) => newType
+          case _ => null
+        }
+
+        def isSameOrInheritor(clazz: PsiClass, thisTp: ScThisType): Boolean =
+          clazz == thisTp.element || isInheritorDeep(clazz, thisTp.element)
+
+        def hasSameOrInheritor(compound: ScCompoundType, thisTp: ScThisType) = {
+          compound.components
+            .exists {
+              _.extractClass
+                .exists(isSameOrInheritor(_, thisTp))
+            }
+        }
+
+        @tailrec
+        def isSubtype(target: ScType, thisTp: ScThisType): Boolean =
+          target.extractDesignated(expandAliases = true) match {
+            case Some(typeParam: PsiTypeParameter) =>
+              target match {
+                case t: TypeParameterType =>
+                  isSubtype(t.upperType, thisTp)
+                case p: ParameterizedType =>
+                  p.designator match {
+                    case TypeParameterType(_, _, upperType, _) =>
+                      isSubtype(p.substitutor.subst(upperType), thisTp)
                     case _ =>
+                      isSameOrInheritor(typeParam, thisTp)
                   }
-                  if (cl == clazz) tp
-                  else if (isInheritorDeep(cl, clazz)) tp
-                  else null
-                case Some(named: ScTypedDefinition) =>
-                  update(named.`type`().getOrAny)
+                case _ => isSameOrInheritor(typeParam, thisTp)
+              }
+            case Some(t: ScTypeDefinition) =>
+              if (isSameOrInheritor(t, thisTp)) true
+              else t.selfType match {
+                case Some(selfTp) => isSubtype(selfTp, thisTp)
+                case _ => false
+              }
+            case Some(cl: PsiClass) =>
+              isSameOrInheritor(cl, thisTp)
+            case Some(named: ScTypedDefinition) =>
+              isSubtype(named.`type`().getOrAny, thisTp)
+            case _ =>
+              target match {
+                case compound: ScCompoundType =>
+                  hasSameOrInheritor(compound, thisTp)
                 case _ =>
-                  typez match {
-                    case ScCompoundType(types, _, _) =>
-                      val iter = types.iterator
-                      while (iter.hasNext) {
-                        val tps = iter.next()
-                        tps.extractClass match {
-                          case Some(cl) =>
-                            if (cl == clazz) return tp
-                            else if (isInheritorDeep(cl, clazz)) return tp
-                          case _ =>
-                        }
-                      }
-                    case t: TypeParameterType => return update(t.upperType)
-                    case p@ParameterizedType(_, _) =>
-                      p.designator match {
-                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper))
-                        case _ =>
-                      }
-                    case _ =>
-                  }
-                  null
+                  false
               }
-            }
-            while (tp != null) {
-              val up = update(tp)
-              if (up != null) {
-                result = up
-                return
-              }
-              tp match {
-                case ScThisType(template) =>
-                  val parentTemplate = template.containingClass
-                  if (parentTemplate != null) tp = ScThisType(parentTemplate.asInstanceOf[ScTemplateDefinition])
-                  else tp = null
-                case ScProjectionType(newType, _, _) => tp = newType
-                case ParameterizedType(ScProjectionType(newType, _, _), _) => tp = newType
-                case _ => tp = null
-              }
-            }
-            t
-          case _ => t
+          }
+
+        @tailrec
+        def doUpdateThisType(thisTp: ScThisType, target: ScType): ScType = {
+          if (isSubtype(target, thisTp)) target
+          else {
+            val targetContext = containingClassType(target)
+            if (targetContext != null) doUpdateThisType(thisTp, targetContext)
+            else thisTp
+          }
+        }
+
+        result = updateThisType match {
+          case Some(target) if !hasRecursiveThisType(target, th.element) => //todo: hack to avoid infinite recursion during type substitution
+            doUpdateThisType(th, target)
+          case _ => th
         }
       }
 
@@ -451,6 +433,7 @@ class ScSubstitutor private (private val tvMap: LongMap[ScType] = LongMap.empty,
 
       override def visitCompoundType(comp: ScCompoundType): Unit = {
         val ScCompoundType(comps, signatureMap, typeMap) = comp
+
         def substTypeParam: TypeParameter => TypeParameter = {
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(
@@ -459,6 +442,7 @@ class ScSubstitutor private (private val tvMap: LongMap[ScType] = LongMap.empty,
               substInternal(upperType),
               psiTypeParameter)
         }
+
         val middleRes = ScCompoundType(comps.map(substInternal), signatureMap.map {
           case (s: Signature, tp: ScType) =>
             val pTypes: Seq[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => substInternal(f())))
@@ -467,7 +451,7 @@ class ScSubstitutor private (private val tvMap: LongMap[ScType] = LongMap.empty,
             (new Signature(s.name, pTypes, tParams,
               ScSubstitutor.empty, s.namedElement match {
                 case fun: ScFunction =>
-                  ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)
+                  ScFunction.getCompoundCopy(pTypes.map(_.map(_ ()).toList), tParams.toList, rt, fun)
                 case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                 case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                 case named => named
