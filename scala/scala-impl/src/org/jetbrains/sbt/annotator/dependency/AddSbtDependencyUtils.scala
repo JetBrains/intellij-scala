@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala.annotator.intention.sbt
+package org.jetbrains.sbt.annotator.dependency
 
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.annotator.intention.sbt.SbtDependenciesVisitor._
+import org.jetbrains.sbt.annotator.dependency.SbtDependenciesVisitor._
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition

@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala.annotator.intention.sbt
+package org.jetbrains.sbt.annotator.dependency
 
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.annotator.intention.sbt.AddSbtDependencyUtils._
+import org.jetbrains.sbt.annotator.dependency.AddSbtDependencyUtils._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._

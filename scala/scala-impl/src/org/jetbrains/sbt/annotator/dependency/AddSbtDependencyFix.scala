@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator.intention.sbt
+package org.jetbrains.sbt.annotator.dependency
 
 import com.intellij.codeInsight.intention.{IntentionAction, LowPriorityAction}
 import com.intellij.notification.{Notification, NotificationType}
@@ -13,8 +13,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager, SmartPsiElementPointer}
-import org.jetbrains.plugins.scala.annotator.intention.sbt.AddSbtDependencyUtils._
-import org.jetbrains.plugins.scala.annotator.intention.sbt.ui.SbtArtifactSearchWizard
+import org.jetbrains.sbt.annotator.dependency.AddSbtDependencyUtils._
+import org.jetbrains.sbt.annotator.dependency.ui.SbtArtifactSearchWizard
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.ValidSmartPointer

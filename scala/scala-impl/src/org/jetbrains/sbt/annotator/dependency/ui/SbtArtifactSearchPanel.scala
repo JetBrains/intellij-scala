@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator.intention.sbt.ui
+package org.jetbrains.sbt.annotator.dependency.ui
 
 import java.awt.BorderLayout
 import javax.swing._

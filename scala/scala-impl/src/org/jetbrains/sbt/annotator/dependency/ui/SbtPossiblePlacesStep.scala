@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala.annotator.intention.sbt.ui
+package org.jetbrains.sbt.annotator.dependency.ui
 
 import javax.swing.{Icon, JComponent}
 
 import com.intellij.ide.wizard.Step
 import com.intellij.openapi.project.Project
 import com.intellij.util.ui.JBUI
-import org.jetbrains.plugins.scala.annotator.intention.sbt.DependencyPlaceInfo
+import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
 import org.jetbrains.plugins.scala.extensions
 
 /**

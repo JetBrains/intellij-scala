@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator.intention.sbt.ui
+package org.jetbrains.sbt.annotator.dependency.ui
 
 import java.awt.BorderLayout
 import javax.swing._
@@ -14,7 +14,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.ui._
 import com.intellij.ui.components.JBList
-import org.jetbrains.plugins.scala.annotator.intention.sbt.{AddSbtDependencyUtils, DependencyPlaceInfo}
+import org.jetbrains.sbt.annotator.dependency.{AddSbtDependencyUtils, DependencyPlaceInfo}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 

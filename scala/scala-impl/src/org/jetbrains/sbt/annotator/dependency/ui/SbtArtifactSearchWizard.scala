@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.annotator.intention.sbt.ui
+package org.jetbrains.sbt.annotator.dependency.ui
 
 import com.intellij.ide.wizard.{AbstractWizard, Step}
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.annotator.intention.sbt.DependencyPlaceInfo
+import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
 /**
