@@ -293,4 +293,29 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
     checkNoErrorHighlights()
   }
 
+  // Macro that generates companion object breaks case class behavior
+  def testSCL13214(): Unit = {
+    compileMetaSource(
+      s"""import scala.meta._
+         |class $annotName(fields: scala.Symbol*) extends scala.annotation.StaticAnnotation {
+         |  inline def apply(defn: Any): Any = meta {
+         |    val q"case class $$name(..$$paramss)" = defn
+         |    q$tq
+         |      case class $$name(..$$paramss)
+         |      object $${Term.Name(name.value)} { def foo = 42 }
+         |    $tq
+         |  }
+         |}""".stripMargin
+    )
+    createFile(
+      s"""
+         |@$annotName
+         |case class $testClassName(foo: Int, bar: String)
+         |
+         |$testClassName.apply<caret>(42, "foo")
+         |""".stripMargin
+    )
+
+    checkCaretResolves()
+  }
 }

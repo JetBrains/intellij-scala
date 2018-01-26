@@ -239,9 +239,21 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
   }
 
   @Cached(ModCount.getBlockModificationCount, this)
-  private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition = {
-    ScalaPsiElementFactory.createObjectWithContext(tree.toString(), getContext, this)
-      .setDesugared(actualElement = this)
+  private def cachedDesugared(tree: scala.meta.Defn.Object, isSynthetic: Boolean): ScTemplateDefinition = {
+    val text = if (isSynthetic) {
+      val syntheticText = getCompanionModule(this) match {
+        case Some(c: ScClass) if c.isCase => c.getSyntheticMethodsText.mkString("\n")
+        case _ => ""
+      }
+      val str = tree.toString()
+      if (str.lastIndexOf("}") == -1)
+        s"$str {\n $syntheticText\n }"
+      else
+        str.replaceAll("}$", s"\n$syntheticText\n}")
+    } else tree.toString()
+
+    ScalaPsiElementFactory.createObjectWithContext(text, getContext, this).
+      setDesugared(actualElement = this)
   }
 
   override def desugaredElement: Option[ScTemplateDefinition] = {
@@ -249,17 +261,19 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     import scala.meta.{Defn, Term, Tree}
 
     if (isDesugared) return None
-    val expansion: Option[Tree] = this.getMetaExpansion match {
-      case Right(tree) => Some(tree)
+    val (expansion, isSynthetic) = this.getMetaExpansion match {
+      case Right(tree: Defn.Object) =>
+        Some(tree) -> false
       case _ => fakeCompanionClassOrCompanionClass match {
         case ah: ScAnnotationsHolder => ah.getMetaExpansion match {
-          case Right(Term.Block(Seq(_, obj: Defn.Object))) => Some(obj)
-          case _ => None
+          case Right(Term.Block(Seq(_, obj: Defn.Object))) =>
+            Some(obj) -> true
+          case _ => None -> false
         }
-        case _ => None
+        case _ => None -> false
       }
     }
 
-    expansion.map(cachedDesugared)
+    expansion.map(cachedDesugared(_, isSynthetic))
   }
 }
