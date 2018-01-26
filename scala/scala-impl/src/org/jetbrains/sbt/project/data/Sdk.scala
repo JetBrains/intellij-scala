@@ -34,7 +34,8 @@ object SdkUtils {
           Option(sdk.getVersionString).exists(s => s.contains(version))
         }
       case JdkByName(version) =>
-        findMostRecentJdk { sdk: projectRoots.Sdk => sdk.getName.contains(version) }
+        findMostRecentJdk { sdk: projectRoots.Sdk => sdk.getName.equals(version) }
+          .orElse(findMostRecentJdk { sdk: projectRoots.Sdk => sdk.getName.contains(version) })
       case JdkByHome(homeFile) =>
         findMostRecentJdk {sdk: projectRoots.Sdk =>
           FileUtil.comparePaths(homeFile.getCanonicalPath, sdk.getHomePath) == 0
