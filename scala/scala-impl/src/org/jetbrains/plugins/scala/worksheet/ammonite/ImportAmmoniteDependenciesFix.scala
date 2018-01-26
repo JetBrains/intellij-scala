@@ -27,18 +27,22 @@ import scala.util.{Success, Try}
 class ImportAmmoniteDependenciesFix(project: Project) {
   def invoke(file: PsiFile): Unit = {
     val platform = Platform.Scala
-    
-    val ((scalaVersion, ammoniteVersion), needScalaLib) = ScalaUtil.getScalaVersion(file) match { 
-      case Some(v) => 
-        (ImportAmmoniteDependenciesFix.detectAmmoniteVersion(ExactVersion(v.charAt(3), Version(v))), false)
-      case _ => 
-        (ImportAmmoniteDependenciesFix.detectAmmoniteVersion(MajorVersion('2')), true)
-    } 
-    
+
     val task = new Task.Backgroundable(project, "Adding dependencies", false) {
       override def run(indicator: ProgressIndicator): Unit = {
         val buffer = ListBuffer[File]()
+        
+        indicator.setText("Ammonite: loading list of versions...")
+        
+        val ((scalaVersion, ammoniteVersion), needScalaLib) = ScalaUtil.getScalaVersion(file) match {
+          case Some(v) =>
+            (ImportAmmoniteDependenciesFix.detectAmmoniteVersion(ExactVersion(v.charAt(3), Version(v))), false)
+          case _ =>
+            (ImportAmmoniteDependenciesFix.detectAmmoniteVersion(MajorVersion('2')), true)
+        }
 
+        indicator.setText("Ammonite: extracting info from SBT...")
+        
         Downloader.createTempSbtProject(platform, scalaVersion,
           (text: String) => {
             val e = new AmmoniteUtil.RegexExtractor
@@ -49,6 +53,8 @@ class ImportAmmoniteDependenciesFix(project: Project) {
                 val f = new File(filePath)
                 if (f.exists()) buffer += f
               case mre"[success]$_" =>
+                indicator.setText("Ammonite: adding dependencies...")
+                
                 ScalaUtil.getModuleForFile(file.getVirtualFile, project).foreach {
                   module =>
                     extensions.invokeLater {
@@ -75,7 +81,7 @@ class ImportAmmoniteDependenciesFix(project: Project) {
     }
     
     ProgressManager.getInstance().runProcessWithProgressAsynchronously(
-      task, ImportAmmoniteDependenciesFix.createBgIndicator(project, "Ammonite: adding dependencies...")
+      task, ImportAmmoniteDependenciesFix.createBgIndicator(project, "Ammonite")
     )
   }
 
@@ -136,7 +142,7 @@ object ImportAmmoniteDependenciesFix {
     
     val ammoniteVersion = Versions.loadLinesFrom(s"http://repo1.maven.org/maven2/com/lihaoyi/$AMMONITE_PREFIX$scalaVersion/").map {
       lines => 
-        val pattern = s"\\Q\"\\E$THREE_DIGIT_PATTERN".r
+        val pattern = ("\\Q\"\\E" + THREE_DIGIT_PATTERN).r
         
         lines.flatMap {
           line => pattern findFirstIn line
