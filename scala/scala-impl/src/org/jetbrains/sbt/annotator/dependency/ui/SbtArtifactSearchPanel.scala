@@ -8,6 +8,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.util.text.VersionComparatorUtil.compare
 import com.intellij.ui._
 import com.intellij.ui.components.JBList
+import org.jetbrains.sbt.annotator.dependency.ui.SbtArtifactSearchPanel._
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
 import scala.collection.JavaConverters.asJavaCollectionConverter
@@ -40,9 +41,12 @@ private class SbtArtifactSearchPanel(wizard: SbtArtifactSearchWizard, artifactIn
     myResultList.setCellRenderer(new DependencyListCellRenderer())
     myResultList.addListSelectionListener((_: ListSelectionEvent) => wizard.updateButtons(false, !myResultList.isSelectionEmpty, true))
   }
+}
 
-  private class DependencyListModel(elems: Seq[ArtifactInfo]) extends CollectionListModel[ArtifactInfo](elems.asJavaCollection)
-  private class DependencyListCellRenderer extends ColoredListCellRenderer[ArtifactInfo] {
+private object SbtArtifactSearchPanel {
+  class DependencyListModel(elems: Seq[ArtifactInfo]) extends CollectionListModel[ArtifactInfo](elems.asJavaCollection)
+
+  class DependencyListCellRenderer extends ColoredListCellRenderer[ArtifactInfo] {
     override def customizeCellRenderer(list: JList[_ <: ArtifactInfo], value: ArtifactInfo, index: Int, selected: Boolean, hasFocus: Boolean): Unit = {
       setIcon(AllIcons.Modules.Library)
       append(s"${value.groupId}:", SimpleTextAttributes.GRAY_ATTRIBUTES)
