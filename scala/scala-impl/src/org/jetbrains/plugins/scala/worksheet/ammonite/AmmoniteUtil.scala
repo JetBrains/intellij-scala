@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import java.io.File
+import java.util.regex.Pattern
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
@@ -21,7 +22,9 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.util.matching.Regex
 
 /**
   * User: Dmitry.Naydanov
@@ -29,8 +32,8 @@ import scala.collection.mutable.ArrayBuffer
   */
 object AmmoniteUtil {
   val AMMONITE_EXTENSION = "sc"
-  
-  private val DEFAULT_VERSION = "2.12"
+  val DEFAULT_VERSION = "2.12"
+
   private val ROOT_FILE = "$file"
   private val ROOT_EXEC = "$exec"
   private val ROOT_IVY = "$ivy"
@@ -333,4 +336,20 @@ object AmmoniteUtil {
   def getDefaultCachePath: String = System.getProperty("user.home") + "/.ivy2/cache"
   
   def getCoursierCachePath: String = System.getProperty("user.home") + "/.coursier/cache/v1"
+  
+  class RegexExtractor {
+    private val patternCache = mutable.HashMap[String, Regex]()
+
+    implicit class MyStringExtractorContext(val sc: StringContext) {
+      object mre {
+        def apply(args: Any*): String = sc.s(args: _*)
+
+        def unapplySeq(s: String): Option[Seq[String]] = {
+          val patternString = sc.parts.map(Pattern.quote).mkString("(.+)")
+          val regex = patternCache.getOrElseUpdate(patternString, patternString.r)
+          regex.unapplySeq(s)
+        }
+      }
+    }
+  }
 }

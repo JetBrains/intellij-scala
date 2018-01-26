@@ -83,6 +83,8 @@ class AmmoniteScriptWrappersHolder(project: Project) extends AbstractProjectComp
   
   def ammoniteFileOpened(file: ScalaFile): Unit = {
     increment(file, SET_OPEN_MASK)
+    
+    ImportAmmoniteDependenciesFix.suggestAddingAmmonite(file)
   }
   
   def onAmmoniteRun(vFile: VirtualFile) {

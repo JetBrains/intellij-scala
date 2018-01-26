@@ -29,7 +29,6 @@ object NotificationUtil  {
     
     def notification = new Notification(group, title, message, notificationType, new HyperlinkListener(handler))
     def show(): Unit = Notifications.Bus.notify(notification, project)
-    def show(notification: Notification): Unit = Notifications.Bus.notify(notification, project)
   }
   
   def showMessage(project: Project, message: String, 
@@ -38,9 +37,13 @@ object NotificationUtil  {
              notificationType: NotificationType = NotificationType.WARNING,
              displayType: NotificationDisplayType = NotificationDisplayType.BALLOON,
              handler: Handler = IdHandler) {
-    val notification = new Notification(group, title, message, notificationType, new HyperlinkListener(handler))
-    Notifications.Bus.register(group, displayType)
-    Notifications.Bus.notify(notification, project)
+    
+    builder(project, message).
+      setGroup(group).
+      setTitle(title).
+      setNotificationType(notificationType).
+      setDisplayType(displayType).
+      setHandler(handler).show()
   }
   
   type Handler = (String) => (Unit)
