@@ -111,7 +111,8 @@ object ImportAmmoniteDependenciesFix {
   private val DEFAULT_SCALA_VERSION = "2.12.4"
   private val DEFAULT_AMMONITE_VERSION = "1.0.3"
   
-  private val AMMONITE_PREFIX = "ammonie_"
+  private val AMMONITE_PREFIX = "ammonite_"
+  private val THREE_DIGIT_PATTERN = "(\\d+\\.\\d+\\.\\d+)"
   
   private trait MyScalaVersion
   private case class MajorVersion(m: Char) extends MyScalaVersion // m is last num in major version, e.g. 1 for 2.11
@@ -135,9 +136,11 @@ object ImportAmmoniteDependenciesFix {
     
     val ammoniteVersion = Versions.loadLinesFrom(s"http://repo1.maven.org/maven2/com/lihaoyi/$AMMONITE_PREFIX$scalaVersion/").map {
       lines => 
+        val pattern = s"\\Q\"\\E$THREE_DIGIT_PATTERN".r
+        
         lines.flatMap {
-          line => Versions.THREE_DIGIT_PATTERN.findFirstIn(line)
-        }.map(Version(_))
+          line => pattern findFirstIn line
+        }.map(str => Version(str stripPrefix "\""))
     }.filter(_.nonEmpty).map(_.max.presentation).getOrElse(DEFAULT_AMMONITE_VERSION)
     
     (scalaVersion, ammoniteVersion)
@@ -145,22 +148,22 @@ object ImportAmmoniteDependenciesFix {
   
   private def loadVersions(forScala: MyScalaVersion): Try[Option[Version]] = {
     Versions.loadLinesFrom("http://repo1.maven.org/maven2/com/lihaoyi/").map {
-      lines => lines.dropWhile(!_.startsWith(AMMONITE_PREFIX)).takeWhile(_.startsWith(AMMONITE_PREFIX))
-    }.filter(_.nonEmpty).map {
-      ammoniteStrings => 
-        ammoniteStrings.map(v => v stripPrefix AMMONITE_PREFIX stripSuffix "/").map(Version(_))
+      lines =>
+        val pattern = s"\\Q$AMMONITE_PREFIX\\E$THREE_DIGIT_PATTERN".r
+        lines.flatMap(line => pattern.findFirstIn(line))
     }.map {
-      ammoniteVersions => 
-        ammoniteVersions.groupBy(_.presentation.last)
+      ammoniteStrings => 
+        val pattern = THREE_DIGIT_PATTERN.r
+        ammoniteStrings.flatMap(v => pattern findFirstIn v).map(Version(_))
+    }.map {
+      ammoniteVersions => ammoniteVersions.groupBy(_.major(2).presentation.last)
     }.map {
       grouped => 
         forScala match {
-          case MajorVersion(m) => 
-            grouped.get(m).map(_.last)
+          case MajorVersion(m) => grouped.get(m).map(_.last)
           case ExactVersion(m, v) => 
             grouped.get(m).flatMap {
-              f => 
-                f.reverse.find(v >= _)
+              f => f.reverse.find(v >= _)
             }
         }
     }

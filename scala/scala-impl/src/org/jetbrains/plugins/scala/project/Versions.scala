@@ -12,8 +12,6 @@ import scala.util.matching.Regex
  * @author Pavel Fatin
  */
 object Versions  {
-  val THREE_DIGIT_PATTERN: Regex = ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r
-
   val DefaultScalaVersion: String = Entity.Scala.defaultVersion
 
   val DefaultDottyVersion: String = Entity.Dotty.defaultVersion
@@ -65,17 +63,17 @@ object Versions  {
 
   private object Entity {
     val Scala = Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
-      THREE_DIGIT_PATTERN,
+      ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
       Version("2.10.0"),
       Seq("2.10.6", "2.11.11", "2.12.4"))
 
     val Sbt013 = Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
-      THREE_DIGIT_PATTERN,
+      ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
       Version("0.13.5"),
       Seq(BuildInfo.sbtLatestVersion))
 
     val Sbt1 = Entity("https://dl.bintray.com/sbt/maven-releases/org/scala-sbt/sbt-launch/",
-      THREE_DIGIT_PATTERN,
+      ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
       Version("1.0.0"),
       Seq(BuildInfo.sbtLatestVersion))
 
