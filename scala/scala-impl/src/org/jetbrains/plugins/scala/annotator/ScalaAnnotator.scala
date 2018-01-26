@@ -808,6 +808,8 @@ abstract class ScalaAnnotator extends Annotator
       registerCreateFromUsageFixesFor(refElement, annotation)
       if (PsiTreeUtil.getParentOfType(refElement, classOf[ScImportExpr]) != null)
         annotation.registerFix(new AddSbtDependencyFix(refElement.createSmartPointer))
+      UnresolvedReferenceFixProvider.EP_NAME.getExtensions
+        .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
     }
   }
 
@@ -877,6 +879,8 @@ abstract class ScalaAnnotator extends Annotator
       registerCreateFromUsageFixesFor(refElement, annotation)
       if (PsiTreeUtil.getParentOfType(refElement, classOf[ScImportExpr]) != null)
         annotation.registerFix(new AddSbtDependencyFix(refElement.createSmartPointer))
+      UnresolvedReferenceFixProvider.EP_NAME.getExtensions
+        .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
     }
   }
 
