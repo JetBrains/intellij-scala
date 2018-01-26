@@ -804,6 +804,7 @@ abstract class ScalaAnnotator extends Annotator
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
+      // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
       registerCreateFromUsageFixesFor(refElement, annotation)
       UnresolvedReferenceFixProvider.EP_NAME.getExtensions
         .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
@@ -873,6 +874,7 @@ abstract class ScalaAnnotator extends Annotator
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
+      // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
       registerCreateFromUsageFixesFor(refElement, annotation)
       UnresolvedReferenceFixProvider.EP_NAME.getExtensions
         .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
