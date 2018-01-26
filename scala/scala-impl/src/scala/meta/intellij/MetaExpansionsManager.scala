@@ -172,7 +172,7 @@ object MetaExpansionsManager {
         val maybeClass = getCompiledMetaAnnotClass(annot)
         ProgressManager.checkCanceled()
         val errorOrTree = (maybeClass, maybeClass.map(_.getClassLoader)) match {
-          case (Some(clazz), Some(cl: MetaClassLoader)) => Right(runAdapterString(clazz, compiledArgs))
+          case (Some(clazz), Some(_: MetaClassLoader)) => Right(runAdapterString(clazz, compiledArgs))
           case (Some(clazz), _) => Right(runDirect(clazz, compiledArgs))
           case (None, _)        => Left("Meta annotation class could not be found")
         }
@@ -254,8 +254,9 @@ object MetaExpansionsManager {
     import scala.meta._
     def fixParents(parents: immutable.Seq[Ctor.Call]) = parents.map({case Term.Apply(ctor: Ctor.Call, Nil) => ctor; case x=>x})
     tree transform {
-      case Defn.Trait(mods, name, tparams, ctor, Template(early, parents, self, stats)) =>
-        Defn.Trait(mods, name, tparams, ctor, Template(early, fixParents(parents), self, stats))
+      case c@Defn.Trait(_, _, _, _, t)  => c.copy(templ = t.copy(parents = fixParents(t.parents)))
+      case c@Defn.Class(_, _, _, _, t)  => c.copy(templ = t.copy(parents = fixParents(t.parents)))
+      case c@Defn.Object(_, _, t)       => c.copy(templ = t.copy(parents = fixParents(t.parents)))
     }
   }
 }

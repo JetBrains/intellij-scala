@@ -235,7 +235,7 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
       """.stripMargin
     )
 
-    assertTrue("Imported member doesn't resolve", refAtCaret.bind().isDefined)
+    checkCaretResolves()
   }
 
   // scala.meta macro expansion fails when pattern matching on annotation constructor with Symbol*
@@ -276,6 +276,21 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
     )
 
     checkNoErrorHighlights("Wrong number of type parameters.")
+  }
+
+  def testSCL13182(): Unit = {
+    compileAnnotBody("defn")
+    val code = s"""
+      |class A
+      |trait B
+      |
+      |@$annotName
+      |class $testClassName extends A with B { def foo: Int = 42 }
+      """.stripMargin
+
+
+    createFile(code)
+    checkNoErrorHighlights()
   }
 
 }
