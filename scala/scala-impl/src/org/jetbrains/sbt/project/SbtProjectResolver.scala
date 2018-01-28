@@ -87,7 +87,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         convert(path(projectRoot), data, settings.jdk, warningsCallback).toDataNode
       }
       .recoverWith {
-        case ImportCancelledException =>
+        case ImportCancelledException(cause) =>
           // sorry, ExternalSystem expects a null when resolving is not possible
           Success(null)
         case x: Exception =>
@@ -618,7 +618,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 object SbtProjectResolver {
 
 
-  case object ImportCancelledException extends Exception
+  case class ImportCancelledException(cause: Throwable) extends Exception(cause)
 
   val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
 
