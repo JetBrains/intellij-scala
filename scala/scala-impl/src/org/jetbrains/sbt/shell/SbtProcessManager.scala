@@ -69,8 +69,10 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     // this avoids failing reloads when multiple sbt instances are booted from IDEA (SCL-12009)
     val runid = BuildInfo.sbtStructureVersion
 
-    val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
+    // TODO user chooses a path that may or may not have JVM exe. make the UI dialog less error-prone (jdk dropdown)
+    val customVMExecutable = Option(sbtSettings.vmExecutable).filter(_.isFile)
     val configuredSdk = sbtSettings.jdk.map(JdkByName).flatMap(SdkUtils.findProjectSdk)
+    val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
     val sdk = configuredSdk.getOrElse(projectSdk)
     // TODO prompt user to setup a JDK
     assert(sdk != null, "Setup a project JDK to run the sbt shell")
@@ -88,9 +90,10 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     vmParams.addAll(SbtOpts.loadFrom(workingDir).asJava)
     vmParams.addAll(sbtSettings.vmOptions.asJava)
     vmParams.add(s"-Didea.runid=$runid")
-    vmParams.add("-Didea.managed=true")
+    vmParams.add("-Didea.managed=true") // additional option also used by regular sbt structure dump to signal sbt instance is run from idea
 
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
+    customVMExecutable.foreach(exe => commandLine.setExePath(exe.getAbsolutePath))
 
     if (autoPluginsSupported) {
       val sbtMajorVersion = SbtUtil.binaryVersion(projectSbtVersion)
