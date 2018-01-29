@@ -120,9 +120,9 @@ object ImportAmmoniteDependenciesFix {
   private val AMMONITE_PREFIX = "ammonite_"
   private val THREE_DIGIT_PATTERN = "(\\d+\\.\\d+\\.\\d+)"
   
-  private trait MyScalaVersion
-  private case class MajorVersion(m: Char) extends MyScalaVersion // m is last num in major version, e.g. 1 for 2.11
-  private case class ExactVersion(m: Char, v: Version) extends MyScalaVersion
+  trait MyScalaVersion
+  case class MajorVersion(m: Char) extends MyScalaVersion // m is last num in major version, e.g. 1 for 2.11
+  case class ExactVersion(m: Char, v: Version) extends MyScalaVersion
   
   private def hasAmmonite(file: PsiFile): Boolean =
     ProjectLibraryTable.getInstance(file.getProject).getLibraries.exists(_.getName.startsWith("ammonite-"))
@@ -134,25 +134,29 @@ object ImportAmmoniteDependenciesFix {
       )
     )
 
-  private def detectAmmoniteVersion(forScala: MyScalaVersion): (String, String) = {
-    val scalaVersion = loadVersions(forScala) match {
+  def detectAmmoniteVersion(forScala: MyScalaVersion): (String, String) = {
+    val scalaVersion = loadScalaVersions(forScala) match {
       case Success(Some(v)) => v.presentation
       case _ => DEFAULT_SCALA_VERSION
     }
     
-    val ammoniteVersion = Versions.loadLinesFrom(s"http://repo1.maven.org/maven2/com/lihaoyi/$AMMONITE_PREFIX$scalaVersion/").map {
-      lines => 
-        val pattern = ("\\Q\"\\E" + THREE_DIGIT_PATTERN).r
-        
-        lines.flatMap {
-          line => pattern findFirstIn line
-        }.map(str => Version(str stripPrefix "\""))
-    }.filter(_.nonEmpty).map(_.max.presentation).getOrElse(DEFAULT_AMMONITE_VERSION)
+    val ammoniteVersion = loadAmmoniteVersion(forScala, scalaVersion).getOrElse(DEFAULT_AMMONITE_VERSION)
     
     (scalaVersion, ammoniteVersion)
   }
   
-  private def loadVersions(forScala: MyScalaVersion): Try[Option[Version]] = {
+  def loadAmmoniteVersion(forScala: MyScalaVersion, scalaVersion: String): Try[String] = {
+    Versions.loadLinesFrom(s"http://repo1.maven.org/maven2/com/lihaoyi/$AMMONITE_PREFIX$scalaVersion/").map {
+      lines =>
+        val pattern = ("\\Q\"\\E" + THREE_DIGIT_PATTERN).r
+
+        lines.flatMap {
+          line => pattern findFirstIn line
+        }.map(str => Version(str stripPrefix "\""))
+    }.filter(_.nonEmpty).map(_.max.presentation)
+  }
+  
+  def loadScalaVersions(forScala: MyScalaVersion): Try[Option[Version]] = {
     Versions.loadLinesFrom("http://repo1.maven.org/maven2/com/lihaoyi/").map {
       lines =>
         val pattern = s"\\Q$AMMONITE_PREFIX\\E$THREE_DIGIT_PATTERN".r
