@@ -106,8 +106,9 @@ class AmmoniteScriptWrappersHolder(project: Project) extends AbstractProjectComp
   }
   
   private def incrementImpl(vFile: VirtualFile, mask: Int) {
-    problemFiles.computeIfPresent(vFile, setMask(mask))
-    problemFiles.putIfAbsent(vFile, mask)
+    problemFiles.merge(vFile, mask, new BiFunction[Int, Int, Int] {
+      override def apply(t: Int, u: Int): Int = t | u
+    })
     
     tryFetching(vFile)
   }
