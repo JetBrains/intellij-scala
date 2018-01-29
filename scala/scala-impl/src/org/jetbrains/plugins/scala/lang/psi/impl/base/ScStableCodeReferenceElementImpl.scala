@@ -356,8 +356,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
               case Some(fType) => Right(ScProjectionType(fType, obj, superReference = false))
               case _ => td.`type`().map(substitutor.subst)
             }
-            val state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
-
             fromType match {
               case Right(qualType) =>
                 val stateWithType = state.put(BaseProcessor.FROM_TYPE_KEY, qualType)
@@ -376,7 +374,9 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
         typeFromMacro.foreach(processor.processType(_, qualifier))
       case ScalaResolveResult((_: ScTypedDefinition) && Typeable(tp), s) =>
         val fromType = s.subst(tp)
-        processor.processType(fromType, this, ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType))
+        val state = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType)
+        processor.processType(fromType, this, state)
+        withDynamicResult = withDynamic(fromType, state, processor)
         processor match {
           case _: ExtractorResolveProcessor =>
             if (processor.candidatesS.isEmpty) {
