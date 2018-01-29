@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
-import com.intellij.psi.ResolveResult
 import org.jetbrains.plugins.scala.base.FailableTest
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveTestCase}
 import org.junit.Assert._
 
 /**
@@ -30,5 +29,5 @@ abstract class FailedResolveTest(dirName: String) extends ScalaResolveTestCase w
     }
   }
 
-  protected def additionalAsserts(variants: Array[ResolveResult], ref: ScReferenceElement): Boolean = true
+  protected def additionalAsserts(variants: Array[ScalaResolveResult], ref: ScReferenceElement): Boolean = true
 }
