@@ -5,10 +5,18 @@ import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
 import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.execution.configurations._
 import com.intellij.execution.process.ColoredProcessHandler
+import com.intellij.notification.{Notification, NotificationAction, NotificationType}
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.options.ShowSettingsUtil
+import com.intellij.openapi.options.ex.SingleConfigurableEditor
+import com.intellij.openapi.options.newEditor.SettingsDialog
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
+import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
@@ -17,7 +25,7 @@ import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.data.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.SbtOpts
-import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver}
+import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 
 import scala.collection.JavaConverters._
 /**
@@ -69,14 +77,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     // this avoids failing reloads when multiple sbt instances are booted from IDEA (SCL-12009)
     val runid = BuildInfo.sbtStructureVersion
 
-    // TODO user chooses a path that may or may not have JVM exe. make the UI dialog less error-prone (jdk dropdown)
-    val customVMExecutable = Option(sbtSettings.vmExecutable).filter(_.isFile)
-    val configuredSdk = sbtSettings.jdk.map(JdkByName).flatMap(SdkUtils.findProjectSdk)
-    val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
-    val sdk = configuredSdk.getOrElse(projectSdk)
-    // TODO prompt user to setup a JDK
-    assert(sdk != null, "Setup a project JDK to run the sbt shell")
-
+    val sdk = selectSdkOrWarn(sbtSettings)
     val javaParameters: JavaParameters = new JavaParameters
     javaParameters.setJdk(sdk)
     javaParameters.configureByProject(project, 1, sdk)
@@ -93,7 +94,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     vmParams.add("-Didea.managed=true") // additional option also used by regular sbt structure dump to signal sbt instance is run from idea
 
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
-    customVMExecutable.foreach(exe => commandLine.setExePath(exe.getAbsolutePath))
+    getCustomVMExecutableOrWarn(sbtSettings).foreach(exe => commandLine.setExePath(exe.getAbsolutePath))
 
     if (autoPluginsSupported) {
       val sbtMajorVersion = SbtUtil.binaryVersion(projectSbtVersion)
@@ -109,6 +110,57 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val cpty = new ColoredProcessHandler(pty)
 
     (cpty, debugConnection)
+  }
+
+  /** If a custom VM executable is configured, return it. If it's not a valid path, warn user. */
+  private def getCustomVMExecutableOrWarn(sbtSettings: SbtExecutionSettings) =
+    Option(sbtSettings.vmExecutable).filter { path =>
+      if (path.isFile) true
+      else {
+        val badCustomVMNotification =
+          SbtShellNotifications.notificationGroup
+            .createNotification(s"No JRE found at path ${sbtSettings.vmExecutable}. Using project JDK instead.", NotificationType.ERROR)
+        badCustomVMNotification.addAction(ConfigureSbtAction)
+        badCustomVMNotification.notify(project)
+        false
+      }
+    }
+
+  private object ConfigureSbtAction extends NotificationAction("&Configure sbt VM") {
+
+    override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+      // External system handles the Configurable name for sbt settings
+      ShowSettingsUtil.getInstance().showSettingsDialog(project, SbtProjectSystem.Id.getReadableName)
+      notification.expire()
+    }
+  }
+
+  private def selectSdkOrWarn(sbtSettings: SbtExecutionSettings): Sdk = {
+
+    val configuredSdk = sbtSettings.jdk.map(JdkByName).flatMap(SdkUtils.findProjectSdk)
+    val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
+
+    configuredSdk.getOrElse {
+      if (projectSdk != null) projectSdk
+      else {
+        val message = "No project JDK configured, but it is required to run sbt shell."
+        val noProjectSdkNotification = SbtShellNotifications.notificationGroup
+          .createNotification(message, NotificationType.ERROR)
+        noProjectSdkNotification.addAction(ConfigureProjectJdkAction)
+        noProjectSdkNotification.notify(project)
+        throw new RuntimeException(message)
+      }
+    }
+  }
+
+  private object ConfigureProjectJdkAction extends NotificationAction("&Configure project jdk") {
+    // copied from ShowStructureSettingsAction
+    override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+      new SingleConfigurableEditor(project, ProjectStructureConfigurable.getInstance(project), SettingsDialog.DIMENSION_KEY) {
+        override protected def getStyle = DialogStyle.COMPACT
+      }.show()
+      notification.expire()
+    }
   }
 
   /**
@@ -251,4 +303,5 @@ object SbtProcessManager {
 
   private case class ProcessData(processHandler: ColoredProcessHandler,
                                  runner: SbtShellRunner)
+
 }
