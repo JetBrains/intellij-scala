@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.debugger
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.projectRoots.JavaSdkVersion
 import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
-import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader.JDKVersion
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 
 /**
@@ -20,7 +20,7 @@ object DebuggerTestUtil {
   }
 
   def forceJdk8ForBuildProcess(): Unit = {
-    val jdk8 = SmartJDKLoader.getOrCreateJDK(JDKVersion.JDK18)
+    val jdk8 = SmartJDKLoader.getOrCreateJDK(JavaSdkVersion.JDK_1_8)
     if (jdk8.getHomeDirectory == null) {
       throw new RuntimeException(s"Failed to set up JDK, got: ${jdk8.toString}")
     }
