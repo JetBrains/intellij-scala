@@ -190,13 +190,15 @@ object ImportAmmoniteDependenciesFix {
         """
           | <html>
           | <body>
-          | <p><a href="ftp://ok">Add</a> all Ammonite standard dependencies to the project? <a href="ftp://notok">Ignore</a></p>
+          | <p><a href="ftp://run">Add</a> all Ammonite standard dependencies to the project? <a href="ftp://disable">Ignore</a></p>
           | </body>
           | </html>
         """.stripMargin,
       handler = {
-        case "ok" =>
+        case "run" =>
           new ImportAmmoniteDependenciesFix(project).invoke(file)
+        case "disable" => 
+          AmmoniteScriptWrappersHolder.getInstance(project).setIgnoreImports()
         case _ =>
       }
     )

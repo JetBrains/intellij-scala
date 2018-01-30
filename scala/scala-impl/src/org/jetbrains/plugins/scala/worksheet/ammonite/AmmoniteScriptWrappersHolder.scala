@@ -35,7 +35,9 @@ class AmmoniteScriptWrappersHolder(project: Project) extends AbstractProjectComp
   private val file2object = mutable.WeakHashMap.empty[ScalaFile, (ScObject, Long)]
   
   private val problemFiles = ContainerUtil.createConcurrentWeakMap[VirtualFile, Int]()
-  private val disabledFiles = ContainerUtil.createConcurrentWeakMap[VirtualFile, DisabledState]() 
+  private val disabledFiles = ContainerUtil.createConcurrentWeakMap[VirtualFile, DisabledState]()
+  
+  private var ignoreImportStandard = false
   
   private def createWrapper(from: ScalaFile) = {
     val obj = GotoOriginalHandlerUtil.createPsi((from: ScalaFile) => ScalaPsiElementFactory.createObjectWithContext(
@@ -45,6 +47,10 @@ class AmmoniteScriptWrappersHolder(project: Project) extends AbstractProjectComp
 
     obj
   }
+  
+  def isIgnoreImport: Boolean = ignoreImportStandard
+  
+  def setIgnoreImports(): Unit = ignoreImportStandard = true
 
   def findWrapper(base: ScalaFile): Option[ScObject] = {
     if (!AmmoniteUtil.isAmmoniteFile(base)) None else {
@@ -84,7 +90,7 @@ class AmmoniteScriptWrappersHolder(project: Project) extends AbstractProjectComp
   def ammoniteFileOpened(file: ScalaFile): Unit = {
     increment(file, SET_OPEN_MASK)
     
-    ImportAmmoniteDependenciesFix.suggestAddingAmmonite(file)
+    if (!isIgnoreImport) ImportAmmoniteDependenciesFix.suggestAddingAmmonite(file)
   }
   
   def onAmmoniteRun(vFile: VirtualFile) {
