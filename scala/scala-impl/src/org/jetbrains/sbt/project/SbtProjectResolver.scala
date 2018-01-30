@@ -4,13 +4,16 @@ package project
 import java.io.{File, FileNotFoundException}
 import java.util.{Locale, UUID}
 
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.{ProjectData => ESProjectData, _}
 import com.intellij.openapi.externalSystem.model.task.event._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.module.StdModuleTypes
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.project.Version
@@ -36,6 +39,8 @@ import scala.xml.{Elem, XML}
  * @author Pavel Fatin
  */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] with ExternalSourceRootResolution {
+
+  private val log = Logger.getInstance(getClass)
 
   @volatile private var activeProcessDumper: Option[SbtStructureDump] = None
 
@@ -88,6 +93,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
       .recoverWith {
         case ImportCancelledException(cause) =>
+          val causeMessage = if (cause != null) cause.getMessage else "unknown cause"
+
+          // notify user if project exists already
+          val projectOpt = ProjectManager.getInstance().getOpenProjects.find(p => FileUtil.pathsEqual(p.getBasePath, projectRoot.getCanonicalPath))
+          projectOpt.foreach { p =>
+            val notification = SbtNotifications.nofiticationGroup.createNotification(s"sbt import cancelled: $causeMessage", NotificationType.INFORMATION)
+            notification.notify(p)
+          }
+
+          log.info("sbt import cancelled", cause)
           // sorry, ExternalSystem expects a null when resolving is not possible
           Success(null)
         case x: Exception =>

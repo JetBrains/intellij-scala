@@ -201,7 +201,7 @@ class SbtStructureDump {
         // task was cancelled
         handler.setShouldDestroyProcessRecursively(false)
         handler.destroyProcess()
-        throw ImportCancelledException(null)
+        throw ImportCancelledException(new Exception("task canceled"))
       } else messages
     }
   }
