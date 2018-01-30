@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.JavaSdkVersion;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -47,7 +48,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     @Override
     protected Sdk getProjectJDK() {
-        return SmartJDKLoader$.MODULE$.getOrCreateJDK(SmartJDKLoader.JDKVersion$.MODULE$.JDK18());
+        return SmartJDKLoader$.MODULE$.getOrCreateJDK(JavaSdkVersion.JDK_1_8);
     }
 
     @Override
