@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.annotator.OverridingAnnotatorTestBase
+import org.jetbrains.plugins.scala.annotator.{Message, OverridingAnnotatorTestBase}
 import org.junit.experimental.categories.Category
-import org.jetbrains.plugins.scala.annotator.Message
 
 /**
   * Created by mucianm on 22.03.16.
@@ -73,25 +72,8 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
     )
   }
 
-  def testScl9767(): Unit = {
-    assertMatches(
-      messages(
-        """case class Q[B](b: B)
-          |
-          |trait Foo[A] {
-          |  def method(value: A): Unit
-          |
-          |  def concat[T](that: Foo[T]): Foo[Q[A]] = new Foo[Q[A]] {
-          |    override def method(value: Q[A]): Unit = ()
-          |  }
-          |}
-        """.stripMargin)) {
-      case Nil =>
-    }
-  }
-
   def testScl6809(): Unit = {
-    assertMatches(
+    assertNothing(
       messages(
         """import java.{util => ju}
           |
@@ -101,34 +83,6 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
           |  def toArray[T](a: Array[T]): Array[T] = ???
           |  override def toArray[T](a: Array[T with AnyRef]): Array[T with AnyRef] = ???
           |}
-        """.stripMargin)) {
-      case Nil =>
-    }
-  }
-
-  def testScl11327(): Unit = {
-    assertMatches(
-      messages(
-        """import MyOverride._
-          |
-          |class MyOverride(string: String) {
-          |
-          |  def foo(): String = {
-          |    bar(string)
-          |  }
-          |}
-          |
-          |object MyOverride extends SomeTrait {
-          |  def bar(string: String): String = string + "bar"
-          |
-          |  override def baz(string: String): String = string.reverse + "baz"
-          |}
-          |
-          |trait SomeTrait {
-          |  def baz(string: String): String
-          |}
-        """.stripMargin)) {
-      case Nil =>
-    }
+        """.stripMargin))
   }
 }

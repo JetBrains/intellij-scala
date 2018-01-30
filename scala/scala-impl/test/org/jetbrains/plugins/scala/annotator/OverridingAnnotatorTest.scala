@@ -8,7 +8,7 @@ package org.jetbrains.plugins.scala.annotator
 class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
 
   def testSyntheticUnapply(): Unit = {
-    assertMatches(messages(
+    assertNothing(messages(
       """
         |trait Test {
         |  trait Tree
@@ -26,13 +26,11 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
         |    case Select(a, b) => // cannot resolve extractor
         |  }
         |}
-      """.stripMargin)) {
-      case Nil =>
-    }
+      """.stripMargin))
   }
 
   def testPrivateVal(): Unit = {
-    assertMatches(messages(
+    assertNothing(messages(
       """
         |object ppp {
         |class Base {
@@ -43,22 +41,18 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
         |  private val something = 8
         |}
         |}
-      """.stripMargin)) {
-      case Nil =>
-    }
+      """.stripMargin))
   }
 
   def testClassParameter(): Unit = {
-    assertMatches(messages(
+    assertNothing(messages(
       """
         |object ppp {
         |class A(x: Int)
         |class B(val x: Int) extends A(x)
         |case class C(x: Int) extends A(x)
         |}
-      """.stripMargin)) {
-      case Nil =>
-    }
+      """.stripMargin))
   }
 
   def testVal(): Unit = {
@@ -79,7 +73,7 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
   }
 
   def testNotConcreteMember(): Unit = {
-    assertMatches(messages(
+    assertNothing(messages(
       """
         |object ppp {
         |class Base {
@@ -90,9 +84,7 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
         |  def foo(): Int
         |}
         |}
-      """.stripMargin)) {
-      case Nil =>
-    }
+      """.stripMargin))
   }
 
   def testOverrideFinalMethod(): Unit = {
@@ -179,9 +171,7 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
         |}
         |}
       """.stripMargin
-    assertMatches(messages(code)) {
-      case Nil =>
-    }
+    assertNothing(messages(code))
   }
 
   //SCL-4036
@@ -268,9 +258,7 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
         |  }
         |}
       """.stripMargin
-    assertMatches(messages(code)) {
-      case Nil =>
-    }
+    assertNothing(messages(code))
   }
 
   def testSCL13039_1(): Unit = {
@@ -289,9 +277,45 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
         |  }
         |}
       """.stripMargin
-    assertMatches(messages(code)) {
-      case Nil =>
-    }
+    assertNothing(messages(code))
   }
 
+  def testScl11327(): Unit = {
+    assertNothing(
+      messages(
+        """import MyOverride._
+          |
+          |class MyOverride(string: String) {
+          |
+          |  def foo(): String = {
+          |    bar(string)
+          |  }
+          |}
+          |
+          |object MyOverride extends SomeTrait {
+          |  def bar(string: String): String = string + "bar"
+          |
+          |  override def baz(string: String): String = string.reverse + "baz"
+          |}
+          |
+          |trait SomeTrait {
+          |  def baz(string: String): String
+          |}
+        """.stripMargin))
+  }
+
+  def testScl9767(): Unit = {
+    assertNothing(
+      messages(
+        """case class Q[B](b: B)
+          |
+          |trait Foo[A] {
+          |  def method(value: A): Unit
+          |
+          |  def concat[T](that: Foo[T]): Foo[Q[A]] = new Foo[Q[A]] {
+          |    override def method(value: Q[A]): Unit = ()
+          |  }
+          |}
+        """.stripMargin))
+  }
 }
