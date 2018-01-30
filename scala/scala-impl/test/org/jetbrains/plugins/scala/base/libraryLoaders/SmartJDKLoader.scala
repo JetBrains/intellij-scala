@@ -58,7 +58,7 @@ object SmartJDKLoader {
 
   def getOrCreateJDK(jdkVersion: JavaSdkVersion = JavaSdkVersion.JDK_1_8): Sdk = {
     val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
-    val jdkName = jdkVersion.toString
+    val jdkName = jdkVersion.getDescription
     Option(jdkTable.findJdk(jdkName)).getOrElse {
       val pathOption = SmartJDKLoader.discoverJDK(jdkVersion)
       Assert.assertTrue(s"Couldn't find $jdkVersion", pathOption.isDefined)
