@@ -109,7 +109,7 @@
           <component id="3bd0" class="javax.swing.JTextField" binding="myMaximumHeapSize">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="2" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
+                <preferred-size width="250" height="-1"/>
               </grid>
             </constraints>
             <properties>
@@ -118,8 +118,9 @@
           </component>
           <component id="399a8" class="com.intellij.ui.RawCommandLineEditor" binding="myVmParameters">
             <constraints>
-              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false">
                 <minimum-size width="250" height="-1"/>
+                <preferred-size width="250" height="-1"/>
               </grid>
             </constraints>
             <properties>
