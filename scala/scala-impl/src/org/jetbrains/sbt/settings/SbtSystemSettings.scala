@@ -39,7 +39,7 @@ class SbtSystemSettings(project: Project)
   var maximumHeapSize: String = "768"
 
   @BeanProperty
-  var vmParameters: String = ""
+  var vmParameters: String = "-XX:MaxPermSize=384M"
 
   @BeanProperty
   var customVMEnabled: Boolean = false
@@ -117,7 +117,7 @@ class SbtSystemSettingsState extends AbstractExternalSystemSettings.State[SbtPro
   var maximumHeapSize: String = "768"
 
   @BeanProperty
-  var vmParameters: String = ""
+  var vmParameters: String = "-XX:MaxPermSize=384M"
 
   @BeanProperty
   var customVMEnabled: Boolean = false
