@@ -4,12 +4,10 @@ import java.io.File
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
-import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
+import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.IdeaTestUtil
-import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader.JDKVersion.JDKVersion
-import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader._
 import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert
@@ -21,20 +19,20 @@ case class InternalJDKLoader() extends SmartJDKLoader() {
 /**
   * Consider using this instead of HeavyJDKLoader if you don't need java interop in your tests
   */
-case class MockJDKLoader(jdkVersion: JDKVersion = JDKVersion.JDK18) extends SmartJDKLoader(jdkVersion) {
+case class MockJDKLoader(jdkVersion: JavaSdkVersion = JavaSdkVersion.JDK_1_8) extends SmartJDKLoader(jdkVersion) {
   override protected def createSdkInstance(): Sdk = jdkVersion match {
-    case JDKVersion.JDK19 => IdeaTestUtil.getMockJdk9
-    case JDKVersion.JDK18 => IdeaTestUtil.getMockJdk18
-    case JDKVersion.JDK17 => IdeaTestUtil.getMockJdk17
+    case JavaSdkVersion.JDK_1_9 => IdeaTestUtil.getMockJdk9
+    case JavaSdkVersion.JDK_1_8 => IdeaTestUtil.getMockJdk18
+    case JavaSdkVersion.JDK_1_7 => IdeaTestUtil.getMockJdk17
     case _ => Assert.fail(s"mock JDK version $jdkVersion is unavailable in IDEA test platform"); null
   }
 }
 
-case class HeavyJDKLoader(jdkVersion: JDKVersion = JDKVersion.JDK18) extends SmartJDKLoader(jdkVersion) {
+case class HeavyJDKLoader(jdkVersion: JavaSdkVersion = JavaSdkVersion.JDK_1_8) extends SmartJDKLoader(jdkVersion) {
   override protected def createSdkInstance(): Sdk = SmartJDKLoader.getOrCreateJDK(jdkVersion)
 }
 
-abstract class SmartJDKLoader(jdkVersion: JDKVersion = JDKVersion.JDK18) extends LibraryLoader {
+abstract class SmartJDKLoader(jdkVersion: JavaSdkVersion = JavaSdkVersion.JDK_1_8) extends LibraryLoader {
   override def init(implicit module: Module, version: ScalaVersion): Unit = {
     ModuleRootModificationUtil.setModuleSdk(module, createSdkInstance())
   }
@@ -51,11 +49,6 @@ abstract class SmartJDKLoader(jdkVersion: JDKVersion = JDKVersion.JDK18) extends
 
 object SmartJDKLoader {
 
-  object JDKVersion extends Enumeration {
-    type JDKVersion = Value
-    val JDK16, JDK17, JDK18, JDK19 = Value
-  }
-
   private val candidates = Seq(
     "/usr/lib/jvm",                     // linux style
     "C:\\Program Files\\Java\\",        // windows style
@@ -63,7 +56,7 @@ object SmartJDKLoader {
     "/Library/Java/JavaVirtualMachines" // mac style
   )
 
-  def getOrCreateJDK(jdkVersion: JDKVersion = JDKVersion.JDK18): Sdk = {
+  def getOrCreateJDK(jdkVersion: JavaSdkVersion = JavaSdkVersion.JDK_1_8): Sdk = {
     val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
     val jdkName = jdkVersion.toString
     Option(jdkTable.findJdk(jdkName)).getOrElse {
@@ -76,9 +69,9 @@ object SmartJDKLoader {
     }
   }
 
-  private def discoverJDK(jdkVersion: JDKVersion): Option[String] = discoverJre(candidates, jdkVersion).map(new File(_).getParent)
+  private def discoverJDK(jdkVersion: JavaSdkVersion): Option[String] = discoverJre(candidates, jdkVersion).map(new File(_).getParent)
 
-  private def discoverJre(paths: Seq[String], jdkVersion: JDKVersion): Option[String] = {
+  private def discoverJre(paths: Seq[String], jdkVersion: JavaSdkVersion): Option[String] = {
     import java.io._
 
     val versionMajor = jdkVersion.toString.last.toString
