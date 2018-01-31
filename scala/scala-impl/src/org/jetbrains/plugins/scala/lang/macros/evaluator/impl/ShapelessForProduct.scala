@@ -68,8 +68,8 @@ object ShapelessForProduct extends ScalaMacroTypeable {
                   case _ => false
                 }
                 if (elem.isEmpty) return None
-                Some(ScParameterizedType(ScProjectionType(ScDesignatorType(obj), elem.get.asInstanceOf[PsiNamedElement],
-                  superReference = false), Seq(productLikeType, repr)))
+                Some(ScParameterizedType(ScProjectionType(ScDesignatorType(obj), elem.get.asInstanceOf[PsiNamedElement]),
+                  Seq(productLikeType, repr)))
               case _ => None
             }
           case _ => None

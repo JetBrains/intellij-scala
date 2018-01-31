@@ -96,7 +96,7 @@ object MacroInferUtil {
     }.find {
       _.name == "Aux"
     }.map {
-      ScProjectionType(ScDesignatorType(classCompanion), _, superReference = false)
+      ScProjectionType(ScDesignatorType(classCompanion), _)
     }
 
     clazz.typeParameters.headOption

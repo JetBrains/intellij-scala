@@ -466,7 +466,7 @@ object ScalaPsiUtil {
         case j: JavaArrayType =>
           val parameterizedType = j.getParameterizedType
           collectParts(parameterizedType.getOrElse(return))
-        case proj@ScProjectionType(projected, _, _) =>
+        case proj@ScProjectionType(projected, _) =>
           collectParts(projected)
           proj.actualElement match {
             case v: ScBindingPattern => collectPartsTr(v.`type`().map(proj.actualSubst.subst))
@@ -552,10 +552,10 @@ object ScalaPsiUtil {
                 getCompanionModule(clazz) match {
                   case Some(obj: ScObject) =>
                     tp match {
-                      case ScProjectionType(proj, _, s) =>
-                        addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
-                      case ParameterizedType(ScProjectionType(proj, _, s), _) =>
-                        addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
+                      case ScProjectionType(proj, _) =>
+                        addResult(obj.qualifiedName, ScProjectionType(proj, obj))
+                      case ParameterizedType(ScProjectionType(proj, _), _) =>
+                        addResult(obj.qualifiedName, ScProjectionType(proj, obj))
                       case _ =>
                         addResult(obj.qualifiedName, ScDesignatorType(obj))
                     }

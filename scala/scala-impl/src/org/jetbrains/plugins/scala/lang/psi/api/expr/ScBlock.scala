@@ -132,7 +132,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                 ex
               case _ => t
             }
-            case ScProjectionType(p, elem, s) => ScProjectionType(existize(p, visitedWithT), elem, s)
+            case ScProjectionType(p, elem) => ScProjectionType(existize(p, visitedWithT), elem)
             case ScCompoundType(comps, signatureMap, typesMap) =>
               new ScCompoundType(comps.map(existize(_, visitedWithT)), signatureMap.map {
                 case (s: Signature, tp) =>

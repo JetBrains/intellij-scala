@@ -281,8 +281,8 @@ class ScSubstitutor private(private val tvMap: LongMap[ScType] = LongMap.empty,
               case td: ScTemplateDefinition => ScThisType(td)
               case _ => null
             }
-          case ScProjectionType(newType, _, _) => newType
-          case ParameterizedType(ScProjectionType(newType, _, _), _) => newType
+          case ScProjectionType(newType, _) => newType
+          case ParameterizedType(ScProjectionType(newType, _), _) => newType
           case _ => null
         }
 
@@ -419,16 +419,7 @@ class ScSubstitutor private(private val tvMap: LongMap[ScType] = LongMap.empty,
       }
 
       override def visitProjectionType(p: ScProjectionType): Unit = {
-        val ScProjectionType(proj, element, s) = p
-        val res = ScProjectionType(substInternal(proj), element, s)
-        result = res match {
-          case res: ScProjectionType if !s =>
-            val actualElement = p.actualElement
-            if (actualElement.isInstanceOf[ScTypeDefinition] &&
-              actualElement != res.actualElement) ScProjectionType(res.projected, res.element, superReference = true)
-            else res
-          case _ => res
-        }
+        result = ScProjectionType(substInternal(p.projected), p.element)
       }
 
       override def visitCompoundType(comp: ScCompoundType): Unit = {

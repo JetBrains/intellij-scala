@@ -142,7 +142,7 @@ object MethodTypeProvider {
       val parentClazz = ScalaPsiUtil.getPlaceTd(clazz)
       val designatorType: ScType =
         if (parentClazz != null)
-          ScProjectionType(ScThisType(parentClazz), clazz, superReference = false)
+          ScProjectionType(ScThisType(parentClazz), clazz)
         else ScDesignatorType(clazz)
       if (typeParameters.isEmpty) designatorType
       else {

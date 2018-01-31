@@ -116,8 +116,8 @@ package object types {
       case ScDesignatorType(c: PsiClass) => Some(c)
       case _: StdType => None
       case ParameterizedType(des, _) => des.extractClassSimple(visited)
-      case ScProjectionType(_, c: PsiClass, _) => Some(c)
-      case ScProjectionType(_, ta: ScTypeAliasDefinition, _) if !visited.contains(ta) => ta.aliasedType.toOption match {
+      case ScProjectionType(_, c: PsiClass) => Some(c)
+      case ScProjectionType(_, ta: ScTypeAliasDefinition) if !visited.contains(ta) => ta.aliasedType.toOption match {
         case Some(t) => t.extractClassSimple(visited + ta)
         case _ => None
       }

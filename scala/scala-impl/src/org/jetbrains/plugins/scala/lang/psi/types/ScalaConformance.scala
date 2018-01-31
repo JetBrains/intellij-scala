@@ -417,7 +417,7 @@ trait ScalaConformance extends api.Conformance {
               //TODO this looks overcomplicated. Improve the code.
               def cutProj(p: ScType, acc: List[ScProjectionType]): ScType = {
                 if (acc.isEmpty) p else acc.foldLeft(p){
-                  case (proj, oldProj) => ScProjectionType(proj, oldProj.element, oldProj.superReference)
+                  case (proj, oldProj) => ScProjectionType(proj, oldProj.element)
                 }
               }
               @tailrec

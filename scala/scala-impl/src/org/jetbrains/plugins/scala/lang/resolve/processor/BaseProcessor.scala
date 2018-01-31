@@ -197,13 +197,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             case None => true
           }
         }
-      case proj@ScProjectionType(_, _, _) if proj.actualElement.isInstanceOf[ScTypeAlias] =>
+      case proj@ScProjectionType(_, _) if proj.actualElement.isInstanceOf[ScTypeAlias] =>
         val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
         val subst = proj.actualSubst
         val upper = ta.upperBound.getOrElse(return true)
         processType(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
           visitedProjections = visitedProjections + ta, visitedTypeParameter = visitedTypeParameter)
-      case proj@ScProjectionType(_, _, _) =>
+      case proj@ScProjectionType(_, _) =>
         val s: ScSubstitutor = if (updateWithProjectionSubst)
           ScSubstitutor(proj) followed proj.actualSubst
         else proj.actualSubst

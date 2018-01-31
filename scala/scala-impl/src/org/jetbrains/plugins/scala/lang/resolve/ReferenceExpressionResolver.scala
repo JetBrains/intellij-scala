@@ -496,7 +496,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           case Some(ScalaResolveResult(_: ScSelfTypeElement, _)) => aType
           case Some(r@ScalaResolveResult(b: ScTypedDefinition, _)) if b.isStable =>
             r.fromType match {
-              case Some(fT) => ScProjectionType(fT, b, superReference = false)
+              case Some(fT) => ScProjectionType(fT, b)
               case None => ScalaType.designator(b)
             }
           case _ => aType

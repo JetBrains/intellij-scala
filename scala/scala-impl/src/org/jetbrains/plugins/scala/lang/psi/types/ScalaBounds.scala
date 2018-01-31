@@ -114,7 +114,7 @@ trait ScalaBounds extends api.Bounds {
     @tailrec
     private def projectionOptionImpl(tp: ScType): Option[ScType] = tp match {
       case ParameterizedType(des, _) => projectionOptionImpl(des)
-      case proj@ScProjectionType(p, _, _) => proj.actualElement match {
+      case proj@ScProjectionType(p, _) => proj.actualElement match {
         case _: PsiClass => Some(p)
         case t: ScTypeAliasDefinition =>
           t.aliasedType.toOption match {
@@ -177,7 +177,7 @@ trait ScalaBounds extends api.Bounds {
 
     def baseDesignator: ScType = {
       projectionOption match {
-        case Some(proj) => ScProjectionType(proj, getNamedElement, superReference = false)
+        case Some(proj) => ScProjectionType(proj, getNamedElement)
         case None => ScalaType.designator(getNamedElement)
       }
     }

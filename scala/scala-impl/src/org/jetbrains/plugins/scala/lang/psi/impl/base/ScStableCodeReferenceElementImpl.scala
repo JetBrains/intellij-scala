@@ -353,7 +353,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
         td match {
           case obj: ScObject =>
             val fromType = r.fromType match {
-              case Some(fType) => Right(ScProjectionType(fType, obj, superReference = false))
+              case Some(fType) => Right(ScProjectionType(fType, obj))
               case _ => td.`type`().map(substitutor.subst)
             }
             fromType match {

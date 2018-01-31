@@ -33,8 +33,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
  * member can be class or type alias
  */
 class ScProjectionType private(val projected: ScType,
-                               val element: PsiNamedElement,
-                               val superReference: Boolean /* todo: find a way to remove it*/) extends DesignatorOwner {
+                               val element: PsiNamedElement) extends DesignatorOwner {
 
   override protected def isAliasTypeInner: Option[AliasType] = {
     actualElement match {
@@ -79,10 +78,10 @@ class ScProjectionType private(val projected: ScType,
 
   override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst.subst)
 
-  override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, superReference)
+  override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element)
 
   override def updateSubtypes(update: Update, visited: Set[ScType]): ScType = {
-    ScProjectionType(projected.recursiveUpdateImpl(update, visited), element, superReference)
+    ScProjectionType(projected.recursiveUpdateImpl(update, visited), element)
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
@@ -90,12 +89,12 @@ class ScProjectionType private(val projected: ScType,
     update(this, v, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
-        ScProjectionType(projected.recursiveVarianceUpdateModifiable(newData, update, Invariant), element, superReference)
+        ScProjectionType(projected.recursiveVarianceUpdateModifiable(newData, update, Invariant), element)
     }
   }
 
   @CachedWithRecursionGuard(element, None, ModCount.getBlockModificationCount)
-  private def actualImpl(projected: ScType, superReference: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = {
+  private def actualImpl(projected: ScType): Option[(PsiNamedElement, ScSubstitutor)] = {
     val resolvePlace = {
       def fromClazz(definition: ScTypeDefinition): PsiElement =
         definition.extendsBlock.templateBody
@@ -112,8 +111,7 @@ class ScProjectionType private(val projected: ScType,
     }
 
     import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-    def processType(kinds: collection.Set[ResolveTargets.Value] = ValueSet(CLASS),
-                    default: Boolean = !superReference): Option[(PsiNamedElement, ScSubstitutor)] = {
+    def processType(kinds: collection.Set[ResolveTargets.Value] = ValueSet(CLASS)): Option[(PsiNamedElement, ScSubstitutor)] = {
       def elementClazz: Option[PsiClass] = element match {
         case named: ScBindingPattern => Option(named.containingClass)
         case member: ScMember => Option(member.containingClass)
@@ -158,14 +156,19 @@ class ScProjectionType private(val projected: ScType,
                 case _: ScThisType => candidate.substitutor
                 case _ => thisSubstitutor.followed(candidate.substitutor)
               }
-            if (default) {
-              Some(candidateElement, defaultSubstitutor)
-            } else {
+            val needSuperSubstitutor = element match {
+              case _: PsiClass => element != candidateElement
+              case _ => false
+            }
+            if (needSuperSubstitutor) {
               Some(element,
                 ScalaPsiUtil.superTypeMembersAndSubstitutors(candidateElement)
                   .find(_.info == element)
                   .map(node => defaultSubstitutor.followed(node.substitutor))
                   .getOrElse(defaultSubstitutor))
+
+            } else {
+              Some(candidateElement, defaultSubstitutor)
             }
           case _ => None
         }
@@ -174,18 +177,16 @@ class ScProjectionType private(val projected: ScType,
     }
 
     element match {
-      case _: ScTypeAlias => processType()
-      case d: ScTypedDefinition if d.isStable =>
-        // TODO: superMemberSubstitutor? However I don't know working example for this case
-        processType(ValueSet(VAL, OBJECT), default = true)
-      case _: ScTypeDefinition => processType()
-      case _: PsiClass => processType()
+      case d: ScTypedDefinition if d.isStable => //val's, objects, parameters
+        processType(ValueSet(VAL, OBJECT))
+      case _: ScTypeAlias | _: PsiClass =>
+        processType(ValueSet(CLASS))
       case _ => None
     }
   }
 
   private def actual: (PsiNamedElement, ScSubstitutor) = {
-    actualImpl(projected, superReference).getOrElse(element, ScSubstitutor.empty)
+    actualImpl(projected).getOrElse(element, ScSubstitutor.empty)
   }
 
   def actualElement: PsiNamedElement = actual._1
@@ -226,7 +227,7 @@ class ScProjectionType private(val projected: ScType,
           case synth: ScSyntheticClass => synth.stdType.equiv(t, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
-      case ParameterizedType(ScProjectionType(_, _, _), _) =>
+      case ParameterizedType(ScProjectionType(_, _), _) =>
         r.isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             this.equiv(lower match {
@@ -235,7 +236,7 @@ class ScProjectionType private(val projected: ScType,
             }, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
-      case proj2@ScProjectionType(p1, _, _) =>
+      case proj2@ScProjectionType(p1, _) =>
         proj2.actualElement match {
           case a: ScTypedDefinition if isSingletonOk(a) =>
             val subst = actualSubst
@@ -313,8 +314,7 @@ class ScProjectionType private(val projected: ScType,
     case that: ScProjectionType =>
       (that canEqual this) &&
         projected == that.projected &&
-        element == that.element &&
-        superReference == that.superReference
+        element == that.element
     case _ => false
   }
 
@@ -323,7 +323,7 @@ class ScProjectionType private(val projected: ScType,
   //noinspection HashCodeUsesVar
   override def hashCode: Int = {
     if (hash == -1)
-      hash = Objects.hash(projected, element, scala.Boolean.box(superReference))
+      hash = Objects.hash(projected, element)
 
     hash
   }
@@ -348,10 +348,9 @@ object ScProjectionType {
     }
   }
 
-  def apply(projected: ScType, element: PsiNamedElement,
-            superReference: Boolean /* todo: find a way to remove it*/): ScType = {
+  def apply(projected: ScType, element: PsiNamedElement): ScType = {
 
-    val simple = new ScProjectionType(projected, element, superReference)
+    val simple = new ScProjectionType(projected, element)
     simple.actualElement match {
       case td: ScTypeAliasDefinition if td.typeParameters.isEmpty =>
         val manager = ScalaPsiManager.instance(element.getProject)
@@ -360,8 +359,8 @@ object ScProjectionType {
     }
   }
 
-  def unapply(proj: ScProjectionType): Option[(ScType, PsiNamedElement, Boolean)] = {
-    Some(proj.projected, proj.element, proj.superReference)
+  def unapply(proj: ScProjectionType): Option[(ScType, PsiNamedElement)] = {
+    Some(proj.projected, proj.element)
   }
 
   object withActual {

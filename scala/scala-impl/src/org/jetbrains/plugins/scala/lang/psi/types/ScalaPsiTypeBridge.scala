@@ -108,7 +108,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       val designator = Option(clazz.containingClass) map {
         constructTypeForClass(_, subst, withTypeParameters = !clazz.hasModifierProperty("static"))
       } map {
-        ScProjectionType(_, clazz, superReference = false)
+        ScProjectionType(_, clazz)
       } getOrElse ScDesignatorType(clazz)
 
       subst.subst(if (withTypeParameters) {
@@ -157,7 +157,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           case (s, (targ, tp)) => s.put(tp, toPsiTypeInner(targ, noPrimitives = true))
         }
         createType(c, subst)
-      case ParameterizedType(proj@ScProjectionType(_, _, _), args) => proj.actualElement match {
+      case ParameterizedType(proj@ScProjectionType(_, _), args) => proj.actualElement match {
         case c: PsiClass =>
           if (c.qualifiedName == "scala.Array" && args.length == 1) new PsiArrayType(toPsiTypeInner(args.head))
           else {
@@ -175,7 +175,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
         case _ => javaObject
       }
       case ParameterizedType(TypeParameterType(_, _, _, typeParameter), _) => EmptySubstitutor.getInstance().substitute(typeParameter)
-      case proj@ScProjectionType(_, _, _) => proj.actualElement match {
+      case proj@ScProjectionType(_, _) => proj.actualElement match {
         case clazz: PsiClass =>
           clazz match {
             case syn: ScSyntheticClass => toPsiTypeInner(syn.stdType)

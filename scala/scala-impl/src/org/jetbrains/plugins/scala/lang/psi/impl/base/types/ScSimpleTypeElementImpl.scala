@@ -380,7 +380,7 @@ object ScSimpleTypeElementImpl {
     }
 
     def makeProjection(`type`: ScType, superReference: Boolean = false) =
-      ScProjectionType(`type`, resolvedElement, superReference = superReference)
+      ScProjectionType(`type`, resolvedElement)
 
     ref.qualifier match {
       case Some(qualifier) =>
@@ -428,7 +428,6 @@ object ScSimpleTypeElementImpl {
                            function: ScTemplateDefinition => ScType) = {
     import path.projectContext
 
-    val element = Some(path)
     maybeTemplate match {
       case Some(template) => Right(function(template))
       case _ => Failure(message)

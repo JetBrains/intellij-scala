@@ -118,7 +118,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
         conformance = subst.subst(lower).conforms(r, conformance._2)
         if (!conformance._1) return (false, uSubst)
         (true, conformance._2)
-      case (ParameterizedType(proj@ScProjectionType(_, _, _), _), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
+      case (ParameterizedType(proj@ScProjectionType(_, _), _), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
@@ -225,7 +225,7 @@ object ScParameterizedType {
 
     val simple = new ScParameterizedType(designator, typeArgs)
     designator match {
-      case ScProjectionType(_: ScCompoundType, _, _) =>
+      case ScProjectionType(_: ScCompoundType, _) =>
         cache.atomicGetOrElseUpdate((designator, typeArgs),
           createCompoundProjectionParameterized(simple))
       case ScTypePolymorphicType(internalType, typeParameters) if internalType.isInstanceOf[ScParameterizedType] =>

@@ -312,7 +312,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
           case _ =>
             if (stableTypeRequired && refPatt.isStable) {
               r.fromType match {
-                case Some(fT) => ScProjectionType(fT, refPatt, superReference = false)
+                case Some(fT) => ScProjectionType(fT, refPatt)
                 case None => ScalaType.designator(refPatt)
               }
             } else {
@@ -357,7 +357,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         }
 
         r.fromType match {
-          case Some(fT) if param.isVal && stableTypeRequired => ScProjectionType(fT, param, superReference = false)
+          case Some(fT) if param.isVal && stableTypeRequired => ScProjectionType(fT, param)
           case Some(ScThisType(clazz)) if owner != null && PsiTreeUtil.isContextAncestor(owner, this, true) &&
             stableTypeRequired && owner.isInstanceOf[ScTypeDefinition] && owner == clazz => ScalaType.designator(param) //todo: think about projection from this type?
           case _ if owner != null && PsiTreeUtil.isContextAncestor(owner, this, true) &&
@@ -395,7 +395,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
       case ScalaResolveResult(obj: ScObject, _) =>
         def tail = {
           fromType match {
-            case Some(tp) => ScProjectionType(tp, obj, superReference = false)
+            case Some(tp) => ScProjectionType(tp, obj)
             case _ => ScalaType.designator(obj)
           }
         }
@@ -422,7 +422,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
       case r@ScalaResolveResult(f: ScFieldId, s) =>
         if (stableTypeRequired && f.isStable) {
           r.fromType match {
-            case Some(fT) => ScProjectionType(fT, f, superReference = false)
+            case Some(fT) => ScProjectionType(fT, f)
             case None => ScalaType.designator(f)
           }
         } else {

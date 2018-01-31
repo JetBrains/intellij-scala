@@ -197,7 +197,7 @@ case class ScExistentialType(quantified: ScType,
             checkRecursive(ex.lower, newSet)
             checkRecursive(ex.upper, newSet)
           })
-        case ScProjectionType(projected, _, _) =>
+        case ScProjectionType(projected, _) =>
           checkRecursive(projected, rejected)
         case ParameterizedType(designator, typeArgs) =>
           checkRecursive(designator, rejected)
@@ -264,7 +264,7 @@ case class ScExistentialType(quantified: ScType,
         }, typeMap.map {
           case (s, sign) => (s, sign.updateTypesWithVariance(updateRecursive(_, newSet, _), variance))
         })
-      case ScProjectionType(_, _, _) => tp
+      case ScProjectionType(_, _) => tp
       case JavaArrayType(_) => tp
       case ParameterizedType(designator, typeArgs) =>
         val parameteresIterator = designator match {

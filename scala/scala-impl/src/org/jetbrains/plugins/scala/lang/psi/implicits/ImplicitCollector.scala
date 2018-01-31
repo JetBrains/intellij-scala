@@ -647,7 +647,7 @@ class ImplicitCollector(place: PsiElement,
 
   private def topLevelTypeConstructors(tp: ScType): Set[ScType] = {
     tp match {
-      case ScProjectionType(_, element, _) => Set(ScDesignatorType(element))
+      case ScProjectionType(_, element) => Set(ScDesignatorType(element))
       case ParameterizedType(designator, _) => Set(designator)
       case tp@ScDesignatorType(_: ScObject) => Set(tp)
       case ScDesignatorType(v: ScTypedDefinition) =>
@@ -660,7 +660,7 @@ class ImplicitCollector(place: PsiElement,
 
   private def complexity(tp: ScType): Int = {
     tp match {
-      case ScProjectionType(proj, _, _) => 1 + complexity(proj)
+      case ScProjectionType(proj, _) => 1 + complexity(proj)
       case ParameterizedType(_, args) => 1 + args.foldLeft(0)(_ + complexity(_))
       case ScDesignatorType(_: ScObject) => 1
       case ScDesignatorType(v: ScTypedDefinition) =>

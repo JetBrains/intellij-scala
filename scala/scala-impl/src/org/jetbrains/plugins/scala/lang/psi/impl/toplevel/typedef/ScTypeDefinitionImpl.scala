@@ -96,13 +96,13 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     val parentClass: ScTemplateDefinition = containingClass
     if (typeParameters.isEmpty) {
       if (parentClass != null) {
-        Right(ScProjectionType(ScThisType(parentClass), this, superReference = false))
+        Right(ScProjectionType(ScThisType(parentClass), this))
       } else {
         Right(ScalaType.designator(this))
       }
     } else {
       if (parentClass != null) {
-        Right(ScParameterizedType(ScProjectionType(ScThisType(parentClass), this, superReference = false),
+        Right(ScParameterizedType(ScProjectionType(ScThisType(parentClass), this),
           typeParameters.map(TypeParameterType(_))))
       } else {
         Right(ScParameterizedType(ScalaType.designator(this),
@@ -121,7 +121,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
         .getOrElse(return Failure("Cannot resolve parent class"))
       else ScThisType(parentClazz)
 
-      val innerProjection = ScProjectionType(tpe, this, superReference = false)
+      val innerProjection = ScProjectionType(tpe, this)
       Right(if (typeParameters.isEmpty) innerProjection
       else ScParameterizedType(innerProjection, args))
     } else Right(innerType)
