@@ -131,9 +131,8 @@ object ScalaRefactoringUtil {
     else sorted.toArray
   }
 
-  def replaceSingletonTypes(scType: ScType): ScType = scType.recursiveUpdate {
-    case tp: DesignatorOwner => ReplaceWith(tp.tryExtractDesignatorSingleton)
-    case _ => ProcessSubtypes
+  def replaceSingletonTypes(scType: ScType): ScType = scType.updateRecursively {
+    case tp: DesignatorOwner => tp.tryExtractDesignatorSingleton
   }
 
   def inTemplateParents(typeElement: ScTypeElement): Boolean = {

@@ -20,10 +20,29 @@ trait Extensions {
       }
     }
 
+    //allows most control on what should be done when encountering a type
     def recursiveUpdate(fun: ScType => AfterUpdate): ScType =
       recursiveUpdateImpl(Update(fun))
 
+    //updates all matching subtypes recursively
+    def updateRecursively(pf: PartialFunction[ScType, ScType]): ScType =
+      recursiveUpdateImpl(Update.RecursivePartial(pf))
+
+    //invokes a function with a side-effect recursively, doesn't create any new types
     def visitRecursively(fun: ScType => Unit): ScType =
       recursiveUpdateImpl(Update.VisitRecursively(fun))
+
+    def subtypeExists(predicate: ScType => Boolean): Boolean = {
+      var found = false
+      recursiveUpdateImpl(Update.VisitRecursively {
+        case t if predicate(t) || found =>
+          found = true
+          Stop
+        case _ =>
+          ProcessSubtypes
+      })
+      found
+    }
+
   }
 }

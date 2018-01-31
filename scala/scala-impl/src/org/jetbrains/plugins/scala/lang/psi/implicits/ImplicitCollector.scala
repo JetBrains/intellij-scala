@@ -371,9 +371,8 @@ class ImplicitCollector(place: PsiElement,
           val filteredTypeParams =
             typeParams.filter(tp => !tp.lowerType.equiv(Nothing) || !tp.upperType.equiv(Any))
           val newPolymorphicType = ScTypePolymorphicType(internalType, filteredTypeParams)
-          val updated = newPolymorphicType.inferValueType.recursiveUpdate {
-            case u: UndefinedType => ReplaceWith(u.parameterType)
-            case _: ScType => ProcessSubtypes
+          val updated = newPolymorphicType.inferValueType.updateRecursively {
+            case u: UndefinedType => u.parameterType
           }
           (updated, typeParams)
         case _ => (tp.inferValueType, Seq.empty)
@@ -619,9 +618,8 @@ class ImplicitCollector(place: PsiElement,
   }
 
   private def abstractsToUpper(tp: ScType): ScType = {
-    val noAbstracts = tp.recursiveUpdate {
-      case ScAbstractType(_, _, upper) => ReplaceWith(upper)
-      case _ => ProcessSubtypes
+    val noAbstracts = tp.updateRecursively {
+      case ScAbstractType(_, _, upper) => upper
     }
 
     noAbstracts.removeAliasDefinitions()

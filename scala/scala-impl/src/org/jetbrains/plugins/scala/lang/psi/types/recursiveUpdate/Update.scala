@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 
 import scala.language.implicitConversions
 
@@ -27,6 +27,14 @@ object Update {
 
   case class Simple(fun: ScType => AfterUpdate) extends Update {
     override def apply(scType: ScType): AfterUpdate = fun(scType)
+  }
+
+  case class RecursivePartial(fun: PartialFunction[ScType, ScType]) extends Update {
+    override def apply(scType: ScType): AfterUpdate = {
+      if (fun.isDefinedAt(scType))
+        ReplaceWith(fun(scType))
+      else ProcessSubtypes
+    }
   }
 }
 

@@ -379,16 +379,11 @@ case class ScExistentialType(quantified: ScType,
 
     var updated = false
     //fourth rule
-    def hasWildcards(tp: ScType): Boolean = {
-      var found = false
-      tp.recursiveUpdate {
-        case ScExistentialArgument(name, _, _, _) if wildcards.exists(_.name == name) =>
-          found = true
-          Stop
-        case _ => if (found) Stop else ProcessSubtypes
-      }
-      found
+    def hasWildcards(tp: ScType): Boolean = tp.subtypeExists {
+      case ScExistentialArgument(name, _, _, _) => wildcards.exists(_.name == name)
+      case _ => false
     }
+
     val res = updateRecursive(this, Set.empty, Covariant) {
       case (variance, arg, tp) =>
         variance match {

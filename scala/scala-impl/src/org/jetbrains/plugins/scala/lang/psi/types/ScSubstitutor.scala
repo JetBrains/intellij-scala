@@ -11,15 +11,14 @@ import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, params}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId, TypeParamIdOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, params}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor.LazyDepMethodTypes
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.annotation.tailrec
@@ -264,16 +263,11 @@ class ScSubstitutor private(private val tvMap: LongMap[ScType] = LongMap.empty,
       }
 
       override def visitThisType(th: ScThisType): Unit = {
-        def hasRecursiveThisType(tp: ScType, clazz: ScTemplateDefinition): Boolean = {
-          var found = false
-          tp.recursiveUpdate {
-            case ScThisType(`clazz`) if !found =>
-              found = true
-              Stop
-            case _ => if (found) Stop else ProcessSubtypes
+        def hasRecursiveThisType(tp: ScType, clazz: ScTemplateDefinition): Boolean =
+          tp.subtypeExists {
+            case ScThisType(`clazz`) => true
+            case _ => false
           }
-          found
-        }
 
         def containingClassType(tp: ScType): ScType = tp match {
           case ScThisType(template) =>
@@ -298,16 +292,16 @@ class ScSubstitutor private(private val tvMap: LongMap[ScType] = LongMap.empty,
         }
 
         @tailrec
-        def isSubtype(target: ScType, thisTp: ScThisType): Boolean =
+        def isMoreNarrow(target: ScType, thisTp: ScThisType): Boolean =
           target.extractDesignated(expandAliases = true) match {
             case Some(typeParam: PsiTypeParameter) =>
               target match {
                 case t: TypeParameterType =>
-                  isSubtype(t.upperType, thisTp)
+                  isMoreNarrow(t.upperType, thisTp)
                 case p: ParameterizedType =>
                   p.designator match {
                     case TypeParameterType(_, _, upperType, _) =>
-                      isSubtype(p.substitutor.subst(upperType), thisTp)
+                      isMoreNarrow(p.substitutor.subst(upperType), thisTp)
                     case _ =>
                       isSameOrInheritor(typeParam, thisTp)
                   }
@@ -316,13 +310,13 @@ class ScSubstitutor private(private val tvMap: LongMap[ScType] = LongMap.empty,
             case Some(t: ScTypeDefinition) =>
               if (isSameOrInheritor(t, thisTp)) true
               else t.selfType match {
-                case Some(selfTp) => isSubtype(selfTp, thisTp)
+                case Some(selfTp) => isMoreNarrow(selfTp, thisTp)
                 case _ => false
               }
             case Some(cl: PsiClass) =>
               isSameOrInheritor(cl, thisTp)
             case Some(named: ScTypedDefinition) =>
-              isSubtype(named.`type`().getOrAny, thisTp)
+              isMoreNarrow(named.`type`().getOrAny, thisTp)
             case _ =>
               target match {
                 case compound: ScCompoundType =>
@@ -334,7 +328,7 @@ class ScSubstitutor private(private val tvMap: LongMap[ScType] = LongMap.empty,
 
         @tailrec
         def doUpdateThisType(thisTp: ScThisType, target: ScType): ScType = {
-          if (isSubtype(target, thisTp)) target
+          if (isMoreNarrow(target, thisTp)) target
           else {
             val targetContext = containingClassType(target)
             if (targetContext != null) doUpdateThisType(thisTp, targetContext)

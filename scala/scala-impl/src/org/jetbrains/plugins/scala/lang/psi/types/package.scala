@@ -75,9 +75,8 @@ package object types {
       case _ => false
     }
 
-    def removeUndefines(): ScType = scType.recursiveUpdate {
-      case _: UndefinedType => ReplaceWith(stdTypes.Any)
-      case _ => ProcessSubtypes
+    def removeUndefines(): ScType = scType.updateRecursively {
+      case _: UndefinedType => stdTypes.Any
     }
 
     def toPsiType: PsiType = typeSystem.toPsiType(scType)
@@ -173,19 +172,10 @@ package object types {
 
     def tryExtractDesignatorSingleton: ScType = extractDesignatorSingleton.getOrElse(scType)
 
-    def hasRecursiveTypeParameters[T](typeParamIds: Set[Long]): Boolean = {
-      var found = false
-      scType.recursiveUpdate {
-        case tpt: TypeParameterType =>
-          if (typeParamIds.contains(tpt.typeParamId)) {
-            found = true
-            Stop
-          }
-          else ProcessSubtypes
-        case tp: ScType if found => Stop
-        case _ => ProcessSubtypes
-      }
-      found
+    def hasRecursiveTypeParameters[T](typeParamIds: Set[Long]): Boolean = scType.subtypeExists {
+      case tpt: TypeParameterType =>
+        typeParamIds.contains(tpt.typeParamId)
+      case _ => false
     }
   }
 
