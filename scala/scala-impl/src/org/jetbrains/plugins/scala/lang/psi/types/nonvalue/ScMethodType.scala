@@ -112,11 +112,13 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     isImplicit)
 
   override def updateSubtypes(update: Update, visited: Set[ScType]): ScMethodType = {
-    ScMethodType(
-      returnType.recursiveUpdateImpl(update, visited),
-      params.map(p => p.copy(paramType = p.paramType.recursiveUpdateImpl(update, visited))),
-      isImplicit
-    )
+    def updated(t: ScType) = t.recursiveUpdateImpl(update, visited)
+
+    ScMethodType(updated(returnType), params.map(p => p.copy(
+        paramType = updated(p.paramType),
+        expectedType = updated(p.expectedType),
+        defaultType = p.defaultType.map(updated)
+      )), isImplicit)
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),

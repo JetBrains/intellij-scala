@@ -9,16 +9,14 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId, TypeParamIdOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, params}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamId, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor.LazyDepMethodTypes
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.annotation.tailrec
@@ -192,269 +190,139 @@ class ScSubstitutor private(private val tvMap: LongMap[ScType] = LongMap.empty,
       throw new RuntimeException("StackOverFlow during ScSubstitutor.subst(" + t + ") this = " + this, s)
   }
 
-  private def extractTpt(tpt: TypeParameterType, t: ScType): ScType = {
+  private val substitution: PartialFunction[ScType, ScType] = {
+    case a: ScAbstractType     => updatedAbstract(a)
+    case u: UndefinedType      => updatedUndefined(u)
+    case t: TypeParameterType  => updatedTypeParameter(t)
+    case d: ScDesignatorType   => updatedDesignator(d)
+    case t: ScThisType         => updatedThisType(t)
+  }
+
+  protected def substInternal(t: ScType): ScType = t.updateRecursively(substitution)
+
+  private def hasRecursiveThisType(tp: ScType, clazz: ScTemplateDefinition): Boolean =
+    tp.subtypeExists {
+      case ScThisType(`clazz`) => true
+      case _ => false
+    }
+
+  private def containingClassType(tp: ScType): ScType = tp match {
+    case ScThisType(template) =>
+      template.containingClass match {
+        case td: ScTemplateDefinition => ScThisType(td)
+        case _ => null
+      }
+    case ScProjectionType(newType, _) => newType
+    case ParameterizedType(ScProjectionType(newType, _), _) => newType
+    case _ => null
+  }
+
+  private def isSameOrInheritor(clazz: PsiClass, thisTp: ScThisType): Boolean =
+    clazz == thisTp.element || isInheritorDeep(clazz, thisTp.element)
+
+  private def hasSameOrInheritor(compound: ScCompoundType, thisTp: ScThisType) = {
+    compound.components
+      .exists {
+        _.extractClass
+          .exists(isSameOrInheritor(_, thisTp))
+      }
+  }
+
+  @tailrec
+  private def isMoreNarrow(target: ScType, thisTp: ScThisType): Boolean =
+    target.extractDesignated(expandAliases = true) match {
+      case Some(typeParam: PsiTypeParameter) =>
+        target match {
+          case t: TypeParameterType =>
+            isMoreNarrow(t.upperType, thisTp)
+          case p: ParameterizedType =>
+            p.designator match {
+              case TypeParameterType(_, _, upperType, _) =>
+                isMoreNarrow(p.substitutor.subst(upperType), thisTp)
+              case _ =>
+                isSameOrInheritor(typeParam, thisTp)
+            }
+          case _ => isSameOrInheritor(typeParam, thisTp)
+        }
+      case Some(t: ScTypeDefinition) =>
+        if (isSameOrInheritor(t, thisTp)) true
+        else t.selfType match {
+          case Some(selfTp) => isMoreNarrow(selfTp, thisTp)
+          case _ => false
+        }
+      case Some(cl: PsiClass) =>
+        isSameOrInheritor(cl, thisTp)
+      case Some(named: ScTypedDefinition) =>
+        isMoreNarrow(named.`type`().getOrAny, thisTp)
+      case _ =>
+        target match {
+          case compound: ScCompoundType =>
+            hasSameOrInheritor(compound, thisTp)
+          case _ =>
+            false
+        }
+    }
+
+  @tailrec
+  private def doUpdateThisType(thisTp: ScThisType, target: ScType): ScType = {
+    if (isMoreNarrow(target, thisTp)) target
+    else {
+      val targetContext = containingClassType(target)
+      if (targetContext != null) doUpdateThisType(thisTp, targetContext)
+      else thisTp
+    }
+  }
+
+  private def updatedThisType(thisTp: ScThisType): ScType = {
+    updateThisType match {
+      case Some(target) if !hasRecursiveThisType(target, thisTp.element) => //todo: hack to avoid infinite recursion during type substitution
+        doUpdateThisType(thisTp, target)
+      case _ => thisTp
+    }
+  }
+
+  private def updatedDesignator(d: ScDesignatorType): ScType = {
+    val depMethodType = depMethodTypes.flatMap(_.value.collectFirst {
+      case (parameter: Parameter, tp: ScType) if parameter.paramInCode.contains(d.element) => tp
+    })
+    depMethodType.getOrElse(d)
+  }
+
+
+  private def updatedAbstract(a: ScAbstractType): ScType = {
+    val parameterType = a.parameterType
+    tvMap.get(parameterType.typeParamId) match {
+      case None => a
+      case Some(v) => v match {
+        case tpt: TypeParameterType if tpt.psiTypeParameter == parameterType.psiTypeParameter => a
+        case _ => extractDesignator(parameterType, v)
+      }
+    }
+  }
+
+  private def updatedUndefined(u: UndefinedType): ScType = {
+    val parameterType = u.parameterType
+    tvMap.get(parameterType.typeParamId) match {
+      case None => u
+      case Some(v) => v match {
+        case tpt: TypeParameterType if tpt.psiTypeParameter == parameterType.psiTypeParameter => u
+        case _ => extractDesignator(parameterType, v)
+      }
+    }
+  }
+
+  private def updatedTypeParameter(tpt: TypeParameterType): ScType = {
+    tvMap.get(tpt.typeParamId) match {
+      case None => tpt
+      case Some(v) => extractDesignator(tpt, v)
+    }
+  }
+
+  private def extractDesignator(tpt: TypeParameterType, t: ScType): ScType = {
     if (tpt.arguments.isEmpty) t
     else t match {
       case ParameterizedType(designator, _) => designator
       case _ => t
     }
-  }
-
-  protected def substInternal(t: ScType): ScType = {
-    import t.projectContext
-
-    var result: ScType = t
-    val visitor = new ScalaTypeVisitor {
-      override def visitTypePolymorphicType(t: ScTypePolymorphicType): Unit = {
-        val ScTypePolymorphicType(internalType, typeParameters) = t
-        result = ScTypePolymorphicType(substInternal(internalType),
-          typeParameters.map {
-            case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
-              TypeParameter(
-                parameters, // todo: is it important here to update?
-                substInternal(lowerType),
-                substInternal(upperType),
-                psiTypeParameter)
-          })
-      }
-
-      override def visitAbstractType(a: ScAbstractType): Unit = {
-        val parameterType = a.parameterType
-        result = tvMap.get(parameterType.typeParamId) match {
-          case None => a
-          case Some(v) => v match {
-            case tpt: TypeParameterType if tpt.psiTypeParameter == parameterType.psiTypeParameter => a
-            case _ => extractTpt(parameterType, v)
-          }
-        }
-      }
-
-      override def visitMethodType(m: ScMethodType): Unit = {
-        val ScMethodType(retType, params, isImplicit) = m
-        implicit val elementScope = m.elementScope
-        result = ScMethodType(substInternal(retType),
-          params.map(p => p.copy(paramType = substInternal(p.paramType),
-            expectedType = substInternal(p.expectedType), defaultType = p.defaultType.map(substInternal))), isImplicit)
-      }
-
-      override def visitUndefinedType(u: UndefinedType): Unit = {
-        val parameterType = u.parameterType
-        result = tvMap.get(parameterType.typeParamId) match {
-          case None => u
-          case Some(v) => v match {
-            case tpt: TypeParameterType if tpt.psiTypeParameter == parameterType.psiTypeParameter => u
-            case _ => extractTpt(parameterType, v)
-          }
-        }
-      }
-
-      override def visitTypeParameterType(tpt: TypeParameterType): Unit = {
-        result = tvMap.get(tpt.typeParamId) match {
-          case None => tpt
-          case Some(v) => extractTpt(tpt, v)
-        }
-      }
-
-      override def visitDesignatorType(d: ScDesignatorType): Unit = {
-        val depMethodType = depMethodTypes.flatMap(_.value.collectFirst {
-          case (parameter: Parameter, tp: ScType) if parameter.paramInCode.contains(d.element) => tp
-        })
-        result = depMethodType.getOrElse(d)
-      }
-
-      override def visitThisType(th: ScThisType): Unit = {
-        def hasRecursiveThisType(tp: ScType, clazz: ScTemplateDefinition): Boolean =
-          tp.subtypeExists {
-            case ScThisType(`clazz`) => true
-            case _ => false
-          }
-
-        def containingClassType(tp: ScType): ScType = tp match {
-          case ScThisType(template) =>
-            template.containingClass match {
-              case td: ScTemplateDefinition => ScThisType(td)
-              case _ => null
-            }
-          case ScProjectionType(newType, _) => newType
-          case ParameterizedType(ScProjectionType(newType, _), _) => newType
-          case _ => null
-        }
-
-        def isSameOrInheritor(clazz: PsiClass, thisTp: ScThisType): Boolean =
-          clazz == thisTp.element || isInheritorDeep(clazz, thisTp.element)
-
-        def hasSameOrInheritor(compound: ScCompoundType, thisTp: ScThisType) = {
-          compound.components
-            .exists {
-              _.extractClass
-                .exists(isSameOrInheritor(_, thisTp))
-            }
-        }
-
-        @tailrec
-        def isMoreNarrow(target: ScType, thisTp: ScThisType): Boolean =
-          target.extractDesignated(expandAliases = true) match {
-            case Some(typeParam: PsiTypeParameter) =>
-              target match {
-                case t: TypeParameterType =>
-                  isMoreNarrow(t.upperType, thisTp)
-                case p: ParameterizedType =>
-                  p.designator match {
-                    case TypeParameterType(_, _, upperType, _) =>
-                      isMoreNarrow(p.substitutor.subst(upperType), thisTp)
-                    case _ =>
-                      isSameOrInheritor(typeParam, thisTp)
-                  }
-                case _ => isSameOrInheritor(typeParam, thisTp)
-              }
-            case Some(t: ScTypeDefinition) =>
-              if (isSameOrInheritor(t, thisTp)) true
-              else t.selfType match {
-                case Some(selfTp) => isMoreNarrow(selfTp, thisTp)
-                case _ => false
-              }
-            case Some(cl: PsiClass) =>
-              isSameOrInheritor(cl, thisTp)
-            case Some(named: ScTypedDefinition) =>
-              isMoreNarrow(named.`type`().getOrAny, thisTp)
-            case _ =>
-              target match {
-                case compound: ScCompoundType =>
-                  hasSameOrInheritor(compound, thisTp)
-                case _ =>
-                  false
-              }
-          }
-
-        @tailrec
-        def doUpdateThisType(thisTp: ScThisType, target: ScType): ScType = {
-          if (isMoreNarrow(target, thisTp)) target
-          else {
-            val targetContext = containingClassType(target)
-            if (targetContext != null) doUpdateThisType(thisTp, targetContext)
-            else thisTp
-          }
-        }
-
-        result = updateThisType match {
-          case Some(target) if !hasRecursiveThisType(target, th.element) => //todo: hack to avoid infinite recursion during type substitution
-            doUpdateThisType(th, target)
-          case _ => th
-        }
-      }
-
-      override def visitExistentialArgument(s: ScExistentialArgument): Unit = {
-        val ScExistentialArgument(name, args, lower, upper) = s
-        result = ScExistentialArgument(name, args.map(t => substInternal(t).asInstanceOf[TypeParameterType]),
-          substInternal(lower), substInternal(upper))
-      }
-
-      override def visitExistentialType(ex: ScExistentialType): Unit = {
-        val ScExistentialType(q, wildcards) = ex
-        result = new ScExistentialType(substInternal(q),
-          wildcards.map(ex => substInternal(ex).asInstanceOf[ScExistentialArgument]))
-      }
-
-      override def visitParameterizedType(pt: ParameterizedType): Unit = {
-        val typeArgs = pt.typeArguments
-        result = pt.designator match {
-          case tpt: TypeParameterType =>
-            tvMap.get(tpt.typeParamId) match {
-              case Some(param: ScParameterizedType) if pt != param =>
-                if (tpt.arguments.isEmpty) {
-                  substInternal(param) //to prevent types like T[A][A]
-                } else {
-                  ScParameterizedType(param.designator, typeArgs.map(substInternal))
-                }
-              case _ =>
-                substInternal(tpt) match {
-                  case ParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
-                  case des => ScParameterizedType(des, typeArgs map substInternal)
-                }
-            }
-          case u@UndefinedType(parameterType, _) =>
-            tvMap.get(parameterType.typeParamId) match {
-              case Some(param: ScParameterizedType) if pt != param =>
-                if (parameterType.arguments.isEmpty) {
-                  substInternal(param) //to prevent types like T[A][A]
-                } else {
-                  ScParameterizedType(param.designator, typeArgs map substInternal)
-                }
-              case _ =>
-                substInternal(u) match {
-                  case ParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
-                  case des => ScParameterizedType(des, typeArgs map substInternal)
-                }
-            }
-          case a@ScAbstractType(parameterType, _, _) =>
-            tvMap.get(parameterType.typeParamId) match {
-              case Some(param: ScParameterizedType) if pt != param =>
-                if (parameterType.arguments.isEmpty) {
-                  substInternal(param) //to prevent types like T[A][A]
-                } else {
-                  ScParameterizedType(param.designator, typeArgs map substInternal)
-                }
-              case _ =>
-                substInternal(a) match {
-                  case ParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
-                  case des => ScParameterizedType(des, typeArgs map substInternal)
-                }
-            }
-          case designator =>
-            substInternal(designator) match {
-              case ParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
-              case des => ScParameterizedType(des, typeArgs map substInternal)
-            }
-        }
-      }
-
-      override def visitJavaArrayType(j: JavaArrayType): Unit = {
-        result = JavaArrayType(substInternal(j.argument))
-      }
-
-      override def visitProjectionType(p: ScProjectionType): Unit = {
-        result = ScProjectionType(substInternal(p.projected), p.element)
-      }
-
-      override def visitCompoundType(comp: ScCompoundType): Unit = {
-        val ScCompoundType(comps, signatureMap, typeMap) = comp
-
-        def substTypeParam: TypeParameter => TypeParameter = {
-          case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
-            TypeParameter(
-              typeParameters.map(substTypeParam),
-              substInternal(lowerType),
-              substInternal(upperType),
-              psiTypeParameter)
-        }
-
-        val middleRes = ScCompoundType(comps.map(substInternal), signatureMap.map {
-          case (s: Signature, tp: ScType) =>
-            val pTypes: Seq[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => substInternal(f())))
-            val tParams = s.typeParams.subst(substTypeParam)
-            val rt: ScType = substInternal(tp)
-            (new Signature(s.name, pTypes, tParams,
-              ScSubstitutor.empty, s.namedElement match {
-                case fun: ScFunction =>
-                  ScFunction.getCompoundCopy(pTypes.map(_.map(_ ()).toList), tParams.toList, rt, fun)
-                case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
-                case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
-                case named => named
-              }, s.hasRepeatedParam), rt)
-        }, typeMap.map {
-          case (s, sign) => (s, sign.updateTypes(substInternal))
-        })
-        //todo: this is ugly workaround for
-        result = updateThisType match {
-          case Some(thisType@ScDesignatorType(param: ScParameter)) =>
-            val paramType = param.getRealParameterType.getOrAny
-            if (paramType.conforms(middleRes)) thisType
-            else middleRes
-          case _ => middleRes
-        }
-      }
-    }
-    t.visitType(visitor)
-    result
   }
 }
