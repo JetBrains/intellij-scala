@@ -62,7 +62,7 @@ object Downloader {
     }
   }
 
-  private def sbtCommandsFor(platform: Platform, version: String) = platform match {
+  def sbtCommandsFor(platform: Platform, version: String): Seq[String] = platform match {
     case Platform.Scala => Seq(
       s"""set scalaVersion := "$version"""",
       "updateClassifiers")

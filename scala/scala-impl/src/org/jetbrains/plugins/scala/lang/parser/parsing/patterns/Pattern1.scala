@@ -32,7 +32,7 @@ trait Pattern1 {
     val backupMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
-        if (ParserUtils.isCurrentVarId(builder)) {
+        if (ParserUtils.isCurrentVarId(builder) && !ParserUtils.isIdBindingEnabled(builder)) {
           backupMarker.rollbackTo()
         } else {
           builder.advanceLexer() //Ate id

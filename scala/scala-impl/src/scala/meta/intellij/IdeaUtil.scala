@@ -35,7 +35,7 @@ object IdeaUtil {
     else {
       val project = file.getProject
       val plugins =
-        file.getVirtualFile.nullSafe
+        file.getOriginalFile.getVirtualFile.nullSafe
           .map(ModuleUtilCore.findModuleForFile(_, project))
           .map(ScalaCompilerConfiguration.instanceIn(project).getSettingsForModule)
           .map(_.plugins)

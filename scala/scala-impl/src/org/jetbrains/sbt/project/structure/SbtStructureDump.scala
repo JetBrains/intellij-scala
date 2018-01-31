@@ -117,7 +117,10 @@ class SbtStructureDump {
         handle(process, taskId, dumpTaskId, taskDescriptor, viewManager, notifications)
       }
       result.getOrElse(ImportMessages.empty.addError("no output from sbt shell process available"))
-    }.orElse(Failure(ImportCancelledException))
+    }
+    .recoverWith {
+      case fail => Failure(ImportCancelledException(fail))
+    }
 
     val endTime = System.currentTimeMillis()
     val operationResult = result match {
@@ -198,7 +201,7 @@ class SbtStructureDump {
         // task was cancelled
         handler.setShouldDestroyProcessRecursively(false)
         handler.destroyProcess()
-        throw ImportCancelledException
+        throw ImportCancelledException(new Exception("task canceled"))
       } else messages
     }
   }

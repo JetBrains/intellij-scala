@@ -1,104 +1,105 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
-import scala.annotation.tailrec
-
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScalaType, api}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+
+import scala.annotation.tailrec
+import scala.reflect.ClassTag
 
 /**
   * @author adkozlov
   */
-sealed trait FunctionTypeFactory {
+sealed trait FunctionTypeFactory[D <: ScTypeDefinition, T] {
+
+  import FunctionTypeFactory._
+
   protected val typeName: String
 
-  protected def isValid(definition: ScTypeDefinition): Boolean = definition.isInstanceOf[ScTrait]
+  def apply(t: T)(implicit scope: ElementScope): ValueType
 
-  protected def innerApply(fullyQualifiedName: String, parameters: Seq[ScType])
-                          (implicit elementScope: ElementScope): ValueType = {
-    ScalaPsiManager.instance(elementScope.project)
-      .getCachedClass(elementScope.scope, fullyQualifiedName)
-      .collect {
-        case definition: ScTypeDefinition if isValid(definition) =>
-          ScParameterizedType(ScalaType.designator(definition), parameters)
-      }
-      .getOrElse(Nothing)
-  }
-
-  protected def innerUnapply(`type`: ScType): Option[Seq[ScType]] =
-    extractForPrefix(`type`, typeName).filter {
-      _.nonEmpty
+  def unapply(`type`: ScType): Option[T] =
+    extractForPrefix(`type`, typeName) match {
+      case seq if seq.nonEmpty && unapplyCollector.isDefinedAt(seq) => Some(unapplyCollector(seq))
+      case _ => None
     }
+
+  protected final def apply(parameters: Seq[ScType], suffix: String)
+                           (implicit scope: ElementScope, tag: ClassTag[D]): ValueType =
+    scope.getCachedClass(typeName + suffix).collect {
+      case definition: D => ScParameterizedType(ScalaType.designator(definition), parameters)
+    }.getOrElse(api.Nothing)
+
+  protected def unapplyCollector: PartialFunction[Seq[ScType], T]
+}
+
+object FunctionTypeFactory {
 
   @tailrec
-  private def extractForPrefix(`type`: ScType, prefix: String, depth: Int = 100): Option[Seq[ScType]] =
-    depth match {
-      case 0 => None //hack for http://youtrack.jetbrains.com/issue/SCL-6880 to avoid infinite loop.
-      case _ =>
-        `type`.isAliasType match {
-          case Some(AliasType(_: ScTypeAliasDefinition, Right(lower), _)) =>
-            extractForPrefix(lower, prefix, depth - 1)
-          case _ =>
-            `type` match {
-              case parameterizedType: ScParameterizedType => extractForPrefix(parameterizedType, prefix)
-              case _ => None
-            }
-        }
-    }
+  private def extractForPrefix(`type`: ScType, prefix: String, depth: Int = 100): Seq[ScType] = `type` match {
+    case _ if depth == 0 => Seq.empty //hack for http://youtrack.jetbrains.com/issue/SCL-6880 to avoid infinite loop.
+    case AliasLowerBound(lower) => extractForPrefix(lower, prefix, depth - 1)
+    case ScParameterizedType(designator, arguments) if extractQualifiedName(designator).exists(_.startsWith(prefix)) => arguments
+    case _ => Seq.empty
+  }
 
-  private def extractForPrefix(parameterizedType: ScParameterizedType, prefix: String) = {
-    def startsWith(definition: ScTypeDefinition) =
-      Option(definition.qualifiedName).exists {
-        _.startsWith(prefix)
-      }
+  private[this] def extractQualifiedName(`type`: ScType) =
+    `type`.extractClass.collect {
+      case definition: ScTypeDefinition => definition
+    }.flatMap(definition => Option(definition.qualifiedName))
 
-    parameterizedType.designator.extractClass.collect {
-      case definition: ScTypeDefinition if startsWith(definition) =>
-        parameterizedType.typeArguments
+  private[this] object AliasLowerBound {
+
+    def unapply(`type`: ScType): Option[ScType] = `type`.isAliasType.collect {
+      case AliasType(_: ScTypeAliasDefinition, Right(lower), _) => lower
     }
+  }
+
+}
+
+object FunctionType extends FunctionTypeFactory[ScTrait, (ScType, Seq[ScType])] {
+
+  override protected val typeName = "scala.Function"
+
+  override def apply(pair: (ScType, Seq[ScType]))
+                    (implicit scope: ElementScope): ValueType = {
+    val (returnType, parameters) = pair
+    apply(parameters :+ returnType, parameters.length.toString)
+  }
+
+  def isFunctionType(`type`: ScType): Boolean = unapply(`type`).isDefined
+
+  override protected def unapplyCollector: PartialFunction[Seq[ScType], (ScType, Seq[ScType])] = {
+    case types => (types.last, types.dropRight(1))
   }
 }
 
-object FunctionType extends FunctionTypeFactory {
-  override protected val typeName = "scala.Function"
+object PartialFunctionType extends FunctionTypeFactory[ScTrait, (ScType, ScType)] {
 
-  def apply(returnType: ScType, parameters: Seq[ScType])
-           (implicit elementScope: ElementScope): ValueType =
-    innerApply(s"$typeName${parameters.length}", parameters :+ returnType)
-
-  def unapply(`type`: ScType): Option[(ScType, Seq[ScType])] =
-    innerUnapply(`type`).map { typeArguments =>
-      val (parameters, Seq(resultType)) = typeArguments.splitAt(typeArguments.length - 1)
-      (resultType, parameters)
-    }
-
-  def isFunctionType(`type`: ScType): Boolean = unapply(`type`).isDefined
-}
-
-object PartialFunctionType extends FunctionTypeFactory {
   override protected val typeName = "scala.PartialFunction"
 
-  def apply(returnType: ScType, parameter: ScType)
-           (implicit elementScope: ElementScope): ValueType =
-    innerApply(typeName, Seq(parameter, returnType))
+  override def apply(pair: (ScType, ScType))
+                    (implicit scope: ElementScope): ValueType = {
+    val (returnType, parameter) = pair
+    apply(Seq(parameter, returnType), "")
+  }
 
-  def unapply(`type`: ScType): Option[(ScType, ScType)] =
-    innerUnapply(`type`).map {
-      case Seq(retType, param) => (param, retType)
-    }
+  override protected def unapplyCollector: PartialFunction[Seq[ScType], (ScType, ScType)] = {
+    case Seq(returnType, parameter) => (parameter, returnType)
+  }
 }
 
-object TupleType extends FunctionTypeFactory {
+object TupleType extends FunctionTypeFactory[ScClass, Seq[ScType]] {
+
   override protected val typeName = "scala.Tuple"
 
-  override protected def isValid(definition: ScTypeDefinition): Boolean = definition.isInstanceOf[ScClass]
+  override def apply(types: Seq[ScType])
+                    (implicit scope: ElementScope): ValueType =
+    apply(types, types.length.toString)
 
-  def apply(components: Seq[ScType])
-           (implicit elementScope: ElementScope): ValueType =
-    innerApply(s"$typeName${components.length}", components)
-
-  def unapply(`type`: ScType): Option[Seq[ScType]] = innerUnapply(`type`)
+  override protected def unapplyCollector: PartialFunction[Seq[ScType], Seq[ScType]] = {
+    case types => types
+  }
 }
