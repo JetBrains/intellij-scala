@@ -220,6 +220,8 @@
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScFunctionDeclarationRangeHandler"/>
         <declarationRangeHandler order="first" key="org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition"
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScTemplateDeclarationRangeHandler"/>
+        <codeInsight.parameterNameHints language="Scala"
+                                        implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayParameterHintsProvider"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.actions.WorksheetGotoResNHandler" order="first"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteGotoHandler" order="first"/>

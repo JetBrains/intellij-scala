@@ -1,0 +1,189 @@
+package org.jetbrains.plugins.scala
+package codeInsight
+package hints
+
+import com.intellij.codeInsight.hints.{Option => HintOption, _}
+import com.intellij.lang.java.JavaLanguage
+import com.intellij.psi.{PsiElement, PsiMethod}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+
+import scala.collection.JavaConverters
+import java.{util => ju}
+
+class ScalaInlayParameterHintsProvider extends InlayParameterHintsProvider {
+
+  import ScalaInlayParameterHintsProvider._
+
+  import JavaConverters._
+
+  override def getSupportedOptions: ju.List[HintOption] =
+    HintTypes.map(_.option).asJava
+
+  override def getParameterHints(element: PsiElement): ju.List[InlayInfo] =
+    parameterHints(element).asJava
+
+  override def getHintInfo(element: PsiElement): HintInfo =
+    hintInfo(element).orNull
+
+  override def getInlayPresentation(inlayText: String): String =
+    InlayInfo.presentation(inlayText)
+
+  override def getDefaultBlackList: ju.Set[String] =
+    DefaultBlackList.asJava
+
+  override def getBlackListDependencyLanguage: JavaLanguage = JavaLanguage.INSTANCE
+
+  override def canShowHintsWhenDisabled: Boolean = true
+}
+
+object ScalaInlayParameterHintsProvider {
+
+  private val DefaultBlackList = {
+    val simpleNames = Set(
+      "scala.Predef",
+      "scala.Option",
+      "scala.Some",
+      "scala.None",
+      PartialFunctionType.TypeName
+    ) ++ FunctionType.traitsNames
+
+    simpleNames.map(name => s"$name.*")
+  }
+
+  private val HintTypes = List(
+    ParameterHintType,
+    ReturnTypeHintType,
+    PropertyHintType,
+    LocalVariableHintType
+  )
+
+  def instance: ScalaInlayParameterHintsProvider =
+    InlayParameterHintsExtension.INSTANCE.forLanguage(ScalaLanguage.INSTANCE) match {
+      case provider: ScalaInlayParameterHintsProvider => provider
+    }
+
+  private def parameterHints(element: PsiElement): Seq[InlayInfo] =
+    HintTypes.flatMap { hintType =>
+      hintType(element)
+    }
+
+  private def hintInfo(element: PsiElement): Option[HintInfo] =
+    HintTypes.find(_.isDefinedAt(element)).collect {
+      case ParameterHintType => ParameterHintType.methodInfo(element)
+      case hintType: OptionHintType => hintType
+    }
+
+  private[hints] sealed trait HintType extends HintFunction {
+
+    val option: HintOption
+
+    protected val delegate: HintFunction
+
+    override final def isDefinedAt(element: PsiElement): Boolean = delegate.isDefinedAt(element)
+
+    override final def apply(element: PsiElement): Seq[InlayInfo] =
+      if (option.isEnabled && isDefinedAt(element)) delegate(element)
+      else Seq.empty
+  }
+
+  private[hints] case object ParameterHintType extends HintType {
+
+    override val option = HintOption(Seq("parameter", "name"), defaultValue = true)
+
+    def methodInfo(element: PsiElement): HintInfo.MethodInfo = element match {
+      case NonSyntheticMethodCall(method) => MethodInfo(method)
+    }
+
+    override protected val delegate: HintFunction = {
+      case call@NonSyntheticMethodCall(_) =>
+        val (varargs, regular) = call.matchedParameters.filter {
+          case (argument, _) => call.isAncestorOf(argument)
+        }.partition {
+          case (_, parameter) => parameter.isRepeated
+        }
+
+        (regular ++ varargs.lastOption).collect {
+          case (argument, parameter) if isNameable(argument) => InlayInfo(parameter.name, argument)
+        }
+    }
+
+    private object NonSyntheticMethodCall {
+
+      def unapply(methodCall: ScMethodCall): Option[PsiMethod] = methodCall.deepestInvokedExpr match {
+        case ScReferenceExpression(method: PsiMethod) if !method.isParameterless && methodCall.argumentExpressions.nonEmpty => Some(method)
+        case _ => None
+      }
+    }
+
+    private def isNameable(argument: ScExpression) =
+      argument.parent.collect {
+        case list: ScArgumentExprList => list
+      }.exists(!_.isBraceArgs)
+  }
+
+  private[hints] abstract class OptionHintType protected(idSegments: String*)
+    extends HintInfo.OptionInfo(HintOption(idSegments)) with HintType {
+
+    override val option: HintOption = getOption
+
+    override def enable(): Unit =
+      if (!option.get()) {
+        option.set(true)
+      }
+
+    override def disable(): Unit =
+      if (option.get()) {
+        option.set(false)
+      }
+  }
+
+  private[hints] case object ReturnTypeHintType extends OptionHintType("function", "return", "type") {
+
+    override protected val delegate: HintFunction = {
+      case function: ScFunction if !function.hasExplicitType =>
+        function.returnType.toSeq
+          .map(InlayInfo(_, function.parameterList))
+    }
+  }
+
+  private[hints] abstract class DefinitionHintType(isLocal: Boolean, idSegments: String*)
+    extends OptionHintType(idSegments :+ "type": _*) {
+
+    import DefinitionHintType._
+
+    override protected val delegate: HintFunction = {
+      case TypelessDefinition(definition, patternList, `isLocal`) =>
+        definition.`type`().toSeq
+          .map(InlayInfo(_, patternList))
+    }
+  }
+
+  private[this] object DefinitionHintType {
+
+    private object TypelessDefinition {
+
+      def unapply(element: PsiElement): Option[(ScValueOrVariable, ScPatternList, Boolean)] = element match {
+        case definition: ScValueOrVariable if !definition.hasExplicitType =>
+          val maybePatternList = definition match {
+            case value: ScPatternDefinition => Some(value.pList)
+            case variable: ScVariableDefinition => Some(variable.pList)
+            case _ => None
+          }
+
+          maybePatternList.map((definition, _, definition.isLocal))
+        case _ => None
+      }
+    }
+
+  }
+
+  private[hints] case object PropertyHintType extends DefinitionHintType(isLocal = false, "property")
+
+  private[hints] case object LocalVariableHintType extends DefinitionHintType(isLocal = true, "local", "variable")
+
+}
