@@ -130,8 +130,6 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     syntheticContainingClass.map(_.getContainingFile).getOrElse(super.getContainingFile)
   }
 
-  override def isPhysical: Boolean = !isSynthetic
-
   protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean) = false
 
   override def getNavigationElement: PsiElement = getContainingFile match {

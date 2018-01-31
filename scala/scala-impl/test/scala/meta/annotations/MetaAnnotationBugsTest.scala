@@ -31,8 +31,8 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
         |      def stringOp(string: String): F[String]
         |      def aOp[A](a: A): F[A]
         |    }
-        |    final case class StringOp(string: String) extends FooOp[String]()
-        |    final case class AOp[A](a: A) extends FooOp[A]()
+        |    final case class StringOp(string: String) extends FooOp[String]
+        |    final case class AOp[A](a: A) extends FooOp[A]
         |  }
         |}""".stripMargin
     myFixture.findClass("FooOp").asInstanceOf[ScTypeDefinition].getMetaExpansion match {
@@ -317,20 +317,5 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
     )
 
     checkCaretResolves()
-  }
-
-  // synthetic elements' containingFile should be same as parent's rather than DummyHolder
-  def testSCL12620(): Unit = {
-    compileAnnotBody("defn")
-    createFile(
-      s"""
-        |@$annotName
-        |class $testClassName {
-        |  sealed trait A
-        |  class B extends A
-        |}
-      """.stripMargin
-    )
-    checkNoErrorHighlights()
   }
 }
