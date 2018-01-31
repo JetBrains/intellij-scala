@@ -27,6 +27,8 @@ trait ScValueOrVariable extends ScBlockStatement with ScMember with ScDocComment
       _.`type`().toOption
     }
 
+  final def hasExplicitType: Boolean = typeElement.isDefined
+
   override protected def isSimilarMemberForNavigation(member: ScMember, isStrict: Boolean): Boolean = member match {
     case other: ScValueOrVariable =>
       for (thisName <- declaredNames;
