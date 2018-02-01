@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, DoesNotTakeParameters, ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, DoesNotTakeParameters, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**

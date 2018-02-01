@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import scala.annotation.tailrec
-import scala.collection.Seq
-import scala.language.implicitConversions
-
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiParameterExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
@@ -14,8 +10,13 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement, ScalaPsiUtil}
+
+import scala.annotation.tailrec
+import scala.collection.Seq
+import scala.language.implicitConversions
 
 /**
   * Nikolay.Tropin

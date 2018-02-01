@@ -9,8 +9,6 @@ package typedef
  * @author ilyas
  */
 
-import javax.swing.Icon
-
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.navigation._
@@ -21,6 +19,7 @@ import com.intellij.psi.impl._
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.intellij.util.VisibilityIcons
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.conversion.JavaToScala
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -38,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionE
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.projectView.{ClassAndCompanionObject, SingularDefinition, TraitAndCompanionObject}

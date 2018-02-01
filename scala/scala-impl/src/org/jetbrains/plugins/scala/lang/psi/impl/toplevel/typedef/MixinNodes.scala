@@ -8,12 +8,6 @@ package impl
 package toplevel
 package typedef
 
-import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.generic.FilterMonadic
-import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiClass, PsiClassType, PsiElement}
 import com.intellij.util.containers.ContainerUtil
@@ -25,11 +19,18 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
+import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.collection.generic.FilterMonadic
+import scala.collection.mutable
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 abstract class MixinNodes {
   type T

@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.types.api.designator
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 /**
