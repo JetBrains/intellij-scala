@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
   */
 
 abstract class ScalaLightCodeInsightFixtureTestAdapter
-  extends LightCodeInsightFixtureTestCase with DefaultScalaSdkOwner {
+  extends LightCodeInsightFixtureTestCase with DefaultScalaSdkOwner with FailableTest {
 
   override def getFixture: CodeInsightTestFixture = myFixture
 
@@ -48,8 +48,19 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     getFixture.configureByText(ScalaFileType.INSTANCE, text)
     CodeFoldingManager.getInstance(getProject).buildInitialFoldings(getEditor)
 
-    getFixture.testHighlighting(false, false, false, getFile.getVirtualFile)
+    if (shouldPass) {
+      getFixture.testHighlighting(false, false, false, getFile.getVirtualFile)
+    } else {
+      try {
+        getFixture.testHighlighting(false, false, false, getFile.getVirtualFile)
+      } catch {
+        case _: AssertionError => return
+      }
+      failingTestPassed()
+    }
   }
+
+  protected def failingTestPassed(): Unit = throw new RuntimeException(failingPassed)
 }
 
 object ScalaLightCodeInsightFixtureTestAdapter {

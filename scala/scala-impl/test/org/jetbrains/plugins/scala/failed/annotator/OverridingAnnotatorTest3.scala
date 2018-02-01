@@ -13,6 +13,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class OverridingAnnotatorTest3 extends ScalaInspectionTestBase {
 
+  override protected def shouldPass: Boolean = false
+
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =

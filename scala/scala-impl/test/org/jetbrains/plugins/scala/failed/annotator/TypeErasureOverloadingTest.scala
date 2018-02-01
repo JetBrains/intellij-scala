@@ -9,6 +9,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class TypeErasureOverloadingTest extends BadCodeGreenTestBase {
 
+  override protected def shouldPass: Boolean = false
+
   def testSCL9276(): Unit = {
     doTest(
       """class Example {

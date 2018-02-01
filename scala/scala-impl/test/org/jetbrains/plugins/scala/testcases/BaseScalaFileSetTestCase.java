@@ -82,9 +82,17 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
     String temp = transform(testName, input.toArray(new String[input.size()]));
     transformed = StringUtil.replace(temp ,"\r", "");
 
-    Assert.assertEquals(result.trim(), transformed.trim());
+    if (shouldPass()) {
+      Assert.assertEquals(result.trim(), transformed.trim());
+    } else {
+      Assert.assertNotEquals(result.trim(), transformed.trim());
+    };
 
     //fixTestData(..., input, transformed)
+  }
+
+  protected boolean shouldPass() {
+    return true;
   }
 
   //creates directory on dataPath1 with new fixed testData

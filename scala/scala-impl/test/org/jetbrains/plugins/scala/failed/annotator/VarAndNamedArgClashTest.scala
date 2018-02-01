@@ -8,6 +8,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class VarAndNamedArgClashTest extends BadCodeGreenTestBase {
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL2194(): Unit = {
     doTest(
       """object t {

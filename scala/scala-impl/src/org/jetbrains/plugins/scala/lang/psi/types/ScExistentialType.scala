@@ -496,8 +496,8 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
 
   def recursiveVarianceUpdateModifiableNoUpdate[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
                                                             variance: Variance = Covariant): ScExistentialArgument = {
-    ScExistentialArgument(name, args, lower.recursiveVarianceUpdateModifiable(data, update, -variance),
-      upper.recursiveVarianceUpdateModifiable(data, update, variance))
+    ScExistentialArgument(name, args, lower.recursiveVarianceUpdateModifiable(data, update, Contravariant),
+      upper.recursiveVarianceUpdateModifiable(data, update, Covariant))
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),

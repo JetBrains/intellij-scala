@@ -9,6 +9,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ExistentialConformanceTest extends TypeConformanceTestBase {
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL9402(): Unit = {
     val text =
       """import scala.language.existentials

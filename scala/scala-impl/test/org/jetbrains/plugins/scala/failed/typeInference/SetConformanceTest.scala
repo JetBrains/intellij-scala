@@ -10,6 +10,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class SetConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL4941(): Unit = checkTextHasNoErrors(
     s"""
        |def f(collect: Iterable[Int]): Unit = {

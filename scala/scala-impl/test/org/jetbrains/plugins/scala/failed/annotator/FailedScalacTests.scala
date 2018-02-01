@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.failed.annotator
 
 import java.io.File
 
+import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.projectHighlighting.ScalacTestdataHighlightingTestBase
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -17,15 +18,31 @@ import scala.reflect.NameTransformer
   */
 abstract class FailedScalacTestsBase extends ScalacTestdataHighlightingTestBase {
 
-  override val reporter = new ConsoleReporter(filesWithProblems = Map.empty)
+  override lazy val reporter = new ConsoleReporter(filesWithProblems)
 
   def testDataDir: String = s"${TestUtils.getTestDataPath}/scalacTests/$testDirName/"
 
   def testDirName: String
 
+  def fileName = getTestName(/*lowercaseFirstLetter*/ false).stripPrefix("_")
+
+  def filesWithProblems: Map[String, Set[TextRange]] = {
+    import org.jetbrains.plugins.scala.projectHighlighting._
+    getTestName(true) match {
+      case "_t7232c" => Map("Test.scala" -> Set())
+      case "_t7364b" => Map("UseIt_2.scala" -> Set((68, 79), (56, 64)))
+      case "_t4365" => Map("a_1.scala" -> Set((535, 557)))
+      case "_t5545" => Map("S_2.scala" -> Set((64, 66)), "S_1.scala" -> Set((64, 66)))
+      case "_t6169" => Map("skinnable.scala" -> Set(), "t6169.scala" -> Set())
+      case "_t8497" => Map("A_1.scala" -> Set())
+      case "_t8934a" => Map("Test_2.scala" -> Set((36, 49)))
+      case "_t8781" => Map("Test_2.scala" -> Set((82, 91)))
+      case _ => Map((NameTransformer.decode(fileName) + ".scala", Set.empty))
+    }
+  }
+
   override def filesToHighlight: Array[File] = {
 
-    val fileName = getTestName(/*lowercaseFirstLetter*/ false).stripPrefix("_")
     val decoded = NameTransformer.decode(fileName)
     val dirPath = testDataDir + decoded
     val dir = new File(dirPath)

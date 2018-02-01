@@ -10,6 +10,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class TupleTypeInfererenceTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  override protected def shouldPass: Boolean = false
+
   def testSCL11331(): Unit =
     checkTextHasNoErrors(
       """

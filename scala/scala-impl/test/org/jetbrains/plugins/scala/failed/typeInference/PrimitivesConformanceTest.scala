@@ -10,6 +10,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class PrimitivesConformanceTest extends TypeConformanceTestBase{
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL5358() = doTest(
       """
         |final val x = 0

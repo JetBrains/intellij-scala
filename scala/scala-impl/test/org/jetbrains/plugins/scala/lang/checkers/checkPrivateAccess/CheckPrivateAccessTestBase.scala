@@ -10,6 +10,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiMember
 import com.intellij.psi.util.PsiTreeUtil
+import junit.framework.Assert
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -51,6 +52,9 @@ abstract class CheckPrivateAccessTestBase extends ScalaLightPlatformCodeInsightT
         text.substring(2, text.length - 2).trim
       case _ => assertTrue("Test result must be in last comment statement.", false)
     }
-    assertEquals(output, res.toString)
+    assertTrue(format(failureMessage, output, res.toString), output == res.toString && shouldPass)
   }
+
+  protected def shouldPass: Boolean = true
+  protected def failureMessage: String = if (shouldPass) "Result differs from reference: " else "Test has passed, but was supposed to fail: "
 }

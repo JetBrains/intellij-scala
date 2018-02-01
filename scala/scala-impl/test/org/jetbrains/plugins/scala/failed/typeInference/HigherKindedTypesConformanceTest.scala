@@ -11,6 +11,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class HigherKindedTypesConformanceTest extends TypeConformanceTestBase {
 
+  override protected def shouldPass: Boolean = false
+
   def testSCL9713(): Unit = doTest(
     """
       |import scala.language.higherKinds

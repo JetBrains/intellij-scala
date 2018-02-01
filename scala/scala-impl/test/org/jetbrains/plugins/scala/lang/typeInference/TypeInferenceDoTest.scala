@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.base.FailableTest
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -11,7 +12,7 @@ import org.junit.Assert._
 /**
   * Created by Svyatoslav Ilinskiy on 01.07.16.
   */
-trait TypeInferenceDoTest {
+trait TypeInferenceDoTest extends FailableTest {
   protected val START = "/*start*/"
   protected val END = "/*end*/"
   private val fewVariantsMarker = "Few variants:"
@@ -40,7 +41,7 @@ trait TypeInferenceDoTest {
             val resText = text.substring(2, text.length - 2).trim
             if (resText.startsWith(fewVariantsMarker)) {
               val results = resText.substring(fewVariantsMarker.length).trim.split('\n')
-              if (!results.contains(res)) assertEquals(results(0), res)
+              if (!results.contains(res)) assertTrue(!shouldPass ^ results(0) == res)
               return
             } else resText
           case _ =>
@@ -49,18 +50,19 @@ trait TypeInferenceDoTest {
         output match {
           case ExpectedPattern("<none>") =>
             expr.expectedType() match {
-              case Some(et) => fail("found unexpected expected type: %s".format(et.presentableText))
+              case Some(et) if shouldPass => fail("found unexpected expected type: %s".format(et.presentableText))
               case None => // all good
             }
           case ExpectedPattern(expectedExpectedTypeText) =>
             val actualExpectedType = expr.expectedType().getOrElse(sys.error("no expected type"))
             val actualExpectedTypeText = actualExpectedType.presentableText
-            assertEquals(expectedExpectedTypeText, actualExpectedTypeText)
+            assertTrue(!shouldPass ^ expectedExpectedTypeText == actualExpectedTypeText)
           case SimplifiedPattern(expectedText) =>
-            assertEquals(expectedText, ScTypePresentation.withoutAliases(ttypez))
-          case _ => assertEquals(output, res)
+            assertTrue(!shouldPass ^ expectedText == ScTypePresentation.withoutAliases(ttypez))
+          case _ => assertTrue(!shouldPass ^ output == res)
         }
-      case Failure(msg) => fail(msg)
+      case Failure(msg) if shouldPass => fail(msg)
+      case _ =>
     }
   }
 
