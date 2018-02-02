@@ -10,6 +10,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.android.facet.AndroidFacet
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.sbt.project.data.{AndroidFacetData, AndroidFacetNode}
+import org.junit.Assert._
 
 import scala.io.Source
 
@@ -49,28 +50,28 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
     importProjectData(generateProject(proguardConfig))
 
     val module = ModuleManager.getInstance(getProject).findModuleByName("Module 1")
-    assert(module != null)
+    assertNotNull("Module expected", module)
 
     val facet = FacetManager.getInstance(module).getFacetByType(AndroidFacet.ID)
-    assert(facet != null)
+    assertNotNull("Android faced expected", facet)
 
     val properties = facet.getConfiguration.getState
-    assert(properties.GEN_FOLDER_RELATIVE_PATH_APT == "/../gen")
-    assert(properties.GEN_FOLDER_RELATIVE_PATH_AIDL == "/../gen")
-    assert(properties.MANIFEST_FILE_RELATIVE_PATH == "/../manifest.xml")
-    assert(properties.RES_FOLDER_RELATIVE_PATH == "/../res")
-    assert(properties.ASSETS_FOLDER_RELATIVE_PATH == "/../assets")
-    assert(properties.LIBS_FOLDER_RELATIVE_PATH == "/../libs")
-    assert(properties.APK_PATH == "/../test.apk")
-    assert(properties.myProGuardCfgFiles.isEmpty == proguardConfig.isEmpty)
-    assert(properties.RUN_PROGUARD == proguardConfig.nonEmpty)
+    assertEquals("/../gen", properties.GEN_FOLDER_RELATIVE_PATH_APT)
+    assertEquals("/../gen", properties.GEN_FOLDER_RELATIVE_PATH_AIDL)
+    assertEquals("/../manifest.xml", properties.MANIFEST_FILE_RELATIVE_PATH)
+    assertEquals("/../res", properties.RES_FOLDER_RELATIVE_PATH)
+    assertEquals("/../assets", properties.ASSETS_FOLDER_RELATIVE_PATH)
+    assertEquals("/../libs", properties.LIBS_FOLDER_RELATIVE_PATH)
+    assertEquals("/../test.apk", properties.APK_PATH)
+    assertEquals(proguardConfig.isEmpty, properties.myProGuardCfgFiles.isEmpty)
+    assertEquals(proguardConfig.nonEmpty, properties.RUN_PROGUARD)
 
     if (proguardConfig.nonEmpty) {
       import scala.collection.JavaConverters._
       val proguardConfigPath = FileUtil.toSystemDependentName(getProject.getBasePath + "/proguard-sbt.txt")
-      assert(properties.myProGuardCfgFiles.asScala.toSeq == Seq(proguardConfigPath))
+      assertEquals(Seq(proguardConfigPath), properties.myProGuardCfgFiles.asScala)
       val actualProguardConfig = using(Source.fromFile(proguardConfigPath))(_.getLines().toVector)
-      assert(actualProguardConfig == proguardConfig)
+      assertEquals(proguardConfig, actualProguardConfig)
     }
   }
 
