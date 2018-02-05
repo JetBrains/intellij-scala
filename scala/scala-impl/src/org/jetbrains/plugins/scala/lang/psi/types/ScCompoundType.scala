@@ -86,22 +86,22 @@ case class ScCompoundType(components: Seq[ScType],
       case (s: String, sign) => (s, sign.updateTypes(_.removeAbstracts))
     })
 
-  override def updateSubtypes(update: Update, visited: Set[ScType]): ScCompoundType = {
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScCompoundType = {
     def updateTypeParam: TypeParameter => TypeParameter = {
       case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
         TypeParameter(typeParameters.map(updateTypeParam),
-          lowerType.recursiveUpdateImpl(update, visited, isLazySubtype = true),
-          upperType.recursiveUpdateImpl(update, visited, isLazySubtype = true),
+          lowerType.recursiveUpdateImpl(updates, visited, isLazySubtype = true),
+          upperType.recursiveUpdateImpl(updates, visited, isLazySubtype = true),
           psiTypeParameter)
     }
 
-    new ScCompoundType(components.map(_.recursiveUpdateImpl(update, visited)), signatureMap.map {
+    new ScCompoundType(components.map(_.recursiveUpdateImpl(updates, visited)), signatureMap.map {
       case (s: Signature, tp) =>
 
         val pTypes: Seq[Seq[() => ScType]] =
-          s.substitutedTypes.map(_.map(f => () => f().recursiveUpdateImpl(update, visited, isLazySubtype = true)))
+          s.substitutedTypes.map(_.map(f => () => f().recursiveUpdateImpl(updates, visited, isLazySubtype = true)))
         val tParams = s.typeParams.subst(updateTypeParam)
-        val rt: ScType = tp.recursiveUpdateImpl(update, visited)
+        val rt: ScType = tp.recursiveUpdateImpl(updates, visited)
         (new Signature(
           s.name, pTypes, tParams, ScSubstitutor.empty, s.namedElement match {
             case fun: ScFunction =>
@@ -112,7 +112,7 @@ case class ScCompoundType(components: Seq[ScType],
           }, s.hasRepeatedParam
         ), rt)
     }, typesMap.map {
-      case (s, sign) => (s, sign.updateTypes(_.recursiveUpdateImpl(update, visited, isLazySubtype = true)))
+      case (s, sign) => (s, sign.updateTypes(_.recursiveUpdateImpl(updates, visited, isLazySubtype = true)))
     })
   }
 

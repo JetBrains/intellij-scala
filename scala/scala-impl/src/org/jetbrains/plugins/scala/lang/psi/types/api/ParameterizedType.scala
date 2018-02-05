@@ -30,10 +30,10 @@ trait ParameterizedType extends ValueType {
   override def removeAbstracts = ParameterizedType(designator.removeAbstracts,
     typeArguments.map(_.removeAbstracts))
 
-  override def updateSubtypes(update: Update, visited: Set[ScType]): ValueType = {
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ValueType = {
     ParameterizedType(
-      designator.recursiveUpdateImpl(update, visited),
-      typeArguments.map(_.recursiveUpdateImpl(update, visited))
+      designator.recursiveUpdateImpl(updates, visited),
+      typeArguments.map(_.recursiveUpdateImpl(updates, visited))
     )
   }
 

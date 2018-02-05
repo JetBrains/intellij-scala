@@ -58,12 +58,12 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
 
   override def removeAbstracts: ScType = simplifyType
 
-  override def updateSubtypes(update: Update, visited: Set[ScType]): ScAbstractType = {
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScAbstractType = {
     try {
       ScAbstractType(
-        parameterType.recursiveUpdateImpl(update, visited).asInstanceOf[TypeParameterType],
-        lower.recursiveUpdateImpl(update, visited),
-        upper.recursiveUpdateImpl(update, visited)
+        parameterType.recursiveUpdateImpl(updates, visited).asInstanceOf[TypeParameterType],
+        lower.recursiveUpdateImpl(updates, visited),
+        upper.recursiveUpdateImpl(updates, visited)
       )
     }
     catch {

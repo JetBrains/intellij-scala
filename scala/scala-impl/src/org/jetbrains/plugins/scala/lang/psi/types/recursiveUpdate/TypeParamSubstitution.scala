@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamId, TypeParamIdOwner}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 
@@ -18,7 +19,7 @@ private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends Substit
     case (id, tp) => params.typeParamName(id) + " -> " + tp.toString
   }.mkString("Map(", ", ", ")")
 
-  override val update: PartialFunction[ScType, ScType] = {
+  override protected val subst: PartialFunction[ScType, ScType] = {
     case a: ScAbstractType     => updatedAbstract(a)
     case u: UndefinedType      => updatedUndefined(u)
     case t: TypeParameterType  => updatedTypeParameter(t)

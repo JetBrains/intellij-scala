@@ -21,8 +21,8 @@ case class JavaArrayType(argument: ScType) extends ValueType {
 
   override def removeAbstracts = JavaArrayType(argument.removeAbstracts)
 
-  override def updateSubtypes(update: Update, visited: Set[ScType]): JavaArrayType = {
-    JavaArrayType(argument.recursiveUpdateImpl(update, visited))
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): JavaArrayType = {
+    JavaArrayType(argument.recursiveUpdateImpl(updates, visited))
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T,

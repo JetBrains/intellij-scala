@@ -46,11 +46,11 @@ case class ScExistentialType(quantified: ScType,
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
     wildcards.map(_.withoutAbstracts))
 
-  override def updateSubtypes(update: Update, visited: Set[ScType]): ScExistentialType = {
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialType = {
     try {
       ScExistentialType(
-        quantified.recursiveUpdateImpl(update, visited),
-        wildcards.map(_.updateSubtypes(update, visited))
+        quantified.recursiveUpdateImpl(updates, visited),
+        wildcards.map(_.updateSubtypes(updates, visited))
       )
     } catch {
       case _: ClassCastException => throw new RecursiveUpdateException
@@ -476,8 +476,10 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
 
   def withoutAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lower.removeAbstracts, upper.removeAbstracts)
 
-  override def updateSubtypes(update: Update, visited: Set[ScType]): ScExistentialArgument = {
-    ScExistentialArgument(name, args, lower.recursiveUpdateImpl(update, visited), upper.recursiveUpdateImpl(update, visited))
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialArgument = {
+    ScExistentialArgument(name, args,
+      lower.recursiveUpdateImpl(updates, visited),
+      upper.recursiveUpdateImpl(updates, visited))
   }
 
   def recursiveVarianceUpdateModifiableNoUpdate[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),

@@ -17,13 +17,12 @@ private case class DepMethodParamSubstitution(depMethodTypes: LazyDepMethodTypes
   //todo
   override def toString: String = getClass.getSimpleName
 
-  val update: PartialFunction[ScType, ScType] = {
+  override protected val subst: PartialFunction[ScType, ScType] = {
     case d @ ScDesignatorType(p: ScParameter) =>
       val depMethodParamType = depMethodTypes.value.collectFirst {
         case (parameter: Parameter, tp: ScType) if parameter.paramInCode.contains(p) => tp
       }
       depMethodParamType.getOrElse(d)
-    case d: ScDesignatorType => d
   }
 }
 

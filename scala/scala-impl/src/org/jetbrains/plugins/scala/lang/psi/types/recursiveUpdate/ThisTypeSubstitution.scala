@@ -19,7 +19,7 @@ private case class ThisTypeSubstitution(target: ScType) extends Substitution {
 
   override def toString: String = s"`this` -> $target"
 
-  override val update: PartialFunction[ScType, ScType] = {
+  override protected val subst: PartialFunction[ScType, ScType] = {
     case th: ScThisType if !hasRecursiveThisType(target, th.element) => doUpdateThisType(th, target)
   }
 

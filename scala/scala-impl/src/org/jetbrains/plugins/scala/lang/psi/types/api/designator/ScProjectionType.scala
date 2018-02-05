@@ -80,8 +80,8 @@ class ScProjectionType private(val projected: ScType,
 
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element)
 
-  override def updateSubtypes(update: Update, visited: Set[ScType]): ScType = {
-    ScProjectionType(projected.recursiveUpdateImpl(update, visited), element)
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScType = {
+    ScProjectionType(projected.recursiveUpdateImpl(updates, visited), element)
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),

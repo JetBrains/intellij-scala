@@ -111,8 +111,8 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     params.map(p => p.copy(paramType = p.paramType.removeAbstracts)),
     isImplicit)
 
-  override def updateSubtypes(update: Update, visited: Set[ScType]): ScMethodType = {
-    def updated(t: ScType) = t.recursiveUpdateImpl(update, visited)
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScMethodType = {
+    def updated(t: ScType) = t.recursiveUpdateImpl(updates, visited)
 
     ScMethodType(updated(returnType), params.map(p => p.copy(
         paramType = updated(p.paramType),
@@ -228,14 +228,14 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           psiTypeParameter)
     })
 
-  override def updateSubtypes(update: Update, visited: Set[ScType]): ScType = {
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScType = {
     ScTypePolymorphicType(
-      internalType.recursiveUpdateImpl(update, visited),
+      internalType.recursiveUpdateImpl(updates, visited),
       typeParameters.map {
         case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
           TypeParameter(parameters, // TODO: ?
-            lowerType.recursiveUpdateImpl(update, visited, isLazySubtype = true),
-            upperType.recursiveUpdateImpl(update, visited, isLazySubtype = true),
+            lowerType.recursiveUpdateImpl(updates, visited, isLazySubtype = true),
+            upperType.recursiveUpdateImpl(updates, visited, isLazySubtype = true),
             psiTypeParameter)
       })
   }

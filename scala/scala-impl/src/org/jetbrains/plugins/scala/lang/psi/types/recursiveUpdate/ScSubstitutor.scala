@@ -25,9 +25,8 @@ final class ScSubstitutor private(private val substitutions: Array[Substitution]
     if (ScSubstitutor.cacheSubstitutions)
       ScSubstitutor.cache ++= this.allTypeParamsMap
 
-    substitutions.foldLeft(t) { (tp, substitution) =>
-      tp.updateRecursively(substitution.update)
-    }
+    val view = substitutions.view //has more efficient `.tail` operation
+    t.recursiveUpdateImpl(view)
   }
 
   def followed(other: ScSubstitutor): ScSubstitutor = {
