@@ -13,11 +13,7 @@ import org.junit.experimental.categories.Category
 class MissingParamterClass extends FailedResolveTest("missingParameter") {
   def testSCL8967(): Unit = doTest()
 
-  def testSCL12120(): Unit = doTest()
+  def testSCL9719(): Unit = doTest()
 
-  def testSCL9719(): Unit = findReferenceAtCaret() match {
-    case ref: ScReferenceElement =>
-      val variants = ref.multiResolveScala(false)
-      assertTrue(s"Single valid resolve expected, was: ${variants.length}", variants.length == 1 && variants.head.isValidResult)
-  }
+  def testSCL12120(): Unit = doTest()
 }

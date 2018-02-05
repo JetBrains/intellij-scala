@@ -98,7 +98,7 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
                 ioe.getCause match {
                   case ioe2: IOException if ioe2.getMessage.contains("error=2") =>
                     throw new AmmNotFoundException(
-                      s"<br>Can't find Ammonite distributive:<br> ${ioe2.getMessage} <br>" + "<br> <a href=\"azaza\">Specify amm executable path?</a>",
+                      s"<br>Can't find Ammonite:<br> ${ioe2.getMessage} <br>" + "<br> <a href=\"azaza\">Specify amm executable path?</a>",
                       pne.getCommandLine,
                       project
                     )

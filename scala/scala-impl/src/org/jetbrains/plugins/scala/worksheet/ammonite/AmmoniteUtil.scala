@@ -11,10 +11,12 @@ import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.util.containers.ContainerUtilRt
 import org.jetbrains.jps.model.java.JavaSourceRootType
+import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfo
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
@@ -34,7 +36,7 @@ import scala.util.matching.Regex
 object AmmoniteUtil {
   val AMMONITE_EXTENSION = "sc"
   
-   val DEFAULT_VERSION = "2.12"
+  val DEFAULT_VERSION = "2.12"
   private val ROOT_FILE = "$file"
   private val ROOT_EXEC = "$exec"
   private val ROOT_IVY = "$ivy"
@@ -199,9 +201,35 @@ object AmmoniteUtil {
     }
   }
 
-  def isAmmoniteSpecificImport(expr: ScImportExpr): Boolean = {
-    val txt = expr.getText
+  private def isAmmonteRefText(txt: String): Boolean =
     txt.startsWith(ROOT_EXEC) || txt.startsWith(ROOT_FILE) || txt.startsWith(ROOT_IVY) || txt.startsWith(ROOT_PLUGIN)
+  
+  def isAmmoniteSpecificTextImport(expr: ScImportExpr): Boolean = isAmmonteRefText(expr.getText)
+  
+  def isAmmoniteSpecificImport(imp: ImportInfo): Boolean = isAmmonteRefText(imp.prefixQualifier)
+  
+  def isAmmoniteSpecificImport(expr: ScImportExpr): Boolean = expr.getContainingFile match {
+    case scalaFile: ScalaFile if isAmmoniteFile(scalaFile) => isAmmoniteSpecificTextImport(expr)
+    case _ => false
+  }
+  
+  def isAmmoniteSpecificImport(imp: ImportUsed): Boolean = imp.e match {
+    case expr: ScImportExpr => isAmmoniteSpecificImport(expr)
+    case selector: ScImportSelector => 
+      selector.getContext match {
+        case selectors: ScImportSelectors => selectors.getContext match {
+          case expr: ScImportExpr => return isAmmoniteSpecificImport(expr)
+          case _ => 
+        }
+        case _ => 
+      }
+      
+      false
+    case _ => false
+  }
+  
+  def processAmmoniteImportUsed(imp: ScImportExpr, importsUsed: ArrayBuffer[ImportUsed]) {
+    if (isAmmoniteSpecificImport(imp)) importsUsed += ImportExprUsed(imp)
   }
 
   sealed trait FileTree

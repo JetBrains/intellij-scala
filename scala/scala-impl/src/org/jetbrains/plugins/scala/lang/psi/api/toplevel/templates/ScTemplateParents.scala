@@ -5,7 +5,7 @@ package api
 package toplevel
 package templates
 
-import com.intellij.psi.PsiClass
+import com.intellij.psi.{PsiClass, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -36,6 +36,12 @@ trait ScTemplateParents extends ScalaPsiElement {
     findChildrenByClassScala(classOf[ScTypeElement])
   def superTypes: Seq[ScType]
   def supers: Seq[PsiClass] = ScTemplateParents.extractSupers(allTypeElements)
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case visitor: ScalaElementVisitor => visitor.visitTemplateParents(this)
+      case _ => visitor.visitElement(this)
+    }
+  }
 }
 
 object ScTemplateParents {

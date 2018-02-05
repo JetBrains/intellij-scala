@@ -101,6 +101,15 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     }
   }
 
+  protected def checkCaretResolves(): Unit = {
+    val ref = refAtCaret
+    val result = ref.multiResolveScala(false)
+    if (result.isEmpty)
+      Assert.fail(s"Reference $ref failed to resolve")
+    else if (result.length > 1)
+      Assert.fail(s"Reference $ref resolved to multiple elements: ${result.mkString("\n")}")
+  }
+
   protected def checkExpandsNoError(): Unit = {
     import scala.meta.intellij.psiExt._
     testClass.getMetaExpansion match {
@@ -108,6 +117,8 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
       case _ =>
     }
   }
+
+  protected def checkHasMember(name: String): Unit = Assert.assertTrue(s"Member $name not found", testClass.members.exists(_.getName == name))
 
   protected def getGutter: GutterIconRenderer = {
     val gutters = myFixture.findAllGutters()

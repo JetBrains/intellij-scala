@@ -4,6 +4,7 @@ package annotator
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 
 /**
@@ -53,20 +54,21 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }*/
 
-  def testWildchar() {
+  def testSCL13258() {
     assertMatches(messages("val v: A = _")) {
-      case Nil =>
+      case Error("_", "Unbound placeholder parameter") :: Nil =>
     }
   }
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val file = (Header + code).parse
     val definition = file.depthFirst().findByType[ScPatternDefinition].get
-    
-    val annotator = new PatternDefinitionAnnotator() {}
+
+    val annotator = ScalaAnnotator.forProject(ctx)//new PatternDefinitionAnnotator() {}
     val mock = new AnnotatorHolderMock(file)
     
     annotator.annotatePatternDefinition(definition, mock, highlightErrors = true)
+    file.depthFirst().findByType[ScUnderscoreSection].foreach(annotator.annotate(_, mock))
     mock.annotations
   }
   

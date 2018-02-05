@@ -12,4 +12,6 @@ class OverloadedResolutionTest extends FailedResolveTest("overloadedResolution")
   def testSCL2911(): Unit = doTest()
 
   def testSCL12052(): Unit = doTest()
+
+  def testSCL9892(): Unit = doTest()
 }

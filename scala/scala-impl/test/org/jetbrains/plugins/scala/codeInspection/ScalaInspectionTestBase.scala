@@ -28,15 +28,20 @@ abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestA
 
   protected override final def checkTextHasNoErrors(text: String): Unit = {
     val ranges = findRanges(text)
-    assertTrue(s"Highlights found at: ${ranges.mkString(", ")}.", ranges.isEmpty)
+    assertTrue(if (shouldPass) s"Highlights found at: ${ranges.mkString(", ")}." else failingPassed,
+      !shouldPass ^ ranges.isEmpty)
   }
 
   protected final def checkTextHasError(text: String): Unit = {
     val ranges = findRanges(text)
-    assertTrue(s"Highlights not found: $description", ranges.nonEmpty)
-
     val range = selectedRange(getEditor.getSelectionModel)
-    assertTrue(s"Highlights found at: ${ranges.mkString(", ")}, not found: $range", ranges.contains(range))
+    if (shouldPass) {
+      assertTrue(s"Highlights not found: $description", ranges.nonEmpty)
+      assertTrue(s"Highlights found at: ${ranges.mkString(", ")}, not found: $range", ranges.contains(range))
+    } else {
+      assertTrue(failingPassed, ranges.isEmpty)
+      assertFalse(failingPassed, ranges.contains(range))
+    }
   }
 
   protected final def configureByText(text: String): Seq[(HighlightInfo, TextRange)] = {

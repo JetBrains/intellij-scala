@@ -13,8 +13,8 @@ abstract class FailedResolveCaretTestBase extends SimpleTestCase {
     val (psi, caretPos) = parseText(code, EditorTestUtil.CARET_TAG)
     val reference = psi.findElementAt(caretPos).getParent
     reference match {
-      case r: ScReferenceElement => assert(r.resolve() != null, "failed to resolve enclosing object")
-      case _ => assert(true)
+      case r: ScReferenceElement => assert(r.resolve() == null, "failed to resolve enclosing object")
+      case _ => throw new RuntimeException(failingPassed)
     }
   }
 

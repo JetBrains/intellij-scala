@@ -10,7 +10,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class CheckAccessTest extends CheckPrivateAccessTestBase {
+  override def shouldPass: Boolean = false
+
   override def folderPath: String = super.folderPath + "failed/"
-  
+
   def testSCL9212() = doTest()
 }

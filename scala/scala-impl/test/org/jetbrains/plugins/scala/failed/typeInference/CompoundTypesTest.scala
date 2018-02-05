@@ -11,6 +11,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class CompoundTypesTest extends TypeConformanceTestBase {
 
+  override protected def shouldPass: Boolean = false
+
   def testSCL4824_A(): Unit = {
     doTest(
       """

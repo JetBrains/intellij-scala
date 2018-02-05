@@ -9,8 +9,6 @@ import org.junit.experimental.categories.Category
   * @since 31.03.2016.
   */
 @Category(Array(classOf[PerfCycleTests]))
-class TypeAliasConstructorTest extends ResolveTestBase {
-  override def folderPath: String = super.folderPath + "bug3/"
-
+class TypeAliasConstructorTest extends FailedResolveTest("typeAlias") {
   def testSCL6041() = doTest()
 }

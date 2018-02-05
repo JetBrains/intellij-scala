@@ -10,6 +10,8 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
+  override protected def shouldPass: Boolean = false
+
   def testSCL4655(): Unit = {
     assertMatches(messages(
       """

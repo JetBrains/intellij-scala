@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.highlighting.decompiler.DecompilerHighli
 @Category(Array(classOf[PerfCycleTests]))
 class FailedDecompilerHighlightingTest extends DecompilerHighlightingTestBase {
 
+  override protected def shouldPass: Boolean = false
+
   def testTypers() = doTest("Typers.class")
 
   def testReifiers() = doTest("Reifiers.class")

@@ -14,6 +14,8 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ArgumentTypeMismatchTest extends SimpleTestCase {
+  override protected def shouldPass: Boolean = false
+
   def testSCL4687() = {
     val code =
       """
@@ -29,10 +31,10 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
         |  goo(foo).m(1)
         |}
       """.stripMargin
-    assert(messages(code).isEmpty)
+    assertNothing(messages(code))
   }
 
-  def testSCL9686() = assert(
+  def testSCL9686() = assertNothing(
     messages {
       """
         |class Scl9686 {
@@ -60,7 +62,7 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
         |    }
         |  }
         |}""".stripMargin
-    }.isEmpty
+    }
   )
 
   def messages(@Language(value = "Scala") code: String) = {
