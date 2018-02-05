@@ -8,8 +8,6 @@ class InlineRefactoringWarningsTest extends InlineRefactoringTestBase {
 
   def testAnonFun() = doTest()
 
-  def testAnonFunFromMethod() = doTest()
-
   def testNeverUsed() = doTest()
 
   def testNotSimplePattern() = doTest()
