@@ -78,6 +78,8 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   protected def updateFoldings(foldings: Seq[(Int, Int, Int, Int)]) {
     CommandProcessor.getInstance().executeCommand(project, new Runnable {
       override def run() {
+        val isExpanded = !ScalaProjectSettings.getInstance(project).isWorksheetFoldCollapsedByDefault
+        
         viewerFolding runBatchFoldingOperation(new Runnable {
           override def run() {
             foldings foreach {
@@ -86,7 +88,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
                 val linesCount = viewerDocument.getLineNumber(end) - start - limit + 1
                 
                 group.addRegion(viewerFolding, viewerDocument.getLineStartOffset(start + limit - 1), end,
-                  offset, linesCount, limit, isExpanded = false)
+                  offset, linesCount, limit, isExpanded)
             }
 
             WorksheetFoldGroup.save(getScalaFile, group)
