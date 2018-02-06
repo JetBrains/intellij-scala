@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTraitParents}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
@@ -62,8 +63,8 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
 }
 
 object FunctionTupleSyntacticSugarInspection {
-  val FunctionN = """scala.Function(\d)""".r
-  val TupleN = """scala.Tuple(\d)""".r
+  val FunctionN = s"""${FunctionType.TypeName}(\d)""".r
+  val TupleN = s"""${TupleType.TypeName}(\d)""".r
   
   import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
