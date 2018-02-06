@@ -2,19 +2,18 @@ package org.jetbrains.plugins.scala
 package project.gradle
 
 import java.io.File
-import java.util
 
 import com.intellij.openapi.externalSystem.model.project.ProjectData
-import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException, ProjectKeys}
-import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationSource, NotificationCategory, NotificationData}
-import com.intellij.openapi.externalSystem.service.project.{IdeModifiableModelsProvider, IdeModelsProvider}
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
+import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
+import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.gradle.model.data.ScalaModelData
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.sbt.project.data.service.{Importer, AbstractImporter, AbstractDataService}
+import org.jetbrains.sbt.project.data.service.{AbstractDataService, AbstractImporter, Importer}
 
 import scala.collection.JavaConverters._
 
@@ -40,23 +39,36 @@ private object ScalaGradleDataService {
     override def importData(): Unit =
       dataToImport.foreach(doImport)
 
-    private def doImport(scalaNode: DataNode[ScalaModelData]): Unit =
+    private def doImport(scalaNode: DataNode[ScalaModelData]): Unit = {
+      Option(scalaNode.getData(ProjectKeys.MODULE)).foreach { moduleData =>
+        val moduleName = moduleData.getInternalName
+
+        (findIdeModule(moduleName),
+          findIdeModule(s"${moduleName}_main"),
+          findIdeModule(s"${moduleName}_test")) match {
+
+          case (_, Some(productionModule), Some(testModule)) =>
+            configureModules(productionModule, testModule)(scalaNode.getData)
+
+          case (Some(compoundModule), _, _) =>
+            configureModules(compoundModule)(scalaNode.getData)
+
+          case _ =>
+        }
+      }
+    }
+
+    private def configureModules(mainModule: Module, otherModules: Module*)(data: ScalaModelData): Unit = {
       for {
-        module <- getIdeModulesByNode(scalaNode)
-        compilerOptions = compilerOptionsFrom(scalaNode.getData)
-        compilerClasspath = scalaNode.getData.getScalaClasspath.asScala.toSeq
+        module <- mainModule +: otherModules
+        compilerOptions = compilerOptionsFrom(data)
+        compilerClasspath = data.getScalaClasspath.asScala.toSeq
       } {
         module.configureScalaCompilerSettingsFrom("Gradle", compilerOptions)
-        if (module.getName.endsWith("_main")) {
+        if (module == mainModule) {
           configureScalaSdk(module, compilerClasspath)
         }
       }
-
-    private def getIdeModulesByNode(node: DataNode[_]): Seq[Module] = {
-      Option(node.getData(ProjectKeys.MODULE))
-        .map(_.getInternalName)
-        .map(name => findIdeModule(name + "_main").toSeq ++ findIdeModule(name + "_test").toSeq)
-        .getOrElse(Seq.empty)
     }
 
     private def configureScalaSdk(module: Module, compilerClasspath: Seq[File]): Unit = {
