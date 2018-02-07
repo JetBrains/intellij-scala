@@ -55,7 +55,62 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
       """, Seq("ScObject: Test", "ScFunctionDefinition: apply")
   )
 
-  private def doTest(fileText: String, expectedTargets: Seq[String]) = {
+  def testPackageObjectOnly(): Unit = doTest(
+    s"""
+       |package org.example.foo
+       |
+       |package object bar {
+       | def foo(): Unit = ???
+       |}
+       |
+       |import org.example.foo.b${caretTag}ar.foo
+     """, Seq("ScPackageObject: bar")
+  )
+  
+  def testPackageObjectAmbiguity(): Unit = doTest(
+    s"""
+       |package org.example.foo
+       |
+       |package object bar { }
+       |
+       |import org.example.foo.b${caretTag}ar
+     """, Seq("ScPackageObject: bar", "PsiPackage:org.example.foo.bar")
+  )
+  
+  def testImportSelectorsMixed(): Unit = doTest(
+    s"""
+       |package org.example.foo
+       |
+       |package bar {
+       |  object Bar
+       |}
+       |
+       |package object bar {
+       |  def baz(): Unit = ???
+       |}
+       |
+       |import org.example.foo.ba${caretTag}r.{Bar, baz}
+     """, Seq("PsiPackage:org.example.foo.bar", "ScPackageObject: bar")
+  )
+  
+  def testImportSelectorsExclusive(): Unit = doTest(
+    s"""
+       |package org.example.foo
+       |
+       |package bar {
+       |  object Bar
+       |}
+       |
+       |package object bar {
+       |  def baz(): Unit = ???
+       |  def qux(): Int = 52
+       |}
+       |
+       |import org.example.foo.ba${caretTag}r.{qux, baz}
+     """, Seq("ScPackageObject: bar")
+  )
+
+  private def doTest(fileText: String, expectedTargets: Seq[String]): Unit = {
     val text = ScalaLightCodeInsightFixtureTestAdapter.normalize(fileText)
     configureFromFileTextAdapter("dummy.scala", text)
 
@@ -63,7 +118,9 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
       GotoDeclarationAction
         .findAllTargetElements(getProjectAdapter, getEditorAdapter, caretOffset)
         .map(_.toString).toSeq
-    Assert.assertEquals("Wrong targets: ", expectedTargets, targets)
+    
+    Assert.assertEquals("Wrong number of targets: ", expectedTargets.size, targets.size)
+    Assert.assertEquals("Wrong targets: ", expectedTargets.toSet, targets.toSet)
   }
 
   private def caretOffset: Int = getEditorAdapter.getCaretModel.getOffset

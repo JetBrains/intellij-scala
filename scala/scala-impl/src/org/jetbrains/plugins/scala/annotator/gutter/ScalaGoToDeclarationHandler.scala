@@ -5,15 +5,17 @@ package gutter
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiElement, PsiFile, PsiMethod, ResolveResult}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScReferenceExpression, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.{isDynamicReference, resolveDynamic}
 
@@ -72,6 +74,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
           val clazz = c.containingClass
           if (clazz == scalaResolveResult.getActualElement) Seq(scalaResolveResult.element).flatMap(goToTargets)
           else all.distinct flatMap goToTargets
+        case pkg: ScPackage => resolvePackageTargets(sourceElement, pkg).flatMap(goToTargets)
         case _ =>
           all.distinct flatMap goToTargets
       }
@@ -89,16 +92,65 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
         case expression: ScReferenceExpression if isDynamicReference(expression) =>
           handleDynamicResolveResult(resolveDynamic(expression))
         case resRef: ScReferenceElement =>
-          resRef.bind() match {
-            case Some(x)  => handleScalaResolveResult(x)
-            case None => return null
-          }
+          resRef.multiResolveScala(incomplete = false).flatMap(handleScalaResolveResult)(collection.breakOut)
         case r =>
-          Set(r.resolve()) flatMap goToTargets
+          Seq(r.resolve()) flatMap goToTargets
       }
-      return targets.toArray
+      return targets.distinct.toArray
     }
     null
+  }
+
+  private def resolvePackageTargets(pkgSourceElem: PsiElement, pkg: ScPackage): Seq[PsiElement] = {
+    def isInPackageObject: PsiElement => Boolean = {
+      case member: ScMember if member.isSynthetic => member.getSyntheticNavigationElement.exists(isInPackageObject)
+      case e                                      => e.parentOfType(classOf[ScObject]).exists(_.isPackageObject)
+    }
+
+    def foldAmbiguously(xs: Traversable[(Boolean, Boolean)]): (Boolean, Boolean) =
+      if (xs.isEmpty) (true, true)
+      else
+        xs.foldLeft((false, false)) {
+          case ((x1, y1), (x2, y2)) => (x1 || x2, y1 || y2)
+        }
+
+    def hasReferenceToElementFromPackageObject(refs: Traversable[ScReferenceElement]): (Boolean, Boolean) =
+      foldAmbiguously(refs.map { r =>
+        val resolves = r.multiResolveScala(false)
+
+        foldAmbiguously(resolves.map { e =>
+          val inPackageObject = isInPackageObject(e.element)
+          inPackageObject -> !inPackageObject
+        })
+      })
+
+    val pkgObjectTarget = pkg.findPackageObject(pkg.getResolveScope)
+
+    val nextSegment = for {
+      _      <- pkgObjectTarget
+      parent <- pkgSourceElem.parent
+      dot    <- Option(parent.getNextSiblingNotWhitespaceComment)
+      if dot.getNode.getElementType == ScalaTokenTypes.tDOT
+      next <- Option(dot.getNextSiblingNotWhitespaceComment)
+    } yield next
+
+    val (hasReferenceFromPackageObject, hasReferenceFromPackage) = nextSegment.collect {
+      case selectors: ScImportSelectors =>
+        val hasWildcard = selectors.hasWildcard
+        if (hasWildcard) (true, true)
+        else {
+          val refs = selectors.selectors.flatMap(_.reference)
+          hasReferenceToElementFromPackageObject(refs)
+        }
+      case under if under.getNode.getElementType == ScalaTokenTypes.tUNDER =>
+        (true, true)
+      case ident =>
+        hasReferenceToElementFromPackageObject(ident.parentOfType(classOf[ScReferenceElement]))
+    }.getOrElse((true, true))
+
+    val pkgTarget = if (hasReferenceFromPackage) Seq(pkg) else Seq.empty
+
+    if (hasReferenceFromPackageObject) pkgTarget ++ pkgObjectTarget else pkgTarget
   }
 
   private def goToTargets(element: PsiElement): Seq[PsiElement] = {
