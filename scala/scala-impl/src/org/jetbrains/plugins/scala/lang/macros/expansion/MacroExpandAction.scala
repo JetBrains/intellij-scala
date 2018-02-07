@@ -41,8 +41,10 @@ class MacroExpandAction extends AnAction {
     Stats.trigger(FeatureKey.macroExpandAction)
 
     val sourceEditor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
-    val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument).asInstanceOf[ScalaFile]
+    val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument)
     val offset = sourceEditor.getCaretModel.getOffset
+
+    LOG.assertTrue(psiFile != null, "Couldn't find PsiFile for currently opened editor")
 
     psiFile.findElementAt(offset)
       .parentOfType(classOf[ScAnnotation], strict = false)
