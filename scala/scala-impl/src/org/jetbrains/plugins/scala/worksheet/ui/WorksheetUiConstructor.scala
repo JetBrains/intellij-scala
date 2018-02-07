@@ -1,22 +1,14 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
-import java.awt.event.{ActionEvent, ActionListener}
 import java.awt.{Component, Dimension}
-import javax.swing.event.{ChangeEvent, ChangeListener}
 import javax.swing._
 
-import com.intellij.application.options.ModulesComboBox
-import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.components.StopWorksheetAction
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.worksheet.actions.{CleanWorksheetAction, CopyWorksheetAction, InteractiveStatusDisplay, RunWorksheetAction}
-import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
+import org.jetbrains.plugins.scala.worksheet.actions._
 
 /**
   * User: Dmitry.Naydanov
@@ -48,33 +40,12 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
       statusDisplayN = new InteractiveStatusDisplay()
       statusDisplayN.init(panel)
       if (run) statusDisplayN.onSuccessfulCompiling() else statusDisplayN.onStartCompiling()
-      
+      addSplitter()
       addChild(panel, Box.createHorizontalGlue())
-
-      if (RunWorksheetAction.isScratchWorksheet(Option(file), project)) {
-        addSplitter()
-        
-        val psiPsiFound = PsiManager getInstance project findFile file
-        
-        if (psiPsiFound != null) { 
-          // this could happen if there is no suitable scala modules in the project, 
-          // but we created scratch file and we have scala plugin installed
-          Option(RunWorksheetAction.getModuleFor(psiPsiFound)) foreach {
-            cpModule =>
-              addChild(panel, createSelectClassPathList(Option(cpModule.getName), file))
-              addChild(panel, new JLabel("Use class path of module:  "))
-          }
-        }
-      }
-
-      addSplitter()
-      addChild(panel, createMakeProjectChb(file))
-      addChild(panel, createAutoRunChb(file))
-      addChild(panel, createReplModeChb(file))
-
-      
       addSplitter()
 
+      new ShowWorksheetSettingsAction().init(panel)
+      addSplitter()
       new CopyWorksheetAction().init(panel)
       addFiller()
       new CleanWorksheetAction().init(panel)
@@ -84,86 +55,7 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
 
     Option(statusDisplayN)
   }
-  
-  private def findPsiFile(vFile: VirtualFile): Option[PsiFile] = Option(PsiManager getInstance project findFile vFile)
-  
-  private def createSelectClassPathList(defaultModule: Option[String], file: VirtualFile) = {
-    val modulesBox = new ModulesComboBox()
-
-    modulesBox fillModules project
-    modulesBox.setToolTipText("Using class path of the module...")
-
-    defaultModule foreach {
-      nn =>
-        val foundModule: Module = ModuleManager getInstance project findModuleByName nn
-        if (foundModule != null) modulesBox setSelectedModule foundModule
-    }
-
-    modulesBox.addActionListener(new ActionListener {
-      override def actionPerformed(e: ActionEvent) {
-        val m = modulesBox.getSelectedModule
-
-        if (m == null) return
-
-        findPsiFile(file).foreach(psi => WorksheetCompiler.setModuleForCpName(psi, m.getName))
-      }
-    })
-
-    WorksheetUiConstructor.fixUnboundMaxSize(modulesBox, isSquare = false)  
-    
-    modulesBox
-  }
-
-  def createMakeProjectChb(file: VirtualFile): JCheckBox = {
-    createCheckBox(
-      "Make project",
-      findPsiFile(file).exists(WorksheetCompiler.isMakeBeforeRun) ,
-      box =>  new ChangeListener {
-        override def stateChanged(e: ChangeEvent) {
-          findPsiFile(file).foreach(psi => WorksheetCompiler.setMakeBeforeRun(psi, box.isSelected))
-        }
-      }
-    )
-  }
-
-  def createAutoRunChb(file: VirtualFile): JCheckBox = {
-    import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner._
-    val psiOpt = findPsiFile(file)
-
-    createCheckBox(
-      "Interactive Mode",
-      psiOpt match {
-        case Some(psiFile) if isSetEnabled(psiFile) => true
-        case Some(psiFile) if isSetDisabled(psiFile) => false
-        case _ => ScalaProjectSettings.getInstance(project).isInteractiveMode
-      },
-      box => new ChangeListener {
-        override def stateChanged(e: ChangeEvent) {
-          findPsiFile(file).foreach(psi => WorksheetAutoRunner.setAutorun(psi, box.isSelected))
-        }
-      }
-    )
-  }
-  
-  def createReplModeChb(file: VirtualFile): JCheckBox = {
-    createCheckBox(
-      "Use REPL Mode",
-      findPsiFile(file).exists(WorksheetCompiler.isWorksheetReplMode),
-      box => new ChangeListener {
-        override def stateChanged(e: ChangeEvent) {
-          findPsiFile(file).foreach(psi => WorksheetCompiler.setWorksheetReplMode(psi, box.isSelected))
-        }
-      }
-    )
-  }
-  
-  private def createCheckBox(title: String, isSelected: Boolean, listener: JCheckBox => ChangeListener) = {
-    val box = new JCheckBox(title, isSelected)
-    box addChangeListener listener(box)
-    box.setAlignmentX(Component.CENTER_ALIGNMENT)
-    
-    box
-  }
+ 
   
   private def calculateDeltas(comp: JComponent) = {
     val baseSize = comp.getPreferredSize

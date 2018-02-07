@@ -165,9 +165,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
   def shouldShowReplWarning(file: PsiFile): Boolean = isEnabled(file, IS_WORKSHEET_REPL_MODE) && getRunType(file.getProject) != InProcessServer
 
   def setWorksheetReplMode(file: PsiFile, isRepl: Boolean): Unit = {
-    val postfix = if (isRepl) enabled else disabled
-    Stats.trigger(FeatureKey.worksheetReplMode(postfix))
-
+    Stats.trigger(FeatureKey.worksheetReplMode(getStringRepresent(isRepl)))
     setEnabled(file, IS_WORKSHEET_REPL_MODE, isRepl)
   }
 
@@ -206,7 +204,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
                              project: Project, onShow: () => Unit, msg: Array[String]) {
     val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
 
-    def addMessageToView(treeView: CompilerErrorTreeView) = treeView.addMessage(severity.toType, msg, file, line, column, null)
+    def addMessageToView(treeView: CompilerErrorTreeView): Unit = treeView.addMessage(severity.toType, msg, file, line, column, null)
     
     ApplicationManager.getApplication.invokeLater(new Runnable {
       override def run(): Unit = {
