@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.lang.macros.expansion
 
 import java.awt.event.MouseEvent
 import java.util
-import javax.swing.Icon
 
+import javax.swing.Icon
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon._
 import com.intellij.icons.AllIcons
 import com.intellij.navigation.GotoRelatedItem
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiManager}
@@ -42,8 +43,12 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
   protected def createNotCompiledLineMarker(element: PsiElement, annot: ScAnnotation): Marker = {
     import org.jetbrains.plugins.scala.project._
     val eltPointer = element.createSmartPointer
+    val module = annot.constructor.reference.get.resolve().module
+    if (module.isEmpty)
+      Logger.getInstance(getClass).error(s"No bound module for annotation ${annot.getText}")
+
     newMarker(element, AllIcons.General.Help, ScalaBundle.message("scala.meta.recompile")) { elt =>
-      CompilerManager.getInstance(elt.getProject).make(annot.constructor.reference.get.resolve().module.get,
+      CompilerManager.getInstance(elt.getProject).make(module.get,
         new CompileStatusNotification {
           override def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext): Unit = {
             if (!compileContext.getProject.isDisposed)
