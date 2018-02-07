@@ -274,7 +274,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
 
     private def listArtifacts(dir: File): Stream[ArtifactInfo] = {
       if (!dir.isDirectory)
-        throw InvalidRepository(dir.getAbsolutePath)
+        return Stream.empty
 
       val artifactsHere = dir.listFiles(ivyFileFilter)
           .flatMap(extractArtifact)
