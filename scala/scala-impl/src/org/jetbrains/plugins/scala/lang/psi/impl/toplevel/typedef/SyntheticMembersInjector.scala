@@ -104,6 +104,8 @@ object SyntheticMembersInjector {
         case _ => source
       }
       val function = ScalaPsiElementFactory.createMethodWithContext(template, context, source)
+      if (function == null)
+        throw new RuntimeException(s"Failed to parse method: '$source'")
       function.setSynthetic(context)
       function.setSyntheticContainingClass(source)
       if (withOverride ^ !function.hasModifierProperty("override")) buffer += function
