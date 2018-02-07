@@ -46,6 +46,9 @@ class MacroExpandAction extends AnAction {
 
     LOG.assertTrue(psiFile != null, "Couldn't find PsiFile for currently opened editor")
 
+    if (!psiFile.isInstanceOf[ScalaFile])
+      return
+
     psiFile.findElementAt(offset)
       .parentOfType(classOf[ScAnnotation], strict = false)
       .foreach(expandMetaAnnotation)
