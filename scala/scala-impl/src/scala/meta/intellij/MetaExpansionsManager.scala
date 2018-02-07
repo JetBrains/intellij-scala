@@ -184,6 +184,7 @@ object MetaExpansionsManager {
         case so: StackOverflowError       => Left(s"Stack overflow during expansion ${holder.getText}")
         case mw: MetaWrappedException     => Left(mw.target.toString)
         case e: Exception                 => Left(e.getMessage)
+        case e: Error                     => Left("Internal error: "+e.getMessage) // class loading issues?
       }
     }
 
