@@ -3,13 +3,13 @@ package org.jetbrains.sbt.shell
 import java.io.File
 import java.util
 import java.util.UUID
+
 import javax.swing.JComponent
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
-
 import com.intellij.build.events.impl._
 import com.intellij.build.events.{BuildEvent, MessageEvent, SuccessResult, Warning}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, events}
@@ -32,6 +32,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.jps.incremental.scala.local.ScalaReflectMacroExpansionParser
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
@@ -142,6 +143,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
     val report = new IndicatorReporter(indicator)
     val shell = SbtShellCommunication.forProject(project)
+    val macroParser = new ScalaReflectMacroExpansionParser(project.getName)
 
     report.start()
 
@@ -181,6 +183,10 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
             messages.addWarning(msg)
           } else messages
 
+          if (macroParser.isMacroMessage(text)) {
+            macroParser.processMessage(text)
+          }
+
           report.output(text)
 
           messagesWithErrors.appendMessage(text)
@@ -212,6 +218,8 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
       case Success(messages) => report.finish(messages)
       case Failure(err) => report.finishWithFailure(err)
     }
+
+    macroParser.serializeExpansions()
   }
 
 
