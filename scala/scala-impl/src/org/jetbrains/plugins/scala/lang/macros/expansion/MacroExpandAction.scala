@@ -3,12 +3,8 @@ package org.jetbrains.plugins.scala.lang.macros.expansion
 import java.io._
 import java.util.regex.Pattern
 
-import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
-import scala.meta.intellij.MetaExpansionsManager
 import com.intellij.notification.{NotificationGroup, NotificationType}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
-import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -20,17 +16,22 @@ import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
-import com.intellij.psi.impl.source.tree.{LeafPsiElement, TreeElement}
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiElementExt, PsiFileExt, inWriteCommandAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
+import scala.meta.intellij.MetaExpansionsManager
+import scala.meta.intellij.psiExt.AnnotExt
 
 
 class MacroExpandAction extends AnAction {
@@ -50,9 +51,10 @@ class MacroExpandAction extends AnAction {
       return
 
     psiFile.findElementAt(offset)
-      .parentOfType(classOf[ScAnnotation], strict = false)
-      .foreach(expandMetaAnnotation)
-    //    expandSerialized(e, sourceEditor, psiFile)
+      .parentOfType(classOf[ScAnnotation], strict = false) match {
+      case Some(a) if a.isMetaMacro => expandMetaAnnotation(a)
+      case _                        => expandSerialized(e, sourceEditor, psiFile)
+    }
   }
 
   def expandMacroUnderCursor(expansion: ResolvedMacroExpansion)(implicit e: AnActionEvent): Project = {
@@ -85,7 +87,7 @@ class MacroExpandAction extends AnAction {
     resolved.psiElement.get.getElement match {
       case (annot: ScAnnotation) =>
         expandAnnotation(annot, resolved.expansion)
-      case (mc: ScMethodCall) =>
+      case (mc: ScExpression) =>
         expandMacroCall(mc, resolved.expansion)
       case (_) => () // unreachable
     }
@@ -109,7 +111,7 @@ class MacroExpandAction extends AnAction {
     }
   }
 
-  def expandMacroCall(call: ScMethodCall, expansion: MacroExpansion)(implicit e: AnActionEvent): PsiElement = {
+  def expandMacroCall(call: ScExpression, expansion: MacroExpansion)(implicit e: AnActionEvent): PsiElement = {
     val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansion.body)(PsiManager.getInstance(e.getProject))
     val element = call.getParent.addAfter(blockImpl, call)
     element match {
@@ -131,9 +133,7 @@ class MacroExpandAction extends AnAction {
   def isMacroAnnotation(expansion: MacroExpansion)(implicit e: AnActionEvent): Boolean = {
     getRealOwner(expansion) match {
       case Some(_: ScAnnotation) => true
-      case Some(_: ScMethodCall) => false
-      case Some(_) => false
-      case None => false
+      case _ => false
     }
   }
 
@@ -145,7 +145,8 @@ class MacroExpandAction extends AnAction {
       case e: LeafPsiElement if e.findReferenceAt(0) == null =>
         def walkUp(elem: PsiElement = e): Option[PsiElement] = elem match {
           case null => None
-          case m: ScMethodCall => Some(m)
+          case m: ScMethodCall  => Some(m)
+          case m: ScGenericCall => Some(m)
           case e: PsiElement => walkUp(e.getParent)
         }
 
@@ -195,7 +196,7 @@ class MacroExpandAction extends AnAction {
   }
 
   def deserializeExpansions(implicit event: AnActionEvent): Seq[MacroExpansion] = {
-    val file = new File(PathManager.getSystemPath + s"/expansion-${event.getProject.getName}")
+    val file = new File(System.getProperty("java.io.tmpdir") + s"/expansion-${event.getProject.getName}")
     if (!file.exists()) return Seq.empty
     val fs = new BufferedInputStream(new FileInputStream(file))
     val os = new ObjectInputStream(fs)
@@ -208,9 +209,9 @@ class MacroExpandAction extends AnAction {
 
   private def suggestUsingCompilerFlag(e: AnActionEvent, file: PsiFile): Unit = {
 
-    import scala.collection._
-
     import org.jetbrains.plugins.scala.project._
+
+    import scala.collection._
 
     val module = ProjectRootManager.getInstance(e.getProject).getFileIndex.getModuleForFile(file.getVirtualFile)
     if (module == null) return
