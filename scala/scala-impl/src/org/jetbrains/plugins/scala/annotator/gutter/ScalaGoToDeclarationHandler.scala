@@ -20,13 +20,11 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 22.11.2008
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 22.11.2008
+  */
 
 class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
-
-  def getActionText(context: DataContext): String = null
 
   def getGotoDeclarationTargets(_sourceElement: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
     if (_sourceElement == null) return null
@@ -36,71 +34,88 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     if (sourceElement == null) return null
     if (!sourceElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return null
 
-    if (sourceElement.getNode.getElementType == ScalaTokenTypes.tASSIGN) {
-      return sourceElement.getParent match {
-        case assign: ScAssignStmt =>
-          val elem = assign.assignNavigationElement
-          Option(elem).toArray
-        case _ => null
-      }
-    }
+    sourceElement.getNode.getElementType match {
+      case ScalaTokenTypes.tASSIGN =>
+        val maybeResult = sourceElement.getParent match {
+          case assign: ScAssignStmt => Option(assign.assignNavigationElement)
+          case _ => None
+        }
 
-    if (sourceElement.getNode.getElementType == ScalaTokenTypes.kTHIS) {
-      sourceElement.getParent match {
-        case self: ScSelfInvocation =>
-          self.bind match {
-            case Some(elem) => return Array(elem)
-            case None => return null
-          }
-        case _ => return null
-      }
-    }
+        maybeResult match {
+          case Some(result) => Array(result)
+          case _ => null
+        }
+      case ScalaTokenTypes.kTHIS =>
+        val maybeResult = sourceElement.getParent match {
+          case self: ScSelfInvocation => self.bind
+          case _ => None
+        }
 
-    /**
-      * Extra targets:
-      *
-      * actualElement              type alias used to access a constructor.
-      *                            See also [[org.jetbrains.plugins.scala.findUsages.TypeAliasUsagesSearcher]]
-      * innerResolveResult#element apply method
-      */
-    def handleScalaResolveResult(scalaResolveResult: ScalaResolveResult): Seq[PsiElement] = {
-      val all = Seq(scalaResolveResult.getActualElement, scalaResolveResult.element) ++ scalaResolveResult.innerResolveResult.map(_.getElement)
-      scalaResolveResult.element match {
-        case f: ScFunction if f.isSynthetic =>
-          val actualElement =
-            f.syntheticCaseClass.getOrElse(scalaResolveResult.getActualElement)
-          Seq(actualElement).flatMap(goToTargets)
-        case c: PsiMethod if c.isConstructor =>
-          val clazz = c.containingClass
-          if (clazz == scalaResolveResult.getActualElement) Seq(scalaResolveResult.element).flatMap(goToTargets)
-          else all.distinct flatMap goToTargets
-        case pkg: ScPackage => resolvePackageTargets(sourceElement, pkg).flatMap(goToTargets)
-        case _ =>
-          all.distinct flatMap goToTargets
-      }
-    }
+        maybeResult match {
+          case Some(result) => Array(result)
+          case _ => null
+        }
+      case ScalaTokenTypes.tIDENTIFIER =>
+        val reference = sourceElement.getContainingFile
+          .findReferenceAt(sourceElement.getTextRange.getStartOffset)
 
-    if (sourceElement.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
-      val file = sourceElement.getContainingFile
-      val ref = file.findReferenceAt(sourceElement.getTextRange.getStartOffset)
-      if (ref == null) return null
-      val targets = ref match {
-        case DynamicResolveProcessor.DynamicReference(results) =>
-          results.distinct.map(_.getElement).flatMap(goToTargets)
-        case resRef: ScReferenceElement =>
-          resRef.multiResolveScala(incomplete = false).flatMap(handleScalaResolveResult)(collection.breakOut)
-        case r =>
-          Seq(r.resolve()) flatMap goToTargets
-      }
-      return targets.distinct.toArray
+        import ScalaGoToDeclarationHandler._
+        val targets = reference match {
+          case DynamicResolveProcessor.DynamicReference(results) =>
+            results.toSet[ResolveResult]
+              .map(_.getElement)
+              .filterNot(_ == null)
+          case resRef: ScReferenceElement =>
+            resRef.multiResolveScala(incomplete = false)
+              .toSet[ScalaResolveResult]
+              .flatMap(handleScalaResolveResult(_, sourceElement))
+          case ResolvesTo(element) => Set(element)
+          case _ => return null
+        }
+
+        targets.map { element =>
+          syntheticTarget(element).getOrElse(element)
+        }.toArray
+      case _ => null
     }
-    null
   }
 
-  private def resolvePackageTargets(pkgSourceElem: PsiElement, pkg: ScPackage): Seq[PsiElement] = {
+  def getActionText(context: DataContext): String = null
+}
+
+object ScalaGoToDeclarationHandler {
+
+  /**
+    * Extra targets:
+    *
+    * actualElement              type alias used to access a constructor.
+    * See also [[org.jetbrains.plugins.scala.findUsages.TypeAliasUsagesSearcher]]
+    * innerResolveResult#element apply method
+    */
+  private def handleScalaResolveResult(result: ScalaResolveResult, sourceElement: PsiElement): Set[PsiElement] = {
+    val element = result.element
+    val actualElement = result.getActualElement
+
+    val all = Set[PsiElement](actualElement, element) ++
+      result.innerResolveResult.map(_.getElement)
+
+    element match {
+      case f: ScFunction if f.isSynthetic =>
+        Set(f.syntheticCaseClass.getOrElse(actualElement))
+      case c: PsiMethod if c.isConstructor =>
+        c.containingClass match {
+          case `actualElement` => Set(element)
+          case _ => all
+        }
+      case pkg: ScPackage => resolvePackageTargets(sourceElement, pkg)
+      case _ => all
+    }
+  }
+
+  private[this] def resolvePackageTargets(pkgSourceElem: PsiElement, pkg: ScPackage): Set[PsiElement] = {
     def isInPackageObject: PsiElement => Boolean = {
       case member: ScMember if member.isSynthetic => member.getSyntheticNavigationElement.exists(isInPackageObject)
-      case e                                      => e.parentOfType(classOf[ScObject]).exists(_.isPackageObject)
+      case e => e.parentOfType(classOf[ScObject]).exists(_.isPackageObject)
     }
 
     def foldAmbiguously(xs: Traversable[(Boolean, Boolean)]): (Boolean, Boolean) =
@@ -123,9 +138,9 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     val pkgObjectTarget = pkg.findPackageObject(pkg.getResolveScope)
 
     val nextSegment = for {
-      _      <- pkgObjectTarget
+      _ <- pkgObjectTarget
       parent <- pkgSourceElem.parent
-      dot    <- Option(parent.getNextSiblingNotWhitespaceComment)
+      dot <- Option(parent.getNextSiblingNotWhitespaceComment)
       if dot.getNode.getElementType == ScalaTokenTypes.tDOT
       next <- Option(dot.getNextSiblingNotWhitespaceComment)
     } yield next
@@ -144,26 +159,17 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
         hasReferenceToElementFromPackageObject(ident.parentOfType(classOf[ScReferenceElement]))
     }.getOrElse((true, true))
 
-    val pkgTarget = if (hasReferenceFromPackage) Seq(pkg) else Seq.empty
-
-    if (hasReferenceFromPackageObject) pkgTarget ++ pkgObjectTarget else pkgTarget
+    val pkgTarget = if (hasReferenceFromPackage) Set(pkg) else Set.empty
+    pkgTarget ++ (if (hasReferenceFromPackageObject) pkgObjectTarget else None)
   }
 
-  private def goToTargets(element: PsiElement): Seq[PsiElement] = {
-    element match {
-      case null => Seq.empty
-      case fun: ScFunction =>
-        Seq(fun.getSyntheticNavigationElement.getOrElse(element))
-      case td: ScTypeDefinition if td.isSynthetic =>
-        td.syntheticContainingClass match {
-          case Some(containingClass) => Seq(containingClass)
-          case _ => Seq(element)
-        }
-      case o: ScObject if o.isSyntheticObject =>
-        Seq(ScalaPsiUtil.getCompanionModule(o).getOrElse(element))
-      case param: ScParameter =>
-        ScalaPsiUtil.parameterForSyntheticParameter(param).map(Seq[PsiElement](_)).getOrElse(Seq[PsiElement](element))
-      case _ => Seq(element)
-    }
+  import ScalaPsiUtil.{getCompanionModule, parameterForSyntheticParameter}
+
+  private def syntheticTarget(element: PsiElement): Option[PsiElement] = element match {
+    case function: ScFunction => function.getSyntheticNavigationElement
+    case definition: ScTypeDefinition if definition.isSynthetic => definition.syntheticContainingClass
+    case scObject: ScObject if scObject.isSyntheticObject => getCompanionModule(scObject)
+    case parameter: ScParameter => parameterForSyntheticParameter(parameter)
+    case _ => None
   }
 }
