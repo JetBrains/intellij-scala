@@ -7,7 +7,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -331,7 +331,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   //todo: implement existential dual
   def getType(e: PsiNamedElement, implicitCase: Boolean): ScType = {
     val res = e match {
-      case m: PsiMethod => m.polymorphicType()
+      case m: PsiMethod => 
+        implicit val scope: ElementScope = elem.elementScope
+        m.polymorphicType()
       case fun: ScFun => fun.polymorphicType()
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
         case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, elem, true) =>
