@@ -17,6 +17,10 @@ import scala.collection.JavaConverters._
 
 
 case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryLoader {
+  protected lazy val dependencyManager: DependencyManagerBase = new DependencyManagerBase {
+    override protected val artifactBlackList: Set[String] = Set.empty
+  }
+
   override def init(implicit module: Module, version: ScalaVersion): Unit = {
 
     val deps = Seq(
@@ -25,9 +29,6 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
       "org.scala-lang" % "scala-reflect"  % version.minor
     ).filterNot(!includeScalaReflect && _.artId.contains("reflect"))
 
-    val dependencyManager = new DependencyManagerBase {
-      override protected val artifactBlackList: Set[String] = Set.empty
-    }
 
     val resolved = deps.flatMap(dependencyManager.resolve(_))
     val srcsResolved = dependencyManager.resolve("org.scala-lang" % "scala-library" % version.minor % Types.SRC)
