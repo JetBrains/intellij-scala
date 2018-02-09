@@ -2,14 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import java.util.concurrent.atomic.AtomicLong
 
-import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiTypeParameter}
-import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.extensions.{ConcurrentMapExt, ObjectExt, PsiClassExt, PsiElementExt, PsiNamedElementExt}
+import com.intellij.util.containers.{ConcurrentLongObjectMap, ContainerUtil}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
-import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
 import scala.language.implicitConversions
 
@@ -21,11 +19,20 @@ package object params {
   private val reusableIdMap = ContainerUtil.newConcurrentMap[String, Long]()
 
   private val paramToIdMap = ContainerUtil.createConcurrentWeakMap[PsiNamedElement, Long]()
-  //for better debugging
-  private val idToParamMap = ContainerUtil.createWeakValueMap[Long, PsiNamedElement]()
 
-  def typeParamName(id: Long): String =
-    idToParamMap.get(id).toOption.fold("unknown id")(_.name)
+  //for better debugging, cleared by ScalaPsiManager on every change
+  val idToName: ConcurrentLongObjectMap[String] =
+    ContainerUtil.createConcurrentLongObjectMap()
+
+  //never cleared
+  private val reusableIdToName: ConcurrentLongObjectMap[String] =
+    ContainerUtil.createConcurrentLongObjectMap()
+
+  def typeParamName(id: Long): String = {
+    idToName.get(id).toOption
+      .getOrElse(reusableIdToName.get(id)).toOption
+      .getOrElse(id.toString)
+  }
 
   private val nameBasedIdBaseline = Long.MaxValue / 2
 
@@ -40,14 +47,16 @@ package object params {
 
   def freshTypeParamId(element: PsiNamedElement): Long = {
     val id = typeParameterCounter.getAndIncrement()
-    idToParamMap.put(id, element)
+    idToName.put(id, element.name)
     id
   }
 
   def reusableId(typeParameter: ScTypeParam): Long = typeParameter.containingFile match {
     case Some(file: ScalaFile) if file.isCompiled =>
       val qualifier = elementQual(typeParameter)
-      reusableIdMap.computeIfAbsent(qualifier, _ => freshTypeParamId(typeParameter))
+      val id = reusableIdMap.computeIfAbsent(qualifier, _ => freshTypeParamId(typeParameter))
+      reusableIdToName.put(id, typeParameter.name)
+      id
     case _ => freshTypeParamId(typeParameter)
   }
 
