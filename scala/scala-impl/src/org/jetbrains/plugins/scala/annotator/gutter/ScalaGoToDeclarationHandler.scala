@@ -11,13 +11,13 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScReferenceExpression, ScSelfInvocation}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.{isDynamicReference, resolveDynamic}
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 
 /**
  * User: Alexander Podkhalyuzin
@@ -80,17 +80,13 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
       }
     }
 
-    def handleDynamicResolveResult(dynamicResolveResult: Seq[ResolveResult]): Seq[PsiElement] = {
-      dynamicResolveResult.distinct.map(_.getElement).flatMap(goToTargets)
-    }
-
     if (sourceElement.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
       val file = sourceElement.getContainingFile
       val ref = file.findReferenceAt(sourceElement.getTextRange.getStartOffset)
       if (ref == null) return null
       val targets = ref match {
-        case expression: ScReferenceExpression if isDynamicReference(expression) =>
-          handleDynamicResolveResult(resolveDynamic(expression))
+        case DynamicResolveProcessor.DynamicReference(results) =>
+          results.distinct.map(_.getElement).flatMap(goToTargets)
         case resRef: ScReferenceElement =>
           resRef.multiResolveScala(incomplete = false).flatMap(handleScalaResolveResult)(collection.breakOut)
         case r =>
