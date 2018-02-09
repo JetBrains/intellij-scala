@@ -26,17 +26,18 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 
 class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
-  def getGotoDeclarationTargets(_sourceElement: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
-    if (_sourceElement == null) return null
-    val containingFile: PsiFile = _sourceElement.getContainingFile
+  def getGotoDeclarationTargets(element: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
+    if (element == null) return null
+    val containingFile = element.getContainingFile
     if (containingFile == null) return null
     val sourceElement = containingFile.findElementAt(offset)
     if (sourceElement == null) return null
     if (!sourceElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return null
 
+    val maybeParent = sourceElement.parent
     sourceElement.getNode.getElementType match {
       case ScalaTokenTypes.tASSIGN =>
-        val maybeResult = sourceElement.getParent match {
+        val maybeResult = maybeParent.flatMap {
           case assign: ScAssignStmt => Option(assign.assignNavigationElement)
           case _ => None
         }
@@ -46,7 +47,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
           case _ => null
         }
       case ScalaTokenTypes.kTHIS =>
-        val maybeResult = sourceElement.getParent match {
+        val maybeResult = maybeParent.flatMap {
           case self: ScSelfInvocation => self.bind
           case _ => None
         }
@@ -56,8 +57,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
           case _ => null
         }
       case ScalaTokenTypes.tIDENTIFIER =>
-        val reference = sourceElement.getContainingFile
-          .findReferenceAt(sourceElement.getTextRange.getStartOffset)
+        val reference = containingFile.findReferenceAt(sourceElement.getTextRange.getStartOffset)
 
         import ScalaGoToDeclarationHandler._
         val targets = reference match {
@@ -65,11 +65,14 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
             results.toSet[ResolveResult]
               .map(_.getElement)
               .filterNot(_ == null)
-          case resRef: ScReferenceElement =>
-            resRef.multiResolveScala(incomplete = false)
+          case referenceElement: ScReferenceElement =>
+            referenceElement.multiResolveScala(incomplete = false)
               .toSet[ScalaResolveResult]
-              .flatMap(handleScalaResolveResult(_, sourceElement))
-          case ResolvesTo(element) => Set(element)
+              .flatMap {
+                case ScalaResolveResult(pkg: ScPackage, _) => packageCase(pkg, maybeParent)
+                case result => regularCase(result)
+              }
+          case ResolvesTo(resolved) => Set(resolved)
           case _ => return null
         }
 
@@ -85,83 +88,65 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
 object ScalaGoToDeclarationHandler {
 
-  /**
-    * Extra targets:
-    *
-    * actualElement              type alias used to access a constructor.
-    * See also [[org.jetbrains.plugins.scala.findUsages.TypeAliasUsagesSearcher]]
-    * innerResolveResult#element apply method
-    */
-  private def handleScalaResolveResult(result: ScalaResolveResult, sourceElement: PsiElement): Set[PsiElement] = {
-    val element = result.element
+  private def regularCase(result: ScalaResolveResult): Seq[PsiElement] = {
     val actualElement = result.getActualElement
-
-    val all = Set[PsiElement](actualElement, element) ++
-      result.innerResolveResult.map(_.getElement)
-
-    element match {
-      case f: ScFunction if f.isSynthetic =>
-        Set(f.syntheticCaseClass.getOrElse(actualElement))
-      case c: PsiMethod if c.isConstructor =>
-        c.containingClass match {
-          case `actualElement` => Set(element)
-          case _ => all
-        }
-      case pkg: ScPackage => resolvePackageTargets(sourceElement, pkg)
-      case _ => all
+    result.element match {
+      case function: ScFunction if function.isSynthetic =>
+        Seq(function.syntheticCaseClass.getOrElse(actualElement))
+      case method: PsiMethod if method.isConstructor && method.containingClass == actualElement => Seq(method)
+      case element => Seq(actualElement, element) ++ result.innerResolveResult.map(_.getElement)
     }
   }
 
-  private[this] def resolvePackageTargets(pkgSourceElem: PsiElement, pkg: ScPackage): Set[PsiElement] = {
-    def isInPackageObject: PsiElement => Boolean = {
+  private class IsReferenced(elements: Seq[PsiNamedElement]) {
+
+    val (fromPackageObject: Boolean, fromPackage: Boolean) = {
+      val (left, right) = elements.partition(isInPackageObject)
+      (left.nonEmpty, right.nonEmpty)
+    }
+
+    private def isInPackageObject(element: PsiElement): Boolean = element match {
       case member: ScMember if member.isSynthetic => member.getSyntheticNavigationElement.exists(isInPackageObject)
-      case e => e.parentOfType(classOf[ScObject]).exists(_.isPackageObject)
+      case _ => element.parentOfType(classOf[ScObject]).exists(_.isPackageObject)
+    }
+  }
+
+  private def packageCase(pkg: ScPackage, maybeParent: Option[PsiElement]): Iterable[PsiElement] = {
+    import ScalaTokenTypes.{tDOT, tUNDER}
+    val maybePackageObject = pkg.findPackageObject(pkg.getResolveScope)
+
+    val maybeSegment = for {
+      _ <- maybePackageObject
+      parent <- maybeParent
+      dot <- Option(parent.getNextSiblingNotWhitespaceComment)
+      if dot.getNode.getElementType == tDOT
+      segment <- Option(dot.getNextSiblingNotWhitespaceComment)
+    } yield segment
+
+    val references = maybeSegment.toSet[PsiElement].flatMap {
+      case selectors: ScImportSelectors if !selectors.hasWildcard => selectors.selectors.flatMap(_.reference)
+      case _: ScImportSelectors => Seq.empty
+      case underscore if underscore.getNode.getElementType == tUNDER => Seq.empty
+      case ident => ident.parentOfType(classOf[ScReferenceElement]).toSeq
     }
 
-    def foldAmbiguously(xs: Traversable[(Boolean, Boolean)]): (Boolean, Boolean) =
-      if (xs.isEmpty) (true, true)
-      else
-        xs.foldLeft((false, false)) {
-          case ((x1, y1), (x2, y2)) => (x1 || x2, y1 || y2)
-        }
+    val set = references.flatMap(isReferencedFrom)
+    val packageRequired = isRequired(set)(_.fromPackage)
+    val packageObjectRequired = isRequired(set)(_.fromPackageObject)
 
-    def hasReferenceToElementFromPackageObject(refs: Traversable[ScReferenceElement]): (Boolean, Boolean) =
-      foldAmbiguously(refs.map { r =>
-        val resolves = r.multiResolveScala(false)
-
-        foldAmbiguously(resolves.map { e =>
-          val inPackageObject = isInPackageObject(e.element)
-          inPackageObject -> !inPackageObject
-        })
-      })
-
-    val pkgObjectTarget = pkg.findPackageObject(pkg.getResolveScope)
-
-    val nextSegment = for {
-      _ <- pkgObjectTarget
-      parent <- pkgSourceElem.parent
-      dot <- Option(parent.getNextSiblingNotWhitespaceComment)
-      if dot.getNode.getElementType == ScalaTokenTypes.tDOT
-      next <- Option(dot.getNextSiblingNotWhitespaceComment)
-    } yield next
-
-    val (hasReferenceFromPackageObject, hasReferenceFromPackage) = nextSegment.collect {
-      case selectors: ScImportSelectors =>
-        val hasWildcard = selectors.hasWildcard
-        if (hasWildcard) (true, true)
-        else {
-          val refs = selectors.selectors.flatMap(_.reference)
-          hasReferenceToElementFromPackageObject(refs)
-        }
-      case under if under.getNode.getElementType == ScalaTokenTypes.tUNDER =>
-        (true, true)
-      case ident =>
-        hasReferenceToElementFromPackageObject(ident.parentOfType(classOf[ScReferenceElement]))
-    }.getOrElse((true, true))
-
-    val pkgTarget = if (hasReferenceFromPackage) Set(pkg) else Set.empty
-    pkgTarget ++ (if (hasReferenceFromPackageObject) pkgObjectTarget else None)
+    (if (packageRequired) Some(pkg) else None) ++
+      (if (packageObjectRequired) maybePackageObject else None)
   }
+
+  private[this] def isReferencedFrom(reference: ScReferenceElement): Option[IsReferenced] =
+    reference.multiResolveScala(false) match {
+      case Array() => None
+      case results => Some(new IsReferenced(results.map(_.element)))
+    }
+
+  private[this] def isRequired(set: Set[IsReferenced])
+                              (predicate: IsReferenced => Boolean) =
+    set.isEmpty || set.exists(predicate)
 
   import ScalaPsiUtil.{getCompanionModule, parameterForSyntheticParameter}
 
