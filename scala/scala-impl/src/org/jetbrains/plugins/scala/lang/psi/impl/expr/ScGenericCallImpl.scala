@@ -60,7 +60,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     processor.processType(tp, referencedExpr, ResolveState.initial)
     processor.candidates match {
       case Array(ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
-        fun.polymorphicType(s)
+        fun.methodTypeProvider(elementScope).polymorphicType(s)
       case _ => Nothing
     }
   }

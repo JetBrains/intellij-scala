@@ -235,7 +235,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     PartialFunction.condOpt(candidates) {
       case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
 
-        val polyType = fun.polymorphicType(s).updateTypeOfDynamicCall(r.isDynamic)
+        val typeProvider = fun.methodTypeProvider(elementScope)
+        val polyType = typeProvider.polymorphicType(s).updateTypeOfDynamicCall(r.isDynamic)
 
         val fixedType = invokedType match {
           case ScTypePolymorphicType(_, typeParams) =>

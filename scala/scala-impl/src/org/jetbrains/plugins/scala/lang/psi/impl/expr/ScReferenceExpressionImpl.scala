@@ -503,7 +503,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
           elementScope.getCachedClass("java.lang.Class")
             .map(convertQualifier)
         }
-        method.polymorphicType(s, returnType)
+        method
+          .methodTypeProvider(elementScope)
+          .polymorphicType(s, returnType)
       case _ => return resolveFailure
     }
     qualifier match {
