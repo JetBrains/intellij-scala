@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.lang.completion.weighter
+package org.jetbrains.plugins.scala.lang
+package completion
+package weighter
 
 import com.intellij.codeInsight.completion._
-import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionUtil, ScalaCompletionUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -13,7 +14,7 @@ object ScalaCompletionSorting {
 
     def withScalaSorting(parameters: CompletionParameters): CompletionResultSet = {
       val isSmart = parameters.getCompletionType == CompletionType.SMART
-      val position = ScalaCompletionUtil.positionFromParameters(parameters)
+      val position = positionFromParameters(parameters)
       val isAfterNew = ScalaAfterNewCompletionUtil.afterNewPattern.accepts(position)
 
       val defaultSorter = CompletionSorter.defaultSorter(parameters, result.getPrefixMatcher)

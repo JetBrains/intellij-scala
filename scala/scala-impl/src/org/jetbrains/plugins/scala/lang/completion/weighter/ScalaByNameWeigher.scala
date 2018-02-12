@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.completion.weighter
+package org.jetbrains.plugins.scala.lang
+package completion
+package weighter
 
 import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeigher}
 import com.intellij.codeInsight.lookup.LookupElement
@@ -8,7 +10,6 @@ import com.intellij.psi.{PsiClass, PsiNamedElement}
 import com.intellij.util.text.EditDistance
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionUtil, ScalaCompletionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -27,7 +28,7 @@ class ScalaByNameWeigher extends CompletionWeigher {
   private val textForPositionKey: Key[String] = Key.create("text.for.position")
 
   override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
-    val position = ScalaCompletionUtil.positionFromParameters(location.getCompletionParameters)
+    val position = positionFromParameters(location.getCompletionParameters)
     val originalPostion = location.getCompletionParameters.getOriginalPosition
     val context = location.getProcessingContext
 

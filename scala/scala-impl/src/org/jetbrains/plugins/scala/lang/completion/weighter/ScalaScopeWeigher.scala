@@ -1,11 +1,12 @@
-package org.jetbrains.plugins.scala.lang.completion.weighter
+package org.jetbrains.plugins.scala.lang
+package completion
+package weighter
 
 import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeigher}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 
 /**
@@ -25,7 +26,7 @@ class ScalaScopeWeigher extends CompletionWeigher {
   }
 
   override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
-    val completionPosition = ScalaCompletionUtil.positionFromParameters(location.getCompletionParameters)
+    val completionPosition = positionFromParameters(location.getCompletionParameters)
 
     ScalaLookupItem.original(element) match {
       case sl: ScalaLookupItem =>

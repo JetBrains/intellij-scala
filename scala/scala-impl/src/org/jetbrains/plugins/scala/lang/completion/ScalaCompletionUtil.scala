@@ -7,7 +7,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.{Computable, Key}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -22,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
-import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -312,22 +310,6 @@ object ScalaCompletionUtil {
   private def dummyIdentifier(string: String): String =
     if (isKeyword(string)) CompletionUtil.DUMMY_IDENTIFIER
     else CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
-
-  def positionFromParameters(parameters: CompletionParameters): PsiElement = {
-
-    @tailrec
-    def inner(element: PsiElement): PsiElement = element match {
-      case null => parameters.getPosition //we got to the top of the tree and didn't find a modificationTrackerOwner
-      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner =>
-        if (owner.containingFile.contains(parameters.getOriginalFile)) {
-          val dummyId = getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile)
-          val relativeOffset = parameters.getOffset - owner.getTextRange.getStartOffset
-          owner.getMirrorPositionForCompletion(dummyId, relativeOffset).getOrElse(parameters.getPosition)
-        } else parameters.getPosition
-      case _ => inner(element.getContext)
-    }
-    inner(parameters.getOriginalPosition)
-  }
 
   def isTypeDefiniton(position: PsiElement): Boolean =
     Option(PsiTreeUtil.getParentOfType(position, classOf[ScTypeElement])).isDefined

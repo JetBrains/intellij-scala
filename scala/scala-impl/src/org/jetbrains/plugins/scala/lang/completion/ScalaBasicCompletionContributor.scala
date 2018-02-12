@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
-import scala.annotation.tailrec
-
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElement, LookupElementDecorator}
 import com.intellij.openapi.editor.Document
@@ -40,12 +38,13 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, 
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
+import scala.annotation.tailrec
+
 /**
  * @author Alexander Podkhalyuzin
  * Date: 16.05.2008
  */
 abstract class ScalaCompletionContributor extends CompletionContributor {
-  def positionFromParameters(parameters: CompletionParameters): PsiElement = ScalaCompletionUtil.positionFromParameters(parameters)
 
   override def fillCompletionVariants(parameters: CompletionParameters, result: CompletionResultSet): Unit = {
     val updatedSet = result

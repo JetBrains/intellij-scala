@@ -2,20 +2,17 @@ package org.jetbrains.sbt.language.completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns._
 import com.intellij.patterns.StandardPatterns._
-import com.intellij.psi.PsiFile
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
+import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.sbt.language.SbtFileType
-import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.resolvers.SbtResolverUtils
 
 /**
@@ -60,7 +57,7 @@ class SbtMavenDependencyCompletionContributor extends CompletionContributor {
           results.addElement(LookupElementBuilder.create(result))
       }
 
-      val place = ScalaCompletionUtil.positionFromParameters(params)
+      val place = positionFromParameters(params)
       implicit val p: Project = place.getProject
 
       if (place.getText == CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
