@@ -139,12 +139,15 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
   }
 
   override def run(indicator: ProgressIndicator): Unit = {
+    import org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector
 
     val report = new IndicatorReporter(indicator)
     val shell = SbtShellCommunication.forProject(project)
-    val macroParser = new ScalaReflectMacroExpansionParser(project.getName)
+//    val macroParser = new ScalaReflectMacroExpansionParser(project.getName)
+    val collector = ReflectExpansionsCollector.getInstance(project)
 
     report.start()
+    collector.compilationStarted()
 
     // TODO build events instead of indicator
     val resultAggregator: (BuildMessages,ShellEvent) => BuildMessages = { (messages,event) =>
@@ -182,9 +185,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
             messages.addWarning(msg)
           } else messages
 
-          if (macroParser.isMacroMessage(text)) {
-            macroParser.processMessage(text)
-          }
+          collector.processCompilerMessage(text)
 
           report.output(text)
 
@@ -218,7 +219,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
       case Failure(err) => report.finishWithFailure(err)
     }
 
-    macroParser.serializeExpansions()
+    collector.compilationFinished()
   }
 
 
