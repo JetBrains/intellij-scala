@@ -42,21 +42,8 @@ class CollectImplicitsProcessor(expression: ScExpression, withoutPrecedence: Boo
           val clauses = f.paramClauses.clauses
           //filtered cases
           if (clauses.length > 2) return true
-          if (clauses.length == 2) {
-            if (!clauses(1).isImplicit) {
-              return true
-            }
-            if (f.hasTypeParameters) {
-              for {
-                param <- clauses(1).parameters
-                paramType <- param.`type`()
-              } {
-                //looks like it's not working in compiler 2.10, so it's faster to avoid it
-                if (paramType.subtypeExists(_.isInstanceOf[TypeParameterType]))
-                  return true
-              }
-            }
-          }
+          if (clauses.length == 2 && !clauses(1).isImplicit) return true
+
           if (clauses.isEmpty) {
             val rt = subst.subst(f.returnType.getOrElse(return true))
             if (functionType.exists(!rt.conforms(_))) return true
