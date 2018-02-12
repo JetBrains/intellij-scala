@@ -15,12 +15,12 @@ package object completion {
     @tailrec
     def position(element: PsiElement): PsiElement = element match {
       case null => parameters.getPosition // we got to the top of the tree and didn't find a modificationTrackerOwner
-      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner =>
+      case owner@ScModificationTrackerOwner() =>
         val maybeMirrorPosition = parameters.getOriginalFile match {
           case file if owner.containingFile.contains(file) =>
             val offset = parameters.getOffset
             val dummyId = getDummyIdentifier(offset, file)
-            owner.getMirrorPositionForCompletion(dummyId, offset - owner.getTextRange.getStartOffset)
+            owner.mirrorPosition(dummyId, offset)
           case _ => None
         }
 
