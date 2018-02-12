@@ -1148,6 +1148,8 @@ trait ScalaConformance extends api.Conformance {
             }
           case ScExistentialType(innerQ, wilds) =>
             ReplaceWith(ScExistentialType(updateType(innerQ, rejected ++ wilds.map(_.name)), wilds))
+          case ScDesignatorType(des) if !rejected.contains(des.name) =>
+            e.wildcards.find(_.name == des.name).map(p => ReplaceWith(p.upper)).getOrElse(ProcessSubtypes)
           case _ => ProcessSubtypes
         }
       }
