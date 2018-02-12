@@ -8,12 +8,11 @@ import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.compiler.progress.CompilerTask
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.compiler.{CompilerMessageCategory, CompilerPaths}
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiManager
+import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.Base64Converter
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.BuildMessage
@@ -22,20 +21,29 @@ import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.jps.incremental.scala.remote._
 import org.jetbrains.plugins.scala.compiler.{ErrorHandler, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import worksheet.actions.WorksheetFileHook
-import worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
-import worksheet.runconfiguration.ReplModeArgs
-import worksheet.server.RemoteServerConnector.{MyTranslatingClient, OuterCompilerInterface}
-import worksheet.ui.{WorksheetEditorPrinterBase, WorksheetIncrementalEditorPrinter}
+import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
+import org.jetbrains.plugins.scala.worksheet.actions.{RunWorksheetAction, WorksheetFileHook}
+import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
+import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{MyTranslatingClient, OuterCompilerInterface}
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, WorksheetIncrementalEditorPrinter}
 
 /**
   * User: Dmitry Naydanov
  * Date: 1/28/14
  */
-class RemoteServerConnector(module: Module, worksheet: File, output: File, worksheetClassName: String, 
-  replArgs: Option[ReplModeArgs], needsCheck: Boolean) extends RemoteServerConnectorBase(module: Module, Seq(worksheet), output, needsCheck) {
-
+class RemoteServerConnector(psiFile: PsiFile, worksheet: File, output: File, worksheetClassName: String,
+                            replArgs: Option[ReplModeArgs], needsCheck: Boolean) extends RemoteServerConnectorBase(
+  RunWorksheetAction.getModuleFor(psiFile), Seq(worksheet), output, needsCheck) {
+  
   val runType: WorksheetMakeType = WorksheetCompiler.getRunType(module.getProject)
+
+  override protected def compilerSettings: ScalaCompilerSettings = {
+    WorksheetCompiler.getCustomCompilerProfileName(psiFile).flatMap {
+      name => 
+        ScalaCompilerConfiguration.instanceIn(psiFile.getProject).customProfiles.find(_.getName == name)
+    }.map(_.getSettings).getOrElse(super.compilerSettings)
+  }
 
   /**
     * Args (for running in compile server process only)

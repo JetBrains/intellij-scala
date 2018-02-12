@@ -21,9 +21,10 @@ import com.intellij.util.ui.MessageCategory
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
+import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.util.NotificationUtil
+import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaUtil}
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
 import org.jetbrains.plugins.scala.worksheet.server._
@@ -66,7 +67,7 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
       override def run() {
         try {
           new RemoteServerConnector(
-            module, tempFile, outputDir, className, None, true
+            worksheetFile, tempFile, outputDir, className, None, true
           ).compileAndRun(afterCompileRunnable, worksheetVirtual, consumer)
         }
         catch {
@@ -85,7 +86,7 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
     val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, printer, None)
     task.start(new Runnable {
       override def run(): Unit = {
-        new RemoteServerConnector(module, new File(""), new File(""), "", replModeArgs, false).compileAndRun(
+        new RemoteServerConnector(worksheetFile, new File(""), new File(""), "", replModeArgs, false).compileAndRun(
           EMPTY_RUNNABLE, worksheetVirtual, consumer)
       }
     }, EMPTY_RUNNABLE)
@@ -138,6 +139,7 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
   private val MAKE_BEFORE_RUN = new FileAttribute("ScalaWorksheetMakeBeforeRun", 1, true)
   private val CP_MODULE_NAME = new FileAttribute("ScalaWorksheetModuleForCp", 1, false)
   private val IS_WORKSHEET_REPL_MODE = new FileAttribute("IsWorksheetReplMode", 1, true)
+  private val COMPILER_PROFILE = new FileAttribute("ScalaWorksheetCompilerProfile", 1, false)
   private val ERROR_CONTENT_NAME = "Worksheet errors"
 
   val CONFIG_ERROR_HEADER = "Worksheet configuration error:"
@@ -172,6 +174,28 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
   def getModuleForCpName(file: PsiFile): Option[String] = FileAttributeUtilCache.readAttribute(CP_MODULE_NAME, file)
 
   def setModuleForCpName(file: PsiFile, moduleName: String): Unit = FileAttributeUtilCache.writeAttribute(CP_MODULE_NAME, file, moduleName)
+  
+  def getCustomCompilerProfileName(file: PsiFile): Option[String] = FileAttributeUtilCache.readAttribute(COMPILER_PROFILE, file)
+  
+  def setCustomCompilerProfileName(file: PsiFile, name: String): Unit = FileAttributeUtilCache.writeAttribute(COMPILER_PROFILE, file, name)
+  
+  def getCompilerProfile(file: PsiFile): ScalaCompilerSettingsProfile = {
+    val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(file.getProject)
+    
+    if (!RunWorksheetAction.isScratchWorksheet(file)) {
+      for {
+        vFile <- ScalaUtil.findVirtualFile(file)
+        module <- ScalaUtil.getModuleForFile(vFile, file.getProject)
+        profile <- compilerConfiguration.customProfiles.find(_.getModuleNames.contains(module.getName))
+      } return profile
+      
+      return compilerConfiguration.defaultProfile
+    } 
+    
+    getCustomCompilerProfileName(file).flatMap {
+      name => compilerConfiguration.customProfiles.find(_.getName == name)
+    }.getOrElse(compilerConfiguration.defaultProfile)
+  }
 
   def getRunType(project: Project): WorksheetMakeType = {
     if (ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED) {

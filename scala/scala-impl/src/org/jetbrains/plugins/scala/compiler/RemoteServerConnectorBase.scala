@@ -8,7 +8,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.{PathUtil, PlatformUtils}
+import com.intellij.util.PathUtil
 import org.jetbrains.jps.incremental.scala.data.SbtData
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
  * 2014-10-07
  */
 
-abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[File], outputDir: File, needCheck: Boolean = true) {
+abstract class RemoteServerConnectorBase(protected val module: Module, filesToCompile: Seq[File], outputDir: File, needCheck: Boolean = true) {
 
   implicit def projectContext: ProjectContext = module.getProject
 
@@ -59,7 +59,7 @@ abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[Fil
   
   protected val runnersJar = new File(libCanonicalPath, "runners.jar")
 
-  val additionalCp = compilerClasspath :+ runnersJar :+ compilerSharedJar :+ outputDir
+  val additionalCp: Seq[File] = compilerClasspath :+ runnersJar :+ compilerSharedJar :+ outputDir
 
   protected def worksheetArgs: Array[String] = Array()
 
@@ -75,7 +75,7 @@ abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[Fil
   implicit def files2paths(files: Iterable[File]): String = files map file2path mkString "\n"
   implicit def array2string(arr: Array[String]): String = arr mkString "\n"
 
-  def arguments = Seq[String](
+  def arguments: Seq[String] = Seq[String](
     sbtData.sbtInterfaceJar,
     sbtData.compilerInterfaceJar,
     sbtData.sourceJars._2_10,
@@ -104,11 +104,11 @@ abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[Fil
   
   protected def configurationError(message: String) = throw new IllegalArgumentException(message)
 
-  protected def settings = ScalaCompileServerSettings.getInstance()
+  protected def settings: ScalaCompileServerSettings = ScalaCompileServerSettings.getInstance()
 
   private def assemblyClasspath() = OrderEnumerator.orderEntries(module).compileOnly().getClassesRoots
 
-  private def compilerSettings: ScalaCompilerSettings = module.scalaCompilerSettings
+  protected def compilerSettings: ScalaCompilerSettings = module.scalaCompilerSettings
 
   private def scalaSdk = module.scalaSdk.getOrElse(
           configurationError("No Scala SDK configured for module: " + module.getName))
@@ -118,7 +118,7 @@ abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[Fil
     case None => configurationError("JDK for compiler process not found")
   }
 
-  private def checkFilesToCompile(files: Seq[File]) = {
+  private def checkFilesToCompile(files: Seq[File]): Unit = {
     if (files.isEmpty)
       throw new IllegalArgumentException("Non-empty list of files expected")
 

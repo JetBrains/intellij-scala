@@ -6,11 +6,9 @@ import com.intellij.psi.PsiFile;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile;
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction;
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction$;
-import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner;
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler;
-import scala.Option;
 import scala.Some;
 
 import javax.swing.*;
@@ -28,35 +26,32 @@ public class WorksheetFileSettingsForm {
   private JCheckBox makeProjectBeforeRunCheckBox;
   private ModulesComboBox moduleComboBox;
   private JPanel mainPanel;
+  private JComboBox<ScalaCompilerSettingsProfile> compilerProfileComboBox;
 
-  public WorksheetFileSettingsForm(PsiFile file) {
+  public WorksheetFileSettingsForm(PsiFile file, WorksheetSettingsData settingsData) {
     myFile = file;
-
     $$$setupUI$$$();
-    useREPLModeCheckBox.setSelected(WorksheetCompiler.isWorksheetReplMode(myFile));
-    interactiveModeCheckBox.setSelected(WorksheetAutoRunner.isSetEnabled(myFile));
-    makeProjectBeforeRunCheckBox.setSelected(WorksheetCompiler.isMakeBeforeRun(myFile));
+
+    useREPLModeCheckBox.setSelected(settingsData.isRepl);
+    interactiveModeCheckBox.setSelected(settingsData.isInteractive);
+    makeProjectBeforeRunCheckBox.setSelected(settingsData.isMakeBeforeRun);
+    compilerProfileComboBox.setModel(new DefaultComboBoxModel<>(settingsData.profiles));
+    compilerProfileComboBox.setSelectedItem(settingsData.compilerProfileName);
   }
 
   public JPanel getMainPanel() {
     return mainPanel;
   }
 
-  public void applyTo() {
-    if (moduleComboBox.isEnabled()) {
-      Module nm = moduleComboBox.getSelectedModule();
-      Option<String> om = WorksheetCompiler.getModuleForCpName(myFile);
-
-      if (nm != null) {
-        String name = nm.getName();
-        String oldName = om.isDefined() ? om.get() : null;
-        if (!name.equals(oldName)) WorksheetCompiler.setModuleForCpName(myFile, name);
-      }
-    }
-
-    WorksheetCompiler.setMakeBeforeRun(myFile, makeProjectBeforeRunCheckBox.isSelected());
-    WorksheetCompiler.setWorksheetReplMode(myFile, useREPLModeCheckBox.isSelected());
-    WorksheetAutoRunner.setAutorun(myFile, interactiveModeCheckBox.isSelected());
+  public WorksheetSettingsData getSettings() {
+    return new WorksheetSettingsData(
+        useREPLModeCheckBox.isSelected(),
+        interactiveModeCheckBox.isSelected(),
+        makeProjectBeforeRunCheckBox.isSelected(),
+        moduleComboBox.isEnabled() ? moduleComboBox.getSelectedModule() : null,
+        (ScalaCompilerSettingsProfile) compilerProfileComboBox.getSelectedItem(),
+        null
+    );
   }
 
   private void createUIComponents() {
@@ -82,12 +77,12 @@ public class WorksheetFileSettingsForm {
   private void $$$setupUI$$$() {
     createUIComponents();
     mainPanel = new JPanel();
-    mainPanel.setLayout(new GridLayoutManager(5, 2, new Insets(0, 0, 0, 0), -1, -1));
+    mainPanel.setLayout(new GridLayoutManager(6, 2, new Insets(0, 0, 0, 0), -1, -1));
     useREPLModeCheckBox = new JCheckBox();
     useREPLModeCheckBox.setText("Use REPL Mode");
     mainPanel.add(useREPLModeCheckBox, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer1 = new Spacer();
-    mainPanel.add(spacer1, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    mainPanel.add(spacer1, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     interactiveModeCheckBox = new JCheckBox();
     interactiveModeCheckBox.setText("Interactive Mode");
     mainPanel.add(interactiveModeCheckBox, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -98,6 +93,11 @@ public class WorksheetFileSettingsForm {
     final JLabel label1 = new JLabel();
     label1.setText("Use class path of module:");
     mainPanel.add(label1, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    compilerProfileComboBox = new JComboBox();
+    mainPanel.add(compilerProfileComboBox, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label2 = new JLabel();
+    label2.setText("Compiler profile:");
+    mainPanel.add(label2, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
   }
 
   /**
