@@ -31,32 +31,29 @@ import scala.collection.mutable.ArrayBuffer
 object ScalaCompletionUtil {
   val PREFIX_COMPLETION_KEY: Key[Boolean] = Key.create("prefix.completion.key")
 
-  def completeThis(ref: ScReferenceExpression): Boolean = {
-    ref.qualifier match {
-      case Some(_) => false
-      case None =>
-        ref.getParent match {
-          case inf: ScInfixExpr if inf.operation == ref => false
-          case postf: ScPostfixExpr if postf.operation == ref => false
-          case pref: ScPrefixExpr if pref.operation == ref => false
-          case _ => true
-        }
-    }
-  }
+  def completeThis(ref: ScReferenceExpression): Boolean =
+    ref.qualifier.isEmpty || (ref.getParent match {
+      case e: ScSugarCallExpr => e.operation != ref
+      case _ => true
+    })
 
-  def shouldRunClassNameCompletion(dummyPosition: PsiElement, parameters: CompletionParameters, prefixMatcher: PrefixMatcher,
-                                   checkInvocationCount: Boolean = true, lookingForAnnotations: Boolean = false): Boolean = {
+  def shouldRunClassNameCompletion(dummyPosition: PsiElement,
+                                   prefixMatcher: PrefixMatcher,
+                                   checkInvocationCount: Boolean = true)
+                                  (implicit parameters: CompletionParameters): Boolean = {
     if (checkInvocationCount && parameters.getInvocationCount < 2) return false
+
     if (dummyPosition.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
       dummyPosition.getParent match {
         case ref: ScReferenceElement if ref.qualifier.isDefined => return false
         case _ =>
       }
     }
+
     if (checkInvocationCount && parameters.getInvocationCount >= 2) return true
+
     val prefix = prefixMatcher.getPrefix
-    val capitalized = prefix.length() > 0 && prefix.substring(0, 1).capitalize == prefix.substring(0, 1)
-    capitalized || lookingForAnnotations
+    prefix.nonEmpty && prefix.charAt(0).isUpper
   }
 
   def generateAnonymousFunctionText(braceArgs: Boolean, params: scala.Seq[ScType], canonical: Boolean,

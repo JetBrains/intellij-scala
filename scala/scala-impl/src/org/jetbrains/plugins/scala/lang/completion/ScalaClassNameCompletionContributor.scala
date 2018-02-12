@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
-package lang.completion
+package lang
+package completion
 
 import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.completion._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
-import com.intellij.patterns.PlatformPatterns
 import com.intellij.patterns.PlatformPatterns.psiElement
+import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, _}
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, PrefixPackageToImport, TypeAliasToImport, TypeToImport}
 import org.jetbrains.plugins.scala.extensions._
@@ -35,33 +35,56 @@ import org.jetbrains.plugins.scala.project._
 import scala.collection.mutable
 
 class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
-  import org.jetbrains.plugins.scala.lang.completion.ScalaClassNameCompletionContributor._
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
-    withParent(classOf[ScReferenceElement]), new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-      if (shouldRunClassNameCompletion(positionFromParameters(parameters), parameters, result.getPrefixMatcher)) {
-        completeClassName(positionFromParameters(parameters), parameters, context, result)
-      }
-      result.stopHere()
-    }
-  })
 
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement(), new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-      parameters.getPosition.getNode.getElementType match {
-        case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
-          if (shouldRunClassNameCompletion(positionFromParameters(parameters), parameters, result.getPrefixMatcher)) {
-            completeClassName(positionFromParameters(parameters), parameters, context, result)
-          }
-        case _ =>
+  import ScalaClassNameCompletionContributor._
+
+  extend(
+    CompletionType.BASIC,
+    psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(classOf[ScReferenceElement]),
+    new CompletionProvider[CompletionParameters] {
+
+      override def addCompletions(parameters: CompletionParameters,
+                                  context: ProcessingContext,
+                                  result: CompletionResultSet): Unit = {
+        completeClassName(result)(parameters, context)
+        result.stopHere()
       }
     }
-  })
+  )
+
+  extend(
+    CompletionType.BASIC,
+    psiElement(),
+    new CompletionProvider[CompletionParameters]() {
+
+      override def addCompletions(parameters: CompletionParameters,
+                                  context: ProcessingContext,
+                                  result: CompletionResultSet): Unit =
+        parameters.getPosition.getNode.getElementType match {
+          case ScalaTokenTypes.tSTRING |
+               ScalaTokenTypes.tMULTILINE_STRING => completeClassName(result)(parameters, context)
+          case _ =>
+        }
+    }
+  )
 }
 
 object ScalaClassNameCompletionContributor {
-  def completeClassName(dummyPosition: PsiElement, parameters: CompletionParameters, context: ProcessingContext,
-                        result: CompletionResultSet): Boolean = {
+
+  def completeClassName(result: CompletionResultSet,
+                        checkInvocationCount: Boolean = true,
+                        lookingForAnnotations: Boolean = false)
+                       (implicit parameters: CompletionParameters,
+                        context: ProcessingContext): Unit =
+    positionFromParameters(parameters) match {
+      case element if lookingForAnnotations || shouldRunClassNameCompletion(element, result.getPrefixMatcher, checkInvocationCount) =>
+        completeClassName(element, result)
+      case _ =>
+    }
+
+  private[this] def completeClassName(dummyPosition: PsiElement, result: CompletionResultSet)
+                                     (implicit parameters: CompletionParameters,
+                                      context: ProcessingContext): Boolean = {
     val expectedTypesAfterNew: Array[ScType] =
       if (afterNewPattern.accepts(dummyPosition, context)) {
         val element = dummyPosition
@@ -156,7 +179,7 @@ object ScalaClassNameCompletionContributor {
       }
     }
 
-    val checkSynthetic = parameters.getOriginalFile.scalaLanguageLevel.map(_ < Scala_2_9).getOrElse(true)
+    val checkSynthetic = parameters.getOriginalFile.scalaLanguageLevel.forall(_ < Scala_2_9)
     val QualNameToType = project.stdTypes.QualNameToType
     for {
       clazz <- SyntheticClasses.get(project).all.valuesIterator

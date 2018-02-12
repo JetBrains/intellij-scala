@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 
 /**
  * @author Alexander Podkhalyuzin
@@ -55,9 +56,17 @@ abstract class ScalaCompletionContributor extends CompletionContributor {
 }
 
 class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
-  private val addedElements = collection.mutable.Set[String]()
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement(), new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+
+  private val addedElements = mutable.Set[String]()
+
+  extend(
+    CompletionType.BASIC,
+    PlatformPatterns.psiElement(),
+    new CompletionProvider[CompletionParameters] {
+
+      override def addCompletions(parameters: CompletionParameters,
+                                  context: ProcessingContext,
+                                  result: CompletionResultSet): Unit = {
       val dummyPosition = positionFromParameters(parameters)
 
       val node = Option(dummyPosition.getNode).getOrElse(return)
@@ -101,7 +110,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
       result.restartCompletionWhenNothingMatches()
 
       //if prefix is capitalized, class name completion is enabled
-      val classNameCompletion = shouldRunClassNameCompletion(positionFromParameters(parameters), parameters, result.getPrefixMatcher)
+      val classNameCompletion = shouldRunClassNameCompletion(dummyPosition, result.getPrefixMatcher)(parameters)
       val insertedElement: PsiElement = position
       if (!inString && !inInterpolatedString && !ScalaPsiUtil.fileContext(insertedElement).isInstanceOf[ScalaFile]) return
       val lookingForAnnotations: Boolean =
@@ -230,10 +239,12 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                 applyVariant(variant)
               }
           }
-          if (!elementAdded && !classNameCompletion && ScalaCompletionUtil.shouldRunClassNameCompletion(
-            positionFromParameters(parameters), parameters,
-            result.getPrefixMatcher, checkInvocationCount = false, lookingForAnnotations = lookingForAnnotations)) {
-            ScalaClassNameCompletionContributor.completeClassName(dummyPosition, parameters, context, result)
+          if (!elementAdded && !classNameCompletion) {
+            ScalaClassNameCompletionContributor.completeClassName(
+              result,
+              checkInvocationCount = false,
+              lookingForAnnotations = lookingForAnnotations
+            )(parameters, context)
           }
 
           //adds runtime completions for evaluate expression in debugger
