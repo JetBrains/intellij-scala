@@ -41,16 +41,16 @@ class ScalaPackageObjectFilter(scope: GlobalSearchScope) extends ExceptionFilter
   import ScalaPackageObjectFilter.parseStackTraceLine
 
   override def applyFilter(line: String, textEndOffset: Int): Filter.Result = {
-    val defaultResult = new ExceptionFilter(scope).applyFilter(line, textEndOffset)
-
     line match {
       case packageObjectFile(vFile, lineNumber) =>
         val link = new OpenFileHyperlinkInfo(scope.getProject, vFile, lineNumber)
+        val defaultResult = new ExceptionFilter(scope).applyFilter(line, textEndOffset)
+
         val updated =
           defaultResult.getResultItems.asScala
             .map(updateLink(_, link)).asJava
         new Filter.Result(updated)
-      case _ => defaultResult
+      case _ => null
     }
   }
 
