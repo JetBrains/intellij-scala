@@ -7,19 +7,18 @@ import com.intellij.codeInsight.completion._
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, PrefixPackageToImport, TypeAliasToImport, TypeToImport}
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaLookupItem}
+import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getContextOfType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
@@ -27,12 +26,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticCla
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_9
 import org.jetbrains.plugins.scala.project._
 
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.JavaConverters
 
 class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
 
@@ -85,16 +83,6 @@ object ScalaClassNameCompletionContributor {
   private[this] def completeClassName(dummyPosition: PsiElement, result: CompletionResultSet)
                                      (implicit parameters: CompletionParameters,
                                       context: ProcessingContext): Boolean = {
-    val expectedTypesAfterNew: Array[ScType] =
-      if (afterNewPattern.accepts(dummyPosition, context)) {
-        val element = dummyPosition
-        val newExpr = PsiTreeUtil.getContextOfType(element, classOf[ScNewTemplateDefinition])
-        //todo: probably we need to remove all abstracts here according to variance
-        newExpr.expectedTypes().map {
-          case ScAbstractType(_, _, upper) => upper
-          case tp => tp
-        }
-      } else Array.empty
     val (position, inString) = dummyPosition.getNode.getElementType match {
       case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
         val position = dummyPosition
@@ -108,27 +96,12 @@ object ScalaClassNameCompletionContributor {
     val invocationCount = parameters.getInvocationCount
     if (!inString && !ScalaPsiUtil.fileContext(position).isInstanceOf[ScalaFile]) return true
     val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(position)
-    val isInImport = ScalaPsiUtil.getContextOfType(position, false, classOf[ScImportStmt]) != null
-    val stableRefElement = ScalaPsiUtil.getContextOfType(position, false, classOf[ScStableCodeReferenceElement])
-    val refElement = ScalaPsiUtil.getContextOfType(position, false, classOf[ScReferenceElement])
+    val isInImport = getContextOfType(position, false, classOf[ScImportStmt]) != null
+    val stableRefElement = getContextOfType(position, false, classOf[ScStableCodeReferenceElement])
     val onlyClasses = stableRefElement != null && !stableRefElement.getContext.isInstanceOf[ScConstructorPattern]
 
-    val renamesMap = new mutable.HashMap[String, (String, PsiNamedElement)]()
-    val reverseRenamesMap = new mutable.HashMap[String, PsiNamedElement]()
-
-    refElement match {
-      case ref: PsiReference => ref.getVariants.foreach {
-        case s: ScalaLookupItem =>
-          s.isRenamed match {
-            case Some(name) =>
-              renamesMap += ((s.element.name, (name, s.element)))
-              reverseRenamesMap += ((name, s.element))
-            case None =>
-          }
-        case _ =>
-      }
-      case _ =>
-    }
+    val renamesMap = createRenamesMap(position)
+    val maybeExpectedTypes = expectedTypesAfterNew(dummyPosition)
 
     implicit val project: Project = position.getProject
 
@@ -137,11 +110,10 @@ object ScalaClassNameCompletionContributor {
 
       val TypeToImport(element, name) = typeToImport
 
-      val isAccessible =
-        invocationCount >= 2 || (element match {
-          case member: PsiMember => ResolveUtils.isAccessible(member, position, forCompletion = true)
-          case _ => true
-        })
+      val isAccessible = invocationCount >= 2 || (element match {
+        case member: PsiMember => ResolveUtils.isAccessible(member, position, forCompletion = true)
+        case _ => true
+      })
       if (!isAccessible) return
 
       if (lookingForAnnotations && !typeToImport.isAnnotationType) return
@@ -151,23 +123,21 @@ object ScalaClassNameCompletionContributor {
         case _ =>
       }
 
-      val renamed = renamesMap.get(name).collect {
-        case (s, `element`) => s
-      }
-
-      val lookups = LookupElementManager.getLookupElement(
-        new ScalaResolveResult(element, nameShadow = renamed),
-        isClassName = true,
-        isInImport = isInImport,
-        isInStableCodeReference = stableRefElement != null,
-        isInSimpleString = inString
-      ).flatMap {
-        case _ if afterNewPattern.accepts(dummyPosition, context) =>
-          typeToImport match {
-            case ClassTypeToImport(clazz) => Some(getLookupElementFromClass(expectedTypesAfterNew, clazz, renamesMap))
-            case _ => None
+      val lookups = (typeToImport, maybeExpectedTypes) match {
+        case (ClassTypeToImport(clazz), Some(expectedTypes)) =>
+          Seq(getLookupElementFromClass(expectedTypes, clazz, renamesMap))
+        case _ =>
+          val nameShadow = renamesMap.get(name).collect {
+            case (`element`, s) => s
           }
-        case e => Some(e)
+
+          LookupElementManager.getLookupElement(
+            new ScalaResolveResult(element, nameShadow = nameShadow),
+            isClassName = true,
+            isInImport = isInImport,
+            isInStableCodeReference = stableRefElement != null,
+            isInSimpleString = inString
+          )
       }
 
       import JavaConverters._
@@ -202,7 +172,7 @@ object ScalaClassNameCompletionContributor {
     }
 
     for {
-      (name, elem: PsiNamedElement) <- reverseRenamesMap
+      (elem, name) <- renamesMap.values
       if prefixMatcher.prefixMatches(name)
       if !prefixMatcher.prefixMatches(elem.name)
     } {
@@ -229,5 +199,4 @@ object ScalaClassNameCompletionContributor {
     case PrefixPackageToImport(pack) =>
       JavaProjectCodeInsightSettings.getSettings(project).isExcluded(pack.getQualifiedName)
   }
-
 }

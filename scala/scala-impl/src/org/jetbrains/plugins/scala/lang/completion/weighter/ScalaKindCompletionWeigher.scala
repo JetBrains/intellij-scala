@@ -51,7 +51,7 @@ class ScalaKindCompletionWeigher extends CompletionWeigher {
       }
 
     val isTypedPosition = ScalaCompletionUtil.isTypeDefiniton(position)
-    val isAfterNewPosition = ScalaAfterNewCompletionUtil.isAfterNew(position, location.getProcessingContext)
+    val isAfterNewPosition = ScalaAfterNewCompletionUtil.isAfterNew(position)(location.getProcessingContext)
 
     ScalaLookupItem.original(element) match {
       case _ if isTypedPosition || isAfterNewPosition => null

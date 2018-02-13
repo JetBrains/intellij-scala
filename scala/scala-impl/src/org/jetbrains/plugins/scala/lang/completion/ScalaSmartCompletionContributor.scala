@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager.
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaChainLookupElement, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -616,24 +615,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
         val element = positionFromParameters(parameters)
 
-        val refElement = ScalaPsiUtil.getContextOfType(element, false, classOf[ScReferenceElement])
-
-        val renamesMap = new mutable.HashMap[String, (String, PsiNamedElement)]()
-        val reverseRenamesMap = new mutable.HashMap[String, PsiNamedElement]()
-
-        refElement match {
-          case ref: PsiReference => ref.getVariants.foreach {
-            case s: ScalaLookupItem =>
-              s.isRenamed match {
-                case Some(name) =>
-                  renamesMap += ((s.element.name, (name, s.element)))
-                  reverseRenamesMap += ((name, s.element))
-                case None =>
-              }
-            case _ =>
-          }
-          case _ =>
-        }
+        val renamesMap = createRenamesMap(element)
 
         val addedClasses = new mutable.HashSet[String]
 

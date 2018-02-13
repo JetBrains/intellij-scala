@@ -3,17 +3,19 @@ package org.jetbrains.plugins.scala.lang.completion
 import com.intellij.codeInsight.completion.{CompletionResultSet, InsertHandler}
 import com.intellij.codeInsight.lookup.{AutoCompletionPolicy, LookupElement, LookupElementPresentation, LookupElementRenderer}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.patterns.ElementPattern
+import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiNamedElement}
 import com.intellij.util.{ProcessingContext, Processor}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
@@ -27,32 +29,53 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import scala.collection.mutable
 
 /**
- * @author Alefas
- * @since 27.03.12
- */
+  * @author Alefas
+  * @since 27.03.12
+  */
 object ScalaAfterNewCompletionUtil {
-  lazy val afterNewPattern = ScalaSmartCompletionContributor.superParentsPattern(classOf[ScStableCodeReferenceElement],
+
+  lazy val afterNewPattern: ElementPattern[PsiElement] = ScalaSmartCompletionContributor.superParentsPattern(classOf[ScStableCodeReferenceElement],
     classOf[ScSimpleTypeElement], classOf[ScConstructor], classOf[ScClassParents], classOf[ScExtendsBlock], classOf[ScNewTemplateDefinition])
 
-  def expectedTypesAfterNew(position: PsiElement, context: ProcessingContext): (Array[ScType], Boolean) = {
-    val isAfter = isAfterNew(position, context)
-    val data = if (isAfter) {
-      val element = position
-      val newExpr: ScNewTemplateDefinition = PsiTreeUtil.getContextOfType(element, classOf[ScNewTemplateDefinition])
-      newExpr.expectedTypes().map {
-        case ScAbstractType(_, _, upper) => upper
-        case tp => tp
-      }
-    } else Array[ScType]()
+  def expectedTypesAfterNew(position: PsiElement)
+                           (implicit context: ProcessingContext): Option[Array[ScType]] =
+    if (isAfterNew(position)) {
+      // todo: probably we need to remove all abstracts here according to variance
+      val expectedTypes = PsiTreeUtil.getContextOfType(position, classOf[ScNewTemplateDefinition])
+        .expectedTypes()
+        .map {
+          case ScAbstractType(_, _, upper) => upper
+          case tp => tp
+        }
 
-    (data, isAfter)
-  }
+      Some(expectedTypes)
+    } else None
 
-  def isAfterNew(position: PsiElement, context: ProcessingContext): Boolean =
+  def isAfterNew(position: PsiElement)
+                (implicit context: ProcessingContext): Boolean =
     afterNewPattern.accepts(position, context)
 
+  type RenamesMap = Map[String, (PsiNamedElement, String)]
+
+  def createRenamesMap(element: PsiElement): RenamesMap = {
+    ScalaPsiUtil.getContextOfType(element, false, classOf[ScReferenceElement]) match {
+      case ref: PsiReference =>
+        ref.getVariants.flatMap {
+          case item: ScalaLookupItem => createRenamePair(item)
+          case _ => None
+        }.toMap
+      case _ => Map.empty
+    }
+  }
+
+  def createRenamePair(item: ScalaLookupItem): Option[(String, (PsiNamedElement, String))] =
+    item.isRenamed.map { name =>
+      val element = item.element
+      element.name -> (element, name)
+    }
+
   def getLookupElementFromClass(expectedTypes: Array[ScType], clazz: PsiClass,
-                                renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): LookupElement = {
+                                renamesMap: RenamesMap): LookupElement = {
     implicit val ctx: ProjectContext = clazz
 
     val undefines = clazz.getTypeParameters.map(UndefinedType(_))
@@ -130,13 +153,14 @@ object ScalaAfterNewCompletionUtil {
 
 
   private def getLookupElementFromTypeAndClass(tp: ScType, psiClass: PsiClass, subst: ScSubstitutor,
-                                       renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
-                                       insertHandler: InsertHandler[LookupElement],
-                                       renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): ScalaLookupItem = {
-    val name: String = psiClass.name
-    val isRenamed = renamesMap.filter {
-      case (aName, (_, aClazz)) => aName == name && aClazz == psiClass
-    }.map(_._2._1).headOption
+                                               renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
+                                               insertHandler: InsertHandler[LookupElement],
+                                               renamesMap: RenamesMap): ScalaLookupItem = {
+    val name = psiClass.name
+    val isRenamed = renamesMap.get(name).collect {
+      case (`psiClass`, s) => s
+    }
+
     val lookupElement: ScalaLookupItem = new ScalaLookupItem(psiClass, isRenamed.getOrElse(name)) {
       override def renderElement(presentation: LookupElementPresentation) {
         renderer(tp, psiClass, subst).renderElement(this, presentation)
@@ -166,7 +190,7 @@ object ScalaAfterNewCompletionUtil {
   def convertTypeToLookupElement(tp: ScType, place: PsiElement, addedClasses: mutable.HashSet[String],
                                  renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
                                  insertHandler: InsertHandler[LookupElement],
-                                 renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): ScalaLookupItem = {
+                                 renamesMap: RenamesMap): ScalaLookupItem = {
     tp.extractClassType match {
       case Some((_: ScObject, _)) => null
       case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
@@ -191,7 +215,7 @@ object ScalaAfterNewCompletionUtil {
                                result: CompletionResultSet,
                                renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
                                insertHandler: InsertHandler[LookupElement],
-                               renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]) {
+                               renamesMap: RenamesMap) {
     implicit val project = place.getProject
 
     typez.extractClass match {

@@ -30,8 +30,6 @@ class ScalaByNameWeigher extends CompletionWeigher {
   override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
     val position = positionFromParameters(location.getCompletionParameters)
     val originalPostion = location.getCompletionParameters.getOriginalPosition
-    val context = location.getProcessingContext
-
     def extractVariableNameFromPosition: Option[String] = {
       def afterColonType: Option[String] = {
         val result = position.getContext.getContext.getContext
@@ -108,7 +106,7 @@ class ScalaByNameWeigher extends CompletionWeigher {
       }
     }
 
-    def isAfterNew = ScalaAfterNewCompletionUtil.isAfterNew(position, context)
+    def isAfterNew = ScalaAfterNewCompletionUtil.isAfterNew(position)(location.getProcessingContext)
     def isTypeDefiniton = ScalaCompletionUtil.isTypeDefiniton(position)
 
     if (isAfterNew || isTypeDefiniton) {

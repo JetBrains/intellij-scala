@@ -135,22 +135,17 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
               case el: ScalaLookupItem if el.isValid =>
                 if (inString) el.isInSimpleString = true
                 if (inInterpolatedString) el.isInInterpolatedString = true
-                val elem = el.element
-                elem match {
+                el.element match {
                   case clazz: PsiClass =>
-                    import scala.collection.mutable.{HashMap => MHashMap}
-                    val renamedMap = new MHashMap[String, (String, PsiNamedElement)]
-                    el.isRenamed.foreach(name => renamedMap += ((clazz.name, (name, clazz))))
-
                     if (!ScalaCompletionUtil.isExcluded(clazz) &&
                       !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
 
-                      val (typesAfterNew, isAfterNew) =
-                        ScalaAfterNewCompletionUtil.expectedTypesAfterNew(position, context)
+                      val lookupElement = expectedTypesAfterNew(position)(context).map { expectedTypes =>
+                        val renamedMap = createRenamePair(el).toMap
+                        getLookupElementFromClass(expectedTypes, clazz, renamedMap)
+                      }.getOrElse(el)
 
-                      addElement(
-                        if (isAfterNew) getLookupElementFromClass(typesAfterNew, clazz, renamedMap) else el
-                      )
+                      addElement(lookupElement)
                     }
                   case _ if lookingForAnnotations =>
                   case f: FakePsiMethod if f.name.endsWith("_=") && parameters.getInvocationCount < 2 => //don't show _= methods for vars in basic completion
