@@ -13,10 +13,10 @@ import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, Ext
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
-import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkType, ProjectJdkTable}
+import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkType, JdkUtil, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.Pair
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.{Pair, SystemInfo}
 import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.util.Function
 import com.intellij.util.net.HttpConfigurable
@@ -116,9 +116,13 @@ object SbtExternalSystemManager {
   }
 
   private def getRealVmExecutable(projectJdkName: Option[String], settings: SbtSystemSettings): File = {
-    val customVmFile = new File(settings.getCustomVMPath) / "bin" / "java"
-    val customVmExecutable = settings.customVMEnabled.option(customVmFile)
-    val jdkType = JavaSdk.getInstance()
+
+    val customPath = settings.getCustomVMPath
+    val customVmExecutable =
+      if (settings.customVMEnabled && JdkUtil.checkForJre(customPath)) {
+        val javaExe = if (SystemInfo.isWindows) "java.exe" else "java"
+        Some(new File(customPath) / "bin" / javaExe)
+      } else None
 
     customVmExecutable.orElse {
       projectJdkName
@@ -134,6 +138,7 @@ object SbtExternalSystemManager {
         }
     }
     .orElse {
+      val jdkType = JavaSdk.getInstance()
       Option(ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType))
         .map { sdk =>
           new File(jdkType.getVMExecutablePath(sdk))
