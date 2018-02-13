@@ -6,7 +6,7 @@ import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
 import com.intellij.execution.filters._
 import com.intellij.execution.impl.ConsoleViewImpl.ClearAllAction
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, DefaultActionGroup}
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
@@ -18,32 +18,34 @@ import org.jetbrains.sbt.shell.action._
 class SbtShellConsoleView private(project: Project, debugConnection: Option[RemoteConnection]) extends
   LanguageConsoleImpl(project, SbtShellFileType.getName, SbtShellLanguage) {
 
-  override def createConsoleActions(): Array[AnAction] = {
-
+  def addConsoleActions(group: DefaultActionGroup): Unit = {
     // hackery because we can't construct those actions directly
     val defaultActions = super.createConsoleActions()
     val toggleSoftWrapsAction = defaultActions.find { a => a.isInstanceOf[ToggleUseSoftWrapsToolbarAction] }.get
     val clearAllAction = defaultActions.find { a => a.isInstanceOf[ClearAllAction] }.get
 
-    val debugAction = debugConnection.map(new DebugShellAction(project, _))
-    val conditionalActions = Array(debugAction).flatten
+    val startAction = new StartAction(project)
+    val stopAction = new StopAction(project)
+    val debugShellAction = new DebugShellAction(project, debugConnection)
+    val scrollToTheEndToolbarAction = new SbtShellScrollToTheEndToolbarAction(getEditor)
+    val eofAction = new EOFAction(project)
 
-    val myToolbarActions: Array[AnAction] = Array(
+    val allActions: Array[AnAction] = Array(
+      startAction,
+      stopAction,
+      debugShellAction,
+      scrollToTheEndToolbarAction,
       toggleSoftWrapsAction,
-      new SbtShellScrollToTheEndToolbarAction(getEditor),
       clearAllAction,
-      new RestartAction(project),
-      new StopAction(project),
-      new ExecuteTaskAction(this, "products", Option(AllIcons.Actions.Compile))
+      eofAction
     )
 
-    val toolbarActions = conditionalActions ++ myToolbarActions
-    toolbarActions.foreach {act => act.registerCustomShortcutSet(act.getShortcutSet, this) }
+    allActions.foreach {act => act.registerCustomShortcutSet(act.getShortcutSet, this) }
 
-    val shortcutOnlyActions = Seq(new EOFAction(project))
-    shortcutOnlyActions.foreach {act => act.registerCustomShortcutSet(act.getShortcutSet, this) }
+    group.addAll(startAction, stopAction, debugShellAction)
+    group.addSeparator()
+    group.addAll(scrollToTheEndToolbarAction, toggleSoftWrapsAction, clearAllAction)
 
-    toolbarActions
   }
 
 }
@@ -81,6 +83,5 @@ object SbtShellConsoleView {
     val dataFinder = new PatternBasedFileHyperlinkRawDataFinder(Array(fileWithLineFormat, fileOnlyFormat))
     new PatternBasedFileHyperlinkFilter(project, null, dataFinder)
   }
-
 
 }

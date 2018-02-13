@@ -296,6 +296,14 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   override def projectClosed(): Unit = {
     destroyProcess()
   }
+
+  /**
+    * Report if shell process is alive. Should only be used for UI/informational purposes.
+    */
+  def isAlive: Boolean = processData match {
+    case Some(ProcessData(handler, _)) if handler.getProcess.isAlive => true
+    case _ => false
+  }
 }
 
 object SbtProcessManager {
