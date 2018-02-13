@@ -11,6 +11,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class ScalaAnnotationTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  override protected def shouldPass: Boolean = false
+
   def testSCL10352(): Unit = {
     checkTextHasNoErrors(
       """

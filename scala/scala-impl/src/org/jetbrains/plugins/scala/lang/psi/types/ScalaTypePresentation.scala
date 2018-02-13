@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 
 import scala.annotation.tailrec
@@ -61,7 +62,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
     }
 
     def projectionTypeText(projType: ScProjectionType, needDotType: Boolean): String = {
-      val ScProjectionType(p, _, _) = projType
+      val ScProjectionType(p, _) = projType
       val e = projType.actualElement
       val refName = e.name
       def checkIfStable(elem: PsiElement): Boolean = {
@@ -76,7 +77,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         def unapply(t: ScType): Option[PsiClass] = t match {
           case ScDesignatorType(clazz: PsiClass) if isStaticJavaClass(e) => Some(clazz)
           case ParameterizedType(ScDesignatorType(clazz: PsiClass), _) if isStaticJavaClass(e) => Some(clazz)
-          case ScProjectionType(_, clazz: PsiClass, _) if isStaticJavaClass(e) => Some(clazz)
+          case ScProjectionType(_, clazz: PsiClass) if isStaticJavaClass(e) => Some(clazz)
           case _ => None
         }
 

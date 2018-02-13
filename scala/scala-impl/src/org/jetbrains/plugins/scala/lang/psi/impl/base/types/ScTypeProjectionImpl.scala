@@ -32,7 +32,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) w
       case Some(ScalaResolveResult(elem, _)) =>
         typeElement.`type`().map {
           case ScDesignatorType(_: PsiPackage) => ScalaType.designator(elem)
-          case t => ScProjectionType(t, elem, superReference = false)
+          case t => ScProjectionType(t, elem)
         }
       case _ => Failure("Cannot Resolve reference")
     }

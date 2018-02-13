@@ -55,7 +55,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     PlatformTestCase.myFilesToDelete.remove(getImlFile)
   }
 
-  override def getIprFile: File = {
+  def getIprFile: File = {
     val file = new File(testDataBasePath, testClassName + ProjectFileType.DOT_DEFAULT_EXTENSION)
     FileUtil.createIfDoesntExist(file)
     file

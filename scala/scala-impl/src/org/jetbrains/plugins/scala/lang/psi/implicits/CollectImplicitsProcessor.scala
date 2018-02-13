@@ -11,8 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
@@ -48,20 +47,13 @@ class CollectImplicitsProcessor(expression: ScExpression, withoutPrecedence: Boo
               return true
             }
             if (f.hasTypeParameters) {
-              val typeParameters = f.typeParameters
               for {
                 param <- clauses(1).parameters
                 paramType <- param.`type`()
               } {
-                var hasTypeParametersInType = false
-                paramType.recursiveUpdate {
-                  case tp@TypeParameterType(_, _, _, _) if typeParameters.contains(tp.name) =>
-                    hasTypeParametersInType = true
-                    ReplaceWith(tp)
-                  case tp: ScType if hasTypeParametersInType => ReplaceWith(tp)
-                  case _ => ProcessSubtypes
-                }
-                if (hasTypeParametersInType) return true //looks like it's not working in compiler 2.10, so it's faster to avoid it
+                //looks like it's not working in compiler 2.10, so it's faster to avoid it
+                if (paramType.subtypeExists(_.isInstanceOf[TypeParameterType]))
+                  return true
               }
             }
           }

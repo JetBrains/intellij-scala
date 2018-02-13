@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTr
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -54,7 +55,7 @@ object ScalaAfterNewCompletionUtil {
                                 renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): LookupElement = {
     implicit val ctx: ProjectContext = clazz
 
-    val undefines = clazz.getTypeParameters.map(p => UndefinedType(TypeParameterType(p)))
+    val undefines = clazz.getTypeParameters.map(UndefinedType(_))
     val predefinedType =
       if (clazz.getTypeParameters.length == 1) {
         ScParameterizedType(ScDesignatorType(clazz), undefines)
@@ -202,7 +203,7 @@ object ScalaAfterNewCompletionUtil {
         ClassInheritorsSearch.search(clazz, searchScope, true).forEach(new Processor[PsiClass] {
           def process(clazz: PsiClass): Boolean = {
             if (clazz.name == null || clazz.name == "") return true
-            val undefines = clazz.getTypeParameters.map(p => UndefinedType(TypeParameterType(p)))
+            val undefines = clazz.getTypeParameters.map(UndefinedType(_))
             val predefinedType =
               if (clazz.getTypeParameters.nonEmpty) {
                 ScParameterizedType(ScDesignatorType(clazz), undefines)

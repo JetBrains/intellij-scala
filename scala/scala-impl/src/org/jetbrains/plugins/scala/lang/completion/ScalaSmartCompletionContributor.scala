@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
@@ -188,7 +189,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           }
           def checkTypeProjection(tp: ScType) {
             tp match {
-              case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait, _) =>
+              case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait) =>
                 proj.extractClass match {
                   case Some(o: ScObject) if ResolveUtils.isAccessible(o, place, forCompletion = true) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
                   case _ =>

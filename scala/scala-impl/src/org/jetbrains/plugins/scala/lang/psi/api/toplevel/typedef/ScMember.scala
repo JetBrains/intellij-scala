@@ -126,6 +126,10 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     }
   }
 
+  abstract override def getContainingFile: PsiFile = {
+    syntheticContainingClass.map(_.getContainingFile).getOrElse(super.getContainingFile)
+  }
+
   protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean) = false
 
   override def getNavigationElement: PsiElement = getContainingFile match {

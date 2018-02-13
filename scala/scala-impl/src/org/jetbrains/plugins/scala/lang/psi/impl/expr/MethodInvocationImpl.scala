@@ -17,8 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.MethodInvocationImpl._
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TupleType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
-import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, Compatibility, ScSubstitutor, ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, Compatibility, ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
@@ -234,7 +235,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     PartialFunction.condOpt(candidates) {
       case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
 
-        val polyType = fun.polymorphicType(s).updateTypeOfDynamicCall(r.isDynamic)
+        val typeProvider = fun.methodTypeProvider(elementScope)
+        val polyType = typeProvider.polymorphicType(s).updateTypeOfDynamicCall(r.isDynamic)
 
         val fixedType = invokedType match {
           case ScTypePolymorphicType(_, typeParams) =>

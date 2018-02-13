@@ -11,6 +11,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  override protected def shouldPass: Boolean = false
+
   //TODO: the issue does not reproduce when test is performed  using OverridingAnnotatorTest
   def testSCL3807(): Unit = {
     checkTextHasNoErrors(

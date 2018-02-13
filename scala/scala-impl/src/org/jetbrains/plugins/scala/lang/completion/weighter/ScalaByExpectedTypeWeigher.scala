@@ -4,7 +4,7 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher, Wei
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiField, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiTypeExt}
-import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionUtil, ScalaSmartCompletionContributor}
+import org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor
 import org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor.ReferenceWithElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -13,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 
 /**
   * Created by Kate Ustyuzhanina on 11/24/16.

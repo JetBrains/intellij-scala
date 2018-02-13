@@ -13,6 +13,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class ScalaZTest extends TypeInferenceTestBase {
 
+  override protected def shouldPass: Boolean = false
+
   override protected def additionalLibraries(): Seq[LibraryLoader] =
     IvyManagedLoader("org.scalaz" %% "scalaz-core" % "7.1.0") :: Nil
 

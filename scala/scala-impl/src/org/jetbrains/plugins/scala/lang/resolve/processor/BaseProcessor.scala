@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -197,13 +198,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             case None => true
           }
         }
-      case proj@ScProjectionType(_, _, _) if proj.actualElement.isInstanceOf[ScTypeAlias] =>
+      case proj@ScProjectionType(_, _) if proj.actualElement.isInstanceOf[ScTypeAlias] =>
         val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
         val subst = proj.actualSubst
         val upper = ta.upperBound.getOrElse(return true)
         processType(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
           visitedProjections = visitedProjections + ta, visitedTypeParameter = visitedTypeParameter)
-      case proj@ScProjectionType(_, _, _) =>
+      case proj@ScProjectionType(_, _) =>
         val s: ScSubstitutor = if (updateWithProjectionSubst)
           ScSubstitutor(proj) followed proj.actualSubst
         else proj.actualSubst

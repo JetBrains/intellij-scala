@@ -40,7 +40,7 @@ trait ShapelessUtils {
       args.zipWithIndex.map{e => (s"_${e._2}", e._1)}
     case ScDesignatorType(c: ScClass) if c.isCase =>
       extractFiledsFromClass(c)
-    case ScProjectionType(_, elem: ScClass, _) if elem.isCase =>
+    case ScProjectionType(_, elem: ScClass) if elem.isCase =>
       extractFiledsFromClass(elem)
     case _ => Seq.empty
   }

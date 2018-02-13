@@ -160,10 +160,9 @@ object PatternAnnotator {
     case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
       scType.tryExtractDesignatorSingleton
     case _ =>
-      scType.recursiveUpdate {
-        case ScAbstractType(_, _, upper) => ReplaceWith(upper)
-        case TypeParameterType(_, _, upper, _) => ReplaceWith(upper)
-        case _ => ProcessSubtypes
+      scType.updateRecursively {
+        case ScAbstractType(_, _, upper) => upper
+        case TypeParameterType(_, _, upper, _) => upper
       }
   }
 
@@ -185,10 +184,9 @@ object PatternAnnotatorUtil {
         return scType
       }
       val newVisited = visited + scType
-      scType.recursiveUpdate {
+      scType.updateRecursively {
         case tp: TypeParameterType =>
-          ReplaceWith(ScAbstractType(tp, abstraction(tp.lowerType, newVisited), abstraction(tp.upperType, newVisited)))
-        case _ => ProcessSubtypes
+          ScAbstractType(tp, abstraction(tp.lowerType, newVisited), abstraction(tp.upperType, newVisited))
       }
     }
 

@@ -5,8 +5,6 @@ package impl
 package toplevel
 package typedef
 
-import javax.swing.Icon
-
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.openapi.progress.ProcessCanceledException
@@ -16,6 +14,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightField
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiUtil
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -28,7 +27,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiClassWrapper}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
@@ -239,9 +239,21 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
   }
 
   @Cached(ModCount.getBlockModificationCount, this)
-  private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition = {
-    ScalaPsiElementFactory.createObjectWithContext(tree.toString(), getContext, this)
-      .setDesugared(actualElement = this)
+  private def cachedDesugared(tree: scala.meta.Defn.Object, isSynthetic: Boolean): ScTemplateDefinition = {
+    val text = if (isSynthetic) {
+      val syntheticText = getCompanionModule(this) match {
+        case Some(c: ScClass) if c.isCase => c.getSyntheticMethodsText.mkString("\n")
+        case _ => ""
+      }
+      val str = tree.toString()
+      if (str.lastIndexOf("}") == -1)
+        s"$str {\n $syntheticText\n }"
+      else
+        str.replaceAll("}$", s"\n$syntheticText\n}")
+    } else tree.toString()
+
+    ScalaPsiElementFactory.createObjectWithContext(text, getContext, this).
+      setDesugared(actualElement = this)
   }
 
   override def desugaredElement: Option[ScTemplateDefinition] = {
@@ -249,17 +261,19 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     import scala.meta.{Defn, Term, Tree}
 
     if (isDesugared) return None
-    val expansion: Option[Tree] = this.getMetaExpansion match {
-      case Right(tree) => Some(tree)
+    val (expansion, isSynthetic) = this.getMetaExpansion match {
+      case Right(tree: Defn.Object) =>
+        Some(tree) -> false
       case _ => fakeCompanionClassOrCompanionClass match {
         case ah: ScAnnotationsHolder => ah.getMetaExpansion match {
-          case Right(Term.Block(Seq(_, obj: Defn.Object))) => Some(obj)
-          case _ => None
+          case Right(Term.Block(Seq(_, obj: Defn.Object))) =>
+            Some(obj) -> true
+          case _ => None -> false
         }
-        case _ => None
+        case _ => None -> false
       }
     }
 
-    expansion.map(cachedDesugared)
+    expansion.map(cachedDesugared(_, isSynthetic))
   }
 }

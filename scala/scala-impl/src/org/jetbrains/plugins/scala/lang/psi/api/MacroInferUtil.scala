@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern.extractP
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
 
 /**
   * @author Alefas
@@ -96,28 +96,28 @@ object MacroInferUtil {
     }.find {
       _.name == "Aux"
     }.map {
-      ScProjectionType(ScDesignatorType(classCompanion), _, superReference = false)
+      ScProjectionType(ScDesignatorType(classCompanion), _)
     }
 
-    clazz.typeParameters.headOption.map { typeParameter =>
-      UndefinedType(TypeParameterType(typeParameter))
-    }.flatMap { undefinedType =>
-      maybeExpectedType.flatMap {
-        _.conforms(ScParameterizedType(ScDesignatorType(clazz), Seq(undefinedType)), ScUndefinedSubstitutor()) match {
-          case (true, substitutor) =>
-            substitutor.getSubstitutor.map {
-              _.subst(undefinedType)
-            }.flatMap { productLikeType =>
-              createGenericType(productLikeType).flatMap { resultType =>
-                maybeProjectionType.map {
-                  ScParameterizedType(_, Seq(productLikeType, resultType))
+    clazz.typeParameters.headOption
+      .map(UndefinedType(_))
+      .flatMap { undefinedType =>
+        maybeExpectedType.flatMap {
+          _.conforms(ScParameterizedType(ScDesignatorType(clazz), Seq(undefinedType)), ScUndefinedSubstitutor()) match {
+            case (true, substitutor) =>
+              substitutor.getSubstitutor.map {
+                _.subst(undefinedType)
+              }.flatMap { productLikeType =>
+                createGenericType(productLikeType).flatMap { resultType =>
+                  maybeProjectionType.map {
+                    ScParameterizedType(_, Seq(productLikeType, resultType))
+                  }
                 }
               }
-            }
-          case _ => None
+            case _ => None
+          }
         }
       }
-    }
   }
 
 }

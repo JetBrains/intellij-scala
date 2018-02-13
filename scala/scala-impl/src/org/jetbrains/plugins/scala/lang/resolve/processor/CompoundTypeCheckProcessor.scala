@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, Unit, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
 
@@ -95,7 +96,6 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
     }
 
     def checkSignature(sign1: Signature, typeParams: Array[PsiTypeParameter], returnType: ScType): Boolean = {
-      import org.jetbrains.plugins.scala.lang.psi.types.Signature.unify
 
       val sign2 = s
 
@@ -108,8 +108,8 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
 
       val typeParams = sign1.typeParams
       val otherTypeParams = s.typeParams
-      val unified1 = unify(subst, typeParams, typeParams)
-      val unified2 = unify(substitutor, typeParams, otherTypeParams)
+      val unified1 = subst.withBindings(typeParams, typeParams)
+      val unified2 = substitutor.withBindings(otherTypeParams, typeParams)
 
       val bType = unified1.subst(subst.subst(returnType))
       val gType = unified2.subst(substitutor.subst(retType))

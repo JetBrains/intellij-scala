@@ -41,9 +41,7 @@ object InspectionsUtil {
         c.getTypeParameters.toSeq match {
           case Seq() => designatorType
           case params =>
-            ScParameterizedType(designatorType, params.map {
-              p => UndefinedType(TypeParameterType(p))
-            })
+            ScParameterizedType(designatorType, params.map(UndefinedType(_)))
         }
       }
     }

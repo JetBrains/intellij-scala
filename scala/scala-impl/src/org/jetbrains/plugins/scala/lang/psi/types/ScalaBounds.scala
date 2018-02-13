@@ -6,12 +6,13 @@ package types
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
@@ -114,7 +115,7 @@ trait ScalaBounds extends api.Bounds {
     @tailrec
     private def projectionOptionImpl(tp: ScType): Option[ScType] = tp match {
       case ParameterizedType(des, _) => projectionOptionImpl(des)
-      case proj@ScProjectionType(p, _, _) => proj.actualElement match {
+      case proj@ScProjectionType(p, _) => proj.actualElement match {
         case _: PsiClass => Some(p)
         case t: ScTypeAliasDefinition =>
           t.aliasedType.toOption match {
@@ -177,7 +178,7 @@ trait ScalaBounds extends api.Bounds {
 
     def baseDesignator: ScType = {
       projectionOption match {
-        case Some(proj) => ScProjectionType(proj, getNamedElement, superReference = false)
+        case Some(proj) => ScProjectionType(proj, getNamedElement)
         case None => ScalaType.designator(getNamedElement)
       }
     }
@@ -216,10 +217,8 @@ trait ScalaBounds extends api.Bounds {
           if (smartEquivalence(base, inheritor)) {
             bClass.tp match {
               case ParameterizedType(_, typeArgs) =>
-                return Some(bClass.getTypeParameters.zip(typeArgs).foldLeft(ScSubstitutor.empty) {
-                  case (subst: ScSubstitutor, (ptp, typez)) =>
-                    subst.bindT(ptp.nameAndId, typez)
-                })
+                val substitutor = ScSubstitutor.bind(bClass.getTypeParameters, typeArgs)
+                return Some(substitutor)
               case _ => return None
             }
           }
@@ -374,7 +373,7 @@ trait ScalaBounds extends api.Bounds {
     (baseClass.superSubstitutor(clazz1), baseClass.superSubstitutor(clazz2)) match {
       case (Some(superSubst1), Some(superSubst2)) =>
         val tp = ScParameterizedType(baseClassDesignator,
-          baseClass.getTypeParameters.map(TypeParameterType(_, None)))
+          baseClass.getTypeParameters.map(TypeParameterType(_)))
         val tp1 = superSubst1.subst(tp).asInstanceOf[ScParameterizedType]
         val tp2 = superSubst2.subst(tp).asInstanceOf[ScParameterizedType]
         val resTypeArgs = new ArrayBuffer[ScType]

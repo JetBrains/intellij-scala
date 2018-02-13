@@ -1,4 +1,4 @@
 class SCL7704 {
   val condition = false
-  condition./*resolved: true*/`unary_!`
+  condition.<ref>`unary_!`
 }

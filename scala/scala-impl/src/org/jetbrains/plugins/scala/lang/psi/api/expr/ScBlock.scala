@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.collection.mutable
@@ -121,7 +122,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                 ex
               case clazz: ScTypeDefinition =>
                 val t = existize(leastClassType(clazz), visitedWithT)
-                val vars = clazz.typeParameters.map(TypeParameterType(_, None)).toList
+                val vars = clazz.typeParameters.map(TypeParameterType(_)).toList
                 val ex = ScExistentialArgument(clazz.name, vars, t, t)
                 m.put(clazz.name, ex)
                 ex
@@ -132,7 +133,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                 ex
               case _ => t
             }
-            case ScProjectionType(p, elem, s) => ScProjectionType(existize(p, visitedWithT), elem, s)
+            case ScProjectionType(p, elem) => ScProjectionType(existize(p, visitedWithT), elem)
             case ScCompoundType(comps, signatureMap, typesMap) =>
               new ScCompoundType(comps.map(existize(_, visitedWithT)), signatureMap.map {
                 case (s: Signature, tp) =>

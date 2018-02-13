@@ -11,6 +11,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class AsteriskTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  override protected def shouldPass: Boolean = false
+
   def testSCL13018(): Unit = {
     checkTextHasNoErrors(
       """

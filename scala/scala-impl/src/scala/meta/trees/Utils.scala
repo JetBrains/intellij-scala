@@ -8,10 +8,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
+import scala.collection.immutable.LongMap
 import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
 import scala.{meta => m, Seq => _}
@@ -116,12 +118,15 @@ trait Utils {
 
         fun(maybeType.asTypeResult)
       } else {
-        ScSubstitutor.cacheSubstitutions = true
-        val tp = expr.`type`()
-        ScSubstitutor.cacheSubstitutions = false
-        val res = fun(tp)
-        ScSubstitutor.cache.clear()
-        res
+        try {
+          ScSubstitutor.cacheSubstitutions = true
+          val tp = expr.`type`()
+          ScSubstitutor.cacheSubstitutions = false
+          fun(tp)
+        } finally {
+          ScSubstitutor.cacheSubstitutions = false
+          ScSubstitutor.cache = LongMap.empty
+        }
       }
     }
   }
@@ -133,7 +138,7 @@ trait Utils {
       if (dumbMode) {
         expr.definedReturnType.getOrElse(ptype.api.Any)
       } else {
-        val substitutor = ScSubstitutor(ScSubstitutor.cache.toMap)
+        val substitutor = ScSubstitutor(ScSubstitutor.cache)
         substitutor.subst(expr.`type`().get)
       }
     }
@@ -149,7 +154,7 @@ trait Utils {
           case _ => Right(ptype.api.Any)
         }
       } else {
-        val substitutor = ScSubstitutor(ScSubstitutor.cache.toMap)
+        val substitutor = ScSubstitutor(ScSubstitutor.cache)
         expr.`type`().map(substitutor.subst)
       }
     }

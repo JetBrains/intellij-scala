@@ -12,10 +12,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
+
+import scala.collection.Seq
 
 
 /**
@@ -57,38 +60,33 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     processor.processType(tp, referencedExpr, ResolveState.initial)
     processor.candidates match {
       case Array(ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
-        fun.polymorphicType(s)
+        fun.methodTypeProvider(elementScope).polymorphicType(s)
       case _ => Nothing
     }
   }
 
-
-  private def convertReferencedType(typeResult: TypeResult): TypeResult = {
-    var refType = typeResult.getOrElse(return typeResult)
-    if (!refType.isInstanceOf[ScTypePolymorphicType]) refType = processType(refType, isShape = false)
-    refType match {
-      case ScTypePolymorphicType(int, tps) =>
-        val subst = ScalaPsiUtil.genericCallSubstitutor(tps.map(_.nameAndId), this)
-        Right(subst.subst(int))
-      case _ => Right(refType)
-    }
+  private def substPolymorphicType: ScType => ScType = {
+    case ScTypePolymorphicType(internal, tps) =>
+      //type parameters of a method are appended to the right of ScTypePolymorphicType parameters
+      ScSubstitutor.bind(tps.takeRight(arguments.length), arguments)(_.calcType)
+        .subst(internal)
+    case t => t
   }
 
-  private def shapeType(typeResult: TypeResult): TypeResult = {
-    var refType = typeResult.getOrElse(return typeResult)
-    if (!refType.isInstanceOf[ScTypePolymorphicType]) refType = processType(refType, isShape = true)
-    refType match {
-      case ScTypePolymorphicType(int, tps) =>
-        val subst = ScalaPsiUtil.genericCallSubstitutor(tps.map(_.nameAndId), this)
-        Right(subst.subst(int))
-      case _ => Right(refType)
-    }
+  private def processNonPolymorphic(isShape: Boolean): ScType => ScType = {
+    case p: ScTypePolymorphicType => p
+    case t => processType(t, isShape)
   }
 
+  private def convertReferencedType(typeResult: TypeResult, isShape: Boolean): TypeResult = {
+    typeResult
+      .map(processNonPolymorphic(isShape))
+      .map(substPolymorphicType)
+  }
 
   protected override def innerType: TypeResult = {
     val typeResult = referencedExpr.getNonValueType()
-    convertReferencedType(typeResult)
+    convertReferencedType(typeResult, isShape = false)
   }
 
   def shapeType: TypeResult = {
@@ -96,7 +94,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       case ref: ScReferenceExpression => ref.shapeType
       case expr => expr.getNonValueType()
     }
-    shapeType(typeResult)
+    convertReferencedType(typeResult, isShape = true)
   }
 
   def shapeMultiType: Array[TypeResult] = {
@@ -104,7 +102,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       case ref: ScReferenceExpression => ref.shapeMultiType
       case expr => Array(expr.getNonValueType())
     }
-    typeResult.map(shapeType(_))
+    typeResult.map(convertReferencedType(_, isShape = true))
   }
 
   override def shapeMultiResolve: Option[Array[ScalaResolveResult]] = {
@@ -119,7 +117,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       case ref: ScReferenceExpression => ref.multiType
       case expr => Array(expr.getNonValueType())
     }
-    typeResult.map(convertReferencedType)
+    typeResult.map(convertReferencedType(_, isShape = false))
   }
 
   override def multiResolve: Option[Array[ScalaResolveResult]] = {

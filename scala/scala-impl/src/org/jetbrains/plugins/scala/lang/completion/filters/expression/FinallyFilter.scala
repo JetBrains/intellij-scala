@@ -42,33 +42,4 @@ class FinallyFilter extends ElementFilter{
   override def toString: String = {
     "statements keyword filter"
   }
-
-  def getPrevNotWhitespaceAndComment(index: Int, context: PsiElement): Int = {
-    if (index < 0) return 0
-    val file = context.getContainingFile
-    val fileText = file.charSequence
-    var i = index
-    while (i > 0 && fileText.charAt(i).isWhitespace) {
-      i = i - 1
-    }
-    val leaf = getLeafByOffset(i, context)
-    if (leaf.isInstanceOf[PsiComment] || leaf.isInstanceOf[ScDocComment])
-      return getPrevNotWhitespaceAndComment(leaf.getTextRange.getStartOffset - 1, context)
-    i
-  }
-
-  def getNextNotWhitespaceAndComment(index: Int, context: PsiElement): Int = {
-    val file = context.getContainingFile
-    if (index >= file.getTextLength - 1) return file.getTextLength - 2
-
-    val fileText = file.charSequence
-    var i = index
-    while (i < fileText.length - 1 && fileText.charAt(i).isWhitespace) {
-      i = i + 1
-    }
-    val leaf = getLeafByOffset(i, context)
-    if (leaf.isInstanceOf[PsiComment] || leaf.isInstanceOf[ScDocComment])
-      return getNextNotWhitespaceAndComment(leaf.getTextRange.getEndOffset, context)
-    i
-  }
 }

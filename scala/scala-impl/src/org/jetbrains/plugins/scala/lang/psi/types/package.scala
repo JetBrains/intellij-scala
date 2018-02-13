@@ -2,11 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType, PsiTypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -74,9 +76,8 @@ package object types {
       case _ => false
     }
 
-    def removeUndefines(): ScType = scType.recursiveUpdate {
-      case _: UndefinedType => ReplaceWith(stdTypes.Any)
-      case _ => ProcessSubtypes
+    def removeUndefines(): ScType = scType.updateRecursively {
+      case _: UndefinedType => stdTypes.Any
     }
 
     def toPsiType: PsiType = typeSystem.toPsiType(scType)
@@ -115,8 +116,8 @@ package object types {
       case ScDesignatorType(c: PsiClass) => Some(c)
       case _: StdType => None
       case ParameterizedType(des, _) => des.extractClassSimple(visited)
-      case ScProjectionType(_, c: PsiClass, _) => Some(c)
-      case ScProjectionType(_, ta: ScTypeAliasDefinition, _) if !visited.contains(ta) => ta.aliasedType.toOption match {
+      case ScProjectionType(_, c: PsiClass) => Some(c)
+      case ScProjectionType(_, ta: ScTypeAliasDefinition) if !visited.contains(ta) => ta.aliasedType.toOption match {
         case Some(t) => t.extractClassSimple(visited + ta)
         case _ => None
       }
@@ -172,19 +173,10 @@ package object types {
 
     def tryExtractDesignatorSingleton: ScType = extractDesignatorSingleton.getOrElse(scType)
 
-    def hasRecursiveTypeParameters[T](nameAndIds: Set[(String, Long)]): Boolean = {
-      var found = false
-      scType.recursiveUpdate {
-        case tpt: TypeParameterType =>
-          if (nameAndIds.contains(tpt.nameAndId)) {
-            found = true
-            Stop
-          }
-          else ProcessSubtypes
-        case tp: ScType if found => Stop
-        case _ => ProcessSubtypes
-      }
-      found
+    def hasRecursiveTypeParameters[T](typeParamIds: Set[Long]): Boolean = scType.subtypeExists {
+      case tpt: TypeParameterType =>
+        typeParamIds.contains(tpt.typeParamId)
+      case _ => false
     }
   }
 

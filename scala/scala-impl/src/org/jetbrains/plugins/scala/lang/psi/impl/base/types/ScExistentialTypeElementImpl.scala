@@ -35,7 +35,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
             val ub = alias.upperBound
             problems += lb; problems += ub
             buff +=  new ScExistentialArgument(alias.name,
-              alias.typeParameters.map(TypeParameterType(_, None)).toList,
+              alias.typeParameters.map(TypeParameterType(_)).toList,
                                                lb.getOrNothing, ub.getOrAny)
           case value: ScValueDeclaration =>
             value.typeElement match {

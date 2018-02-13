@@ -31,12 +31,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDe
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, DynamicResolveProcessor, ExtractorResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceElementResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
@@ -353,11 +354,9 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
         td match {
           case obj: ScObject =>
             val fromType = r.fromType match {
-              case Some(fType) => Right(ScProjectionType(fType, obj, superReference = false))
+              case Some(fType) => Right(ScProjectionType(fType, obj))
               case _ => td.`type`().map(substitutor.subst)
             }
-            val state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
-
             fromType match {
               case Right(qualType) =>
                 val stateWithType = state.put(BaseProcessor.FROM_TYPE_KEY, qualType)
@@ -376,7 +375,9 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
         typeFromMacro.foreach(processor.processType(_, qualifier))
       case ScalaResolveResult((_: ScTypedDefinition) && Typeable(tp), s) =>
         val fromType = s.subst(tp)
-        processor.processType(fromType, this, ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType))
+        val state = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType)
+        processor.processType(fromType, this, state)
+        withDynamicResult = withDynamic(fromType, state, processor)
         processor match {
           case _: ExtractorResolveProcessor =>
             if (processor.candidatesS.isEmpty) {

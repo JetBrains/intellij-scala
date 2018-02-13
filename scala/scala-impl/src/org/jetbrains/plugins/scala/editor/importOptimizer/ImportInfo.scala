@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceEleme
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitCompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.worksheet.ScalaScriptImportsUtil
+import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -191,6 +193,8 @@ object ImportInfo {
         hasNonUsedImplicits = (implicitNames -- singleNames).nonEmpty
       }
     }
+    
+    AmmoniteUtil.processAmmoniteImportUsed(imp, importsUsed) 
     if (importsUsed.isEmpty) return None //all imports are empty
 
     allNames --= hiddenNames
@@ -299,6 +303,7 @@ object ImportInfo {
           case clazz => clazz.qualifiedName.split('.').map(fixName).mkString(".")
         }
         clazzFqn + withDot(refName)
+      case _ if ScalaScriptImportsUtil.isScriptRef(ref) => refName
       case _ => throw new IllegalStateException() //do not process invalid import
     }
   }

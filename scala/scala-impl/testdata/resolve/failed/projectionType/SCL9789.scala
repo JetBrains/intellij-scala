@@ -57,7 +57,6 @@ object SCL9789 {
   type _2 = Succ[_1]
 
   def main(args: Array[String]) {
-    toBoolean[_1#Compare[_2]#/*resolved: true*/lt] toString
+    toBoolean[_1#Compare[_2]#<ref>lt] toString
   }
 }
-

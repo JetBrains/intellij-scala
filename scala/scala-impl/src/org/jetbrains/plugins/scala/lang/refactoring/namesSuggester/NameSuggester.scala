@@ -94,7 +94,7 @@ object NameSuggester {
       case valType: ValType => Seq(valTypeName(valType))
       case ScDesignatorType(e) => byName(e.name)
       case parameterType: TypeParameterType => byName(parameterType.name)
-      case ScProjectionType(_, e, _) => byName(e.name)
+      case ScProjectionType(_, e) => byName(e.name)
       case ScCompoundType(Seq(head, _*), _, _) => namesByType(head, withPlurals)
       case JavaArrayType(argument) =>
         TypePluralNamesProvider.pluralizeNames(argument)

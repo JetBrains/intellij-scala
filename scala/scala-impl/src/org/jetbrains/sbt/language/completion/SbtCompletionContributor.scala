@@ -135,7 +135,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
       expectedType.extractClass match {
         case Some(clazz: ScTypeDefinition) =>
           expectedType match {
-            case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait, _) =>
+            case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait) =>
               proj.extractClass foreach collectAndApplyVariants
             case _ => // do nothing
           }

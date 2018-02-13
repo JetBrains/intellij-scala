@@ -8,6 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -17,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, MacroInferUtil}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, MostSpecificUtil}
@@ -371,9 +372,8 @@ class ImplicitCollector(place: PsiElement,
           val filteredTypeParams =
             typeParams.filter(tp => !tp.lowerType.equiv(Nothing) || !tp.upperType.equiv(Any))
           val newPolymorphicType = ScTypePolymorphicType(internalType, filteredTypeParams)
-          val updated = newPolymorphicType.inferValueType.recursiveUpdate {
-            case u: UndefinedType => ReplaceWith(u.parameterType)
-            case _: ScType => ProcessSubtypes
+          val updated = newPolymorphicType.inferValueType.updateRecursively {
+            case u: UndefinedType => u.parameterType
           }
           (updated, typeParams)
         case _ => (tp.inferValueType, Seq.empty)
@@ -619,9 +619,8 @@ class ImplicitCollector(place: PsiElement,
   }
 
   private def abstractsToUpper(tp: ScType): ScType = {
-    val noAbstracts = tp.recursiveUpdate {
-      case ScAbstractType(_, _, upper) => ReplaceWith(upper)
-      case _ => ProcessSubtypes
+    val noAbstracts = tp.updateRecursively {
+      case ScAbstractType(_, _, upper) => upper
     }
 
     noAbstracts.removeAliasDefinitions()
@@ -647,7 +646,7 @@ class ImplicitCollector(place: PsiElement,
 
   private def topLevelTypeConstructors(tp: ScType): Set[ScType] = {
     tp match {
-      case ScProjectionType(_, element, _) => Set(ScDesignatorType(element))
+      case ScProjectionType(_, element) => Set(ScDesignatorType(element))
       case ParameterizedType(designator, _) => Set(designator)
       case tp@ScDesignatorType(_: ScObject) => Set(tp)
       case ScDesignatorType(v: ScTypedDefinition) =>
@@ -660,7 +659,7 @@ class ImplicitCollector(place: PsiElement,
 
   private def complexity(tp: ScType): Int = {
     tp match {
-      case ScProjectionType(proj, _, _) => 1 + complexity(proj)
+      case ScProjectionType(proj, _) => 1 + complexity(proj)
       case ParameterizedType(_, args) => 1 + args.foldLeft(0)(_ + complexity(_))
       case ScDesignatorType(_: ScObject) => 1
       case ScDesignatorType(v: ScTypedDefinition) =>

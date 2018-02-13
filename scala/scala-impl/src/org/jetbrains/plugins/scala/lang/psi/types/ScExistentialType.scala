@@ -7,13 +7,12 @@ import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, TypeParamId}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{RecursiveUpdateException, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{RecursiveUpdateException, ScSubstitutor, Update}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -47,11 +46,11 @@ case class ScExistentialType(quantified: ScType,
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
     wildcards.map(_.withoutAbstracts))
 
-  override def updateSubtypes(update: Update, visited: Set[ScType]): ScExistentialType = {
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialType = {
     try {
       ScExistentialType(
-        quantified.recursiveUpdateImpl(update, visited),
-        wildcards.map(_.updateSubtypes(update, visited))
+        quantified.recursiveUpdateImpl(updates, visited),
+        wildcards.map(_.updateSubtypes(updates, visited))
       )
     } catch {
       case _: ClassCastException => throw new RecursiveUpdateException
@@ -84,9 +83,7 @@ case class ScExistentialType(quantified: ScType,
     if (this != simplified) return simplified.equiv(r, undefinedSubst, falseUndef)
     (quantified, r) match {
       case (ParameterizedType(ScAbstractType(parameterType, lowerBound, upperBound), args), _) if !falseUndef =>
-        val subst = ScSubstitutor(parameterType.arguments.zip(args).map {
-          case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)
-        }.toMap)
+        val subst = ScSubstitutor.bind(parameterType.arguments, args)
         val upper: ScType =
           subst.subst(upperBound) match {
             case ParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args), wildcards)
@@ -120,18 +117,14 @@ case class ScExistentialType(quantified: ScType,
         if (!res._1) return res
         conformance.extractParams(rType) match {
           case Some(iter) =>
-            val myMap = Map(args zip iter.toList filter {case (arg, _) => wildcards.contains(arg)} filter {
-              case (arg: ScExistentialArgument, rParam: ScTypeParam) =>
-                rParam.isCovariant || rParam.isContravariant
-              case _ => false
-            } map {
-              case (arg: ScExistentialArgument, rParam: ScTypeParam) if rParam.isCovariant =>
-                ((arg.name, -1L), arg.upper)
-              case (arg: ScExistentialArgument, rParam: ScTypeParam) if rParam.isContravariant =>
-                ((arg.name, -1L), arg.lower)
-              //TODO: here we should check variantness for rArg and substitute args with lower/upper bound according to variantness
-            } :_*)
-            val subst = ScSubstitutor(myMap)
+            val (names, existArgsBounds) =
+              args.zip(iter.toList).collect {
+                case (arg: ScExistentialArgument, rParam: ScTypeParam)
+                  if rParam.isCovariant && wildcards.contains(arg) => (arg.name, arg.upper)
+                case (arg: ScExistentialArgument, rParam: ScTypeParam)
+                  if rParam.isContravariant && wildcards.contains(arg) => (arg.name, arg.lower)
+              }.unzip
+            val subst = ScSubstitutor.bind(names, existArgsBounds)(TypeParamId.nameBased)
             return subst.subst(quantified).equiv(r, undefinedSubst, falseUndef)
           case _ =>
         }
@@ -161,9 +154,7 @@ case class ScExistentialType(quantified: ScType,
           t = w.upper.equivInner(tp.upperType, t._2, falseUndef)
           if (!t._1) return (false, undefinedSubst)
         }
-        val polySubst = ScSubstitutor(poly.typeParameters.zip(wildcards).map{case (tp, wildcard) =>
-          (tp.nameAndId, wildcard)
-        }.toMap)
+        val polySubst = ScSubstitutor.bind(poly.typeParameters, wildcards)
         quantified.equiv(polySubst.subst(poly.internalType), t._2, falseUndef)
       case _ => (false, undefinedSubst)
     }
@@ -205,7 +196,7 @@ case class ScExistentialType(quantified: ScType,
             checkRecursive(ex.lower, newSet)
             checkRecursive(ex.upper, newSet)
           })
-        case ScProjectionType(projected, _, _) =>
+        case ScProjectionType(projected, _) =>
           checkRecursive(projected, rejected)
         case ParameterizedType(designator, typeArgs) =>
           checkRecursive(designator, rejected)
@@ -272,7 +263,7 @@ case class ScExistentialType(quantified: ScType,
         }, typeMap.map {
           case (s, sign) => (s, sign.updateTypesWithVariance(updateRecursive(_, newSet, _), variance))
         })
-      case ScProjectionType(_, _, _) => tp
+      case ScProjectionType(_, _) => tp
       case JavaArrayType(_) => tp
       case ParameterizedType(designator, typeArgs) =>
         val parameteresIterator = designator match {
@@ -387,16 +378,11 @@ case class ScExistentialType(quantified: ScType,
 
     var updated = false
     //fourth rule
-    def hasWildcards(tp: ScType): Boolean = {
-      var found = false
-      tp.recursiveUpdate {
-        case ScExistentialArgument(name, _, _, _) if wildcards.exists(_.name == name) =>
-          found = true
-          Stop
-        case _ => if (found) Stop else ProcessSubtypes
-      }
-      found
+    def hasWildcards(tp: ScType): Boolean = tp.subtypeExists {
+      case ScExistentialArgument(name, _, _, _) => wildcards.exists(_.name == name)
+      case _ => false
     }
+
     val res = updateRecursive(this, Set.empty, Covariant) {
       case (variance, arg, tp) =>
         variance match {
@@ -490,14 +476,16 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
 
   def withoutAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lower.removeAbstracts, upper.removeAbstracts)
 
-  override def updateSubtypes(update: Update, visited: Set[ScType]): ScExistentialArgument = {
-    ScExistentialArgument(name, args, lower.recursiveUpdateImpl(update, visited), upper.recursiveUpdateImpl(update, visited))
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialArgument = {
+    ScExistentialArgument(name, args,
+      lower.recursiveUpdateImpl(updates, visited),
+      upper.recursiveUpdateImpl(updates, visited))
   }
 
   def recursiveVarianceUpdateModifiableNoUpdate[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
                                                             variance: Variance = Covariant): ScExistentialArgument = {
-    ScExistentialArgument(name, args, lower.recursiveVarianceUpdateModifiable(data, update, -variance),
-      upper.recursiveVarianceUpdateModifiable(data, update, variance))
+    ScExistentialArgument(name, args, lower.recursiveVarianceUpdateModifiable(data, update, Contravariant),
+      upper.recursiveVarianceUpdateModifiable(data, update, Covariant))
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
@@ -513,7 +501,7 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
     r match {
       case exist: ScExistentialArgument =>
         var undefinedSubst = uSubst
-        val s = (exist.args zip args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1.name, -1), p._2)}
+        val s = ScSubstitutor.bind(exist.args.map(_.name), args)(TypeParamId.nameBased)
         val t = lower.equiv(s.subst(exist.lower), undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2

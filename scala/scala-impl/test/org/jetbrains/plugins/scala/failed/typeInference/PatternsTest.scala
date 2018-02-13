@@ -9,6 +9,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class PatternsTest extends TypeInferenceTestBase {
+
+  override protected def shouldPass: Boolean = false
+
   override def folderPath: String = super.folderPath + "bugs5/"
 
   def testSCL9137(): Unit = doTest()

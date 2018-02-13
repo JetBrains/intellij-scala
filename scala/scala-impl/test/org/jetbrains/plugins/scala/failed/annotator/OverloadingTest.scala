@@ -4,7 +4,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiErrorElement, PsiReference}
 import org.jetbrains.plugins.scala.annotator.AnnotatorHolderMock
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaLightCodeInsightFixtureTestAdapter}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.{PerfCycleTests, ScalaBundle}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
+import org.jetbrains.plugins.scala.annotator.Message
 
 /**
   * User: Dmitry.Naydanov
@@ -21,26 +22,33 @@ import org.junit.experimental.categories.Category
   *  
   */
 @Category(Array(classOf[PerfCycleTests]))
-class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with AssertMatches {
+
+  override protected def shouldPass: Boolean = false
+
   //TODO this class contains a fair amount of a copy-paste code, however refactoring isn't practical here as the class is to be removed soon 
   import org.jetbrains.plugins.scala.extensions._
 
-  protected def collectMessages(fileText: String) = {
+  protected def collectMessages(fileText: String): Option[List[Message]] = {
     myFixture.configureByText("dummy.scala", fileText)
     val file = myFixture.getFile
     val mock = new AnnotatorHolderMock(file)
 
-    assertEquals(Nil, file.depthFirst().filterByType[PsiErrorElement].map(_.getText).toList)
+    val errorElements = file.depthFirst().filterByType[PsiErrorElement].map(_.getText).toList
+    if (shouldPass) assertEquals(Nil, errorElements)
+    else if (errorElements.nonEmpty) return None
 
-    assertEquals(Nil, file.depthFirst().filterByType[PsiReference]
-      .filter(_.resolve == null).map(_.getElement.getText).toList)
+    val unresolvedElements = file.depthFirst().filterByType[PsiReference].
+      filter(_.resolve == null).map(_.getElement.getText).toList
+    if (shouldPass) assertEquals(Nil, unresolvedElements)
+    else if (unresolvedElements.nonEmpty) return None
 
     file.depthFirst().foreach {
       case it: ScPatternDefinition => annotate(it, mock, typeAware = true)
       case _ => 
     }
     
-    mock.annotations
+    Some(mock.annotations)
   }
 
   protected def annotate(element: ScPatternDefinition, holder: AnnotationHolder, typeAware: Boolean): Unit = {
@@ -64,7 +72,7 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     }
   }
 
-  def testSCL9908(): Unit = assert(
+  def testSCL9908(): Unit = assertNothing(
     collectMessages(
       """
         |class Test { 
@@ -75,10 +83,10 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |    foo("Hello") // red code; 'foo(s, args)' with scalac 
         |  } 
         |}
-      """.stripMargin).isEmpty
+      """.stripMargin)
   )
 
-  def testSCL7442(): Unit = assert(
+  def testSCL7442(): Unit = assertNothing(
     collectMessages(
       """
         |class Test { 
@@ -91,10 +99,10 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |  }
         |  (set _).tupled((1, 2, 3, 4))
         |}
-      """.stripMargin).isEmpty
+      """.stripMargin)
   )
 
-  def testSCL10158(): Unit = assert(
+  def testSCL10158(): Unit = assertNothing(
     collectMessages(
       """
         |class Test { 
@@ -104,10 +112,10 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |    def synchronized[T](exec: => T): Unit = lock.synchronized(exec)
         |  }
         |}
-      """.stripMargin).isEmpty
+      """.stripMargin)
   )
 
-  def testSCL10183(): Unit = assert(
+  def testSCL10183(): Unit = assertNothing(
     collectMessages(
       """
         |class MyClass {
@@ -121,10 +129,10 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |  def get() = ???
         |  def get[A](arg: Any => Any) = ???
         |}
-      """.stripMargin).isEmpty
+      """.stripMargin)
   )
 
-  def testSCL10295(): Unit = assert(
+  def testSCL10295(): Unit = assertNothing(
     collectMessages(
       """
         |import java.lang.reflect.Field
@@ -146,10 +154,10 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |    fields.toStream.map { f => (f.get(v), f) }
         |  }
         |}
-      """.stripMargin).isEmpty
+      """.stripMargin)
   )
 
-  def testSCL11684(): Unit = assert(
+  def testSCL11684(): Unit = assertNothing(
     collectMessages(
       """
         |package pack1 {
@@ -172,6 +180,6 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |
         |  val x: Tweak[C[String]] = Sort[String](_.size)
         |}
-      """.stripMargin).isEmpty
+      """.stripMargin)
   )
 }
