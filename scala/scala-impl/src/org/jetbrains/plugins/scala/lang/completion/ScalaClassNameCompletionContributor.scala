@@ -4,8 +4,7 @@ package completion
 
 import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.completion._
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.util.Computable
+import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -27,12 +26,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_9
 import org.jetbrains.plugins.scala.project._
 
-import scala.collection.mutable
+import scala.collection.{JavaConverters, mutable}
 
 class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
 
@@ -130,57 +130,52 @@ object ScalaClassNameCompletionContributor {
       case _ =>
     }
 
-    implicit val project: ProjectContext = position.getProject
+    implicit val project: Project = position.getProject
 
-    def addTypeForCompletion(typeToImport: TypeToImport) {
-      val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
-        def compute: Boolean = {
-          typeToImport match {
-            case ClassTypeToImport(classToImport) =>
-              JavaCompletionUtil.isInExcludedPackage(classToImport, false)
-            case TypeAliasToImport(alias) =>
-              val containingClass = alias.containingClass
-              if (containingClass == null) return false
-              JavaCompletionUtil.isInExcludedPackage(containingClass, false)
-            case PrefixPackageToImport(pack) =>
-              JavaProjectCodeInsightSettings.getSettings(project).isExcluded(pack.getQualifiedName)
-          }
-        }
-      })
-      if (isExcluded) return
+    def addTypeForCompletion(typeToImport: TypeToImport): Unit = {
+      if (inReadAction(isExcluded(typeToImport))) return
+
+      val TypeToImport(element, name) = typeToImport
 
       val isAccessible =
-        invocationCount >= 2 || (typeToImport.element match {
+        invocationCount >= 2 || (element match {
           case member: PsiMember => ResolveUtils.isAccessible(member, position, forCompletion = true)
           case _ => true
         })
       if (!isAccessible) return
 
       if (lookingForAnnotations && !typeToImport.isAnnotationType) return
-      typeToImport.element match {
+      element match {
         case _: ScClass | _: ScTrait | _: ScTypeAlias if !isInImport && !onlyClasses => return
         case _: ScObject if !isInImport && onlyClasses => return
         case _ =>
       }
-      val renamed = renamesMap.get(typeToImport.name).filter(_._2 == typeToImport.element).map(_._1)
-      for {
-        el <- LookupElementManager.getLookupElement(new ScalaResolveResult(typeToImport.element, nameShadow = renamed),
-          isClassName = true, isInImport = isInImport, isInStableCodeReference = stableRefElement != null,
-          isInSimpleString = inString)
-      } {
-        if (!afterNewPattern.accepts(dummyPosition, context)) result.addElement(el)
-        else {
-          typeToImport match {
-            case ClassTypeToImport(clazz) =>
-              result.addElement(getLookupElementFromClass(expectedTypesAfterNew, clazz, renamesMap))
-            case _ =>
-          }
-        }
+
+      val renamed = renamesMap.get(name).collect {
+        case (s, `element`) => s
       }
+
+      val lookups = LookupElementManager.getLookupElement(
+        new ScalaResolveResult(element, nameShadow = renamed),
+        isClassName = true,
+        isInImport = isInImport,
+        isInStableCodeReference = stableRefElement != null,
+        isInSimpleString = inString
+      ).flatMap {
+        case _ if afterNewPattern.accepts(dummyPosition, context) =>
+          typeToImport match {
+            case ClassTypeToImport(clazz) => Some(getLookupElementFromClass(expectedTypesAfterNew, clazz, renamesMap))
+            case _ => None
+          }
+        case e => Some(e)
+      }
+
+      import JavaConverters._
+      result.addAllElements(lookups.asJava)
     }
 
     val checkSynthetic = parameters.getOriginalFile.scalaLanguageLevel.forall(_ < Scala_2_9)
-    val QualNameToType = project.stdTypes.QualNameToType
+    val QualNameToType = StdTypes.instance.QualNameToType
     for {
       clazz <- SyntheticClasses.get(project).all.valuesIterator
       if checkSynthetic || !QualNameToType.contains(clazz.qualifiedName)
@@ -221,4 +216,18 @@ object ScalaClassNameCompletionContributor {
     if (inString) result.stopHere()
     false
   }
+
+  private[this] def isExcluded(`type`: TypeToImport)
+                              (implicit project: Project): Boolean = `type` match {
+    case ClassTypeToImport(classToImport) =>
+      JavaCompletionUtil.isInExcludedPackage(classToImport, false)
+    case TypeAliasToImport(alias) =>
+      alias.containingClass match {
+        case null => false
+        case containingClass => JavaCompletionUtil.isInExcludedPackage(containingClass, false)
+      }
+    case PrefixPackageToImport(pack) =>
+      JavaProjectCodeInsightSettings.getSettings(project).isExcluded(pack.getQualifiedName)
+  }
+
 }
