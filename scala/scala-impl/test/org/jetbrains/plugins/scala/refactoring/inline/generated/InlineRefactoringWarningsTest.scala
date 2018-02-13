@@ -25,4 +25,16 @@ class InlineRefactoringWarningsTest extends InlineRefactoringTestBase {
   def testProjectionRef() = doTest()
 
   def testNotUserTypealiasDefinition() = doTest()
+
+  def testImplicitParams() = doTest()
+
+  def testParameter() = doTest()
+
+  def testImplicitVal() = doTest()
+
+  def testGenericFunction() = doTest()
+
+  def testSpecialFunction() = doTest()
+
+  def testFunctionalParam() = doTest()
 }

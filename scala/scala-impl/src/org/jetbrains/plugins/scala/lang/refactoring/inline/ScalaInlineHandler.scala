@@ -4,38 +4,36 @@ package refactoring
 package inline
 
 
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
-import scala.collection.mutable.ArrayBuffer
-
 import com.intellij.lang.refactoring.InlineHandler
 import com.intellij.lang.refactoring.InlineHandler.Settings
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.util.Condition
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
-import com.intellij.usageView.UsageInfo
+import com.intellij.util.FilteredQuery
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScStableReferenceElementPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.highlightOccurrences
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -174,11 +172,38 @@ class ScalaInlineHandler extends InlineHandler {
           case _ => true
         })
 
+    def fromDifferentFile(named: ScNamedElement) = {
+      named.getContainingFile != PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument)
+    }
+
+    def errorOrSettingsForFunction(funDef: ScFunctionDefinition): InlineHandler.Settings = {
+      if (funDef.recursionType != RecursionType.NoRecursion)
+        showErrorHint(ScalaBundle.message("cannot.inline.recursive.function"), "method")
+      else if (funDef.paramClauses.clauses.exists(_.isImplicit))
+        showErrorHint(ScalaBundle.message("cannot.inline.function.implicit.parameters"), "method")
+      else if (funDef.parameters.exists(_.isVarArgs))
+        showErrorHint(ScalaBundle.message("cannot.inline.function.varargs"), "method")
+      else if (funDef.isSpecial)
+        showErrorHint(ScalaBundle.message("cannot.inline.special.function"), "method")
+      else if (funDef.typeParameters.nonEmpty)
+        showErrorHint(ScalaBundle.message("cannot.inline.generic.function"), "method")
+      else if (funDef.parameters.exists(isFunctionalType))
+        showErrorHint(ScalaBundle.message("cannot.inline.function.functional.parameters"), "method")
+      else if (funDef.body.isDefined)
+        if (funDef.isLocal) getSettings(funDef, "Method", "local method")
+        else getSettings(funDef, "Method", "method")
+      else null
+    }
+
     element match {
+      case _: ScParameter =>
+        showErrorHint(ScalaBundle.message("cannot.inline.parameter"), "parameter")
       case typedDef: ScTypedDefinition if isFunctionalType(typedDef) =>
         showErrorHint(ScalaBundle.message("cannot.inline.value.functional.type"), "element")
-      case named: ScNamedElement if named.getContainingFile != PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument) =>
+      case named: ScNamedElement if fromDifferentFile(named) =>
         showErrorHint(ScalaBundle.message("cannot.inline.different.files"), "element")
+      case named: ScNamedElement if ScalaPsiUtil.isImplicit(named) =>
+        showErrorHint(ScalaBundle.message("cannot.inline.implicit.element"), "member")
       case named: ScNamedElement if !usedInSameClassOnly(named) =>
         showErrorHint(ScalaBundle.message("cannot.inline.used.outside.class"), "member")
       case bp: ScBindingPattern =>
@@ -190,15 +215,11 @@ class ScalaInlineHandler extends InlineHandler {
           case parent if parent != null && parent.declaredElements == Seq(element) =>
             if (parent.isLocal) getSettings(parent.declaredElements.head, "Variable", "local variable")
             else getSettings(parent.declaredElements.head, "Variable", "variable")
-          case _ => null
+          case _ =>
+            showErrorHint(ScalaBundle.message("cannot.inline.not.simple.pattern"), "pattern")
         }
-      case funDef: ScFunctionDefinition if funDef.recursionType != RecursionType.NoRecursion =>
-        showErrorHint(ScalaBundle.message("cannot.inline.recursive.function"), "method")
-      case funDef: ScFunctionDefinition if funDef.body.isDefined && funDef.parameters.isEmpty =>
-        if (funDef.isLocal) getSettings(funDef, "Method", "local method")
-        else getSettings(funDef, "Method", "method")
-      case funDef: ScFunctionDefinition if funDef.body.isDefined =>
-        getSettings(funDef, "Method", "local method")
+      case funDef: ScFunctionDefinition =>
+        errorOrSettingsForFunction(funDef)
       case typeAlias: ScTypeAliasDefinition if isParametrizedTypeAlias(typeAlias) || !isSimpleTypeAlias(typeAlias) =>
         showErrorHint(ScalaBundle.message("cannot.inline.notsimple.typealias"), "Type Alias")
       case typeAlias: ScTypeAliasDefinition =>
@@ -210,9 +231,12 @@ class ScalaInlineHandler extends InlineHandler {
   private def usedInSameClassOnly(named: ScNamedElement): Boolean = {
     ScalaPsiUtil.nameContext(named) match {
       case member: ScMember =>
-        ReferencesSearch.search(named, named.getUseScope).findAll.asScala.forall {
-          ref => member.containingClass == null || PsiTreeUtil.isAncestor(member.containingClass, ref.getElement, true)
-        }
+        val allReferences = ReferencesSearch.search(named, named.getUseScope)
+        val notInSameClass: Condition[PsiReference] =
+          ref => member.containingClass != null && !PsiTreeUtil.isAncestor(member.containingClass, ref.getElement, true)
+
+        val notInSameClassQuery = new FilteredQuery[PsiReference](allReferences, notInSameClass)
+        notInSameClassQuery.findFirst() == null
       case _ => true
     }
   }
