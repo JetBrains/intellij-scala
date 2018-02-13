@@ -119,7 +119,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
       else {
         val badCustomVMNotification =
           SbtShellNotifications.notificationGroup
-            .createNotification(s"No JRE found at path ${sbtSettings.vmExecutable}. Using project JDK instead.", NotificationType.ERROR)
+            .createNotification(s"No JRE found at path ${sbtSettings.vmExecutable}. Using project JDK instead.", NotificationType.WARNING)
         badCustomVMNotification.addAction(ConfigureSbtAction)
         badCustomVMNotification.notify(project)
         false
