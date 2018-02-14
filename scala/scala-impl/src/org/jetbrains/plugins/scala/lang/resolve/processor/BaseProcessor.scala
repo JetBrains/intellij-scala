@@ -154,23 +154,31 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
 
     t match {
       case ScThisType(clazz) =>
-        if (clazz.selfType.isEmpty) {
-          processElement(clazz, ScSubstitutor.empty, place, state)
-        } else {
-          val selfType = clazz.selfType.get
-          val clazzType: ScType = clazz.getTypeWithProjections().getOrElse(return true)
-          if (selfType == ScThisType(clazz)) {
+        clazz.selfType match {
+          case None =>
+            processElement(clazz, ScSubstitutor.empty, place, state)
+          case Some(ScThisType(`clazz`)) =>
             //to prevent SOE, let's process Element
             processElement(clazz, ScSubstitutor.empty, place, state)
-          } else if (selfType.conforms(clazzType)) {
-            processTypeImpl(selfType, place, state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)).
-              put(ScSubstitutor.key, ScSubstitutor(ScThisType(clazz))))
-          } else if (clazzType.conforms(selfType)) {
-            processElement(clazz, ScSubstitutor.empty, place, state)
-          } else {
-            processTypeImpl(clazz.selfType.map(_.glb(clazzType)).get, place,
-              state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)))
-          }
+          case Some(ScProjectionType(_, element, _)) if recState.visitedProjections.contains(element) =>
+            //recursion detected
+            true
+          case Some(selfType) =>
+            val clazzType = clazz.getTypeWithProjections().getOrElse(return true)
+            if (selfType.conforms(clazzType)) {
+              val newState =
+                state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t))
+                  .put(ScSubstitutor.key, ScSubstitutor(ScThisType(clazz)))
+              processTypeImpl(selfType, place, newState)
+            }
+            else if (clazzType.conforms(selfType)) {
+              processElement(clazz, ScSubstitutor.empty, place, state)
+            }
+            else {
+              val glb = selfType.glb(clazzType)
+              val newState = state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t))
+              processTypeImpl(glb, place, newState)
+            }
         }
       case d@ScDesignatorType(e: PsiClass) if d.asInstanceOf[ScDesignatorType].isStatic && !e.isInstanceOf[ScTemplateDefinition] =>
         //not scala from scala
