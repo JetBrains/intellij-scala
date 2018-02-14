@@ -12,7 +12,7 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
-import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaConstructorInsertHandler, ScalaGenerateAnonymousFunctionInsertHandler}
+import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaGenerateAnonymousFunctionInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager.getLookupElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaChainLookupElement, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -611,35 +611,25 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     }
   })
 
-  extend(CompletionType.SMART, afterNewPattern, new CompletionProvider[CompletionParameters] {
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+  extend(
+    CompletionType.SMART,
+    afterNewPattern,
+    new CompletionProvider[CompletionParameters] {
+
+      def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
         val element = positionFromParameters(parameters)
-
-        val renamesMap = createRenamesMap(element)
-
-        val addedClasses = new mutable.HashSet[String]
-
-        val newExpr = PsiTreeUtil.getContextOfType(element, classOf[ScNewTemplateDefinition])
-        if (newExpr == null) return
-
-        val types: Array[ScType] = newExpr.expectedTypes().map {
-          case ScAbstractType(_, _, upper) => upper
-          case tp => tp
-        }
-        for (typez <- types) {
-          val element: LookupElement = convertTypeToLookupElement(typez, newExpr, addedClasses,
-            new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler, renamesMap)
-          if (element != null) {
-            result.addElement(element)
-          }
-        }
-
-        for (typez <- types) {
-          collectInheritorsForType(typez, newExpr, addedClasses, result, new AfterNewLookupElementRenderer(_, _, _),
-            new ScalaConstructorInsertHandler, renamesMap)
+        expectedTypes(element) match {
+          case Some((newExpr, types)) =>
+            val renamesMap = createRenamesMap(element)
+            val addedClasses = new mutable.HashSet[String]
+            types.flatMap(convertTypeToLookupElement(_, newExpr, addedClasses, renamesMap))
+              .foreach(result.addElement)
+            types.foreach(collectInheritorsForType(_, newExpr, addedClasses, result, renamesMap))
+          case _ =>
         }
       }
-    })
+    }
+  )
 }
 
 object ScalaSmartCompletionContributor {

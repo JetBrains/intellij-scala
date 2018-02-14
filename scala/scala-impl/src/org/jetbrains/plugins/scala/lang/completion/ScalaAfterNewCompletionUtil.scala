@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion
 
-import com.intellij.codeInsight.completion.{CompletionResultSet, InsertHandler}
+import com.intellij.codeInsight.completion.{CompletionLocation, CompletionResultSet}
 import com.intellij.codeInsight.lookup.{AutoCompletionPolicy, LookupElement, LookupElementPresentation, LookupElementRenderer}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.patterns.ElementPattern
@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
@@ -39,21 +39,23 @@ object ScalaAfterNewCompletionUtil {
 
   def expectedTypesAfterNew(position: PsiElement)
                            (implicit context: ProcessingContext): Option[Array[ScType]] =
-    if (isAfterNew(position)) {
-      // todo: probably we need to remove all abstracts here according to variance
-      val expectedTypes = PsiTreeUtil.getContextOfType(position, classOf[ScNewTemplateDefinition])
-        .expectedTypes()
-        .map {
-          case ScAbstractType(_, _, upper) => upper
-          case tp => tp
-        }
+  // todo: probably we need to remove all abstracts here according to variance
+    if (afterNewPattern.accepts(position, context)) expectedTypes(position).map(_._2)
+    else None
 
-      Some(expectedTypes)
-    } else None
+  def isAfterNew(position: PsiElement, location: CompletionLocation): Boolean =
+    afterNewPattern.accepts(position, location.getProcessingContext)
 
-  def isAfterNew(position: PsiElement)
-                (implicit context: ProcessingContext): Boolean =
-    afterNewPattern.accepts(position, context)
+  def expectedTypes(position: PsiElement): Option[(ScNewTemplateDefinition, Array[ScType])] =
+    PsiTreeUtil.getContextOfType(position, classOf[ScNewTemplateDefinition]) match {
+      case null => None
+      case context =>
+        val types = context.expectedTypes().map {
+            case ScAbstractType(_, _, upper) => upper
+            case tp => tp
+          }
+        Some(context, types)
+    }
 
   type RenamesMap = Map[String, (PsiNamedElement, String)]
 
@@ -78,19 +80,13 @@ object ScalaAfterNewCompletionUtil {
                                 renamesMap: RenamesMap): LookupElement = {
     implicit val ctx: ProjectContext = clazz
 
-    val undefines = clazz.getTypeParameters.map(UndefinedType(_))
-    val predefinedType =
-      if (clazz.getTypeParameters.length == 1) {
-        ScParameterizedType(ScDesignatorType(clazz), undefines)
-      }
-      else
-        ScDesignatorType(clazz)
-    val noUndefType =
-      if (clazz.getTypeParameters.length == 1) {
-        ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(TypeParameterType(_)))
-      }
-      else
-        ScDesignatorType(clazz)
+    val parameters = clazz.getTypeParameters
+
+    val designatorType = ScDesignatorType(clazz)
+    val (predefinedType, noUndefType) = parameters match {
+      case Array(head) => (ScParameterizedType(designatorType, Seq(UndefinedType(head))), ScParameterizedType(designatorType, Seq(TypeParameterType(head))))
+      case _ => (designatorType, designatorType)
+    }
 
     val iterator = expectedTypes.iterator
     while (iterator.hasNext) {
@@ -99,122 +95,126 @@ object ScalaAfterNewCompletionUtil {
       if (conformance._1) {
         conformance._2.getSubstitutor match {
           case Some(subst) =>
-            val lookupElement = getLookupElementFromTypeAndClass(subst.subst(noUndefType), clazz,
-              ScSubstitutor.empty, new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler, renamesMap)
-            for (undefine <- undefines) {
-              subst.subst(undefine) match {
-                case UndefinedType(_, _) =>
-                  lookupElement.typeParametersProblem = true
-                case _ =>
-              }
+            val lookupElement = getLookupElementFromTypeAndClass(clazz, renamesMap, subst.subst(noUndefType))
+
+            parameters.map { p =>
+              subst.subst(UndefinedType(p))
+            }.foreach {
+              case UndefinedType(_, _) =>
+                lookupElement.typeParametersProblem = true
+              case _ =>
             }
+
             return lookupElement
           case _ =>
         }
       }
     }
-    val lookupElement = getLookupElementFromTypeAndClass(noUndefType, clazz, ScSubstitutor.empty,
-      new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler, renamesMap)
-    if (undefines.nonEmpty) {
+    val lookupElement = getLookupElementFromTypeAndClass(clazz, renamesMap, noUndefType)
+    if (parameters.nonEmpty) {
       lookupElement.typeParametersProblem = true
     }
     lookupElement
   }
 
-  class AfterNewLookupElementRenderer(tp: ScType, psiClass: PsiClass,
-                                      subst: ScSubstitutor) extends LookupElementRenderer[LookupElement] {
-    def renderElement(ignore: LookupElement, presentation: LookupElementPresentation) {
-      var isDeprecated = false
-      psiClass match {
-        case doc: PsiDocCommentOwner if doc.isDeprecated => isDeprecated = true
-        case _ =>
-      }
-      var tailText: String = ""
-      val itemText: String = psiClass.name + (tp match {
-        case ParameterizedType(_, tps) =>
-          tps.map(subst.subst(_).presentableText).mkString("[", ", ", "]")
-        case _ => ""
-      })
-      psiClass match {
-        case clazz: PsiClass =>
-          if (psiClass.isInterface || psiClass.isInstanceOf[ScTrait] ||
-            psiClass.hasModifierPropertyScala("abstract")) {
-            tailText += " {...}"
-          }
-          val location: String = clazz.getPresentation.getLocationString
-          presentation.setTailText(tailText + " " + location, true)
-        case _ =>
-      }
-      presentation.setIcon(psiClass.getIcon(0))
-      presentation.setStrikeout(isDeprecated)
-      presentation.setItemText(itemText)
-    }
-  }
-
-
-  private def getLookupElementFromTypeAndClass(tp: ScType, psiClass: PsiClass, subst: ScSubstitutor,
-                                               renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
-                                               insertHandler: InsertHandler[LookupElement],
-                                               renamesMap: RenamesMap): ScalaLookupItem = {
-    val name = psiClass.name
+  private def getLookupElementFromTypeAndClass(clazz: PsiClass,
+                                               renamesMap: RenamesMap,
+                                               `type`: ScType,
+                                               substitutor: ScSubstitutor = ScSubstitutor.empty) = {
+    val name = clazz.name
     val isRenamed = renamesMap.get(name).collect {
-      case (`psiClass`, s) => s
+      case (`clazz`, s) => s
     }
 
-    val lookupElement: ScalaLookupItem = new ScalaLookupItem(psiClass, isRenamed.getOrElse(name)) {
-      override def renderElement(presentation: LookupElementPresentation) {
-        renderer(tp, psiClass, subst).renderElement(this, presentation)
-        isRenamed match {
-          case Some(nme) => presentation.setItemText(nme + " <= " + presentation.getItemText)
-          case _ =>
+    val isInterface = clazz match {
+      case _: ScTrait => true
+      case _ => clazz.isInterface || clazz.hasModifierPropertyScala("abstract")
+      case _ => false
+    }
+
+    val typeParameters = `type` match {
+      case ParameterizedType(_, types) => types
+      case _ => Seq.empty
+    }
+
+    val renderer = new LookupElementRenderer[LookupElement] {
+
+      def renderElement(ignore: LookupElement, presentation: LookupElementPresentation) {
+        val tailText = if (isInterface) "{...} " else ""
+        presentation.setTailText(" " + tailText + clazz.getPresentation.getLocationString, true)
+        presentation.setIcon(clazz.getIcon(0))
+
+        val isDeprecated = clazz match {
+          case owner: PsiDocCommentOwner => owner.isDeprecated
+          case _ => false
         }
+        presentation.setStrikeout(isDeprecated)
+
+        val nameText = isRenamed match {
+          case Some(nameShadow) => s"$nameShadow <= $name"
+          case _ => name
+        }
+        val parametersText = typeParameters match {
+          case Seq() => ""
+          case seq => seq.map(substitutor.subst)
+            .map(_.presentableText)
+            .mkString("[", ", ", "]")
+
+        }
+        presentation.setItemText(nameText + parametersText)
       }
     }
-    lookupElement.isRenamed = isRenamed
-    if (ApplicationManager.getApplication.isUnitTestMode || psiClass.isInterface ||
-      psiClass.isInstanceOf[ScTrait] || psiClass.hasModifierPropertyScala("abstract"))
-      lookupElement.setAutoCompletionPolicy(if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE
-      else AutoCompletionPolicy.NEVER_AUTOCOMPLETE)
-    val qualName = psiClass.qualifiedName
-    if (ScalaCodeStyleSettings.getInstance(psiClass.getProject).hasImportWithPrefix(qualName)) {
-      lookupElement.prefixCompletion = true
+
+    val result = new ScalaLookupItem(clazz, isRenamed.getOrElse(name)) {
+
+      override def renderElement(presentation: LookupElementPresentation): Unit =
+        renderer.renderElement(this, presentation)
     }
-    lookupElement.setInsertHandler(new ScalaConstructorInsertHandler)
-    tp match {
-      case ParameterizedType(_, tps) => lookupElement.typeParameters = tps
-      case _ =>
+    result.isRenamed = isRenamed
+    result.typeParameters = typeParameters
+    result.prefixCompletion = ScalaCodeStyleSettings.getInstance(clazz.getProject)
+      .hasImportWithPrefix(clazz.qualifiedName)
+    result.setInsertHandler(new ScalaConstructorInsertHandler)
+
+    val maybePolicy = {
+      import AutoCompletionPolicy._
+      if (ApplicationManager.getApplication.isUnitTestMode) Some(ALWAYS_AUTOCOMPLETE)
+      else if (isInterface) Some(NEVER_AUTOCOMPLETE)
+      else None
     }
-    lookupElement
+    maybePolicy.foreach(result.setAutoCompletionPolicy)
+
+    result
   }
 
-  def convertTypeToLookupElement(tp: ScType, place: PsiElement, addedClasses: mutable.HashSet[String],
-                                 renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
-                                 insertHandler: InsertHandler[LookupElement],
-                                 renamesMap: RenamesMap): ScalaLookupItem = {
-    tp.extractClassType match {
-      case Some((_: ScObject, _)) => null
-      case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
-        //filter base types (it's important for scala 2.9)
-        clazz.qualifiedName match {
-          case "scala.Boolean" | "scala.Int" | "scala.Long" | "scala.Byte" | "scala.Short" | "scala.AnyVal" |
-               "scala.Char" | "scala.Unit" | "scala.Float" | "scala.Double" | "scala.Any" => return null
-          case _ =>
-        }
-        //todo: filter inner classes smarter (how? don't forget deep inner classes)
-        if (clazz.containingClass != null && (!clazz.containingClass.isInstanceOf[ScObject] ||
-          clazz.hasModifierPropertyScala("static"))) return null
-        if (!ResolveUtils.isAccessible(clazz, place, forCompletion = true)) return null
-        if (addedClasses.contains(clazz.qualifiedName)) return null
-        addedClasses += clazz.qualifiedName
-        getLookupElementFromTypeAndClass(tp, clazz, subst, renderer, insertHandler, renamesMap)
-      case _ => null
+  def convertTypeToLookupElement(tp: ScType, place: PsiElement,
+                                 addedClasses: mutable.HashSet[String],
+                                 renamesMap: RenamesMap): Option[ScalaLookupItem] = {
+    val names = Set("scala.Boolean",
+      "scala.Byte", "scala.Short", "scala.Int", "scala.Long",
+      "scala.Float", "scala.Double",
+      "scala.AnyVal", "scala.Char", "scala.Unit", "scala.Any")
+
+    // filter base types (it's important for scala 2.9)
+    // todo: filter inner classes smarter (how? don't forget deep inner classes)
+    def isValid(clazz: PsiClass) = !names.contains(clazz.qualifiedName) && (clazz.containingClass match {
+      case null => true
+      case _: ScObject => !clazz.hasModifierPropertyScala("static")
+      case _ => false
+    })
+
+    tp.extractClassType.flatMap {
+      case (_: ScObject, _) => None
+      case (clazz: PsiClass, substitutor: ScSubstitutor)
+        if isValid(clazz) && isAccessible(clazz, place, forCompletion = true) =>
+        if (addedClasses.add(clazz.qualifiedName)) Some(getLookupElementFromTypeAndClass(clazz, renamesMap, tp, substitutor))
+        else None
+      case _ => None
     }
   }
 
   def collectInheritorsForType(typez: ScType, place: PsiElement, addedClasses: mutable.HashSet[String],
                                result: CompletionResultSet,
-                               renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
-                               insertHandler: InsertHandler[LookupElement],
                                renamesMap: RenamesMap) {
     implicit val project = place.getProject
 
@@ -242,16 +242,10 @@ object ScalaAfterNewCompletionUtil {
             if (!conformance._1) return true
             conformance._2.getSubstitutor match {
               case Some(undefSubst) =>
-                val lookupElement = convertTypeToLookupElement(undefSubst.subst(noUndefType), place, addedClasses,
-                  renderer, insertHandler, renamesMap)
-                if (lookupElement != null) {
-                  for (undefine <- undefines) {
-                    undefSubst.subst(undefine) match {
-                      case UndefinedType(_, _) =>
-                        lookupElement.typeParametersProblem = true
-                      case _ =>
-                    }
-                  }
+                convertTypeToLookupElement(undefSubst.subst(noUndefType), place, addedClasses, renamesMap).foreach { lookupElement =>
+                  lookupElement.typeParametersProblem = undefines.map(undefSubst.subst)
+                    .exists(_.isInstanceOf[UndefinedType])
+
                   result.addElement(lookupElement)
                 }
               case _ =>
