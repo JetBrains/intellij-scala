@@ -114,5 +114,10 @@ case class AndroidFacetData(version: String, manifest: File, apk: File,
                             res: File, assets: File, gen: File, libs: File,
                             isLibrary: Boolean, proguardConfig: Seq[String]) extends SbtEntityData
 object AndroidFacetData {
-  val Key: Key[AndroidFacetData] = datakey(classOf[AndroidFacetData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)
+  // TODO Change to "+ 1" when external system will enable the proper service separation.
+  // The external system now invokes data services regardless of system ID.
+  // Consequently, com.android.tools.idea.gradle.project.sync.setup.* services in the Android plugin remove _all_ Android facets.
+  // As a workaround, we now rely on the additional "weight" to invoke the service after the Android / Gradle's one.
+  // We expect the external system to update the architecture so that different services will be properly separated.
+  val Key: Key[AndroidFacetData] = datakey(classOf[AndroidFacetData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight +100500)
 }
