@@ -11,7 +11,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaGenerateAnonymousFunctionInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager.getLookupElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaChainLookupElement, ScalaLookupItem}
@@ -32,7 +31,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -613,20 +611,13 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
 
   extend(
     CompletionType.SMART,
-    afterNewPattern,
+    ScalaAfterNewCompletionUtil.afterNewPattern,
     new CompletionProvider[CompletionParameters] {
 
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
         val element = positionFromParameters(parameters)
-        expectedTypes(element) match {
-          case Some((newExpr, types)) =>
-            val renamesMap = createRenamesMap(element)
-            val addedClasses = new mutable.HashSet[String]
-            types.flatMap(convertTypeToLookupElement(_, newExpr, addedClasses, renamesMap))
-              .foreach(result.addElement)
-            types.foreach(collectInheritorsForType(_, newExpr, addedClasses, result, renamesMap))
-          case _ =>
-        }
+        val items = ScalaAfterNewCompletionUtil.lookupsAfterNew(element)
+        result.addAllElements(items)
       }
     }
   )
