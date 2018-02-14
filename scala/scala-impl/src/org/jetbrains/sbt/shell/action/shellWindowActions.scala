@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.shell.action
 
 import java.awt.event.{InputEvent, KeyEvent}
-import javax.swing.{Icon, KeyStroke}
+import java.util.concurrent.Future
 
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.engine.RemoteDebugProcessHandler
@@ -19,10 +19,12 @@ import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import com.intellij.openapi.wm.ToolWindowManager
+import javax.swing.{Icon, KeyStroke}
+import org.jetbrains.ide.PooledThreadExecutor
+import org.jetbrains.sbt.shell.action.SbtShellActionUtil._
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellToolWindowFactory}
 
 import scala.collection.JavaConverters._
-import SbtShellActionUtil._
 
 class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollToTheEndToolbarAction(editor) {
 
@@ -31,25 +33,34 @@ class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollToTheEnd
   setShortcutSet(shortcuts)
 }
 
+/**
+  * Starts or restarts sbt shell depending on running state.
+  */
 class StartAction(project: Project) extends DumbAwareAction {
 
   val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Execute)
   templatePresentation.setText("Start sbt shell") // TODO i18n / language-bundle
 
-  override def actionPerformed(e: AnActionEvent): Unit = if (isEnabled) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
     val twm = ToolWindowManager.getInstance(project)
     val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
     toolWindow.getContentManager.removeAllContents(true)
 
-    SbtProcessManager.forProject(e.getProject).restartProcess()
+    runAsync(SbtProcessManager.forProject(e.getProject).restartProcess())
   }
 
   override def update(e: AnActionEvent): Unit = {
-    e.getPresentation.setEnabled(isEnabled)
+    val presentation = e.getPresentation
+    if (shellAlive(project)) {
+      presentation.setIcon(AllIcons.Actions.Restart)
+      presentation.setText("Restart sbt shell")
+    } else {
+      presentation.setIcon(AllIcons.Actions.Execute)
+      templatePresentation.setText("Start sbt shell")
+    }
   }
 
-  private def isEnabled: Boolean = !shellAlive(project)
 }
 
 class StopAction(project: Project) extends DumbAwareAction {
@@ -61,7 +72,7 @@ class StopAction(project: Project) extends DumbAwareAction {
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     if (isEnabled)
-      SbtProcessManager.forProject(e.getProject).destroyProcess()
+      runAsync(SbtProcessManager.forProject(e.getProject).destroyProcess())
   }
 
   override def update(e: AnActionEvent): Unit = {
@@ -190,4 +201,6 @@ class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnecti
 
 object SbtShellActionUtil {
   def shellAlive(project: Project): Boolean = SbtProcessManager.forProject(project).isAlive
+
+  def runAsync[T](f: =>T): Future[T] = PooledThreadExecutor.INSTANCE.submit(() => f)
 }
