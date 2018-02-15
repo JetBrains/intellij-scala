@@ -21,7 +21,7 @@ class ScPrimaryConstructorWrapper(val delegate: ScPrimaryConstructor, isJavaVara
     res
   }
   val method: PsiMethod = {
-    val methodText = ScFunctionWrapper.methodText(delegate, isStatic = forDefault.isDefined, isInterface = false, None, isJavaVarargs, forDefault)
+    val methodText = ScFunctionWrapper.methodText(delegate, isStatic = forDefault.isDefined, isInterface = false, None, forDefault)
     LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
@@ -43,6 +43,8 @@ class ScPrimaryConstructorWrapper(val delegate: ScPrimaryConstructor, isJavaVara
   }
 
   override def isWritable: Boolean = getContainingFile.isWritable
+
+  override def isVarArgs: Boolean = isJavaVarargs
 }
 
 object ScPrimaryConstructorWrapper {
@@ -77,7 +79,7 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
     }
   }
   val method: PsiMethod = {
-    val methodText = ScFunctionWrapper.methodText(delegate, isStatic, isInterface, cClass, isJavaVarargs, forDefault)
+    val methodText = ScFunctionWrapper.methodText(delegate, isStatic, isInterface, cClass, forDefault)
     LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
@@ -131,6 +133,8 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
     if (forDefault.isEmpty && !delegate.isConstructor) delegate.setName(name)
     else this
   }
+
+  override def isVarArgs: Boolean = isJavaVarargs
 }
 
 object ScFunctionWrapper {
@@ -140,8 +144,8 @@ object ScFunctionWrapper {
   /**
     * This is for Java only.
     */
-  def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass],
-                 isJavaVarargs: Boolean, forDefault: Option[Int] = None): String = {
+  private[light] def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass],
+                                forDefault: Option[Int] = None): String = {
     val builder = new StringBuilder
 
     builder.append(JavaConversionUtil.annotationsAndModifiers(function, isStatic))
