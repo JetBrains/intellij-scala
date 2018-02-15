@@ -11,6 +11,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Condition
 import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.HelpID
@@ -22,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScStableReferenceElementPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -179,6 +181,8 @@ class ScalaInlineHandler extends InlineHandler {
     def errorOrSettingsForFunction(funDef: ScFunctionDefinition): InlineHandler.Settings = {
       if (funDef.recursionType != RecursionType.NoRecursion)
         showErrorHint(ScalaBundle.message("cannot.inline.recursive.function"), "method")
+      else if (funDef.paramClauses.clauses.size > 1)
+        showErrorHint(ScalaBundle.message("cannot.inline.function.multiple.clauses"), "method")
       else if (funDef.paramClauses.clauses.exists(_.isImplicit))
         showErrorHint(ScalaBundle.message("cannot.inline.function.implicit.parameters"), "method")
       else if (funDef.parameters.exists(_.isVarArgs))
@@ -189,6 +193,8 @@ class ScalaInlineHandler extends InlineHandler {
         showErrorHint(ScalaBundle.message("cannot.inline.generic.function"), "method")
       else if (funDef.parameters.exists(isFunctionalType))
         showErrorHint(ScalaBundle.message("cannot.inline.function.functional.parameters"), "method")
+      else if (funDef.parameters.nonEmpty && hasNoCallUsages(funDef))
+        showErrorHint(ScalaBundle.message("cannot.inline.not.method.call"), "method")
       else if (funDef.body.isDefined)
         if (funDef.isLocal) getSettings(funDef, "Method", "local method")
         else getSettings(funDef, "Method", "method")
@@ -239,5 +245,15 @@ class ScalaInlineHandler extends InlineHandler {
         notInSameClassQuery.findFirst() == null
       case _ => true
     }
+  }
+
+  private def hasNoCallUsages(fun: ScFunctionDefinition): Boolean = {
+    //we already know that all usages are in the same class
+    val scope = new LocalSearchScope(fun.containingClass.toOption.getOrElse(fun.getContainingFile))
+
+    val allReferences = ReferencesSearch.search(fun, scope)
+    val notCall: Condition[PsiReference] = ref => !ref.getElement.getParent.isInstanceOf[ScMethodCall]
+    val noCallUsages = new FilteredQuery[PsiReference](allReferences, notCall)
+    noCallUsages.findFirst() != null
   }
 }

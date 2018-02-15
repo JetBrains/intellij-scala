@@ -37,4 +37,8 @@ class InlineRefactoringWarningsTest extends InlineRefactoringTestBase {
   def testSpecialFunction() = doTest()
 
   def testFunctionalParam() = doTest()
+
+  def testMultipleClauses() = doTest()
+
+  def testMethodReference() = doTest()
 }
