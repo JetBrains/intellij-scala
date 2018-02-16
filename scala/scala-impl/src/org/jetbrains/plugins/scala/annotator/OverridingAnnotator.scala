@@ -112,7 +112,6 @@ trait OverridingAnnotator {
       if (owner.hasModifierProperty("override")) {
         val annotation: Annotation = holder.createErrorAnnotation(member.nameId,
           ScalaBundle.message("member.overrides.nothing", memberType, member.name))
-        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         annotation.registerFix(new RemoveModifierQuickFix(owner, "override"))
       }
     } else if (isConcreteElement(ScalaPsiUtil.nameContext(member))) {
@@ -121,7 +120,6 @@ trait OverridingAnnotator {
       if (isConcretes && !owner.hasModifierProperty("override")) {
         val annotation: Annotation = holder.createErrorAnnotation(member.nameId,
           ScalaBundle.message("member.needs.override.modifier", memberType, member.name))
-        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
 
         member match {
           case param: ScClassParameter if param.isCaseClassVal && !param.isVal && !param.isVar => fixForCaseClassParameter()
@@ -161,15 +159,13 @@ trait OverridingAnnotator {
         }
       }
       if (overridesFinal) {
-        val annotation: Annotation = holder.createErrorAnnotation(member.nameId,
+        holder.createErrorAnnotation(member.nameId,
           ScalaBundle.message("can.not.override.final", memberType, member.name))
-        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
       def annotateVarFromVal() = {
         def addAnnotation(): Unit = {
-          val annotation = holder.createErrorAnnotation(member.nameId,
+          holder.createErrorAnnotation(member.nameId,
             ScalaBundle.message("var.cannot.override.val", member.name))
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         }
         for (signature <- superSignatures) {
           signature match {
@@ -186,14 +182,12 @@ trait OverridingAnnotator {
       }
       def annotateFunFromValOrVar(): Unit = {
         def annotVal() = {
-          val annotation = holder.createErrorAnnotation(member.nameId,
+          holder.createErrorAnnotation(member.nameId,
             ScalaBundle.message("member.cannot.override.val", member.name))
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         }
         def annotVar() = {
-          val annotation = holder.createErrorAnnotation(member.nameId,
+          holder.createErrorAnnotation(member.nameId,
             ScalaBundle.message("member.cannot.override.var", member.name))
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         }
         for (signature <- superSignatures) {
           signature match {

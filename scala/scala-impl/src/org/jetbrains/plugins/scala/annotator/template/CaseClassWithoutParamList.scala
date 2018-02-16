@@ -18,9 +18,7 @@ object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
     def createAnnotation(nameId: PsiElement) = {
       if (element.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_11)) {
         val message = "case classes without a parameter list are not allowed"
-        val errAnnot = holder.createErrorAnnotation(nameId, message)
-        errAnnot.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-        errAnnot
+        holder.createErrorAnnotation(nameId, message)
       }
       else {
         val message = "case classes without a parameter list have been deprecated"

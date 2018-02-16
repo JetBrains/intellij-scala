@@ -78,18 +78,14 @@ trait ConstructorAnnotator {
           case Some(fun: ScFunction) =>
             //check order
             if (fun.getTextRange.getStartOffset > constr.getTextRange.getStartOffset) {
-              val annotation = holder.createErrorAnnotation(self,
-                ScalaBundle.message("called.constructor.definition.must.precede"))
-              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+              holder.createErrorAnnotation(self, ScalaBundle.message("called.constructor.definition.must.precede"))
             }
           case _ =>
         }
       case None =>
         constr.getContainingFile match {
           case file: ScalaFile if !file.isCompiled =>
-            val annotation = holder.createErrorAnnotation(constr,
-              ScalaBundle.message("constructor.invocation.expected"))
-            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+            holder.createErrorAnnotation(constr, ScalaBundle.message("constructor.invocation.expected"))
           case _ => //nothing to do in decompiled stuff
         }
     }

@@ -552,8 +552,7 @@ abstract class ScalaAnnotator extends Annotator
                       if (typeAware) {
                         val (retTypeText, expectedTypeText) = ScTypePresentation.different(returnType.getOrNothing, tp)
                         val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", retTypeText, expectedTypeText)
-                        val annotation: Annotation = holder.createErrorAnnotation(expr, error)
-                        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                        val annotation = holder.createErrorAnnotation(expr, error)
                         typeElement match {
                           //Don't highlight te if it's outside of original file.
                           case Some(te) if te.containingFile == t.containingFile =>
@@ -705,8 +704,7 @@ abstract class ScalaAnnotator extends Annotator
       AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
       def showError(): Unit = {
         val error = ScalaBundle.message("forward.reference.detected")
-        val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        holder.createErrorAnnotation(refElement.nameId, error)
       }
 
       refElement.getContainingFile match {
@@ -801,12 +799,10 @@ abstract class ScalaAnnotator extends Annotator
         case _: ScImportSelector if resolve.length > 0 => return
         case _: ScMethodCall if resolve.length > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
-          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          holder.createErrorAnnotation(refElement.nameId, error)
         case _: ScMethodCall if resolve.length > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
-          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          holder.createErrorAnnotation(refElement.nameId, error)
         case mc: ScMethodCall if addCreateApplyOrUnapplyFix("cannot.resolve.apply.method", td => new CreateApplyQuickFix(td, mc)) =>
           return
         case (p: ScPattern) && (_: ScConstructorPattern | _: ScInfixPattern) =>
@@ -885,8 +881,7 @@ abstract class ScalaAnnotator extends Annotator
         case _: ScImportSelector | _: ScImportExpr if resolveCount > 0 => return
         case _: ScMethodCall if resolveCount > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
-          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          holder.createErrorAnnotation(refElement.nameId, error)
         case _ =>
           val error = ScalaBundle.message("cannot.resolve", refElement.refName)
           val annotation = holder.createErrorAnnotation(refElement.nameId, error)
@@ -905,8 +900,7 @@ abstract class ScalaAnnotator extends Annotator
     resolve(0) match {
       case r if !r.isAccessible =>
         val error = "Symbol %s is inaccessible from this place".format(r.element.name)
-        val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        holder.createErrorAnnotation(refElement.nameId, error)
       //todo: add fixes
       case _ =>
     }
@@ -1040,7 +1034,6 @@ abstract class ScalaAnnotator extends Annotator
                   val (exprTypeText, expectedTypeText) = ScTypePresentation.different(exprType.getOrNothing, tp)
                   val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", exprTypeText, expectedTypeText)
                   val annotation: Annotation = holder.createErrorAnnotation(markedPsi, error)
-                  annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                   if (WrapInOptionQuickFix.isAvailable(expr, expectedType, exprType)) {
                     val wrapInOptionFix = new WrapInOptionQuickFix(expr, expectedType, exprType)
                     annotation.registerFix(wrapInOptionFix)
@@ -1087,12 +1080,10 @@ abstract class ScalaAnnotator extends Annotator
         case varDef @ ScVariableDefinition.expr(_) if varDef.expr.contains(under) =>
           if (varDef.containingClass == null) {
             val error = ScalaBundle.message("local.variables.must.be.initialized")
-            val annotation: Annotation = holder.createErrorAnnotation(under, error)
-            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+            holder.createErrorAnnotation(under, error)
           } else if (varDef.typeElement.isEmpty) {
             val error = ScalaBundle.message("unbound.placeholder.parameter")
-            val annotation: Annotation = holder.createErrorAnnotation(under, error)
-            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+            holder.createErrorAnnotation(under, error)
           } else if (varDef.typeElement.exists(_.isInstanceOf[ScLiteralTypeElement])) {
             holder.createErrorAnnotation(varDef.typeElement.get, ScalaBundle.message("default.init.prohibited.literal.types"))
           }
@@ -1102,7 +1093,6 @@ abstract class ScalaAnnotator extends Annotator
           // TODO SCL-2610 properly detect unbound placeholders, e.g. ( { _; (_: Int) } ) and report them.
           //  val error = ScalaBundle.message("unbound.placeholder.parameter")
           //  val annotation: Annotation = holder.createErrorAnnotation(under, error)
-          //  annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     }
   }
@@ -1436,13 +1426,11 @@ abstract class ScalaAnnotator extends Annotator
     val (_, status) = parseIntegerNumber(number, isNegative)
     if (status == 2) { // the Integer number is out of range even for Long
       val error = "Integer number is out of range even for type Long"
-      val annotation = holder.createErrorAnnotation(literal, error)
-      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+      holder.createErrorAnnotation(literal, error)
     } else {
       if (status == 1 && !endsWithL) {
         val error = "Integer number is out of range for type Int"
         val annotation = if (isNegative) holder.createErrorAnnotation(parent, error) else holder.createErrorAnnotation(literal, error)
-        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
 
         val Long = literal.projectContext.stdTypes.Long
         val conformsToTypeList = Seq(Long) ++ createTypeFromText("_root_.scala.math.BigInt", literal.getContext, literal)

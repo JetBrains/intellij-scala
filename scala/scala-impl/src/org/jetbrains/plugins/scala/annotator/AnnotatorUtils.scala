@@ -25,7 +25,6 @@ private[annotator] object AnnotatorUtils {
 
   def proccessError(error: String, range: TextRange, holder: AnnotationHolder, fixes: IntentionAction*) {
     val annotation = holder.createErrorAnnotation(range, error)
-    annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
     for (fix <- fixes) annotation.registerFix(fix)
   }
 
@@ -35,7 +34,6 @@ private[annotator] object AnnotatorUtils {
 
   def proccessWarning(error: String, range: TextRange, holder: AnnotationHolder, fixes: IntentionAction*) {
     val annotation: Annotation = holder.createWarningAnnotation(range, error)
-    annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
     for (fix <- fixes) annotation.registerFix(fix)
   }
 
