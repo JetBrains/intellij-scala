@@ -162,8 +162,7 @@ object SbtExternalSystemManager {
 
   private def getVmOptions(settings: SbtSystemSettings): Seq[String] = {
     val userOptions = settings.getVmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
-    val ideaProxyOptions =
-      proxyOptionsFor(HttpConfigurable.getInstance, { case (optName,_) => !userOptions.exists(_.startsWith(optName)) })
+    val ideaProxyOptions = proxyOptions { optName => !userOptions.exists(_.startsWith(optName)) }
 
     Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++ ideaProxyOptions ++ userOptions ++ fileEncoding(userOptions).toSeq
   }
@@ -174,13 +173,11 @@ object SbtExternalSystemManager {
     else Some(s"$prefix=UTF-8")
   }
 
-  /**
-    * @param http the HttpConfigurable
-    * @param select Allow only options that pass this (name, value) filter
-    */
-  private def proxyOptionsFor(http: HttpConfigurable, select: ((String,String))=>Boolean): Seq[String] = {
+  /** @param select Allow only options that pass this filter on option name */
+  private def proxyOptions(select: String=>Boolean): Seq[String] = {
 
-    val jvmArgs = http.getJvmProperties(false, null).asScala
+    val http = HttpConfigurable.getInstance
+    val jvmArgs = http.getJvmProperties(false, null).asScala.map { pair => (pair.first, pair.second)}
 
     // TODO workaround for IDEA-186551 -- remove when fixed in core
     val nonProxyHosts =
@@ -188,13 +185,11 @@ object SbtExternalSystemManager {
         val hosts = http.PROXY_EXCEPTIONS.split(",")
         if (hosts.nonEmpty) {
           val hostString = hosts.map(_.trim).mkString("|")
-          Seq(new Pair("http.nonProxyHosts", hostString))
+          Seq(("http.nonProxyHosts", hostString))
         } else Seq.empty
       } else Seq.empty
 
     (jvmArgs ++ nonProxyHosts)
-      .map { pair => (pair.first, pair.second)}
-      .filter(select(_))
-      .map { case (name,value) => s"-D$name=$value" }
+      .collect { case (name,value) if select(name) => s"-D$name=$value" }
   }
 }

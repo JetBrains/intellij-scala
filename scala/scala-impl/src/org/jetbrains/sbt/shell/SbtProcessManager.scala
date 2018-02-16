@@ -208,6 +208,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     * SbtProcessManager is solely responsible for handling the running state.
     */
   private[shell] def acquireShellProcessHandler: ColoredProcessHandler = processData.synchronized {
+    processData.exists(_.processHandler.getProcess.isAlive)
     processData match {
       case Some(ProcessData(handler, _)) if handler.getProcess.isAlive =>
         handler
@@ -297,13 +298,9 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     destroyProcess()
   }
 
-  /**
-    * Report if shell process is alive. Should only be used for UI/informational purposes.
-    */
-  def isAlive: Boolean = processData match {
-    case Some(ProcessData(handler, _)) if handler.getProcess.isAlive => true
-    case _ => false
-  }
+  /** Report if shell process is alive. Should only be used for UI/informational purposes. */
+  def isAlive: Boolean =
+    processData.exists(_.processHandler.getProcess.isAlive)
 }
 
 object SbtProcessManager {
