@@ -9,12 +9,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
+import scala.reflect.ClassTag
+
 /**
  * Pavel Fatin
  */
 
-trait AnnotatorPart[T <: ScalaPsiElement] {
-  def kind: Class[T]
+abstract class AnnotatorPart[T <: ScalaPsiElement : ClassTag] {
 
   def annotate(element: T, holder: AnnotationHolder, typeAware: Boolean)
 

@@ -19,8 +19,6 @@ import org.jetbrains.plugins.scala.settings._
 object ByNameParameter extends AnnotatorPart[ScExpression] {
   private val Foreground = new Color(128, 128, 128)
 
-  def kind: Class[ScExpression] = classOf[ScExpression]
-
   def annotate(exp: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
     if(!ScalaProjectSettings.getInstance(exp.getProject).isShowArgumentsToByNameParams) return
 

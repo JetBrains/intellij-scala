@@ -14,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
 object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
-  def kind: Class[ScClass] = classOf[ScClass]
-
   def annotate(element: ScClass, holder: AnnotationHolder, typeAware: Boolean) {
     def createAnnotation(nameId: PsiElement) = {
       if (element.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_11)) {

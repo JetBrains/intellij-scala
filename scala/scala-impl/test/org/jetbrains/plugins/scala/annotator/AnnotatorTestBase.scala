@@ -15,7 +15,7 @@ import scala.reflect.ClassTag
  * Pavel Fatin
  */
 
-abstract class AnnotatorTestBase[T <: ScalaPsiElement](annotator: AnnotatorPart[T]) extends SimpleTestCase {
+abstract class AnnotatorTestBase[T <: ScalaPsiElement : ClassTag](annotator: AnnotatorPart[T]) extends SimpleTestCase {
   final val Prefix = "object Holder { class Object; "
   final val Suffix = " }"
 
@@ -34,8 +34,7 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement](annotator: AnnotatorPart[
       if (notResolved.nonEmpty) return None
     }
 
-
-    file.depthFirst().filterByType[T](ClassTag(annotator.kind)).foreach { it =>
+    file.depthFirst().filterByType[T].foreach { it =>
       annotator.annotate(it, mock, typeAware = true)
     }
     Some(mock.annotations)

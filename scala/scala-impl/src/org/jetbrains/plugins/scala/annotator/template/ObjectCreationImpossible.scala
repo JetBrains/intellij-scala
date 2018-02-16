@@ -11,8 +11,6 @@ import org.jetbrains.plugins.scala.overrideImplement.{ScalaOIUtil, ScalaTypedMem
   * Pavel Fatin
   */
 object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
-  def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
-
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     if (!typeAware) return
 

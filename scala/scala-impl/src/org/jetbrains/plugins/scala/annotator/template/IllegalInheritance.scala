@@ -14,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 object IllegalInheritance extends AnnotatorPart[ScTemplateDefinition] {
   val Message = "Illegal inheritance, self-type %s does not conform to %s".format(_: String, _: String)
 
-  def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
-
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
 
     if(!typeAware) return

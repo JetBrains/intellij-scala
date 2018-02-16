@@ -16,8 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
  * @since 17.10.12
  */
 object NeedsToBeMixin extends AnnotatorPart[ScTemplateDefinition] {
-  def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
-
   def annotate(element: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     if (element.isInstanceOf[ScTrait]) return
     val signaturesIterator = TypeDefinitionMembers.getSignatures(element).allFirstSeq().

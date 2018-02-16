@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  */
 
 object MultipleInheritance extends AnnotatorPart[ScTemplateDefinition] {
-  def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
-
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     AnnotatorPart.superRefs(definition).groupBy(_._2).foreach {
       case (Some(psiClass), entries) if isMixable(psiClass) && entries.size > 1 =>

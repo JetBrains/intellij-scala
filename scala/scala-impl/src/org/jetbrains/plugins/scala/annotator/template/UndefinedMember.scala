@@ -13,8 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 object UndefinedMember extends AnnotatorPart[ScTemplateDefinition] {
   val Message = "Only classes can have declared but undefined members"
 
-  def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
-
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     val isNew = definition.isInstanceOf[ScNewTemplateDefinition]
     val isObject = definition.isInstanceOf[ScObject]

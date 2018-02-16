@@ -67,8 +67,6 @@ class ScopeAnnotatorTest extends AnnotatorTestBase(new MyAnnotatorPart) {
 object ScopeAnnotatorTest {
   class MyAnnotatorPart extends AnnotatorPart[ScTemplateDefinition] {
     private val myAnnotator = new ScopeAnnotator {}
-    
-    override def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
 
     override def annotate(element: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
       myAnnotator.annotateScope(element, holder)
