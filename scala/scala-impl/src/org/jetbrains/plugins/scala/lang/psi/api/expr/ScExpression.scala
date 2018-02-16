@@ -388,7 +388,10 @@ object ScExpression {
 
             if (!isMethodInvocation(expr)) {
               //it is not updated according to expected type, let's do it
-              res = updateExpected(rtp)
+              expr.getParent match {
+                case _: ScGenericCall => // all the implicits belong to the parent ScGenericCall
+                case _                => res = updateExpected(rtp)
+              }
             }
 
             def removeMethodType(retType: ScType, updateType: ScType => ScType = t => t) {
