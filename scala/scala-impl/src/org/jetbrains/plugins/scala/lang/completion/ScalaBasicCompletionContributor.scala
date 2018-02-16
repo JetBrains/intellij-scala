@@ -3,13 +3,11 @@ package lang
 package completion
 
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElement, LookupElementDecorator}
-import com.intellij.openapi.editor.Document
+import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElementDecorator}
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
@@ -56,6 +54,8 @@ abstract class ScalaCompletionContributor extends CompletionContributor {
 }
 
 class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
+
+  import ScalaBasicCompletionContributor._
 
   private val addedElements = mutable.Set[String]()
 
@@ -119,7 +119,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
         }
 
       var elementAdded = false
-      def addElement(el: LookupElement) {
+
+        def addElement(el: ScalaLookupItem) {
         if (result.getPrefixMatcher.prefixMatches(el))
           elementAdded = true
         result.addElement(el)
@@ -130,7 +131,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
       position.getContext match {
         case ref: ScReferenceElement =>
           val isInImport = ScalaPsiUtil.getContextOfType(ref, true, classOf[ScImportStmt]) != null
-          def applyVariant(variant: Object, addElement: LookupElement => Unit = addElement) {
+
+          def applyVariant(variant: Object, addElement: ScalaLookupItem => Unit = addElement) {
             variant match {
               case el: ScalaLookupItem if el.isValid =>
                 if (inString) el.isInSimpleString = true
@@ -185,7 +187,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           def postProcessMethod(resolveResult: ScalaResolveResult) {
             val probablyContinigClass = Option(PsiTreeUtil.getContextOfType(position, classOf[PsiClass]))
             val qualifierType = resolveResult.fromType.getOrElse(Nothing)
-            val lookupItems: Seq[ScalaLookupItem] = getLookupElement(
+            val lookupItems = getLookupElement(
               resolveResult,
               isInImport = isInImport,
               qualifierType = qualifierType,
@@ -243,37 +245,36 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           }
 
           //adds runtime completions for evaluate expression in debugger
-          val runtimeQualifierType: ScType = getQualifierCastType(ref, parameters)
-          if (runtimeQualifierType != null) {
-            def addElementWithDecorator(elem: LookupElement, decorator: InsertHandlerDecorator[LookupElement]) {
-              if (!addedElements.contains(elem.getLookupString)) {
-                val newElem = LookupElementDecorator.withInsertHandler(elem, decorator)
-                result.addElement(newElem)
-                addedElements += elem.getLookupString
+
+          def addElementWithDecorator(item: ScalaLookupItem,
+                                      decorator: InsertHandlerDecorator[ScalaLookupItem]): Unit =
+            if (addedElements.add(item.getLookupString)) {
+              result.addElement(LookupElementDecorator.withInsertHandler(item, decorator))
+            }
+
+          for {
+            qualifierType <- qualifierCastType(ref)
+            canonicalText = qualifierType.canonicalText
+            reference <- createReferenceWithQualifierType(canonicalText)(ref.getContext, ref)
+
+            processor = new ImplicitCompletionProcessor(kinds(reference), reference) {
+
+              override protected def postProcess(result: ScalaResolveResult): Unit = {
+                val lookupItems = getLookupElement(
+                  result,
+                  isInImport = isInImport,
+                  qualifierType = qualifierType,
+                  isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement],
+                  isInSimpleString = inString,
+                  isInInterpolatedString = inInterpolatedString
+                )
+                val decorator = castDecorator(canonicalText)
+                lookupItems.foreach { item =>
+                  applyVariant(item, addElementWithDecorator(_, decorator))
+                }
               }
             }
-
-            createReferenceWithQualifierType(runtimeQualifierType, ref.getContext, ref) match {
-              case refImpl: ScReferenceExpressionImpl =>
-                val processor = new ImplicitCompletionProcessor(kinds(refImpl), refImpl) {
-
-                  override protected def postProcess(result: ScalaResolveResult): Unit = {
-                    val lookupItems = getLookupElement(
-                      result,
-                      isInImport = isInImport,
-                      qualifierType = runtimeQualifierType,
-                      isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement],
-                      isInSimpleString = inString,
-                      isInInterpolatedString = inInterpolatedString
-                    )
-                    val decorator = castDecorator(runtimeQualifierType.canonicalText)
-                    lookupItems.foreach(item => applyVariant(item, addElementWithDecorator(_, decorator)))
-                  }
-                }
-                refImpl.doResolve(processor)
-              case _ =>
-            }
-          }
+          } reference.doResolve(processor)
         case _ =>
       }
       if (position.getNode.getElementType == ScalaDocTokenType.DOC_TAG_VALUE_TOKEN) result.stopHere()
@@ -287,54 +288,10 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
     context.setDummyIdentifier(ScalaCompletionUtil.getDummyIdentifier(offset, file))
     super.beforeCompletion(context)
   }
-
-  @Nullable
-  private def getQualifierCastType(ref: ScReferenceElement, parameters: CompletionParameters): ScType = {
-    ref match {
-      case refExpr: ScReferenceExpression =>
-        (for (qualifier <- refExpr.qualifier) yield {
-          val evaluator = refExpr.getContainingFile.getCopyableUserData(ScalaRuntimeTypeEvaluator.KEY)
-          if (evaluator != null) evaluator(qualifier) else null
-        }).orNull
-      case _ => null
-    }
-  }
-
-  private def createReferenceWithQualifierType(qualType: ScType, context: PsiElement, child: PsiElement): ScReferenceElement = {
-    val text =
-      s"""|{
-          |  val xxx: ${qualType.canonicalText} = null
-          |  xxx.xxx
-          |}""".stripMargin
-    val block = ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, child).asInstanceOf[ScBlock]
-    block.exprs.last.asInstanceOf[ScReferenceElement]
-  }
-
-  private def castDecorator(canonTypeName: String) = new InsertHandlerDecorator[LookupElement] {
-    def handleInsert(context: InsertionContext, item: LookupElementDecorator[LookupElement]) {
-      val document: Document = context.getEditor.getDocument
-      context.commitDocument()
-      val file = PsiDocumentManager.getInstance(context.getProject).getPsiFile(document)
-      val ref: ScReferenceElement =
-        PsiTreeUtil.findElementOfClassAtOffset(file, context.getStartOffset, classOf[ScReferenceElement], false)
-      if (ref != null) {
-        ref.qualifier match {
-          case None =>
-          case Some(qual) =>
-            val castString = s".asInstanceOf[$canonTypeName]"
-            document.insertString(qual.getTextRange.getEndOffset, castString)
-            context.commitDocument()
-            ScalaPsiUtil.adjustTypes(file)
-            PsiDocumentManager.getInstance(file.getProject).doPostponedOperationsAndUnblockDocument(document)
-            context.getEditor.getCaretModel.moveToOffset(context.getTailOffset)
-        }
-      }
-      item.getDelegate.handleInsert(context)
-    }
-  }
 }
 
 object ScalaBasicCompletionContributor {
+
   def getStartEndPointForInterpolatedString(interpolated: ScInterpolated, index: Int, offsetInString: Int): Option[(Int, Int)] = {
     val injections = interpolated.getInjections
     if (index != -1) {
@@ -357,4 +314,51 @@ object ScalaBasicCompletionContributor {
       } else None
     } else None
   }
+
+  private def qualifierCastType(reference: ScReferenceElement): Option[ScType] = reference match {
+    case ScReferenceExpression.withQualifier(qualifier) =>
+      reference.getContainingFile.getCopyableUserData(ScalaRuntimeTypeEvaluator.KEY) match {
+        case null => None
+        case evaluator => Option(evaluator(qualifier))
+      }
+    case _ => None
+  }
+
+  private def createReferenceWithQualifierType(canonicalText: String)
+                                              (context: PsiElement, child: PsiElement): Option[ScReferenceExpression] = {
+    val text =
+      s"""{
+         |  val xxx: $canonicalText = null
+         |  xxx.xxx
+         |}""".stripMargin
+    ScalaPsiElementFactory.createOptionExpressionWithContextFromText(text, context, child).flatMap {
+      case block: ScBlock => block.exprs.lastOption
+      case _ => None
+    }.collect {
+      case expression: ScReferenceExpression => expression
+    }
+  }
+
+  private def castDecorator(canonicalText: String): InsertHandlerDecorator[ScalaLookupItem] =
+    (context: InsertionContext, decorator: LookupElementDecorator[ScalaLookupItem]) => {
+      val document = context.getEditor.getDocument
+      context.commitDocument()
+
+      val file = PsiDocumentManager.getInstance(context.getProject).getPsiFile(document)
+      PsiTreeUtil.findElementOfClassAtOffset(file, context.getStartOffset, classOf[ScReferenceElement], false) match {
+        case null =>
+        case ScReferenceElement.withQualifier(qualifier) =>
+          document.insertString(qualifier.getTextRange.getEndOffset, s".asInstanceOf[$canonicalText]")
+          context.commitDocument()
+
+          ScalaPsiUtil.adjustTypes(file)
+          PsiDocumentManager.getInstance(file.getProject).doPostponedOperationsAndUnblockDocument(document)
+          context.getEditor.getCaretModel.moveToOffset(context.getTailOffset)
+        case _ =>
+      }
+
+      decorator.getDelegate.handleInsert(context)
+    }
+
+
 }

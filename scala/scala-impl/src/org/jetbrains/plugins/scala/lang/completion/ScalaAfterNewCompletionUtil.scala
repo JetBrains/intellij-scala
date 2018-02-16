@@ -82,7 +82,7 @@ object ScalaAfterNewCompletionUtil {
 
   def getLookupElementFromClass(expectedTypes: Array[ScType],
                                 clazz: PsiClass,
-                                renamesMap: RenamesMap): LookupElement = {
+                                renamesMap: RenamesMap): ScalaLookupItem = {
     implicit val context: ProjectContext = clazz
 
     val (designatorType, parameters) = classComponents(clazz)
