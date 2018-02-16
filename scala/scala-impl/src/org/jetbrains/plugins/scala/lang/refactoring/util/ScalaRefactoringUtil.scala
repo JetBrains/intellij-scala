@@ -5,8 +5,8 @@ package util
 
 import java.awt.Component
 import java.{util => ju}
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 
+import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
@@ -24,6 +24,7 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOfType, isAncestor}
 import com.intellij.refactoring.util.CommonRefactoringUtil
+import org.jetbrains.plugins.scala.codeInspection.collections.stripped
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScPattern, ScReferencePattern}
@@ -470,7 +471,8 @@ object ScalaRefactoringUtil {
 
 
   def unparExpr(expression: ScExpression): ScExpression = expression match {
-    case ScParenthesisedExpr(innerExpression) => innerExpression
+    case ScParenthesisedExpr(innerExpression) => unparExpr(innerExpression)
+    case ScBlock(inner: ScExpression) => unparExpr(inner)
     case _ => expression
   }
 

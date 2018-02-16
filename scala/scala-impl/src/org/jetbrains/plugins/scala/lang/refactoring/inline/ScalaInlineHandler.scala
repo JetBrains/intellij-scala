@@ -72,32 +72,7 @@ class ScalaInlineHandler extends InlineHandler {
     }
   }
 
-  def createInliner(element: PsiElement, settings: InlineHandler.Settings): InlineHandler.Inliner = {
-    val replacementValue = element match {
-      case rp: ScBindingPattern =>
-        PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {
-          case v@ScPatternDefinition.expr(e) if v.declaredElements == Seq(element) => e.getText
-          case v@ScVariableDefinition.expr(e) if v.declaredElements == Seq(element) => e.getText
-          case _ => return null
-        }
-      case funDef: ScFunctionDefinition if funDef.parameters.isEmpty =>
-        funDef.body.map {
-          _.getText
-        }.getOrElse {
-          return null
-        }
-      case funDef: ScFunctionDefinition => ""
-      case typeAlias: ScTypeAliasDefinition =>
-        typeAlias.aliasedTypeElement.map {
-          _.getText
-        }.getOrElse {
-          return null
-        }
-      case _ => return null
-    }
-    new ScalaInliner(replacementValue)
-  }
-
+  def createInliner(element: PsiElement, settings: InlineHandler.Settings): InlineHandler.Inliner = new ScalaInliner
 
   def prepareInlineElement(element: PsiElement, editor: Editor, invokedOnReference: Boolean): InlineHandler.Settings = {
     def title(suffix: String) = "Scala Inline " + suffix

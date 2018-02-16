@@ -39,4 +39,8 @@ class InlineRefactoringArgumentsTest extends InlineRefactoringTestBase {
   def testMethodWithArgumentReferencedInStringInterpolation() = doTest()
 
   def testMethodWithOneArgumentUnaryOperatorSpacing() = doTest()
+
+  def testBodySingleExpressionBlock() = doTest()
+
+  def testStringInterpolationBody() = doTest()
 }
