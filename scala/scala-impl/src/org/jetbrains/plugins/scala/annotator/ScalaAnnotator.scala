@@ -75,7 +75,6 @@ abstract class ScalaAnnotator extends Annotator
   with ProjectContextOwner with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
-    // TODO Should we take the Dotty thing into account universally, in the isAdvancedHighlightingEnabled?
     val typeAware = isAdvancedHighlightingEnabled(element) && !element.isInDottyModule
 
     val (compiled, isInSources) = element.getContainingFile match {
@@ -94,7 +93,7 @@ abstract class ScalaAnnotator extends Annotator
       private def expressionPart(expr: ScExpression) {
         if (!compiled) {
           checkExpressionType(expr, holder, typeAware)
-          ImplicitParametersAnnotator.annotate(expr, holder, typeAware)
+          checkExpressionImplicitParameters(expr, holder, typeAware)
           ByNameParameter.annotate(expr, holder, typeAware)
         }
 
@@ -179,7 +178,7 @@ abstract class ScalaAnnotator extends Annotator
 
       override def visitTypeElement(te: ScTypeElement) {
         checkLiteralTypesAllowed(te, holder)
-        checkTypeElementForm(te, holder)
+        checkTypeElementForm(te, holder, typeAware)
         super.visitTypeElement(te)
       }
 
@@ -466,8 +465,50 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  def isAdvancedHighlightingEnabled(element: PsiElement): Boolean =
-    ScalaAnnotator.isAdvancedHighlightingEnabled(element)
+  def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
+    if (!HighlightingAdvisor.getInstance(element.getProject).enabled) return false
+    element.getContainingFile match {
+      case file: ScalaFile =>
+        if (file.isCompiled) return false
+        val vFile = file.getVirtualFile
+        if (vFile != null && ProjectFileIndex.SERVICE.getInstance(element.getProject).isInLibrarySource(vFile)) return false
+      case _ =>
+    }
+    val containingFile = element.getContainingFile
+    def calculate(): mutable.HashSet[TextRange] = {
+      val chars = containingFile.charSequence
+      val indexes = new ArrayBuffer[Int]
+      var lastIndex = 0
+      while (chars.indexOf("/*_*/", lastIndex) >= 0) {
+        lastIndex = chars.indexOf("/*_*/", lastIndex) + 5
+        indexes += lastIndex
+      }
+      if (indexes.isEmpty) return mutable.HashSet.empty
+      if (indexes.length % 2 != 0) indexes += chars.length
+
+      val res = new mutable.HashSet[TextRange]
+      for (i <- indexes.indices by 2) {
+        res += new TextRange(indexes(i), indexes(i + 1))
+      }
+      res
+    }
+    var data = containingFile.getUserData(ScalaAnnotator.ignoreHighlightingKey)
+    val count = containingFile.getManager.getModificationTracker.getModificationCount
+    if (data == null || data._1 != count) {
+      data = (count, calculate())
+      containingFile.putUserData(ScalaAnnotator.ignoreHighlightingKey, data)
+    }
+    val noCommentWhitespace = element.children.filter {
+      case _: PsiComment | _: PsiWhiteSpace => false
+      case _ => true
+    }
+    val offset =
+      noCommentWhitespace.headOption
+        .map(_.getTextOffset)
+        .getOrElse(element.getTextOffset)
+
+    data._2.forall(!_.contains(offset))
+  }
 
   def checkCatchBlockGeneralizedRule(block: ScCatchBlock, holder: AnnotationHolder, typeAware: Boolean) {
     block.expression match {
@@ -796,12 +837,10 @@ abstract class ScalaAnnotator extends Annotator
 
   private def highlightImplicitView(expr: ScExpression, fun: PsiNamedElement, typeTo: ScType,
                                     elementToHighlight: PsiElement, holder: AnnotationHolder) {
-    if (ScalaProjectSettings.getInstance(elementToHighlight.getProject).isShowImplisitConversions) {
-      val range = elementToHighlight.getTextRange
-      val annotation: Annotation = holder.createInfoAnnotation(range, null)
-      annotation.setTextAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS)
-      annotation.setAfterEndOfLine(false)
-    }
+    val range = elementToHighlight.getTextRange
+    val annotation: Annotation = holder.createInfoAnnotation(range, null)
+    annotation.setTextAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS)
+    annotation.setAfterEndOfLine(false)
   }
 
   private def checkSelfInvocation(self: ScSelfInvocation, holder: AnnotationHolder) {
@@ -1029,13 +1068,15 @@ abstract class ScalaAnnotator extends Annotator
     checkExpressionTypeInner(fromUnderscore = false)
   }
 
-  private def checkExpressionImplicitParameters(expr: ScExpression, holder: AnnotationHolder) {
+  private def checkExpressionImplicitParameters(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
     expr.findImplicitParameters match {
       case Some(seq) =>
         for (resolveResult <- seq if resolveResult != null) {
           registerUsedImports(expr, resolveResult)
           registerUsedElement(expr, resolveResult, checkWrite = false)
         }
+        if (typeAware)
+          NotFoundImplicitParameters.highlight(expr, seq, holder)
       case _ =>
     }
   }
@@ -1100,20 +1141,19 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  private def checkTypeElementForm(typeElement: ScTypeElement, holder: AnnotationHolder) {
+  private def checkTypeElementForm(typeElement: ScTypeElement, holder: AnnotationHolder, typeAware: Boolean) {
     //todo: check bounds conformance for parameterized type
     typeElement match {
       case simpleTypeElement: ScSimpleTypeElement =>
         checkAbsentTypeArgs(simpleTypeElement, holder)
-
-        val typeAware = isAdvancedHighlightingEnabled(typeElement) && !typeElement.isInDottyModule
-        ImplicitParametersAnnotator.annotate(simpleTypeElement, holder, typeAware)
 
         simpleTypeElement.findImplicitParameters match {
           case Some(parameters) =>
             for (r <- parameters if r != null) {
               registerUsedImports(typeElement, r)
             }
+            if (typeAware)
+              NotFoundImplicitParameters.highlight(simpleTypeElement, parameters, holder)
           case _ =>
         }
       case _ =>
@@ -1446,49 +1486,5 @@ object ScalaAnnotator {
     override implicit def projectContext: ProjectContext = ctx
   }
 
-  // TODO De-compose the code (what exactly it does?), place the method in HighlightingAdvisor
-  def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
-    if (!HighlightingAdvisor.getInstance(element.getProject).enabled) return false
-    element.getContainingFile match {
-      case file: ScalaFile =>
-        if (file.isCompiled) return false
-        val vFile = file.getVirtualFile
-        if (vFile != null && ProjectFileIndex.SERVICE.getInstance(element.getProject).isInLibrarySource(vFile)) return false
-      case _ =>
-    }
-    val containingFile = element.getContainingFile
-    def calculate(): mutable.HashSet[TextRange] = {
-      val chars = containingFile.charSequence
-      val indexes = new ArrayBuffer[Int]
-      var lastIndex = 0
-      while (chars.indexOf("/*_*/", lastIndex) >= 0) {
-        lastIndex = chars.indexOf("/*_*/", lastIndex) + 5
-        indexes += lastIndex
-      }
-      if (indexes.isEmpty) return mutable.HashSet.empty
-      if (indexes.length % 2 != 0) indexes += chars.length
 
-      val res = new mutable.HashSet[TextRange]
-      for (i <- indexes.indices by 2) {
-        res += new TextRange(indexes(i), indexes(i + 1))
-      }
-      res
-    }
-    var data = containingFile.getUserData(ScalaAnnotator.ignoreHighlightingKey)
-    val count = containingFile.getManager.getModificationTracker.getModificationCount
-    if (data == null || data._1 != count) {
-      data = (count, calculate())
-      containingFile.putUserData(ScalaAnnotator.ignoreHighlightingKey, data)
-    }
-    val noCommentWhitespace = element.children.filter {
-      case _: PsiComment | _: PsiWhiteSpace => false
-      case _ => true
-    }
-    val offset =
-      noCommentWhitespace.headOption
-        .map(_.getTextOffset)
-        .getOrElse(element.getTextOffset)
-
-    data._2.forall(!_.contains(offset))
-  }
 }
