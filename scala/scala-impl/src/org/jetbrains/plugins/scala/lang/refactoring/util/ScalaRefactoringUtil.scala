@@ -384,7 +384,7 @@ object ScalaRefactoringUtil {
         val text = lit.getValue.asInstanceOf[String]
         val filter: ScLiteral => Boolean = {
           case _: ScInterpolatedStringLiteral if text.contains('$') => false
-          case _ => true
+          case l => l.isString
         }
         getTextOccurrenceInLiterals(text, enclosingContainer, filter)
       case _ => getExprOccurrences(element, enclosingContainer).map(_.getTextRange)
