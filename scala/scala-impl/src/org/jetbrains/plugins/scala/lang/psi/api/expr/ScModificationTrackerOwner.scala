@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 
@@ -19,7 +20,7 @@ trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeB
 
   private val blockModificationCount = new AtomicLong()
 
-  final def modificationCount: Long = modificationCount(this, 0)
+  final def modificationCount: Long = ScModificationTrackerOwner.modificationCount(this)
 
   final def incModificationCount(): Long = blockModificationCount.incrementAndGet()
 
@@ -50,24 +51,23 @@ trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeB
          _: ScDoStmt => true
     case _ => false
   }
-
-  @tailrec
-  private def modificationCount(place: PsiElement, result: Long)
-                               (implicit manager: ScalaPsiManager = ScalaPsiManager.instance(projectContext)): Long = place match {
-    case null | _: ScalaFile => result + manager.getModificationCount
-    case _ =>
-      val delta = place match {
-        case ScModificationTrackerOwner() => blockModificationCount.get()
-        case _ => 0
-      }
-      modificationCount(place.getContext, result + delta)
-  }
-
 }
 
 object ScModificationTrackerOwner {
 
   def unapply(owner: ScModificationTrackerOwner): Boolean =
     owner.isValidModificationTrackerOwner
+
+  @tailrec
+  private def modificationCount(place: PsiElement, result: Long = 0)
+                               (implicit context: ProjectContext): Long = place match {
+    case null | _: ScalaFile => result + ScalaPsiManager.instance(context).getModificationCount
+    case _ =>
+      val delta = place match {
+        case owner@ScModificationTrackerOwner() => owner.blockModificationCount.get()
+        case _ => 0
+      }
+      modificationCount(place.getContext, result + delta)
+  }
 }
 
