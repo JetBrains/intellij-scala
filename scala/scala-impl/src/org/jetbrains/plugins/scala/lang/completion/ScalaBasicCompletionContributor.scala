@@ -56,8 +56,6 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaBasicCompletionContributor._
 
-  private val addedElements = mutable.Set[String]()
-
   extend(
     CompletionType.BASIC,
     PlatformPatterns.psiElement(),
@@ -120,9 +118,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
       var elementAdded = false
 
         def addElement(item: ScalaLookupItem): Unit = {
-          if (result.getPrefixMatcher.prefixMatches(item))
-            elementAdded = true
-          addedElements += item.getLookupString
+          elementAdded |= result.getPrefixMatcher.prefixMatches(item)
           result.addElement(item)
         }
 
@@ -232,11 +228,12 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
             processor = new ImplicitCompletionProcessor(kinds(reference), reference) with PostProcessor {
 
+              private val lookupStrings = mutable.Set[String]()
               private val decorator = castDecorator(canonicalText)
 
               override protected def postProcess(resolveResult: ScalaResolveResult): Unit =
                 lookupItems(resolveResult, qualifierType).foreach { item =>
-                  if (addedElements.add(item.getLookupString)) {
+                  if (lookupStrings.add(item.getLookupString)) {
                     result.addElement(LookupElementDecorator.withInsertHandler(item, decorator))
                   }
                 }
@@ -249,8 +246,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
     }
   })
 
-  override def beforeCompletion(context: CompletionInitializationContext) {
-    addedElements.clear()
+  override def beforeCompletion(context: CompletionInitializationContext): Unit = {
     context.setDummyIdentifier(getDummyIdentifier(context.getStartOffset - 1, context.getFile))
     super.beforeCompletion(context)
   }
