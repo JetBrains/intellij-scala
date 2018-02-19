@@ -4,9 +4,6 @@ package scaladoc
 package psi
 package impl
 
-import scala.collection.Set
-import scala.collection.mutable.ArrayBuilder
-
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.TextRange
@@ -26,6 +23,9 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveRes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocReferenceElement, ScDocTag, ScDocTagValue}
 
+import scala.collection.Set
+import scala.collection.mutable.ArrayBuilder
+
 /**
  * User: Dmitry Naydanov
  * Date: 11/23/11
@@ -43,9 +43,9 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with
   def getSameNameVariants: Array[ScalaResolveResult] = Array.empty
 
   def multiResolveScala(incompleteCode: Boolean): Array[ScalaResolveResult] =
-    getParametersVariants.filter(a =>
-      ScalaNamesUtil.equivalent(a.name, refName)).
-            map(new ScalaResolveResult(_))
+    getParametersVariants.filter { element =>
+      ScalaNamesUtil.equivalent(element.name, refName)
+    }.map(new ScalaResolveResult(_))
 
   override def toString: String = "ScalaDocTagValue: " + getText
 
@@ -78,24 +78,17 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with
     getElement
   }
 
-  def getVariants: Array[AnyRef] = {
-    val result = ArrayBuilder.make[AnyRef]()
-    val parameters = getParametersVariants
-    if (parameters == null) {
-      return Array[AnyRef]()
-    }
-    parameters.foreach {
-      param =>
-        result += new ScalaLookupItem(param, param.name, None)
-    }
-    result.result()
-  }
+  def getVariants: Array[AnyRef] = variants().toArray
 
+  override def variants(implicits: Boolean): Seq[ScalaLookupItem] =
+    getParametersVariants.map { element =>
+      new ScalaLookupItem(element, element.name, None)
+    }
 
   override def isSoft: Boolean = getParent.asInstanceOf[ScDocTag].name == MyScaladocParsing.THROWS_TAG
 
-  def getParametersVariants: Array[ScNamedElement] = {
-    import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing.{PARAM_TAG, TYPE_PARAM_TAG}
+  private def getParametersVariants: Array[ScNamedElement] = {
+    import MyScaladocParsing.{PARAM_TAG, TYPE_PARAM_TAG}
     val parentTagType: String = getParent match {
       case a: ScDocTag => a.name
       case _ => null

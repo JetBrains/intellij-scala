@@ -11,6 +11,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScReferenceExpression}
@@ -26,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdent
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
-import scala.collection.{Set, mutable}
+import scala.collection.Set
 
 /**
  * @author Alexander Podkhalyuzin
@@ -217,7 +218,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   //provides the set of possible namespace alternatives based on syntactic position
   def getKinds(incomplete: Boolean, completion: Boolean = false): Set[ResolveTargets.Value]
 
-  def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = getVariants
+  def variants(implicits: Boolean = false): Seq[ScalaLookupItem]
 
   def getSameNameVariants: Array[ScalaResolveResult]
 
