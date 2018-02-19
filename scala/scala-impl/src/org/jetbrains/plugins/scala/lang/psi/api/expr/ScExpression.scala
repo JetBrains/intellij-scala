@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.{ChildOf, childOf, PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
@@ -386,12 +387,8 @@ object ScExpression {
               }
             }
 
-            if (!isMethodInvocation(expr)) {
-              //it is not updated according to expected type, let's do it
-              expr.getParent match {
-                case _: ScGenericCall => // all the implicits belong to the parent ScGenericCall
-                case _                => res = updateExpected(rtp)
-              }
+            if (shouldUpdateImplicitParams(expr)) {
+              res = updateExpected(rtp)
             }
 
             def removeMethodType(retType: ScType, updateType: ScType => ScType = t => t) {
@@ -404,7 +401,7 @@ object ScExpression {
                       if (languageLevel != Scala_2_11 || ScalaPsiUtil.toSAMType(expect, expr).isEmpty) {
                         res = updateType(retType)
                       }
-                    case _                  => res = updateType(retType)
+                    case _ => res = updateType(retType)
                   }
                 case _ => res = updateType(retType)
               }
@@ -525,17 +522,20 @@ object ScExpression {
     }
 
     @tailrec
-    private def isMethodInvocation(expr: ScExpression): Boolean = {
+    private def shouldUpdateImplicitParams(expr: ScExpression): Boolean = {
+      //true if it wasn't updated in MethodInvocation method
       expr match {
-        case _: ScPrefixExpr => false
-        case _: ScPostfixExpr => false
-        case _: MethodInvocation => true
+        case _: ScPrefixExpr                    => true
+        case _: ScPostfixExpr                   => true
+        case ChildOf(ScInfixExpr(_, `expr`, _)) => false //implicit parameters are in infix expression
+        case ChildOf(_: ScGenericCall)          => false //implicit parameters are in generic call
+        case _: MethodInvocation                => false
         case p: ScParenthesisedExpr =>
           p.innerElement match {
-            case Some(exp) => isMethodInvocation(exp)
-            case _ => false
+            case Some(exp)                      => shouldUpdateImplicitParams(exp)
+            case _                              => false
           }
-        case _ => false
+        case _                                  => true
       }
     }
 
@@ -553,7 +553,7 @@ object ScExpression {
                 else None
               case _ => None
             }
-          case _                               => None
+          case _ => None
         }
       }
 
@@ -563,31 +563,6 @@ object ScExpression {
         case MethodValue(method) if expr.scalaLanguageLevelOrDefault == Scala_2_11 || method.getParameterList.getParametersCount > 0 =>
           checkForSAM(etaExpansionHappened = true)
         case _ => None
-      }
-    }
-
-    private def removeMethodType(tp: ScType, expected: ScType): ScType = {
-      def inner(retType: ScType, updateType: ScType => ScType): ScType = {
-        expected.removeAbstracts match {
-          case FunctionType(_, _) => tp
-          case expect if expr.isSAMEnabled =>
-            val languageLevel = expr.scalaLanguageLevelOrDefault
-            if (languageLevel != Scala_2_11 || ScalaPsiUtil.toSAMType(expect, expr).isEmpty) {
-              updateType(retType)
-            }
-            else tp
-          case _                  => updateType(retType)
-        }
-      }
-
-      tp match {
-        case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) if params.isEmpty &&
-          !ScUnderScoreSectionUtil.isUnderscore(expr) =>
-          inner(retType, t => ScTypePolymorphicType(t, typeParams))
-        case ScMethodType(retType, params, _) if params.isEmpty &&
-          !ScUnderScoreSectionUtil.isUnderscore(expr) =>
-          inner(retType, t => t)
-        case _ => tp
       }
     }
   }
