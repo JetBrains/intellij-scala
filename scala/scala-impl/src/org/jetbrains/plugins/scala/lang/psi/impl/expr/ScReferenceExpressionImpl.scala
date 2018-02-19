@@ -11,7 +11,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement, ScTypeElement}
@@ -148,7 +147,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
 
     getSimpleVariants(implicits, filterNotNamedVariants).flatMap {
-      LookupElementManager.getLookupElement(_, isInImport = isInImport)
+      _.getLookupElement(isInImport = isInImport)
     }
   }
 

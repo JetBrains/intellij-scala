@@ -9,7 +9,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -47,7 +46,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) w
   def getVariants: Array[Object] = {
     val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
     doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
-      LookupElementManager.getLookupElement(_, isInImport = isInImport)
+      _.getLookupElement(isInImport = isInImport)
     }
   }
 

@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getContextOfType
@@ -131,8 +130,7 @@ object ScalaClassNameCompletionContributor {
             case (`element`, s) => s
           }
 
-          LookupElementManager.getLookupElement(
-            new ScalaResolveResult(element, nameShadow = nameShadow),
+          new ScalaResolveResult(element, nameShadow = nameShadow).getLookupElement(
             isClassName = true,
             isInImport = isInImport,
             isInStableCodeReference = stableRefElement != null,

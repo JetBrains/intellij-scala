@@ -14,7 +14,6 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
 import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
-import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
@@ -58,7 +57,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
   def getVariants: Array[Object] = {
     val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
     doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
-      LookupElementManager.getLookupElement(_, isInImport = isInImport, isInStableCodeReference = true)
+      _.getLookupElement(isInImport = isInImport, isInStableCodeReference = true)
     }
   }
 

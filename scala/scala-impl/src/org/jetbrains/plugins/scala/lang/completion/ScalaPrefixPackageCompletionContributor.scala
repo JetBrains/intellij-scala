@@ -11,7 +11,6 @@ import com.intellij.psi.{JavaPsiFacade, PsiElement, PsiPackage}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, ResolvesTo, inReadAction}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -70,14 +69,13 @@ object ScalaPrefixPackageCompletionContributor {
         case _ =>
       }
 
-      val resolveResult = new ScalaResolveResult(pckg, prefixCompletion = true)
-      val lookupElems = LookupElementManager.getLookupElement(resolveResult, isInImport = false, shouldImport = true)
-      lookupElems.foreach { le =>
+      val items = new ScalaResolveResult(pckg, prefixCompletion = true).getLookupElement(shouldImport = true)
+      items.foreach { le =>
         le.elementToImport = Option(pckg)
       }
 
       import JavaConverters._
-      result.addAllElements(lookupElems.asJava)
+      result.addAllElements(items.asJava)
     }
 
     val prefixMatcher = result.getPrefixMatcher

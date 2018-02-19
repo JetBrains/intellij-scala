@@ -7,32 +7,23 @@ import java.util.Objects
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.{ImplicitResult, ImplicitState, NoResult}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
 import scala.annotation.tailrec
-
-object ScalaResolveResult {
-  def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
-
-  def unapply(r: ScalaResolveResult): Some[(PsiNamedElement, ScSubstitutor)] = Some(r.element, r.substitutor)
-
-  object withActual {
-    def unapply(r: ScalaResolveResult): Option[PsiNamedElement] = Some(r.getActualElement)
-  }
-
-  val EMPTY_ARRAY = Array.empty[ScalaResolveResult]
-}
 
 class ScalaResolveResult(val element: PsiNamedElement,
                          val substitutor: ScSubstitutor = ScSubstitutor.empty,
@@ -271,6 +262,114 @@ class ScalaResolveResult(val element: PsiNamedElement,
       precedence = getPrecedenceInner
     }
     precedence
+  }
+
+}
+
+object ScalaResolveResult {
+  def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
+
+  def unapply(r: ScalaResolveResult): Some[(PsiNamedElement, ScSubstitutor)] = Some(r.element, r.substitutor)
+
+  object withActual {
+    def unapply(r: ScalaResolveResult): Option[PsiNamedElement] = Some(r.getActualElement)
+  }
+
+  val EMPTY_ARRAY = Array.empty[ScalaResolveResult]
+
+  implicit class ScalaResolveResultExt(val resolveResult: ScalaResolveResult) extends AnyVal {
+
+    def getLookupElement(qualifierType: Option[ScType] = None,
+                         isClassName: Boolean = false,
+                         isInImport: Boolean = false,
+                         isOverloadedForClassName: Boolean = false,
+                         shouldImport: Boolean = false,
+                         isInStableCodeReference: Boolean = false,
+                         containingClass: Option[PsiClass] = None,
+                         isInSimpleString: Boolean = false,
+                         isInInterpolatedString: Boolean = false): Seq[ScalaLookupItem] = {
+      val ScalaResolveResult(element, substitutor) = resolveResult
+
+      val isRenamed = resolveResult.isRenamed.filter(element.name != _)
+
+      def isCurrentClassMember: Boolean = {
+        def checkIsExpectedClassMember(expectedClassOption: Option[PsiClass]): Boolean = {
+          expectedClassOption.exists { expectedClass =>
+            ScalaPsiUtil.nameContext(element) match {
+              case m: PsiMember =>
+                m.containingClass match {
+                  //allow boldness only if current class is package object, not element availiable from package object
+                  case packageObject: ScObject if packageObject.isPackageObject && packageObject == expectedClass =>
+                    containingClass.contains(packageObject)
+                  case clazz =>
+                    clazz == expectedClass
+                }
+              case _ => false
+            }
+          }
+        }
+
+        def extractedType: Option[PsiClass] = {
+          def usedImportForElement = resolveResult.importsUsed.nonEmpty
+
+          def isPredef = resolveResult.fromType.exists(_.presentableText == "Predef.type")
+
+          import resolveResult.projectContext
+          qualifierType
+            .orElse(resolveResult.fromType)
+            .getOrElse(api.Nothing) match {
+            case qualType if !isPredef && !usedImportForElement =>
+              qualType.extractDesignated(expandAliases = false) match {
+                case Some(named) =>
+                  named match {
+                    case cl: PsiClass => Some(cl)
+                    case Typeable(tp) => tp.extractClass
+                    case _ => None
+                  }
+                case _ => None
+              }
+            case _ => None
+          }
+        }
+
+        extractedType match {
+          case Some(_) => checkIsExpectedClassMember(extractedType)
+          case _ => checkIsExpectedClassMember(containingClass)
+        }
+      }
+
+      def isDeprecated: Boolean = element match {
+        case doc: PsiDocCommentOwner if doc.isDeprecated => true
+        case _ => false
+      }
+
+      def getLookupElementInternal(isAssignment: Boolean, name: String): ScalaLookupItem = {
+        val lookupItem: ScalaLookupItem = new ScalaLookupItem(element, name, containingClass)
+        lookupItem.isClassName = isClassName
+        lookupItem.isNamedParameter = resolveResult.isNamedParameter
+        lookupItem.isDeprecated = isDeprecated
+        lookupItem.isOverloadedForClassName = isOverloadedForClassName
+        lookupItem.isRenamed = isRenamed
+        lookupItem.isUnderlined = resolveResult.implicitFunction.isDefined
+        lookupItem.isAssignment = isAssignment
+        lookupItem.isInImport = isInImport
+        lookupItem.bold = isCurrentClassMember
+        lookupItem.shouldImport = shouldImport
+        lookupItem.isInStableCodeReference = isInStableCodeReference
+        lookupItem.substitutor = substitutor
+        lookupItem.prefixCompletion = resolveResult.prefixCompletion
+        lookupItem.isInSimpleString = isInSimpleString
+        lookupItem
+      }
+
+      val name: String = isRenamed.getOrElse(element.name)
+      val Setter = """(.*)_=""".r
+      name match {
+        case Setter(prefix) if !element.isInstanceOf[FakePsiMethod] => //if element is fake psi method, then this setter is already generated from var
+          Seq(getLookupElementInternal(isAssignment = true, prefix), getLookupElementInternal(isAssignment = false, name))
+        case _ => Seq(getLookupElementInternal(isAssignment = false, name))
+      }
+    }
   }
 
 }

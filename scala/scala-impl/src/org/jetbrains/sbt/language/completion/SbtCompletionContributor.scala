@@ -6,7 +6,7 @@ import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
 import com.intellij.psi._
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaChainLookupElement, ScalaLookupItem}
+import org.jetbrains.plugins.scala.lang.completion.lookups.{ScalaChainLookupElement, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.completion.{ScalaCompletionContributor, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
@@ -94,8 +94,9 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
       def collectAndApplyVariants(obj: PsiClass): Unit = obj match {
         case obj: ScObject if isAccessible(obj) && ScalaPsiUtil.hasStablePath(obj) =>
           def fetchAndApply(element: ScTypedDefinition) {
-            val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(element), isClassName = true,
-              isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).head
+            val lookup = new ScalaResolveResult(element)
+              .getLookupElement(isClassName = true, shouldImport = true)
+              .head
             lookup.addLookupStrings(obj.name + "." + element.name)
             applyVariant(lookup)
           }
@@ -143,8 +144,9 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
         case Some(p: PsiClass) if isAccessible(p) =>
           p.getFields.foreach (field => {
             if (field.hasModifierProperty("static") && isAccessible(field)) {
-              val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(field), isClassName = true,
-                isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).head
+              val lookup = new ScalaResolveResult(field)
+                .getLookupElement(isClassName = true, shouldImport = true)
+                .head
               lookup.addLookupStrings(p.getName + "." + field.getName)
               applyVariant(lookup)
             }

@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager.getLookupElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaCompletionSorting._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
@@ -179,8 +178,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
             protected def lookupItems(result: ScalaResolveResult,
                                       qualifierType: Option[ScType] = None): Seq[ScalaLookupItem] =
-              getLookupElement(
-                result,
+              result.getLookupElement(
                 qualifierType = qualifierType,
                 isInImport = isInImport,
                 containingClass = containingClass,
