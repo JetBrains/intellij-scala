@@ -616,7 +616,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
          |  val bar: Int$CARET
          |}
       """.stripMargin,
-    count = 2,
+    count = 1,
     item = "Int"
   )
 

@@ -110,9 +110,9 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                 if (inInterpolatedString) item.isInInterpolatedString = true
 
                 item.element match {
+                  case obj: ScObject if obj.baseCompanionModule.isDefined => None
                   case clazz: PsiClass =>
                     if (!isExcluded(clazz) && !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
-
                       val lookupElement = expectedTypeAfterNew(position)(context)
                         .map(_.apply(clazz, createRenamePair(item).toMap))
                         .getOrElse(item)
