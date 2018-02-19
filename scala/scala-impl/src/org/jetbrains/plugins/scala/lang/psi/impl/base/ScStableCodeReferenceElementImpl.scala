@@ -32,7 +32,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor,
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -58,9 +57,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
 
   def getVariants: Array[Object] = {
     val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
-    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap { res =>
-      val qualifier = res.fromType.getOrElse(Nothing)
-      LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = true)
+    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
+      LookupElementManager.getLookupElement(_, isInImport = isInImport, isInStableCodeReference = true)
     }
   }
 

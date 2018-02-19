@@ -7,9 +7,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, api}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -22,7 +21,7 @@ object LookupElementManager {
   }
 
   def getLookupElement(resolveResult: ScalaResolveResult,
-                       qualifierType: ScType = null,
+                       qualifierType: Option[ScType] = None,
                        isClassName: Boolean = false,
                        isInImport: Boolean = false,
                        isOverloadedForClassName: Boolean = false,
@@ -33,11 +32,9 @@ object LookupElementManager {
                        isInInterpolatedString: Boolean = false): Seq[ScalaLookupItem] = {
     import resolveResult.projectContext
 
-    val element = resolveResult.element
-    val substitutor = resolveResult.substitutor
-    val qualType = Option(qualifierType).getOrElse(Nothing)
+    val ScalaResolveResult(element, substitutor) = resolveResult
 
-    def isRenamed = resolveResult.isRenamed.filter(element.name != _)
+    val isRenamed = resolveResult.isRenamed.filter(element.name != _)
 
     def isCurrentClassMember: Boolean = {
       def checkIsExpectedClassMember(expectedClassOption: Option[PsiClass]): Boolean = {
@@ -61,8 +58,10 @@ object LookupElementManager {
 
         def isPredef = resolveResult.fromType.exists(_.presentableText == "Predef.type")
 
-        qualType match {
-          case _ if !isPredef && !usedImportForElement =>
+        qualifierType
+          .orElse(resolveResult.fromType)
+          .getOrElse(api.Nothing) match {
+          case qualType if !isPredef && !usedImportForElement =>
             qualType.extractDesignated(expandAliases = false) match {
               case Some(named) =>
                 named match {
@@ -82,11 +81,9 @@ object LookupElementManager {
       }
     }
 
-    def isDeprecated: Boolean = {
-      element match {
+    def isDeprecated: Boolean = element match {
         case doc: PsiDocCommentOwner if doc.isDeprecated => true
         case _ => false
-      }
     }
 
     def getLookupElementInternal(isAssignment: Boolean, name: String): ScalaLookupItem = {

@@ -46,10 +46,8 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) w
 
   def getVariants: Array[Object] = {
     val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
-    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap { res =>
-        import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
-        val qualifier = res.fromType.getOrElse(Nothing)
-        LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = false)
+    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
+      LookupElementManager.getLookupElement(_, isInImport = isInImport)
     }
   }
 

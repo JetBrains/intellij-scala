@@ -4,8 +4,6 @@ package psi
 package impl
 package expr
 
-import scala.collection.mutable.ArrayBuffer
-
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
@@ -38,6 +36,8 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 import org.jetbrains.plugins.scala.lang.resolve.processor._
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * @author AlexanderPodkhalyuzin
@@ -147,9 +147,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
     val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
 
-    getSimpleVariants(implicits, filterNotNamedVariants).flatMap { res =>
-      val qualifier = res.fromType.getOrElse(Nothing)
-      LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier)
+    getSimpleVariants(implicits, filterNotNamedVariants).flatMap {
+      LookupElementManager.getLookupElement(_, isInImport = isInImport)
     }
   }
 

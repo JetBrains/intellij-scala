@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ImplicitCompletionProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -174,18 +174,15 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
             private val isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement]
 
             override protected def postProcess(resolveResult: ScalaResolveResult): Unit = {
-              val qualifierType = resolveResult.fromType.getOrElse {
-                api.Nothing(position.projectContext)
-              }
-
-              lookupItems(resolveResult, qualifierType).foreach(addElement)
+              lookupItems(resolveResult).foreach(addElement)
             }
 
-            protected def lookupItems(result: ScalaResolveResult, qualifierType: ScType): Seq[ScalaLookupItem] =
+            protected def lookupItems(result: ScalaResolveResult,
+                                      qualifierType: Option[ScType] = None): Seq[ScalaLookupItem] =
               getLookupElement(
                 result,
-                isInImport = isInImport,
                 qualifierType = qualifierType,
+                isInImport = isInImport,
                 containingClass = containingClass,
                 isInStableCodeReference = isInStableCodeReference,
                 isInSimpleString = inString,
@@ -232,7 +229,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
               private val decorator = castDecorator(canonicalText)
 
               override protected def postProcess(resolveResult: ScalaResolveResult): Unit =
-                lookupItems(resolveResult, qualifierType).foreach { item =>
+                lookupItems(resolveResult, Some(qualifierType)).foreach { item =>
                   if (lookupStrings.add(item.getLookupString)) {
                     result.addElement(LookupElementDecorator.withInsertHandler(item, decorator))
                   }

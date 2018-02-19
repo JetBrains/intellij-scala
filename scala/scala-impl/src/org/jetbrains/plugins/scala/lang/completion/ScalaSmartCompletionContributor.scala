@@ -90,8 +90,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
 
                 override protected def postProcess(result: ScalaResolveResult): Unit = {
                   if (!result.isNamedParameter) {
-                    val qualifier = result.fromType.getOrElse(Nothing)
-                    val newElem = getLookupElement(result, qualifierType = qualifier).head
+                    val newElem = getLookupElement(result).head
                       applyVariant(new ScalaChainLookupElement(scalaLookupItem, newElem))
                   }
                 }
