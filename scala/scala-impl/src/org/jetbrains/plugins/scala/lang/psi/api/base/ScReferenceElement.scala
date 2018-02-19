@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceE
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelector, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createIdentifier, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
@@ -218,7 +218,10 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   //provides the set of possible namespace alternatives based on syntactic position
   def getKinds(incomplete: Boolean, completion: Boolean = false): Set[ResolveTargets.Value]
 
-  def variants(implicits: Boolean = false): Seq[ScalaLookupItem]
+  def completionVariants(incomplete: Boolean = true,
+                         completion: Boolean = false,
+                         implicits: Boolean = false)
+                        (function: ScalaResolveResult => Seq[ScalaLookupItem] = _.getLookupElement(isInImport = PsiTreeUtil.getContextOfType(this, classOf[ScImportStmt]) != null)): Seq[ScalaLookupItem]
 
   def getSameNameVariants: Array[ScalaResolveResult]
 

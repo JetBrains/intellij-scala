@@ -14,7 +14,6 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
 import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
@@ -52,17 +51,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
-    }
-  }
-
-  def getVariants: Array[Object] = variants().toArray
-
-  override def variants(implicits: Boolean): Seq[ScalaLookupItem] = {
-    val isInImport = PsiTreeUtil.getContextOfType(this, classOf[ScImportStmt]) != null
-
-    val processor = new CompletionProcessor(getKinds(incomplete = true), this)
-    doResolve(processor).flatMap {
-      _.getLookupElement(isInImport = isInImport, isInStableCodeReference = true)
     }
   }
 

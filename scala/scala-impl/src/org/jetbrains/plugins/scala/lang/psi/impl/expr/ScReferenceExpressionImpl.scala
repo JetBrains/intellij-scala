@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
@@ -139,15 +138,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     }
   }
 
-  def getVariants: Array[Object] = variants(implicits = true).toArray
+  override def getVariants: Array[Object] = completionVariants(implicits = true)().toArray
 
-  override def variants(implicits: Boolean): Seq[ScalaLookupItem] = {
-    val isInImport = PsiTreeUtil.getContextOfType(this, classOf[ScImportStmt]) != null
-
-    getSimpleVariants(implicits).flatMap {
-      _.getLookupElement(isInImport = isInImport)
-    }
-  }
+  override def completionVariants(incomplete: Boolean,
+                                  completion: Boolean,
+                                  implicits: Boolean)
+                                 (function: ScalaResolveResult => Seq[ScalaLookupItem]): Seq[ScalaLookupItem] =
+    getSimpleVariants(incomplete, completion, implicits).flatMap(function)
 
   def getSameNameVariants: Array[ScalaResolveResult] = this.doResolve(
     new ImplicitCompletionProcessor(getKinds(incomplete = true), this) {

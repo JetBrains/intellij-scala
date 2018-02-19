@@ -7,14 +7,11 @@ package types
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -45,22 +42,11 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) w
   def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] =
     doResolve(new ResolveProcessor(getKinds(incomplete), ScTypeProjectionImpl.this, refName))
 
-  def getVariants: Array[Object] = variants().toArray
-
-  override def variants(implicits: Boolean): Seq[ScalaLookupItem] = {
-    val isInImport = PsiTreeUtil.getContextOfType(this, classOf[ScImportStmt]) != null
-
-    val processor = new CompletionProcessor(getKinds(incomplete = true), this)
-    doResolve(processor).flatMap {
-      _.getLookupElement(isInImport = isInImport)
-    }
-  }
-
   def bindToElement(p1: PsiElement) = throw new IncorrectOperationException("NYI")
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
   def qualifier = None
 
-  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] = {
+  override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] = {
     if (!accessibilityCheck) processor.doNotCheckAccessibility()
     val projected = typeElement.`type`().getOrAny
     processor.processType(projected, this)

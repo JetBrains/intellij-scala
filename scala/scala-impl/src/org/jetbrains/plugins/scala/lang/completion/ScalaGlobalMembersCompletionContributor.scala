@@ -80,10 +80,8 @@ object ScalaGlobalMembersCompletionContributor {
                            (implicit prefixMatcher: PrefixMatcher,
                             originalFile: PsiFile): Iterable[ScalaLookupItem] = {
     implicit def elementsSet: Set[PsiNamedElement] =
-      reference.variants().collect {
-        case ScalaLookupItem(element: PsiNamedElement) => element
-        case element: PsiNamedElement => element
-      }.toSet
+      reference.completionVariants()()
+        .map(_.element).toSet
 
     findQualifier(reference) match {
       case Some(qualifier) =>

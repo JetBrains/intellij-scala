@@ -81,8 +81,10 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
 
   def getPrevTypeInfoParams: Seq[TypeParameter]
 
-  def getSimpleVariants(implicits: Boolean = false): Seq[ScalaResolveResult] = {
-    val kinds = getKinds(incomplete = true)
+  def getSimpleVariants(incomplete: Boolean = true,
+                        completion: Boolean = false,
+                        implicits: Boolean = false): Seq[ScalaResolveResult] = {
+    val kinds = getKinds(incomplete, completion)
     val processor = if (implicits) new ImplicitCompletionProcessor(kinds, this)
     else new CompletionProcessor(kinds, this)
 

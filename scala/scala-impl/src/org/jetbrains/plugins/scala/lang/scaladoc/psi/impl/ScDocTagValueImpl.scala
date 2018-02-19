@@ -19,12 +19,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTra
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocReferenceElement, ScDocTag, ScDocTagValue}
 
-import scala.collection.Set
-import scala.collection.mutable.ArrayBuilder
+import scala.collection.{Set, mutable}
 
 /**
  * User: Dmitry Naydanov
@@ -43,6 +43,9 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with
   def getSameNameVariants: Array[ScalaResolveResult] = Array.empty
 
   def multiResolveScala(incompleteCode: Boolean): Array[ScalaResolveResult] =
+    doResolve(null, accessibilityCheck = false)
+
+  override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean): Array[ScalaResolveResult] =
     getParametersVariants.filter { element =>
       ScalaNamesUtil.equivalent(element.name, refName)
     }.map(new ScalaResolveResult(_))
@@ -61,7 +64,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with
     }
   }
 
-  override  def getCanonicalText: String = if (getFirstChild == null) null else getFirstChild.getText
+  override def getCanonicalText: String = if (getFirstChild == null) null else getFirstChild.getText
 
   override def isReferenceTo(element: PsiElement): Boolean = {
     if (resolve() == null || resolve() != element) false else true
@@ -78,9 +81,10 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with
     getElement
   }
 
-  def getVariants: Array[AnyRef] = variants().toArray
-
-  override def variants(implicits: Boolean): Seq[ScalaLookupItem] =
+  override def completionVariants(incomplete: Boolean,
+                                  completion: Boolean,
+                                  implicits: Boolean)
+                                 (function: ScalaResolveResult => Seq[ScalaLookupItem]): Seq[ScalaLookupItem] =
     getParametersVariants.map { element =>
       new ScalaLookupItem(element, element.name, None)
     }
@@ -107,7 +111,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with
                 tag != getParent)
         yield tag.getValueElement.getText).toSet
 
-      val result = ArrayBuilder.make[ScNamedElement]()
+      val result = mutable.ArrayBuilder.make[ScNamedElement]()
       params.filter(param => !paramsSet.contains(param.name)).foreach(result += _)
       result.result()
     }
