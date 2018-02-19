@@ -87,7 +87,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
       |   */
       | def f[T, E](i: Int, j: Int, k: String) {}
       """
-    val testText = "aa\n     <br>\n<DD><DL><DT><b>Parameters:</b><DD><code>i</code> - aaa  " +
+    val testText = "aa\n     <br>\n<DD><DL><DT><b>Params:</b><DD><code>i</code> - aaa  " +
             "<DD><code>j</code> - bbb  <DD><code>k</code> - ccc  </DD></DL></DD><DD><DL><DT>" +
             "<b>Type parameters:</b><DD><code>&lt;T&gt;</code> -  qqq  <DD><code>&lt;E&gt;</code> -  aaa  bbb"
 
@@ -121,7 +121,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
       |   */
       | class A[E, K](o: Any, f: AnyVal) {}
       """
-    val testText = "\n     <br>\n<DD><DL><DT><b>Parameters:</b><DD><code>o</code> -  <DD><code>f</code> - jhdkfhkl  " +
+    val testText = "\n     <br>\n<DD><DL><DT><b>Params:</b><DD><code>o</code> -  <DD><code>f</code> - jhdkfhkl  " +
             "</DD></DL></DD><DD><DL><DT><b>Type parameters:</b><DD><code>&lt;E&gt;" +
             "</code> -  <DD><code>&lt;K&gt;</code> -  dsuhf"
 
@@ -276,7 +276,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
         |    
         |    Some notes on implementation performance, the function runs in O(1).
         |    <br>
-        |<DD><DL><DT><b>Parameters:</b><DD><code>i</code> - An important parameter""".stripMargin.replaceAll("\r", "")
+        |<DD><DL><DT><b>Params:</b><DD><code>i</code> - An important parameter""".stripMargin.replaceAll("\r", "")
 
 
     generateNested(fileText, "B", "f", test)
