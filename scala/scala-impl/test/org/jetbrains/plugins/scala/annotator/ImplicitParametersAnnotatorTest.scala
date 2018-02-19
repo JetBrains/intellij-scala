@@ -44,4 +44,35 @@ class ImplicitParametersAnnotatorTest extends AnnotatorTestBase(NotFoundImplicit
       |  this should equal(42)
       |}""".stripMargin)
   )
+
+  //adapted from scalacheck usage in finch
+  def testCombineEquivBounds(): Unit = assertNothing(messages(
+    """
+      |object collection {
+      |  trait Seq[X]
+      |}
+      |
+      |trait Test {
+      |  def nothing: Nothing
+      |
+      |  trait Cogen[T]
+      |
+      |  type Seq[X] = collection.Seq[X]
+      |
+      |  object Cogen extends CogenLowPriority {
+      |    def apply[T](implicit ev: Cogen[T], dummy: Cogen[T]): Cogen[T] = ev
+      |
+      |    implicit def cogenInt: Cogen[Int] = nothing
+      |  }
+      |
+      |  trait CogenLowPriority {
+      |    implicit def cogenSeq[CC[x] <: Seq[x], A: Cogen]: Cogen[CC[A]] = nothing
+      |  }
+      |
+      |  def foo(implicit c: Cogen[Seq[Int]]) = nothing
+      |
+      |  foo
+      |}
+    """.stripMargin
+  ))
 }

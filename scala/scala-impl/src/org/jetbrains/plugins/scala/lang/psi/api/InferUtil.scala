@@ -375,42 +375,43 @@ object InferUtil {
     val conformanceResult@ConformanceExtResult(problems, undefSubst, _, matched) =
       Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true,
       isShapesResolve = false)
+
     val tpe = if (problems.isEmpty) {
       var un: ScUndefinedSubstitutor = undefSubst
       undefSubst.getSubstitutorWithBounds(canThrowSCE) match {
         case Some((unSubst, lMap, uMap)) =>
           if (!filterTypeParams) {
+
+            def combineBounds(tp: TypeParameter, isLower: Boolean): ScType = {
+              val bound = if (isLower) tp.lowerType else tp.upperType
+              val substedBound = unSubst.subst(bound)
+              val boundsMap = if (isLower) lMap else uMap
+              val combine: (ScType, ScType) => ScType = if (isLower) _ lub _ else _ glb _
+
+              boundsMap.get(tp.typeParamId) match {
+                case Some(fromMap) =>
+                  val withParams = tryAddParameters(fromMap, tp.typeParameters)
+
+                  val mayCombine = !substedBound.equiv(fromMap) && !hasRecursiveTypeParams(substedBound)
+
+                  if (mayCombine) combine(substedBound, withParams)
+                  else withParams
+                case _ => substedBound
+              }
+            }
+
             val undefiningSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
-            ScTypePolymorphicType(retType, typeParams.map {
-              case tp@TypeParameter(psiTypeParameter, typeParameters, lowerType, upperType) =>
-                val typeParamId = tp.typeParamId
-                val lower = lMap.get(typeParamId) match {
-                  case Some(_addLower) =>
-                    val substedLower = unSubst.subst(lowerType)
-                    val withParams = tryAddParameters(_addLower, typeParameters)
+            ScTypePolymorphicType(retType, typeParams.map { tp =>
+              val lower = combineBounds(tp, isLower = true)
+              val upper = combineBounds(tp, isLower = false)
 
-                    if (substedLower == _addLower || hasRecursiveTypeParams(substedLower)) withParams
-                    else substedLower.lub(withParams)
-                  case None =>
-                    unSubst.subst(lowerType)
-                }
-                val upper = uMap.get(typeParamId) match {
-                  case Some(_addUpper) =>
-                    val substedUpper = unSubst.subst(upperType)
-                    val withParams = tryAddParameters(_addUpper, typeParameters)
+              if (canThrowSCE && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
+                throw new SafeCheckException
 
-                    if (substedUpper == _addUpper || hasRecursiveTypeParams(substedUpper)) withParams
-                    else substedUpper.glb(withParams)
-                  case None =>
-                    unSubst.subst(upperType)
-                }
-
-                if (canThrowSCE && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
-                  throw new SafeCheckException
-                TypeParameter(psiTypeParameter,
-                  typeParameters, /* doesn't important here */
-                  lower,
-                  upper)
+              TypeParameter(tp.psiTypeParameter, /* doesn't important here */
+                tp.typeParameters,
+                lower,
+                upper)
             })
           } else {
             typeParams.foreach { tp =>
