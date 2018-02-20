@@ -801,7 +801,7 @@ abstract class ScalaAnnotator extends Annotator
         case _: ScMethodCall if resolve.length > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
           val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         case mc: ScMethodCall =>
           val messageKey = "cannot.resolve.apply.method"
           if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateApplyQuickFix(td, mc))) return
@@ -881,7 +881,7 @@ abstract class ScalaAnnotator extends Annotator
         case _: ScMethodCall if resolveCount > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
           val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         case _ =>
           val error = ScalaBundle.message("cannot.resolve", refElement.refName)
           val annotation = holder.createErrorAnnotation(refElement.nameId, error)
