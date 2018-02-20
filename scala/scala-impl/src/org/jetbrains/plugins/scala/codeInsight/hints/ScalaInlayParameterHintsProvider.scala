@@ -5,8 +5,9 @@ package hints
 import com.intellij.codeInsight.hints.{Option => HintOption, _}
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType}
@@ -97,19 +98,12 @@ object ScalaInlayParameterHintsProvider {
 
     def methodInfo(element: PsiElement): HintInfo.MethodInfo = element match {
       case NonSyntheticMethodCall(method) => MethodInfo(method)
+      case ConstructorCall(method) => MethodInfo(method)
     }
 
     override protected val delegate: HintFunction = {
-      case call@NonSyntheticMethodCall(_) =>
-        val (varargs, regular) = call.matchedParameters.filter {
-          case (argument, _) => call.isAncestorOf(argument)
-        }.partition {
-          case (_, parameter) => parameter.isRepeated
-        }
-
-        (regular ++ varargs.lastOption).collect {
-          case (argument, parameter) if isNameable(argument) => InlayInfo(parameter.name, argument)
-        }
+      case call@NonSyntheticMethodCall(_) => withParameters(call, call.matchedParameters.reverse)
+      case call@ConstructorCall(_) => withParameters(call, call.matchedParameters)
     }
 
     private object NonSyntheticMethodCall {
@@ -117,6 +111,30 @@ object ScalaInlayParameterHintsProvider {
       def unapply(methodCall: ScMethodCall): Option[PsiMethod] = methodCall.deepestInvokedExpr match {
         case ScReferenceExpression(method: PsiMethod) if !method.isParameterless && methodCall.argumentExpressions.nonEmpty => Some(method)
         case _ => None
+      }
+    }
+
+    private object ConstructorCall {
+
+      def unapply(constructor: ScConstructor): Option[PsiMethod] =
+        if (PsiTreeUtil.getContextOfType(constructor, classOf[ScNewTemplateDefinition]) != null &&
+          constructor.arguments.nonEmpty) {
+          constructor.reference.collect {
+            case ResolvesTo(method: PsiMethod) => method
+          }
+        } else None
+    }
+
+    private def withParameters(call: PsiElement,
+                               matchedParameters: Seq[(ScExpression, Parameter)]): Seq[InlayInfo] = {
+      val (varargs, regular) = matchedParameters.filter {
+        case (argument, _) => call.isAncestorOf(argument)
+      }.partition {
+        case (_, parameter) => parameter.isRepeated
+      }
+
+      (regular ++ varargs.headOption).collect {
+        case (argument, parameter) if isNameable(argument) => InlayInfo(parameter.name, argument)
       }
     }
 

@@ -8,7 +8,7 @@ import org.junit.Assert.{assertFalse, assertTrue}
 class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import ScalaInlayParameterHintsProvider._
-  import ScalaInlayParameterHintsProviderTest.{HintEnd => E, HintStart => S, _}
+  import ScalaInlayParameterHintsProviderTest.{HintEnd => E, HintStart => S}
 
   def testNoDefaultPackageHint(): Unit = doParameterTest(
     s"""  println(42)
@@ -35,6 +35,17 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  foo(${S}foo =${E}42, ${S}otherFoo =${E}42)(${S}bar =${E}42)(${S}baz =${E}42)""".stripMargin
   )
 
+  def testConstructorParameterHint(): Unit = doParameterTest(
+    s"""  new Bar(${S}bar =${E}42)
+       |  new Bar()
+       |
+       |  class Bar(bar: Int = 42)
+       |
+       |  new Baz()
+       |
+       |  class Baz""".stripMargin
+  )
+
   def testNoInfixExpressionHint(): Unit = doParameterTest(
     s"""  def foo(foo: Int): Unit = {}
        |
@@ -50,6 +61,17 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  foo(foo = 42, ${S}bars =${E}42, 42 + 0)
        |  foo(${S}foo =${E}42, ${S}bars =${E}42, 42 + 0)
        |  foo(foo = 42, bars = 42, 42 + 0)""".stripMargin
+  )
+
+  def testVarargConstructorHint(): Unit = doParameterTest(
+    s"""  new Foo(${S}foo =${E}42)
+       |  new Foo(${S}foo =${E}42, bars = 42, 42 + 0)
+       |  new Foo(foo = 42)
+       |  new Foo(foo = 42, ${S}bars =${E}42, 42 + 0)
+       |  new Foo(${S}foo =${E}42, ${S}bars =${E}42, 42 + 0)
+       |  new Foo(foo = 42, bars = 42, 42 + 0)
+       |
+       |  class Foo(foo: Int, bars: Int*)""".stripMargin
   )
 
   def testNoSyntheticParameterHint(): Unit = doParameterTest(
@@ -82,6 +104,46 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |    case 42 => 42
        |  }""".stripMargin
   )
+
+  def testJavaParameterHint(): Unit = {
+    configureJavaFile(
+      fileText =
+        """public class Bar {
+          |  public static void bar(int bar) {}
+          |}""".stripMargin,
+      className = "Bar.java"
+    )
+    doParameterTest(s"  Bar.bar(${S}bar =${E}42)")
+  }
+
+  def testJavaConstructorParameterHint(): Unit = {
+    configureJavaFile(
+      fileText =
+        """public class Bar {
+          |  public Bar(int bar) {}
+          |}""".stripMargin,
+      className = "Bar.java"
+    )
+    doParameterTest(s"  new Bar(${S}bar =${E}42)")
+  }
+
+  def testVarargJavaConstructorHint(): Unit = {
+    configureJavaFile(
+      fileText =
+        """public class Bar {
+          |  public Bar(int foo, int... bars) {}
+          |}""".stripMargin,
+      className = "Bar.java"
+    )
+    doParameterTest(
+      s"""  new Bar(${S}foo =${E}42)
+         |  new Bar(${S}foo =${E}42, bars = 42, 42 + 0)
+         |  new Bar(foo = 42)
+         |  new Bar(foo = 42, ${S}bars =${E}42, 42 + 0)
+         |  new Bar(${S}foo =${E}42, ${S}bars =${E}42, 42 + 0)
+         |  new Bar(foo = 42, bars = 42, 42 + 0)""".stripMargin
+    )
+  }
 
   def testFunctionReturnTypeHint(): Unit = doTest(
     s"""  def foo()$S: List[String]$E = List.empty[String]"""
@@ -124,7 +186,13 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
   }
 
   private def doParameterTest(text: String): Unit = {
-    getFixture.configureByText(ScalaFileType.INSTANCE, createFileText(text))
+    configureFromFileText(
+      s"""class Foo {
+         |$text
+         |}
+         |
+         |new Foo""".stripMargin
+    )
     getFixture.testInlays()
   }
 }
@@ -133,13 +201,4 @@ object ScalaInlayParameterHintsProviderTest {
 
   private val HintStart = "<hint text=\""
   private val HintEnd = "\" />"
-
-  private def createFileText(text: String) =
-    ScalaLightCodeInsightFixtureTestAdapter.normalize(
-      s"""class Foo {
-         |$text
-         |}
-         |
-         |new Foo""".stripMargin
-    )
 }
