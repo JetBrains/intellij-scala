@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiParameterExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
@@ -154,12 +154,13 @@ object MethodTypeProvider {
     }
   }
 
-  private case class JavaMethodProvider(element: PsiMethod)(override implicit val scope: ElementScope) 
+  private case class JavaMethodProvider(element: PsiMethod)
+                                       (override implicit val scope: ElementScope)
     extends MethodTypeProvider[PsiMethod] {
     def typeParameters: Seq[PsiTypeParameter] = element.getTypeParameters
 
     def methodType(returnType: Option[ScType] = None): ScType = {
-      val retType: ScType = returnType.getOrElse(computeReturnType)
+      val retType = returnType.getOrElse(computeReturnType)
       ScMethodType(retType, parameters, isImplicit = false)
     }
 
@@ -170,17 +171,7 @@ object MethodTypeProvider {
 
     private def parameters: Seq[Parameter] = element match {
       case f: FakePsiMethod => f.params.toSeq
-      case _ => element.parameters.map(toParameter)
-    }
-
-    private def toParameter(psiParameter: PsiParameter) = {
-      val scType = psiParameter.paramType()
-      Parameter("", None, scType, scType,
-        isDefault = false,
-        isRepeated = psiParameter.isVarArgs,
-        isByName = false,
-        psiParameter.index,
-        Some(psiParameter))
+      case _ => element.parameters.map(Parameter(_))
     }
   }
 
