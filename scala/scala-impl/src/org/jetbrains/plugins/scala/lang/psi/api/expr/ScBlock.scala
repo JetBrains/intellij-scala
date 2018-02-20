@@ -57,7 +57,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
       getContext match {
         case _: ScCatchBlock =>
           val manager = ScalaPsiManager.instance
-          val funs = manager.getCachedClasses(resolveScope, "scala.PartialFunction")
+          val funs = manager.getCachedClasses(resolveScope, PartialFunctionType.TypeName)
           val fun = funs.find(_.isInstanceOf[ScTrait]).getOrElse(return Failure("Cannot find PartialFunction class"))
           val throwable = manager.getCachedClass(resolveScope, "java.lang.Throwable").orNull
           if (throwable == null) return Failure("Cannot find Throwable class")

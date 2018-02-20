@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light._
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.refactoring.rename.RenameSuperMembersUtil
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 
@@ -78,12 +79,10 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     new ScalaFindUsagesHandler(replacedElement, this)
   }
 
-  private def needToAsk(named: PsiNamedElement): Boolean = {
-    named match {
-      case fun: ScFunction
-        if fun.containingClass.qualifiedName.startsWith("scala.Function") && fun.name == "apply" => false
-      case _ => true
-    }
+  private def needToAsk(named: PsiNamedElement): Boolean = named match {
+    case fun: ScFunction
+      if fun.containingClass.qualifiedName.startsWith(FunctionType.TypeName) && fun.isApplyMethod => false
+    case _ => true
   }
 }
 

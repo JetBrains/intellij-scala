@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -247,7 +247,7 @@ object ScFunctionWrapper {
           case std: StdType => tp.typeSystem.stdToPsiType(std, noPrimitives = true)
           case _ => tp.toPsiType
         }
-        s"scala.Function0<${psiType.getCanonicalText}>"
+        s"${FunctionType.TypeName}0<${psiType.getCanonicalText}>"
       case Right(tp) =>
         JavaConversionUtil.typeText(tp)
       case _ => "java.lang.Object"
