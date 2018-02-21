@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
 import scala.annotation.tailrec
@@ -117,15 +116,12 @@ object InferUtil {
 
         implicitParameters = Some(resolveResultsBuffer)
         val dependentSubst = ScSubstitutor(() => {
-          val level = element.scalaLanguageLevelOrDefault
-          if (level >= Scala_2_10) {
-            paramsForInferBuffer.zip(exprsBuffer).map {
-              case (param: Parameter, expr: Expression) =>
-                val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
-                  isShape = false, Some(param.expectedType))._1.getOrAny
-                (param, paramType)
-            }.toMap
-          } else Map.empty
+          paramsForInferBuffer.zip(exprsBuffer).map {
+            case (param: Parameter, expr: Expression) =>
+              val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
+                isShape = false, Some(param.expectedType))._1.getOrAny
+              (param, paramType)
+          }.toMap
         })
         resInner = dependentSubst.subst(resInner)
       case mt@ScMethodType(retType, _, isImplicit) if !isImplicit =>
@@ -142,15 +138,12 @@ object InferUtil {
         implicitParameters = Some(resolveResults)
         resInner = retType
         val dependentSubst = ScSubstitutor(() => {
-          val level = element.scalaLanguageLevelOrDefault
-          if (level >= Scala_2_10) {
-            paramsForInfer.zip(exprs).map {
-              case (param: Parameter, expr: Expression) =>
-                val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
-                  isShape = false, Some(param.expectedType))._1.getOrAny
-                (param, paramType)
-            }.toMap
-          } else Map.empty
+          paramsForInfer.zip(exprs).map {
+            case (param: Parameter, expr: Expression) =>
+              val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
+                isShape = false, Some(param.expectedType))._1.getOrAny
+              (param, paramType)
+          }.toMap
         })
         resInner = dependentSubst.subst(resInner)
       case _ =>

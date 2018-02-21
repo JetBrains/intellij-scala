@@ -140,11 +140,10 @@ object ScalaClassNameCompletionContributor {
       result.addAllElements(lookups.asJava)
     }
 
-    val checkSynthetic = parameters.getOriginalFile.scalaLanguageLevel.forall(_ < Scala_2_9)
     val QualNameToType = StdTypes.instance.QualNameToType
     for {
       clazz <- SyntheticClasses.get(project).all.valuesIterator
-      if checkSynthetic || !QualNameToType.contains(clazz.qualifiedName)
+      if !QualNameToType.contains(clazz.qualifiedName)
     } addTypeForCompletion(ClassTypeToImport(clazz))
 
     val prefixMatcher = result.getPrefixMatcher

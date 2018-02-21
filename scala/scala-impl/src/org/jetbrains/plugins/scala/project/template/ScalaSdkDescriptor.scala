@@ -9,7 +9,6 @@ import com.intellij.openapi.roots.OrderRootType.CLASSES
 import com.intellij.openapi.roots.libraries.NewLibraryConfiguration
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditor
 import org.jetbrains.plugins.scala.project.Platform._
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
 /**
@@ -59,7 +58,7 @@ object ScalaSdkDescriptor {
   import Kind._
 
   def from(components: Seq[Component]): Either[String, ScalaSdkDescriptor] = {
-    implicit val platform = if (components.map(_.artifact).contains(DottyCompiler)) Dotty else Scala
+    val platform = if (components.map(_.artifact).contains(DottyCompiler)) Dotty else Scala
 
     val (binaryComponents, sourceComponents, docComponents) = {
       val componentsByKind = components.groupBy(_.kind)
@@ -69,11 +68,7 @@ object ScalaSdkDescriptor {
         componentsByKind.getOrElse(Docs, Seq.empty))
     }
 
-    val reflectRequired = binaryComponents.flatMap(_.version)
-      .flatMap(_.toLanguageLevel)
-      .exists(_ >= Scala_2_10)
-
-    val requiredBinaryArtifacts = binaryArtifactsFor(reflectRequired)
+    val requiredBinaryArtifacts = binaryArtifactsFor(platform)
 
     val existingBinaryArtifacts = binaryComponents.map(_.artifact).toSet
 
@@ -82,7 +77,7 @@ object ScalaSdkDescriptor {
     if (missingBinaryArtifacts.isEmpty) {
       val compilerBinaries = binaryComponents.filter(it => requiredBinaryArtifacts.contains(it.artifact))
 
-      val libraryArtifacts = libraryArtifactsFor
+      val libraryArtifacts = libraryArtifactsFor(platform)
 
       val libraryBinaries = binaryComponents.filter(it => libraryArtifacts.contains(it.artifact))
       val librarySources = sourceComponents.filter(it => libraryArtifacts.contains(it.artifact))
@@ -109,15 +104,13 @@ object ScalaSdkDescriptor {
     }
   }
 
-  private[this] def binaryArtifactsFor(reflectRequired: Boolean)
-                                      (implicit platform: Platform): Set[Artifact] =
-    Set(ScalaLibrary, ScalaCompiler) ++ (platform match {
-      case Scala if reflectRequired => Set(ScalaReflect)
-      case Dotty => Set(ScalaReflect, DottyLibrary)
+  private[this] def binaryArtifactsFor(platform: Platform): Set[Artifact] =
+    Set(ScalaLibrary, ScalaCompiler, ScalaReflect) ++ (platform match {
+      case Dotty => Set(DottyLibrary)
       case _ => Set.empty[Artifact]
     })
 
-  private[this] def libraryArtifactsFor(implicit platform: Platform): Set[Artifact] =
+  private[this] def libraryArtifactsFor(platform: Platform): Set[Artifact] =
     (platform match {
       case Scala => ScalaArtifacts
       case Dotty => DottyArtifacts

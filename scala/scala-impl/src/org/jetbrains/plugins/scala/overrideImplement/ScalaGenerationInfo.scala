@@ -79,11 +79,7 @@ class ScalaGenerationInfo(classMember: ClassMember)
 }
 
 object ScalaGenerationInfo {
-  def defaultValue(returnType: ScType, file: PsiFile): String = {
-    val standardValue = getStandardValue(returnType)
-
-    if (file.scalaLanguageLevel.exists(_ < Scala_2_10)) standardValue else "???"
-  }
+  def defaultValue(returnType: ScType, file: PsiFile): String = "???"
 
   def positionCaret(editor: Editor, element: PsiMember) {
     //hack for postformatting IDEA bug.

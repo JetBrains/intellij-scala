@@ -73,7 +73,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
     val parameters = parametersFor(ref)
 
     val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
-    val unimplementedBody = if (file.scalaLanguageLevel.exists(_ >= Scala_2_10)) " = ???" else ""
+    val unimplementedBody = " = ???"
     val params = (genericParams ++: parameters).mkString
     val text = placeholder.format(keyword, ref.nameId.getText, params) + unimplementedBody
 

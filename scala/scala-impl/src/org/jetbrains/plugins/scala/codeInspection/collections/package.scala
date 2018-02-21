@@ -20,8 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, PartialFunctionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_9
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.annotation.tailrec
@@ -69,7 +67,7 @@ package object collections {
   private[collections] val `.getOrElse` = invocation("getOrElse").from(likeOptionClasses)
   private[collections] val `.get` = invocation("get").from(likeOptionClasses)
   private[collections] val `.getOnMap` = invocation("get").from(likeCollectionClasses).ref(checkResolveToMap)
-  private[collections] val `.mapOnOption` = invocation("map").from(likeOptionClasses).ref(checkScalaVersion)
+  private[collections] val `.mapOnOption` = invocation("map").from(likeOptionClasses)
   private[collections] val `.sort` = invocation(Set("sortWith", "sortBy", "sorted")).from(likeCollectionClasses)
   private[collections] val `.sorted` = invocation("sorted").from(likeCollectionClasses)
   private[collections] val `.sortBy` = invocation("sortBy").from(likeCollectionClasses)
@@ -310,10 +308,6 @@ package object collections {
   private def checkResolveToMap(memberRef: ScReferenceElement): Boolean = memberRef.resolve() match {
     case m: ScMember => Option(m.containingClass).exists(_.name.toLowerCase.contains("map"))
     case _ => false
-  }
-
-  private def checkScalaVersion(elem: PsiElement): Boolean = { //there is no Option.fold in Scala 2.9
-    elem.scalaLanguageLevel.forall(_ > Scala_2_9)
   }
 
   def implicitParameterExistsFor(methodName: String, baseExpr: ScExpression): Boolean = {

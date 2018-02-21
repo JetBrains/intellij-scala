@@ -148,17 +148,12 @@ private object ScalaMavenImporter {
       case (Some(compilerVersion), None) => new MavenId("org.scala-lang", "scala-library", compilerVersion)
     }
 
-    def compilerClasspath: Seq[MavenId] = {
-      val basicIds = Seq(scalaCompilerId, scalaLibraryId)
-      if (usesReflect) basicIds :+ scalaReflectId else basicIds
-    }
+    def compilerClasspath: Seq[MavenId] = Seq(scalaCompilerId, scalaLibraryId, scalaReflectId)
 
     def compilerVersion: Option[Version] = compilerVersionProperty
       .orElse(standardLibrary.map(_.getVersion)).map(Version(_))
 
     private def compilerVersionProperty: Option[String] = element("scalaVersion").map(_.getTextTrim)
-
-    private def usesReflect: Boolean = compilerVersion.exists(it => it.toLanguageLevel.exists(_ >= Scala_2_10))
 
     def vmOptions: Seq[String] = elements("jvmArgs", "jvmArg").map(_.getTextTrim)
 

@@ -267,56 +267,54 @@ object ScImplicitlyConvertible {
           }
         }
 
-        def createDependentSubstitutors(unSubst: ScSubstitutor) = expression.scalaLanguageLevelOrDefault match {
-          case level if level >= Scala_2_10 =>
-            val clauses = function.paramClauses.clauses
+        def createDependentSubstitutors(unSubst: ScSubstitutor) = {
+          val clauses = function.paramClauses.clauses
 
-            val parameters = clauses.headOption.toSeq
-              .flatMap(_.parameters)
-              .map(Parameter(_))
+          val parameters = clauses.headOption.toSeq
+            .flatMap(_.parameters)
+            .map(Parameter(_))
 
-            val dependentSubstitutor = ScSubstitutor(() => {
-              parameters.map((_, `type`)).toMap
-            })
+          val dependentSubstitutor = ScSubstitutor(() => {
+            parameters.map((_, `type`)).toMap
+          })
 
-            def dependentMethodTypes: Option[ScParameterClause] =
-              function.returnType.toOption.flatMap { functionType =>
-                clauses match {
-                  case Seq(_, last) if last.isImplicit =>
-                    var result: Option[ScParameterClause] = None
-                    functionType.recursiveUpdate { t =>
-                      t match {
-                        case ScDesignatorType(p: ScParameter) if last.parameters.contains(p) =>
-                          result = Some(last)
-                          Stop
-                        case _ =>
-                      }
-                      if (result.isDefined) Stop
-                      else ProcessSubtypes
+          def dependentMethodTypes: Option[ScParameterClause] =
+            function.returnType.toOption.flatMap { functionType =>
+              clauses match {
+                case Seq(_, last) if last.isImplicit =>
+                  var result: Option[ScParameterClause] = None
+                  functionType.recursiveUpdate { t =>
+                    t match {
+                      case ScDesignatorType(p: ScParameter) if last.parameters.contains(p) =>
+                        result = Some(last)
+                        Stop
+                      case _ =>
                     }
+                    if (result.isDefined) Stop
+                    else ProcessSubtypes
+                  }
 
-                    result
-                  case _ => None
-                }
+                  result
+                case _ => None
               }
+            }
 
-            val effectiveParameters = dependentMethodTypes.toSeq
-              .flatMap(_.effectiveParameters)
-              .map(Parameter(_))
+          val effectiveParameters = dependentMethodTypes.toSeq
+            .flatMap(_.effectiveParameters)
+            .map(Parameter(_))
 
-            val implicitDependentSubstitutor = ScSubstitutor(() => {
-              val (inferredParameters, expressions, _) = findImplicits(effectiveParameters, None, expression, canThrowSCE = false,
-                abstractSubstitutor = substitutor.followed(dependentSubstitutor).followed(unSubst))
+          val implicitDependentSubstitutor = ScSubstitutor(() => {
+            val (inferredParameters, expressions, _) = findImplicits(effectiveParameters, None, expression, canThrowSCE = false,
+              abstractSubstitutor = substitutor.followed(dependentSubstitutor).followed(unSubst))
 
-              val inferredTypes = expressions.map(_.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None))
-                .map(_._1.getOrAny)
+            val inferredTypes = expressions.map(_.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None))
+              .map(_._1.getOrAny)
 
-              inferredParameters.zip(inferredTypes).toMap
-            })
+            inferredParameters.zip(inferredTypes).toMap
+          })
 
-            (dependentSubstitutor, implicitDependentSubstitutor)
-          case _ =>
-            (ScSubstitutor(() => Map.empty), ScSubstitutor(() => Map.empty))
+          (dependentSubstitutor, implicitDependentSubstitutor)
+
         }
 
         uSubst.getSubstitutor
