@@ -147,11 +147,128 @@ object DependencyGroups {
   )
 
   val runners = Seq(
-    specs2,
     "org.scala-lang" % "scala-compiler" % scalaVersion,
+    specs2,
     "org.scalatest" %% "scalatest" % "3.0.1" % "provided",
     "com.lihaoyi" %% "utest" % "0.5.4" % "provided"
   )
+
+  val sbtLaunchTestDownloader: Seq[ModuleID] =
+    Seq("0.12.4", "0.13.0", "0.13.5", "0.13.9", Sbt.latest_0_13, Sbt.latest)
+      .distinct
+      .map(v => "org.scala-sbt" % "sbt-launch" % v)
+
+  val testDownloader = Seq(
+
+    "com.chuusai" % "shapeless_2.11" % "2.0.0",
+    "com.fommil" % "stalactite_2.11" % "0.0.5",
+    "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
+    "com.github.julien-truffaut" %% "monocle-generic" % monocleVersion,
+    "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion,
+    "com.github.mpilquist" % "simulacrum_2.11" % "0.11.0",
+    "com.lihaoyi" % "utest_2.10" % "0.3.1" % "provided",
+    "com.lihaoyi" % "utest_2.10" % "0.4.3" % "provided",
+    "com.lihaoyi" % "utest_2.11" % "0.3.1" % "provided",
+    "com.lihaoyi" % "utest_2.11" % "0.4.3" % "provided",
+    "com.lihaoyi" % "utest_2.11" % "0.5.4" % "provided",
+    "com.typesafe.akka" % "akka-actor_2.11" % "2.4.19",
+    "com.typesafe.akka" % "akka-stream_2.11" % "2.4.19",
+    "com.typesafe.play" % "play_2.10" % "2.4.10",
+    "com.typesafe.slick" % "slick_2.11" % "3.2.1",
+    "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
+    "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.6",
+    "org.scala-lang.modules" % "scala-xml_2.12" % "1.0.6",
+    "org.scala-js" % "scalajs-library_2.10" % "0.6.14",
+    "org.scalaz" % "scalaz-core_2.10" % scalazVersion,
+    "org.scalaz" % "scalaz-concurrent_2.10" % scalazVersion,
+    "org.scalaz" % "scalaz-core_2.11" % scalazVersion,
+    "org.scalaz" % "scalaz-concurrent_2.11" % scalazVersion,
+    "org.scalaz.stream" % "scalaz-stream_2.11" % "0.6a",
+    "org.specs2" % "specs2_2.10" % "2.4.6",
+    "org.specs2" % "specs2_2.11" % "2.4.15",
+    "org.specs2" % "specs2-core_2.11" % "3.0.1",
+    "org.specs2" % "specs2-core_2.12" % "4.0.0",
+    "org.specs2" % "specs2-common_2.11" % "3.0.1",
+    "org.specs2" % "specs2-common_2.12" % "4.0.0",
+    "org.specs2" % "specs2-matcher_2.11" % "3.0.1",
+    "org.specs2" % "specs2-matcher_2.12" % "4.0.0",
+    "org.specs2" % "specs2-fp_2.12" % "4.0.0",
+    "org.typelevel" % "scodec-bits_2.11" % "1.1.0-SNAPSHOT",
+    "org.typelevel" % "scodec-core_2.11" % "1.7.0-SNAPSHOT",
+    "org.scalatest" % "scalatest_2.10" % "1.9.2",
+    "org.scalatest" % "scalatest_2.10" % "2.1.7",
+    "org.scalatest" % "scalatest_2.10" % "2.2.1",
+    "org.scalatest" % "scalatest_2.11" % "2.1.7",
+    "org.scalatest" % "scalatest_2.11" % "2.2.1",
+    "org.scalatest" % "scalatest_2.11" % "3.0.1",
+    "org.scalactic" % "scalactic_2.11" % "3.0.1",
+    "org.scalactic" % "scalactic_2.12" % "3.0.4",
+    "org.scalatest" % "scalatest_2.12" % "3.0.4",
+    "org.scalameta" % s"paradise_$scalaVersion" % paradiseVersion exclude("org.scalameta", s"scalameta_$scalaBinaryVersion"),
+    "org.scalameta" % "scalameta_2.11" % scalaMetaVersion,
+    "org.scalameta" % "scalameta_2.12" % scalaMetaVersion,
+    "org.typelevel" % "cats_2.11" % "0.4.0"
+  )
+
+  val testScalaLibraryDownloader = Seq(
+
+    "org.scala-lang" % "scala-library" % Scala.latest_2_9 withSources(),
+    "org.scala-lang" % "scala-compiler" % Scala.latest_2_9,
+
+    "org.scala-lang" % "scala-library" % Scala.latest_2_10 withSources(),
+    "org.scala-lang" % "scala-reflect" % Scala.latest_2_10,
+    "org.scala-lang" % "scala-compiler" % Scala.latest_2_10,
+
+    "org.scala-lang" % "scala-library" % Scala.latest_2_11 withSources(),
+    "org.scala-lang" % "scala-reflect" % Scala.latest_2_11,
+    "org.scala-lang" % "scala-compiler" % Scala.latest_2_11,
+
+    "org.scala-lang" % "scala-library" % Scala.latest_2_12 withSources(),
+    "org.scala-lang" % "scala-reflect" % Scala.latest_2_12,
+    "org.scala-lang" % "scala-compiler" % Scala.latest_2_12
+  )
+
+  val sbtOrg = "org.scala-sbt"
+
+  def sbt012Libs(v: String) = Seq(
+    sbtOrg % "collections" % v,
+    sbtOrg % "interface" % v,
+    sbtOrg % "io" % v,
+    sbtOrg % "ivy" % v,
+    sbtOrg % "logging" % v,
+    sbtOrg % "main" % v,
+    sbtOrg % "process" % v,
+    sbtOrg % "sbt" % v
+  )
+
+  def sbt013Libs(v: String): Seq[ModuleID] =
+    sbt012Libs(v) ++ Seq(
+      sbtOrg % "main-settings" % v
+    )
+
+  val sbt1CrossScala: CrossVersion = CrossVersion.fullMapped(_ => Scala.binary_2_12)
+//  def sbt100Libs(v:String): Seq[ModuleID] =
+//    // these are not cross-versioned
+//    Seq("sbt", "util-interface", "test-agent").map(lib => sbtOrg % lib % v) ++
+//    // this has separate versioning
+//    Seq(sbtOrg % "compiler-interface" % zincVersion) ++
+//    // all of these are published cross-versioned for scala 2.12
+//    Seq(
+//      "main","logic","collections","util-position","util-relation","actions","completion","io",
+//      "util-control","run","util-logging","task-system","tasks","util-cache",
+//      "testing","util-tracking","main-settings","command","protocol","core-macros", "librarymanagement-core"
+//    ).map(lib => (sbtOrg % lib % v).withCrossVersion(sbt1CrossScala))
+
+  def sbt100Libs(v:String): Seq[ModuleID] = Seq(sbtOrg % "sbt" % v) // all the modules are transitive deps
+
+  // required jars for MockSbt - it adds different versions to test module classpath
+  val mockSbtDownloader: Seq[ModuleID] = {
+    val vs100 = Seq(Sbt.latest_1_0)
+    val vs013 = Seq("0.13.1", "0.13.5", "0.13.7", Sbt.latest_0_13)
+    val vs012 = Seq(Sbt.latest_0_12)
+
+    vs100.flatMap(sbt100Libs) ++ vs013.flatMap(sbt013Libs) ++ vs012.flatMap(sbt012Libs)
+  }
 
   val sbtRuntime: Seq[ModuleID] = Seq(
     sbtLaunch,
