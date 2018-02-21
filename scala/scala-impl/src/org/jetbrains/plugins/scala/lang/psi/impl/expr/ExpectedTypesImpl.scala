@@ -575,7 +575,7 @@ private object ExpectedTypesImpl {
   implicit class ScMethodCallEx(private val invocation: MethodInvocation) extends AnyVal {
 
     def updateAccordingToExpectedType(`type`: ScType): ScType =
-      InferUtil.updateAccordingToExpectedType(`type`, fromImplicitParameters = false, filterTypeParams = false, invocation.expectedType(), invocation, canThrowSCE = false)
+      InferUtil.updateAccordingToExpectedType(`type`, fromImplicitSearch = false, filterTypeParams = false, invocation.expectedType(), invocation, canThrowSCE = false)
   }
 
   implicit class ScExpressionForExpectedTypesEx(val expr: ScExpression) extends AnyVal {

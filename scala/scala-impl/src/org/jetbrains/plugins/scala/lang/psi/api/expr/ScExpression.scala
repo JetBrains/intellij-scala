@@ -373,14 +373,10 @@ object ScExpression {
             def updateExpected(oldRes: ScType): ScType = {
               try {
                 val updatedWithExpected =
-                  InferUtil.updateAccordingToExpectedType(rtp, fromImplicitParameters = true,
+                  InferUtil.updateAccordingToExpectedType(rtp, fromImplicitSearch = false,
                     filterTypeParams = false, expectedType = expType, expr = expr, canThrowSCE = true)
-                updatedWithExpected match {
-                  case newRes =>
-                    updateWithImplicitParameters(newRes, checkExpectedType = true, fromUnderscore)
-                  case _ =>
-                    updateWithImplicitParameters(oldRes, checkExpectedType = true, fromUnderscore)
-                }
+
+                updateWithImplicitParameters(updatedWithExpected, checkExpectedType = true, fromUnderscore)
               } catch {
                 case _: SafeCheckException =>
                   updateWithImplicitParameters(oldRes, checkExpectedType = false, fromUnderscore)

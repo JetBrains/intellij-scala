@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
+import scala.annotation.tailrec
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
@@ -75,7 +76,10 @@ object InferUtil {
 
         updatedType match {
           case tpt: ScTypePolymorphicType =>
-            resInner = t.copy(internalType = mt.copy(returnType = tpt.internalType),
+            //don't lose information from type parameters of res, updated type may some of type parameters removed
+            val abstractSubst = t.abstractOrLowerTypeSubstitutor
+            val mtWithoutImplicits = mt.copy(returnType = tpt.internalType)
+            resInner = t.copy(internalType = abstractSubst.subst(mtWithoutImplicits),
               typeParameters = tpt.typeParameters)
           case _ => //shouldn't be there
             resInner = t.copy(internalType = mt.copy(returnType = updatedType))
@@ -192,31 +196,29 @@ object InferUtil {
         }
         paramsForInfer += param
       } else {
-        def checkManifest(fun: ScalaResolveResult => Unit) {
-          val result = paramType match {
-            case p@ParameterizedType(des, Seq(_)) =>
-              des.extractClass match {
-                case Some(clazz) if skipQualSet.contains(clazz.qualifiedName) =>
-                  //do not throw, it's safe
-                  new ScalaResolveResult(clazz, p.substitutor)
-                case _ => null
-              }
-            case _ => null
-          }
-          fun(result)
+        val tagOrManifest = paramType match {
+          case p@ParameterizedType(des, Seq(_)) =>
+            des.extractClass match {
+              case Some(clazz) if skipQualSet.contains(clazz.qualifiedName) =>
+                //do not throw, it's safe
+                Some(new ScalaResolveResult(clazz, p.substitutor))
+              case _ => None
+            }
+          case _ => None
         }
-        //check if it's ClassManifest parameter:
-        checkManifest(r => {
-          if (r == null && param.isDefault && param.paramInCode.nonEmpty) {
+        val result = tagOrManifest.getOrElse {
+          if (param.isDefault && param.paramInCode.nonEmpty) {
             //todo: should be added for infer to
             //todo: what if paramInCode is null?
-            resolveResults += new ScalaResolveResult(param.paramInCode.get)
-          } else if (r == null && canThrowSCE) throw new SafeCheckException
-          else if (r == null) {
+            new ScalaResolveResult(param.paramInCode.get)
+          }
+          else if (canThrowSCE) throw new SafeCheckException
+          else {
             val parameter = createParameterFromText(s"$notFoundParameterName: Int")(place.getManager)
-            resolveResults += new ScalaResolveResult(parameter, implicitSearchState = Some(implicitState))
-          } else resolveResults += r
-        })
+            new ScalaResolveResult(parameter, implicitSearchState = Some(implicitState))
+          }
+        }
+        resolveResults += result
       }
     }
     (paramsForInfer, exprs, resolveResults)
@@ -226,55 +228,46 @@ object InferUtil {
     * Util method to update type according to expected type
     *
     * @param _nonValueType          type, to update it should be PolymorphicType(MethodType)
-    * @param fromImplicitParameters we shouldn't update if it's anonymous function
-    *                               also we can update just for simple type without function
+    * @param fromImplicitSearch     whether it was invoked from computing type of a regular expression or in implicit search
     * @param expectedType           appropriate expected type
     * @param expr                   place
     * @param canThrowSCE            we fail to get right type then if canThrowSCE throw SafeCheckException
     * @return updated type
     */
   def updateAccordingToExpectedType(_nonValueType: ScType,
-                                    fromImplicitParameters: Boolean,
+                                    fromImplicitSearch: Boolean,
                                     filterTypeParams: Boolean,
                                     expectedType: Option[ScType], expr: PsiElement,
                                     canThrowSCE: Boolean): ScType = {
     implicit val ctx: ProjectContext = expr
     val Unit = ctx.stdTypes.Unit
 
-    var nonValueType = _nonValueType
-    nonValueType match {
-      case ScTypePolymorphicType(m@ScMethodType(internal, _, impl), typeParams)
-        if expectedType.isDefined && (!fromImplicitParameters || impl) =>
-        def updateRes(expected: ScType) {
-          if (expected.equiv(Unit)) return //do not update according to Unit type
-          val innerInternal = internal match {
-              case ScMethodType(inter, _, innerImpl) if innerImpl && !fromImplicitParameters => inter
-              case _ => internal
-            }
-          val valueType = (expr match {
-            case scExpr: ScExpression =>
-              scExpr.updatedWithImplicitParameters(innerInternal, canThrowSCE)._1
-            case _ => innerInternal
-          }).inferValueType
-          val update: ScTypePolymorphicType = localTypeInference(m,
+    val nonValueType =
+      if (expectedType.isEmpty || expectedType.exists(_.equiv(Unit))) _nonValueType
+      else {
+        val expected = expectedType.get
+
+        def doLocalInference(retType: ScType, valueType: ValueType, typeParams: Seq[TypeParameter]) = {
+          localTypeInference(retType,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).subst(valueType))),
             typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE, filterTypeParams = filterTypeParams)
-          nonValueType = update //here should work in different way:
         }
-        updateRes(expectedType.get)
-      //todo: Something should be unified, that's bad to have fromImplicitParameters parameter.
-      case ScTypePolymorphicType(internal, typeParams) if expectedType.isDefined && fromImplicitParameters =>
-        def updateRes(expected: ScType) {
-          nonValueType = localTypeInference(internal,
-            Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
-            Seq(new Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).subst(internal.inferValueType))),
-            typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE,
-            filterTypeParams = filterTypeParams) //here should work in different way:
+
+        _nonValueType match {
+          case ScTypePolymorphicType(m@ScMethodType(_, _, impl), typeParams) if !fromImplicitSearch || impl =>
+            val innerInternal = ofSameDepth(m, expected)
+            val updated = expr match {
+              case scExpr: ScExpression =>
+                scExpr.updatedWithImplicitParameters(innerInternal, canThrowSCE)._1
+              case _ => innerInternal
+            }
+            doLocalInference(m, updated.inferValueType, typeParams)
+          case ScTypePolymorphicType(internal, typeParams) /*if fromImplicitParameters*/ =>
+            doLocalInference(internal, internal.inferValueType, typeParams)
+          case _ => _nonValueType
         }
-        updateRes(expectedType.get)
-      case _ =>
-    }
+      }
 
     if (!expr.isInstanceOf[ScExpression]) return nonValueType
 
@@ -328,6 +321,42 @@ object InferUtil {
         applyImplicitViewToResult(mt, expectedType)
       case t => t
     }
+  }
+
+  //truncate method type to have a chance to conform to expected,
+  //implicit clauses are chopped off first
+  private def ofSameDepth(m: ScMethodType, expected: ScType): ScType = {
+    @tailrec
+    def depth(tp: ScType, acc: Int = 0): Int = tp match {
+      case FunctionType(retType, _) => depth(retType, acc + 1)
+      case ScMethodType(retType, _, _) => depth(retType, acc + 1)
+      case _ => acc
+    }
+
+    def withoutImplicitClause(internal: ScType): ScType = {
+      internal match {
+        case ScMethodType(retType, _, true) => retType
+        case m @ ScMethodType(retType, params, false) =>
+          ScMethodType(withoutImplicitClause(retType), params, isImplicit = false)(m.elementScope)
+        case other => other
+      }
+    }
+
+    @tailrec
+    def methodTypeOfDepth(tp: ScType, d: Int, removeImplicits: Boolean): ScType = {
+      val mtDepth = depth(tp)
+
+      if (mtDepth <= d) tp
+      else if (removeImplicits)
+        methodTypeOfDepth(withoutImplicitClause(tp), d, removeImplicits = false)
+      else tp match {
+        case ScMethodType(retTp, _, _) =>
+          methodTypeOfDepth(retTp, d, removeImplicits = false)
+        case _ => tp
+      }
+    }
+
+    methodTypeOfDepth(m, depth(expected), removeImplicits = true)
   }
 
   def extractImplicitParameterType(result: ScalaResolveResult): Option[ScType] =
