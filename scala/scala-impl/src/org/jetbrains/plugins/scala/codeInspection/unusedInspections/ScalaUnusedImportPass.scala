@@ -21,7 +21,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.{DocumentUtil, Processor}
-import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker
+import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -45,7 +45,7 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
   override def collectInformationWithProgress(progress: ProgressIndicator): Unit = {
     file match {
       case scalaFile: ScalaFile if HighlightingLevelManager.getInstance(file.getProject) shouldInspect file =>
-        val unusedImports = ImportTracker.getUnusedImports(scalaFile)
+        val unusedImports = UsageTracker.getUnusedImports(scalaFile)
         val annotations = collectAnnotations(unusedImports, new AnnotationHolderImpl(new AnnotationSession(file)))
 
         val list = new util.ArrayList[HighlightInfo](annotations.length)

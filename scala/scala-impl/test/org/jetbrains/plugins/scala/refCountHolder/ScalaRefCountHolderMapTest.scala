@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.refCountHolder
 
 import junit.framework.{Assert, TestCase}
-import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 
 import scala.concurrent.duration.{Duration, DurationInt}
 

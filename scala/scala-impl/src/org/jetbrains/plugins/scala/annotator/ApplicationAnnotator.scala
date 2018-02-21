@@ -5,7 +5,8 @@ import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiParameter}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
-import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker
+import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -30,7 +31,7 @@ trait ApplicationAnnotator {
   def annotateReference(reference: ScReferenceElement, holder: AnnotationHolder) {
     for {r <- reference.multiResolveScala(false)} {
 
-      ImportTracker.registerUsedImports(reference, r)
+      UsageTracker.registerUsedImports(reference, r)
 
       if (r.isAssignment) {
         annotateAssignmentReference(reference, holder)

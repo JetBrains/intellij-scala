@@ -9,7 +9,7 @@ import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 
 /**
  * User: Alexander Podkhalyuzin

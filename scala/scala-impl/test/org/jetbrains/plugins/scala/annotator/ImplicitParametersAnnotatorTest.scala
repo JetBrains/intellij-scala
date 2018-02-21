@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.annotator.template.NotFoundImplicitParameters
+import org.jetbrains.plugins.scala.annotator.template.ImplicitParametersAnnotator
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
   * Nikolay.Tropin
   * 16-Feb-18
   */
-class ImplicitParametersAnnotatorTest extends AnnotatorTestBase(NotFoundImplicitParameters) {
+class ImplicitParametersAnnotatorTest extends AnnotatorTestBase(ImplicitParametersAnnotator) {
 
-  private def notFound(types: String*) = NotFoundImplicitParameters.message(types)
+  private def notFound(types: String*) = ImplicitParametersAnnotator.message(types)
 
   def testCorrectImplicits(): Unit = assertNothing(messages(
     """def implicitly[T](implicit e: T) = e

@@ -12,12 +12,12 @@ import com.intellij.openapi.util.{Condition, Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
-import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker._
-import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.annotator.quickfix._
 import org.jetbrains.plugins.scala.annotator.template._
+import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromEnumeratorIntentionAction, RemoveValFromGeneratorIntentionAction}
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
@@ -93,7 +93,7 @@ abstract class ScalaAnnotator extends Annotator
       private def expressionPart(expr: ScExpression) {
         if (!compiled) {
           checkExpressionType(expr, holder, typeAware)
-          checkExpressionImplicitParameters(expr, holder, typeAware)
+          ImplicitParametersAnnotator.annotate(expr, holder, typeAware)
           ByNameParameter.annotate(expr, holder, typeAware)
         }
 
@@ -594,27 +594,6 @@ abstract class ScalaAnnotator extends Annotator
     } annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
   }
 
-  private def registerUsedElement(element: PsiElement, resolveResult: ScalaResolveResult,
-                                  checkWrite: Boolean) {
-    val named = resolveResult.getActualElement match {
-      case isLightScNamedElement(e) => e
-      case e => e
-    }
-    val file = element.getContainingFile
-    if (named.isValid && named.getContainingFile == file &&
-            !PsiTreeUtil.isAncestor(named, element, true)) { //to filter recursive usages
-      val value: ValueUsed = element match {
-        case ref: ScReferenceExpression if checkWrite &&
-          ScalaPsiUtil.isPossiblyAssignment(ref) => WriteValueUsed(named)
-        case _ => ReadValueUsed(named)
-      }
-      val holder = ScalaRefCountHolder.getInstance(file)
-      holder.registerValueUsed(value)
-      // For use of unapply method, see SCL-3463
-      resolveResult.parentElement.foreach(parent => holder.registerValueUsed(ReadValueUsed(parent)))
-    }
-  }
-
   def checkBoundsVariance(toCheck: PsiElement, holder: AnnotationHolder, toHighlight: PsiElement, checkParentOf: PsiElement,
                           upperV: Variance = Covariant, checkTypeDeclaredSameBracket: Boolean = true, insideParameterized: Boolean = false) {
     toCheck match {
@@ -742,12 +721,7 @@ abstract class ScalaAnnotator extends Annotator
         case _ =>
       }
     }
-    for {
-      scalaResult <- resolve
-    } {
-      registerUsedImports(refElement, scalaResult)
-      registerUsedElement(refElement, scalaResult, checkWrite = true)
-    }
+    UsageTracker.registerUsedElementsAndImports(refElement, resolve, checkWrite = true)
 
     checkAccessForReference(resolve, refElement, holder)
 
@@ -853,11 +827,10 @@ abstract class ScalaAnnotator extends Annotator
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
-    var resolve = refElement.multiResolveScala(false)
-    for (result <- resolve) {
-      registerUsedImports(refElement, result)
-      registerUsedElement(refElement, result, checkWrite = true)
-    }
+    val resolve = refElement.multiResolveScala(false)
+
+    UsageTracker.registerUsedElementsAndImports(refElement, resolve, checkWrite = true)
+
     checkAccessForReference(resolve, refElement, holder)
     val resolveCount = resolve.length
     if (refElement.isInstanceOf[ScExpression] && resolveCount == 1) {
@@ -1061,19 +1034,6 @@ abstract class ScalaAnnotator extends Annotator
     checkExpressionTypeInner(fromUnderscore = false)
   }
 
-  private def checkExpressionImplicitParameters(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
-    expr.findImplicitParameters match {
-      case Some(seq) =>
-        for (resolveResult <- seq if resolveResult != null) {
-          registerUsedImports(expr, resolveResult)
-          registerUsedElement(expr, resolveResult, checkWrite = false)
-        }
-        if (typeAware)
-          NotFoundImplicitParameters.highlight(expr, seq, holder)
-      case _ =>
-    }
-  }
-
   private def checkUnboundUnderscore(under: ScUnderscoreSection, holder: AnnotationHolder) {
     if (under.getText == "_") {
       under.parentOfType(classOf[ScValueOrVariable], strict = false).foreach {
@@ -1136,16 +1096,7 @@ abstract class ScalaAnnotator extends Annotator
     typeElement match {
       case simpleTypeElement: ScSimpleTypeElement =>
         checkAbsentTypeArgs(simpleTypeElement, holder)
-
-        simpleTypeElement.findImplicitParameters match {
-          case Some(parameters) =>
-            for (r <- parameters if r != null) {
-              registerUsedImports(typeElement, r)
-            }
-            if (typeAware)
-              NotFoundImplicitParameters.highlight(simpleTypeElement, parameters, holder)
-          case _ =>
-        }
+        ImplicitParametersAnnotator.annotate(simpleTypeElement, holder, typeAware)
       case _ =>
     }
   }

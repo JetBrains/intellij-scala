@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator.importsTracker
+package org.jetbrains.plugins.scala.annotator.usageTracker
 
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.{AtomicLong, AtomicReference}
@@ -13,7 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi._
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder.WeakKeyTimestampedValueMap
+import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder.WeakKeyTimestampedValueMap
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
