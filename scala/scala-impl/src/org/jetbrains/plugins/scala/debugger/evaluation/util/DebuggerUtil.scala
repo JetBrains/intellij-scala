@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor, ScReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotations, ScExpression, ScForStatement, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -396,7 +396,7 @@ object DebuggerUtil {
     }
   }
 
-  def getSourcePositions(elem: PsiElement, lines: mutable.HashSet[SourcePosition] = new mutable.HashSet[SourcePosition]): Set[SourcePosition] = {
+  def getSourcePositions(elem: PsiElement, lines: mutable.Set[SourcePosition] = mutable.Set.empty): Set[SourcePosition] = {
     val node = elem.getNode
     val children: Array[ASTNode] = if (node != null) node.getChildren(null) else Array.empty[ASTNode]
     if (children.isEmpty) {
@@ -440,7 +440,7 @@ object DebuggerUtil {
       .orElse(refType.fieldByName("_value").toOption)
   }
 
-  def localParamsForFunDef(fun: ScFunctionDefinition, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
+  def localParamsForFunDef(fun: ScFunctionDefinition, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
     val container = ScalaEvaluatorBuilderUtil.getContextClass(fun)
     fun.body match { //to exclude references from default parameters
       case Some(b) => localParams(b, fun, container, visited)
@@ -448,13 +448,13 @@ object DebuggerUtil {
     } 
   }
 
-  def localParamsForConstructor(cl: ScClass, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
+  def localParamsForConstructor(cl: ScClass, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
     val container = ScalaEvaluatorBuilderUtil.getContextClass(cl)
     val extendsBlock = cl.extendsBlock //to exclude references from default parameters
     localParams(extendsBlock, cl, container, visited)
   }
 
-  def localParamsForDefaultParam(param: ScParameter, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
+  def localParamsForDefaultParam(param: ScParameter, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
     val owner = param.owner
     val container = ScalaEvaluatorBuilderUtil.getContextClass {
       owner match {
@@ -468,13 +468,12 @@ object DebuggerUtil {
     }
   }
 
-
-  def localParams(block: PsiElement, excludeContext: PsiElement, container: PsiElement,
-                  visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
+  private def localParams(block: PsiElement, excludeContext: PsiElement, contextClass: PsiElement,
+                          visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
     def atRightPlace(elem: PsiElement): Boolean = {
       if (PsiTreeUtil.isContextAncestor(excludeContext, elem, false)) return false
 
-      container match {
+      contextClass match {
         case (_: ScExpression) childOf ScForStatement(enumerators, _) if PsiTreeUtil.isContextAncestor(enumerators, elem, true) =>
           val generators = enumerators.generators
           if (generators.size <= 1) true
@@ -482,14 +481,19 @@ object DebuggerUtil {
             val lastGenerator = generators.last
             elem.getTextOffset >= lastGenerator.getTextOffset
           }
-        case _ => PsiTreeUtil.isContextAncestor(container, elem, false)
+        case _ => PsiTreeUtil.isContextAncestor(contextClass, elem, false)
       }
     }
 
-    val buf = new mutable.HashSet[ScTypedDefinition]
+    def isArgName(ref: ScReferenceElement): Boolean = ref match {
+      case ChildOf(a @ ScAssignStmt(`ref`, _)) => a.isNamedParameter
+      case _ => false
+    }
+
+    val buf = mutable.Set.empty[ScTypedDefinition]
     block.accept(new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReferenceElement) {
-        if (ref.qualifier.isDefined) {
+        if (ref.qualifier.isDefined || isArgName(ref)) {
           super.visitReference(ref)
           return
         }
