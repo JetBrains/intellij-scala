@@ -52,6 +52,16 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  this foo 42""".stripMargin
   )
 
+  def testNoTrivialHint(): Unit = doParameterTest(
+    s"""  def foo(bar: String): Unit = {}
+       |  def foo(length: Int): Unit = {}
+       |
+       |  val bar = ""
+       |
+       |  foo(bar)
+       |  foo(bar.length)""".stripMargin
+  )
+
   def testVarargHint(): Unit = doParameterTest(
     s"""  def foo(foo: Int, bars: Int*): Unit = {}
        |
@@ -92,11 +102,11 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  }
        |
        |  def bar(bar: Int = 42)
-       |         (pf: PartialFunction[Int, Int]): Unit = {
+       |         (collector: PartialFunction[Int, Int]): Unit = {
        |    pf(bar)
        |    pf.apply(bar)
        |
-       |    foo(${S}pf =${E}pf)
+       |    foo(${S}pf =${E}collector)
        |    foo({ case 42 => 42 })
        |  }
        |

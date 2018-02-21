@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
+import java.{util => ju}
+
 import com.intellij.codeInsight.hints.{Option => HintOption, _}
 import com.intellij.lang.java.JavaLanguage
-import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -14,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunc
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 import scala.collection.JavaConverters
-import java.{util => ju}
 
 class ScalaInlayParameterHintsProvider extends InlayParameterHintsProvider {
 
@@ -133,8 +134,11 @@ object ScalaInlayParameterHintsProvider {
         case (_, parameter) => parameter.isRepeated
       }
 
-      (regular ++ varargs.headOption).collect {
-        case (argument, parameter) if isNameable(argument) => InlayInfo(parameter.name, argument)
+      (regular ++ varargs.headOption).filter {
+        case (argument: ScReferenceExpression, parameter) if argument.refName == parameter.name => false
+        case (argument, _) => isNameable(argument)
+      }.map {
+        case (argument, parameter) => InlayInfo(parameter.name, argument)
       }
     }
 
