@@ -57,11 +57,19 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
   def testNoTrivialHint(): Unit = doParameterTest(
     s"""  def foo(bar: String): Unit = {}
        |  def foo(length: Int): Unit = {}
+       |  def bar(hashCode: Int): Unit = {}
+       |  def bar(classOf: Class[_]): Unit = {}
+       |  def bar(baz: () => Unit): Unit = {}
        |
        |  val bar = ""
        |
+       |  def bazImpl(): Unit = {}
+       |
        |  foo(bar)
-       |  foo(bar.length)""".stripMargin
+       |  foo(bar.length)
+       |  bar(bar.hashCode())
+       |  bar(classOf[String])
+       |  baz(bazImpl())""".stripMargin
   )
 
   def testVarargHint(): Unit = doParameterTest(

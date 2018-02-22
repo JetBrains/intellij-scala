@@ -8,6 +8,7 @@ import com.intellij.codeInsight.hints.{Option => HintOption, _}
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiMethod}
+import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -122,10 +123,21 @@ object ScalaInlayParameterHintsProvider {
       }
 
       (regular ++ varargs.headOption).filter {
-        case (argument: ScReferenceExpression, parameter) if argument.refName == parameter.name => false
+        case (MethodCall(name), parameter) if name == parameter.name => false
         case (argument, parameter) => isNameable(argument) && isNameable(parameter)
       }.map {
         case (argument, parameter) => InlayInfo(parameter, argument)
+      }
+    }
+
+    private object MethodCall {
+
+      def unapply(expression: ScExpression): Option[String] = expression match {
+        case MethodRepr(_, maybeExpression, maybeReference, Seq()) =>
+          maybeReference.orElse(maybeExpression).collect {
+            case reference: ScReferenceExpression => reference.refName
+          }
+        case _ => None
       }
     }
 
