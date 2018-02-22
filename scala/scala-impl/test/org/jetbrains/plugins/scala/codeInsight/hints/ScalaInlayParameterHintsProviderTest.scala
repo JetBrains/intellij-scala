@@ -91,6 +91,13 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  foo.apply(42)""".stripMargin
   )
 
+  def testSingleCharacterParameterHint(): Unit = doParameterTest(
+    s"""  def foo(f: Int): Unit = {}
+       |
+       |  foo(42)
+     """.stripMargin
+  )
+
   def testNoFunctionalParameterHint(): Unit = doParameterTest(
     s"""  def foo(pf: PartialFunction[Int, Int]): Unit = {
        |    pf(42)

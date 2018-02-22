@@ -136,7 +136,7 @@ object ScalaInlayParameterHintsProvider {
 
       (regular ++ varargs.headOption).filter {
         case (argument: ScReferenceExpression, parameter) if argument.refName == parameter.name => false
-        case (argument, _) => isNameable(argument)
+        case (argument, parameter) => isNameable(argument) && isNameable(parameter)
       }.map {
         case (argument, parameter) => InlayInfo(parameter.name, argument)
       }
@@ -146,6 +146,9 @@ object ScalaInlayParameterHintsProvider {
       argument.parent.collect {
         case list: ScArgumentExprList => list
       }.exists(!_.isBraceArgs)
+
+    private def isNameable(parameter: Parameter) =
+      parameter.name.length > 1
   }
 
   private[hints] abstract class OptionHintType protected(idSegments: String*)
