@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion.lookups
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.tree.IElementType
@@ -38,9 +39,12 @@ class ScalaLightKeyword private (manager: PsiManager, text: String)
 }
 
 object ScalaLightKeyword {
+
   private val key = Key.create[mutable.HashMap[String, ScalaLightKeyword]]("scala.light.keywords")
 
-  def apply(manager: PsiManager, text: String): ScalaLightKeyword = {
+  def apply(text: String)
+           (implicit project: Project): ScalaLightKeyword = {
+    val manager = PsiManager.getInstance(project)
     val map = manager.getOrUpdateUserData(key, mutable.HashMap[String, ScalaLightKeyword]())
     map.getOrElseUpdate(text, new ScalaLightKeyword(manager, text))
   }

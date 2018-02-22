@@ -4,8 +4,6 @@ package psi
 package impl
 package expr
 
-import scala.collection.mutable.ArrayBuffer
-
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
@@ -13,7 +11,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement, ScTypeElement}
@@ -22,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
@@ -38,6 +35,8 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 import org.jetbrains.plugins.scala.lang.resolve.processor._
+
+import scala.collection.mutable
 
 /**
   * @author AlexanderPodkhalyuzin
@@ -139,31 +138,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     }
   }
 
-  def getVariants: Array[Object] = getVariants(implicits = true, filterNotNamedVariants = false)
+  override def getVariants: Array[Object] = completionVariants(implicits = true)().toArray
 
-  /**
-    * Important! Do not change types of Object values, this can cause errors due to bad architecture.
-    */
-  override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
-    val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
-
-    getSimpleVariants(implicits, filterNotNamedVariants).flatMap { res =>
-      val qualifier = res.fromType.getOrElse(Nothing)
-      LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier)
-    }
-  }
-
-  def getSimpleVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[ScalaResolveResult] = {
-    val kinds = getKinds(incomplete = true)
-    val processor = if (implicits) new ImplicitCompletionProcessor(kinds, this)
-    else new CompletionProcessor(kinds, this)
-
-    doResolve(processor).filter {
-      case _ if !filterNotNamedVariants => true
-      case res: ScalaResolveResult => res.isNamedParameter
-      case _ => false
-    }
-  }
+  override def completionVariants(incomplete: Boolean,
+                                  completion: Boolean,
+                                  implicits: Boolean)
+                                 (function: ScalaResolveResult => Seq[ScalaLookupItem]): Seq[ScalaLookupItem] =
+    getSimpleVariants(incomplete, completion, implicits).flatMap(function)
 
   def getSameNameVariants: Array[ScalaResolveResult] = this.doResolve(
     new ImplicitCompletionProcessor(getKinds(incomplete = true), this) {
@@ -183,7 +164,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
   } // See SCL-3092
 
   def multiType: Array[TypeResult] = {
-    val buffer = ArrayBuffer[TypeResult]()
+    val buffer = mutable.ArrayBuffer[TypeResult]()
     val iterator = multiResolveScala(incomplete = false).iterator
     while (iterator.hasNext) {
       buffer += convertBindToType(iterator.next())
@@ -206,7 +187,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
   }
 
   def shapeMultiType: Array[TypeResult] = {
-    val buffer = ArrayBuffer[TypeResult]()
+    val buffer = mutable.ArrayBuffer[TypeResult]()
     val iterator = shapeResolve.iterator
     while (iterator.hasNext) {
       buffer += convertBindToType(iterator.next())

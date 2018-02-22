@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ImplicitCompletionProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -81,7 +81,15 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
 
   def getPrevTypeInfoParams: Seq[TypeParameter]
 
-  def getSimpleVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[ScalaResolveResult]
+  def getSimpleVariants(incomplete: Boolean = true,
+                        completion: Boolean = false,
+                        implicits: Boolean = false): Seq[ScalaResolveResult] = {
+    val kinds = getKinds(incomplete, completion)
+    val processor = if (implicits) new ImplicitCompletionProcessor(kinds, this)
+    else new CompletionProcessor(kinds, this)
+
+    doResolve(processor)
+  }
 }
 
 object ScReferenceExpression {

@@ -18,7 +18,7 @@ import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager.getLookupElement
+import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{fileContext, nameContext}
@@ -35,9 +35,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-import scala.collection.{JavaConverters, mutable}
 
-import org.jetbrains.plugins.scala.finder.ScalaFilterScope
+import scala.collection.{JavaConverters, mutable}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -80,11 +79,9 @@ object ScalaGlobalMembersCompletionContributor {
                             accessAll: Boolean)
                            (implicit prefixMatcher: PrefixMatcher,
                             originalFile: PsiFile): Iterable[ScalaLookupItem] = {
-    implicit def elementsSet =
-      reference.getVariants(implicits = false, filterNotNamedVariants = false).collect {
-        case ScalaLookupItem(element: PsiNamedElement) => element
-        case element: PsiNamedElement => element
-      }.toSet
+    implicit def elementsSet: Set[PsiNamedElement] =
+      reference.completionVariants()()
+        .map(_.element).toSet
 
     findQualifier(reference) match {
       case Some(qualifier) =>
@@ -210,10 +207,10 @@ object ScalaGlobalMembersCompletionContributor {
     processor.processType(resultType, reference)
 
     processor.candidates.map { candidate =>
-      val lookup = getLookupElement(
-        candidate,
+      val lookup = candidate.getLookupElement(
         isClassName = true,
-        shouldImport = shouldImport(candidate.getElement, reference)).head
+        shouldImport = shouldImport(candidate.getElement, reference)
+      ).head
 
       lookup.usedImportStaticQuickfix = true
       lookup.elementToImport = Option(element)
@@ -250,6 +247,17 @@ object ScalaGlobalMembersCompletionContributor {
           }
       }
 
+    def createLookups(namedElement: PsiNamedElement,
+                      containingClass: PsiClass,
+                      overloaded: Boolean = false)
+                     (shouldImport: Boolean = this.shouldImport(namedElement, reference)) =
+      new ScalaResolveResult(namedElement).getLookupElement(
+        isClassName = true,
+        isOverloadedForClassName = overloaded,
+        shouldImport = shouldImport,
+        containingClass = Some(containingClass)
+      ).head
+
     val (methods, javaFields, scalaFields) = findAllMembers
 
     val methodsLookups = methods.flatMap { method =>
@@ -274,19 +282,16 @@ object ScalaGlobalMembersCompletionContributor {
 
           overload.map {
             case (m, overloaded) =>
-              createLookupElement(m, containingClass, shouldImport(method, reference), overloaded = overloaded)
+              createLookups(m, containingClass, overloaded = overloaded)(shouldImport(method, reference))
           }
         }
     }
-
-    def createLookups(namedElement: PsiNamedElement, containingClass: PsiClass) =
-      createLookupElement(namedElement, containingClass, shouldImport(namedElement, reference))
 
     val fieldsLookups = javaFields.filter(isStatic)
       .flatMap { field =>
         Option(field.containingClass)
           .filter(isAccessible(field, _))
-          .map(createLookups(field, _))
+          .map(createLookups(field, _)())
       }
 
     val membersLookups = scalaFields.collect {
@@ -294,7 +299,7 @@ object ScalaGlobalMembersCompletionContributor {
     }.flatMap { field =>
       val namedElement = field.declaredElements.head
       inheritedIn(field, namedElement)
-        .map(createLookups(namedElement, _))
+        .map(createLookups(namedElement, _)())
     }
 
     methodsLookups ++ fieldsLookups ++ membersLookups
@@ -369,9 +374,4 @@ object ScalaGlobalMembersCompletionContributor {
     contextContainingClass(element).flatMap { clazz =>
       Option(clazz.qualifiedName)
     }
-
-  private[this] def createLookupElement(member: PsiNamedElement, clazz: PsiClass, shouldImport: Boolean,
-                                        overloaded: Boolean = false): ScalaLookupItem =
-    getLookupElement(new ScalaResolveResult(member), isClassName = true,
-      isOverloadedForClassName = overloaded, shouldImport = shouldImport, containingClass = Some(clazz)).head
 }
