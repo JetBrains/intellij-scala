@@ -15,6 +15,12 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
 package object editor {
   implicit class DocumentExt(val document: Document) extends AnyVal {
     def commit(project: Project): Unit = PsiDocumentManager.getInstance(project).commitDocument(document)
+
+    def lineStartOffset(offset: Int): Int =
+      document.getLineStartOffset(document.getLineNumber(offset))
+
+    def lineEndOffset(offset: Int): Int =
+      document.getLineEndOffset(document.getLineNumber(offset))
   }
 
   implicit class EditorExt(val editor: Editor) extends AnyVal {
