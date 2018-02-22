@@ -32,8 +32,7 @@ class ScalaInlayParameterHintsProvider extends InlayParameterHintsProvider {
   override def getHintInfo(element: PsiElement): HintInfo =
     hintInfo(element).orNull
 
-  override def getInlayPresentation(inlayText: String): String =
-    InlayInfo.presentation(inlayText)
+  override def getInlayPresentation(inlayText: String): String = inlayText
 
   override def getDefaultBlackList: ju.Set[String] =
     DefaultBlackList.asJava
@@ -138,7 +137,7 @@ object ScalaInlayParameterHintsProvider {
         case (argument: ScReferenceExpression, parameter) if argument.refName == parameter.name => false
         case (argument, parameter) => isNameable(argument) && isNameable(parameter)
       }.map {
-        case (argument, parameter) => InlayInfo(parameter.name, argument)
+        case (argument, parameter) => InlayInfo(parameter, argument)
       }
     }
 
