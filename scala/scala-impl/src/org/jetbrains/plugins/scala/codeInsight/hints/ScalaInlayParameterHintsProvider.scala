@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 import scala.collection.JavaConverters
@@ -34,8 +33,7 @@ class ScalaInlayParameterHintsProvider extends InlayParameterHintsProvider {
 
   override def getInlayPresentation(inlayText: String): String = inlayText
 
-  override def getDefaultBlackList: ju.Set[String] =
-    DefaultBlackList.asJava
+  override def getDefaultBlackList: ju.Set[String] = DefaultBlackList
 
   override def getBlackListDependencyLanguage: JavaLanguage = JavaLanguage.INSTANCE
 
@@ -44,17 +42,7 @@ class ScalaInlayParameterHintsProvider extends InlayParameterHintsProvider {
 
 object ScalaInlayParameterHintsProvider {
 
-  private val DefaultBlackList = {
-    val simpleNames = Set(
-      "scala.Predef",
-      "scala.Option",
-      "scala.Some",
-      "scala.None",
-      PartialFunctionType.TypeName
-    ) ++ FunctionType.traitsNames
-
-    simpleNames.map(name => s"$name.*")
-  }
+  private val DefaultBlackList = ju.Collections.singleton("scala.*")
 
   private val HintTypes = List(
     ParameterHintType,

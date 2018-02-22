@@ -22,7 +22,9 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  val pf: PartialFunction[Int, Int] = {
        |    case 42 => 42
        |  }
-       |  pf.applyOrElse(42, identity[Int])""".stripMargin
+       |  pf.applyOrElse(42, identity[Int])
+       |
+       |  Seq(1, 2, 3).collect(pf)""".stripMargin
   )
 
   def testParameterHint(): Unit = doParameterTest(
