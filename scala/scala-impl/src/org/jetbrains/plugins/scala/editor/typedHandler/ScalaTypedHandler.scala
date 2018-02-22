@@ -8,9 +8,11 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Condition
+import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi._
+import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.editor.{DocumentExt, EditorExt}
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes.PatchedXmlLexer
@@ -29,7 +31,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.{ScalaLanguage, extensions}
 
 
 /**
@@ -40,7 +41,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   override def charTyped(c: Char, project: Project, editor: Editor, file: PsiFile): Result = {
     if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
 
-    val offset = editor.getCaretModel.getOffset
+    val offset = editor.offset
     val element = file.findElementAt(offset - 1)
     if (element == null) return Result.CONTINUE
 
@@ -104,9 +105,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
     if (myTask == null) return Result.CONTINUE
 
-    extensions.inWriteAction {
-      PsiDocumentManager.getInstance(project).commitDocument(document)
-    }
+    document.commit(project)
 
     myTask(document, project, file.findElementAt(offset - 1), offset) // prev element is not valid here
     Result.STOP
@@ -115,7 +114,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   override def beforeCharTyped(c: Char, project: Project, editor: Editor, file: PsiFile, fileType: FileType): Result = {
     if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
 
-    val offset = editor.getCaretModel.getOffset
+    val offset = editor.offset
     val element = file.findElementAt(offset)
     val prevElement = file.findElementAt(offset - 1)
     if (element == null) return Result.CONTINUE
@@ -166,11 +165,9 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       val indent = CodeStyleSettingsManager.getSettings(project).
         getCommonSettings(ScalaLanguage.INSTANCE).getIndentOptions.CONTINUATION_INDENT_SIZE
       val indentString = (for (i <- 1 to indent) yield " ").foldLeft("")(_ + _)
-      extensions.inWriteAction {
-        val document = editor.getDocument
-        document.insertString(offset - 1, indentString)
-        PsiDocumentManager.getInstance(project).commitDocument(document)
-      }
+      val document = editor.getDocument
+      document.insertString(offset - 1, indentString)
+      document.commit(project)
     }
 
     Result.CONTINUE
@@ -247,18 +244,14 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   }
 
   private def completeMultilineString(editor: Editor, project: Project, element: PsiElement, offset: Int) {
-    extensions.inWriteAction {
-      val document = editor.getDocument
-      document.insertString(offset, "\"\"\"")
-      PsiDocumentManager.getInstance(project).commitDocument(document)
-    }
+    val document = editor.getDocument
+    document.insertString(offset, "\"\"\"")
+    document.commit(project)
   }
 
   private def insertAndCommit(offset: Int, text: String, document: Document, project: Project) {
-    extensions.inWriteAction {
-      document.insertString(offset, text)
-      PsiDocumentManager.getInstance(project).commitDocument(document)
-    }
+    document.insertString(offset, text)
+    document.commit(project)
   }
 
   private def getScaladocTask(text: CharSequence, offset: Int): (Document, Project, PsiElement, Int) => Unit = {
@@ -331,20 +324,16 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     if (condition(element)) {
       val anotherElement = file.findElementAt(offset - 2)
       if (prevCondition(anotherElement)) {
-        extensions.inWriteAction {
-          PsiDocumentManager.getInstance(project).commitDocument(document)
-          CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
-        }
+        document.commit(project)
+        CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
       }
     }
   }
 
   private def replaceArrowTask(file: PsiFile, editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int) {
     @inline def replaceElement(replaceWith: String) {
-      extensions.inWriteAction {
-        document.replaceString(element.getTextRange.getStartOffset, element.getTextRange.getEndOffset, replaceWith)
-        PsiDocumentManager.getInstance(project).commitDocument(document)
-      }
+      document.replaceString(element.getTextRange.getStartOffset, element.getTextRange.getEndOffset, replaceWith)
+      document.commit(project)
     }
 
     val settings = ScalaCodeStyleSettings.getInstance(project)
@@ -408,13 +397,11 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
             case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
               val chars = file.charSequence
               if (l.getText.filter(_ == '$').length == 1 && chars.charAt(offset - 2) == '$') {
-                extensions.inWriteAction {
-                  if (chars.charAt(offset) != '}' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
-                    document.insertString(offset, "}")
-                  }
-                  document.insertString(l.getTextRange.getStartOffset, "s")
-                  PsiDocumentManager.getInstance(project).commitDocument(document)
+                if (chars.charAt(offset) != '}' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
+                  document.insertString(offset, "}")
                 }
+                document.insertString(l.getTextRange.getStartOffset, "s")
+                document.commit(project)
               }
             case _ =>
           }
@@ -438,11 +425,9 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
       if (xmlLexer.getTokenType != ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END) return
 
-      extensions.inWriteAction {
-        document.insertString(offset, ">")
-        editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
-        PsiDocumentManager.getInstance(project).commitDocument(document)
-      }
+      document.insertString(offset, ">")
+      editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
+      document.commit(project)
     }
   }
 }
