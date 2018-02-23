@@ -63,8 +63,8 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
 }
 
 object FunctionTupleSyntacticSugarInspection {
-  val FunctionN = s"""${FunctionType.TypeName}(\d)""".r
-  val TupleN = s"""${TupleType.TypeName}(\d)""".r
+  val FunctionN = raw"${FunctionType.TypeName}(\d)".r
+  val TupleN = raw"${TupleType.TypeName}(\d)".r
   
   import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
