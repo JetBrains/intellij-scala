@@ -86,6 +86,7 @@ class ScalaInlineHandler extends InlineHandler {
         }.getOrElse {
           return null
         }
+      case funDef: ScFunctionDefinition => ""
       case typeAlias: ScTypeAliasDefinition =>
         typeAlias.aliasedTypeElement.map {
           _.getText
@@ -94,42 +95,7 @@ class ScalaInlineHandler extends InlineHandler {
         }
       case _ => return null
     }
-    new InlineHandler.Inliner {
-      def inlineUsage(usage: UsageInfo, referenced: PsiElement) {
-        val reference = usage.getReference
-        val replacementOpt = reference.getElement match {
-          case Parent(call: ScMethodCall) if call.argumentExpressions.isEmpty => Some(call)
-          case e: ScExpression => Some(e)
-          case Parent(reference: ScTypeElement) =>
-            Some(reference)
-          case _ => None
-        }
-        replacementOpt.foreach { replacement =>
-          implicit val projectContext = replacement.projectContext
-          val newValue = replacement match {
-            case expression: ScExpression =>
-              val oldValue = expression match {
-                case _ childOf (_: ScInterpolatedStringLiteral) =>
-                  s"{" + replacementValue + "}"
-                case _ =>
-                  replacementValue
-              }
-              expression.replaceExpression(createExpressionFromText(oldValue), removeParenthesis = true)
-            case _: ScTypeElement =>
-              replacement.replace(createTypeElementFromText(replacementValue))
-          }
-
-          val project = newValue.getProject
-          val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
-          highlightOccurrences(Seq(newValue))(project, editor)
-          CodeStyleManager.getInstance(project).reformatRange(newValue.getContainingFile, newValue.getTextRange.getStartOffset - 1,
-            newValue.getTextRange.getEndOffset + 1) //to prevent situations like this 2 ++2 (+2 was inlined)
-        }
-      }
-
-      def getConflicts(reference: PsiReference, referenced: PsiElement): com.intellij.util.containers.MultiMap[PsiElement, String] =
-        new com.intellij.util.containers.MultiMap[PsiElement, String]()
-    }
+    new ScalaInliner(replacementValue)
   }
 
 
@@ -201,13 +167,16 @@ class ScalaInlineHandler extends InlineHandler {
 
     implicit val project = element.projectContext
 
+    def isFunctionalType(typedDef: ScTypedDefinition) =
+      FunctionType.unapply(typedDef.`type`().getOrAny).exists(_._2.nonEmpty) &&
+        (typedDef match {
+          case _: ScFunctionDeclaration | _: ScFunctionDefinition => false
+          case _ => true
+        })
+
     element match {
-      case typedDef: ScTypedDefinition if FunctionType.unapply(typedDef.`type`().getOrAny).exists(_._2.nonEmpty) =>
-        val message = typedDef match {
-          case _: ScFunctionDeclaration | _: ScFunctionDefinition => ScalaBundle.message("cannot.inline.function.with.parameters")
-          case _ => ScalaBundle.message("cannot.inline.value.functional.type")
-        }
-        showErrorHint(message, "element")
+      case typedDef: ScTypedDefinition if isFunctionalType(typedDef) =>
+        showErrorHint(ScalaBundle.message("cannot.inline.value.functional.type"), "element")
       case named: ScNamedElement if named.getContainingFile != PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument) =>
         showErrorHint(ScalaBundle.message("cannot.inline.different.files"), "element")
       case named: ScNamedElement if !usedInSameClassOnly(named) =>
@@ -228,6 +197,8 @@ class ScalaInlineHandler extends InlineHandler {
       case funDef: ScFunctionDefinition if funDef.body.isDefined && funDef.parameters.isEmpty =>
         if (funDef.isLocal) getSettings(funDef, "Method", "local method")
         else getSettings(funDef, "Method", "method")
+      case funDef: ScFunctionDefinition if funDef.body.isDefined =>
+        getSettings(funDef, "Method", "local method")
       case typeAlias: ScTypeAliasDefinition if isParametrizedTypeAlias(typeAlias) || !isSimpleTypeAlias(typeAlias) =>
         showErrorHint(ScalaBundle.message("cannot.inline.notsimple.typealias"), "Type Alias")
       case typeAlias: ScTypeAliasDefinition =>
