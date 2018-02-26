@@ -37,8 +37,6 @@ class ScalaInlayParameterHintsProvider extends InlayParameterHintsProvider {
   override def getDefaultBlackList: ju.Set[String] = DefaultBlackList
 
   override def getBlackListDependencyLanguage: JavaLanguage = JavaLanguage.INSTANCE
-
-  override def canShowHintsWhenDisabled: Boolean = true
 }
 
 object ScalaInlayParameterHintsProvider {
