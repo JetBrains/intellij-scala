@@ -1,44 +1,19 @@
 package org.jetbrains.plugins.scala
 package codeInsight
+package hints
 
-import com.intellij.codeInsight.hints.{HintInfo, InlayInfo, Option}
+import com.intellij.codeInsight.hints._
+import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
-import scala.collection.JavaConverters
+package object hintTypes {
 
-package object hints {
+  private[hintTypes] type HintFunction = PartialFunction[PsiElement, Seq[InlayInfo]]
 
-  private[hints] type HintFunction = PartialFunction[PsiElement, Seq[InlayInfo]]
-
-  private[hints] object HintOption {
-
-    def apply(idSegments: Seq[String], defaultValue: Boolean = false): Option = {
-      val id = "scala" +: idSegments :+ "hint"
-      new Option(id.mkString("."), s"Show ${idSegments.mkString(" ")} hints", defaultValue)
-    }
-  }
-
-  private[hints] object MethodInfo {
-
-    def apply(method: PsiMethod): HintInfo.MethodInfo = {
-      val names = method.parameters.map(_.name)
-      import JavaConverters._
-      new HintInfo.MethodInfo(methodFqn(method), names.toList.asJava)
-    }
-
-    private def methodFqn(method: PsiMethod) = method.getContainingClass match {
-      case null => ""
-      case clazz => s"${clazz.qualifiedName}.${method.name}"
-    }
-
-  }
-
-  private[hints] object InlayInfo {
+  private[hintTypes] object InlayInfo {
 
     import ScalaTokenTypes.{tASSIGN, tCOLON}
 

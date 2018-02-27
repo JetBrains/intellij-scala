@@ -3,12 +3,11 @@ package codeInsight
 package hints
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.junit.Assert.{assertFalse, assertTrue}
 
 class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  import ScalaInlayParameterHintsProvider._
   import ScalaInlayParameterHintsProviderTest.{HintEnd => E, HintStart => S}
+  import hintTypes._
 
   def testNoDefaultPackageHint(): Unit = doParameterTest(
     s"""  println(42)
@@ -61,7 +60,7 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  def bar(classOf: Class[_]): Unit = {}
        |  def bar(baz: () => Unit): Unit = {}
        |
-       |  val bar = ""
+       |  val bar$S: String$E = ""
        |
        |  def bazImpl(): Unit = {}
        |
@@ -201,15 +200,13 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
   )(hintType = LocalVariableHintType)
 
   private def doTest(text: String)
-                    (hintType: OptionHintType): Unit = {
-    import hintType._
-    assertFalse(isOptionEnabled)
-    enable()
-    assertTrue(isOptionEnabled)
+                    (hintType: HintType): Unit = {
+    import hintType.option._
+    if (!getDefaultValue) set(true)
 
-    //    assertTrue(isOptionEnabled) // TODO ???
-    disable()
-    assertFalse(isOptionEnabled)
+    doParameterTest(text)
+
+    if (!getDefaultValue) set(false)
   }
 
   private def doParameterTest(text: String): Unit = {
