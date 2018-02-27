@@ -21,8 +21,8 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**
-* @author ilyas
-*/
+  * @author ilyas
+  */
 case class ScExistentialType(quantified: ScType,
                              wildcards: List[ScExistentialArgument]) extends ScalaType with ValueType {
 
@@ -32,18 +32,9 @@ case class ScExistentialType(quantified: ScType,
     quantified.isAliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType)))
   }
 
-  @volatile
-  private var _boundNames: List[String] = null
-  def boundNames: List[String] = {
-    var res = _boundNames
-    if (res != null) return res
-    res = boundNamesInner
-    _boundNames = res
-    res
-  }
-  private def boundNamesInner: List[String] = wildcards.map {_.name}
+  def boundNames: List[String] = wildcards.map(_.name)
 
-  override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
+  override def removeAbstracts = ScExistentialType(quantified.removeAbstracts,
     wildcards.map(_.withoutAbstracts))
 
   override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialType = {
@@ -58,7 +49,7 @@ case class ScExistentialType(quantified: ScType,
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                           variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
+                                                    variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
