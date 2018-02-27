@@ -12,45 +12,25 @@ import scala.collection.JavaConverters
 
 class ScalaInlayParameterHintsProvider extends InlayParameterHintsProvider {
 
-  import ScalaInlayParameterHintsProvider._
-
   import JavaConverters._
 
+  private val HintTypes = List(ParameterHintType, MemberHintType)
+
   override def getSupportedOptions: ju.List[Option] =
-    HintTypes.map(_.option).asJava
+    HintTypes.flatMap(_.options).asJava
 
   override def getParameterHints(element: PsiElement): ju.List[InlayInfo] =
-    parameterHints(element).asJava
+    HintTypes.flatMap(_.apply(element)).asJava
 
-  override def getHintInfo(element: PsiElement): HintInfo =
-    hintInfo(element).orNull
+  override def getHintInfo(element: PsiElement): HintInfo = element match {
+    case ParameterHintType.methodInfo(methodInfo) => methodInfo
+    case MemberHintType.hintOption(optionInfo) => optionInfo
+    case _ => null
+  }
 
   override def getInlayPresentation(inlayText: String): String = inlayText
 
   override val getDefaultBlackList: ju.Set[String] = ju.Collections.singleton("scala.*")
 
   override def getBlackListDependencyLanguage: JavaLanguage = JavaLanguage.INSTANCE
-}
-
-object ScalaInlayParameterHintsProvider {
-
-  import hintTypes._
-
-  private val HintTypes = List(
-    ParameterHintType,
-    ReturnTypeHintType,
-    PropertyHintType,
-    LocalVariableHintType
-  )
-
-  private def parameterHints(element: PsiElement) =
-    HintTypes.flatMap { hintType =>
-      hintType(element)
-    }
-
-  private def hintInfo(element: PsiElement) =
-    HintTypes.find(_.isDefinedAt(element)).collect {
-      case ParameterHintType => ParameterHintType.methodInfo(element)
-      case hintType => new HintInfo.OptionInfo(hintType.option)
-    }
 }

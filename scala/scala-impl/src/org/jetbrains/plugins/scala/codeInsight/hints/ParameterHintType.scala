@@ -1,42 +1,54 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 package hints
-package hintTypes
 
 import com.intellij.codeInsight.hints.{Option => HintOption, _}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiMethodExt, PsiNamedElementExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 import scala.collection.JavaConverters
 
-private[hints] case object ParameterHintType
-  extends HintType(defaultValue = true, idSegments = "parameter", "name") {
+private[hints] case object ParameterHintType extends HintType {
 
-  def methodInfo(element: PsiElement): HintInfo.MethodInfo = {
-    val extractedMethod = element match {
-      case NonSyntheticMethodCall(method) => method
-      case ConstructorCall(method) => method
-    }
+  override val options: Seq[HintOption] = Seq(
+    HintOption(defaultValue = true, "parameter", "name")
+  )
 
-    val methodFqn = extractedMethod.getContainingClass match {
-      case null => ""
-      case clazz => s"${clazz.qualifiedName}.${extractedMethod.name}"
-    }
-
-    val names = extractedMethod.parameters.map(_.name)
-
-    import JavaConverters._
-    new HintInfo.MethodInfo(methodFqn, names.asJava)
-  }
-
-  override protected val delegate: HintFunction = {
+  override def apply(element: PsiElement): Seq[InlayInfo] = element match {
+    case _ if !options.head.get => Seq.empty
     case call@NonSyntheticMethodCall(_) => withParameters(call, call.matchedParameters.reverse)
     case call@ConstructorCall(_) => withParameters(call, call.matchedParameters)
+    case _ => Seq.empty
+  }
+
+  object methodInfo {
+
+    import HintInfo.MethodInfo
+
+    def unapply(element: PsiElement): Option[MethodInfo] = {
+      val maybeMethod = element match {
+        case NonSyntheticMethodCall(method) => Some(method)
+        case ConstructorCall(method) => Some(method)
+        case _ => None
+      }
+
+      maybeMethod.map { method =>
+        val methodFqn = method.getContainingClass match {
+          case null => ""
+          case clazz => s"${clazz.qualifiedName}.${method.name}"
+        }
+
+        val names = method.parameters.map(_.name)
+
+        import JavaConverters._
+        new MethodInfo(methodFqn, names.asJava)
+      }
+    }
   }
 
   private object NonSyntheticMethodCall {

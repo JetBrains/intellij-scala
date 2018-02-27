@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala
 package codeInsight
-package hints
 
 import com.intellij.codeInsight.hints._
 import com.intellij.psi.PsiElement
@@ -9,11 +8,17 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
-package object hintTypes {
+package object hints {
 
-  private[hintTypes] type HintFunction = PartialFunction[PsiElement, Seq[InlayInfo]]
+  private[hints] object HintOption {
 
-  private[hintTypes] object InlayInfo {
+    def apply(defaultValue: Boolean, idSegments: String*): Option = {
+      val id = "scala" +: idSegments :+ "hint"
+      new Option(id.mkString("."), s"Show ${idSegments.mkString(" ")} hints", defaultValue)
+    }
+  }
+
+  private[hints] object InlayInfo {
 
     import ScalaTokenTypes.{tASSIGN, tCOLON}
 

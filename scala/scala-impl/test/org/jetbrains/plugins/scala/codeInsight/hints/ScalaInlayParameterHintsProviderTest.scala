@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
+import com.intellij.codeInsight.hints.Option
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import ScalaInlayParameterHintsProviderTest.{HintEnd => E, HintStart => S}
-  import hintTypes._
 
   def testNoDefaultPackageHint(): Unit = doParameterTest(
     s"""  println(42)
@@ -171,37 +171,39 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
     )
   }
 
-  def testFunctionReturnTypeHint(): Unit = doTest(
+  import MemberHintType._
+
+  def testFunctionReturnTypeHint(): Unit = doMemberTypeTest(
     s"""  def foo()$S: List[String]$E = List.empty[String]"""
-  )(hintType = ReturnTypeHintType)
+  )(option = functionReturnType)
 
-  def testNoFunctionReturnTypeHint(): Unit = doTest(
+  def testNoFunctionReturnTypeHint(): Unit = doMemberTypeTest(
     """  def foo(): List[String] = List.empty[String]"""
-  )(hintType = ReturnTypeHintType)
+  )(option = functionReturnType)
 
-  def testPropertyTypeHint(): Unit = doTest(
+  def testPropertyTypeHint(): Unit = doMemberTypeTest(
     s"""  val list$S: List[String]$E = List.empty[String]"""
-  )(hintType = PropertyHintType)
+  )(option = propertyType)
 
-  def testNoPropertyTypeHint(): Unit = doTest(
+  def testNoPropertyTypeHint(): Unit = doMemberTypeTest(
     """  val list: List[String] = List.empty[String]"""
-  )(hintType = PropertyHintType)
+  )(option = propertyType)
 
-  def testLocalVariableTypeHint(): Unit = doTest(
+  def testLocalVariableTypeHint(): Unit = doMemberTypeTest(
     s"""  def foo(): Unit = {
        |    val list$S: List[String]$E = List.empty[String]
        |  }""".stripMargin
-  )(hintType = LocalVariableHintType)
+  )(option = localVariableType)
 
-  def testNoLocalVariableTypeHint(): Unit = doTest(
+  def testNoLocalVariableTypeHint(): Unit = doMemberTypeTest(
     s"""  def foo(): Unit = {
        |    val list: List[String] = List.empty[String]
        |  }""".stripMargin
-  )(hintType = LocalVariableHintType)
+  )(option = localVariableType)
 
-  private def doTest(text: String)
-                    (hintType: HintType): Unit = {
-    import hintType.option._
+  private def doMemberTypeTest(text: String)
+                              (option: Option): Unit = {
+    import option._
     if (!getDefaultValue) set(true)
 
     doParameterTest(text)
