@@ -80,6 +80,21 @@ package object types {
       case _: UndefinedType => stdTypes.Any
     }
 
+    def removeVarianceAbstracts(): ScType = {
+      var index = 0
+      scType.recursiveVarianceUpdate((tp: ScType, v: Variance) => {
+        tp match {
+          case ScAbstractType(_, lower, upper) =>
+            v match {
+              case Contravariant => (true, lower)
+              case Covariant     => (true, upper)
+              case Invariant     => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, upper))
+            }
+          case _ => (false, tp)
+        }
+      }, Covariant).unpackedType
+    }
+
     def toPsiType: PsiType = typeSystem.toPsiType(scType)
 
     /**
