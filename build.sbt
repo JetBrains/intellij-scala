@@ -9,7 +9,8 @@ import sbtide.Keys.ideSkipProject
 
 resolvers in ThisBuild ++=
   BintrayJetbrains.allResolvers :+
-    Resolver.typesafeIvyRepo("releases")
+  Resolver.typesafeIvyRepo("releases") :+
+  Resolver.bintrayRepo("scalameta","maven")
 
 resolvers in ThisBuild += Resolver.sonatypeRepo("snapshots")
 
@@ -65,7 +66,7 @@ lazy val scalaImpl: sbt.Project =
       javacOptions in Global ++= Seq("-source", "1.8", "-target", "1.8"),
       scalacOptions in Global ++= Seq("-target:jvm-1.8", "-deprecation"),
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
-      libraryDependencies ++= DependencyGroups.scalaCommunity,
+      libraryDependencies ++= DependencyGroups.scalaCommunity ++ DependencyGroups.bsp,
       unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
       addCompilerPlugin(Dependencies.macroParadise),
       ideaInternalPlugins := Seq(

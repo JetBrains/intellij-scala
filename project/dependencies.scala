@@ -133,6 +133,11 @@ object DependencyGroups {
     scalariform
   )
 
+  val bsp = Seq(
+    "io.github.scalapb-json" %% "scalapb-circe" % "0.1.1",
+    "org.scalameta" %% "lsp4s" % "00483bd2"
+  )
+
   val decompiler = Seq(
     scalaLibrary,
     scalaReflect,
