@@ -7,6 +7,7 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Def, FunDef}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplate
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Path, TypeArgs}
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.XmlExpr
@@ -40,6 +41,8 @@ object SimpleExpr extends SimpleExpr {
   override protected def literal = Literal
   override protected def blockExpr = BlockExpr
   override protected def expr = Expr
+
+  override protected def someDef: Def = Def
 }
 
 trait SimpleExpr extends ParserNode with ScalaTokenTypes {
@@ -48,6 +51,7 @@ trait SimpleExpr extends ParserNode with ScalaTokenTypes {
   protected def blockExpr: BlockExpr
   protected def classTemplate: ClassTemplate
   protected def literal: Literal
+  protected def someDef: Def
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val simpleMarker = builder.mark
@@ -170,6 +174,11 @@ trait SimpleExpr extends ParserNode with ScalaTokenTypes {
           val tMarker = marker.precede
           marker.done(ScalaElementTypes.GENERIC_CALL)
           subparse(tMarker)
+        case ScalaTokenTypes.kDEF | ScalaTokenTypes.kPRIVATE | ScalaTokenTypes.kPROTECTED | ScalaTokenTypes.kIMPLICIT if ParserUtils.hasTextBefore(builder, "inline") =>
+          //This is kinda hack for cases when we have to build stubs for sources, that use meta and contain inline keyword
+          //Without this we would get different count of stub elements and ast nodes (and exception as the result)  
+          marker.drop()
+          someDef.parse(builder)
         case _ =>
           marker.drop()
       }
