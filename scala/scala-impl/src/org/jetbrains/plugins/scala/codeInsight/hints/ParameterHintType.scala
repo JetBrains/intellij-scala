@@ -5,12 +5,12 @@ package hints
 import com.intellij.codeInsight.hints.{Option => HintOption, _}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters
 
 private[hints] case object ParameterHintType extends HintType {
@@ -79,28 +79,26 @@ private[hints] case object ParameterHintType extends HintType {
     }
 
     (regular ++ varargs.headOption).filter {
-      case (MethodCall(name), parameter) if name == parameter.name => false
-      case (argument, parameter) => isNameable(argument) && isNameable(parameter)
+      case (argument, parameter) =>
+        isUnclear(argument) && isNameable(argument) && isNameable(parameter)
     }.map {
       case (argument, parameter) => InlayInfo(parameter, argument)
     }
   }
 
-  private object MethodCall {
-
-    def unapply(expression: ScExpression): Option[String] = expression match {
-      case MethodRepr(_, maybeExpression, maybeReference, Seq()) =>
-        maybeReference.orElse(maybeExpression).collect {
-          case reference: ScReferenceExpression => reference.refName
-        }
-      case _ => None
-    }
+  @tailrec
+  private def isUnclear(expression: ScExpression): Boolean = expression match {
+    case _: ScLiteral | _: ScThisReference => true
+    case ScParenthesisedExpr(inner) => isUnclear(inner)
+    case ScSugarCallExpr(base, _, _) => isUnclear(base)
+    case _ => false
   }
 
   private def isNameable(argument: ScExpression) =
-    argument.parent.collect {
-      case list: ScArgumentExprList => list
-    }.exists(!_.isBraceArgs)
+    argument.getParent match {
+      case list: ScArgumentExprList => !list.isBraceArgs
+      case _ => false
+    }
 
   private def isNameable(parameter: Parameter) =
     parameter.name.length > 1

@@ -50,7 +50,7 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
   def testNoInfixExpressionHint(): Unit = doParameterTest(
     s"""  def foo(foo: Int): Unit = {}
        |
-       |  this foo 42""".stripMargin
+       |  foo(${S}foo =${E}this foo 42)""".stripMargin
   )
 
   def testNoTrivialHint(): Unit = doParameterTest(
@@ -64,6 +64,7 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |
        |  def bazImpl(): Unit = {}
        |
+       |  foo(${S}bar =${E}null)
        |  foo(bar)
        |  foo(bar.length)
        |  bar(bar.hashCode())
@@ -122,7 +123,7 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |    pf(bar)
        |    pf.apply(bar)
        |
-       |    foo(${S}pf =${E}collector)
+       |    foo(collector)
        |    foo({ case 42 => 42 })
        |  }
        |
@@ -226,5 +227,5 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
 object ScalaInlayParameterHintsProviderTest {
 
   private val HintStart = "<hint text=\""
-  private val HintEnd = "\" />"
+  private val HintEnd = "\"/>"
 }
