@@ -73,8 +73,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
           case Some(_: ScSuperReference) =>
             val function = PsiTreeUtil.getContextOfType(ref, classOf[ScFunction])
             if (function != null && function.name == ref.refName) {
-              val variants = ref.getSimpleVariants(implicits = false, filterNotNamedVariants = false)
-              val signatures = variants.toSeq.collect {
+              val signatures = ref.getSimpleVariants().collect {
                 case ScalaResolveResult(method: ScMethodLike, subst) => paramsInClause(method, subst, index)
               }.filter(_.length > 1)
 

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.completion.filters.expression._
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.{CaseFilter, ImplicitFilter, ModifiersFilter}
 import org.jetbrains.plugins.scala.lang.completion.filters.other._
 import org.jetbrains.plugins.scala.lang.completion.filters.toplevel.{ImportFilter, PackageFilter, TemplateFilter, TraitFilter}
-import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaKeywordLookupItem
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,7 +24,7 @@ class ScalaKeywordCompletionContributor extends ScalaCompletionContributor {
       new CompletionProvider[CompletionParameters] {
         def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
           for (keyword <- keywords) {
-            result.addElement(LookupElementManager.getKeywordLookupElement(keyword, parameters.getOriginalFile.getProject))
+            result.addElement(ScalaKeywordLookupItem.getLookupElement(keyword)(parameters.getOriginalFile.getProject))
           }
         }
       })
@@ -36,7 +36,7 @@ class ScalaKeywordCompletionContributor extends ScalaCompletionContributor {
       new CompletionProvider[CompletionParameters] {
         def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
           for (keyword <- keywords) {
-            result.addElement(LookupElementManager.getKeywordLookupElement(keyword, parameters.getOriginalFile.getProject))
+            result.addElement(ScalaKeywordLookupItem.getLookupElement(keyword)(parameters.getOriginalFile.getProject))
           }
         }
       })

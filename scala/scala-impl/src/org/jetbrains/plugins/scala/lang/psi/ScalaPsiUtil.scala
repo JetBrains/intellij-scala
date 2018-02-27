@@ -189,22 +189,25 @@ object ScalaPsiUtil {
     * See SCL-2001, SCL-3485
     */
   def tupled(s: Seq[Expression], context: PsiElement): Option[Seq[Expression]] = {
-    implicit val project: Project = context.getProject
-    val place = firstLeaf(context)
-    s match {
-      case Seq() =>
-        // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
-        Some(Seq(new Expression(Unit, place)))
-      case _ =>
-        val exprTypes: Seq[ScType] =
-          s.map(_.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)).map {
-            case (res, _) => res.getOrAny
-          }
-        val qual = "scala.Tuple" + exprTypes.length
-        val tupleClass = ScalaPsiManager.instance.getCachedClass(context.resolveScope, qual)
-        val tupleType = tupleClass.map(tpl => ScParameterizedType(ScDesignatorType(tpl), exprTypes))
+    implicit val scope: ElementScope = context.elementScope
 
-        tupleType.map(tt => Seq(new Expression(tt, place)))
+    val maybeType = s match {
+      case Seq() => Some(Unit)
+      // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
+      case _ =>
+        def getType(expression: Expression) = {
+          val (result, _) = expression.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)
+          result.getOrAny
+        }
+
+        TupleType(s.map(getType)) match {
+          case t if t.isNothing => None
+          case t => Some(t)
+        }
+    }
+
+    maybeType.map { t =>
+      Seq(new Expression(t, firstLeaf(context)))
     }
   }
 

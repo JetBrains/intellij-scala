@@ -175,15 +175,16 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   }
 
   private def functionParams(params: Seq[ScType]): Seq[Parameter] = {
-    val functionName = s"scala.Function${params.length}"
-    val functionClass = elementScope.getCachedClass(functionName)
+    val functionClass = elementScope
+      .getCachedClass(FunctionType.TypeName + params.length)
       .collect {
         case t: ScTrait => t
       }
-    val applyFunction = functionClass.flatMap(_.functions.find(_.name == "apply"))
+
+    val applyFunction = functionClass.flatMap(_.functions.find(_.isApplyMethod))
     params.mapWithIndex {
       case (tp, i) =>
-        new Parameter("v" + (i + 1), None, tp, tp, false, false, false, i, applyFunction.map(_.parameters.apply(i)))
+        new Parameter("v" + (i + 1), None, tp, tp, false, false, false, i, applyFunction.map(_.parameters(i)))
     }
   }
 
