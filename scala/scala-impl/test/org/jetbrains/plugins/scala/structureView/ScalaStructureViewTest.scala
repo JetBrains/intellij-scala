@@ -114,28 +114,28 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
     check("""
           class C()
           """,
-      Node(CLASS, "C"))
+      Node(CLASS, "C()"))
   }
 
   def testParameterInPrimaryConstructor(): Unit = {
     check("""
           class C(p: Int)
           """,
-      Node(CLASS, "C")) // TODO
+      Node(CLASS, "C(Int)"))
   }
 
   def testMultipleParametersInPrimaryConstructor(): Unit = {
     check("""
           class C(p1: Float, p2: Double)
           """,
-      Node(CLASS, "C")) // TODO
+      Node(CLASS, "C(Float, Double)"))
   }
 
   def testMultipleArgumentListsInPrimaryConstructor(): Unit = {
     check("""
           class C(p1: Float)(p2: Double)
           """,
-      Node(CLASS, "C")) // TODO
+      Node(CLASS, "C(Float)(Double)"))
   }
 
  //  def testVariableInPrimaryConstructor(): Unit = {
