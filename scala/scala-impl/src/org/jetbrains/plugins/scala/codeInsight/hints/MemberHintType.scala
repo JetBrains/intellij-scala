@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
-private[hints] case object MemberHintType extends HintType {
+private case object MemberHintType extends HintType {
 
   private[hints] val functionReturnType = HintOption(defaultValue = true, "function", "return", "type")
   private[hints] val propertyType = HintOption(defaultValue = true, "property", "type")

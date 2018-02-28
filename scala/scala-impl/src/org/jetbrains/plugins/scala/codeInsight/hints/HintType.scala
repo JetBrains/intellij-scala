@@ -5,7 +5,8 @@ package hints
 import com.intellij.codeInsight.hints._
 import com.intellij.psi.PsiElement
 
-private[hints] trait HintType extends (PsiElement => Iterable[InlayInfo]) {
-
+private trait HintType {
   val options: Seq[Option]
+
+  def apply(element: PsiElement): Iterable[InlayInfo]
 }

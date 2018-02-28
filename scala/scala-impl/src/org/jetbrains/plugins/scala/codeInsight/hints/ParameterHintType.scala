@@ -3,9 +3,9 @@ package codeInsight
 package hints
 
 import com.intellij.codeInsight.hints.{Option => HintOption, _}
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -13,17 +13,21 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import scala.annotation.tailrec
 import scala.collection.JavaConverters
 
-private[hints] case object ParameterHintType extends HintType {
+private case object ParameterHintType extends HintType {
 
   override val options: Seq[HintOption] = Seq(
     HintOption(defaultValue = true, "parameter", "name")
   )
 
-  override def apply(element: PsiElement): Seq[InlayInfo] = element match {
-    case _ if !options.head.get => Seq.empty
-    case call@NonSyntheticMethodCall(_) => withParameters(call, call.matchedParameters.reverse)
-    case call@ConstructorCall(_) => withParameters(call, call.matchedParameters)
-    case _ => Seq.empty
+  override def apply(element: PsiElement): Seq[InlayInfo] = this {
+    (element match {
+      case _ if !options.head.get => Seq.empty
+      case call: ScMethodCall if !call.isApplyOrUpdateCall => call.matchedParameters.reverse
+      case call: ScConstructor => call.matchedParameters
+      case _ => Seq.empty
+    }).filter {
+      case (argument, _) => element.isAncestorOf(argument)
+    }
   }
 
   object methodInfo {
@@ -31,60 +35,47 @@ private[hints] case object ParameterHintType extends HintType {
     import HintInfo.MethodInfo
 
     def unapply(element: PsiElement): Option[MethodInfo] = {
-      val maybeMethod = element match {
-        case NonSyntheticMethodCall(method) => Some(method)
-        case ConstructorCall(method) => Some(method)
+      val maybeReference = element match {
+        case call: ScMethodCall => Some(call.getEffectiveInvokedExpr)
+        case call: ScConstructor => call.reference
         case _ => None
       }
 
-      maybeMethod.map { method =>
-        val methodFqn = method.getContainingClass match {
+      maybeReference match {
+        case Some(methodInfo(methodFQN, parametersNames)) =>
+          import JavaConverters._
+          Some(new MethodInfo(methodFQN, parametersNames.asJava))
+        case _ => None
+      }
+    }
+
+    private def unapply(element: ScalaPsiElement) = element match {
+      case ResolvesTo(method: PsiMethod) =>
+        val classFqn = method.containingClass match {
           case null => ""
-          case clazz => s"${clazz.qualifiedName}.${method.name}"
+          case clazz => s"${clazz.qualifiedName}."
         }
 
         val names = method.parameters.map(_.name)
 
-        import JavaConverters._
-        new MethodInfo(methodFqn, names.asJava)
-      }
-    }
-  }
-
-  private object NonSyntheticMethodCall {
-
-    def unapply(methodCall: ScMethodCall): Option[PsiMethod] = methodCall.deepestInvokedExpr match {
-      case ScReferenceExpression(method: PsiMethod) if !method.isParameterless && methodCall.argumentExpressions.nonEmpty => Some(method)
+        Some(classFqn + method.name, names)
       case _ => None
     }
   }
 
-  private object ConstructorCall {
+  private def apply(matchedParameters: Seq[(ScExpression, Parameter)]) =
+    if (matchedParameters.nonEmpty) {
+      val (varargs, regular) = matchedParameters.partition {
+        case (_, parameter) => parameter.isRepeated
+      }
 
-    def unapply(constructor: ScConstructor): Option[PsiMethod] =
-      if (PsiTreeUtil.getContextOfType(constructor, classOf[ScNewTemplateDefinition]) != null &&
-        constructor.arguments.nonEmpty) {
-        constructor.reference.collect {
-          case ResolvesTo(method: PsiMethod) => method
-        }
-      } else None
-  }
-
-  private def withParameters(call: PsiElement,
-                             matchedParameters: Seq[(ScExpression, Parameter)]): Seq[InlayInfo] = {
-    val (varargs, regular) = matchedParameters.filter {
-      case (argument, _) => call.isAncestorOf(argument)
-    }.partition {
-      case (_, parameter) => parameter.isRepeated
-    }
-
-    (regular ++ varargs.headOption).filter {
-      case (argument, parameter) =>
-        isUnclear(argument) && isNameable(argument) && isNameable(parameter)
-    }.map {
-      case (argument, parameter) => InlayInfo(parameter, argument)
-    }
-  }
+      (regular ++ varargs.headOption).filter {
+        case (argument, parameter) => isUnclear(argument) &&
+          isNameable(argument) && isNameable(parameter)
+      }.map {
+        case (argument, parameter) => InlayInfo(parameter, argument)
+      }
+    } else Seq.empty
 
   @tailrec
   private def isUnclear(expression: ScExpression): Boolean = expression match {
