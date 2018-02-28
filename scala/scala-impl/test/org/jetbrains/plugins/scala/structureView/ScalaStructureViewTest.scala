@@ -52,11 +52,18 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(FUNCTION, "m: Int"))
   }
 
-  def testParameterInMethod(): Unit = {
+  def testTypeParametersInMethod(): Unit = {
     check("""
-          def m(p: Float): Int = 1
+          def m[A, B]: Int = 1
           """,
-      Node(FUNCTION, "m(Float): Int"))
+      Node(FUNCTION, "m[A, B]: Int"))
+  }
+
+  def testParameterListInMethod(): Unit = {
+    check("""
+          def m(): Int = 1
+          """,
+      Node(FUNCTION, "m(): Int"))
   }
 
   def testMultipleParametersInMethod(): Unit = {
@@ -66,7 +73,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(FUNCTION, "m(Float, Double): Int"))
   }
 
-  def testMultipleArgumentListsInMethod(): Unit = {
+  def testMultipleParameterListsInMethod(): Unit = {
     check("""
           def m(p1: Float)(p2: Double): Int = 1
           """,
@@ -110,18 +117,18 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(TYPE_ALIAS, "T"))
   }
 
-  def testPrimaryConstructor(): Unit = {
+//  def testTypeParametersInPrimaryConstructor(): Unit = {
+//    check("""
+//          class C[A, B]
+//          """,
+//      Node(CLASS, "C[A, B]"))
+//  }
+
+  def testParameterListInPrimaryConstructor(): Unit = {
     check("""
           class C()
           """,
       Node(CLASS, "C()"))
-  }
-
-  def testParameterInPrimaryConstructor(): Unit = {
-    check("""
-          class C(p: Int)
-          """,
-      Node(CLASS, "C(Int)"))
   }
 
   def testMultipleParametersInPrimaryConstructor(): Unit = {
@@ -131,44 +138,36 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(CLASS, "C(Float, Double)"))
   }
 
-  def testMultipleArgumentListsInPrimaryConstructor(): Unit = {
+  def testMultipleParameterListsInPrimaryConstructor(): Unit = {
     check("""
           class C(p1: Float)(p2: Double)
           """,
       Node(CLASS, "C(Float)(Double)"))
   }
 
- //  def testVariableInPrimaryConstructor(): Unit = {
+//  def testVariablesInPrimaryConstructor(): Unit = {
 //    check("""
-//          class C(var p: Int)
+//          class C(var p1: Float, p2: Double)
 //          """,
-//      Node(CLASS, "C",
-//        Node(VAR, "p")))
+//      Node(CLASS, "C(Float, Double)",
+//        Node(VAR, "p1"),
+//        Node(VAR, "p2")))
 //  }
 
-//  def testValueInPrimaryConstructor(): Unit = {
+//  def testValuesInPrimaryConstructor(): Unit = {
 //    check("""
-//          class C(val p: Int)
+//          class C(val p1: Floar, val p2: Double)
 //          """,
-//      Node(CLASS, "C",
-//        Node(VAL, "p",
-//        Node(FUNCTION, "this"))))
-//  }
-
-//  def testMultipleMembersInPrimaryConstructor(): Unit = {
-//    check("""
-//          class C(p1: Float, val p2: Double)
-//          """,
-//      Node(CLASS, "C",
+//      Node(CLASS, "C(Float, Double)",
 //        Node(VAL, "p1",
-//        Node(VAL, "p2"))))
+//        Node(VAL, "p2")))
 //  }
 
-//  def testMultipleArgumentListsWithMembersInPrimaryConstructor(): Unit = {
+//  def testMultipleParameterListsWithMembersInPrimaryConstructor(): Unit = {
 //    check("""
-//          class C(p1: Float)(val p2: Double)
+//          class C(val p1: Float)(val p2: Double)
 //          """,
-//      Node(CLASS, "C",
+//      Node(CLASS, "C(Float)(Double)",
 //        Node(VAL, "p1",
 //        Node(VAL, "p2"))))
 //  }
@@ -203,7 +202,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
         Node(FUNCTION, "this(Float, Double)")))
   }
 
-  def testMultipleArgumentListsInAuxiliaryConstructor(): Unit = {
+  def testMultipleParameterListsInAuxiliaryConstructor(): Unit = {
     check("""
           class C {
             def this(p1: Float)(p2: Double) { this() }
