@@ -138,7 +138,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(CLASS, "C")) // TODO
   }
 
-  //  def testVariableInPrimaryConstructor(): Unit = {
+ //  def testVariableInPrimaryConstructor(): Unit = {
 //    check("""
 //          class C(var p: Int)
 //          """,
@@ -153,6 +153,24 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
 //      Node(CLASS, "C",
 //        Node(VAL, "p",
 //        Node(FUNCTION, "this"))))
+//  }
+
+//  def testMultipleMembersInPrimaryConstructor(): Unit = {
+//    check("""
+//          class C(p1: Float, val p2: Double)
+//          """,
+//      Node(CLASS, "C",
+//        Node(VAL, "p1",
+//        Node(VAL, "p2"))))
+//  }
+
+//  def testMultipleArgumentListsWithMembersInPrimaryConstructor(): Unit = {
+//    check("""
+//          class C(p1: Float)(val p2: Double)
+//          """,
+//      Node(CLASS, "C",
+//        Node(VAL, "p1",
+//        Node(VAL, "p2"))))
 //  }
 
   def testAuxiliaryConstructor(): Unit = {
