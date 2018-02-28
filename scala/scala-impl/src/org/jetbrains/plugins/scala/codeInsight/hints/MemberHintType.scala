@@ -9,9 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 private case object MemberHintType extends HintType {
 
-  private[hints] val functionReturnType = HintOption(defaultValue = true, "function", "return", "type")
-  private[hints] val propertyType = HintOption(defaultValue = true, "property", "type")
-  private[hints] val localVariableType = HintOption(defaultValue = false, "local", "variable", "type")
+  private[hints] val functionReturnType = HintOption("function", "return", "type")(defaultValue = true)
+  private[hints] val propertyType = HintOption("property", "type")(defaultValue = true)
+  private[hints] val localVariableType = HintOption("local", "variable", "type")()
 
   override val options: Seq[HintOption] = Seq(
     functionReturnType,

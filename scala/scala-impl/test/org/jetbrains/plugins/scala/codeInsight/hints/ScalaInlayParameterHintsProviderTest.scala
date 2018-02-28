@@ -7,9 +7,10 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  import ParameterHintType._
   import ScalaInlayParameterHintsProviderTest.{HintEnd => E, HintStart => S}
 
-  def testNoDefaultPackageHint(): Unit = doParameterTest(
+  def testNoDefaultPackageHint(): Unit = doTest(
     s"""  println(42)
        |
        |  Some(42)
@@ -26,7 +27,7 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  Seq(1, 2, 3).collect(pf)""".stripMargin
   )
 
-  def testParameterHint(): Unit = doParameterTest(
+  def testParameterHint(): Unit = doTest(
     s"""  def foo(foo: Int, otherFoo: Int = 42)
        |         (bar: Int)
        |         (baz: Int = 0): Unit = {}
@@ -36,7 +37,7 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  foo(${S}foo =${E}42, ${S}otherFoo =${E}42)(${S}bar =${E}42)(${S}baz =${E}42)""".stripMargin
   )
 
-  def testConstructorParameterHint(): Unit = doParameterTest(
+  def testConstructorParameterHint(): Unit = doTest(
     s"""  new Bar(${S}bar =${E}42)
        |  new Bar()
        |
@@ -47,13 +48,13 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  class Baz""".stripMargin
   )
 
-  def testNoInfixExpressionHint(): Unit = doParameterTest(
+  def testNoInfixExpressionHint(): Unit = doTest(
     s"""  def foo(foo: Int): Unit = {}
        |
        |  foo(${S}foo =${E}this foo 42)""".stripMargin
   )
 
-  def testNoTrivialHint(): Unit = doParameterTest(
+  def testNoTrivialHint(): Unit = doTest(
     s"""  def foo(bar: String): Unit = {}
        |  def foo(length: Int): Unit = {}
        |  def bar(hashCode: Int): Unit = {}
@@ -72,7 +73,7 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  baz(bazImpl())""".stripMargin
   )
 
-  def testVarargHint(): Unit = doParameterTest(
+  def testVarargHint(): Unit = doTest(
     s"""  def foo(foo: Int, bars: Int*): Unit = {}
        |
        |  foo(${S}foo =${E}42)
@@ -83,7 +84,7 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  foo(foo = 42, bars = 42, 42 + 0)""".stripMargin
   )
 
-  def testVarargConstructorHint(): Unit = doParameterTest(
+  def testVarargConstructorHint(): Unit = doTest(
     s"""  new Foo(${S}foo =${E}42)
        |  new Foo(${S}foo =${E}42, bars = 42, 42 + 0)
        |  new Foo(foo = 42)
@@ -94,21 +95,21 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  class Foo(foo: Int, bars: Int*)""".stripMargin
   )
 
-  def testNoSyntheticParameterHint(): Unit = doParameterTest(
+  def testNoSyntheticParameterHint(): Unit = doTest(
     s"""  def foo: Int => Int = identity
        |
        |  foo(42)
        |  foo.apply(42)""".stripMargin
   )
 
-  def testSingleCharacterParameterHint(): Unit = doParameterTest(
+  def testSingleCharacterParameterHint(): Unit = doTest(
     s"""  def foo(f: Int): Unit = {}
        |
        |  foo(42)
      """.stripMargin
   )
 
-  def testNoFunctionalParameterHint(): Unit = doParameterTest(
+  def testNoFunctionalParameterHint(): Unit = doTest(
     s"""  def foo(pf: PartialFunction[Int, Int]): Unit = {
        |    pf(42)
        |    pf.apply(42)
@@ -140,7 +141,7 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
           |}""".stripMargin,
       className = "Bar.java"
     )
-    doParameterTest(s"  Bar.bar(${S}bar =${E}42)")
+    doTest(s"  Bar.bar(${S}bar =${E}42)")
   }
 
   def testJavaConstructorParameterHint(): Unit = {
@@ -151,7 +152,7 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
           |}""".stripMargin,
       className = "Bar.java"
     )
-    doParameterTest(s"  new Bar(${S}bar =${E}42)")
+    doTest(s"  new Bar(${S}bar =${E}42)")
   }
 
   def testVarargJavaConstructorHint(): Unit = {
@@ -162,7 +163,7 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
           |}""".stripMargin,
       className = "Bar.java"
     )
-    doParameterTest(
+    doTest(
       s"""  new Bar(${S}foo =${E}42)
          |  new Bar(${S}foo =${E}42, bars = 42, 42 + 0)
          |  new Bar(foo = 42)
@@ -172,47 +173,89 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
     )
   }
 
+  def testNoApplyUpdateParameterHints(): Unit = doTest(
+    s"""  private val array: Array[Double] = Array.emptyDoubleArray
+       |
+       |  def apply(index: Int): Double = array(index)
+       |
+       |  this(0)
+       |  this.apply(0)
+       |
+       |  def update(index: Int, value: Double): Unit = {
+       |    array(index) = value
+       |  }
+       |
+       |  this(0) = 0d
+       |  this.update(0, 0d)
+       |
+       |  Seq(1, 2, 3)
+       |  Seq.apply(1, 2, 3)""".stripMargin
+  )
+
+  def testApplyUpdateParameterHints(): Unit = doTest(
+    s"""  private val array: Array[Double] = Array.emptyDoubleArray
+       |
+       |  def apply(index: Int): Double = array(index)
+       |
+       |  this(${S}index =${E}0)
+       |  this.apply(${S}index =${E}0)
+       |
+       |  def update(index: Int, value: Double): Unit = {
+       |    array(index) = value
+       |  }
+       |
+       |  this(${S}index =${E}0) = 0d
+       |  this.update(${S}index =${E}0, ${S}value =${E}0d)
+       |
+       |  Seq(1, 2, 3)
+       |  Seq.apply(1, 2, 3)""".stripMargin,
+    option = applyUpdateParameterNames
+  )
+
   import MemberHintType._
 
-  def testFunctionReturnTypeHint(): Unit = doMemberTypeTest(
-    s"""  def foo()$S: List[String]$E = List.empty[String]"""
-  )(option = functionReturnType)
+  def testFunctionReturnTypeHint(): Unit = doTest(
+    s"""  def foo()$S: List[String]$E = List.empty[String]""",
+    option = functionReturnType
+  )
 
-  def testNoFunctionReturnTypeHint(): Unit = doMemberTypeTest(
-    """  def foo(): List[String] = List.empty[String]"""
-  )(option = functionReturnType)
+  def testNoFunctionReturnTypeHint(): Unit = doTest(
+    """  def foo(): List[String] = List.empty[String]""",
+    option = functionReturnType
+  )
 
-  def testPropertyTypeHint(): Unit = doMemberTypeTest(
-    s"""  val list$S: List[String]$E = List.empty[String]"""
-  )(option = propertyType)
+  def testPropertyTypeHint(): Unit = doTest(
+    s"""  val list$S: List[String]$E = List.empty[String]""",
+    option = propertyType
+  )
 
-  def testNoPropertyTypeHint(): Unit = doMemberTypeTest(
-    """  val list: List[String] = List.empty[String]"""
-  )(option = propertyType)
+  def testNoPropertyTypeHint(): Unit = doTest(
+    """  val list: List[String] = List.empty[String]""",
+    option = propertyType
+  )
 
-  def testLocalVariableTypeHint(): Unit = doMemberTypeTest(
+  def testLocalVariableTypeHint(): Unit = doTest(
     s"""  def foo(): Unit = {
        |    val list$S: List[String]$E = List.empty[String]
-       |  }""".stripMargin
-  )(option = localVariableType)
+       |  }""".stripMargin,
+    option = localVariableType
+  )
 
-  def testNoLocalVariableTypeHint(): Unit = doMemberTypeTest(
+  def testNoLocalVariableTypeHint(): Unit = doTest(
     s"""  def foo(): Unit = {
        |    val list: List[String] = List.empty[String]
-       |  }""".stripMargin
-  )(option = localVariableType)
+       |  }""".stripMargin,
+    option = localVariableType
+  )
 
-  private def doMemberTypeTest(text: String)
-                              (option: Option): Unit = {
-    import option._
-    if (!getDefaultValue) set(true)
+  private def doTest(text: String, option: Option = parameterNames): Unit = {
+    def setOption(value: Boolean): Unit = {
+      import option._
+      if (!getDefaultValue) set(value)
+    }
 
-    doParameterTest(text)
+    setOption(true)
 
-    if (!getDefaultValue) set(false)
-  }
-
-  private def doParameterTest(text: String): Unit = {
     configureFromFileText(
       s"""class Foo {
          |$text
@@ -221,6 +264,8 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
          |new Foo""".stripMargin
     )
     getFixture.testInlays()
+
+    setOption(false)
   }
 }
 

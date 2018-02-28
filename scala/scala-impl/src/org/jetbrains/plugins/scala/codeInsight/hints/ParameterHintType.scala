@@ -5,24 +5,32 @@ package hints
 import com.intellij.codeInsight.hints.{Option => HintOption, _}
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters
 
 private case object ParameterHintType extends HintType {
 
+  import ScFunction.Ext.{Apply, GetSet, Update}
+
+  private[hints] val parameterNames = HintOption("parameter", "name")(defaultValue = true)
+  private[hints] val applyUpdateParameterNames = HintOption(Apply, Update)(name = s"Show parameter name hints for `$Apply`, `$Update` methods")
+
   override val options: Seq[HintOption] = Seq(
-    HintOption(defaultValue = true, "parameter", "name")
+    parameterNames,
+    applyUpdateParameterNames,
   )
 
   override def apply(element: PsiElement): Seq[InlayInfo] = this {
     (element match {
-      case _ if !options.head.get => Seq.empty
-      case call: ScMethodCall if !call.isApplyOrUpdateCall => call.matchedParameters.reverse
+      case _ if !parameterNames.get => Seq.empty
+      case ResolveMethodCall(method) if GetSet(method.name) && !applyUpdateParameterNames.get() => Seq.empty
+      case call: ScMethodCall => call.matchedParameters.reverse
       case call: ScConstructor => call.matchedParameters
       case _ => Seq.empty
     }).filter {
@@ -34,33 +42,44 @@ private case object ParameterHintType extends HintType {
 
     import HintInfo.MethodInfo
 
-    def unapply(element: PsiElement): Option[MethodInfo] = {
-      val maybeReference = element match {
-        case call: ScMethodCall => Some(call.getEffectiveInvokedExpr)
-        case call: ScConstructor => call.reference
-        case _ => None
-      }
-
-      maybeReference match {
-        case Some(methodInfo(methodFQN, parametersNames)) =>
-          import JavaConverters._
-          Some(new MethodInfo(methodFQN, parametersNames.asJava))
-        case _ => None
-      }
-    }
-
-    private def unapply(element: ScalaPsiElement) = element match {
-      case ResolvesTo(method: PsiMethod) =>
-        val classFqn = method.containingClass match {
-          case null => ""
-          case clazz => s"${clazz.qualifiedName}."
-        }
-
-        val names = method.parameters.map(_.name)
-
-        Some(classFqn + method.name, names)
+    def unapply(element: PsiElement): Option[MethodInfo] = element match {
+      case ResolveMethodCall(methodInfo(info)) => Some(info)
+      case ResolveConstructorCall(methodInfo(info)) => Some(info)
       case _ => None
     }
+
+    private def unapply(method: PsiMethod) = {
+      val classFqn = method.containingClass match {
+        case null => ""
+        case clazz => s"${clazz.qualifiedName}."
+      }
+
+      val names = method.parameters.map(_.name)
+
+      import JavaConverters._
+      Some(new MethodInfo(classFqn + method.name, names.asJava))
+    }
+  }
+
+  private object ResolveMethodCall {
+
+    def unapply(call: ScMethodCall): Option[PsiMethod] =
+      call.applyOrUpdateElement.collect {
+        case ScalaResolveResult(method: PsiMethod, _) => method
+      }.orElse {
+        call.deepestInvokedExpr match {
+          case ResolvesTo(method: PsiMethod) => Some(method)
+          case _ => None
+        }
+      }
+  }
+
+  private object ResolveConstructorCall {
+
+    def unapply(call: ScConstructor): Option[PsiMethod] =
+      call.reference.collect {
+        case ResolvesTo(method: PsiMethod) => method
+      }
   }
 
   private def apply(matchedParameters: Seq[(ScExpression, Parameter)]) =

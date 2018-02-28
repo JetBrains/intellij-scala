@@ -12,9 +12,11 @@ package object hints {
 
   private[hints] object HintOption {
 
-    def apply(defaultValue: Boolean, idSegments: String*): Option = {
+    def apply(idSegments: String*)
+             (defaultValue: Boolean = false,
+              name: String = s"Show ${idSegments.mkString(" ")} hints"): Option = {
       val id = "scala" +: idSegments :+ "hint"
-      new Option(id.mkString("."), s"Show ${idSegments.mkString(" ")} hints", defaultValue)
+      new Option(id.mkString("."), name, defaultValue)
     }
   }
 
