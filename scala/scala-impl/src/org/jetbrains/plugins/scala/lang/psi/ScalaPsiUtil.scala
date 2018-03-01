@@ -249,7 +249,7 @@ object ScalaPsiUtil {
       case fun: ScFunction => fun.typeParameters
       case fun: PsiMethod => fun.getTypeParameters.toSeq
     }
-    ScSubstitutor.bind(typeParameters)(UndefinedType(_, classSubst, level = 1))
+    ScSubstitutor.bind(typeParameters.map(TypeParameter(_)))(UndefinedType(_, level = 1))
   }
 
   def findImplicitConversion(baseExpr: ScExpression, refName: String, ref: ScExpression, processor: BaseProcessor,

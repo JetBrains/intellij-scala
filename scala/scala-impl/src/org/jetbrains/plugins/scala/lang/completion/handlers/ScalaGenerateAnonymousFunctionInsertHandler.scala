@@ -64,7 +64,7 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
     val builder: TemplateBuilderImpl = TemplateBuilderFactory.getInstance().
       createTemplateBuilder(commonParent).asInstanceOf[TemplateBuilderImpl]
 
-    val abstractNames = abstracts.map(at => at.parameterType.name + ScTypePresentation.ABSTRACT_TYPE_POSTFIX)
+    val abstractNames = abstracts.map(at => at.typeParameter.name + ScTypePresentation.ABSTRACT_TYPE_POSTFIX)
 
 
     def seekAbstracts(te: ScTypeElement) {
@@ -75,7 +75,7 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
               val refName = ref.refName
               if (abstractNames.contains(refName)) {
                 val postfixLength = ScTypePresentation.ABSTRACT_TYPE_POSTFIX.length
-                val node = abstracts.find(a => a.parameterType.name + ScTypePresentation.ABSTRACT_TYPE_POSTFIX == refName) match {
+                val node = abstracts.find(a => a.typeParameter.name + ScTypePresentation.ABSTRACT_TYPE_POSTFIX == refName) match {
                   case Some(abstr) =>
                     abstr.simplifyType match {
                       case t if t.isAny || t.isNothing =>

@@ -303,7 +303,7 @@ object ScPattern {
           val subst =
             if (funTypeParams.isEmpty) substitutor
             else {
-              val undefSubst = ScSubstitutor.bind(funTypeParams)(UndefinedType(_, substitutor))
+              val undefSubst = ScSubstitutor.bind(funTypeParams)(UndefinedType(_))
               val clazz = ScalaPsiUtil.getContextOfType(pattern, true, classOf[ScTemplateDefinition])
               val withThisType = clazz match {
                 case clazz: ScTemplateDefinition =>
@@ -346,7 +346,7 @@ object ScPattern {
           val subst =
             if (typeParameters.isEmpty) substitutor
             else {
-              val undefSubst = substitutor followed ScSubstitutor.bind(typeParameters)(UndefinedType(_, substitutor))
+              val undefSubst = substitutor followed ScSubstitutor.bind(typeParameters)(UndefinedType(_))
               val firstParameterRetTp = fun.parameters.head.`type`() match {
                 case Right(tp) => tp
                 case _ => return None

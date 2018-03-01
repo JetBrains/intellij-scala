@@ -80,8 +80,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             val refType: ScType = ScSimpleTypeElementImpl.
               calculateReferenceType(ref, shapesOnly = false).getOrElse(ScalaType.designator(td))
             val newSubst = {
-              val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(tp =>
-                UndefinedType(tp, r.substitutor)))
+              val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(UndefinedType(_)))
               val toAnySubst: ScSubstitutor = ScSubstitutor.bind(td.typeParameters)(Function.const(Any))
               this.expectedType match {
                 case Some(tp) =>
@@ -105,7 +104,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             val subst =
               if (typeParams.isEmpty) substitutor
               else {
-                val undefSubst: ScSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_, substitutor))
+                val undefSubst: ScSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
                 val toUpperSubst: ScSubstitutor = ScSubstitutor.bind(typeParams)(_.upperBound.getOrAny)
 
                 val emptyRes = substitutor.followed(toUpperSubst)

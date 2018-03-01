@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamId, TypeParamIdOwner}
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 
 import scala.collection.Seq
@@ -26,23 +25,23 @@ private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends Substit
   }
 
   private def updatedAbstract(a: ScAbstractType): ScType = {
-    val parameterType = a.parameterType
-    tvMap.get(parameterType.typeParamId) match {
+    val typeParameter = a.typeParameter
+    tvMap.get(typeParameter.typeParamId) match {
       case None => a
       case Some(v) => v match {
-        case tpt: TypeParameterType if tpt.psiTypeParameter == parameterType.psiTypeParameter => a
-        case _ => extractDesignator(parameterType, v)
+        case tpt: TypeParameterType if tpt.psiTypeParameter == typeParameter.psiTypeParameter => a
+        case _ => extractDesignator(typeParameter, v)
       }
     }
   }
 
   private def updatedUndefined(u: UndefinedType): ScType = {
-    val parameterType = u.parameterType
-    tvMap.get(parameterType.typeParamId) match {
+    val typeParameter = u.typeParameter
+    tvMap.get(typeParameter.typeParamId) match {
       case None => u
       case Some(v) => v match {
-        case tpt: TypeParameterType if tpt.psiTypeParameter == parameterType.psiTypeParameter => u
-        case _ => extractDesignator(parameterType, v)
+        case tpt: TypeParameterType if tpt.psiTypeParameter == typeParameter.psiTypeParameter => u
+        case _ => extractDesignator(typeParameter, v)
       }
     }
   }
@@ -50,11 +49,11 @@ private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends Substit
   private def updatedTypeParameter(tpt: TypeParameterType): ScType = {
     tvMap.get(tpt.typeParamId) match {
       case None => tpt
-      case Some(v) => extractDesignator(tpt, v)
+      case Some(v) => extractDesignator(tpt.typeParameter, v)
     }
   }
 
-  private def extractDesignator(tpt: TypeParameterType, t: ScType): ScType = {
+  private def extractDesignator(tpt: TypeParameter, t: ScType): ScType = {
     if (tpt.typeParameters.isEmpty) t
     else t match {
       case ParameterizedType(designator, _) => designator

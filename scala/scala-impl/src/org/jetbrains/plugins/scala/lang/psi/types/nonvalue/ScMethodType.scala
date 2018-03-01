@@ -195,7 +195,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     ScSubstitutor.bind(typeParameters){tp =>
       val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else tp.lowerType
       val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType)) Any else tp.upperType
-      ScAbstractType(TypeParameterType(tp.psiTypeParameter), lowerType, upperType)
+      ScAbstractType(tp, lowerType, upperType)
     }
   }
 
@@ -204,7 +204,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else tp.lowerType
       val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType)) Any else tp.upperType
 
-      if (lowerType.equiv(Nothing)) ScAbstractType(TypeParameterType(tp.psiTypeParameter), lowerType, upperType)
+      if (lowerType.equiv(Nothing)) ScAbstractType(tp, lowerType, upperType)
       else lowerType
     }
 
