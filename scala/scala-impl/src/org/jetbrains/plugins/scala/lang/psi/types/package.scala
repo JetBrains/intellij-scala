@@ -97,6 +97,12 @@ package object types {
 
     def toPsiType: PsiType = typeSystem.toPsiType(scType)
 
+    def withArgsFrom(tpt: TypeParameterType): ScType = scType match {
+      case p: ScParameterizedType                => scType
+      case _ if tpt.arguments.isEmpty            => scType
+      case _                                     => ScParameterizedType(scType, tpt.arguments)
+    }
+
     /**
       * Returns named element associated with type.
       * If withoutAliases is true expands alias definitions first
@@ -253,7 +259,7 @@ package object types {
           }
         case ScExistentialType(quantified, _) =>
           extractFrom(quantified, visitedAliases)
-        case TypeParameterType(_, _, _, psiTypeParameter) =>
+        case TypeParameterType.ofPsi(psiTypeParameter) =>
           filter(psiTypeParameter, ScSubstitutor.empty)
         case _ => None
       }

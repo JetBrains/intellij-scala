@@ -354,7 +354,7 @@ object ScalaPsiUtil {
           tp.visitRecursively {
             case t: TypeParameterType =>
               if (typeParameters.exists {
-                case TypeParameter(_, _, _, ptp) if ptp == t.psiTypeParameter && ptp.getOwner != ownerPtp.getOwner => true
+                case TypeParameter(ptp, _, _, _) if ptp == t.psiTypeParameter && ptp.getOwner != ownerPtp.getOwner => true
                 case _ => false
               }) res = None
             case _ =>
@@ -363,12 +363,12 @@ object ScalaPsiUtil {
         }
 
         def clearBadLinks(tps: Seq[TypeParameter]): Seq[TypeParameter] = tps.map {
-          case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
+          case TypeParameter(psiTypeParameter, parameters, lowerType, upperType) =>
             TypeParameter(
+              psiTypeParameter,
               clearBadLinks(parameters),
               hasBadLinks(lowerType, psiTypeParameter).getOrElse(Nothing),
-              hasBadLinks(upperType, psiTypeParameter).getOrElse(Any),
-              psiTypeParameter)
+              hasBadLinks(upperType, psiTypeParameter).getOrElse(Any))
         }
 
         ScTypePolymorphicType(internal, clearBadLinks(typeParameters))
@@ -487,7 +487,7 @@ object ScalaPsiUtil {
         case ScAbstractType(_, _, upper) =>
           collectParts(upper)
         case ScExistentialType(quant, _) => collectParts(quant)
-        case TypeParameterType(_, _, upper, _) => collectParts(upper)
+        case tpt: TypeParameterType => collectParts(tpt.upperType)
         case _ =>
           tp.extractClassType match {
             case Some((clazz, subst)) =>
@@ -1048,7 +1048,7 @@ object ScalaPsiUtil {
       }
 
       def substitute(typeParameter: PsiTypeParameter): PsiType = {
-        substitutor.subst(TypeParameterType(typeParameter, substitutor)).toPsiType
+        substitutor.subst(TypeParameterType(typeParameter)).toPsiType
       }
 
       def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY

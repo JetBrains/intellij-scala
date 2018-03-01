@@ -25,7 +25,7 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
 
   override def hashCode: Int = {
     if (hash == -1)
-      hash = Objects.hash(upper, lower, parameterType.arguments)
+      hash = Objects.hash(parameterType.arguments, upper, lower)
 
     hash
   }
@@ -33,7 +33,8 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
   override def equals(obj: scala.Any): Boolean = {
     obj match {
       case ScAbstractType(oTpt, oLower, oUpper) =>
-        lower.equals(oLower) && upper.equals(oUpper) && parameterType.arguments.equals(oTpt.arguments)
+        lower.equals(oLower) && upper.equals(oUpper) &&
+          parameterType.arguments.equals(oTpt.arguments)
       case _ => false
     }
   }
@@ -77,7 +78,8 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
       case (true, res, _) => res
       case (_, _, newData) =>
         try {
-          ScAbstractType(parameterType.recursiveVarianceUpdateModifiable(newData, update, v).asInstanceOf[TypeParameterType],
+          ScAbstractType(
+            parameterType.recursiveVarianceUpdateModifiable(newData, update, v).asInstanceOf[TypeParameterType],
             lower.recursiveVarianceUpdateModifiable(newData, update, -v),
             upper.recursiveVarianceUpdateModifiable(newData, update, v))
         }

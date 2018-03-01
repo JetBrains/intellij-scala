@@ -70,7 +70,7 @@ class ScDelegatingLightTypeParam(t: TypeParameter, val tParam: ScTypeParam)
   override def isHigherKindedTypeParameter: Boolean = tParam.isHigherKindedTypeParameter
 }
 
-class ScExistentialLightTypeParam(override val name: String)(implicit pc: ProjectContext)
+class DummyLightTypeParam(override val name: String)(implicit pc: ProjectContext)
   extends LightElement(pc, ScalaLanguage.INSTANCE) with ScLightTypeParam {
 
   override def getIndex: Int = 0

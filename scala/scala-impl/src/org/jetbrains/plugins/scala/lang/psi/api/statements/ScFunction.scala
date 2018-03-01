@@ -123,17 +123,17 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         val superReturnType = superMethodAndSubstitutor match {
           case Some((fun: ScFunction, subst)) =>
             val typeParamSubst =
-              ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_, subst))
+              ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
 
             fun.returnType.toOption.map(typeParamSubst.followed(subst).subst)
           case Some((fun: ScSyntheticFunction, subst)) =>
             val typeParamSubst =
-              ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_, subst))
+              ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
 
             Some(typeParamSubst.subst(fun.retType))
           case Some((fun: PsiMethod, subst)) =>
             val typeParamSubst =
-              ScSubstitutor.bind(fun.getTypeParameters, typeParameters)(TypeParameterType(_, subst))
+              ScSubstitutor.bind(fun.getTypeParameters, typeParameters)(TypeParameterType(_))
 
             Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType()))
           case _ => None

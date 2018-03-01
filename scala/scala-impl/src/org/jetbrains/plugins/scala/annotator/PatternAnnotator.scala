@@ -162,7 +162,7 @@ object PatternAnnotator {
     case _ =>
       scType.updateRecursively {
         case ScAbstractType(_, _, upper) => upper
-        case TypeParameterType(_, _, upper, _) => upper
+        case tpt: TypeParameterType => tpt.upperType
       }
   }
 

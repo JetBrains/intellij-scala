@@ -71,8 +71,8 @@ private case class ThisTypeSubstitution(target: ScType) extends Substitution {
             isMoreNarrow(t.upperType, thisTp)
           case p: ParameterizedType =>
             p.designator match {
-              case TypeParameterType(_, _, upperType, _) =>
-                isMoreNarrow(p.substitutor.subst(upperType), thisTp)
+              case tpt: TypeParameterType =>
+                isMoreNarrow(p.substitutor.subst(tpt.upperType), thisTp)
               case _ =>
                 isSameOrInheritor(typeParam, thisTp)
             }

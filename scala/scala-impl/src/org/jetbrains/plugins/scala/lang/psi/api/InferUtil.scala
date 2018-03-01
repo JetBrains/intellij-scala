@@ -394,7 +394,7 @@ object InferUtil {
           if (!filterTypeParams) {
             val undefiningSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
             ScTypePolymorphicType(retType, typeParams.map {
-              case tp@TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
+              case tp@TypeParameter(psiTypeParameter, typeParameters, lowerType, upperType) =>
                 val typeParamId = tp.typeParamId
                 val lower = lMap.get(typeParamId) match {
                   case Some(_addLower) =>
@@ -419,10 +419,10 @@ object InferUtil {
 
                 if (canThrowSCE && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
                   throw new SafeCheckException
-                TypeParameter(typeParameters, /* doesn't important here */
+                TypeParameter(psiTypeParameter,
+                  typeParameters, /* doesn't important here */
                   lower,
-                  upper,
-                  psiTypeParameter)
+                  upper)
             })
           } else {
             typeParams.foreach { tp =>
@@ -487,11 +487,7 @@ object InferUtil {
                   }
                   !removeMe
               }.map {
-                case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
-                  TypeParameter(typeParameters, /* doesn't important here */
-                    sub.subst(lowerType),
-                    sub.subst(upperType),
-                    psiTypeParameter)
+                _.update(sub.subst)
               })
             }
 

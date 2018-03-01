@@ -55,7 +55,7 @@ private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends Substit
   }
 
   private def extractDesignator(tpt: TypeParameterType, t: ScType): ScType = {
-    if (tpt.arguments.isEmpty) t
+    if (tpt.typeParameters.isEmpty) t
     else t match {
       case ParameterizedType(designator, _) => designator
       case _ => t
