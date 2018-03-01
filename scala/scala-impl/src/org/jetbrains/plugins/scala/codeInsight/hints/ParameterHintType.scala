@@ -4,11 +4,13 @@ package hints
 
 import com.intellij.codeInsight.hints.{Option => HintOption, _}
 import com.intellij.psi.{PsiElement, PsiMethod}
+import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -19,17 +21,19 @@ private case object ParameterHintType extends HintType {
   import ScFunction.Ext.{Apply, GetSet, Update}
 
   private[hints] val parameterNames = HintOption("parameter", "name")(defaultValue = true)
-  private[hints] val applyUpdateParameterNames = HintOption(Apply, Update)(name = s"Show parameter name hints for `$Apply`, `$Update` methods")
+  private[hints] val applyUpdateParameterNames = HintOption(Apply, Update)(name = s"${parameterNames.getName} for `$Apply`, `$Update` methods")
+  private[hints] val referenceParameterNames = HintOption("references", "names")(name = s"${parameterNames.getName} for non-literal expressions")
 
   override val options: Seq[HintOption] = Seq(
     parameterNames,
     applyUpdateParameterNames,
+    referenceParameterNames
   )
 
   override def apply(element: PsiElement): Seq[InlayInfo] = this {
     (element match {
-      case _ if !parameterNames.get => Seq.empty
-      case ResolveMethodCall(method) if GetSet(method.name) && !applyUpdateParameterNames.get() => Seq.empty
+      case _ if !parameterNames.isEnabled => Seq.empty
+      case ResolveMethodCall(method) if GetSet(method.name) && !applyUpdateParameterNames.isEnabled => Seq.empty
       case call: ScMethodCall => call.matchedParameters.reverse
       case call: ScConstructor => call.matchedParameters
       case _ => Seq.empty
@@ -89,20 +93,16 @@ private case object ParameterHintType extends HintType {
       }
 
       (regular ++ varargs.headOption).filter {
-        case (argument, parameter) => isUnclear(argument) &&
-          isNameable(argument) && isNameable(parameter)
+        case (argument, parameter) => isNameable(argument) && isNameable(parameter)
+      }.filter {
+        case (_: ScUnderscoreSection, _) => false
+        case (argument, _) if !referenceParameterNames.isEnabled => isUnclear(argument)
+        case (extractReferenceName(name), parameter) => name.mismatchesCamelCase(parameter.name)
+        case _ => true
       }.map {
         case (argument, parameter) => InlayInfo(parameter, argument)
       }
     } else Seq.empty
-
-  @tailrec
-  private def isUnclear(expression: ScExpression): Boolean = expression match {
-    case _: ScLiteral | _: ScThisReference => true
-    case ScParenthesisedExpr(inner) => isUnclear(inner)
-    case ScSugarCallExpr(base, _, _) => isUnclear(base)
-    case _ => false
-  }
 
   private def isNameable(argument: ScExpression) =
     argument.getParent match {
@@ -112,4 +112,40 @@ private case object ParameterHintType extends HintType {
 
   private def isNameable(parameter: Parameter) =
     parameter.name.length > 1
+
+  @tailrec
+  private def isUnclear(expression: ScExpression): Boolean = expression match {
+    case _: ScLiteral | _: ScThisReference => true
+    case ScParenthesisedExpr(inner) => isUnclear(inner)
+    case ScSugarCallExpr(base, _, _) => isUnclear(base)
+    case _ => false
+  }
+
+  private object extractReferenceName {
+
+    def unapply(expression: ScExpression): Option[String] = expression match {
+      case MethodRepr(_, maybeExpression, maybeReference, Seq()) =>
+        maybeReference.orElse(maybeExpression).collect {
+          case reference: ScReferenceExpression => reference.refName
+        }
+      case _ => None
+    }
+  }
+
+  private implicit class CamelCaseExt(private val string: String) extends AnyVal {
+
+    def mismatchesCamelCase(that: String): Boolean =
+      camelCaseIterator.zip(that.camelCaseIterator).exists {
+        case (leftSegment, rightSegment) => leftSegment != rightSegment
+      }
+
+    def camelCaseIterator: Iterator[String] = ScalaNamesUtil
+      .isBacktickedName
+      .unapply(string)
+      .getOrElse(string)
+      .split("(?<!^)(?=[A-Z])")
+      .reverseIterator
+      .map(_.toLowerCase)
+  }
+
 }

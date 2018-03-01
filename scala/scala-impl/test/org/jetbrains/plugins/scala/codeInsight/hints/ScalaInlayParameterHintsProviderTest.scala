@@ -212,6 +212,28 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
     option = applyUpdateParameterNames
   )
 
+  def testNonLiteralArgumentParameterHint(): Unit = doTest(
+    s"""  def foo(length: Int): Unit = {}
+       |  foo("".length())
+       |
+       |  def bar(hashCode: Int): Unit = {}
+       |  bar("".hashCode())""".stripMargin,
+    option = referenceParameterNames
+  )
+
+  def testNoParameterHintsByCamelCase(): Unit = doTest(
+    s"""  type Type = String
+       |
+       |  val `type`: Type = "type"
+       |  def  getType: Type = "type"
+       |  def withType(`type`: Type): Unit = {}
+       |
+       |  withType(`type`)
+       |  withType(getType)
+       |  withType($S`type` =$E"type")""".stripMargin,
+    option = referenceParameterNames
+  )
+
   import MemberHintType._
 
   def testFunctionReturnTypeHint(): Unit = doTest(
@@ -259,18 +281,20 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
       if (!getDefaultValue) set(value)
     }
 
-    setOption(true)
+    try {
+      setOption(true)
 
-    configureFromFileText(
-      s"""class Foo {
-         |$text
-         |}
-         |
-         |new Foo""".stripMargin
-    )
-    getFixture.testInlays()
-
-    setOption(false)
+      configureFromFileText(
+        s"""class Foo {
+           |$text
+           |}
+           |
+           |new Foo""".stripMargin
+      )
+      getFixture.testInlays()
+    } finally {
+      setOption(false)
+    }
   }
 }
 
