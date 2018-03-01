@@ -62,7 +62,7 @@ object Implementation {
   private def rightHandSideOf(element: PsiElement) = element match {
     case value: ScPatternDefinition if value.isSimple => value.expr
     case variable: ScVariableDefinition if variable.isSimple => variable.expr
-    case method: ScFunctionDefinition if method.hasAssign && !method.isSecondaryConstructor => method.body
+    case method: ScFunctionDefinition if method.hasAssign && !method.isConstructor => method.body
     case _ => None //support isSimple for JavaPsi
   }
 

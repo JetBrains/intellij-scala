@@ -224,6 +224,11 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
     option = functionReturnType
   )
 
+  def testNoConstructorReturnTypeHint(): Unit = doTest(
+    """  def this(foo: Int) = this()""",
+    option = functionReturnType
+  )
+
   def testPropertyTypeHint(): Unit = doTest(
     s"""  val list$S: List[String]$E = List.empty[String]""",
     option = propertyType

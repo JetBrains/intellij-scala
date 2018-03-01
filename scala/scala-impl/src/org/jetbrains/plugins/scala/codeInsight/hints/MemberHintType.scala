@@ -20,7 +20,7 @@ private case object MemberHintType extends HintType {
   )
 
   override def apply(element: PsiElement): Iterable[InlayInfo] = element match {
-    case TypelessMember(member, anchor, option) if option.get =>
+    case TypelessMember(member, anchor, option) if option.isEnabled =>
       val maybeType = member match {
         case function: ScFunction => function.returnType.toOption
         case definition: ScValueOrVariable => definition.`type`().toOption
@@ -45,7 +45,7 @@ private case object MemberHintType extends HintType {
 
     def unapply(member: ScMember): Option[(ScMember, PsiElement, HintOption)] = {
       val maybePair = member match {
-        case function: ScFunctionDefinition => Some(function, function.parameterList)
+        case function: ScFunctionDefinition if !function.isConstructor => Some(function, function.parameterList)
         case value: ScPatternDefinition => Some(value, value.pList)
         case variable: ScVariableDefinition => Some(variable, variable.pList)
         case _ => None
