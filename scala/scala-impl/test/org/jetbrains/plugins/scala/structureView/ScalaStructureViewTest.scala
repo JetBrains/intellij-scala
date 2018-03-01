@@ -24,62 +24,6 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
     check("")
   }
 
-  def testClass(): Unit = {
-    check("""
-          class C
-          """,
-      Node(CLASS, "C"))
-  }
-
-  def testTrait(): Unit = {
-    check("""
-          trait T
-          """,
-      Node(TRAIT, "T"))
-  }
-
-  def testObject(): Unit = {
-    check("""
-          object O
-          """,
-      Node(OBJECT, "O"))
-  }
-
-  def testMethod(): Unit = {
-    check("""
-          def m: Int = 1
-          """,
-      Node(FUNCTION, "m: Int"))
-  }
-
-  def testTypeParametersInMethod(): Unit = {
-    check("""
-          def m[A, B]: Int = 1
-          """,
-      Node(FUNCTION, "m[A, B]: Int"))
-  }
-
-  def testParameterListInMethod(): Unit = {
-    check("""
-          def m(): Int = 1
-          """,
-      Node(FUNCTION, "m(): Int"))
-  }
-
-  def testMultipleParametersInMethod(): Unit = {
-    check("""
-          def m(p1: Float, p2: Double): Int = 1
-          """,
-      Node(FUNCTION, "m(Float, Double): Int"))
-  }
-
-  def testMultipleParameterListsInMethod(): Unit = {
-    check("""
-          def m(p1: Float)(p2: Double): Int = 1
-          """,
-      Node(FUNCTION, "m(Float)(Double): Int"))
-  }
-
   def testVariable(): Unit = {
     check("""
           var v: Int = 1
@@ -117,12 +61,89 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(TYPE_ALIAS, "T"))
   }
 
-//  def testTypeParametersInPrimaryConstructor(): Unit = {
+  def testMethod(): Unit = {
+    check("""
+          def m: Int = 1
+          """,
+      Node(FUNCTION, "m: Int"))
+  }
+
+  def testTypeParametersInMethod(): Unit = {
+    check("""
+          def m[A, B]: Int = 1
+          """,
+      Node(FUNCTION, "m[A, B]: Int"))
+  }
+
+//  def testMethodTypeParameterPresentation(): Unit = {
 //    check("""
-//          class C[A, B]
+//          def m[T <: Any]: Int = 1
 //          """,
-//      Node(CLASS, "C[A, B]"))
+//      Node(FUNCTION, "m[T]: Int"))
 //  }
+
+  def testParameterListInMethod(): Unit = {
+    check("""
+          def m(): Int = 1
+          """,
+      Node(FUNCTION, "m(): Int"))
+  }
+
+  def testMultipleParametersInMethod(): Unit = {
+    check("""
+          def m(p1: Float, p2: Double): Int = 1
+          """,
+      Node(FUNCTION, "m(Float, Double): Int"))
+  }
+
+  def testMultipleParameterListsInMethod(): Unit = {
+    check("""
+          def m(p1: Float)(p2: Double): Int = 1
+          """,
+      Node(FUNCTION, "m(Float)(Double): Int"))
+  }
+
+  def testObject(): Unit = {
+    check("""
+          object O
+          """,
+      Node(OBJECT, "O"))
+  }
+
+  def testClass(): Unit = {
+    check("""
+          class C
+          """,
+      Node(CLASS, "C"))
+  }
+
+  def testClassTypeParameters(): Unit = {
+    check("""
+          class C[A, B]
+          """,
+      Node(CLASS, "C[A, B]"))
+  }
+
+  def testTrait(): Unit = {
+    check("""
+          trait T
+          """,
+      Node(TRAIT, "T"))
+  }
+
+  def testTraitTypeParameters(): Unit = {
+    check("""
+          trait T[A, B]
+          """,
+      Node(TRAIT, "T[A, B]"))
+  }
+
+  def testTypeDefinitionTypeParameterPresentation(): Unit = {
+    check("""
+          class C[T <: Any]
+          """,
+      Node(CLASS, "C[T]"))
+  }
 
   def testParameterListInPrimaryConstructor(): Unit = {
     check("""
