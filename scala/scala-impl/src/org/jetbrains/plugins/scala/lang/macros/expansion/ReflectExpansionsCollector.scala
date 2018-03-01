@@ -2,9 +2,12 @@ package org.jetbrains.plugins.scala.lang.macros.expansion
 
 import java.io._
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugin.scala.util.{MacroExpansion, Place}
 import org.jetbrains.plugins.scala.extensions
@@ -12,12 +15,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 
 import scala.collection.mutable
 import org.jetbrains.plugins.scala
+import org.jetbrains.plugins.scala.extensions.invokeLater
 
 /**
   * @author Mikhail Mutcianko
   * @since 20.09.16
   */
 class ReflectExpansionsCollector(project: Project) extends AbstractProjectComponent(project) {
+  import ReflectExpansionsCollector._
+
   override def getComponentName = "ReflectExpansionsCollector"
 
   private val collectedExpansions: mutable.HashMap[Place, MacroExpansion] = mutable.HashMap.empty
@@ -50,6 +56,8 @@ class ReflectExpansionsCollector(project: Project) extends AbstractProjectCompon
   def compilationFinished(): Unit = {
     parser.expansions.foreach { exp => collectedExpansions += exp.place -> exp }
     serializeExpansions()
+    if (collectedExpansions.nonEmpty)
+      invokeLater(restartAnalyzer(project))
   }
 
   private def deserializeExpansions(): Unit = {
@@ -73,5 +81,16 @@ class ReflectExpansionsCollector(project: Project) extends AbstractProjectCompon
 }
 
 object ReflectExpansionsCollector {
+
+  def restartAnalyzer(project: Project): Unit = {
+    if (project == null || project.isDisposed) return
+
+    FileEditorManager.getInstance(project).getSelectedEditors.filter(_.isValid).foreach { editor =>
+      val analyzer = DaemonCodeAnalyzer.getInstance(project)
+      val psiManager = PsiManager.getInstance(project)
+      Option(psiManager.findFile(editor.getFile)).map(analyzer.restart(_))
+    }
+  }
+
   def getInstance(project: Project): ReflectExpansionsCollector = project.getComponent(classOf[ReflectExpansionsCollector])
 }
