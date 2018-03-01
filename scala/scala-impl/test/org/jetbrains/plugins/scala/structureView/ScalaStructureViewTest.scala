@@ -5,6 +5,7 @@ import javax.swing.Icon
 import com.intellij.ide.structureView.StructureViewTreeElement
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFileFactory
+import com.intellij.util.PlatformIcons._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
@@ -65,42 +66,42 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
     check("""
           def m: Int = 1
           """,
-      Node(FUNCTION, "m: Int"))
+      Node(METHOD_ICON, "m: Int"))
   }
 
   def testTypeParametersInMethod(): Unit = {
     check("""
           def m[A, B]: Int = 1
           """,
-      Node(FUNCTION, "m[A, B]: Int"))
+      Node(METHOD_ICON, "m[A, B]: Int"))
   }
 
 //  def testMethodTypeParameterPresentation(): Unit = {
 //    check("""
 //          def m[T <: Any]: Int = 1
 //          """,
-//      Node(FUNCTION, "m[T]: Int"))
+//      Node(METHOD_ICON, "m[T]: Int"))
 //  }
 
   def testParameterListInMethod(): Unit = {
     check("""
           def m(): Int = 1
           """,
-      Node(FUNCTION, "m(): Int"))
+      Node(METHOD_ICON, "m(): Int"))
   }
 
   def testMultipleParametersInMethod(): Unit = {
     check("""
           def m(p1: Float, p2: Double): Int = 1
           """,
-      Node(FUNCTION, "m(Float, Double): Int"))
+      Node(METHOD_ICON, "m(Float, Double): Int"))
   }
 
   def testMultipleParameterListsInMethod(): Unit = {
     check("""
           def m(p1: Float)(p2: Double): Int = 1
           """,
-      Node(FUNCTION, "m(Float)(Double): Int"))
+      Node(METHOD_ICON, "m(Float)(Double): Int"))
   }
 
   def testObject(): Unit = {
@@ -200,7 +201,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(CLASS, "C",
-        Node(FUNCTION, "this()")))
+        Node(METHOD_ICON, "this()")))
   }
 
   def testParameterInAuxiliaryConstructor(): Unit = {
@@ -210,7 +211,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(CLASS, "C",
-        Node(FUNCTION, "this(Int)")))
+        Node(METHOD_ICON, "this(Int)")))
   }
 
   def testMultipleParametersInAuxiliaryConstructor(): Unit = {
@@ -220,7 +221,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(CLASS, "C",
-        Node(FUNCTION, "this(Float, Double)")))
+        Node(METHOD_ICON, "this(Float, Double)")))
   }
 
   def testMultipleParameterListsInAuxiliaryConstructor(): Unit = {
@@ -230,7 +231,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(CLASS, "C",
-        Node(FUNCTION, "this(Float)(Double)")))
+        Node(METHOD_ICON, "this(Float)(Double)")))
   }
 
   def testInsideClass(): Unit = {
@@ -269,7 +270,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
 //            class Inner
 //          }
 //          """,
-//      Node(FUNCTION, "m",
+//      Node(METHOD_ICON, "m",
 //        Node(CLASS, "Inner")))
 //  }
 
@@ -280,9 +281,9 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
 //          class B
 //          """,
 //      Node(CLASS, "A",
-//        Node(FUNCTION, "this")),
+//        Node(METHOD_ICON, "this")),
 //      Node(CLASS, "B",
-//        Node(FUNCTION, "this")))
+//        Node(METHOD_ICON, "this")))
 //  }
 //
 //  def testClassAndObject(): Unit = {
@@ -291,7 +292,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
 //          object C
 //          """,
 //      Node(CLASS, "C",
-//        Node(FUNCTION, "this")),
+//        Node(METHOD_ICON, "this")),
 //      Node(OBJECT, "C"))
 //  }
 

@@ -6,6 +6,7 @@ package statements
 
 
 import java.util
+import javax.swing.Icon
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
@@ -15,9 +16,9 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
+import com.intellij.util.PlatformIcons
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionFactory
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
@@ -316,7 +317,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def parameters: Seq[ScParameter] = paramClauses.params
 
-  override def getIcon(flags: Int) = Icons.FUNCTION
+  // We may consider using the "f" icon for (quasi-) top-level functinos (but the additional dichotomy is probably unnecessary)
+  override def getIcon(flags: Int): Icon = PlatformIcons.METHOD_ICON
 
   def getReturnType: PsiType = {
     if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
