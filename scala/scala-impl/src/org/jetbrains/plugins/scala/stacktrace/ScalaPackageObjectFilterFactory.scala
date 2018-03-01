@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.stacktrace
 
 import java.util.regex.Pattern
 
-import scala.collection.JavaConverters._
-
 import com.intellij.execution.filters._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
+
+import scala.collection.JavaConverters._
 
 /**
   * Nikolay.Tropin
@@ -41,16 +41,18 @@ class ScalaPackageObjectFilter(scope: GlobalSearchScope) extends ExceptionFilter
   import ScalaPackageObjectFilter.parseStackTraceLine
 
   override def applyFilter(line: String, textEndOffset: Int): Filter.Result = {
-    line match {
-      case packageObjectFile(vFile, lineNumber) =>
-        val link = new OpenFileHyperlinkInfo(scope.getProject, vFile, lineNumber)
-        val defaultResult = new ExceptionFilter(scope).applyFilter(line, textEndOffset)
+    inReadAction {
+      line match {
+        case packageObjectFile(vFile, lineNumber) =>
+          val link = new OpenFileHyperlinkInfo(scope.getProject, vFile, lineNumber)
+          val defaultResult = new ExceptionFilter(scope).applyFilter(line, textEndOffset)
 
-        val updated =
-          defaultResult.getResultItems.asScala
-            .map(updateLink(_, link)).asJava
-        new Filter.Result(updated)
-      case _ => null
+          val updated =
+            defaultResult.getResultItems.asScala
+              .map(updateLink(_, link)).asJava
+          new Filter.Result(updated)
+        case _ => null
+      }
     }
   }
 

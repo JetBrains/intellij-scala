@@ -32,20 +32,15 @@ abstract class IdeClient(compilerName: String,
 
     val sourcePath = source.map(file => file.getPath)
 
-    context.getProjectDescriptor.getProject.getName
-    if (kind == Kind.WARNING && ScalaReflectMacroExpansionParser.isMacroMessage(text)) {
-      ScalaReflectMacroExpansionParser.processMessage(text)
-    } else {
-      val withoutPointer =
-        if (sourcePath.isDefined && line.isDefined && column.isDefined) {
-          val lines = text.split('\n')
-          lines.filterNot(_.trim == "^").mkString("\n")
-        }
-        else text
-      if (LogFilter.shouldLog(kind, text, source, line, column))
-        context.processMessage(new CompilerMessage(name, kind, withoutPointer, sourcePath.orNull,
+    val withoutPointer =
+      if (sourcePath.isDefined && line.isDefined && column.isDefined) {
+        val lines = text.split('\n')
+        lines.filterNot(_.trim == "^").mkString("\n")
+      }
+      else text
+    if (LogFilter.shouldLog(kind, text, source, line, column))
+      context.processMessage(new CompilerMessage(name, kind, withoutPointer, sourcePath.orNull,
         -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
-    }
   }
 
   def trace(exception: Throwable) {

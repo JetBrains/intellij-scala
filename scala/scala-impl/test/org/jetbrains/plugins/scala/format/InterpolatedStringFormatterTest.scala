@@ -20,7 +20,9 @@ class InterpolatedStringFormatterTest extends SimpleTestCase {
   }
 
   def testEscapeChar() {
-    assertEquals("\\n", format(Text("\n")))
+    val text = Text("\n")
+    assertEquals("\\n", format(text))
+    assertEquals(quoted("\n", multiline = true), formatFull(text))
   }
 
   def testSlash() {
@@ -29,64 +31,87 @@ class InterpolatedStringFormatterTest extends SimpleTestCase {
 
   def testDollar() {
     assertEquals("$$", format(Text("$")))
+    assertEquals(quoted("$"), formatFull(Text("$")))
+
+    val parts = Seq(Text("$ "), Injection(exp("amount"), None))
+    assertEquals("$$ $amount", format(parts: _*))
+    assertEquals(quoted("$$ $amount", prefix = "s"), formatFull(parts: _*))
   }
 
   def testPlainExpression() {
-    assertEquals("$foo", format(Injection(exp("foo"), None)))
+    val injection = Injection(exp("foo"), None)
+    assertEquals("$foo", format(injection))
+    assertEquals(quoted("$foo", prefix = "s"), formatFull(injection))
   }
 
   def testExpressionWithDispensableFormat() {
-    assertEquals("$foo", format(Injection(exp("foo"), Some(Specifier(null, "%d")))))
+    val injection = Injection(exp("foo"), Some(Specifier(null, "%d")))
+    assertEquals(quoted("$foo", prefix = "s"), formatFull(injection))
   }
 
   def testExpressionWithMadatoryFormat() {
-    assertEquals("$foo%2d", format(Injection(exp("foo"), Some(Specifier(null, "%2d")))))
+    val injection = Injection(exp("foo"), Some(Specifier(null, "%2d")))
+    assertEquals(quoted("$foo%2d", prefix = "f"), formatFull(injection))
   }
 
   def testPlainLiteral() {
-    assertEquals("123", format(Injection(exp("123"), None)))
+    assertEquals(quoted("123"), formatFull(Injection(exp("123"), None)))
   }
 
   def testLiteralWithDispensableFormat() {
-    assertEquals("123", format(Injection(exp("123"), Some(Specifier(null, "%d")))))
+    val injection = Injection(exp("123"), Some(Specifier(null, "%d")))
+    assertEquals(quoted("123"), formatFull(injection))
   }
 
   def testLiteralWithMadatoryFormat() {
-    assertEquals("${123}%2d", format(Injection(exp("123"), Some(Specifier(null, "%2d")))))
+    val injection = Injection(exp("123"), Some(Specifier(null, "%2d")))
+    assertEquals(quoted("${123}%2d", prefix = "f"), formatFull(injection))
   }
 
   def testPlainComplexExpression() {
-    assertEquals("${foo.bar}", format(Injection(exp("foo.bar"), None)))
+    val injection = Injection(exp("foo.bar"), None)
+    assertEquals(quoted("${foo.bar}", prefix = "s"), formatFull(injection))
   }
 
   def testComplexExpressionWithDispensableFormat() {
-    assertEquals("${foo.bar}", format(Injection(exp("foo.bar"), Some(Specifier(null, "%d")))))
+    val injection = Injection(exp("foo.bar"), Some(Specifier(null, "%d")))
+    assertEquals(quoted("${foo.bar}", prefix = "s"), formatFull(injection))
   }
 
   def testComplexExpressionWithMadatoryFormat() {
-    assertEquals("${foo.bar}%2d", format(Injection(exp("foo.bar"), Some(Specifier(null, "%2d")))))
+    val injection = Injection(exp("foo.bar"), Some(Specifier(null, "%2d")))
+    assertEquals(quoted("${foo.bar}%2d", prefix = "f"), formatFull(injection))
   }
 
   def testPlainBlockExpression() {
-    assertEquals("${foo.bar}", format(Injection(exp("{foo.bar}"), None)))
+    val injection = Injection(exp("{foo.bar}"), None)
+    assertEquals(quoted("${foo.bar}", prefix = "s"), formatFull(injection))
   }
 
   def testBlockExpressionWithDispensableFormat() {
-    assertEquals("${foo.bar}", format(Injection(exp("{foo.bar}"), Some(Specifier(null, "%d")))))
+    val injection = Injection(exp("{foo.bar}"), Some(Specifier(null, "%d")))
+    assertEquals(quoted("${foo.bar}", prefix = "s"), formatFull(injection))
   }
 
   def testBlockExpressionWithMadatoryFormat() {
-    assertEquals("${foo.bar}%2d", format(Injection(exp("{foo.bar}"), Some(Specifier(null, "%2d")))))
+    val injection = Injection(exp("{foo.bar}"), Some(Specifier(null, "%2d")))
+    assertEquals(quoted("${foo.bar}%2d", prefix = "f"), formatFull(injection))
   }
 
   def testMixedParts() {
-    assertEquals("foo $exp bar", format(Text("foo "), Injection(exp("exp"), None), Text(" bar")))
+    val parts = Seq(Text("foo "), Injection(exp("exp"), None), Text(" bar"))
+    assertEquals(quoted("foo $exp bar", prefix = "s"), formatFull(parts: _*))
   }
 
   def testLiterals() {
-    assertEquals("foo", format(Injection(exp('"' + "foo" + '"'), None)))
-    assertEquals("123", format(Injection(exp("123L"), None)))
-    assertEquals("true", format(Injection(exp("true"), None)))
+    val stringLiteral = exp(quoted("foo"))
+    assertEquals(quoted("foo"), formatFull(Injection(stringLiteral, None)))
+
+    val longLiteralInjection = Injection(exp("123L"), None)
+    assertEquals(quoted("123"), formatFull(longLiteralInjection))
+
+    val booleanLiteralInjection = Injection(exp("true"), None)
+    assertEquals(quoted("true"), formatFull(booleanLiteralInjection))
   }
 
   def testOther() {
@@ -95,6 +120,16 @@ class InterpolatedStringFormatterTest extends SimpleTestCase {
 
   private def format(parts: StringPart*): String = {
     InterpolatedStringFormatter.formatContent(parts)
+  }
+
+  //with prefix and quotes
+  private def formatFull(parts: StringPart*): String = {
+    InterpolatedStringFormatter.format(parts)
+  }
+
+  private def quoted(s: String, multiline: Boolean = false, prefix: String = "") = {
+    val quote = if (multiline) "\"\"\"" else "\""
+    s"$prefix$quote$s$quote"
   }
 
   private def exp(s: String): ScExpression = {

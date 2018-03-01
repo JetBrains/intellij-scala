@@ -16,19 +16,19 @@ sealed trait FunctionTypeFactory[D <: ScTypeDefinition, T] {
 
   import FunctionTypeFactory._
 
-  protected val typeName: String
+  val TypeName: String
 
   def apply(t: T)(implicit scope: ElementScope): ValueType
 
   def unapply(`type`: ScType): Option[T] =
-    extractForPrefix(`type`, typeName) match {
+    extractForPrefix(`type`, TypeName) match {
       case seq if seq.nonEmpty && unapplyCollector.isDefinedAt(seq) => Some(unapplyCollector(seq))
       case _ => None
     }
 
   protected final def apply(parameters: Seq[ScType], suffix: String)
                            (implicit scope: ElementScope, tag: ClassTag[D]): ValueType =
-    scope.getCachedClass(typeName + suffix).collect {
+    scope.getCachedClass(TypeName + suffix).collect {
       case definition: D => ScParameterizedType(ScalaType.designator(definition), parameters)
     }.getOrElse(api.Nothing)
 
@@ -61,7 +61,9 @@ object FunctionTypeFactory {
 
 object FunctionType extends FunctionTypeFactory[ScTrait, (ScType, Seq[ScType])] {
 
-  override protected val typeName = "scala.Function"
+  override val TypeName = "scala.Function"
+
+  def traitsNames: Seq[String] = (0 to 22).map(TypeName + _)
 
   override def apply(pair: (ScType, Seq[ScType]))
                     (implicit scope: ElementScope): ValueType = {
@@ -78,7 +80,7 @@ object FunctionType extends FunctionTypeFactory[ScTrait, (ScType, Seq[ScType])] 
 
 object PartialFunctionType extends FunctionTypeFactory[ScTrait, (ScType, ScType)] {
 
-  override protected val typeName = "scala.PartialFunction"
+  override val TypeName = "scala.PartialFunction"
 
   override def apply(pair: (ScType, ScType))
                     (implicit scope: ElementScope): ValueType = {
@@ -93,7 +95,7 @@ object PartialFunctionType extends FunctionTypeFactory[ScTrait, (ScType, ScType)
 
 object TupleType extends FunctionTypeFactory[ScClass, Seq[ScType]] {
 
-  override protected val typeName = "scala.Tuple"
+  override val TypeName = "scala.Tuple"
 
   override def apply(types: Seq[ScType])
                     (implicit scope: ElementScope): ValueType =

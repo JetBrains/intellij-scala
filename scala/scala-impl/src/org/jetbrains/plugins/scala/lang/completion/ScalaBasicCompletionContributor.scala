@@ -3,18 +3,15 @@ package lang
 package completion
 
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElement, LookupElementDecorator}
-import com.intellij.openapi.editor.Document
+import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElementDecorator}
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager.getLookupElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaCompletionSorting._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
@@ -24,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern,
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -33,7 +30,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceEleme
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ImplicitCompletionProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -57,7 +53,7 @@ abstract class ScalaCompletionContributor extends CompletionContributor {
 
 class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
-  private val addedElements = mutable.Set[String]()
+  import ScalaBasicCompletionContributor._
 
   extend(
     CompletionType.BASIC,
@@ -119,121 +115,98 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
         }
 
       var elementAdded = false
-      def addElement(el: LookupElement) {
-        if (result.getPrefixMatcher.prefixMatches(el))
-          elementAdded = true
-        result.addElement(el)
-        addedElements += el.getLookupString
-      }
 
-      implicit val project = position.projectContext
+        def addElement(item: ScalaLookupItem): Unit = {
+          elementAdded |= result.getPrefixMatcher.prefixMatches(item)
+          result.addElement(item)
+        }
+
       position.getContext match {
         case ref: ScReferenceElement =>
-          val isInImport = ScalaPsiUtil.getContextOfType(ref, true, classOf[ScImportStmt]) != null
-          def applyVariant(variant: Object, addElement: LookupElement => Unit = addElement) {
-            variant match {
-              case el: ScalaLookupItem if el.isValid =>
-                if (inString) el.isInSimpleString = true
-                if (inInterpolatedString) el.isInInterpolatedString = true
-                el.element match {
-                  case clazz: PsiClass =>
-                    if (!ScalaCompletionUtil.isExcluded(clazz) &&
-                      !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
+          def validItem(item: ScalaLookupItem): Option[ScalaLookupItem] = if (item.isValid) {
+            if (inString) item.isInSimpleString = true
+            if (inInterpolatedString) item.isInInterpolatedString = true
 
-                      val lookupElement = expectedTypesAfterNew(position)(context).map { expectedTypes =>
-                        val renamedMap = createRenamePair(el).toMap
-                        getLookupElementFromClass(expectedTypes, clazz, renamedMap)
-                      }.getOrElse(el)
+            item.element match {
+              case clazz: PsiClass =>
+                if (!isExcluded(clazz) && !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
 
-                      addElement(lookupElement)
-                    }
-                  case _ if lookingForAnnotations =>
-                  case f: FakePsiMethod if f.name.endsWith("_=") && parameters.getInvocationCount < 2 => //don't show _= methods for vars in basic completion
-                  case _: ScFun => addElement(el)
-                  case _: ScClassParameter =>
-                    addElement(el)
-                  case _: ScParameter if !el.isNamedParameter=>
-                    el.isLocalVariable = true
-                    addElement(el)
-                  case patt: ScBindingPattern =>
-                    val context = ScalaPsiUtil.nameContext(patt)
-                    context match {
-                      case sValue: ScValue if sValue.isLocal =>
-                        el.isLocalVariable = true
-                        addElement(el)
-                      case sVar: ScVariable if sVar.isLocal =>
-                        el.isLocalVariable = true
-                        addElement(el)
-                      case _: ScCaseClause | _: ScEnumerator | _: ScGenerator =>
-                        el.isLocalVariable = true
-                        addElement(el)
-                      case memb: PsiMember =>
-                        if (parameters.getInvocationCount > 1 ||
-                          ResolveUtils.isAccessible(memb, position, forCompletion = true)) addElement(el)
-                      case _ => addElement(el)
-                    }
-                  case memb: PsiMember =>
-                    if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(memb, position,
-                      forCompletion = true))
-                      addElement(el)
-                  case _ =>
-                    addElement(el)
+                  val lookupElement = expectedTypesAfterNew(position)(context).map { expectedTypes =>
+                    val renamedMap = createRenamePair(item).toMap
+                    getLookupElementFromClass(expectedTypes, clazz, renamedMap)
+                  }.getOrElse(item)
+
+                  Some(lookupElement)
+                } else None
+              case _ if lookingForAnnotations => None
+              case f: FakePsiMethod if f.name.endsWith("_=") && parameters.getInvocationCount < 2 => None //don't show _= methods for vars in basic completion
+              case _: ScFun | _: ScClassParameter => Some(item)
+              case _: ScParameter if !item.isNamedParameter =>
+                item.isLocalVariable = true
+                Some(item)
+              case pattern: ScBindingPattern =>
+                ScalaPsiUtil.nameContext(pattern) match {
+                  case valueOrVariable: ScValueOrVariable if valueOrVariable.isLocal =>
+                    item.isLocalVariable = true
+                    Some(item)
+                  case _: ScCaseClause | _: ScEnumerator | _: ScGenerator =>
+                    item.isLocalVariable = true
+                    Some(item)
+                  case member: PsiMember =>
+                    if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(member, position, forCompletion = true)) Some(item)
+                    else None
+                  case _ => Some(item)
                 }
-              case _ =>
+              case member: PsiMember =>
+                if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(member, position, forCompletion = true)) Some(item)
+                else None
+              case _ => Some(item)
             }
-          }
-          def postProcessMethod(resolveResult: ScalaResolveResult) {
-            val probablyContinigClass = Option(PsiTreeUtil.getContextOfType(position, classOf[PsiClass]))
-            val qualifierType = resolveResult.fromType.getOrElse(Nothing)
-            val lookupItems: Seq[ScalaLookupItem] = getLookupElement(
-              resolveResult,
-              isInImport = isInImport,
-              qualifierType = qualifierType,
-              containingClass = probablyContinigClass,
-              isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement])
-            lookupItems.foreach(applyVariant(_))
-          }
+          } else None
 
-          def kinds(ref: ScReferenceElement) = ref.getKinds(incomplete = false, completion = true)
+          trait PostProcessor {
 
-          def completionProcessor(ref: ScReferenceElement): CompletionProcessor =
-            new CompletionProcessor(kinds(ref), ref) {
+            this: CompletionProcessor =>
 
-              override protected def postProcess(result: ScalaResolveResult): Unit =
-                postProcessMethod(result)
+            private val containingClass = Option(PsiTreeUtil.getContextOfType(position, classOf[PsiClass]))
+            private val isInImport = PsiTreeUtil.getContextOfType(ref, classOf[ScImportStmt]) != null
+            private val isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement]
+
+            override protected def postProcess(resolveResult: ScalaResolveResult): Unit = {
+              lookupItems(resolveResult).foreach(addElement)
             }
 
-          @tailrec
-          def addThisAndSuper(elem: PsiElement): Unit = {
-            elem match {
-              case _: ScNewTemplateDefinition => //do nothing, impossible to invoke
-              case t: ScTemplateDefinition =>
-                addElement(new ScalaLookupItem(t, t.name + ".this"))
-                addElement(new ScalaLookupItem(t, t.name + ".super"))
-              case _ =>
-            }
-            val context = elem.getContext
-            if (context != null) addThisAndSuper(context)
+            protected def lookupItems(result: ScalaResolveResult,
+                                      qualifierType: Option[ScType] = None): Seq[ScalaLookupItem] =
+              result.getLookupElement(
+                qualifierType = qualifierType,
+                isInImport = isInImport,
+                containingClass = containingClass,
+                isInStableCodeReference = isInStableCodeReference,
+                isInSimpleString = inString,
+                isInInterpolatedString = inInterpolatedString
+              ).flatMap(validItem)
           }
 
           ref match {
-            case refImpl: ScStableCodeReferenceElementImpl => refImpl.doResolve(completionProcessor(refImpl))
-            case refImpl: ScReferenceExpressionImpl =>
-              val processor = new ImplicitCompletionProcessor(kinds(ref), ref) {
-
-                override protected def postProcess(result: ScalaResolveResult): Unit =
-                  postProcessMethod(result)
-              }
-
+            case refImpl: ScStableCodeReferenceElementImpl =>
+              val processor = new CompletionProcessor(kinds(refImpl), refImpl) with PostProcessor
               refImpl.doResolve(processor)
-              if (ScalaCompletionUtil.completeThis(refImpl))
-                addThisAndSuper(refImpl)
-            case refImpl: ScTypeProjectionImpl => refImpl.doResolve(completionProcessor(refImpl))
-            case _ =>
-              for (variant <- ref.asInstanceOf[PsiReference].getVariants) {
-                applyVariant(variant)
+            case refImpl: ScReferenceExpressionImpl =>
+              val processor = new ImplicitCompletionProcessor(kinds(refImpl), refImpl) with PostProcessor {
+
+                syntheticItems(refImpl).foreach(addElement)
               }
+              refImpl.doResolve(processor)
+            case refImpl: ScTypeProjectionImpl =>
+              val processor = new CompletionProcessor(kinds(refImpl), refImpl) with PostProcessor
+              refImpl.doResolve(processor)
+            case _ =>
+              (ref: PsiReference).getVariants.collect {
+                case item: ScalaLookupItem => item
+              }.flatMap(validItem).foreach(addElement)
           }
+
           if (!elementAdded && !classNameCompletion) {
             ScalaClassNameCompletionContributor.completeClassName(
               result,
@@ -243,98 +216,39 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           }
 
           //adds runtime completions for evaluate expression in debugger
-          val runtimeQualifierType: ScType = getQualifierCastType(ref, parameters)
-          if (runtimeQualifierType != null) {
-            def addElementWithDecorator(elem: LookupElement, decorator: InsertHandlerDecorator[LookupElement]) {
-              if (!addedElements.contains(elem.getLookupString)) {
-                val newElem = LookupElementDecorator.withInsertHandler(elem, decorator)
-                result.addElement(newElem)
-                addedElements += elem.getLookupString
-              }
-            }
+          for {
+            qualifierType <- qualifierCastType(ref)
+            canonicalText = qualifierType.canonicalText
+            reference <- createReferenceWithQualifierType(canonicalText)(ref.getContext, ref)
 
-            createReferenceWithQualifierType(runtimeQualifierType, ref.getContext, ref) match {
-              case refImpl: ScReferenceExpressionImpl =>
-                val processor = new ImplicitCompletionProcessor(kinds(refImpl), refImpl) {
+            processor = new ImplicitCompletionProcessor(kinds(reference), reference) with PostProcessor {
 
-                  override protected def postProcess(result: ScalaResolveResult): Unit = {
-                    val lookupItems = getLookupElement(
-                      result,
-                      isInImport = isInImport,
-                      qualifierType = runtimeQualifierType,
-                      isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement],
-                      isInSimpleString = inString,
-                      isInInterpolatedString = inInterpolatedString
-                    )
-                    val decorator = castDecorator(runtimeQualifierType.canonicalText)
-                    lookupItems.foreach(item => applyVariant(item, addElementWithDecorator(_, decorator)))
+              private val lookupStrings = mutable.Set[String]()
+              private val decorator = castDecorator(canonicalText)
+
+              override protected def postProcess(resolveResult: ScalaResolveResult): Unit =
+                lookupItems(resolveResult, Some(qualifierType)).foreach { item =>
+                  if (lookupStrings.add(item.getLookupString)) {
+                    result.addElement(LookupElementDecorator.withInsertHandler(item, decorator))
                   }
                 }
-                refImpl.doResolve(processor)
-              case _ =>
+
             }
-          }
+          } reference.doResolve(processor)
         case _ =>
       }
       if (position.getNode.getElementType == ScalaDocTokenType.DOC_TAG_VALUE_TOKEN) result.stopHere()
     }
   })
 
-  override def beforeCompletion(context: CompletionInitializationContext) {
-    addedElements.clear()
-    val offset: Int = context.getStartOffset - 1
-    val file: PsiFile = context.getFile
-    context.setDummyIdentifier(ScalaCompletionUtil.getDummyIdentifier(offset, file))
+  override def beforeCompletion(context: CompletionInitializationContext): Unit = {
+    context.setDummyIdentifier(getDummyIdentifier(context.getStartOffset - 1, context.getFile))
     super.beforeCompletion(context)
-  }
-
-  @Nullable
-  private def getQualifierCastType(ref: ScReferenceElement, parameters: CompletionParameters): ScType = {
-    ref match {
-      case refExpr: ScReferenceExpression =>
-        (for (qualifier <- refExpr.qualifier) yield {
-          val evaluator = refExpr.getContainingFile.getCopyableUserData(ScalaRuntimeTypeEvaluator.KEY)
-          if (evaluator != null) evaluator(qualifier) else null
-        }).orNull
-      case _ => null
-    }
-  }
-
-  private def createReferenceWithQualifierType(qualType: ScType, context: PsiElement, child: PsiElement): ScReferenceElement = {
-    val text =
-      s"""|{
-          |  val xxx: ${qualType.canonicalText} = null
-          |  xxx.xxx
-          |}""".stripMargin
-    val block = ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, child).asInstanceOf[ScBlock]
-    block.exprs.last.asInstanceOf[ScReferenceElement]
-  }
-
-  private def castDecorator(canonTypeName: String) = new InsertHandlerDecorator[LookupElement] {
-    def handleInsert(context: InsertionContext, item: LookupElementDecorator[LookupElement]) {
-      val document: Document = context.getEditor.getDocument
-      context.commitDocument()
-      val file = PsiDocumentManager.getInstance(context.getProject).getPsiFile(document)
-      val ref: ScReferenceElement =
-        PsiTreeUtil.findElementOfClassAtOffset(file, context.getStartOffset, classOf[ScReferenceElement], false)
-      if (ref != null) {
-        ref.qualifier match {
-          case None =>
-          case Some(qual) =>
-            val castString = s".asInstanceOf[$canonTypeName]"
-            document.insertString(qual.getTextRange.getEndOffset, castString)
-            context.commitDocument()
-            ScalaPsiUtil.adjustTypes(file)
-            PsiDocumentManager.getInstance(file.getProject).doPostponedOperationsAndUnblockDocument(document)
-            context.getEditor.getCaretModel.moveToOffset(context.getTailOffset)
-        }
-      }
-      item.getDelegate.handleInsert(context)
-    }
   }
 }
 
 object ScalaBasicCompletionContributor {
+
   def getStartEndPointForInterpolatedString(interpolated: ScInterpolated, index: Int, offsetInString: Int): Option[(Int, Int)] = {
     val injections = interpolated.getInjections
     if (index != -1) {
@@ -356,5 +270,73 @@ object ScalaBasicCompletionContributor {
         } else None
       } else None
     } else None
+  }
+
+  private def qualifierCastType(reference: ScReferenceElement): Option[ScType] = reference match {
+    case ScReferenceExpression.withQualifier(qualifier) =>
+      reference.getContainingFile.getCopyableUserData(ScalaRuntimeTypeEvaluator.KEY) match {
+        case null => None
+        case evaluator => Option(evaluator(qualifier))
+      }
+    case _ => None
+  }
+
+  private def createReferenceWithQualifierType(canonicalText: String)
+                                              (context: PsiElement, child: PsiElement): Option[ScReferenceExpression] = {
+    val text =
+      s"""{
+         |  val xxx: $canonicalText = null
+         |  xxx.xxx
+         |}""".stripMargin
+    ScalaPsiElementFactory.createOptionExpressionWithContextFromText(text, context, child).flatMap {
+      case block: ScBlock => block.exprs.lastOption
+      case _ => None
+    }.collect {
+      case expression: ScReferenceExpression => expression
+    }
+  }
+
+  private def castDecorator(canonicalText: String): InsertHandlerDecorator[ScalaLookupItem] =
+    (context: InsertionContext, decorator: LookupElementDecorator[ScalaLookupItem]) => {
+      val document = context.getEditor.getDocument
+      context.commitDocument()
+
+      val file = PsiDocumentManager.getInstance(context.getProject).getPsiFile(document)
+      PsiTreeUtil.findElementOfClassAtOffset(file, context.getStartOffset, classOf[ScReferenceElement], false) match {
+        case null =>
+        case ScReferenceElement.withQualifier(qualifier) =>
+          document.insertString(qualifier.getTextRange.getEndOffset, s".asInstanceOf[$canonicalText]")
+          context.commitDocument()
+
+          ScalaPsiUtil.adjustTypes(file)
+          PsiDocumentManager.getInstance(file.getProject).doPostponedOperationsAndUnblockDocument(document)
+          context.getEditor.getCaretModel.moveToOffset(context.getTailOffset)
+        case _ =>
+      }
+
+      decorator.getDelegate.handleInsert(context)
+    }
+
+  private def kinds(reference: ScReferenceElement) = reference.getKinds(incomplete = false, completion = true)
+
+  private def syntheticItems(expression: ScReferenceExpression): List[ScalaLookupItem] = {
+    @tailrec
+    def syntheticItems(element: PsiElement, result: List[ScalaLookupItem] = Nil): List[ScalaLookupItem] = {
+      val items = element match {
+        case _: ScNewTemplateDefinition => result // do nothing, impossible to invoke
+        case definition: ScTemplateDefinition =>
+          new ScalaLookupItem(definition, definition.name + ".this") ::
+            new ScalaLookupItem(definition, definition.name + ".super") ::
+            result
+        case _ => result
+      }
+
+      element.getContext match {
+        case null => items
+        case context => syntheticItems(context, items)
+      }
+    }
+
+    if (completeThis(expression)) syntheticItems(expression) else Nil
   }
 }

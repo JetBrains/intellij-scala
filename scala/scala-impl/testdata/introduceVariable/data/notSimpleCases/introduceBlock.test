@@ -6,9 +6,7 @@ class A {
 ------
 class A {
   def foo() = {
-    val value: Int = {
-      2 + 2
-    }
+    val value: Int = 2 + 2
     value
   }
 }

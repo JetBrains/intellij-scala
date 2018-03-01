@@ -264,19 +264,14 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def possibleFunctionN(clazz: PsiClass): Option[Int] = {
+  private def possibleFunctionN(clazz: PsiClass): Option[Int] =
     clazz.qualifiedName match {
       case "java.lang.Object" | "scala.ScalaObject" => Some(-1)
-      case s =>
-        val prefix = "scala.Function"
-        if (s.startsWith(prefix)) {
-          val paramsNumber = s.stripPrefix(prefix)
-          if (paramsNumber.nonEmpty && paramsNumber.forall(_.isDigit)) Some(paramsNumber.toInt)
-          else None
-        }
+      case name =>
+        val paramsNumber = name.stripPrefix(FunctionType.TypeName)
+        if (paramsNumber.nonEmpty && paramsNumber.forall(_.isDigit)) Some(paramsNumber.toInt)
         else None
     }
-  }
 
   def checkCompatible(c: ScalaResolveResult, withLocalTypeInference: Boolean, checkFast: Boolean = false): Option[Candidate] = {
     ProgressManager.checkCanceled()

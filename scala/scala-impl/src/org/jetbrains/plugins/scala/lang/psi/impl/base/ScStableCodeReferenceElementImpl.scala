@@ -14,7 +14,6 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
 import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
-import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
@@ -32,7 +31,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor,
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -53,14 +51,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
-    }
-  }
-
-  def getVariants: Array[Object] = {
-    val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
-    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap { res =>
-      val qualifier = res.fromType.getOrElse(Nothing)
-      LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = true)
     }
   }
 

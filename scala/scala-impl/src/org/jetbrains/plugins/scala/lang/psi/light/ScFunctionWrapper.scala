@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -21,7 +21,7 @@ class ScPrimaryConstructorWrapper(val delegate: ScPrimaryConstructor, isJavaVara
     res
   }
   val method: PsiMethod = {
-    val methodText = ScFunctionWrapper.methodText(delegate, isStatic = forDefault.isDefined, isInterface = false, None, isJavaVarargs, forDefault)
+    val methodText = ScFunctionWrapper.methodText(delegate, isStatic = forDefault.isDefined, isInterface = false, None, forDefault)
     LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
@@ -43,6 +43,8 @@ class ScPrimaryConstructorWrapper(val delegate: ScPrimaryConstructor, isJavaVara
   }
 
   override def isWritable: Boolean = getContainingFile.isWritable
+
+  override def isVarArgs: Boolean = isJavaVarargs
 }
 
 object ScPrimaryConstructorWrapper {
@@ -77,7 +79,7 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
     }
   }
   val method: PsiMethod = {
-    val methodText = ScFunctionWrapper.methodText(delegate, isStatic, isInterface, cClass, isJavaVarargs, forDefault)
+    val methodText = ScFunctionWrapper.methodText(delegate, isStatic, isInterface, cClass, forDefault)
     LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
@@ -131,6 +133,8 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
     if (forDefault.isEmpty && !delegate.isConstructor) delegate.setName(name)
     else this
   }
+
+  override def isVarArgs: Boolean = isJavaVarargs
 }
 
 object ScFunctionWrapper {
@@ -140,8 +144,8 @@ object ScFunctionWrapper {
   /**
     * This is for Java only.
     */
-  def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass],
-                 isJavaVarargs: Boolean, forDefault: Option[Int] = None): String = {
+  private[light] def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass],
+                                forDefault: Option[Int] = None): String = {
     val builder = new StringBuilder
 
     builder.append(JavaConversionUtil.annotationsAndModifiers(function, isStatic))
@@ -243,7 +247,7 @@ object ScFunctionWrapper {
           case std: StdType => tp.typeSystem.stdToPsiType(std, noPrimitives = true)
           case _ => tp.toPsiType
         }
-        s"scala.Function0<${psiType.getCanonicalText}>"
+        s"${FunctionType.TypeName}0<${psiType.getCanonicalText}>"
       case Right(tp) =>
         JavaConversionUtil.typeText(tp)
       case _ => "java.lang.Object"
