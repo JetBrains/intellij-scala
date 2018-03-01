@@ -28,30 +28,30 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
     check("""
           var v: Int = 1
           """,
-      Node(VAR, "v"))
+      Node(FIELD_VAR, "v"))
   }
 
   def testMultipleVariables(): Unit = {
     check("""
           var v1, v2: Int = 1
           """,
-      Node(VAR, "v1"),
-      Node(VAR, "v2"))
+      Node(FIELD_VAR, "v1"),
+      Node(FIELD_VAR, "v2"))
   }
 
   def testValue(): Unit = {
     check("""
           val v: Int = 1
           """,
-      Node(VAL, "v"))
+      Node(FIELD_VAL, "v"))
   }
 
   def testMultipleValues(): Unit = {
     check("""
           val v1, v2: Int = 1
           """,
-      Node(VAL, "v1"),
-      Node(VAL, "v2"))
+      Node(FIELD_VAL, "v1"),
+      Node(FIELD_VAL, "v2"))
   }
 
   def testTypeAlias(): Unit = {
@@ -171,8 +171,8 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
 //          class C(var p1: Float, p2: Double)
 //          """,
 //      Node(CLASS, "C(Float, Double)",
-//        Node(VAR, "p1"),
-//        Node(VAR, "p2")))
+//        Node(FIELD_VAR, "p1"),
+//        Node(FIELD_VAR, "p2")))
 //  }
 
 //  def testValuesInPrimaryConstructor(): Unit = {
@@ -180,8 +180,8 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
 //          class C(val p1: Floar, val p2: Double)
 //          """,
 //      Node(CLASS, "C(Float, Double)",
-//        Node(VAL, "p1",
-//        Node(VAL, "p2")))
+//        Node(FIELD_FIELD_VAL, "p1",
+//        Node(FIELD_FIELD_VAL, "p2")))
 //  }
 
 //  def testMultipleParameterListsWithMembersInPrimaryConstructor(): Unit = {
@@ -189,8 +189,8 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
 //          class C(val p1: Float)(val p2: Double)
 //          """,
 //      Node(CLASS, "C(Float)(Double)",
-//        Node(VAL, "p1",
-//        Node(VAL, "p2"))))
+//        Node(FIELD_FIELD_VAL, "p1",
+//        Node(FIELD_FIELD_VAL, "p2"))))
 //  }
 
   def testAuxiliaryConstructor(): Unit = {

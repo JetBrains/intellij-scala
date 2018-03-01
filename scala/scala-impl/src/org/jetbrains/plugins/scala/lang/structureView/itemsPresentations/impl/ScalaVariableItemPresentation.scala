@@ -20,9 +20,7 @@ class ScalaVariableItemPresentation(private val element: PsiElement, isInherited
     ScalaElementPresentation.getPresentableText(myElement)
   }
 
-  override def getIcon(open: Boolean): Icon = {
-    Icons.VAR
-  }
+  override def getIcon(open: Boolean): Icon = Icons.FIELD_VAR
 
   override def getTextAttributesKey: TextAttributesKey = {
     if(isInherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
