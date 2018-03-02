@@ -129,22 +129,6 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     }
 
 
-    if (isCase) {
-      //for Scala this is done in ScalaOIUtil.isProductAbstractMethod, for Java we do it here
-      val caseClassGeneratedFunctions = Array(
-        "def canEqual(that: Any): Boolean = ???",
-        "def equals(that: Any): Boolean = ???",
-        "def productArity: Int = ???",
-        "def productElement(n: Int): Any = ???"
-      )
-
-      caseClassGeneratedFunctions.foreach { funText =>
-        val fun: ScFunction = ScalaPsiElementFactory.createMethodWithContext(funText, this, this)
-        fun.setSynthetic(this)
-        res += fun
-      }
-    }
-
     ScalaPsiUtil.getCompanionModule(this) match {
       case Some(o: ScObject) =>
         def add(method: PsiMethod) {
