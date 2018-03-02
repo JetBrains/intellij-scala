@@ -24,12 +24,13 @@ trait ScValue extends ScValueOrVariable {
     case _ => false
   }
 
+  // TODO unify with ScFunction and ScVariable
   override def getIcon(flags: Int): Icon = {
     var parent = getParent
     while (parent != null) {
       parent match {
         case _: ScExtendsBlock => return Icons.FIELD_VAL
-        case _: ScBlock => return Icons.VAL
+        case (_: ScBlock | _: ScalaFile) => return Icons.VAL
         case _ => parent = parent.getParent
       }
     }
