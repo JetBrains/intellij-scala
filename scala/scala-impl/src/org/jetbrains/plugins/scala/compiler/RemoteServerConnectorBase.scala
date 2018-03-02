@@ -80,6 +80,7 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
     sbtData.compilerInterfaceJar,
     sbtData.sourceJars._2_10,
     sbtData.sourceJars._2_11,
+    sbtData.sourceJars._2_13,
     sbtData.interfacesHome,
     sbtData.javaClassVersion,
     compilerClasspath,

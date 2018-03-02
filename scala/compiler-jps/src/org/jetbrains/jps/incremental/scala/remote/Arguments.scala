@@ -7,7 +7,6 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.scala.data._
 import org.jetbrains.jps.incremental.scala.model.{CompileOrder, IncrementalityType}
 import org.jetbrains.jps.incremental.scala.remote.Arguments._
-import org.jetbrains.plugin.scala.compiler.NameHashing
 
 /**
  * @author Pavel Fatin
@@ -31,6 +30,7 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
       fileToPath(sbtData.compilerInterfaceJar),
       fileToPath(sbtData.sourceJars._2_10),
       fileToPath(sbtData.sourceJars._2_11),
+      fileToPath(sbtData.sourceJars._2_13),
       fileToPath(sbtData.interfacesHome),
       sbtData.javaClassVersion,
       optionToString(compilerJarPaths),
@@ -65,6 +65,7 @@ object Arguments {
       PathToFile(compilerInterfaceJar),
       PathToFile(sourceJar_2_10),
       PathToFile(sourceJar_2_11),
+      PathToFile(sourceJar_2_13),
       PathToFile(interfacesHome),
       javaClassVersion,
       StringToOption(compilerJarPaths),
@@ -87,7 +88,7 @@ object Arguments {
       :+ StringToBoolean(isCompile)
      =>
 
-      val sourceJars = SbtData.SourceJars(sourceJar_2_10, sourceJar_2_11)
+      val sourceJars = SbtData.SourceJars(sourceJar_2_10, sourceJar_2_11, sourceJar_2_13)
       val sbtData = SbtData(sbtInterfaceJar, compilerInterfaceJar, sourceJars, interfacesHome, javaClassVersion)
 
       val compilerJars = compilerJarPaths.map {

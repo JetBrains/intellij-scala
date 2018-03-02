@@ -5,7 +5,7 @@ object Versions {
   val scalaBinaryVersion: String = Scala.binary_2_12
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   val sbtVersion: String = Sbt.latest
-  val zincVersion = "1.0.3"
+  val zincVersion = "1.1.1"
   val ideaVersion = "181.3741.2"
   val sbtStructureVersion: String = "2017.2"
   val sbtIdeaShellVersion: String = "2017.2"
@@ -104,10 +104,11 @@ object Dependencies {
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion
   val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
-  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.0.0"
+  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.1.2"
 
   val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
+  val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13.0-M2" % zincVersion classifier "sources"
 
   private def sbtPluginDependency(module: ModuleID, sbtVersion: String): ModuleID =
     sbt.Defaults.sbtPluginExtra(module, sbtVersion, Sbt.scalaVersion(sbtVersion))
@@ -159,6 +160,7 @@ object DependencyGroups {
     sbtStructureExtractor_013,
     sbtStructureExtractor_100,
     compilerBridgeSources_2_10,
-    compilerBridgeSources_2_11
+    compilerBridgeSources_2_11,
+    compilerBridgeSources_2_13
   )
 }
