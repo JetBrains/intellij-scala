@@ -223,6 +223,8 @@
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScTemplateDeclarationRangeHandler"/>
         <codeInsight.parameterNameHints language="Scala"
                                         implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayParameterHintsProvider"/>
+        <editorAppearanceConfigurable
+                instance="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.actions.WorksheetGotoResNHandler" order="first"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteGotoHandler" order="first"/>
@@ -427,6 +429,8 @@
 
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
+
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings"/>
 
         <applicationService serviceInterface="org.jetbrains.plugins.hydra.settings.HydraApplicationSettings"
                             serviceImplementation="org.jetbrains.plugins.hydra.settings.HydraApplicationSettings"/>
@@ -1471,6 +1475,10 @@
       <component>
         <implementation-class>org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder</implementation-class>
       </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPassFactory
+            </implementation-class>
+        </component>
     </project-components>
 
     <actions>
@@ -1601,6 +1609,18 @@
                 description="Extract trait from the selected class">
           <add-to-group group-id="IntroduceActionsGroup"/>
         </action>
+
+        <group id="TypeHintsMenu">
+            <action id="ToogleFunctionReturnType"
+                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleFunctionReturnTypeAction"
+                    text="Function return type hints"/>
+            <action id="TooglePropertyType"
+                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$TooglePropertyTypeAction"
+                    text="Property type hints"/>
+            <action id="ToogleLocalVariableType"
+                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleLocalVariableTypeAction"
+                    text="Local variable type hints"/>
+        </group>
     </actions>
 
 </idea-plugin>
