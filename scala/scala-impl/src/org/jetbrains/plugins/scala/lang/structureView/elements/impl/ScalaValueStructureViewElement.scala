@@ -1,12 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
-package elements
-package impl
+package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 
 /**
@@ -15,9 +12,8 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 */
 
 class ScalaValueStructureViewElement(named: ScNamedElement, val isInherited: Boolean) extends ScalaStructureViewElement(named, isInherited) {
-  def getPresentation: ItemPresentation = {
-    new ScalaValueItemPresentation(named.nameId, isInherited)
-  }
+  override def getPresentation: ItemPresentation =
+    new ScalaValueItemPresentation(named, isInherited)
 
-  def getChildren: Array[TreeElement] = Array.empty
+  override def getChildren: Array[TreeElement] = Array.empty
 }

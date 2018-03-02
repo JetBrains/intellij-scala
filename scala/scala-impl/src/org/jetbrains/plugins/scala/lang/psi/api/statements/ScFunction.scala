@@ -19,13 +19,15 @@ import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import com.intellij.util.PlatformIcons
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionFactory
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
@@ -317,8 +319,18 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def parameters: Seq[ScParameter] = paramClauses.params
 
-  // We may consider using the "f" icon for (quasi-) top-level functinos (but the additional dichotomy is probably unnecessary)
-  override def getIcon(flags: Int): Icon = PlatformIcons.METHOD_ICON
+  // TODO unify with ScValue and ScVariable
+  override def getIcon(flags: Int): Icon = {
+    var parent = getParent
+    while (parent != null) {
+      parent match {
+        case _: ScExtendsBlock => return PlatformIcons.METHOD_ICON
+        case (_: ScBlock | _: ScalaFile) => return Icons.FUNCTION
+        case _ => parent = parent.getParent
+      }
+    }
+    null
+  }
 
   def getReturnType: PsiType = {
     if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {

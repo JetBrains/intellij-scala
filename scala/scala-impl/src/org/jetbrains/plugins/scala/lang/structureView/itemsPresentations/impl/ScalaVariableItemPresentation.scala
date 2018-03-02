@@ -1,28 +1,26 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
-package itemsPresentations
-package impl
+package org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl
 
-import javax.swing._
+import javax.swing.Icon
 
 import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 05.05.2008
 */
 
-class ScalaVariableItemPresentation(private val element: PsiElement, isInherited: Boolean) extends ScalaItemPresentation(element) {
-  def getPresentableText: String = {
-    ScalaElementPresentation.getPresentableText(myElement)
-  }
+class ScalaVariableItemPresentation(element: ScNamedElement, inherited: Boolean) extends ScalaItemPresentation(element) {
+  override def getPresentableText: String =
+    ScalaElementPresentation.getPresentableText(element.nameId)
 
-  override def getIcon(open: Boolean): Icon = Icons.FIELD_VAR
+  override def getIcon(open: Boolean): Icon =
+    element.parentsInFile.findByType[ScVariable].map(_.getIcon(0)).orNull
 
-  override def getTextAttributesKey: TextAttributesKey = {
-    if(isInherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
-  }
+  override def getTextAttributesKey: TextAttributesKey =
+    if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
 }
