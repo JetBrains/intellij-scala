@@ -27,7 +27,7 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
   
   
   private def initFormSettings(): WorksheetSettingsData = {
-    val (selectedProfile, profiles) = createCompilerProfileModel()
+    val (selectedProfile, profiles) = WorksheetFileSettingsDialog.createCompilerProfileOptions(worksheetFile)
     
     new WorksheetSettingsData(
       WorksheetCompiler.isWorksheetReplMode(worksheetFile),
@@ -37,19 +37,6 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
       selectedProfile,
       profiles
     )
-  }
-  
-  private def createCompilerProfileModel(): (ScalaCompilerSettingsProfile, Array[ScalaCompilerSettingsProfile]) = {
-    val config = ScalaCompilerConfiguration.instanceIn(worksheetFile.getProject)
-    val defaultProfile = config.defaultProfile
-    val profiles = Seq(defaultProfile) ++ config.customProfiles
-    
-    val selected = WorksheetCompiler.getCustomCompilerProfileName(worksheetFile).flatMap {
-      profileName => profiles.find(_.getName == profileName)
-    }.getOrElse(defaultProfile)
-    
-    
-    (selected, profiles.toArray)
   }
   
   private def applySettings(settingsData: WorksheetSettingsData) {
@@ -67,5 +54,20 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
     WorksheetCompiler.setMakeBeforeRun(worksheetFile, settingsData.isMakeBeforeRun)
     WorksheetCompiler.setWorksheetReplMode(worksheetFile, settingsData.isRepl)
     WorksheetAutoRunner.setAutorun(worksheetFile, settingsData.isInteractive)
+  }
+}
+
+object WorksheetFileSettingsDialog {
+  def createCompilerProfileOptions(worksheetFile: PsiFile): (ScalaCompilerSettingsProfile, Array[ScalaCompilerSettingsProfile]) = {
+    val config = ScalaCompilerConfiguration.instanceIn(worksheetFile.getProject)
+    val defaultProfile = config.defaultProfile
+    val profiles = Seq(defaultProfile) ++ config.customProfiles
+
+    val selected = WorksheetCompiler.getCustomCompilerProfileName(worksheetFile).flatMap {
+      profileName => profiles.find(_.getName == profileName)
+    }.getOrElse(defaultProfile)
+
+
+    (selected, profiles.toArray)
   }
 }
