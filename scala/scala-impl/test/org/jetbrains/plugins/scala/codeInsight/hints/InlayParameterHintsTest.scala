@@ -3,12 +3,11 @@ package codeInsight
 package hints
 
 import com.intellij.codeInsight.hints.Option
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
-class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class InlayParameterHintsTest extends InlayHintsTestBase {
 
-  import ParameterHintType._
-  import ScalaInlayParameterHintsProviderTest.{HintEnd => E, HintStart => S}
+  import InlayHintsTestBase.{HintEnd => E, HintStart => S}
+  import ScalaInlayParameterHintsProvider._
 
   def testNoDefaultPackageHint(): Unit = doTest(
     s"""  println(42)
@@ -61,7 +60,7 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  def bar(classOf: Class[_]): Unit = {}
        |  def bar(baz: () => Unit): Unit = {}
        |
-       |  val bar$S: String$E = ""
+       |  val bar = ""
        |
        |  def bazImpl(): Unit = {}
        |
@@ -234,72 +233,6 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
     option = referenceParameterNames
   )
 
-  import MemberHintType._
-
-  def testFunctionReturnTypeHint(): Unit = doTest(
-    s"""  def foo()$S: List[String]$E = List.empty[String]""",
-    option = functionReturnType
-  )
-
-  def testNoFunctionReturnTypeHint(): Unit = doTest(
-    """  def foo(): List[String] = List.empty[String]""",
-    option = functionReturnType
-  )
-
-  def testNoConstructorReturnTypeHint(): Unit = doTest(
-    """  def this(foo: Int) = this()""",
-    option = functionReturnType
-  )
-
-  def testPropertyTypeHint(): Unit = doTest(
-    s"""  val list$S: List[String]$E = List.empty[String]""",
-    option = propertyType
-  )
-
-  def testNoPropertyTypeHint(): Unit = doTest(
-    """  val list: List[String] = List.empty[String]""",
-    option = propertyType
-  )
-
-  def testLocalVariableTypeHint(): Unit = doTest(
-    s"""  def foo(): Unit = {
-       |    val list$S: List[String]$E = List.empty[String]
-       |  }""".stripMargin,
-    option = localVariableType
-  )
-
-  def testNoLocalVariableTypeHint(): Unit = doTest(
-    s"""  def foo(): Unit = {
-       |    val list: List[String] = List.empty[String]
-       |  }""".stripMargin,
-    option = localVariableType
-  )
-
-  private def doTest(text: String, option: Option = parameterNames): Unit = {
-    def setOption(value: Boolean): Unit = {
-      import option._
-      if (!getDefaultValue) set(value)
-    }
-
-    try {
-      setOption(true)
-
-      configureFromFileText(
-        s"""class Foo {
-           |$text
-           |}
-           |
-           |new Foo""".stripMargin
-      )
-      getFixture.testInlays()
-    } finally {
-      setOption(false)
-    }
-  }
-}
-
-object ScalaInlayParameterHintsProviderTest {
-
-  private val HintStart = "<hint text=\""
-  private val HintEnd = "\"/>"
+  private def doTest(text: String, option: Option): Unit =
+    super.doTest(text, option.set)
 }
