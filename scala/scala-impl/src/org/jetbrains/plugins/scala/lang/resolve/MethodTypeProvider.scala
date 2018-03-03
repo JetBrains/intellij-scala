@@ -154,12 +154,13 @@ object MethodTypeProvider {
     }
   }
 
-  private case class JavaMethodProvider(element: PsiMethod)(override implicit val scope: ElementScope) 
+  private case class JavaMethodProvider(element: PsiMethod)
+                                       (override implicit val scope: ElementScope)
     extends MethodTypeProvider[PsiMethod] {
     def typeParameters: Seq[PsiTypeParameter] = element.getTypeParameters
 
     def methodType(returnType: Option[ScType] = None): ScType = {
-      val retType: ScType = returnType.getOrElse(computeReturnType)
+      val retType = returnType.getOrElse(computeReturnType)
       ScMethodType(retType, parameters, isImplicit = false)
     }
 
@@ -175,13 +176,17 @@ object MethodTypeProvider {
 
     private def toParameter(psiParameter: PsiParameter) = {
       val scType = psiParameter.paramType()
-      Parameter("", None, scType, scType,
+      Parameter(
+        name = psiParameter.getName,
+        deprecatedName = None,
+        paramType = scType,
+        expectedType = scType,
         isDefault = false,
         isRepeated = psiParameter.isVarArgs,
         isByName = false,
-        psiParameter.index,
-        Some(psiParameter))
+        index = psiParameter.index,
+        psiParam = Some(psiParameter)
+      )
     }
   }
-
 }

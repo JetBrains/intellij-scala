@@ -15,7 +15,6 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, Invariant, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
@@ -162,38 +161,6 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     }
   }
 
-  /**
-   * @return Some((designator, paramType, returnType)), or None
-   */
-  def getPartialFunctionType: Option[(ScType, ScType, ScType)] = {
-    getStandardType("scala.PartialFunction") match {
-      case Some((typeDef, Seq(param, ret))) => Some((ScDesignatorType(typeDef), param, ret))
-      case None => None
-    }
-  }
-
-  /**
-   * @param  prefix of the qualified name of the type
-   * @return (typeDef, typeArgs)
-   */
-  private def getStandardType(prefix: String): Option[(ScTypeDefinition, Seq[ScType])] = {
-    def startsWith(clazz: PsiClass, qualNamePrefix: String) = clazz.qualifiedName != null && clazz.qualifiedName.startsWith(qualNamePrefix)
-
-    designator.extractClassType match {
-      case Some((clazz: ScTypeDefinition, sub)) if startsWith(clazz, prefix) =>
-        clazz.`type`() match {
-          case Right(t) =>
-            val substituted = (sub followed substitutor).subst(t)
-            substituted match {
-              case pt: ScParameterizedType =>
-                Some((clazz, pt.typeArguments))
-              case _ => None
-            }
-          case _ => None
-        }
-      case _ => None
-    }
-  }
 
   override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitParameterizedType(this)

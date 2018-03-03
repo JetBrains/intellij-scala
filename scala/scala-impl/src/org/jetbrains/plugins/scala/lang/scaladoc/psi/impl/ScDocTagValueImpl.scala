@@ -4,9 +4,6 @@ package scaladoc
 package psi
 package impl
 
-import scala.collection.Set
-import scala.collection.mutable.ArrayBuilder
-
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.TextRange
@@ -22,9 +19,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTra
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocReferenceElement, ScDocTag, ScDocTagValue}
+
+import scala.collection.{Set, mutable}
 
 /**
  * User: Dmitry Naydanov
@@ -43,9 +43,12 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with
   def getSameNameVariants: Array[ScalaResolveResult] = Array.empty
 
   def multiResolveScala(incompleteCode: Boolean): Array[ScalaResolveResult] =
-    getParametersVariants.filter(a =>
-      ScalaNamesUtil.equivalent(a.name, refName)).
-            map(new ScalaResolveResult(_))
+    doResolve(null, accessibilityCheck = false)
+
+  override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean): Array[ScalaResolveResult] =
+    getParametersVariants.filter { element =>
+      ScalaNamesUtil.equivalent(element.name, refName)
+    }.map(new ScalaResolveResult(_))
 
   override def toString: String = "ScalaDocTagValue: " + getText
 
@@ -61,7 +64,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with
     }
   }
 
-  override  def getCanonicalText: String = if (getFirstChild == null) null else getFirstChild.getText
+  override def getCanonicalText: String = if (getFirstChild == null) null else getFirstChild.getText
 
   override def isReferenceTo(element: PsiElement): Boolean = {
     if (resolve() == null || resolve() != element) false else true
@@ -78,24 +81,18 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with
     getElement
   }
 
-  def getVariants: Array[AnyRef] = {
-    val result = ArrayBuilder.make[AnyRef]()
-    val parameters = getParametersVariants
-    if (parameters == null) {
-      return Array[AnyRef]()
+  override def completionVariants(incomplete: Boolean,
+                                  completion: Boolean,
+                                  implicits: Boolean)
+                                 (function: ScalaResolveResult => Seq[ScalaLookupItem]): Seq[ScalaLookupItem] =
+    getParametersVariants.map { element =>
+      new ScalaLookupItem(element, element.name, None)
     }
-    parameters.foreach {
-      param =>
-        result += new ScalaLookupItem(param, param.name, None)
-    }
-    result.result()
-  }
-
 
   override def isSoft: Boolean = getParent.asInstanceOf[ScDocTag].name == MyScaladocParsing.THROWS_TAG
 
-  def getParametersVariants: Array[ScNamedElement] = {
-    import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing.{PARAM_TAG, TYPE_PARAM_TAG}
+  private def getParametersVariants: Array[ScNamedElement] = {
+    import MyScaladocParsing.{PARAM_TAG, TYPE_PARAM_TAG}
     val parentTagType: String = getParent match {
       case a: ScDocTag => a.name
       case _ => null
@@ -114,7 +111,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with
                 tag != getParent)
         yield tag.getValueElement.getText).toSet
 
-      val result = ArrayBuilder.make[ScNamedElement]()
+      val result = mutable.ArrayBuilder.make[ScNamedElement]()
       params.filter(param => !paramsSet.contains(param.name)).foreach(result += _)
       result.result()
     }

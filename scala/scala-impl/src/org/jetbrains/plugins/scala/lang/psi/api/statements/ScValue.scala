@@ -19,8 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 trait ScValue extends ScValueOrVariable {
   override protected def keywordElementType: IElementType = kVAL
 
-  def hasExplicitType: Boolean = typeElement.isDefined
-
   override protected def isSimilarMemberForNavigation(member: ScMember, isStrict: Boolean): Boolean = member match {
     case other: ScValue => super.isSimilarMemberForNavigation(other, isStrict)
     case _ => false

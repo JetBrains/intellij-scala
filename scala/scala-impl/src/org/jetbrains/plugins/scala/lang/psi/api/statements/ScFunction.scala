@@ -599,21 +599,22 @@ object ScFunction {
   }
 
   object Ext {
-    private val Apply = "apply"
-    private val Update = "update"
+    val Apply = "apply"
+    val Update = "update"
+    val GetSet = Set(Apply, Update)
 
-    private val Unapply = "unapply"
-    private val UnapplySeq = "unapplySeq"
+    val Unapply = "unapply"
+    val UnapplySeq = "unapplySeq"
+    val Unapplies = Set(Unapply, UnapplySeq)
 
-    private val Foreach = "foreach"
-    private val Map = "map"
-    private val FlatMap = "flatMap"
-    private val Filter = "filter"
-    private val WithFilter = "withFilter"
+    val Foreach = "foreach"
+    val Map = "map"
+    val FlatMap = "flatMap"
+    val Filter = "filter"
+    val WithFilter = "withFilter"
+    val ForComprehensions: Set[String] = Set(Foreach, Map, FlatMap, Filter, WithFilter)
 
-    private val Unapplies: Set[String] = Set(Unapply, UnapplySeq)
-    private val ForComprehensions: Set[String] = Set(Foreach, Map, FlatMap, Filter, WithFilter)
-    private val Special: Set[String] = Set(Apply, Update) ++ Unapplies ++ ForComprehensions
+    private val Special: Set[String] = GetSet ++ Unapplies ++ ForComprehensions
   }
 
   private val calculatingBlockKey: Key[ThreadLocal[Boolean]] = Key.create("calculating.function.returns.block")

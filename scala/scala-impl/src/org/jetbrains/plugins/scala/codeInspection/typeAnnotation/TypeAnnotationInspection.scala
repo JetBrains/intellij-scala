@@ -25,7 +25,7 @@ class TypeAnnotationInspection extends AbstractInspection {
       inspect(value, value.bindings.head, value.expr)
     case variable: ScVariableDefinition if variable.isSimple && !variable.hasExplicitType =>
       inspect(variable, variable.bindings.head, variable.expr)
-    case method: ScFunctionDefinition if method.hasAssign && !method.hasExplicitType && !method.isSecondaryConstructor =>
+    case method: ScFunctionDefinition if method.hasAssign && !method.hasExplicitType && !method.isConstructor =>
       inspect(method, method.nameId, method.body)
     case (parameter: ScParameter) && Parent(Parent(Parent(_: ScFunctionExpr))) if parameter.typeElement.isEmpty =>
       inspect(parameter, parameter.nameId, implementation = None)

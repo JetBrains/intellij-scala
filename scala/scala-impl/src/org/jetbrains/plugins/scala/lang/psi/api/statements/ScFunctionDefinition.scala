@@ -57,7 +57,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
         case _: ScStableCodeReferenceElement  =>
           ref.getParent match {
             case ChildOf(_: ScConstructor) =>
-              this.isSecondaryConstructor && containingClass.name == ref.refName
+              this.isConstructor && containingClass.name == ref.refName
             case cp: ScConstructorPattern if cp.ref == ref =>
               this.name == "unapply" || this.name == "unapplySeq"
             case inf: ScInfixPattern if inf.reference == ref =>
@@ -129,8 +129,6 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
   }
 
   override def controlFlowScope: Option[ScalaPsiElement] = body
-
-  def isSecondaryConstructor: Boolean = name == "this"
 
   @Cached(ModCount.getBlockModificationCount, this)
   def getStaticTraitFunctionWrapper(cClass: PsiClassWrapper): StaticTraitScFunctionWrapper = {
