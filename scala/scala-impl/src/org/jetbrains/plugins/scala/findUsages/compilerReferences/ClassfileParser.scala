@@ -1,74 +1,89 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import java.io._
+import java.{util => ju}
+
+import scala.collection.JavaConverters._
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.apache.bcel.Const
-import org.apache.bcel.classfile.{Attribute, ConstantPool, SourceFile}
-
-import scala.annotation.tailrec
+import org.jetbrains.org.objectweb.asm._
 
 private object ClassfileParser {
-  private def skipMagicAndVersion(is: DataInputStream): Unit =
-    is.skipBytes(4 + 2 + 2) // magic, minor & major versions
+  def parse(is: InputStream): ParsedClassfile = {
+    val reader = new ClassReader(is)
+    val visitor = new ParsingVisitor
+    reader.accept(visitor, ClassReader.SKIP_FRAMES)
+    visitor.result
+  }
 
-  private def skipClassBody(is: DataInputStream): Unit = {
-    //fields
-    (1 to is.readUnsignedShort()).foreach { field =>
-      is.skipBytes(2 + 2 + 2) // access, name, desc
-      (1 to is.readUnsignedShort()).foreach { attr =>
-        is.skipBytes(2)
-        is.skipBytes(is.readInt()) // name + info[length]
+  def parse(bytes: Array[Byte]): ParsedClassfile = parse(new ByteArrayInputStream(bytes))
+  def parse(file: File): ParsedClassfile         = parse(new FileInputStream(file))
+  def parse(vfile: VirtualFile): ParsedClassfile = parse(vfile.getInputStream)
+ 
+
+  def fqnFromInternalName(internal: String): String = internal.replaceAll("/", ".")
+
+  private[this] trait ReferenceCollector {
+    def addRef(ref: MemberReference): Unit
+  }
+
+  private[this] class ParsingVisitor extends ClassVisitor(Opcodes.API_VERSION) {
+    private[this] var className: String                  = _
+    private[this] val superNames: ju.Set[String]         = new ju.HashSet[String]()
+    private[this] val innerRefs: ju.List[MemberReference] = new ju.ArrayList[MemberReference]()
+
+    override def visit(
+      version: Int,
+      access: Int,
+      name: String,
+      signature: String,
+      superName: String,
+      interfaces: Array[String]
+    ): Unit = {
+      className = fqnFromInternalName(name)
+      superNames.add(fqnFromInternalName(superName))
+
+      if (interfaces != null) {
+        interfaces.map(fqnFromInternalName).foreach(superNames.add)
       }
     }
 
-    // methods
-    (1 to is.readUnsignedShort()).foreach { method =>
-      is.skipBytes(2 + 2 + 2) // access, name, desc
-      (1 to is.readUnsignedShort()).foreach { attr =>
-        is.skipBytes(2)
-        is.skipBytes(is.readInt()) // name + info[length]
-      }
+    override def visitMethod(
+      access: Int,
+      name: String,
+      desc: String,
+      signature: String,
+      exceptions: Array[String]
+    ): MethodVisitor = new MethodVisitor(Opcodes.API_VERSION) with ReferenceInMethodCollector {
+      override def addRef(ref: MemberReference): Unit = innerRefs.add(ref)
+    }
+    
+    def result: ParsedClassfile = {
+      val classInfo = ClassInfo(className, superNames.asScala)
+      ParsedClassfile(classInfo, innerRefs.asScala)
     }
   }
 
-  private def readClassInfo(is: DataInputStream, cp: ConstantPool): ClassInfo = {
-    is.skip(2) // access
-    val name           = fqnFromInternalName(cp.getConstantString(is.readUnsignedShort(), Const.CONSTANT_Class))
-    val superClass     = fqnFromInternalName(cp.getConstantString(is.readUnsignedShort(), Const.CONSTANT_Class))
-    val interfaceCount = is.readUnsignedShort()
-    val interfaces     = (1 to interfaceCount).map(_ => fqnFromInternalName(cp.getConstantString(is.readUnsignedShort(), Const.CONSTANT_Class)))
-    ClassInfo(name, superClass +: interfaces)
+  private[this] trait ReferenceInMethodCollector extends ReferenceCollector {
+    self: MethodVisitor =>
+
+    private[this] var currentLineNumber = -1
+
+    private[this] def handleRef(
+      owner: String,
+      name: String
+    )(builder: (String, String, Int) => MemberReference): Unit = {
+      val ownerFqn = fqnFromInternalName(owner)
+      val ref      = builder(ownerFqn, name, currentLineNumber)
+      addRef(ref)
+    }
+
+    override def visitLineNumber(line: Int, start: Label): Unit = currentLineNumber = line
+
+    override def visitMethodInsn(opcode: Int, owner: String, name: String, desc: String, itf: Boolean): Unit =
+      handleRef(owner, name)(MethodReference)
+
+    override def visitFieldInsn(opcode: Int, owner: String, name: String, desc: String): Unit =
+      handleRef(owner, name)(FieldReference)
   }
-
-  private def readSourceAttribute(is: DataInputStream, cp: ConstantPool): Option[String] = {
-    val count = is.readUnsignedShort()
-
-    @tailrec
-    def process(processed: Int = 0): Option[String] =
-      if (processed < count) {
-        Attribute.readAttribute(is, cp) match {
-          case sf: SourceFile => Option(sf.getSourceFileName)
-          case _              => process(processed + 1)
-        }
-      } else None
-
-    process()
-  }
-
-  def parse(is: DataInputStream): ParsedClassfile = {
-    skipMagicAndVersion(is)
-    val cp        = new ConstantPool(is)
-    val classInfo = readClassInfo(is, cp)
-//    skipClassBody(is)
-//    val source = readSourceAttribute(is, cp)
-    ParsedClassfile(classInfo, cp)
-  }
-
-  def parse(bytes: Array[Byte]): ParsedClassfile = parse(new DataInputStream(new ByteArrayInputStream(bytes)))
-  def parse(is: InputStream): ParsedClassfile    = parse(new DataInputStream(is))
-  def parse(file: File): ParsedClassfile         = parse(new DataInputStream(new FileInputStream(file)))
-  def parse(vfile: VirtualFile): ParsedClassfile = parse(new DataInputStream(vfile.getInputStream))
-  
-  def fqnFromInternalName(name: String): String = name.replaceAll("/", ".")
 }
