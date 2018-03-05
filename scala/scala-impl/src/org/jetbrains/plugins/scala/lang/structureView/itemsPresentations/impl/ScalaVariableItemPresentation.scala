@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation
 
 /**
@@ -14,8 +15,13 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaIt
 */
 
 class ScalaVariableItemPresentation(element: ScNamedElement, inherited: Boolean) extends ScalaItemPresentation(element) {
-  override def getPresentableText: String =
-    element.nameId.getText + variable.flatMap(_.typeElement.map(_.getText)).map(": " + _).mkString
+  override def getPresentableText: String = {
+    val typeAnnotation = variable.flatMap(_.typeElement.map(_.getText))
+
+    def inferredType = variable.flatMap(_.`type`().toOption).map(ScTypePresentation.withoutAliases)
+
+    element.nameId.getText + typeAnnotation.orElse(inferredType).map(": " + _).mkString
+  }
 
   override def getIcon(open: Boolean): Icon =
     variable.map(_.getIcon(0)).orNull
