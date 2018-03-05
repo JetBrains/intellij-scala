@@ -29,30 +29,30 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
     check("""
           var v: Int = 1
           """,
-      Node(VAR, "v"))
+      Node(VAR, "v: Int"))
   }
 
   def testMultipleVariables(): Unit = {
     check("""
           var v1, v2: Int = 1
           """,
-      Node(VAR, "v1"),
-      Node(VAR, "v2"))
+      Node(VAR, "v1: Int"),
+      Node(VAR, "v2: Int"))
   }
 
   def testValue(): Unit = {
     check("""
           val v: Int = 1
           """,
-      Node(VAL, "v"))
+      Node(VAL, "v: Int"))
   }
 
   def testMultipleValues(): Unit = {
     check("""
           val v1, v2: Int = 1
           """,
-      Node(VAL, "v1"),
-      Node(VAL, "v2"))
+      Node(VAL, "v1: Int"),
+      Node(VAL, "v2: Int"))
   }
 
   def testTypeAlias(): Unit = {
@@ -247,8 +247,8 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(CLASS, "Container",
-        Node(FIELD_VAR, "v1"),
-        Node(FIELD_VAL, "v2"),
+        Node(FIELD_VAR, "v1: Int"),
+        Node(FIELD_VAL, "v2: Int"),
         Node(TYPE_ALIAS, "T"),
         Node(METHOD_ICON, "m: Int"),
         Node(CLASS, "C"),
@@ -269,8 +269,8 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(TRAIT, "Container",
-        Node(FIELD_VAR, "v1"),
-        Node(FIELD_VAL, "v2"),
+        Node(FIELD_VAR, "v1: Int"),
+        Node(FIELD_VAL, "v2: Int"),
         Node(TYPE_ALIAS, "T"),
         Node(METHOD_ICON, "m: Int"),
         Node(CLASS, "C"),
@@ -291,8 +291,8 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(OBJECT, "Container",
-        Node(FIELD_VAR, "v1"),
-        Node(FIELD_VAL, "v2"),
+        Node(FIELD_VAR, "v1: Int"),
+        Node(FIELD_VAL, "v2: Int"),
         Node(TYPE_ALIAS, "T"),
         Node(METHOD_ICON, "m: Int"),
         Node(CLASS, "C"),
