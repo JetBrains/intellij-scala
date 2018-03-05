@@ -31,8 +31,9 @@ class ScalaTypeDefinitionStructureViewElement(clazz: ScTypeDefinition) extends S
       member match {
         case func: ScFunction =>
           children += new ScalaFunctionStructureViewElement(func, false)
-        case constr: ScPrimaryConstructor =>
-          children += new ScalaPrimaryConstructorStructureViewElement(constr)
+// TODO format parameters as Foo(...), add val and var members
+//        case constr: ScPrimaryConstructor =>
+//          children += new ScalaPrimaryConstructorStructureViewElement(constr)
         case member: ScVariable =>
           for (f <- member.declaredElements)
             children += new ScalaVariableStructureViewElement(f, false)

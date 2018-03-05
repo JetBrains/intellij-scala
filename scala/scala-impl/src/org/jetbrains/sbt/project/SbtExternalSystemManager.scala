@@ -31,7 +31,8 @@ import scala.collection.JavaConverters._
  */
 class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtProjectSettingsListener, SbtSystemSettings, SbtLocalSettings, SbtExecutionSettings]
-  with ExternalSystemConfigurableAware {
+    with ExternalSystemConfigurableAware
+    with AutoImportAwareness {
 
   override def enhanceLocalProcessing(urls: util.List[URL]) {
     urls.add(jarWith[scala.App].toURI.toURL)

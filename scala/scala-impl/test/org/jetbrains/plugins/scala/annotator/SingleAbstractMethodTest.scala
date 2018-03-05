@@ -197,7 +197,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         |
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("() => 3", typeMismatch()) :: Error("wantString", cannotResolveReference()) :: Nil =>
+      case Error("() => 3", typeMismatch()) :: Nil =>
     }
   }
 
@@ -405,7 +405,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
         Error("a()", typeMismatch()) :: Error("a()", doesNotConform()) ::
         Error("b()", typeMismatch()) :: Error("b()", doesNotConform()) ::
         Error("c", typeMismatch()) :: Error("c", doesNotConform()) ::
-        Error("()", doesNotTakeParameters()) :: Error("c", cannotResolveReference()) ::
+        Error("()", doesNotTakeParameters()) ::
         Error("d()", typeMismatch()) :: Error("d()", doesNotConform()) ::
         Error("e", typeMismatch()) :: Error("e", doesNotConform()) ::
         Error("e()", typeMismatch()) :: Error("e()", doesNotConform()) ::
@@ -588,7 +588,6 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
   val cannotResolveSymbol = ContainsPattern("Cannot resolve symbol")
   val doesNotConform = ContainsPattern("doesn't conform to expected type")
   val typeMismatch = ContainsPattern("Type mismatch")
-  val cannotResolveReference = ContainsPattern("Cannot resolve reference")
   val doesNotTakeParameters = ContainsPattern("does not take parameters")
   val missingParameterType = ContainsPattern("Missing parameter type")
 

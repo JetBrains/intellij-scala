@@ -14,7 +14,7 @@ class UnitMethodDefinedWithEqualsSignInspection extends AbstractMethodSignatureI
   "ScalaUnitMethodDefinedWithEqualsSign", "Method with Unit result type defined with equals sign") {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
-    case f: ScFunctionDefinition if !f.hasExplicitType && f.hasUnitResultType && !f.isSecondaryConstructor =>
+    case f: ScFunctionDefinition if !f.hasExplicitType && f.hasUnitResultType && !f.isConstructor =>
       f.assignment.foreach { assignment =>
         holder.registerProblem(assignment, getDisplayName, new RemoveEqualsSign(f))
       }

@@ -18,7 +18,7 @@ class UnitMethodDefinedLikeProcedureInspection
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case funDef: ScFunctionDefinition
-      if funDef.hasUnitResultType && !funDef.hasAssign && !funDef.isSecondaryConstructor && IntentionAvailabilityChecker.checkInspection(this, funDef) =>
+      if funDef.hasUnitResultType && !funDef.hasAssign && !funDef.isConstructor && IntentionAvailabilityChecker.checkInspection(this, funDef) =>
       holder.registerProblem(funDef.nameId, getDisplayName, new InsertReturnTypeAndEquals(funDef))
   }
   

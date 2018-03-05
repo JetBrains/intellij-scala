@@ -14,10 +14,16 @@ import com.intellij.build.events.impl._
 import com.intellij.build.events.{BuildEvent, MessageEvent, SuccessResult, Warning}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, events}
 import com.intellij.compiler.impl.CompilerUtil
+import com.intellij.debugger.DebuggerManagerEx
+import com.intellij.debugger.actions.HotSwapAction
+import com.intellij.debugger.impl.HotSwapManager
+import com.intellij.debugger.settings.DebuggerSettings
+import com.intellij.debugger.ui.HotSwapUI
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.compiler.ex.CompilerPathsEx
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.ProjectKeys
@@ -32,6 +38,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
@@ -217,6 +224,17 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     buildMessages match {
       case Success(messages) => report.finish(messages)
       case Failure(err) => report.finishWithFailure(err)
+    }
+
+    // reload changed classes
+    val debuggerSession = DebuggerManagerEx.getInstanceEx(project).getContext.getDebuggerSession
+    val debuggerSettings = DebuggerSettings.getInstance
+    if (debuggerSession != null &&
+      debuggerSession.isAttached &&
+      debuggerSettings.RUN_HOTSWAP_AFTER_COMPILE == DebuggerSettings.RUN_HOTSWAP_ALWAYS) {
+      extensions.invokeLater {
+        HotSwapUI.getInstance(project).reloadChangedClasses(debuggerSession, false)
+      }
     }
 
     collector.compilationFinished()

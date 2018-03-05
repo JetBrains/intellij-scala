@@ -23,12 +23,14 @@ trait ScVariable extends ScValueOrVariable {
     case other: ScVariable => super.isSimilarMemberForNavigation(other, isStrict)
     case _ => false
   }
+
+  // TODO unify with ScFunction and ScValue
   override def getIcon(flags: Int): Icon = {
     var parent = getParent
     while (parent != null) {
       parent match {
         case _: ScExtendsBlock => return Icons.FIELD_VAR
-        case _: ScBlock => return Icons.VAR
+        case (_: ScBlock | _: ScalaFile) => return Icons.VAR
         case _ => parent = parent.getParent
       }
     }

@@ -5,14 +5,10 @@ package completion3
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation, LookupManager}
-import com.intellij.openapi.vfs.VfsUtil.saveText
-import com.intellij.psi.PsiFile
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
-import com.intellij.testFramework.LightPlatformTestCase.getSourceRoot
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
 
 import scala.collection.JavaConverters
@@ -113,15 +109,6 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
       .flatMap(_.getItems.asScala)
       .filter(predicate)
   }
-
-  protected def configureJavaFile(fileText: String, className: String, packageName: String): Unit = inWriteAction {
-    val file = getSourceRoot.createChildDirectory(null, packageName)
-      .createChildData(null, s"$className.java")
-    saveText(file, normalize(fileText))
-  }
-
-  protected def configureFromFileText(fileText: String): PsiFile =
-    getFixture.configureByText(ScalaFileType.INSTANCE, normalize(fileText))
 
   protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean = true): Unit =
     getFixture.checkResult(normalize(expectedFileText), ignoreTrailingSpaces)

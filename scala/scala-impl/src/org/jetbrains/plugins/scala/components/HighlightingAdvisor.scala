@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala
 package components
 
 import java.awt.event.MouseEvent
-import javax.swing.Icon
 
+import javax.swing.Icon
 import com.intellij.ide.DataManager
 import com.intellij.notification._
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
+import com.intellij.openapi.actionSystem.{ActionManager, CommonDataKeys, DataContext}
 import com.intellij.openapi.components._
 import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.StatusBarWidget.{PlatformType, WidgetPresentation}
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
@@ -139,7 +140,7 @@ class HighlightingAdvisor(project: Project) extends AbstractProjectComponent(pro
     }
   }
 
-  private def status = s"Scala type-aware highlighting: ${if (enabled) "enabled" else "disabled"}}"
+  private def status = s"Scala type-aware highlighting: ${if (enabled) "enabled" else "disabled"}"
 
   private def updateWidget(bar: StatusBar) {
     bar.updateWidget(Widget.ID)
@@ -175,8 +176,14 @@ class HighlightingAdvisor(project: Project) extends AbstractProjectComponent(pro
 
       override def getClickConsumer: Consumer[MouseEvent] = ClickConsumer
 
-      override def getTooltipText =
-        s"$status (click to ${if (enabled) "disable" else "enable"}, or press Ctrl+Shift+Alt+E)"
+      override def getTooltipText: String = {
+        val action = ActionManager.getInstance().getAction("Scala.EnableErrors")
+        val shortcut = action.getShortcutSet.getShortcuts.headOption.map(KeymapUtil.getShortcutText)
+        val orPressShortcut = shortcut.map(sh => s" or press $sh ").getOrElse(" ")
+        val change = if (enabled) "disable" else "enable"
+
+        s"$status (click${orPressShortcut}to $change)"
+      }
 
       object ClickConsumer extends Consumer[MouseEvent] {
         def consume(t: MouseEvent): Unit = toggle()

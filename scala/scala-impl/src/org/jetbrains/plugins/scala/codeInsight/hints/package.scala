@@ -1,62 +1,44 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 
-import com.intellij.codeInsight.hints.{HintInfo, InlayInfo, Option}
-import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.extensions._
+import com.intellij.codeInsight.hints._
+import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-
-import scala.collection.JavaConverters
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 package object hints {
 
-  private[hints] type HintFunction = PartialFunction[PsiElement, Seq[InlayInfo]]
-
   private[hints] object HintOption {
 
-    def apply(idSegments: Seq[String], defaultValue: Boolean = false): Option = {
+    def apply(idSegments: String*)
+             (defaultValue: Boolean = false,
+              name: String = s"Show ${idSegments.mkString(" ")} hints"): Option = {
       val id = "scala" +: idSegments :+ "hint"
-      new Option(id.mkString("."), s"Show ${idSegments.mkString(" ")} hints", defaultValue)
+      new Option(id.mkString("."), name, defaultValue)
     }
-  }
-
-  private[hints] object MethodInfo {
-
-    def apply(method: PsiMethod): HintInfo.MethodInfo = {
-      val names = method.parameters.map(_.name)
-      import JavaConverters._
-      new HintInfo.MethodInfo(methodFqn(method), names.toList.asJava)
-    }
-
-    private def methodFqn(method: PsiMethod) = method.getContainingClass match {
-      case null => ""
-      case clazz => s"${clazz.qualifiedName}.${method.name}"
-    }
-
   }
 
   private[hints] object InlayInfo {
 
-    private[this] val TypeInfoPrefix = "@TYPE@"
+    import ScalaTokenTypes.{tASSIGN, tCOLON}
 
-    def apply(text: String, anchor: PsiElement, isParameter: Boolean = true): InlayInfo = {
-      val textRange = anchor.getTextRange
-      val offset = if (isParameter) textRange.getStartOffset else textRange.getEndOffset
-      new InlayInfo(text, offset)
-    }
+    def apply(parameter: Parameter, anchor: PsiElement): InlayInfo =
+      apply(parameter.name, tASSIGN, anchor)
 
     def apply(`type`: ScType, anchor: PsiElement): InlayInfo =
-      apply(TypeInfoPrefix + `type`.presentableText, anchor, isParameter = false)
+      apply(`type`.presentableText, tCOLON, anchor, relatesToPrecedingText = true)
 
-    def presentation(text: String): String = {
-      import ScalaTokenTypes.{tASSIGN, tCOLON}
-      text.stripPrefix(TypeInfoPrefix) match {
-        case `text` => s"$text $tASSIGN"
-        case strippedText => s"$tCOLON $strippedText"
+    private[this] def apply(text: String, token: IElementType, anchor: PsiElement,
+                            relatesToPrecedingText: Boolean = false): InlayInfo = {
+      val (offset, presentation) = anchor.getTextRange match {
+        case range if relatesToPrecedingText => (range.getEndOffset, s"$token $text")
+        case range => (range.getStartOffset, s"$text $token")
       }
-    }
 
+      new InlayInfo(presentation, offset, false, true, relatesToPrecedingText)
+    }
   }
 
 }

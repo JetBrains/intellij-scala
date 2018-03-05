@@ -27,7 +27,7 @@ abstract class CreateFromUsageQuickFixBase(ref: ScReferenceElement, description:
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (!ref.isValid) return false
     if (file == null || !file.isInstanceOf[ScalaFile]) return false
-    if (!ref.getManager.isInProject(file)) return false
+    if (!ref.getManager.isInProject(file) && !file.asInstanceOf[ScalaFile].isWorksheetFile) return false
     if (file.isInstanceOf[ScalaCodeFragment]) return false
     
     true

@@ -6,6 +6,7 @@ package statements
 
 
 import java.util
+import javax.swing.Icon
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
@@ -15,6 +16,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
+import com.intellij.util.PlatformIcons
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -22,9 +24,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
@@ -316,7 +319,18 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def parameters: Seq[ScParameter] = paramClauses.params
 
-  override def getIcon(flags: Int) = Icons.FUNCTION
+  // TODO unify with ScValue and ScVariable
+  override def getIcon(flags: Int): Icon = {
+    var parent = getParent
+    while (parent != null) {
+      parent match {
+        case _: ScExtendsBlock => return PlatformIcons.METHOD_ICON
+        case (_: ScBlock | _: ScalaFile) => return Icons.FUNCTION
+        case _ => parent = parent.getParent
+      }
+    }
+    null
+  }
 
   def getReturnType: PsiType = {
     if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
@@ -599,21 +613,22 @@ object ScFunction {
   }
 
   object Ext {
-    private val Apply = "apply"
-    private val Update = "update"
+    val Apply = "apply"
+    val Update = "update"
+    val GetSet = Set(Apply, Update)
 
-    private val Unapply = "unapply"
-    private val UnapplySeq = "unapplySeq"
+    val Unapply = "unapply"
+    val UnapplySeq = "unapplySeq"
+    val Unapplies = Set(Unapply, UnapplySeq)
 
-    private val Foreach = "foreach"
-    private val Map = "map"
-    private val FlatMap = "flatMap"
-    private val Filter = "filter"
-    private val WithFilter = "withFilter"
+    val Foreach = "foreach"
+    val Map = "map"
+    val FlatMap = "flatMap"
+    val Filter = "filter"
+    val WithFilter = "withFilter"
+    val ForComprehensions: Set[String] = Set(Foreach, Map, FlatMap, Filter, WithFilter)
 
-    private val Unapplies: Set[String] = Set(Unapply, UnapplySeq)
-    private val ForComprehensions: Set[String] = Set(Foreach, Map, FlatMap, Filter, WithFilter)
-    private val Special: Set[String] = Set(Apply, Update) ++ Unapplies ++ ForComprehensions
+    private val Special: Set[String] = GetSet ++ Unapplies ++ ForComprehensions
   }
 
   private val calculatingBlockKey: Key[ThreadLocal[Boolean]] = Key.create("calculating.function.returns.block")

@@ -4,6 +4,7 @@ package structureView
 package itemsPresentations
 package impl
 
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /**
@@ -11,8 +12,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 * Date: 04.05.2008
 */
 
-class ScalaTypeDefinitionItemPresentation(private val element: ScTypeDefinition) extends ScalaItemPresentation(element) {
+class ScalaTypeDefinitionItemPresentation(definition: ScTypeDefinition) extends ScalaItemPresentation(definition) {
   def getPresentableText: String = {
-    ScalaElementPresentation.getTypeDefinitionPresentableText(myElement.asInstanceOf[ScTypeDefinition])
+    val typeParameters = definition.typeParametersClause.map(_.typeParameters.map(_.name).mkString("[", ", ", "]"))
+
+    val valueParameters = definition.asOptionOf[ScClass].flatMap {
+      _.constructor.map(it => StructureViewUtil.getParametersAsString(it.parameterList))
+    }
+
+    val name = Option(definition.nameId).map(_.getText)
+
+    name.getOrElse("") + typeParameters.getOrElse("") + valueParameters.getOrElse("")
   }
 }

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiParameterExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
@@ -171,8 +171,22 @@ object MethodTypeProvider {
 
     private def parameters: Seq[Parameter] = element match {
       case f: FakePsiMethod => f.params.toSeq
-      case _ => element.parameters.map(Parameter(_))
+      case _ => element.parameters.map(toParameter)
+    }
+
+    private def toParameter(psiParameter: PsiParameter) = {
+      val scType = psiParameter.paramType()
+      Parameter(
+        name = psiParameter.getName,
+        deprecatedName = None,
+        paramType = scType,
+        expectedType = scType,
+        isDefault = false,
+        isRepeated = psiParameter.isVarArgs,
+        isByName = false,
+        index = psiParameter.index,
+        psiParam = Some(psiParameter)
+      )
     }
   }
-
 }
