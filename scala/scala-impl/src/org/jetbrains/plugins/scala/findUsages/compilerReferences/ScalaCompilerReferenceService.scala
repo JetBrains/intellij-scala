@@ -7,16 +7,26 @@ import java.util.function.BiConsumer
 import scala.collection.JavaConverters._
 import com.intellij.compiler.CompilerReferenceService
 import com.intellij.compiler.backwardRefs.CompilerReferenceServiceBase
-import com.intellij.compiler.backwardRefs.CompilerReferenceServiceBase.{IndexCloseReason, IndexOpenReason}
+import com.intellij.compiler.backwardRefs.CompilerReferenceServiceBase.{
+  CompilerElementInfo,
+  IndexCloseReason,
+  IndexOpenReason
+}
 import com.intellij.compiler.server.{BuildManagerListener, CustomBuilderMessageHandler}
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerTopics}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiModifier, PsiModifierListOwner}
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.plugin.scala.compilerReferences.{BuildData, CompilerReferenceIndexBuilder}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 private[findUsages] class ScalaCompilerReferenceService(
   project: Project,
@@ -91,10 +101,17 @@ private[findUsages] class ScalaCompilerReferenceService(
     psiElement: PsiElement,
     buildHierarchyForLibraryElements: Boolean,
     checkNotDirty: Boolean
-  ): CompilerReferenceServiceBase.CompilerElementInfo = {
-    // @TODO: handle Scala-specific stuff (e.g. synthetic getter/setters, objects etc.)
+  ): CompilerReferenceServiceBase.CompilerElementInfo =
+//    val referencingElements = bytecodeReferencingElements(psiElement)
+//
+//    val compilerElements =
+//      referencingElements.flatMap(super.asCompilerElements(_, buildHierarchyForLibraryElements, checkNotDirty).toOption)
+//
+//    val place = compilerElements.headOption.map(_.place)
+//    val searchElements = compilerElements.flatMap(_.searchElements)
+//
+//    place.map(new CompilerElementInfo(_, searchElements: _*)).orNull
     super.asCompilerElements(psiElement, buildHierarchyForLibraryElements, checkNotDirty)
-  }
 }
 
 private[findUsages] object ScalaCompilerReferenceService {
@@ -102,4 +119,29 @@ private[findUsages] object ScalaCompilerReferenceService {
 
   def getInstance(project: Project): ScalaCompilerReferenceService =
     project.getComponent(classOf[ScalaCompilerReferenceService])
+
+  private def isLocal(e: ScNamedElement): Boolean = e.nameContext match {
+    case member: ScMember => member.containingClass == null
+    case _                => true
+  }
+
+  private def bytecodeReferencingElements(element: PsiElement): Seq[PsiElement] = element match {
+    case e: ScModifierListOwner if e.isPrivateThis                             => if (ScalaPsiUtil.isImplicit(e)) Seq(e) else Seq.empty
+    case e: PsiModifierListOwner if e.hasModifierProperty(PsiModifier.PRIVATE) => Seq.empty
+    case e: ScClassParameter                                                   => getFakeAccessorMethods(e)
+    case e: ScTypedDefinition if !isLocal(e)                                   => getFakeAccessorMethods(e)
+    case _                                                                     => Seq(element)
+  }
+
+  private def getFakeAccessorMethods(e: ScTypedDefinition): Seq[PsiElement] = {
+    val tpe = e.`type`().getOrAny
+
+    val maybeSetter =
+      if (e.isVar) e.getUnderEqualsMethod.setName(e.name + "_$eq").toOption
+      else None
+
+    val getter = new FakePsiMethod(e, e.name, Array.empty, tpe, Function.const(false))
+
+    Seq(getter) ++ maybeSetter
+  }
 }
