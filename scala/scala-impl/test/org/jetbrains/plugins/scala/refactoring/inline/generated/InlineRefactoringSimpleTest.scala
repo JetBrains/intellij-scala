@@ -13,4 +13,8 @@ class InlineRefactoringSimpleTest extends InlineRefactoringTestBase {
   def testMember() = doTest()
 
   def testMethodWithParentheses() = doTest()
+
+  def testStringInterpolation() = doTest()
+
+  def testStringInterpolation2() = doTest()
 }

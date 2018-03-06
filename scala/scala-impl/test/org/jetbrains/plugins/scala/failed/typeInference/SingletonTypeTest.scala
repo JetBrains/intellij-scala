@@ -9,6 +9,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class SingletonTypeTest extends TypeInferenceTestBase {
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL9053() = {
     val text =
       s"""class Base

@@ -31,8 +31,8 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
         |      def stringOp(string: String): F[String]
         |      def aOp[A](a: A): F[A]
         |    }
-        |    final case class StringOp(string: String) extends FooOp[String]()
-        |    final case class AOp[A](a: A) extends FooOp[A]()
+        |    final case class StringOp(string: String) extends FooOp[String]
+        |    final case class AOp[A](a: A) extends FooOp[A]
         |  }
         |}""".stripMargin
     myFixture.findClass("FooOp").asInstanceOf[ScTypeDefinition].getMetaExpansion match {
@@ -235,7 +235,7 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
       """.stripMargin
     )
 
-    assertTrue("Imported member doesn't resolve", refAtCaret.bind().isDefined)
+    checkCaretResolves()
   }
 
   // scala.meta macro expansion fails when pattern matching on annotation constructor with Symbol*
@@ -278,4 +278,44 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
     checkNoErrorHighlights("Wrong number of type parameters.")
   }
 
+  def testSCL13182(): Unit = {
+    compileAnnotBody("defn")
+    val code = s"""
+      |class A
+      |trait B
+      |
+      |@$annotName
+      |class $testClassName extends A with B { def foo: Int = 42 }
+      """.stripMargin
+
+
+    createFile(code)
+    checkNoErrorHighlights()
+  }
+
+  // Macro that generates companion object breaks case class behavior
+  def testSCL13214(): Unit = {
+    compileMetaSource(
+      s"""import scala.meta._
+         |class $annotName(fields: scala.Symbol*) extends scala.annotation.StaticAnnotation {
+         |  inline def apply(defn: Any): Any = meta {
+         |    val q"case class $$name(..$$paramss)" = defn
+         |    q$tq
+         |      case class $$name(..$$paramss)
+         |      object $${Term.Name(name.value)} { def foo = 42 }
+         |    $tq
+         |  }
+         |}""".stripMargin
+    )
+    createFile(
+      s"""
+         |@$annotName
+         |case class $testClassName(foo: Int, bar: String)
+         |
+         |$testClassName.apply<caret>(42, "foo")
+         |""".stripMargin
+    )
+
+    checkCaretResolves()
+  }
 }

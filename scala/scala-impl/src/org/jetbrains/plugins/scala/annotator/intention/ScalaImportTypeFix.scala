@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall,
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
@@ -127,7 +127,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
         val refStart = ref.getTextRange.getStartOffset
         val refEnd = ref.getTextRange.getEndOffset
         if (classes.nonEmpty && refStart >= startOffset(editor) && refStart <= endOffset(editor) && editor != null &&
-        refEnd < editor.getDocument.getTextLength) {
+          refEnd < editor.getDocument.getTextLength) {
           HintManager.getInstance().showQuestionHint(editor,
             if (classes.length == 1) classes(0).qualifiedName + "? Alt+Enter"
             else classes(0).qualifiedName + "? (multiple choices...) Alt+Enter",
@@ -168,7 +168,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
                   }
               }
             }
-          }, clazz.getProject, "Add import action")
+          }, clazz.element.getProject, "Add import action")
         }
       })
     }
@@ -180,9 +180,8 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
         ScalaBundle.message("import.something.chooser.title")
       )
       val popup: BaseListPopupStep[TypeToImport] = new BaseListPopupStep[TypeToImport](title, classes: _*) {
-        override def getIconFor(aValue: TypeToImport): Icon = {
-          aValue.getIcon
-        }
+        override def getIconFor(aValue: TypeToImport): Icon =
+          aValue.element.getIcon(0)
 
         override def getTextFor(value: TypeToImport): String = {
           ObjectUtils.assertNotNull(value.qualifiedName)
@@ -243,60 +242,52 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
 object ScalaImportTypeFix {
 
   sealed trait TypeToImport {
-    def name: String
+    protected type E <: PsiNamedElement
+
+    val element: E
+
+    final def name: String = element.name
 
     def qualifiedName: String
-
-    def element: PsiNamedElement
 
     def isAnnotationType: Boolean = false
 
     def isValid: Boolean = element.isValid
-
-    def getIcon: Icon = element.getIcon(0)
-
-    def getProject: Project = element.getProject
   }
 
   object TypeToImport {
-    def unapply(elem: PsiElement): Option[TypeToImport] = {
-      elem match {
-        case clazz: PsiClass => Some(ClassTypeToImport(clazz))
-        case ta: ScTypeAlias => Some(TypeAliasToImport(ta))
-        case pack: ScPackage => Some(PrefixPackageToImport(pack))
-        case _ => None
-      }
-    }
+
+    def unapply(`type`: TypeToImport): Some[(PsiNamedElement, String)] =
+      Some(`type`.element, `type`.name)
   }
 
-  case class ClassTypeToImport(clazz: PsiClass) extends TypeToImport {
-    def name: String = clazz.name
+  case class ClassTypeToImport(element: PsiClass) extends TypeToImport {
 
-    def qualifiedName: String = clazz.qualifiedName
+    override protected type E = PsiClass
 
-    def element: PsiNamedElement = clazz
+    def qualifiedName: String = element.qualifiedName
 
-    override def isAnnotationType: Boolean = clazz.isAnnotationType
+    override def isAnnotationType: Boolean = element.isAnnotationType
   }
 
-  case class TypeAliasToImport(ta: ScTypeAlias) extends TypeToImport {
-    def name: String = ta.name
+  case class TypeAliasToImport(element: ScTypeAlias) extends TypeToImport {
+
+    override protected type E = ScTypeAlias
 
     def qualifiedName: String = {
-      val clazz: ScTemplateDefinition = ta.containingClass
-      if (clazz == null || clazz.qualifiedName == "") ta.name
-      else clazz.qualifiedName + "." + ta.name
-    }
+      val name = element.name
 
-    def element: PsiNamedElement = ta
+      val clazz = element.containingClass
+      if (clazz == null || clazz.qualifiedName == "") name
+      else clazz.qualifiedName + "." + name
+    }
   }
 
-  case class PrefixPackageToImport(pack: ScPackage) extends TypeToImport {
-    def name: String = pack.name
+  case class PrefixPackageToImport(element: ScPackage) extends TypeToImport {
 
-    def qualifiedName: String = pack.getQualifiedName
+    override protected type E = ScPackage
 
-    def element: PsiNamedElement = pack
+    def qualifiedName: String = element.getQualifiedName
   }
 
   def getImportHolder(ref: PsiElement, project: Project): ScImportsHolder = {
@@ -353,6 +344,7 @@ object ScalaImportTypeFix {
         ResolveUtils.isAccessible(clazz, ref) &&
         !JavaCompletionUtil.isInExcludedPackage(clazz, false)
     }
+
     val buffer = new ArrayBuffer[TypeToImport]
 
     classes.flatMap {

@@ -19,19 +19,25 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement](annotator: AnnotatorPart[
   final val Prefix = "object Holder { class Object; "
   final val Suffix = " }"
 
-  protected def messages(@Language(value = "Scala", prefix = Prefix, suffix = Suffix) code: String): List[Message] = {
+  protected def messages(@Language(value = "Scala", prefix = Prefix, suffix = Suffix) code: String): Option[List[Message]] = {
     val s: String = Prefix + code + Suffix
     val file: ScalaFile = s.parse
     val mock = new AnnotatorHolderMock(file)
 
-    assertEquals(Nil, file.depthFirst().filterByType[PsiErrorElement].map(_.getText).toList)
+    val errorElements = file.depthFirst().filterByType[PsiErrorElement].map(_.getText).toList
+    val notResolved = file.depthFirst().filterByType[PsiReference].filter(_.resolve == null).map(_.getElement.getText).toList
+    if (shouldPass) {
+      assertEquals(Nil, errorElements)
+      assertEquals(Nil, notResolved)
+    } else {
+      if (errorElements.nonEmpty) return None
+      if (notResolved.nonEmpty) return None
+    }
 
-    assertEquals(Nil, file.depthFirst().filterByType[PsiReference]
-            .filter(_.resolve == null).map(_.getElement.getText).toList)
 
     file.depthFirst().filterByType[T](ClassTag(annotator.kind)).foreach { it =>
       annotator.annotate(it, mock, typeAware = true)
     }
-    mock.annotations
+    Some(mock.annotations)
   }
 }

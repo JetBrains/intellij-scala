@@ -5,11 +5,6 @@ package editor.importOptimizer
 import java.util
 import java.util.concurrent.atomic.AtomicInteger
 
-import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.{immutable, mutable}
-
 import com.intellij.concurrency.JobLauncher
 import com.intellij.lang.{ImportOptimizer, LanguageImportStatements}
 import com.intellij.openapi.editor.Document
@@ -37,6 +32,12 @@ import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.worksheet.ScalaScriptImportsUtil
+
+import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{immutable, mutable}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -132,7 +133,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
       //todo: collect proper information about language features
       importUsed match {
         case ImportSelectorUsed(sel) if sel.isAliasedImport => true
-        case _ => usedImports.contains(importUsed) || isLanguageFeatureImport(importUsed) || importUsed.qualName.exists(isAlwaysUsedImport)
+        case _ => usedImports.contains(importUsed) || isLanguageFeatureImport(importUsed) || 
+          importUsed.qualName.exists(isAlwaysUsedImport) || ScalaScriptImportsUtil.isImportUsed(importUsed)
       }
     }
 
@@ -433,7 +435,7 @@ object ScalaImportOptimizer {
       if (info.canAddRoot && importedNames.contains(getFirstId(info.prefixQualifier)))
         importInfos.update(i, info.withRootPrefix)
 
-      importedNames ++= info.allNames
+      if (!ScalaScriptImportsUtil.cannotShadowName(info)) importedNames ++= info.allNames
     }
   }
 
@@ -664,7 +666,12 @@ object ScalaImportOptimizer {
   }
 
   private def mergeImportInfos(buffer: ArrayBuffer[ImportInfo]): ArrayBuffer[ImportInfo] = {
+    def canBeMergedAt(i: Int): Boolean =
+      i > -1 && i < buffer.length && !ScalaScriptImportsUtil.preventMerging(buffer(i))
+    
     def samePrefixAfter(i: Int): Int = {
+      if (!canBeMergedAt(i)) return -1
+      
       var j = i + 1
       while (j < buffer.length) {
         if (buffer(j).prefixQualifier == buffer(i).prefixQualifier) return j
@@ -672,6 +679,7 @@ object ScalaImportOptimizer {
       }
       -1
     }
+    
     var i = 0
     while (i < buffer.length - 1) {
       val prefixIndex: Int = samePrefixAfter(i)
@@ -776,7 +784,7 @@ object ScalaImportOptimizer {
       }
     }
 
-    def addWithImplicits(srr: ScalaResolveResult, fromElem: PsiElement) = {
+    def addWithImplicits(srr: ScalaResolveResult, fromElem: PsiElement): Unit = {
       withImplicits(srr).foreach(addResult(_, fromElem))
     }
 

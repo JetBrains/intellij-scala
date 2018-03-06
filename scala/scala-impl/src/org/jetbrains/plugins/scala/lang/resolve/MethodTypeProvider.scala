@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import scala.annotation.tailrec
-import scala.collection.Seq
-import scala.language.implicitConversions
-
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiParameterExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
@@ -14,8 +10,13 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement, ScalaPsiUtil}
+
+import scala.annotation.tailrec
+import scala.collection.Seq
+import scala.language.implicitConversions
 
 /**
   * Nikolay.Tropin
@@ -78,9 +79,11 @@ object MethodTypeProvider {
     case pc: ScPrimaryConstructor => ScPrimaryConstructorProvider(pc)
   }
 
-  implicit def fromPsiMethod(m: PsiMethod): MethodTypeProvider[PsiMethod] = m match {
-    case ml: ScMethodLike => fromScMethodLike(ml)
-    case m: PsiMethod => JavaMethodProvider(m)
+  implicit class PsiMethodTypeProviderExt(val m: PsiMethod) extends AnyVal {
+    def methodTypeProvider(scope: ElementScope): MethodTypeProvider[PsiMethod] = m match {
+      case ml: ScMethodLike => fromScMethodLike(ml)
+      case m: PsiMethod     => JavaMethodProvider(m)(scope)
+    }
   }
 
   private case class ScFunProvider(element: ScFun)
@@ -142,7 +145,7 @@ object MethodTypeProvider {
       val parentClazz = ScalaPsiUtil.getPlaceTd(clazz)
       val designatorType: ScType =
         if (parentClazz != null)
-          ScProjectionType(ScThisType(parentClazz), clazz, superReference = false)
+          ScProjectionType(ScThisType(parentClazz), clazz)
         else ScDesignatorType(clazz)
       if (typeParameters.isEmpty) designatorType
       else {
@@ -151,11 +154,13 @@ object MethodTypeProvider {
     }
   }
 
-  private case class JavaMethodProvider(element: PsiMethod) extends MethodTypeProvider[PsiMethod] {
+  private case class JavaMethodProvider(element: PsiMethod)
+                                       (override implicit val scope: ElementScope)
+    extends MethodTypeProvider[PsiMethod] {
     def typeParameters: Seq[PsiTypeParameter] = element.getTypeParameters
 
     def methodType(returnType: Option[ScType] = None): ScType = {
-      val retType: ScType = returnType.getOrElse(computeReturnType)
+      val retType = returnType.getOrElse(computeReturnType)
       ScMethodType(retType, parameters, isImplicit = false)
     }
 
@@ -171,14 +176,17 @@ object MethodTypeProvider {
 
     private def toParameter(psiParameter: PsiParameter) = {
       val scType = psiParameter.paramType()
-      Parameter("", None, scType, scType,
+      Parameter(
+        name = psiParameter.getName,
+        deprecatedName = None,
+        paramType = scType,
+        expectedType = scType,
         isDefault = false,
         isRepeated = psiParameter.isVarArgs,
         isByName = false,
-        psiParameter.index,
-        Some(psiParameter))
+        index = psiParameter.index,
+        psiParam = Some(psiParameter)
+      )
     }
   }
-
 }
-

@@ -21,6 +21,7 @@
         <extensionPoint name="nailgunServerAdditionalCp" beanClass="org.jetbrains.plugins.scala.compiler.NailgunServerAdditionalCp"/>
         <extensionPoint name="sdkResolver" interface="org.jetbrains.sbt.project.data.SdkResolver"/>
         <extensionPoint name="unresolvedReferenceFixProvider" interface="org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider"/>
+        <extensionPoint name="interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -215,12 +216,15 @@
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.meta.intellij.editor.MetaExpansionLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.macros.intellij.editor.Macros2ExpansionLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <declarationRangeHandler order="first" key="org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction"
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScFunctionDeclarationRangeHandler"/>
         <declarationRangeHandler order="first" key="org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition"
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScTemplateDeclarationRangeHandler"/>
+        <codeInsight.parameterNameHints language="Scala"
+                                        implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayParameterHintsProvider"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.actions.WorksheetGotoResNHandler" order="first"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteGotoHandler" order="first"/>
@@ -1579,15 +1583,6 @@
                 description="Generate equals() and hashCode() methods">
           <add-to-group group-id="GenerateGroup"/>
         </action>
-        <action id="Scala.RunMacrosheet" class="org.jetbrains.plugins.scala.util.macroDebug.RunMacrosheetAction"
-                text="Expand All Macros" description="Expand All Macros">
-          <!-- TODO: what group do I use here? so far I've just customized the popup menu and am done with it -->
-          <!-- <add-to-group group-id="FoldingPopupGroup" anchor="last"/> -->
-        </action>
-        <action id="Scala.CleanMacrosheet" class="org.jetbrains.plugins.scala.util.macroDebug.CleanMacrosheetAction"
-                text="Hide Macro Expansions" description="Hide Macro Expansions">
-          <!-- <add-to-group group-id="FoldingPopupGroup" anchor="last"/> -->
-        </action>
         <action id="Scala.GenerateToString"
                 class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateToStringAction" text="toString()"
                 description="Generate toString() method">
@@ -1608,12 +1603,6 @@
                 description="Extract trait from the selected class">
           <add-to-group group-id="IntroduceActionsGroup"/>
         </action>
-        <action id="Scala.MacroExpand"
-                class="org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction"
-                description="Expand macro application under cursor">
-            <keyboard-shortcut first-keystroke="ctrl alt shift Z" keymap="$default"/>
-        </action>
-
     </actions>
 
 </idea-plugin>

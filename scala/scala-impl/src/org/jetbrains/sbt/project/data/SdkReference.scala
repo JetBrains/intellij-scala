@@ -2,7 +2,7 @@ package org.jetbrains.sbt.project.data
 
 import java.io.File
 
-import com.intellij.openapi.projectRoots.{Sdk, JavaSdk, ProjectJdkTable}
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
@@ -30,7 +30,7 @@ object SdkUtils {
       .orElse {
         sdk match {
           case JdkByVersion(version) => findMostRecentJdk(sdk => Option(sdk.getVersionString).exists(_.contains(version)))
-          case JdkByName(version) => findMostRecentJdk(_.getName.contains(version))
+          case JdkByName(version) => findMostRecentJdk(_.getName == version).orElse(findMostRecentJdk(_.getName.contains(version)))
           case JdkByHome(homeFile) => findMostRecentJdk(sdk => FileUtil.comparePaths(homeFile.getCanonicalPath, sdk.getHomePath) == 0)
           case _ => None
         }

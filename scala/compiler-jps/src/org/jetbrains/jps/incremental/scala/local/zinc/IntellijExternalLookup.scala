@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala.local.zinc
 
 import java.io.File
-import java.util
 import java.util.Optional
 
 import org.jetbrains.jps.incremental.scala.Client
@@ -45,4 +44,6 @@ case class IntellijExternalLookup(compilationData: CompilationData, client: Clie
 
     !compilationData.zincData.isCompile
   }
+
+  override def hashClasspath(classpath: Array[File]): Optional[Array[FileHash]] = Optional.empty()
 }

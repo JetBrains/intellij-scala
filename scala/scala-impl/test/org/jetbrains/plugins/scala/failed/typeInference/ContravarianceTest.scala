@@ -9,6 +9,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ContravarianceTest extends TypeInferenceTestBase {
+
+  override protected def shouldPass: Boolean = false
+
   def testScl4123() = {
     val text =
       s"""object Test {

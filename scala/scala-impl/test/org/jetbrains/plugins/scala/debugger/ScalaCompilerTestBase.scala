@@ -189,10 +189,10 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
 
   protected def saveProject(): Unit = {
     val applicationEx = ApplicationManagerEx.getApplicationEx
-    val setting = applicationEx.isDoNotSave
-    applicationEx.doNotSave(false)
+    val setting = applicationEx.isSaveAllowed
+    applicationEx.setSaveAllowed(true)
     getProject.save()
-    applicationEx.doNotSave(setting)
+    applicationEx.setSaveAllowed(setting)
   }
 }
 

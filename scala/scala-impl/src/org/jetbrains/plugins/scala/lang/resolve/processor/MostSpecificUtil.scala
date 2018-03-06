@@ -3,9 +3,6 @@ package lang
 package resolve
 package processor
 
-import scala.collection.Set
-import scala.collection.mutable.ArrayBuffer
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -14,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -24,9 +21,13 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.project.ProjectContext
+
+import scala.collection.Set
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -115,40 +116,28 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) =>
         val (t1, t2) = (r1.substitutor.subst(getType(m1, r1.implicitCase)), r2.substitutor.subst(getType(m2, r2.implicitCase)))
         def calcParams(tp: ScType, existential: Boolean): Either[Seq[Parameter], ScType] = {
+
+          def toExistentialArg(tp: TypeParameter) =
+            ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType, tp.upperType)
+
           tp match {
             case ScMethodType(_, params, _) => Left(params)
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) =>
               if (!existential) {
-                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-                  (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT(tp.nameAndId,
-                      UndefinedType(TypeParameterType(tp.psiTypeParameter, None)))
-                }
+                val s: ScSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
                 Left(params.map(p => p.copy(paramType = s.subst(p.paramType))))
               } else {
-                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-                  (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT(tp.nameAndId,
-                      ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType, tp.upperType))
-                }
+                val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
                 val arguments = typeParams.toList.map(tp =>
                   ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType)))
                 Left(params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType), arguments))))
               }
             case ScTypePolymorphicType(internal, typeParams) =>
               if (!existential) {
-                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-                  (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT(tp.nameAndId,
-                      UndefinedType(TypeParameterType(tp.psiTypeParameter, None)))
-                }
+                val s: ScSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
                 Right(s.subst(internal))
               } else {
-                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-                  (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT(tp.nameAndId,
-                      ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType, tp.upperType))
-                }
+                val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
                 val arguments = typeParams.toList.map(tp =>
                   ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType)))
                 Right(ScExistentialType(s.subst(internal), arguments))
@@ -202,20 +191,20 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
             u.getSubstitutor match {
               case Some(uSubst) =>
 
-                val nameAndIds = typeParams.map(_.nameAndId).toSet
-                def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
+                val typeParamIds = typeParams.map(_.typeParamId).toSet
+                def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
 
                 typeParams.foreach(tp => {
                   if (tp.lowerType != Nothing) {
                     val substedLower = uSubst.subst(tp.lowerType)
                     if (!hasRecursiveTypeParameters(tp.lowerType)) {
-                      u = u.addLower(tp.nameAndId, substedLower, additional = true)
+                      u = u.addLower(tp.typeParamId, substedLower, additional = true)
                     }
                   }
                   if (tp.upperType != Any) {
                     val substedUpper = uSubst.subst(tp.upperType)
                     if (!hasRecursiveTypeParameters(tp.upperType)) {
-                      u = u.addUpper(tp.nameAndId, substedUpper, additional = true)
+                      u = u.addUpper(tp.typeParamId, substedUpper, additional = true)
                     }
                   }
                 })
@@ -342,7 +331,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   //todo: implement existential dual
   def getType(e: PsiNamedElement, implicitCase: Boolean): ScType = {
     val res = e match {
-      case m: PsiMethod => m.polymorphicType()
+      case m: PsiMethod => 
+        val scope = elem.elementScope
+        m.methodTypeProvider(scope).polymorphicType()
       case fun: ScFun => fun.polymorphicType()
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
         case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, elem, true) =>

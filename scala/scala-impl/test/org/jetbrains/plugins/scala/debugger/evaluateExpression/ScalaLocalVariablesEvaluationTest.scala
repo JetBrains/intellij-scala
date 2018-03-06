@@ -447,4 +447,30 @@ abstract class ScalaLocalVariablesEvaluationTestBase extends ScalaDebuggerTestCa
       evalEquals("s", "a")
     }
   }
+
+  addFileWithBreakpoints("LocalUseNamedArgs.scala",
+    s"""
+       |object LocalUseNamedArgs {
+       |  def main(args: Array[String]): Unit = {
+       |    val j = 2
+       |
+       |    def inner(z: Int = 1) = bar(i = z, j = j)
+       |    def inner2() = bar(i = 1, j = j )
+       |
+       |    ""$bp
+       |  }
+       |
+       |  def bar(i: Int, j: Int): Int = i + j
+       |}
+      """.stripMargin.trim
+  )
+  def testLocalUseNamedArgs(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("inner()", "3")
+      evalEquals("inner(2)", "4")
+      evalEquals("inner2()", "3")
+      evalEquals("inner2", "3")
+    }
+  }
 }

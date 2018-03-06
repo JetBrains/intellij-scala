@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtProjectSettingsListenerAdapter, SbtTopic}
 
 import scala.beans.BeanProperty
+import SbtSystemSettings._
 
 /**
  * @author Pavel Fatin
@@ -36,10 +37,10 @@ class SbtSystemSettings(project: Project)
   var customLauncherPath: String = ""
 
   @BeanProperty
-  var maximumHeapSize: String = "768"
+  var maximumHeapSize: String = defaultMaxHeapSize
 
   @BeanProperty
-  var vmParameters: String = "-XX:MaxPermSize=384M"
+  var vmParameters: String = defaultVmParameters
 
   @BeanProperty
   var customVMEnabled: Boolean = false
@@ -102,6 +103,9 @@ class SbtSystemSettings(project: Project)
 
 object SbtSystemSettings {
   def getInstance(@NotNull project: Project): SbtSystemSettings = ServiceManager.getService(project, classOf[SbtSystemSettings])
+
+  val defaultMaxHeapSize = "1536"
+  val defaultVmParameters = "-XX:MaxPermSize=384M"
 }
 
 class SbtSystemSettingsState extends AbstractExternalSystemSettings.State[SbtProjectSettings] {
@@ -114,10 +118,10 @@ class SbtSystemSettingsState extends AbstractExternalSystemSettings.State[SbtPro
   var customLauncherPath: String = ""
 
   @BeanProperty
-  var maximumHeapSize: String = "768"
+  var maximumHeapSize: String = defaultMaxHeapSize
 
   @BeanProperty
-  var vmParameters: String = "-XX:MaxPermSize=384M"
+  var vmParameters: String = defaultVmParameters
 
   @BeanProperty
   var customVMEnabled: Boolean = false

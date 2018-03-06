@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.failed.annotator
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.annotator.OverridingAnnotatorTestBase
 import org.junit.experimental.categories.Category
+import org.jetbrains.plugins.scala.annotator.Message
 
 /**
   * Created by mucianm on 22.03.16.
@@ -10,9 +11,11 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
 
+  override protected def shouldPass: Boolean = false
+
   //#SCL-8577 overriding of inaccessible members with qualified private must show an error
   def testInaccessiblePrivateMembers(): Unit = {
-    assert(
+    assertMatches(
       messages(
         """
           |object FOO {
@@ -24,7 +27,9 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
           |  override def foo: Int = 2
           |}}
         """.stripMargin
-      ).nonEmpty)
+      )) {
+      case l: List[Message] if l.nonEmpty =>
+    }
   }
 
   def testSCL8228(): Unit = {

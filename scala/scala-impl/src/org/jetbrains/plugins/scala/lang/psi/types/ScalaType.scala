@@ -35,7 +35,7 @@ object ScalaType {
 
     if (visited contains tp) return Right(tp)
     tp match {
-      case proj@ScProjectionType(_, _, _) => proj.actualElement match {
+      case proj@ScProjectionType(_, _) => proj.actualElement match {
         case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
           t.aliasedType.flatMap(t => expandAliases(proj.actualSubst.subst(t), visited + tp))
         case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty =>
@@ -78,7 +78,7 @@ object ScalaType {
         }
 
         clazzOpt match {
-          case Some(clazz) => ScProjectionType(ScThisType(clazz), element, superReference = false)
+          case Some(clazz) => ScProjectionType(ScThisType(clazz), element)
           case _ => ScDesignatorType(element)
         }
     }

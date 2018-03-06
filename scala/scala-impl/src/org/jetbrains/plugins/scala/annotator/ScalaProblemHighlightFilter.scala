@@ -8,6 +8,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 /**
   * @author Alefas
@@ -16,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
   def shouldHighlight(file: PsiFile): Boolean = {
     file match {
-      case scalaFile: ScalaFile if scalaFile.getFileType == ScalaFileType.INSTANCE => // can be for example sbt file type
+      case scalaFile: ScalaFile if scalaFile.getFileType == ScalaFileType.INSTANCE && !AmmoniteUtil.isAmmoniteFile(scalaFile) => // can be for example sbt file type
         !JavaProjectRootsUtil.isOutsideJavaSourceRoot(file) || 
           scalaFile.getViewProvider.getFileType == ScratchFileType.INSTANCE || 
           scalaFile.isScriptFile || ScalaConsoleInfo.isConsole(file)

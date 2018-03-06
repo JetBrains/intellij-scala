@@ -17,8 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.MethodInvocationImpl._
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TupleType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
-import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, Compatibility, ScSubstitutor, ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, Compatibility, ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
@@ -174,15 +175,16 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   }
 
   private def functionParams(params: Seq[ScType]): Seq[Parameter] = {
-    val functionName = s"scala.Function${params.length}"
-    val functionClass = elementScope.getCachedClass(functionName)
+    val functionClass = elementScope
+      .getCachedClass(FunctionType.TypeName + params.length)
       .collect {
         case t: ScTrait => t
       }
-    val applyFunction = functionClass.flatMap(_.functions.find(_.name == "apply"))
+
+    val applyFunction = functionClass.flatMap(_.functions.find(_.isApplyMethod))
     params.mapWithIndex {
       case (tp, i) =>
-        new Parameter("v" + (i + 1), None, tp, tp, false, false, false, i, applyFunction.map(_.parameters.apply(i)))
+        new Parameter("v" + (i + 1), None, tp, tp, false, false, false, i, applyFunction.map(_.parameters(i)))
     }
   }
 
@@ -234,7 +236,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     PartialFunction.condOpt(candidates) {
       case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
 
-        val polyType = fun.polymorphicType(s).updateTypeOfDynamicCall(r.isDynamic)
+        val typeProvider = fun.methodTypeProvider(elementScope)
+        val polyType = typeProvider.polymorphicType(s).updateTypeOfDynamicCall(r.isDynamic)
 
         val fixedType = invokedType match {
           case ScTypePolymorphicType(_, typeParams) =>

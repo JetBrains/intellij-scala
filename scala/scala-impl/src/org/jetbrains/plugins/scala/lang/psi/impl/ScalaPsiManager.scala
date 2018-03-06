@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManag
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticPackageCreator}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
@@ -259,6 +260,7 @@ class ScalaPsiManager(val project: Project) {
     ScParameterizedType.cache.clear()
     collectImplicitObjectsCache.clear()
     implicitCollectorCache.clear()
+    idToName.clear()
   }
 
   private def clearOnChange(): Unit = {
@@ -271,7 +273,7 @@ class ScalaPsiManager(val project: Project) {
     clearCaches()
   }
 
-  private def clearOnOutOfCodeBlockChange(): Unit = {
+  private def clearOnJavaStructureChange(): Unit = {
     clearCacheOnOutOfBlockChange.foreach(_.clear())
     syntheticPackages.clear()
   }
@@ -327,7 +329,7 @@ class ScalaPsiManager(val project: Project) {
 
   object CacheInvalidator extends PsiTreeChangeAdapter {
     @volatile
-    private var outOfCodeBlockModCount: Long = 0L
+    private var javaStructureModCount: Long = 0L
 
     private def fromIdeaInternalFile(event: PsiTreeChangeEvent) = {
       val virtFile = event.getFile match {
@@ -351,10 +353,10 @@ class ScalaPsiManager(val project: Project) {
 
       CachesUtil.updateModificationCount(event.getParent)
       clearOnChange()
-      val count = PsiModificationTracker.SERVICE.getInstance(project).getOutOfCodeBlockModificationCount
-      if (outOfCodeBlockModCount != count) {
-        outOfCodeBlockModCount = count
-        clearOnOutOfCodeBlockChange()
+      val count = PsiModificationTracker.SERVICE.getInstance(project).getJavaStructureModificationCount
+      if (javaStructureModCount != count) {
+        javaStructureModCount = count
+        clearOnJavaStructureChange()
       }
     }
 
@@ -379,7 +381,7 @@ class ScalaPsiManager(val project: Project) {
 
   def clearAllCaches(): Unit = {
     clearOnChange()
-    clearOnOutOfCodeBlockChange()
+    clearOnJavaStructureChange()
   }
 
   @TestOnly
@@ -404,7 +406,7 @@ object ScalaPsiManager {
         LOG.debug("Clear caches on root change")
         val manager = ScalaPsiManager.instance(project)
         manager.clearOnChange()
-        manager.clearOnOutOfCodeBlockChange()
+        manager.clearOnJavaStructureChange()
         project.putUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY, null)
       }
     })
@@ -448,7 +450,7 @@ class ScalaPsiModificationTracker(project: Project) extends ModificationTracker 
   private val mainModificationTracker = PsiManager.getInstance(project).getModificationTracker
 
   def getModificationCount: Long = {
-    myRawModificationCount.get() + mainModificationTracker.getOutOfCodeBlockModificationCount
+    myRawModificationCount.get() + mainModificationTracker.getJavaStructureModificationCount
   }
 
   def incModificationCount(): Long = myRawModificationCount.incrementAndGet()

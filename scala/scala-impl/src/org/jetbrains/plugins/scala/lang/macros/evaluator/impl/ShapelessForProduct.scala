@@ -23,8 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
 
 /**
  * @author Mikhail.Mutcianko
@@ -43,7 +43,7 @@ object ShapelessForProduct extends ScalaMacroTypeable {
       case Some(c: ScTypeDefinition) =>
         val tpt = c.typeParameters
         if (tpt.isEmpty) return None
-        val undef = UndefinedType(TypeParameterType(tpt.head))
+        val undef = UndefinedType(tpt.head)
         val genericType = ScParameterizedType(ScDesignatorType(c), Seq(undef))
         val (res, undefSubst) = context.expectedType.get.conforms(genericType, ScUndefinedSubstitutor())
         if (!res) return None
@@ -68,8 +68,8 @@ object ShapelessForProduct extends ScalaMacroTypeable {
                   case _ => false
                 }
                 if (elem.isEmpty) return None
-                Some(ScParameterizedType(ScProjectionType(ScDesignatorType(obj), elem.get.asInstanceOf[PsiNamedElement],
-                  superReference = false), Seq(productLikeType, repr)))
+                Some(ScParameterizedType(ScProjectionType(ScDesignatorType(obj), elem.get.asInstanceOf[PsiNamedElement]),
+                  Seq(productLikeType, repr)))
               case _ => None
             }
           case _ => None

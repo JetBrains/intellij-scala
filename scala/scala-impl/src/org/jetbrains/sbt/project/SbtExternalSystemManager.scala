@@ -13,9 +13,10 @@ import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, Ext
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
-import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkType, ProjectJdkTable}
+import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkType, JdkUtil, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.Pair
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.{Pair, SystemInfo}
 import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.util.Function
 import com.intellij.util.net.HttpConfigurable
@@ -23,12 +24,15 @@ import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSystemSettings}
 
+import scala.collection.JavaConverters._
+
 /**
  * @author Pavel Fatin
  */
 class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtProjectSettingsListener, SbtSystemSettings, SbtLocalSettings, SbtExecutionSettings]
-  with ExternalSystemConfigurableAware {
+    with ExternalSystemConfigurableAware
+    with AutoImportAwareness {
 
   override def enhanceLocalProcessing(urls: util.List[URL]) {
     urls.add(jarWith[scala.App].toURI.toURL)
@@ -113,9 +117,13 @@ object SbtExternalSystemManager {
   }
 
   private def getRealVmExecutable(projectJdkName: Option[String], settings: SbtSystemSettings): File = {
-    val customVmFile = new File(settings.getCustomVMPath) / "bin" / "java"
-    val customVmExecutable = settings.customVMEnabled.option(customVmFile)
-    val jdkType = JavaSdk.getInstance()
+
+    val customPath = settings.getCustomVMPath
+    val customVmExecutable =
+      if (settings.customVMEnabled && JdkUtil.checkForJre(customPath)) {
+        val javaExe = if (SystemInfo.isWindows) "java.exe" else "java"
+        Some(new File(customPath) / "bin" / javaExe)
+      } else None
 
     customVmExecutable.orElse {
       projectJdkName
@@ -131,6 +139,7 @@ object SbtExternalSystemManager {
         }
     }
     .orElse {
+      val jdkType = JavaSdk.getInstance()
       Option(ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType))
         .map { sdk =>
           new File(jdkType.getVMExecutablePath(sdk))
@@ -154,11 +163,10 @@ object SbtExternalSystemManager {
 
   private def getVmOptions(settings: SbtSystemSettings): Seq[String] = {
     val userOptions = settings.getVmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
-    val ideaProxyOptions = proxyOptionsFor(HttpConfigurable.getInstance).filterNot { opt =>
-      val optName = opt.split('=').head + "="
-      userOptions.exists(_.startsWith(optName))
-    }
-    Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++ userOptions ++ ideaProxyOptions ++ fileEncoding(userOptions)
+    val ideaProxyOptions =
+      proxyOptionsFor(HttpConfigurable.getInstance, { case (optName,_) => !userOptions.exists(_.startsWith(optName)) })
+
+    Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++ ideaProxyOptions ++ userOptions ++ fileEncoding(userOptions).toSeq
   }
 
   private def fileEncoding(userOptions: Seq[String]): Option[String] = {
@@ -167,12 +175,27 @@ object SbtExternalSystemManager {
     else Some(s"$prefix=UTF-8")
   }
 
-  // TODO We should probably rely on the more complete HttpConfigurable.getInstance.getJvmProperties()
-  private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {
-    val useProxy = http.USE_HTTP_PROXY && !http.PROXY_TYPE_IS_SOCKS
-    val useCredentials = useProxy && http.PROXY_AUTHENTICATION
+  /**
+    * @param http the HttpConfigurable
+    * @param select Allow only options that pass this (name, value) filter
+    */
+  private def proxyOptionsFor(http: HttpConfigurable, select: ((String,String))=>Boolean): Seq[String] = {
 
-    useProxy.seq(s"-Dhttp.proxyHost=${http.PROXY_HOST}", s"-Dhttp.proxyPort=${http.PROXY_PORT}") ++
-      useCredentials.seq(s"-Dhttp.proxyUser=${http.getProxyLogin}", s"-Dhttp.proxyPassword=${http.getPlainProxyPassword}")
+    val jvmArgs = http.getJvmProperties(false, null).asScala
+
+    // TODO workaround for IDEA-186551 -- remove when fixed in core
+    val nonProxyHosts =
+      if (!StringUtil.isEmpty(http.PROXY_EXCEPTIONS)) {
+        val hosts = http.PROXY_EXCEPTIONS.split(",")
+        if (hosts.nonEmpty) {
+          val hostString = hosts.map(_.trim).mkString("|")
+          Seq(new Pair("http.nonProxyHosts", hostString))
+        } else Seq.empty
+      } else Seq.empty
+
+    (jvmArgs ++ nonProxyHosts)
+      .map { pair => (pair.first, pair.second)}
+      .filter(select(_))
+      .map { case (name,value) => s"-D$name=$value" }
   }
 }

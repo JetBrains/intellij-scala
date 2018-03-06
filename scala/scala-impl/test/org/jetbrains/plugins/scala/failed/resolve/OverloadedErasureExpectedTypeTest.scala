@@ -11,6 +11,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class OverloadedErasureExpectedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
+
+  override protected def shouldPass: Boolean = false
+
   import SimpleResolveTestBase._
 
   def testSCL7222(): Unit ={

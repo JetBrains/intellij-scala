@@ -4,8 +4,8 @@ import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiManager}
 import com.intellij.util.ui.EmptyIcon
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
@@ -14,10 +14,13 @@ import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
  * @since 27.03.12
  */
 object ScalaKeywordLookupItem {
-  def getLookupElement(keyword: String, project: Project): LookupElement = {
-    val keywordPsi: PsiElement = ScalaLightKeyword(PsiManager.getInstance(project), keyword)
-    LookupElementBuilder.create(keywordPsi, keyword).withBoldness(true).withIcon(EmptyIcon.create(16, 16)).
-      withInsertHandler(new KeywordInsertHandler(keyword))
+
+  def getLookupElement(keyword: String)
+                      (implicit project: Project): LookupElement = {
+    LookupElementBuilder.create(ScalaLightKeyword(keyword), keyword)
+      .withBoldness(true)
+      .withIcon(EmptyIcon.create(16, 16))
+      .withInsertHandler(new KeywordInsertHandler(keyword))
   }
 
   class KeywordInsertHandler(keyword: String) extends InsertHandler[LookupElement] {

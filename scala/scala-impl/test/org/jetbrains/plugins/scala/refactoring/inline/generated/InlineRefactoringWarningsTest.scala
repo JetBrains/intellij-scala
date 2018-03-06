@@ -8,8 +8,6 @@ class InlineRefactoringWarningsTest extends InlineRefactoringTestBase {
 
   def testAnonFun() = doTest()
 
-  def testAnonFunFromMethod() = doTest()
-
   def testNeverUsed() = doTest()
 
   def testNotSimplePattern() = doTest()
@@ -27,4 +25,20 @@ class InlineRefactoringWarningsTest extends InlineRefactoringTestBase {
   def testProjectionRef() = doTest()
 
   def testNotUserTypealiasDefinition() = doTest()
+
+  def testImplicitParams() = doTest()
+
+  def testParameter() = doTest()
+
+  def testImplicitVal() = doTest()
+
+  def testGenericFunction() = doTest()
+
+  def testSpecialFunction() = doTest()
+
+  def testFunctionalParam() = doTest()
+
+  def testMultipleClauses() = doTest()
+
+  def testMethodReference() = doTest()
 }

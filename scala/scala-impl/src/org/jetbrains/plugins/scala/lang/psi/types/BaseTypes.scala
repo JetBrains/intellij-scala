@@ -7,11 +7,11 @@ import java.util
 
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParameterExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -95,10 +95,10 @@ private class BaseTypesIterator(tp: ScType) extends Iterator[ScType] {
       case ScDesignatorType(ta: ScTypeAliasDefinition) => Some((ta, ScSubstitutor.empty))
       case ScProjectionType.withActual((ta: ScTypeAliasDefinition, actualSubst)) => Some((ta, actualSubst))
       case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
-        val genericSubst = ScalaPsiUtil.typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
+        val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
         Some((ta, genericSubst))
       case ParameterizedType(ScProjectionType.withActual(ta: ScTypeAliasDefinition, actualSubst), args) =>
-        val genericSubst = ScalaPsiUtil.typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
+        val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
         val s = actualSubst.followed(genericSubst)
         Some((ta, s))
       case _ => None
@@ -136,8 +136,8 @@ private class BaseTypesIterator(tp: ScType) extends Iterator[ScType] {
           else None
         case ScThisType(clazz) =>
           clazz.getTypeWithProjections().toOption
-        case TypeParameterType(Nil, _, upper, _) =>
-          Some(upper)
+        case tpt: TypeParameterType =>
+          Some(tpt.upperType)
         case ScExistentialArgument(_, Nil, _, upper) =>
           Some(upper)
         case ex: ScExistentialType =>

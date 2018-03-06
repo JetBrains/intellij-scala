@@ -10,6 +10,8 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class PatternMatchingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+  override protected def shouldPass: Boolean = false
+
   def testSCL12977() = {
     val text =
       """

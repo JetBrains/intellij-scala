@@ -13,6 +13,8 @@ import org.junit.experimental.categories.Category
 class BufferedSourceTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
   import SimpleResolveTestBase._
 
+  override protected def shouldPass: Boolean = false
+
   def testSCL3582(): Unit = {
     doResolveTest(s"scala.io.${REFSRC}BufferedSource")
   }

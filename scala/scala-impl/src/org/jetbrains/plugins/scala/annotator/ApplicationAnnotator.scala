@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiParameter}
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
@@ -22,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -70,9 +68,9 @@ trait ApplicationAnnotator {
                   for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
 
                 if (missed.nonEmpty) {
-                  holder.createErrorAnnotation(call.argsElement,
-                    "Unspecified value parameters: " + missed.mkString(", "))
-                  addCreateFromUsagesQuickFixes(reference, holder)
+                  registerCreateFromUsageFixesFor(reference,
+                    holder.createErrorAnnotation(call.argsElement,
+                      "Unspecified value parameters: " + missed.mkString(", ")))
                 }
                 val (problems, fun) = call.applyOrUpdateElement match {
                   case Some(rr) =>
@@ -82,20 +80,21 @@ trait ApplicationAnnotator {
 
                 problems.foreach {
                   case DoesNotTakeParameters() =>
-                    holder.createErrorAnnotation(call.argsElement, fun.name + " does not take parameters")
-                    addCreateFromUsagesQuickFixes(reference, holder)
+                    registerCreateFromUsageFixesFor(reference,
+                      holder.createErrorAnnotation(call.argsElement, fun.name + " does not take parameters"))
                   case ExcessArgument(argument) if inSameFile(argument, holder) =>
-                    holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(fun))
-                    addCreateFromUsagesQuickFixes(reference, holder)
+                    registerCreateFromUsageFixesFor(reference,
+                      holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(fun)))
                   case TypeMismatch(expression, expectedType) if inSameFile(expression, holder) =>
                     for (t <- expression.`type`()) {
                       //TODO show parameter name
                       val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
                       val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
                       val annotation = holder.createErrorAnnotation(expression, message)
+                      registerCreateFromUsageFixesFor(reference, annotation)
                       annotation.registerFix(ReportHighlightingErrorQuickFix)
-                      addCreateFromUsagesQuickFixes(reference, holder)
                     }
+
                   case MissedValueParameter(_) => // simultaneously handled above
                   case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
                   case MalformedDefinition() =>
@@ -118,8 +117,8 @@ trait ApplicationAnnotator {
               case _ =>
                 r.problems.foreach {
                   case MissedParametersClause(_) if !reference.isInstanceOf[ScInterpolatedPrefixReference] =>
-                    holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f))
-                    addCreateFromUsagesQuickFixes(reference, holder)
+                    registerCreateFromUsageFixesFor(reference,
+                      holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f)))
                   case _ =>
                 }
             }
@@ -280,12 +279,6 @@ trait ApplicationAnnotator {
   }
 
   private def parenthesise(items: Seq[_]) = items.mkString("(", ", ", ")")
-
-  private def addCreateFromUsagesQuickFixes(ref: ScReferenceElement, holder: AnnotationHolder) = {
-    val annotation = holder.createErrorAnnotation(ref, ScalaBundle.message("cannot.resolve.such.signature", ref.refName))
-    annotation.setHighlightType(ProblemHighlightType.INFORMATION)
-    registerCreateFromUsageFixesFor(ref, annotation)
-  }
 
   private def inSameFile(elem: PsiElement, holder: AnnotationHolder): Boolean = {
     elem != null && elem.getContainingFile == holder.getCurrentAnnotationSession.getFile

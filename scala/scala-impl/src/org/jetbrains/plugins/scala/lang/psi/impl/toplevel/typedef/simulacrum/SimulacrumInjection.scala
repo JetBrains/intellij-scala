@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
@@ -50,9 +51,9 @@ class SimulacrumInjection extends SyntheticMembersInjector {
             val additionalWithBracket = tpAdditional.map("[" + _ + "]").getOrElse("")
             def isProperTpt(tp: ScType): Option[Option[TypeParameterType]] = {
               tp match {
-                case TypeParameterType(_, _, _, param) if param == clazzTypeParam => Some(None)
-                case ParameterizedType(TypeParameterType(_, _, _, param),
-                Seq(p: TypeParameterType)) if param == clazzTypeParam => Some(Some(p))
+                case TypeParameterType.ofPsi(param) if param == clazzTypeParam => Some(None)
+                case ParameterizedType(TypeParameterType.ofPsi(param), Seq(p: TypeParameterType))
+                  if param == clazzTypeParam => Some(Some(p))
                 case _ => None
               }
             }
@@ -94,8 +95,8 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                     names.map { name =>
                         val substOpt = funTypeParamToLift match {
                           case Some(typeParam) if tpAdditional.nonEmpty =>
-                            val subst = ScSubstitutor.empty.bindT(typeParam.nameAndId,
-                              TypeParameterType(createTypeParameterFromText(tpAdditional.get)(source.getManager)))
+                            val parameterType = TypeParameterType(createTypeParameterFromText(tpAdditional.get)(source.getManager))
+                            val subst = ScSubstitutor.bind(Seq(typeParam), Seq(parameterType))
                             Some(subst)
                           case _ => None
                         }

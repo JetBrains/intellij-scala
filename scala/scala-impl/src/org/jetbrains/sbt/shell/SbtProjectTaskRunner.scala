@@ -3,21 +3,27 @@ package org.jetbrains.sbt.shell
 import java.io.File
 import java.util
 import java.util.UUID
+
 import javax.swing.JComponent
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
-
 import com.intellij.build.events.impl._
 import com.intellij.build.events.{BuildEvent, MessageEvent, SuccessResult, Warning}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, events}
 import com.intellij.compiler.impl.CompilerUtil
+import com.intellij.debugger.DebuggerManagerEx
+import com.intellij.debugger.actions.HotSwapAction
+import com.intellij.debugger.impl.HotSwapManager
+import com.intellij.debugger.settings.DebuggerSettings
+import com.intellij.debugger.ui.HotSwapUI
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.compiler.ex.CompilerPathsEx
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.ProjectKeys
@@ -32,6 +38,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
@@ -139,11 +146,15 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
   }
 
   override def run(indicator: ProgressIndicator): Unit = {
+    import org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector
 
     val report = new IndicatorReporter(indicator)
     val shell = SbtShellCommunication.forProject(project)
+//    val macroParser = new ScalaReflectMacroExpansionParser(project.getName)
+    val collector = ReflectExpansionsCollector.getInstance(project)
 
     report.start()
+    collector.compilationStarted()
 
     // TODO build events instead of indicator
     val resultAggregator: (BuildMessages,ShellEvent) => BuildMessages = { (messages,event) =>
@@ -181,6 +192,8 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
             messages.addWarning(msg)
           } else messages
 
+          collector.processCompilerMessage(text)
+
           report.output(text)
 
           messagesWithErrors.appendMessage(text)
@@ -212,6 +225,19 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
       case Success(messages) => report.finish(messages)
       case Failure(err) => report.finishWithFailure(err)
     }
+
+    // reload changed classes
+    val debuggerSession = DebuggerManagerEx.getInstanceEx(project).getContext.getDebuggerSession
+    val debuggerSettings = DebuggerSettings.getInstance
+    if (debuggerSession != null &&
+      debuggerSession.isAttached &&
+      debuggerSettings.RUN_HOTSWAP_AFTER_COMPILE == DebuggerSettings.RUN_HOTSWAP_ALWAYS) {
+      extensions.invokeLater {
+        HotSwapUI.getInstance(project).reloadChangedClasses(debuggerSession, false)
+      }
+    }
+
+    collector.compilationFinished()
   }
 
 

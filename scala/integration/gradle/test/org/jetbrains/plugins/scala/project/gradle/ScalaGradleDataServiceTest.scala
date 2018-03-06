@@ -7,13 +7,14 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.module.ModuleManager
 import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaModelData}
-import org.jetbrains.plugins.scala.project.DebuggingInfoLevel
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.{DebuggingInfoLevel, _}
 import org.jetbrains.sbt.UsefulTestCaseHelper
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
 import org.jetbrains.sbt.project.data.service.ProjectDataServiceTestCase
+import org.junit.Assert._
 
 import scala.collection.JavaConverters._
 
@@ -24,8 +25,10 @@ import scala.collection.JavaConverters._
  */
 class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulTestCaseHelper {
 
-  private def generateProject(scalaVersion: Option[String], scalaCompilerClasspath: Set[File],
-      compilerOptions: Option[ScalaCompileOptionsData]): DataNode[ProjectData] =
+  private def generateProject(scalaVersion: Option[String],
+                              scalaCompilerClasspath: Set[File],
+                              compilerOptions: Option[ScalaCompileOptionsData],
+                              separateModules: Boolean = true): DataNode[ProjectData] =
     new project {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
@@ -56,24 +59,30 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
           data.setScalaCompileOptions(compilerOptions.getOrElse(new ScalaCompileOptionsData))
           data.setTargetCompatibility("1.5")
         }
+
+        if (!separateModules) {
+          scalaLibrary.foreach(libraryDependencies += _)
+        }
       }
 
-      private val productionModule = new javaModule {
-        name := "module_main"
-        moduleFileDirectoryPath := getProject.getBasePath + "/module"
-        externalConfigPath := getProject.getBasePath + "/module"
+      if (separateModules) {
+        val productionModule = new javaModule {
+          name := "module_main"
+          moduleFileDirectoryPath := getProject.getBasePath + "/module"
+          externalConfigPath := getProject.getBasePath + "/module"
 
-        scalaLibrary.foreach(libraryDependencies += _)
-      }
+          scalaLibrary.foreach(libraryDependencies += _)
+        }
 
-      modules += productionModule
+        modules += productionModule
 
-      modules += new javaModule {
-        name := "module_test"
-        moduleFileDirectoryPath := getProject.getBasePath + "/module"
-        externalConfigPath := getProject.getBasePath + "/module"
+        modules += new javaModule {
+          name := "module_test"
+          moduleFileDirectoryPath := getProject.getBasePath + "/module"
+          externalConfigPath := getProject.getBasePath + "/module"
 
-        moduleDependencies += productionModule
+          moduleDependencies += productionModule
+        }
       }
     }.build.toDataNode
 
@@ -104,11 +113,33 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
   def testWithTheSameVersionOfScalaLibrary(): Unit = {
     importProjectData(generateProject(Some("2.10.4"), Set(new File("/tmp/test/scala-library-2.10.4.jar")), None))
 
-    import org.jetbrains.plugins.scala.project._
     val isLibrarySetUp = getProject.libraries
       .filter(_.getName.contains("scala-library"))
       .exists(_.isScalaSdk)
     assert(isLibrarySetUp, "Scala library is not set up")
+
+    // TODO test Scala SDK dependency
+  }
+
+  def testCompondModule(): Unit = {
+    val options = new ScalaCompileOptionsData()
+    options.setAdditionalParameters(util.Arrays.asList("-custom-option"))
+
+    importProjectData(
+      generateProject(Some("2.10.4"),Set(new File("/tmp/test/scala-library-2.10.4.jar")), Some(options), separateModules = false))
+
+    assertTrue("Scala SDK must be present",
+      getProject.libraries.exists(library => library.getName.contains("scala-library") && library.isScalaSdk))
+
+    val compilerConfiguration = {
+      val module = ModuleManager.getInstance(getProject).findModuleByName("module")
+      ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
+    }
+
+    assertTrue("Scala compiler options must be set",
+      compilerConfiguration.additionalCompilerOptions.contains("-custom-option"))
+
+    // TODO test Scala SDK dependency
   }
 
   def testCompilerOptionsSetup(): Unit = {

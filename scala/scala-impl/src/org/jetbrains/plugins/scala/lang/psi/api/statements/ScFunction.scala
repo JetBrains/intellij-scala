@@ -6,11 +6,7 @@ package statements
 
 
 import java.util
-
-import scala.annotation.tailrec
-import scala.collection.Seq
-import scala.collection.immutable.Set
-import scala.collection.mutable.ArrayBuffer
+import javax.swing.Icon
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
@@ -20,6 +16,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
+import com.intellij.util.PlatformIcons
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -27,23 +24,30 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, ScSyntheticFunction, ScSyntheticTypeParameter, SyntheticClasses}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, ScSyntheticFunction, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDeclaration, ScLightFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
+
+import scala.annotation.tailrec
+import scala.collection.Seq
+import scala.collection.immutable.Set
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -118,25 +122,19 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       case None =>
         val superReturnType = superMethodAndSubstitutor match {
           case Some((fun: ScFunction, subst)) =>
-            var typeParamSubst = ScSubstitutor.empty
-            fun.typeParameters.zip(typeParameters).foreach {
-              case (oldParam: ScTypeParam, newParam: ScTypeParam) =>
-                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, Some(subst)))
-            }
+            val typeParamSubst =
+              ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
+
             fun.returnType.toOption.map(typeParamSubst.followed(subst).subst)
           case Some((fun: ScSyntheticFunction, subst)) =>
-            var typeParamSubst = ScSubstitutor.empty
-            fun.typeParameters.zip(typeParameters).foreach {
-              case (oldParam: ScSyntheticTypeParameter, newParam: ScTypeParam) =>
-                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, Some(subst)))
-            }
-            Some(subst.subst(fun.retType))
+            val typeParamSubst =
+              ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
+
+            Some(typeParamSubst.subst(fun.retType))
           case Some((fun: PsiMethod, subst)) =>
-            var typeParamSubst = ScSubstitutor.empty
-            fun.getTypeParameters.zip(typeParameters).foreach {
-              case (oldParam: PsiTypeParameter, newParam: ScTypeParam) =>
-                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, Some(subst)))
-            }
+            val typeParamSubst =
+              ScSubstitutor.bind(fun.getTypeParameters, typeParameters)(TypeParameterType(_))
+
             Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType()))
           case _ => None
         }
@@ -321,7 +319,18 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def parameters: Seq[ScParameter] = paramClauses.params
 
-  override def getIcon(flags: Int) = Icons.FUNCTION
+  // TODO unify with ScValue and ScVariable
+  override def getIcon(flags: Int): Icon = {
+    var parent = getParent
+    while (parent != null) {
+      parent match {
+        case _: ScExtendsBlock => return PlatformIcons.METHOD_ICON
+        case (_: ScBlock | _: ScalaFile) => return Icons.FUNCTION
+        case _ => parent = parent.getParent
+      }
+    }
+    null
+  }
 
   def getReturnType: PsiType = {
     if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
@@ -604,21 +613,22 @@ object ScFunction {
   }
 
   object Ext {
-    private val Apply = "apply"
-    private val Update = "update"
+    val Apply = "apply"
+    val Update = "update"
+    val GetSet = Set(Apply, Update)
 
-    private val Unapply = "unapply"
-    private val UnapplySeq = "unapplySeq"
+    val Unapply = "unapply"
+    val UnapplySeq = "unapplySeq"
+    val Unapplies = Set(Unapply, UnapplySeq)
 
-    private val Foreach = "foreach"
-    private val Map = "map"
-    private val FlatMap = "flatMap"
-    private val Filter = "filter"
-    private val WithFilter = "withFilter"
+    val Foreach = "foreach"
+    val Map = "map"
+    val FlatMap = "flatMap"
+    val Filter = "filter"
+    val WithFilter = "withFilter"
+    val ForComprehensions: Set[String] = Set(Foreach, Map, FlatMap, Filter, WithFilter)
 
-    private val Unapplies: Set[String] = Set(Unapply, UnapplySeq)
-    private val ForComprehensions: Set[String] = Set(Foreach, Map, FlatMap, Filter, WithFilter)
-    private val Special: Set[String] = Set(Apply, Update) ++ Unapplies ++ ForComprehensions
+    private val Special: Set[String] = GetSet ++ Unapplies ++ ForComprehensions
   }
 
   private val calculatingBlockKey: Key[ThreadLocal[Boolean]] = Key.create("calculating.function.returns.block")

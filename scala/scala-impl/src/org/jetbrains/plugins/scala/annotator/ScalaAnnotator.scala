@@ -30,11 +30,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ReadValueUsed, ValueUsed, WriteValueUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
@@ -396,12 +396,18 @@ abstract class ScalaAnnotator extends Annotator
         if (typeAware && !compiled) {
           checkOverrideClassParameters(parameter, holder)
         }
+        checkClassParameterVariance(parameter, holder)
         super.visitClassParameter(parameter)
       }
 
       override def visitClass(cl: ScClass): Unit = {
         if (typeAware && ValueClassType.extendsAnyVal(cl)) annotateValueClass(cl, holder)
         super.visitClass(cl)
+      }
+
+      override def visitTemplateParents(tp: ScTemplateParents): Unit = {
+        checkTemplateParentsVariance(tp, holder)
+        super.visitTemplateParents(tp)
       }
     }
     annotateScope(element, holder)
@@ -427,7 +433,8 @@ abstract class ScalaAnnotator extends Annotator
     }
 
     element match {
-      case sTypeParam: ScTypeBoundsOwner =>
+      case sTypeParam: ScTypeBoundsOwner
+        if !Option(PsiTreeUtil.getParentOfType(sTypeParam, classOf[ScTypeParamClause])).flatMap(_.parent).exists(_.isInstanceOf[ScFunction]) =>
         checkTypeParamBounds(sTypeParam, holder)
       case _ =>
     }
@@ -790,24 +797,30 @@ abstract class ScalaAnnotator extends Annotator
 
       parent match {
         case _: ScImportSelector if resolve.length > 0 => return
-        case mc: ScMethodCall =>
-          val messageKey = "cannot.resolve.apply.method"
-          if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateApplyQuickFix(td, mc))) return
+        case _: ScMethodCall if resolve.length > 1 =>
+          val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
+          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        case _: ScMethodCall if resolve.length > 1 =>
+          val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
+          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        case mc: ScMethodCall if addCreateApplyOrUnapplyFix("cannot.resolve.apply.method", td => new CreateApplyQuickFix(td, mc)) =>
+          return
         case (p: ScPattern) && (_: ScConstructorPattern | _: ScInfixPattern) =>
           val messageKey = "cannot.resolve.unapply.method"
           if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateUnapplyQuickFix(td, p))) return
         case scalaDocTag: ScDocTag if scalaDocTag.getName == MyScaladocParsing.THROWS_TAG => return //see SCL-9490
         case _ =>
+          val error = ScalaBundle.message("cannot.resolve", refElement.refName)
+          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+          annotation.registerFix(ReportHighlightingErrorQuickFix)
+          // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
+          registerCreateFromUsageFixesFor(refElement, annotation)
+          UnresolvedReferenceFixProvider.implementations
+            .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
       }
-
-      val error = ScalaBundle.message("cannot.resolve", refElement.refName)
-      val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      annotation.registerFix(ReportHighlightingErrorQuickFix)
-      // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
-      registerCreateFromUsageFixesFor(refElement, annotation)
-      UnresolvedReferenceFixProvider.implementations
-        .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
     }
   }
 
@@ -868,16 +881,20 @@ abstract class ScalaAnnotator extends Annotator
 
       refElement.getParent match {
         case _: ScImportSelector | _: ScImportExpr if resolveCount > 0 => return
+        case _: ScMethodCall if resolveCount > 1 =>
+          val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
+          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         case _ =>
+          val error = ScalaBundle.message("cannot.resolve", refElement.refName)
+          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+          annotation.registerFix(ReportHighlightingErrorQuickFix)
+          // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
+          registerCreateFromUsageFixesFor(refElement, annotation)
+          UnresolvedReferenceFixProvider.implementations
+            .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
       }
-      val error = ScalaBundle.message("cannot.resolve", refElement.refName)
-      val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      annotation.registerFix(ReportHighlightingErrorQuickFix)
-      // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
-      registerCreateFromUsageFixesFor(refElement, annotation)
-      UnresolvedReferenceFixProvider.implementations
-        .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
     }
   }
 
@@ -1058,7 +1075,7 @@ abstract class ScalaAnnotator extends Annotator
 
   private def checkUnboundUnderscore(under: ScUnderscoreSection, holder: AnnotationHolder) {
     if (under.getText == "_") {
-      under.parentOfType(classOf[ScVariableDefinition], strict = false).foreach {
+      under.parentOfType(classOf[ScValueOrVariable], strict = false).foreach {
         case varDef @ ScVariableDefinition.expr(_) if varDef.expr.contains(under) =>
           if (varDef.containingClass == null) {
             val error = ScalaBundle.message("local.variables.must.be.initialized")
@@ -1069,6 +1086,8 @@ abstract class ScalaAnnotator extends Annotator
             val annotation: Annotation = holder.createErrorAnnotation(under, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
           }
+        case valDef @ ScPatternDefinition.expr(_) if valDef.expr.contains(under) =>
+          holder.createErrorAnnotation(under, ScalaBundle.message("unbound.placeholder.parameter"))
         case _ =>
           // TODO SCL-2610 properly detect unbound placeholders, e.g. ( { _; (_: Int) } ) and report them.
           //  val error = ScalaBundle.message("unbound.placeholder.parameter")
@@ -1173,7 +1192,7 @@ abstract class ScalaAnnotator extends Annotator
     //todo: check annotation is inheritor for class scala.Annotation
   }
 
-  def childHasAnnotation(teOption: Option[ScTypeElement], annotation: String): Boolean = teOption match {
+  def childHasAnnotation(teOption: Option[PsiElement], annotation: String): Boolean = teOption match {
     case Some(te) => te.breadthFirst().exists {
       case annot: ScAnnotationExpr =>
         annot.constr.reference match {
@@ -1210,19 +1229,34 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
+  private def checkTypeVariance(typeable: Typeable, variance: Variance, toHighlight: PsiElement, checkParentOf: PsiElement,
+                                holder: AnnotationHolder): Unit = {
+    typeable.`type`() match {
+      case Right(tp) =>
+        ScalaType.expandAliases(tp) match {
+          case Right(newTp) => checkVariance(newTp, variance, toHighlight, checkParentOf, holder)
+          case _ => checkVariance(tp, variance, toHighlight, checkParentOf, holder)
+        }
+      case _ =>
+    }
+  }
+
+  def checkClassParameterVariance(toCheck: ScClassParameter, holder: AnnotationHolder): Unit = {
+    if (toCheck.isVar && !childHasAnnotation(Some(toCheck), "uncheckedVariance")) checkTypeVariance(toCheck, Contravariant, toCheck.nameId, toCheck, holder)
+  }
+
+  def checkTemplateParentsVariance(parents: ScTemplateParents, holder: AnnotationHolder): Unit = {
+    for (typeElement <- parents.typeElements) {
+      if (!childHasAnnotation(Some(typeElement), "uncheckedVariance") && !parents.parent.flatMap(_.parent).exists(_.isInstanceOf[ScNewTemplateDefinition]))
+        checkTypeVariance(typeElement, Covariant, typeElement, parents, holder)
+    }
+  }
+
   def checkValueAndVariableVariance(toCheck: ScDeclaredElementsHolder, variance: Variance,
                                     declaredElements: Seq[Typeable with ScNamedElement], holder: AnnotationHolder) {
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {
-        element.`type`() match {
-          case Right(tp) =>
-            ScalaType.expandAliases(tp) match {
-              //so type alias is highlighted
-              case Right(newTp) => checkVariance(newTp, variance, element.nameId, toCheck, holder)
-              case _ => checkVariance(tp, variance, element.nameId, toCheck, holder)
-            }
-          case _ =>
-        }
+        checkTypeVariance(element, variance, element.nameId, toCheck, holder)
       }
     }
   }

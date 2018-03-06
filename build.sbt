@@ -337,6 +337,8 @@ lazy val pluginPackagerCommunity =
           "lib/jps/compiler-interface-sources-2.10.jar"),
         Library(Dependencies.compilerBridgeSources_2_11,
           "lib/jps/compiler-interface-sources-2.11.jar"),
+        Library(Dependencies.compilerBridgeSources_2_13,
+          "lib/jps/compiler-interface-sources-2.13.jar"),
         Artifact((assembly in repackagedZinc).value,
           "lib/jps/incremental-compiler.jar"),
         Library(Dependencies.zincInterface,

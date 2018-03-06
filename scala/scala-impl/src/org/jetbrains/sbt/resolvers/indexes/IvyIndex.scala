@@ -13,6 +13,7 @@ import org.jetbrains.sbt.resolvers._
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.collection.parallel.immutable
 import scala.xml.XML
 
 /**
@@ -212,8 +213,13 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
 
     def read(s: DataInput): Set[String] = {
       val count = s.readLong
-
-      1L.to(count).map(_ => s.readUTF()).toSet
+      var buffer = scala.collection.immutable.HashSet[String]()
+      var i = 1L
+      while (i <= count) {
+        buffer += s.readUTF()
+        i += 1
+      }
+      buffer
     }
   }
 
@@ -268,7 +274,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
 
     private def listArtifacts(dir: File): Stream[ArtifactInfo] = {
       if (!dir.isDirectory)
-        throw InvalidRepository(dir.getAbsolutePath)
+        return Stream.empty
 
       val artifactsHere = dir.listFiles(ivyFileFilter)
           .flatMap(extractArtifact)
@@ -296,7 +302,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
         val version  = (xml \\ "ivy-module" \\ "info" \\ "@revision").text
         Some(ArtifactInfo(group, artifact, version))
       } catch {
-        case e : Throwable => None
+        case _: Throwable => None
       }
     }
   }

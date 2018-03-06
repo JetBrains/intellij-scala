@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter, TypeParameterType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
@@ -124,12 +125,11 @@ class Signature(val name: String,
 
   def paramTypesEquivExtended(other: Signature, uSubst: ScUndefinedSubstitutor,
                               falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    import org.jetbrains.plugins.scala.lang.psi.types.Signature._
 
     var undefSubst = uSubst
     if (paramLength != other.paramLength && !(paramLength.sum == 0 && other.paramLength.sum == 0)) return (false, undefSubst)
     if (hasRepeatedParam != other.hasRepeatedParam) return (false, undefSubst)
-    val unified = unify(other.substitutor, other.typeParams, typeParams)
+    val unified = other.substitutor.withBindings(typeParams, other.typeParams)
     val clauseIterator = substitutedTypes.iterator
     val otherClauseIterator = other.substitutedTypes.iterator
     while (clauseIterator.hasNext && otherClauseIterator.hasNext) {
@@ -233,16 +233,6 @@ object Signature {
     subst,
     definition
   )
-
-  def unify(subst: ScSubstitutor, tps1: Seq[TypeParameter], tps2: Seq[TypeParameter]): ScSubstitutor = {
-    var result = subst
-    val iterator1 = tps1.iterator
-    val iterator2 = tps2.iterator
-    while (iterator1.hasNext && iterator2.hasNext) {
-      result = result.bindT(iterator2.next().nameAndId, TypeParameterType(iterator1.next()))
-    }
-    result
-  }
 }
 
 

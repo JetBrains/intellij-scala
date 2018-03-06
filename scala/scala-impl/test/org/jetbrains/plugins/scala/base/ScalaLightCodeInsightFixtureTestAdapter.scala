@@ -2,10 +2,15 @@ package org.jetbrains.plugins.scala
 package base
 
 import com.intellij.codeInsight.folding.CodeFoldingManager
+import com.intellij.openapi.vfs.VfsUtil.saveText
+import com.intellij.psi.PsiFile
+import com.intellij.testFramework.LightPlatformTestCase.getSourceRoot
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
@@ -14,7 +19,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
   */
 
 abstract class ScalaLightCodeInsightFixtureTestAdapter
-  extends LightCodeInsightFixtureTestCase with DefaultScalaSdkOwner {
+  extends LightCodeInsightFixtureTestCase with DefaultScalaSdkOwner with FailableTest {
 
   override def getFixture: CodeInsightTestFixture = myFixture
 
@@ -44,12 +49,38 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     super.tearDown()
   }
 
+  protected def configureJavaFile(fileText: String, className: String,
+                                  packageName: String = null): Unit = inWriteAction {
+    val sourceRoot = getSourceRoot
+    val root = packageName match {
+      case null => sourceRoot
+      case _ => sourceRoot.createChildDirectory(null, packageName)
+    }
+
+    val file = root.createChildData(null, s"$className.java")
+    saveText(file, normalize(fileText))
+  }
+
+  protected def configureFromFileText(fileText: String): PsiFile =
+    getFixture.configureByText(ScalaFileType.INSTANCE, normalize(fileText))
+
   protected def checkTextHasNoErrors(text: String): Unit = {
     getFixture.configureByText(ScalaFileType.INSTANCE, text)
     CodeFoldingManager.getInstance(getProject).buildInitialFoldings(getEditor)
 
-    getFixture.testHighlighting(false, false, false, getFile.getVirtualFile)
+    if (shouldPass) {
+      getFixture.testHighlighting(false, false, false, getFile.getVirtualFile)
+    } else {
+      try {
+        getFixture.testHighlighting(false, false, false, getFile.getVirtualFile)
+      } catch {
+        case _: AssertionError => return
+      }
+      failingTestPassed()
+    }
   }
+
+  protected def failingTestPassed(): Unit = throw new RuntimeException(failingPassed)
 }
 
 object ScalaLightCodeInsightFixtureTestAdapter {

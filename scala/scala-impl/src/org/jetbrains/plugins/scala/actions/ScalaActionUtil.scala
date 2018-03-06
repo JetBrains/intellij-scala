@@ -5,8 +5,9 @@ import java.awt.Point
 import java.awt.event.{MouseEvent, MouseMotionAdapter}
 
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
-import com.intellij.openapi.actionSystem.{Presentation, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, Presentation}
 import com.intellij.openapi.editor.Editor
+import com.intellij.psi.PsiFile
 import com.intellij.ui.LightweightHint
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -30,10 +31,8 @@ object ScalaActionUtil {
     @inline def disable(): Unit = disablePresentation(presentation)
     
     try {
-      val dataContext = e.getDataContext
-      val file = CommonDataKeys.PSI_FILE.getData(dataContext)
-      file match {
-        case _: ScalaFile => enable()
+      getFileFrom(e) match {
+        case Some(_: ScalaFile) => enable()
         case _ => disable()
       }
     }
@@ -42,6 +41,8 @@ object ScalaActionUtil {
     }
   }
 
+  def getFileFrom(e: AnActionEvent): Option[PsiFile] = Option(CommonDataKeys.PSI_FILE.getData(e.getDataContext))
+  
   def showHint(editor: Editor, text: String) {
     val label = HintUtil.createInformationLabel(text)
     label.setFont(UIUtil.getLabelFont)

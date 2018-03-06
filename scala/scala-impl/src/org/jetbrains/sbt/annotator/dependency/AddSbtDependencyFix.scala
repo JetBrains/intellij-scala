@@ -48,6 +48,9 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
   override def getText: String = "Add sbt dependency..."
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+    if (refElement.getElement == null) // pointer has been invalidated due to full reparse
+      return
+
     val element = refElement.getElement
 
     def filterByScalaVer(artifacts: Set[ArtifactInfo]): Set[ArtifactInfo] = {

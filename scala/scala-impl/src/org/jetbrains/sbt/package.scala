@@ -65,6 +65,8 @@ package object sbt {
 
     def isUnder(root: File): Boolean = FileUtil.isAncestor(root, file, true)
 
+    def isIn(root: File): Boolean = file.getParentFile == root
+
     def isOutsideOf(root: File): Boolean = !FileUtil.isAncestor(root, file, false)
 
     def write(lines: String*) {
@@ -74,6 +76,9 @@ package object sbt {
     def copyTo(destination: File) {
       copy(file, destination)
     }
+
+    def ls(filter: String => Boolean): Seq[File] =
+      file.listFiles().filter(file => filter(file.getName)).toSeq
   }
 
   private object RichFile {

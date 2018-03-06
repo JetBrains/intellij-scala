@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala.lang.completion.weighter
+package org.jetbrains.plugins.scala.lang.completion
+package weighter
 
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher, WeighingContext}
+import com.intellij.codeInsight.lookup._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionUtil, ScalaCompletionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -18,31 +18,19 @@ class ScalaByTypeWeigher(position: PsiElement) extends LookupElementWeigher("sca
   override def weigh(element: LookupElement, context: WeighingContext): Comparable[_] = {
     import KindWeights._
 
-    val isAfterNew = ScalaAfterNewCompletionUtil.afterNewPattern.accepts(position)
+    def inFunction(te: ScTypeDefinition): Boolean =
+      PsiTreeUtil.getParentOfType(te, classOf[ScBlockExpr]) != null
 
-    def inFunction(psiElement: PsiElement): Boolean =
-      PsiTreeUtil.getParentOfType(psiElement, classOf[ScBlockExpr]) != null
-
-    def isTypeDefiniton = ScalaCompletionUtil.isTypeDefiniton(position)
-
-    def typedWeight =
+    if (ScalaCompletionUtil.isTypeDefiniton(position) ||
+      ScalaAfterNewCompletionUtil.afterNewPattern.accepts(position)) {
       ScalaLookupItem.original(element) match {
-        case s: ScalaLookupItem =>
-          s.element match {
-            case ta: ScTypeAlias if ta.isLocal => localType
-            case _: ScTypeAlias => typeDefinition
-            case te: ScTypeDefinition if !te.isObject && (te.isLocal || inFunction(te)) => localType
-            case _: ScTypeDefinition => typeDefinition
-            case _: PsiClass => typeDefinition
-            case _ => normal
-          }
+        case ScalaLookupItem(ta: ScTypeAlias) if ta.isLocal => localType
+        case ScalaLookupItem(te: ScTypeDefinition) if !te.isObject && (te.isLocal || inFunction(te)) => localType
+        case ScalaLookupItem(_: ScTypeAlias | _: PsiClass) => typeDefinition
+        case ScalaLookupItem(_) => normal
         case _ => null
       }
-
-    ScalaLookupItem.original(element) match {
-      case _ if isTypeDefiniton || isAfterNew => typedWeight
-      case _ => null
-    }
+    } else null
   }
 
   object KindWeights extends Enumeration {

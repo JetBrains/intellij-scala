@@ -26,6 +26,11 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
       case Some(mc: ScMethodCall) => mc.getInvokedExpr match {
         case expr: ScReferenceExpression if QuasiquoteInferUtil.isMetaQQ(expr) =>
           QuasiquoteInferUtil.getMetaQQExprType(this)
+        case expr: ScReferenceExpression =>
+          InterpolatedStringMacroTypeProvider.getTypeProvider(expr) match {
+            case Some(typeProvider) => typeProvider.inferExpressionType(this)
+            case None => mc.getNonValueType()
+          }
         case _ => mc.getNonValueType()
       }
       case Some(expr) => expr.getNonValueType()

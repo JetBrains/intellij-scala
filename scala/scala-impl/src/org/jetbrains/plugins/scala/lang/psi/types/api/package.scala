@@ -9,13 +9,15 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 package object api {
 
   implicit class TypeParametersArrayExt(val typeParameters: Array[TypeParameter]) extends AnyVal {
-    def subst(function: TypeParameter => TypeParameter): Seq[TypeParameter] = typeParameters.toSeq.subst(function)
-
     def depth: Int = typeParameters.toSeq.depth
   }
 
   implicit class TypeParametersSeqExt(val typeParameters: Seq[TypeParameter]) extends AnyVal {
-    def subst(function: TypeParameter => TypeParameter): Seq[TypeParameter] = typeParameters.map(function)
+    def update(fun: ScType => ScType): Seq[TypeParameter] =
+      typeParameters.map(_.update(fun))
+
+    def updateWithVariance(fun: (ScType, Variance) => ScType, variance: Variance): Seq[TypeParameter] =
+      typeParameters.map(_.updateWithVariance(fun, variance))
 
     def depth: Int = {
       def depth(tp: TypeParameter): Int = Seq(tp.lowerType.typeDepth, tp.upperType.typeDepth, tp.typeParameters.depth).max

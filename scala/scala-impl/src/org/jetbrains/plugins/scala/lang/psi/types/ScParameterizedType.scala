@@ -13,51 +13,44 @@ import java.util.concurrent.ConcurrentMap
 import com.intellij.psi._
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, Invariant, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
-
-import scala.collection.immutable.ListMap
 
 class ScParameterizedType private(val designator: ScType, val typeArguments: Seq[ScType]) extends ParameterizedType with ScalaType {
 
   override protected def isAliasTypeInner: Option[AliasType] = {
     designator match {
       case ScDesignatorType(ta: ScTypeAlias) =>
-        val existingWildcards = ta.lowerBound.toOption.map(ScExistentialType.existingWildcards).getOrElse(Set.empty) ++
-          (if (ta.isDefinition) Set.empty else ta.upperBound.toOption.map(ScExistentialType.existingWildcards).getOrElse(Set.empty))
-
-        val genericSubst = ScalaPsiUtil.
-          typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
-            typeArguments.map(ScExistentialType.fixExistentialArgumentNames(_, existingWildcards)))
-        val lowerBound = ta.lowerBound.map(genericSubst.subst)
-        val upperBound =
-          if (ta.isDefinition) lowerBound
-          else ta.upperBound.map(genericSubst.subst)
-        Some(AliasType(ta, lowerBound, upperBound))
-      case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAlias] =>
-        val ta: ScTypeAlias = p.actualElement.asInstanceOf[ScTypeAlias]
-        val subst: ScSubstitutor = p.actualSubst
-
-        val existingWildcards = ta.lowerBound.toOption.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(Set.empty) ++
-          (if (ta.isDefinition) Set.empty else ta.upperBound.toOption.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(Set.empty))
-
-        val genericSubst = ScalaPsiUtil.
-          typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
-            typeArguments.map(ScExistentialType.fixExistentialArgumentNames(_, existingWildcards)))
-        val s = subst.followed(genericSubst)
-        val lowerBound = ta.lowerBound.map(s.subst)
-        val upperBound =
-          if (ta.isDefinition) lowerBound
-          else ta.upperBound.map(s.subst)
-        Some(AliasType(ta, lowerBound, upperBound))
+        computeAliasType(ta, ScSubstitutor.empty)
+      case ScProjectionType.withActual(ta: ScTypeAlias, subst) =>
+        computeAliasType(ta, subst)
       case _ => None
     }
+  }
+
+  private def computeAliasType(ta: ScTypeAlias, subst: ScSubstitutor): Some[AliasType] = {
+    def wildcards(tp: Option[ScType]): Set[String] =
+      tp.map(ScExistentialType.existingWildcards).getOrElse(Set.empty)
+
+    val substedLower = ta.lowerBound.toOption.map(subst.subst)
+    val substedUpper = ta.upperBound.toOption.map(subst.subst)
+
+    val existingWildcards = wildcards(substedLower) ++ wildcards(substedUpper)
+    val fixedArgs = typeArguments.map(ScExistentialType.fixExistentialArgumentNames(_, existingWildcards))
+
+    val genericSubst = ScSubstitutor.bind(ta.typeParameters, fixedArgs)
+
+    val s = subst.followed(genericSubst)
+    val lowerBound = ta.lowerBound.map(s.subst)
+    val upperBound =
+      if (ta.isDefinition) lowerBound
+      else ta.upperBound.map(s.subst)
+    Some(AliasType(ta, lowerBound, upperBound))
   }
 
   private var hash: Int = -1
@@ -71,26 +64,14 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
   }
 
   protected override def substitutorInner: ScSubstitutor = {
-    def forParams[T](paramsIterator: Iterator[T], initial: ScSubstitutor, map: T => TypeParameterType): ScSubstitutor = {
-      val argsIterator = typeArguments.iterator
-      val builder = ListMap.newBuilder[(String, Long), ScType]
-      while (paramsIterator.hasNext && argsIterator.hasNext) {
-        val p1 = map(paramsIterator.next())
-        val p2 = argsIterator.next()
-        builder += ((p1.nameAndId, p2))
-        //res = res bindT ((p1.name, p1.getId), p2)
-      }
-      val subst = ScSubstitutor(builder.result())
-      initial followed subst
-    }
     designator match {
-      case TypeParameterType(args, _, _, _) =>
-        forParams(args.iterator, ScSubstitutor.empty, (p: TypeParameterType) => p)
+      case tpt: TypeParameterType =>
+        ScSubstitutor.bind(tpt.typeParameters, typeArguments)
       case _ => designator.extractDesignatedType(expandAliases = false) match {
         case Some((owner: ScTypeParametersOwner, s)) =>
-          forParams(owner.typeParameters.iterator, s, (typeParam: ScTypeParam) => TypeParameterType(typeParam, None))
+          s.followed(ScSubstitutor.bind(owner.typeParameters, typeArguments))
         case Some((owner: PsiTypeParameterListOwner, s)) =>
-          forParams(owner.getTypeParameters.iterator, s, (psiTypeParameter: PsiTypeParameter) => TypeParameterType(psiTypeParameter, None))
+          s.followed(ScSubstitutor.bind(owner.getTypeParameters, typeArguments))
         case _ => ScSubstitutor.empty
       }
     }
@@ -129,17 +110,15 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     (this, r) match {
       case (ParameterizedType(Nothing, _), Nothing) => (true, uSubst)
       case (ParameterizedType(Nothing, _), ParameterizedType(Nothing, _)) => (true, uSubst)
-      case (ParameterizedType(ScAbstractType(tpt, lower, upper), args), _) =>
+      case (ParameterizedType(ScAbstractType(tp, lower, upper), args), _) =>
         if (falseUndef) return (false, uSubst)
-        val subst = ScSubstitutor(tpt.arguments.zip(args).map {
-          case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)
-        }.toMap)
+        val subst = ScSubstitutor.bind(tp.typeParameters, args)
         var conformance = r.conforms(subst.subst(upper), uSubst)
         if (!conformance._1) return (false, uSubst)
         conformance = subst.subst(lower).conforms(r, conformance._2)
         if (!conformance._1) return (false, uSubst)
         (true, conformance._2)
-      case (ParameterizedType(proj@ScProjectionType(_, _, _), _), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
+      case (ParameterizedType(proj@ScProjectionType(_, _), _), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
@@ -182,38 +161,6 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     }
   }
 
-  /**
-   * @return Some((designator, paramType, returnType)), or None
-   */
-  def getPartialFunctionType: Option[(ScType, ScType, ScType)] = {
-    getStandardType("scala.PartialFunction") match {
-      case Some((typeDef, Seq(param, ret))) => Some((ScDesignatorType(typeDef), param, ret))
-      case None => None
-    }
-  }
-
-  /**
-   * @param  prefix of the qualified name of the type
-   * @return (typeDef, typeArgs)
-   */
-  private def getStandardType(prefix: String): Option[(ScTypeDefinition, Seq[ScType])] = {
-    def startsWith(clazz: PsiClass, qualNamePrefix: String) = clazz.qualifiedName != null && clazz.qualifiedName.startsWith(qualNamePrefix)
-
-    designator.extractClassType match {
-      case Some((clazz: ScTypeDefinition, sub)) if startsWith(clazz, prefix) =>
-        clazz.`type`() match {
-          case Right(t) =>
-            val substituted = (sub followed substitutor).subst(t)
-            substituted match {
-              case pt: ScParameterizedType =>
-                Some((clazz, pt.typeArguments))
-              case _ => None
-            }
-          case _ => None
-        }
-      case _ => None
-    }
-  }
 
   override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitParameterizedType(this)
@@ -246,7 +193,7 @@ object ScParameterizedType {
 
     val simple = new ScParameterizedType(designator, typeArgs)
     designator match {
-      case ScProjectionType(_: ScCompoundType, _, _) =>
+      case ScProjectionType(_: ScCompoundType, _) =>
         cache.atomicGetOrElseUpdate((designator, typeArgs),
           createCompoundProjectionParameterized(simple))
       case ScTypePolymorphicType(internalType, typeParameters) if internalType.isInstanceOf[ScParameterizedType] =>

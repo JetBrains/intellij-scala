@@ -16,8 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLik
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall, ScReferenceExpression, ScSuperReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.mutable.ArrayBuffer
@@ -72,8 +73,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
           case Some(_: ScSuperReference) =>
             val function = PsiTreeUtil.getContextOfType(ref, classOf[ScFunction])
             if (function != null && function.name == ref.refName) {
-              val variants = ref.getSimpleVariants(implicits = false, filterNotNamedVariants = false)
-              val signatures = variants.toSeq.collect {
+              val signatures = ref.getSimpleVariants().collect {
                 case ScalaResolveResult(method: ScMethodLike, subst) => paramsInClause(method, subst, index)
               }.filter(_.length > 1)
 

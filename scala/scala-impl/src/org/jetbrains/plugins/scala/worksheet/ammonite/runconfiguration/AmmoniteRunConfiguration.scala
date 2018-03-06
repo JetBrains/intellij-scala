@@ -27,32 +27,32 @@ import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteR
   * User: Dmitry.Naydanov
   * Date: 12.09.17.
   */
-class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) extends 
+class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) extends
   RunConfigurationBase(project, factory, AmmoniteRunConfiguration.AMMONITE_RUN_NAME) {
-  
+
   def this(project: Project, factory: ConfigurationFactory, name: String) {
     this(project, factory)
     setFilePath(name)
   }
-  
+
   private var execName: Option[String] = None
   private var fileName: Option[String] = None
   private var scriptParameters: Option[String] = None
-  
+
   def setFilePath(path: String) {
-    fileName = Option(path).filter(_ != "") 
+    fileName = Option(path).filter(_ != "")
   }
-  
+
   def setExecPath(path: String) {
     execName = Option(path)
   }
-  
+
   def setScriptParameters(params: String) {
     scriptParameters = Option(params).filter(_ != "")
   }
-  
+
   def getIOFile: Option[File] = fileName.map(new File(_)).filter(_.exists())
-  
+
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new MyEditor
 
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState = {
@@ -61,26 +61,26 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
         sdk => cmd.getEnvironment.put("JAVA_HOME", sdk.getHomePath)
       }
     }
-    
+
     val state = new CommandLineState(environment) {
       override def startProcess(): ProcessHandler = {
         val cmd = new GeneralCommandLine()
-        
+
         execName match {
           case Some(exec) =>
             val exFile = new File(exec)
             if (exFile.exists()) cmd.setExePath(exFile.getAbsolutePath) else cmd.setExePath(exec)
-          case None => 
-            cmd.setExePath("amm")
+          case None =>
+            cmd.setExePath("/usr/local/bin/amm")
         }
-        
+
         if (isRepl) {
           cmd.addParameter("--predef")
           cmd.addParameter(s"${createPredefFile(getIOFile.map(_.getName).getOrElse("AmmoniteFile.sc"))}")
         }
 
         fileName.foreach{
-          f => 
+          f =>
             cmd.addParameter(f)
             val tf = new File(f)
             if (tf.exists()) cmd.setWorkDirectory(tf.getParentFile)
@@ -88,31 +88,31 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
         scriptParameters.foreach(cmd.getParametersList.addParametersString(_))
 
         patchSdkVersion(cmd)
-        
+
         try {
           JavaCommandLineStateUtil.startProcess(cmd)
         } catch {
-          case pne: ProcessNotCreatedException => 
+          case pne: ProcessNotCreatedException =>
             pne.getCause match {
               case ioe: IOException =>
                 ioe.getCause match {
                   case ioe2: IOException if ioe2.getMessage.contains("error=2") =>
                     throw new AmmNotFoundException(
-                      s"<br>Can't find Ammonite distributive:<br> ${ioe2.getMessage} <br>" + "<br> <a href=\"azaza\">Specify amm executable path?</a>", 
-                      pne.getCommandLine, 
+                      s"<br>Can't find Ammonite:<br> ${ioe2.getMessage} <br>" + "<br> <a href=\"azaza\">Specify amm executable path?</a>",
+                      pne.getCommandLine,
                       project
                     )
-                  case _ => 
+                  case _ =>
                 }
-              case _ => 
+              case _ =>
             }
-            
+
             throw pne
         }
       }
     }
     state.setConsoleBuilder(new TextConsoleBuilderImpl(project))
-    
+
     fileName.foreach {
       fn =>
         Option(LocalFileSystem.getInstance().findFileByIoFile(new File(fn))) foreach {
@@ -125,11 +125,11 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
 
   override def writeExternal(element: Element) {
     super.writeExternal(element)
-    
+
     def saveFileElement(name: String, maybeString: Option[String]) {
       JDOMExternalizer.write(element, name, maybeString.getOrElse(""))
     }
-    
+
     saveFileElement("execName", execName)
     saveFileElement("fileName", fileName)
     saveFileElement("scriptParameters", scriptParameters)
@@ -137,49 +137,49 @@ class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) 
 
   override def readExternal(element: Element) {
     super.readExternal(element)
-    
+
     def retrieveFileElement(name: String): Option[String] = {
       JDOMExternalizer.readString(element, name) match {
         case "" | null => None
         case other => Option(other)
       }
     }
-    
+
     execName = retrieveFileElement("execName")
     fileName = retrieveFileElement("fileName")
     scriptParameters = retrieveFileElement("scriptParameters")
   }
-  
+
   private def createPredefFile(baseName: String): String = {
     val tempDir = new File(FileUtil.getTempDirectory)
     if (tempDir.exists()) tempDir.mkdir()
-    
+
     val tempFile = new File(tempDir, s"predef$baseName")
     if (!tempFile.exists()) {
       tempFile.createNewFile()
       FileUtil.writeToFile(tempFile, s"repl.frontEnd() = ammonite.repl.FrontEnd.${if (SystemInfo.isWindows) "JLineWindows" else "JLineUnix"}")
     }
-    
+
     tempFile.getAbsolutePath
   }
-  
+
   private def isRepl = fileName.isEmpty
 }
 
 object AmmoniteRunConfiguration {
   val AMMONITE_RUN_NAME = "Ammonite script"
-  
+
   class AmmNotFoundException(message: String, commandLine: GeneralCommandLine, project: Project) extends ProcessNotCreatedException(message, commandLine) with HyperlinkListener {
     override def hyperlinkUpdate(e: HyperlinkEvent): Unit = {
-      if (e.getEventType != HyperlinkEvent.EventType.ACTIVATED) return 
-      
+      if (e.getEventType != HyperlinkEvent.EventType.ACTIVATED) return
+
       new EditConfigurationsDialog(project).show()
     }
   }
-  
+
   private class MyEditor extends SettingsEditor[AmmoniteRunConfiguration]() {
     private val form = new AmmoniteRunConfigurationForm
-    
+
     override def createEditor(): JComponent = form.panel
 
     override def applyEditorTo(s: AmmoniteRunConfiguration) {
@@ -193,40 +193,40 @@ object AmmoniteRunConfiguration {
       form(s.fileName.getOrElse(""), s.execName.getOrElse("amm"), s.scriptParameters.getOrElse(""))
     }
   }
-  
+
   private class AmmoniteRunConfigurationForm {
     val (panel, fileNameField, execNameField, scriptParameters) = initPanel()
-    
+
     def get: (String, String, String) = (fileNameField.getText, execNameField.getText, scriptParameters.getText)
-    
+
     def apply(fileName: String, execName: String, parametersRaw: String) {
       fileNameField.setText(fileName)
       execNameField.setText(execName)
       scriptParameters.setText(parametersRaw)
     }
-    
+
     private def initPanel() = {
       val panel = new JPanel()
       panel setLayout new BoxLayout(panel, BoxLayout.Y_AXIS)
-      
+
       val comp0 = createLabeledElement("Script:", createFileBrowser)
       val comp1 = createLabeledElement("Amm executable:", createFileBrowser)
       val comp2 = createLabeledElement("Script parameters:", new RawCommandLineEditor)
-      
+
       panel.add(comp0, 0)
       panel.add(comp1, 1)
       panel.add(comp2, 2)
-      
+
       (panel, comp0.getComponent, comp1.getComponent, comp2.getComponent)
     }
-    
+
     private def createLabeledElement[T <: JComponent](name: String, comp: T): LabeledComponent[T] = {
       val c = new LabeledComponent[T]
       c.setComponent(comp)
       c.setText(name)
       c
     }
-    
+
     private def createFileBrowser: TextFieldWithBrowseButton = {
       val fileBrowser = new TextFieldWithBrowseButton()
       fileBrowser.addBrowseFolderListener("Select...", "", null, new FileChooserDescriptor(true, false, true, true, false, false))

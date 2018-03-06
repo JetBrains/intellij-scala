@@ -8,6 +8,8 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ReturnTypeSingletonOverridingTest extends BadCodeGreenTestBase {
+  override protected def shouldPass: Boolean = false
+
   def testSCL8490(): Unit = {
     doTest(
       """object OverrideTest {

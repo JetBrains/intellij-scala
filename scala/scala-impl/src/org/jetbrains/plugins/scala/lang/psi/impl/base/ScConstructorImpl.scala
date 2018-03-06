@@ -4,9 +4,6 @@ package psi
 package impl
 package base
 
-import scala.collection.Seq
-import scala.collection.mutable.ArrayBuffer
-
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
@@ -26,10 +23,14 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+
+import scala.collection.Seq
+import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin
@@ -81,7 +82,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     if (clazz.getTypeParameters.isEmpty) {
       tp
     } else {
-      ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_, Some(subst))))
+      ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_)))
     }
   }
 
@@ -112,7 +113,8 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           fun.nestedMethodType(i, Some(tp), subst).getOrElse(return FAILURE)
         case method: PsiMethod =>
           if (i > 0) return Failure("Java constructors only have one parameter section")
-          subst.subst(method.methodType(Some(tp)))
+          val methodType = method.methodTypeProvider(elementScope).methodType(Some(tp))
+          subst.subst(methodType)
       }
       val typeParameters: Seq[TypeParameter] = r.getActualElement match {
         case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
@@ -123,11 +125,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       }
       s.getParent match {
         case p: ScParameterizedTypeElement =>
-          val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-          val appSubst = ScSubstitutor(zipped.map {
-            case (arg, typeParam) =>
-              (typeParam.nameAndId, arg.`type`().getOrAny)
-          }.toMap)
+          val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList.typeArgs)(_.calcType)
           Right(appSubst.subst(res))
         case _ =>
           var nonValueType = ScTypePolymorphicType(res, typeParameters)
@@ -136,7 +134,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
               try {
                 nonValueType = InferUtil.localTypeInference(nonValueType.internalType,
                   Seq(Parameter(expected, isRepeated = false, index = 0)),
-                  Seq(new Expression(InferUtil.undefineSubstitutor(nonValueType.typeParameters).
+                  Seq(new Expression(ScSubstitutor.bind(nonValueType.typeParameters)(UndefinedType(_)).
                     subst(subst.subst(tp).inferValueType))),
                   nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false)
               } catch {
@@ -144,10 +142,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
               }
             case _ if i > 0 =>
               val paramsByClauses = matchedParametersByClauses.toArray.apply(i - 1)
-              val mySubst = ScSubstitutor(Map(constr.getContainingClass.getTypeParameters.map { paramType =>
-                val typeParameterType = TypeParameterType(paramType)
-                typeParameterType.nameAndId -> UndefinedType(typeParameterType)
-              }:_*))
+              val mySubst = ScSubstitutor.bind(constr.containingClass.getTypeParameters)(UndefinedType(_))
               val undefParams = paramsByClauses.map(_._2).map(
                 param => Parameter(mySubst.subst(param.paramType), param.isRepeated, param.index)
               )

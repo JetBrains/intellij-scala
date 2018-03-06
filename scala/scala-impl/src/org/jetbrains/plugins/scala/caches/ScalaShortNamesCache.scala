@@ -75,7 +75,7 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
     keys.toArray(new Array[String](keys.size()))
   }
 
-  def getAllClassNames(dest: HashSet[String]) {
+  override def getAllClassNames(dest: HashSet[String]) {
     val keys = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.ALL_CLASS_NAMES, project)
     dest.addAll(keys)
   }
@@ -92,7 +92,7 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
     ArrayUtil.EMPTY_STRING_ARRAY //todo:
   }
 
-  def getAllMethodNames(set: HashSet[String]) {
+  override def getAllMethodNames(set: HashSet[String]) {
     //todo:
   }
 
@@ -104,7 +104,7 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
     ArrayUtil.EMPTY_STRING_ARRAY //todo:
   }
 
-  def getAllFieldNames(set: HashSet[String]) {
+  override def getAllFieldNames(set: HashSet[String]) {
     //todo:
   }
 

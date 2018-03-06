@@ -6,13 +6,12 @@ package processor
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
@@ -21,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtR
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -91,7 +91,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
         case obj: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] =>
           val functionName = if (isUpdate) "update" else "apply"
           val typeResult = getFromType(state) match {
-            case Some(tp) => Right(ScProjectionType(tp, obj, superReference = false))
+            case Some(tp) => Right(ScProjectionType(tp, obj))
             case _ => obj.`type`()
           }
           val processor = new CollectMethodsProcessor(ref, functionName)
@@ -212,7 +212,7 @@ object MethodResolveProcessor {
       )
     }
 
-    val substitutor = tempSubstitutor.followed(InferUtil.undefineSubstitutor(prevTypeInfo))
+    val substitutor = tempSubstitutor.followed(ScSubstitutor.bind(prevTypeInfo)(UndefinedType(_)))
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
       case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
@@ -429,20 +429,20 @@ object MethodResolveProcessor {
         case None =>
           result.copy(problems = Seq(WrongTypeParameterInferred))
         case Some(unSubst) =>
-          val nameAndIds = typeParameters.map(_.nameAndId).toSet
-          def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(nameAndIds)
+          val typeParamIds = typeParameters.map(_.typeParamId).toSet
+          def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
 
-          for (TypeParameter(_, lowerType, upperType, tParam) <- typeParameters) {
+          for (TypeParameter(tParam, _, lowerType, upperType) <- typeParameters) {
             if (lowerType != Nothing) {
               val substedLower = s.subst(unSubst.subst(lowerType))
               if (!hasRecursiveTypeParameters(substedLower)) {
-                uSubst = uSubst.addLower(tParam.nameAndId, substedLower, additional = true)
+                uSubst = uSubst.addLower(tParam.typeParamId, substedLower, additional = true)
               }
             }
             if (upperType != Any) {
               val substedUpper = s.subst(unSubst.subst(upperType))
               if (!hasRecursiveTypeParameters(substedUpper)) {
-                uSubst = uSubst.addUpper(tParam.nameAndId, substedUpper, additional = true)
+                uSubst = uSubst.addUpper(tParam.typeParamId, substedUpper, additional = true)
               }
             }
           }
@@ -468,15 +468,13 @@ object MethodResolveProcessor {
     }
     maybeTypeParameters match {
       case Some(typeParameters: Seq[PsiTypeParameter]) =>
-        s.followed(
-          if (typeArgElements.nonEmpty && typeParameters.length == typeArgElements.length) {
-            ScalaPsiUtil.genericCallSubstitutor(typeParameters.map(_.nameAndId), typeArgElements)
-          } else {
-            typeParameters.foldLeft(ScSubstitutor.empty) {
-              case (subst, typeParameter) =>
-                subst.bindT(typeParameter.nameAndId, UndefinedType(TypeParameterType(typeParameter)))
-            }
-          })
+        val follower =
+          if (typeArgElements.nonEmpty && typeParameters.length == typeArgElements.length)
+            ScSubstitutor.bind(typeParameters, typeArgElements)(_.calcType)
+          else
+            ScSubstitutor.bind(typeParameters)(UndefinedType(_))
+
+        s.followed(follower)
       case _ => s
     }
   }

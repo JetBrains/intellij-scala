@@ -4,7 +4,7 @@ import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
+import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, FunctionType}
 
 /**
  * @author Alefas
@@ -39,7 +39,7 @@ class StaticTraitScFunctionWrapper(val function: ScFunction, containingClass: Ps
     val typeText = param.getRealParameterType match {
       case Right(tp) =>
         val simple = JavaConversionUtil.typeText(tp)
-        if (param.isCallByNameParameter) s"scala.Function0<$simple>"
+        if (param.isCallByNameParameter) s"${FunctionType.TypeName}0<$simple>"
         else simple
       case _ => "java.lang.Object"
     }

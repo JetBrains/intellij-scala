@@ -49,6 +49,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
@@ -781,16 +782,19 @@ object ScalaPsiElementFactory {
   def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReferenceElement =
     createElementWithContext[ScStableCodeReferenceElement](text, context, child, StableId.parse(_, ScalaElementTypes.REFERENCE)).orNull
 
-  def createExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression = {
+  def createExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression = // TODO method should be eliminated eventually
+    createOptionExpressionWithContextFromText(text, context, child).orNull
+
+  def createOptionExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): Option[ScExpression] = {
     val result = createElementWithContext[ScMethodCall](s"foo($text)", context, child, Expr.parse).flatMap {
       _.argumentExpressions.headOption
     }
 
-    withContext(result, context, child).orNull
+    withContext(result, context, child)
   }
 
-  def createConstructorBodyWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression =
-    createElementWithContext[ScExpression](s"$text", context, child, ConstrExpr.parse).orNull
+  def createConstructorBodyWithContextFromText(text: String, context: PsiElement, child: PsiElement): Option[ScExpression] =
+    createElementWithContext[ScExpression](text, context, child, ConstrExpr.parse)
 
   def createElement(text: String,
                     parse: ScalaPsiBuilder => AnyVal)

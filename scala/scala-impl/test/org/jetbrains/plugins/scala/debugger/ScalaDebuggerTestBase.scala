@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import java.io._
+import java.nio.file.Path
 import java.security.MessageDigest
 import java.util
 
@@ -11,7 +12,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
 import com.intellij.testFramework._
-import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
@@ -20,15 +20,15 @@ import scala.collection.mutable
 import scala.util.Try
 
 /**
- * @author Roman.Shein
- *         Date: 03.03.14
- */
+  * @author Roman.Shein
+  *         Date: 03.03.14
+  */
 abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
   protected def checksumsFileName = "checksums.dat"
 
   protected val testDataBasePrefix = "debugger"
 
-  private var checksums: Checksums = null
+  private var checksums: Checksums = _
 
   protected var needMake = false
 
@@ -55,10 +55,10 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     PlatformTestCase.myFilesToDelete.remove(getImlFile)
   }
 
-  override def getIprFile: File = {
+  override def getProjectDirOrFile: Path = {
     val file = new File(testDataBasePath, testClassName + ProjectFileType.DOT_DEFAULT_EXTENSION)
     FileUtil.createIfDoesntExist(file)
-    file
+    file.toPath
   }
 
   protected def getImlFile: File = {
@@ -97,14 +97,13 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     sourceFiles += relPathInSrc -> fileText
   }
 
-  def checkOrAddAllSourceFiles() = {
+  def checkOrAddAllSourceFiles(): Unit = {
     if (sourceFiles.exists {
       case (path, text) => !fileWithTextExists(new File(path), text)
     }) {
-
-    }
-    sourceFiles.foreach {
-      case (path, text) => addFileToProject(path, text)
+      sourceFiles.foreach {
+        case (path, text) => addFileToProject(path, text)
+      }
     }
   }
 
@@ -172,7 +171,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
 
   protected def srcDir: File = new File(testDataBasePath, "src")
 
-  protected def saveChecksums() = {
+  protected def saveChecksums(): Unit = {
     checksums = computeChecksums()
     val file = new File(testDataBasePath, checksumsFileName)
     FileUtil.createIfDoesntExist(file)

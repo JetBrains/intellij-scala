@@ -13,7 +13,10 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ScopeAnnotatorTest extends AnnotatorTestBase(new MyAnnotatorPart) {
-  def testSCL7116(): Unit = assert(
+
+  override protected def shouldPass: Boolean = false
+
+  def testSCL7116(): Unit = assertNothing(
     messages(
       """
         |object SynoHilite {
@@ -27,10 +30,9 @@ class ScopeAnnotatorTest extends AnnotatorTestBase(new MyAnnotatorPart) {
         |        y.get
         |    }
         |}
-      """.stripMargin).isEmpty
-  )
+      """.stripMargin))
 
-  def testSCL8633(): Unit = assert(
+  def testSCL8633(): Unit = assertNothing(
     messages(
       """
         |object SCL8633 {
@@ -38,10 +40,10 @@ class ScopeAnnotatorTest extends AnnotatorTestBase(new MyAnnotatorPart) {
         |
         |  def <ref>a(x: => Int) = x
         |}
-      """.stripMargin).isEmpty
+      """.stripMargin)
   )
 
-  def testSCL3137(): Unit = assert(
+  def testSCL3137(): Unit = assertNothing(
     messages(
       """
         |package a {
@@ -58,7 +60,7 @@ class ScopeAnnotatorTest extends AnnotatorTestBase(new MyAnnotatorPart) {
         |    def foo(foo: b.Foo) {}
         |  }
         |}
-      """.stripMargin).isEmpty
+      """.stripMargin)
   )
 }
 

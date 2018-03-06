@@ -237,6 +237,13 @@ object ParserUtils extends ParserUtilsBase {
       getPsiFile(builder).exists(file => file.getVirtualFile.isInstanceOf[LightVirtualFileBase])
   }
   
+  def hasTextBefore(builder: ScalaPsiBuilder, text: String): Boolean = {
+    Option(builder.getLatestDoneMarker).exists {
+      marker =>
+        StringUtil.equals(builder.getOriginalText.subSequence(marker.getStartOffset, marker.getEndOffset - 1), text)
+    }
+  }
+  
   def isBackticked(name: String): Boolean = name != "`" && name.startsWith("`") && name.endsWith("`")
   
   def isCurrentVarId(builder: PsiBuilder): Boolean = {

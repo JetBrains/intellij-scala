@@ -4,9 +4,9 @@ import java.util.concurrent.ConcurrentMap
 
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions.TraversableExt
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType.substitutorCache
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.Update
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{ScSubstitutor, Update}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -30,10 +30,10 @@ trait ParameterizedType extends ValueType {
   override def removeAbstracts = ParameterizedType(designator.removeAbstracts,
     typeArguments.map(_.removeAbstracts))
 
-  override def updateSubtypes(update: Update, visited: Set[ScType]): ValueType = {
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ValueType = {
     ParameterizedType(
-      designator.recursiveUpdateImpl(update, visited),
-      typeArguments.map(_.recursiveUpdateImpl(update, visited))
+      designator.recursiveUpdateImpl(updates, visited),
+      typeArguments.map(_.recursiveUpdateImpl(updates, visited))
     )
   }
 
