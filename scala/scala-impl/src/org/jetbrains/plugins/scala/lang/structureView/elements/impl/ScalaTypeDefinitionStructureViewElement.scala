@@ -1,32 +1,29 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
-package elements
-package impl
+package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
-import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 
-import _root_.scala.collection.mutable._
+import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
 
-class ScalaTypeDefinitionStructureViewElement(clazz: ScTypeDefinition) extends ScalaStructureViewElement(clazz, false) {
+class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) extends ScalaStructureViewElement(definition, false) {
+  override def getPresentation: ItemPresentation =
+    new ScalaTypeDefinitionItemPresentation(definition)
 
-  def getPresentation: ItemPresentation = {
-    new ScalaTypeDefinitionItemPresentation(clazz)
-  }
-
-  def getChildren: Array[TreeElement] = {
+  override def getChildren: Array[TreeElement] = {
     val children = new ArrayBuffer[TreeElement]
-    val members = clazz.members
+    for (body <- definition.extendsBlock.templateBody; child <- body.getChildren if child.isInstanceOf[ScBlockExpr])
+      children += new ScalaBlockStructureViewElement(child.asInstanceOf[ScBlockExpr])
+    val members = definition.members
     for (member <- members) {
       member match {
         case func: ScFunction =>
@@ -45,7 +42,7 @@ class ScalaTypeDefinitionStructureViewElement(clazz: ScTypeDefinition) extends S
         case _ =>
       }
     }
-    for (typeDef <- clazz.typeDefinitions)
+    for (typeDef <- definition.typeDefinitions)
       children += new ScalaTypeDefinitionStructureViewElement(typeDef)
     children.toArray
   }

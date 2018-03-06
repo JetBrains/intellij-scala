@@ -1,12 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
-package elements
-package impl
+package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 
 /**
@@ -14,11 +12,15 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 * Date: 04.05.2008
 */
 
-class ScalaFunctionStructureViewElement(func: ScFunction, val isInherited: Boolean) extends ScalaStructureViewElement(func, isInherited) {
+class ScalaFunctionStructureViewElement(function: ScFunction, val isInherited: Boolean) extends ScalaStructureViewElement(function, isInherited) {
+  def getPresentation: ItemPresentation =
+    new ScalaFunctionItemPresentation(function, isInherited)
 
-  def getPresentation: ItemPresentation = {
-    new ScalaFunctionItemPresentation(func, isInherited)
+  override def getChildren: Array[TreeElement] = function match {
+    case definition: ScFunctionDefinition => definition.body match {
+      case Some(block: ScBlockExpr) => new ScalaBlockStructureViewElement(block).getChildren
+      case _ => Array.empty
+    }
+    case _ => Array.empty
   }
-
-  def getChildren: Array[TreeElement] = Array()
 }

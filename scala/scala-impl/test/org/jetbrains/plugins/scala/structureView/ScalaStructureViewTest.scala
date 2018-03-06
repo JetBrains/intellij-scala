@@ -5,6 +5,7 @@ import javax.swing.Icon
 import com.intellij.ide.structureView.StructureViewTreeElement
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFileFactory
+import com.intellij.util.PlatformIcons
 import com.intellij.util.PlatformIcons._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
@@ -71,9 +72,9 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testTypeAlias(): Unit = {
     check("""
-          type T = Int
+          type A = Int
           """,
-      Node(TYPE_ALIAS, "T"))
+      Node(TYPE_ALIAS, "A"))
   }
 
   def testMethod(): Unit = {
@@ -255,12 +256,20 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
         Node(METHOD_ICON, "this(Float)(Double)")))
   }
 
+  def testBlock(): Unit = {
+    check("""
+          {}
+          """,
+      Node(CLASS_INITIALIZER, ""))
+  }
+
   def testInsideClass(): Unit = {
     check("""
           class Container {
+            {}
             var v1: Int = 1
             val v2: Int = 1
-            type T = Int
+            type A = Int
             def m: Int = 1
             class C
             trait T
@@ -268,9 +277,10 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(CLASS, "Container",
+        Node(CLASS_INITIALIZER, ""),
         Node(FIELD_VAR, "v1: Int"),
         Node(FIELD_VAL, "v2: Int"),
-        Node(TYPE_ALIAS, "T"),
+        Node(TYPE_ALIAS, "A"),
         Node(METHOD_ICON, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
@@ -280,9 +290,10 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testInsideTrait(): Unit = {
     check("""
           trait Container {
+            {}
             var v1: Int = 1
             val v2: Int = 1
-            type T = Int
+            type A = Int
             def m: Int = 1
             class C
             trait T
@@ -290,9 +301,10 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(TRAIT, "Container",
+        Node(CLASS_INITIALIZER, ""),
         Node(FIELD_VAR, "v1: Int"),
         Node(FIELD_VAL, "v2: Int"),
-        Node(TYPE_ALIAS, "T"),
+        Node(TYPE_ALIAS, "A"),
         Node(METHOD_ICON, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
@@ -302,9 +314,10 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testInsideObject(): Unit = {
     check("""
           object Container {
+            {}
             var v1: Int = 1
             val v2: Int = 1
-            type T = Int
+            type A = Int
             def m: Int = 1
             class C
             trait T
@@ -312,25 +325,99 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(OBJECT, "Container",
+        Node(CLASS_INITIALIZER, ""),
         Node(FIELD_VAR, "v1: Int"),
         Node(FIELD_VAL, "v2: Int"),
-        Node(TYPE_ALIAS, "T"),
+        Node(TYPE_ALIAS, "A"),
         Node(METHOD_ICON, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
         Node(OBJECT, "O")))
   }
 
-//  def testInsideMethod(): Unit = {
-//    check("""
-//          def m = {
-//            class Inner
-//          }
-//          """,
-//      Node(FUNCTION, "m",
-//        Node(CLASS, "Inner")))
-//  }
+  def testInsideBlock(): Unit = {
+    check("""
+          {
+            {}
+            var v1: Int = 1
+            val v2: Int = 1
+            type A = Int
+            def m: Int = 1
+            class C
+            trait T
+            object O
+          }
+          """,
+      Node(CLASS_INITIALIZER, "",
+        Node(CLASS_INITIALIZER, ""),
+        Node(FUNCTION, "m: Int"),
+        Node(CLASS, "C"),
+        Node(TRAIT, "T"),
+        Node(OBJECT, "O")))
+  }
 
+  def testInsideVariable(): Unit = {
+    check("""
+          var v: Int = {
+            {}
+            var v1: Int = 1
+            val v2: Int = 1
+            type A = Int
+            def m: Int = 1
+            class C
+            trait T
+            object O
+          }
+          """,
+      Node(VAR, "v: Int",
+        Node(CLASS_INITIALIZER, ""),
+        Node(FUNCTION, "m: Int"),
+        Node(CLASS, "C"),
+        Node(TRAIT, "T"),
+        Node(OBJECT, "O")))
+  }
+
+  def testInsideValue(): Unit = {
+    check("""
+          val v: Int = {
+            {}
+            var v1: Int = 1
+            val v2: Int = 1
+            type A = Int
+            def m: Int = 1
+            class C
+            trait T
+            object O
+          }
+          """,
+      Node(VAL, "v: Int",
+        Node(CLASS_INITIALIZER, ""),
+        Node(FUNCTION, "m: Int"),
+        Node(CLASS, "C"),
+        Node(TRAIT, "T"),
+        Node(OBJECT, "O")))
+  }
+
+  def testInsideMethod(): Unit = {
+    check("""
+          def m: Int = {
+            {}
+            var v1: Int = 1
+            val v2: Int = 1
+            type A = Int
+            def m: Int = 1
+            class C
+            trait T
+            object O
+          }
+          """,
+      Node(FUNCTION, "m: Int",
+        Node(CLASS_INITIALIZER, ""),
+        Node(FUNCTION, "m: Int"),
+        Node(CLASS, "C"),
+        Node(TRAIT, "T"),
+        Node(OBJECT, "O")))
+  }
 
 //  def testMultipleClasses(): Unit = {
 //    check("""
