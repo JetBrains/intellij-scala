@@ -37,6 +37,11 @@ abstract class ScFunctionImpl protected (stub: ScFunctionStub, nodeType: ScFunct
       case notNull => notNull
     }
     if (n == null) {
+      val stub = getGreenStub
+      if (stub == null) {
+        val message = s"Both stub and name identifier node are null for ${getClass.getSimpleName} \n$getText"
+        throw new NullPointerException(message)
+      }
       return createIdentifier(getGreenStub.getName).getPsi
     }
     n.getPsi
