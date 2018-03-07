@@ -29,11 +29,13 @@ trait ScVariable extends ScValueOrVariable {
     var parent = getParent
     while (parent != null) {
       parent match {
-        case _: ScExtendsBlock => return Icons.FIELD_VAR
+        case _: ScExtendsBlock => return if (isAbstract) Icons.ABSTRACT_FIELD_VAR else Icons.FIELD_VAR
         case (_: ScBlock | _: ScalaFile) => return Icons.VAR
         case _ => parent = parent.getParent
       }
     }
     null
   }
+
+  def isAbstract: Boolean
 }

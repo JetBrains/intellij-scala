@@ -41,6 +41,26 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(VAR, "v2: Int"))
   }
 
+  def testMemberVariable(): Unit = {
+    check("""
+          class Container {
+            var v: Int = 1
+          }
+          """,
+      Node(CLASS, "Container",
+        Node(FIELD_VAR, "v: Int")))
+  }
+
+  def testAbstractMemberVariable(): Unit = {
+    check("""
+          trait Container {
+            var v: Int
+          }
+          """,
+      Node(TRAIT, "Container",
+        Node(ABSTRACT_FIELD_VAR, "v: Int")))
+  }
+
   def testVariableTypeInference(): Unit = {
     check("""
           var v = 1

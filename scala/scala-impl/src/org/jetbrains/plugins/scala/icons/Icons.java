@@ -55,6 +55,7 @@ public interface Icons {
   Icon VAL = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/value.png");
   Icon PARAMETER = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/parameter.png");
   Icon FIELD_VAR = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/field_variable.png");
+  Icon ABSTRACT_FIELD_VAR = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/abstract_field_variable.png");
   Icon FIELD_VAL = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/field_value.png");
   Icon PATTERN_VAL = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/pattern_value.png");
   Icon LAMBDA = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/lambda.png");
