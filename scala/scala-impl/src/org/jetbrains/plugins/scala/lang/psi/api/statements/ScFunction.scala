@@ -296,7 +296,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     var parent = getParent
     while (parent != null) {
       parent match {
-        case _: ScExtendsBlock => return PlatformIcons.METHOD_ICON
+        case _: ScExtendsBlock =>
+          return if (isAbstractMember) PlatformIcons.ABSTRACT_METHOD_ICON else PlatformIcons.METHOD_ICON
         case (_: ScBlock | _: ScalaFile) => return Icons.FUNCTION
         case _ => parent = parent.getParent
       }

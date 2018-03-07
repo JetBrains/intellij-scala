@@ -117,49 +117,69 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(TYPE_ALIAS, "A"))
   }
 
-  def testMethod(): Unit = {
+  def testFunction(): Unit = {
     check("""
           def m: Int = 1
           """,
       Node(FUNCTION, "m: Int"))
   }
 
-  def testMethodTypeInference(): Unit = {
+  def testFunctionTypeInference(): Unit = {
     check("""
           def m = 1
           """,
       Node(FUNCTION, "m: Int"))
   }
 
-  def testTypeParametersInMethod(): Unit = {
+  def testMethod(): Unit = {
+    check("""
+          class Container {
+            def m: Int = 1
+          }
+          """,
+      Node(CLASS, "Container",
+        Node(METHOD_ICON, "m: Int")))
+  }
+
+  def testAbstractMethod(): Unit = {
+    check("""
+          class Container {
+            def m: Int
+          }
+          """,
+      Node(CLASS, "Container",
+        Node(ABSTRACT_METHOD_ICON, "m: Int")))
+  }
+
+  def testTypeParametersInFunction(): Unit = {
     check("""
           def m[A, B]: Int = 1
           """,
       Node(FUNCTION, "m[A, B]: Int"))
   }
 
-//  def testMethodTypeParameterPresentation(): Unit = {
+//  def testFunctionTypeParameterPresentation(): Unit = {
 //    check("""
 //          def m[T <: Any]: Int = 1
 //          """,
 //      Node(FUNCTION, "m[T]: Int"))
 //  }
 
-  def testParameterListInMethod(): Unit = {
+  def testParameterListInFunction(): Unit = {
     check("""
           def m(): Int = 1
           """,
       Node(FUNCTION, "m(): Int"))
   }
 
-  def testMultipleParametersInMethod(): Unit = {
+  def testMultipleParametersInFunction(): Unit = {
     check("""
           def m(p1: Float, p2: Double): Int = 1
           """,
       Node(FUNCTION, "m(Float, Double): Int"))
   }
 
-  def testMultipleParameterListsInMethod(): Unit = {
+  def testMultipleParameterListsInFunction(): Unit = {
     check("""
           def m(p1: Float)(p2: Double): Int = 1
           """,
