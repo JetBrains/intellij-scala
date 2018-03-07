@@ -68,7 +68,11 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearch
     while (tmpElement.getTextRange != myCurFileLine.element.getTextRange) {
       tmpElement = tmpElement.getParent
     }
-    val dep = AddSbtDependencyUtils.addDependency(tmpElement, wizard.resultArtifact.get)(project)
+
+    val dep = for {
+      resultArtifact <- wizard.resultArtifact
+      dependency <- AddSbtDependencyUtils.addDependency(tmpElement, resultArtifact)(project)
+    } yield dependency
 
     extensions.inWriteAction {
       val text = dep match {
@@ -77,6 +81,7 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: SbtArtifactSearch
       }
       myCurEditor.getDocument.setText(text)
     }
+
 
     myCurEditor.getCaretModel.moveToOffset(myCurFileLine.offset)
     val scrollingModel  = myCurEditor.getScrollingModel
