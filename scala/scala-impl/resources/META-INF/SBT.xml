@@ -114,6 +114,7 @@
 
     <extensions defaultExtensionNs="org.intellij.scala">
         <scalaFileFactory implementation="org.jetbrains.sbt.language.SbtFileFactory" />
+        <unresolvedReferenceFixProvider implementation="org.jetbrains.sbt.annotator.dependency.AddSbtDependencyFixProvider" />
     </extensions>
 
     <actions>

@@ -32,8 +32,22 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
-    .dependsOn(scalaImpl %  "test->test;compile->compile")
-    .aggregate(scalaImpl)
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      androidIntegration % "test->test;compile->compile",
+      copyrightIntegration % "test->test;compile->compile",
+      gradleIntegration % "test->test;compile->compile",
+      intellilangIntegration % "test->test;compile->compile",
+      mavenIntegration % "test->test;compile->compile",
+      propertiesIntegration % "test->test;compile->compile")
+    .aggregate(
+      scalaImpl,
+      androidIntegration,
+      copyrightIntegration,
+      gradleIntegration,
+      intellilangIntegration,
+      mavenIntegration,
+      propertiesIntegration)
     .settings(
       aggregate.in(updateIdea) := false,
       ideExcludedDirectories := Seq(baseDirectory.value / "target")
@@ -53,16 +67,14 @@ lazy val scalaImpl: sbt.Project =
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
     addCompilerPlugin(Dependencies.macroParadise),
     ideaInternalPlugins := Seq(
-      "copyright",
-      "gradle",
-      "Groovy",
-      "IntelliLang",
       "java-i18n",
       "android",
-      "smali",
-      "maven",
-      "junit",
-      "properties"
+      "smali", // required by Android
+      "gradle", // requierd by Android
+      "Groovy", // requierd by Gradle
+      "properties", // required by Gradle
+      "maven", // TODO remove after extracting the SBT module (which depends on Maven)
+      "junit"
     ),
     ideaInternalPluginsJars :=
       ideaInternalPluginsJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api"))
@@ -123,6 +135,70 @@ lazy val cbt =
   newProject("cbt", file("cbt"))
     .enablePlugins(SbtIdeaPlugin)
     .dependsOn(scalaImpl % "test->test;compile->compile")
+
+// Integration with other IDEA plugins
+
+lazy val androidIntegration =
+  newProject("android", file("scala/integration/android"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(
+      ideaInternalPlugins := Seq(
+        "android",
+        "smali", // required by Android
+        "gradle",// required by Android
+        "groovy", // required by Gradle
+        "properties") // required by Gradle
+    )
+
+lazy val copyrightIntegration =
+  newProject("copyright", file("scala/integration/copyright"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(
+      ideaInternalPlugins := Seq(
+        "copyright"
+      )
+    )
+
+lazy val gradleIntegration =
+  newProject("gradle", file("scala/integration/gradle"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(
+      ideaInternalPlugins := Seq(
+        "gradle",
+        "groovy", // required by Gradle
+        "properties") // required by Gradle
+    )
+
+lazy val intellilangIntegration =
+  newProject("intellilang", file("scala/integration/intellilang"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(
+      ideaInternalPlugins := Seq(
+        "IntelliLang"
+      )
+    )
+
+lazy val mavenIntegration =
+  newProject("maven", file("scala/integration/maven"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(
+      ideaInternalPlugins := Seq("maven")
+    )
+
+lazy val propertiesIntegration =
+  newProject("properties", file("scala/integration/properties"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(
+      ideaInternalPlugins := Seq(
+        "properties"
+      )
+    )
 
 // Utility projects
 
@@ -223,7 +299,14 @@ iLoopWrapperPath := baseDirectory.in(compilerJps).value / "resources" / "ILoopWr
 lazy val scalaPluginJarPackager =
   newProject("scalaPluginJarPackager", file("target/tools/scalaPluginJarPackager"))
     .settings(
-      products in Compile := products.in(scalaImpl, Compile).value,
+      products in Compile :=
+        products.in(scalaImpl, Compile).value ++
+          products.in(androidIntegration, Compile).value ++
+          products.in(copyrightIntegration, Compile).value ++
+          products.in(gradleIntegration, Compile).value ++
+          products.in(intellilangIntegration, Compile).value ++
+          products.in(mavenIntegration, Compile).value ++
+          products.in(propertiesIntegration, Compile).value,
       ideSkipProject := true
     )
 

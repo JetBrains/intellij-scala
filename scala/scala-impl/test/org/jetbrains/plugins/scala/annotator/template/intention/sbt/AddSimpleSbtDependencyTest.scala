@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.template.intention.sbt
 
-import org.jetbrains.plugins.scala.annotator.intention.sbt.AddSbtDependencyUtils
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
+import org.jetbrains.sbt.annotator.dependency.AddSbtDependencyUtils
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
