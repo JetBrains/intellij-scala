@@ -42,6 +42,7 @@ public interface Icons {
   //Toplevel nodes
   Icon FILE = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/file_scala.png");
   Icon CLASS = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/class_scala.png");
+  Icon ABSTRACT_CLASS = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/abstract_class_scala.png");
   Icon TRAIT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/trait_scala.png");
   Icon OBJECT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/object_scala.png");
   Icon PACKAGE_OBJECT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/package_object.png");

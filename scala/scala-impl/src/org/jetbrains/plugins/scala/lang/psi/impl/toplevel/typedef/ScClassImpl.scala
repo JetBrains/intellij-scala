@@ -5,6 +5,8 @@ package impl
 package toplevel
 package typedef
 
+import javax.swing.Icon
+
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.DumbService
@@ -59,7 +61,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     else Array.empty
   }
 
-  override def getIconInner = Icons.CLASS
+  override def getIconInner: Icon = if (hasAbstractModifier) Icons.ABSTRACT_CLASS else Icons.CLASS
 
   override def constructor: Option[ScPrimaryConstructor] = desugaredElement match {
     case Some(templateDefinition: ScConstructorOwner) => templateDefinition.constructor

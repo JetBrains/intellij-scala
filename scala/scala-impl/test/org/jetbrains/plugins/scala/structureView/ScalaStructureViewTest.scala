@@ -200,6 +200,13 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(CLASS, "C"))
   }
 
+  def testAbstractClass(): Unit = {
+    check("""
+          abstract class C
+          """,
+      Node(ABSTRACT_CLASS, "C"))
+  }
+
   def testClassTypeParameters(): Unit = {
     check("""
           class C[A, B]
