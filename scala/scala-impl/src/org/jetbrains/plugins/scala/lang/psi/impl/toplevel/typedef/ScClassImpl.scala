@@ -38,7 +38,8 @@ import scala.collection.mutable.ArrayBuffer
   */
 
 class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, CLASS_DEFINITION, node) with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
+  extends ScTypeDefinitionImpl(stub, CLASS_DEFINITION, node) with ScClass
+    with ScTypeParametersOwner with ScTemplateDefinition with ScVisibilityIconOwner {
 
   def this(node: ASTNode) =
     this(null, node)
@@ -61,7 +62,8 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     else Array.empty
   }
 
-  override def getIconInner: Icon = if (hasAbstractModifier) Icons.ABSTRACT_CLASS else Icons.CLASS
+  override protected def getBaseIcon(flags: Int): Icon =
+    if (hasAbstractModifier) Icons.ABSTRACT_CLASS else Icons.CLASS
 
   override def constructor: Option[ScPrimaryConstructor] = desugaredElement match {
     case Some(templateDefinition: ScConstructorOwner) => templateDefinition.constructor

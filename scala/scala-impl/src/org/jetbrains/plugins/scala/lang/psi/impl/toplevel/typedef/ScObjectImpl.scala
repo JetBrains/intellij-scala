@@ -15,13 +15,14 @@ import com.intellij.psi.impl.light.LightField
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiUtil
 import javax.swing.Icon
+
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScVisibilityIconOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
@@ -40,7 +41,7 @@ import scala.collection.mutable.ArrayBuffer
  * Date: 20.02.2008
  */
 class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, ScalaElementTypes.OBJECT_DEFINITION, node) with ScObject with ScTemplateDefinition {
+  extends ScTypeDefinitionImpl(stub, ScalaElementTypes.OBJECT_DEFINITION, node) with ScObject with ScTemplateDefinition with ScVisibilityIconOwner {
 
   def this(node: ASTNode) = this(null, node)
 
@@ -77,13 +78,15 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   override def toString: String = (if (isPackageObject) "ScPackageObject: " else "ScObject: ") + ifReadAllowed(name)("")
 
-  override def getIconInner: Icon = if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
+  override protected def getBaseIcon(flags: Int): Icon =
+    if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
 
   override def getName: String = {
     if (isPackageObject) return "package$"
     super.getName + "$"
   }
 
+  // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {
     if (name == "final") return true
     super[ScTypeDefinitionImpl].hasModifierProperty(name)

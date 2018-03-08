@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl
 import javax.swing.Icon
 
 import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
+import com.intellij.openapi.util.Iconable
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -24,7 +25,7 @@ class ScalaVariableItemPresentation(element: ScNamedElement, inherited: Boolean)
   }
 
   override def getIcon(open: Boolean): Icon =
-    variable.map(_.getIcon(0)).orNull
+    variable.map(_.getIcon(Iconable.ICON_FLAG_VISIBILITY)).orNull
 
   private def variable = element.parentsInFile.findByType[ScVariable]
 

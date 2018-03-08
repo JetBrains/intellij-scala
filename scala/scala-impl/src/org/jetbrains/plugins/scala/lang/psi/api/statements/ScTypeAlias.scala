@@ -23,8 +23,10 @@ import scala.annotation.tailrec
  * Time: 9:46:00
  */
 
-trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsHolder with ScDocCommentOwner with ScCommentOwner {
-  override def getIcon(flags: Int): Icon = Icons.TYPE_ALIAS
+trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsHolder
+  with ScDocCommentOwner with ScCommentOwner with ScVisibilityIconOwner {
+
+  override protected def getBaseIcon(flags: Int): Icon = Icons.TYPE_ALIAS
 
   override protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean) = m match {
     case t: ScTypeAlias => t.name == name

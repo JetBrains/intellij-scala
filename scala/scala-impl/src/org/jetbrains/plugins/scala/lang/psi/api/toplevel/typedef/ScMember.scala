@@ -113,6 +113,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   def isLocal: Boolean = isLocalByStub || containingClassInner == null
 
+  // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {
     name match {
       case PsiModifier.PUBLIC =>

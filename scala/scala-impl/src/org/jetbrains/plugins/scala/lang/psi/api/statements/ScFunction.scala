@@ -58,7 +58,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
   with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner
-  with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement {
+  with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement with ScVisibilityIconOwner {
 
   def isSyntheticCopy: Boolean = synthNavElement.nonEmpty && name == "copy"
   def isSyntheticApply: Boolean = synthNavElement.nonEmpty && name == "apply"
@@ -98,6 +98,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def isNative: Boolean = hasAnnotation("scala.native")
 
+  // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {
     if (name == "abstract") {
       this match {
@@ -292,7 +293,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def parameters: Seq[ScParameter] = paramClauses.params
 
   // TODO unify with ScValue and ScVariable
-  override def getIcon(flags: Int): Icon = {
+  protected override def getBaseIcon(flags: Int): Icon = {
     var parent = getParent
     while (parent != null) {
       parent match {

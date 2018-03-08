@@ -5,7 +5,7 @@ import javax.swing.Icon
 import com.intellij.ide.structureView.StructureViewTreeElement
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFileFactory
-import com.intellij.util.PlatformIcons
+import com.intellij.psi.impl.ElementBase
 import com.intellij.util.PlatformIcons._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
@@ -61,6 +61,16 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
         Node(ABSTRACT_FIELD_VAR, "v: Int")))
   }
 
+  def testMemberVariableVisibility(): Unit = {
+    check("""
+          trait Container {
+             private var v: Int = 1
+          }
+          """,
+      Node(TRAIT, "Container",
+        Node(FIELD_VAR, PRIVATE_ICON, "v: Int")))
+  }
+
   def testVariableTypeInference(): Unit = {
     check("""
           var v = 1
@@ -103,6 +113,16 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
         Node(ABSTRACT_FIELD_VAL, "v: Int")))
   }
 
+  def testMemberValueVisibility(): Unit = {
+    check("""
+          trait Container {
+            private val v: Int = 1
+          }
+          """,
+      Node(TRAIT, "Container",
+        Node(FIELD_VAL, PRIVATE_ICON, "v: Int")))
+  }
+
   def testValueTypeInference(): Unit = {
     check("""
           val v = 1
@@ -117,11 +137,48 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(TYPE_ALIAS, "A"))
   }
 
+  def testMemberTypeAlias(): Unit = {
+    check("""
+          trait Container {
+            type A = Int
+          }
+          """,
+      Node(TRAIT, "Container",
+        Node(TYPE_ALIAS, "A")))
+  }
+
+//  def testAbstractMemberTypeAlias(): Unit = {
+//    check("""
+//          trait Container {
+//            type A
+//          }
+//          """,
+//      Node(TRAIT, "Container",
+//        Node(ABSTRACT_TYPE_ALIAS, "A")))
+//  }
+
+  def testMemberTypeAliasVisibility(): Unit = {
+    check("""
+          trait Container {
+            private type A = Int
+          }
+          """,
+      Node(TRAIT, "Container",
+        Node(TYPE_ALIAS, PRIVATE_ICON, "A")))
+  }
+
   def testFunction(): Unit = {
     check("""
           def m: Int = 1
           """,
       Node(FUNCTION, "m: Int"))
+  }
+
+  def testFunctionVisibility(): Unit = {
+    check("""
+          private def m: Int = 1
+          """,
+      Node(FUNCTION, PRIVATE_ICON, "m: Int"))
   }
 
   def testFunctionTypeInference(): Unit = {
@@ -193,6 +250,13 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(OBJECT, "O"))
   }
 
+  def testObjectVisibility(): Unit = {
+    check("""
+          private object O
+          """,
+      Node(OBJECT, PRIVATE_ICON, "O"))
+  }
+
   def testClass(): Unit = {
     check("""
           class C
@@ -207,6 +271,13 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(ABSTRACT_CLASS, "C"))
   }
 
+  def testClassVisibility(): Unit = {
+    check("""
+          private class C
+          """,
+      Node(CLASS, PRIVATE_ICON, "C"))
+  }
+
   def testClassTypeParameters(): Unit = {
     check("""
           class C[A, B]
@@ -219,6 +290,13 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           trait T
           """,
       Node(TRAIT, "T"))
+  }
+
+  def testTraitVisibility(): Unit = {
+    check("""
+          private trait T
+          """,
+      Node(TRAIT, PRIVATE_ICON, "T"))
   }
 
   def testTraitTypeParameters(): Unit = {
@@ -327,7 +405,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
     check("""
           {}
           """,
-      Node(CLASS_INITIALIZER, ""))
+      new Node(CLASS_INITIALIZER, ""))
   }
 
   def testInsideClass(): Unit = {
@@ -344,7 +422,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(CLASS, "Container",
-        Node(CLASS_INITIALIZER, ""),
+        new Node(CLASS_INITIALIZER, ""),
         Node(FIELD_VAR, "v1: Int"),
         Node(FIELD_VAL, "v2: Int"),
         Node(TYPE_ALIAS, "A"),
@@ -368,7 +446,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(TRAIT, "Container",
-        Node(CLASS_INITIALIZER, ""),
+        new Node(CLASS_INITIALIZER, ""),
         Node(FIELD_VAR, "v1: Int"),
         Node(FIELD_VAL, "v2: Int"),
         Node(TYPE_ALIAS, "A"),
@@ -392,7 +470,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(OBJECT, "Container",
-        Node(CLASS_INITIALIZER, ""),
+        new Node(CLASS_INITIALIZER, ""),
         Node(FIELD_VAR, "v1: Int"),
         Node(FIELD_VAL, "v2: Int"),
         Node(TYPE_ALIAS, "A"),
@@ -415,8 +493,8 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
             object O
           }
           """,
-      Node(CLASS_INITIALIZER, "",
-        Node(CLASS_INITIALIZER, ""),
+      new Node(CLASS_INITIALIZER, "",
+        new Node(CLASS_INITIALIZER, ""),
         Node(FUNCTION, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
@@ -437,7 +515,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(VAR, "v: Int",
-        Node(CLASS_INITIALIZER, ""),
+        new Node(CLASS_INITIALIZER, ""),
         Node(FUNCTION, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
@@ -458,7 +536,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(VAL, "v: Int",
-        Node(CLASS_INITIALIZER, ""),
+        new Node(CLASS_INITIALIZER, ""),
         Node(FUNCTION, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
@@ -479,7 +557,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           }
           """,
       Node(FUNCTION, "m: Int",
-        Node(CLASS_INITIALIZER, ""),
+        new Node(CLASS_INITIALIZER, ""),
         Node(FUNCTION, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
@@ -514,7 +592,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(model.getRoot)
     }
 
-    val expectedNode = Node(FILE, "foo.scala", nodes: _*)
+    val expectedNode = new Node(FILE, "foo.scala", nodes: _*)
 
     Assert.assertEquals(expectedNode.toString, actualNode.toString)
   }
@@ -523,17 +601,23 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
 private object ScalaStructureViewTest {
   private final val IconFileName = new Regex("(?<=/)[^/]+(?=\\.png)")
 
-  case class Node(icon: Icon, name: String, children: Node*) {
+  class Node(icon: Icon, name: String, children: Node*) {
     override def toString: String =
-      IconFileName.findFirstIn(Option(icon).mkString).mkString("[", "", "] ") + name + "\n" +
+      IconFileName.findAllIn(Option(icon).mkString).mkString("[", ", ", "] ") + name + "\n" +
         children.map(node => "  " + node.toString).mkString
   }
 
   object Node {
+    def apply(baseIcon: Icon, visibilityIcon: Icon, name: String, children: Node*): Node =
+      new Node(ElementBase.buildRowIcon(baseIcon, visibilityIcon), name, children: _*)
+
+    def apply(icon: Icon, name: String, children: Node*): Node =
+      Node(icon, PUBLIC_ICON, name, children: _*)
+
     def apply(element: StructureViewTreeElement): Node = {
       val presentation = element.getPresentation
 
-      Node(presentation.getIcon(true), presentation.getPresentableText,
+      new Node(presentation.getIcon(false), presentation.getPresentableText,
         element.getChildren.map { case element: StructureViewTreeElement => Node(element) }: _*)
     }
   }

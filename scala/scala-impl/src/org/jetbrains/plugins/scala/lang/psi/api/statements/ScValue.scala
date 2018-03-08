@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 /**
  * @author Alexander Podkhalyuzin
  */
-trait ScValue extends ScValueOrVariable {
+trait ScValue extends ScValueOrVariable with ScVisibilityIconOwner {
   override protected def keywordElementType: IElementType = kVAL
 
   override protected def isSimilarMemberForNavigation(member: ScMember, isStrict: Boolean): Boolean = member match {
@@ -25,7 +25,7 @@ trait ScValue extends ScValueOrVariable {
   }
 
   // TODO unify with ScFunction and ScVariable
-  override def getIcon(flags: Int): Icon = {
+  override protected def getBaseIcon(flags: Int): Icon = {
     var parent = getParent
     while (parent != null) {
       parent match {
