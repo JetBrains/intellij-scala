@@ -206,7 +206,7 @@ private[shell] object SbtProcessUtil {
   def promptError(line: String): Boolean =
     line.contains("(r)etry, (q)uit, (l)ast, or (i)gnore")
 
-  // sucky workaround for jdwp printling this line on the console when deactivating debugger
+  // sucky workaround for jdwp printing this line on the console when deactivating debugger
   def debuggerMessage(line: String): Boolean =
     line.contains("Listening for transport")
 }

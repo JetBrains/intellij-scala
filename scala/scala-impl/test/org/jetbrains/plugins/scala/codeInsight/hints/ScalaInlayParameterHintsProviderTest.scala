@@ -2,12 +2,11 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
+import com.intellij.codeInsight.hints.Option
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.junit.Assert.{assertFalse, assertTrue}
 
 class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  import ScalaInlayParameterHintsProvider._
   import ScalaInlayParameterHintsProviderTest.{HintEnd => E, HintStart => S}
 
   def testNoDefaultPackageHint(): Unit = doParameterTest(
@@ -22,7 +21,9 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  val pf: PartialFunction[Int, Int] = {
        |    case 42 => 42
        |  }
-       |  pf.applyOrElse(42, identity[Int])""".stripMargin
+       |  pf.applyOrElse(42, identity[Int])
+       |
+       |  Seq(1, 2, 3).collect(pf)""".stripMargin
   )
 
   def testParameterHint(): Unit = doParameterTest(
@@ -49,17 +50,26 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
   def testNoInfixExpressionHint(): Unit = doParameterTest(
     s"""  def foo(foo: Int): Unit = {}
        |
-       |  this foo 42""".stripMargin
+       |  foo(${S}foo =${E}this foo 42)""".stripMargin
   )
 
   def testNoTrivialHint(): Unit = doParameterTest(
     s"""  def foo(bar: String): Unit = {}
        |  def foo(length: Int): Unit = {}
+       |  def bar(hashCode: Int): Unit = {}
+       |  def bar(classOf: Class[_]): Unit = {}
+       |  def bar(baz: () => Unit): Unit = {}
        |
-       |  val bar = ""
+       |  val bar$S: String$E = ""
        |
+       |  def bazImpl(): Unit = {}
+       |
+       |  foo(${S}bar =${E}null)
        |  foo(bar)
-       |  foo(bar.length)""".stripMargin
+       |  foo(bar.length)
+       |  bar(bar.hashCode())
+       |  bar(classOf[String])
+       |  baz(bazImpl())""".stripMargin
   )
 
   def testVarargHint(): Unit = doParameterTest(
@@ -91,6 +101,13 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |  foo.apply(42)""".stripMargin
   )
 
+  def testSingleCharacterParameterHint(): Unit = doParameterTest(
+    s"""  def foo(f: Int): Unit = {}
+       |
+       |  foo(42)
+     """.stripMargin
+  )
+
   def testNoFunctionalParameterHint(): Unit = doParameterTest(
     s"""  def foo(pf: PartialFunction[Int, Int]): Unit = {
        |    pf(42)
@@ -106,7 +123,7 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
        |    pf(bar)
        |    pf.apply(bar)
        |
-       |    foo(${S}pf =${E}collector)
+       |    foo(collector)
        |    foo({ case 42 => 42 })
        |  }
        |
@@ -155,44 +172,44 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
     )
   }
 
-  def testFunctionReturnTypeHint(): Unit = doTest(
+  import MemberHintType._
+
+  def testFunctionReturnTypeHint(): Unit = doMemberTypeTest(
     s"""  def foo()$S: List[String]$E = List.empty[String]"""
-  )(hintType = ReturnTypeHintType)
+  )(option = functionReturnType)
 
-  def testNoFunctionReturnTypeHint(): Unit = doTest(
+  def testNoFunctionReturnTypeHint(): Unit = doMemberTypeTest(
     """  def foo(): List[String] = List.empty[String]"""
-  )(hintType = ReturnTypeHintType)
+  )(option = functionReturnType)
 
-  def testPropertyTypeHint(): Unit = doTest(
+  def testPropertyTypeHint(): Unit = doMemberTypeTest(
     s"""  val list$S: List[String]$E = List.empty[String]"""
-  )(hintType = PropertyHintType)
+  )(option = propertyType)
 
-  def testNoPropertyTypeHint(): Unit = doTest(
+  def testNoPropertyTypeHint(): Unit = doMemberTypeTest(
     """  val list: List[String] = List.empty[String]"""
-  )(hintType = PropertyHintType)
+  )(option = propertyType)
 
-  def testLocalVariableTypeHint(): Unit = doTest(
+  def testLocalVariableTypeHint(): Unit = doMemberTypeTest(
     s"""  def foo(): Unit = {
        |    val list$S: List[String]$E = List.empty[String]
        |  }""".stripMargin
-  )(hintType = LocalVariableHintType)
+  )(option = localVariableType)
 
-  def testNoLocalVariableTypeHint(): Unit = doTest(
+  def testNoLocalVariableTypeHint(): Unit = doMemberTypeTest(
     s"""  def foo(): Unit = {
        |    val list: List[String] = List.empty[String]
        |  }""".stripMargin
-  )(hintType = LocalVariableHintType)
+  )(option = localVariableType)
 
-  private def doTest(text: String)
-                    (hintType: OptionHintType): Unit = {
-    import hintType._
-    assertFalse(isOptionEnabled)
-    enable()
-    assertTrue(isOptionEnabled)
+  private def doMemberTypeTest(text: String)
+                              (option: Option): Unit = {
+    import option._
+    if (!getDefaultValue) set(true)
 
-    //    assertTrue(isOptionEnabled) // TODO ???
-    disable()
-    assertFalse(isOptionEnabled)
+    doParameterTest(text)
+
+    if (!getDefaultValue) set(false)
   }
 
   private def doParameterTest(text: String): Unit = {
@@ -210,5 +227,5 @@ class ScalaInlayParameterHintsProviderTest extends ScalaLightCodeInsightFixtureT
 object ScalaInlayParameterHintsProviderTest {
 
   private val HintStart = "<hint text=\""
-  private val HintEnd = "\" />"
+  private val HintEnd = "\"/>"
 }

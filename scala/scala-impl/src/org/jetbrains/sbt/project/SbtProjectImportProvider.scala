@@ -29,7 +29,8 @@ class SbtProjectImportProvider(builder: SbtProjectImportBuilder)
 object SbtProjectImportProvider {
 
   def canImport(entry: VirtualFile): Boolean = {
-    if (entry.isDirectory) {
+    if (entry == null) false
+    else if (entry.isDirectory) {
       entry.getName == Sbt.ProjectDirectory ||
         containsSbtProjectDirectory(entry) ||
         containsSbtBuildFile(entry)

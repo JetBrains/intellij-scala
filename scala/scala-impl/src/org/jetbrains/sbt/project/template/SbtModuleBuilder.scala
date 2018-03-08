@@ -217,7 +217,8 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     if (loadedVersions.contains(selections.scalaVersion)) {
       cbx.setSelectedItem(selections.scalaVersion)
     } else {
-      cbx.setSelectedIndex(0)
+      if (cbx.getItemCount > 0)
+        cbx.setSelectedIndex(0)
     }
   }
 

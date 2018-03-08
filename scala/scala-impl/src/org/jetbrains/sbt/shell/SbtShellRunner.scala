@@ -130,9 +130,14 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
   override def getConsoleIcon: Icon = Icons.SBT_SHELL
 
   override def showConsole(defaultExecutor: Executor, contentDescriptor: RunContentDescriptor): Unit = {
-    val twm = ToolWindowManager.getInstance(getProject)
-    val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
-    twm.getFocusManager.requestFocusInProject(toolWindow.getComponent, project)
+    val twm = ToolWindowManager.getInstance(project)
+
+    for {
+      toolWindow <- Option(twm.getToolWindow(SbtShellToolWindowFactory.ID))
+      component <- Option(toolWindow.getComponent)
+    } yield {
+      twm.getFocusManager.requestFocusInProject(component, project)
+    }
   }
 
   def openShell(focus: Boolean): Unit = ShellUIUtil.inUI {
