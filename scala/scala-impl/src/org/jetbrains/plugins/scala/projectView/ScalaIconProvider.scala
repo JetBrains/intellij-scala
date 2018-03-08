@@ -19,7 +19,8 @@ class ScalaIconProvider extends IconProvider {
       case file: ScalaFile if file.getFileType != ScalaFileType.INSTANCE => file.getFileType.getIcon
       case SingularDefinition(definition) => definition.getIcon(flags)
       case ClassAndCompanionObject(classDefinition, _) =>
-        if (classDefinition.hasAbstractModifier) Icons.ABSTRACT_CLASS_AND_OBJECT else Icons.CLASS_AND_OBJECT
+        val icon = if (classDefinition.hasAbstractModifier) Icons.ABSTRACT_CLASS_AND_OBJECT else Icons.CLASS_AND_OBJECT
+        classDefinition.decorate(icon, flags)
       case TraitAndCompanionObject(_, _) => Icons.TRAIT_AND_OBJECT
       case _: ScalaFile => Icons.FILE
     }

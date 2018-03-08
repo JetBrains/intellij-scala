@@ -24,7 +24,7 @@ import scala.annotation.tailrec
  */
 
 trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsHolder
-  with ScDocCommentOwner with ScCommentOwner with ScCompoundIconOwner {
+  with ScDocCommentOwner with ScCommentOwner with ScDecoratedIconOwner {
 
   override protected def getBaseIcon(flags: Int): Icon =
     if (isDefinition) Icons.TYPE_ALIAS else Icons.ABSTRACT_TYPE_ALIAS

@@ -5,8 +5,6 @@ package impl
 package toplevel
 package typedef
 
-import javax.swing.Icon
-
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.DumbService
@@ -14,7 +12,6 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightField
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.{CLASS_DEFINITION, PRIMARY_CONSTRUCTOR}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -39,7 +36,7 @@ import scala.collection.mutable.ArrayBuffer
 
 class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
   extends ScTypeDefinitionImpl(stub, CLASS_DEFINITION, node) with ScClass
-    with ScTypeParametersOwner with ScTemplateDefinition with ScCompoundIconOwner {
+    with ScTypeParametersOwner with ScTemplateDefinition {
 
   def this(node: ASTNode) =
     this(null, node)
@@ -61,9 +58,6 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     if (isCase) fakeCompanionModule.map(_.getName).toArray
     else Array.empty
   }
-
-  override protected def getBaseIcon(flags: Int): Icon =
-    if (hasAbstractModifier) Icons.ABSTRACT_CLASS else Icons.CLASS
 
   override def constructor: Option[ScPrimaryConstructor] = desugaredElement match {
     case Some(templateDefinition: ScConstructorOwner) => templateDefinition.constructor

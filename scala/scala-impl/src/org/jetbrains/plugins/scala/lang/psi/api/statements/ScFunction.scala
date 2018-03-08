@@ -58,7 +58,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
   with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner
-  with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement with ScCompoundIconOwner {
+  with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement with ScDecoratedIconOwner {
 
   def isSyntheticCopy: Boolean = synthNavElement.nonEmpty && name == "copy"
   def isSyntheticApply: Boolean = synthNavElement.nonEmpty && name == "apply"

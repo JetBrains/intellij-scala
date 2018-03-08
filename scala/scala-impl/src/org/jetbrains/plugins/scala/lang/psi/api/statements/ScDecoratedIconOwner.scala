@@ -10,25 +10,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 /**
   * @author Pavel Fatin
   */
-trait ScCompoundIconOwner { self: Iconable with ScModifierListOwner =>
-  override final def getIcon(flags: Int): Icon = {
-    getBaseIcon(flags) match {
-      case baseIcon: Icon =>
-        if (isValid) {
-          val locked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable
-          val layeredIcon = ElementBase.createLayeredIcon(this, baseIcon, ScCompoundIconOwner.flagsFor(this, locked))
-          ElementPresentationUtil.addVisibilityIcon(this, flags, layeredIcon)
-        } else {
-          baseIcon
-        }
-      case _ => null
-    }
+trait ScDecoratedIconOwner { self: Iconable with ScModifierListOwner =>
+  override final def getIcon(flags: Int): Icon = decorate(getBaseIcon(flags), flags)
+
+  def decorate(baseIcon: Icon, flags: Int): Icon = if (baseIcon == null || !isValid) baseIcon else {
+    val isLocked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable
+    val layeredIcon = ElementBase.createLayeredIcon(this, baseIcon, ScDecoratedIconOwner.flagsFor(this, isLocked))
+    ElementPresentationUtil.addVisibilityIcon(this, flags, layeredIcon)
   }
 
   protected def getBaseIcon(flags: Int): Icon
 }
 
-private object ScCompoundIconOwner {
+private object ScDecoratedIconOwner {
   // See ElementPresentationUtil.getFlags
   private def flagsFor(element: ScModifierListOwner, locked: Boolean): Int =
     (if (element.hasModifierPropertyScala(PsiModifier.FINAL)) 0x400 else 0) |
