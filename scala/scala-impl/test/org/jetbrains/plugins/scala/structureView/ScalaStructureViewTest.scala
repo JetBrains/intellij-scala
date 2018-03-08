@@ -182,7 +182,7 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testFinalMemberTypeAlias(): Unit = {
     check("""
           trait Container {
-            finla type A = Int
+            final type A = Int
           }
           """,
       Node(TRAIT, "Container",
