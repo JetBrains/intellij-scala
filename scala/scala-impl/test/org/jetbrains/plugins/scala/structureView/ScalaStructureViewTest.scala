@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.structureView
 
 import javax.swing.Icon
 
+import com.intellij.icons.AllIcons.Nodes._
 import com.intellij.ide.structureView.StructureViewTreeElement
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.impl.ElementBase
+import com.intellij.ui.LayeredIcon
 import com.intellij.util.PlatformIcons._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
@@ -61,6 +63,16 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
         Node(ABSTRACT_FIELD_VAR, "v: Int")))
   }
 
+  def testFinalMemberVariable(): Unit = {
+    check("""
+          trait Container {
+            final var v: Int = 1
+          }
+          """,
+      Node(TRAIT, "Container",
+        Node(layered(FIELD_VAR, FinalMark), "v: Int")))
+  }
+
   def testMemberVariableVisibility(): Unit = {
     check("""
           trait Container {
@@ -113,6 +125,16 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
         Node(ABSTRACT_FIELD_VAL, "v: Int")))
   }
 
+  def testFinalMemberValue(): Unit = {
+    check("""
+          trait Container {
+            final val v: Int = 1
+          }
+          """,
+      Node(TRAIT, "Container",
+        Node(layered(FIELD_VAL, FinalMark), "v: Int")))
+  }
+
   def testMemberValueVisibility(): Unit = {
     check("""
           trait Container {
@@ -156,6 +178,16 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
 //      Node(TRAIT, "Container",
 //        Node(ABSTRACT_TYPE_ALIAS, "A")))
 //  }
+
+  def testFinalMemberTypeAlias(): Unit = {
+    check("""
+          trait Container {
+            finla type A = Int
+          }
+          """,
+      Node(TRAIT, "Container",
+        Node(layered(TYPE_ALIAS, FinalMark), "A")))
+  }
 
   def testMemberTypeAliasVisibility(): Unit = {
     check("""
@@ -206,6 +238,16 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           """,
       Node(CLASS, "Container",
         Node(ABSTRACT_METHOD_ICON, "m: Int")))
+  }
+
+  def testFinalMethod(): Unit = {
+    check("""
+          class Container {
+            final def m: Int = 1
+          }
+          """,
+      Node(CLASS, "Container",
+        Node(layered(METHOD_ICON, FinalMark), "m: Int")))
   }
 
   def testTypeParametersInFunction(): Unit = {
@@ -269,6 +311,13 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
           abstract class C
           """,
       Node(ABSTRACT_CLASS, "C"))
+  }
+
+  def testFinalClass(): Unit = {
+    check("""
+          final class C
+          """,
+      Node(layered(CLASS, FinalMark), "C"))
   }
 
   def testClassVisibility(): Unit = {
@@ -564,26 +613,14 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
         Node(OBJECT, "O")))
   }
 
-//  def testMultipleClasses(): Unit = {
-//    check("""
-//          class A
-//          class B
-//          """,
-//      Node(CLASS, "A",
-//        Node(FUNCTION, "this")),
-//      Node(CLASS, "B",
-//        Node(FUNCTION, "this")))
-//  }
-//
-//  def testClassAndObject(): Unit = {
-//    check("""
-//          class C
-//          object C
-//          """,
-//      Node(CLASS, "C",
-//        Node(FUNCTION, "this")),
-//      Node(OBJECT, "C"))
-//  }
+  def testClassAndObject(): Unit = {
+    check("""
+          class C
+          object C
+          """,
+      Node(CLASS, "C"),
+      Node(OBJECT, "C"))
+  }
 
   private def check(@Language("Scala") code: String, nodes: Node*): Unit = {
     val actualNode = {
@@ -626,5 +663,11 @@ private object ScalaStructureViewTest {
     PsiFileFactory.getInstance(project)
       .createFileFromText("foo.scala", ScalaFileType.INSTANCE, s)
       .asInstanceOf[ScalaFile]
+  }
+
+  def layered(icons: Icon*): Icon = {
+    val result = new LayeredIcon(icons.length)
+    icons.zipWithIndex.foreach { case (icon, index) => result.setIcon(icon, index)}
+    result
   }
 }

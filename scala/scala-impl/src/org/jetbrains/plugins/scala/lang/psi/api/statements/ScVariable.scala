@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 /**
  * @author Alexander Podkhalyuzin
  */
-trait ScVariable extends ScValueOrVariable with ScVisibilityIconOwner {
+trait ScVariable extends ScValueOrVariable with ScCompoundIconOwner {
   override protected def keywordElementType: IElementType = kVAR
 
   override protected def isSimilarMemberForNavigation(member: ScMember, isStrict: Boolean): Boolean = member match {

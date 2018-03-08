@@ -39,7 +39,7 @@ import scala.collection.mutable.ArrayBuffer
 
 class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
   extends ScTypeDefinitionImpl(stub, CLASS_DEFINITION, node) with ScClass
-    with ScTypeParametersOwner with ScTemplateDefinition with ScVisibilityIconOwner {
+    with ScTypeParametersOwner with ScTemplateDefinition with ScCompoundIconOwner {
 
   def this(node: ASTNode) =
     this(null, node)

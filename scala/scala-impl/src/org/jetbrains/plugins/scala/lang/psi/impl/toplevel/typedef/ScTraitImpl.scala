@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVisibilityIconOwner
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCompoundIconOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
@@ -29,7 +29,7 @@ import scala.collection.mutable.ArrayBuffer
 */
 class ScTraitImpl private (stub: ScTemplateDefinitionStub, node: ASTNode)
   extends ScTypeDefinitionImpl(stub, ScalaElementTypes.TRAIT_DEFINITION, node) with ScTrait
-    with ScTypeParametersOwner with ScTemplateDefinition with ScVisibilityIconOwner {
+    with ScTypeParametersOwner with ScTemplateDefinition with ScCompoundIconOwner {
 
   def this(node: ASTNode) = this(null, node)
 
