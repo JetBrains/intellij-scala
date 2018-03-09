@@ -6,7 +6,6 @@ package statements
 
 
 import java.util
-import javax.swing.Icon
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
@@ -17,6 +16,7 @@ import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import com.intellij.util.PlatformIcons
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, ScSyntheticFunction, SyntheticClasses}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDeclaration, ScLightFunctionDefinition}
@@ -113,36 +113,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     super.hasModifierProperty(name)
   }
 
-  /**
-   * This method is important for expected type evaluation.
-   */
-  def getInheritedReturnType: Option[ScType] = {
-    returnTypeElement match {
-      case Some(_) => this.returnType.toOption
-      case None =>
-        val superReturnType = superMethodAndSubstitutor match {
-          case Some((fun: ScFunction, subst)) =>
-            val typeParamSubst =
-              ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
-
-            fun.returnType.toOption.map(typeParamSubst.followed(subst).subst)
-          case Some((fun: ScSyntheticFunction, subst)) =>
-            val typeParamSubst =
-              ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
-
-            Some(typeParamSubst.subst(fun.retType))
-          case Some((fun: PsiMethod, subst)) =>
-            val typeParamSubst =
-              ScSubstitutor.bind(fun.getTypeParameters, typeParameters)(TypeParameterType(_))
-
-            Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType()))
-          case _ => None
-        }
-        superReturnType
-    }
-  }
-
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
+
   def hasParameterClause: Boolean = {
     if (effectiveParameterClauses.nonEmpty) return true
     superMethod match {

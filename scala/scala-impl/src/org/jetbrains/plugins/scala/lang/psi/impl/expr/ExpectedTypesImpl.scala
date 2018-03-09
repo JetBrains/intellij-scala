@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiTypeExt, SeqExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiTypeExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -12,8 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -242,26 +244,10 @@ class ExpectedTypesImpl extends ExpectedTypes {
         }
         res.toArray
       //SLS[4.1]
-      case v @ ScPatternDefinition.expr(expr) if expr == sameInContext =>
-        v.typeElement match {
-          case Some(te) => Array((v.`type`().getOrAny, Some(te)))
-          case _ => Array.empty
-        }
-      case v @ ScVariableDefinition.expr(expr) if expr == sameInContext =>
-        v.typeElement match {
-          case Some(te) => Array((v.`type`().getOrAny, Some(te)))
-          case _ => Array.empty
-        }
+      case v @ ScPatternDefinition.expr(`sameInContext`)  => declaredOrInheritedType(v)
+      case v @ ScVariableDefinition.expr(`sameInContext`) => declaredOrInheritedType(v)
       //SLS[4.6]
-      case v: ScFunctionDefinition if (v.body match {
-        case None => false
-        case Some(b) => b == sameInContext
-      }) =>
-        v.returnTypeElement match {
-          case Some(te) => v.returnType.toOption.map(x => (x, Some(te))).toArray
-          case None if !v.hasAssign => Array((api.Unit, None))
-          case _ => v.getInheritedReturnType.map((_, None)).toArray
-        }
+      case v: ScFunctionDefinition if v.body.contains(sameInContext) => declaredOrInheritedType(v)
       //default parameters
       case param: ScParameter =>
         param.typeElement match {
@@ -500,6 +486,53 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
   private def paramsFromTuple(tupleArgs: Seq[ScType]): Seq[Parameter] = tupleArgs.zipWithIndex.map {
     case (tpe, index) => Parameter(tpe, isRepeated = false, index = index)
+  }
+
+  private def declaredOrInheritedType(member: ScMember): Array[ParameterType] = {
+    import member.projectContext
+
+    val declaredType = member match {
+      case fun: ScFunctionDefinition if fun.returnTypeElement.isEmpty && !fun.hasAssign =>
+        Some((api.Unit, None))
+      case fun: ScFunction =>
+        fun.returnTypeElement.flatMap(te => fun.returnType.toOption.map((_, Some(te))))
+      case v: ScValueOrVariable =>
+        v.typeElement.map(te => (te.`type`().getOrAny, Some(te)))
+      case _ => return Array.empty
+    }
+    declaredType.orElse {
+      inheritedType(member).map((_, None))
+    }.toArray
+  }
+
+  private def inheritedType(member: ScMember): Option[ScType] = {
+    import member.projectContext
+
+    val typeParameters =
+      member.asOptionOf[ScFunction].map(_.typeParameters).getOrElse(Seq.empty)
+
+    val superMethodAndSubstitutor = member match {
+      case fun: ScFunction => fun.superMethodAndSubstitutor
+      case other: ScMember => ScalaPsiUtil.valSuperMethodAndSubstitutor(other)
+    }
+    superMethodAndSubstitutor match {
+      case Some((fun: ScFunction, subst)) =>
+        val typeParamSubst =
+          ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
+
+        fun.returnType.toOption.map(typeParamSubst.followed(subst).subst)
+      case Some((fun: ScSyntheticFunction, subst)) =>
+        val typeParamSubst =
+          ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
+
+        Some(typeParamSubst.subst(fun.retType))
+      case Some((fun: PsiMethod, subst)) =>
+        val typeParamSubst =
+          ScSubstitutor.bind(fun.getTypeParameters, typeParameters)(TypeParameterType(_))
+
+        Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType()))
+      case _ => None
+    }
   }
 }
 
