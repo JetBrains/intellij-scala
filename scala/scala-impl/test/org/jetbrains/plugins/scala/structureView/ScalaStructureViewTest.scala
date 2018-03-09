@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.structureView
 
+import java.util.Comparator
 import javax.swing.Icon
 
 import com.intellij.icons.AllIcons.Nodes._
 import com.intellij.ide.structureView.StructureViewTreeElement
+import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.impl.ElementBase
@@ -629,11 +631,55 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(OBJECT, "C"))
   }
 
+  def testOrdering(): Unit = {
+    check("""
+          {}
+          var r1: Int = 1
+          val l1: Int = 1
+          type A1 = Int
+          def m1: Int = 1
+          class C1
+          trait T1
+          object O1
+          object O2
+          trait T2
+          class C2
+          def m2: Int = 1
+          type A2 = Int
+          val l2: Int = 1
+          var r2: Int = 1;
+          {}
+          """,
+      new Node(CLASS_INITIALIZER, ""),
+      Node(VAR, "r1: Int"),
+      Node(VAL, "l1: Int"),
+      Node(TYPE_ALIAS, "A1"),
+      Node(FUNCTION, "m1: Int"),
+      Node(CLASS, "C1"),
+      Node(TRAIT, "T1"),
+      Node(OBJECT, "O1"),
+      Node(OBJECT, "O2"),
+      Node(TRAIT, "T2"),
+      Node(CLASS, "C2"),
+      Node(FUNCTION, "m2: Int"),
+      Node(TYPE_ALIAS, "A2"),
+      Node(VAL, "l2: Int"),
+      Node(VAR, "r2: Int"),
+      new Node(CLASS_INITIALIZER, ""))
+  }
+
   private def check(@Language("Scala") code: String, nodes: Node*): Unit = {
     val actualNode = {
       val file = psiFileOf(code)(getProject)
+
       val model = new ScalaStructureViewModel(file)
-      Node(model.getRoot)
+
+      val sorter: Seq[TreeElement] => Seq[TreeElement] = elements => {
+        val comparators = model.getSorters.filterNot(_.isVisible).reverse.map(_.getComparator.asInstanceOf[Comparator[TreeElement]])
+        comparators.foldLeft(elements)((elements, comparator) => elements.sortWith((e1, e2) => comparator.compare(e1, e2) <= 0))
+      }
+
+      Node(model.getRoot, sorter)
     }
 
     val expectedNode = new Node(FILE, "foo.scala", nodes: _*)
@@ -658,11 +704,10 @@ private object ScalaStructureViewTest {
     def apply(icon: Icon, name: String, children: Node*): Node =
       Node(icon, PUBLIC_ICON, name, children: _*)
 
-    def apply(element: StructureViewTreeElement): Node = {
+    def apply(element: StructureViewTreeElement, sorter: Seq[TreeElement] => Seq[TreeElement]): Node = {
       val presentation = element.getPresentation
-
-      new Node(presentation.getIcon(false), presentation.getPresentableText,
-        element.getChildren.map { case element: StructureViewTreeElement => Node(element) }: _*)
+      val children = sorter(element.getChildren).map { case element: StructureViewTreeElement => Node(element, sorter) }
+      new Node(presentation.getIcon(false), presentation.getPresentableText, children: _*)
     }
   }
 
