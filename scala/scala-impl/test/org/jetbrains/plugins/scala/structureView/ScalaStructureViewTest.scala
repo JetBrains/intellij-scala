@@ -169,15 +169,15 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
         Node(TYPE_ALIAS, "A")))
   }
 
-//  def testAbstractMemberTypeAlias(): Unit = {
-//    check("""
-//          trait Container {
-//            type A
-//          }
-//          """,
-//      Node(TRAIT, "Container",
-//        Node(ABSTRACT_TYPE_ALIAS, "A")))
-//  }
+  def testAbstractMemberTypeAlias(): Unit = {
+    check("""
+          trait Container {
+            type A
+          }
+          """,
+      Node(TRAIT, "Container",
+        Node(ABSTRACT_TYPE_ALIAS, "A")))
+  }
 
   def testFinalMemberTypeAlias(): Unit = {
     check("""
