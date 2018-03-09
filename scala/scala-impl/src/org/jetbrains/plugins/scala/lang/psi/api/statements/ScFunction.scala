@@ -447,11 +447,12 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     this.returnType match {
       case Right(tp) =>
         var res: TypeResult = Right(tp)
-        var i = paramClauses.clauses.length - 1
+        val paramClauses = effectiveParameterClauses
+        var i = paramClauses.length - 1
         while (i >= 0) {
           res match {
             case Right(t) =>
-              val parameters = paramClauses.clauses.apply(i).parameters
+              val parameters = paramClauses.apply(i).effectiveParameters
               val paramTypes = parameters.map(_.`type`().getOrNothing)
               res = Right(FunctionType(t, paramTypes))
             case _ =>

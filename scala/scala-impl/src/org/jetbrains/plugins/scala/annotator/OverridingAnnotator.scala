@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, Signature}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -220,6 +221,8 @@ trait OverridingAnnotator {
       }
     }
 
+    def effectiveParams(fun: ScFunction) = fun.effectiveParameterClauses.flatMap(_.effectiveParameters)
+
     def overrideTypeMatchesBase(baseType: ScType, overType: ScType, s: Signature, baseName: String): Boolean = {
       val actualType = if (s.name == baseName + "_=") {
         overType match {
@@ -228,18 +231,23 @@ trait OverridingAnnotator {
         }
       } else overType
       val actualBase = (s.namedElement, member) match {
-        case (sFun: ScFunction, mFun: ScFunction) if sFun.parameters.length == mFun.parameters.length &&
+        case (sFun: ScFunction, mFun: ScFunction) if effectiveParams(sFun).length == effectiveParams(mFun).length &&
           s.typeParams.length == mFun.typeParameters.length =>
-          var res = s.typeParams.zip(mFun.typeParameters).foldLeft(s.substitutor){
-            case (subst, (param, paramType)) => subst.followed(ScSubstitutor.bind(Seq(param), Seq(TypeParameterType(paramType))))
-          }.subst(baseType)
-          for ((sParam, mParam) <- sFun.parameters zip mFun.parameters) {
-            res = res.recursiveUpdate({
-              case ScDesignatorType(dParam) if dParam == sParam => AfterUpdate.ReplaceWith(ScDesignatorType(mParam))
-              case _ => AfterUpdate.ProcessSubtypes
-            })
-          }
-          res
+          val sParams = effectiveParams(sFun)
+          val mParams = effectiveParams(mFun)
+          val sTypeParams = s.typeParams
+          val mTypeParams = mFun.typeParameters
+
+          val subst =
+            if (sParams.size != mParams.size || sTypeParams.size != mTypeParams.size)
+              s.substitutor
+            else {
+              val typeParamSubst = ScSubstitutor.bind(sTypeParams, mTypeParams)(TypeParameterType(_))
+              val oldParamToNewTypeMap = sParams.map(p => Parameter(p)).zip(mParams.map(ScDesignatorType(_))).toMap
+              val paramTypesSubst = ScSubstitutor(() => oldParamToNewTypeMap)
+              s.substitutor.followed(typeParamSubst).followed(paramTypesSubst)
+            }
+          subst.subst(baseType)
         case _ => s.substitutor.subst(baseType)
       }
       def allowEmptyParens(pat: ScBindingPattern): Boolean = pat.nameContext match {
