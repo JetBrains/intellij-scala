@@ -392,32 +392,123 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(CLASS, "C(Float)(Double)"))
   }
 
-//  def testVariablesInPrimaryConstructor(): Unit = {
-//    check("""
-//          class C(var p1: Float, p2: Double)
-//          """,
-//      Node(CLASS, "C(Float, Double)",
-//        Node(VAR, "p1"),
-//        Node(VAR, "p2")))
-//  }
+  def testVariablesInPrimaryConstructor(): Unit = {
+    check("""
+          class C(var p1: Float, var p2: Double)
+          """,
+      Node(CLASS, "C(Float, Double)",
+        Node(FIELD_VAR, "p1: Float"),
+        Node(FIELD_VAR, "p2: Double")))
+  }
 
-//  def testValuesInPrimaryConstructor(): Unit = {
-//    check("""
-//          class C(val p1: Floar, val p2: Double)
-//          """,
-//      Node(CLASS, "C(Float, Double)",
-//        Node(FIELD_VAL, "p1",
-//        Node(FIELD_VAL, "p2")))
-//  }
+  def testFinalVariableInPrimaryConstructor(): Unit = {
+    check("""
+          class C(final var p: Int)
+          """,
+      Node(CLASS, "C(Int)",
+        Node(layered(FIELD_VAR, FinalMark), "p: Int")))
+  }
 
-//  def testMultipleParameterListsWithMembersInPrimaryConstructor(): Unit = {
-//    check("""
-//          class C(val p1: Float)(val p2: Double)
-//          """,
-//      Node(CLASS, "C(Float)(Double)",
-//        Node(FIELD_VAL, "p1",
-//        Node(FIELD_VAL, "p2"))))
-//  }
+  def testVariableVisibilityInPrimaryConstructor(): Unit = {
+    check("""
+          class C(private var p: Int)
+          """,
+      Node(CLASS, "C(Int)",
+        Node(FIELD_VAR, PRIVATE_ICON, "p: Int")))
+  }
+
+  def testValuesInPrimaryConstructor(): Unit = {
+    check("""
+          class C(val p1: Float, val p2: Double)
+          """,
+      Node(CLASS, "C(Float, Double)",
+        Node(FIELD_VAL, "p1: Float",
+        Node(FIELD_VAL, "p2: Double"))))
+  }
+
+  def testFinalValueInPrimaryConstructor(): Unit = {
+    check("""
+          class C(final val p: Int)
+          """,
+      Node(CLASS, "C(Int)",
+        Node(layered(FIELD_VAL, FinalMark), "p: Int")))
+  }
+
+  def testValueVisibilityInPrimaryConstructor(): Unit = {
+    check("""
+          class C(private val p: Int)
+          """,
+      Node(CLASS, "C(Int)",
+        Node(FIELD_VAL, PRIVATE_ICON, "p: Int")))
+  }
+
+  def testMultipleParameterListsWithMembersInPrimaryConstructor(): Unit = {
+    check("""
+          class C(val p1: Float)(val p2: Double)
+          """,
+      Node(CLASS, "C(Float)(Double)",
+        Node(FIELD_VAL, "p1: Float",
+        Node(FIELD_VAL, "p2: Double"))))
+  }
+
+  def testParametersInCaseClass(): Unit = {
+    check("""
+          case class C(p1: Float, p2: Double)
+          """,
+      Node(CLASS, "C(Float, Double)",
+        Node(FIELD_VAL, "p1: Float"),
+        Node(FIELD_VAL, "p2: Double")))
+  }
+
+  def testValuesInCaseClass(): Unit = {
+    check("""
+          case class C(val p1: Float, val p2: Double)
+          """,
+      Node(CLASS, "C(Float, Double)",
+        Node(FIELD_VAL, "p1: Float"),
+        Node(FIELD_VAL, "p2: Double")))
+  }
+
+  def testFinalValueParameterInCaseClass(): Unit = {
+    check("""
+          case class C(final val p: Int)
+          """,
+      Node(CLASS, "C(Int)",
+        Node(layered(FIELD_VAL, FinalMark), "p: Int")))
+  }
+
+  def testPrivateValueParameterInCaseClass(): Unit = {
+    check("""
+          case class C(private val p: Int)
+          """,
+      Node(CLASS, "C(Int)",
+        Node(FIELD_VAL, PRIVATE_ICON, "p: Int")))
+  }
+
+  def testVariablesInCaseClass(): Unit = {
+    check("""
+          case class C(var p1: Float, var p2: Double)
+          """,
+      Node(CLASS, "C(Float, Double)",
+        Node(FIELD_VAR, "p1: Float"),
+        Node(FIELD_VAR, "p2: Double")))
+  }
+
+  def testFinalVariableParameterInCaseClass(): Unit = {
+    check("""
+          case class C(final var p: Int)
+          """,
+      Node(CLASS, "C(Int)",
+        Node(layered(FIELD_VAR, FinalMark), "p: Int")))
+  }
+
+  def testPrivateVariableParameterInCaseClass(): Unit = {
+    check("""
+          case class C(private var p: Int)
+          """,
+      Node(CLASS, "C(Int)",
+        Node(FIELD_VAR, PRIVATE_ICON, "p: Int")))
+  }
 
   def testAuxiliaryConstructor(): Unit = {
     check("""

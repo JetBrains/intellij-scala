@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -28,9 +29,17 @@ class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) exte
       member match {
         case func: ScFunction =>
           children += new ScalaFunctionStructureViewElement(func, false)
-// TODO format parameters as Foo(...), add val and var members
-//        case constr: ScPrimaryConstructor =>
-//          children += new ScalaPrimaryConstructorStructureViewElement(constr)
+        case constr: ScPrimaryConstructor =>
+          definition match {
+            case c: ScClass if c.isCase =>
+              constr.effectiveFirstParameterSection.foreach {
+                children += new ScalaValOrVarParameterStructureViewElement(_, false)
+              }
+            case _ =>
+              constr.valueParameters.foreach {
+                children += new ScalaValOrVarParameterStructureViewElement(_, false)
+              }
+          }
         case member: ScVariable =>
           for (f <- member.declaredElements)
             children += new ScalaVariableStructureViewElement(f, false)
