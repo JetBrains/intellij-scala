@@ -62,4 +62,32 @@ class IllegalInheritanceTest extends AnnotatorTestBase(IllegalInheritance) {
       case Error("T", _) :: Nil =>
     }
   }
+
+  def testCyclicSelfTypeSubstitutor(): Unit = {
+    val code =
+      """
+        |trait A {
+        |
+        |  trait B {
+        |    self: C =>
+        |  }
+        |
+        |  trait C {
+        |    self: B =>
+        |
+        |    def foo(s: B) = s
+        |
+        |    foo(a)
+        |  }
+        |
+        |  def foo(a: A): A = a
+        |
+        |  def a: A = new A {}
+        |}
+      """.stripMargin
+
+    //todo: the code above doesn't compile, so we probably should have an error message
+    //but at least we don't have an infinite recursion here (see SCL-13410)
+    assertNothing(messages(code))
+  }
 }

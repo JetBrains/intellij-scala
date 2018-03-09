@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong
 import com.intellij.concurrency.JobScheduler
 import com.intellij.diagnostic.PerformanceWatcher
 import com.intellij.ide.IdeEventQueue
-import com.intellij.openapi.application.{ApplicationManager, ModalityState}
+import com.intellij.openapi.application.{ApplicationManager, ModalityState, TransactionGuard}
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.progress._
 import com.intellij.openapi.progress.util.AbstractProgressIndicatorBase
@@ -56,7 +56,8 @@ object UIFreezingGuard {
       try {
         isGuarded = true
         val progressManager = ProgressManager.getInstance()
-        if (!ApplicationManager.getApplication.isWriteAccessAllowed && !progressManager.hasProgressIndicator) {
+
+        if (canInterrupt) {
 
           if (hasPendingUserInput)
             throw UnfreezeException
@@ -112,6 +113,12 @@ object UIFreezingGuard {
   //throws TimeoutException!
   def withTimeout[T](timeoutMs: Long)(computation: => T): T = withTimeout(timeoutMs, throw new TimeoutException)(computation)
 
+  private def isWriteAction: Boolean = ApplicationManager.getApplication.isWriteAccessAllowed
+  private def isTransaction: Boolean = TransactionGuard.getInstance().getContextTransaction != null
+  private def isUnderProgress: Boolean = ProgressManager.getInstance().hasProgressIndicator
+
+  private def canInterrupt: Boolean = !isWriteAction && !isTransaction && !isUnderProgress
+
   private def dumpThreads(ms: Long): Unit = {
     val threshold = 1000
     if (ms > threshold) {
@@ -142,9 +149,8 @@ object UIFreezingGuard {
       if (timestamp == l) delegate.cancel()
     }
 
-    //to avoid long stacktraces in log and keep write actions
     def checkCanceled(): Unit = {
-      if (isCanceled && !ApplicationManager.getApplication.isWriteAccessAllowed)
+      if (isCanceled && canInterrupt)
         throw UnfreezeException
     }
 
@@ -172,11 +178,11 @@ object UIFreezingGuard {
     def isShowing: Boolean = delegate.isShowing
   }
 
-  object UnfreezeException extends ProcessCanceledException with NoStackTrace {
+  private object UnfreezeException extends ProcessCanceledException with NoStackTrace {
     override def getMessage: String = "Long scala calculation on UI thread canceled"
   }
 
-  class TimeoutException extends ProcessCanceledException with NoStackTrace {
+  private class TimeoutException extends ProcessCanceledException with NoStackTrace {
     override def getMessage: String = "Computation cancelled with timeout"
   }
 }

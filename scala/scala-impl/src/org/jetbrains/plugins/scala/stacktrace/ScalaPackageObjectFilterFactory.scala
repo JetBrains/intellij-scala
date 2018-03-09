@@ -6,7 +6,7 @@ import com.intellij.execution.filters._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, inReadAction}
 
 import scala.collection.JavaConverters._
 
@@ -47,6 +47,9 @@ class ScalaPackageObjectFilter(scope: GlobalSearchScope) extends ExceptionFilter
           val link = new OpenFileHyperlinkInfo(scope.getProject, vFile, lineNumber)
           val defaultResult = new ExceptionFilter(scope).applyFilter(line, textEndOffset)
 
+          if (defaultResult == null)
+            return null
+
           val updated =
             defaultResult.getResultItems.asScala
               .map(updateLink(_, link)).asJava
@@ -73,10 +76,11 @@ class ScalaPackageObjectFilter(scope: GlobalSearchScope) extends ExceptionFilter
         return None
 
       val packageName = className.split('.').dropRight(1).mkString(".")
-      val obj = ScalaShortNamesCacheManager.getInstance(project).getPackageObjectByName(packageName, scope)
+      val maybeObject = ScalaShortNamesCacheManager.getInstance(project).getPackageObjectByName(packageName, scope)
       for {
-        file <- obj.containingFile
-        vFile <- Option(file.getVirtualFile)
+        obj   <- maybeObject.toOption
+        file  <- obj.containingFile
+        vFile <- file.getVirtualFile.toOption
       } yield (vFile, stackTraceElement.getLineNumber)
     }
   }
