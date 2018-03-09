@@ -299,6 +299,13 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(OBJECT, PRIVATE_ICON, "O"))
   }
 
+  def testPackageObject(): Unit = {
+    check("""
+          package object O
+          """,
+      Node(PACKAGE_OBJECT, "O"))
+  }
+
   def testClass(): Unit = {
     check("""
           class C
