@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl._
@@ -507,6 +507,10 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
   private def inheritedType(member: ScMember): Option[ScType] = {
     import member.projectContext
+
+    //is necessary to avoid recursion
+    if (member.getParent.isInstanceOf[ScEarlyDefinitions])
+      return None
 
     val typeParameters =
       member.asOptionOf[ScFunction].map(_.typeParameters).getOrElse(Seq.empty)
