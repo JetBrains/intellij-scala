@@ -19,7 +19,7 @@ class ScalaFunctionItemPresentation(element: ScFunction, inherited: Boolean) ext
       if (element.isConstructor) None
       else element.returnTypeElement match {
         case Some(_) => None
-        case None => element.`type`().toOption.map(ScTypePresentation.withoutAliases)
+        case None => element.returnType.toOption.map(ScTypePresentation.withoutAliases)
       }
 
     presentation + inferredType.map(": " + _).mkString

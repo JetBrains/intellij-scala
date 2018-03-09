@@ -215,9 +215,9 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testFunctionTypeInference(): Unit = {
     check("""
-          def m = 1
+          def m(p: Any) = 1
           """,
-      Node(FUNCTION, "m: Int"))
+      Node(FUNCTION, "m(Any): Int"))
   }
 
   def testMethod(): Unit = {
