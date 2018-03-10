@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 import com.intellij.psi.{PsiClass, PsiTypeParameter}
 import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
@@ -86,6 +87,8 @@ private case class ThisTypeSubstitution(target: ScType) extends Substitution {
           case Some(selfTp) => isMoreNarrow(selfTp, thisTp, visited + t)
           case _ => false
         }
+      case Some(td: ScTypeAliasDeclaration) =>
+        isMoreNarrow(td.upperBound.getOrAny, thisTp, visited)
       case Some(cl: PsiClass) =>
         isSameOrInheritor(cl, thisTp)
       case Some(named: ScTypedDefinition) =>
