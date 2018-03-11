@@ -18,7 +18,7 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[ScalacTests]))
 class ScalacTestdataHighlightingTest extends ScalacTestdataHighlightingTestBase {
 
-  override val reporter = ProgressReporter.newInstance(getClass.getName, filesWithProblems = Map.empty, reportSuccess = false)
+  override val reporter = ProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems = Map.empty, reportStatus = false)
 
   override def filesToHighlight: Array[File] = {
     val testDataPath = TestUtils.getTestDataPath + "/scalacTests/pos/"

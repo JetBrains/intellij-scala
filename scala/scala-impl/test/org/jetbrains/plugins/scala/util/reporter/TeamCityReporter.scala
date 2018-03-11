@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.util.reporter.ProgressReporter.TextBasedProgr
   * @author mutcianm
   * @since 16.05.17.
   */
-class TeamCityReporter(name: String, val filesWithProblems: Map[String, Set[TextRange]], reportSuccess: Boolean) extends ProgressReporter {
+class TeamCityReporter(name: String, val filesWithProblems: Map[String, Set[TextRange]], reportStatus: Boolean) extends ProgressReporter {
   import TeamCityReporter._
 
   override def updateHighlightingProgress(percent: Int): Unit = progressMessage(s"Highlighting - $percent%")
@@ -26,14 +26,23 @@ class TeamCityReporter(name: String, val filesWithProblems: Map[String, Set[Text
     val fixedFiles = unexpectedSuccess
 
     if (totalErrors > 0) {
-      tcPrint(s"buildProblem description='Found $totalErrors errors while highlighting the project'")
+      testsWithProblems += name
+      tcPrint(s"buildProblem description='Found $totalErrors errors in $name'")
     }
-    else if (fixedFiles.nonEmpty) {
+
+    if (fixedFiles.nonEmpty) {
+      testsWithProblems += name
       val filesString = fixedFiles.mkString(", ")
-      tcPrint(s"buildProblem description='Files $filesString successfully highlighted, fix test definition'")
+      tcPrint(s"buildProblem description='Files $filesString successfully highlighted in $name, fix test definition'")
     }
-    else if (reportSuccess) {
-      tcPrint("buildStatus status='SUCCESS' text='No highlighting errors found in project'")
+
+    if (reportStatus) {
+      if (testsWithProblems.isEmpty) {
+        tcPrint("buildStatus status='SUCCESS' text='No highlighting errors found in project'")
+      } else {
+        val testNames = testsWithProblems.mkString(", ")
+        tcPrint(s"buildStatus status='FAILURE' text='Problems found in $testNames'")
+      }
     }
   }
 
@@ -52,6 +61,8 @@ class TeamCityReporter(name: String, val filesWithProblems: Map[String, Set[Text
 }
 
 object TeamCityReporter {
+  private var testsWithProblems: Set[String] = Set.empty
+
   private def escapeTC(message: String): String = {
     message
       .replaceAll("##", "")

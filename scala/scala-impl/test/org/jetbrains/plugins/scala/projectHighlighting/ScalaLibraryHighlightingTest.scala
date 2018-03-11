@@ -20,7 +20,7 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
   val filesWithProblems: Map[String, Set[TextRange]]
 
   def testHighlightScalaLibrary(): Unit = {
-    val reporter = ProgressReporter.newInstance(getClass.getName, filesWithProblems, reportSuccess = false)
+    val reporter = ProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems, reportStatus = false)
     val sources = DependencyManager.resolveSingle("org.scala-lang" % "scala-library" % version.minor % Types.SRC).toJarVFile
     VfsUtilCore.processFilesRecursively(sources, (vFile: VirtualFile) => {
       if (vFile.getFileType == ScalaFileType.INSTANCE) {

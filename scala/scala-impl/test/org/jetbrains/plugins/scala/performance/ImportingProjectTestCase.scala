@@ -60,7 +60,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
   def filesWithProblems: Map[String, Set[TextRange]] = Map.empty
 
-  protected val reporter = ProgressReporter.newInstance(getClass.getName, filesWithProblems)
+  protected val reporter = ProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems)
 
   override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 

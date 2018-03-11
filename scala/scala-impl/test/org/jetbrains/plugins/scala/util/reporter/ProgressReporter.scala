@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.util.reporter
 
-import scala.collection.mutable
-
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.util.reporter.KnownErrors._
+
+import scala.collection.mutable
 
 /**
   * @author mutcianm
@@ -22,11 +23,8 @@ trait ProgressReporter {
   private def errors(expected: Boolean): Seq[(String, TextRange, String)] = {
     for {
       (fileName, errors) <- errorMessages.toSeq
-      if (filesWithProblems.get(fileName) match {
-        case Some(empty) if empty.isEmpty => true
-        case other => other.contains(errors.map(_._1).toSet)
-      }) == expected
-      (range, message) <- errors
+      (known, unknown) = errors.partition(err => knownErrors(fileName).contains(err._1))
+      (range, message) <- if (expected) known else unknown
     } yield {
       (fileName, range, message)
     }
@@ -40,11 +38,17 @@ trait ProgressReporter {
 
   def filesWithProblems: Map[String, Set[TextRange]]
 
+  private def knownErrors(fileName: String): KnownErrors =
+    filesWithProblems.get(fileName).map {
+      case set if set.isEmpty => TooManyErrors
+      case set                => RangeSet(set)
+    }.getOrElse(NoErrors)
+
   def showError(fileName: String, range: TextRange, message: String): Unit
 
   final def reportError(fileName: String, range: TextRange, message: String): Unit = {
     saveError(fileName, range, message)
-    if (!filesWithProblems.contains(fileName)) {
+    if (!knownErrors(fileName).contains(range)) {
       showError(fileName, range, message)
     }
   }
@@ -56,8 +60,8 @@ trait ProgressReporter {
 }
 
 object ProgressReporter {
-  def newInstance(name: String, filesWithProblems: Map[String, Set[TextRange]], reportSuccess: Boolean = true): ProgressReporter = {
-    if (sys.env.contains("TEAMCITY_VERSION")) new TeamCityReporter(name, filesWithProblems, reportSuccess)
+  def newInstance(name: String, filesWithProblems: Map[String, Set[TextRange]], reportStatus: Boolean = true): ProgressReporter = {
+    if (sys.env.contains("TEAMCITY_VERSION")) new TeamCityReporter(name, filesWithProblems, reportStatus)
     else new ConsoleReporter(filesWithProblems)
   }
 
@@ -81,5 +85,23 @@ object ProgressReporter {
         setText(s"Downloading project - $rounded%")
       }
     }
+  }
+}
+
+private sealed trait KnownErrors {
+  def contains(range: TextRange): Boolean
+}
+
+private object KnownErrors {
+  case class RangeSet(errors: Set[TextRange]) extends KnownErrors {
+    override def contains(range: TextRange): Boolean = errors.contains(range)
+  }
+
+  case object TooManyErrors extends KnownErrors {
+    override def contains(range: TextRange): Boolean = true
+  }
+
+  case object NoErrors extends KnownErrors {
+    override def contains(range: TextRange): Boolean = false
   }
 }

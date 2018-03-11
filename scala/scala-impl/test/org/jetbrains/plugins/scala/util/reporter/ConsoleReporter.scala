@@ -10,47 +10,45 @@ import org.junit.Assert
   * @since 16.05.17.
   */
 class ConsoleReporter(val filesWithProblems: Map[String, Set[TextRange]]) extends ProgressReporter {
+  private val report = new StringBuilder("\n")
 
   private def formatMessage(fileName: String, range: TextRange, message: String) =
-    s"Error: $fileName${range.toString} - $message"
+    s"Error: $fileName${range.toString} - $message\n"
 
   def showError(fileName: String, range: TextRange, message: String): Unit =
-    System.err.println(formatMessage(fileName, range, message))
+    report.append(formatMessage(fileName, range, message))
 
   def updateHighlightingProgress(percent: Int): Unit = {
     println(s"Highlighting -  $percent%")
   }
 
   def reportResults(): Unit = {
-    val allMessages = unexpectedErrors.map((formatMessage _).tupled)
-
-    val totalErrors = allMessages.size
     val errorsTip = expectedErrorsTip(expectedErrors ++ unexpectedErrors)
-    val report = allMessages.mkString(s"Found $totalErrors errors\n\n", "\n", "")
-    try {
-      Assert.assertTrue(report, totalErrors == 0)
 
-      val noErrorsButExpected = unexpectedSuccess
-      val report2 = noErrorsButExpected.mkString(
+    val noErrorsButExpected = unexpectedSuccess
+    if (noErrorsButExpected.nonEmpty) {
+      val reportSuccess = noErrorsButExpected.mkString(
         "Looks like you've fixed highlighting in files: \n", "\n",
-        "\nRemove them from `filesWithProblems` of a test case.")
-      Assert.assertTrue(report2, noErrorsButExpected.isEmpty)
+        "\nRemove them from `filesWithProblems` of a test case.\n\n")
+      report.append(reportSuccess)
+    }
 
-      val expected = expectedErrors.map((formatMessage _).tupled)
-      if (expected.nonEmpty) {
-        println()
-        println(expected.mkString("Highlighting errors in problematic files: \n", "\n", ""))
-      }
-    } finally {
-      println(s"Errors tip: \n$errorsTip") //without this 'try-finally' wrapper the output gets lost in debug log sometimes
+    report.append(s"Errors tip: \n$errorsTip")
+
+    Assert.assertTrue(report.toString(), unexpectedErrors.isEmpty && noErrorsButExpected.isEmpty)
+
+    val expected = expectedErrors.map((formatMessage _).tupled)
+    if (expected.nonEmpty) {
+      println(expected.mkString("\nHighlighting errors in problematic files: \n", "\n", ""))
     }
   }
 
   private def expectedErrorsTip(errors: Seq[(String, TextRange, String)]): String = {
     val maxErrorsPerTip = 7
     def getEntryText(fileName: String, fileErrors: Seq[(String, TextRange, String)]): String = {
-      val errorsSeq = if (fileErrors.length > maxErrorsPerTip) ""
-                      else fileErrors.map(_._2).toSet.map((r: TextRange) => s"(${r.getStartOffset}, ${r.getEndOffset})").mkString(",")
+      val errorsSeq =
+        if (fileErrors.length > maxErrorsPerTip) ""
+        else fileErrors.map(_._2).toSet.map((r: TextRange) => s"(${r.getStartOffset}, ${r.getEndOffset})").mkString(",")
       s"""  "$fileName" -> Set($errorsSeq)"""
     }
     val errorRanges: Iterable[String] =
