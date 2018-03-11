@@ -28,7 +28,7 @@ object ScLiteralType {
   }
 
   def apply(typeElement: ScLiteralTypeElement): ScLiteralType = {
-    apply(typeElement.getLiteralText, typeElement.projectContext, ScLiteralImpl.getLiteralType(typeElement.getNode, typeElement))
+    apply(typeElement.getLiteralText, typeElement.projectContext, ScLiteralImpl.getLiteralType(typeElement.getLiteralNode, typeElement))
   }
 
   def apply(literalText :String, project: ProjectContext, wideType: ScType): ScLiteralType = {
