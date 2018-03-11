@@ -41,7 +41,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
   protected override def innerType: TypeResult = {
     val paramTypes = parameters.map(_.`type`().getOrNothing)
-    val maybeResultType = result.map(_.`type`().getOrAny)
+    val maybeResultType = result.map(_.`type`().map(ScLiteralType.widen).getOrAny)
     val functionType = FunctionType(maybeResultType.getOrElse(api.Unit), paramTypes)
     Right(functionType)
   }

@@ -18,7 +18,7 @@ class ScTupleImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTuple
   protected override def innerType: TypeResult = {
     val result = exprs.map(_.`type`().getOrAny) match {
       case Seq() => Unit
-      case components => TupleType(components)
+      case components => TupleType(components.map(ScLiteralType.widen))
     }
     Right(result)
   }
