@@ -1086,6 +1086,8 @@ abstract class ScalaAnnotator extends Annotator
             val error = ScalaBundle.message("unbound.placeholder.parameter")
             val annotation: Annotation = holder.createErrorAnnotation(under, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          } else if (varDef.typeElement.exists(_.isInstanceOf[ScLiteralTypeElement])) {
+            holder.createErrorAnnotation(varDef.typeElement.get, ScalaBundle.message("default.init.prohibited.literal.types"))
           }
         case valDef @ ScPatternDefinition.expr(_) if valDef.expr.contains(under) =>
           holder.createErrorAnnotation(under, ScalaBundle.message("unbound.placeholder.parameter"))

@@ -209,6 +209,9 @@ class ScProjectionType private(val projected: ScType,
           case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
             val resInner = tp.equiv(r, uSubst, falseUndef)
             if (resInner._1) return resInner
+          case lit: ScLiteralType =>
+            val resInner = tp.equiv(r, uSubst, falseUndef)
+            if (resInner._1) return resInner
           case _ =>
         }
       case _ =>

@@ -11,7 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.collection.mutable.ArrayBuffer
@@ -108,7 +111,16 @@ trait ScopeAnnotator {
     if(f.parameters.isEmpty)
       ""
     else
-      f.paramClauses.clauses.map(clause => format(clause.parameters, clause.paramTypes)).mkString
+      f.paramClauses.clauses.map(clause => format(clause.parameters, clause.paramTypes.map(_.recursiveUpdate{
+        //during erasure literal types collapse into widened types
+        case lit: ScLiteralType => ReplaceWith(lit.wideType)
+        case proj: ScProjectionType =>
+          proj.element match {
+            case sc: Typeable => sc.`type`().map(ScLiteralType.widen).map(ReplaceWith).getOrElse(ProcessSubtypes)
+            case _ => ProcessSubtypes
+          }
+        case _ => ProcessSubtypes
+      }))).mkString
   }
 
   private def eraseType(s: String) =

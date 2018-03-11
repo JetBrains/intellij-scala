@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
+import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
@@ -52,7 +53,7 @@ class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
   def `type`(): TypeResult = {
     typeElement match {
       case Some(te) => te.`type`()
-      case None if expr.nonEmpty => expr.get.`type`()
+      case None if expr.nonEmpty => expr.get.`type`().map(t => if (hasFinalModifier) t else ScLiteralType.widen(t))
       case _ => Failure("Cannot infer type without an expression")
     }
   }

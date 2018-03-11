@@ -14,7 +14,7 @@ class StepOverTest_2_11 extends StepOverTest {
 }
 
 abstract class StepOverTest extends StepOverTestBase {
-  addFileWithBreakpoints("Simple.scala",
+  addFileWithBreakpoints("simple.scala",
     s"""
       |object Simple {
       |  def main (args: Array[String]){

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createBlockFromExpr
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
-import org.jetbrains.plugins.scala.lang.psi.types.api
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, api}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
@@ -73,7 +73,7 @@ class ScFunctionDefinitionImpl protected (stub: ScFunctionStub, node: ASTNode)
   override protected def returnTypeInner: TypeResult = returnTypeElement match {
     case None if !hasAssign => Right(api.Unit)
     case None => body match {
-      case Some(b) => b.`type`()
+      case Some(b) => b.`type`().map(ScLiteralType.widen)
       case _ => Right(api.Unit)
     }
     case Some(rte: ScTypeElement) => rte.`type`()

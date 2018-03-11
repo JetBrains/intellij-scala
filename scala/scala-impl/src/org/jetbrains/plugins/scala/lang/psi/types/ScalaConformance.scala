@@ -169,6 +169,12 @@ trait ScalaConformance extends api.Conformance {
       }
     }
 
+    trait LiteralTypeWideningVisitor extends ScalaTypeVisitor {
+      override def visitLiteralType(lit: ScLiteralType): Unit = {
+        result = conformsInner(l, lit.wideType, visited, subst, checkWeak)
+      }
+    }
+
     trait UndefinedSubstVisitor extends ScalaTypeVisitor {
       override def visitUndefinedType(u: UndefinedType) {
         result = (true, undefinedSubst.addUpper(u.typeParameter.typeParamId, l))
@@ -259,6 +265,10 @@ trait ScalaConformance extends api.Conformance {
     }
 
     trait NothingNullVisitor extends ScalaTypeVisitor {
+      override def visitLiteralType(lt: ScLiteralType): Unit = {
+        if (lt.wideType.eq(Null) && l.conforms(AnyRef)) result = (true, undefinedSubst)
+      }
+
       override def visitStdType(x: StdType) {
         if (x eq Nothing) result = (true, undefinedSubst)
         else if (x eq Null) {
@@ -531,6 +541,10 @@ trait ScalaConformance extends api.Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
+      rightVisitor = new LiteralTypeWideningVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
       if (x eq Null) {
         result = (r == Nothing, undefinedSubst)
         return
@@ -542,6 +556,10 @@ trait ScalaConformance extends api.Conformance {
           return
         }
         else if (r eq AnyVal) {
+          result = (false, undefinedSubst)
+          return
+        }
+        else if (r.isInstanceOf[ScLiteralType]) {
           result = (false, undefinedSubst)
           return
         }
@@ -664,6 +682,10 @@ trait ScalaConformance extends api.Conformance {
           }
         case _ =>
       }
+
+      rightVisitor = new LiteralTypeWideningVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
 
       proj.isAliasType match {
         case Some(AliasType(_, lower, _)) =>
@@ -1355,8 +1377,14 @@ trait ScalaConformance extends api.Conformance {
         }
       }
       r.visitType(rightVisitor)
-      if (result == null)
-        result = (true, undefinedSubst.addLower(u.typeParameter.typeParamId, r))
+      if (result == null) {
+        r match {
+          case lit: ScLiteralType if !u.parameterType.upperType.conforms(Singleton) =>
+            result = conformsInner(l, lit.wideType, visited, undefinedSubst, checkWeak)
+          case _ =>
+            result = (true, undefinedSubst.addLower(u.typeParameter.typeParamId, r))
+        }
+      }
     }
 
     override def visitMethodType(m1: ScMethodType) {

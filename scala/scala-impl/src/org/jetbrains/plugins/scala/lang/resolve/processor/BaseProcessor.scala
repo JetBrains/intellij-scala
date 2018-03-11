@@ -21,9 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor.RecursionState
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.{Set, mutable}
@@ -47,22 +45,6 @@ object BaseProcessor {
       case _ => false
     }
   }
-
-  //todo ugly recursion breakers, maybe we need general for type? What about performance?
-  private case class RecursionState(visitedProjections: Set[PsiNamedElement],
-                                    visitedTypeParameter: Set[TypeParameterType]) {
-
-    def add(projection: PsiNamedElement): RecursionState =
-      copy(visitedProjections = visitedProjections + projection)
-
-    def add(tpt: TypeParameterType): RecursionState =
-      copy(visitedTypeParameter = visitedTypeParameter + tpt)
-  }
-
-  private object RecursionState {
-    val empty: RecursionState = RecursionState(Set.empty, Set.empty)
-  }
-
 }
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
@@ -126,22 +108,22 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     }
   }
 
-  override def getHint[T](hintKey: Key[T]): T = {
+  def getHint[T](hintKey: Key[T]): T = {
     hintKey match {
       case ElementClassHint.KEY => MyElementClassHint.asInstanceOf[T]
       case _ => null.asInstanceOf[T]
     }
   }
 
+  def handleEvent(event: PsiScopeProcessor.Event, associated: Object) {}
+
   protected def kindMatches(element: PsiElement): Boolean = ResolveUtils.kindMatches(element, kinds)
 
-  def processType(t: ScType, place: PsiElement, state: ResolveState = ResolveState.initial()): Boolean =
-    processTypeImpl(t, place, state)(RecursionState.empty)
-
-  private def processTypeImpl(t: ScType, place: PsiElement,
-                              state: ResolveState = ResolveState.initial(),
-                              updateWithProjectionSubst: Boolean = true)
-                             (implicit recState: RecursionState): Boolean = {
+  def processType(t: ScType, place: PsiElement, state: ResolveState = ResolveState.initial(),
+                  updateWithProjectionSubst: Boolean = true,
+                  //todo ugly recursion breakers, maybe we need general for type? What about performance?
+                  visitedProjections: Set[PsiNamedElement] = Set.empty,
+                  visitedTypeParameter: Set[TypeParameterType] = Set.empty): Boolean = {
     ProgressManager.checkCanceled()
 
     t match {
@@ -153,31 +135,23 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
 
     t match {
       case ScThisType(clazz) =>
-        clazz.selfType match {
-          case None =>
-            processElement(clazz, ScSubstitutor.empty, place, state)
-          case Some(ScThisType(`clazz`)) =>
+        if (clazz.selfType.isEmpty) {
+          processElement(clazz, ScSubstitutor.empty, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
+        } else {
+          val selfType = clazz.selfType.get
+          val clazzType: ScType = clazz.getTypeWithProjections().getOrElse(return true)
+          if (selfType == ScThisType(clazz)) {
             //to prevent SOE, let's process Element
-            processElement(clazz, ScSubstitutor.empty, place, state)
-          case Some(ScProjectionType(_, element)) if recState.visitedProjections.contains(element) =>
-            //recursion detected
-            true
-          case Some(selfType) =>
-            val clazzType = clazz.getTypeWithProjections().getOrElse(return true)
-            if (selfType.conforms(clazzType)) {
-              val newState =
-                state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t))
-                  .put(ScSubstitutor.key, ScSubstitutor(ScThisType(clazz)))
-              processTypeImpl(selfType, place, newState)
-            }
-            else if (clazzType.conforms(selfType)) {
-              processElement(clazz, ScSubstitutor.empty, place, state)
-            }
-            else {
-              val glb = selfType.glb(clazzType)
-              val newState = state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t))
-              processTypeImpl(glb, place, newState)
-            }
+            processElement(clazz, ScSubstitutor.empty, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
+          } else if (selfType.conforms(clazzType)) {
+            processType(selfType, place, state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)).
+              put(ScSubstitutor.key, ScSubstitutor(ScThisType(clazz))), visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
+          } else if (clazzType.conforms(selfType)) {
+            processElement(clazz, ScSubstitutor.empty, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
+          } else {
+            processType(clazz.selfType.map(_.glb(clazzType)).get, place,
+              state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)), visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
+          }
         }
       case d@ScDesignatorType(e: PsiClass) if d.asInstanceOf[ScDesignatorType].isStatic && !e.isInstanceOf[ScTemplateDefinition] =>
         //not scala from scala
@@ -194,7 +168,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         if (!break) return false
         TypeDefinitionMembers.processEnum(e, execute(_, state))
       case ScDesignatorType(o: ScObject) =>
-        processElement(o, ScSubstitutor.empty, place, state)
+        processElement(o, ScSubstitutor.empty, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
       case ScDesignatorType(e: ScTypedDefinition) if place.isInstanceOf[ScTypeProjection] =>
         val result: TypeResult =
           e match {
@@ -202,47 +176,49 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             case _ => e.`type`()
           }
         result match {
-          case Right(tp) => processTypeImpl(tp, place, state)
+          case Right(tp) => processType(tp, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
           case _ => true
         }
       case ScDesignatorType(e) =>
-        processElement(e, ScSubstitutor.empty, place, state)
-      case tpt: TypeParameterType =>
-        processTypeImpl(tpt.upperType, place, state, updateWithProjectionSubst = false)
+        processElement(e, ScSubstitutor.empty, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
+      case TypeParameterType(Nil, _, upper, _) =>
+        processType(upper, place, state, updateWithProjectionSubst = false, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
       case j: JavaArrayType =>
         implicit val elementScope = place.elementScope
-        processTypeImpl(j.getParameterizedType.getOrElse(return true), place, state)
+        processType(j.getParameterizedType.getOrElse(return true),
+          place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
       case p@ParameterizedType(designator, typeArgs) =>
         designator match {
-          case tpt: TypeParameterType =>
-            if (recState.visitedTypeParameter.contains(tpt)) return true
-            val newState = state.put(ScSubstitutor.key, ScSubstitutor(p))
-            val substedType = p.substitutor.subst(ParameterizedType(tpt.upperType, typeArgs))
-            processTypeImpl(substedType, place, newState)(recState.add(tpt))
+          case tpt@TypeParameterType(_, _, upper, _) =>
+            if (visitedTypeParameter.contains(tpt)) return true
+            processType(p.substitutor.subst(ParameterizedType(upper, typeArgs)), place,
+              state.put(ScSubstitutor.key, ScSubstitutor(p)), visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter + tpt)
           case _ => p.extractDesignatedType(expandAliases = false) match {
-            case Some((des, subst)) =>
-              processElement(des, subst, place, state)
+            case Some((designator, subst)) =>
+              processElement(designator, subst, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
             case None => true
           }
         }
-      case proj@ScProjectionType(_, _) if proj.actualElement.isInstanceOf[ScTypeAlias] =>
+      case proj@ScProjectionType(_, _, _) if proj.actualElement.isInstanceOf[ScTypeAlias] =>
         val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
         val subst = proj.actualSubst
         val upper = ta.upperBound.getOrElse(return true)
-        processTypeImpl(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))(recState.add(ta))
-      case proj@ScProjectionType(_, _) =>
-        val s: ScSubstitutor =
-          if (updateWithProjectionSubst)
-            ScSubstitutor(proj) followed proj.actualSubst
-          else proj.actualSubst
+        processType(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
+          visitedProjections = visitedProjections + ta, visitedTypeParameter = visitedTypeParameter)
+      case proj@ScProjectionType(_, _, _) =>
+        val s: ScSubstitutor = if (updateWithProjectionSubst)
+          ScSubstitutor(proj) followed proj.actualSubst
+        else proj.actualSubst
         val actualElement = proj.actualElement
-        processElement(actualElement, s, place, state)(recState.add(actualElement))
+        processElement(actualElement, s, place, state, visitedProjections = visitedProjections + actualElement, visitedTypeParameter = visitedTypeParameter)
+      case lit: ScLiteralType =>
+        processType(lit.wideType, place, state, updateWithProjectionSubst, visitedProjections, visitedTypeParameter)
       case StdType(name, tSuper) =>
         SyntheticClasses.get(place.getProject).byName(name) match {
           case Some(c) =>
             if (!c.processDeclarations(this, state, null, place) ||
                     !(tSuper match {
-                      case Some(ts) => processTypeImpl(ts, place)
+                      case Some(ts) => processType(ts, place, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
                       case _ => true
                     })) return false
           case None => //nothing to do
@@ -264,15 +240,16 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case comp@ScCompoundType(_, _, _) =>
         TypeDefinitionMembers.processDeclarations(comp, this, state, null, place)
       case ex: ScExistentialType =>
-        processTypeImpl(ex.quantified, place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
+        processType(ex.quantified, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
+          visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
       case ScExistentialArgument(_, _, _, upper) =>
-        processTypeImpl(upper, place, state)
+        processType(upper, place, state, updateWithProjectionSubst, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
       case _ => true
     }
   }
 
-  private def processElement(e: PsiNamedElement, s: ScSubstitutor, place: PsiElement, state: ResolveState)
-                            (implicit recState: RecursionState): Boolean = {
+  private def processElement(e: PsiNamedElement, s: ScSubstitutor, place: PsiElement, state: ResolveState,
+                             visitedProjections: Set[PsiNamedElement], visitedTypeParameter: Set[TypeParameterType]): Boolean = {
     val subst = state.get(ScSubstitutor.key)
     val compound = state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY) //todo: looks like ugly workaround
     val newSubst =
@@ -282,9 +259,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       }
     e match {
       case ta: ScTypeAlias =>
-        if (recState.visitedProjections.contains(ta)) return true
-        val newState = state.put(ScSubstitutor.key, ScSubstitutor.empty)
-        processTypeImpl(s.subst(ta.upperBound.getOrAny), place, newState)(recState.add(ta))
+        if (visitedProjections.contains(ta)) return true
+        processType(s.subst(ta.upperBound.getOrAny), place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
+          visitedProjections = visitedProjections + ta, visitedTypeParameter = visitedTypeParameter)
       //need to process scala way
       case clazz: PsiClass =>
         TypeDefinitionMembers.processDeclarations(clazz, BaseProcessor.this, state.put(ScSubstitutor.key, newSubst), null, place)
@@ -296,8 +273,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           }
         typeResult match {
           case Right(tp) =>
-            val newState = state.put(ScSubstitutor.key, ScSubstitutor.empty)
-            processTypeImpl(newSubst subst tp, place, newState, updateWithProjectionSubst = false)
+            processType(newSubst subst tp, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
+              updateWithProjectionSubst = false, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
           case _ => true
         }
       case pack: ScPackage =>

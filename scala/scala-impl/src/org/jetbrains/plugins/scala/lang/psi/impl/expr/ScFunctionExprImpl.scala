@@ -9,7 +9,7 @@ import com.intellij.psi._
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.types.api
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, api}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -41,7 +41,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
   protected override def innerType: TypeResult = {
     val paramTypes = parameters.map(_.`type`().getOrNothing)
-    val maybeResultType = result.map(_.`type`().getOrAny)
+    val maybeResultType = result.map(_.`type`().map(ScLiteralType.widen).getOrAny)
     val functionType = FunctionType(maybeResultType.getOrElse(api.Unit), paramTypes)
     Right(functionType)
   }

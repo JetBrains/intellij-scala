@@ -40,7 +40,7 @@ class LocationOfLineTest_212 extends LocationsOfLineTestBase {
 abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
   val noLocations = Set.empty[Loc]
 
-  setupFile("Simple.scala",
+  setupFile("simple.scala",
     s"""
         |object Simple {
         |  ${offsetMarker}val z = 1

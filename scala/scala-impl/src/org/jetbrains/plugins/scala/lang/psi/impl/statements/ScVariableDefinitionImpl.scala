@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScVariableStub
+import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 
@@ -48,8 +49,8 @@ class ScVariableDefinitionImpl private (stub: ScVariableStub, node: ASTNode)
 
   def `type`(): TypeResult = typeElement match {
     case Some(te) => te.`type`()
-    case None => expr.map(_.`type`())
-            .getOrElse(Failure("Cannot infer type without an expression"))
+    case None => expr.map(_.`type`().map(ScLiteralType.widen)).
+      getOrElse(Failure("Cannot infer type without an expression"))
   }
 
   def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)

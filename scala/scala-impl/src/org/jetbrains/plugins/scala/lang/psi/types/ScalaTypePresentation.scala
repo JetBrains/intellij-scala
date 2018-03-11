@@ -289,6 +289,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         case mt@ScMethodType(retType, params, _) =>
           implicit val elementScope = mt.elementScope
           innerTypeText(FunctionType(retType, params.map(_.paramType)), needDotType)
+        case lit: ScLiteralType => s"${lit.wideType.presentableText}(${lit.literalText})"
         case _ => ""//todo
       }
 
