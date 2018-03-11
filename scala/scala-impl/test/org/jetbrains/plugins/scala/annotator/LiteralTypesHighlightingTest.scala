@@ -4,9 +4,12 @@ import java.io.File
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.CharsetToolkit
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_13}
 import org.jetbrains.plugins.scala.util.TestUtils
 
 class LiteralTypesHighlightingTest extends ScalaHighlightingTestBase {
+
+  override implicit val version: ScalaVersion = Scala_2_13
 
   override def errorsFromScalaCode(scalaFileText: String): List[Message] = {
     import org.jetbrains.plugins.scala.project._
@@ -63,20 +66,19 @@ class LiteralTypesHighlightingTest extends ScalaHighlightingTestBase {
     }
 
   def testSip23Widen(): Unit = doTest{
-    //TODO fix parameterized type presentation in errors and get rig of these ridiculous 'Function0' and 'T_'
     case Error("f0", "Type mismatch, found: Int, required: Int(4)") ::
       Error("f0", "Expression of type Int doesn't conform to expected type Int(4)") ::
-      Error("f2", "Type mismatch, found: () => Int, required: Function0") ::
-      Error("f2","Expression of type () => Int doesn't conform to expected type Function0") ::
-      Error("f3", "Type mismatch, found: () => Int, required: Function0") ::
-      Error("f3", "Expression of type () => Int doesn't conform to expected type Function0") ::
+      Error("f2", "Type mismatch, found: () => Int, required: () => Int(4)") ::
+      Error("f2","Expression of type () => Int doesn't conform to expected type () => Int(4)") ::
+      Error("f3", "Type mismatch, found: () => Int, required: () => Int(4)") ::
+      Error("f3", "Expression of type () => Int doesn't conform to expected type () => Int(4)") ::
       Error("f5", "Type mismatch, found: Int, required: Int(4)") ::
       Error("f5", "Expression of type Int doesn't conform to expected type Int(4)") ::
       Error("f6", "Type mismatch, found: Int, required: Int(4)") ::
       Error("f6", "Expression of type Int doesn't conform to expected type Int(4)") ::
       Error("4", "Expression of type Int(4) doesn't conform to expected type T_") ::
-      Error("f9", "Type mismatch, found: () => (Int, () => Int), required: () => Tuple1[Function0]") ::
-      Error("f9", "Expression of type () => (Int, () => Int) doesn't conform to expected type () => Tuple1[Function0]") ::
+      Error("f9", "Type mismatch, found: () => (Int, () => Int), required: () => (Int(4), () => Int(5))") ::
+      Error("f9", "Expression of type () => (Int, () => Int) doesn't conform to expected type () => (Int(4), () => Int(5))") ::
       Error("f11", "Type mismatch, found: Int, required: Int(4)") ::
       Error("f11", "Expression of type Int doesn't conform to expected type Int(4)") ::
       Error("f12", "Type mismatch, found: Int, required: Int(4)") ::
@@ -162,7 +164,8 @@ class LiteralTypesHighlightingTest extends ScalaHighlightingTestBase {
 //TODO highlights properly, but lacks dependencies, add later
 //  def testSip23Macros1(): Unit = doTest()
 
-  def testSip23Test2(): Unit = doTest()
+//TODO 'Macros' does not highlight properly at all, fix this later
+//  def testSip23Test2(): Unit = doTest()
 
   def testSip23Rangepos(): Unit = doTest()
 
