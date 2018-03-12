@@ -53,7 +53,8 @@ class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
   def `type`(): TypeResult = {
     typeElement match {
       case Some(te) => te.`type`()
-      case None if expr.nonEmpty => expr.get.`type`().map(t => if (hasFinalModifier) t else ScLiteralType.widen(t))
+      //TODO the condition looks extremely hacky
+      case None if expr.nonEmpty => expr.get.`type`().map(t => if (hasFinalModifier && t.isInstanceOf[ScLiteralType]) t else ScLiteralType.widenRecursive(t))
       case _ => Failure("Cannot infer type without an expression")
     }
   }

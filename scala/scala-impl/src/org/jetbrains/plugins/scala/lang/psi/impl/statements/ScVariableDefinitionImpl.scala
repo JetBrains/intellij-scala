@@ -49,7 +49,7 @@ class ScVariableDefinitionImpl private (stub: ScVariableStub, node: ASTNode)
 
   def `type`(): TypeResult = typeElement match {
     case Some(te) => te.`type`()
-    case None => expr.map(_.`type`().map(ScLiteralType.widen)).
+    case None => expr.map(_.`type`().map(ScLiteralType.widenRecursive)).
       getOrElse(Failure("Cannot infer type without an expression"))
   }
 

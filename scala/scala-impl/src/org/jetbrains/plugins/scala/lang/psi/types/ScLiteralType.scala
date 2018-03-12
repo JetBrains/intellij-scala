@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class ScLiteralType private (val literalText: String, private val project: ProjectContext, val wideType: ScType) extends ValueType {
@@ -39,5 +42,24 @@ object ScLiteralType {
   def widen(aType: ScType): ScType = aType match {
     case lit: ScLiteralType => lit.wideType
     case other => other
+  }
+
+  def widenRecursive(aType: ScType): ScType = aType.recursiveUpdate{
+    case lit: ScLiteralType => ReplaceWith(widen(lit))
+    case p: ScParameterizedType =>
+      p.designator match {
+        case ScDesignatorType(des) => des match {
+          case typeDef: ScTypeDefinition =>
+            import org.jetbrains.plugins.scala.lang.psi.types.api._
+            val newDes = ScParameterizedType(widenRecursive(p.designator), (typeDef.typeParameters zip p.typeArguments).map{
+              case (param, arg) if param.upperBound.exists(_.conforms(Singleton(p.projectContext))) => arg
+              case (_, arg) => widenRecursive(arg)
+            })
+            ReplaceWith(newDes)
+          case _ => Stop
+        }
+        case _ => Stop
+      }
+    case _ => ProcessSubtypes
   }
 }

@@ -73,7 +73,7 @@ class ScFunctionDefinitionImpl protected (stub: ScFunctionStub, node: ASTNode)
   override protected def returnTypeInner: TypeResult = returnTypeElement match {
     case None if !hasAssign => Right(api.Unit)
     case None => body match {
-      case Some(b) => b.`type`().map(ScLiteralType.widen)
+      case Some(b) => b.`type`().map(ScLiteralType.widenRecursive)
       case _ => Right(api.Unit)
     }
     case Some(rte: ScTypeElement) => rte.`type`()
