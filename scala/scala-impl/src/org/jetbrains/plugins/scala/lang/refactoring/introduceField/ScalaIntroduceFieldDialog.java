@@ -313,7 +313,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
   private boolean needsTypeAnnotation(ScExpression expression) {
     return ScalaTypeAnnotationSettings$.MODULE$.apply(expression.getProject()).isTypeAnnotationRequiredFor(
-        Declaration$.MODULE$.apply(Visibility$.MODULE$.apply(getVisibility()), false, false, false),
+        Declaration$.MODULE$.apply(Visibility$.MODULE$.apply(getVisibility()), false, false, false, false),
             Location$.MODULE$.apply(myClass), Some$.MODULE$.apply(new Definition(expression)));
   }
 

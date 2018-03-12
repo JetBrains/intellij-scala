@@ -123,6 +123,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public boolean TYPE_ANNOTATION_IMPLICIT_MODIFIER = true;
   public boolean TYPE_ANNOTATION_UNIT_TYPE = true;
+  public boolean TYPE_ANNOTATION_STRUCTURAL_TYPE = true;
 
   public boolean TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_ANONYMOUS_CLASS = false;
   public boolean TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_PRIVATE_CLASS = false;

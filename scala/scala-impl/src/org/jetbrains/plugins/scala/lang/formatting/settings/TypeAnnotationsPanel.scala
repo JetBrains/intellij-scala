@@ -50,6 +50,9 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
       new Binding(
         TYPE_ANNOTATION_UNIT_TYPE, myUnitType.isSelected)
       (TYPE_ANNOTATION_UNIT_TYPE = _, myUnitType.setSelected),
+      new Binding(
+        TYPE_ANNOTATION_STRUCTURAL_TYPE, myStructuralType.isSelected)
+      (TYPE_ANNOTATION_STRUCTURAL_TYPE = _, myStructuralType.setSelected),
 
       new Binding(
         TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_ANONYMOUS_CLASS, myMemberOfAnonymousClass.isSelected)

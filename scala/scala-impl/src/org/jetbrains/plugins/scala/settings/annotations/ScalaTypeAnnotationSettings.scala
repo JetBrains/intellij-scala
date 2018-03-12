@@ -31,6 +31,7 @@ object ScalaTypeAnnotationSettings {
         (TYPE_ANNOTATION_IMPLICIT_MODIFIER && !entity.isParameter && declaration.isImplicit).option("implicit definition")
           .orElse((TYPE_ANNOTATION_UNIT_TYPE && !entity.isParameter && declaration.hasUnitType).option("Unit definition"))
           .orElse((entity == Entity.Method && implementation.exists(_.containsReturn)).option("method with 'return'"))
+          .orElse((TYPE_ANNOTATION_STRUCTURAL_TYPE && !entity.isParameter && declaration.hasAccidentalStructuralType).option("structural type definition"))
 
       def reasonToUse = entity match {
         case Entity.Parameter => TYPE_ANNOTATION_FUNCTION_PARAMETER.option("function literal parameter")

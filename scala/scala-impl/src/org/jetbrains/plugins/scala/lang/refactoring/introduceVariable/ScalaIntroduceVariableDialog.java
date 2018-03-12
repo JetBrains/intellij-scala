@@ -194,7 +194,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   // TODO Is there a scope selection?
   private boolean needsTypeAnnotation() {
     return ScalaTypeAnnotationSettings$.MODULE$.apply(expression.getProject()).isTypeAnnotationRequiredFor(
-        Declaration$.MODULE$.apply(Visibility$.MODULE$.apply("private"), false, false, false),
+        Declaration$.MODULE$.apply(Visibility$.MODULE$.apply("private"), false, false, false, false),
             Location$.MODULE$.apply(expression), Some$.MODULE$.apply(new Definition(expression)));
   }
 
