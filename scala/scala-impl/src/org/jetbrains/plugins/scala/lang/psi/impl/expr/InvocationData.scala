@@ -4,8 +4,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, DoesNotTakeParameters, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -14,61 +14,40 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
   */
 sealed trait InvocationData {
   def typeResult: TypeResult
-  def problems: Seq[ApplicabilityProblem]
-  def matchedParams: Seq[(Parameter, ScExpression)]
-  def matchedTypes: Seq[(Parameter, ScType)]
-  def importsUsed: collection.Set[ImportUsed]
-  def implicitConversion: Option[ScalaResolveResult]
-  def applyOrUpdateElem: Option[ScalaResolveResult]
+
+  def problems: Seq[ApplicabilityProblem] = Seq.empty
+
+  def matched: Seq[(Parameter, ScExpression, ScType)] = Seq.empty
+
+  def importsUsed: Set[ImportUsed] = Set.empty
+
+  def implicitConversion: Option[ScalaResolveResult] = None
+
+  def applyOrUpdateElem: Option[ScalaResolveResult] = None
 }
 
 object InvocationData {
 
-  def noSuitableParameters(inferredType: ScType, result: ScalaResolveResult): Full = {
-    InvocationData.Full(
-      inferredType,
-      Seq(new DoesNotTakeParameters),
-      Seq.empty,
-      Seq.empty,
-      result.importsUsed,
-      result.implicitConversion,
-      None)
-  }
-
   case class Full(inferredType: ScType,
-                  problems: Seq[ApplicabilityProblem] = Seq.empty,
-                  matchedParams: Seq[(Parameter, ScExpression)] = Seq.empty,
-                  matchedTypes: Seq[(Parameter, ScType)] = Seq.empty,
-                  importsUsed: collection.Set[ImportUsed] = Set.empty,
-                  implicitConversion: Option[ScalaResolveResult] = None,
-                  applyOrUpdateElem: Option[ScalaResolveResult] = None) extends InvocationData {
+                  override val problems: Seq[ApplicabilityProblem] = Seq.empty,
+                  override val matched: Seq[(Parameter, ScExpression, ScType)] = Seq.empty,
+                  override val importsUsed: Set[ImportUsed] = Set.empty,
+                  override val implicitConversion: Option[ScalaResolveResult] = None,
+                  override val applyOrUpdateElem: Option[ScalaResolveResult] = None) extends InvocationData {
 
-    def withApplyUpdate(result: ScalaResolveResult): Full = copy(
-      importsUsed = result.importsUsed,
-      implicitConversion = result.implicitConversion,
-      applyOrUpdateElem = Some(result)
-    )
-
-    def withSubstitutedType: Option[Full] = {
-      if (problems.nonEmpty) None
-      else Some {
-        if (matchedTypes.isEmpty) this
-        else {
-          val dependentSubst = ScSubstitutor(() => matchedTypes.toMap)
-          copy(dependentSubst.subst(inferredType))
-        }
-      }
+    def withSubstitutedType: Option[Full] = (problems, matched) match {
+      case (Seq(), Seq()) => Some(this)
+      case (Seq(), seq) =>
+        val map = seq.collect {
+          case (parameter, _, scType) => parameter -> scType
+        }.toMap
+        val dependentSubst = ScSubstitutor(() => map)
+        Some(copy(dependentSubst.subst(inferredType)))
+      case _ => None
     }
 
     override def typeResult: TypeResult = Right(inferredType)
   }
 
-  case class Plain(typeResult: TypeResult) extends InvocationData {
-    def problems: Seq[ApplicabilityProblem] = Seq.empty
-    def matchedParams: Seq[(Parameter, ScExpression)] = Seq.empty
-    def matchedTypes: Seq[(Parameter, ScType)] = Seq.empty
-    def importsUsed: collection.Set[ImportUsed] = Set.empty
-    def implicitConversion: Option[ScalaResolveResult] = None
-    def applyOrUpdateElem: Option[ScalaResolveResult] = None
-  }
+  case class Plain(typeResult: Left[Failure, ScType]) extends InvocationData
 }
