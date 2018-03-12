@@ -21,7 +21,7 @@ class ScalaValueItemPresentation(element: ScNamedElement, inherited: Boolean) ex
 
     def inferredType = value.flatMap(_.`type`().toOption).map(ScTypePresentation.withoutAliases)
 
-    element.nameId.getText + typeAnnotation.orElse(inferredType).map(": " + _).mkString
+    element.name + typeAnnotation.orElse(inferredType).map(": " + _).mkString
   }
 
   override def getIcon(open: Boolean): Icon =

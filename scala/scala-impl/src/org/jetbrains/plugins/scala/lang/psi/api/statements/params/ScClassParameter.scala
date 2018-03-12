@@ -19,7 +19,7 @@ trait ScClassParameter extends ScParameter with ScModifierListOwner with ScMembe
 
   def isPrivateThis: Boolean
 
-  // TODO isEffectiveValOrVar?
+  // TODO isEffectiveValOrVar? (or isClassMember?)
   /** Is the parmameter is explicitly marked as a val or a var; or a case class parameter that is automatically a val. */
   def isEffectiveVal: Boolean = isVal || isVar || isCaseClassVal
 
@@ -30,9 +30,9 @@ trait ScClassParameter extends ScParameter with ScModifierListOwner with ScMembe
         case Some(const) => const.effectiveFirstParameterSection.contains(this)
         case None => false
       }
-      // TODO What about "override", "final" or "private"?
-      val hasExplicitModifier = Option(getModifierList).exists(_.hasExplicitModifiers)
-      isInPrimaryConstructorFirstParamSection && !hasExplicitModifier
+      // Any modifier (including "override", "final" or "private") requires "val" or "var"
+      val isValOrVar = Option(getModifierList).exists(_.hasExplicitModifiers)
+      isInPrimaryConstructorFirstParamSection && !isValOrVar
     case _ => false
   }
 

@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 /**
   * @author Pavel Fatin
   */
+// TODO Place directly in ScModifierListOwner?
 trait ScDecoratedIconOwner { self: Iconable with ScModifierListOwner =>
   override final def getIcon(flags: Int): Icon = decorate(getBaseIcon(flags), flags)
 
