@@ -1129,28 +1129,24 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         }
       }
       val message = ScalaBundle.message("cannot.evaluate.method", call.getText)
-      call.getInvokedExpr match {
-        case _: ScReferenceExpression =>
-          methodCallEvaluator(methodCall, call.argumentExpressions ++ collected, matchedParameters ++ call.matchedParametersMap)
-        case newCall: ScMethodCall =>
-          collectArgumentsAndBuildEvaluator(newCall, call.argumentExpressions ++ collected, call.args.getText + tailString,
-            matchedParameters ++ call.matchedParametersMap)
-        case gen: ScGenericCall =>
-          gen.referencedExpr match {
-            case ref: ScReferenceExpression if ref.resolve().isInstanceOf[PsiMethod] =>
-              methodCallEvaluator(methodCall, call.argumentExpressions ++ collected, matchedParameters ++ call.matchedParametersMap)
-            case ref: ScReferenceExpression =>
-              ref.`type`().getOrAny match {
-                //isApplyOrUpdateCall does not work for generic calls
-                case ExtractClass(psiClass) if psiClass.findMethodsByName("apply", true).nonEmpty =>
-                  val typeArgsText = gen.typeArgs.fold("")(_.getText)
-                  val expr = applyCall(ref.getText, s"$typeArgsText${call.args.getText}$tailString")
-                  evaluatorFor(expr)
-                case _ => throw EvaluationException(message)
-              }
-            case _ =>
-              throw EvaluationException(message)
 
+      import MethodInvocation.matchedParametersMap
+      call match {
+        case ScMethodCall(_: ScReferenceExpression, argumentExpressions) =>
+          methodCallEvaluator(methodCall, argumentExpressions ++ collected, matchedParameters ++ matchedParametersMap(call))
+        case ScMethodCall(newCall: ScMethodCall, argumentExpressions) =>
+          collectArgumentsAndBuildEvaluator(newCall, argumentExpressions ++ collected, call.args.getText + tailString,
+            matchedParameters ++ matchedParametersMap(call))
+        case ScMethodCall(ScGenericCall(ScReferenceExpression(_: PsiMethod), _), argumentExpressions) =>
+          methodCallEvaluator(methodCall, argumentExpressions ++ collected, matchedParameters ++ matchedParametersMap(call))
+        case ScMethodCall(gen@ScGenericCall(ref, _), _) =>
+          ref.`type`().getOrAny match {
+            //isApplyOrUpdateCall does not work for generic calls
+            case ExtractClass(psiClass) if psiClass.findMethodsByName("apply", true).nonEmpty =>
+              val typeArgsText = gen.typeArgs.map(_.getText).mkString
+              val expr = applyCall(ref.getText, s"$typeArgsText${call.args.getText}$tailString")
+              evaluatorFor(expr)
+            case _ => throw EvaluationException(message)
           }
         case _ => throw EvaluationException(message)
       }
