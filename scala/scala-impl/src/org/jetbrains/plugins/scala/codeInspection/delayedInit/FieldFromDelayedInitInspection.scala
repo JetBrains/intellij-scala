@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.delayedInit
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionsUtil}
-import org.jetbrains.plugins.scala.extensions.{&&, ContainingClass, LazyVal, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&&, ContainingClass, LazyVal, PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
@@ -22,7 +22,7 @@ class FieldFromDelayedInitInspection extends AbstractInspection("FieldFromDelaye
           val classContainers = ref.parentsInFile.collect {
             case td: ScTemplateDefinition => td
           }
-          if (!classContainers.exists(c => c == delayedInitClass || c.isInheritor(delayedInitClass, deep = true)))
+          if (!classContainers.exists(c => c.sameOrInheritor(delayedInitClass)))
             holder.registerProblem(ref.nameId, "Field defined in DelayedInit is likely to be null")
         case _ =>
       }

@@ -501,12 +501,7 @@ object MethodResolveProcessor {
                             case m2: ScMember =>
                               val clazz2: ScTemplateDefinition = m2.containingClass
                               if (clazz2 == null) true
-                              else {
-                                if (clazz1 == clazz2) true
-                                else {
-                                  ScalaPsiUtil.isInheritorDeep(clazz1, clazz2)
-                                }
-                              }
+                              else clazz1.sameOrInheritor(clazz2)
                             case _ => true
                           }
                         case _ => true

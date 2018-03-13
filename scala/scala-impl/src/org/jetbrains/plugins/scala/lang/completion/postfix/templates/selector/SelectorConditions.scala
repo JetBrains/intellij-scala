@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -46,9 +47,8 @@ object SelectorConditions {
           val manager = ScalaPsiManager.instance(project)
           val scope = GlobalSearchScope.allScope(project)
 
-          manager.getCachedClasses(scope, ancestorFqn).exists { base =>
-            areClassesEquivalent(psiClass, base) || isInheritorDeep(psiClass, base)
-          }
+          manager.getCachedClasses(scope, ancestorFqn)
+            .exists(psiClass.sameOrInheritor)
         }
       }
   }

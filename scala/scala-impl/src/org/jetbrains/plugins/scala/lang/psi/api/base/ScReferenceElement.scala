@@ -136,10 +136,10 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
             rr match {
               case Some(srr) =>
                 srr.getActualElement match {
-                  case c: PsiClass if sameOrInheritor(c, td) => return true
+                  case c: PsiClass if c.sameOrInheritor(td) => return true
                   case _ =>
                 }
-              case _ if sameOrInheritor(method.containingClass, td) => return true
+              case _ if method.containingClass.sameOrInheritor(td) => return true
             }
           case obj: ScObject if obj.isSyntheticObject =>
             ScalaPsiUtil.getCompanionModule(td) match {
@@ -175,11 +175,6 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
       case _ => false
     }
   }
-
-  private def sameOrInheritor(c: PsiClass, base: PsiClass): Boolean = {
-    ScEquivalenceUtil.areClassesEquivalent(base, c) || c.isInheritor(base, true)
-  }
-
 
   /**
    * Is `resolved` (the resolved target of this reference) itself a reference to `element`, by way of a type alias defined in a object, such as:

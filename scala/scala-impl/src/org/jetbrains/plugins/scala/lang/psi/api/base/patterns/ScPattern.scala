@@ -472,7 +472,7 @@ object ScPattern {
                     (for {
                       productClass <- ScalaPsiManager.instance.getCachedClass(place.resolveScope, productFqn)
                       clazz <- tp.extractClass
-                    } yield clazz == productClass || clazz.isInheritor(productClass, true)).
+                    } yield clazz.sameOrInheritor(productClass)).
                       filter(identity).fold(Seq(tp))(_ => productChance)
                   }
                 }

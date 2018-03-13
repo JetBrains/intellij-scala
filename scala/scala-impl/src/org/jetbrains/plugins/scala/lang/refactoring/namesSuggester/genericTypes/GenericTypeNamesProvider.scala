@@ -8,6 +8,7 @@ import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass}
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
@@ -33,7 +34,7 @@ object GenericTypeNamesProvider {
       val scope = GlobalSearchScope.allScope(project)
 
       baseFqns.flatMap(fqn => Option(psiFacade.findClass(fqn, scope)))
-        .exists(baseClass => clazz.isInheritor(baseClass, true) || areClassesEquivalent(clazz, baseClass))
+        .exists(clazz.sameOrInheritor)
     }
 
     `type`.extractClass.exists(isInheritor)

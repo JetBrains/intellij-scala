@@ -158,7 +158,7 @@ trait ScalaBounds extends api.Bounds {
     def isInheritorOrSelf(bClass: Options): Boolean = {
       (getNamedElement, bClass.getNamedElement) match {
         case (base: PsiClass, inheritor: PsiClass) =>
-          smartEquivalence(base, inheritor) || isInheritorDeep(inheritor, base)
+          inheritor.sameOrInheritor(base)
         case (base, inheritor: ScTypeAlias) =>
           if (smartEquivalence(base, inheritor)) return true
           for (opt <- bClass.getSuperOptions) {

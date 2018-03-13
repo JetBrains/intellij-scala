@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType, PsiTypeParameter}
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
@@ -142,7 +143,7 @@ package object types {
 
     //performance critical method!
     def canBeSameOrInheritor(t: ScType): Boolean = checkSimpleClasses(t,
-      (c1, c2) => areClassesEquivalent(c1, c2) || c1.isInheritor(c2, /*checkDeep*/ true)
+      (c1, c2) => c1.sameOrInheritor(c2)
     )
 
     //performance critical method!

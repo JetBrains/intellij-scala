@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.settings.annotations
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope
 import com.intellij.psi.{PsiClass, PsiElement, PsiModifier}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -92,7 +92,7 @@ object Location {
 
     override def isInsideOf(classes: Set[String]): Boolean = Option(getModule(aClass)).map { module =>
       val scope = ElementScope(aClass.getProject, moduleWithDependenciesAndLibrariesScope(module))
-      classes.flatMap(scope.getCachedClass).exists(it => aClass.equals(it) || aClass.isInheritor(it, true))
+      classes.flatMap(scope.getCachedClass).exists(aClass.sameOrInheritor)
     } getOrElse {
       false
     }

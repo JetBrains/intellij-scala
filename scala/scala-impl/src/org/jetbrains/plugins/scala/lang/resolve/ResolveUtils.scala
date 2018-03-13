@@ -380,20 +380,17 @@ object ResolveUtils {
     pack.fullPackageName
   }
 
-  private def sameOrInheritor(cl1: PsiClass, cl2: PsiClass): Boolean =
-    ScEquivalenceUtil.areClassesEquivalent(cl1, cl2) || isInheritorDeep(cl1, cl2)
-
   private def isInheritorOrSame(tp: ScType, cl: PsiClass): Boolean = tp match {
     case ScCompoundType(comps, _, _) =>
       comps.exists(isInheritorOrSame(_, cl))
     case tpt: TypeParameterType =>
       isInheritorOrSame(tpt.upperType, cl)
     case _ =>
-      tp.extractClass.exists(sameOrInheritor(_, cl))
+      tp.extractClass.exists(_.sameOrInheritor(cl))
   }
 
   private def isInheritorOrSelfOrSame(placeTd: ScTemplateDefinition, td: PsiClass): Boolean = {
-    if (sameOrInheritor(placeTd, td)) return true
+    if (placeTd.sameOrInheritor(td)) return true
 
     placeTd.selfTypeElement match {
       case Some(te: ScSelfTypeElement) => te.typeElement match {
