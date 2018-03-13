@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import com.intellij.psi.scope.NameHint
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -21,7 +23,11 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
                                  undefSubst: ScUndefinedSubstitutor, substitutor: ScSubstitutor)
   extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(s.projectContext) {
 
-  private val name = s.name
+  private def nameHint: NameHint = _ => s.name
+
+  override def getHint[T](hintKey: Key[T]): T =
+    if (hintKey == NameHint.KEY) nameHint.asInstanceOf[T]
+    else super.getHint(hintKey)
 
   private var trueResult = false
 
@@ -35,7 +41,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
     if (!element.isInstanceOf[PsiNamedElement]) return true
     val namedElement = element.asInstanceOf[PsiNamedElement]
     val subst = getSubst(state)
-    if (namedElement.name != name) return true
+    if (namedElement.name != s.name) return true
 
     var undef = undefSubst
 
