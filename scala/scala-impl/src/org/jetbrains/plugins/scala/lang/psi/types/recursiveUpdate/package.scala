@@ -7,6 +7,14 @@ package org.jetbrains.plugins.scala.lang.psi.types
 package object recursiveUpdate {
   trait Update extends (ScType => AfterUpdate)
 
+  object Update {
+    import AfterUpdate._
+    import Function.const
+
+    def apply(pf: PartialFunction[ScType, ScType]): Update = tpe =>
+      pf.andThen(ReplaceWith).applyOrElse(tpe, const(ProcessSubtypes))
+  }
+
   sealed trait AfterUpdate
 
   object AfterUpdate {

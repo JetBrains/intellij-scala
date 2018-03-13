@@ -489,7 +489,7 @@ object ScalaRefactoringUtil {
 
   def getCompatibleTypeNames(myTypes: Array[ScType]): ju.LinkedHashMap[String, ScType] = {
     val map = new ju.LinkedHashMap[String, ScType]
-    myTypes.foreach(myType => map.put(myType.presentableText, myType))
+    myTypes.foreach(myType => map.put(myType.codeText, myType))
     map
   }
 
@@ -639,7 +639,7 @@ object ScalaRefactoringUtil {
           case _ => true
         }
         for (tp <- types) {
-          builder.append(tp.presentableText)
+          builder.append(tp.codeText)
           if (tp != types.last) builder.append(" with ")
         }
         n.extendsBlock.templateBody match {

@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicateMatch
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -47,7 +48,7 @@ object ScalaExtractMethodUtils {
     val typeParamsText = typeParametersText(settings)
 
     def paramText(param: ExtractMethodParameter): String =
-      typedName(param.oldName, param.tp.canonicalText, param.fromElement.getProject, param.isCallByNameParameter)
+      typedName(param.oldName, param.tp.canonicalCodeText, param.fromElement.getProject, param.isCallByNameParameter)
 
     val parameters = settings.parameters.filter(_.passAsParameter).map(paramText)
     val paramsText = if (parameters.nonEmpty) parameters.mkString("(", ", ", ")") else ""
@@ -62,7 +63,7 @@ object ScalaExtractMethodUtils {
       else s": ${settings.calcReturnTypeText} ="
 
     val notPassedParams = settings.parameters.filter(p => !p.passAsParameter).map { p =>
-      val nameAndType = typedName(p.oldName, p.tp.canonicalText, p.fromElement.getProject)
+      val nameAndType = typedName(p.oldName, p.tp.canonicalCodeText, p.fromElement.getProject)
       s"val $nameAndType = ???\n"
     }
     val notPassedParamsText = notPassedParams.mkString
@@ -235,7 +236,7 @@ object ScalaExtractMethodUtils {
     * @return (isUnit, returnTypePresentableText)
     */
   def calcReturnTypeExt(settings: ScalaExtractMethodSettings): (Boolean, String) = {
-    def prepareResult(t: ScType) = (t.isUnit, t.presentableText)
+    def prepareResult(t: ScType) = (t.isUnit, t.codeText)
 
     val returnStmtType = settings.returnType
     val outputs = settings.outputs
@@ -261,9 +262,9 @@ object ScalaExtractMethodUtils {
         (false, s"Option[$outputType]")
       )
       case Some(tp) => byOutputsSize(
-        (false, s"Option[${tp.presentableText}]"),
-        (false, s"Either[${tp.presentableText}, $outputType]"),
-        (false, s"Either[${tp.presentableText}, $outputType]")
+        (false, s"Option[${tp.codeText}]"),
+        (false, s"Either[${tp.codeText}, $outputType]"),
+        (false, s"Either[${tp.codeText}, $outputType]")
       )
       case None => byOutputsSize(
         (true, "Unit"),
@@ -279,8 +280,8 @@ object ScalaExtractMethodUtils {
       val outputs = settings.outputs
       outputs.length match {
         case 0 => ""
-        case 1 => outputs(0).returnType.presentableText
-        case _ => outputs.map(_.returnType.presentableText).mkString("(", ", ", ")")
+        case 1 => outputs(0).returnType.codeText
+        case _ => outputs.map(_.returnType.codeText).mkString("(", ", ", ")")
       }
     }
   }
@@ -336,7 +337,7 @@ object ScalaExtractMethodUtils {
 
   def previewSignatureText(settings: ScalaExtractMethodSettings): String = {
     def nameAndType(param: ExtractMethodParameter): String =
-      this.typedName(param.newName, param.tp.presentableText, param.fromElement.getProject, param.isCallByNameParameter)
+      this.typedName(param.newName, param.tp.codeText, param.fromElement.getProject, param.isCallByNameParameter)
 
     val ics = settings.innerClassSettings
     val classText = if (ics.needClass) s"${ics.classText(canonTextForTypes = false)}\n\n" else ""
@@ -394,7 +395,7 @@ object ScalaExtractMethodUtils {
     var needExtractorsFromMultipleReturn = false
 
     val outputTypedNames = settings.outputs.map(o =>
-      ScalaExtractMethodUtils.typedName(outputName(o), o.returnType.canonicalText, o.fromElement.getProject))
+      ScalaExtractMethodUtils.typedName(outputName(o), o.returnType.canonicalCodeText, o.fromElement.getProject))
     val ics = settings.innerClassSettings
 
     def patternForDeclaration: String = {

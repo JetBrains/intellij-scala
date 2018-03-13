@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.refactoring._
 
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
@@ -99,7 +100,7 @@ class ScalaParameterInfo(@BeanProperty var name: String,
     if (scType != null) getTypeWrapper.getTypeText else null
 
   def typeText: String = {
-    val baseText = Option(scType).fold("")(_.presentableText)
+    val baseText = Option(scType).fold("")(_.codeText)
     if (isRepeatedParameter) baseText + "*"
     else if (isByName) " => " + baseText
     else baseText

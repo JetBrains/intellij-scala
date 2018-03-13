@@ -61,8 +61,8 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
     val namesAndTypes = input.map { v =>
       val elem = v.element
       val typeText = elem match {
-        case fun: ScFunction => fun.`type`().getOrAny.canonicalText
-        case _ => v.element.ofNamedElement().getOrElse(Any).canonicalText
+        case fun: ScFunction => fun.`type`().getOrAny.canonicalCodeText
+        case _ => v.element.ofNamedElement().getOrElse(Any).canonicalCodeText
       }
       s"${elem.name}: $typeText"
     }

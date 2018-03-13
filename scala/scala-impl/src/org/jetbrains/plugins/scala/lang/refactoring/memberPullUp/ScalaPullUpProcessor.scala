@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
 
@@ -120,7 +121,7 @@ class ScalaPullUpProcessor(project: Project,
   private def declarationsText(m: ScMember): Seq[String] = {
     def textForBinding(b: ScBindingPattern) = {
       val typeText = b.`type`() match {
-        case Right(t) => s": ${t.canonicalText}"
+        case Right(t) => s": ${t.canonicalCodeText}"
         case _ => ""
       }
       s"${b.name}$typeText"
@@ -134,7 +135,7 @@ class ScalaPullUpProcessor(project: Project,
         copy.accept(new ScalaRecursiveElementVisitor() {
           override def visitSimpleTypeElement(te: ScSimpleTypeElement): Unit = {
             val tpe = te.calcType
-            te.replace(createTypeElementFromText(tpe.canonicalText)(te.getManager))
+            te.replace(createTypeElementFromText(tpe.canonicalCodeText)(te.getManager))
           }
         })
         Seq(copy.getText)

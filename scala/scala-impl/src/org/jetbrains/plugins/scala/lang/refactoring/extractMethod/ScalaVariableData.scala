@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.refactoring._
 
 /**
  * Nikolay.Tropin
@@ -26,5 +27,5 @@ class ScalaVariableData(val element: ScTypedDefinition,
 }
 
 private class FakePsiType(val tp: ScType) extends PsiPrimitiveType("fakeForScala", PsiAnnotation.EMPTY_ARRAY) {
-  override def getPresentableText(boolean: Boolean): String = tp.presentableText
+  override def getPresentableText(boolean: Boolean): String = tp.codeText
 }

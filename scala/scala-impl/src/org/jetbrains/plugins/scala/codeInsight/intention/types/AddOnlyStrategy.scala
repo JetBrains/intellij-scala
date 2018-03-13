@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText}
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, Signature}
+import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.annotations.Implementation
 
@@ -235,32 +236,30 @@ object AddOnlyStrategy {
     canonicalTypes(`type`)
       .map(createTypeElementFromText(_)(`type`.projectContext))
 
-  private[this] def canonicalTypes(`type`: ScType) = `type` match {
-    case CaseClassType(compoundType) => Seq(compoundType.canonicalText)
-    case tp =>
-      import BaseTypes.get
+  private[this] def canonicalTypes(tpe: ScType): Seq[String] = {
+    import BaseTypes.get
 
-      tp.canonicalText +: (tp.extractClass match {
-        case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName == "scala.Some" =>
-          get(tp).map(_.canonicalText)
-            .filter(_.startsWith("_root_.scala.Option"))
-        case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
-          val goodTypes = Set(
-            "_root_.scala.collection.mutable.Seq[",
-            "_root_.scala.collection.immutable.Seq[",
-            "_root_.scala.collection.mutable.Set[",
-            "_root_.scala.collection.immutable.Set[",
-            "_root_.scala.collection.mutable.Map[",
-            "_root_.scala.collection.immutable.Map["
-          )
+    tpe.canonicalCodeText +: (tpe.extractClass match {
+      case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName == "scala.Some" =>
+        get(tpe).map(_.canonicalCodeText)
+          .filter(_.startsWith("_root_.scala.Option"))
+      case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
+        val goodTypes = Set(
+          "_root_.scala.collection.mutable.Seq[",
+          "_root_.scala.collection.immutable.Seq[",
+          "_root_.scala.collection.mutable.Set[",
+          "_root_.scala.collection.immutable.Set[",
+          "_root_.scala.collection.mutable.Map[",
+          "_root_.scala.collection.immutable.Map["
+        )
 
-          get(tp).map(_.canonicalText)
-            .filter(t => goodTypes.exists(t.startsWith))
-        case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
-          get(tp).find(_.extractClass.exists(isSealed)).toSeq
-            .map(_.canonicalText)
-        case _ => Seq.empty
-      })
+        get(tpe).map(_.canonicalCodeText)
+          .filter(t => goodTypes.exists(t.startsWith))
+      case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
+        get(tpe).find(_.extractClass.exists(isSealed)).toSeq
+          .map(_.canonicalCodeText)
+      case _ => Seq.empty
+    })
   }
 
   private[this] def isSealed(clazz: PsiClass) = clazz match {

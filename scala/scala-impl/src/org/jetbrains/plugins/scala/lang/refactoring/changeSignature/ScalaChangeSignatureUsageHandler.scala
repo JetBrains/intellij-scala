@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
+import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
@@ -73,7 +74,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     def addType(element: ScNamedElement, oldTypeElem: Option[ScTypeElement], substType: ScType): Unit = {
       oldTypeElem match {
         case Some(te) =>
-          val replaced = te.replace(createTypeElementFromText(substType.canonicalText)(element.getManager))
+          val replaced = te.replace(createTypeElementFromText(substType.canonicalCodeText)(element.getManager))
           TypeAdjuster.markToAdjust(replaced)
         case None =>
           val (context, anchor) = ScalaPsiUtil.nameContext(element) match {
@@ -165,7 +166,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       if (paramTypes.size == names.size)
         names.zip(paramTypes).map {
           case (name, tpe) =>
-            ScalaExtractMethodUtils.typedName(name, tpe.canonicalText, expr.getProject)
+            ScalaExtractMethodUtils.typedName(name, tpe.canonicalCodeText, expr.getProject)
         }
       else names
     val clause = params.mkString("(", ", ", ")")
@@ -421,7 +422,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       val method = change.getMethod
       paramInfo match {
         case sInfo: ScalaParameterInfo =>
-          val text = UsageUtil.substitutor(usage).subst(sInfo.scType).canonicalText
+          val text = UsageUtil.substitutor(usage).subst(sInfo.scType).canonicalCodeText
           val `=> ` = if (sInfo.isByName) ScalaPsiUtil.functionArrow(method.getProject) + " " else ""
           val `*` = if (sInfo.isRepeatedParameter) "*" else ""
           `=> ` + text + `*`
@@ -429,8 +430,8 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
           val javaType = jInfo.createType(method, method.getManager)
           val scType = UsageUtil.substitutor(usage).subst(javaType.toScType())
           (scType, javaType) match {
-            case (JavaArrayType(argument), _: PsiEllipsisType) => argument.canonicalText + "*"
-            case _ => scType.canonicalText
+            case (JavaArrayType(argument), _: PsiEllipsisType) => argument.canonicalCodeText + "*"
+            case _ => scType.canonicalCodeText
           }
         case info => info.getTypeText
       }

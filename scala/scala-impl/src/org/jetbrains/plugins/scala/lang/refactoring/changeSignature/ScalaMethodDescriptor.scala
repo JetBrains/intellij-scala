@@ -9,6 +9,7 @@ import com.intellij.refactoring.changeSignature.MethodDescriptor.ReadWriteOption
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.refactoring._
 
 import scala.collection.JavaConverters._
 
@@ -44,7 +45,7 @@ class ScalaMethodDescriptor(val fun: ScMethodLike) extends MethodDescriptor[Scal
   override def getVisibility: String = fun.getModifierList.accessModifier.fold("")(_.getText)
 
   def returnTypeText: String = fun match {
-    case f: ScFunction => f.returnType.getOrAny.presentableText
+    case f: ScFunction => f.returnType.getOrAny.codeText
     case _ => ""
   }
 

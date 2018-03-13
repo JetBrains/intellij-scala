@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util._
+import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 
 import scala.annotation.tailrec
@@ -214,7 +215,7 @@ object ScopeSuggester {
           bufResult += buffer
         }
 
-        val typeName = typeElement.calcType.presentableText
+        val typeName = typeElement.calcType.codeText
         val words = StringUtil.getWordsIn(typeName).asScala.toArray
 
         val resultBuffer = new ArrayBuffer[ArrayBuffer[ScalaFile]]()

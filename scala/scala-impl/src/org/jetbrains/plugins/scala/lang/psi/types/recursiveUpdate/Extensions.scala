@@ -32,7 +32,7 @@ trait Extensions {
 
     //updates all matching subtypes recursively
     def updateRecursively(pf: PartialFunction[ScType, ScType]): ScType =
-      recursiveUpdate(recursivePartial(pf))
+      recursiveUpdate(Update(pf))
 
     //invokes a function with a side-effect recursively, doesn't create any new types
     def visitRecursively(fun: ScType => Unit): ScType =
@@ -54,12 +54,6 @@ trait Extensions {
     private def foreachSubtypeUpdate(fun: ScType => Unit): Update = scType => {
       fun(scType)
       ProcessSubtypes
-    }
-
-    private def recursivePartial(fun: PartialFunction[ScType, ScType]): Update = scType => {
-      if (fun.isDefinedAt(scType))
-        ReplaceWith(fun(scType))
-      else ProcessSubtypes
     }
   }
 }

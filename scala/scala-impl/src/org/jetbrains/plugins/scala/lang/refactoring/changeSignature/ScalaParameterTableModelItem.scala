@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.refactoring._
 
 import scala.collection.mutable.ListBuffer
 
@@ -27,7 +28,7 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
   override def isEllipsisType: Boolean = parameter.isRepeatedParameter
 
   def updateType(problems: ListBuffer[String] = ListBuffer()): Unit = {
-    if (parameter.scType != null && typeText == parameter.scType.presentableText) return
+    if (parameter.scType != null && typeText == parameter.scType.codeText) return
 
     var trimmed = typeText.trim
     if (trimmed.endsWith("*")) {
@@ -67,7 +68,7 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
   private def generateTypeText(parameter: ScalaParameterInfo) = {
     val arrow = if (parameter.isByName) ScalaPsiUtil.functionArrow(typeCodeFragment.getProject) else ""
     val star = if (parameter.isRepeatedParameter) "*" else ""
-    val text = Option(parameter.scType).map(_.presentableText)
+    val text = Option(parameter.scType).map(_.codeText)
     text.map(tpeText => s"$arrow $tpeText$star").getOrElse("")
   }
 }

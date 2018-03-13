@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldHandlerBase._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
@@ -95,7 +96,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     }
     implicit val projectContext: ProjectContext = aClass.projectContext
     val name = settings.name
-    val typeName = Option(settings.scType).map(_.canonicalText).getOrElse("")
+    val typeName = Option(settings.scType).map(_.canonicalCodeText).getOrElse("")
     val replacedOccurences = replaceOccurences(occurrencesToReplace, name, ifc.file)
 
     val anchor = anchorForNewDeclaration(expression, replacedOccurences, aClass)

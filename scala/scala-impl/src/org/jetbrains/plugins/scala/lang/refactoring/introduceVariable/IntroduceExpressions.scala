@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParen
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
@@ -206,7 +207,7 @@ object IntroduceExpressions {
     def needsTypeAnnotation(element: PsiElement) =
       ScalaInplaceVariableIntroducer.needsTypeAnnotation(element, copy, forceType, fromDialogMode)
 
-    val maybeTypeText = Option(varType).map(_.canonicalText)
+    val maybeTypeText = Option(varType).map(_.canonicalCodeText)
 
     runRefactoringInside(file, unparExpr(copy), occurrences, mainOccurence, varName, isVariable, forceType) { element =>
       maybeTypeText

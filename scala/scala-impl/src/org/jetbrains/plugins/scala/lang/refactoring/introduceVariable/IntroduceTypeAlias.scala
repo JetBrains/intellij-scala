@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DefaultListCellRendererAdapter, ScalaDirectoryService, ScalaRefactoringUtil}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
@@ -177,7 +178,7 @@ trait IntroduceTypeAlias {
       }
 
 
-      val mtext = typeElement.calcType.canonicalText
+      val mtext = typeElement.calcType.canonicalCodeText
 
       val definition = ScalaPsiElementFactory
         .createTypeAliasDefinitionFromText(s"type $typeName = $mtext", typeElement.getContext, typeElement)
@@ -257,7 +258,7 @@ trait IntroduceTypeAlias {
       }
 
       //avoid replacing typeelement that was replaced
-      if (typeElement.calcType.presentableText == inName) {
+      if (typeElement.calcType.codeText == inName) {
         typeElement
       } else {
         typeElement.replace(replacement).asInstanceOf[ScTypeElement]
