@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType, PsiTypeParameter}
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
@@ -13,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import scala.util.control.NoStackTrace
@@ -278,4 +281,26 @@ package object types {
   }
 
   private object RecursionException extends NoStackTrace
+
+  trait TypePresentationContext {
+    def nameResolvesTo(name: String, target: PsiElement): Boolean
+  }
+
+  object TypePresentationContext {
+    import scala.language.implicitConversions
+
+    implicit def psiElementPresentationContext(e: PsiElement): TypePresentationContext = (text, target) => {
+      val typeElem = ScalaPsiElementFactory.createTypeElementFromText(text, target.getContext, target)
+
+      val reference = (typeElem match {
+        case null                         => None
+        case ScSimpleTypeElement(Some(r)) => Some(r)
+        case _                            => None
+      }).flatMap(_.resolve.toOption)
+
+      reference.exists(ScEquivalenceUtil.smartEquivalence(_, target))
+    }
+
+    implicit val emptyContext: TypePresentationContext = (_, _) => false
+  }
 }

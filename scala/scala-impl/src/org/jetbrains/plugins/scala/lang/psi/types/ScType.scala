@@ -95,7 +95,8 @@ trait ScType extends ProjectContextOwner {
 
   def typeDepth: Int = 1
 
-  def presentableText: String = typeSystem.presentableText(this, withPrefix = true)
+  def presentableText(implicit context: TypePresentationContext): String =
+    typeSystem.presentableText(this, withPrefix = true)
 
   def canonicalText: String = typeSystem.canonicalText(this)
 }
@@ -105,7 +106,7 @@ object ScType extends recursiveUpdate.Extensions
 trait NamedType extends ScType {
   val name: String
 
-  override def presentableText: String = name
+  override def presentableText(implicit context: TypePresentationContext): String = name
 
   override def canonicalText: String = name
 }

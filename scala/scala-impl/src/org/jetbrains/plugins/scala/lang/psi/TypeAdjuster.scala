@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
@@ -81,8 +82,9 @@ object TypeAdjuster extends ApplicationAdapter {
 
   private def toReplacementInfos(typeElements: Seq[ScTypeElement], useTypeAliases: Boolean): Seq[ReplacementInfo] = {
     val infos = typeElements.map(ReplacementInfo.initial)
-    infos.flatMap(simplify)
-      .map(shortenReference(_, useTypeAliases))
+    val simplified = infos.flatMap(simplify)
+                     .map(shortenReference(_, useTypeAliases))
+    rewriteInfosAsInfix(simplified)
   }
 
   private val toReplaceKey: Key[String] = Key.create[String]("type.element.to.replace")
@@ -234,6 +236,51 @@ object TypeAdjuster extends ApplicationAdapter {
       case hasStableReplacement(rInfo) => rInfo
       case _ => info
     }
+  }
+
+  private val infixRewriteKey = Key.create[Int]("type.element.to.rewrite.as.infix")
+
+  private def rewriteInfosAsInfix(infos: Seq[ReplacementInfo]): Seq[ReplacementInfo] = {
+    def infoToMappings(info: ReplacementInfo): Seq[(String, PsiElement)] = info match {
+      case s: SimpleInfo      => findRef(s.origElement).flatMap(_.resolve.toOption).map(s.replacement -> _).toSeq
+      case comp: CompoundInfo => comp.childInfos.flatMap(infoToMappings)
+      case _                  => Seq.empty
+    }
+
+    def markToRewrite(e: PsiElement): Unit = e.putUserData(infixRewriteKey, 1)
+
+    def canBeInfix(te: ScTypeElement): Boolean = te match {
+      case ScSimpleTypeElement(Some(ref)) => ScalaNamesUtil.isOperatorName(ref.refName)
+      case _                              => false
+    }
+
+    def isChildOfInfixType(e: PsiElement): Boolean =
+      e.parentsInFile.filterByType[ScParameterizedTypeElement].exists(_.getUserData(infixRewriteKey) == 1)
+
+    def rewriteAsInfix(info: ReplacementInfo): ReplacementInfo = info match {
+      case simple: SimpleInfo if isChildOfInfixType(simple.origElement) => simple
+      case simple: SimpleInfo =>
+        val original = simple.origElement
+        original match {
+          case e @ ScParameterizedTypeElement(des, Seq(_, _)) if canBeInfix(des) =>
+            markToRewrite(original)
+
+            val mappings: Map[String, PsiElement] = infos
+              .filter(_.origElement.parentsInFile.contains(original))
+              .flatMap(infoToMappings)(collection.breakOut)
+
+            val presentationContext: TypePresentationContext = (name, target) =>
+              mappings.get(name).exists(ScEquivalenceUtil.smartEquivalence(_, target))
+
+            val newTypeText = e.calcType.presentableText(presentationContext)
+            simple.withNewText(newTypeText)
+          case _ => info
+        }
+      case comp: CompoundInfo => comp.copy(childInfos = comp.childInfos.map(rewriteAsInfix))
+      case _                  => info
+    }
+
+    infos.map(rewriteAsInfix)
   }
 
   private def collectImportHolders(rInfos: Set[ReplacementInfo]): Map[ReplacementInfo, ScImportsHolder] = {

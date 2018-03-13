@@ -11,5 +11,6 @@ trait DottyTypePresentation extends api.TypePresentation {
 
   override protected def typeText(`type`: ScType,
                                   nameFun: (PsiNamedElement) => String,
-                                  nameWithPointFun: (PsiNamedElement) => String) = "DottyType"
+                                  nameWithPointFun: (PsiNamedElement) => String)
+                                 (implicit context: TypePresentationContext): String = "DottyType"
 }

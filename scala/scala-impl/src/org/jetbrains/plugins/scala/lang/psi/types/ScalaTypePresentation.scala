@@ -6,6 +6,7 @@ package types
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -16,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -24,7 +25,8 @@ import scala.collection.mutable.ArrayBuffer
 trait ScalaTypePresentation extends api.TypePresentation {
   typeSystem: api.TypeSystem =>
 
-  protected override def typeText(t: ScType, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String): String = {
+  protected override def typeText(t: ScType, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String)
+                                 (implicit context: TypePresentationContext): String = {
     def typeSeqText(ts: Seq[ScType], start: String, sep: String, end: String, checkWildcard: Boolean = false): String = {
       ts.map(innerTypeText(_, checkWildcard = checkWildcard)).mkString(start, sep, end)
     }
@@ -87,26 +89,28 @@ trait ScalaTypePresentation extends api.TypePresentation {
         }
       }
 
-      p match {
-        case ScDesignatorType(pack: PsiPackage) =>
-          nameWithPointFun(pack) + refName
-        case ScDesignatorType(named) if checkIfStable(named) =>
-          nameWithPointFun(named) + refName + typeTailForProjection
-        case ScThisType(obj: ScObject) =>
-          nameWithPointFun(obj) + refName + typeTailForProjection
-        case ScThisType(_: ScTypeDefinition) if checkIfStable(e) =>
-          s"${innerTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
-        case p: ScProjectionType if checkIfStable(p.actualElement) =>
-          s"${projectionTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
-        case StaticJavaClassHolder(clazz) =>
-          nameWithPointFun(clazz) + refName
-        case _: ScCompoundType | _: ScExistentialType =>
-          s"(${innerTypeText(p)})#$refName"
-        case _ =>
-          val innerText = innerTypeText(p)
-          if (innerText.endsWith(".type")) innerText.stripSuffix("type") + refName
-          else s"$innerText#$refName"
-      }
+      if (context.nameResolvesTo(refName, e)) refName
+      else
+        p match {
+          case ScDesignatorType(pack: PsiPackage) =>
+            nameWithPointFun(pack) + refName
+          case ScDesignatorType(named) if checkIfStable(named) =>
+            nameWithPointFun(named) + refName + typeTailForProjection
+          case ScThisType(obj: ScObject) =>
+            nameWithPointFun(obj) + refName + typeTailForProjection
+          case ScThisType(_: ScTypeDefinition) if checkIfStable(e) =>
+            s"${innerTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
+          case p: ScProjectionType if checkIfStable(p.actualElement) =>
+            s"${projectionTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
+          case StaticJavaClassHolder(clazz) =>
+            nameWithPointFun(clazz) + refName
+          case _: ScCompoundType | _: ScExistentialType =>
+            s"(${innerTypeText(p)})#$refName"
+          case _ =>
+            val innerText = innerTypeText(p)
+            if (innerText.endsWith(".type")) innerText.stripSuffix("type") + refName
+            else s"$innerText#$refName"
+        }
     }
 
     def compoundTypeText(compType: ScCompoundType): String = {
@@ -214,7 +218,21 @@ trait ScalaTypePresentation extends api.TypePresentation {
       }
     }
 
-    def innerTypeText(t: ScType, needDotType: Boolean = true, checkWildcard: Boolean = false): String = {
+    object CanBeInfixType {
+      def unapply(tpe: ScType): Option[(String, ScType, ScType, Int)] = tpe match {
+        case ParameterizedType(des, Seq(lhs, rhs)) =>
+          val opText = innerTypeText(des)
+
+          if (ScalaNamesUtil.isOperatorName(opText)) {
+            val assoc = InfixExpr.associate(opText)
+            Option((opText, lhs, rhs, assoc))
+          } else None
+        case _ => None
+      }
+    }
+
+    def innerTypeText(t: ScType, needDotType: Boolean = true,
+                      checkWildcard: Boolean = false, contextAssoc: Option[Int] = None): String =
       t match {
         case namedType: NamedType => namedType.name
         case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
@@ -240,6 +258,20 @@ trait ScalaTypePresentation extends api.TypePresentation {
           nameFun(e)
         case proj: ScProjectionType if proj != null =>
           projectionTypeText(proj, needDotType)
+        case CanBeInfixType(op, lhs, rhs, assoc) =>
+          def wrapIf(text: String)(cond: =>Boolean): String = if (cond) s"($text)" else text
+          def hasDifferentAssoc(tpe: ScType): Boolean       = CanBeInfixType.unapply(tpe).map(_._4).exists(_ != assoc)
+          def isInfix(tpe: ScType): Boolean                 = CanBeInfixType.unapply(tpe).isDefined
+
+          val lhsText = wrapIf(innerTypeText(lhs))(
+            hasDifferentAssoc(lhs) || (isInfix(lhs) && assoc == -1)
+          )
+
+          val rhsText = wrapIf(innerTypeText(rhs))(
+            hasDifferentAssoc(rhs) || (isInfix(rhs) && assoc == 1)
+          )
+
+          s"$lhsText $op $rhsText"
         case ParameterizedType(des, typeArgs) =>
           innerTypeText(des) + typeSeqText(typeArgs, "[", ", ", "]", checkWildcard = true)
         case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
@@ -259,7 +291,6 @@ trait ScalaTypePresentation extends api.TypePresentation {
           innerTypeText(FunctionType(retType, params.map(_.paramType)), needDotType)
         case _ => ""//todo
       }
-    }
 
     innerTypeText(t)
   }
