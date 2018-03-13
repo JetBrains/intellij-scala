@@ -13,11 +13,20 @@ package types
 trait ScInfixTypeElement extends ScTypeElement {
   def leftTypeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
+  def operation: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
+
   def rightTypeElement: Option[ScTypeElement] = findChildrenByClassScala(classOf[ScTypeElement]) match {
     case Array(_, right) => Some(right)
     case _ => None
   }
 }
+
+object ScInfixTypeElement {
+  /** Extracts the left and right type elements of the given infix type. */
+  def unapply(arg: ScInfixTypeElement): Option[(ScTypeElement, ScStableCodeReferenceElement, Option[ScTypeElement])]
+  = Some((arg.leftTypeElement, arg.operation, arg.rightTypeElement))
+}
+
 
 trait ScReferenceableInfixTypeElement extends ScInfixTypeElement with ScDesugarizableToParametrizedTypeElement {
   override protected val typeName = "InfixType"

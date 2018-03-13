@@ -24,7 +24,6 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOfType, isAncestor}
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import org.jetbrains.plugins.scala.codeInspection.collections.stripped
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScPattern, ScReferencePattern}
@@ -43,7 +42,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
@@ -621,6 +619,16 @@ object ScalaRefactoringUtil {
         builder.append(getShortText(i.operation))
         builder.append(" ")
         builder.append(getShortText(i.rOp))
+      case i: ScInfixTypeElement =>
+        builder.append(getShortText(i.leftTypeElement))
+        builder.append(" ")
+        builder.append(getShortText(i.operation))
+        builder.append(" ")
+        builder.append(getShortText(i.rightTypeElement.get))
+      case f: ScFunctionalTypeElement =>
+        builder.append(getShortText(f.paramTypeElement))
+        builder.append(" => ")
+        builder.append(getShortText(f.returnTypeElement.get))
       case l: ScLiteral => builder.append(l.getText)
       case m: ScMatchStmt =>
         m.expr match {
@@ -649,6 +657,13 @@ object ScalaRefactoringUtil {
       case p: ScParenthesisedExpr =>
         builder.append("(")
         p.expr match {
+          case Some(expression) => builder.append(getShortText(expression))
+          case _ =>
+        }
+        builder.append(")")
+      case p: ScParenthesisedTypeElement =>
+        builder.append("(")
+        p.typeElement match {
           case Some(expression) => builder.append(getShortText(expression))
           case _ =>
         }
