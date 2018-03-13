@@ -153,4 +153,75 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     val hint = hintBeginning + " (6)"
     testQuickFix(text, result, hint)
   }
+
+
+  def test_simpleType(): Unit = {
+    val selected = s"val i: $START(Int)$END = 3"
+    checkTextHasError(selected)
+
+    val text = s"val i: ($CARET_MARKER Int) = 3"
+    val result = "val i: Int = 3"
+    val hint = hintBeginning + " (Int)"
+    testQuickFix(text, result, hint)
+  }
+
+
+  def test_simpleTypeMultipleParen(): Unit = {
+    val selected = s"val i: $START(((Int)))$END = 3"
+    checkTextHasError(selected)
+
+    val text = "val i: (((Int))) = 3"
+    val result = "val i: Int = 3"
+    val hint = hintBeginning + " (((Int)))"
+    testQuickFix(text, result, hint)
+  }
+
+  def test_functionType():Unit={
+    val selected = s"val i: Int => $START(Int => String)$END = _"
+    checkTextHasError(selected)
+
+    val text = "val i: Int => (Int => String) = _"
+    val result = "val i: Int => Int => String = _"
+    val hint = hintBeginning + " (Int => String)"
+    testQuickFix(text, result, hint)
+  }
+
+  def test_functionPlusInfix(): Unit = {
+    // these are clarifying
+    val selected = s"val i: Int => $START(A op B)$END = _"
+    checkTextHasNoErrors(selected)
+  }
+
+  def test_infixType_rightAssoc():Unit = {
+    val selected = s"val f: Int <<: $START(Unit <<: Unit)$END = _"
+    checkTextHasError(selected)
+
+    val text = s"val f: Int <<: ($CARET_MARKER Unit <<: Unit) = _"
+    val result = "val f: Int <<: Unit <<: Unit = _"
+    val hint = hintBeginning + " (Unit <<: Unit)"
+    testQuickFix(text, result, hint)
+  }
+
+ 
+  def test_infixType_leftAssoc():Unit = {
+    val selected = s"val f: $START(Int op Unit)$END op Unit = _"
+    checkTextHasError(selected)
+
+    val text = s"val f: ($CARET_MARKER Int op Unit) op Unit = _"
+    val result = "val f: Int op Unit op Unit = _"
+    val hint = hintBeginning + " (Int op Unit)"
+    testQuickFix(text, result, hint)
+  }
+
+
+  def test_tupleType(): Unit = {
+    val selected = s"val f: $START((Int, String))$END = _"
+    checkTextHasError(selected)
+
+    val text = s"val f: ($CARET_MARKER(Int, Unit)) = _"
+    val result = "val f: (Int, Unit) = _"
+    val hint = hintBeginning + " ((Int, Unit))"
+    testQuickFix(text, result, hint)
+  }
+
 }
