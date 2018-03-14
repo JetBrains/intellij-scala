@@ -11,8 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -235,7 +235,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           else mapResolves(operation.shapeResolve, operation.shapeMultiType)
 
         val updated = tps.map { case (tp, isDynamicNamed) =>
-          (tp.updateAccordingToExpectedType(infix), isDynamicNamed)
+          (tp.map(infix.updateAccordingToExpectedType), isDynamicNamed)
         }
 
         val res = new ArrayBuffer[ParameterType]
@@ -293,7 +293,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
             case _ => None
           }
           callOption.foreach(call => tps = tps.map { case (r, isDynamicNamed) =>
-            (r.updateAccordingToExpectedType(call), isDynamicNamed)
+            (r.map(call.updateAccordingToExpectedType), isDynamicNamed)
           })
           tps.filterNot(_._1.exists(_.equiv(Nothing)))foreach { case (r, isDynamicNamed) =>
             processArgsExpected(res, expr, r, exprs, i, callOption, isDynamicNamed = isDynamicNamed)
@@ -387,9 +387,11 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
           val applyMethodType = polyType
             .updateTypeOfDynamicCall(r.isDynamic)
-            .updateAccordingToExpectedTypeOpt(call)
 
-          Some((Right(applyMethodType), isApplyDynamicNamed(r)))
+          val updatedMethodCall = call.map(_.updateAccordingToExpectedType(applyMethodType))
+            .getOrElse(applyMethodType)
+
+          Some((Right(updatedMethodCall), isApplyDynamicNamed(r)))
         case _ =>
           None
       }
@@ -541,28 +543,11 @@ class ExpectedTypesImpl extends ExpectedTypes {
 }
 
 private object ExpectedTypesImpl {
-  implicit class TypeResultEx(val tr: TypeResult) extends AnyVal {
-    /**
-      * This method useful in case if you want to update some polymorphic type
-      * according to method call expected type
-      */
-    def updateAccordingToExpectedType(call: MethodInvocation, canThrowSCE: Boolean = false): TypeResult = {
-      tr.map(_.updateAccordingToExpectedType(useExpectedType = true, call, canThrowSCE))
-    }
-  }
 
-  implicit class ScTypeForExpectedTypesEx(val tp: ScType) extends AnyVal {
-    def updateAccordingToExpectedTypeOpt(call: Option[MethodInvocation], canThrowSCE: Boolean = false): ScType = {
-      call.map(tp.updateAccordingToExpectedType(useExpectedType = true, _, canThrowSCE))
-        .getOrElse(tp)
-    }
+  implicit class ScMethodCallEx(private val invocation: MethodInvocation) extends AnyVal {
 
-    def updateAccordingToExpectedType(useExpectedType: Boolean, call: MethodInvocation, canThrowSCE: Boolean = false): ScType = {
-      if (!useExpectedType) return tp
-
-      InferUtil.updateAccordingToExpectedType(tp, fromImplicitParameters = false, filterTypeParams = false,
-        expectedType = call.expectedType(), expr = call, canThrowSCE)
-    }
+    def updateAccordingToExpectedType(`type`: ScType): ScType =
+      InferUtil.updateAccordingToExpectedType(`type`, fromImplicitParameters = false, filterTypeParams = false, invocation.expectedType(), invocation, canThrowSCE = false)
   }
 
   implicit class ScExpressionForExpectedTypesEx(val expr: ScExpression) extends AnyVal {
