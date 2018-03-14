@@ -99,7 +99,14 @@ object ParserUtils extends ParserUtilsBase {
     case id => id.head != '=' && id.last == '='
   }
 
-  //Defines priority
+
+  /** Defines the precedence of an infix operator, according
+    * to its first character.
+    *
+    * @param id The identifier
+    * @param assignments Consider assignment operators have lower priority than other non-special characters
+    * @return An integer value. Lower value means higher precedence
+    */
   def priority(id: String, assignments: Boolean = false): Int = {
     if (assignments && isAssignmentOperator(id)) {
       return 10
