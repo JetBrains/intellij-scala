@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -30,10 +30,13 @@ case class ElementScope(project: Project, scope: GlobalSearchScope) {
   def cachedFunction1Type: Option[ScParameterizedType] =
     manager.cachedFunction1Type(this)
 
-  def function1Type(level: Int = 1): Option[ScParameterizedType] =
-    getCachedClass(FunctionType.TypeName + 1).collect {
+  def getFunctionTrait(parametersCount: Int = 1): Option[ScTrait] =
+    getCachedClass(FunctionType.TypeName + parametersCount).collect {
       case t: ScTrait => t
-    }.map { t =>
+    }
+
+  def function1Type(level: Int = 1): Option[ScParameterizedType] =
+    getFunctionTrait().map { t =>
       val parameters = t.typeParameters.map {
         UndefinedType(_, level = level)
       }
