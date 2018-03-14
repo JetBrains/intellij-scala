@@ -15,3 +15,9 @@ trait ScInfixPattern extends ScPattern {
   def rightPattern: Option[ScPattern] = findLastChild(classOf[ScPattern])
   def reference: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
 }
+
+object ScInfixPattern {
+  def unapply(ifx: ScInfixPattern): Option[(ScPattern, ScStableCodeReferenceElement, Option[ScPattern])] =
+    Some((ifx.leftPattern, ifx.reference, ifx.rightPattern))
+
+}

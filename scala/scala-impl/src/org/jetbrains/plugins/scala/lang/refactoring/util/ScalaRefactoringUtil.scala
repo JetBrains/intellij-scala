@@ -5,8 +5,8 @@ package util
 
 import java.awt.Component
 import java.{util => ju}
-
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
@@ -26,7 +26,7 @@ import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOf
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -613,7 +613,7 @@ object ScalaRefactoringUtil {
       case i: ScIfStmt =>
         builder.append("if (...) {...}")
         if (i.elseBranch.isDefined) builder.append(" else {...}")
-      case i: ScInfixExpr =>
+      case i: ScInfixExpr => // the following 3 should probably mix in a common trait
         builder.append(getShortText(i.lOp))
         builder.append(" ")
         builder.append(getShortText(i.operation))
@@ -625,6 +625,22 @@ object ScalaRefactoringUtil {
         builder.append(getShortText(i.operation))
         builder.append(" ")
         builder.append(getShortText(i.rightTypeElement.get))
+      case i: ScInfixPattern =>
+        builder.append(getShortText(i.leftPattern))
+        builder.append(" ")
+        builder.append(getShortText(i.reference))
+        builder.append(" ")
+        builder.append(getShortText(i.rightPattern.get))
+      case i: ScInterpolationPattern =>
+        builder.append(getShortText(i.ref))
+        builder.append("\"...\"")
+      case c: ScConstructorPattern =>
+        builder.append(getShortText(c.ref))
+        builder.append(c.args.patterns.map(getShortText).mkString("(", ", ", ")"))
+      case n: ScNamingPattern =>
+        builder.append(n.name)
+        builder.append(" @ ")
+        builder.append(getShortText(n.named))
       case f: ScFunctionalTypeElement =>
         builder.append(getShortText(f.paramTypeElement))
         builder.append(" => ")
@@ -654,7 +670,7 @@ object ScalaRefactoringUtil {
           case Some(_) => builder.append(" {...}")
           case _ =>
         }
-      case p: ScParenthesisedExpr =>
+      case p: ScParenthesisedExpr => // the following 3 should probably mix in a common trait
         builder.append("(")
         p.expr match {
           case Some(expression) => builder.append(getShortText(expression))
@@ -664,6 +680,13 @@ object ScalaRefactoringUtil {
       case p: ScParenthesisedTypeElement =>
         builder.append("(")
         p.typeElement match {
+          case Some(expression) => builder.append(getShortText(expression))
+          case _ =>
+        }
+        builder.append(")")
+      case p: ScParenthesisedPattern =>
+        builder.append("(")
+        p.subpattern match {
           case Some(expression) => builder.append(getShortText(expression))
           case _ =>
         }

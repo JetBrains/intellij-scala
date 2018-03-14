@@ -224,4 +224,14 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
+
+  def test_infxPatternPrecedence(): Unit = {
+    val selected = s"val a +: $START(b +: c)$END = _ "
+    checkTextHasError(selected)
+
+    val text = s"val a +: ($CARET_MARKER b +: c) = _ "
+    val result = "val a +: b +: c = _ "
+    val hint = hintBeginning + " (b +: c)"
+    testQuickFix(text, result, hint)
+  }
 }
