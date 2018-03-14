@@ -27,12 +27,13 @@ trait NonValueType extends ScType {
   * Generalized parameter. It's not psi element. So can be used in any place.
   * Some difference
   */
-case class Parameter(name: String, deprecatedName: Option[String],
+case class Parameter(name: String,
+                     deprecatedName: Option[String],
                      paramType: ScType,
                      expectedType: ScType,
-                     isDefault: Boolean,
-                     isRepeated: Boolean,
-                     isByName: Boolean,
+                     isDefault: Boolean = false,
+                     isRepeated: Boolean = false,
+                     isByName: Boolean = false,
                      index: Int = -1,
                      psiParam: Option[PsiParameter] = None,
                      defaultType: Option[ScType] = None) {

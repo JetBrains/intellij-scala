@@ -4,11 +4,12 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroInvocationContext, ScalaMacroEvaluator}
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
@@ -54,7 +55,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   }
 
   override final def applyOrUpdateElement: Option[ScalaResolveResult] = innerTypeExt match {
-    case syntheticCase: SyntheticCase => syntheticCase.applyOrUpdate
+    case syntheticCase: SyntheticCase if syntheticCase.isApplyOrUpdate => Some(syntheticCase.resolveResult)
     case _ => None
   }
 
@@ -67,28 +68,44 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
   //this method works for ScInfixExpression and ScMethodCall
   private def tryToGetInnerTypeExt(implicit useExpectedType: Boolean): InvocationData = {
-    def update(regularCase: RegularCase) = {
+    def updateImplicitParameters(regularCase: RegularCase) = {
       val RegularCase(inferredType, problems, matched) = regularCase
-      val (newType, params) = this.updatedWithImplicitParameters(inferredType, useExpectedType)
-      setImplicitParameters(params)
+      val (newType, parameters) = this.updatedWithImplicitParameters(inferredType, useExpectedType)
+      setImplicitParameters(parameters)
 
       RegularCase(newType, problems, matched)
     }
 
+    def updateType(`type`: ScType, canThrowSCE: Boolean = false): ScType =
+      if (useExpectedType) updateAccordingToExpectedType(`type`, fromImplicitParameters = false, filterTypeParams = false, this.expectedType(), this, canThrowSCE)
+      else `type`
+
     getEffectiveInvokedExpr.getNonValueType() match {
       case Right(scType) =>
-        val nonValueType = if (useExpectedType) this.update(scType, canThrowSCE = true) else scType
+        val nonValueType = updateType(scType, canThrowSCE = true)
         val invokedResolveResult = getEffectiveInvokedExpr match {
           case ref: ScReferenceExpression => ref.bind()
           case _ => None
         }
 
         checkApplication(nonValueType, invokedResolveResult) match {
-          case Some(regularCase) => update(regularCase)
+          case Some(regularCase) => updateImplicitParameters(regularCase)
           case _ =>
-            checkApplyUpdateOrDynamic(nonValueType) match {
-              case Some(SyntheticCase(full, resolveResult, applyOrUpdate)) => SyntheticCase(update(full), resolveResult, applyOrUpdate)
-              case None => FailureCase(Failure("Suitable method not found"))
+            this.findApplyUpdateOrDynamic(nonValueType) match {
+              case Some((processedType, result)) =>
+                val updatedProcessedType = updateType(processedType)
+
+                val maybeRegularCase = checkApplication(updatedProcessedType, Some(result))
+                val regularCase = maybeRegularCase.getOrElse {
+                  RegularCase(updatedProcessedType, Seq(new DoesNotTakeParameters))
+                }
+
+                SyntheticCase(
+                  updateImplicitParameters(regularCase),
+                  result,
+                  maybeRegularCase.isDefined
+                )
+              case _ => FailureCase(Failure("Suitable method not found"))
             }
         }
       case left@Left(_) => FailureCase(left)
@@ -120,25 +137,21 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       .map(RegularCase(_))
     if (fromMacroExpansion.isDefined) return fromMacroExpansion
 
-    val maybePair = invokedNonValueType match {
-      case polymorphicType: ScTypePolymorphicType =>
-        polymorphicType.internalType match {
-          case ScMethodType(returnType, parameters, _) => Some((returnType, parameters, Some(polymorphicType)))
-          case FunctionType(returnType, params) => Some((returnType, functionParams(params), Some(polymorphicType)))
-          case _ => None
+    val maybeTuple = invokedNonValueType match {
+      case polymorphicType@ScTypePolymorphicType(ScMethodType(returnType, parameters, _), _) =>
+        Some((returnType, parameters, Some(polymorphicType)))
+      case polymorphicType@ScTypePolymorphicType(FunctionTypeParameters(returnType, parameters), _) =>
+        Some((returnType, parameters, Some(polymorphicType)))
+      case ScMethodType(returnType, parameters, _) =>
+        Some((returnType, parameters, None))
+      case any if isSAMEnabled(this) =>
+        toSAMType(any, this).collect {
+          case FunctionTypeParameters(returnType, parameters) => (returnType, parameters, None)
         }
-      case _ =>
-        invokedNonValueType match {
-          case ScMethodType(returnType, parameters, _) => Some((returnType, parameters, None))
-          case any if isSAMEnabled(this) =>
-            toSAMType(any, this).collect {
-              case FunctionType(returnType, params) => (returnType, functionParams(params), None)
-            }
-          case _ => None
-        }
+      case _ => None
     }
 
-    maybePair.map {
+    maybeTuple.map {
       case (returnType, parameters, maybePolymorphicType) =>
         val function = maybePolymorphicType match {
           case Some(polymorphicType) =>
@@ -152,40 +165,14 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     }
   }
 
-  private def checkApplyUpdateOrDynamic(invokedType: ScType)
-                                       (implicit useExpectedType: Boolean): Option[SyntheticCase] =
-    this.findApplyUpdateOrDynamic(invokedType).map {
-      case (processedType, result) =>
-        val updatedProcessedType = if (useExpectedType) this.update(processedType) else processedType
-
-        val maybeRegularCase = checkApplication(updatedProcessedType, Some(result))
-        SyntheticCase(
-          maybeRegularCase.getOrElse(RegularCase(updatedProcessedType, Seq(new DoesNotTakeParameters))),
-          result,
-          maybeRegularCase.map(_ => result)
-        )
-    }
-
-  private def functionParams(params: Seq[ScType]): Seq[Parameter] = {
-    val functionClass = elementScope
-      .getCachedClass(FunctionType.TypeName + params.length)
+  private def arguments(maybeResolveResult: Option[ScalaResolveResult])
+                       (implicit elementScope: ElementScope): Seq[Expression] = {
+    val updateArgument = maybeResolveResult
+      .find(_.name == ScFunction.Ext.Update)
+      .map(_ => getContext)
       .collect {
-        case t: ScTrait => t
-      }
-
-    val applyFunction = functionClass.flatMap(_.functions.find(_.isApplyMethod))
-    params.mapWithIndex {
-      case (tp, i) =>
-        new Parameter("v" + (i + 1), None, tp, tp, false, false, false, i, applyFunction.map(_.parameters(i)))
-    }
-  }
-
-  private def arguments(maybeResolveResult: Option[ScalaResolveResult]): Seq[Expression] = {
-    val updateArgument = if (maybeResolveResult.exists(_.name == "update"))
-      Some(getContext).collect {
         case ScAssignStmt(call: ScMethodCall, Some(right)) if call == this => right
       }
-    else None
 
     argumentExpressions ++ updateArgument match {
       case arguments if maybeResolveResult.exists(isApplyDynamicNamed) =>
@@ -194,23 +181,19 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           case argument => argument
         }.map {
           new Expression(_) {
+
             override def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
-                                                        expectedType: Option[ScType]): (TypeResult, collection.Set[ImportUsed]) = {
-              val expectedOption = expectedType.map {
-                case api.TupleType(Seq(_, scType)) => scType
-                case t => t
+                                                        expectedOption: Option[ScType]): (TypeResult, collection.Set[ImportUsed]) =
+              super.getTypeAfterImplicitConversion(
+                checkImplicits,
+                isShape,
+                expectedOption.map {
+                  case SecondType(t) => t
+                  case t => t
+                }
+              ) match {
+                case (typeResult, imports) => (typeResult.map(SecondType(_)), imports)
               }
-
-              val (typeResult, imports) = super.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
-              val stringType = MethodInvocationImpl.this.elementScope
-                .getCachedClass("java.lang.String")
-                .map(ScalaType.designator(_))
-                .getOrElse(api.Any)
-
-              (typeResult.map { tp =>
-                api.TupleType(Seq(stringType, tp))
-              }, imports)
-            }
           }
         }
       case arguments => arguments
@@ -220,10 +203,43 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
 object MethodInvocationImpl {
 
-  private implicit class MethodInvocationExt(private val invocation: MethodInvocationImpl) extends AnyVal {
+  private object FunctionTypeParameters {
 
-    def update(`type`: ScType, canThrowSCE: Boolean = false): ScType =
-      updateAccordingToExpectedType(`type`, fromImplicitParameters = false, filterTypeParams = false, invocation.expectedType(), invocation, canThrowSCE)
+    def unapply(`type`: ScType)
+               (implicit elementScope: ElementScope): Option[(ScType, Seq[Parameter])] = `type` match {
+      case FunctionType(returnType, types) =>
+        elementScope.getFunctionTrait(types.length)
+          .flatMap(_.functions.find(_.isApplyMethod))
+          .map { applyFunction =>
+            (returnType, parameters(applyFunction, types))
+          }
+      case _ => None
+    }
+
+    private def parameters(applyFunction: ScFunction, types: Seq[ScType]) =
+      applyFunction.parameters.zip(types).mapWithIndex {
+        case ((parameter, tp), i) =>
+          Parameter("v" + (i + 1), None, tp, tp, index = i, psiParam = Some(parameter))
+      }
+  }
+
+  private object SecondType {
+
+    def apply(`type`: ScType)
+             (implicit elementScope: ElementScope): ScType = {
+      val maybeStringType = elementScope.getCachedClass("java.lang.String")
+        .map(ScalaType.designator(_))
+
+      api.TupleType(Seq(maybeStringType.getOrElse(api.Any), `type`))
+    }
+
+    def unapply(`type`: ScType): Option[ScType] = `type` match {
+      case api.TupleType(Seq(_, result)) => Some(result)
+      case _ => None
+    }
+  }
+
+  private implicit class MethodInvocationExt(private val invocation: MethodInvocationImpl) extends AnyVal {
 
     def checkMacroExpansion(result: ScalaResolveResult): Option[ScType] =
       ScalaMacroEvaluator.getInstance(invocation.getProject)
@@ -282,7 +298,7 @@ object MethodInvocationImpl {
 
   private case class SyntheticCase(full: RegularCase,
                                    resolveResult: ScalaResolveResult,
-                                   applyOrUpdate: Option[ScalaResolveResult]) extends InvocationData {
+                                   isApplyOrUpdate: Boolean) extends InvocationData {
     override def typeResult: TypeResult = full.typeResult
   }
 
