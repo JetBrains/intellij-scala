@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createParameterFromText}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.InvocationData.Full
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
@@ -352,7 +351,7 @@ object InferUtil {
                          canThrowSCE: Boolean = false,
                          filterTypeParams: Boolean = true): ScTypePolymorphicType = localTypeInferenceWithApplicabilityExt(
     retType, params, exprs, typeParams, shouldUndefineParameters, canThrowSCE, filterTypeParams
-  ).inferredType.asInstanceOf[ScTypePolymorphicType]
+  )._1
 
   class SafeCheckException extends ControlThrowable
 
@@ -361,8 +360,8 @@ object InferUtil {
                                              shouldUndefineParameters: Boolean = true,
                                              canThrowSCE: Boolean = false,
                                              filterTypeParams: Boolean = true
-                                            ): Full = {
-    implicit val projectContext = retType.projectContext
+                                            ): (ScTypePolymorphicType, ConformanceExtResult) = {
+    implicit val projectContext: ProjectContext = retType.projectContext
 
     val typeParamIds = typeParams.map(_.typeParamId).toSet
     def hasRecursiveTypeParams(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
@@ -373,7 +372,7 @@ object InferUtil {
     val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
       expectedType = abstractSubst.subst(p.paramType), defaultType = p.defaultType.map(s.subst)))
-    val ConformanceExtResult(problems, undefSubst, _, matched) =
+    val conformanceResult@ConformanceExtResult(problems, undefSubst, _, matched) =
       Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true,
       isShapesResolve = false)
     val tpe = if (problems.isEmpty) {
@@ -489,7 +488,7 @@ object InferUtil {
         case None => throw new SafeCheckException
       }
     } else ScTypePolymorphicType(retType, typeParams)
-    Full(tpe, problems, matched)
+    (tpe, conformanceResult)
   }
 
   private def tryAddParameters(desType: ScType, typeParameters: Seq[TypeParameter]): ScType = {
