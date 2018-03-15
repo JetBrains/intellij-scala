@@ -6,10 +6,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.codeInspection.parentheses.UnnecessaryParenthesesUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScGenericParenthesisedNode.AnyParenthesisedNode
 
 /**
  * Nikolay.Tropin
@@ -24,18 +22,15 @@ class RemoveUnnecessaryParenthesesIntention extends PsiElementBaseIntentionActio
 
   override def getText = "Remove unnecessary parentheses"
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    Option(PsiTreeUtil.getParentOfType(element, classOf[ScParenthesisedExpr], false)).exists {
-      UnnecessaryParenthesesUtil.canBeStripped(_, ignoreClarifying = false)
-    }
-  }
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean
+  = Option(PsiTreeUtil.getParentOfType(element, classOf[AnyParenthesisedNode], false))
+    .exists(_.isParenthesisRedundant())
 
-  def invoke(project: Project, editor: Editor, element: PsiElement) {
-    Option(PsiTreeUtil.getParentOfType(element, classOf[ScParenthesisedExpr])).map {
-      case expr if UnnecessaryParenthesesUtil.canBeStripped(expr, ignoreClarifying = false) =>
-        val stripped: String = UnnecessaryParenthesesUtil.getTextOfStripped(expr, ignoreClarifying = false)
+  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+    Option(PsiTreeUtil.getParentOfType(element, classOf[AnyParenthesisedNode])) map {
+      case expr if expr.isParenthesisRedundant() =>
         inWriteAction {
-          expr.replaceExpression(createExpressionFromText(stripped)(expr.getManager), removeParenthesis = true)
+          expr.stripParentheses()
         }
       case _ =>
     }

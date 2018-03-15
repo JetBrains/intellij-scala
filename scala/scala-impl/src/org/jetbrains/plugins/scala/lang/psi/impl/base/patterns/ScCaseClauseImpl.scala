@@ -50,7 +50,7 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
         expr match {
           case Some(e) if lastParent != null &&
             e.startOffsetInParent == lastParent.startOffsetInParent => if (!process) return false
-          case Some(_: ScInterpolationPattern) => if (!process) return false
+          case Some(_) if p.isInstanceOf[ScInterpolationPattern] => if (!process) return false
           case _ =>
             guard match {
               case Some(g) if lastParent != null &&

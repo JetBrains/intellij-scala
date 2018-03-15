@@ -5,58 +5,47 @@ package api
 package base
 package types
 
-import scala.annotation.tailrec
-
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
 
-trait ScParenthesisedTypeElement extends ScTypeElement {
+trait ScParenthesisedTypeElement extends ScTypeElement with ScGenericParenthesisedNode[ScTypeElement] {
   override protected val typeName = "TypeInParenthesis"
+
 
   def typeElement: Option[ScTypeElement] = findChild(classOf[ScTypeElement])
 
+  override def subNode: Option[ScTypeElement] = typeElement
 
-  /** Strips parentheses from this element downwards. This node is replaced by one
-    * of its type element descendants in the children of the parent node. If the
-    * `keepParentheses` parameter is true, then one level of nesting is kept.
-    * Otherwise, this node is replaced by its first non-parenthesized descendant.
-    *
-    * If this element represents an empty pair of parentheses, like in the function
-    * types () => Int or ((())) => Int, then one level of parentheses is kept
-    * regardless of `keepParentheses`.
-    *
-    * This method may change the semantics of the AST if the type
-    * needed the parentheses. Use [[ScalaPsiUtil.typeNeedsParentheses]]
-    * to ensure the parentheses aren't needed.
-    *
-    * @param keepParentheses Whether to keep one level of parentheses or not
-    * @return The node which replaces this node. If no parentheses were
-    *         found to remove, returns `this`, unmodified
-    */
-  def stripParentheses(keepParentheses: Boolean = false): ScTypeElement = {
-
-    // returns a ScParenthesisedTypeElement if this is a () or a (())
-    @tailrec
-    def getInnermostNonParen(node: ScTypeElement): ScTypeElement = node match {
-      case ScParenthesisedTypeElement(inner) => getInnermostNonParen(inner)
-      case _: ScTypeElement => node
+  override def isParenthesisClarifying: Boolean = {
+    (getParent, typeElement) match {
+      case (p: ScTypeElement, Some(c)) if !isIndivisible(c) && getPrecedence(p) != getPrecedence(c) => true
+      case _ => false
     }
+  }
 
-    def replaceWithNode(elt: ScTypeElement): ScTypeElement = {
-      val parentNode = getParent.getNode
-      val newNode = elt.copy.getNode
-      parentNode.replaceChild(this.getNode, newNode)
-      newNode.getPsi.asInstanceOf[ScTypeElement]
-    }
+  override def isParenthesisNeeded: Boolean = {
+    super.isParenthesisNeeded || {
+      val This = this
 
-    getInnermostNonParen(this) match {
-      case elt if elt eq this => this
-      case elt: ScParenthesisedTypeElement if keepParentheses => replaceWithNode(elt)
-      case elt if keepParentheses => replaceWithNode(elt.getParent.asInstanceOf[ScTypeElement])
-      case elt => replaceWithNode(elt)
+      (getParent, typeElement) match {
+        // Function types are right associative, ie A => (B => C) === A => B => C
+        case (ScFunctionalTypeElement(This, _), Some(_: ScFunctionalTypeElement)) => true
+        case _ => false
+      }
     }
+  }
+
+  override protected def getPrecedence(typeElem: TreeMember[ScTypeElement]): Int = typeElem match {
+    case _: ScParameterizedTypeElement | _: ScTypeProjection | _: ScSimpleTypeElement | _: ScTupleTypeElement | _: ScParenthesisedTypeElement => 0
+    case _: ScAnnotTypeElement => 1
+    case _: ScCompoundTypeElement => 2
+    case _: ScInfixTypeElement => 3
+    case _: ScExistentialTypeElement => 4
+    case _: ScWildcardTypeElement => 5
+    case _: ScFunctionalTypeElement => 6
+    case _ => throw new IllegalArgumentException(s"Unknown type element $typeElem")
   }
 }
 

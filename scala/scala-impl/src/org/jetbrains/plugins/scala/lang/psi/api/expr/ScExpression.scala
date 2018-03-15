@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIntLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIntLiteral, ScLiteral, TreeMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitResolveResult, ScImplicitlyConvertible}
@@ -25,9 +25,9 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.conformsToDynamic
+
 import scala.annotation.tailrec
 import scala.collection.mutable
-
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 
 /**
@@ -35,12 +35,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
   */
 
 trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with ImplicitParametersOwner
-  with ScModificationTrackerOwner with Typeable {
+  with ScModificationTrackerOwner with Typeable with TreeMember[ScExpression] {
 
   import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression._
 
   override def `type`(): TypeResult =
     this.getTypeAfterImplicitConversion().tr
+
+  override def isSameTree(p: PsiElement): Boolean = p.isInstanceOf[ScExpression]
 
   @volatile
   private var implicitParameters: Option[Seq[ScalaResolveResult]] = None

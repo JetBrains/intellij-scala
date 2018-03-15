@@ -5,6 +5,7 @@ package api
 package base
 package types
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -16,8 +17,10 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
 * @author Alexander Podkhalyuzin
 */
 
-trait ScTypeElement extends ScalaPsiElement with Typeable {
+trait ScTypeElement extends ScalaPsiElement with Typeable with TreeMember[ScTypeElement] {
   protected val typeName: String
+
+  override def isSameTree(p: PsiElement): Boolean = p.isInstanceOf[ScTypeElement]
 
   override def toString: String = {
     val text = ifReadAllowed(getText)("")
