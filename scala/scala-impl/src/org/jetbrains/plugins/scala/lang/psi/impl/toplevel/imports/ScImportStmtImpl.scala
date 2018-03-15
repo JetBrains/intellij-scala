@@ -221,19 +221,21 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
                         //Resolve the name imported by selector
                         //Collect shadowed elements
                         shadowed += ((selector, result.getElement))
-                        var newState: ResolveState = state
-                        selector.importedName.map {
-                          clean
-                        }.foreach { name =>
-                          newState = state.put(ResolverEnv.nameKey, name)
-                        }
-                        newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
-                          put(ScSubstitutor.key, subst)
-                        calculateRefType(checkResolve(result)).foreach {tp =>
-                          newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
-                        }
-                        if (!processor.execute(result.getElement, newState)) {
-                          return false
+                        val importedName = selector.importedName.map(clean)
+
+                        if (!importedName.contains("_")) { //processor should skip shadowed reference
+                          var newState: ResolveState = state
+                          importedName.foreach { name =>
+                            newState = state.put(ResolverEnv.nameKey, name)
+                          }
+                          newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
+                            put(ScSubstitutor.key, subst)
+                          calculateRefType(checkResolve(result)).foreach {tp =>
+                            newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
+                          }
+                          if (!processor.execute(result.getElement, newState)) {
+                            return false
+                          }
                         }
                       }
                     }
