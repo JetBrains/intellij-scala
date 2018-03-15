@@ -472,11 +472,14 @@ object Unit
     classesInitialized = true
   }
 
-  def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass) = {
+  def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass): ValType = {
+    op_type(ic1.stdType, ic2.stdType)
+  }
+
+  def op_type(ic1: StdType, ic2: StdType): ValType = {
     val stdTypes = ic1.projectContext.stdTypes
     import stdTypes._
-
-    (ic1.stdType, ic2.stdType) match {
+    (ic1, ic2) match {
       case (_, Double) | (Double, _) => Double
       case (Float, _) | (_, Float) => Float
       case (_, Long) | (Long, _)=> Long

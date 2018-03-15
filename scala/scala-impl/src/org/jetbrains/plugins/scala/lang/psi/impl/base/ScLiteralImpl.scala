@@ -38,11 +38,14 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
 
   override def toString: String = "Literal"
 
+  override def allowLiteralTypes: Boolean = {
+    import org.jetbrains.plugins.scala.project._
+    getContainingFile.module.map(_.scalaCompilerSettings).exists(_.literalTypes)
+  }
+
   protected override def innerType: TypeResult = {
-    val child = getFirstChild.getNode
-    val wide = ScLiteralImpl.getLiteralType(child, this)
-    val inner = ScLiteralType(child.getText, this, wide)
-    Right(inner)
+    val wide = ScLiteralImpl.getLiteralType(getFirstChild.getNode, this)
+    if (allowLiteralTypes) wide.map(ScLiteralType(getValue, this, _)) else wide
   }
 
   @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
@@ -50,78 +53,85 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     val child = getFirstChild.getNode
     var text = getText
     val textLength = getTextLength
-    child.getElementType match {
-      case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING =>
-        if (!text.startsWith("\"")) return null
-        text = text.substring(1)
-        if (text.endsWith("\"")) {
-          text = text.substring(0, text.length - 1)
-        }
-        try StringContext.treatEscapes(text) //for octal escape sequences
-        catch {
-          case _: InvalidEscapeException => StringUtil.unescapeStringCharacters(text)
-        }
-      case ScalaTokenTypes.tMULTILINE_STRING =>
-        if (!text.startsWith("\"\"\"")) return null
-        text = text.substring(3)
-        if (text.endsWith("\"\"\"")) {
-          text = text.substring(0, text.length - 3)
-        }
-        text
-      case ScalaTokenTypes.kTRUE => java.lang.Boolean.TRUE
-      case ScalaTokenTypes.kFALSE => java.lang.Boolean.FALSE
-      case ScalaTokenTypes.tCHAR =>
-        if (StringUtil.endsWithChar(getText, '\'')) {
-          if (textLength == 1) return null
-          text = text.substring(1, textLength - 1)
-        }
-        else {
-          text = text.substring(1, textLength)
-        }
-        val chars: StringBuilder = new StringBuilder
-        val success: Boolean = PsiLiteralExpressionImpl.parseStringCharacters(text, chars, null)
-        if (!success) return null
-        if (chars.length != 1) return null
-        Character.valueOf(chars.charAt(0))
-      case ScalaTokenTypes.tINTEGER =>
-        val endsWithL = child.getText.endsWith("l") || child.getText.endsWith("L")
-        text = if (endsWithL) text.substring(0, text.length - 1) else text
-        val (number, base) = text match {
-          case t if t.startsWith("0x") || t.startsWith("0X") => (t.substring(2), 16)
-          case t if t.startsWith("0") && t.length >= 2 => (t.substring(0), 8)
-          case t => (t, 10)
-        }
-        val limit = if (endsWithL) java.lang.Long.MAX_VALUE else java.lang.Integer.MAX_VALUE
-        val divider = if (base == 10) 1 else 2
-        var value = 0l
-        for (d <- number.map(_.asDigit)) {
-          if (value < 0 ||
+    def getValueOfNode(e: ASTNode, isNegative: Boolean = false): AnyRef = {
+      e.getElementType match {
+        case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING if !isNegative =>
+          if (!text.startsWith("\"")) return null
+          text = text.substring(1)
+          if (text.endsWith("\"")) {
+            text = text.substring(0, text.length - 1)
+          }
+          try StringContext.treatEscapes(text) //for octal escape sequences
+          catch {
+            case _: InvalidEscapeException => StringUtil.unescapeStringCharacters(text)
+          }
+        case ScalaTokenTypes.tMULTILINE_STRING if !isNegative =>
+          if (!text.startsWith("\"\"\"")) return null
+          text = text.substring(3)
+          if (text.endsWith("\"\"\"")) {
+            text = text.substring(0, text.length - 3)
+          }
+          text
+        case ScalaTokenTypes.kTRUE if !isNegative => java.lang.Boolean.TRUE
+        case ScalaTokenTypes.kFALSE if !isNegative => java.lang.Boolean.FALSE
+        case ScalaTokenTypes.tCHAR if ! isNegative =>
+          if (StringUtil.endsWithChar(getText, '\'')) {
+            if (textLength == 1) return null
+            text = text.substring(1, textLength - 1)
+          }
+          else {
+            text = text.substring(1, textLength)
+          }
+          val chars: StringBuilder = new StringBuilder
+          val success: Boolean = PsiLiteralExpressionImpl.parseStringCharacters(text, chars, null)
+          if (!success) return null
+          if (chars.length != 1) return null
+          Character.valueOf(chars.charAt(0))
+        case ScalaTokenTypes.tINTEGER =>
+          val endsWithL = e.getText.endsWith("l") || e.getText.endsWith("L")
+          text = if (endsWithL) text.substring(0, text.length - 1) else text
+          val (number, base) = text match {
+            case t if t.startsWith("0x") || t.startsWith("0X") => (t.substring(2), 16)
+            case t if t.startsWith("0") && t.length >= 2 => (t.substring(0), 8)
+            case t => (t, 10)
+          }
+          val limit = if (endsWithL) java.lang.Long.MAX_VALUE else java.lang.Integer.MAX_VALUE
+          val divider = if (base == 10) 1 else 2
+          var value = 0l
+          for (d <- number.map(_.asDigit)) {
+            if (value < 0 ||
               limit / (base / divider) < value / divider ||
               limit - (d / divider) < value * (base / divider)
-              ) {
-            return null
+            ) {
+              return null
+            }
+            value = value * base + d
           }
-          value = value * base + d
-        }
-        if (endsWithL) java.lang.Long.valueOf(value) else Integer.valueOf(value.toInt)
-      case ScalaTokenTypes.tFLOAT =>
-        if (child.getText.endsWith("f") || child.getText.endsWith("F"))
-          try {
-            java.lang.Float.valueOf(text.substring(0, text.length - 1))
-          } catch {
-            case _: Exception => null
-          }
-        else
-          try {
-            java.lang.Double.valueOf(text)
-          } catch {
-            case _: Exception => null
-          }
-      case ScalaTokenTypes.tSYMBOL =>
-        if (!text.startsWith("\'")) return null
-        Symbol(text.substring(1))
-      case _ => null
+          if (isNegative) value = -value
+          if (endsWithL) java.lang.Long.valueOf(value) else Integer.valueOf(value.toInt)
+        case ScalaTokenTypes.tFLOAT =>
+          if (e.getText.endsWith("f") || e.getText.endsWith("F"))
+            try {
+              java.lang.Float.valueOf((if (isNegative) "-" else "") +text.substring(0, text.length - 1))
+            } catch {
+              case _: Exception => null
+            }
+          else
+            try {
+              java.lang.Double.valueOf((if (isNegative) "-" else "") + text)
+            } catch {
+              case _: Exception => null
+            }
+        case ScalaTokenTypes.tSYMBOL if !isNegative =>
+          if (!text.startsWith("\'")) return null
+          Symbol(text.substring(1))
+        case ScalaTokenTypes.tIDENTIFIER if e.getText == "-" && !isNegative =>
+          text = text.substring(1)
+          getValueOfNode(e.getTreeNext, isNegative = true)
+        case _ => null
+      }
     }
+    getValueOfNode(child)
   }
 
   def getInjectedPsi: util.List[Pair[PsiElement, TextRange]] = if (getValue.isInstanceOf[String]) InjectedLanguageManager.getInstance(getProject).getInjectedPsiFiles(this) else null
@@ -243,9 +253,9 @@ object ScLiteralImpl {
       if (lit.isString) Some(lit.getValue.asInstanceOf[String]) else None
   }
 
-  def getLiteralType(node: ASTNode, element: ScalaPsiElement): ScType = {
+  def getLiteralType(node: ASTNode, element: ScalaPsiElement): TypeResult = {
     implicit val projectCtx: ProjectContext = element
-    node.getElementType match {
+    val inner = node.getElementType match {
           case ScalaTokenTypes.kNULL => Null
           case ScalaTokenTypes.tINTEGER =>
             if (node.getText.endsWith("l") || node.getText.endsWith("L")) api.Long
@@ -265,7 +275,9 @@ object ScLiteralImpl {
               ScalaType.designator
             }.getOrElse(Nothing)
           case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => api.Boolean
-          case _ => Any
+          case ScalaTokenTypes.tIDENTIFIER if node.getText == "-" => return getLiteralType(node.getTreeNext, element)
+          case _ => return Failure("Wrong Psi to get Literal type")
         }
+    Right(inner)
   }
 }

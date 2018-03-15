@@ -19,13 +19,13 @@ class LiteralTypesHighlightingTest extends ScalaHighlightingTestBase {
 
   def folderPath = TestUtils.getTestDataPath + "/annotator/literalTypes/"
 
-  def doTest(errorsFun: PartialFunction[List[Message], Unit] = PartialFunction.empty, fileText: Option[String] = None) {
+  def doTest(errorsFun: PartialFunction[List[Message], Unit] = PartialFunction.empty, fileText: Option[String] = None, settingOn: Boolean = true) {
     val text = fileText.getOrElse {
       val filePath = folderPath + getTestName(false) + ".scala"
       val ioFile: File = new File(filePath)
       FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
     }
-    val errors = errorsFromScalaCode(text)
+    val errors = if (settingOn) errorsFromScalaCode(text) else super.errorsFromScalaCode(text)
     if (errorsFun == PartialFunction.empty) assertNothing(errors) else assertMatches(errors)(errorsFun)
   }
 
@@ -76,7 +76,7 @@ class LiteralTypesHighlightingTest extends ScalaHighlightingTestBase {
       Error("f5", "Expression of type Int doesn't conform to expected type Int(4)") ::
       Error("f6", "Type mismatch, found: Int, required: Int(4)") ::
       Error("f6", "Expression of type Int doesn't conform to expected type Int(4)") ::
-      Error("4", "Expression of type Int(4) doesn't conform to expected type T_") ::
+      Error("5", "Type mismatch, expected: Int(4), actual: Int(5)") ::
       Error("f9", "Type mismatch, found: () => (Int, () => Int), required: () => (Int(4), () => Int(5))") ::
       Error("f9", "Expression of type () => (Int, () => Int) doesn't conform to expected type () => (Int(4), () => Int(5))") ::
       Error("f11", "Type mismatch, found: Int, required: Int(4)") ::
@@ -108,39 +108,21 @@ class LiteralTypesHighlightingTest extends ScalaHighlightingTestBase {
 
   def testSip23Any(): Unit = doTest()
 
-  def testSip23Bounds(): Unit = doTest()
-
   def testSip23Final(): Unit = doTest()
-
-  def testSip23Folding(): Unit = doTest()
-
-  def testSip23NamedDefault(): Unit = doTest()
-
-  def testSip23NarrowNoEmptyRefinements(): Unit = doTest()
-
-  def testSip23Narrow(): Unit = doTest()
 
   def testSip23NegativeLiterals(): Unit = doTest()
 
-  def testSip23NoWiden(): Unit = doTest()
-
   def testSip23NumericLub(): Unit = doTest()
-
-  def testSip23SingletonConvs(): Unit = doTest()
 
   def testSip23SingletonLub(): Unit = doTest()
 
   def testSip23Strings(): Unit = doTest()
-
-  def testSip23SymbolsPos(): Unit = doTest()
 
   def testSip23ValueOfAlias(): Unit = doTest()
 
   def testSip23ValueOfCovariance(): Unit = doTest()
 
   def testSip23ValueOfThis(): Unit = doTest()
-
-  def testSip23WidenPos(): Unit = doTest()
 
   def testSip23t6263(): Unit = doTest()
 
@@ -152,11 +134,66 @@ class LiteralTypesHighlightingTest extends ScalaHighlightingTestBase {
 
   def testSip23UncheckedA(): Unit = doTest()
 
-  def testLiteralTypeVarargs(): Unit = doTest()
-
   def testSip23Cast1(): Unit = doTest()
 
   def testSip23ImplicitResolution(): Unit = doTest()
+
+  def testSip23TypeEquality(): Unit = doTest()
+
+  def testSip23ValueOf(): Unit = doTest()
+
+  def testSip23Widen2Pos(): Unit = doTest()
+
+  def testSip23Folding(): Unit = doTest()
+
+  def testSip23NoWiden(): Unit = doTest()
+
+  def testSip23SingletonConv(): Unit = doTest()
+
+  def testSip23WidenPos(): Unit = doTest()
+
+  def testSip23LiteralTypeVarargs(): Unit = doTest()
+
+  def testSip23RecConstant(): Unit = doTest()
+
+  def testConstantFolding(): Unit = doTest()
+
+  def testSip23Rangepos(): Unit = doTest()
+
+  def testConstantFoldingNeg(): Unit = doTest {
+    case Error("1 + 2", "Type mismatch, found: Int(3), required: Int(4)") ::
+      Error("1 + 2", "Expression of type Int(3) doesn't conform to expected type Int(4)") ::
+      Error("\"foo\" + \"bar\"", "Type mismatch, found: String(foobar), required: String(baz)") ::
+      Error("\"foo\" + \"bar\"", "Expression of type String(foobar) doesn't conform to expected type String(baz)") ::
+      Error("true || false", "Type mismatch, found: Boolean(true), required: Boolean(false)") ::
+      Error("true || false", "Expression of type Boolean(true) doesn't conform to expected type Boolean(false)") ::
+      Error("-1", "Type mismatch, found: Int(-1), required: Int(1)") ::
+      Error("-1", "Expression of type Int(-1) doesn't conform to expected type Int(1)") ::
+      Nil =>
+  }
+
+  def testDefaultIsOff(): Unit = doTest(fileText = Some(
+    """
+      |class O {
+      |  val x: -1 = -1
+      |  1: 1
+      |}
+    """.stripMargin), settingOn = false, errorsFun = {
+      case Error("-1", "Wrong type '-1', for literal types support please use '-Yliteral-types' compiler flag") ::
+        Error("1", "Wrong type '1', for literal types support please use '-Yliteral-types' compiler flag") ::
+        Nil => })
+
+  //below are problematic tests
+
+  def testSip23Bounds(): Unit = doTest()
+
+  def testSip23NamedDefault(): Unit = doTest()
+
+  def testSip23NarrowNoEmptyRefinements(): Unit = doTest()
+
+  def testSip23Narrow(): Unit = doTest()
+
+  def testSip23SymbolsPos(): Unit = doTest()
 
   def testSip23Initialization0(): Unit = doTest()
 
@@ -166,28 +203,4 @@ class LiteralTypesHighlightingTest extends ScalaHighlightingTestBase {
 
 //TODO 'Macros' does not highlight properly at all, fix this later
 //  def testSip23Test2(): Unit = doTest()
-
-  def testSip23Rangepos(): Unit = doTest()
-
-  def testSip23RecConstant(): Unit = doTest()
-
-  def testSip23TypeEquality(): Unit = doTest()
-
-  def testSip23ValueOf(): Unit = doTest()
-
-  def testSip23Widen2Pos(): Unit = doTest()
-
-//  def testT(): Unit = {
-//    val scalaText =
-//      """
-//        |trait O {
-//        |  val f2: Int = 42
-//        |}
-//        |
-//        |trait O2 extends O {
-//        |  override val f2: String = "test"
-//        |}
-//      """.stripMargin
-//    assertNothing(errorsFromScalaCode(scalaText))
-//  }
 }
