@@ -7,19 +7,12 @@ package org.jetbrains.plugins.scala.lang.types.kindProjector
 class FunctionSyntaxTest extends KindProjectorTestBase {
   override def folderPath = super.folderPath + "functionSyntax/"
 
-  def testFunctionSyntaxBounds() = doTest()
-
-  def testFunctionSyntaxDotTypeBounds() = doTest()
-
-  def testHigherKind() = doTest()
-
-  def testHigherKindParameterized() = doTest()
-
-  def testHigherKindWithVariance() = doTest()
-
-  def testSimple() = doTest()
-
-  def testVarianceBackticks() = doTest()
-
-  def testVarianceSquareBrackets() = doTest()
+  def testFunctionSyntaxBounds(): Unit        = doTest()
+  def testFunctionSyntaxDotTypeBounds(): Unit = doTest()
+  def testHigherKind(): Unit                  = doTest()
+  def testHigherKindParameterized(): Unit     = doTest()
+  def testHigherKindWithVariance(): Unit      = doTest()
+  def testSimple(): Unit                      = doTest()
+  def testVarianceBackticks(): Unit           = doTest()
+  def testVarianceSquareBrackets(): Unit      = doTest()
 }

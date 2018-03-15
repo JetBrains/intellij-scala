@@ -7,9 +7,7 @@ package org.jetbrains.plugins.scala.lang.types.kindProjector
 class InlineSyntaxTest extends KindProjectorTestBase {
   override def folderPath = super.folderPath + "inlineSyntax/"
 
-  def testHigherKind() = doTest()
-
-  def testSimple() = doTest()
-
-  def testThreeParams() = doTest()
+  def testHigherKind(): Unit  = doTest()
+  def testSimple(): Unit      = doTest()
+  def testThreeParams(): Unit = doTest()
 }
