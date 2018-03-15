@@ -1,0 +1,32 @@
+Lambda[List To Option].transform(_.headOption)
+-----
+ScalaFile
+  MethodCall
+    ReferenceExpression: Lambda[List To Option].transform
+      GenericCall
+        ReferenceExpression: Lambda
+          PsiElement(identifier)('Lambda')
+        TypeArgumentsList
+          PsiElement([)('[')
+          InfixType: List To Option
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: To
+              PsiElement(identifier)('To')
+            PsiWhiteSpace(' ')
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+          PsiElement(])(']')
+      PsiElement(.)('.')
+      PsiElement(identifier)('transform')
+    ArgumentList
+      PsiElement(()('(')
+      ReferenceExpression: _.headOption
+        UnderscoreSection
+          PsiElement(_)('_')
+        PsiElement(.)('.')
+        PsiElement(identifier)('headOption')
+      PsiElement())(')')

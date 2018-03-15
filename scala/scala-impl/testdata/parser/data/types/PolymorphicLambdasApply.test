@@ -1,0 +1,29 @@
+λ[List To Option](_.headOption)
+-----
+ScalaFile
+  MethodCall
+    GenericCall
+      ReferenceExpression: λ
+        PsiElement(identifier)('λ')
+      TypeArgumentsList
+        PsiElement([)('[')
+        InfixType: List To Option
+          SimpleType: List
+            CodeReferenceElement: List
+              PsiElement(identifier)('List')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: To
+            PsiElement(identifier)('To')
+          PsiWhiteSpace(' ')
+          SimpleType: Option
+            CodeReferenceElement: Option
+              PsiElement(identifier)('Option')
+        PsiElement(])(']')
+    ArgumentList
+      PsiElement(()('(')
+      ReferenceExpression: _.headOption
+        UnderscoreSection
+          PsiElement(_)('_')
+        PsiElement(.)('.')
+        PsiElement(identifier)('headOption')
+      PsiElement())(')')
