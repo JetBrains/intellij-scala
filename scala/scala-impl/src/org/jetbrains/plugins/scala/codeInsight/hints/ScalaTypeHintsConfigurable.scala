@@ -30,6 +30,15 @@ class ScalaTypeHintsConfigurable
       settings.showLocalVariableTypeGetter,
       settings.showLocalVariableTypeSetter
     )
+
+    val panel = new ScalaTypeHintsSettingsPanel
+    component(
+      panel.getPanel,
+      settings.presentationLengthGetter,
+      settings.presentationLengthSetter,
+      panel.presentationLengthGetter,
+      panel.presentationLengthSetter
+    )
   }
 
   override def apply(): Unit = {

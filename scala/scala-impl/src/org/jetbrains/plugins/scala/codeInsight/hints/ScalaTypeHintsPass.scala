@@ -29,7 +29,7 @@ class ScalaTypeHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 
   override def doCollectInformation(progressIndicator: ProgressIndicator): Unit = {
     hintsByOffset.clear()
-    val settings = ScalaCodeInsightSettings.getInstance()
+    implicit val settings: ScalaCodeInsightSettings = ScalaCodeInsightSettings.getInstance()
     if (myDocument == null || rootElement.containingVirtualFile.isEmpty || !settings.isShowTypeHints) return
 
     hintsByOffset ++= elements.flatMap {
@@ -116,7 +116,8 @@ object ScalaTypeHintsPass {
 
   private implicit class TypeResultExt(private val result: TypeResult) {
 
-    def toInlayInfo(anchor: ScalaPsiElement): Option[hints.InlayInfo] =
+    def toInlayInfo(anchor: ScalaPsiElement)
+                   (implicit settings: ScalaCodeInsightSettings): Option[hints.InlayInfo] =
       result.map(InlayInfo(_, anchor)).toOption
   }
 }
