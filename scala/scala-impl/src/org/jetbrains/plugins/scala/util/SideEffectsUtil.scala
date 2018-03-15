@@ -24,8 +24,11 @@ object SideEffectsUtil {
 
   private val immutableClasses = listImmutableClasses
 
-  private val methodsFromObjectWithSideEffects = Seq("wait", "finalize", "notifyAll", "notify")
-    .map("java.lang.Object." + _).toArray
+  private val knownMethodsWithSideEffects = {
+    val objectMethods = Array("wait", "finalize", "notifyAll", "notify").map("java.lang.Object." + _)
+    val stringMethods = "java.lang.String.getChars" //copies to destination array
+    objectMethods :+ stringMethods
+  }
 
   def hasNoSideEffects(expr: ScExpression): Boolean = {
 
@@ -133,7 +136,7 @@ object SideEffectsUtil {
     methodClazzName match {
       case Some(fqn) =>
         val name = fqn + "." + m.name
-        if (ScalaNamesUtil.nameFitToPatterns(name, methodsFromObjectWithSideEffects, strict = false))
+        if (ScalaNamesUtil.nameFitToPatterns(name, knownMethodsWithSideEffects, strict = false))
           return false
       case _ =>
     }

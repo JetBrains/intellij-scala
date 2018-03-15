@@ -274,4 +274,15 @@ class UselessExpressionInspectionTest extends ScalaInspectionTestBase {
       """
     checkTextHasNoErrors(text)
   }
+
+  def testStringGetChars(): Unit = {
+    val text =
+      """
+        |def foo(): Unit = {
+        |  val target = Array.empty[Char]
+        |  "abcde".getChars(0, 1, target, 0)
+        |}
+      """
+    checkTextHasNoErrors(text)
+  }
 }
