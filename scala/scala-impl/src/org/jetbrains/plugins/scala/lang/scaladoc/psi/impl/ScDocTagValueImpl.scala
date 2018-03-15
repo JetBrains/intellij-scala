@@ -4,10 +4,13 @@ package scaladoc
 package psi
 package impl
 
+import scala.collection.Set
+import scala.collection.mutable.ArrayBuilder
+
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiDocumentManager, PsiElement, ResolveResult}
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -23,9 +26,6 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveRes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocReferenceElement, ScDocTag, ScDocTagValue}
 
-import scala.collection.Set
-import scala.collection.mutable.ArrayBuilder
-
 /**
  * User: Dmitry Naydanov
  * Date: 11/23/11
@@ -40,9 +40,9 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with
 
   def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = Set(ResolveTargets.VAL)
 
-  def getSameNameVariants: Array[ResolveResult] = Array.empty
+  def getSameNameVariants: Array[ScalaResolveResult] = Array.empty
 
-  def multiResolve(incompleteCode: Boolean): Array[ResolveResult] =
+  def multiResolveScala(incompleteCode: Boolean): Array[ScalaResolveResult] =
     getParametersVariants.filter(a =>
       ScalaNamesUtil.equivalent(a.name, refName)).
             map(new ScalaResolveResult(_))

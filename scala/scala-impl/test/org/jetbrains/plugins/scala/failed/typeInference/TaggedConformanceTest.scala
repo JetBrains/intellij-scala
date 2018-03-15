@@ -10,6 +10,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class TaggedConformanceTest extends TypeConformanceTestBase {
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL8585(): Unit = doTest(
     s"""
        |import Tag.@@

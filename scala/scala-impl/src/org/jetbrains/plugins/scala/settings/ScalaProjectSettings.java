@@ -54,6 +54,9 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
 
   private boolean ENABLE_LIBRARY_EXTENSIONS = true;
+  
+  public enum TrailingCommasMode {Enabled, Disabled, Auto}
+  private TrailingCommasMode TRAILING_COMMAS_ENABLED = TrailingCommasMode.Auto;
 
   //SCALA.META
   public enum ScalaMetaMode {Enabled, Disabled, Manual}
@@ -66,6 +69,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean INTERACTIVE_MODE = true;
   private boolean USE_ECLIPSE_COMPATIBILITY = false;
   private boolean TREAT_SCRATCH_AS_WORKSHEET = true;
+  private boolean IS_WORKSHEET_FOLD_COLLAPSED_BY_DEFAULT = true;
   private int AUTORUN_DELAY = 1400;
   public enum ScFileMode {Worksheet, Ammonite, Auto}
   private ScFileMode SC_FILE_MODE = ScFileMode.Worksheet;
@@ -298,6 +302,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     INTERPOLATED_INJECTION_MAPPING = intInjectionMapping;
   }
 
+  public boolean isWorksheetFoldCollapsedByDefault() {
+    return IS_WORKSHEET_FOLD_COLLAPSED_BY_DEFAULT;
+  }
+  
+  public void setWorksheetFoldCollapsedByDefault(boolean isCollapsed) {
+    IS_WORKSHEET_FOLD_COLLAPSED_BY_DEFAULT = isCollapsed;
+  }
+  
   public boolean isInProcessMode() {
     return IN_PROCESS_MODE;
   }
@@ -434,6 +446,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     this.GENERATE_TOSTRING_WITH_FIELD_NAMES = generateToStringWithFieldNames;
   }
   
+  public TrailingCommasMode getTrailingCommasMode() {
+    return TRAILING_COMMAS_ENABLED;
+  }
+
+  public void setTrailingCommasMode(TrailingCommasMode mode) {
+    TRAILING_COMMAS_ENABLED = mode;
+  }
+
   public boolean isEnableLibraryExtensions() {
     return ENABLE_LIBRARY_EXTENSIONS;
   }

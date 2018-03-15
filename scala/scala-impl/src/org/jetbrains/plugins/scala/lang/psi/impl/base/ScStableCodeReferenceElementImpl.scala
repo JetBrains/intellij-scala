@@ -13,10 +13,12 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.macros.MacroDef
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
@@ -27,12 +29,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
-import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ExtractorResolveProcessor}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, DynamicResolveProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceElementResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
@@ -53,20 +57,14 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
 
   def getVariants: Array[Object] = {
     val isInImport: Boolean = this.parentOfType(classOf[ScImportStmt], strict = false).isDefined
-    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
-      case res: ScalaResolveResult =>
-        val qualifier = res.fromType.getOrElse(Nothing)
-        LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = true)
-      case r => Seq(r.getElement)
+    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap { res =>
+      val qualifier = res.fromType.getOrElse(Nothing)
+      LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = true)
     }
   }
 
-  def getResolveResultVariants: Array[ScalaResolveResult] = {
-    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
-      case res: ScalaResolveResult => Seq(res)
-      case _ => Seq.empty
-    }
-  }
+  def getResolveResultVariants: Array[ScalaResolveResult] =
+    doResolve(new CompletionProcessor(getKinds(incomplete = true), this))
 
   def getConstructor: Option[ScConstructor] = {
     getContext match {
@@ -268,8 +266,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
          |$contextText""".stripMargin)
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
-
+  def getSameNameVariants: Array[ScalaResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this) {
     override protected val forName = Some(refName)
   })
 
@@ -281,13 +278,13 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
     }
   }
 
-  @CachedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
-  override def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
+  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
+  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = {
     val resolver = new StableCodeReferenceElementResolver(ScStableCodeReferenceElementImpl.this, false, false, false)
     resolver.resolve(ScStableCodeReferenceElementImpl.this, incomplete)
   }
 
-  protected def processQualifier(processor: BaseProcessor): Unit = {
+  protected def processQualifier(processor: BaseProcessor): Array[ScalaResolveResult] = {
     _qualifier() match {
       case None =>
         @scala.annotation.tailrec
@@ -314,56 +311,78 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
         }
 
         treeWalkUp(this, null)
+        processor.candidates
       case Some(p: ScInterpolationPattern) =>
         val expr =
-          ScalaPsiElementFactory.createExpressionWithContextFromText(s"""_root_.scala.StringContext("").$refName""", p, this)
+          createExpressionWithContextFromText(s"""_root_.scala.StringContext("").$refName""", p, this)
         expr match {
           case ref: ScReferenceExpression =>
             ref.doResolve(processor)
           case _ =>
         }
+        processor.candidates
       case Some(q: ScDocResolvableCodeReference) =>
-        q.multiResolve(/*incomplete = */ true).foreach((res: ResolveResult) => processQualifierResolveResult(res, processor))
+        q.multiResolveScala(incomplete = true)
+          .flatMap(processQualifierResolveResult(q, _, processor))
       case Some(q: ScStableCodeReferenceElement) =>
         q.bind() match {
-          case Some(res) => processQualifierResolveResult(res, processor)
+          case Some(res) =>
+            processQualifierResolveResult(q, res, processor)
           case _ =>
+            processor.candidates
         }
-      case Some(thisQ: ScThisReference) => for (ttype <- thisQ.`type`()) processor.processType(ttype, this)
-      case Some(superQ: ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
-      case Some(qual) => assert(assertion = false, s"Weird qualifier: ${qual.getClass}")
+      case Some(thisQ: ScThisReference) =>
+        for (ttype <- thisQ.`type`()) processor.processType(ttype, this)
+        processor.candidates
+      case Some(superQ: ScSuperReference) =>
+        ResolveUtils.processSuperReference(superQ, processor, this).candidates
+      case Some(qual) =>
+        assert(assertion = false, s"Weird qualifier: ${qual.getClass}")
+        processor.candidates
     }
   }
 
-  protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor): Unit = {
+  protected def processQualifierResolveResult(qualifier: ScStableCodeReferenceElement,
+                                              res: ScalaResolveResult,
+                                              processor: BaseProcessor): Array[ScalaResolveResult] = {
+    var withDynamicResult: Option[Array[ScalaResolveResult]] = None
     res match {
       case r@ScalaResolveResult(td: ScTypeDefinition, substitutor) =>
+        val state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
+
         td match {
           case obj: ScObject =>
             val fromType = r.fromType match {
               case Some(fType) => Right(ScProjectionType(fType, obj, superReference = false))
               case _ => td.`type`().map(substitutor.subst)
             }
-            val state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
-
             fromType match {
-              case Right(value) =>
-                processor.processType(value, this, state.put(BaseProcessor.FROM_TYPE_KEY, value))
+              case Right(qualType) =>
+                val stateWithType = state.put(BaseProcessor.FROM_TYPE_KEY, qualType)
+                processor.processType(qualType, this, stateWithType)
+
+                withDynamicResult = withDynamic(qualType, stateWithType, processor)
               case _ =>
                 td.processDeclarations(processor, state, null, this)
             }
           case _: ScClass | _: ScTrait =>
-            td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor), null, this)
+            td.processDeclarations(processor, state, null, this)
         }
-      case ScalaResolveResult(typed: ScTypedDefinition, s) =>
-        val fromType = s.subst(typed.`type`().getOrElse(return))
-        processor.processType(fromType, this, ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType))
+      case ScalaResolveResult(fun: ScFunction, _) =>
+        val macroEvaluator = ScalaMacroEvaluator.getInstance(fun.getProject)
+        val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(qualifier, None))
+        typeFromMacro.foreach(processor.processType(_, qualifier))
+      case ScalaResolveResult((_: ScTypedDefinition) && Typeable(tp), s) =>
+        val fromType = s.subst(tp)
+        val state = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType)
+        processor.processType(fromType, this, state)
+        withDynamicResult = withDynamic(fromType, state, processor)
         processor match {
           case _: ExtractorResolveProcessor =>
             if (processor.candidatesS.isEmpty) {
               //check implicit conversions
               val expr =
-                ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext, this)
+                createExpressionWithContextFromText(getText, getContext, this)
               //todo: this is really hacky solution... Probably can be joint somehow with interpolated pattern.
               expr match {
                 case ref: ScReferenceExpression =>
@@ -385,6 +404,24 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
           null, this)
       case _ =>
     }
+
+    withDynamicResult.getOrElse(processor.candidates)
+  }
+
+  private def withDynamic(qualType: ScType, state: ResolveState, processor: BaseProcessor): Option[Array[ScalaResolveResult]] = {
+    if (processor.candidatesS.isEmpty && conformsToDynamic(qualType, getResolveScope)) {
+      createExpressionWithContextFromText(getText, getContext, this) match {
+        case rExpr @ ScReferenceExpression.withQualifier(qual) =>
+          val dynamicProcessor = dynamicResolveProcessor(rExpr, qual, processor)
+          dynamicProcessor.processType(qualType, qual, state)
+          val candidatesWithMacro = dynamicProcessor.candidates.collect {
+            case r @ ScalaResolveResult(MacroDef(_), _) => r //regular method call cannot be in a type position
+          }
+          Some(candidatesWithMacro).filter(_.length == 1)
+        case _ => None
+      }
+    }
+    else None
   }
 
   private def _qualifier() = {
@@ -396,7 +433,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
     }
   }
 
-  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult] = {
+  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] = {
     def candidatesFilter(result: ScalaResolveResult) = {
       result.element match {
         case c: PsiClass if c.name == c.qualifiedName => c.getContainingFile match {
@@ -414,7 +451,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
 
     getContainingFile match {
       case ammoniteScript: ScalaFile if AmmoniteUtil.isAmmoniteFile(ammoniteScript) =>
-        def psi2result(psiElement: PsiNamedElement): Array[ResolveResult] = Array(new ScalaResolveResult(psiElement))
+        def psi2result(psiElement: PsiNamedElement) = Array(new ScalaResolveResult(psiElement))
         
         val fsi = AmmoniteUtil.scriptResolveQualifier(this)
 
@@ -479,12 +516,11 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
       case _ =>
     }
 
-    processQualifier(processor)
-
-    val candidates = processor.candidatesS
+    val candidates = processQualifier(processor)
     val filtered = candidates.filter(candidatesFilter)
-    if (accessibilityCheck && filtered.isEmpty) return doResolve(processor, accessibilityCheck = false)
-    filtered.toArray
+
+    if (accessibilityCheck && filtered.isEmpty) doResolve(processor, accessibilityCheck = false)
+    else filtered
   }
 
 

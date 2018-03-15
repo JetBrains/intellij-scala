@@ -7,7 +7,7 @@ import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, 
  */
 class SbtSystemSettingsControl(settings: SbtSystemSettings) extends ExternalSystemSettingsControl[SbtSystemSettings] {
 
-  private val pane = new SbtSettingsPane
+  private val pane = new SbtSettingsPane(settings.getProject)
 
   def isModified: Boolean = ! {
     pane.isCustomLauncher == settings.customLauncherEnabled &&
@@ -40,8 +40,7 @@ class SbtSystemSettingsControl(settings: SbtSystemSettings) extends ExternalSyst
     pane.setLauncherPath(settings.customLauncherPath)
     pane.setMaximumHeapSize(settings.maximumHeapSize)
     pane.setMyVmParameters(settings.vmParameters)
-    pane.setCustomVMEnabled(settings.customVMEnabled)
-    pane.setCustomVMPath(settings.customVMPath)
+    pane.setCustomVMPath(settings.customVMPath, settings.getCustomVMEnabled)
     pane.setPathListeners()
   }
 

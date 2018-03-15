@@ -2,15 +2,16 @@ package org.jetbrains.plugins.scala.lang.macros.expansion
 
 import java.io._
 
-import com.intellij.openapi.application.PathManager
-import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerManager}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugin.scala.util.MacroExpansion
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugin.scala.util.{MacroExpansion, Place}
+import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 
 import scala.collection.mutable
+import org.jetbrains.plugins.scala
 
 /**
   * @author Mikhail Mutcianko
@@ -19,50 +20,54 @@ import scala.collection.mutable
 class ReflectExpansionsCollector(project: Project) extends AbstractProjectComponent(project) {
   override def getComponentName = "ReflectExpansionsCollector"
 
+  private val collectedExpansions: mutable.HashMap[Place, MacroExpansion] = mutable.HashMap.empty
+  private var parser: ScalaReflectMacroExpansionParser = _
+
+
   override def projectOpened(): Unit = {
-    installCompilationListener()
-    collectedExpansions = deserializeExpansions()
+    deserializeExpansions()
   }
-  override def projectClosed(): Unit = uninstallCompilationListener()
 
-  private var collectedExpansions: mutable.Map[String, Seq[MacroExpansion]] = mutable.Map.empty
+  def getExpansion(elem: PsiElement): Option[MacroExpansion] = {
+    val offset = PsiTreeUtil.getParentOfType(elem, classOf[ScAnnotation]) match {
+      case _: ScAnnotation => elem.getTextOffset
+      case _ => elem.getNode.getTextRange.getEndOffset
+    }
+    val path = elem.getContainingFile.getVirtualFile.getPath
+    val place = Place(path, offset)()
+    collectedExpansions.get(place)
+  }
 
-  private val compilationStatusListener = new CompilationStatusListener {
-    override def compilationFinished(aborted: Boolean, errors: Int, warnings: Int, context: CompileContext): Unit = {
-      collectedExpansions = deserializeExpansions()
+  def processCompilerMessage(text: String): Unit = {
+    parser.processMessage(text)
+  }
+
+  def compilationStarted(): Unit = {
+    collectedExpansions.clear()
+    parser = new ScalaReflectMacroExpansionParser(project.getName)
+  }
+
+  def compilationFinished(): Unit = {
+    parser.expansions.foreach { exp => collectedExpansions += exp.place -> exp }
+    serializeExpansions()
+  }
+
+  private def deserializeExpansions(): Unit = {
+    val file = new File(System.getProperty("java.io.tmpdir") + s"/expansion-${project.getName}")
+
+    if (!file.exists())
+      return
+
+    extensions.using(new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)))) { os =>
+      collectedExpansions ++= os.readObject().asInstanceOf[collectedExpansions.type]
     }
   }
 
-  private def installCompilationListener(): Unit = {
-    CompilerManager.getInstance(project).addCompilationStatusListener(compilationStatusListener)
-  }
-
-  private def uninstallCompilationListener(): Unit = {
-    CompilerManager.getInstance(project).removeCompilationStatusListener(compilationStatusListener)
-  }
-
-  private def deserializeExpansions(): mutable.Map[String, Seq[MacroExpansion]] = {
-    val file = new File(PathManager.getSystemPath + s"/expansion-${project.getName}")
-    if (!file.exists()) return mutable.Map.empty
-    val fs = new BufferedInputStream(new FileInputStream(file))
-    val os = new ObjectInputStream(fs)
-    val res = mutable.Map[String, Seq[MacroExpansion]]()
-    try {
-      while (fs.available() > 0) {
-        val expansion = os.readObject().asInstanceOf[MacroExpansion]
-        res.update(expansion.place.sourceFile, res.getOrElse(expansion.place.sourceFile, Seq.empty) :+ expansion)
-      }
-    } catch {
-      case _: InvalidClassException => FileUtil.delete(file) // signatures have changed, simply drop the caches
-    } finally {
-      os.close()
+  def serializeExpansions(): Unit = {
+    val file = new File(System.getProperty("java.io.tmpdir") + s"/expansion-${project.getName}")
+    scala.extensions.using(new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
+      _.writeObject(collectedExpansions)
     }
-    res
-  }
-
-  def getExpansion(elem: PsiElement): Option[String] = {
-    val expansions = collectedExpansions.getOrElse(elem.getContainingFile.getVirtualFile.getPath, Seq.empty)
-    expansions.find(_.place.offset == elem.getTextOffset).map(_.body)
   }
 
 }

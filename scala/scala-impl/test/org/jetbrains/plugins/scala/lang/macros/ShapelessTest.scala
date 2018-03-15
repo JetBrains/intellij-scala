@@ -1,18 +1,16 @@
 package org.jetbrains.plugins.scala.lang.macros
 
-import com.intellij.openapi.module.Module
-import org.jetbrains.plugins.scala.DependencyManager
-import org.jetbrains.plugins.scala.DependencyManager._
+import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
 class ShapelessTest extends TypeInferenceTestBase {
 
-  implicit private def moduleContext: Module = module()
   override implicit val version: ScalaVersion = Scala_2_11
 
-  override protected def loadIvyDependencies(): Unit =
-    DependencyManager("com.chuusai" %% "shapeless" % "2.3.2").loadAll
+  override protected def additionalLibraries(): Seq[LibraryLoader] =
+    IvyManagedLoader("com.chuusai" %% "shapeless" % "2.3.2") :: Nil
 
   def testGeneric(): Unit = doTest(
     s"""
@@ -43,5 +41,41 @@ class ShapelessTest extends TypeInferenceTestBase {
       |${START}x$END
       |//(Int, Int, Int)
     """.stripMargin
+  )
+
+  def testProductArgs(): Unit = doTest(
+    s"""
+       |import shapeless._
+       |
+       |object Foo extends ProductArgs {
+       |  def applyProduct[L](args: L): L = args
+       |  def listProduct[L](args: L): List[L] = List(args)
+       |}
+       |
+       |val apply = Foo(1)
+       |val apply2 = Foo.apply(1)
+       |val list = Foo.list(1)
+       |
+       |$START(apply, apply2, list)$END
+       |//(::[Int, HNil], ::[Int, HNil], List[::[Int, HNil]])
+     """.stripMargin
+  )
+
+  def testProductArgsStringInterpolator(): Unit = doTest(
+    s"""
+       |import shapeless._
+       |
+       |trait Bar[T]
+       |implicit val barString: Bar[String] = ???
+       |
+       |implicit class barInterpolator(val sc: StringContext) {
+       |  object bar extends ProductArgs {
+       |    def applyProduct[T, A <: HList](a: A)(implicit ev: Bar[T]): T :: A = ???
+       |  }
+       |}
+       |val x = 1
+       |${START}bar"$$x"$END
+       |//::[String, ::[Int, HNil]]
+     """.stripMargin
   )
 }

@@ -9,6 +9,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class SelfTypeProjectionConformanceTest extends TypeConformanceTestBase {
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL7914(): Unit = {
     val text =
       s"""trait Test {

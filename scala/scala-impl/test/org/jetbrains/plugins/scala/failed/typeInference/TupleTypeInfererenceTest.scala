@@ -10,6 +10,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class TupleTypeInfererenceTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  override protected def shouldPass: Boolean = false
+
   def testSCL11331(): Unit =
     checkTextHasNoErrors(
       """
@@ -24,5 +26,14 @@ class TupleTypeInfererenceTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |    case extractorVal(int,string) =>
         |    case extractorObj(int,string) =>
         |  }
+      """.stripMargin)
+
+  def testSCL13064(): Unit =
+    checkTextHasNoErrors(
+      """
+        |def apply[T](x: T) = 0
+        |def update[T](y: T): T = y
+        |
+        |val z: ((Int, Int), Int) = this (1, 2) += 3
       """.stripMargin)
 }

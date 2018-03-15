@@ -11,6 +11,9 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[PerfCycleTests]))
 class ImplicitsTest extends TypeInferenceTestBase {
+
+  override protected def shouldPass: Boolean = false
+
   override def folderPath: String = super.folderPath + "bugs5/"
 
   def testSCL7955(): Unit = doTest()
@@ -245,6 +248,30 @@ class ImplicitsTest extends TypeInferenceTestBase {
          |
          |Foo.apply(${START}1$END)
          |//Int
+      """.stripMargin)
+  }
+
+  def testSCL13205(): Unit = {
+    doTest(
+      s"""
+         |import scala.language.implicitConversions
+         |
+         |case class Echo(s:String)
+         |
+         |trait Echos {
+         |  implicit def string(s:String):Echo = Echo(s)
+         |  def echo(e:Echo):Unit
+         |}
+         |
+         |object Test {
+         |  def test3(E:Echos) = {
+         |    import E.{string=>_, _}
+         |    implicit def string1(s:String):Echo = Echo(s+" --- Custom implicit conversion")
+         |    // works, but IDEA doesn't recognize
+         |    echo(${START}"sss"$END)
+         |  }
+         |}
+         |//Echo
       """.stripMargin)
   }
 }

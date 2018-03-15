@@ -14,6 +14,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class OverrideUnapplyTest extends SimpleTestCase {
 
+  override protected def shouldPass: Boolean = false
+
   private val CARET = "<caret>"
 
   def testSCL2676(): Unit = {
@@ -40,7 +42,8 @@ class OverrideUnapplyTest extends SimpleTestCase {
         None
     }
     expr match {
-      case Some(f: ScFunctionDefinition) => assert(!f.isSynthetic, "Unapply doesn't resolve to overriding method")
+      case Some(f: ScFunctionDefinition) =>
+        assert(shouldPass ^ f.isSynthetic, "Unapply doesn't resolve to overriding method")
       case _ => assert(false)
     }
   }

@@ -4,7 +4,7 @@ import java.io.File
 
 import org.jetbrains.plugins.scala.ScalacTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
@@ -18,7 +18,7 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[ScalacTests]))
 class ScalacTestdataHighlightingTest extends ScalacTestdataHighlightingTestBase {
 
-  override val reporter = ProgressReporter.newInstance(getClass.getName, reportSuccess = false)
+  override val reporter = ProgressReporter.newInstance(getClass.getName, filesWithProblems = Map.empty, reportSuccess = false)
 
   override def filesToHighlight: Array[File] = {
     val testDataPath = TestUtils.getTestDataPath + "/scalacTests/pos/"
@@ -39,7 +39,7 @@ abstract class ScalacTestdataHighlightingTestBase
   override implicit val version: ScalaVersion = Scala_2_12
 
   override def librariesLoaders = Seq(
-    ScalaLibraryLoader(isIncludeReflectLibrary = true),
-    JdkLoader()
+    ScalaSDKLoader(includeScalaReflect = true),
+    HeavyJDKLoader()
   )
 }

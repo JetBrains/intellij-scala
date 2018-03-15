@@ -17,9 +17,13 @@ package org.jetbrains.plugins.scala.lang.macros.evaluator
 
 import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.plugins.scala.lang.macros.MacroDef
+import org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.impl._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
@@ -27,50 +31,58 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  * date 19.12.14
  */
 
-class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(project) with ScalaMacroTypeable {
+class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(project) {
 
   override def getComponentName = "ScalaMacroEvaluator"
 
-  lazy val typingRules = Seq(
-    MatchRule("product", "shapeless.Generic", ShapelessForProduct),
-    MatchRule("apply", "shapeless.LowPriorityGeneric", ShapelessForProduct),
-    MatchRule("materialize", "shapeless.Generic", ShapelessMaterializeGeneric),
-    MatchRule("mkDefaultSymbolicLabelling", "shapeless.DefaultSymbolicLabelling", ShapelessDefaultSymbolicLabelling),
-    MatchRule("mkSelector", "shapeless.ops.record.Selector", ShapelessMkSelector),
-    DefaultRule
-  )
-
-  def isMacro(n: PsiNamedElement): Option[ScFunction] = {
-    n match {
-      case f: ScMacroDefinition => Some(f)
-      //todo: fix decompiler to avoid this check:
-      case f: ScFunction if f.findAnnotationNoAliases("scala.reflect.macros.internal.macroImpl") != null => Some(f)
-      case _ => None
+  def checkMacro(named: PsiNamedElement, context: MacroContext): Option[ScType] = {
+    macroSupport(named, typingRules).flatMap {
+      case (m, x) => x.checkMacro(m, context)
     }
   }
 
-  override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
-    typingRules.filter(_.isApplicable(macros)).head.typeable.checkMacro(macros, context)
+  def expandMacro(named: PsiNamedElement, context: MacroInvocationContext): Option[ScExpression] = {
+    if (isMacroExpansion(context.call)) return None //avoid recursive macro expansions
+
+    macroSupport(named, expansionRules).flatMap {
+      case (m, x) =>
+        val expanded = x.expandMacro(m, context)
+        expanded.foreach(markMacroExpansion)
+        expanded
+    }
+  }
+
+  private def macroSupport[T](named: PsiNamedElement, map: Map[MacroImpl, T]): Option[(ScFunction, T)] = {
+    named match {
+      case MacroDef(m) if !m.isLocal =>
+        val macroImpl = MacroImpl(m.name, m.containingClass.qualifiedName)
+        map.get(macroImpl).map((m, _))
+      case _ => None
+    }
   }
 }
 
 object ScalaMacroEvaluator {
   def getInstance(project: Project): ScalaMacroEvaluator = ServiceManager.getService(project, classOf[ScalaMacroEvaluator])
-}
 
-trait MacroRule {
-  def isApplicable(fun: ScFunction): Boolean
-  def typeable: ScalaMacroTypeable
-}
+  private case class MacroImpl(name: String, clazz: String)
 
-case class MatchRule(name: String, clazz: String, typeable: ScalaMacroTypeable) extends MacroRule {
-  def isApplicable(fun: ScFunction): Boolean = {
-    fun.name == name && fun.containingClass.qualifiedName == clazz
-  }
-}
+  private val typingRules: Map[MacroImpl, ScalaMacroTypeable] = Map(
+    MacroImpl("product", "shapeless.Generic")                                     -> ShapelessForProduct,
+    MacroImpl("apply", "shapeless.LowPriorityGeneric")                            -> ShapelessForProduct,
+    MacroImpl("materialize", "shapeless.Generic")                                 -> ShapelessMaterializeGeneric,
+    MacroImpl("mkDefaultSymbolicLabelling", "shapeless.DefaultSymbolicLabelling") -> ShapelessDefaultSymbolicLabelling,
+    MacroImpl("mkSelector", "shapeless.ops.record.Selector")                      -> ShapelessMkSelector,
+    MacroImpl("selectDynamic", "shapeless.Witness")                               -> ShapelessWitnessSelectDynamic
+  )
 
-object DefaultRule extends MacroRule {
-  override def isApplicable(fun: ScFunction) = true
-  override def typeable: ScalaMacroTypeable = ScalaMacroDummyTypeable // TODO: interpreter goes here
+  private val expansionRules: Map[MacroImpl, ScalaMacroExpandable] = Map(
+    MacroImpl("applyDynamic", "shapeless.ProductArgs") -> ShapelessProductArgs
+  )
+
+  private val isMacroExpansionKey: Key[AnyRef] = Key.create("macro.original.expression")
+
+  private def isMacroExpansion(expr: ScExpression): Boolean = expr.getUserData(isMacroExpansionKey) != null
+  private def markMacroExpansion(expr: ScExpression): Unit = expr.putUserData(isMacroExpansionKey, this)
 }
 

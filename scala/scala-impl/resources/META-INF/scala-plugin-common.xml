@@ -19,6 +19,7 @@
         <extensionPoint name="scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver"/>
         <extensionPoint name="genericTypeNamesProvider" interface="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.GenericTypeNamesProvider"/>
         <extensionPoint name="nailgunServerAdditionalCp" beanClass="org.jetbrains.plugins.scala.compiler.NailgunServerAdditionalCp"/>
+        <extensionPoint name="interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -213,6 +214,7 @@
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.meta.intellij.editor.MetaExpansionLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.macros.intellij.editor.Macros2ExpansionLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <declarationRangeHandler order="first" key="org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction"
@@ -438,6 +440,10 @@
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
+
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
+                            serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
+
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler" dynamic="true"
                              instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable" />
         <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>
@@ -773,6 +779,11 @@
         <intentionAction>
             <category>Scala/Format</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.format.ConvertStringConcatenationToInterpolatedString</className>
+        </intentionAction>
+
+        <intentionAction>
+            <category>Scala/Collections</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.collections.ComparingLengthIntention</className>
         </intentionAction>
 
         <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
@@ -1127,7 +1138,7 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ComparingLengthInspection"
                          displayName="Comparing length to lengthCompare" groupPath="Scala,Collections" groupName="Comparing"
                          shortName="ComparingLength" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         enabledByDefault="false" language="Scala"/>
         <!--indices-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZipWithIndexInspection"
                          displayName="Manually zipping with indices" groupPath="Scala,Collections" groupName="Indices"
@@ -1568,15 +1579,6 @@
                 description="Generate equals() and hashCode() methods">
           <add-to-group group-id="GenerateGroup"/>
         </action>
-        <action id="Scala.RunMacrosheet" class="org.jetbrains.plugins.scala.util.macroDebug.RunMacrosheetAction"
-                text="Expand All Macros" description="Expand All Macros">
-          <!-- TODO: what group do I use here? so far I've just customized the popup menu and am done with it -->
-          <!-- <add-to-group group-id="FoldingPopupGroup" anchor="last"/> -->
-        </action>
-        <action id="Scala.CleanMacrosheet" class="org.jetbrains.plugins.scala.util.macroDebug.CleanMacrosheetAction"
-                text="Hide Macro Expansions" description="Hide Macro Expansions">
-          <!-- <add-to-group group-id="FoldingPopupGroup" anchor="last"/> -->
-        </action>
         <action id="Scala.GenerateToString"
                 class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateToStringAction" text="toString()"
                 description="Generate toString() method">
@@ -1597,12 +1599,6 @@
                 description="Extract trait from the selected class">
           <add-to-group group-id="IntroduceActionsGroup"/>
         </action>
-        <action id="Scala.MacroExpand"
-                class="org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction"
-                description="Expand macro application under cursor">
-            <keyboard-shortcut first-keystroke="ctrl alt shift Z" keymap="$default"/>
-        </action>
-
     </actions>
 
 </idea-plugin>

@@ -99,22 +99,22 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
       forB = argsBuilder.toString().drop(1).dropRight(1)
     }
 
-    val expr = putArgsFirst match {
-      case true => argsBuilder.append(" ").append(invokedExprBuilder)
-      case false =>  invokedExprBuilder.append(" ").append(argsBuilder)
+    val expr = if (putArgsFirst) {
+      argsBuilder.append(" ").append(invokedExprBuilder)
+    } else {
+      invokedExprBuilder.append(" ").append(argsBuilder)
     }
     val text = expr.toString()
 
     createExpressionFromText(text) match {
-      case infixExpr: ScInfixExpr =>
-        infixExpr.asInstanceOf[ScInfixExpr].getBaseExpr.replaceExpression(createExpressionFromText(forA), removeParenthesis = true)
-        infixExpr.asInstanceOf[ScInfixExpr].getArgExpr.replaceExpression(createExpressionFromText(forB), removeParenthesis = true)
+      case infix@ScInfixExpr.withAssoc(base, operation, argument) =>
+        base.replaceExpression(createExpressionFromText(forA), removeParenthesis = true)
+        argument.replaceExpression(createExpressionFromText(forB), removeParenthesis = true)
 
-        val size = infixExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
-          infixExpr.getTextRange.getStartOffset
+        val size = operation.nameId.getTextRange.getStartOffset - infix.getTextRange.getStartOffset
 
         inWriteAction {
-          methodCallExpr.replaceExpression(infixExpr, removeParenthesis = true)
+          methodCallExpr.replaceExpression(infix, removeParenthesis = true)
           editor.getCaretModel.moveToOffset(start + diff + size)
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
         }

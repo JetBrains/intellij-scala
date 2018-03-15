@@ -11,7 +11,7 @@ import com.intellij.openapi.util.Condition
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.CharSeqExt
+import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes.PatchedXmlLexer
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
@@ -406,9 +406,10 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
         case l: ScLiteral =>
           element.getNode.getElementType match {
             case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
-              if (l.getText.filter(_ == '$').length == 1 && file.getText.charAt(offset - 2) == '$') {
+              val chars = file.charSequence
+              if (l.getText.filter(_ == '$').length == 1 && chars.charAt(offset - 2) == '$') {
                 extensions.inWriteAction {
-                  if (file.getText.charAt(offset) != '}' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
+                  if (chars.charAt(offset) != '}' && CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
                     document.insertString(offset, "}")
                   }
                   document.insertString(l.getTextRange.getStartOffset, "s")

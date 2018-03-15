@@ -22,6 +22,7 @@ import com.intellij.openapi.wm.ToolWindowManager
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellToolWindowFactory}
 
 import scala.collection.JavaConverters._
+import SbtShellActionUtil._
 
 class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollToTheEndToolbarAction(editor) {
 
@@ -30,31 +31,44 @@ class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollToTheEnd
   setShortcutSet(shortcuts)
 }
 
-class RestartAction(project: Project) extends DumbAwareAction {
+class StartAction(project: Project) extends DumbAwareAction {
 
   val templatePresentation: Presentation = getTemplatePresentation
-  templatePresentation.setIcon(AllIcons.Actions.Restart)
-  templatePresentation.setText("Restart sbt shell") // TODO i18n / language-bundle
+  templatePresentation.setIcon(AllIcons.Actions.Execute)
+  templatePresentation.setText("Start sbt shell") // TODO i18n / language-bundle
 
-  def actionPerformed(e: AnActionEvent): Unit = {
+  override def actionPerformed(e: AnActionEvent): Unit = if (isEnabled) {
     val twm = ToolWindowManager.getInstance(project)
     val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
     toolWindow.getContentManager.removeAllContents(true)
 
     SbtProcessManager.forProject(e.getProject).restartProcess()
   }
+
+  override def update(e: AnActionEvent): Unit = {
+    e.getPresentation.setEnabled(isEnabled)
+  }
+
+  private def isEnabled: Boolean = !shellAlive(project)
 }
 
 class StopAction(project: Project) extends DumbAwareAction {
   copyFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_STOP_PROGRAM))
   val templatePresentation: Presentation = getTemplatePresentation
-  templatePresentation.setIcon(AllIcons.Process.Stop)
+  templatePresentation.setIcon(AllIcons.Actions.Suspend)
   templatePresentation.setText("Stop sbt shell") // TODO i18n / language-bundle
   templatePresentation.setDescription(null)
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    SbtProcessManager.forProject(e.getProject).destroyProcess()
+    if (isEnabled)
+      SbtProcessManager.forProject(e.getProject).destroyProcess()
   }
+
+  override def update(e: AnActionEvent): Unit = {
+    e.getPresentation.setEnabled(isEnabled)
+  }
+
+  private def isEnabled: Boolean = shellAlive(project)
 }
 
 class ExecuteTaskAction(console: LanguageConsoleView, task: String, icon: Option[Icon]) extends DumbAwareAction {
@@ -67,6 +81,12 @@ class ExecuteTaskAction(console: LanguageConsoleView, task: String, icon: Option
     EditorUtil.scrollToTheEnd(console.getHistoryViewer)
     SbtShellCommunication.forProject(e.getProject).command(task)
   }
+
+  override def update(e: AnActionEvent): Unit = {
+    e.getPresentation.setEnabled(isEnabled)
+  }
+
+  private def isEnabled: Boolean = shellAlive(console.getProject)
 }
 
 class EOFAction(project: Project) extends DumbAwareAction {
@@ -85,11 +105,16 @@ class EOFAction(project: Project) extends DumbAwareAction {
   }
 }
 
-class DebugShellAction(project: Project, remoteConnection: RemoteConnection) extends ToggleAction {
+class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnection]) extends ToggleAction {
 
   private val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.StartDebugger)
-  templatePresentation.setText("Attach debugger to sbt shell")
+  if (remoteConnection.isDefined) {
+    templatePresentation.setText("Attach debugger to sbt shell")
+    templatePresentation.setEnabled(false)
+  } else {
+    templatePresentation.setText("Enable sbt shell debugging in sbt settings and restart shell to attach debugging")
+  }
 
   private val configType = new RemoteConfigurationType
   private val configName = "Debug sbt shell"
@@ -105,7 +130,7 @@ class DebugShellAction(project: Project, remoteConnection: RemoteConnection) ext
     findSession.fold(false) { session => session.isAttached || session.isConnecting }
   }
 
-  private def attach(): Unit = {
+  private def attach(): Unit = remoteConnection.foreach { remote =>
 
     val runManager = RunManager.getInstance(project)
 
@@ -121,14 +146,13 @@ class DebugShellAction(project: Project, remoteConnection: RemoteConnection) ext
         }
 
     val settings = runConfig.getConfiguration.asInstanceOf[RemoteConfiguration]
-    settings.PORT = remoteConnection.getAddress
-    settings.HOST = remoteConnection.getHostName
-    settings.SERVER_MODE = remoteConnection.isServerMode
-    settings.USE_SOCKET_TRANSPORT = remoteConnection.isUseSockets
+    settings.PORT = remote.getAddress
+    settings.HOST = remote.getHostName
+    settings.SERVER_MODE = remote.isServerMode
+    settings.USE_SOCKET_TRANSPORT = remote.isUseSockets
 
     val environmentBuilder = ExecutionEnvironmentBuilder.create(DefaultDebugExecutor.getDebugExecutorInstance, runConfig)
     ProgramRunnerUtil.executeConfiguration(environmentBuilder.build(), false, false)
-
   }
 
   private def detach(): Unit = {
@@ -156,4 +180,14 @@ class DebugShellAction(project: Project, remoteConnection: RemoteConnection) ext
       .find { session => session.getSessionName == configName }
   }
 
+  override def update(e: AnActionEvent): Unit = {
+    e.getPresentation.setEnabled(isEnabled)
+  }
+
+  private def isEnabled: Boolean = remoteConnection.isDefined && shellAlive(project)
+
+}
+
+object SbtShellActionUtil {
+  def shellAlive(project: Project): Boolean = SbtProcessManager.forProject(project).isAlive
 }

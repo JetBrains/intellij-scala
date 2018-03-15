@@ -4,6 +4,9 @@ package debugger
 import java.io.File
 import javax.swing.SwingUtilities
 
+import scala.collection.mutable.ListBuffer
+import scala.concurrent.duration.DurationInt
+
 import com.intellij.ProjectTopics
 import com.intellij.compiler.server.BuildManager
 import com.intellij.compiler.{CompilerConfiguration, CompilerTestUtil}
@@ -18,11 +21,10 @@ import com.intellij.testFramework.{EdtTestUtil, ModuleTestCase, PsiTestUtil, Vfs
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders._
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.util.CompileServerUtil
 import org.junit.Assert
-
-import scala.collection.mutable.ListBuffer
 
 /**
   * Nikolay.Tropin
@@ -52,7 +54,6 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
     DebuggerTestUtil.enableCompileServer(useCompileServer)
     DebuggerTestUtil.forceJdk8ForBuildProcess()
     setUpLibraries()
-    loadIvyDependencies()
   }
 
   protected def compilerVmOptions: Option[String] = None
@@ -84,14 +85,14 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
   override implicit protected def module: Module = getModule
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
-    ScalaLibraryLoader(isIncludeReflectLibrary = true),
-    JdkLoader(getTestProjectJdk),
+    ScalaSDKLoader(includeScalaReflect = true),
+    HeavyJDKLoader(),
     SourcesLoader(getSourceRootDir.getCanonicalPath)
   ) ++ additionalLibraries
 
-  protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = Seq.empty
+  protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 
-  override protected def getTestProjectJdk: Sdk = DebuggerTestUtil.findJdk8()
+  override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
 
   protected def forceFSRescan(): Unit = BuildManager.getInstance.clearState(myProject)
 
@@ -100,8 +101,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
       val baseDir = getBaseDir
       try {
         CompilerTestUtil.disableExternalCompiler(myProject)
-        CompileServerLauncher.instance.stop()
-
+        CompileServerUtil.stopAndWait(10.seconds)
         disposeLibraries()
 
       } finally {

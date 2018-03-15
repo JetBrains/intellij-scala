@@ -10,6 +10,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL7891() = {
     val text =
       """
@@ -231,6 +234,22 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """
         |def f[R[_], T](fun: String => R[T]): String => R[T] = fun
         |val result = f(str => Option(str))
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testSCL13089() = {
+    val text =
+      """
+        |import scala.language.implicitConversions
+        |import scala.language.higherKinds
+        |trait Foo[T]
+        |trait FooBuild[M[_], Face] {
+        |  implicit def fromNum[T <: Face, Out <: T](value : T) : M[Out] = ???
+        |}
+        |implicit object Foo extends FooBuild[Foo, scala.Int]
+        |def tryme[T](t : Foo[T]) = ???
+        |tryme(40)
       """.stripMargin
     checkTextHasNoErrors(text)
   }

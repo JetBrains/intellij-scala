@@ -97,7 +97,7 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
     val outdatedIvyIndexes = SbtResolverUtils.getProjectResolvers(project)
       .flatMap(_.getIndex(project))
       .filter { index =>
-        index.isInstanceOf[IvyIndex] && index.getUpdateTimeStamp(project) == -1
+        index.isInstanceOf[IvyIndex] && index.getUpdateTimeStamp == -1
       }
     if (outdatedIvyIndexes.isEmpty) return
     val title = s"<b>${outdatedIvyIndexes.size} Unindexed Ivy repositories found</b>"

@@ -66,14 +66,16 @@ object ScalaRefactoringUtil {
     var start = editor.getSelectionModel.getSelectionStart
     var end = editor.getSelectionModel.getSelectionEnd
     if (start == end) return
+    val fileText = file.charSequence
+
     while (file.findElementAt(start).isInstanceOf[PsiWhiteSpace] ||
       (file.findElementAt(start).isInstanceOf[PsiComment] && trimComments) ||
-      file.getText.charAt(start) == '\n' ||
-      file.getText.charAt(start) == ' ') start = start + 1
+      fileText.charAt(start) == '\n' ||
+      fileText.charAt(start) == ' ') start = start + 1
     while (file.findElementAt(end - 1).isInstanceOf[PsiWhiteSpace] ||
       (file.findElementAt(end - 1).isInstanceOf[PsiComment] && trimComments) ||
-      file.getText.charAt(end - 1) == '\n' ||
-      file.getText.charAt(end - 1) == ' ') end = end - 1
+      fileText.charAt(end - 1) == '\n' ||
+      fileText.charAt(end - 1) == ' ') end = end - 1
     editor.getSelectionModel.setSelection(start, end)
   }
 
@@ -219,7 +221,7 @@ object ScalaRefactoringUtil {
                             (implicit project: Project, editor: Editor): Option[(ScExpression, Array[ScType])] = {
     implicit val ctx: ProjectContext = project
 
-    val rangeText = file.getText.substring(startOffset, endOffset)
+    val rangeText = file.charSequence.substring(startOffset, endOffset)
 
     def selectedInfixExpr(): Option[(ScExpression, Array[ScType])] = {
       val expr = createOptionExpressionFromText(rangeText)(file.getManager)
@@ -289,7 +291,7 @@ object ScalaRefactoringUtil {
 
     object ReferenceToFunction {
       def unapply(refExpr: ScReferenceExpression): Option[ScFunction] = refExpr.bind() match {
-        case Some(srr: ScalaResolveResult) if srr.element.isInstanceOf[ScFunction] => Some(srr.element.asInstanceOf[ScFunction])
+        case Some(ScalaResolveResult(f: ScFunction, _)) => Some(f)
         case _ => None
       }
     }
@@ -362,7 +364,7 @@ object ScalaRefactoringUtil {
     element match {
       case intrp: ScInterpolatedStringLiteral =>
         val prefix = intrp.reference.fold("")(_.refName)
-        val fileText = intrp.getContainingFile.getText
+        val fileText = intrp.getContainingFile.charSequence
         val text = fileText.substring(intrp.contentRange.getStartOffset, intrp.contentRange.getEndOffset)
         val refNameToResolved = mutable.HashMap[String, PsiElement]()
         intrp.depthFirst().foreach {
@@ -953,7 +955,7 @@ object ScalaRefactoringUtil {
         val replaceAsInjection = Seq("s", "raw").contains(prefix)
 
         if (replaceAsInjection) {
-          val withNextChar = file.getText.substring(newRange.getStartOffset, newRange.getEndOffset + 1)
+          val withNextChar = file.charSequence.substring(newRange.getStartOffset, newRange.getEndOffset + 1)
           val needBraces = isIdentifier(withNextChar) && withNextChar.last != '$'
           val text = if (needBraces) s"$${$newString}" else s"$$$newString"
           shift += (if (needBraces) 2 else 1)

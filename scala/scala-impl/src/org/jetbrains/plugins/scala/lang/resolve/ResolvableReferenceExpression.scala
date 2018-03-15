@@ -13,12 +13,12 @@ object ResolvableReferenceExpression {
   implicit class Resolver(val reference: ScReferenceExpression) extends AnyVal {
     import reference.projectContext
 
-    @CachedWithRecursionGuard(reference, Array.empty, ModCount.getBlockModificationCount)
-    def multiResolveImpl(incomplete: Boolean): Array[ResolveResult] =
+    @CachedWithRecursionGuard(reference, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
+    def multiResolveImpl(incomplete: Boolean): Array[ScalaResolveResult] =
       new ReferenceExpressionResolver().resolve(reference, shapesOnly = false, incomplete)
 
-    @CachedWithRecursionGuard(reference, Array.empty[ResolveResult], ModCount.getBlockModificationCount)
-    def shapeResolveImpl: Array[ResolveResult] =
+    @CachedWithRecursionGuard(reference, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
+    def shapeResolveImpl: Array[ScalaResolveResult] =
       new ReferenceExpressionResolver().resolve(reference, shapesOnly = true, incomplete = false)
   }
 

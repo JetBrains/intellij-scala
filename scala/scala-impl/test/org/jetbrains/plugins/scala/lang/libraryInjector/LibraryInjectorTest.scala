@@ -3,19 +3,20 @@ package org.jetbrains.plugins.scala.lang.libraryInjector
 import java.io.{BufferedOutputStream, File, FileOutputStream}
 import java.util.zip.{ZipEntry, ZipOutputStream}
 
+import scala.concurrent.duration.DurationInt
+
 import com.intellij.compiler.CompilerTestUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.testFramework.ModuleTestCase
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.libraryLoaders._
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 import org.jetbrains.plugins.scala.components.libinjection.TestAcknowledgementProvider.TEST_ENABLED_KEY
 import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.lang.libraryInjector.LibraryInjectorTest.InjectorLibraryLoader
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
-import org.jetbrains.plugins.scala.util.ScalaUtil
+import org.jetbrains.plugins.scala.util.{CompileServerUtil, ScalaUtil}
 import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
 
@@ -30,13 +31,13 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
   override implicit protected def module: Module = getModule
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
-    ScalaLibraryLoader(isIncludeReflectLibrary = true),
-    JdkLoader(getTestProjectJdk),
+    ScalaSDKLoader(includeScalaReflect = true),
+    HeavyJDKLoader(),
     SourcesLoader(project.getBasePath),
     InjectorLibraryLoader()
   )
 
-  override protected def getTestProjectJdk: Sdk = DebuggerTestUtil.findJdk8()
+  override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
 
   override def setUp(): Unit = {
     sys.props += (TEST_ENABLED_KEY -> "true")
@@ -50,7 +51,7 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
   protected override def tearDown() {
     disposeLibraries()
     CompilerTestUtil.disableExternalCompiler(getProject)
-    CompileServerLauncher.instance.stop()
+    CompileServerUtil.stopAndWait(10.seconds)
 
     super.tearDown()
   }

@@ -166,11 +166,7 @@ object CachedMacroUtil {
         ModCount.values.find(_.toString == v.toString) match {
           case Some(ModCount.getBlockModificationCount) =>
             q"$cachesUtilFQN.enclosingModificationOwner($psiElement)"
-          case Some(ModCount.getOutOfCodeBlockModificationCount) =>
-            q"$scalaPsiManagerFQN.instance($psiElement.getProject).getModificationTracker"
           case Some(ModCount.getModificationCount) => q"$psiModificationTrackerFQN.SERVICE.getInstance($psiElement.getProject)"
-          case Some(ModCount.getJavaStructureModificationCount) =>
-            q"$psiModificationTrackerFQN.SERVICE.getInstance($psiElement.getProject).getJavaStructureModificationTracker"
           case Some(ModCount.`anyScalaPsiModificationCount`) =>
             q"$scalaPsiManagerFQN.AnyScalaPsiModificationTracker"
           case _ => tree
@@ -277,8 +273,6 @@ object CachedMacroUtil {
 object ModCount extends Enumeration {
   type ModCount = Value
   val getModificationCount = Value("getModificationCount")
-  val getOutOfCodeBlockModificationCount = Value("getOutOfCodeBlockModificationCount")
-  val getJavaStructureModificationCount = Value("getJavaStructureModificationCount")
   val getBlockModificationCount = Value("getBlockModificationCount")
 
   //Use for hot methods: it has minimal overhead, but updates on each change

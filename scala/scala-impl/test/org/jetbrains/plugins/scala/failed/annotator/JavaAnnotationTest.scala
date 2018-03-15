@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class JavaAnnotationTest extends JavaHighlightingTestBase() {
-
+  override protected def shouldPass: Boolean = false
   def testSCL10385() = {
     val scala =
       """

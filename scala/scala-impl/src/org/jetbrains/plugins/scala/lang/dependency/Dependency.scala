@@ -72,7 +72,7 @@ object Dependency {
     ref.contexts.take(3).toSeq match {
       case Seq(ScAssignStmt(`ref`, _), _: ScArgumentExprList, _: MethodInvocation | _: ScSelfInvocation | _: ScConstructor) => return None
       case Seq(ScAssignStmt(`ref`, _), _: ScTuple, _: ScInfixExpr) => return None
-      case Seq(ScAssignStmt(`ref`, _), p: ScParenthesisedExpr, inf: ScInfixExpr) if inf.getArgExpr == p => return None
+      case Seq(ScAssignStmt(`ref`, _), p: ScParenthesisedExpr, inf: ScInfixExpr) if inf.argsElement == p => return None
       case _ =>
     }
 
@@ -82,12 +82,10 @@ object Dependency {
     val results = ref match {
       case rExpr: ScReferenceExpressionImpl => rExpr.doResolve(processor)
       case stRef: ScStableCodeReferenceElementImpl => stRef.doResolve(processor)
-      case _ => Array.empty
+      case _ => ScalaResolveResult.EMPTY_ARRAY
     }
 
-    results.collectFirst {
-      case srr: ScalaResolveResult => srr
-    }
+    results.headOption
   }
 
   private def dependencyFor(reference: ScReferenceElement, target: PsiElement, fromType: Option[ScType]): Option[Dependency] = {

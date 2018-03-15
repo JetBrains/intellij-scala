@@ -6,6 +6,7 @@ package types
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -25,71 +26,46 @@ trait SelfType {
 
   def parse(builder: ScalaPsiBuilder) {
     val selfTypeMarker = builder.mark
+    
+    def handleFunArrow() {
+      builder.advanceLexer() //Ate '=>'
+      selfTypeMarker.done(ScalaElementTypes.SELF_TYPE)
+    }
+    
+    def handleColon() {
+      builder.advanceLexer() //Ate ':'
+      
+      if (!parseType(builder)) selfTypeMarker.rollbackTo()
+        else {
+          builder.getTokenType match {
+            case ScalaTokenTypes.tFUNTYPE => handleFunArrow()
+            case _ => selfTypeMarker.rollbackTo()
+          }
+        }
+    }
+    
+    def handleLastPart() {
+      builder.getTokenType match {
+        case ScalaTokenTypes.tCOLON => handleColon()
+        case ScalaTokenTypes.tFUNTYPE => handleFunArrow()
+        case _ => selfTypeMarker.rollbackTo()
+      }
+    }
+    
     builder.getTokenType match {
       case ScalaTokenTypes.kTHIS | ScalaTokenTypes.tUNDER =>
-        builder.advanceLexer // Ate this or _
+        builder.advanceLexer() // Ate this or _
         builder.getTokenType match {
-          case ScalaTokenTypes.tCOLON => {
-            builder.advanceLexer //Ate ':'
-            if (!parseType(builder)) {
-              selfTypeMarker.rollbackTo
-              return
-            }
-            else {
-              builder.getTokenType match {
-                case ScalaTokenTypes.tFUNTYPE => {
-                  builder.advanceLexer //Ate '=>'
-                  selfTypeMarker.done(ScalaElementTypes.SELF_TYPE)
-                  return
-                }
-                case _ => {
-                  selfTypeMarker.rollbackTo
-                  return
-                }
-              }
-            }
-          }
-          case _ => {
-            selfTypeMarker.rollbackTo
-            return
-          }
+          case ScalaTokenTypes.tCOLON => handleColon()
+          case _ => selfTypeMarker.rollbackTo()
         }
       case ScalaTokenTypes.tIDENTIFIER =>
-        builder.advanceLexer //Ate identifier
-        builder.getTokenType match {
-          case ScalaTokenTypes.tCOLON => {
-            builder.advanceLexer //Ate ':'
-            if (!parseType(builder)) {
-              selfTypeMarker.rollbackTo
-              return
-            }
-            else {
-              builder.getTokenType match {
-                case ScalaTokenTypes.tFUNTYPE => {
-                  builder.advanceLexer //Ate '=>'
-                  selfTypeMarker.done(ScalaElementTypes.SELF_TYPE)
-                  return
-                }
-                case _ => {
-                  selfTypeMarker.rollbackTo
-                  return
-                }
-              }
-            }
-          }
-          case ScalaTokenTypes.tFUNTYPE => {
-            builder.advanceLexer //Ate '=>'
-            selfTypeMarker.done(ScalaElementTypes.SELF_TYPE)
-            return
-          }
-          case _ => {
-            selfTypeMarker.rollbackTo
-            return
-          }
-        }
-      case _ =>
-        selfTypeMarker.rollbackTo
-        return
+        builder.advanceLexer() //Ate identifier
+        handleLastPart()
+      case ScalaTokenTypes.tLPARENTHESIS => 
+         if (ParserUtils.parseBalancedParenthesis(builder, TokenSets.SELF_TYPE_ID))
+           handleLastPart() else selfTypeMarker.rollbackTo()
+      case _ => selfTypeMarker.rollbackTo()
     }
   }
 

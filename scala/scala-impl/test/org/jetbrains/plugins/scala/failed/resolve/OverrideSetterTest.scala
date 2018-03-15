@@ -15,6 +15,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class OverrideSetterTest extends SimpleTestCase {
 
+  override protected def shouldPass: Boolean = false
+
   // Setter method not being referenced when assigning to a var
   def testSCL6054(): Unit = {
     val messages1 = messages(

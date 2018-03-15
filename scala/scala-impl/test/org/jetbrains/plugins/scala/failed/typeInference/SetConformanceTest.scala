@@ -10,6 +10,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class SetConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL4941(): Unit = checkTextHasNoErrors(
     s"""
        |def f(collect: Iterable[Int]): Unit = {
@@ -43,27 +46,6 @@ class SetConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |    println(text)
        |  }
        |}
-       |//true
-    """.stripMargin)
-
-  def testSCL12832(): Unit = checkTextHasNoErrors(
-    s"""
-       |final class Example[A] {
-       |    def map[B](f: A => B): Example[B] = ???
-       |    def flatMap[B](f: A => Example[B]): Example[B] = ???
-       |  }
-       |
-       |  val x: Example[A] = ???
-       |
-       |  class A
-       |
-       |  class B extends A
-       |
-       |  def foo: Example[A] =
-       |    for {
-       |      a <- x
-       |      w = 1
-       |    } yield new B
        |//true
     """.stripMargin)
 }

@@ -1,14 +1,17 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
+import scala.collection.JavaConverters._
+
 import com.intellij.psi.ResolveResult
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver.getAllResolveResult
-
-import scala.collection.JavaConverters._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 object DynamicResolveProcessor {
 
@@ -17,13 +20,6 @@ object DynamicResolveProcessor {
   val SELECT_DYNAMIC = "selectDynamic"
   val UPDATE_DYNAMIC = "updateDynamic"
   val NAMED = "Named"
-
-  def getDynamicReturn: ScType => ScType = {
-    case methodType: ScMethodType => methodType.returnType
-    case ScTypePolymorphicType(methodType: ScMethodType, parameters) =>
-      ScTypePolymorphicType(getDynamicReturn(methodType), parameters)
-    case scType => scType
-  }
 
   def getDynamicNameForMethodInvocation(expressions: Seq[ScExpression]): String = {
     val qualifiers = expressions.collect {
@@ -35,22 +31,72 @@ object DynamicResolveProcessor {
   }
 
   def isDynamicReference(reference: ScReferenceExpression): Boolean = {
-
     def qualifierType() = reference.qualifier
       .flatMap(_.getNonValueType().toOption)
 
-    def cachedClassType() =
-      ScalaPsiManager.instance(reference.getProject)
-        .getCachedClass(reference.getResolveScope, "scala.Dynamic")
-        .map(ScDesignatorType(_))
+    qualifierType().exists(conformsToDynamic(_, reference.getResolveScope))
+  }
 
-    qualifierType().zip(cachedClassType()).exists {
-      case (qualifierType, classType) => qualifierType.conforms(classType)
-    }
+  def conformsToDynamic(tp: ScType, scope: GlobalSearchScope): Boolean = {
+    val dynamicType = ElementScope(tp.projectContext, scope)
+      .getCachedClass("scala.Dynamic")
+      .map(ScDesignatorType(_))
+    dynamicType.exists(tp.conforms)
   }
 
   def resolveDynamic(reference: ScReferenceExpression): Seq[ResolveResult] = {
     getAllResolveResult(reference).asScala
+  }
+
+  def isApplyDynamicNamed(r: ScalaResolveResult): Boolean =
+    r.isDynamic && r.name == APPLY_DYNAMIC_NAMED
+
+  def dynamicResolveProcessor(ref: ScReferenceExpression,
+                              qualifier: ScExpression,
+                              fromProcessor: BaseProcessor): MethodResolveProcessor = {
+
+    import ref.projectContext
+
+    val expressionsOrContext = ref.getContext match {
+      case postfix: ScPostfixExpr => Left(postfix)
+      case MethodInvocation(`ref`, expressions) => Right(expressions)
+      case _ => Left(ref)
+    }
+
+    val name = expressionsOrContext match {
+      case Right(expressions) => getDynamicNameForMethodInvocation(expressions)
+      case Left(reference) =>
+        reference.getContext match {
+          case ScAssignStmt(`reference`, _) => UPDATE_DYNAMIC
+          case _ => SELECT_DYNAMIC
+        }
+    }
+
+    val emptyStringExpression = createExpressionFromText("\"\"")(qualifier.projectContext)
+
+    fromProcessor match {
+      case processor: MethodResolveProcessor =>
+        new MethodResolveProcessor(qualifier, name, List(List(emptyStringExpression), expressionsOrContext.getOrElse(Seq.empty)),
+          processor.typeArgElements, processor.prevTypeInfo, processor.kinds, processor.expectedOption,
+          processor.isUnderscore, processor.isShapeResolve, processor.constructorResolve, processor.noImplicitsForArgs,
+          processor.enableTupling, processor.selfConstructorResolve, nameArgForDynamic = Some(ref.refName))
+      case _ =>
+        new MethodResolveProcessor(qualifier, name,
+          List(List(emptyStringExpression), expressionsOrContext.getOrElse(Seq.empty)),
+          Seq.empty, Seq.empty,
+          nameArgForDynamic = Some(ref.refName))
+    }
+  }
+
+  private def getDynamicReturn: ScType => ScType = {
+    case methodType: ScMethodType => methodType.returnType
+    case ScTypePolymorphicType(methodType: ScMethodType, parameters) =>
+      ScTypePolymorphicType(getDynamicReturn(methodType), parameters)
+    case scType => scType
+  }
+
+  implicit class ScTypeForDynamicProcessorEx(val tp: ScType) extends AnyVal {
+    def updateTypeOfDynamicCall(isDynamic: Boolean): ScType = if (isDynamic) getDynamicReturn(tp) else tp
   }
 }
 

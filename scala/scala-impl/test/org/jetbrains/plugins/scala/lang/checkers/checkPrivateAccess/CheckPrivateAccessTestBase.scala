@@ -10,6 +10,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiMember
 import com.intellij.psi.util.PsiTreeUtil
+import junit.framework.Assert
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -27,7 +28,6 @@ abstract class CheckPrivateAccessTestBase extends ScalaLightPlatformCodeInsightT
   protected def folderPath = baseRootPath() + "checkers/checkPrivateAccess/"
 
   protected def doTest() {
-    import _root_.junit.framework.Assert._
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
@@ -49,8 +49,11 @@ abstract class CheckPrivateAccessTestBase extends ScalaLightPlatformCodeInsightT
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
       case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
         text.substring(2, text.length - 2).trim
-      case _ => assertTrue("Test result must be in last comment statement.", false)
+      case _ => Assert.assertTrue("Test result must be in last comment statement.", false)
     }
-    assertEquals(output, res.toString)
+    Assert.assertTrue(Assert.format(failureMessage, output, res.toString), output == res.toString && shouldPass)
   }
+
+  protected def shouldPass: Boolean = true
+  protected def failureMessage: String = if (shouldPass) "Result differs from reference: " else "Test has passed, but was supposed to fail: "
 }

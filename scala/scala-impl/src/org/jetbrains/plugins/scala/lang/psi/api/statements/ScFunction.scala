@@ -7,6 +7,11 @@ package statements
 
 import java.util
 
+import scala.annotation.tailrec
+import scala.collection.Seq
+import scala.collection.immutable.Set
+import scala.collection.mutable.ArrayBuffer
+
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
@@ -40,11 +45,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
-import scala.annotation.tailrec
-import scala.collection.Seq
-import scala.collection.immutable.Set
-import scala.collection.mutable.ArrayBuffer
-
 /**
  * @author Alexander Podkhalyuzin
  */
@@ -68,7 +68,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       case ScMethodType(result, _, _) => hasUnitRT(result)
       case _ => false
     }
-    hasUnitRT(methodType)
+    this.returnType.exists(hasUnitRT)
   }
 
   def isParameterless: Boolean = paramClauses.clauses.isEmpty
@@ -185,32 +185,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   /**
-   * Returns pure 'function' type as it was defined as a field with functional value
-   */
-  def methodType(result: Option[ScType]): ScType = {
-    val clauses = effectiveParameterClauses
-    val resultType = result match {
-      case None => this.returnType.getOrAny
-      case Some(x) => x
-    }
-    if (!hasParameterClause) return resultType
-    val res = if (clauses.nonEmpty)
-      clauses.foldRight[ScType](resultType){(clause: ScParameterClause, tp: ScType) =>
-        ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
-      }
-    else ScMethodType(resultType, Seq.empty, false)
-    res.asInstanceOf[ScMethodType]
-  }
-
-  /**
-   * Returns internal type with type parameters.
-   */
-  def polymorphicType(result: Option[ScType] = None): ScType = {
-    if (typeParameters.isEmpty) methodType(result)
-    else ScTypePolymorphicType(methodType(result), typeParameters.map(TypeParameter(_)))
-  }
-
-  /**
    * Optional Type Element, denotion function's return type
    * May be omitted for non-recursive functions
    */
@@ -300,17 +274,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     })
   }
 
-  def psiTypeParameters: Array[PsiTypeParameter] = {
-    val params = typeParameters
-    val size = params.length
-    val result = PsiTypeParameter.ARRAY_FACTORY.create(size)
-    var i = 0
-    while (i < size) {
-      result(i) = params(i).asInstanceOf[PsiTypeParameter]
-      i += 1
-    }
-    result
-  }
+  def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
 
   def getTypeParameterList = new FakePsiTypeParameterList(getManager, getLanguage, typeParameters.toArray, this)
 

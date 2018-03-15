@@ -8,17 +8,18 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.util.io.JarUtil
-import com.intellij.psi.{PsiFile, ResolveResult}
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.extensions.ToNullSafe
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.extensions.ToNullSafe
 
 object IdeaUtil {
-  def safeAnnotationResolve(annotation: ScAnnotation): Option[ResolveResult] = {
+  def safeAnnotationResolve(annotation: ScAnnotation): Option[ScalaResolveResult] = {
     if (ScStubElementType.isStubBuilding || DumbService.isDumb(annotation.getProject))
       return None
     annotation.constructor.reference.flatMap {
@@ -34,7 +35,7 @@ object IdeaUtil {
     else {
       val project = file.getProject
       val plugins =
-        file.getVirtualFile.nullSafe
+        file.getOriginalFile.getVirtualFile.nullSafe
           .map(ModuleUtilCore.findModuleForFile(_, project))
           .map(ScalaCompilerConfiguration.instanceIn(project).getSettingsForModule)
           .map(_.plugins)

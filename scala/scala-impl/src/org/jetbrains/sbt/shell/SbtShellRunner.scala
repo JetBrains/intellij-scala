@@ -36,7 +36,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
   private val toolWindowTitle = project.getName
 
-  private lazy val sbtConsoleView: LanguageConsoleImpl =
+  private lazy val sbtConsoleView: SbtShellConsoleView =
     ShellUIUtil.inUIsync {
       val cv = SbtShellConsoleView(project, debugConnection)
       Disposer.register(this, cv)
@@ -159,7 +159,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
     layoutUi.getOptions.setLeftToolbar(group, ActionPlaces.UNKNOWN)
     val console = layoutUi.createContent(SbtShellToolWindowFactory.ID, sbtConsoleView.getComponent, "sbt-shell-toolwindow-console", null, null)
 
-    sbtConsoleView.createConsoleActions.foreach(group.add)
+    sbtConsoleView.addConsoleActions(group)
 
     layoutUi.addContent(console, 0, PlaceInGrid.right, false)
 

@@ -35,5 +35,10 @@ public abstract class FailedParserTest extends BaseScalaFileSetTestCase {
     public static Test suite() {
         return new ScalaFailedParserTest();
     }
+
+    @Override
+    protected boolean shouldPass() {
+        return false;
+    }
 }
 

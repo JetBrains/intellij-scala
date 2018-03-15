@@ -5,6 +5,7 @@ import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandlerBase
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
@@ -40,8 +41,11 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
           case None => e.getTextRange.getEndOffset
         }
         result.add(new TextRange(start, end))
-        def isEmptyChar(c: Char): Boolean = c == ' ' || c == '\n'
-        while (isEmptyChar(ext.getContainingFile.getText.charAt(end - 1))) end = end - 1
+
+        val charSequence = ext.getContainingFile.charSequence
+        while (charSequence.charAt(end - 1).isWhitespace) {
+          end = end - 1
+        }
         if (start <= end) result.add(new TextRange(start, end))
       //case for references
       case x: ScReferenceElement =>

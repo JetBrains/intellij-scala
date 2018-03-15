@@ -9,6 +9,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class DefaultArgWithTypeArgsTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  override def shouldPass: Boolean = false
+
   def testSCL8688(): Unit = {
     checkTextHasNoErrors(
       """class Test {

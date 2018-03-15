@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-class ScMethodCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScMethodCall {
+class ScMethodCallImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScMethodCall {
 
   def getInvokedExpr: ScExpression = findChildByClassScala(classOf[ScExpression])
 
@@ -21,13 +21,6 @@ class ScMethodCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
     findChildByClassScala(classOf[ScExpression]) match {
       case x: ScParenthesisedExpr => x.expr.getOrElse(x)
       case x => x
-    }
-  }
-
-  override def argumentExpressionsIncludeUpdateCall: Seq[ScExpression] = {
-    updateExpression() match {
-      case Some(expr) => argumentExpressions ++ Seq(expr)
-      case _ => argumentExpressions
     }
   }
 

@@ -11,6 +11,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class ClashingCaseClassesTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  override def shouldPass: Boolean = false
+
   def testSCL6146() = {
     myFixture.configureByText("Foo.scala",
       """

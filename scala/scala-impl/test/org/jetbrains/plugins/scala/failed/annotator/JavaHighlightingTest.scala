@@ -10,6 +10,7 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class JavaHighlightingTest extends JavaHighlightingTestBase() {
+  override protected def shouldPass: Boolean = false
 
   def testSCL8982() = {
     val scala =

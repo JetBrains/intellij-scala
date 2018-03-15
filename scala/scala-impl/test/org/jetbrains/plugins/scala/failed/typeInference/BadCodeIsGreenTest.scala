@@ -13,6 +13,8 @@ import org.junit.experimental.categories.Category
   */
 abstract class BadCodeIsGreenTest extends ScalaInspectionTestBase {
 
+  override protected def shouldPass: Boolean = false
+
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[AnnotatorBasedErrorInspection]
 }

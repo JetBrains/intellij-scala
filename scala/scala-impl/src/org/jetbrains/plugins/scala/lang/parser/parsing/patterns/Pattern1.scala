@@ -6,6 +6,7 @@ package patterns
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -27,19 +28,11 @@ trait Pattern1 {
   protected def typePattern: TypePattern
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
-
-    def isVarId = {
-      val text = builder.getTokenText
-      text.substring(0, 1).toLowerCase != text.substring(0, 1) || (
-              text.apply(0) == '`' && text.apply(text.length - 1) == '`'
-              )
-    }
-
     val pattern1Marker = builder.mark
     val backupMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
-        if (isVarId) {
+        if (ParserUtils.isCurrentVarId(builder) && !ParserUtils.isIdBindingEnabled(builder)) {
           backupMarker.rollbackTo()
         } else {
           builder.advanceLexer() //Ate id

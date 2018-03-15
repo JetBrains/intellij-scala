@@ -31,4 +31,11 @@ class PartialFunctionResolveTest extends FailedResolveCaretTestBase {
         |}
       """.stripMargin)
   }
+
+  def testSCL13086(): Unit = {
+    doResolveCaretTest(
+      """
+        |val x: String => Int => Char = _.<caret>charAt _
+      """.stripMargin)
+  }
 }

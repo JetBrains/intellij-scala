@@ -1,24 +1,23 @@
 package org.jetbrains.plugins.scala.projectHighlighting
 
-import java.util
+import scala.collection.JavaConverters._
+import scala.util.control.NonFatal
 
-import com.intellij.lang.annotation.Annotation
+import com.intellij.ide.highlighter.JavaFileType
+import com.intellij.lang.annotation.{Annotation, HighlightSeverity}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
-
-import scala.util.control.NonFatal
-import scala.collection.JavaConverters._
 
 /**
   * @author Mikhail Mutcianko
@@ -28,35 +27,56 @@ trait AllProjectHighlightingTest {
 
   def getProject: Project
 
-  protected def reporter: ProgressReporter
+  def getProjectFixture: CodeInsightTestFixture
 
-  implicit def projectContext: ProjectContext = getProject
+  protected def reporter: ProgressReporter
 
   def doAllProjectHighlightingTest(): Unit = {
 
-    val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, SourceFilterScope(getProject))
+    val scope = SourceFilterScope(getProject)
+    val scalaFiles = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, scope)
+    val javaFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, scope)
 
-    LocalFileSystem.getInstance().refreshFiles(files)
+    val files = scalaFiles.asScala ++ javaFiles.asScala
+
+    LocalFileSystem.getInstance().refreshFiles(files.asJava)
 
     val fileManager = PsiManager.getInstance(getProject).asInstanceOf[PsiManagerEx].getFileManager
-    val annotator = ScalaAnnotator.forProject
 
-    var percent = 0
-    val size: Int = files.size()
+    val size: Int = files.size
 
-    for ((file, index) <- files.asScala.zipWithIndex) {
+    for ((file, index) <- files.zipWithIndex) {
       val psiFile = fileManager.findFile(file)
 
-      if ((index + 1) * 100 >= (percent + 1) * size) {
-        while ((index + 1) * 100 >= (percent + 1) * size) percent += 1
-        reporter.updateHighlightingProgress(percent)
-      }
+      reporter.updateHighlightingProgress(percent(index, size))
 
-      AllProjectHighlightingTest.annotateFile(psiFile, reporter)
+      file.getFileType match {
+        case ScalaFileType.INSTANCE =>
+          annotateScala(psiFile)
+        case JavaFileType.INSTANCE =>
+          annotateJava(psiFile, getProjectFixture)
+      }
     }
 
     reporter.reportResults()
   }
+
+  private def percent(index: Int, size: Int): Int = (index + 1) * 100 / size
+
+  private def annotateJava(psiFile: PsiFile, codeInsightFixture: CodeInsightTestFixture): Unit = {
+    codeInsightFixture.openFileInEditor(psiFile.getVirtualFile)
+    val allInfo = codeInsightFixture.doHighlighting()
+
+    import scala.collection.JavaConverters._
+    allInfo.asScala.toList.collect {
+      case highlightInfo if highlightInfo.`type`.getSeverity(null) == HighlightSeverity.ERROR =>
+        val range = TextRange.create(highlightInfo.getStartOffset, highlightInfo.getEndOffset)
+        reporter.reportError(psiFile.getName, range, highlightInfo.getDescription)
+    }
+  }
+
+  private def annotateScala(psiFile: PsiFile): Unit =
+    AllProjectHighlightingTest.annotateFile(psiFile, reporter)
 }
 
 object AllProjectHighlightingTest {

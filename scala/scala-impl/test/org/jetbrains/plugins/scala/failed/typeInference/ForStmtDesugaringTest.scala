@@ -9,6 +9,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ForStmtDesugaringTest extends TypeInferenceTestBase {
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL8580(): Unit = {
     doTest(
       s"""case class Filterable(s: List[String]) {

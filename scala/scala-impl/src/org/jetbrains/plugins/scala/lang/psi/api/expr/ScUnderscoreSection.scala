@@ -42,7 +42,7 @@ trait ScUnderscoreSection extends ScExpression {
           }
         case tuple: ScTuple if calcArguments =>
           tuple.getContext match {
-            case infix: ScInfixExpr if infix.getArgExpr == tuple => go(infix, calcArguments = false)
+            case infix: ScInfixExpr if infix.argsElement == tuple => go(infix, calcArguments = false)
             case _ => Some(tuple)
           }
         case inf: ScInfixExpr => go(inf, calcArguments = false)
@@ -52,7 +52,7 @@ trait ScUnderscoreSection extends ScExpression {
         case call: ScMethodCall => go(call, calcArguments = false)
         case gen: ScGenericCall => go(gen, calcArguments = false)
         case assign: ScAssignStmt if assign.getLExpression == expr => go(assign, calcArguments = false)
-        case assign: ScAssignStmt if assign.getRExpression == Some(expr) && isUnderscore(expr) =>
+        case assign: ScAssignStmt if assign.getRExpression.contains(expr) && isUnderscore(expr) =>
           go(assign, calcArguments = false)
         case _: ScEnumerator | _: ScGenerator if calcArguments =>
           go(ScalaPsiUtil.contextOfType(expr, strict = true, classOf[ScForStatement]), calcArguments = false)

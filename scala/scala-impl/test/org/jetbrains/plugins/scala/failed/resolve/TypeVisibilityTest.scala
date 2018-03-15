@@ -10,6 +10,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class TypeVisibilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL9178() = {
     val text =
       """
@@ -37,6 +40,17 @@ class TypeVisibilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |class ExtendedSomethingClass extends ExtendedSomething {
         |  def myDef() : Unit = {}
         |  def example() = new ExtendedSomethingClass
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testSCL13138() = {
+    val text =
+      """
+        |trait A[T] {
+        |  type T
+        |  def f(x : T) : Unit
         |}
       """.stripMargin
     checkTextHasNoErrors(text)

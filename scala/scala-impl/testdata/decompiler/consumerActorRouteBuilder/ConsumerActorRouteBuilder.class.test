@@ -1,0 +1,6 @@
+package akka.camel.internal
+private[camel] class ConsumerActorRouteBuilder(endpointUri : _root_.scala.Predef.String, consumer : akka.actor.ActorRef, config : akka.camel.ConsumerConfig, settings : akka.camel.CamelSettings) extends org.apache.camel.builder.RouteBuilder {
+  protected def targetActorUri : _root_.scala.Predef.String = { /* compiled code */ }
+  def configure() : scala.Unit = { /* compiled code */ }
+  def applyUserRouteCustomization(rd : org.apache.camel.model.RouteDefinition) : org.apache.camel.model.ProcessorDefinition[_ <: org.apache.camel.model.ProcessorDefinition[_]] = { /* compiled code */ }
+}

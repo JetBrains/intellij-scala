@@ -5,11 +5,6 @@ package editor.importOptimizer
 import java.util
 import java.util.concurrent.atomic.AtomicInteger
 
-import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.{immutable, mutable}
-
 import com.intellij.concurrency.JobLauncher
 import com.intellij.lang.{ImportOptimizer, LanguageImportStatements}
 import com.intellij.openapi.editor.Document
@@ -22,7 +17,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
@@ -37,6 +32,12 @@ import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.worksheet.ScalaScriptImportsUtil
+
+import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{immutable, mutable}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -132,7 +133,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
       //todo: collect proper information about language features
       importUsed match {
         case ImportSelectorUsed(sel) if sel.isAliasedImport => true
-        case _ => usedImports.contains(importUsed) || isLanguageFeatureImport(importUsed) || importUsed.qualName.exists(isAlwaysUsedImport)
+        case _ => usedImports.contains(importUsed) || isLanguageFeatureImport(importUsed) || 
+          importUsed.qualName.exists(isAlwaysUsedImport) || ScalaScriptImportsUtil.isImportUsed(importUsed)
       }
     }
 
@@ -203,7 +205,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       if (currentGroupIndex <= prevGroupIndex || prevGroupIndex == -1) ""
       else if (scalastyleGroups.nonEmpty) newLineWithIndent
       else {
-        def isBlankLine(i: Int) = importLayout(i) == ScalaCodeStyleSettings.BLANK_LINE
+        def isBlankLine(i: Int) = importLayout(i) == BLANK_LINE
         val blankLineNumber =
           Range(currentGroupIndex - 1, prevGroupIndex, -1).dropWhile(!isBlankLine(_)).takeWhile(isBlankLine).size
         newLineWithIndent * blankLineNumber
@@ -433,7 +435,7 @@ object ScalaImportOptimizer {
       if (info.canAddRoot && importedNames.contains(getFirstId(info.prefixQualifier)))
         importInfos.update(i, info.withRootPrefix)
 
-      importedNames ++= info.allNames
+      if (!ScalaScriptImportsUtil.cannotShadowName(info)) importedNames ++= info.allNames
     }
   }
 
@@ -463,19 +465,19 @@ object ScalaImportOptimizer {
       if (rangeStartPsi == null) false
       else {
         val ref = ScalaPsiElementFactory.createReferenceFromText(name, rangeStartPsi.getContext, rangeStartPsi)
-        ref.bind().exists {
-          case ScalaResolveResult(p: PsiPackage, _) =>
+        ref.bind().map(_.element).exists {
+          case p: PsiPackage =>
             p.getParentPackage != null && p.getParentPackage.getName != null
-          case ScalaResolveResult(o: ScObject, _) if o.isPackageObject => o.qualifiedName.contains(".")
-          case ScalaResolveResult(o: ScObject, _) =>
+          case o: ScObject if o.isPackageObject => o.qualifiedName.contains(".")
+          case o: ScObject =>
             o.getParent match {
               case _: ScalaFile => false
               case _ => true
             }
-          case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => true
-          case ScalaResolveResult(_: ScTypeDefinition, _) => false
-          case ScalaResolveResult(_: PsiClass, _) => true
-          case ScalaResolveResult(f: PsiField, _) if f.hasFinalModifier => true
+          case td: ScTypedDefinition if td.isStable => true
+          case _: ScTypeDefinition => false
+          case _: PsiClass => true
+          case f: PsiField if f.hasFinalModifier => true
           case _ => false
         }
       }
@@ -664,7 +666,12 @@ object ScalaImportOptimizer {
   }
 
   private def mergeImportInfos(buffer: ArrayBuffer[ImportInfo]): ArrayBuffer[ImportInfo] = {
+    def canBeMergedAt(i: Int): Boolean =
+      i > -1 && i < buffer.length && !ScalaScriptImportsUtil.preventMerging(buffer(i))
+    
     def samePrefixAfter(i: Int): Int = {
+      if (!canBeMergedAt(i)) return -1
+      
       var j = i + 1
       while (j < buffer.length) {
         if (buffer(j).prefixQualifier == buffer(i).prefixQualifier) return j
@@ -672,6 +679,7 @@ object ScalaImportOptimizer {
       }
       -1
     }
+    
     var i = 0
     while (i < buffer.length - 1) {
       val prefixIndex: Int = samePrefixAfter(i)
@@ -717,24 +725,23 @@ object ScalaImportOptimizer {
       case Some(patterns) =>
         patterns.indexWhere(_.matcher(prefix).matches())
       case _ =>
+        def matches(packagePattern: String) =
+          prefix == packagePattern || prefix.startsWith(packagePattern + ".")
+
         val groups = settings.importLayout
-        val suitable = groups.filter { group =>
-          group != ScalaCodeStyleSettings.BLANK_LINE && (group == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS ||
-            prefix.startsWith(group))
-        }
-        if (suitable.length == 0) 0
-        else {
-          val elem = suitable.tail.foldLeft(suitable.head) { (l, r) =>
-            if (l == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) r
-            else if (r == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) l
-            else if (r.startsWith(l)) r
-            else l
+
+        val mostSpecific = groups
+          .filterNot(_ == BLANK_LINE)
+          .filter(matches)
+          .sortBy(_.length)
+          .lastOption
+
+        mostSpecific
+          .map(groups.indexOf)
+          .getOrElse {
+            0 max groups.indexOf(ALL_OTHER_IMPORTS)
           }
-
-          groups.indexOf(elem)
         }
-
-    }
   }
 
   def greater(lPrefix: String, rPrefix: String, lText: String, rText: String, settings: OptimizeImportSettings): Boolean = {
@@ -777,7 +784,7 @@ object ScalaImportOptimizer {
       }
     }
 
-    def addWithImplicits(srr: ScalaResolveResult, fromElem: PsiElement) = {
+    def addWithImplicits(srr: ScalaResolveResult, fromElem: PsiElement): Unit = {
       withImplicits(srr).foreach(addResult(_, fromElem))
     }
 
@@ -803,18 +810,12 @@ object ScalaImportOptimizer {
       case impQual: ScStableCodeReferenceElement
         if impQual.qualifier.isEmpty && PsiTreeUtil.getParentOfType(impQual, classOf[ScImportStmt]) != null =>
         //don't add as ImportUsed to be able to optimize it away if it is used only in unused imports
-        val hasImportUsed = impQual.multiResolve(false).exists {
-          case srr: ScalaResolveResult => srr.importsUsed.nonEmpty
-          case _ => false
-        }
+        val hasImportUsed = impQual.multiResolveScala(false).exists(_.importsUsed.nonEmpty)
         if (hasImportUsed) {
           names.add(UsedName(impQual.refName, impQual.getTextRange.getStartOffset))
         }
       case ref: ScReferenceElement if PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null =>
-        ref.multiResolve(false) foreach {
-          case scalaResult: ScalaResolveResult => addWithImplicits(scalaResult, ref)
-          case _ =>
-        }
+        ref.multiResolveScala(false).foreach(addWithImplicits(_, ref))
       case simple: ScSimpleTypeElement =>
         simple.findImplicitParameters match {
           case Some(parameters) =>

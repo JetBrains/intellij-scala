@@ -10,6 +10,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ApplyConfomanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL5660(): Unit = {
     checkTextHasNoErrors(
       s"""
@@ -45,6 +48,23 @@ class ApplyConfomanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |object test {
          |  final case class Kleisli[F[_], A, B](run: A => F[B])
          |  val f = Kleisli { (x: Int) => Some(x + 1) }
+         |}
+      """.stripMargin)
+  }
+
+  def testSCL13046(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |trait Test {
+         |  type Repr
+         |}
+         |
+         |object Test {
+         |  def getRepr(t: Test): t.Repr = ???
+         |
+         |  def whatever(t: Test): Unit = {
+         |    val value: t.Repr = getRepr(t)
+         |  }
          |}
       """.stripMargin)
   }

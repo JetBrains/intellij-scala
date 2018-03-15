@@ -13,31 +13,28 @@ import org.jetbrains.sbt.resolvers.ArtifactInfo
   * @since 26.07.16
   */
 trait ResolverIndex {
-  def searchGroup(artifactId: String = "")
-                 (implicit project: ProjectContext): Set[String]
+  def searchGroup(artifactId: String = ""): Set[String]
 
-  def searchArtifact(groupId: String = "")
-                    (implicit project: ProjectContext): Set[String]
+  def searchArtifact(groupId: String = ""): Set[String]
 
-  def searchVersion(groupId: String, artifactId: String)
-                   (implicit project: ProjectContext): Set[String]
+  def searchVersion(groupId: String, artifactId: String): Set[String]
 
   def searchArtifactInfo(fqName: String)
                         (implicit project: ProjectContext): Set[ArtifactInfo]
 
-  def doUpdate(progressIndicator: Option[ProgressIndicator] = None)
-              (implicit project: ProjectContext): Unit
+  def doUpdate(progressIndicator: Option[ProgressIndicator] = None): Unit
 
-  def getUpdateTimeStamp(implicit project: ProjectContext): Long
+  def getUpdateTimeStamp: Long
 
   def close(): Unit
 }
 
 object ResolverIndex {
   val DEFAULT_INDEXES_DIR: File = new File(PathManager.getSystemPath) / "sbt" / "indexes"
-  val CURRENT_INDEX_VERSION = "5"
+  val CURRENT_INDEX_VERSION = "6"
   val NO_TIMESTAMP: Int = -1
   val MAVEN_UNAVALIABLE: Int = -2
+  val FORCE_UPDATE_KEY = "ivy.index.force.update" // disable index building in tests for performance reasons, use this to override
   def getIndexDirectory(root: String) = new File(indexesDir, root.shaDigest)
 
   protected val indexesDir: File = {

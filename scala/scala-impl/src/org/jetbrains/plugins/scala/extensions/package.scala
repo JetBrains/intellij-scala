@@ -42,7 +42,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
-
 import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.ArrayBuffer
@@ -54,6 +53,8 @@ import scala.util.control.Exception.catching
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
+import com.intellij.util.text.CharArrayUtil
+
 /**
   * Pavel Fatin
   */
@@ -63,6 +64,7 @@ package object extensions {
   implicit class PsiMethodExt(val repr: PsiMethod) extends AnyVal {
 
     import PsiMethodExt._
+
     implicit private def project: ProjectContext = repr.getProject
 
     def isAccessor: Boolean = isParameterless && hasQueryLikeName && !hasVoidReturnType
@@ -102,6 +104,12 @@ package object extensions {
 
     def isParameterless: Boolean =
       repr.getParameterList.getParametersCount == 0
+  }
+
+  implicit class PsiFileExt(val file: PsiFile) extends AnyVal {
+    def charSequence: CharSequence =
+      if (file.isValid) file.getViewProvider.getContents
+      else file.getText
   }
 
   object PsiMethodExt {
@@ -234,18 +242,27 @@ package object extensions {
 
     def prefixLength(pred: Char => Boolean): Int = iterator.takeWhile(pred).size
 
-    def startsWith(s: String): Boolean = cs.substring(0, s.length) == s
+    def startsWith(prefix: String): Boolean =
+      prefix.length <= cs.length && cs.substring(0, prefix.length) == prefix
 
-    def substring(start: Int, end: Int): String =
+    def endsWith(suffix: String): Boolean =
+      suffix.length <= cs.length && cs.substring(cs.length() - suffix.length) == suffix
+
+    def substring(start: Int, end: Int = cs.length()): String =
       cs.subSequence(start, end).toString
 
     def substring(range: TextRange): String =
       cs.subSequence(range.getStartOffset, range.getEndOffset).toString
+
+    def indexOf(pattern: CharSequence, fromIndex: Int = 0): Int =
+      CharArrayUtil.indexOf(cs, pattern, fromIndex)
   }
 
   implicit class StringsExt(val strings: Seq[String]) extends AnyVal {
-    def commaSeparated: String =
-      strings.mkString(", ")
+    def commaSeparated(parenthesize: Boolean = false): String = {
+      val (start, end) = if (parenthesize) ("(", ")") else ("", "")
+      strings.mkString(start, ", ", end)
+    }
   }
 
   implicit class ASTNodeExt(val node: ASTNode) extends AnyVal {
@@ -389,8 +406,8 @@ package object extensions {
       elements.foldRight(List.empty[PsiElement])(parent.addAfter(_, element) :: _)
     }
 
-    def createSmartPointer(implicit manager: SmartPointerManager = SmartPointerManager.getInstance(element.getProject)): SmartPsiElementPointer[E] =
-      manager.createSmartPsiElementPointer(element)
+    def createSmartPointer: SmartPsiElementPointer[E] =
+      SmartPointerManager.getInstance(element.getProject).createSmartPsiElementPointer(element)
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {

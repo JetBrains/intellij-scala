@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package compiler
 
+import java.util.concurrent.TimeUnit
+
 import com.intellij.execution.process._
 import com.intellij.openapi.util.Key
 
@@ -29,8 +31,10 @@ class ProcessWatcher(process: Process, commandLine: String) {
     }
   }
 
-  def destroyProcess() {
+  //true if process exited before timeout
+  def destroyAndWait(ms: Long): Boolean = {
     process.destroy()
+    process.waitFor(ms, TimeUnit.MILLISECONDS)
   }
 
   private object MyProcessListener extends ProcessAdapter {

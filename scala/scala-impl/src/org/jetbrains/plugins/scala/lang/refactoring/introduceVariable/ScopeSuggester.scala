@@ -67,17 +67,18 @@ object ScopeSuggester {
     val result: ArrayBuffer[ScopeItem] = new ArrayBuffer[ScopeItem]()
     while (parent != null && !noContinue) {
       var occInCompanionObj: Array[ScTypeElement] = Array[ScTypeElement]()
-      val name = parent match {
-        case fileType: ScalaFile => "file " + fileType.getName
+      val containerName = parent match {
+        case fileType: ScalaFile => Some("file " + fileType.getName)
         case _ =>
           PsiTreeUtil.getParentOfType(parent, classOf[ScTemplateDefinition]) match {
             case classType: ScClass =>
-              "class " + classType.name
+              Some("class " + classType.name)
             case objectType: ScObject =>
               occInCompanionObj = getOccurrencesFromCompanionObject(currentElement, objectType)
-              "object " + objectType.name
+              Some("object " + objectType.name)
             case traitType: ScTrait =>
-              "trait " + traitType.name
+              Some("trait " + traitType.name)
+            case _ => None
           }
       }
 
@@ -99,7 +100,9 @@ object ScopeSuggester {
 
       val possibleNames = NameSuggester.suggestNamesByType(currentElement.calcType)(validator)
 
-      result += SimpleScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toSet.asJava)
+      containerName.foreach { name =>
+        result += SimpleScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toSet.asJava)
+      }
       parent = getParent(parent, isScriptFile)
     }
 

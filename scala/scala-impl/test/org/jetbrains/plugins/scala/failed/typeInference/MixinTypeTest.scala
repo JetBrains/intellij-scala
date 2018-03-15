@@ -10,6 +10,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class MixinTypeTest extends ScalaLightCodeInsightFixtureTestAdapter{
+
+  override protected def shouldPass: Boolean = false
+
   def testSCL6573() = {
     val text =
       """
@@ -21,6 +24,20 @@ class MixinTypeTest extends ScalaLightCodeInsightFixtureTestAdapter{
         |
         |    new A with B
         |  }
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testSCL13112() = {
+    val text =
+      """
+        |trait A
+        |trait B
+        |trait C[T]
+        |
+        |object X {
+        |  def f(x : C[A with B]) : C[B with A] = x
         |}
       """.stripMargin
     checkTextHasNoErrors(text)

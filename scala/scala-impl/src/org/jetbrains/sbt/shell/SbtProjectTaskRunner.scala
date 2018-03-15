@@ -3,13 +3,13 @@ package org.jetbrains.sbt.shell
 import java.io.File
 import java.util
 import java.util.UUID
+
 import javax.swing.JComponent
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
-
 import com.intellij.build.events.impl._
 import com.intellij.build.events.{BuildEvent, MessageEvent, SuccessResult, Warning}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, events}
@@ -139,11 +139,15 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
   }
 
   override def run(indicator: ProgressIndicator): Unit = {
+    import org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector
 
     val report = new IndicatorReporter(indicator)
     val shell = SbtShellCommunication.forProject(project)
+//    val macroParser = new ScalaReflectMacroExpansionParser(project.getName)
+    val collector = ReflectExpansionsCollector.getInstance(project)
 
     report.start()
+    collector.compilationStarted()
 
     // TODO build events instead of indicator
     val resultAggregator: (BuildMessages,ShellEvent) => BuildMessages = { (messages,event) =>
@@ -181,6 +185,8 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
             messages.addWarning(msg)
           } else messages
 
+          collector.processCompilerMessage(text)
+
           report.output(text)
 
           messagesWithErrors.appendMessage(text)
@@ -212,6 +218,8 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
       case Success(messages) => report.finish(messages)
       case Failure(err) => report.finishWithFailure(err)
     }
+
+    collector.compilationFinished()
   }
 
 

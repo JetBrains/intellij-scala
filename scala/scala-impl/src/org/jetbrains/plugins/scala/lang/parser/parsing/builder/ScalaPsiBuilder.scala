@@ -6,7 +6,7 @@ import com.intellij.lang.PsiBuilder
  * @author Alexander Podkhalyuzin
  */
 
-trait ScalaPsiBuilder extends PsiBuilder {
+trait ScalaPsiBuilder extends PsiBuilder with ProjectAwarePsiBuilder {
   def twoNewlinesBeforeCurrentToken: Boolean
   def newlineBeforeCurrentToken: Boolean
   def disableNewlines()

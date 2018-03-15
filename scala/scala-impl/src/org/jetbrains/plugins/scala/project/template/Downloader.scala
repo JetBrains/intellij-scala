@@ -4,7 +4,10 @@ import java.io.{File, FileNotFoundException}
 
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.util.Key
+import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.plugins.scala.project.Platform
+
+import scala.collection.JavaConverters._
 
 /**
   * @author Pavel Fatin
@@ -20,7 +23,9 @@ object Downloader {
     usingTempFile("sbt-commands") { file =>
       writeLinesTo(file, sbtCommands(platform, version): _*)
       usingTempDirectory("sbt-project") { directory =>
-        val process = Runtime.getRuntime.exec(osCommandsFor(file).toArray, null, directory)
+        val proxyOptions = HttpConfigurable.getInstance.getJvmProperties(false, null).asScala.map(p => s"-D${p.getFirst}=${p.getSecond}")
+
+        val process = Runtime.getRuntime.exec(osCommandsFor(file, proxyOptions).toArray, null, directory)
 
         val listenerAdapter = new ProcessAdapter {
           override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
@@ -41,14 +46,15 @@ object Downloader {
     }
   }
 
-  private def osCommandsFor(file: File) = {
+  private def osCommandsFor(file: File, vmOptions: Seq[String]) = {
     val launcher = jarWith[this.type].getParentFile.getParentFile / "launcher" / "sbt-launch.jar"
 
     if (launcher.exists()) {
       Seq("java",
         "-Djline.terminal=jline.UnsupportedTerminal",
-        "-Dsbt.log.noformat=true",
-        "-jar",
+        "-Dsbt.log.noformat=true") ++
+        vmOptions ++
+        Seq("-jar",
         launcher.getAbsolutePath,
         "< " + file.getAbsolutePath)
     } else {
@@ -56,7 +62,7 @@ object Downloader {
     }
   }
 
-  private def sbtCommandsFor(platform: Platform, version: String) = platform match {
+  def sbtCommandsFor(platform: Platform, version: String): Seq[String] = platform match {
     case Platform.Scala => Seq(
       s"""set scalaVersion := "$version"""",
       "updateClassifiers")

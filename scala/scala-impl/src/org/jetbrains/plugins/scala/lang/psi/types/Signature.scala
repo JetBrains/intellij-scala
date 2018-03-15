@@ -99,9 +99,9 @@ class Signature(val name: String,
     }
 
     ScalaNamesUtil.equivalent(name, other.name) &&
-            ((typeParams.length == other.typeParams.length && paramTypesEquiv(other)) || 
+            ((typeParams.length == other.typeParams.length && paramTypesEquiv(other)) ||
               (paramLength == other.paramLength && javaErasedEquiv(other))) && fieldCheck(other)
-    
+
   }
 
   def javaErasedEquiv(other: Signature): Boolean = {
@@ -129,7 +129,7 @@ class Signature(val name: String,
     var undefSubst = uSubst
     if (paramLength != other.paramLength && !(paramLength.sum == 0 && other.paramLength.sum == 0)) return (false, undefSubst)
     if (hasRepeatedParam != other.hasRepeatedParam) return (false, undefSubst)
-    val unified2 = unify(other.substitutor, typeParams, other.typeParams)
+    val unified = unify(other.substitutor, other.typeParams, typeParams)
     val clauseIterator = substitutedTypes.iterator
     val otherClauseIterator = other.substitutedTypes.iterator
     while (clauseIterator.hasNext && otherClauseIterator.hasNext) {
@@ -140,8 +140,8 @@ class Signature(val name: String,
       while (typesIterator.hasNext && otherTypesIterator.hasNext) {
         val t1 = typesIterator.next()
         val t2 = otherTypesIterator.next()
-        val tp1 = t1.apply()
-        val tp2 = unified2.subst(t2())
+        val tp1 = unified.subst(t1())
+        val tp2 = unified.subst(t2())
         var t = tp2.equiv(tp1, undefSubst, falseUndef)
         if (!t._1 && tp1.equiv(api.AnyRef) && this.isJava) {
           t = tp2.equiv(Any, undefSubst, falseUndef)

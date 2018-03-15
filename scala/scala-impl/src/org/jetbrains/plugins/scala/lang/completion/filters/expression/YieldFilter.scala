@@ -6,6 +6,7 @@ package filters.expression
 import com.intellij.psi._
 import com.intellij.psi.filters.ElementFilter
 import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -28,13 +29,17 @@ class YieldFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent
       if (parent.isInstanceOf[ScExpression] && parent.getParent.isInstanceOf[ScForStatement]) {
+        val file = context.getContainingFile
+        val fileText = file.charSequence
         var i = context.getTextRange.getStartOffset - 1
-        while (i > 0 && (context.getContainingFile.getText.charAt(i) == ' ' ||
-                 context.getContainingFile.getText.charAt(i) == '\n')) i = i - 1
+        while (i > 0 && (fileText.charAt(i) == ' ' || fileText.charAt(i) == '\n')) {
+          i = i - 1
+        }
         if (leafText(i, context) == "yield") return false
         i = context.getTextRange.getEndOffset
-        while (i < context.getContainingFile.getText.length - 1 && (context.getContainingFile.getText.charAt(i) == ' ' ||
-                 context.getContainingFile.getText.charAt(i) == '\n')) i = i + 1
+        while (i < fileText.length - 1 && (fileText.charAt(i) == ' ' || fileText.charAt(i) == '\n')) {
+          i = i + 1
+        }
         if (leafText(i, context) == "yield") return false
         for (child <- parent.getParent.getNode.getChildren(null) if child.getElementType == ScalaTokenTypes.kYIELD) return false
         return ScalaCompletionUtil.checkAnyWith(parent.getParent, "yield true", context.getManager) ||
