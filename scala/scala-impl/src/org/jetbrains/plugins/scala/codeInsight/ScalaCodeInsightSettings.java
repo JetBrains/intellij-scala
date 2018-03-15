@@ -15,6 +15,9 @@ import org.jetbrains.annotations.NotNull;
 )
 public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaCodeInsightSettings> {
 
+    public static final int MIN_PRESENTATION_LENGTH = Byte.MAX_VALUE + Byte.MIN_VALUE;
+    public static final int MAX_PRESENTATION_LENGTH = Byte.MAX_VALUE - Byte.MIN_VALUE;
+
     public static ScalaCodeInsightSettings getInstance() {
         return ServiceManager.getService(ScalaCodeInsightSettings.class);
     }
@@ -22,6 +25,8 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     private boolean showFunctionReturnType = true;
     private boolean showPropertyType = false;
     private boolean showLocalVariableType = false;
+
+    private int presentationLength = 50;
 
     public boolean isShowTypeHints() {
         return showFunctionReturnType ||
@@ -75,6 +80,22 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
 
     public Setter<Boolean> showLocalVariableTypeSetter() {
         return this::setShowLocalVariableType;
+    }
+
+    public int getPresentationLength() {
+        return presentationLength;
+    }
+
+    public Getter<Integer> presentationLengthGetter() {
+        return this::getPresentationLength;
+    }
+
+    private void setPresentationLength(int presentationLength) {
+        this.presentationLength = presentationLength;
+    }
+
+    public Setter<Integer> presentationLengthSetter() {
+        return this::setPresentationLength;
     }
 
     @NotNull
