@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariab
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -39,7 +38,7 @@ object PatternAnnotator {
     implicit val ctx: ProjectContext = pattern
 
     for {
-      pType <- PatternAnnotatorUtil.patternType(pattern)
+      pType <- patternType(pattern)
       eType <- pattern.expectedType
     } {
       checkPatternType(pType, eType, pattern, holder)
@@ -51,15 +50,17 @@ object PatternAnnotator {
    * [[scala.tools.nsc.typechecker.Infer.Inferencer]] and [[scala.tools.nsc.typechecker.Checkable]]
    *
    */
-  private def checkPatternType(patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder) = {
+  private def checkPatternType(_patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder) = {
     implicit val ctx: ProjectContext = pattern
 
     val exTp = widen(ScalaType.expandAliases(exprType).getOrElse(exprType))
+    val patType = _patType.removeAliasDefinitions()
+
     def freeTypeParams = freeTypeParamsOfTerms(exTp)
 
-    def exTpMatchesPattp = PatternAnnotatorUtil.matchesPattern(exTp, widen(patType))
+    def exTpMatchesPattp = matchesPattern(exTp, widen(patType))
 
-    val neverMatches = !PatternAnnotatorUtil.matchesPattern(exTp, patType) && isNeverSubType(exTp, patType)
+    val neverMatches = !matchesPattern(exTp, patType) && isNeverSubType(exTp, patType)
 
     def isEliminatedByErasure = (exprType.extractClass, patType.extractClass) match {
       case (Some(cl1), Some(cl2)) if pattern.isInstanceOf[ScTypedPattern] => !isNeverSubClass(cl1, cl2)
@@ -174,9 +175,7 @@ object PatternAnnotator {
     }
     buffer
   }
-}
 
-object PatternAnnotatorUtil {
   @tailrec
   def matchesPattern(matching: ScType, matched: ScType): Boolean = {
     def abstraction(scType: ScType, visited: Set[TypeParameterType] = Set.empty): ScType = {
@@ -199,7 +198,10 @@ object PatternAnnotatorUtil {
     })
   }
 
+  //computes type of the pattern itself, shouldn't rely on expected type
   def patternType(pattern: ScPattern): Option[ScType] = {
+    import pattern.projectContext
+
     def constrPatternType(patternRef: ScStableCodeReferenceElement): Option[ScType] = {
       patternRef.advancedResolve match {
         case Some(srr) =>
@@ -232,6 +234,7 @@ object PatternAnnotatorUtil {
       case parenth: ScParenthesisedPattern =>
         patternType(parenth.subpattern.orNull)
       case null => None
+      case _: ScReferencePattern | _: ScWildcardPattern => Some(Any) //these only have expected type
       case _ => pattern.`type`().toOption
     }
   }

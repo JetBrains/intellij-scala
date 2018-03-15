@@ -127,14 +127,14 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
 
   def testTuple2ToTuple3Constructor(): Unit = {
     val code: String = "val (x, y) = (1, 2, 3)"
-    checkError(code, "(x, y)", patternTypeIncompatible("(Int, Int)", "(Int, Int, Int)"))
+    checkError(code, "(x, y)", patternTypeIncompatible("(Any, Any)", "(Int, Int, Int)"))
     assertNoWarnings(code)
   }
 
   def testTupleWrongDeclaredType(): Unit = {
     val code: String = "val (x: String, y) = (1, 2)"
     checkErrors(code, List(
-      Error("(x: String, y)", patternTypeIncompatible("(String, Int)", "(Int, Int)")),
+      Error("(x: String, y)", patternTypeIncompatible("(String, Any)", "(Int, Int)")),
       Error("x: String", incompatible("String", "Int"))
     ))
     assertNoWarnings(code)
@@ -509,7 +509,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
         |}
       """.stripMargin
     assertNoWarnings(text)
-    checkError(text, "(one, _)", patternTypeIncompatible("(Int, Int)", "(Int, Int, Int, Int)"))
+    checkError(text, "(one, _)", patternTypeIncompatible("(Any, Any)", "(Int, Int, Int, Int)"))
   }
 
   def testSealedClassesInheritors(): Unit = {

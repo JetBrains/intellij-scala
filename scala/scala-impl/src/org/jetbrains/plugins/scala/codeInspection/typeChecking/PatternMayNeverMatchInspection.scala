@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.typeChecking
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.annotator.PatternAnnotatorUtil
+import org.jetbrains.plugins.scala.annotator.PatternAnnotator
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.PatternMayNeverMatchInspection.{ScPatternExpectedAndPatternType, inspectionId, inspectionName}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
@@ -18,7 +18,7 @@ class PatternMayNeverMatchInspection extends AbstractInspection(inspectionId, in
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case pat@ScPatternExpectedAndPatternType(exTp, patType) =>
-      if (!PatternAnnotatorUtil.matchesPattern(exTp, patType) && !patType.conforms(exTp) &&
+      if (!PatternAnnotator.matchesPattern(exTp, patType) && !patType.conforms(exTp) &&
         !isNeverSubType(exTp, patType)) {
         //need to check so inspection highlighting doesn't interfere with PatterAnnotator's
         val message = PatternMayNeverMatchInspection.message(exTp, patType)
@@ -37,7 +37,7 @@ object PatternMayNeverMatchInspection {
   
   object ScPatternExpectedAndPatternType {
     def unapply(pat: ScPattern): Option[(ScType, ScType)] = {
-      (pat.expectedType, PatternAnnotatorUtil.patternType(pat)) match {
+      (pat.expectedType, PatternAnnotator.patternType(pat)) match {
         case (Some(expected), Some(pattern)) => Option((expected, pattern))
         case _ => None
       }
