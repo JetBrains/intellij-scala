@@ -33,7 +33,7 @@ class ScPrefixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with Sc
         def fold(expr: Option[ScType]): TypeResult = expr match {
           case Some(lit: ScLiteralType) =>
             ScLiteralType.foldUnOpTypes(lit, synth).map(Right(_)).getOrElse(default)
-          case Some(ScProjectionType(_, element: Typeable, _)) =>
+          case Some(ScProjectionType(_, element: Typeable)) =>
             fold(element.`type`().toOption.filter(_.isInstanceOf[ScLiteralType]))
           case _ => default
         }

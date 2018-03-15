@@ -1379,7 +1379,7 @@ trait ScalaConformance extends api.Conformance {
       r.visitType(rightVisitor)
       if (result == null) {
         r match {
-          case lit: ScLiteralType if !u.parameterType.upperType.conforms(Singleton) =>
+          case lit: ScLiteralType if !u.typeParameter.upperType.conforms(Singleton) =>
             result = conformsInner(l, lit.wideType, visited, undefinedSubst, checkWeak)
           case _ =>
             result = (true, undefinedSubst.addLower(u.typeParameter.typeParamId, r))

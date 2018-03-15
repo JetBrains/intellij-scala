@@ -19,8 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -108,14 +109,14 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     }
   }
 
-  def getHint[T](hintKey: Key[T]): T = {
+  override def getHint[T](hintKey: Key[T]): T = {
     hintKey match {
       case ElementClassHint.KEY => MyElementClassHint.asInstanceOf[T]
       case _ => null.asInstanceOf[T]
     }
   }
 
-  def handleEvent(event: PsiScopeProcessor.Event, associated: Object) {}
+  override def handleEvent(event: PsiScopeProcessor.Event, associated: Object) {}
 
   protected def kindMatches(element: PsiElement): Boolean = ResolveUtils.kindMatches(element, kinds)
 
@@ -181,17 +182,17 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         }
       case ScDesignatorType(e) =>
         processElement(e, ScSubstitutor.empty, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
-      case TypeParameterType(Nil, _, upper, _) =>
-        processType(upper, place, state, updateWithProjectionSubst = false, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
+      case tpt: TypeParameterType =>
+        processType(tpt.upperType, place, state, updateWithProjectionSubst = false, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
       case j: JavaArrayType =>
         implicit val elementScope = place.elementScope
         processType(j.getParameterizedType.getOrElse(return true),
           place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
       case p@ParameterizedType(designator, typeArgs) =>
         designator match {
-          case tpt@TypeParameterType(_, _, upper, _) =>
+          case tpt: TypeParameterType =>
             if (visitedTypeParameter.contains(tpt)) return true
-            processType(p.substitutor.subst(ParameterizedType(upper, typeArgs)), place,
+            processType(p.substitutor.subst(ParameterizedType(tpt.upperType, typeArgs)), place,
               state.put(ScSubstitutor.key, ScSubstitutor(p)), visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter + tpt)
           case _ => p.extractDesignatedType(expandAliases = false) match {
             case Some((designator, subst)) =>
@@ -199,13 +200,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             case None => true
           }
         }
-      case proj@ScProjectionType(_, _, _) if proj.actualElement.isInstanceOf[ScTypeAlias] =>
+      case proj@ScProjectionType(_, _) if proj.actualElement.isInstanceOf[ScTypeAlias] =>
         val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
         val subst = proj.actualSubst
         val upper = ta.upperBound.getOrElse(return true)
         processType(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
           visitedProjections = visitedProjections + ta, visitedTypeParameter = visitedTypeParameter)
-      case proj@ScProjectionType(_, _, _) =>
+      case proj@ScProjectionType(_, _) =>
         val s: ScSubstitutor = if (updateWithProjectionSubst)
           ScSubstitutor(proj) followed proj.actualSubst
         else proj.actualSubst
