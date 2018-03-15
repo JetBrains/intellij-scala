@@ -11,6 +11,8 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * Base class to store import-provided reference elements
@@ -18,9 +20,29 @@ import org.jetbrains.plugins.scala.extensions.ifReadAllowed
  * @author ilyas
  */
 abstract sealed class ImportUsed(val e: PsiElement) {
+  def importExpr: ScImportExpr
+
   override def toString: String = ifReadAllowed(e.getText)("")
 
   def qualName: Option[String]
+
+  def isAlwaysUsed: Boolean = {
+    val settings = ScalaCodeStyleSettings.getInstance(e.getProject)
+    qualName.exists(settings.isAlwaysUsedImport) || isLanguageFeatureImport
+  }
+
+  private def isLanguageFeatureImport: Boolean = {
+    val expr = importExpr
+
+    if (expr == null) return false
+    if (expr.qualifier == null) return false
+    expr.qualifier.resolve() match {
+      case o: ScObject =>
+        o.qualifiedName.startsWith("scala.language")
+      case _ => false
+    }
+  }
+
 }
 
 object ImportUsed {
@@ -35,11 +57,11 @@ object ImportUsed {
 /**
  * Class to mark whole import expression as used (qualified or ending with reference id)
  */
-case class ImportExprUsed(expr: ScImportExpr) extends ImportUsed(expr) {
+case class ImportExprUsed(importExpr: ScImportExpr) extends ImportUsed(importExpr) {
   override def qualName: Option[String] = {
-    if (expr.qualifier == null) None
-    else if (expr.isSingleWildcard) Some(expr.qualifier.qualName + "._")
-    else expr.reference.map(ref => expr.qualifier.qualName + "." + ref.refName)
+    if (importExpr.qualifier == null) None
+    else if (importExpr.isSingleWildcard) Some(importExpr.qualifier.qualName + "._")
+    else importExpr.reference.map(ref => importExpr.qualifier.qualName + "." + ref.refName)
   }
 
   override def toString: String = "ImportExprUsed(" + super.toString + ")"
@@ -74,14 +96,19 @@ case class ImportExprUsed(expr: ScImportExpr) extends ImportUsed(expr) {
  *
  */
 case class ImportSelectorUsed(sel: ScImportSelector) extends ImportUsed(sel) {
+
+  override def importExpr: ScImportExpr = PsiTreeUtil.getParentOfType(sel, classOf[ScImportExpr])
+
   override def qualName: Option[String] = {
-    val importExpr = PsiTreeUtil.getParentOfType(sel, classOf[ScImportExpr])
     importExpr.reference.zip(sel.reference).map {
       case (left, right) => s"${left.qualName}.${right.refName}"
     }.headOption
   }
 
   override def toString: String = "ImportSelectorUsed(" + super.toString + ")"
+
+  //we can't reliable tell that shadowing is redundant, so it should never be marked as unused
+  override def isAlwaysUsed: Boolean = sel.importedName.contains("_") || super.isAlwaysUsed
 }
 
 /**
@@ -90,9 +117,9 @@ case class ImportSelectorUsed(sel: ScImportSelector) extends ImportUsed(sel) {
  *
  * import aaa.bbb.{A => B, C => _ , _}
  */
-case class ImportWildcardSelectorUsed(elem: ScImportExpr) extends ImportUsed(elem) {
+case class ImportWildcardSelectorUsed(importExpr: ScImportExpr) extends ImportUsed(importExpr) {
   override def qualName: Option[String] = {
-    elem.reference.map(ref => ref.qualName + "._")
+    importExpr.reference.map(ref => ref.qualName + "._")
   }
 
   override def toString: String = "ImportWildcardSelectorUsed(" + super.toString + ")"

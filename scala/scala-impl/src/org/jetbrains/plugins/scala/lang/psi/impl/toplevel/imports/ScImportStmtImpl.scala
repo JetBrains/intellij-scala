@@ -219,7 +219,7 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
                     if (isImportAlias) {
                       for (result <- reference.multiResolveScala(false)) {
                         //Resolve the name imported by selector
-                        //Collect shadowed elements
+                        //Collect shadowed and aliased elements
                         shadowed += ((selector, result.getElement))
                         val importedName = selector.importedName.map(clean)
 

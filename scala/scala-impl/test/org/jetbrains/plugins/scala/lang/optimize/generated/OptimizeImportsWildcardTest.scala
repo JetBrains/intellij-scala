@@ -22,4 +22,6 @@ class OptimizeImportsWildcardTest extends OptimizeImportsTestBase {
   def testImplicitDef() = doTest()
 
   def testNameConflictTypeAlias() = doTest()
+
+  def testShadowAndSelectors() = doTest()
 }

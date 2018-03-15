@@ -4,15 +4,13 @@ package importsTracker
 
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.worksheet.ScalaScriptImportsUtil
 
-import scala.collection.mutable
 import scala.collection.Set
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -35,26 +33,22 @@ object ImportTracker {
   }
 
   def getUnusedImports(file: ScalaFile): Seq[ImportUsed] = {
-    val buff = new mutable.HashSet[ImportUsed]()
+    val redundant = ArrayBuffer.empty[ImportUsed]
     val imports = file.getAllImportUsed
     val refHolder = ScalaRefCountHolder.getInstance(file)
 
     refHolder.retrieveUnusedReferencesInfo { () =>
-      imports.foreach {
-        case used@ImportSelectorUsed(e) => //if the entire line is unused, highlight the entire line
-          if (refHolder.isRedundant(used)) {
-            e.parent.flatMap(_.parent) match {
-              case Some(expr: ScImportExpr) if expr.selectors.map(ImportSelectorUsed).forall(refHolder.isRedundant) =>
-                buff += ImportExprUsed(expr)
-              case _ => buff += used
-            }
-          }
-        case used  =>
-          if (refHolder.isRedundant(used)) {
-            buff += used
-          }
+      imports.groupBy(_.importExpr).foreach {
+        case (expr, importsUsed) =>
+          val toHighlight =
+            importsUsed.filter(imp => refHolder.noUsagesFound(imp) && !imp.isAlwaysUsed)
+
+          if (toHighlight.size == importsUsed.size)
+            redundant += ImportExprUsed(expr)
+          else
+            redundant ++= toHighlight
       }
     }
-    ScalaScriptImportsUtil.filterScriptImportsInUnused(file, buff.toSeq)
+    ScalaScriptImportsUtil.filterScriptImportsInUnused(file, redundant)
   }
 }

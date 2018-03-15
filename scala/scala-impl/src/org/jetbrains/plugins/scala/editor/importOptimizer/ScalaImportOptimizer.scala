@@ -23,8 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScMethodCall}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -127,15 +127,12 @@ class ScalaImportOptimizer extends ImportOptimizer {
     }
 
     val importsSettings = settings(project)
-    import importsSettings._
 
     def isImportUsed(importUsed: ImportUsed): Boolean = {
       //todo: collect proper information about language features
-      importUsed match {
-        case ImportSelectorUsed(sel) if sel.isAliasedImport => true
-        case _ => usedImports.contains(importUsed) || isLanguageFeatureImport(importUsed) || 
-          importUsed.qualName.exists(isAlwaysUsedImport) || ScalaScriptImportsUtil.isImportUsed(importUsed)
-      }
+      importUsed.isAlwaysUsed ||
+        usedImports.contains(importUsed) ||
+        ScalaScriptImportsUtil.isImportUsed(importUsed)
     }
 
     val rangeInfos = collectRanges(createInfo(_, isImportUsed))
@@ -346,21 +343,6 @@ object ScalaImportOptimizer {
       }
     }
     None
-  }
-
-  def isLanguageFeatureImport(used: ImportUsed): Boolean = {
-    val expr = used match {
-      case ImportExprUsed(e) => e
-      case ImportSelectorUsed(selector) => PsiTreeUtil.getParentOfType(selector, classOf[ScImportExpr])
-      case ImportWildcardSelectorUsed(e) => e
-    }
-    if (expr == null) return false
-    if (expr.qualifier == null) return false
-    expr.qualifier.resolve() match {
-      case o: ScObject =>
-        o.qualifiedName.startsWith("scala.language") || o.qualifiedName.startsWith("scala.languageFeature")
-      case _ => false
-    }
   }
 
   class ImportTextCreator {

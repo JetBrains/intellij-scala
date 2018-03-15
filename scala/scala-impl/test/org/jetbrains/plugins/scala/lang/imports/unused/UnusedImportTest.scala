@@ -69,4 +69,124 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
       """.stripMargin
     assert(messages(text).isEmpty)
   }
+
+  def testShadowAndWildcard(): Unit = {
+    val text =
+      """
+        |object A {
+        |  class X
+        |  class Y
+        |}
+        |
+        |import A.{X => _, _}
+        |object B {
+        |  new Y
+        |}
+      """.stripMargin
+    assert(messages(text).isEmpty)
+  }
+
+  def testSelectorAndWildcard(): Unit = {
+    val text =
+      """
+        |object A {
+        |  class X
+        |  class Y
+        |}
+        |
+        |import A.{X => Z, _}
+        |object B {
+        |  new Y
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("X => Z", _) :: Nil =>
+    }
+  }
+
+  def testUnusedImplicitSelectorAndWildcard(): Unit = {
+    val text =
+      """object A {
+        |  class X
+        |  class Y
+        |
+        |  implicit val s: String = ""
+        |}
+        |
+        |import A.{s => implicitString, X => Z, _}
+        |object B {
+        |  (new Y, new Z)
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("s => implicitString", _) :: Nil =>
+    }
+  }
+
+  def testUnusedFoundImplicitSelectorAndWildcard(): Unit = {
+    val text =
+      """object A {
+        |  class X
+        |  class Y
+        |
+        |  implicit val s: String = ""
+        |}
+        |
+        |object B {
+        |  import A.{s => implicitString, X => Z, _}
+        |
+        |  def foo(implicit s: String) = s
+        |  foo
+        |
+        |  new Y
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("X => Z", _) :: Nil =>
+    }
+  }
+
+  def testSelectorAndShadow(): Unit = {
+    val text =
+      """object A {
+        |  class X
+        |  class Y
+        |
+        |  implicit val s: String = ""
+        |}
+        |
+        |import A.{X => Z, s => _}
+        |object B {
+        |  new Z
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case Nil =>
+    }
+  }
+
+  def testUnusedWildcard(): Unit = {
+    val text =
+      """
+        |object A {
+        |  class X
+        |  class Y
+        |
+        |  implicit val s: String = ""
+        |}
+        |
+        |import A.{Y, X => Z, s => _, _}
+        |object B {
+        |  (new Y, new Z)
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("_", _) :: Nil =>
+    }
+  }
 }

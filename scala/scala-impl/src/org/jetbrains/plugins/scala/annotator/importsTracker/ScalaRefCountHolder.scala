@@ -42,7 +42,7 @@ class ScalaRefCountHolder private () {
     myValueUsed.add(used)
   }
 
-  def isRedundant(used: ImportUsed): Boolean = {
+  def noUsagesFound(used: ImportUsed): Boolean = {
     assertIsRetrieving()
     !myImportUsed.contains(used)
   }
