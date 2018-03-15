@@ -204,12 +204,17 @@ private[shell] object SbtProcessUtil {
     line.trim.startsWith(IDEA_PROMPT_MARKER)
 
   def promptError(line: String): Boolean =
-    line.contains("(r)etry, (q)uit, (l)ast, or (i)gnore")
+    line.trim.endsWith("(r)etry, (q)uit, (l)ast, or (i)gnore?")
 
   // sucky workaround for jdwp printing this line on the console when deactivating debugger
   def debuggerMessage(line: String): Boolean =
     line.contains("Listening for transport")
+
+  implicit class StringExt(val str: String) extends AnyVal {
+    def trimRight: String = str.replaceAll("\\s+$", "")
+  }
 }
+
 
 /**
   * Pieces lines back together from parts of colored lines.
@@ -228,7 +233,7 @@ private[shell] abstract class LineListener extends ProcessAdapter with AnsiEscap
 
   private def buildLine(text: String): Option[String] = builder.synchronized {
     def lineDone(): Option[String] = {
-      val line = builder.result()
+      val line = builder.result().trimRight
       builder.clear()
       Some(line)
     }

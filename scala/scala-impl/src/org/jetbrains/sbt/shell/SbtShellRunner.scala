@@ -82,6 +82,12 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       // this is not correct when shell process was started without view, but we avoid that
       sbtConsoleView.setPrompt("(initializing) >")
 
+      def scrollToEnd(): Unit = inUI {
+        val editor = getConsoleView.getHistoryViewer
+        if (!editor.isDisposed)
+          EditorUtil.scrollToTheEnd(editor)
+      }
+
       // TODO update icon with ready/working state
       val shellPromptChanger = new SbtShellReadyListener(
         whenReady = if (notInTest) {
@@ -93,12 +99,6 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
           scrollToEnd()
         }
       )
-
-      def scrollToEnd(): Unit = inUI {
-        val editor = getConsoleView.getHistoryViewer
-        if (!editor.isDisposed)
-          EditorUtil.scrollToTheEnd(editor)
-      }
 
       myProcessHandler.addProcessListener(shellPromptChanger)
       SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
