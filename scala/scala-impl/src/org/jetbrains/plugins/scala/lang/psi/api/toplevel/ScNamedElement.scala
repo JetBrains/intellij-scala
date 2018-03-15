@@ -38,10 +38,6 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
     }
   }
 
-  def name_=(it: String) {
-    setName(it)
-  }
-
   def nameInner: String = nameId.getText
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)

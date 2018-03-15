@@ -20,12 +20,16 @@ class ScalazDerivingInjector extends SyntheticMembersInjector {
   private def hasDeriving(source: ScTypeDefinition): Boolean =
     (source.findAnnotationNoAliases("deriving") != null) ||
     (source.findAnnotationNoAliases("scalaz.deriving") != null) ||
+    (source.findAnnotationNoAliases("xderiving") != null) ||
+    (source.findAnnotationNoAliases("scalaz.xderiving") != null) ||
     (source.findAnnotationNoAliases("stalactite.deriving") != null)
 
   // slower, more correct
   private def getDeriving(source: ScTypeDefinition): Option[ScAnnotation] =
     source.annotations("deriving").headOption orElse
     source.annotations("scalaz.deriving").headOption orElse
+    source.annotations("xderiving").headOption orElse
+    source.annotations("scalaz.xderiving").headOption orElse
     source.annotations("stalactite.deriving").headOption
 
   // so annotated sealed traits will generate a companion

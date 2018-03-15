@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl.Te
  * @author Roman.Shein
  * @since 09.04.2015.
  */
+// TODO move to the implemenation of testing support
 class TestStructureViewElement(elem: PsiElement, protected val testName: String,
                                protected val myChildren: Array[TreeElement] = Array[TreeElement](),
                                val testStatus: Int = TestStructureViewElement.normalStatusId)

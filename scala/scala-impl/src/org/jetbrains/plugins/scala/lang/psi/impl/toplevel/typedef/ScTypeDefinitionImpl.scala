@@ -13,12 +13,10 @@ import com.intellij.lang.ASTNode
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.navigation._
 import com.intellij.openapi.editor.colors._
-import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import com.intellij.util.VisibilityIcons
+import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.conversion.JavaToScala
 import org.jetbrains.plugins.scala.extensions._
@@ -129,6 +127,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
 
   override def getModifierList: ScModifierList = super[ScTypeDefinition].getModifierList
 
+  // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = super[ScTypeDefinition].hasModifierProperty(name)
 
   override def getNavigationElement = getContainingFile match {
@@ -339,25 +338,6 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     Predef.assert(nameId != null, "Class hase null nameId. Class text: " + getText) //diagnostic for EA-20122
     new JavaIdentifier(nameId)
   }
-
-  override def getIcon(flags: Int): Icon = {
-    val icon = getIconInner
-    return icon //todo: remove, when performance issues will be fixed
-    if (!this.isValid) return icon //to prevent Invalid access: EA: 13535
-    val isLocked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable
-    val rowIcon = ElementBase.createLayeredIcon(this, icon, ElementPresentationUtil.getFlags(this, isLocked))
-    if ((flags & Iconable.ICON_FLAG_VISIBILITY) != 0) {
-      val accessLevel = {
-        if (hasModifierProperty("private")) PsiUtil.ACCESS_LEVEL_PRIVATE
-        else if (hasModifierProperty("protected")) PsiUtil.ACCESS_LEVEL_PROTECTED
-        else PsiUtil.ACCESS_LEVEL_PUBLIC
-      }
-      VisibilityIcons.setVisibilityIcon(accessLevel, rowIcon)
-    }
-    rowIcon
-  }
-
-  protected def getIconInner: Icon
 
   override def getDocComment: PsiDocComment = super[ScTypeDefinition].getDocComment
 

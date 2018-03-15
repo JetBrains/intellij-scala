@@ -66,4 +66,8 @@ class TypeConformanceExistentialTest extends TypeConformanceTestBase {
         |""".stripMargin
     )
   }
+
+  def testSCL13326(): Unit = {doTest()}
+
+  def testSCL13326_1(): Unit = {doTest()}
 }

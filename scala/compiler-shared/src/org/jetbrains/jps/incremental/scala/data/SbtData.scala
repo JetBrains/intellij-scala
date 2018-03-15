@@ -20,7 +20,7 @@ case class SbtData(sbtInterfaceJar: File,
 
 object SbtData {
 
-  case class SourceJars(_2_10: File, _2_11: File)
+  case class SourceJars(_2_10: File, _2_11: File, _2_13: File)
 
   val compilerInterfacesKey = "scala.compiler.interfaces.dir"
 
@@ -49,12 +49,13 @@ object SbtData {
             compilerInterfaceJar <- fileWithName("compiler-interface.jar")
             source_2_10          <- fileWithName("compiler-interface-sources-2.10.jar")
             source_2_11          <- fileWithName("compiler-interface-sources-2.11.jar")
+            source_2_13          <- fileWithName("compiler-interface-sources-2.13.jar")
             sbtVersion           <- readSbtVersionFrom(sbtInterfaceJar)
           } yield {
 
             val checksum = encodeHex(md5(source_2_10))
             val interfacesHome = new File(compilerInterfacesDir, sbtVersion + "-idea-" + checksum)
-            val sources = SourceJars(source_2_10, source_2_11)
+            val sources = SourceJars(source_2_10, source_2_11, source_2_13)
 
             new SbtData(sbtInterfaceJar, compilerInterfaceJar, sources, interfacesHome, javaClassVersion)
           }

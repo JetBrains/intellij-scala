@@ -35,8 +35,6 @@ case class ElementScope(project: Project, scope: GlobalSearchScope) {
       case t: ScTrait => t
     }.map { t =>
       val parameters = t.typeParameters.map {
-        TypeParameterType(_)
-      }.map {
         UndefinedType(_, level = level)
       }
 

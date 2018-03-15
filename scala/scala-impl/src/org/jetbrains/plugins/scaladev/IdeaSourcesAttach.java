@@ -54,37 +54,40 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
         new Task.Backgroundable(myProject, "Attaching Idea Sources", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                final Set<LibraryOrderEntry> libs = getLibsWithoutSourceRoots();
-                LOG.info("Got " + libs.size() + " total IDEA libraries with missing source roots");
-                if (libs.isEmpty()) return;
-                LibraryOrderEntry pivot = null;
-                for (LibraryOrderEntry lib : libs) {
-                    Library library = lib.getLibrary();
-                    if (library != null && library.getFiles(OrderRootType.CLASSES).length > 0) {
-                        pivot = lib;
-                        break;
+                ApplicationManager.getApplication().runReadAction(() -> {
+                    final Set<LibraryOrderEntry> libs = getLibsWithoutSourceRoots();
+                    LOG.info("Got " + libs.size() + " total IDEA libraries with missing source roots");
+                    if (libs.isEmpty()) return;
+                    LibraryOrderEntry pivot = null;
+                    for (LibraryOrderEntry lib : libs) {
+                        Library library = lib.getLibrary();
+                        if (library != null && library.getFiles(OrderRootType.CLASSES).length > 0) {
+                            pivot = lib;
+                            break;
+                        }
                     }
-                }
-                if (pivot == null) {
-                    LOG.error("No libraries with valid class roots found");
-                    return;
-                }
+                    if (pivot == null) {
+                        LOG.error("No libraries with valid class roots found");
+                        return;
+                    }
 
-                final VirtualFile zip = findSourcesZip(findCurrentSDKDir(pivot));
-                if (zip == null) return;
-                LOG.info("Found related sources archive: " + zip.getCanonicalPath());
-                setTitle("Scanning for Sources Archive");
-                final Collection<VirtualFile> roots = new LibraryJavaSourceRootDetector().detectRoots(zip, indicator);
-                setTitle("Attaching Source Roots");
-                for (LibraryOrderEntry lib : libs) {
-                    final Library library = lib.getLibrary();
-                    if (library != null && library.getUrls(OrderRootType.SOURCES).length == 0) {
-                        TransactionGuard.getInstance().submitTransactionLater(myProject, () ->
-                                AttachSourcesUtil.appendSources(library, roots.toArray(new VirtualFile[roots.size()]))
-                        );
+                    final VirtualFile zip = findSourcesZip(findCurrentSDKDir(pivot));
+                    if (zip == null) return;
+                    LOG.info("Found related sources archive: " + zip.getCanonicalPath());
+                    setTitle("Scanning for Sources Archive");
+                    final Collection<VirtualFile> roots = new LibraryJavaSourceRootDetector().detectRoots(zip, indicator);
+                    setTitle("Attaching Source Roots");
+                    for (LibraryOrderEntry lib : libs) {
+                        final Library library = lib.getLibrary();
+                        if (library != null && library.getUrls(OrderRootType.SOURCES).length == 0) {
+                            TransactionGuard.getInstance().submitTransactionLater(myProject, () ->
+                                    AttachSourcesUtil.appendSources(library, roots.toArray(new VirtualFile[roots.size()]))
+                            );
+                        }
                     }
-                }
-                LOG.info("Finished attaching IDEA sources");
+                    LOG.info("Finished attaching IDEA sources");
+                });
+
             }
         }.queue();
     }
@@ -141,7 +144,11 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
     }
 
     private VirtualFile findCurrentSDKDir(LibraryOrderEntry anyLib) {
-        String path = anyLib.getFiles(OrderRootType.CLASSES)[0].getCanonicalPath();
+        VirtualFile[] jarFiles = anyLib.getFiles(OrderRootType.CLASSES);
+        String path = jarFiles[0].getCanonicalPath();
+        if (path != null && path.contains("tools.jar") && jarFiles.length > 1) {
+            path = jarFiles[1].getCanonicalPath();
+        }
         if (path == null) return null;
         VirtualFile parent = VirtualFileManager.getInstance().findFileByUrl("file://" + path.substring(0, path.length() - 2));
         while (parent != null) {

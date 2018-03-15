@@ -54,7 +54,7 @@ object SbtModuleData {
 
 @SerialVersionUID(1)
 case class SbtProjectData(basePackages: Seq[String],
-                          jdk: Option[Sdk],
+                          jdk: Option[SdkReference],
                           javacOptions: Seq[String],
                           sbtVersion: String,
                           projectPath: String
@@ -94,7 +94,7 @@ case class ModuleExtData(scalaOrganization: String,
                          scalaVersion: Option[Version],
                          scalacClasspath: Seq[File],
                          scalacOptions: Seq[String],
-                         jdk: Option[Sdk],
+                         jdk: Option[SdkReference],
                          javacOptions: Seq[String]
                    ) extends SbtEntityData
 

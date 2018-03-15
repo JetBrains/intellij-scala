@@ -2,8 +2,7 @@ package org.jetbrains.sbt
 package project
 
 import com.intellij.notification._
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListenerAdapter, ExternalSystemTaskType}
-import org.jetbrains.sbt.project.settings.SbtLocalSettings
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListenerAdapter}
 
 /**
  * @author Pavel Fatin
@@ -14,16 +13,6 @@ class SbtNotificationListener extends ExternalSystemTaskNotificationListenerAdap
     // TODO this check must be performed in the External System itself (see SCL-7405)
     if (id.getProjectSystemId == SbtProjectSystem.Id) {
       processOutput(text)
-    }
-  }
-
-  override def onSuccess(id: ExternalSystemTaskId): Unit = {
-    for {
-      project  <- Option(id.findProject())
-      settings <- Option(SbtLocalSettings.getInstance(project))
-      if id.getType == ExternalSystemTaskType.RESOLVE_PROJECT
-    } {
-      settings.lastUpdateTimestamp = System.currentTimeMillis()
     }
   }
 

@@ -1,12 +1,12 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
-package elements
-package impl
+package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 
 /**
@@ -14,10 +14,17 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 * Date: 05.05.2008
 */
 
-class ScalaVariableStructureViewElement(named: ScNamedElement, val isInherited: Boolean) extends ScalaStructureViewElement(named, isInherited) {
-  def getPresentation: ItemPresentation = {
-    new ScalaVariableItemPresentation(named.nameId, isInherited)
+class ScalaVariableStructureViewElement(element: ScNamedElement, inherited: Boolean) extends ScalaStructureViewElement(element, inherited) {
+  override def getPresentation: ItemPresentation =
+    new ScalaVariableItemPresentation(element, inherited)
+
+  override def getChildren: Array[TreeElement] = variable match {
+    case Some(definition: ScVariableDefinition) => definition.expr match {
+      case Some(block: ScBlockExpr) => new ScalaBlockStructureViewElement(block).getChildren
+      case _ => Array.empty
+    }
+    case _ => Array.empty
   }
 
-  def getChildren: Array[TreeElement] = Array.empty
+  private def variable = element.parentsInFile.findByType[ScVariable]
 }

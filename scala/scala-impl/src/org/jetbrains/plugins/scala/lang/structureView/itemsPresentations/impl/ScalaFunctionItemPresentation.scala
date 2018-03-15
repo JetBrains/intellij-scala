@@ -1,22 +1,30 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
-package itemsPresentations
-package impl
+package org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl
 
 import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
+import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
 
-class ScalaFunctionItemPresentation(private val element: ScFunction, private val isInherited: Boolean) extends ScalaItemPresentation(element) {
-  def getPresentableText: String = {
-    ScalaElementPresentation.getMethodPresentableText(myElement.asInstanceOf[ScFunction])
+class ScalaFunctionItemPresentation(element: ScFunction, inherited: Boolean) extends ScalaItemPresentation(element) {
+  override def getPresentableText: String = {
+    val presentation = ScalaElementPresentation.getMethodPresentableText(element)
+
+    val inferredType =
+      if (element.isConstructor) None
+      else element.returnTypeElement match {
+        case Some(_) => None
+        case None => element.returnType.toOption.map(ScTypePresentation.withoutAliases)
+      }
+
+    presentation + inferredType.map(": " + _).mkString
   }
-  override def getTextAttributesKey: TextAttributesKey = {
-    if (isInherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
-  }
+
+  override def getTextAttributesKey: TextAttributesKey =
+    if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
 }

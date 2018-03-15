@@ -5,8 +5,12 @@ package api
 package toplevel
 package typedef
 
+import javax.swing.Icon
+
 import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDecoratedIconOwner
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 
 /** 
@@ -14,8 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 * @since 20.02.2008
 */
 
-trait ScTrait extends ScTypeDefinition {
+trait ScTrait extends ScTypeDefinition with ScDecoratedIconOwner {
+
+  override protected def getBaseIcon(flags: Int): Icon = Icons.TRAIT
+
   def getTraitToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kTRAIT)
+
   def getObjectClassOrTraitToken: PsiElement = getTraitToken
 
   def fakeCompanionClass: PsiClass = {

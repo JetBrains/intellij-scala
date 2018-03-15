@@ -11,9 +11,6 @@
             <implementation-class>org.jetbrains.sbt.project.notifications.LegacyProjectFormatNotifier</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.sbt.project.autoimport.SbtAutoImportComponent</implementation-class>
-        </component>
-        <component>
             <implementation-class>org.jetbrains.sbt.resolvers.SbtIndexesManager</implementation-class>
         </component>
         <component>
@@ -109,8 +106,6 @@
                         level="WARNING" enabledByDefault="true" language="Scala"/>
 
         <configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>
-        <editorNotificationProvider implementation="org.jetbrains.sbt.project.notifications.SbtReImportNotificationProvider"/>
-        <editorNotificationProvider implementation="org.jetbrains.sbt.project.notifications.SbtNoImportNotificationProvider"/>
 
         <projectTaskRunner implementation="org.jetbrains.sbt.shell.SbtProjectTaskRunner"/>
         <postStartupActivity implementation="org.jetbrains.sbt.project.SbtStartupActivity"/>
@@ -119,6 +114,7 @@
 
     <extensions defaultExtensionNs="org.intellij.scala">
         <scalaFileFactory implementation="org.jetbrains.sbt.language.SbtFileFactory" />
+        <unresolvedReferenceFixProvider implementation="org.jetbrains.sbt.annotator.dependency.AddSbtDependencyFixProvider" />
     </extensions>
 
     <actions>

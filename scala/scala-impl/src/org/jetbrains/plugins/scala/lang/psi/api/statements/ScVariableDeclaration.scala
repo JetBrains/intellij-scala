@@ -13,4 +13,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 trait ScVariableDeclaration extends ScVariable with ScTypedDeclaration {
   def getIdList: ScIdList
   def declaredElements : Seq[ScTypedDefinition]
+  override def isAbstract: Boolean = true
 }

@@ -49,7 +49,7 @@ class ScProjectionType private(val projected: ScType,
                   case ParameterizedType(des, typeArgs) =>
                     val taArgs = ta.typeParameters
                     if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
-                      case (tParam: ScTypeParam, TypeParameterType(_, _, _, param)) if tParam == param => true
+                      case (tParam: ScTypeParam, TypeParameterType.ofPsi(param)) if tParam == param => true
                       case _ => false
                     }) return Some(AliasType(ta, Right(des), Right(des)))
                   case _ =>

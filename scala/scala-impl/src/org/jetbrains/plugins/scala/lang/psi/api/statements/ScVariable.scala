@@ -16,22 +16,26 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 /**
  * @author Alexander Podkhalyuzin
  */
-trait ScVariable extends ScValueOrVariable {
+trait ScVariable extends ScValueOrVariable with ScDecoratedIconOwner {
   override protected def keywordElementType: IElementType = kVAR
 
   override protected def isSimilarMemberForNavigation(member: ScMember, isStrict: Boolean): Boolean = member match {
     case other: ScVariable => super.isSimilarMemberForNavigation(other, isStrict)
     case _ => false
   }
-  override def getIcon(flags: Int): Icon = {
+
+  // TODO unify with ScFunction and ScValue
+  override protected def getBaseIcon(flags: Int): Icon = {
     var parent = getParent
     while (parent != null) {
       parent match {
-        case _: ScExtendsBlock => return Icons.FIELD_VAR
-        case _: ScBlock => return Icons.VAR
+        case _: ScExtendsBlock => return if (isAbstract) Icons.ABSTRACT_FIELD_VAR else Icons.FIELD_VAR
+        case (_: ScBlock | _: ScalaFile) => return Icons.VAR
         case _ => parent = parent.getParent
       }
     }
     null
   }
+
+  def isAbstract: Boolean
 }

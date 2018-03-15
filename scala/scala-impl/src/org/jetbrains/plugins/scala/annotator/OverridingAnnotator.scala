@@ -14,7 +14,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.types.Signature
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, Signature}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
@@ -216,5 +221,69 @@ trait OverridingAnnotator {
       }
     }
 
+    def effectiveParams(fun: ScFunction) = fun.effectiveParameterClauses.flatMap(_.effectiveParameters)
+
+    def overrideTypeMatchesBase(baseType: ScType, overType: ScType, s: Signature, baseName: String): Boolean = {
+      val actualType = if (s.name == baseName + "_=") {
+        overType match {
+          case ScParameterizedType(des, args) if des.canonicalText == "_root_.scala.Function1" => args.head
+          case _ => return true
+        }
+      } else overType
+      val actualBase = (s.namedElement, member) match {
+        case (sFun: ScFunction, mFun: ScFunction) if effectiveParams(sFun).length == effectiveParams(mFun).length &&
+          s.typeParams.length == mFun.typeParameters.length =>
+          val sParams = effectiveParams(sFun)
+          val mParams = effectiveParams(mFun)
+          val sTypeParams = s.typeParams
+          val mTypeParams = mFun.typeParameters
+
+          val subst =
+            if (sParams.size != mParams.size || sTypeParams.size != mTypeParams.size)
+              s.substitutor
+            else {
+              val typeParamSubst = ScSubstitutor.bind(sTypeParams, mTypeParams)(TypeParameterType(_))
+              val oldParamToNewTypeMap = sParams.map(p => Parameter(p)).zip(mParams.map(ScDesignatorType(_))).toMap
+              val paramTypesSubst = ScSubstitutor(() => oldParamToNewTypeMap)
+              s.substitutor.followed(typeParamSubst).followed(paramTypesSubst)
+            }
+          subst.subst(baseType)
+        case _ => s.substitutor.subst(baseType)
+      }
+      def allowEmptyParens(pat: ScBindingPattern): Boolean = pat.nameContext match {
+        case v: ScValueOrVariable => v.typeElement.isDefined || ScalaPsiUtil.isBeanProperty(v)
+        case _ => false
+      }
+      actualType.conforms(actualBase) || ((actualBase, actualType, member) match {
+        case (ScParameterizedType(des, args), _, pat: ScBindingPattern) if des.canonicalText == "_root_.scala.Function0" &&
+          allowEmptyParens(pat) => actualType.conforms(args.head)
+        case (ScParameterizedType(des, args), _, _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
+          actualType.conforms(args.head)
+        case (aType, ScParameterizedType(des, args), _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
+          aType.conforms(args.head)
+        case _ => false
+      })
+    }
+
+    def compareWithSignatures(overType: ScType): Unit = {
+      superSignatures.foreach {
+        case s: Signature =>
+          s.namedElement match {
+            case tp: Typeable =>
+              tp.`type`().foreach { baseType =>
+                if (!overrideTypeMatchesBase(baseType, overType, s, tp.name))
+                  holder.createErrorAnnotation(member.nameId,
+                    ScalaBundle.message("override.types.not.conforming", overType.presentableText, baseType.presentableText))
+              }
+            case _ =>
+          }
+        case _ =>
+      }
+    }
+
+    if (superSignatures.nonEmpty) member match {
+      case tMember: Typeable => tMember.`type`().map(compareWithSignatures)
+      case _ =>
+    }
   }
 }

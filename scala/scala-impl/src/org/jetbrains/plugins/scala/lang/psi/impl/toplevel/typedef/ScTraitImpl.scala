@@ -8,7 +8,6 @@ package typedef
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -25,7 +24,8 @@ import scala.collection.mutable.ArrayBuffer
 * @since 20.02.2008
 */
 class ScTraitImpl private (stub: ScTemplateDefinitionStub, node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, ScalaElementTypes.TRAIT_DEFINITION, node) with ScTrait with ScTypeParametersOwner with ScTemplateDefinition {
+  extends ScTypeDefinitionImpl(stub, ScalaElementTypes.TRAIT_DEFINITION, node) with ScTrait
+    with ScTypeParametersOwner with ScTemplateDefinition {
 
   def this(node: ASTNode) = this(null, node)
 
@@ -44,8 +44,6 @@ class ScTraitImpl private (stub: ScTemplateDefinitionStub, node: ASTNode)
 
 
   override def toString: String = "ScTrait: " + ifReadAllowed(name)("")
-
-  override def getIconInner = Icons.TRAIT
 
   import com.intellij.psi._
   import com.intellij.psi.scope.PsiScopeProcessor

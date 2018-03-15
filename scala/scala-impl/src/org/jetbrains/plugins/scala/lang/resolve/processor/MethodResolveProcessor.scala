@@ -432,7 +432,7 @@ object MethodResolveProcessor {
           val typeParamIds = typeParameters.map(_.typeParamId).toSet
           def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
 
-          for (TypeParameter(_, lowerType, upperType, tParam) <- typeParameters) {
+          for (TypeParameter(tParam, _, lowerType, upperType) <- typeParameters) {
             if (lowerType != Nothing) {
               val substedLower = s.subst(unSubst.subst(lowerType))
               if (!hasRecursiveTypeParameters(substedLower)) {

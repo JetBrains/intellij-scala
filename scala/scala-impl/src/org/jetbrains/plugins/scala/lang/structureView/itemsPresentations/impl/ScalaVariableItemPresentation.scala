@@ -1,30 +1,34 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
-package itemsPresentations
-package impl
+package org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl
 
-import javax.swing._
+import javax.swing.Icon
 
 import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.icons.Icons
+import com.intellij.openapi.util.Iconable
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
+import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 05.05.2008
 */
 
-class ScalaVariableItemPresentation(private val element: PsiElement, isInherited: Boolean) extends ScalaItemPresentation(element) {
-  def getPresentableText: String = {
-    ScalaElementPresentation.getPresentableText(myElement)
+class ScalaVariableItemPresentation(element: ScNamedElement, inherited: Boolean) extends ScalaItemPresentation(element) {
+  override def getPresentableText: String = {
+    val typeAnnotation = variable.flatMap(_.typeElement.map(_.getText))
+
+    def inferredType = variable.flatMap(_.`type`().toOption).map(ScTypePresentation.withoutAliases)
+
+    element.nameId.getText + typeAnnotation.orElse(inferredType).map(": " + _).mkString
   }
 
-  override def getIcon(open: Boolean): Icon = {
-    Icons.VAR
-  }
+  override def getIcon(open: Boolean): Icon =
+    variable.map(_.getIcon(Iconable.ICON_FLAG_VISIBILITY)).orNull
 
-  override def getTextAttributesKey: TextAttributesKey = {
-    if(isInherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
-  }
+  private def variable = element.parentsInFile.findByType[ScVariable]
+
+  override def getTextAttributesKey: TextAttributesKey =
+    if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
 }

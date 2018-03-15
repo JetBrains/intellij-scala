@@ -12,7 +12,6 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightField
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.{CLASS_DEFINITION, PRIMARY_CONSTRUCTOR}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -36,7 +35,8 @@ import scala.collection.mutable.ArrayBuffer
   */
 
 class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, CLASS_DEFINITION, node) with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
+  extends ScTypeDefinitionImpl(stub, CLASS_DEFINITION, node) with ScClass
+    with ScTypeParametersOwner with ScTemplateDefinition {
 
   def this(node: ASTNode) =
     this(null, node)
@@ -58,8 +58,6 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
     if (isCase) fakeCompanionModule.map(_.getName).toArray
     else Array.empty
   }
-
-  override def getIconInner = Icons.CLASS
 
   override def constructor: Option[ScPrimaryConstructor] = desugaredElement match {
     case Some(templateDefinition: ScConstructorOwner) => templateDefinition.constructor
@@ -128,22 +126,6 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
         isStatic = false, isInterface = isInterface)(res += _, names += _)
     }
 
-
-    if (isCase) {
-      //for Scala this is done in ScalaOIUtil.isProductAbstractMethod, for Java we do it here
-      val caseClassGeneratedFunctions = Array(
-        "def canEqual(that: Any): Boolean = ???",
-        "def equals(that: Any): Boolean = ???",
-        "def productArity: Int = ???",
-        "def productElement(n: Int): Any = ???"
-      )
-
-      caseClassGeneratedFunctions.foreach { funText =>
-        val fun: ScFunction = ScalaPsiElementFactory.createMethodWithContext(funText, this, this)
-        fun.setSynthetic(this)
-        res += fun
-      }
-    }
 
     ScalaPsiUtil.getCompanionModule(this) match {
       case Some(o: ScObject) =>

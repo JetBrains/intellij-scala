@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 
-import com.intellij.codeInsight.hints._
+import com.intellij.codeInsight.hints.InlayInfo
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -9,14 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 package object hints {
-
-  private[hints] object HintOption {
-
-    def apply(defaultValue: Boolean, idSegments: String*): Option = {
-      val id = "scala" +: idSegments :+ "hint"
-      new Option(id.mkString("."), s"Show ${idSegments.mkString(" ")} hints", defaultValue)
-    }
-  }
 
   private[hints] object InlayInfo {
 

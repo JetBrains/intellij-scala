@@ -1,42 +1,33 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.psi.PsiTypeParameter
-import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScType, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.Seq
-
-sealed trait TypeParameterType extends ValueType with NamedType {
-  val arguments: Seq[TypeParameterType]
-
-  def lowerType: ScType
-
-  def upperType: ScType
-
-  def psiTypeParameter: PsiTypeParameter
+class TypeParameterType private (val typeParameter: TypeParameter)
+  extends ValueType with NamedType {
 
   override implicit def projectContext: ProjectContext = psiTypeParameter
 
-  override val name: String = psiTypeParameter.name
+  def typeParameters: Seq[TypeParameter] = typeParameter.typeParameters
 
-  def isInvariant: Boolean = psiTypeParameter match {
-    case typeParam: ScTypeParam => !typeParam.isCovariant && !typeParam.isContravariant
-    case _ => false
-  }
+  val arguments: Seq[TypeParameterType] = typeParameters.map(new TypeParameterType(_))
 
-  def isCovariant: Boolean = psiTypeParameter match {
-    case typeParam: ScTypeParam => typeParam.isCovariant
-    case _ => false
-  }
+  def lowerType: ScType = typeParameter.lowerType
 
-  def isContravariant: Boolean = psiTypeParameter match {
-    case typeParam: ScTypeParam => typeParam.isContravariant
-    case _ => false
-  }
+  def upperType: ScType = typeParameter.upperType
+
+  def psiTypeParameter: PsiTypeParameter = typeParameter.psiTypeParameter
+
+  override val name: String = typeParameter.name
+
+  def isInvariant: Boolean = typeParameter.isInvariant
+
+  def isCovariant: Boolean = typeParameter.isCovariant
+
+  def isContravariant: Boolean = typeParameter.isContravariant
 
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) =
     (`type` match {
@@ -57,41 +48,13 @@ sealed trait TypeParameterType extends ValueType with NamedType {
 }
 
 object TypeParameterType {
-  def apply(tp: TypeParameter): TypeParameterType = LazyTpt(tp, None)
+  def apply(tp: TypeParameter): TypeParameterType =
+    new TypeParameterType(tp)
 
-  def apply(psiTp: PsiTypeParameter): TypeParameterType = LazyTpt(TypeParameter(psiTp), None)
+  def apply(psiTp: PsiTypeParameter): TypeParameterType =
+    new TypeParameterType(TypeParameter(psiTp))
 
-  def apply(psiTp: PsiTypeParameter, substitutor: ScSubstitutor): TypeParameterType =
-    LazyTpt(TypeParameter(psiTp), Some(substitutor))
-
-  def apply(arguments: Seq[TypeParameterType],
-            lowerType: ScType,
-            upperType: ScType,
-            psiTypeParameter: PsiTypeParameter): TypeParameterType = StrictTpt(arguments, lowerType, upperType, psiTypeParameter)
-
-  def unapply(tpt: TypeParameterType): Option[(Seq[TypeParameterType], ScType, ScType, PsiTypeParameter)] =
-    Some(tpt.arguments, tpt.lowerType, tpt.upperType, tpt.psiTypeParameter)
-
-
-  private case class LazyTpt(typeParameter: TypeParameter, maybeSubstitutor: Option[ScSubstitutor] = None)
-    extends TypeParameterType {
-
-    val arguments: Seq[TypeParameterType] = typeParameter.typeParameters.map(LazyTpt(_, maybeSubstitutor))
-
-    lazy val lowerType: ScType = lift(typeParameter.lowerType)
-
-    lazy val upperType: ScType = lift(typeParameter.upperType)
-
-    def psiTypeParameter: PsiTypeParameter = typeParameter.psiTypeParameter
-
-    private def lift(tp: ScType): ScType = maybeSubstitutor match {
-      case Some(s) => s.subst(tp)
-      case _ => tp
-    }
+  object ofPsi {
+    def unapply(tpt: TypeParameterType): Option[PsiTypeParameter] = Some(tpt.psiTypeParameter)
   }
-
-  private case class StrictTpt(arguments: Seq[TypeParameterType],
-                               override val lowerType: ScType,
-                               override val upperType: ScType,
-                               psiTypeParameter: PsiTypeParameter) extends TypeParameterType
 }

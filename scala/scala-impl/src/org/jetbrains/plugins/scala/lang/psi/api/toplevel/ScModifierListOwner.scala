@@ -26,6 +26,9 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwnerAdapt
 
   def hasModifierProperty(name: String): Boolean = hasModifierPropertyInner(name)
 
+  // TODO This method is, in fact, ...Java, as it interprets the absence of 'private' / 'protected' as the presence of 'public'
+  // TODO We need to implement this in the hasModifierProperty itself.
+  // TODO Also, we should probably do that at the level of ScModifierList.
   def hasModifierPropertyScala(name: String): Boolean = {
     if (name == PsiModifier.PUBLIC)
       !hasModifierPropertyScala("private") && !hasModifierPropertyScala("protected")
@@ -33,8 +36,10 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwnerAdapt
       hasModifierPropertyInner(name)
   }
 
+  // TODO Should probably be unified as "isAbstract" (which doesn't always require an 'abstract' modifier'.
   def hasAbstractModifier: Boolean = hasModifierPropertyInner("abstract")
 
+  // TODO isFinal
   def hasFinalModifier: Boolean = hasModifierPropertyInner("final")
 
   private def hasModifierPropertyInner(name: String): Boolean =

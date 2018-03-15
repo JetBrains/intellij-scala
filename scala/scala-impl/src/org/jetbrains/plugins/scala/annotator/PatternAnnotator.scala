@@ -162,7 +162,7 @@ object PatternAnnotator {
     case _ =>
       scType.updateRecursively {
         case ScAbstractType(_, _, upper) => upper
-        case TypeParameterType(_, _, upper, _) => upper
+        case tpt: TypeParameterType => tpt.upperType
       }
   }
 
@@ -179,14 +179,14 @@ object PatternAnnotator {
 object PatternAnnotatorUtil {
   @tailrec
   def matchesPattern(matching: ScType, matched: ScType): Boolean = {
-    def abstraction(scType: ScType, visited: Set[ScType] = Set.empty): ScType = {
-      if (visited.contains(scType)) {
-        return scType
-      }
-      val newVisited = visited + scType
+    def abstraction(scType: ScType, visited: Set[TypeParameterType] = Set.empty): ScType = {
       scType.updateRecursively {
         case tp: TypeParameterType =>
-          ScAbstractType(tp, abstraction(tp.lowerType, newVisited), abstraction(tp.upperType, newVisited))
+          if (visited.contains(tp)) tp
+          else ScAbstractType(tp.typeParameter,
+            abstraction(tp.lowerType, visited + tp),
+            abstraction(tp.upperType, visited + tp)
+          )
       }
     }
 

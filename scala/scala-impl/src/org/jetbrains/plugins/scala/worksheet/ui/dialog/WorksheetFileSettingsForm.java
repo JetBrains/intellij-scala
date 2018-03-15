@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.ui.dialog;
 
 import com.intellij.application.options.ModulesComboBox;
+import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiFile;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -27,6 +28,7 @@ public class WorksheetFileSettingsForm {
   private ModulesComboBox moduleComboBox;
   private JPanel mainPanel;
   private JComboBox<ScalaCompilerSettingsProfile> compilerProfileComboBox;
+  private ActionButton openCompilerProfileSettingsButton;
 
   public WorksheetFileSettingsForm(PsiFile file, WorksheetSettingsData settingsData) {
     myFile = file;
@@ -41,6 +43,16 @@ public class WorksheetFileSettingsForm {
 
   public JPanel getMainPanel() {
     return mainPanel;
+  }
+
+  public PsiFile getFile() {
+    return myFile;
+  }
+
+  public void onProfilesReload(ScalaCompilerSettingsProfile compilerProfile, ScalaCompilerSettingsProfile[] profiles) {
+    compilerProfileComboBox.setSelectedItem(null);
+    compilerProfileComboBox.setModel(new DefaultComboBoxModel<>(profiles));
+    compilerProfileComboBox.setSelectedItem(compilerProfile);
   }
 
   public WorksheetSettingsData getSettings() {
@@ -65,6 +77,8 @@ public class WorksheetFileSettingsForm {
       if (!RunWorksheetAction.isScratchWorksheet(new Some<>(myFile.getVirtualFile()), myFile.getProject()))
         moduleComboBox.setEnabled(false);
     }
+
+    openCompilerProfileSettingsButton = new ShowCompilerProfileSettingsButton(this).getActionButton();
   }
 
   /**
@@ -77,7 +91,7 @@ public class WorksheetFileSettingsForm {
   private void $$$setupUI$$$() {
     createUIComponents();
     mainPanel = new JPanel();
-    mainPanel.setLayout(new GridLayoutManager(6, 2, new Insets(0, 0, 0, 0), -1, -1));
+    mainPanel.setLayout(new GridLayoutManager(6, 3, new Insets(0, 0, 0, 0), -1, -1));
     useREPLModeCheckBox = new JCheckBox();
     useREPLModeCheckBox.setText("Use REPL Mode");
     mainPanel.add(useREPLModeCheckBox, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -98,6 +112,7 @@ public class WorksheetFileSettingsForm {
     final JLabel label2 = new JLabel();
     label2.setText("Compiler profile:");
     mainPanel.add(label2, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    mainPanel.add(openCompilerProfileSettingsButton, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
   }
 
   /**

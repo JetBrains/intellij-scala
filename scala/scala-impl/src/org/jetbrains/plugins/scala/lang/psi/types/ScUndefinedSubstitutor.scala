@@ -195,8 +195,8 @@ private case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType]] = L
                 case _ =>
               }
             }
-          case UndefinedType(tpt, _) =>
-            val otherId = tpt.typeParamId
+          case UndefinedType(tp, _) =>
+            val otherId = tp.typeParamId
             if (typeParamIds.contains(otherId)) {
               needTvMap.set(true)
               solve(otherId, visited + id) match {

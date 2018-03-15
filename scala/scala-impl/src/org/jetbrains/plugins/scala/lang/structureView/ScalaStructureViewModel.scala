@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 
@@ -27,8 +28,13 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
  */
 class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val console: ScalaLanguageConsole = null)
   extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
-  def isAlwaysLeaf(element: StructureViewTreeElement): Boolean = !(isAlwaysShowsPlus(element) ||
-      element.isInstanceOf[TestStructureViewElement] || element.isInstanceOf[ScalaValueStructureViewElement])
+  def isAlwaysLeaf(element: StructureViewTreeElement): Boolean =
+    !(isAlwaysShowsPlus(element) ||
+      element.isInstanceOf[TestStructureViewElement] ||
+      element.isInstanceOf[ScalaBlockStructureViewElement] ||
+      element.isInstanceOf[ScalaVariableStructureViewElement] ||
+      element.isInstanceOf[ScalaValueStructureViewElement] ||
+      element.isInstanceOf[ScalaFunctionStructureViewElement])
 
   def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean = {
     element match {
@@ -46,10 +52,11 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
 
   @NotNull
   override def getSorters: Array[Sorter] = {
-    val res = new Array[Sorter](1)
+    val res = new Array[Sorter](2)
     res(0) = new Sorter() {
       override def isVisible: Boolean = true
 
+      // TODO move to the implemenation of testing support
       override def getComparator: Comparator[_] = new Comparator[AnyRef] {
         override def compare(o1: AnyRef, o2: AnyRef): Int =
           (o1, o2) match {
@@ -64,6 +71,20 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
 
       override def getPresentation: ActionPresentation = new ActionPresentationData(IdeBundle.message("action.sort" +
           ".alphabetically"), IdeBundle.message("action.sort.alphabetically"), AllIcons.ObjectBrowser.Sorted)
+    }
+    res(1) = new Sorter() {
+      override def isVisible: Boolean = false
+
+      override def getName: String = "ACTUAL_ORDER_SORTER"
+
+      override def getPresentation: ActionPresentation =
+        new ActionPresentationData("Sort.actually", "Sort By Position", AllIcons.ObjectBrowser.Sorted)
+
+      override def getComparator: Comparator[_] = (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
+        case (e1: ScalaStructureViewElement[_], e2: ScalaStructureViewElement[_]) if !e1.inherited && !e2.inherited =>
+          e1.psiElement.getTextOffset - e2.psiElement.getTextOffset
+        case _ => 0
+      }
     }
     res
   }

@@ -22,31 +22,26 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
  
   def testDoesNotTakeParameters() {
     assertMatches(messages("def f {}; f(Unit, null)")) {
-      case Error("(Unit, null)", "f does not take parameters") ::
-        Error("f", "Cannot resolve reference f with such signature"):: Nil =>
+      case Error("(Unit, null)", "f does not take parameters") :: Nil =>
     }    
   }
 
   def testMissedParametersClause() {
     assertMatches(messages("def f(a: Any, b: Any) {}; f")) {
-      case Error("f", "Missing arguments for method f(Any, Any)") ::
-              Error("f", "Cannot resolve reference f with such signature") :: Nil =>
+      case Error("f", "Missing arguments for method f(Any, Any)") :: Nil =>
     }
   }
   
   def testExcessArguments() {
     assertMatches(messages("def f() {}; f(null, Unit)")) {
       case Error("null", "Too many arguments for method f") ::
-              Error("f", "Cannot resolve reference f with such signature") ::
-              Error("Unit", "Too many arguments for method f") ::
-              Error("f", "Cannot resolve reference f with such signature") :: Nil =>
+              Error("Unit", "Too many arguments for method f") :: Nil =>
     }
   }
 
   def testMissedParameters() {
     assertMatches(messages("def f(a: Any, b: Any) {}; f()")) {
-      case Error("()", "Unspecified value parameters: a: Any, b: Any") ::
-              Error("f", "Cannot resolve reference f with such signature") ::Nil =>
+      case Error("()", "Unspecified value parameters: a: Any, b: Any") ::Nil =>
     }
   }
   
@@ -73,9 +68,7 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
   def testTypeMismatch() {
     assertMatches(messages("def f(a: A, b: B) {}; f(B, A)")) {
       case Error("B", "Type mismatch, expected: A, actual: B.type") ::
-              Error("f", "Cannot resolve reference f with such signature") ::
-              Error("A", "Type mismatch, expected: B, actual: A.type") ::
-              Error("f", "Cannot resolve reference f with such signature") ::Nil =>
+              Error("A", "Type mismatch, expected: B, actual: A.type") ::Nil =>
     }
   }
   

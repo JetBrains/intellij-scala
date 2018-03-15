@@ -175,7 +175,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           }
         case _ => javaObject
       }
-      case ParameterizedType(TypeParameterType(_, _, _, typeParameter), _) => EmptySubstitutor.getInstance().substitute(typeParameter)
+      case ParameterizedType(TypeParameterType.ofPsi(typeParameter), _) => psiTypeOf(typeParameter)
       case proj@ScProjectionType(_, _) => proj.actualElement match {
         case clazz: PsiClass =>
           clazz match {
@@ -189,7 +189,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
         case _ => javaObject
       }
       case ScThisType(clazz) => createType(clazz)
-      case TypeParameterType(_, _, _, typeParameter) => EmptySubstitutor.getInstance().substitute(typeParameter)
+      case TypeParameterType.ofPsi(typeParameter) => psiTypeOf(typeParameter)
       case ex: ScExistentialType => toPsiTypeInner(ex.quantified, noPrimitives)
       case argument: ScExistentialArgument =>
         val upper = argument.upper
@@ -212,5 +212,9 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       case _ => javaObject
     }
   }
+
+  private def psiTypeOf(typeParameter: PsiTypeParameter): PsiType =
+    EmptySubstitutor.getInstance().substitute(typeParameter)
+
 }
 

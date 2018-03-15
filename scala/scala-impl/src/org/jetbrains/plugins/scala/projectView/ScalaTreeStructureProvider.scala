@@ -40,7 +40,8 @@ private object ScalaTreeStructureProvider {
     case SingularDefinition(definition) => new TypeDefinitionNode(definition)
 
     case ClassAndCompanionObject(classDefinition, _) if !settings.isShowMembers =>
-      new CustomDefinitionNode(classDefinition, Icons.CLASS_AND_OBJECT)
+      val icon = if (classDefinition.hasAbstractModifier) Icons.ABSTRACT_CLASS_AND_OBJECT else Icons.CLASS_AND_OBJECT
+      new CustomDefinitionNode(classDefinition, classDefinition.decorate(icon, 0))
 
     case TraitAndCompanionObject(traitDefinition, _) if !settings.isShowMembers =>
       new CustomDefinitionNode(traitDefinition, Icons.TRAIT_AND_OBJECT)

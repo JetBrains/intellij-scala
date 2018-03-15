@@ -4,16 +4,16 @@ package local
 import java.io.File
 import java.net.URLClassLoader
 
+import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import org.jetbrains.jps.incremental.scala.data.{CompilerData, CompilerJars, HydraData, SbtData}
 import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl._
 import org.jetbrains.jps.incremental.scala.model.IncrementalityType
-import xsbti.compile.{ScalaInstance => _, _}
-import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
+import sbt.internal.inc._
+import sbt.internal.inc.classpath.ClassLoaderCache
+import sbt.internal.inc.javac.JavaTools
 import sbt.io.Path
 import sbt.util.Logger
-import sbt.internal.inc._
-import sbt.internal.inc.javac.JavaTools
-import sbt.internal.inc.classpath.ClassLoaderCache
+import xsbti.compile.{ScalaInstance => _, _}
 
 /**
   * @author Pavel Fatin
@@ -97,7 +97,11 @@ object CompilerFactoryImpl {
                                client: Option[Client]): File = {
 
     val scalaVersion = scalaInstance.actualVersion
-    def getSourceJars = if (isBefore_2_11(scalaVersion)) sourceJars._2_10 else sourceJars._2_11
+
+    def getSourceJars =
+      if (isBefore_2_11(scalaVersion)) sourceJars._2_10
+      else if (isBefore_2_13(scalaVersion)) sourceJars._2_11
+      else sourceJars._2_13
 
     val sourceJar =
       if (scalaVersion.contains("hydra")) {
@@ -127,7 +131,8 @@ object CompilerFactoryImpl {
     targetJar
   }
 
-  def isBefore_2_11(version: String): Boolean = version.startsWith("2.10") || !version.startsWith("2.1")
+  private def isBefore_2_11(version: String): Boolean = version.startsWith("2.10") || !version.startsWith("2.1")
+  private def isBefore_2_13(version: String): Boolean = version.startsWith("2.11") || version.startsWith("2.12")
 }
 
 object NullLogger extends Logger {

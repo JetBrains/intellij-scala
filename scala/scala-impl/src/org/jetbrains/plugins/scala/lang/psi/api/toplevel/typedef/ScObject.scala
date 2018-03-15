@@ -5,17 +5,23 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
+import javax.swing.Icon
+
+import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScDecoratedIconOwner}
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */
 
-trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember with ScDeclaredElementsHolder {
+trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember with ScDeclaredElementsHolder with ScDecoratedIconOwner {
+
+  override protected def getBaseIcon(flags: Int): Icon =
+    if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
+
   //Is this object generated as case class companion module
   private var isSyntheticCaseClassCompanion: Boolean = false
   def isSyntheticObject: Boolean = isSyntheticCaseClassCompanion

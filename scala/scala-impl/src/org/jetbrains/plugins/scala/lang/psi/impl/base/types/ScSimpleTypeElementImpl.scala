@@ -69,7 +69,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       if (clazz.getTypeParameters.isEmpty) {
         tp
       } else {
-        ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_, subst)))
+        ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_)))
       }
     }
 

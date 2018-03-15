@@ -8,6 +8,7 @@ import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -55,6 +56,8 @@ class ScalaFileStructureViewElement(file: ScalaFile, private val console: ScalaL
           children += new ScalaTypeAliasStructureViewElement(member, false)
         case func: ScFunction =>
           children += new ScalaFunctionStructureViewElement(func, false)
+        case block: ScBlockExpr =>
+          children += new ScalaBlockStructureViewElement(block)
         case _ =>
       }
     }

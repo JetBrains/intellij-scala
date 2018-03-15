@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.components.libinjection.InjectorPersistentCac
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader$;
 import org.jetbrains.plugins.scala.components.libinjection.ui.JarCacheModel;
 import org.jetbrains.plugins.scala.components.libinjection.ui.JarCacheRenderer;
-import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
 import org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency;
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner$;
 
@@ -148,7 +147,7 @@ public class ScalaProjectSettingsPanel {
             }
         });
 
-        ScalaUiWithDependency[] deps = DependencyAwareInjectionSettings.EP_NAME.getExtensions();
+        ScalaUiWithDependency[] deps = ScalaUiWithDependency.EP_NAME.getExtensions();
         for (ScalaUiWithDependency uiWithDependency : deps) {
             if (INJECTION_SETTINGS_NAME.equals(uiWithDependency.getName())) {
                 injectionPrefixTable = uiWithDependency.createComponent(injectionJPanel);

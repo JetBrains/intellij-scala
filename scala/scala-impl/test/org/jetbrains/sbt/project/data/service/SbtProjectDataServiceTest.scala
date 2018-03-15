@@ -126,7 +126,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
   }
 
-  private def generateProject(basePackages: Seq[String], jdk: Option[data.Sdk], javacOptions: Seq[String], sbtVersion: String): DataNode[ProjectData] =
+  private def generateProject(basePackages: Seq[String], jdk: Option[data.SdkReference], javacOptions: Seq[String], sbtVersion: String): DataNode[ProjectData] =
     new project {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
@@ -143,10 +143,10 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
   private def defaultJdk: Sdk =
     ProjectJdkTable.getInstance().findMostRecentSdkOfType(JavaSdk.getInstance())
 
-  private def doTestSdk(sdk: Option[data.Sdk], expectedSdk: Sdk, expectedLanguageLevel: LanguageLevel): Unit =
+  private def doTestSdk(sdk: Option[data.SdkReference], expectedSdk: Sdk, expectedLanguageLevel: LanguageLevel): Unit =
     doTestSdk(sdk, Seq.empty, expectedSdk, expectedLanguageLevel)
 
-  private def doTestSdk(sdk: Option[data.Sdk], javacOptions: Seq[String], expectedSdk: Sdk, expectedLanguageLevel: LanguageLevel): Unit = {
+  private def doTestSdk(sdk: Option[data.SdkReference], javacOptions: Seq[String], expectedSdk: Sdk, expectedLanguageLevel: LanguageLevel): Unit = {
     importProjectData(generateProject(Seq.empty, sdk, javacOptions, ""))
     assertEquals(expectedSdk, ProjectRootManager.getInstance(getProject).getProjectSdk)
     val languageLevelProjectExtension = LanguageLevelProjectExtension.getInstance(getProject)

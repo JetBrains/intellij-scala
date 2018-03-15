@@ -25,6 +25,8 @@ trait ScVariableDefinition extends ScVariable {
 
   def isSimple: Boolean = pList.simplePatterns && bindings.size == 1
 
+  override def isAbstract: Boolean = false
+
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitVariableDefinition(this)
   }

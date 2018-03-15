@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 import com.intellij.psi.{PsiClass, PsiTypeParameter}
 import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
@@ -25,7 +26,7 @@ private case class ThisTypeSubstitution(target: ScType) extends Substitution {
 
   @tailrec
   private def doUpdateThisType(thisTp: ScThisType, target: ScType): ScType = {
-    if (isMoreNarrow(target, thisTp)) target
+    if (isMoreNarrow(target, thisTp, Set.empty)) target
     else {
       containingClassType(target) match {
         case Some(targetContext) => doUpdateThisType(thisTp, targetContext)
@@ -63,31 +64,35 @@ private case class ThisTypeSubstitution(target: ScType) extends Substitution {
   }
 
   @tailrec
-  private def isMoreNarrow(target: ScType, thisTp: ScThisType): Boolean =
+  private def isMoreNarrow(target: ScType, thisTp: ScThisType, visited: Set[PsiClass]): Boolean = {
     target.extractDesignated(expandAliases = true) match {
       case Some(typeParam: PsiTypeParameter) =>
-        target match {
+        if (visited.contains(typeParam)) false
+        else target match {
           case t: TypeParameterType =>
-            isMoreNarrow(t.upperType, thisTp)
+            isMoreNarrow(t.upperType, thisTp, visited + typeParam)
           case p: ParameterizedType =>
             p.designator match {
-              case TypeParameterType(_, _, upperType, _) =>
-                isMoreNarrow(p.substitutor.subst(upperType), thisTp)
+              case tpt: TypeParameterType =>
+                isMoreNarrow(p.substitutor.subst(tpt.upperType), thisTp, visited + typeParam)
               case _ =>
                 isSameOrInheritor(typeParam, thisTp)
             }
           case _ => isSameOrInheritor(typeParam, thisTp)
         }
       case Some(t: ScTypeDefinition) =>
-        if (isSameOrInheritor(t, thisTp)) true
+        if (visited.contains(t)) false
+        else if (isSameOrInheritor(t, thisTp)) true
         else t.selfType match {
-          case Some(selfTp) => isMoreNarrow(selfTp, thisTp)
+          case Some(selfTp) => isMoreNarrow(selfTp, thisTp, visited + t)
           case _ => false
         }
+      case Some(td: ScTypeAliasDeclaration) =>
+        isMoreNarrow(td.upperBound.getOrAny, thisTp, visited)
       case Some(cl: PsiClass) =>
         isSameOrInheritor(cl, thisTp)
       case Some(named: ScTypedDefinition) =>
-        isMoreNarrow(named.`type`().getOrAny, thisTp)
+        isMoreNarrow(named.`type`().getOrAny, thisTp, visited)
       case _ =>
         target match {
           case compound: ScCompoundType =>
@@ -96,4 +101,5 @@ private case class ThisTypeSubstitution(target: ScType) extends Substitution {
             false
         }
     }
+  }
 }

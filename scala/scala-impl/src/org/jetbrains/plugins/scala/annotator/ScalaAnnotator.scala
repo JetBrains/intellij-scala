@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker._
 import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.annotator.intention._
-import org.jetbrains.plugins.scala.annotator.intention.sbt.AddSbtDependencyFix
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.annotator.quickfix._
 import org.jetbrains.plugins.scala.annotator.template._
@@ -798,23 +797,30 @@ abstract class ScalaAnnotator extends Annotator
 
       parent match {
         case _: ScImportSelector if resolve.length > 0 => return
-        case mc: ScMethodCall =>
-          val messageKey = "cannot.resolve.apply.method"
-          if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateApplyQuickFix(td, mc))) return
+        case _: ScMethodCall if resolve.length > 1 =>
+          val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
+          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        case _: ScMethodCall if resolve.length > 1 =>
+          val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
+          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        case mc: ScMethodCall if addCreateApplyOrUnapplyFix("cannot.resolve.apply.method", td => new CreateApplyQuickFix(td, mc)) =>
+          return
         case (p: ScPattern) && (_: ScConstructorPattern | _: ScInfixPattern) =>
           val messageKey = "cannot.resolve.unapply.method"
           if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateUnapplyQuickFix(td, p))) return
         case scalaDocTag: ScDocTag if scalaDocTag.getName == MyScaladocParsing.THROWS_TAG => return //see SCL-9490
         case _ =>
+          val error = ScalaBundle.message("cannot.resolve", refElement.refName)
+          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+          annotation.registerFix(ReportHighlightingErrorQuickFix)
+          // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
+          registerCreateFromUsageFixesFor(refElement, annotation)
+          UnresolvedReferenceFixProvider.implementations
+            .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
       }
-
-      val error = ScalaBundle.message("cannot.resolve", refElement.refName)
-      val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      annotation.registerFix(ReportHighlightingErrorQuickFix)
-      registerCreateFromUsageFixesFor(refElement, annotation)
-      if (PsiTreeUtil.getParentOfType(refElement, classOf[ScImportExpr]) != null)
-        annotation.registerFix(new AddSbtDependencyFix(refElement.createSmartPointer))
     }
   }
 
@@ -875,15 +881,20 @@ abstract class ScalaAnnotator extends Annotator
 
       refElement.getParent match {
         case _: ScImportSelector | _: ScImportExpr if resolveCount > 0 => return
+        case _: ScMethodCall if resolveCount > 1 =>
+          val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
+          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         case _ =>
+          val error = ScalaBundle.message("cannot.resolve", refElement.refName)
+          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+          annotation.registerFix(ReportHighlightingErrorQuickFix)
+          // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
+          registerCreateFromUsageFixesFor(refElement, annotation)
+          UnresolvedReferenceFixProvider.implementations
+            .foreach(_.fixesFor(refElement).foreach(annotation.registerFix))
       }
-      val error = ScalaBundle.message("cannot.resolve", refElement.refName)
-      val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      annotation.registerFix(ReportHighlightingErrorQuickFix)
-      registerCreateFromUsageFixesFor(refElement, annotation)
-      if (PsiTreeUtil.getParentOfType(refElement, classOf[ScImportExpr]) != null)
-        annotation.registerFix(new AddSbtDependencyFix(refElement.createSmartPointer))
     }
   }
 

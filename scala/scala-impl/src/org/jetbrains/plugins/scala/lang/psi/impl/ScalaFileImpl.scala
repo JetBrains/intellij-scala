@@ -207,7 +207,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
         }
 
         setPackageName(basePackageName, packageName)
-        typeDefinitions.headOption.foreach(_.name = objectName)
+        typeDefinitions.headOption.foreach(_.setName(objectName))
 
       case _ => setPackageName(basePackageName, name)
     }
