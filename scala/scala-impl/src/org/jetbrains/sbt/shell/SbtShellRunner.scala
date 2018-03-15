@@ -18,14 +18,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
 import com.intellij.ui.content.{Content, ContentFactory}
-import com.pty4j.{PtyProcess, WinSize}
-import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.annotations.NotNull
-import scala.collection.JavaConverters._
-
-import SbtShellRunner._
 import com.pty4j.unix.UnixPtyProcess
+import com.pty4j.{PtyProcess, WinSize}
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.sbt.shell.SbtShellRunner._
+
+import scala.collection.JavaConverters._
 /**
   * Created by jast on 2016-5-29.
   */
@@ -84,8 +84,14 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
 
       // TODO update icon with ready/working state
       val shellPromptChanger = new SbtShellReadyListener(
-        whenReady = if (notInTest) sbtConsoleView.setPrompt(">"),
-        whenWorking = if (notInTest) sbtConsoleView.setPrompt("(busy) >")
+        whenReady = if (notInTest) {
+          sbtConsoleView.setPrompt(">")
+          scrollToEnd()
+        },
+        whenWorking = if (notInTest) {
+          sbtConsoleView.setPrompt("(busy) >")
+          scrollToEnd()
+        }
       )
 
       def scrollToEnd(): Unit = inUI {
@@ -94,12 +100,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
           EditorUtil.scrollToTheEnd(editor)
       }
 
-      val scrollOnStateChange = new SbtShellReadyListener(
-        whenReady = scrollToEnd(),
-        whenWorking = scrollToEnd()
-      )
       myProcessHandler.addProcessListener(shellPromptChanger)
-      myProcessHandler.addProcessListener(scrollOnStateChange)
       SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
 
       if (notInTest) {
