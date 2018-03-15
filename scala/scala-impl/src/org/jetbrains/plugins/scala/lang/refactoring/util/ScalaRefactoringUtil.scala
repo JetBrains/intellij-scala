@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -613,24 +613,12 @@ object ScalaRefactoringUtil {
       case i: ScIfStmt =>
         builder.append("if (...) {...}")
         if (i.elseBranch.isDefined) builder.append(" else {...}")
-      case i: ScInfixExpr => // the following 3 should probably mix in a common trait
-        builder.append(getShortText(i.lOp))
+      case ScGenericInfixNode(left, op, right) =>
+        builder.append(getShortText(left))
         builder.append(" ")
-        builder.append(getShortText(i.operation))
+        builder.append(getShortText(op))
         builder.append(" ")
-        builder.append(getShortText(i.rOp))
-      case i: ScInfixTypeElement =>
-        builder.append(getShortText(i.leftTypeElement))
-        builder.append(" ")
-        builder.append(getShortText(i.operation))
-        builder.append(" ")
-        builder.append(getShortText(i.rightTypeElement.get))
-      case i: ScInfixPattern =>
-        builder.append(getShortText(i.leftPattern))
-        builder.append(" ")
-        builder.append(getShortText(i.reference))
-        builder.append(" ")
-        builder.append(getShortText(i.rightPattern.get))
+        builder.append(getShortText(right.get))
       case i: ScInterpolationPattern =>
         builder.append(getShortText(i.ref))
         builder.append("\"...\"")
@@ -670,24 +658,10 @@ object ScalaRefactoringUtil {
           case Some(_) => builder.append(" {...}")
           case _ =>
         }
-      case p: ScParenthesisedExpr => // the following 3 should probably mix in a common trait
+      case p : ScGenericParenthesisedNode[_] =>
         builder.append("(")
-        p.expr match {
-          case Some(expression) => builder.append(getShortText(expression))
-          case _ =>
-        }
-        builder.append(")")
-      case p: ScParenthesisedTypeElement =>
-        builder.append("(")
-        p.typeElement match {
-          case Some(expression) => builder.append(getShortText(expression))
-          case _ =>
-        }
-        builder.append(")")
-      case p: ScParenthesisedPattern =>
-        builder.append("(")
-        p.subpattern match {
-          case Some(expression) => builder.append(getShortText(expression))
+        p.subNode match {
+          case Some(sub) => builder.append(getShortText(sub))
           case _ =>
         }
         builder.append(")")

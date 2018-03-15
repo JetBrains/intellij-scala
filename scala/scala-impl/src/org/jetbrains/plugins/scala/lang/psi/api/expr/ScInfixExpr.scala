@@ -5,21 +5,27 @@ package api
 package expr
 
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScGenericInfixNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
   * @author Alexander Podkhalyuzin
   */
-trait ScInfixExpr extends ScExpression with ScSugarCallExpr {
+trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScGenericInfixNode[ScExpression] {
 
   import ScInfixExpr._
 
   def lOp: ScExpression = unapply._1
 
-  def operation: ScReferenceExpression = unapply._2
+  override def operation: ScReferenceExpression = unapply._2
 
   def rOp: ScExpression = unapply._3
+
+  override def leftOperand: ScExpression = lOp
+
+  override def rightOperand: Option[ScExpression] = Some(rOp)
+
 
   def typeArgs: Option[ScTypeArgs] = findChildrenByClassScala(classOf[ScTypeArgs]) match {
     case Array(args) => Some(args)

@@ -8,6 +8,7 @@ package patterns
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.FakeCompanionClassOrCompanionClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -23,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
@@ -37,10 +39,12 @@ import scala.meta.intellij.QuasiquoteInferUtil
  * @author Alexander Podkhalyuzin
  */
 
-trait ScPattern extends ScalaPsiElement with Typeable {
+trait ScPattern extends ScalaPsiElement with Typeable with TreeMember[ScPattern] {
   def isIrrefutableFor(t: Option[ScType]): Boolean = false
 
   override def `type`(): TypeResult = Failure("Cannot type pattern")
+
+  override def isSameTree(p: PsiElement): Boolean = p.isInstanceOf[ScPattern]
 
   def bindings: Seq[ScBindingPattern] = {
     val b = new ArrayBuffer[ScBindingPattern]
@@ -493,7 +497,5 @@ object ScPattern {
     val fqnO  = Option(fun.containingClass).map(_.qualifiedName)
     fqnO.exists(fqn => fqn.contains('.') && fqn.substring(0, fqn.lastIndexOf('.')) == "scala.reflect.api.Quasiquotes.Quasiquote")
   }
-
-
 
 }

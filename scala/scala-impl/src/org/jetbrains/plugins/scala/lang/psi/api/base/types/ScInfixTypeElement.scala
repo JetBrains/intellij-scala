@@ -10,7 +10,7 @@ package types
 * Date: 22.02.2008
 */
 
-trait ScInfixTypeElement extends ScTypeElement {
+trait ScInfixTypeElement extends ScTypeElement with ScGenericInfixNode[ScTypeElement] {
   def leftTypeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
   def operation: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
@@ -19,6 +19,11 @@ trait ScInfixTypeElement extends ScTypeElement {
     case Array(_, right) => Some(right)
     case _ => None
   }
+
+
+  override def rightOperand: Option[TreeMember[ScTypeElement]] = rightTypeElement
+
+  override def leftOperand: TreeMember[ScTypeElement] = leftTypeElement
 }
 
 object ScInfixTypeElement {
