@@ -125,7 +125,7 @@ object SbtExternalSystemManager {
         Some(new File(customPath) / "bin" / javaExe)
       } else None
 
-    customVmExecutable.orElse {
+    val realExe = customVmExecutable.orElse {
       projectJdkName
         .flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
         .map { sdk =>
@@ -147,6 +147,15 @@ object SbtExternalSystemManager {
     }
     .getOrElse {
       throw new ExternalSystemException(SbtBundle("sbt.import.noCustomJvmFound"))
+    }
+
+    // workaround for https://youtrack.jetbrains.com/issue/IDEA-188247
+    // TODO remove when fix is in platform (2018.2 at latest)
+    if (realExe.isFile) realExe
+    else {
+      val parent = realExe.getParentFile
+      val javaExe = if (SystemInfo.isWindows) "java.exe" else "java"
+      parent / javaExe
     }
   }
 

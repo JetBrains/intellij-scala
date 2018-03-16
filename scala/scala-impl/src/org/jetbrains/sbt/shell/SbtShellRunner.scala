@@ -18,14 +18,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
 import com.intellij.ui.content.{Content, ContentFactory}
-import com.pty4j.{PtyProcess, WinSize}
-import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.annotations.NotNull
-import scala.collection.JavaConverters._
-
-import SbtShellRunner._
 import com.pty4j.unix.UnixPtyProcess
+import com.pty4j.{PtyProcess, WinSize}
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.sbt.shell.SbtShellRunner._
+
+import scala.collection.JavaConverters._
 /**
   * Created by jast on 2016-5-29.
   */
@@ -82,24 +82,25 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       // this is not correct when shell process was started without view, but we avoid that
       sbtConsoleView.setPrompt("(initializing) >")
 
-      // TODO update icon with ready/working state
-      val shellPromptChanger = new SbtShellReadyListener(
-        whenReady = if (notInTest) sbtConsoleView.setPrompt(">"),
-        whenWorking = if (notInTest) sbtConsoleView.setPrompt("(busy) >")
-      )
-
       def scrollToEnd(): Unit = inUI {
         val editor = getConsoleView.getHistoryViewer
         if (!editor.isDisposed)
           EditorUtil.scrollToTheEnd(editor)
       }
 
-      val scrollOnStateChange = new SbtShellReadyListener(
-        whenReady = scrollToEnd(),
-        whenWorking = scrollToEnd()
+      // TODO update icon with ready/working state
+      val shellPromptChanger = new SbtShellReadyListener(
+        whenReady = if (notInTest) {
+          sbtConsoleView.setPrompt(">")
+          scrollToEnd()
+        },
+        whenWorking = if (notInTest) {
+          sbtConsoleView.setPrompt("(busy) >")
+          scrollToEnd()
+        }
       )
+
       myProcessHandler.addProcessListener(shellPromptChanger)
-      myProcessHandler.addProcessListener(scrollOnStateChange)
       SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
 
       if (notInTest) {
