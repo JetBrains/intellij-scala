@@ -16,6 +16,6 @@ class AddTypeToValueDefinition extends AbstractTransformer {
   def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (_: ScReferencePattern) && Parent(l@Parent(_: ScPatternDefinition)) && Typeable(t)
       if !l.nextSibling.exists(_.getText == ":") =>
-      appendTypeAnnotation(t, l)()
+      appendTypeAnnotation(t, l)
   }
 }

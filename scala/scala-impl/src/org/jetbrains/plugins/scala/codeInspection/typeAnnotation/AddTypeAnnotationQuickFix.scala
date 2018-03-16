@@ -87,7 +87,7 @@ object AddTypeAnnotationQuickFix {
     }
 
     override def addTypeAnnotation(`type`: ScType, context: PsiElement, anchor: PsiElement): Unit = {
-      annotations ++= annotationFor(`type`, context).map((_, anchor))
+      annotations ++= annotationsFor(`type`).headOption.map((_, anchor))
     }
   }
 }

@@ -14,13 +14,18 @@ package object annotations {
 
   import AddOnlyStrategy._
 
-  def appendTypeAnnotation(`type`: ScType, anchor: PsiElement)
-                          (function: ScTypeElement => PsiElement = addActualType(_, anchor)): Unit =
-    annotationFor(`type`, anchor)
+  def appendTypeAnnotation(`type`: ScType, anchor: PsiElement): Unit =
+    appendTypeAnnotation(`type`) {
+      addActualType(_, anchor)
+    }
+
+  def appendTypeAnnotation(`type`: ScType)
+                          (function: ScTypeElement => PsiElement): Unit =
+    annotationsFor(`type`).headOption
       .map(function)
       .foreach {
-        case (t: ScSimpleTypeElement) && FirstChild(r: ScReferenceElement) =>
-          bindTo(r, t.getText)
+        case (t: ScSimpleTypeElement) && FirstChild(reference: ScReferenceElement) =>
+          bindTo(reference, t.getText)
         case _ => // TODO support compound types
       }
 }

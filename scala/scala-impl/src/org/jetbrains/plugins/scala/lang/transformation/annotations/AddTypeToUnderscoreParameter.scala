@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 class AddTypeToUnderscoreParameter extends AbstractTransformer {
   def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (e: ScUnderscoreSection) && Typeable(t) if !e.nextSibling.exists(_.getText == ":") =>
-      appendTypeAnnotation(t, e) { annotation =>
+      appendTypeAnnotation(t) { annotation =>
         val replacement = code"(_: $annotation)"
         val result = e.replace(replacement)
         result.getFirstChild.getNextSibling.getLastChild
