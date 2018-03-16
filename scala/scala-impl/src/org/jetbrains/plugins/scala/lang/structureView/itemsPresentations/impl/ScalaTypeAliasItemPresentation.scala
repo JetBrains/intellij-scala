@@ -10,9 +10,13 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaIt
  * Date: 31.07.2008
  */
  
-class ScalaTypeAliasItemPresentation(element: ScTypeAlias, isInherited: Boolean) extends ScalaItemPresentation(element) {
+class ScalaTypeAliasItemPresentation(element: ScTypeAlias, inherited: Boolean)
+  extends ScalaItemPresentation(element, inherited) {
+
+  override def location: Option[String] = Option(element.containingClass).map(_.name)
+
   override def getPresentableText: String = ScalaElementPresentation.getTypeAliasPresentableText(element)
 
   override def getTextAttributesKey: TextAttributesKey =
-    if (isInherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
+    if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
 }

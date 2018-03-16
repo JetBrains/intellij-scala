@@ -15,7 +15,11 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaIt
 * Date: 05.05.2008
 */
 
-class ScalaVariableItemPresentation(element: ScNamedElement, inherited: Boolean, showType: Boolean) extends ScalaItemPresentation(element) {
+class ScalaVariableItemPresentation(element: ScNamedElement, inherited: Boolean, showType: Boolean)
+  extends ScalaItemPresentation(element, inherited) {
+
+  override def location: Option[String] = variable.map(_.containingClass).map(_.name)
+
   override def getPresentableText: String = {
     val typeAnnotation = variable.flatMap(_.typeElement.map(_.getText))
 

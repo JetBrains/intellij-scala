@@ -11,7 +11,11 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaIt
 * Date: 04.05.2008
 */
 
-class ScalaFunctionItemPresentation(element: ScFunction, inherited: Boolean, showType: Boolean) extends ScalaItemPresentation(element) {
+class ScalaFunctionItemPresentation(element: ScFunction, inherited: Boolean, showType: Boolean)
+  extends ScalaItemPresentation(element, inherited) {
+
+  override def location: Option[String] = Option(element.containingClass).map(_.name)
+
   override def getPresentableText: String = {
     val presentation = ScalaElementPresentation.getMethodPresentableText(element)
 
