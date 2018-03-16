@@ -20,7 +20,7 @@ class MeerkatProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest
     "Example14.scala" -> Set(),
     "Example13.scala" -> Set((1771, 1774),(1850, 1851),(1856, 1859),(1862, 1863)),
     "Example8.scala" -> Set(),
-    "Example9.scala" -> Set((1850, 2053),(1823, 1842)),
+    "Example9.scala" -> Set(),
     "Parsers.scala" -> Set(),
     "Example1.scala" -> Set(),
     "SPPFVisitor.scala" -> Set((9108, 9151)),
