@@ -33,6 +33,6 @@ class ScalaVariableStructureViewElement private (element: ScNamedElement, inheri
 
 object ScalaVariableStructureViewElement {
   def apply(element: ScNamedElement, inherited: Boolean): Seq[ScalaVariableStructureViewElement] =
-    Seq(new ScalaVariableStructureViewElement(element, inherited, showType = true),
+    Seq(//new ScalaVariableStructureViewElement(element, inherited, showType = true),
       new ScalaVariableStructureViewElement(element, inherited, showType = false))
 }

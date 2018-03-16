@@ -33,6 +33,6 @@ class ScalaValueStructureViewElement private (element: ScNamedElement, val isInh
 
 object ScalaValueStructureViewElement {
   def apply(element: ScNamedElement, inherited: Boolean): Seq[ScalaValueStructureViewElement] =
-    Seq(new ScalaValueStructureViewElement(element, inherited, showType = true),
+    Seq(//new ScalaValueStructureViewElement(element, inherited, showType = true),
       new ScalaValueStructureViewElement(element, inherited, showType = false))
 }

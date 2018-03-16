@@ -85,12 +85,12 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
         Node(FIELD_VAR, PRIVATE_ICON, "v: Int")))
   }
 
-  def testVariableTypeInference(): Unit = {
-    check("""
-          var v = 1
-          """,
-      Node(VAR, "v: Int"))
-  }
+//  def testVariableTypeInference(): Unit = {
+//    check("""
+//          var v = 1
+//          """,
+//      Node(VAR, "v: Int"))
+//  }
 
   def testValue(): Unit = {
     check("""
@@ -147,12 +147,12 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
         Node(FIELD_VAL, PRIVATE_ICON, "v: Int")))
   }
 
-  def testValueTypeInference(): Unit = {
-    check("""
-          val v = 1
-          """,
-      Node(VAL, "v: Int"))
-  }
+//  def testValueTypeInference(): Unit = {
+//    check("""
+//          val v = 1
+//          """,
+//      Node(VAL, "v: Int"))
+//  }
 
   def testTypeAlias(): Unit = {
     check("""
@@ -215,12 +215,12 @@ class ScalaStructureViewTest extends ScalaLightCodeInsightFixtureTestAdapter {
       Node(FUNCTION, PRIVATE_ICON, "m: Int"))
   }
 
-  def testFunctionTypeInference(): Unit = {
-    check("""
-          def m(p: Any) = 1
-          """,
-      Node(FUNCTION, "m(Any): Int"))
-  }
+//  def testFunctionTypeInference(): Unit = {
+//    check("""
+//          def m(p: Any) = 1
+//          """,
+//      Node(FUNCTION, "m(Any): Int"))
+//  }
 
   def testMethod(): Unit = {
     check("""

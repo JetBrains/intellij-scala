@@ -29,6 +29,6 @@ class ScalaFunctionStructureViewElement private (function: ScFunction, val isInh
 
 object ScalaFunctionStructureViewElement {
   def apply(function: ScFunction, isInherited: Boolean): Seq[ScalaFunctionStructureViewElement] =
-    Seq(new ScalaFunctionStructureViewElement(function, isInherited, showType = true),
+    Seq(//new ScalaFunctionStructureViewElement(function, isInherited, showType = true),
       new ScalaFunctionStructureViewElement(function, isInherited, showType = false))
 }

@@ -51,19 +51,20 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
     new ScalaFileStructureViewElement(myRootElement, console)
   }
 
-  override def getFilters: Array[Filter] = Array(new Filter {
-    override def getName: String = "INFERRED_TYPES"
-
-    override def getPresentation: ActionPresentation =
-      new ActionPresentationData("Inferred Types", "Show inferred types", Icons.TYPED)
-
-    override def isVisible(element: TreeElement): Boolean = element match {
-      case e: TypedViewElement => e.showType
-      case _ => true
-    }
-
-    override def isReverted: Boolean = false
-  })
+// TODO Enable inferred types
+//  override def getFilters: Array[Filter] = Array(new Filter {
+//    override def getName: String = "INFERRED_TYPES"
+//
+//    override def getPresentation: ActionPresentation =
+//      new ActionPresentationData("Inferred Types", "Show inferred types", Icons.TYPED)
+//
+//    override def isVisible(element: TreeElement): Boolean = element match {
+//      case e: TypedViewElement => e.showType
+//      case _ => true
+//    }
+//
+//    override def isReverted: Boolean = false
+//  })
 
   @NotNull
   override def getSorters: Array[Sorter] = {
