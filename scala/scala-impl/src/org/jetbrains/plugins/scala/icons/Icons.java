@@ -90,9 +90,4 @@ public interface Icons {
   // used from SBT.xml
   Icon SBT_SHELL_TOOLWINDOW = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt_shell_toolwin.png");
 
-  Icon CBT = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/cbt.png");
-  Icon CBT_EXTRA_MODULE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/cbt_extra.png");
-  Icon CBT_TEST_MODULE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/cbt_test.png");
-  // used from CBT.xml
-  Icon CBT_TOOLWINDOW = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/cbt_toolwin.png");
 }

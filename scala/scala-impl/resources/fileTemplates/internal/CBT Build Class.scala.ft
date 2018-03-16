@@ -1,5 +1,0 @@
-import cbt._
-
-class Build(val context: Context) extends BaseBuild {
-  override def defaultScalaVersion = "${Scala_version}"
-}

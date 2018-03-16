@@ -131,11 +131,6 @@ lazy val macroAnnotations =
     libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler)
   ): _*)
 
-lazy val cbt =
-  newProject("cbt", file("cbt"))
-    .enablePlugins(SbtIdeaPlugin)
-    .dependsOn(scalaImpl % "test->test;compile->compile")
-
 // Integration with other IDEA plugins
 
 lazy val androidIntegration =
