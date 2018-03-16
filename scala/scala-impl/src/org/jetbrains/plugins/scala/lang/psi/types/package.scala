@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType, PsiTypeParameter}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
@@ -128,13 +128,13 @@ package object types {
     //performance critical method!
     //may return None even if extractClass is not empty
     @scala.annotation.tailrec
-    final def extractClassSimple(visited: Set[ScTypeAliasDefinition] = Set.empty): Option[PsiClass] = scType match {
+    final def extractClassSimple(visited: Set[ScTypeAlias] = Set.empty): Option[PsiClass] = scType match {
       case ScDesignatorType(c: PsiClass) => Some(c)
       case _: StdType => None
       case ParameterizedType(des, _) => des.extractClassSimple(visited)
       case ScProjectionType(_, c: PsiClass) => Some(c)
       case ScProjectionType(_, ta: ScTypeAliasDefinition) if !visited.contains(ta) => ta.aliasedType.toOption match {
-        case Some(t) => t.extractClassSimple(visited + ta)
+        case Some(t) => t.extractClassSimple(visited + ta.physical)
         case _ => None
       }
       case ScThisType(td) => Some(td)
@@ -212,7 +212,7 @@ package object types {
     def needSubstitutor: Boolean
 
     def extractFrom(scType: ScType,
-                    visitedAliases: Set[ScTypeAliasDefinition] = Set.empty): Option[(T, ScSubstitutor)] = {
+                    visitedAliases: Set[ScTypeAlias] = Set.empty): Option[(T, ScSubstitutor)] = {
 
       def needExpand(definition: ScTypeAliasDefinition) = expandAliases && !visitedAliases(definition)
 
@@ -227,9 +227,9 @@ package object types {
             case definition: ScTypeAliasDefinition if needExpand(definition) =>
               definition.aliasedType.toOption match {
                 case Some(ParameterizedType(des, _)) if !needSubstitutor =>
-                  extractFrom(actualSubst.subst(des), visitedAliases + definition)
+                  extractFrom(actualSubst.subst(des), visitedAliases + definition.physical)
                 case Some(tp) =>
-                  extractFrom(actualSubst.subst(tp), visitedAliases + definition)
+                  extractFrom(actualSubst.subst(tp), visitedAliases + definition.physical)
                 case _ => None
               }
             case _ => filter(actualElement, actualSubst)
@@ -238,7 +238,7 @@ package object types {
           designatorOwner.element match {
             case definition: ScTypeAliasDefinition if needExpand(definition) =>
               definition.aliasedType.toOption.flatMap {
-                extractFrom(_, visitedAliases + definition)
+                extractFrom(_, visitedAliases + definition.physical)
               }
             case elem => filter(elem, ScSubstitutor.empty)
           }

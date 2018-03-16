@@ -126,7 +126,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
 
   private def toPsiTypeInner(`type`: ScType,
                              noPrimitives: Boolean = false,
-                             visitedAliases: Set[ScTypeAliasDefinition] = Set.empty): PsiType = {
+                             visitedAliases: Set[ScTypeAlias] = Set.empty): PsiType = {
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
       proj.projected.extractClass match {
@@ -170,7 +170,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
         case a: ScTypeAliasDefinition if !visitedAliases.contains(a) =>
           a.aliasedType match {
             case Right(c: ScParameterizedType) =>
-              toPsiTypeInner(ScParameterizedType(c.designator, args), noPrimitives, visitedAliases + a)
+              toPsiTypeInner(ScParameterizedType(c.designator, args), noPrimitives, visitedAliases + a.physical)
             case _ => javaObject
           }
         case _ => javaObject
@@ -184,7 +184,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           }
         case elem: ScTypeAliasDefinition if !visitedAliases.contains(elem) =>
           elem.aliasedType.toOption
-            .map(toPsiTypeInner(_, noPrimitives, visitedAliases + elem))
+            .map(toPsiTypeInner(_, noPrimitives, visitedAliases + elem.physical))
             .getOrElse(javaObject)
         case _ => javaObject
       }

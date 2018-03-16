@@ -127,7 +127,7 @@ private class BaseTypesIterator(tp: ScType) extends Iterator[ScType] {
       tp match {
         case IsTypeAlias(ta, s) =>
           if (!visitedAliases.contains(ta)) {
-            visitedAliases += ta
+            visitedAliases += ta.physical
             ta.aliasedType match {
               case Right(aliased) => Some(s.subst(aliased))
               case _ => None
