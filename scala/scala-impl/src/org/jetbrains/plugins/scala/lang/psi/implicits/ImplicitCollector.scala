@@ -248,8 +248,14 @@ class ImplicitCollector(place: PsiElement,
     }
 
     private def lowerInFileWithoutType(c: ScalaResolveResult) = {
-      def lowerInFile(e: PsiElement) = e.containingFile == getPlace.containingFile &&
-        ScalaPsiUtil.isInvalidContextOrder(getPlace, e, e.containingFile)
+      def contextFile(e: PsiElement) = Option(PsiTreeUtil.getContextOfType(e, classOf[PsiFile]))
+
+      def lowerInFile(e: PsiElement) = {
+        val resolveFile = contextFile(e)
+        val placeFile = contextFile(getPlace)
+
+        resolveFile == placeFile && ScalaPsiUtil.isInvalidContextOrder(getPlace, e, placeFile)
+      }
 
       c.getElement match {
         case fun: ScFunction if fun.returnTypeElement.isEmpty => lowerInFile(fun)

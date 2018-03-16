@@ -317,6 +317,11 @@ package object extensions {
       Option(file.getVirtualFile)
     }
 
+    def sameElementInContext: PsiElement = element match {
+      case sc: ScalaPsiElement => sc.getDeepSameElementInContext
+      case _ => element
+    }
+
     def parent: Option[PsiElement] = Option(element.getParent)
 
     def parentOfType[E <: PsiElement](clazz: Class[E], strict: Boolean = true): Option[E] =
