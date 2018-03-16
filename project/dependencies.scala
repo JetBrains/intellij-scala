@@ -47,15 +47,9 @@ object Versions {
     val binary_1_0 = "1.0"
 
     val latest_0_12 = "0.12.4"
-    val latest_0_13 = "0.13.16"
-    val latest_1_0 = "1.0.3"
+    val latest_0_13 = "0.13.17"
+    val latest_1_0 = "1.1.1"
     val latest: String = latest_1_0
-
-    // these need to be updated to correspond to the versions in sbt/project/Dependencies.scala
-    // they are required for our tests. TODO: automatically update them based on sbt base version
-    val latestIo = "1.0.2"
-    val latestUtil = "1.0.2"
-    val latestLm = "1.0.3"
 
     def scalaVersion(v: String): String =
       if (v.startsWith(Sbt.binary_0_12)) Scala.binary_2_9

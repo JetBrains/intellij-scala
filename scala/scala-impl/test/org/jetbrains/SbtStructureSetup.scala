@@ -20,7 +20,7 @@ object SbtStructureSetup {
   val IvyCacheDir: File = new File(TestUtils.getIvyCachePath)
 
   def setUpSbtLauncherAndStructure(project: Project): Unit = {
-    val sbtVersion = "0.13.16" // hardcode latest version of sbt 0.13, still need to make test 1.0-capable
+    val sbtVersion = BuildInfo.sbtLatest_0_13 // hardcode latest version of sbt 0.13, still need to make test 1.0-capable
     val launcherVersion: String = BuildInfo.sbtLatestVersion
     val sbtStructureVersion = BuildInfo.sbtStructureVersion
     val customSbtLauncher = DependencyManager.resolveSingle("org.scala-sbt"  % "sbt-launch" % launcherVersion).file
