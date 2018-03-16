@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
 
+import scala.collection.JavaConverters._
+
 /**
  * @author Alefas
  * @since 04.05.12
@@ -39,14 +41,14 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
                   case x if x.name == "$tag" || x.name == "$init$" =>
                   case x if x.containingClass.qualifiedName == "java.lang.Object" =>
                   case x if x.containingClass == clazz =>
-                  case x: ScFunction => children.add(new ScalaFunctionStructureViewElement(x, true))
+                  case x: ScFunction => children.addAll(ScalaFunctionStructureViewElement(x, true).asJava)
                   case x: PsiMethod => children.add(new PsiMethodTreeElement(x, true))
                 }
               case _ =>
                 sign.namedElement match {
                   case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
-                    case x: ScValue if x.containingClass != clazz => children.add(new ScalaValueStructureViewElement(named, true))
-                    case x: ScVariable if x.containingClass != clazz => children.add(new ScalaVariableStructureViewElement(named, true))
+                    case x: ScValue if x.containingClass != clazz => children.addAll(ScalaValueStructureViewElement(named, true).asJava)
+                    case x: ScVariable if x.containingClass != clazz => children.addAll(ScalaVariableStructureViewElement(named, true).asJava)
                     case _ =>
                   }
                   case _ =>

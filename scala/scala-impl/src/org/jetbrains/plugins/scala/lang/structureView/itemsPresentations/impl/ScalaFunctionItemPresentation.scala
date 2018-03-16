@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaIt
 * Date: 04.05.2008
 */
 
-class ScalaFunctionItemPresentation(element: ScFunction, inherited: Boolean) extends ScalaItemPresentation(element) {
+class ScalaFunctionItemPresentation(element: ScFunction, inherited: Boolean, showType: Boolean) extends ScalaItemPresentation(element) {
   override def getPresentableText: String = {
     val presentation = ScalaElementPresentation.getMethodPresentableText(element)
 
@@ -19,7 +19,7 @@ class ScalaFunctionItemPresentation(element: ScFunction, inherited: Boolean) ext
       if (element.isConstructor) None
       else element.returnTypeElement match {
         case Some(_) => None
-        case None => element.returnType.toOption.map(ScTypePresentation.withoutAliases)
+        case None => if (showType) element.returnType.toOption.map(ScTypePresentation.withoutAliases) else None
       }
 
     presentation + inferredType.map(": " + _).mkString

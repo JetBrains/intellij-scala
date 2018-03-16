@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
+package org.jetbrains.plugins.scala.lang.structureView
 
 import java.util
 import java.util.Comparator
@@ -11,7 +9,9 @@ import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElem
 import com.intellij.ide.util.treeView.smartTree._
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
  */
 class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val console: ScalaLanguageConsole = null)
   extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
+
   def isAlwaysLeaf(element: StructureViewTreeElement): Boolean =
     !(isAlwaysShowsPlus(element) ||
       element.isInstanceOf[TestStructureViewElement] ||
@@ -49,6 +50,20 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
   def getRoot: StructureViewTreeElement = {
     new ScalaFileStructureViewElement(myRootElement, console)
   }
+
+  override def getFilters: Array[Filter] = Array(new Filter {
+    override def getName: String = "INFERRED_TYPES"
+
+    override def getPresentation: ActionPresentation =
+      new ActionPresentationData("Inferred Types", "Show inferred types", Icons.TYPED)
+
+    override def isVisible(element: TreeElement): Boolean = element match {
+      case e: TypedViewElement => e.showType
+      case _ => true
+    }
+
+    override def isReverted: Boolean = false
+  })
 
   @NotNull
   override def getSorters: Array[Sorter] = {

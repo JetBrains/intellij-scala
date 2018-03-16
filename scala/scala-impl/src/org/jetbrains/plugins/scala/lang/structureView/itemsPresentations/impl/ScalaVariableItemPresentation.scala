@@ -15,11 +15,11 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaIt
 * Date: 05.05.2008
 */
 
-class ScalaVariableItemPresentation(element: ScNamedElement, inherited: Boolean) extends ScalaItemPresentation(element) {
+class ScalaVariableItemPresentation(element: ScNamedElement, inherited: Boolean, showType: Boolean) extends ScalaItemPresentation(element) {
   override def getPresentableText: String = {
     val typeAnnotation = variable.flatMap(_.typeElement.map(_.getText))
 
-    def inferredType = variable.flatMap(_.`type`().toOption).map(ScTypePresentation.withoutAliases)
+    def inferredType = if (showType) variable.flatMap(_.`type`().toOption).map(ScTypePresentation.withoutAliases) else None
 
     element.nameId.getText + typeAnnotation.orElse(inferredType).map(": " + _).mkString
   }
