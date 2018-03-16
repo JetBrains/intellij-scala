@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.structureView
 import java.util
 
 import com.intellij.ide.IdeBundle
-import com.intellij.ide.structureView.impl.java.PsiMethodTreeElement
 import com.intellij.ide.util.FileStructureNodeProvider
 import com.intellij.ide.util.treeView.smartTree.{ActionPresentation, ActionPresentationData, TreeElement}
 import com.intellij.openapi.actionSystem.Shortcut
@@ -42,7 +41,7 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
                   case x if x.containingClass.qualifiedName == "java.lang.Object" =>
                   case x if x.containingClass == clazz =>
                   case x: ScFunction => children.addAll(ScalaFunctionStructureViewElement(x, true).asJava)
-                  case x: PsiMethod => children.add(new PsiMethodTreeElement(x, true))
+                  case x: PsiMethod => children.add(new PsiMethodTreeElementDecorator(x, true))
                 }
               case _ =>
                 sign.namedElement match {
