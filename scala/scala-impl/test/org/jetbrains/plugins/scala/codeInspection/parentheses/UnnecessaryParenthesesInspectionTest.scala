@@ -234,4 +234,22 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     val hint = hintBeginning + " (b +: c)"
     testQuickFix(text, result, hint)
   }
+
+
+  def test_lambdaParam(): Unit = {
+    val r1 = s"Seq(1) map { $START(i)$END => i + 1 }"
+    val r2 = s"Seq(1) map { $START(i: Int)$END => i + 1 }"
+    val r3 = s"Seq(1) map ($START(i)$END => i + 1)"
+    val required = "Seq(1) map ((i: Int) => i + 1)"
+
+    checkTextHasNoErrors(required)
+    checkTextHasError(r1)
+    checkTextHasError(r2)
+    checkTextHasError(r3)
+
+    val text = s"Seq(1) map { (${CARET_MARKER}i: Int) => i + 1 }"
+    val result = s"Seq(1) map { i: Int => i + 1 }"
+    val hint = hintBeginning + " (i: Int)"
+    testQuickFix(text, result, hint)
+  }
 }

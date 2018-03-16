@@ -4,15 +4,16 @@ package codeInspection.parentheses
 import javax.swing.JComponent
 
 import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalQuickFix, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.intention.IntentionUtil
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScGenericParenthesisedNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScGenericParenthesisedNode.{AnyParenthesisedNode, Parenthesised}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, _}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker.checkInspection
 
@@ -27,7 +28,12 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase extends AbstractInspect
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case p: AnyParenthesisedNode if isProblem(p) => registerProblem(p)
+    // In the case of a single untyped formal parameter, (x) => e can be abbreviated to x => e
+    case f @ ScFunctionExpr(Seq(param), _) if param.paramType.isEmpty && isParenthesised(f.params.clauses.head) => registerProblem(f.params.clauses.head)
+    // If an anonymous function (x: T) => e with a single typed parameter appears as the result expression of a block, it can be abbreviated to x: T => e.
+    case BlockResultExpr(f @ ScFunctionExpr(Seq(_), _)) if isParenthesised(f.params.clauses.head) => registerProblem(f.params.clauses.head)
   }
+
 
   override def createOptionsPanel(): JComponent = {
     new SingleCheckboxOptionsPanel(InspectionBundle.message("ignore.clarifying.parentheses"), this, "ignoreClarifying")
@@ -36,14 +42,37 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase extends AbstractInspect
   def getIgnoreClarifying: Boolean
   def setIgnoreClarifying(value: Boolean)
 
+  private object BlockResultExpr {
+    def unapply(arg: ScBlockExpr): Option[ScExpression] = arg.lastExpr
+  }
+
+  private def isParenthesised(clause: ScParameterClause): Boolean
+  = clause.getNode.getFirstChildNode.getText == "(" && clause.getNode.getLastChildNode.getText == ")"
+
   private def isProblem[T <: ScalaPsiElement](elem: Parenthesised[T]): Boolean
   = !elem.isNestedParenthesis && checkInspection(this, elem) && elem.isParenthesisRedundant(getIgnoreClarifying)
 
 
-  private def registerProblem[T <: ScalaPsiElement](elt: Parenthesised[T])(implicit holder: ProblemsHolder): Unit = {
-    holder.registerProblem(elt, "Unnecessary parentheses", ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
-                           new UnnecessaryParenthesesTypeOrPatternQuickFix[T](elt, getIgnoreClarifying))
+  private def registerProblem[T <: ScalaPsiElement](elt: Parenthesised[T])(implicit holder: ProblemsHolder): Unit
+  = registerProblem(elt, new UnnecessaryParenthesesTypeOrPatternQuickFix[T](elt, getIgnoreClarifying))
+
+
+  private def registerProblem(elt: ScParameterClause)(implicit holder: ProblemsHolder): Unit = {
+    val quickFix = new AbstractFixOnPsiElement[ScParameterClause]("Remove unnecessary parentheses " + getShortText(elt), elt) {
+      override protected def doApplyFix(element: ScParameterClause)(implicit project: Project): Unit
+      = if (isParenthesised(element)) {
+        elt.getNode.removeChild(elt.getNode.getFirstChildNode)
+        elt.getNode.removeChild(elt.getNode.getLastChildNode)
+      }
+    }
+
+    registerProblem(elt, quickFix)
   }
+
+
+  private def registerProblem(elt: ScalaPsiElement, qf: LocalQuickFix)(implicit holder: ProblemsHolder): Unit
+  = holder.registerProblem(elt, "Unnecessary parentheses", ProblemHighlightType.GENERIC_ERROR_OR_WARNING, qf)
+
 }
 
 class UnnecessaryParenthesesTypeOrPatternQuickFix[T <: ScalaPsiElement](parenthesized: Parenthesised[T], ignoreClarifying: Boolean)
