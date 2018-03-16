@@ -26,8 +26,10 @@ class RemoveUnnecessaryParenthesesIntention extends PsiElementBaseIntentionActio
   = Option(PsiTreeUtil.getParentOfType(element, classOf[AnyParenthesisedNode], false))
     .exists(_.isParenthesisRedundant())
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     Option(PsiTreeUtil.getParentOfType(element, classOf[AnyParenthesisedNode])) map {
+      case expr if expr.isNestedParenthesis => invoke(project, editor, expr)
       case expr if expr.isParenthesisRedundant() =>
         inWriteAction {
           expr.stripParentheses()
