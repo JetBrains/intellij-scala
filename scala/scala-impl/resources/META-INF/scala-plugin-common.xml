@@ -44,31 +44,24 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <breadcrumbsInfoProvider
-                implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider"/>
-        <breadcrumbsPresentationProvider
-                implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsPresentationProvider"/>
-        <project.converterProvider
-                implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"/>
-        <statistics.usagesCollector
-                implementation="org.jetbrains.plugins.scala.statistics.ScalaApplicationUsagesCollector"/>
-        <statistics.usagesCollector
-                implementation="org.jetbrains.plugins.scala.statistics.ScalaProjectSettingsCollector"/>
+        <breadcrumbsInfoProvider implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider"/>
+        <breadcrumbsPresentationProvider implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsPresentationProvider"/>
+        <project.converterProvider implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"/>
+        <statistics.usagesCollector implementation="org.jetbrains.plugins.scala.statistics.ScalaApplicationUsagesCollector"/>
+        <statistics.usagesCollector implementation="org.jetbrains.plugins.scala.statistics.ScalaProjectSettingsCollector"/>
         <codeStyle.ReferenceAdjuster language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.template.ScalaReferenceAdjuster"/>
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
         <testFinder implementation="org.jetbrains.plugins.scala.testingSupport.ScalaTestFinder"/>
         <exceptionFilter implementation="org.jetbrains.plugins.scala.testingSupport.util.scalatest.ScalaTestFailureLocationFilterFactory"/>
         <exceptionFilter implementation="org.jetbrains.plugins.scala.stacktrace.ScalaPackageObjectFilterFactory" order="first"/>
-        <compileServer.plugin
-                classpath="scala-library.jar;compiler-shared.jar;jps/nailgun.jar;jps/compiler-jps.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar"/>
+        <compileServer.plugin classpath="scala-library.jar;compiler-shared.jar;jps/nailgun.jar;jps/compiler-jps.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar"/>
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.ScalaBuildProcessParametersProvider"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="last"/>
-        <refactoring.moveMemberHandler language="Scala"
-                                       implementationClass="org.jetbrains.plugins.scala.lang.refactoring.move.moveMembers.ScalaMoveMemberHandler"/>
+        <refactoring.moveMemberHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.move.moveMembers.ScalaMoveMemberHandler"/>
         <refactoring.moveAllClassesInFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassesInFileHandler" order="last"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
-        <moveLeftRightHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaMoveLeftRightHandler"></moveLeftRightHandler>
+        <moveLeftRightHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaMoveLeftRightHandler"/>
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.moveMembers.ScalaMoveMembersHandler" order="first"/>
         <editorTabTitleProvider implementation="org.jetbrains.plugins.scala.editor.PackageObjectEditorTabTitleProvider"/>
         <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
@@ -125,12 +118,9 @@
         <postFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.processors.ScalaBracePostFormatProcessor"/>
         <preFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.processors.ScalaDocNewlinedPreFormatProcessor"/>
         <lang.refactoringSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringSupportProvider"/>
-        <lang.surroundDescriptor language="Scala"
-                                 implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
-        <lang.surroundDescriptor language="Scala"
-                                 implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaDocCommentDataSurroundDescriptor"/>
-        <lang.surroundDescriptor language="Scala"
-                                 implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaIgnoreErrorHighlightingSurroundDescriptor"/>
+        <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
+        <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaDocCommentDataSurroundDescriptor"/>
+        <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaIgnoreErrorHighlightingSurroundDescriptor"/>
         <lang.unwrapDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.unwrap.ScalaUnwrapDescriptor"/>
         <lang.psiStructureViewFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
         <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler" order="first"/>
@@ -218,8 +208,7 @@
         <directClassInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaDirectClassInheritorsSearcher"/>
         <classInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaLocalInheritorsSearcher"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaLineMarkerProvider"/>
-        <codeInsight.lineMarkerProvider language="Scala"
-                                        implementationClass="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.meta.intellij.editor.MetaExpansionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.macros.intellij.editor.Macros2ExpansionLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
