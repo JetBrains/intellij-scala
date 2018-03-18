@@ -1,25 +1,24 @@
 package org.jetbrains.plugins.scala.lang.refactoring.move.members
 
-import java.awt.BorderLayout
+import java.awt.{BorderLayout, Color}
 
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{JavaCodeFragment, JavaPsiFacade, PsiMember}
+import com.intellij.psi.{JavaCodeFragment, PsiMember}
 import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.move.moveMembers.{MoveMembersOptions, MoveMembersProcessor}
 import com.intellij.refactoring.ui.RefactoringDialog
 import com.intellij.ui.{EditorComboBox, JavaReferenceEditorUtil}
 import javax.swing._
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObject: ScObject, initialTargetMember: PsiMember) extends RefactoringDialog(project, canBeParent) {
 
   import ScalaMoveMembersHandler._
 
-  private val RECENTS_KEY = "ScalaMoveMembersDialog.RECENTS_KEY"
 
   val myTfTargetClassName = new EditorComboBox(
     JavaReferenceEditorUtil.createDocument(
@@ -57,8 +56,13 @@ class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObjec
     }
   }
 
-  private def findClass(className: String) =
-    JavaPsiFacade.getInstance(myProject).findClass(className,  GlobalSearchScope.projectScope(myProject))
+  private def findClass(className: String) = {
+    val a = ElementScope(myProject).getCachedObject(className)
+    val b= a.get
+    b
+    /*ScalaPsiManager.instance(myProject).obj*/
+  }
+    /*JavaPsiFacade.getInstance(myProject).findClass(className,  GlobalSearchScope.projectScope(myProject))*/
 
   override def createCenterPanel(): JComponent = {
     val panel = new JPanel(new BorderLayout)
@@ -66,8 +70,9 @@ class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObjec
     val box = Box.createVerticalBox
 
     val _panel1 = new JPanel(new BorderLayout)
+    _panel1.setBackground(Color.green)
     val sourceClassField = new JTextField
-    sourceClassField.setText(sourceObject.getName)
+    sourceClassField.setText(sourceObject.name)
     sourceClassField.setEditable(false)
     _panel1.add(new JLabel(RefactoringBundle.message("move.members.move.members.from.label")), BorderLayout.NORTH)
     _panel1.add(sourceClassField, BorderLayout.CENTER)
