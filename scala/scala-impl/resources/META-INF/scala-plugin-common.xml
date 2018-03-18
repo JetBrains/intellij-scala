@@ -44,10 +44,14 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <breadcrumbsInfoProvider implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider"/>
-        <breadcrumbsPresentationProvider implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsPresentationProvider"/>
-        <project.converterProvider implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"/>
-        <statistics.usagesCollector implementation="org.jetbrains.plugins.scala.statistics.ScalaApplicationUsagesCollector"/>
+        <breadcrumbsInfoProvider
+                implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider"/>
+        <breadcrumbsPresentationProvider
+                implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsPresentationProvider"/>
+        <project.converterProvider
+                implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"/>
+        <statistics.usagesCollector
+                implementation="org.jetbrains.plugins.scala.statistics.ScalaApplicationUsagesCollector"/>
         <statistics.usagesCollector implementation="org.jetbrains.plugins.scala.statistics.ScalaProjectSettingsCollector"/>
         <codeStyle.ReferenceAdjuster language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.template.ScalaReferenceAdjuster"/>
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
