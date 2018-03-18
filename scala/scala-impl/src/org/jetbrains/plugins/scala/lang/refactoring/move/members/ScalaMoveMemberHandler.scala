@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.lang.refactoring.move.members
 
 import java.util
 
-import com.intellij.codeInsight.ChangeContextUtil
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.move.moveMembers.{MoveJavaMemberHandler, MoveMemberHandler, MoveMembersOptions, MoveMembersProcessor}
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 import scala.collection.mutable
@@ -24,7 +25,7 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
   override def checkConflictsOnMember(scRefPattern: PsiMember, newVisibility: String, modifiedListCopy: PsiModifierList, targetClass: PsiClass, membersToMove: util.Set[PsiMember], conflicts: MultiMap[PsiElement, String]): Unit = {
     val targetName = targetClass.asInstanceOf[ScDeclaredElementsHolder].declaredNames.head
 
-    ancestorMemberOf(scRefPattern) match {
+    Option(PsiTreeUtil.getParentOfType(scRefPattern, classOf[ScMember])) match {
       case Some(member) =>
         member.asInstanceOf[ScDeclaredElementsHolder].declaredNames.foreach(memberName =>
           if (targetClass.getAllMethods.map(_.getName).contains(memberName)) {
@@ -86,44 +87,37 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
     null
   }
 
+  private def memberName(member: ScMember) = member.asInstanceOf[ScDeclaredElementsHolder].declaredNames.mkString(",")
+
   override def doMove(moveMembersOptions: MoveMembersOptions, scRefPattern: PsiMember, anchor: PsiElement, targetClass: PsiClass): PsiMember = {
 
     def findEquivalentReferencePatternFrom(newMemberInTarget: PsiElement) = {
       findReferencePatterns(newMemberInTarget).find(_.getName == scRefPattern.getName) orNull
     }
 
-    def memberName(member: ScMember) = member.asInstanceOf[ScDeclaredElementsHolder].declaredNames.mkString(",")
+    val maybeMember = findScMember(Option(scRefPattern))
 
-    val member = ancestorMemberOf(scRefPattern)
-    member match {
-      case None => null
-      case Some(psiMemberToMove) if !movedScMembers.contains(memberName(psiMemberToMove)) =>
-        // in case of moving a tupple, we will want to move the ScMember which represents
-        // all members in tupple only once
-
-        ChangeContextUtil.encodeContextInfo(psiMemberToMove, true)
-
-        val memberCopy = psiMemberToMove.copy()
+    val maybeMemberToMove = maybeMember.map(scMember =>
+      if (movedScMembers.contains(memberName(scMember))) {
+        movedScMembers(memberName(scMember))
+      } else {
+        ScalaChangeContextUtil.encodeContextInfo(Seq(scMember))
+        val memberCopy = scMember.copy()
         val newMemberInTarget = targetClass.add(memberCopy)
+        movedScMembers += memberName(scMember) -> newMemberInTarget
+        scMember.delete()
+        newMemberInTarget
+      }
+    )
 
-        psiMemberToMove.delete()
-
-        movedScMembers += memberName(psiMemberToMove) -> newMemberInTarget
-
-        findEquivalentReferencePatternFrom(newMemberInTarget)
-
-      case Some(psiMemberToMove) =>
-        // in case of a reference of an already moved tupple ScMember
-        val newMemberInTarget = movedScMembers(memberName(psiMemberToMove))
-        findEquivalentReferencePatternFrom(newMemberInTarget)
-    }
+    maybeMemberToMove.map(findEquivalentReferencePatternFrom).orNull
   }
 
   def init(): Unit = {
     movedScMembers.clear()
   }
 
-  override def decodeContextInfo(scope: PsiElement): Unit = ChangeContextUtil.decodeContextInfo(scope, null, null)
+  override def decodeContextInfo(scope: PsiElement): Unit = ScalaChangeContextUtil.decodeContextInfo(Seq(scope))
 
 }
 
