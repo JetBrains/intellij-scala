@@ -65,7 +65,9 @@
         <compileServer.plugin classpath="scala-library.jar;compiler-shared.jar;jps/nailgun.jar;jps/compiler-jps.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar"/>
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.ScalaBuildProcessParametersProvider"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>
-        <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="first"/>
+        <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="last"/>
+        <refactoring.moveMemberHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.move.moveMembers.ScalaMoveMemberHandler"/>
+        <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.moveMembers.ScalaMoveMembersHandler" order="first"/>
         <refactoring.moveAllClassesInFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassesInFileHandler" order="last"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
         <moveLeftRightHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaMoveLeftRightHandler"></moveLeftRightHandler>
