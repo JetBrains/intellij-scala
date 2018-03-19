@@ -37,7 +37,7 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
         return this::isShowFunctionReturnType;
     }
 
-    public void setShowFunctionReturnType(boolean showFunctionReturnType) {
+    private void setShowFunctionReturnType(boolean showFunctionReturnType) {
         this.showFunctionReturnType = showFunctionReturnType;
     }
 
@@ -53,7 +53,7 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
         return this::isShowPropertyType;
     }
 
-    public void setShowPropertyType(boolean showPropertyType) {
+    private void setShowPropertyType(boolean showPropertyType) {
         this.showPropertyType = showPropertyType;
     }
 
@@ -69,7 +69,7 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
         return this::isShowLocalVariableType;
     }
 
-    public void setShowLocalVariableType(boolean showLocalVariableType) {
+    private void setShowLocalVariableType(boolean showLocalVariableType) {
         this.showLocalVariableType = showLocalVariableType;
     }
 
