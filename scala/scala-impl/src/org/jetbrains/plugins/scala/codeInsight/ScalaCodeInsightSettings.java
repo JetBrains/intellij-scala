@@ -28,6 +28,8 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
 
     private int presentationLength = 50;
 
+    private boolean showForObviousTypes = false;
+
     public boolean isShowTypeHints() {
         return showFunctionReturnType ||
                 showPropertyType ||
@@ -96,6 +98,23 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
 
     public Setter<Integer> presentationLengthSetter() {
         return this::setPresentationLength;
+    }
+
+
+    public boolean isShowForObviousTypes() {
+        return showForObviousTypes;
+    }
+
+    public Getter<Boolean> showForObviousTypesGetter() {
+        return this::isShowForObviousTypes;
+    }
+
+    public void setShowForObviousTypes(boolean showForObviousTypes) {
+        this.showForObviousTypes = showForObviousTypes;
+    }
+
+    public Setter<Boolean> showForObviousTypesSetter() {
+        return this::setShowForObviousTypes;
     }
 
     @NotNull
