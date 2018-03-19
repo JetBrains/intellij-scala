@@ -5,6 +5,9 @@ package api
 package base
 package types
 
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
@@ -17,6 +20,8 @@ trait ScParenthesisedTypeElement extends ScTypeElement with ScGenericParenthesis
   def typeElement: Option[ScTypeElement] = findChild(classOf[ScTypeElement])
 
   override def subNode: Option[ScTypeElement] = typeElement
+
+  override def isSameTree(p: PsiElement): Boolean = p.isInstanceOf[ScTypeElement]
 
   override def isParenthesisClarifying: Boolean = {
     (getParent, typeElement) match {
@@ -36,8 +41,7 @@ trait ScParenthesisedTypeElement extends ScTypeElement with ScGenericParenthesis
       }
     }
   }
-
-  override protected def getPrecedence(typeElem: TreeMember[ScTypeElement]): Int = typeElem match {
+  override protected def getPrecedence(typeElem: ScTypeElement): Int = typeElem match {
     case _: ScParameterizedTypeElement | _: ScTypeProjection | _: ScSimpleTypeElement | _: ScTupleTypeElement | _: ScParenthesisedTypeElement => 0
     case _: ScAnnotTypeElement => 1
     case _: ScCompoundTypeElement => 2

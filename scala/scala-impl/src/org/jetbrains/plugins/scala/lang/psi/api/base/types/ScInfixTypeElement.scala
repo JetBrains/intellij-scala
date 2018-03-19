@@ -21,9 +21,9 @@ trait ScInfixTypeElement extends ScTypeElement with ScGenericInfixNode[ScTypeEle
   }
 
 
-  override def rightOperand: Option[TreeMember[ScTypeElement]] = rightTypeElement
+  override def rightOperand: Option[ScTypeElement] = rightTypeElement
 
-  override def leftOperand: TreeMember[ScTypeElement] = leftTypeElement
+  override def leftOperand: ScTypeElement = leftTypeElement
 }
 
 object ScInfixTypeElement {

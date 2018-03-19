@@ -15,8 +15,8 @@ trait ScInfixPattern extends ScPattern with ScGenericInfixNode[ScPattern] {
   def rightPattern: Option[ScPattern] = findLastChild(classOf[ScPattern])
   def reference: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
 
-  override def rightOperand: Option[TreeMember[ScPattern]] = rightPattern
-  override def leftOperand: TreeMember[ScPattern] = leftPattern
+  override def rightOperand: Option[ScPattern] = rightPattern
+  override def leftOperand: ScPattern = leftPattern
   override def operation: ScReferenceElement = reference
 }
 

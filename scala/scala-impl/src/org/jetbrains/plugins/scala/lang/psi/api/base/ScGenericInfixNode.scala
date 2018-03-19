@@ -10,13 +10,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
   *
   * @author Clément Fournier
   */
-trait ScGenericInfixNode[E <: ScalaPsiElement] extends TreeMember[E] {
+trait ScGenericInfixNode[E <: ScalaPsiElement] extends ScalaPsiElement {
 
-  def leftOperand: TreeMember[E]
+  def leftOperand: E
 
   def operation: ScReferenceElement
 
-  def rightOperand: Option[TreeMember[E]]
+  def rightOperand: Option[E]
 
   def isRightAssoc: Boolean = associativity == -1
 
@@ -27,7 +27,7 @@ trait ScGenericInfixNode[E <: ScalaPsiElement] extends TreeMember[E] {
 
 
 object ScGenericInfixNode {
-  def unapply(arg: ScGenericInfixNode[_]): Option[(TreeMember[_], ScReferenceElement, Option[TreeMember[_]])] = arg match {
+  def unapply(arg: ScGenericInfixNode[_ <: ScalaPsiElement]): Option[(ScalaPsiElement, ScReferenceElement, Option[ScalaPsiElement])] = arg match {
     case p: ScInfixPattern => ScInfixPattern.unapply(p)
     case t: ScInfixTypeElement => ScInfixTypeElement.unapply(t)
     case ScInfixExpr(l, i, r) => Some((l, i, Some(r)))
