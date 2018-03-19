@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.move.members
 
-import java.awt.{BorderLayout, Color}
+import java.awt.BorderLayout
 
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.project.Project
@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObject: ScObject, initialTargetMember: PsiMember) extends RefactoringDialog(project, canBeParent) {
 
-  import ScalaMoveMembersHandler._
 
 
   val myTfTargetClassName = new EditorComboBox(
@@ -31,10 +30,6 @@ class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObjec
 
   init()
 
-  override def init() {
-    super.init()
-    ScalaMoveMemberHandler.init()
-  }
 
   override def doAction(): Unit = {
     val myMoveCallback = null
@@ -42,27 +37,27 @@ class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObjec
     val className = myTfTargetClassName.getText
 
     findClass(className) match {
-      case _: ScObject =>
-        invokeRefactoring(new MoveMembersProcessor(getProject, myMoveCallback, new MoveMembersOptions() {
+      case Some(_) =>
+        val mm = new MoveMembersProcessor(getProject, myMoveCallback, new MoveMembersOptions() {
           override def getMemberVisibility: String = "public"
 
           override def makeEnumConstant: Boolean = false
 
-          override def getSelectedMembers: Array[PsiMember] = findReferencePatterns(initialTargetMember).toArray
+          override def getSelectedMembers: Array[PsiMember] = List(initialTargetMember).toArray
 
           override def getTargetClassName: String = className
-        }))
+        })
+        invokeRefactoring(mm)
       case _ => Messages.showErrorDialog(ScalaBundle.message("move.members.target.must.be.object"), RefactoringBundle.message("error.title"))
     }
   }
 
-  private def findClass(className: String) = {
-    val a = ElementScope(myProject).getCachedObject(className)
-    val b= a.get
-    b
-    /*ScalaPsiManager.instance(myProject).obj*/
+  private def findClass(className: String): Option[ScObject] = {
+    val indexOfDollar = className.indexOf("$")
+    val classNameTocSearch = if(indexOfDollar < 0) className else className.substring(0, indexOfDollar)
+    ElementScope(myProject).getCachedObject(classNameTocSearch)
+
   }
-    /*JavaPsiFacade.getInstance(myProject).findClass(className,  GlobalSearchScope.projectScope(myProject))*/
 
   override def createCenterPanel(): JComponent = {
     val panel = new JPanel(new BorderLayout)
@@ -70,7 +65,6 @@ class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObjec
     val box = Box.createVerticalBox
 
     val _panel1 = new JPanel(new BorderLayout)
-    _panel1.setBackground(Color.green)
     val sourceClassField = new JTextField
     sourceClassField.setText(sourceObject.name)
     sourceClassField.setEditable(false)
