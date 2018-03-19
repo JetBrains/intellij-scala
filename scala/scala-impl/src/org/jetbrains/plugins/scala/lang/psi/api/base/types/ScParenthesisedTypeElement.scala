@@ -30,17 +30,6 @@ trait ScParenthesisedTypeElement extends ScTypeElement with ScGenericParenthesis
     }
   }
 
-  override def isParenthesisNeeded: Boolean = {
-    super.isParenthesisNeeded || {
-      val This = this
-
-      (getParent, typeElement) match {
-        // Function types are right associative, ie A => (B => C) === A => B => C
-        case (ScFunctionalTypeElement(This, _), Some(_: ScFunctionalTypeElement)) => true
-        case _ => false
-      }
-    }
-  }
   override protected def getPrecedence(typeElem: ScTypeElement): Int = typeElem match {
     case _: ScParameterizedTypeElement | _: ScTypeProjection | _: ScSimpleTypeElement | _: ScTupleTypeElement | _: ScParenthesisedTypeElement => 0
     case _: ScAnnotTypeElement => 1
