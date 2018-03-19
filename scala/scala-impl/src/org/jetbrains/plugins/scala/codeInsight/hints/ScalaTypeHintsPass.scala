@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.settings.annotations.Definition
 
 import scala.collection.{JavaConverters, mutable}
 
@@ -32,7 +33,10 @@ class ScalaTypeHintsPass(editor: Editor, rootElement: ScalaPsiElement)
     implicit val settings: ScalaCodeInsightSettings = ScalaCodeInsightSettings.getInstance()
     if (myDocument == null || rootElement.containingVirtualFile.isEmpty || !settings.isShowTypeHints) return
 
-    hintsByOffset ++= elements.flatMap {
+    hintsByOffset ++= elements.filterNot {
+      case _ if settings.isShowForObviousTypes => false
+      case element => Definition(element).isTypeObvious
+    }.flatMap {
       case f@TypelessFunction(anchor) if settings.isShowFunctionReturnType =>
         f.returnType.toInlayInfo(anchor)
       case v@TypelessValueOrVariable(anchor)
