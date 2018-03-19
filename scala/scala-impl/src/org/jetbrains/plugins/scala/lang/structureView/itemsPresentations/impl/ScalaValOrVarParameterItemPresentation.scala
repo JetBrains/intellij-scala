@@ -4,7 +4,12 @@ import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation
 
-class ScalaValOrVarParameterItemPresentation(parameter: ScClassParameter, inherited: Boolean) extends ScalaItemPresentation(parameter) {
+class ScalaValOrVarParameterItemPresentation(parameter: ScClassParameter, inherited: Boolean)
+  extends ScalaItemPresentation(parameter, inherited) {
+
+  override def location: Option[String] =
+    Option(parameter.containingClass).map(_.name)
+
   override def getPresentableText: String =
     parameter.name + parameter.paramType.map(t => ": " + t.getText).mkString
 

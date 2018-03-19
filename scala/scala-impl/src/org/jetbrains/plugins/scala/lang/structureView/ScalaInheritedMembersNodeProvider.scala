@@ -12,6 +12,7 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
@@ -45,6 +46,8 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
                 }
               case _ =>
                 sign.namedElement match {
+                  case parameter: ScClassParameter if parameter.isEffectiveVal && parameter.containingClass != clazz && !sign.name.endsWith("_=") =>
+                    children.add(new ScalaValOrVarParameterStructureViewElement(parameter, true))
                   case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
                     case x: ScValue if x.containingClass != clazz => children.addAll(ScalaValueStructureViewElement(named, true).asJava)
                     case x: ScVariable if x.containingClass != clazz => children.addAll(ScalaVariableStructureViewElement(named, true).asJava)
