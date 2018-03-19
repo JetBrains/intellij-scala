@@ -39,7 +39,6 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
               case sign: PhysicalSignature =>
                 sign.method match {
                   case x if x.name == "$tag" || x.name == "$init$" =>
-                  case x if x.containingClass.qualifiedName == "java.lang.Object" =>
                   case x if x.containingClass == clazz =>
                   case x: ScFunction => children.addAll(ScalaFunctionStructureViewElement(x, true).asJava)
                   case x: PsiMethod => children.add(new PsiMethodTreeElementDecorator(x, true))
