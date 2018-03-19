@@ -2,12 +2,8 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
 import java.awt._
-import java.awt.event.{ActionEvent, ActionListener}
+import java.awt.event.ActionEvent
 import java.util
-import javax.swing._
-import javax.swing.border.MatteBorder
-import javax.swing.event.{ChangeEvent, ChangeListener, HyperlinkEvent, HyperlinkListener}
-import javax.swing.table.TableCellEditor
 
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightLevelUtil}
 import com.intellij.openapi.actionSystem.{AnActionEvent, CustomShortcutSet}
@@ -26,6 +22,10 @@ import com.intellij.ui.{util => _, _}
 import com.intellij.util.Consumer
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.table.{JBListTable, JBTableRowEditor, JBTableRowRenderer}
+import javax.swing._
+import javax.swing.border.MatteBorder
+import javax.swing.event.{ChangeEvent, HyperlinkEvent}
+import javax.swing.table.TableCellEditor
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -202,9 +202,14 @@ class ScalaChangeSignatureDialog(val project: Project,
     new ScalaChangeSignatureRowEditor(scalaItem, this)
   }
 
-  private def needsTypeAnnotation(element: PsiElement, visibilityString: String): Boolean =
+  private def needsTypeAnnotation(method: ScalaMethodDescriptor, visibilityString: String = getVisibility): Boolean = {
+    val element = method.fun
     ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
-      Declaration(element, Visibility(visibilityString)), Location(element), Some(Implementation(element)))
+      Declaration(element, Visibility(visibilityString)),
+      Location(element),
+      Some(Definition(element))
+    )
+  }
 
   override def calculateSignature(): String = {
     def nameAndType(item: ScalaParameterTableModelItem) = {
@@ -229,7 +234,7 @@ class ScalaChangeSignatureDialog(val project: Project,
     val needType =
       if (!needSpecifyTypeChb) true
       else if (mySpecifyTypeChb != null) mySpecifyTypeChb.isSelected
-      else needsTypeAnnotation(method.getMethod, visibility)
+      else needsTypeAnnotation(method, visibility)
     
     val typeAnnot =
       if (retTypeText.isEmpty || !needType) ""
@@ -518,7 +523,7 @@ class ScalaChangeSignatureDialog(val project: Project,
 
     link.addHyperlinkListener((e: HyperlinkEvent) => {
       extensions.invokeLater {
-        mySpecifyTypeChb.setSelected(needsTypeAnnotation(method.getMethod, getVisibility))
+        mySpecifyTypeChb.setSelected(needsTypeAnnotation(method))
         updateSignatureAlarmFired()
       }
     })
@@ -528,13 +533,13 @@ class ScalaChangeSignatureDialog(val project: Project,
   
   private def setUpVisibilityListener(): Unit = {
     myVisibilityPanel.addListener((e: ChangeEvent) => {
-      mySpecifyTypeChb.setSelected(needsTypeAnnotation(method.getMethod, getVisibility))
+      mySpecifyTypeChb.setSelected(needsTypeAnnotation(method))
       updateSignatureAlarmFired()
     })
   }
   
   private def setUpSpecifyTypeChb(): Unit ={
-    mySpecifyTypeChb.setSelected(needsTypeAnnotation(method.getMethod, getVisibility))
+    mySpecifyTypeChb.setSelected(needsTypeAnnotation(method))
     
     mySpecifyTypeChb.addActionListener((e: ActionEvent) => updateSignatureAlarmFired())
   }

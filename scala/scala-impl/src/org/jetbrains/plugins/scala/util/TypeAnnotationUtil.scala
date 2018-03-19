@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.util
 
-import javax.swing.event.{HyperlinkEvent, HyperlinkListener}
-
 import com.intellij.application.options.CodeStyleSchemesConfigurable
 import com.intellij.application.options.codeStyle.CodeStyleMainPanel
 import com.intellij.ide.actions.ShowSettingsUtilImpl
@@ -10,6 +8,7 @@ import com.intellij.openapi.options.{Configurable, ConfigurableGroup, ShowSettin
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.ui.HyperlinkLabel
+import javax.swing.event.{HyperlinkEvent, HyperlinkListener}
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOrRemoveStrategy
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaTabbedCodeStylePanel
@@ -18,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel.{ADD, BY_CODE_STYLE, REMOVE}
 import org.jetbrains.plugins.scala.settings._
-import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Implementation, Location, ScalaTypeAnnotationSettings}
+import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 
 /**
@@ -46,7 +45,7 @@ object TypeAnnotationUtil {
           case Some(typeElement)
             if (state == REMOVE) ||
               ((state == BY_CODE_STYLE) &&
-                !ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(Declaration(element), Location(element), Some(Implementation(element)))) =>
+                !ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(Declaration(element), Location(element), Some(Definition(element)))) =>
             AddOrRemoveStrategy.removeTypeAnnotation(typeElement)
           case _ =>
         }
