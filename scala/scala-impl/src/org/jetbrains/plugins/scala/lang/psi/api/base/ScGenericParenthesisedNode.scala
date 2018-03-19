@@ -61,20 +61,23 @@ trait ScGenericParenthesisedNode[E <: ScalaPsiElement] extends ScalaPsiElement {
     val This = this
 
     if (subNode.isEmpty) true
-    else (getParent, subNode.get) match {
-      case (p, _) if !this.isSameTree(p) => false
+    else if (!isSameTree(getParent)) false
+    else (getParent.asInstanceOf[E], subNode.get) match {
       case (_, c) if isIndivisible(c) => false
 
-      case (p: E@unchecked, c) if getPrecedence(p) < getPrecedence(c) => true
-      case (p: E@unchecked, c) if getPrecedence(p) > getPrecedence(c) => false
+      case (p, c) if getPrecedence(p) < getPrecedence(c) => true
+      case (p, c) if getPrecedence(p) > getPrecedence(c) => false
 
       // Infix chain with same precedence:
       // - If the two operators have different associativities, then the parentheses are required
       // - If they have the same associativity, then right- or left- associativity applies depending on the operator
-      case (p: ScGenericInfixNode[E@unchecked], c: ScGenericInfixNode[E@unchecked]) if p.associativity != c.associativity => true
+      case (p: ScGenericInfixNode[_], c: ScGenericInfixNode[_]) if p.associativity != c.associativity => true
 
-      case (ifx @ ScGenericInfixNode(_, _, Some(This)), _: ScGenericInfixNode[E@unchecked]) => ifx.isLeftAssoc
-      case (ifx @ ScGenericInfixNode(This, _, _), _: ScGenericInfixNode[E@unchecked]) => ifx.isRightAssoc
+      case (ifx @ ScGenericInfixNode(_, _, Some(This)), _: ScGenericInfixNode[_]) => ifx.isLeftAssoc
+      case (ifx @ ScGenericInfixNode(This, _, _), _: ScGenericInfixNode[_]) => ifx.isRightAssoc
+
+      // Function types are right associative, ie A => (B => C) === A => B => C
+      case (ScFunctionalTypeElement(This, _), _: ScFunctionalTypeElement) => true
 
       case _ => false
     }
