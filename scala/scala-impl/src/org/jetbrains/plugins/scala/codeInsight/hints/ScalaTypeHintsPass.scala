@@ -90,7 +90,7 @@ object ScalaTypeHintsPass {
       override def getContextMenuGroupId: String = "TypeHintsMenu"
     }
 
-    inlayModel.addInlineElement(inlayInfo.getOffset, renderer) match {
+    inlayModel.addInlineElement(inlayInfo.getOffset, inlayInfo.getRelatesToPrecedingText, renderer) match {
       case null =>
       case inlay => inlay.putUserData(ScalaTypeInlayKey, true)
     }
