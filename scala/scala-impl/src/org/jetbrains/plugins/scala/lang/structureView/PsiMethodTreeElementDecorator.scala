@@ -12,9 +12,13 @@ import org.jetbrains.plugins.scala.lang.structureView.PsiMethodTreeElementDecora
 private class PsiMethodTreeElementDecorator(method: PsiMethod, inherited: Boolean) extends PsiMethodTreeElement(method, inherited) {
   override def getPresentableText: String =
     replacePrimitiveTypesIn(super.getPresentableText)
+      .replaceAll("(\\w+)\\[\\]", "Array[$1]")
       .replaceAll("\\.\\.\\.", "*")
       .replaceAll("\\<", "[")
       .replaceAll("\\>", "]")
+      .replaceAll("\\?", "_")
+      .replaceAll("\\bextends\\b", "<:")
+      .replaceAll("\\bsuper\\b", ">:")
 }
 
 private object PsiMethodTreeElementDecorator {
@@ -28,7 +32,7 @@ private object PsiMethodTreeElementDecorator {
     while (matcher.find()) {
       val replacement = matcher.group() match {
         case "void" => "Unit"
-        case s => s.substring(0, 1).toUpperCase + s.substring(1)
+        case s => s.capitalize
       }
       matcher.appendReplacement(buffer, replacement)
     }
