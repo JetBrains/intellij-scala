@@ -12,8 +12,9 @@ private class PsiMethodTreeElementDecorator(method: PsiMethod, inherited: Boolea
 }
 
 private object PsiMethodTreeElementDecorator {
+  private val PrimitiveType = "\\bboolean|byte|char|short|int|long|float|double\\b".r
+
   private val Transformations = Seq(
-    "\\bboolean|byte|char|short|int|long|float|double\\b".r -> "\\u$0",
     "\\bvoid\\b".r -> "Unit",
     "(\\w+)\\[\\]".r -> "Array[$1]",
     "\\.\\.\\.".r -> "*",
@@ -23,7 +24,8 @@ private object PsiMethodTreeElementDecorator {
     "\\bextends\\b".r -> "<:",
     "\\bsuper\\b".r -> ">:")
 
-  private def asScalaType(javaType: String) = Transformations.foldLeft(javaType) {
-    case (acc, (regex, replacement)) => regex.replaceAllIn(acc, replacement)
-  }
+  private def asScalaType(javaType: String) =
+    Transformations.foldLeft(PrimitiveType.replaceAllIn(javaType, _.matched.capitalize)) {
+      case (acc, (regex, replacement)) => regex.replaceAllIn(acc, replacement)
+    }
 }
