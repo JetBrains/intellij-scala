@@ -10,8 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-class ScLiteralType private (val literalValue: Any, private val project: ProjectContext, val wideType: ScType) extends ValueType {
+class ScLiteralType private (val literalValue: Any, private val project: ProjectContext, val wideType: ScType, val allowWiden: Boolean = true) extends ValueType {
   override def visitType(visitor: TypeVisitor): Unit = visitor.visitLiteralType(this)
+
+  def blockWiden(): ScLiteralType = ScLiteralType.blockWiden(this)
 
   override implicit def projectContext: ProjectContext = project
 
@@ -27,9 +29,9 @@ class ScLiteralType private (val literalValue: Any, private val project: Project
 
 object ScLiteralType {
   import scala.collection.concurrent._
-  val cache: Map[(Any, Project), ScLiteralType] = {
+  private val cache: Map[(Any, Project, Boolean), ScLiteralType] = {
     import scala.collection.JavaConverters._
-    new java.util.concurrent.ConcurrentHashMap[(Any, Project), ScLiteralType].asScala
+    new java.util.concurrent.ConcurrentHashMap[(Any, Project, Boolean), ScLiteralType].asScala
   }
 
   def getType(typeElement: ScLiteralTypeElement): TypeResult = {
@@ -37,12 +39,17 @@ object ScLiteralType {
   }
 
   def apply(literalValue: Any, project: ProjectContext, wideType: ScType): ScLiteralType = {
-    cache.putIfAbsent((literalValue, project), new ScLiteralType(literalValue, project, wideType))
-    cache((literalValue, project))
+    cache.putIfAbsent((literalValue, project, true), new ScLiteralType(literalValue, project, wideType))
+    cache((literalValue, project, true))
+  }
+
+  private def blockWiden(lit: ScLiteralType): ScLiteralType = {
+    cache.putIfAbsent((lit.literalValue, lit.project, false), new ScLiteralType(lit.literalValue, lit.project, lit.wideType, false))
+    cache((lit.literalValue, lit.project, false))
   }
 
   def widen(aType: ScType): ScType = aType match {
-    case lit: ScLiteralType => lit.wideType
+    case lit: ScLiteralType if lit.allowWiden => lit.wideType
     case other => other
   }
 

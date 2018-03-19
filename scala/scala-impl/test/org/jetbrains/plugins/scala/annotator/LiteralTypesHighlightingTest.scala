@@ -1,33 +1,10 @@
 package org.jetbrains.plugins.scala.annotator
 
-import java.io.File
-
-import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.CharsetToolkit
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_13}
 import org.jetbrains.plugins.scala.util.TestUtils
 
-class LiteralTypesHighlightingTest extends ScalaHighlightingTestBase {
-
-  override implicit val version: ScalaVersion = Scala_2_13
-
-  override def errorsFromScalaCode(scalaFileText: String): List[Message] = {
-    import org.jetbrains.plugins.scala.project._
-    myFixture.getModule.scalaCompilerSettings.additionalCompilerOptions = Seq("-Yliteral-types")
-    super.errorsFromScalaCode(scalaFileText)
-  }
+class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
 
   def folderPath = TestUtils.getTestDataPath + "/annotator/literalTypes/"
-
-  def doTest(errorsFun: PartialFunction[List[Message], Unit] = PartialFunction.empty, fileText: Option[String] = None, settingOn: Boolean = true) {
-    val text = fileText.getOrElse {
-      val filePath = folderPath + getTestName(false) + ".scala"
-      val ioFile: File = new File(filePath)
-      FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
-    }
-    val errors = if (settingOn) errorsFromScalaCode(text) else super.errorsFromScalaCode(text)
-    if (errorsFun == PartialFunction.empty) assertNothing(errors) else assertMatches(errors)(errorsFun)
-  }
 
   def testSip23Null(): Unit = doTest{
     case Error(_, "Type mismatch, found: Null(null), required: x.type") ::
@@ -54,8 +31,8 @@ class LiteralTypesHighlightingTest extends ScalaHighlightingTestBase {
         Error("sym3", "Expression of type Symbol doesn't conform to expected type Symbol('s)") :: Nil =>
     }
 
-//TODO
-//  def testSip23TailRec(): Unit = doTest()
+  //TODO this should compile fine, will be fixed in compiler soon
+  def testSip23TailRec(): Unit = doTest()
 
   def testSip23Uninit(): Unit = doTest{
       case Error(_, "Unbound placeholder parameter") :: Nil =>
@@ -183,24 +160,13 @@ class LiteralTypesHighlightingTest extends ScalaHighlightingTestBase {
         Error("1", "Wrong type '1', for literal types support please use '-Yliteral-types' compiler flag") ::
         Nil => })
 
-  //below are problematic tests
-
-  def testSip23Bounds(): Unit = doTest()
-
-  def testSip23NamedDefault(): Unit = doTest()
-
-  def testSip23NarrowNoEmptyRefinements(): Unit = doTest()
-
-  def testSip23Narrow(): Unit = doTest()
-
-  def testSip23SymbolsPos(): Unit = doTest()
-
   def testSip23Initialization0(): Unit = doTest()
 
   def testSip23Initialization1(): Unit = doTest()
-//TODO highlights properly, but lacks dependencies, add later
-//  def testSip23Macros1(): Unit = doTest()
 
-//TODO 'Macros' does not highlight properly at all, fix this later
-//  def testSip23Test2(): Unit = doTest()
+  def testSip23NarrowNoEmptyRefinements(): Unit = doTest()
+
+  def testSip23SymbolsPos(): Unit = doTest()
+
+  //below are problematic tests
 }

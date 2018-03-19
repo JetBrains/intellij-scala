@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamId, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, TypeParameterType, UndefinedType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScLiteralType, ScType}
 
 import scala.collection.Seq
 import scala.collection.immutable.LongMap
@@ -49,6 +49,7 @@ private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends Substit
   private def updatedTypeParameter(tpt: TypeParameterType): ScType = {
     tvMap.get(tpt.typeParamId) match {
       case None => tpt
+      case Some(v: ScLiteralType) => extractDesignator(tpt.typeParameter, v.blockWiden())
       case Some(v) => extractDesignator(tpt.typeParameter, v)
     }
   }
