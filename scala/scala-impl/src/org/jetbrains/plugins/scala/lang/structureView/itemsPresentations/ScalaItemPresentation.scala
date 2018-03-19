@@ -23,3 +23,11 @@ abstract class ScalaItemPresentation(protected val myElement: PsiElement, inheri
 
   def getTextAttributesKey: TextAttributesKey = null
 }
+
+private[itemsPresentations] object ScalaItemPresentation {
+  private val FullyQualifiedName = "(?:\\w+\\.)+(\\w+)".r
+
+  private[itemsPresentations] def withSimpleNames(presentation: String): String = {
+    FullyQualifiedName.replaceAllIn(presentation, "$1")
+  }
+}

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation
+import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation.withSimpleNames
 
 /**
 * @author Alexander Podkhalyuzin
@@ -25,7 +26,7 @@ class ScalaVariableItemPresentation(element: ScNamedElement, inherited: Boolean,
 
     def inferredType = if (showType) variable.flatMap(_.`type`().toOption).map(ScTypePresentation.withoutAliases) else None
 
-    element.nameId.getText + typeAnnotation.orElse(inferredType).map(": " + _).mkString
+    withSimpleNames(element.nameId.getText + typeAnnotation.orElse(inferredType).map(": " + _).mkString)
   }
 
   override def getIcon(open: Boolean): Icon =

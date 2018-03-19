@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation
+import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation.withSimpleNames
 
 /**
 * @author Alexander Podkhalyuzin
@@ -26,7 +27,7 @@ class ScalaFunctionItemPresentation(element: ScFunction, inherited: Boolean, sho
         case None => if (showType) element.returnType.toOption.map(ScTypePresentation.withoutAliases) else None
       }
 
-    presentation + inferredType.map(": " + _).mkString
+    withSimpleNames(presentation + inferredType.map(": " + _).mkString)
   }
 
   override def getTextAttributesKey: TextAttributesKey =
