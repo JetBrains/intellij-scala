@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScGenericParenthesisedNode.AnyParenthesisedNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScParenthesisedPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParenthesisedTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScParenthesisedTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 
 import scala.annotation.tailrec
@@ -12,21 +13,22 @@ import scala.annotation.tailrec
   *
   * @author Clément Fournier
   */
-trait ScGenericParenthesisedNode[E <: ScalaPsiElement] extends TreeMember[E] {
+trait ScGenericParenthesisedNode[E <: ScalaPsiElement] extends ScalaPsiElement {
 
   /** Returns the expression, type or pattern that is contained
     * within those parentheses.
     */
-  def subNode: Option[TreeMember[E]]
+  def subNode: Option[E]
 
   /** Returns true if the parentheses represented by this node are clarifying,
     * ie they clarify precedence between operators that have different precedences.
     */
   def isParenthesisClarifying: Boolean
 
+  protected def isSameTree(p: PsiElement): Boolean
 
   /** Returns true if these parentheses are nested within other parentheses. */
-  def isNestedParenthesis: Boolean = asSameTree(getParent).exists(_.isInstanceOf[AnyParenthesisedNode])
+  def isNestedParenthesis: Boolean = isSameTree(getParent) && getParent.isInstanceOf[AnyParenthesisedNode]
 
   /** Returns true if these parentheses are directly enclosing other parentheses. */
   def isNestingParenthesis: Boolean = subNode.exists(_.isInstanceOf[AnyParenthesisedNode])
@@ -34,10 +36,10 @@ trait ScGenericParenthesisedNode[E <: ScalaPsiElement] extends TreeMember[E] {
   /** Gets the precedence of the tree member. Lower int value is applied first (higher precedence).
     * The highest precedence is 0. Nodes with precedence 0 are indivisible.
     */
-  protected def getPrecedence(e: TreeMember[E]): Int
+  protected def getPrecedence(e: E): Int
 
   /** Returns true if parentheses around the node are always redundant. */
-  protected def isIndivisible(e: TreeMember[E]): Boolean = getPrecedence(e) == 0
+  protected def isIndivisible(e: E): Boolean = getPrecedence(e) == 0
 
   /** Returns true if the parenthesised can be stripped safely.
     *
@@ -63,8 +65,8 @@ trait ScGenericParenthesisedNode[E <: ScalaPsiElement] extends TreeMember[E] {
       case (p, _) if !this.isSameTree(p) => false
       case (_, c) if isIndivisible(c) => false
 
-      case (p: TreeMember[E@unchecked], c) if getPrecedence(p) < getPrecedence(c) => true
-      case (p: TreeMember[E@unchecked], c) if getPrecedence(p) > getPrecedence(c) => false
+      case (p: E@unchecked, c) if getPrecedence(p) < getPrecedence(c) => true
+      case (p: E@unchecked, c) if getPrecedence(p) > getPrecedence(c) => false
 
       // Infix chain with same precedence:
       // - If the two operators have different associativities, then the parentheses are required
@@ -79,9 +81,9 @@ trait ScGenericParenthesisedNode[E <: ScalaPsiElement] extends TreeMember[E] {
   }
 
   @tailrec
-  private def getInnermostNonParen(node: TreeMember[E]): TreeMember[E] = node match {
+  private def getInnermostNonParen(node: ScalaPsiElement): ScalaPsiElement = node match {
     // since we go down, it can only be the same tree
-    case ScGenericParenthesisedNode(inner: TreeMember[E]@unchecked) => getInnermostNonParen(inner)
+    case ScGenericParenthesisedNode(inner) => getInnermostNonParen(inner)
     case _: E@unchecked => node
   }
 
@@ -106,19 +108,14 @@ trait ScGenericParenthesisedNode[E <: ScalaPsiElement] extends TreeMember[E] {
     * @return The node which replaces this node. If no parentheses were
     *         found to remove, returns `this`, unmodified
     */
-  def stripParentheses(keepParentheses: Boolean = false): TreeMember[E] = {
+  def stripParentheses(keepParentheses: Boolean = false): E = {
 
-    def replaceWithNode(elt: TreeMember[E]): TreeMember[E] = {
-      val parentNode = getParent.getNode
-      val newNode = elt.copy.getNode
-      parentNode.replaceChild(this.getNode, newNode)
-      this.asSameTree(newNode.getPsi).get
-    }
+    def replaceWithNode(elt: PsiElement): E = this.replace(elt).asInstanceOf[E]
 
     getInnermostNonParen(this) match {
-      case elt if elt eq this => this
+      case elt if elt eq this => this.asInstanceOf[E]
       case elt: ScGenericParenthesisedNode[E] if keepParentheses => replaceWithNode(elt)
-      case elt if keepParentheses => replaceWithNode(this.asSameTree(elt.getParent).get)
+      case elt if keepParentheses => replaceWithNode(elt.getParent)
       case elt => replaceWithNode(elt)
     }
   }
@@ -130,7 +127,7 @@ object ScGenericParenthesisedNode {
   type Parenthesised[T <: ScalaPsiElement] = ScGenericParenthesisedNode[T]
   type AnyParenthesisedNode = Parenthesised[_ <: ScalaPsiElement]
 
-  def unapply(arg: ScGenericParenthesisedNode[_]): Option[TreeMember[_]] = arg match {
+  def unapply(arg: ScGenericParenthesisedNode[_ <: ScalaPsiElement]): Option[ScalaPsiElement] = arg match {
     case p: ScParenthesisedPattern => ScParenthesisedPattern unapply p
     case t: ScParenthesisedTypeElement => ScParenthesisedTypeElement unapply t
     case e: ScParenthesisedExpr => ScParenthesisedExpr unapply e
