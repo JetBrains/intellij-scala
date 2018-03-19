@@ -10,73 +10,72 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 /**
   * @author Pavel Fatin
   */
-trait Implementation {
-  def containsReturn: Boolean
+sealed trait Implementation {
 
-  def isTypeObvious: Boolean
-}
+  import Implementation._
 
-object Implementation {
-  private val TraversableClassNames =
-    Set("Seq", "Array", "List", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
+  final def containsReturn: Boolean = returnCandidates.exists(_.isInstanceOf[ScReturnStmt])
 
-  def apply(definition: PsiElement): Implementation = new Definition(definition)
-
-  object Expression {
-    def apply(expression: PsiElement): Implementation = new Expression(expression)
-  }
-
-  private class Definition(element: PsiElement) extends Implementation {
-    override def containsReturn: Boolean = element match {
-      case f: ScFunctionDefinition => f.returnUsages.exists {
-        case _: ScReturnStmt => true
-        case _ => false
-      }
-      case _ => false
-    }
-
-    override def isTypeObvious: Boolean = rightHandSideOf(element).exists(isSimple)
-  }
-
-  private class Expression(element: PsiElement) extends Implementation {
-    override def containsReturn: Boolean = element.depthFirst().exists {
-      case _: ScReturnStmt => true
-      case _ => false
-    }
-
-    override def isTypeObvious: Boolean = isSimple(element)
-  }
-
-  private def isSimple(expression: PsiElement): Boolean = expression match {
+  final def isTypeObvious: Boolean = bodyCandidate.exists {
     case literal: ScLiteral => literal.getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL
     case _: ScUnitExpr => true
     case _: ScThrowStmt => true
     case it: ScNewTemplateDefinition if it.extendsBlock.templateBody.isEmpty => true
     case ref: ScReferenceExpression if isApplyCall(ref) => true
     case ScReferenceExpression(_: PsiEnumConstant) => true
-    case ScGenericCall(referenced, _) if isEmptyCollectionFactory(referenced) => true
+    case EmptyCollectionFactoryCall(_) => true
     case ScMethodCall(invoked: ScReferenceExpression, _) if isApplyCall(invoked) => true
     case _ => false
   }
 
-  private def rightHandSideOf(element: PsiElement) = element match {
+  protected def returnCandidates: Iterator[PsiElement]
+
+  protected def bodyCandidate: Option[ScExpression]
+}
+
+case class Definition(element: PsiElement) extends Implementation {
+
+  override protected def returnCandidates: Iterator[PsiElement] = element match {
+    case f: ScFunctionDefinition => f.returnUsages.iterator
+    case _ => Iterator.empty
+  }
+
+  override protected def bodyCandidate: Option[ScExpression] = element match {
     case value: ScPatternDefinition if value.isSimple => value.expr
     case variable: ScVariableDefinition if variable.isSimple => variable.expr
     case method: ScFunctionDefinition if method.hasAssign && !method.isConstructor => method.body
     case _ => None //support isSimple for JavaPsi
   }
+}
 
-  private def isApplyCall(reference: ScReferenceExpression): Boolean = {
-    reference.bind().map(result => result.innerResolveResult.getOrElse(result).element).exists {
+case class Expression(expression: ScExpression) extends Implementation {
+
+  override protected def returnCandidates: Iterator[PsiElement] = expression.depthFirst()
+
+  override protected def bodyCandidate: Option[ScExpression] = Some(expression)
+}
+
+object Implementation {
+
+  private def isApplyCall(reference: ScReferenceExpression): Boolean =
+    reference.bind().map { result =>
+      result.innerResolveResult.getOrElse(result).element
+    }.exists {
       case function: ScFunction => function.isApplyMethod
       case _ => false
     }
-  }
 
   // TODO Restore encapsulation
-  def isEmptyCollectionFactory(referenced: ScReferenceExpression): Boolean = referenced match {
-    case ScReferenceExpression.withQualifier(qualifier: ScReferenceExpression) =>
-      TraversableClassNames.contains(qualifier.refName) && referenced.refName == "empty"
-    case _ => false
+  object EmptyCollectionFactoryCall {
+
+    private[this] val TraversableClassNames =
+      Set("Seq", "Array", "List", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
+
+    def unapply(genericCall: ScGenericCall): Option[ScReferenceExpression] = genericCall match {
+      case ScGenericCall(ref@ScReferenceExpression.withQualifier(qualifier: ScReferenceExpression), _)
+        if TraversableClassNames(qualifier.refName) && ref.refName == "empty" => Some(ref)
+      case _ => None
+    }
+
   }
 }

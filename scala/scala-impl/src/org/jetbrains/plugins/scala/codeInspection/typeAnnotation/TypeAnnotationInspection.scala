@@ -48,7 +48,7 @@ object TypeAnnotationInspection {
     val location = Location(element)
 
     ScalaTypeAnnotationSettings(element.getProject).reasonForTypeAnnotationOn(
-      declaration, location, implementation.map(Implementation.Expression(_))).foreach { reason =>
+      declaration, location, implementation.map(Expression)).foreach { reason =>
 
       // TODO Create the general-purpose inspection
       val canBePrivate = !declaration.entity.isParameter &&

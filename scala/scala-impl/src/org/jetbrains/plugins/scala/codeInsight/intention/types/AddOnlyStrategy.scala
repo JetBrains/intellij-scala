@@ -127,18 +127,13 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
           case _ => None
         }
 
-        maybeExpression
-          .zip(simplify(maybeExpression))
-          .foreach {
-            case (expression, replacement) => expression.replace(replacement)
-          }
+        maybeExpression.collect {
+          case call@Implementation.EmptyCollectionFactoryCall(ref) =>
+            (call, createElementFromText(ref.getText)(ref.projectContext))
+        }.foreach {
+          case (expression, replacement) => expression.replace(replacement)
+        }
     }
-  }
-
-  private def simplify(maybeExpression: Option[ScExpression]) = maybeExpression.collect {
-    case ScGenericCall(referenced, _) if Implementation.isEmptyCollectionFactory(referenced) =>
-      implicit val context = referenced.projectContext
-      createExpressionFromText(referenced.getText)
   }
 
   private def typeForMember(element: ScMember): Option[ScType] = {
