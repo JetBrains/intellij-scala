@@ -493,12 +493,12 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           val typez: ArrayBuffer[ScType] = new ArrayBuffer[ScType]
           if (infix.left == ref) {
             val op: String = infix.operation.getText
-            if (op.endsWith(":")) {
+            if (infix.isRightAssoc) {
               typez ++= ref.expectedTypes()
             }
           } else if (infix.right == ref) {
             val op: String = infix.operation.getText
-            if (!op.endsWith(":")) {
+            if (infix.isLeftAssoc) {
               typez ++= ref.expectedTypes()
             }
           }

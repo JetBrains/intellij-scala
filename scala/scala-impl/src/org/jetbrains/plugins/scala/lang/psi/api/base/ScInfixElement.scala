@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpr
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /** Generic infix operation, covers infix types, patterns, and expressions.
   *
@@ -15,11 +15,9 @@ trait ScInfixElement[E <: ScalaPsiElement, Ref <: ScReferenceElement] extends Sc
 
   def rightOption: Option[E]
 
-  def isRightAssoc: Boolean = associativity == -1
+  def isRightAssoc: Boolean = ScalaNamesUtil.clean(operation.refName).endsWith(":")
 
   def isLeftAssoc: Boolean = !isRightAssoc
-
-  def associativity: Int = InfixExpr.associate(operation.refName)
 }
 
 

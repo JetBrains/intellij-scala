@@ -7,7 +7,6 @@ package expr
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInfixElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
   * @author Alexander Podkhalyuzin
@@ -65,7 +64,7 @@ object ScInfixExpr {
     def unapply(expression: ScInfixExpr): Some[(ScExpression, ScReferenceExpression, ScExpression)] = {
       val (left, operation, right) = expression.unapply
 
-      if (ScalaNamesUtil.clean(operation.refName).endsWith(":")) Some(right, operation, left)
+      if (expression.isRightAssoc) Some(right, operation, left)
       else Some(left, operation, right)
     }
   }

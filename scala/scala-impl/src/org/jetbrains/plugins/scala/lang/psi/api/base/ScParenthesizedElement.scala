@@ -70,7 +70,7 @@ trait ScParenthesizedElement[E <: ScalaPsiElement] extends ScalaPsiElement {
       // Infix chain with same precedence:
       // - If the two operators have different associativities, then the parentheses are required
       // - If they have the same associativity, then right- or left- associativity applies depending on the operator
-      case (p: AnyInfixElement, c: AnyInfixElement) if p.associativity != c.associativity => true
+      case (p: AnyInfixElement, c: AnyInfixElement) if p.isLeftAssoc != c.isLeftAssoc => true
 
       case (ifx @ ScInfixElement(_, _, Some(This)), _: AnyInfixElement) => ifx.isLeftAssoc
       case (ifx @ ScInfixElement(This, _, _), _: AnyInfixElement) => ifx.isRightAssoc
