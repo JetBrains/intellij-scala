@@ -10,11 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
 
 class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
-
 
   override def checkConflictsOnMember(scRefPattern: PsiMember, newVisibility: String, modifiedListCopy: PsiModifierList, targetClass: PsiClass, membersToMove: util.Set[PsiMember], conflicts: MultiMap[PsiElement, String]): Unit = {
     val targetName = targetClass.getName
@@ -76,11 +76,11 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
   }
 
 
-  override def doMove(moveMembersOptions: MoveMembersOptions, scRefPattern: PsiMember, anchor: PsiElement, targetClass: PsiClass): PsiMember = {
-    ScalaChangeContextUtil.encodeContextInfo(Seq(scRefPattern))
-    val memberCopy = scRefPattern.copy()
+  override def doMove(moveMembersOptions: MoveMembersOptions, scMember: PsiMember, anchor: PsiElement, targetClass: PsiClass): PsiMember = {
+    ScalaChangeContextUtil.encodeContextInfo(Seq(scMember))
+    val memberCopy = scMember.copy()
     val newMemberInTarget = targetClass.add(memberCopy)
-    scRefPattern.delete()
+    scMember.delete()
     newMemberInTarget.asInstanceOf[PsiMember]
   }
 
