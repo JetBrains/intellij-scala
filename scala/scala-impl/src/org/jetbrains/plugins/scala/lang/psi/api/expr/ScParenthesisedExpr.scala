@@ -5,13 +5,13 @@ package api
 package expr
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScGenericParenthesisedNode
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
 
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 07.03.2008
   */
-trait ScParenthesisedExpr extends ScInfixArgumentExpression with ScGenericParenthesisedNode[ScExpression] {
+trait ScParenthesisedExpr extends ScInfixArgumentExpression with ScParenthesizedElement[ScExpression] {
 
   def expr: Option[ScExpression] = findChild(classOf[ScExpression])
 
@@ -28,8 +28,7 @@ trait ScParenthesisedExpr extends ScInfixArgumentExpression with ScGenericParent
 
   override def isSameTree(p: PsiElement): Boolean = p.isInstanceOf[ScExpression]
 
-  override def isParenthesisClarifying: Boolean
-  = (getParent, expr.get) match {
+  override def isParenthesisClarifying: Boolean = (getParent, expr.get) match {
     case (_: ScSugarCallExpr, _: ScSugarCallExpr) => true
     case _ => false
   }

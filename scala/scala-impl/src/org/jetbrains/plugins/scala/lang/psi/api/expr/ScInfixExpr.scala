@@ -5,14 +5,14 @@ package api
 package expr
 
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScGenericInfixNode
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInfixElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
   * @author Alexander Podkhalyuzin
   */
-trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScGenericInfixNode[ScExpression] {
+trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement[ScExpression, ScReferenceExpression] {
 
   import ScInfixExpr._
 

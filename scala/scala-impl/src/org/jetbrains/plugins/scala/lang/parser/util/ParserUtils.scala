@@ -14,7 +14,7 @@ import com.intellij.psi.impl.source.resolve.FileContextUtil
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.testFramework.LightVirtualFileBase
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.DebugPrint

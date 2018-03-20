@@ -10,7 +10,7 @@ package types
 * Date: 22.02.2008
 */
 
-trait ScInfixTypeElement extends ScTypeElement with ScGenericInfixNode[ScTypeElement] {
+trait ScInfixTypeElement extends ScTypeElement with ScInfixElement[ScTypeElement, ScStableCodeReferenceElement] {
   def leftTypeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
   def operation: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
@@ -28,8 +28,8 @@ trait ScInfixTypeElement extends ScTypeElement with ScGenericInfixNode[ScTypeEle
 
 object ScInfixTypeElement {
   /** Extracts the left and right type elements of the given infix type. */
-  def unapply(arg: ScInfixTypeElement): Option[(ScTypeElement, ScStableCodeReferenceElement, Option[ScTypeElement])]
-  = Some((arg.leftTypeElement, arg.operation, arg.rightTypeElement))
+  def unapply(arg: ScInfixTypeElement): Option[(ScTypeElement, ScStableCodeReferenceElement, Option[ScTypeElement])] =
+    Some((arg.leftTypeElement, arg.operation, arg.rightTypeElement))
 }
 
 

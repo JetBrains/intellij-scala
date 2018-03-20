@@ -10,14 +10,14 @@ package patterns
 * Date: 28.02.2008
 */
 
-trait ScInfixPattern extends ScPattern with ScGenericInfixNode[ScPattern] {
+trait ScInfixPattern extends ScPattern with ScInfixElement[ScPattern, ScStableCodeReferenceElement] {
   def leftPattern: ScPattern = findChildByClassScala(classOf[ScPattern])
   def rightPattern: Option[ScPattern] = findLastChild(classOf[ScPattern])
   def reference: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
 
   override def rightOperand: Option[ScPattern] = rightPattern
   override def leftOperand: ScPattern = leftPattern
-  override def operation: ScReferenceElement = reference
+  override def operation: ScStableCodeReferenceElement = reference
 }
 
 object ScInfixPattern {

@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplatePsiInfo
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil
-import org.jetbrains.plugins.scala.codeInspection.parentheses.UnnecessaryParenthesesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScPrefixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText

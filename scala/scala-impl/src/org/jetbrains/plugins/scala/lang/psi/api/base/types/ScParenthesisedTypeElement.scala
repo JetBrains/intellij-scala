@@ -6,14 +6,13 @@ package base
 package types
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
 
-trait ScParenthesisedTypeElement extends ScTypeElement with ScGenericParenthesisedNode[ScTypeElement] {
+trait ScParenthesisedTypeElement extends ScTypeElement with ScParenthesizedElement[ScTypeElement] {
   override protected val typeName = "TypeInParenthesis"
 
 

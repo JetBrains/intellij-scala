@@ -5,7 +5,6 @@ package util
 
 import java.awt.Component
 import java.{util => ju}
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
@@ -24,11 +23,12 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOfType, isAncestor}
 import com.intellij.refactoring.util.CommonRefactoringUtil
+import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -614,7 +614,7 @@ object ScalaRefactoringUtil {
       case i: ScIfStmt =>
         builder.append("if (...) {...}")
         if (i.elseBranch.isDefined) builder.append(" else {...}")
-      case ScGenericInfixNode(left, op, right) =>
+      case ScInfixElement(left, op, right) =>
         builder.append(getShortText(left))
         builder.append(" ")
         builder.append(getShortText(op))
@@ -659,7 +659,7 @@ object ScalaRefactoringUtil {
           case Some(_) => builder.append(" {...}")
           case _ =>
         }
-      case p : ScGenericParenthesisedNode[_] =>
+      case p : ScParenthesizedElement[_] =>
         builder.append("(")
         p.subNode match {
           case Some(sub) => builder.append(getShortText(sub))

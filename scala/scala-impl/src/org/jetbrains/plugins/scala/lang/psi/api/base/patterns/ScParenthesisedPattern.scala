@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 * @author Alexander Podkhalyuzin
 */
 
-trait ScParenthesisedPattern extends ScPattern with ScGenericParenthesisedNode[ScPattern] {
+trait ScParenthesisedPattern extends ScPattern with ScParenthesizedElement[ScPattern] {
   def subpattern: Option[ScPattern] = findChild(classOf[ScPattern])
 
   override def subNode: Option[ScPattern] = subpattern
