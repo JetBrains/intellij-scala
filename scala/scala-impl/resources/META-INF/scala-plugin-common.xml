@@ -1454,6 +1454,9 @@
             <implementation-class>org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader</implementation-class>
         </component>
         <component>
+            <implementation-class>org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager</implementation-class>
+        </component>
+        <component>
           <implementation-class>org.jetbrains.plugins.scala.project.migration.handlers.ArtifactHandlerComponent</implementation-class>
         </component>
         <component>
