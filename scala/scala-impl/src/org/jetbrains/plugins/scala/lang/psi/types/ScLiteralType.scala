@@ -69,6 +69,7 @@ object ScLiteralType {
         }
         case _ => Stop
       }
+    case c: ScCompoundType => Stop
     case _ => ProcessSubtypes
   }
 

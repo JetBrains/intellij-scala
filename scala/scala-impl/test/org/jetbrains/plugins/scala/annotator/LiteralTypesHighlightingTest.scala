@@ -168,5 +168,5 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
 
   def testSip23SymbolsPos(): Unit = doTest()
 
-  //below are problematic tests
+  def testSip23Narrow(): Unit = doTest()
 }
