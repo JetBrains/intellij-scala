@@ -1,3 +1,3 @@
 object B {
-  val x = 1
+  val /*caret*/ x = 1
 }
