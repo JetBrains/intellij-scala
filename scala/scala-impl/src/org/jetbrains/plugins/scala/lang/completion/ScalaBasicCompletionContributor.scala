@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
@@ -193,11 +193,9 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
               val processor = new CompletionProcessor(kinds(refImpl), refImpl) with PostProcessor
               refImpl.doResolve(processor)
             case refImpl: ScReferenceExpressionImpl =>
-              val processor = new ImplicitCompletionProcessor(kinds(refImpl), refImpl) with PostProcessor {
-
-                syntheticItems(refImpl).foreach(addElement)
-              }
+              val processor = new ImplicitCompletionProcessor(kinds(refImpl), refImpl) with PostProcessor
               refImpl.doResolve(processor)
+              prefixedThisAndSupers(refImpl).foreach(addElement)
             case refImpl: ScTypeProjectionImpl =>
               val processor = new CompletionProcessor(kinds(refImpl), refImpl) with PostProcessor
               refImpl.doResolve(processor)
@@ -319,21 +317,25 @@ object ScalaBasicCompletionContributor {
 
   private def kinds(reference: ScReferenceElement) = reference.getKinds(incomplete = false, completion = true)
 
-  private def syntheticItems(expression: ScReferenceExpression): List[ScalaLookupItem] = {
+  private def prefixedThisAndSupers(expression: ScReferenceExpression): List[ScalaLookupItem] = {
+    val isInsideSeveralClasses = expression.contexts.filterByType[ScTemplateDefinition].size > 1
+
     @tailrec
     def syntheticItems(element: PsiElement, result: List[ScalaLookupItem] = Nil): List[ScalaLookupItem] = {
-      val items = element match {
-        case _: ScNewTemplateDefinition => result // do nothing, impossible to invoke
-        case definition: ScTemplateDefinition =>
-          new ScalaLookupItem(definition, definition.name + ".this") ::
-            new ScalaLookupItem(definition, definition.name + ".super") ::
-            result
-        case _ => result
-      }
+      element match {
+        case null => result
+        case td: ScTypeDefinition =>
+          val superItem =
+            if (td.extendsBlock.templateParents.isEmpty) Nil
+            else List(new ScalaLookupItem(td, td.name + ".super"))
+          val thisItem =
+            if (isInsideSeveralClasses && !td.isInstanceOf[ScObject])
+              List(new ScalaLookupItem(td, td.name + ".this"))
+            else Nil
 
-      element.getContext match {
-        case null => items
-        case context => syntheticItems(context, items)
+          syntheticItems(element.getContext, superItem ::: thisItem ::: result)
+        case _ =>
+          syntheticItems(element.getContext, result)
       }
     }
 
