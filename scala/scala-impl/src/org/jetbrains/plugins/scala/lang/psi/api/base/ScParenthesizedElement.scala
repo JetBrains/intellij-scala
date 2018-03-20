@@ -17,20 +17,20 @@ trait ScParenthesizedElement[E <: ScalaPsiElement] extends ScalaPsiElement {
   /** Returns the expression, type or pattern that is contained
     * within those parentheses.
     */
-  def subNode: Option[E]
+  def innerElement: Option[E]
 
   /** Returns true if the parentheses represented by this node are clarifying,
     * ie they clarify precedence between operators that have different precedences.
     */
   def isParenthesisClarifying: Boolean
 
-  protected def isSameTree(p: PsiElement): Boolean
+  protected def isSameTree(p: PsiElement): Boolean = p.isInstanceOf[E]
 
   /** Returns true if these parentheses are nested within other parentheses. */
   def isNestedParenthesis: Boolean = isSameTree(getParent) && getParent.isInstanceOf[AnyParenthesized]
 
   /** Returns true if these parentheses are directly enclosing other parentheses. */
-  def isNestingParenthesis: Boolean = subNode.exists(_.isInstanceOf[AnyParenthesized])
+  def isNestingParenthesis: Boolean = innerElement.exists(_.isInstanceOf[AnyParenthesized])
 
   /** Gets the precedence of the tree member. Lower int value is applied first (higher precedence).
     * The highest precedence is 0. Nodes with precedence 0 are indivisible.
@@ -59,9 +59,9 @@ trait ScParenthesizedElement[E <: ScalaPsiElement] extends ScalaPsiElement {
   def isParenthesisNeeded: Boolean = {
     val This = this
 
-    if (subNode.isEmpty) true
+    if (innerElement.isEmpty) true
     else if (!isSameTree(getParent)) false
-    else (getParent.asInstanceOf[E], subNode.get) match {
+    else (getParent.asInstanceOf[E], innerElement.get) match {
       case (_, c) if isIndivisible(c) => false
 
       case (p, c) if getPrecedence(p) < getPrecedence(c) => true
@@ -128,5 +128,5 @@ object ScParenthesizedElement {
 
   type AnyParenthesized = ScParenthesizedElement[_ <: ScalaPsiElement]
 
-  def unapply[E <: ScalaPsiElement](p: ScParenthesizedElement[E]): Option[E] = p.subNode
+  def unapply[E <: ScalaPsiElement](p: ScParenthesizedElement[E]): Option[E] = p.innerElement
 }

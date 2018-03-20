@@ -661,7 +661,7 @@ object ScalaRefactoringUtil {
         }
       case p : ScParenthesizedElement[_] =>
         builder.append("(")
-        p.subNode match {
+        p.innerElement match {
           case Some(sub) => builder.append(getShortText(sub))
           case _ =>
         }

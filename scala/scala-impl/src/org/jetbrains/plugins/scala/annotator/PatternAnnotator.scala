@@ -116,7 +116,7 @@ object PatternAnnotator {
         val (reference, numPatterns) = pattern match {
           case constr: ScConstructorPattern => (Option(constr.ref), constr.args.patterns.length)
           case infix: ScInfixPattern =>
-            val numPatterns: Int = infix.rightPattern match {
+            val numPatterns: Int = infix.rightOption match {
               case Some(_: ScInfixPattern | _: ScConstructorPattern) => 2
               case Some(right) => right.subpatterns match {
                 case Seq() => 2
@@ -124,7 +124,7 @@ object PatternAnnotator {
               }
               case _ => 1
             }
-            (Option(infix.reference), numPatterns)
+            (Option(infix.operation), numPatterns)
         }
         reference match {
           case Some(ref) =>
@@ -219,7 +219,7 @@ object PatternAnnotator {
       case c: ScConstructorPattern =>
         constrPatternType(c.ref)
       case inf: ScInfixPattern =>
-        constrPatternType(inf.reference)
+        constrPatternType(inf.operation)
       case tuple: ScTuplePattern =>
         val subPat = tuple.subpatterns
         val subTypes = subPat.flatMap(patternType)
@@ -232,7 +232,7 @@ object PatternAnnotator {
       case naming: ScNamingPattern =>
         patternType(naming.named)
       case parenth: ScParenthesisedPattern =>
-        patternType(parenth.subpattern.orNull)
+        patternType(parenth.innerElement.orNull)
       case null => None
       case _: ScReferencePattern | _: ScWildcardPattern => Some(Any) //these only have expected type
       case _ => pattern.`type`().toOption

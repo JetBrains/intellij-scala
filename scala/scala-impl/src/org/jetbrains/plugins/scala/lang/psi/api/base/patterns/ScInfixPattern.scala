@@ -11,17 +11,13 @@ package patterns
 */
 
 trait ScInfixPattern extends ScPattern with ScInfixElement[ScPattern, ScStableCodeReferenceElement] {
-  def leftPattern: ScPattern = findChildByClassScala(classOf[ScPattern])
-  def rightPattern: Option[ScPattern] = findLastChild(classOf[ScPattern])
-  def reference: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
-
-  override def rightOperand: Option[ScPattern] = rightPattern
-  override def leftOperand: ScPattern = leftPattern
-  override def operation: ScStableCodeReferenceElement = reference
+  override def left: ScPattern = findChildByClassScala(classOf[ScPattern])
+  override def operation: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
+  override def rightOption: Option[ScPattern] = findLastChild(classOf[ScPattern])
 }
 
 object ScInfixPattern {
   def unapply(ifx: ScInfixPattern): Option[(ScPattern, ScStableCodeReferenceElement, Option[ScPattern])] =
-    Some((ifx.leftPattern, ifx.reference, ifx.rightPattern))
+    Some((ifx.left, ifx.operation, ifx.rightOption))
 
 }

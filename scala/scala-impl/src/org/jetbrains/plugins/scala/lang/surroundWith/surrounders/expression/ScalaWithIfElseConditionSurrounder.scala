@@ -32,7 +32,7 @@ class ScalaWithIfElseConditionSurrounder extends ScalaExpressionSurrounder {
 
   override def getSurroundSelectionRange(withIfNode: ASTNode): TextRange = {
     val element: PsiElement = withIfNode.getPsi match {
-      case x: ScParenthesisedExpr => x.expr match {
+      case x: ScParenthesisedExpr => x.innerElement match {
         case Some(y) => y
         case _ => return x.getTextRange
       }

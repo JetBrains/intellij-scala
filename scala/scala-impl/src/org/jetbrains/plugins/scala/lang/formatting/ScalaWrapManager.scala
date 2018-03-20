@@ -7,7 +7,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCompositePattern, ScInfixPattern, ScPattern, ScPatternArgumentList}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScReferenceableInfixTypeElement, ScSequenceArg}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSequenceArg}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
@@ -47,9 +47,9 @@ object ScalaWrapManager {
       case _: ScInfixExpr =>
         return wrapBinary(_.isInstanceOf[ScInfixExpr], _.asInstanceOf[ScInfixExpr].operation, assignments = true)
       case _: ScInfixPattern =>
-        return wrapBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].reference, assignments = false)
-      case _: ScReferenceableInfixTypeElement =>
-        return wrapBinary(_.isInstanceOf[ScReferenceableInfixTypeElement], _.asInstanceOf[ScReferenceableInfixTypeElement].reference, assignments = false)
+        return wrapBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].operation, assignments = false)
+      case _: ScInfixTypeElement =>
+        return wrapBinary(_.isInstanceOf[ScInfixTypeElement], _.asInstanceOf[ScInfixTypeElement].operation, assignments = false)
       case _: ScCompositePattern =>
         return Wrap.createWrap(settings.BINARY_OPERATION_WRAP, false)
       case _: ScArgumentExprList =>
@@ -121,15 +121,15 @@ object ScalaWrapManager {
     parentPsi match {
       case _: ScInfixExpr =>
         return arrageBinary(_.isInstanceOf[ScInfixExpr], _.asInstanceOf[ScInfixExpr].operation,
-          _.asInstanceOf[ScInfixExpr].rOp, _.asInstanceOf[ScInfixExpr].lOp)
+          _.asInstanceOf[ScInfixExpr].right, _.asInstanceOf[ScInfixExpr].left)
       case _: ScInfixPattern =>
-        return arrageBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].reference,
-          _.asInstanceOf[ScInfixPattern].rightPattern.orNull,
-          _.asInstanceOf[ScInfixPattern].leftPattern)
-      case _: ScReferenceableInfixTypeElement =>
-        return arrageBinary(_.isInstanceOf[ScReferenceableInfixTypeElement], _.asInstanceOf[ScReferenceableInfixTypeElement].reference,
-          _.asInstanceOf[ScInfixTypeElement].rightTypeElement.orNull,
-          _.asInstanceOf[ScInfixTypeElement].leftTypeElement)
+        return arrageBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].operation,
+          _.asInstanceOf[ScInfixPattern].rightOption.orNull,
+          _.asInstanceOf[ScInfixPattern].left)
+      case _: ScInfixTypeElement =>
+        return arrageBinary(_.isInstanceOf[ScInfixTypeElement], _.asInstanceOf[ScInfixTypeElement].operation,
+          _.asInstanceOf[ScInfixTypeElement].rightOption.orNull,
+          _.asInstanceOf[ScInfixTypeElement].left)
       case _: ScCompositePattern =>
         if (childPsi.isInstanceOf[ScPattern]) return suggestedWrap
         else return null

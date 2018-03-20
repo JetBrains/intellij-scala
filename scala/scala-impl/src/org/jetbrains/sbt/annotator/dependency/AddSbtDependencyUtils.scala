@@ -5,15 +5,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.sbt.annotator.dependency.SbtDependenciesVisitor._
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.sbt.annotator.dependency.SbtDependenciesVisitor._
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
 /**
@@ -35,7 +34,7 @@ object AddSbtDependencyUtils {
 
     def action(psiElement: PsiElement): Unit = {
       psiElement match {
-        case e: ScInfixExpr if e.lOp.getText == LIBRARY_DEPENDENCIES && isAddableLibraryDependencies(e) => res ++= Seq(e)
+        case e: ScInfixExpr if e.left.getText == LIBRARY_DEPENDENCIES && isAddableLibraryDependencies(e) => res ++= Seq(e)
         case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => res ++= Seq(call)
         case typedSeq: ScTypedStmt if typedSeq.isSequenceArg =>
           typedSeq.expr match {
@@ -80,7 +79,7 @@ object AddSbtDependencyUtils {
 
     psiSbtFile.acceptChildren(new ScalaElementVisitor {
       override def visitInfixExpression(infix: ScInfixExpr): Unit = {
-        if (infix.lOp.getText == LIBRARY_DEPENDENCIES && infix.getParent.isInstanceOf[PsiFile]) {
+        if (infix.left.getText == LIBRARY_DEPENDENCIES && infix.getParent.isInstanceOf[PsiFile]) {
           res = res ++ Seq(infix)
         }
       }
@@ -98,7 +97,7 @@ object AddSbtDependencyUtils {
 
   def addDependency(expr: PsiElement, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] = {
     expr match {
-      case e: ScInfixExpr if e.lOp.getText == LIBRARY_DEPENDENCIES => addDependencyToLibraryDependencies(e, info)
+      case e: ScInfixExpr if e.left.getText == LIBRARY_DEPENDENCIES => addDependencyToLibraryDependencies(e, info)
       case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => addDependencyToSeq(call, info)
       case typedSeq: ScTypedStmt if typedSeq.isSequenceArg => addDependencyToTypedSeq(typedSeq, info)
       case settings: ScMethodCall if isAddableSettings(settings) =>
@@ -119,7 +118,7 @@ object AddSbtDependencyUtils {
 
     infix.operation.refName match {
       case "+=" =>
-        val dependency: ScExpression = infix.rOp
+        val dependency: ScExpression = infix.right
         val seqCall: ScMethodCall = generateSeqPsiMethodCall(info)(project)
 
         doInSbtWriteCommandAction({
@@ -129,10 +128,10 @@ object AddSbtDependencyUtils {
           dependency.replace(seqCall)
         }, psiFile)(project)
 
-        Option(infix.rOp)
+        Option(infix.right)
 
       case "++=" =>
-        val dependencies: ScExpression = infix.rOp
+        val dependencies: ScExpression = infix.right
         dependencies match {
           case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ=>
             val addedExpr = generateArtifactPsiExpression(info)(project)
@@ -149,7 +148,7 @@ object AddSbtDependencyUtils {
     def isValid(expr: ScInfixExpr) = InfixOpsSet.contains(expr.operation.refName)
     val parentDef = Option(PsiTreeUtil.getParentOfType(seqCall, classOf[ScInfixExpr]))
     val addedExpr = parentDef match {
-      case Some(expr) if isValid(expr) && expr.lOp.textMatches(LIBRARY_DEPENDENCIES) =>
+      case Some(expr) if isValid(expr) && expr.left.textMatches(LIBRARY_DEPENDENCIES) =>
         generateArtifactPsiExpression(info)
       case _ => generateLibraryDependency(info)
     }
@@ -204,7 +203,7 @@ object AddSbtDependencyUtils {
   def isAddableLibraryDependencies(libDeps: ScInfixExpr): Boolean =
     libDeps.operation.refName match {
       case "+=" => true
-      case "++=" =>  libDeps.rOp match {
+      case "++=" =>  libDeps.right match {
         // In this case we return false to not repeat it several times
         case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => false
         case _ => true

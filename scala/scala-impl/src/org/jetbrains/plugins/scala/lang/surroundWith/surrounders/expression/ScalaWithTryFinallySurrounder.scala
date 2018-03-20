@@ -21,7 +21,7 @@ class ScalaWithTryFinallySurrounder extends ScalaExpressionSurrounder {
 
   override def getSurroundSelectionRange(withTryCatchNode: ASTNode): TextRange = {
     val element: PsiElement = withTryCatchNode.getPsi match {
-      case x: ScParenthesisedExpr => x.expr match {
+      case x: ScParenthesisedExpr => x.innerElement match {
         case Some(y) => y
         case _ => return x.getTextRange
       }

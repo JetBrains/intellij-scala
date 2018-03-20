@@ -437,7 +437,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         }.flatMap { _ =>
           val maybeReference = qualifier.orElse {
             val result: Option[Typeable] = getContext match {
-              case infixExpr: ScInfixExpr if infixExpr.operation == this => Some(infixExpr.lOp)
+              case infixExpr: ScInfixExpr if infixExpr.operation == this => Some(infixExpr.left)
               case postfixExpr: ScPostfixExpr if postfixExpr.operation == this => Some(postfixExpr.operand)
               case _ => ScalaPsiUtil.drvTemplate(this)
             }

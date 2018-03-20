@@ -34,7 +34,7 @@ class ScAnnotationElementType extends ScStubElementType[ScAnnotationStub, ScAnno
     }
 
     val maybeName = maybeTypeElement.flatMap {
-      case parenthesised: ScParenthesisedTypeElement => parenthesised.typeElement
+      case parenthesised: ScParenthesisedTypeElement => parenthesised.innerElement
       case simple: ScSimpleTypeElement => Some(simple)
       case _ => None
     }.collect {

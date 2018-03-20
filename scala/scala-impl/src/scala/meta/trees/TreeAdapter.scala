@@ -187,7 +187,7 @@ trait TreeAdapter {
       case t: ScTuplePattern      =>  Tuple(Seq(t.patternList.get.patterns.map(pattern):_*))
       case t: ScWildcardPattern   =>  Wildcard()
       case t: ScCompositePattern  =>  compose(Seq(t.subpatterns : _*))
-      case t: ScInfixPattern      =>  ExtractInfix(pattern(t.leftPattern), toTermName(t.reference), t.rightPattern.map(pt=>Seq(pattern(pt))).getOrElse(Nil))
+      case t: ScInfixPattern      =>  ExtractInfix(pattern(t.left), toTermName(t.operation), t.rightOption.map(pt=>Seq(pattern(pt))).getOrElse(Nil))
       case t: ScStableReferenceElementPattern => toTermName(t.refElement.get)
       case t: ScPattern => t ?!
     }
@@ -346,7 +346,7 @@ trait TreeAdapter {
       case t: ScGenericCall =>
         m.Term.ApplyType(ideaToMeta(t.referencedExpr).asInstanceOf[m.Term], Seq(t.arguments.map(toType):_*))
       case t: ScParenthesisedExpr =>
-        t.expr.map(expression).getOrElse(unreachable)
+        t.innerElement.map(expression).getOrElse(unreachable)
       case t: ScAssignStmt =>
         m.Term.Assign(expression(t.getLExpression).asInstanceOf[m.Term.Ref], expression(t.getRExpression.get))
       case _: ScUnderscoreSection =>

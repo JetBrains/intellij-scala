@@ -225,7 +225,7 @@ object AddOnlyStrategy {
           case _ => true
         }
         val e = createScalaFileFromText(s"(_: ${annotation.getText})").getFirstChild.asInstanceOf[ScParenthesisedExpr]
-        underscore.replace(if (needsParentheses) e else e.expr.get)
+        underscore.replace(if (needsParentheses) e else e.innerElement.get)
 
       case _ =>
         anchor.appendSiblings(createColon, createWhitespace, annotation).last

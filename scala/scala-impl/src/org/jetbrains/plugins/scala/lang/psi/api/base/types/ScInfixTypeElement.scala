@@ -10,33 +10,31 @@ package types
 * Date: 22.02.2008
 */
 
-trait ScInfixTypeElement extends ScTypeElement with ScInfixElement[ScTypeElement, ScStableCodeReferenceElement] {
-  def leftTypeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
+/*
+* Common trait for usual infix types and dotty and/or types.
+*/
+trait ScInfixLikeTypeElement extends ScTypeElement {
+  def left: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  def operation: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
-
-  def rightTypeElement: Option[ScTypeElement] = findChildrenByClassScala(classOf[ScTypeElement]) match {
+  def rightOption: Option[ScTypeElement] = findChildrenByClassScala(classOf[ScTypeElement]) match {
     case Array(_, right) => Some(right)
     case _ => None
   }
+}
 
+trait ScInfixTypeElement extends ScInfixLikeTypeElement
+  with ScInfixElement[ScTypeElement, ScStableCodeReferenceElement]
+  with ScDesugarizableToParametrizedTypeElement {
 
-  override def rightOperand: Option[ScTypeElement] = rightTypeElement
+  override protected val typeName = "InfixType"
 
-  override def leftOperand: ScTypeElement = leftTypeElement
+  def operation: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
+
+  override def desugarizedText = s"${operation.getText}[${left.getText}, ${rightOption.map(_.getText).getOrElse("Nothing")}]"
 }
 
 object ScInfixTypeElement {
   /** Extracts the left and right type elements of the given infix type. */
   def unapply(arg: ScInfixTypeElement): Option[(ScTypeElement, ScStableCodeReferenceElement, Option[ScTypeElement])] =
-    Some((arg.leftTypeElement, arg.operation, arg.rightTypeElement))
-}
-
-
-trait ScReferenceableInfixTypeElement extends ScInfixTypeElement with ScDesugarizableToParametrizedTypeElement {
-  override protected val typeName = "InfixType"
-
-  def reference: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
-
-  override def desugarizedText = s"${reference.getText}[${leftTypeElement.getText}, ${rightTypeElement.map(_.getText).getOrElse("Nothing")}]"
+    Some((arg.left, arg.operation, arg.rightOption))
 }

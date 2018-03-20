@@ -84,7 +84,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
     case call: ScMethodCall => Seq(call.getEffectiveInvokedExpr.getText)
     case ScInfixExpr(_, oper, _) if !ScalaNamesUtil.isOperatorName(oper.refName) =>
       val infixCopy = expr.copy.asInstanceOf[ScInfixExpr]
-      infixCopy.getNode.removeChild(infixCopy.rOp.getNode)
+      infixCopy.getNode.removeChild(infixCopy.right.getNode)
       Seq(infixCopy.getText)
     case und: ScUnderscoreSection => und.bindingExpr.map(_.getText).toSeq
     case _ => Seq.empty

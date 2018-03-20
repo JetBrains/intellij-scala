@@ -32,7 +32,7 @@ class ScalaWithUnaryNotSurrounder extends ScalaExpressionSurrounder {
 
   override def getSurroundSelectionRange(withUnaryNot: ASTNode): TextRange = {
     val element: PsiElement = withUnaryNot.getPsi match {
-      case x: ScParenthesisedExpr => x.expr match {
+      case x: ScParenthesisedExpr => x.innerElement match {
         case Some(y) => y
         case _ => return x.getTextRange
       }

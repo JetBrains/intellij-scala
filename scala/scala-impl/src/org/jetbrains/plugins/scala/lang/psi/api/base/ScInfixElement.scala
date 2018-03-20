@@ -9,11 +9,11 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
   */
 trait ScInfixElement[E <: ScalaPsiElement, Ref <: ScReferenceElement] extends ScalaPsiElement {
 
-  def leftOperand: E
+  def left: E
 
   def operation: Ref
 
-  def rightOperand: Option[E]
+  def rightOption: Option[E]
 
   def isRightAssoc: Boolean = associativity == -1
 
@@ -27,5 +27,5 @@ object ScInfixElement {
   type AnyInfixElement = ScInfixElement[_ <: ScalaPsiElement, _ <: ScReferenceElement]
 
   def unapply[E <: ScalaPsiElement, Ref <: ScReferenceElement](arg: ScInfixElement[E, Ref]): Option[(E, Ref, Option[E])] =
-    Some((arg.leftOperand, arg.operation, arg.rightOperand))
+    Some((arg.left, arg.operation, arg.rightOption))
 }

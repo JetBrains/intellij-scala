@@ -3,21 +3,21 @@ package org.jetbrains.plugins.dotty.lang.psi.impl.base.types
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.dotty.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixLikeTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 /**
   * @author adkozlov
   */
-abstract class DottyAndOrTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixTypeElement {
+abstract class DottyAndOrTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixLikeTypeElement {
 
   protected def innerTypeValue: ScType
 
   protected def types(default: ScType): Seq[ScType] =
     Seq(
-      leftTypeElement.`type`(),
-      rightTypeElement match {
+      left.`type`(),
+      rightOption match {
         case Some(typeElement) => typeElement.`type`()
         case _ => Right(api.Nothing)
       }

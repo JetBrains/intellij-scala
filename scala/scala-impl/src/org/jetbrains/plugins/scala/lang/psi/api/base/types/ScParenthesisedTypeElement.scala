@@ -5,8 +5,6 @@ package api
 package base
 package types
 
-import com.intellij.psi.PsiElement
-
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
@@ -15,15 +13,10 @@ import com.intellij.psi.PsiElement
 trait ScParenthesisedTypeElement extends ScTypeElement with ScParenthesizedElement[ScTypeElement] {
   override protected val typeName = "TypeInParenthesis"
 
-
-  def typeElement: Option[ScTypeElement] = findChild(classOf[ScTypeElement])
-
-  override def subNode: Option[ScTypeElement] = typeElement
-
-  override def isSameTree(p: PsiElement): Boolean = p.isInstanceOf[ScTypeElement]
+  override def innerElement: Option[ScTypeElement] = findChild(classOf[ScTypeElement])
 
   override def isParenthesisClarifying: Boolean = {
-    (getParent, typeElement) match {
+    (getParent, innerElement) match {
       case (p: ScTypeElement, Some(c)) if !isIndivisible(c) && getPrecedence(p) != getPrecedence(c) => true
       case _ => false
     }
@@ -43,5 +36,5 @@ trait ScParenthesisedTypeElement extends ScTypeElement with ScParenthesizedEleme
 
 
 object ScParenthesisedTypeElement {
-  def unapply(e: ScParenthesisedTypeElement): Option[ScTypeElement] = e.typeElement
+  def unapply(e: ScParenthesisedTypeElement): Option[ScTypeElement] = e.innerElement
 }

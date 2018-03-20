@@ -23,7 +23,7 @@ trait ScFunctionalTypeElement extends ScDesugarizableToParametrizedTypeElement {
   override def desugarizedText: String = {
     val paramTypes = (paramTypeElement match {
       case tuple: ScTupleTypeElement => tuple.components
-      case parenthesised: ScParenthesisedTypeElement if parenthesised.typeElement.isEmpty => Seq.empty
+      case parenthesised: ScParenthesisedTypeElement if parenthesised.innerElement.isEmpty => Seq.empty
       case other => Seq(other)
     }).map(_.getText) ++
       Seq(returnTypeElement.map(_.getText).getOrElse("Any"))

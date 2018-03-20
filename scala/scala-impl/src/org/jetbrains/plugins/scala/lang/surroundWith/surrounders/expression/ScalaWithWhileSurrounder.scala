@@ -25,7 +25,7 @@ class ScalaWithWhileSurrounder extends ScalaExpressionSurrounder {
 
   override def getSurroundSelectionRange(withWhileNode: ASTNode): TextRange = {
     val element: PsiElement = withWhileNode.getPsi match {
-      case x: ScParenthesisedExpr => x.expr match {
+      case x: ScParenthesisedExpr => x.innerElement match {
         case Some(y) => y
         case _ => return x.getTextRange
       }

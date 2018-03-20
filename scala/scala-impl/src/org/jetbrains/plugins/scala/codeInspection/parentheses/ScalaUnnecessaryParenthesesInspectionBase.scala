@@ -86,7 +86,7 @@ class UnnecessaryParenthesesTypeOrPatternQuickFix[T <: ScalaPsiElement](parenthe
       case other => other
     }
 
-    val comments = element.subNode.map(expr => IntentionUtil.collectComments(expr))
+    val comments = element.innerElement.map(expr => IntentionUtil.collectComments(expr))
     comments.foreach(IntentionUtil.addComments(_, replaced.getParent, replaced))
 
     ScalaPsiUtil padWithWhitespaces replaced

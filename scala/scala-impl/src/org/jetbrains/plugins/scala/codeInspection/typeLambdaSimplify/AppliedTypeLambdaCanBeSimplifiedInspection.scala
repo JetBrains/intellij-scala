@@ -52,7 +52,7 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
 
     def inspectTypeProjection(typeProjection: ScTypeProjection, paramType: ScParameterizedTypeElement) = {
       typeProjection.typeElement match {
-        case parenType: ScParenthesisedTypeElement => parenType.typeElement match {
+        case parenType: ScParenthesisedTypeElement => parenType.innerElement match {
           case Some(ct: ScCompoundTypeElement) =>
             (ct.components, ct.refinement) match {
               case (Seq(), Some(refinement)) =>

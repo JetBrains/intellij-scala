@@ -60,7 +60,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
               this.isConstructor && containingClass.name == ref.refName
             case cp: ScConstructorPattern if cp.ref == ref =>
               this.name == "unapply" || this.name == "unapplySeq"
-            case inf: ScInfixPattern if inf.reference == ref =>
+            case inf: ScInfixPattern if inf.operation == ref =>
               this.name == "unapply" || this.name == "unapplySeq"
             case _ => false
           }

@@ -212,7 +212,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       computeDesugarizedType match {
         case Some(projection: ScTypeProjection) =>
           projection.typeElement match {
-            case paren: ScParenthesisedTypeElement => paren.typeElement match {
+            case paren: ScParenthesisedTypeElement => paren.innerElement match {
               case Some(compound: ScCompoundTypeElement) =>
                 compound.refinement match {
                   case Some(ref) => ref.types match {

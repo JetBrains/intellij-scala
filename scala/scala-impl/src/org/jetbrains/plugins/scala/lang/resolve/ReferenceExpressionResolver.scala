@@ -46,8 +46,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   private def argumentsOf(ref: PsiElement): Seq[Expression] = {
     ref.getContext match {
       case infixExpr: ScInfixExpr =>
-        //TODO should rOp really be parsed as Tuple (not as argument list)?
-        infixExpr.rOp match {
+        //TODO should right expression really be parsed as Tuple (not as argument list)?
+        infixExpr.right match {
           case t: ScTuple => t.exprs
           case op => Seq(op)
         }
@@ -68,7 +68,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         ContextInfo(argument match {
           case tuple: ScTuple => Some(tuple.exprs) // See SCL-2001
           case _: ScUnitExpr => Some(Nil) // See SCL-3485
-          case e: ScParenthesisedExpr => e.expr match {
+          case e: ScParenthesisedExpr => e.innerElement match {
             case Some(expr) => Some(Seq(expr))
             case _ => Some(Nil)
           }
@@ -236,7 +236,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         }
         case p: ScParenthesisedExpr => p.getContext match {
           case infix@ScInfixExpr.withAssoc(_, operation, `p`) =>
-            processAnyAssignment(p.expr.toSeq, infix, operation, 1, assign, processor)
+            processAnyAssignment(p.innerElement.toSeq, infix, operation, 1, assign, processor)
           case _ =>
         }
         case _ =>

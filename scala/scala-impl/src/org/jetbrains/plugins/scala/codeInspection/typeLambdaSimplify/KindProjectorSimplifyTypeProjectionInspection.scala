@@ -101,7 +101,7 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
           override def visitTypeProjection(projection: ScTypeProjection): Unit = {
             if (ScalaPsiUtil.kindProjectorPluginEnabled(projection)) {
               projection.typeElement match {
-                case parenType: ScParenthesisedTypeElement => parenType.typeElement match {
+                case parenType: ScParenthesisedTypeElement => parenType.innerElement match {
                   case Some(ct: ScCompoundTypeElement) =>
                     ct.refinement match {
                       case Some(refinement) =>

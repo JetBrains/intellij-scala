@@ -125,7 +125,7 @@ object MultilineStringUtil {
         case inf: ScInfixExpr =>
           if (inf.operation.getText == methodName){
             if (prevParent != parent.getFirstChild) return callsArray
-            calls += Array(inf.rOp)
+            calls += Array(inf.right)
           }
         case call: ScMethodCall =>
           call.getEffectiveInvokedExpr match {

@@ -18,11 +18,11 @@ class AddSimpleSbtDependencyTest extends AddSbtDependencyTestBase {
     assert(topLevelDependencies.length == 1)
 
     val dep = topLevelDependencies.head
-    assert(!dep.rOp.isInstanceOf[ScMethodCall])
+    assert(!dep.right.isInstanceOf[ScMethodCall])
 
     AddSbtDependencyUtils.addDependency(dep, FAKE_ARTIFACT_1)(myProject)
-    assert(dep.rOp.isInstanceOf[ScMethodCall])
-    val call = dep.rOp.asInstanceOf[ScMethodCall]
+    assert(dep.right.isInstanceOf[ScMethodCall])
+    val call = dep.right.asInstanceOf[ScMethodCall]
 
     assert(call.args.exprsArray.map(t => toArtifactInfo(t.getText)).contains(FAKE_ARTIFACT_1))
 

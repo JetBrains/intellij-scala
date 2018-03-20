@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 class ScParenthesisedExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScParenthesisedExpr {
 
   protected override def innerType: TypeResult = {
-    expr match {
+    innerElement match {
       case Some(x: ScExpression) =>
         val res = x.getNonValueType()
         res

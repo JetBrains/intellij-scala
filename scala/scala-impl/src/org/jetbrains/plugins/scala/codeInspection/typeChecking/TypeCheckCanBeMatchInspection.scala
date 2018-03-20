@@ -254,8 +254,8 @@ object TypeCheckToMatchUtil {
     if (onlyFirst) {
       condition match {
         case IsInstanceOfCall(call) => List(call)
-        case infixExpr: ScInfixExpr if infixExpr.operation.refName == "&&" => findIsInstanceOfCalls(infixExpr.lOp, onlyFirst)
-        case parenth: ScParenthesisedExpr => findIsInstanceOfCalls(parenth.expr.orNull, onlyFirst)
+        case infixExpr: ScInfixExpr if infixExpr.operation.refName == "&&" => findIsInstanceOfCalls(infixExpr.left, onlyFirst)
+        case parenth: ScParenthesisedExpr => findIsInstanceOfCalls(parenth.innerElement.orNull, onlyFirst)
         case _ => Nil
       }
     }
@@ -387,14 +387,14 @@ object TypeCheckToMatchUtil {
 
   def separateConditions(expr: ScExpression): List[ScExpression] = {
     expr match {
-      case parenth: ScParenthesisedExpr => parenth.expr match {
+      case parenth: ScParenthesisedExpr => parenth.innerElement match {
         case Some(infixExpr: ScInfixExpr) if infixExpr.operation.refName == "&&" =>
-          separateConditions(infixExpr.lOp) ::: separateConditions(infixExpr.rOp) ::: Nil
+          separateConditions(infixExpr.left) ::: separateConditions(infixExpr.right) ::: Nil
         case genCall: ScGenericCall => genCall :: Nil
         case _ => parenth :: Nil
       }
       case infixExpr: ScInfixExpr if infixExpr.operation.refName == "&&" =>
-        separateConditions(infixExpr.lOp) ::: separateConditions(infixExpr.rOp) ::: Nil
+        separateConditions(infixExpr.left) ::: separateConditions(infixExpr.right) ::: Nil
       case _ => expr :: Nil
     }
   }

@@ -91,11 +91,11 @@ object TestConfigurationUtil {
         Some(escapeTestName(literal.getValue.asInstanceOf[Symbol].name))
       case literal: ScLiteral if literal.getValue.isInstanceOf[Number] =>
         Some(literal.getValue)
-      case p: ScParenthesisedExpr => p.expr.flatMap(getStaticTestNameRaw(_, allowSymbolLiterals))
+      case p: ScParenthesisedExpr => p.innerElement.flatMap(getStaticTestNameRaw(_, allowSymbolLiterals))
       case infixExpr: ScInfixExpr =>
         infixExpr.getInvokedExpr match {
           case refExpr: ScReferenceExpression if refExpr.refName == "+" =>
-            getStaticTestNameElement(infixExpr.lOp, allowSymbolLiterals).flatMap(left => getStaticTestNameElement(infixExpr.rOp, allowSymbolLiterals).map(left + _.toString))
+            getStaticTestNameElement(infixExpr.left, allowSymbolLiterals).flatMap(left => getStaticTestNameElement(infixExpr.right, allowSymbolLiterals).map(left + _.toString))
           case _ => None
         }
       case methodCall: ScMethodCall =>

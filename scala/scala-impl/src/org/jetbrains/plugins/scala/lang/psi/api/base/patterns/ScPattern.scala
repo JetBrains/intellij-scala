@@ -137,16 +137,16 @@ object ScPattern {
         case composite: ScCompositePattern => composite.expectedType
         case infix: ScInfixPattern =>
           val i =
-            if (infix.leftPattern == pattern) 0
+            if (infix.left == pattern) 0
             else if (pattern.isInstanceOf[ScTuplePattern]) return None //pattern is handled elsewhere in pattern function
             else 1
-          expectedTypeForExtractorArg(infix.reference, i, infix.expectedType, 2)
+          expectedTypeForExtractorArg(infix.operation, i, infix.expectedType, 2)
         case par: ScParenthesisedPattern => par.expectedType
         case patternList: ScPatterns => patternList.getContext match {
           case tuple: ScTuplePattern =>
             tuple.getContext match {
               case infix: ScInfixPattern =>
-                if (infix.leftPattern != tuple) {
+                if (infix.left != tuple) {
                   //so it's right pattern
                   val i = tuple.patternList match {
                     case Some(patterns: ScPatterns) => patterns.patterns.indexWhere(_ == pattern)
@@ -156,7 +156,7 @@ object ScPattern {
                     case Some(pat) => pat.patterns.length
                     case _ => -1 //is it possible to get here?
                   }
-                  return expectedTypeForExtractorArg(infix.reference, i + 1, infix.expectedType, patternLength)
+                  return expectedTypeForExtractorArg(infix.operation, i + 1, infix.expectedType, patternLength)
                 }
               case _ =>
             }

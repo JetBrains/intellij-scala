@@ -227,7 +227,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         buffer.toArray
       case infix@ScInfixExpr.withAssoc(_, operation, `sameInContext`) if !expr.isInstanceOf[ScTuple] =>
         val zExpr: ScExpression = expr match {
-          case p: ScParenthesisedExpr => p.expr.getOrElse(return Array.empty)
+          case p: ScParenthesisedExpr => p.innerElement.getOrElse(return Array.empty)
           case _ => expr
         }
         val tps =
@@ -329,7 +329,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     def checkIsUnderscore(expr: ScExpression): Boolean = {
       expr match {
         case p: ScParenthesisedExpr =>
-          p.expr match {
+          p.innerElement match {
             case Some(e) => checkIsUnderscore(e)
             case _ => false
           }

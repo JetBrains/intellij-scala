@@ -91,7 +91,7 @@ object SimplifyBooleanUtil {
   private def simplifyTrivially(expr: ScExpression): ScExpression = expr match {
     case parenthesized: ScParenthesisedExpr =>
       val copy = parenthesized.copy.asInstanceOf[ScParenthesisedExpr]
-      copy.replaceExpression(copy.expr.getOrElse(copy), removeParenthesis = true)
+      copy.replaceExpression(copy.innerElement.getOrElse(copy), removeParenthesis = true)
     case ScPrefixExpr(operation, operand) =>
       if (operation.refName != "!") expr
       else {

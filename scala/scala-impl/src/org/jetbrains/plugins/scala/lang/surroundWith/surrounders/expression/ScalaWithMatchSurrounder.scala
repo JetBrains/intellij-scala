@@ -53,7 +53,7 @@ class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
 
   override def getSurroundSelectionRange(withMatchNode: ASTNode): TextRange = {
     val element: PsiElement = withMatchNode.getPsi match {
-      case x: ScParenthesisedExpr => x.expr match {
+      case x: ScParenthesisedExpr => x.innerElement match {
         case Some(y) => y
         case _ => return x.getTextRange
       }

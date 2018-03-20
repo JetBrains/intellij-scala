@@ -39,7 +39,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
       val place     = positionFromParameters(parameters)
       val infixExpr = place.getContext.getContext.asInstanceOf[ScInfixExpr]
       val operator  = infixExpr.operation
-      val parentRef = infixExpr.rOp match {
+      val parentRef = infixExpr.right match {
         case ref: ScReferenceExpression => ref
         case _ => return
       }

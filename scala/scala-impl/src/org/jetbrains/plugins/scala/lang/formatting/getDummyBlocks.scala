@@ -784,14 +784,14 @@ object getDummyBlocks {
         import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
         val childPriority = child.getPsi match {
           case inf: ScInfixExpr => priority(inf.operation.getText, assignments = true)
-          case inf: ScInfixPattern => priority(inf.reference.getText, assignments = false)
-          case inf: ScReferenceableInfixTypeElement => priority(inf.reference.getText, assignments = false)
+          case inf: ScInfixPattern => priority(inf.operation.getText, assignments = false)
+          case inf: ScInfixTypeElement => priority(inf.operation.getText, assignments = false)
           case _ => 0
         }
         val parentPriority = node.getPsi match {
           case inf: ScInfixExpr => priority(inf.operation.getText, assignments = true)
-          case inf: ScInfixPattern => priority(inf.reference.getText, assignments = false)
-          case inf: ScReferenceableInfixTypeElement => priority(inf.reference.getText, assignments = false)
+          case inf: ScInfixPattern => priority(inf.operation.getText, assignments = false)
+          case inf: ScInfixTypeElement => priority(inf.operation.getText, assignments = false)
           case _ => 0
         }
         parentPriority == childPriority

@@ -54,7 +54,7 @@ trait TypeAdapter {
         case t: ScParameterizedTypeElement =>
           m.Type.Apply(toType(t.typeElement), t.typeArgList.typeArgs.toStream.map(toType))
         case t: ScInfixTypeElementImpl =>
-          m.Type.ApplyInfix(toType(t.leftTypeElement), m.Type.Name(t.reference.refName), toType(t.rightTypeElement.get))
+          m.Type.ApplyInfix(toType(t.left), m.Type.Name(t.operation.refName), toType(t.rightOption.get))
         case t: ScTupleTypeElement =>
           m.Type.Tuple(Seq(t.components.map(toType): _*))
         case t: ScWildcardTypeElement =>
@@ -64,8 +64,8 @@ trait TypeAdapter {
             .dropRight(1)
             .foldLeft(toType(t.components.last))((mtp, stp) => m.Type.With(toType(stp), mtp))
         case t: ScParenthesisedTypeElement =>
-          t.typeElement match {
-            case Some(t: ScReferenceableInfixTypeElement) => m.Type.ApplyInfix(toType(t.leftTypeElement), toTypeName(t.reference), toType(t.rightTypeElement.get))
+          t.innerElement match {
+            case Some(t: ScInfixTypeElement) => m.Type.ApplyInfix(toType(t.left), toTypeName(t.operation), toType(t.rightOption.get))
             case _ => unreachable
           }
         case t: ScTypeVariableTypeElement => die("i cannot into type variables")

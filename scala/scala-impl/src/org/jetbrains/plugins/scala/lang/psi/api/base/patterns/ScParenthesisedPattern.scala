@@ -5,7 +5,6 @@ package api
 package base
 package patterns
 
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /** 
@@ -13,14 +12,10 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 */
 
 trait ScParenthesisedPattern extends ScPattern with ScParenthesizedElement[ScPattern] {
-  def subpattern: Option[ScPattern] = findChild(classOf[ScPattern])
-
-  override def subNode: Option[ScPattern] = subpattern
-
-  override def isSameTree(p: PsiElement): Boolean = p.isInstanceOf[ScPattern]
+  override def innerElement: Option[ScPattern] = findChild(classOf[ScPattern])
 
   override def isParenthesisClarifying: Boolean = {
-    (getParent, subpattern) match {
+    (getParent, innerElement) match {
       case (_: ScCompositePattern | _: ScNamingPattern | _: ScTuplePattern, _) => false
       case (p: ScPattern, Some(c)) if !isIndivisible(c) && getPrecedence(p) != getPrecedence(c) => true
       case _ => false
@@ -36,5 +31,5 @@ trait ScParenthesisedPattern extends ScPattern with ScParenthesizedElement[ScPat
 }
 
 object ScParenthesisedPattern {
-  def unapply(e: ScParenthesisedPattern): Option[ScPattern] = e.subpattern
+  def unapply(e: ScParenthesisedPattern): Option[ScPattern] = e.innerElement
 }

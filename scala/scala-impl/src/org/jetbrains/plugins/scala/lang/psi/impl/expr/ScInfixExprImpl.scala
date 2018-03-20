@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScInfixExpr {
 
   override def argumentExpressions: Seq[ScExpression] = argsElement match {
-    case right if right == lOp => Seq(right)
+    case right if right == left => Seq(right)
     case tuple: ScTuple => tuple.exprs
     case ScParenthesisedExpr(expression) => Seq(expression)
     case _: ScUnitExpr => Seq.empty

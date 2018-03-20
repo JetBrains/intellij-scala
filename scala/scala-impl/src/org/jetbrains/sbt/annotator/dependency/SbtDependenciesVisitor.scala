@@ -1,13 +1,13 @@
 package org.jetbrains.sbt.annotator.dependency
 
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.sbt.annotator.dependency.AddSbtDependencyUtils._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
+import org.jetbrains.sbt.annotator.dependency.AddSbtDependencyUtils._
 
 /**
   * Created by afonichkin on 8/28/17.
@@ -28,7 +28,7 @@ private object SbtDependenciesVisitor {
     def processSettings(settings: ScMethodCall): Unit = {
       settings.args.exprsArray.foreach({
         case typedStmt: ScTypedStmt => processTypedStmt(typedStmt)(f)
-        case infix: ScInfixExpr if infix.lOp.getText == LIBRARY_DEPENDENCIES => processInfix(infix)(f)
+        case infix: ScInfixExpr if infix.left.getText == LIBRARY_DEPENDENCIES => processInfix(infix)(f)
         case call: ScMethodCall => processMethodCall(call)(f)
         case ref: ScReferenceExpression => processReferenceExpr(ref)(f)
         case _ =>
@@ -89,12 +89,12 @@ private object SbtDependenciesVisitor {
     }
 
     if (infix.operation.refName == "++") {
-      process(infix.lOp)
-      process(infix.rOp)
+      process(infix.left)
+      process(infix.right)
     } else if (infix.operation.refName == "++=") {
-      process(infix.rOp)
+      process(infix.right)
     } else if (infix.operation.refName == ":=") {
-      process(infix.rOp)
+      process(infix.right)
     }
   }
 

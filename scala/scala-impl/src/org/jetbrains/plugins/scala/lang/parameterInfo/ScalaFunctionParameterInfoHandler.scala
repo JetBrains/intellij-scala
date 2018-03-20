@@ -60,7 +60,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
       case argExprList: ScArgumentExprList =>
         argExprList.exprs.toArray
       case _: ScUnitExpr => Array.empty
-      case p: ScParenthesisedExpr => p.expr.toArray
+      case p: ScParenthesisedExpr => p.innerElement.toArray
       case t: ScTuple => t.exprs.toArray
       case e: ScExpression => Array(e)
       case _ => Array.empty

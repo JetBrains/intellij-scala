@@ -16,16 +16,13 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement[
 
   import ScInfixExpr._
 
-  def lOp: ScExpression = unapply._1
+  def left: ScExpression = unapply._1
 
   override def operation: ScReferenceExpression = unapply._2
 
-  def rOp: ScExpression = unapply._3
+  def rightOption: Option[ScExpression] = Option(right)
 
-  override def leftOperand: ScExpression = lOp
-
-  override def rightOperand: Option[ScExpression] = Some(rOp)
-
+  def right: ScExpression = unapply._3
 
   def typeArgs: Option[ScTypeArgs] = findChildrenByClassScala(classOf[ScTypeArgs]) match {
     case Array(args) => Some(args)

@@ -7,7 +7,7 @@ package elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScParenthesisedTypeElement, ScReferenceableInfixTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScExtendsBlockElementType.directSupersNames
@@ -50,10 +50,10 @@ private object ScExtendsBlockElementType {
     def refName(te: ScTypeElement): Option[String] = {
       te match {
         case simpleType: ScSimpleTypeElement => simpleType.reference.map(_.refName)
-        case infixType: ScReferenceableInfixTypeElement => Option(infixType.reference).map(_.refName)
+        case infixType: ScInfixTypeElement => Option(infixType.operation).map(_.refName)
         case x: ScParameterizedTypeElement => refName(x.typeElement)
         case x: ScParenthesisedTypeElement =>
-          x.typeElement match {
+          x.innerElement match {
             case Some(e) => refName(e)
             case _ => None
           }

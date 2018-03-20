@@ -96,12 +96,12 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
   }
 
   private def extractPathFromConcatenation(concatExpr: ScInfixExpr): Option[String] =
-    concatExpr.rOp match {
+    concatExpr.right match {
       case ScLiteralImpl.string(child) =>
-        extractPathFromFileParam(concatExpr.lOp).map(_ + File.separator + child)
+        extractPathFromFileParam(concatExpr.left).map(_ + File.separator + child)
       case partRef : ScReferenceExpression =>
         for {
-          parent <- extractPathFromFileParam(concatExpr.lOp)
+          parent <- extractPathFromFileParam(concatExpr.left)
           child  <- extractPathFromFileParam(partRef)
         } yield parent + File.separator + child
       case _ => None

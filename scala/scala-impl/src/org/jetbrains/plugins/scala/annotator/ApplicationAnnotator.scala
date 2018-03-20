@@ -137,7 +137,7 @@ trait ApplicationAnnotator {
         case x: ScReferenceExpression => x.qualifier
         case _ => None
       }
-      case x: ScInfixExpr => Some(x.lOp)
+      case x: ScInfixExpr => Some(x.left)
       case _ => None
     }
     val refElementOpt = qualifier.flatMap(_.asOptionOf[ScReferenceElement])

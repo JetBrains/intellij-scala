@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
  * @author Alexander Podkhalyuzin, ilyas
  */
 
-class ScInfixTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReferenceableInfixTypeElement {
+class ScInfixTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixTypeElement {
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitInfixTypeElement(this)
   }

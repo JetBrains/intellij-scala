@@ -385,7 +385,7 @@ object ScalaPsiUtil {
         if (b.statements.length != 1) (-1, expr)
         else if (b.lastExpr.isEmpty) (-1, expr)
         else isAnonymousExpression(b.lastExpr.get)
-      case p: ScParenthesisedExpr => p.expr match {
+      case p: ScParenthesisedExpr => p.innerElement match {
         case Some(x) => isAnonymousExpression(x)
         case _ => (-1, expr)
       }
@@ -1151,7 +1151,7 @@ object ScalaPsiUtil {
       import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpr._
       import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
 
-      if (parent.lOp == from) {
+      if (parent.left == from) {
         val lid = parent.operation.getText
         val rid = child.operation.getText
         if (priority(lid) < priority(rid)) true
@@ -1173,7 +1173,7 @@ object ScalaPsiUtil {
 
     def tupleInInfixNeedParentheses(parent: ScInfixExpr, from: ScExpression, expr: ScTuple): Boolean = {
       if (from.getParent != parent) throw new IllegalArgumentException
-      if (from == parent.lOp) false
+      if (from == parent.left) false
       else {
         parent.operation.bind() match {
           case Some(resolveResult) =>

@@ -19,7 +19,7 @@ class ScMethodCallImpl(node: ASTNode) extends MethodInvocationImpl(node) with Sc
 
   override def getEffectiveInvokedExpr: ScExpression = {
     findChildByClassScala(classOf[ScExpression]) match {
-      case x: ScParenthesisedExpr => x.expr.getOrElse(x)
+      case x: ScParenthesisedExpr => x.innerElement.getOrElse(x)
       case x => x
     }
   }

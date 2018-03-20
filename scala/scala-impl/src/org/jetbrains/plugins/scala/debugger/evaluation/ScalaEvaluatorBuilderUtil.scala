@@ -928,7 +928,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         case naming: ScNamingPattern => evaluateSubpatternFromPattern(exprEval, naming.named, subPattern)
         case _: ScTypedPattern => evaluateSubpatternFromPattern(exprEval, pattern.subpatterns.head, subPattern)
         case par: ScParenthesisedPattern =>
-          val withoutPars = par.subpattern.getOrElse(throw new IllegalStateException("Empty parentheses pattern"))
+          val withoutPars = par.innerElement.getOrElse(throw new IllegalStateException("Empty parentheses pattern"))
           evaluateSubpatternFromPattern(exprEval, withoutPars, subPattern)
         case tuple: ScTuplePattern =>
           val nextPattern = tuple.subpatterns(nextPatternIndex)
@@ -938,7 +938,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val ref: ScStableCodeReferenceElement = constr.ref
           evaluateConstructorOrInfix(exprEval, ref, constr, nextPatternIndex)
         case infix: ScInfixPattern =>
-          val ref: ScStableCodeReferenceElement = infix.reference
+          val ref: ScStableCodeReferenceElement = infix.operation
           evaluateConstructorOrInfix(exprEval, ref, infix, nextPatternIndex)
         //todo: handle infix with tuple right pattern
         case _: ScCompositePattern => throw EvaluationException(ScalaBundle.message("pattern.alternatives.cannot.bind.vars"))

@@ -100,7 +100,7 @@ object ScUnderScoreSectionUtil {
       case _: ScUnderscoreSection => true
       case t: ScTypedStmt => t.expr.isInstanceOf[ScUnderscoreSection]
       case p: ScParenthesisedExpr =>
-        p.expr match {
+        p.innerElement match {
           case Some(expression) => isUnderscore(expression)
           case _ => false
         }

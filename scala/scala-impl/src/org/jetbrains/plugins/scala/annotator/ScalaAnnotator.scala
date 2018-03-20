@@ -693,7 +693,7 @@ abstract class ScalaAnnotator extends Annotator
                 e.getParent.asInstanceOf[ScInfixExpr].operation == e => //todo: this is hide A op B
         case _: ScReferenceExpression => processError(countError = false, fixes = getFixes)
         case e: ScStableCodeReferenceElement if e.getParent.isInstanceOf[ScInfixPattern] &&
-                e.getParent.asInstanceOf[ScInfixPattern].reference == e => //todo: this is hide A op B in patterns
+                e.getParent.asInstanceOf[ScInfixPattern].operation == e => //todo: this is hide A op B in patterns
         case _ => refElement.getParent match {
           case _: ScImportSelector if resolve.length > 0 =>
           case _ => processError(countError = true, fixes = getFixes)
@@ -1172,8 +1172,8 @@ abstract class ScalaAnnotator extends Annotator
             case ScSimpleTypeElement(Some(ResolvesTo(ScPrimaryConstructor.ofClass(c)))) => noHigherKinds(c)
             case _ => false
           }
-        case infix: ScReferenceableInfixTypeElement if infix.leftTypeElement == simpleTypeElement || infix.rightTypeElement.contains(simpleTypeElement) =>
-          infix.reference.resolve() match {
+        case infix: ScInfixTypeElement if infix.left == simpleTypeElement || infix.rightOption.contains(simpleTypeElement) =>
+          infix.operation.resolve() match {
             case owner: ScTypeParametersOwner => noHigherKinds(owner)
             case _ => false
           }

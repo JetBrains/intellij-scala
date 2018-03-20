@@ -37,7 +37,7 @@ class ScalaConstantExpressionEvaluator extends ConstantExpressionEvaluator {
   private def evaluate(expr: ScExpression): AnyRef = {
     expr match {
       case l: ScLiteral => l.getValue
-      case p: ScParenthesisedExpr => p.expr match {
+      case p: ScParenthesisedExpr => p.innerElement match {
         case Some(e) => evaluate(e)
         case _ => null
       }

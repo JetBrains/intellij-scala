@@ -26,10 +26,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScTypeAliasDefinitionImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
-import worksheet.WorksheetFoldingBuilder
+import org.jetbrains.plugins.scala.worksheet.WorksheetFoldingBuilder
 
-import scala.collection._
 import scala.collection.JavaConverters._
+import scala.collection._
 
 
 /*
@@ -102,7 +102,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       }
       if (treeParent != null) {
         treeParent.getPsi match {
-          case inf: ScInfixExpr if inf.rOp == node.getPsi =>
+          case inf: ScInfixExpr if inf.right == node.getPsi =>
             psi match {
               case _: ScBlockExpr => descriptors add new FoldingDescriptor(node, nodeTextRange)
               case _ =>
@@ -501,7 +501,7 @@ object TypeLambda {
       val nameId = tp.nameId
       element match {
         case pte: ScParenthesisedTypeElement =>
-          pte.typeElement match {
+          pte.innerElement match {
             case Some(cte: ScCompoundTypeElement) if cte.components.isEmpty =>
               cte.refinement match {
                 case Some(ref) =>

@@ -184,7 +184,7 @@ object ScExpression {
     }
 
     override def visitExprInParent(expression: ScParenthesisedExpr): Unit = {
-      expression.expr match {
+      expression.innerElement match {
         case Some(innerExpression) => acceptVisitor(innerExpression)
         case _ => super.visitExprInParent(expression)
       }
@@ -528,7 +528,7 @@ object ScExpression {
         case _: ScPostfixExpr => false
         case _: MethodInvocation => true
         case p: ScParenthesisedExpr =>
-          p.expr match {
+          p.innerElement match {
             case Some(exp) => isMethodInvocation(exp)
             case _ => false
           }

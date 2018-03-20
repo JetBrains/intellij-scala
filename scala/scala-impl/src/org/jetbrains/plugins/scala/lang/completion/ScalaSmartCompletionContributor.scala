@@ -491,12 +491,12 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         val element = positionFromParameters(parameters)
         extractReference[ScInfixExpr](element).foreach { case ReferenceWithElement(ref, infix) =>
           val typez: ArrayBuffer[ScType] = new ArrayBuffer[ScType]
-          if (infix.lOp == ref) {
+          if (infix.left == ref) {
             val op: String = infix.operation.getText
             if (op.endsWith(":")) {
               typez ++= ref.expectedTypes()
             }
-          } else if (infix.rOp == ref) {
+          } else if (infix.right == ref) {
             val op: String = infix.operation.getText
             if (!op.endsWith(":")) {
               typez ++= ref.expectedTypes()

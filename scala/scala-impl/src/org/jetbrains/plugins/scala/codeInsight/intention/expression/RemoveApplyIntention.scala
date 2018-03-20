@@ -77,7 +77,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
 
     qualifier match {
       case parenth: ScParenthesisedExpr =>
-        qualifier = parenth.expr.get
+        qualifier = parenth.innerElement.get
       case _ =>
     }
 
