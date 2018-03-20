@@ -3,6 +3,7 @@ package codeInspection
 package parentheses
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
@@ -21,6 +22,14 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
   protected override val description = "Unnecessary parentheses"
 
   private val hintBeginning = "Remove unnecessary parentheses"
+
+  // see https://github.com/JetBrains/intellij-scala/pull/434 for more test cases
+
+  override def setUp(): Unit = {
+    super.setUp()
+    getFixture.enableInspections(classOfInspection)
+  }
+
 
   def test_1(): Unit = {
     val selected = s"$START(1 + 1)$END"
@@ -252,4 +261,37 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     val hint = hintBeginning + " (i: Int)"
     testQuickFix(text, result, hint)
   }
+
+
+  private def considerClarifying(body: => Unit): Unit = {
+    val tool = InspectionProfileManager.getInstance(project)
+               .getCurrentProfile
+               .getInspectionTool("ScalaUnnecessaryParentheses", project)
+               .getTool
+
+    tool match {
+      case check: ScalaUnnecessaryParenthesesInspection => check setIgnoreClarifying false
+      case _ =>
+    }
+
+    getFixture.enableInspections(tool)
+
+    body
+  }
+
+
+  /*
+  def test_infxPatternClarifying(): Unit = {
+    considerClarifying {
+      val selected = s"val a +: $START(b *: c)$END = _ "
+      checkTextHasError(selected)
+
+      val text = s"val a +: ($CARET_MARKER b *: c) = _ "
+      val result = "val a +: b *: c = _ "
+      val hint = hintBeginning + " (b *: c)"
+      testQuickFix(text, result, hint)
+    }
+  }
+  */
+
 }
