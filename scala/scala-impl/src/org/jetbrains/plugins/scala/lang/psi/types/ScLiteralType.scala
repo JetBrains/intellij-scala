@@ -10,12 +10,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-class ScLiteralType private (val literalValue: Any, private val project: ProjectContext, val wideType: ScType, val allowWiden: Boolean = true) extends ValueType {
+class ScLiteralType private (val literalValue: Any, val wideType: ScType, val allowWiden: Boolean = true) extends ValueType {
   override def visitType(visitor: TypeVisitor): Unit = visitor.visitLiteralType(this)
 
   def blockWiden(): ScLiteralType = ScLiteralType.blockWiden(this)
 
-  override implicit def projectContext: ProjectContext = project
+  override implicit def projectContext: ProjectContext = wideType.projectContext
 
   override def equals(obj: Any): Boolean = {
     obj match {
@@ -29,23 +29,23 @@ class ScLiteralType private (val literalValue: Any, private val project: Project
 
 object ScLiteralType {
   import scala.collection.concurrent._
-  private val cache: Map[(Any, Project, Boolean), ScLiteralType] = {
+  private val cache: Map[(Any, Boolean), ScLiteralType] = {
     import scala.collection.JavaConverters._
-    new java.util.concurrent.ConcurrentHashMap[(Any, Project, Boolean), ScLiteralType].asScala
+    new java.util.concurrent.ConcurrentHashMap[(Any, Boolean), ScLiteralType].asScala
   }
 
   def getType(typeElement: ScLiteralTypeElement): TypeResult = {
-    ScLiteralImpl.getLiteralType(typeElement.getLiteralNode, typeElement).map(l => apply(typeElement.getLiteral.getValue, typeElement.projectContext, l))
+    ScLiteralImpl.getLiteralType(typeElement.getLiteralNode, typeElement).map(l => apply(typeElement.getLiteral.getValue, l))
   }
 
-  def apply(literalValue: Any, project: ProjectContext, wideType: ScType): ScLiteralType = {
-    cache.putIfAbsent((literalValue, project, true), new ScLiteralType(literalValue, project, wideType))
-    cache((literalValue, project, true))
+  def apply(literalValue: Any, wideType: ScType): ScLiteralType = {
+    cache.putIfAbsent((literalValue, true), new ScLiteralType(literalValue, wideType))
+    cache((literalValue, true))
   }
 
   private def blockWiden(lit: ScLiteralType): ScLiteralType = {
-    cache.putIfAbsent((lit.literalValue, lit.project, false), new ScLiteralType(lit.literalValue, lit.project, lit.wideType, false))
-    cache((lit.literalValue, lit.project, false))
+    cache.putIfAbsent((lit.literalValue, false), new ScLiteralType(lit.literalValue, lit.wideType, false))
+    cache((lit.literalValue, false))
   }
 
   def widen(aType: ScType): ScType = aType match {
@@ -98,18 +98,17 @@ object ScLiteralType {
     val synth = SyntheticClasses.get(fun.getProject)
     val wide = arg.wideType
     val name = fun.name
-    val project = arg.project
     if (synth.numeric.exists(_.stdType eq wide)) {
       if (name == "unary_+") Some(arg)
       else if (name == "unary_-") {
         wide match {
-          case Int => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Int], project, wide))
-          case Long => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Long], project, wide))
-          case Float => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Float], project, wide))
-          case Double => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Double], project, wide))
-          case Char => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Char], project, wide))
-          case Short => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Short], project, wide))
-          case Byte => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Byte], project, wide))
+          case Int => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Int], wide))
+          case Long => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Long], wide))
+          case Float => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Float], wide))
+          case Double => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Double], wide))
+          case Char => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Char], wide))
+          case Short => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Short], wide))
+          case Byte => Some(ScLiteralType(-arg.literalValue.asInstanceOf[Byte], wide))
           case _ => None
         }
       } else None
@@ -175,19 +174,19 @@ object ScLiteralType {
       import stdTypes._
       (l, r) match {
         case (desl: ScDesignatorType, desr: ScDesignatorType) if desl.canonicalText == stringCanonicalText && desr.canonicalText == stringCanonicalText && name == "+" =>
-          Some(ScLiteralType(left.literalValue.asInstanceOf[String] + right.literalValue.asInstanceOf[String], project, desl))
+          Some(ScLiteralType(left.literalValue.asInstanceOf[String] + right.literalValue.asInstanceOf[String], desl))
         case (_, _) if name == "==" || name == "!=" =>
-          Some(ScLiteralType(boolAnyOp(left.literalValue, right.literalValue), project, Boolean))
+          Some(ScLiteralType(boolAnyOp(left.literalValue, right.literalValue), Boolean))
         case (Boolean, Boolean) if isBooleanOp =>
-          Some(ScLiteralType(boolBoolOp(left.literalValue.asInstanceOf[Boolean], right.literalValue.asInstanceOf[Boolean]), project, Boolean))
+          Some(ScLiteralType(boolBoolOp(left.literalValue.asInstanceOf[Boolean], right.literalValue.asInstanceOf[Boolean]), Boolean))
         case (Double, _) | (_, Double) if isArithOp =>
-          Some(ScLiteralType(fracOp(left.literalValue.asInstanceOf[Double], right.literalValue.asInstanceOf[Double], name), project, Double))
+          Some(ScLiteralType(fracOp(left.literalValue.asInstanceOf[Double], right.literalValue.asInstanceOf[Double], name), Double))
         case (Float, _) | (_, Float) if isArithOp =>
-          Some(ScLiteralType(fracOp(left.literalValue.asInstanceOf[Float], right.literalValue.asInstanceOf[Float], name): Float, project, Float))
+          Some(ScLiteralType(fracOp(left.literalValue.asInstanceOf[Float], right.literalValue.asInstanceOf[Float], name): Float, Float))
         case (Long, _) | (_, Long) if isArithOp || isBitwiseOp =>
-          Some(ScLiteralType(intOp(left.literalValue.asInstanceOf[Long], right.literalValue.asInstanceOf[Long], name): Long, project, Long))
+          Some(ScLiteralType(intOp(left.literalValue.asInstanceOf[Long], right.literalValue.asInstanceOf[Long], name): Long, Long))
         case _ if isArithOp || isBitwiseOp =>
-          Some(ScLiteralType(intOp(left.literalValue.asInstanceOf[Int], right.literalValue.asInstanceOf[Int], name): Int, project, Int))
+          Some(ScLiteralType(intOp(left.literalValue.asInstanceOf[Int], right.literalValue.asInstanceOf[Int], name): Int, Int))
         case _ => None
       }
     } catch {

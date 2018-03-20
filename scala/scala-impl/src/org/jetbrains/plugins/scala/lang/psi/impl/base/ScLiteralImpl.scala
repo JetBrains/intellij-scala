@@ -45,7 +45,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
 
   protected override def innerType: TypeResult = {
     val wide = ScLiteralImpl.getLiteralType(getFirstChild.getNode, this)
-    if (allowLiteralTypes) wide.map(ScLiteralType(getValue, this, _)) else wide
+    if (allowLiteralTypes) wide.map(ScLiteralType(getValue, _)) else wide
   }
 
   @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
