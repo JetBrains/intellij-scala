@@ -89,8 +89,8 @@ WHITE_DOC_SPACE_CHAR=[\ \t\f\n\r]
 WHITE_DOC_SPACE_NO_NL=[\ \t\f]
 DIGIT=[0-9]
 ALPHA=[:jletter:]
-IDENTIFIER={ALPHA}({ALPHA}|{DIGIT}|[":.-"])*
 
+TAG_IDENTIFIER=[^\ \t\f\n\r]+ // SCL-13537
 MACRO_IDENTIFIER=("{" .* "}") | ({ALPHA} | {DIGIT})+ // SCL-9720
 
 /////////////////////////////////// for arbitrary scala identifiers////////////////////////////////////////////////////
@@ -215,11 +215,11 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 <DOC_TAG_VALUE, DOC_TAG_VALUE_IN_PAREN> [,] { return DOC_TAG_VALUE_COMMA; }
 <DOC_TAG_VALUE_IN_PAREN> {WHITE_DOC_SPACE_CHAR}+ { return DOC_WHITESPACE; }
 
-<COMMENT_DATA_START, COMMENT_DATA> "{" / "@"{IDENTIFIER} {
+<COMMENT_DATA_START, COMMENT_DATA> "{" / "@"{TAG_IDENTIFIER} {
   yybegin(INLINE_TAG_NAME);
   return DOC_INLINE_TAG_START;
 }
-<INLINE_TAG_NAME> "@"{IDENTIFIER} { yybegin(INLINE_TAG_DOC_SPACE); return DOC_TAG_NAME; }
+<INLINE_TAG_NAME> "@"{TAG_IDENTIFIER} { yybegin(INLINE_TAG_DOC_SPACE); return DOC_TAG_NAME; }
 <INLINE_TAG_DOC_SPACE, INLINE_DOC_TAG_VALUE> "}" { yybegin(COMMENT_DATA); return DOC_INLINE_TAG_END; }
 <INLINE_DOC_TAG_VALUE> [^\}]+ { return DOC_COMMENT_DATA; }
 
@@ -256,7 +256,7 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 <DOC_TAG_VALUE_SPACE> . { yybegin(COMMENT_DATA); return DOC_COMMENT_DATA; }
 
 
-<COMMENT_DATA_START> "@"{IDENTIFIER} {yybegin(TAG_DOC_SPACE); return DOC_TAG_NAME;  }
+<COMMENT_DATA_START> "@"{TAG_IDENTIFIER} {yybegin(TAG_DOC_SPACE); return DOC_TAG_NAME;  }
 <TAG_DOC_SPACE>  {WHITE_DOC_SPACE_CHAR}+ {
    yybegin(COMMENT_DATA);
    return DOC_WHITESPACE;
