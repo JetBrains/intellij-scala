@@ -3,15 +3,16 @@ package org.jetbrains.plugins.hydra
 import java.io.File
 
 import com.intellij.openapi.diagnostic.Logger
-import org.jetbrains.plugins.hydra.compiler.HydraRepositorySettings
+import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
-import org.jetbrains.plugins.scala.project.Platform
 import org.jetbrains.plugins.scala.project.template.{Downloader, FileExt}
 
 /**
   * @author Maris Alexandru
   */
 object HydraDownloader {
+
+  import Downloader._
 
   private val Log = Logger.getInstance(this.getClass)
   private val hydraGlobalSettings = HydraApplicationSettings.getInstance()
@@ -23,30 +24,43 @@ object HydraDownloader {
     artifacts.forall(new File(_).exists())
   }
 
-  def downloadIfNotPresent(repositorySettings: HydraRepositorySettings, scalaVersion: String, hydraVersion: String, listener: String => Unit): Unit = {
+  def downloadIfNotPresent(scalaVersion: String, manager: ProgressManager)
+                          (hydraVersion: String,
+                           repositoryName: String,
+                           repositoryURL: String,
+                           repositoryRealm: String,
+                           login: String,
+                           password: String): Unit = {
     val artifacts = hydraGlobalSettings.artifactPaths.get((scalaVersion, hydraVersion))
 
     if (artifacts.isEmpty) {
-      val sbtBufferedOutput = new StringBuilder
-      HydraDownloader.downloadHydra(repositorySettings, s"${scalaVersion}_$hydraVersion", (text: String) => {
-        sbtBufferedOutput.append(text)
-        listener(text)
-      })
-      Log.info("Temp SBT project output: " + sbtBufferedOutput.toString())
-      cacheArtifacts(sbtBufferedOutput.toString, scalaVersion, hydraVersion)
+      val processAdapter = new DownloadProcessAdapter(manager)
+      createTempSbtProject(
+        s"${scalaVersion}_$hydraVersion",
+        processAdapter,
+        setScalaSBTCommand(scalaVersion),
+        s"""set credentials := Seq(Credentials("$repositoryRealm", "$repositoryName", "$login", \"\"\"$password\"\"\"))""",
+        s"""set resolvers := Seq("Triplequote Plugins Ivy Releases" at "$repositoryURL")""",
+        setDependenciesSBTCommand(s""""$GroupId" % "hydra_$scalaVersion" % "$hydraVersion"""", s"""("$GroupId" % "hydra-bridge_1_0" % "$hydraVersion").sources()"""),
+        UpdateClassifiersSBTCommand,
+        "show dependencyClasspath"
+      )
+
+      val text = processAdapter.text()
+      Log.info(s"Temp SBT project output: $text")
+      cacheArtifacts(text, scalaVersion, hydraVersion)
     }
   }
 
-  private def cacheArtifacts(artifacts: String, scalaVersion: String, hydraVersion: String) = {
-    def findDownloadFolder(path: String) = path.split(GroupId).headOption
-
+  private def cacheArtifacts(artifacts: String, scalaVersion: String, hydraVersion: String): Unit = {
     val paths = artifacts.split("\n").filter(s => ArtifactsRegex.findFirstIn(s).nonEmpty).map(s => SplitRegex.split(s)(1)).toList
 
     if (checkIfArtifactsExist(paths)) {
-      val maybeHydraBridge = for {
-        path  <- paths.headOption
-        downloadFolder <- findDownloadFolder(path)
-      } yield new File(s"$downloadFolder$GroupId") / "hydra-bridge_1_0" / "srcs" / s"hydra-bridge_1_0-$hydraVersion-sources.jar"
+      val maybeHydraBridge = paths.headOption.flatMap { path =>
+        path.split(GroupId).headOption
+      }.map { downloadFolder =>
+        new File(s"$downloadFolder$GroupId") / "hydra-bridge_1_0" / "srcs" / s"hydra-bridge_1_0-$hydraVersion-sources.jar"
+      }
 
       maybeHydraBridge match {
         case None =>
@@ -58,19 +72,5 @@ object HydraDownloader {
     } else {
       Log.warn(s"Hydra artifacts couldn't be cached for $scalaVersion (scala version), $hydraVersion (hydra version) because one or more artifacts doesn't exist")
     }
-  }
-
-  def downloadHydra(repositorySettings: HydraRepositorySettings, version: String, listener: String => Unit): Unit = {
-    Downloader.createTempSbtProject(Platform.Scala, version, listener, sbtCommandsForHydra(repositorySettings))
-  }
-
-  private def sbtCommandsForHydra(repositorySettings: HydraRepositorySettings)(platform: Platform, version: String) = {
-    Seq(
-      s"""set scalaVersion := "${version.split("_")(0)}"""",
-      s"""set credentials := Seq(Credentials("${repositorySettings.repositoryRealm}", "${repositorySettings.repositoryName}", "${repositorySettings.login}", \"\"\"${repositorySettings.password}\"\"\"))""",
-      s"""set resolvers := Seq("Triplequote Plugins Ivy Releases" at "${repositorySettings.repositoryURL}")""",
-      s"""set libraryDependencies := Seq("com.triplequote" % "hydra_${version.split("_")(0)}" % "${version.split("_")(1)}", ("com.triplequote" % "hydra-bridge_1_0" % "${version.split("_")(1)}").sources())""",
-      "updateClassifiers",
-      "show dependencyClasspath")
   }
 }

@@ -3,74 +3,83 @@ package org.jetbrains.plugins.scala.project.template
 import java.io.{File, FileNotFoundException}
 
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.util.net.HttpConfigurable
-import org.jetbrains.plugins.scala.project.Platform
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters
 
 /**
   * @author Pavel Fatin
   */
 object Downloader {
-  def downloadScala(platform: Platform, version: String, listener: String => Unit): Unit = {
-    createTempSbtProject(platform, version, listener, sbtCommandsFor)
-  }
 
-  def createTempSbtProject(platform: Platform, version: String, listener: String => Unit, sbtCommands: (Platform, String) => Seq[String]): Unit = {
-    val buffer = new StringBuffer()
+  private val DefaultCommands = Array("java",
+    "-Djline.terminal=jline.UnsupportedTerminal",
+    "-Dsbt.log.noformat=true"
+  )
 
-    usingTempFile("sbt-commands") { file =>
-      writeLinesTo(file, sbtCommands(platform, version): _*)
-      usingTempDirectory("sbt-project") { directory =>
-        val proxyOptions = HttpConfigurable.getInstance.getJvmProperties(false, null).asScala.map(p => s"-D${p.getFirst}=${p.getSecond}")
+  class DownloadProcessAdapter(private val progressManager: ProgressManager) extends ProcessAdapter {
 
-        val process = Runtime.getRuntime.exec(osCommandsFor(file, proxyOptions).toArray, null, directory)
+    private val builder = new StringBuilder()
 
-        val listenerAdapter = new ProcessAdapter {
-          override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
-            val text = event.getText
-            listener(text)
-            buffer.append(text)
-          }
-        }
+    override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+      val text = event.getText
+      progressManager.getProgressIndicator.setText(text)
+      builder ++= text
+    }
 
-        val handler = new OSProcessHandler(process, null, null)
-        handler.addProcessListener(listenerAdapter)
-        handler.startNotify()
-        handler.waitFor()
-        if (process.exitValue != 0) {
-          throw new DownloadException(buffer.toString)
-        }
+    def text(exitValue: Int = 0): String = {
+      val result = builder.toString
+      exitValue match {
+        case 0 => result
+        case _ => throw new RuntimeException(result)
       }
     }
   }
 
-  private def osCommandsFor(file: File, vmOptions: Seq[String]) = {
-    val launcher = jarWith[this.type].getParentFile.getParentFile / "launcher" / "sbt-launch.jar"
+  def setScalaSBTCommand(scalaVersion: String): String =
+    s"""set scalaVersion := "$scalaVersion""""
 
-    if (launcher.exists()) {
-      Seq("java",
-        "-Djline.terminal=jline.UnsupportedTerminal",
-        "-Dsbt.log.noformat=true") ++
-        vmOptions ++
-        Seq("-jar",
-        launcher.getAbsolutePath,
-        "< " + file.getAbsolutePath)
-    } else {
-      throw new FileNotFoundException(launcher.getPath)
+  def setDependenciesSBTCommand(dependencies: String*): String =
+    s"""set libraryDependencies := Seq(${dependencies.mkString(", ")})"""
+
+  val UpdateClassifiersSBTCommand: String = "updateClassifiers"
+
+  def createTempSbtProject(version: String,
+                           processAdapter: DownloadProcessAdapter,
+                           sbtCommands: String*): Unit =
+    usingTempFile("sbt-commands") { file =>
+      writeLinesTo(file, sbtCommands: _*)
+
+      usingTempDirectory("sbt-project") { directory =>
+        val process = executeOn(file, directory)
+
+        val handler = new OSProcessHandler(process, null, null)
+        handler.addProcessListener(processAdapter)
+        handler.startNotify()
+        handler.waitFor()
+
+        processAdapter.text(process.exitValue)
+      }
+    }
+
+  private def executeOn(file: File, directory: File) = {
+    val launcherOptions = this.launcherOptions(file)
+    Runtime.getRuntime.exec(DefaultCommands ++ vmOptions ++ launcherOptions, null, directory)
+  }
+
+  private def launcherOptions(file: File) =
+    jarWith[this.type].getParentFile.getParentFile / "launcher" / "sbt-launch.jar" match {
+      case launcher if launcher.exists => Seq("-jar", launcher.getAbsolutePath, "< " + file.getAbsolutePath)
+      case launcher => throw new FileNotFoundException(launcher.getPath)
+    }
+
+  private def vmOptions = {
+    import JavaConverters._
+    HttpConfigurable.getInstance.getJvmProperties(false, null)
+      .asScala.map { pair =>
+      s"-D${pair.getFirst}=${pair.getSecond}"
     }
   }
-
-  def sbtCommandsFor(platform: Platform, version: String): Seq[String] = platform match {
-    case Platform.Scala => Seq(
-      s"""set scalaVersion := "$version"""",
-      "updateClassifiers")
-
-    case Platform.Dotty => Seq(
-      s"""set libraryDependencies := Seq("ch.epfl.lamp" % "dotty_2.11" % "$version" % "scala-tool")""",
-      "updateClassifiers")
-  }
 }
-
-class DownloadException(message: String) extends Exception(message)

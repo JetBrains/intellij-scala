@@ -2,17 +2,18 @@ package org.jetbrains.plugins.hydra.compiler
 
 import java.awt.event.ActionEvent
 import java.net.URL
-import javax.swing.SwingUtilities
-import javax.swing.event.DocumentEvent
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.ui.{DocumentAdapter, EditorNotifications}
 import com.intellij.util.net.HttpConfigurable
-import org.jetbrains.plugins.hydra.{HydraDownloader, HydraVersions}
+import javax.swing.SwingUtilities
+import javax.swing.event.DocumentEvent
 import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.hydra.{HydraDownloader, HydraVersions}
+import org.jetbrains.plugins.scala.extensions.{StringsExt, withProgressSynchronouslyTry}
 
 import scala.util.{Failure, Success, Try}
 
@@ -73,10 +74,12 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
 
   def setHydraVersion(version: String) = versionTextField.setText(version)
 
+  import Messages._
+
   def onDownload(): Unit = {
     Try(new URL(hydraGlobalSettings.getHydraRepositoryUrl)) match {
       case Success(_) => downloadHydraForProjectScalaVersions()
-      case _ => Messages.showErrorDialog(contentPanel, s"$getHydraRepository is not a valid URL.", "Invalid URL")
+      case _ => showErrorDialog(contentPanel, s"$getHydraRepository is not a valid URL.", "Invalid URL")
     }
   }
 
@@ -90,15 +93,15 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
       override def run(): Unit = {
         Try({
           val connection = settings.openHttpConnection(getHydraRepository)
-          val credentials = s"${getUsername}:${getPassword}"
+          val credentials = s"$getUsername:$getPassword"
           connection.setRequestProperty("Authorization", s"Basic ${HydraCredentialsManager.encode(credentials)}")
           connection.getInputStream
           connection.disconnect()
         }) match {
           case Success(_) =>
-            SwingUtilities.invokeLater(() => Messages.showInfoMessage(contentPanel, "Connection successful", title))
+            SwingUtilities.invokeLater(() => showInfoMessage(contentPanel, "Connection successful", title))
           case Failure(_) =>
-            SwingUtilities.invokeLater(() => Messages.showErrorDialog(contentPanel, "Connection failed: Check your credentials and repository URL", title))
+            SwingUtilities.invokeLater(() => showErrorDialog(contentPanel, "Connection failed: Check your credentials and repository URL", title))
         }
 
         checkConnectionButton.setEnabled(true)
@@ -108,39 +111,45 @@ class ScalaHydraCompilerConfigurationPanel(project: Project, settings: HydraComp
     )
   }
 
-  private def downloadHydraForProjectScalaVersions(): Unit = {
-    val scalaVersions = HydraVersions.getSupportedScalaVersions(project)
+  private def downloadHydraForProjectScalaVersions(): Unit =
+    HydraVersions.getSupportedScalaVersions(project) match {
+      case Seq() =>
+        showErrorDialog("Could not determine Scala version in this project.", "Hydra Plugin Error")
+      case versions =>
+        val hydraVersion = getHydraVersion
 
-    if (scalaVersions.isEmpty)
-      Messages.showErrorDialog("Could not determine Scala version in this project.", "Hydra Plugin Error")
-    else {
-      downloadArtifactsWithProgress(scalaVersions, getHydraVersion)
-      settings.hydraVersion = getHydraVersion
-      EditorNotifications.updateAll()
+        versions.filterNot(hydraGlobalSettings.artifactPaths.contains(_, hydraVersion)) match {
+          case downloadedVersions@Seq() =>
+            showInfoMessage(s"Hydra $hydraVersion for ${downloadedVersions.commaSeparated()} is already downloaded", "Hydra version already downloaded")
+          case versionsToDownload =>
+            downloadArtifactsWithProgress(versionsToDownload, hydraVersion)
+        }
+
+        settings.hydraVersion = hydraVersion
+        EditorNotifications.updateAll()
     }
-  }
 
   private def downloadArtifactsWithProgress(scalaVersions: Seq[String], hydraVersion: String): Unit = {
-    val filteredScalaVersionsString = scalaVersions.mkString(", ")
-    val scalaVersionsToBeDownloaded = scalaVersions.filterNot(hydraGlobalSettings.artifactPaths.contains(_, hydraVersion))
-    val scalaVersionsToBeDownloadedString = scalaVersionsToBeDownloaded.mkString(", ")
-    if (scalaVersionsToBeDownloaded.nonEmpty) {
-      val result = extensions.withProgressSynchronouslyTry(s"Downloading Hydra $hydraVersion for $scalaVersionsToBeDownloadedString")(downloadArtifacts(scalaVersionsToBeDownloaded, hydraVersion))
-      result match {
-        case Failure(exception) => {
-          Messages.showErrorDialog(contentPanel, exception.getMessage, s"Error Downloading Hydra $hydraVersion for $scalaVersionsToBeDownloadedString")
-        }
-        case Success(_) => Messages.showInfoMessage(s"Successfully downloaded Hydra $hydraVersion for $scalaVersionsToBeDownloadedString", "Download Hydra Successful")
-      }
-    } else {
-      Messages.showInfoMessage(s"Hydra $hydraVersion for $filteredScalaVersionsString is already downloaded", "Hydra version already downloaded")
+    val versionsText = scalaVersions.commaSeparated()
+    val result = withProgressSynchronouslyTry(s"Downloading Hydra $hydraVersion for $versionsText") { manager =>
+      scalaVersions.foreach(downloadIfNotPresent(_, manager))
+    }
+
+    result match {
+      case Failure(exception) =>
+        showErrorDialog(contentPanel, exception.getMessage, s"Error Downloading Hydra $hydraVersion for $versionsText")
+      case Success(_) =>
+        showInfoMessage(s"Successfully downloaded Hydra $hydraVersion for $versionsText", "Download Hydra Successful")
     }
   }
 
-  private def downloadArtifacts(scalaVersions: Seq[String], hydraVersion: String): (String => Unit) => Unit =
-    (listener: (String) => Unit) => scalaVersions.foreach(version =>
-      HydraDownloader.downloadIfNotPresent(HydraRepositorySettings(getHydraRepositoryName, getHydraRepository,
-        getHydraRepositoryRealm, getUsername, getPassword), version, hydraVersion, listener))
+  private def downloadIfNotPresent(scalaVersion: String, manager: ProgressManager): Unit =
+    HydraDownloader.downloadIfNotPresent(scalaVersion, manager)(
+      getHydraVersion,
+      getHydraRepositoryName,
+      getHydraRepository,
+      getHydraRepositoryRealm,
+      getUsername,
+      getPassword
+    )
 }
-
-sealed case class HydraRepositorySettings(repositoryName: String, repositoryURL: String, repositoryRealm: String, login: String, password: String)

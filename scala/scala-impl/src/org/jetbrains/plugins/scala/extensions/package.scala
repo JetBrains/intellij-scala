@@ -746,26 +746,19 @@ package object extensions {
     ApplicationManager.getApplication.executeOnPooledThread(toCallable(body))
   }
 
-  def withProgressSynchronously[T](title: String)(body: ((String => Unit) => T)): T = {
-    withProgressSynchronouslyTry[T](title)(body) match {
+  def withProgressSynchronously[T](title: String)(body: => T): T = {
+    withProgressSynchronouslyTry[T](title)(_ => body) match {
       case Success(result) => result
       case Failure(exception) => throw exception
     }
   }
 
-  def withProgressSynchronouslyTry[T](title: String)(body: ((String => Unit) => T)): Try[T] = {
-    val progressManager = ProgressManager.getInstance
-
-    val computable = new ThrowableComputable[T, Exception] {
-      @throws(classOf[Exception])
-      def compute: T = {
-        val progressIndicator = progressManager.getProgressIndicator
-        body(progressIndicator.setText)
-      }
-    }
-
+  def withProgressSynchronouslyTry[T](title: String)(body: ProgressManager => T): Try[T] = {
+    val manager = ProgressManager.getInstance
     catching(classOf[Exception]).withTry {
-      progressManager.runProcessWithProgressSynchronously(computable, title, false, null)
+      manager.runProcessWithProgressSynchronously(new ThrowableComputable[T, Exception] {
+        def compute: T = body(manager)
+      }, title, false, null)
     }
   }
 

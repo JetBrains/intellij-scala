@@ -36,7 +36,7 @@ class DesugarCodeAction extends AnAction {
             marker
           }
 
-          withProgressSynchronously(title) { _ =>
+          withProgressSynchronously(title) {
             try {
               Transformer.transform(file, range, transformers)
             } finally {

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import java.io.File
 
+import com.intellij.execution.process.ProcessEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress._
@@ -9,15 +10,16 @@ import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.project.template.{Artifact, Downloader}
-import org.jetbrains.plugins.scala.project.{Platform, Version, Versions}
+import org.jetbrains.plugins.scala.project.{Version, Versions}
 import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaUtil}
 import org.jetbrains.plugins.scala.worksheet.ammonite.ImportAmmoniteDependenciesFix.{ExactVersion, MajorVersion}
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 import scala.util.{Success, Try}
 
 /**
@@ -26,12 +28,10 @@ import scala.util.{Success, Try}
   */
 class ImportAmmoniteDependenciesFix(project: Project) {
   def invoke(file: PsiFile): Unit = {
-    val platform = Platform.Scala
+    val manager = ProgressManager.getInstance
 
     val task = new Task.Backgroundable(project, "Adding dependencies", false) {
       override def run(indicator: ProgressIndicator): Unit = {
-        val buffer = ListBuffer[File]()
-        
         indicator.setText("Ammonite: loading list of versions...")
         
         val ((scalaVersion, ammoniteVersion), needScalaLib) = ScalaUtil.getScalaVersion(file) match {
@@ -42,45 +42,49 @@ class ImportAmmoniteDependenciesFix(project: Project) {
         }
 
         indicator.setText("Ammonite: extracting info from SBT...")
-        
-        Downloader.createTempSbtProject(platform, scalaVersion,
-          (text: String) => {
+
+        import Downloader._
+
+        val processAdapter = new DownloadProcessAdapter(manager) {
+
+          private val buffer = mutable.ListBuffer.empty[File]
+
+          override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
             val e = new AmmoniteUtil.RegexExtractor
             import e._
-            
-            text.trim match {
-              case mre"[info] * Attributed($filePath)" => 
+
+            event.getText.trim match {
+              case mre"[info] * Attributed($filePath)" =>
                 val f = new File(filePath)
                 if (f.exists()) buffer += f
               case mre"[success]$_" =>
                 indicator.setText("Ammonite: adding dependencies...")
-                
-                ScalaUtil.getModuleForFile(file.getVirtualFile, project).foreach {
-                  module =>
-                    extensions.invokeLater {
-                      extensions.inWriteAction {
-                        createAndAdd(buffer, module, !needScalaLib)
-                      }
+
+                ScalaUtil.getModuleForFile(file.getVirtualFile, project).foreach { module =>
+                  invokeLater {
+                    inWriteAction {
+                      createAndAdd(buffer, module, !needScalaLib)
                     }
+                  }
                 }
-              case mre"[error]$content" => 
+              case mre"[error]$content" =>
                 ImportAmmoniteDependenciesFix.LOG.warn(s"Ammonite, error while importing dependencies: $content")
               case _ =>
             }
-          },
-          (_: Platform, version: String) => { 
-            Seq(
-              s"""set scalaVersion := "$version"""",
-              "set libraryDependencies += \"com.lihaoyi\" " + "%" + " \"ammonite\" " + "%" + " \"" + ammoniteVersion + "\" " + "%" + " \"test\" cross CrossVersion.full",
-              "updateClassifiers",
-              "show test:dependencyClasspath"
-            )
           }
+        }
+        createTempSbtProject(
+          scalaVersion,
+          processAdapter,
+          setScalaSBTCommand(scalaVersion),
+          "set libraryDependencies += \"com.lihaoyi\" " + "%" + " \"ammonite\" " + "%" + " \"" + ammoniteVersion + "\" " + "%" + " \"test\" cross CrossVersion.full",
+          UpdateClassifiersSBTCommand,
+          "show test:dependencyClasspath"
         )
       }
     }
-    
-    ProgressManager.getInstance().runProcessWithProgressAsynchronously(
+
+    manager.runProcessWithProgressAsynchronously(
       task, ImportAmmoniteDependenciesFix.createBgIndicator(project, "Ammonite")
     )
   }

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.project.template
 import com.intellij.openapi.ui.Messages
 import javax.swing.JComponent
 import org.jetbrains.plugins.scala.extensions.{withProgressSynchronously, withProgressSynchronouslyTry}
+import org.jetbrains.plugins.scala.project.template.Downloader._
 import org.jetbrains.plugins.scala.project.{Platform, Version, Versions}
 
 import scala.util.{Failure, Success}
@@ -12,6 +13,8 @@ import scala.util.{Failure, Success}
   */
 class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) {
 
+  import VersionDialog._
+
   {
     init()
 
@@ -20,7 +23,7 @@ class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) {
 
     val platform = Platform.Scala
 
-    val versions = withProgressSynchronously(s"Fetching available ${platform.getName} versions") { _ =>
+    val versions = withProgressSynchronously(s"Fetching available ${platform.getName} versions") {
       Versions.loadScalaVersions(platform)
     }
 
@@ -34,18 +37,27 @@ class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) {
   def downloadVersionWithProgress(): Option[(String, String)] =
     if (showAndGet()) {
       val platform = Platform.Scala
+      val platformName = platform.getName
       val version = myVersion.getSelectedItem.asInstanceOf[String]
 
-      val result = withProgressSynchronouslyTry(s"Downloading ${platform.getName} $version") {
-        Downloader.downloadScala(platform, version, _)
+      val result = withProgressSynchronouslyTry(s"Downloading $platformName $version") { manager =>
+        createTempSbtProject(version, new DownloadProcessAdapter(manager), setCommand(platform, version), "updateClassifiers")
       }
 
       result match {
         case Success(_) =>
-          Some((platform.getName, version))
+          Some((platformName, version))
         case Failure(exception) =>
-          Messages.showErrorDialog(parent, exception.getMessage, s"Error downloading ${platform.getName} $version")
+          Messages.showErrorDialog(parent, exception.getMessage, s"Error downloading $platformName $version")
           None
       }
     } else None
+}
+
+object VersionDialog {
+
+  private def setCommand(platform: Platform, version: String) = platform match {
+    case Platform.Scala => setScalaSBTCommand(version)
+    case Platform.Dotty => setDependenciesSBTCommand(s""""ch.epfl.lamp" % "dotty_2.11" % "$version" % "scala-tool"""")
+  }
 }
