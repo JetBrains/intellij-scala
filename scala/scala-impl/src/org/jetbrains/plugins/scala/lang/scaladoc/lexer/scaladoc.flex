@@ -67,10 +67,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 %state TAG_DOC_SPACE
 %state PARAM_TAG_DOC_SPACE
 %state PARAM_THROWS_TAG_DOC_SPACE
+%state PARAM_DEFINE_TAG_DOC_SPACE
 %state PARAM_TAG_SPACE
 %state DOC_TAG_VALUE
 %state PARAM_DOC_TAG_VALUE
 %state PARAM_DOC_THROWS_TAG_VALUE
+%state PARAM_DOC_DEFINE_TAG_VALUE
 %state DOC_TAG_VALUE_IN_PAREN
 %state DOC_TAG_VALUE_IN_LTGT
 %state INLINE_TAG_NAME
@@ -89,6 +91,7 @@ DIGIT=[0-9]
 ALPHA=[:jletter:]
 IDENTIFIER={ALPHA}({ALPHA}|{DIGIT}|[":.-"])*
 
+MACRO_IDENTIFIER=("{" .* "}") | ({ALPHA} | {DIGIT})+ // SCL-9720
 
 /////////////////////////////////// for arbitrary scala identifiers////////////////////////////////////////////////////
 special = \u0021 | \u0023 | [\u0025-\u0026] | [\u002A-\u002B] | \u002D | \u005E | \u003A| [\u003C-\u0040]| \u007E
@@ -161,7 +164,7 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 <COMMENT_DATA_START> ("="|"\u003d")+ {
   return VALID_DOC_HEADER;
 }
-<COMMENT_DATA, COMMENT_DATA_START> "$"{IDENTIFIER} {
+<COMMENT_DATA, COMMENT_DATA_START> "$"{MACRO_IDENTIFIER} {
   return DOC_MACROS;
 }
 
@@ -224,6 +227,11 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
   yybegin(COMMENT_DATA);
   return DOC_COMMENT_DATA;
 }
+
+<COMMENT_DATA_START> "@define" {yybegin(PARAM_DEFINE_TAG_DOC_SPACE); return DOC_TAG_NAME; }
+<PARAM_DEFINE_TAG_DOC_SPACE> {WHITE_DOC_SPACE_NO_NL}+ {yybegin(PARAM_DOC_DEFINE_TAG_VALUE); return DOC_COMMENT_DATA;}
+<PARAM_DOC_DEFINE_TAG_VALUE> {MACRO_IDENTIFIER} { yybegin(DOC_TAG_VALUE_SPACE); return DOC_TAG_VALUE_TOKEN; }
+
 
 <COMMENT_DATA_START> "@throws" {yybegin(PARAM_THROWS_TAG_DOC_SPACE); return DOC_TAG_NAME; }
 <PARAM_THROWS_TAG_DOC_SPACE> {WHITE_DOC_SPACE_NO_NL}+ {yybegin(PARAM_DOC_THROWS_TAG_VALUE); return DOC_COMMENT_DATA;}
