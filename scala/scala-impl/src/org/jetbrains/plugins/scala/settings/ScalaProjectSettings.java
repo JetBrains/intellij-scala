@@ -66,7 +66,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   //WORKSHEET
   private int OUTPUT_LIMIT = 35;
   private boolean IN_PROCESS_MODE = true;
-  private boolean INTERACTIVE_MODE = true;
   private boolean USE_ECLIPSE_COMPATIBILITY = false;
   private boolean TREAT_SCRATCH_AS_WORKSHEET = true;
   private boolean IS_WORKSHEET_FOLD_COLLAPSED_BY_DEFAULT = true;
@@ -316,12 +315,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setInProcessMode(boolean inProcess) {
     this.IN_PROCESS_MODE = inProcess;
-  }
-
-  public boolean isInteractiveMode() { return INTERACTIVE_MODE; }
-
-  public void setInteractiveMode(boolean interactiveMode) {
-    INTERACTIVE_MODE = interactiveMode;
   }
 
   public boolean isUseEclipseCompatibility() {
