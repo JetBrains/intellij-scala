@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.refactoring.move
+package org.jetbrains.plugins.scala.refactoring.move.member
 
 import java.io.File
 import java.util
@@ -12,11 +12,13 @@ import com.intellij.psi.{JavaPsiFacade, PsiDocumentManager, PsiMember}
 import com.intellij.refactoring.move.moveMembers.{MoveMembersOptions, MoveMembersProcessor}
 import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.util.TestUtils
 
-class ScalaMoveMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+
+abstract class BaseScalaMoveMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   protected def folderPath = baseRootPath() + "moveMember/"
 
@@ -29,14 +31,12 @@ class ScalaMoveMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private var rootDirBefore: VirtualFile = _
   private var rootDirAfter: VirtualFile = _
 
-  def testSimple() = {
-    doTest("A$", "B$")
-  }
 
-  def doTest(fromObject: String, toObject: String) = {
+
+  def doTest(fromObject: String, toObject: String, memberName: String) = {
     LocalFileSystem.getInstance().refresh(false)
     try {
-      performAction(fromObject, toObject)
+      performAction(fromObject, toObject, memberName)
     } finally {
       PsiTestUtil.removeSourceRoot(getModuleAdapter, rootDirBefore)
     }
@@ -44,10 +44,11 @@ class ScalaMoveMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     PlatformTestUtil.assertDirectoriesEqual(rootDirAfter, rootDirBefore)
   }
 
-  private def performAction(fromObject: String, toObject: String): Unit = {
+  private def performAction(fromObject: String, toObject: String, memberName: String): Unit = {
     val aClass = JavaPsiFacade.getInstance(getProjectAdapter).findClass(fromObject, GlobalSearchScope.moduleScope(getModuleAdapter))
     assert(aClass != null, s"file $fromObject not found")
-    val aMember = PsiTreeUtil.findChildOfType(aClass, classOf[ScPatternDefinition], false)
+    val members = PsiTreeUtil.findChildrenOfAnyType(aClass, classOf[ScFunctionDefinition], classOf[ScVariableDefinition], classOf[ScPatternDefinition])
+    val aMember = members.asScala.find(m => m.declaredNames.contains(memberName)).get
     ScalaFileImpl.performMoveRefactoring {
       new MoveMembersProcessor(getProjectAdapter, new MoveMembersOptions() {
         override def getSelectedMembers: Array[PsiMember] = Seq(aMember.asInstanceOf[PsiMember]).toArray
