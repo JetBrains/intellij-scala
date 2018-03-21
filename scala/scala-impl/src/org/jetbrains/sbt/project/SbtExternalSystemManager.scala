@@ -21,6 +21,7 @@ import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.util.Function
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.android.sdk.AndroidSdkType
+import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSystemSettings}
 
@@ -72,6 +73,7 @@ class SbtExternalSystemManager
 }
 
 object SbtExternalSystemManager {
+
   def executionSettingsFor(project: Project, path: String): SbtExecutionSettings = {
     val settings = SbtSystemSettings.getInstance(project)
     val projectSettings = Option(settings.getLinkedProjectSettings(path)).getOrElse(SbtProjectSettings.default)
@@ -82,7 +84,8 @@ object SbtExternalSystemManager {
     val realProjectPath = Option(projectSettings.getExternalProjectPath).getOrElse(path)
     val projectJdkName = bootstrapJdk(project, projectSettings)
     val vmExecutable = getVmExecutable(projectJdkName, settings)
-    val vmOptions = getVmOptions(settings)
+    val jreHome = vmExecutable.parent.flatMap(_.parent)
+    val vmOptions = getVmOptions(settings, jreHome)
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
 
     new SbtExecutionSettings(realProjectPath,
@@ -170,18 +173,18 @@ object SbtExternalSystemManager {
         }
       }.getOrElse(Map.empty)
 
-  private def getVmOptions(settings: SbtSystemSettings): Seq[String] = {
+  private def getVmOptions(settings: SbtSystemSettings, jreHome: Option[File]): Seq[String] = {
+    import DefaultOptions._
     val userOptions = settings.getVmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
     val ideaProxyOptions = proxyOptions { optName => !userOptions.exists(_.startsWith(optName)) }
+    val allOptions = Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++ ideaProxyOptions ++ userOptions
 
-    Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++ ideaProxyOptions ++ userOptions ++ fileEncoding(userOptions).toSeq
+    allOptions
+      .addDefaultOption(ideaManaged.key, ideaManaged.value)
+      .addDefaultOption(fileEncoding.key, fileEncoding.value)
+      .addPermSize(jreHome)
   }
 
-  private def fileEncoding(userOptions: Seq[String]): Option[String] = {
-    val prefix = "-Dfile.encoding"
-    if (userOptions.exists(_.startsWith(s"$prefix="))) None
-    else Some(s"$prefix=UTF-8")
-  }
 
   /** @param select Allow only options that pass this filter on option name */
   private def proxyOptions(select: String=>Boolean): Seq[String] = {
@@ -202,4 +205,39 @@ object SbtExternalSystemManager {
     (jvmArgs ++ nonProxyHosts)
       .collect { case (name,value) if select(name) => s"-D$name=$value" }
   }
+
+  private implicit class OptionsOps(options: Seq[String]) {
+    def addPermSize(jreHome: Option[File]): Seq[String] = {
+      import DefaultOptions.maxPermSize
+
+      // use no MaxPermSize param if we know jdk version is >= 8 or user set it anyway
+      val withoutPermSize = for {
+        home <- jreHome
+        if ! hasOption(maxPermSize.key)
+        jreVersion <- Option(JdkVersionDetector.getInstance().detectJdkVersionInfo(home.getAbsolutePath))
+        if jreVersion.version.feature >= 8
+      } yield options
+
+      // add permsize by default
+      withoutPermSize.getOrElse(addDefaultOption(maxPermSize.key, maxPermSize.value))
+    }
+
+    def addDefaultOption(prefix: String, value: String): Seq[String] =
+      if (hasOption(prefix)) options
+      else options :+ s"$prefix=$value"
+
+    private def hasOption(prefix: String) =
+      options.exists(_.startsWith(s"$prefix="))
+  }
+
+  object DefaultOptions {
+    case class Option(key: String, value: String)
+
+    val fileEncoding = Option("-Dfile.encoding", "UTF-8")
+    val maxPermSize = Option("-XX:MaxPermSize", "256M")
+
+    /** custom option to signal sbt instance is run from idea. */
+    val ideaManaged = Option("-Didea.managed", "true")
+  }
+
 }

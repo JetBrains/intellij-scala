@@ -102,7 +102,6 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     vmParams.addAll(SbtOpts.loadFrom(workingDir).asJava)
     vmParams.addAll(sbtSettings.vmOptions.asJava)
     vmParams.add(s"-Didea.runid=$runid")
-    vmParams.add("-Didea.managed=true") // additional option also used by regular sbt structure dump to signal sbt instance is run from idea
 
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
     getCustomVMExecutableOrWarn(sbtSettings).foreach(exe => commandLine.setExePath(exe.getAbsolutePath))

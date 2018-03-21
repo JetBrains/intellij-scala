@@ -40,7 +40,7 @@ class SbtSystemSettings(project: Project)
   var maximumHeapSize: String = defaultMaxHeapSize
 
   @BeanProperty
-  var vmParameters: String = defaultVmParameters
+  var vmParameters: String = ""
 
   @BeanProperty
   var customVMEnabled: Boolean = false
@@ -105,7 +105,6 @@ object SbtSystemSettings {
   def getInstance(@NotNull project: Project): SbtSystemSettings = ServiceManager.getService(project, classOf[SbtSystemSettings])
 
   val defaultMaxHeapSize = "1536"
-  val defaultVmParameters = "-XX:MaxPermSize=384M"
 }
 
 class SbtSystemSettingsState extends AbstractExternalSystemSettings.State[SbtProjectSettings] {
@@ -121,7 +120,7 @@ class SbtSystemSettingsState extends AbstractExternalSystemSettings.State[SbtPro
   var maximumHeapSize: String = defaultMaxHeapSize
 
   @BeanProperty
-  var vmParameters: String = defaultVmParameters
+  var vmParameters: String = ""
 
   @BeanProperty
   var customVMEnabled: Boolean = false

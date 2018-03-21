@@ -5,8 +5,7 @@ import com.intellij.execution.console.LanguageConsoleImpl
 import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
 import com.intellij.execution.filters._
 import com.intellij.execution.impl.ConsoleViewImpl.ClearAllAction
-import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{AnAction, DefaultActionGroup}
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
