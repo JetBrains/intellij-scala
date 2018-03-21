@@ -17,7 +17,7 @@ abstract class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBas
     super.errorsFromScalaCode(scalaFileText)
   }
 
-  def doTest(errorsFun: PartialFunction[List[Message], Unit] = PartialFunction.empty, fileText: Option[String] = None, settingOn: Boolean = true) {
+  def doTest(errorsFun: PartialFunction[List[Message], Unit] = PartialFunction.empty, fileText: Option[String] = None, settingOn: Boolean = false) {
     val text = fileText.getOrElse {
       val filePath = folderPath + getTestName(false) + ".scala"
       val ioFile: File = new File(filePath)

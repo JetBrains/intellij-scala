@@ -20,11 +20,12 @@ import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Char, Int, Nothing, Null}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Char, Int, Nothing, Null}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project._
 
 import scala.StringContext.InvalidEscapeException
 
@@ -38,10 +39,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
 
   override def toString: String = "Literal"
 
-  override def allowLiteralTypes: Boolean = {
-    import org.jetbrains.plugins.scala.project._
-    getContainingFile.module.map(_.scalaCompilerSettings).exists(_.literalTypes)
-  }
+  override def allowLiteralTypes: Boolean = getContainingFile.module.exists(_.literalTypesAllowed)
 
   protected override def innerType: TypeResult = {
     val wide = ScLiteralImpl.getLiteralType(getFirstChild.getNode, this)

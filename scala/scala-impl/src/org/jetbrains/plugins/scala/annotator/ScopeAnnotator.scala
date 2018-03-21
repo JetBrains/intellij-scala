@@ -116,7 +116,7 @@ trait ScopeAnnotator {
         case lit: ScLiteralType => ReplaceWith(lit.wideType)
         case proj: ScProjectionType =>
           proj.element match {
-            case sc: Typeable => sc.`type`().map(ScLiteralType.widen).map(ReplaceWith).getOrElse(ProcessSubtypes)
+            case sc: Typeable => sc.`type`().map(_.widen).map(ReplaceWith).getOrElse(ProcessSubtypes)
             case _ => ProcessSubtypes
           }
         case _ => ProcessSubtypes

@@ -65,6 +65,9 @@ class ScalaPsiManager(val project: Project) {
 
   val implicitCollectorCache: ImplicitCollectorCache = new ImplicitCollectorCache(project)
 
+  val wideableLiteralTypes: ConcurrentMap[Any, ScLiteralType] = ContainerUtil.createConcurrentWeakMap[Any, ScLiteralType]()
+  val nonWideableLiteralTypes: ConcurrentMap[Any, ScLiteralType] = ContainerUtil.createConcurrentWeakMap[Any, ScLiteralType]()
+
   private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
 
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {

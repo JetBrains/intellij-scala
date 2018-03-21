@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
-import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -28,33 +28,25 @@ class ScLiteralType private (val literalValue: Any, val wideType: ScType, val al
 }
 
 object ScLiteralType {
-  import scala.collection.concurrent._
-  private val cache: Map[(Any, Boolean), ScLiteralType] = {
-    import scala.collection.JavaConverters._
-    new java.util.concurrent.ConcurrentHashMap[(Any, Boolean), ScLiteralType].asScala
-  }
 
   def getType(typeElement: ScLiteralTypeElement): TypeResult = {
     ScLiteralImpl.getLiteralType(typeElement.getLiteralNode, typeElement).map(l => apply(typeElement.getLiteral.getValue, l))
   }
 
   def apply(literalValue: Any, wideType: ScType): ScLiteralType = {
-    cache.putIfAbsent((literalValue, true), new ScLiteralType(literalValue, wideType))
-    cache((literalValue, true))
+    val cache = ScalaPsiManager.instance(wideType.projectContext).wideableLiteralTypes
+    cache.putIfAbsent(literalValue, new ScLiteralType(literalValue, wideType))
+    cache.get(literalValue)
   }
 
   private def blockWiden(lit: ScLiteralType): ScLiteralType = {
-    cache.putIfAbsent((lit.literalValue, false), new ScLiteralType(lit.literalValue, lit.wideType, false))
-    cache((lit.literalValue, false))
-  }
-
-  def widen(aType: ScType): ScType = aType match {
-    case lit: ScLiteralType if lit.allowWiden => lit.wideType
-    case other => other
+    val cache = ScalaPsiManager.instance(lit.projectContext).nonWideableLiteralTypes
+    cache.putIfAbsent(lit.literalValue, new ScLiteralType(lit.literalValue, lit.wideType, false))
+    cache.get(lit.literalValue)
   }
 
   def widenRecursive(aType: ScType): ScType = aType.recursiveUpdate{
-    case lit: ScLiteralType => ReplaceWith(widen(lit))
+    case lit: ScLiteralType => ReplaceWith(lit.widen)
     case p: ScParameterizedType =>
       p.designator match {
         case ScDesignatorType(des) => des match {

@@ -49,7 +49,7 @@ private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends Substit
   private def updatedTypeParameter(tpt: TypeParameterType): ScType = {
     tvMap.get(tpt.typeParamId) match {
       case None => tpt
-      case Some(v: ScLiteralType) => extractDesignator(tpt.typeParameter, v.blockWiden())
+      case Some(v: ScLiteralType) => v.blockWiden()
       case Some(v) => extractDesignator(tpt.typeParameter, v)
     }
   }

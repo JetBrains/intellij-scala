@@ -1129,7 +1129,7 @@ abstract class ScalaAnnotator extends Annotator
   private def checkLiteralTypesAllowed(typeElement: ScTypeElement, holder: AnnotationHolder): Unit = {
     if (typeElement.isInstanceOf[ScLiteralTypeElement]) {
       import org.jetbrains.plugins.scala.project._
-      if (!holder.getCurrentAnnotationSession.getFile.module.map(_.scalaCompilerSettings).exists(_.literalTypes))
+      if (!holder.getCurrentAnnotationSession.getFile.module.exists(_.literalTypesAllowed))
         holder.createErrorAnnotation(typeElement, ScalaBundle.message("wrong.type.no.literal.types", typeElement.getText))
     }
   }

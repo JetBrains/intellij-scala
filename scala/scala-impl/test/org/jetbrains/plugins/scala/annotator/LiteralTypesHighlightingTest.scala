@@ -149,17 +149,6 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
       Nil =>
   }
 
-  def testDefaultIsOff(): Unit = doTest(fileText = Some(
-    """
-      |class O {
-      |  val x: -1 = -1
-      |  1: 1
-      |}
-    """.stripMargin), settingOn = false, errorsFun = {
-      case Error("-1", "Wrong type '-1', for literal types support please use '-Yliteral-types' compiler flag") ::
-        Error("1", "Wrong type '1', for literal types support please use '-Yliteral-types' compiler flag") ::
-        Nil => })
-
   def testSip23Initialization0(): Unit = doTest()
 
   def testSip23Initialization1(): Unit = doTest()

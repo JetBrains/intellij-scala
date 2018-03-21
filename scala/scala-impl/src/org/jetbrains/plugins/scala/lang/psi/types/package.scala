@@ -194,6 +194,11 @@ package object types {
         typeParamIds.contains(tpt.typeParamId)
       case _ => false
     }
+
+    def widen: ScType = scType match {
+      case lit: ScLiteralType if lit.allowWiden => lit.wideType
+      case other => other
+    }
   }
 
   implicit class ScTypesExt(val types: Seq[ScType]) extends AnyVal {

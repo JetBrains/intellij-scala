@@ -100,6 +100,9 @@ package object project {
     def configureScalaCompilerSettingsFrom(source: String, options: Seq[String]): Unit =
       compilerConfiguration.configureSettingsForModule(module, source, options)
 
+    def literalTypesAllowed: Boolean = module.scalaSdk.flatMap(_.compilerVersion).exists(_.startsWith("2.13")) ||
+      module.scalaCompilerSettings.literalTypes
+
     private def compilerConfiguration =
       ScalaCompilerConfiguration.instanceIn(module.getProject)
   }
