@@ -5,22 +5,23 @@ import java.util
 import com.intellij.psi._
 import com.intellij.refactoring.move.moveMembers.{MoveJavaMemberHandler, MoveMembersOptions, MoveMembersProcessor}
 import com.intellij.util.containers.MultiMap
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
 
 class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
 
-
   override def checkConflictsOnMember(scRefPattern: PsiMember, newVisibility: String, modifiedListCopy: PsiModifierList, targetClass: PsiClass, membersToMove: util.Set[PsiMember], conflicts: MultiMap[PsiElement, String]): Unit = {
     val targetName = targetClass.getName
-    /*val memberName = scRefPattern.asInstanceOf[ScDeclaredElementsHolder].declaredNames.head
+    val memberName = scRefPattern.asInstanceOf[ScDeclaredElementsHolder].declaredNames.head
     if (targetClass.getAllMethods.map(_.getName).contains(memberName)) {
       val message = ScalaBundle.message("target.0.already.contains.definition.of.1", targetName, memberName)
       conflicts.putValue(scRefPattern, message)
-    }*/
+    }
   }
 
   override def getUsage(member: PsiMember, psiReference: PsiReference, membersToMove: util.Set[PsiMember], targetClass: PsiClass): MoveMembersProcessor.MoveMembersUsageInfo = {
