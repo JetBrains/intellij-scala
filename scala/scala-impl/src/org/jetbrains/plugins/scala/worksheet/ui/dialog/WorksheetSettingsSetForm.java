@@ -9,7 +9,6 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile;
-import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings;
 import scala.Some;
@@ -21,8 +20,9 @@ import java.awt.*;
  * User: Dmitry.Naydanov
  * Date: 05.02.18.
  */
-public class WorksheetFileSettingsForm {
-  private final PsiFile myFile;
+public class WorksheetSettingsSetForm {
+  private PsiFile myFile;
+  private Project myProject;
 
   private JCheckBox useREPLModeCheckBox;
   private JCheckBox interactiveModeCheckBox;
@@ -31,9 +31,20 @@ public class WorksheetFileSettingsForm {
   private JPanel mainPanel;
   private JComboBox<ScalaCompilerSettingsProfile> compilerProfileComboBox;
   private ActionButton openCompilerProfileSettingsButton;
-
-  public WorksheetFileSettingsForm(PsiFile file, WorksheetSettingsData settingsData) {
+  
+  WorksheetSettingsSetForm(PsiFile file, WorksheetSettingsData settingsData) {
     myFile = file;
+    myProject = file.getProject();
+    init(settingsData);
+  }
+  
+  WorksheetSettingsSetForm(Project project, WorksheetSettingsData settingsData) {
+    myFile = null;
+    myProject = project;
+    init(settingsData);
+  }
+  
+  private void init(WorksheetSettingsData settingsData) {
     $$$setupUI$$$();
 
     useREPLModeCheckBox.setSelected(settingsData.isRepl);
@@ -68,17 +79,17 @@ public class WorksheetFileSettingsForm {
     );
   }
 
-  private void createUIComponents() { //TODO
-    Project project = myFile.getProject();
-    
+  private void createUIComponents() {
     moduleComboBox = new ModulesComboBox();
-    moduleComboBox.fillModules(project);
+    moduleComboBox.fillModules(myProject);
     moduleComboBox.setToolTipText("Using class path of the module...");
 
-    Module defaultModule = WorksheetCommonSettings.getInstance(myFile).getModuleFor();
+    WorksheetCommonSettings settings = myFile != null? WorksheetCommonSettings.getInstance(myFile) : WorksheetCommonSettings.getInstance(myProject);
+    
+    Module defaultModule = settings.getModuleFor();
     if (defaultModule != null) {
       moduleComboBox.setSelectedModule(defaultModule);
-      if (!WorksheetFileSettings.isScratchWorksheet(new Some<>(myFile.getVirtualFile()), myFile.getProject()))
+      if (myFile != null && !WorksheetFileSettings.isScratchWorksheet(new Some<>(myFile.getVirtualFile()), myFile.getProject()))
         moduleComboBox.setEnabled(false);
     }
 

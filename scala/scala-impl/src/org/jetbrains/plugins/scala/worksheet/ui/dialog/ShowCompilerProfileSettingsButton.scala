@@ -19,7 +19,7 @@ import scala.collection.JavaConverters._
   * User: Dmitry.Naydanov
   * Date: 20.02.18.
   */
-class ShowCompilerProfileSettingsButton(form: WorksheetFileSettingsForm) extends AnAction("", "Show compiler profiles settings", AllIcons.General.Settings) {
+class ShowCompilerProfileSettingsButton(form: WorksheetSettingsSetForm) extends AnAction("", "Show compiler profiles settings", AllIcons.General.Settings) {
   override def actionPerformed(anActionEvent: AnActionEvent): Unit = {
     getDialogForCallback(anActionEvent.getProject).foreach {
       dialog => 
