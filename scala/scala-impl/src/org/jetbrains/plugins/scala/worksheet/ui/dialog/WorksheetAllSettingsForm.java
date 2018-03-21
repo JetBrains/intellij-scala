@@ -14,12 +14,12 @@ public class WorksheetAllSettingsForm {
   private JTabbedPane tabbedPane;
   private JPanel panel1;
 
-  private final WorksheetFileSettingsForm currentFileSettingsForm;
-  private final WorksheetFileSettingsForm defaultSettingsForm;
+  private final WorksheetSettingsSetForm currentFileSettingsForm;
+  private final WorksheetSettingsSetForm defaultSettingsForm;
 
   public WorksheetAllSettingsForm(PsiFile myFile, WorksheetSettingsData currentSettings, WorksheetSettingsData defaultSettings) {
-    currentFileSettingsForm = new WorksheetFileSettingsForm(myFile, currentSettings);
-    defaultSettingsForm = new WorksheetFileSettingsForm(myFile, defaultSettings);
+    currentFileSettingsForm = new WorksheetSettingsSetForm(myFile, currentSettings);
+    defaultSettingsForm = new WorksheetSettingsSetForm(myFile.getProject(), defaultSettings);
 
     tabbedPane.removeAll();
 
