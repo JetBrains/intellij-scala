@@ -32,7 +32,7 @@ import org.jetbrains.sbt.{structure => sbtStructure}
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Random, Success, Try}
 import scala.xml.{Elem, XML}
 
 /**
@@ -203,7 +203,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     // TODO add default scala sdk and sbt libs (newest versions or so)
 
     val projectPath = projectRoot.getAbsolutePath
-    val projectName = normalizeModuleId(projectRoot.getName)
+    val projectName = normalizeModuleId(projectRoot.getName) + "_" + Random.nextInt(10000)
     val sourceDir = new File(projectRoot, "src/main/scala")
     val classDir = new File(projectRoot, "target/dummy")
     val dummyBuildData = BuildData(Seq.empty, Seq.empty, Seq.empty, Seq.empty)
@@ -238,7 +238,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     * This is a best effort implementation, since valid characters are not documented or consistent.    *
     */
   private def normalizeModuleId(s: String) =
-    s.toLowerCase(Locale.ENGLISH).replaceAll("""\W+""", "-")
+    s.toLowerCase(Locale.ENGLISH)
+      .replaceAll("""\W+""", "-")
 
   private def convert(root: String,
                       data: sbtStructure.StructureData,
