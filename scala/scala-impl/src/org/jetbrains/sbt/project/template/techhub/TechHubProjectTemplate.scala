@@ -20,5 +20,5 @@ class TechHubProjectTemplate extends ProjectTemplate {
 
   override def validateSettings(): ValidationInfo = null
 
-  override def createModuleBuilder(): AbstractModuleBuilder = new TechHubProjectBuilder
+  override def createModuleBuilder(): AbstractModuleBuilder = new TechHubModuleBuilder
 }

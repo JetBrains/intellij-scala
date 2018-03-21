@@ -3,7 +3,9 @@ package org.jetbrains.sbt.project.template
 import java.io.File
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
@@ -16,6 +18,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 object SbtModuleBuilderUtil {
+
   def tryToSetupRootModel(model: ModifiableRootModel, @Nullable contentEntryPath: String, projectSettings: SbtProjectSettings): Boolean = {
     val attempt = for {
       contentPath <- Option(contentEntryPath)
@@ -36,6 +39,17 @@ object SbtModuleBuilderUtil {
 
     model.addContentEntry(vContentRootDir)
     model.inheritSdk()
+
+    val module = model.getModule
+    val rootPath = contentRootDir.getCanonicalPath
+
+    // hack some dummy data so that external system realizes it can remove this module after sbt import
+    // see com.intellij.openapi.externalSystem.service.project.manage.ModuleDataService.computeOrphanData
+    val dummyModuleData = new ModuleData("N/A", SbtProjectSystem.Id, "N/A", module.getName, rootPath, rootPath)
+    val dummyProjectData = new ProjectData(SbtProjectSystem.Id, module.getProject.getName, rootPath, rootPath)
+    val esProperty = ExternalSystemModulePropertyManager.getInstance(module)
+    esProperty.setExternalId(SbtProjectSystem.Id)
+    esProperty.setExternalOptions(SbtProjectSystem.Id, dummyModuleData, dummyProjectData)
 
     val project = model.getProject
     val settings =

@@ -7,8 +7,6 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/cbt" />
-            <option value="$PROJECT_DIR$/cbt/project" />
             <option value="$PROJECT_DIR$/project" />
             <option value="$PROJECT_DIR$/scala/compiler-jps" />
             <option value="$PROJECT_DIR$/scala/compiler-jps/project" />
@@ -16,6 +14,18 @@
             <option value="$PROJECT_DIR$/scala/compiler-shared/project" />
             <option value="$PROJECT_DIR$/scala/decompiler" />
             <option value="$PROJECT_DIR$/scala/decompiler/project" />
+            <option value="$PROJECT_DIR$/scala/integration/android" />
+            <option value="$PROJECT_DIR$/scala/integration/android/project" />
+            <option value="$PROJECT_DIR$/scala/integration/copyright" />
+            <option value="$PROJECT_DIR$/scala/integration/copyright/project" />
+            <option value="$PROJECT_DIR$/scala/integration/gradle" />
+            <option value="$PROJECT_DIR$/scala/integration/gradle/project" />
+            <option value="$PROJECT_DIR$/scala/integration/intellilang" />
+            <option value="$PROJECT_DIR$/scala/integration/intellilang/project" />
+            <option value="$PROJECT_DIR$/scala/integration/maven" />
+            <option value="$PROJECT_DIR$/scala/integration/maven/project" />
+            <option value="$PROJECT_DIR$/scala/integration/properties" />
+            <option value="$PROJECT_DIR$/scala/integration/properties/project" />
             <option value="$PROJECT_DIR$/scala/macros" />
             <option value="$PROJECT_DIR$/scala/macros/project" />
             <option value="$PROJECT_DIR$/scala/nailgun" />
@@ -29,7 +39,7 @@
           </set>
         </option>
         <option name="resolveSbtClassifiers" value="true" />
-        <option name="sbtVersion" value="0.13.16" />
+        <option name="sbtVersion" value="0.13.17" />
         <option name="useSbtShell" value="true" />
       </SbtProjectSettings>
     </option>

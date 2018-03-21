@@ -22,7 +22,7 @@ import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.tryToSetupRootMod
 /**
  * Creates sbt projects based on Lightbend tech hub project starter API.
  */
-class TechHubProjectBuilder extends
+class TechHubModuleBuilder extends
   AbstractExternalModuleBuilder[SbtProjectSettings](SbtProjectSystem.Id, new SbtProjectSettings) with SbtRefreshCaller {
 
   private var allTemplates: Map[String, IndexEntry] = Map.empty
@@ -45,10 +45,12 @@ class TechHubProjectBuilder extends
     setModuleFilePath(path)
 
     val settings = getExternalProjectSettings
-    settings setExternalProjectPath path
-    settings setUseAutoImport true
+    settings.setExternalProjectPath(path)
+    settings.setUseAutoImport(false)
+    settings.setResolveJavadocs(false)
+    settings.setCreateEmptyContentRootDirectories(false)
 
-    ModuleBuilder deleteModuleFile oldPath
+    ModuleBuilder.deleteModuleFile(oldPath)
 
     val moduleType = getModuleType
     val module: Module = moduleModel.newModule(path, moduleType.getId)
