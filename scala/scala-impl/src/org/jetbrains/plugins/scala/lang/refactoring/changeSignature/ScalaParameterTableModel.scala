@@ -40,7 +40,7 @@ class ScalaParameterTableModel(typeContext: PsiElement,
   override def createRowItem(parameterInfo: ScalaParameterInfo): ScalaParameterTableModelItem = {
     val info = Option(parameterInfo).getOrElse(ScalaParameterInfo(project))
 
-    val paramTypeCodeFragment = new ScalaCodeFragment(project, info.typeText)
+    val paramTypeCodeFragment = new ScalaCodeFragment(project, info.typeText(typeContext))
     val defaultValueCodeFragment = new ScalaCodeFragment(project, info.getDefaultValue)
 
     val fragments = Seq(paramTypeCodeFragment, defaultValueCodeFragment)
@@ -55,7 +55,7 @@ class ScalaParameterTableModel(typeContext: PsiElement,
     val newClauseParams = initialParams.flatMap(_.headOption).drop(1)
     val startsNewClause = newClauseParams.contains(parameterInfo)
 
-    new ScalaParameterTableModelItem(info, paramTypeCodeFragment, defaultValueCodeFragment, startsNewClause)
+    new ScalaParameterTableModelItem(info, paramTypeCodeFragment, defaultValueCodeFragment, startsNewClause)(typeContext)
   }
 
   def clear(): Unit = {

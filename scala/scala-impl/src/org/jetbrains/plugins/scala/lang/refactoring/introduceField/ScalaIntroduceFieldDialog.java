@@ -20,6 +20,8 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext;
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext$;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ValidationReporter;
@@ -236,7 +238,8 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     if (myTypes.length == 0 || nullText) {
       myTypeComboBox.setEnabled(false);
     } else {
-      myTypeMap = ScalaRefactoringUtil.getCompatibleTypeNames(myTypes);
+      TypePresentationContext context = TypePresentationContext$.MODULE$.psiElementPresentationContext(myClass);
+      myTypeMap = ScalaRefactoringUtil.getCompatibleTypeNames(myTypes, context);
       for (String typeName : myTypeMap.keySet()) {
         myTypeComboBox.addItem(typeName);
       }

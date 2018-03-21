@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
@@ -487,7 +487,8 @@ object ScalaRefactoringUtil {
     hasNlToken
   }
 
-  def getCompatibleTypeNames(myTypes: Array[ScType]): ju.LinkedHashMap[String, ScType] = {
+  def getCompatibleTypeNames(myTypes: Array[ScType])
+                            (implicit context: TypePresentationContext): ju.LinkedHashMap[String, ScType] = {
     val map = new ju.LinkedHashMap[String, ScType]
     myTypes.foreach(myType => map.put(myType.codeText, myType))
     map
@@ -639,7 +640,7 @@ object ScalaRefactoringUtil {
           case _ => true
         }
         for (tp <- types) {
-          builder.append(tp.codeText)
+          builder.append(tp.codeText(expr))
           if (tp != types.last) builder.append(" with ")
         }
         n.extendsBlock.templateBody match {

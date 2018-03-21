@@ -99,7 +99,7 @@ class ScalaParameterInfo(@BeanProperty var name: String,
   override def getTypeText: String =
     if (scType != null) getTypeWrapper.getTypeText else null
 
-  def typeText: String = {
+  def typeText(implicit context: TypePresentationContext): String = {
     val baseText = Option(scType).fold("")(_.codeText)
     if (isRepeatedParameter) baseText + "*"
     else if (isByName) " => " + baseText

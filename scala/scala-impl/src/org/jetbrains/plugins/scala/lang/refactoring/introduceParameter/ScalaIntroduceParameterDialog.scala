@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceParameter
 
 import java.awt._
 import java.util
-import javax.swing._
 
+import javax.swing._
 import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{ComboBox, ValidationInfo}
@@ -12,7 +12,7 @@ import com.intellij.ui.table.{JBTable, TableView}
 import com.intellij.ui.{EditorTextField, ToolbarDecorator}
 import com.intellij.util.IJSwingUtilities
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
@@ -143,6 +143,7 @@ class ScalaIntroduceParameterDialog(project: Project,
     typeCombobox = new ComboBox()
     val typeLabel = new JLabel("Type:")
     typeLabel.setLabelFor(typeCombobox)
+    implicit val context: TypePresentationContext = method.getMethod
     typeMap = ScalaRefactoringUtil.getCompatibleTypeNames(introduceData.possibleTypes)
     for (typeName <- typeMap.keySet.asScala) {
       JListCompatibility.addItem(typeCombobox, typeName)

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -236,6 +236,7 @@ object ScalaExtractMethodUtils {
     * @return (isUnit, returnTypePresentableText)
     */
   def calcReturnTypeExt(settings: ScalaExtractMethodSettings): (Boolean, String) = {
+    implicit val context: TypePresentationContext = settings.elements(0)
     def prepareResult(t: ScType) = (t.isUnit, t.codeText)
 
     val returnStmtType = settings.returnType
@@ -277,6 +278,7 @@ object ScalaExtractMethodUtils {
   def outputTypeText(settings: ScalaExtractMethodSettings): String = {
     if (settings.innerClassSettings.needClass) settings.innerClassSettings.className
     else {
+      implicit val context: TypePresentationContext = settings.elements(0)
       val outputs = settings.outputs
       outputs.length match {
         case 0 => ""
@@ -337,7 +339,7 @@ object ScalaExtractMethodUtils {
 
   def previewSignatureText(settings: ScalaExtractMethodSettings): String = {
     def nameAndType(param: ExtractMethodParameter): String =
-      this.typedName(param.newName, param.tp.codeText, param.fromElement.getProject, param.isCallByNameParameter)
+      this.typedName(param.newName, param.tp.codeText(param.fromElement), param.fromElement.getProject, param.isCallByNameParameter)
 
     val ics = settings.innerClassSettings
     val classText = if (ics.needClass) s"${ics.classText(canonTextForTypes = false)}\n\n" else ""

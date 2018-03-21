@@ -45,7 +45,7 @@ class ScalaMethodDescriptor(val fun: ScMethodLike) extends MethodDescriptor[Scal
   override def getVisibility: String = fun.getModifierList.accessModifier.fold("")(_.getText)
 
   def returnTypeText: String = fun match {
-    case f: ScFunction => f.returnType.getOrAny.codeText
+    case f: ScFunction => f.returnType.getOrAny.codeText(f)
     case _ => ""
   }
 

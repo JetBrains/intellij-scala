@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext;
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext$;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ValidationReporter;
@@ -146,7 +148,8 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     }
     // Type specification
     if (myTypes.length != 0 && !nullText) {
-      myTypeMap = ScalaRefactoringUtil.getCompatibleTypeNames(myTypes);
+      TypePresentationContext context = TypePresentationContext$.MODULE$.psiElementPresentationContext(expression);
+      myTypeMap = ScalaRefactoringUtil.getCompatibleTypeNames(myTypes, context);
       for (String typeName : myTypeMap.keySet()) {
         myTypeComboBox.addItem(typeName);
       }
