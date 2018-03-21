@@ -23,13 +23,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   private val hintBeginning = "Remove unnecessary parentheses"
 
-  // see https://github.com/JetBrains/intellij-scala/pull/434 for more test cases
-
-  override def setUp(): Unit = {
-    super.setUp()
-    getFixture.enableInspections(classOfInspection)
-  }
-
+  // see https://github.com/JetBrains/intellij-scala/pull/434 for more test case
 
   def test_1(): Unit = {
     val selected = s"$START(1 + 1)$END"
@@ -274,13 +268,9 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
       case _ =>
     }
 
-    getFixture.enableInspections(tool)
-
     body
   }
 
-
-  /*
   def test_infxPatternClarifying(): Unit = {
     considerClarifying {
       val selected = s"val a +: $START(b *: c)$END = _ "
@@ -292,6 +282,5 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
       testQuickFix(text, result, hint)
     }
   }
-  */
 
 }

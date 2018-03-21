@@ -24,6 +24,11 @@ abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestA
   protected val classOfInspection: Class[_ <: LocalInspectionTool]
   protected val description: String
 
+  protected override def setUp(): Unit = {
+    super.setUp()
+    getFixture.enableInspections(classOfInspection)
+  }
+
   protected def descriptionMatches(s: String): Boolean = s == normalize(description)
 
   protected override final def checkTextHasNoErrors(text: String): Unit = {
@@ -50,7 +55,6 @@ abstract class ScalaInspectionTestBase extends ScalaLightCodeInsightFixtureTestA
 
     val fixture = getFixture
     fixture.configureByText("dummy.scala", normalizedText)
-    fixture.enableInspections(classOfInspection)
 
     import JavaConverters._
     fixture.doHighlighting().asScala
