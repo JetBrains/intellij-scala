@@ -23,8 +23,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{Precedence
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
-import worksheet.processor.WorksheetCompiler
-import worksheet.ui.WorksheetIncrementalEditorPrinter
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinter
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -115,7 +115,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       }
     }
 
-    if (isWorksheetFile && WorksheetCompiler.isWorksheetReplModeLight(this)) {
+    if (isWorksheetFile && WorksheetFileSettings.isReplLight(this)) {
       val re = WorksheetIncrementalEditorPrinter.executeResNDeclarations(processor, this, state)
       if (!re) return false
     }

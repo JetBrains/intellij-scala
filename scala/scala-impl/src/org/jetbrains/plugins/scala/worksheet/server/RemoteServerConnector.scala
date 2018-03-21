@@ -22,10 +22,11 @@ import org.jetbrains.jps.incremental.scala.remote._
 import org.jetbrains.plugins.scala.compiler.{ErrorHandler, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
-import org.jetbrains.plugins.scala.worksheet.actions.{RunWorksheetAction, WorksheetFileHook}
+import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{MyTranslatingClient, OuterCompilerInterface}
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings, WorksheetProjectSettings}
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, WorksheetIncrementalEditorPrinter}
 
 /**
@@ -34,16 +35,11 @@ import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, Wor
  */
 class RemoteServerConnector(psiFile: PsiFile, worksheet: File, output: File, worksheetClassName: String,
                             replArgs: Option[ReplModeArgs], needsCheck: Boolean) extends RemoteServerConnectorBase(
-  RunWorksheetAction.getModuleFor(psiFile), Seq(worksheet), output, needsCheck) {
+  WorksheetCommonSettings.getInstance(psiFile).getModuleFor, Seq(worksheet), output, needsCheck) {
   
-  val runType: WorksheetMakeType = WorksheetCompiler.getRunType(module.getProject)
+  val runType: WorksheetMakeType = WorksheetProjectSettings.getRunType(module.getProject)
 
-  override protected def compilerSettings: ScalaCompilerSettings = {
-    WorksheetCompiler.getCustomCompilerProfileName(psiFile).flatMap {
-      name => 
-        ScalaCompilerConfiguration.instanceIn(psiFile.getProject).customProfiles.find(_.getName == name)
-    }.map(_.getSettings).getOrElse(super.compilerSettings)
-  }
+  override protected def compilerSettings: ScalaCompilerSettings = WorksheetCommonSettings.getInstance(psiFile).getCompilerProfile.getSettings
 
   /**
     * Args (for running in compile server process only)
@@ -100,7 +96,7 @@ class RemoteServerConnector(psiFile: PsiFile, worksheet: File, output: File, wor
       if (worksheetProcess == null) return ExitCode.ABORT
 
       val fileToReHighlight = extensions.inReadAction(PsiManager getInstance project findFile originalFile) match {
-        case scalaFile: ScalaFile if WorksheetCompiler.isWorksheetReplMode(scalaFile) => Some(scalaFile)
+        case scalaFile: ScalaFile if WorksheetFileSettings.isRepl(scalaFile) => Some(scalaFile)
         case _ => None
       }
 
