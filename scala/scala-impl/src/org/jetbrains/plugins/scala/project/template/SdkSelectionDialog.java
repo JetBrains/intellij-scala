@@ -1,28 +1,21 @@
 package org.jetbrains.plugins.scala.project.template;
 
-import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import org.jetbrains.plugins.scala.extensions.package$;
-import org.jetbrains.plugins.scala.project.Platform;
 import scala.Function0;
-import scala.Function1;
 import scala.Option;
-import scala.runtime.AbstractFunction1;
-import scala.runtime.BoxedUnit;
-import scala.util.Failure;
-import scala.util.Try;
+import scala.Tuple2;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
-
-import static java.lang.String.format;
 
 public class SdkSelectionDialog extends JDialog {
     private JPanel contentPane;
@@ -49,26 +42,10 @@ public class SdkSelectionDialog extends JDialog {
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
 
-        buttonDownload.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onDownload();
-            }
-        });
-        buttonBrowse.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onBrowse();
-            }
-        });
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onOK();
-            }
-        });
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        });
+        buttonDownload.addActionListener(e -> onDownload());
+        buttonBrowse.addActionListener(e -> onBrowse());
+        buttonOK.addActionListener(e -> onOK());
+        buttonCancel.addActionListener(e -> onCancel());
 
         myTable.getSelectionModel().addListSelectionListener(new SdkSelectionListener());
 
@@ -79,11 +56,7 @@ public class SdkSelectionDialog extends JDialog {
             }
         });
 
-        contentPane.registerKeyboardAction(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         updateTable();
     }
@@ -99,57 +72,29 @@ public class SdkSelectionDialog extends JDialog {
         }
     }
 
-    private int rowIndexOf(String location, String platform, String version) {
+    private int setSelectionInterval(String platform, String version) {
         for (int i = 0; i < myTable.getRowCount(); i++) {
-            if (location.equals(myTable.getValueAt(i, 0)) &&
+            if ("Ivy".equals(myTable.getValueAt(i, 0)) &&
                     platform.equals(myTable.getValueAt(i, 1)) &&
                     version.equals(myTable.getValueAt(i, 2))) {
                 return i;
             }
         }
-        return -1;
+
+        throw new RuntimeException("No " + platform + " " + version + " in the Ivy repository");
     }
 
     private void onDownload() {
-        VersionDialog dialog = new VersionDialog(contentPane);
+        Option<Tuple2<String, String>> result = new VersionDialog(contentPane).downloadVersionWithProgress();
 
-        if (dialog.showAndGet()) {
-            downloadVersionWithProgress(dialog.selectedPlatform(), dialog.selectedVersion());
-        }
-    }
-
-    private void downloadVersionWithProgress(Platform platform, String version) {
-        Try<BoxedUnit> result = package$.MODULE$.withProgressSynchronouslyTry(
-                format("Downloading %s %s", platform.name(), version),
-                downloadVersion(platform, version));
-
-        if (result.isSuccess()) {
+        if (result.isDefined()) {
             updateTable();
 
-            int rowIndex = rowIndexOf("Ivy", platform.name(), version);
+            int rowIndex = setSelectionInterval(result.get()._1(), result.get()._2());
 
-            if (rowIndex >= 0) {
-                myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
-                onOK();
-            } else {
-                throw new RuntimeException(
-                        format("No %s %s in the Ivy repository", platform.name(), version));
-            }
-        } else {
-            Messages.showErrorDialog(contentPane,
-                    ((Failure) result).exception().getMessage(),
-                    format("Error downloading %s %s", platform.name(), version));
+            myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
+            onOK();
         }
-    }
-
-    private Function1<Function1<String, BoxedUnit>, BoxedUnit> downloadVersion(final Platform platform, final String version) {
-        return new AbstractFunction1<Function1<String, BoxedUnit>, BoxedUnit>() {
-            @Override
-            public BoxedUnit apply(Function1<String, BoxedUnit> listener) {
-                Downloader$.MODULE$.downloadScala(platform, version, listener);
-                return BoxedUnit.UNIT;
-            }
-        };
     }
 
     private void onBrowse() {

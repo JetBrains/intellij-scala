@@ -92,7 +92,7 @@ private object ScalaGradleDataService {
 
       if (!scalaLibrary.isScalaSdk) {
         val languageLevel = scalaLibrary.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
-        setScalaSdk(scalaLibrary, Platform.Default, languageLevel, compilerClasspath)
+        setScalaSdk(scalaLibrary, Platform.Scala, languageLevel, compilerClasspath)
       }
     }
 

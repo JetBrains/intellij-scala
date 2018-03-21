@@ -1,49 +1,51 @@
 package org.jetbrains.plugins.scala.project.template
 
-import java.awt.event.{ActionEvent, ActionListener}
-import javax.swing.JComponent
-
 import com.intellij.openapi.ui.Messages
-import org.jetbrains.plugins.scala.extensions
+import javax.swing.JComponent
+import org.jetbrains.plugins.scala.extensions.{withProgressSynchronously, withProgressSynchronouslyTry}
 import org.jetbrains.plugins.scala.project.{Platform, Version, Versions}
+
+import scala.util.{Failure, Success}
 
 /**
   * @author Pavel Fatin
   */
 class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) {
-  init()
 
-  setTitle("Download")
+  {
+    init()
 
-  myPlatform.setItems(Platform.Values)
+    setTitle("Download")
+    myVersion.setTextRenderer(Version.abbreviate)
 
-  myPlatform.addActionListener(new ActionListener() {
-    def actionPerformed(e: ActionEvent) {
-      updateVersions()
-    }
-  })
+    val platform = Platform.Scala
 
-  myVersion.setTextRenderer(Version.abbreviate)
-
-  updateVersions()
-
-  override def createCenterPanel(): JComponent = myContent
-
-  private def updateVersions() {
-    val platform = myPlatform.getSelectedItem.asInstanceOf[Platform]
-
-    val versions = extensions.withProgressSynchronously(s"Fetching available ${platform.name} versions") { _ =>
+    val versions = withProgressSynchronously(s"Fetching available ${platform.getName} versions") { _ =>
       Versions.loadScalaVersions(platform)
     }
 
     if (versions.length == 0) {
-      Messages.showErrorDialog(myContent, "No versions available for download", s"Error Downloading ${platform.name} libraries")
+      Messages.showErrorDialog(createCenterPanel(), "No versions available for download", s"Error Downloading ${platform.getName} libraries")
     } else {
       myVersion.setItems(versions)
     }
   }
 
-  def selectedPlatform: Platform = myPlatform.getSelectedItem.asInstanceOf[Platform]
+  def downloadVersionWithProgress(): Option[(String, String)] =
+    if (showAndGet()) {
+      val platform = Platform.Scala
+      val version = myVersion.getSelectedItem.asInstanceOf[String]
 
-  def selectedVersion: String = myVersion.getSelectedItem.asInstanceOf[String]
+      val result = withProgressSynchronouslyTry(s"Downloading ${platform.getName} $version") {
+        Downloader.downloadScala(platform, version, _)
+      }
+
+      result match {
+        case Success(_) =>
+          Some((platform.getName, version))
+        case Failure(exception) =>
+          Messages.showErrorDialog(parent, exception.getMessage, s"Error downloading ${platform.getName} $version")
+          None
+      }
+    } else None
 }

@@ -17,7 +17,7 @@ class SdkTableModel extends ListTableModel[SdkChoice](
     override def getPreferredStringValue = "Maven"
   },
   new ColumnInfo[SdkChoice, String]("Platform") {
-    override def valueOf(item: SdkChoice): String = item.sdk.platform.name
+    override def valueOf(item: SdkChoice): String = item.sdk.platform.getName
 
     override def getPreferredStringValue = "Scala"
   },

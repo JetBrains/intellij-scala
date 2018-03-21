@@ -3,8 +3,6 @@ package project.template
 
 import java.awt.FlowLayout
 import java.io.File
-import javax.swing._
-import javax.swing.border.EmptyBorder
 
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
@@ -14,6 +12,8 @@ import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil._
+import javax.swing._
+import javax.swing.border.EmptyBorder
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
@@ -30,7 +30,7 @@ import scala.collection.mutable
  */
 class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings](SbtProjectSystem.Id, new SbtProjectSettings) {
   private class Selections(var sbtVersion: String = null,
-                           var scalaPlatform: Platform = Platform.Default,
+                           var scalaPlatform: Platform = Platform.Scala,
                            var scalaVersion: String = null,
                            var resolveClassifiers: Boolean = true,
                            var resolveSbtClassifiers: Boolean = false)
@@ -44,7 +44,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   private val scalaVersions: mutable.Map[Platform, Array[String]] = mutable.Map.empty
 
   private def loadedScalaVersions(platform: Platform) = scalaVersions.getOrElseUpdate(platform, {
-    withProgressSynchronously(s"Fetching ${platform.name} versions") { _ =>
+    withProgressSynchronously(s"Fetching ${platform.getName} versions") { _ =>
       Versions.loadScalaVersions(platform)
     }
   })
@@ -85,10 +85,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
       _.setSelectedItem(selections.sbtVersion)
     )
 
-    val scalaPlatformComboBox         = applyTo(new SComboBox()) {
-      _.setItems(Platform.Values)
-    }
-
     val scalaVersionComboBox          = applyTo(new SComboBox())(
       setupScalaVersionItems
     )
@@ -108,10 +104,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     sbtVersionComboBox.addActionListenerEx {
       selections.sbtVersion = sbtVersionComboBox.getSelectedItem.asInstanceOf[String]
     }
-    scalaPlatformComboBox.addActionListenerEx {
-      selections.scalaPlatform = scalaPlatformComboBox.getSelectedItem.asInstanceOf[Platform]
-      setupScalaVersionItems(scalaVersionComboBox)
-    }
+
     scalaVersionComboBox.addActionListenerEx {
       selections.scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
     }
@@ -129,7 +122,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     val scalaVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
       _.setBorder(new EmptyBorder(1, 0, 0, 0)),
-      _.add(scalaPlatformComboBox),
       _.add(Box.createHorizontalStrut(4)),
       _.add(scalaVersionComboBox),
       _.add(resolveClassifiersCheckBox)

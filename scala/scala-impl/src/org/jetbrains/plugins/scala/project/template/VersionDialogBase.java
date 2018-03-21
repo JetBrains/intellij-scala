@@ -13,12 +13,16 @@ import java.awt.*;
  * @author Pavel Fatin
  */
 abstract class VersionDialogBase extends DialogWrapper {
-    protected SComboBox myPlatform;
     protected SComboBox myVersion;
-    protected JPanel myContent;
+    private JPanel myContent;
 
     VersionDialogBase(JComponent parent) {
         super(parent, false);
+    }
+
+    @Override
+    protected JComponent createCenterPanel() {
+        return myContent;
     }
 
     {
@@ -45,8 +49,6 @@ abstract class VersionDialogBase extends DialogWrapper {
         myContent.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myVersion = new SComboBox();
         myContent.add(myVersion, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myPlatform = new SComboBox();
-        myContent.add(myPlatform, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

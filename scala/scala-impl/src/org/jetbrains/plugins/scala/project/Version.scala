@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package project
 
-import Ordering.Implicits._
+import scala.Ordering.Implicits._
 
 /**
  * @author Pavel Fatin
@@ -27,7 +27,9 @@ case class Version(presentation: String) extends Ordered[Version] {
     */
   def major(n: Int): Version = Version(groups.head.numbers.take(n).mkString("."))
 
-  def toLanguageLevel: Option[ScalaLanguageLevel] = ScalaLanguageLevel.from(this)
+  def toLanguageLevel: Option[ScalaLanguageLevel] = ScalaLanguageLevel.Values.find { level =>
+    presentation.startsWith(level.version)
+  }
 
   override def toString: String = groups.map(_.toString).mkString("-")
 }

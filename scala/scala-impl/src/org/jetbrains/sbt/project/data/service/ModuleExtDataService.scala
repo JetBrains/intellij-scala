@@ -5,8 +5,8 @@ import java.io.File
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectSystemId}
 import com.intellij.openapi.externalSystem.model.project.ProjectData
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectSystemId}
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
@@ -59,7 +59,7 @@ object ModuleExtDataService {
 
       val platform = compilerOrganization match {
         case "ch.epfl.lamp" => Platform.Dotty
-        case _ => Platform.Default
+        case _ => Platform.Scala
       }
       val scalaLibraries = getScalaLibraries(module, platform)
       if (scalaLibraries.nonEmpty) {

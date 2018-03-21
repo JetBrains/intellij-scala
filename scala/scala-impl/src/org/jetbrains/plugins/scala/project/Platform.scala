@@ -3,28 +3,19 @@ package org.jetbrains.plugins.scala.project
 /**
   * @author Pavel Fatin
   */
-sealed abstract class Platform(val name: String, private[project] val proxy: PlatformProxy) extends Named {
-  override def getName: String = name
-
-  override def toString: String = name
+sealed abstract class Platform(val getName: String) extends Named {
+  override def toString: String = getName
 }
 
 object Platform {
-  val Default: Platform = Scala
 
-  def from(proxy: PlatformProxy): Platform = proxy match {
-    case PlatformProxy.Scala => Scala
-    case PlatformProxy.Dotty => Dotty
-  }
+  final case object Scala extends Platform("Scala")
 
-  val Values = Array(Scala, Dotty)
+  final case object Dotty extends Platform("Dotty")
 
-  final object Scala extends Platform("Scala", PlatformProxy.Scala)
-
-  final object Dotty extends Platform("Dotty", PlatformProxy.Dotty)
-
-  implicit val ordering: Ordering[Platform] = new Ordering[Platform] {
-    override def compare(x: Platform, y: Platform): Int =
-      Values.indexOf(x).compare(Values.indexOf(y))
+  implicit def ordering: Ordering[Platform] = {
+    case (Scala, Dotty) => 1
+    case (Dotty, Scala) => -1
+    case _ => 0
   }
 }
