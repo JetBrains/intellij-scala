@@ -191,9 +191,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       settings.resolveSbtClassifiers.seq("resolveSbtClassifiers")
   }
 
-  private def isWarningOrError(message: String) =
-    message.startsWith("[error] ") || message.startsWith("[warn] ")
-
   /**
     * Create project preview without using sbt, since sbt import can fail and users would have to do a manual edit of the project.
     * Also sbt boot makes the whole process way too slow.
