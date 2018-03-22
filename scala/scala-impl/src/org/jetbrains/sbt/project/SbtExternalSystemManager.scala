@@ -231,13 +231,13 @@ object SbtExternalSystemManager {
   }
 
   object DefaultOptions {
-    case class Option(key: String, value: String)
+    case class JvmOption(key: String, value: String)
 
-    val fileEncoding = Option("-Dfile.encoding", "UTF-8")
-    val maxPermSize = Option("-XX:MaxPermSize", "256M")
+    val fileEncoding = JvmOption("-Dfile.encoding", "UTF-8")
+    val maxPermSize = JvmOption("-XX:MaxPermSize", "256M")
 
     /** custom option to signal sbt instance is run from idea. */
-    val ideaManaged = Option("-Didea.managed", "true")
+    val ideaManaged = JvmOption("-Didea.managed", "true")
   }
 
 }
