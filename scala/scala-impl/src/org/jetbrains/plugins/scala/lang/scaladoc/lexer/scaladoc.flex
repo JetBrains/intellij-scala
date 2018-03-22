@@ -91,6 +91,7 @@ DIGIT=[0-9]
 ALPHA=[:jletter:]
 
 TAG_IDENTIFIER=[^\ \t\f\n\r]+ // SCL-13537
+INLINE_TAG_IDENTIFIER=[^\ \t\f\n\r}]+
 MACRO_IDENTIFIER=("{" .* "}") | ({ALPHA} | {DIGIT})+ // SCL-9720
 
 /////////////////////////////////// for arbitrary scala identifiers////////////////////////////////////////////////////
@@ -219,7 +220,7 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
   yybegin(INLINE_TAG_NAME);
   return DOC_INLINE_TAG_START;
 }
-<INLINE_TAG_NAME> "@"{TAG_IDENTIFIER} { yybegin(INLINE_TAG_DOC_SPACE); return DOC_TAG_NAME; }
+<INLINE_TAG_NAME> "@"{INLINE_TAG_IDENTIFIER} { yybegin(INLINE_TAG_DOC_SPACE); return DOC_TAG_NAME; }
 <INLINE_TAG_DOC_SPACE, INLINE_DOC_TAG_VALUE> "}" { yybegin(COMMENT_DATA); return DOC_INLINE_TAG_END; }
 <INLINE_DOC_TAG_VALUE> [^\}]+ { return DOC_COMMENT_DATA; }
 
