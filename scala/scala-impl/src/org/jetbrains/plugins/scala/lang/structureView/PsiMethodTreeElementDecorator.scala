@@ -12,7 +12,7 @@ private class PsiMethodTreeElementDecorator(method: PsiMethod, inherited: Boolea
 }
 
 private object PsiMethodTreeElementDecorator {
-  private val PrimitiveType = "\\bboolean|byte|char|short|int|long|float|double\\b".r
+  private val PrimitiveType = "\\b(?:boolean|byte|char|short|int|long|float|double)\\b".r
 
   private val Transformations = Seq(
     "\\bvoid\\b".r -> "Unit",
