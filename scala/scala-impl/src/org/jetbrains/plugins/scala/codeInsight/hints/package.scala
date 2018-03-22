@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.extensions.StringsExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 
 package object hints {
 
@@ -22,7 +23,7 @@ package object hints {
 
     def apply(`type`: ScType, anchor: PsiElement)
              (implicit settings: ScalaCodeInsightSettings): InlayInfo = {
-      val presentableText = update(`type`) match {
+      val presentableText = `type` match {
         case PresentableText(Limited(text)) => text
         case FoldedPresentableText(Limited(text)) => text
         case _ => Ellipsis
@@ -41,13 +42,6 @@ package object hints {
       new InlayInfo(presentation, offset, false, true, relatesToPrecedingText)
     }
 
-    private[this] def update(`type`: ScType): ScType = `type` match {
-      case CaseClassType(compoundType) => compoundType
-      case ScParameterizedType(designator, typeArguments) =>
-        ScParameterizedType(update(designator), typeArguments.map(update))
-      case _ => `type`
-    }
-
     private[this] object Limited {
 
       def unapply(text: String)
@@ -58,17 +52,16 @@ package object hints {
     private[this] object PresentableText {
 
       def unapply(`type`: ScType): Some[String] =
-        Some(`type`.presentableText)
+        Some(`type`.codeText)
     }
 
     private[this] object FoldedPresentableText {
 
       def unapply(`type`: ScType): Option[String] = `type` match {
-        case CaseClassType(ScCompoundType(Seq(head, _*), _, _)) =>
-          Some(head.presentableText)
+        case ScCompoundType(Seq(head, _*), _, _) => Some(head.codeText)
         case ScParameterizedType(designator, typeArguments) =>
           val arguments = Seq.fill(typeArguments.size)(Ellipsis)
-          Some(s"${designator.presentableText}[${arguments.commaSeparated()}]")
+          Some(s"${designator.codeText}[${arguments.commaSeparated()}]")
         case _ =>
           None
       }
