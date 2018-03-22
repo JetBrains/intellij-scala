@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScInfixElement.AnyInfixElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement.AnyParenthesized
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScFunctionalTypeElement
 
 import scala.annotation.tailrec
@@ -12,33 +10,36 @@ import scala.annotation.tailrec
   *
   * @author Clément Fournier
   */
-trait ScParenthesizedElement[E <: ScalaPsiElement] extends ScalaPsiElement {
+trait ScParenthesizedElement extends ScalaPsiElement {
+  /** Expression, type element or pattern */
+  type Kind <: ScalaPsiElement
 
   /** Returns the expression, type or pattern that is contained
     * within those parentheses.
     */
-  def innerElement: Option[E]
+  def innerElement: Option[Kind]
 
   /** Returns true if the parentheses represented by this node are clarifying,
     * ie they clarify precedence between operators that have different precedences.
     */
   def isParenthesisClarifying: Boolean
 
-  protected def isSameTree(p: PsiElement): Boolean = p.isInstanceOf[E]
+  /** Checks that p is of same kind, have to be defined in inheritors because of erasure */
+  protected def isSameTree(p: PsiElement): Boolean
 
   /** Returns true if these parentheses are nested within other parentheses. */
-  def isNestedParenthesis: Boolean = isSameTree(getParent) && getParent.isInstanceOf[AnyParenthesized]
+  def isNestedParenthesis: Boolean = isSameTree(getParent) && getParent.isInstanceOf[ScParenthesizedElement]
 
   /** Returns true if these parentheses are directly enclosing other parentheses. */
-  def isNestingParenthesis: Boolean = innerElement.exists(_.isInstanceOf[AnyParenthesized])
+  def isNestingParenthesis: Boolean = innerElement.exists(_.isInstanceOf[ScParenthesizedElement])
 
   /** Gets the precedence of the tree member. Lower int value is applied first (higher precedence).
     * The highest precedence is 0. Nodes with precedence 0 are indivisible.
     */
-  protected def getPrecedence(e: E): Int
+  protected def getPrecedence(e: Kind): Int
 
   /** Returns true if parentheses around the node are always redundant. */
-  protected def isIndivisible(e: E): Boolean = getPrecedence(e) == 0
+  protected def isIndivisible(e: Kind): Boolean = getPrecedence(e) == 0
 
   /** Returns true if the parenthesised can be stripped safely.
     *
@@ -61,7 +62,7 @@ trait ScParenthesizedElement[E <: ScalaPsiElement] extends ScalaPsiElement {
 
     if (innerElement.isEmpty) true
     else if (!isSameTree(getParent)) false
-    else (getParent.asInstanceOf[E], innerElement.get) match {
+    else (getParent.asInstanceOf[Kind], innerElement.get) match {
       case (_, c) if isIndivisible(c) => false
 
       case (p, c) if getPrecedence(p) < getPrecedence(c) => true
@@ -70,10 +71,10 @@ trait ScParenthesizedElement[E <: ScalaPsiElement] extends ScalaPsiElement {
       // Infix chain with same precedence:
       // - If the two operators have different associativities, then the parentheses are required
       // - If they have the same associativity, then right- or left- associativity applies depending on the operator
-      case (p: AnyInfixElement, c: AnyInfixElement) if p.isLeftAssoc != c.isLeftAssoc => true
+      case (p: ScInfixElement, c: ScInfixElement) if p.isLeftAssoc != c.isLeftAssoc => true
 
-      case (ifx @ ScInfixElement(_, _, Some(This)), _: AnyInfixElement) => ifx.isLeftAssoc
-      case (ifx @ ScInfixElement(This, _, _), _: AnyInfixElement) => ifx.isRightAssoc
+      case (ifx @ ScInfixElement(_, _, Some(This)), _: ScInfixElement) => ifx.isLeftAssoc
+      case (ifx @ ScInfixElement(This, _, _), _: ScInfixElement) => ifx.isRightAssoc
 
       // Function types are right associative, ie A => (B => C) === A => B => C
       case (ScFunctionalTypeElement(This, _), _: ScFunctionalTypeElement) => true
@@ -86,7 +87,7 @@ trait ScParenthesizedElement[E <: ScalaPsiElement] extends ScalaPsiElement {
   private def getInnermostNonParen(node: ScalaPsiElement): ScalaPsiElement = node match {
     // since we go down, it can only be the same tree
     case ScParenthesizedElement(inner) => getInnermostNonParen(inner)
-    case _: E@unchecked => node
+    case _ => node
   }
 
   def getTextOfStripped(ignoreClarifying: Boolean = false): String = {
@@ -110,13 +111,13 @@ trait ScParenthesizedElement[E <: ScalaPsiElement] extends ScalaPsiElement {
     * @return The node which replaces this node. If no parentheses were
     *         found to remove, returns `this`, unmodified
     */
-  def stripParentheses(keepParentheses: Boolean = false): E = {
+  def stripParentheses(keepParentheses: Boolean = false): Kind = {
 
-    def replaceWithNode(elt: PsiElement): E = this.replace(elt).asInstanceOf[E]
+    def replaceWithNode(elt: PsiElement): Kind = this.replace(elt).asInstanceOf[Kind]
 
     getInnermostNonParen(this) match {
-      case elt if elt eq this => this.asInstanceOf[E]
-      case elt: ScParenthesizedElement[E] if keepParentheses => replaceWithNode(elt)
+      case elt if elt eq this => this.asInstanceOf[Kind]
+      case elt: ScParenthesizedElement if keepParentheses => replaceWithNode(elt)
       case elt if keepParentheses => replaceWithNode(elt.getParent)
       case elt => replaceWithNode(elt)
     }
@@ -125,8 +126,5 @@ trait ScParenthesizedElement[E <: ScalaPsiElement] extends ScalaPsiElement {
 
 
 object ScParenthesizedElement {
-
-  type AnyParenthesized = ScParenthesizedElement[_ <: ScalaPsiElement]
-
-  def unapply[E <: ScalaPsiElement](p: ScParenthesizedElement[E]): Option[E] = p.innerElement
+  def unapply(p: ScParenthesizedElement): Option[p.Kind] = p.innerElement
 }

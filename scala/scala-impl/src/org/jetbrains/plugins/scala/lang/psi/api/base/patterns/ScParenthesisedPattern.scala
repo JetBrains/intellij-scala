@@ -5,13 +5,18 @@ package api
 package base
 package patterns
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /** 
 * @author Alexander Podkhalyuzin
 */
 
-trait ScParenthesisedPattern extends ScPattern with ScParenthesizedElement[ScPattern] {
+trait ScParenthesisedPattern extends ScPattern with ScParenthesizedElement {
+  type Kind = ScPattern
+
+  protected def isSameTree(p: PsiElement): Boolean = p.isInstanceOf[ScPattern]
+
   override def innerElement: Option[ScPattern] = findChild(classOf[ScPattern])
 
   override def isParenthesisClarifying: Boolean = {

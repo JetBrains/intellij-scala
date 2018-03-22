@@ -4,13 +4,17 @@ package psi
 package api
 package expr
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
 
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 07.03.2008
   */
-trait ScParenthesisedExpr extends ScInfixArgumentExpression with ScParenthesizedElement[ScExpression] {
+trait ScParenthesisedExpr extends ScInfixArgumentExpression with ScParenthesizedElement {
+  type Kind = ScExpression
+
+  protected def isSameTree(p: PsiElement): Boolean = p.isInstanceOf[ScExpression]
 
   override def innerElement: Option[ScExpression] = findChild(classOf[ScExpression])
 

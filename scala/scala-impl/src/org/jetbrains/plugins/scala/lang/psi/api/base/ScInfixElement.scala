@@ -7,13 +7,17 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
   *
   * @author Clément Fournier
   */
-trait ScInfixElement[E <: ScalaPsiElement, Ref <: ScReferenceElement] extends ScalaPsiElement {
+trait ScInfixElement extends ScalaPsiElement {
+  //expression, type element or pattern
+  type Kind <: ScalaPsiElement
 
-  def left: E
+  type Reference <: ScReferenceElement
 
-  def operation: Ref
+  def left: Kind
 
-  def rightOption: Option[E]
+  def operation: Reference
+
+  def rightOption: Option[Kind]
 
   def isRightAssoc: Boolean = ScalaNamesUtil.clean(operation.refName).endsWith(":")
 
@@ -22,8 +26,6 @@ trait ScInfixElement[E <: ScalaPsiElement, Ref <: ScReferenceElement] extends Sc
 
 
 object ScInfixElement {
-  type AnyInfixElement = ScInfixElement[_ <: ScalaPsiElement, _ <: ScReferenceElement]
-
-  def unapply[E <: ScalaPsiElement, Ref <: ScReferenceElement](arg: ScInfixElement[E, Ref]): Option[(E, Ref, Option[E])] =
+  def unapply(arg: ScInfixElement): Option[(arg.Kind, arg.Reference, Option[arg.Kind])] =
     Some((arg.left, arg.operation, arg.rightOption))
 }

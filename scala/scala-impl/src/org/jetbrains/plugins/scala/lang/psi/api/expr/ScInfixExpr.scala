@@ -11,9 +11,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 /**
   * @author Alexander Podkhalyuzin
   */
-trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement[ScExpression, ScReferenceExpression] {
+trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement {
 
   import ScInfixExpr._
+
+  type Kind = ScExpression
+  type Reference = ScReferenceExpression
 
   def left: ScExpression = unapply._1
 

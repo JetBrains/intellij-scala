@@ -23,10 +23,13 @@ trait ScInfixLikeTypeElement extends ScTypeElement {
 }
 
 trait ScInfixTypeElement extends ScInfixLikeTypeElement
-  with ScInfixElement[ScTypeElement, ScStableCodeReferenceElement]
+  with ScInfixElement
   with ScDesugarizableToParametrizedTypeElement {
 
   override protected val typeName = "InfixType"
+
+  type Kind = ScTypeElement
+  type Reference = ScStableCodeReferenceElement
 
   def operation: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
 

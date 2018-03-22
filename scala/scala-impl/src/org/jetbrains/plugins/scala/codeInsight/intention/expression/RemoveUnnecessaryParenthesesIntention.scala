@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement.AnyParenthesized
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
 
 /**
  * Nikolay.Tropin
@@ -23,12 +23,12 @@ class RemoveUnnecessaryParenthesesIntention extends PsiElementBaseIntentionActio
   override def getText = "Remove unnecessary parentheses"
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
-    Option(PsiTreeUtil.getParentOfType(element, classOf[AnyParenthesized], false))
+    Option(PsiTreeUtil.getParentOfType(element, classOf[ScParenthesizedElement], false))
       .exists(_.isParenthesisRedundant())
 
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    Option(PsiTreeUtil.getParentOfType(element, classOf[AnyParenthesized])) map {
+    Option(PsiTreeUtil.getParentOfType(element, classOf[ScParenthesizedElement])) map {
       case expr if expr.isNestedParenthesis => invoke(project, editor, expr)
       case expr if expr.isParenthesisRedundant() =>
         inWriteAction {

@@ -5,13 +5,20 @@ package api
 package base
 package types
 
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
 
-trait ScParenthesisedTypeElement extends ScTypeElement with ScParenthesizedElement[ScTypeElement] {
+trait ScParenthesisedTypeElement extends ScTypeElement with ScParenthesizedElement {
   override protected val typeName = "TypeInParenthesis"
+
+  type Kind = ScTypeElement
+
+  protected def isSameTree(p: PsiElement): Boolean = p.isInstanceOf[ScTypeElement]
 
   override def innerElement: Option[ScTypeElement] = findChild(classOf[ScTypeElement])
 
