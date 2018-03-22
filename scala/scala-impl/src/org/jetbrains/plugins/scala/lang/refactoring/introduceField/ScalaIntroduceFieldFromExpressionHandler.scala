@@ -172,7 +172,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     dialog
   }
 
-  protected override def isSuitableClass(elem: PsiElement, clazz: ScTemplateDefinition): Boolean = true
+  protected override def isSuitableClass(elem: PsiElement, clazz: ScTemplateDefinition): Boolean = elem != clazz
 
   private def onOneLine(document: Document, range: TextRange): Boolean = {
     document.getLineNumber(range.getStartOffset) == document.getLineNumber(range.getEndOffset)
