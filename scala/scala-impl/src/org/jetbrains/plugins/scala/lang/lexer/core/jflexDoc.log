@@ -12,8 +12,8 @@ Warning : Macro "scalaIdentifierWithPath" has been declared but never used.
 Warning : Macro "octalDigit" has been declared but never used.
 
 Warning : Macro "symbolLiteral" has been declared but never used.
-Constructing NFA : 1Ê128 states in NFA
+Constructing NFA : 1Â 160 states in NFA
 Converting NFA to DFA : 
-............................................................................................................................................................................................................................................
-278 states before minimization, 134 states in minimized DFA
+......................................................................................................................................................................................................................................................................................................................................................................................
+420 states before minimization, 153 states in minimized DFA
 Writing code to "../../scaladoc/lexer/_ScalaDocLexer.java"
