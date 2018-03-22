@@ -69,3 +69,19 @@ The "fast tests" can take over an hour. To get a quick feedback on project healt
 
 The project is configured to build and run the typeInference tests with Travis CI, which you can enable in your forks.
 The full test suite can't currently be run because Travis doesn't allow builds to take that long.
+
+## Running the plugin
+
+### Debugging mode
+
+The easiest way to try your changes is typically to launch the `IDEA` run configuration which is created when you 
+set up the project as described above.
+
+### As a standalone plugin
+
+To run and distribute a modified version of the plugin in a regular IntelliJ instance, you need to package it.
+
+1. on the sbt shell, run `packagePluginCommunityZip`. This will output the generated plugin zip location
+   (typically into `<project directory>/target/scala-plugin.zip`).
+2. In IntelliJ, open Preferences, section Plugins, choose "Install plugin from disk..." and navigate to the scala-plugin.zip
+3. Restart IntelliJ

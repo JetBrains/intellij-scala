@@ -29,7 +29,7 @@ addCommandAlias("downloadIdea", "updateIdea")
 
 addCommandAlias("packagePluginCommunity", "pluginPackagerCommunity/package")
 
-addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package")
+addCommandAlias("packagePluginCommunityZip", "show pluginCompressorCommunity/package")
 
 // Main projects
 lazy val scalaCommunity: sbt.Project =
