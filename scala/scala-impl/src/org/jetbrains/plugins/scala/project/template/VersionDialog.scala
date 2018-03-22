@@ -34,21 +34,19 @@ class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) {
     }
   }
 
-  def downloadVersionWithProgress(): Option[(String, String)] =
+  def downloadVersionWithProgress(): Option[String] =
     if (showAndGet()) {
       val platform = Platform.Scala
-      val platformName = platform.getName
       val version = myVersion.getSelectedItem.asInstanceOf[String]
 
-      val result = withProgressSynchronouslyTry(s"Downloading $platformName $version") { manager =>
+      val result = withProgressSynchronouslyTry(s"Downloading ${platform.getName} $version") { manager =>
         createTempSbtProject(version, new DownloadProcessAdapter(manager), setCommand(platform, version), "updateClassifiers")
       }
 
       result match {
-        case Success(_) =>
-          Some((platformName, version))
+        case Success(_) => Some(version)
         case Failure(exception) =>
-          Messages.showErrorDialog(parent, exception.getMessage, s"Error downloading $platformName $version")
+          Messages.showErrorDialog(parent, exception.getMessage, s"Error downloading ${platform.getName} $version")
           None
       }
     } else None

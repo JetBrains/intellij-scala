@@ -13,9 +13,8 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContaine
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VfsUtilCore.virtualToIoFile
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.project.template.Artifact._
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters
 
 /**
   * @author Pavel Fatin
@@ -31,7 +30,8 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
       ivySdks.sortWith(lt).map(SdkChoice(_, "Ivy")) ++
       mavenSdks.sortWith(lt).map(SdkChoice(_, "Maven"))
 
-    val dialog = new SdkSelectionDialog(parentComponent, () => sdks.sortBy(_.sdk.platform).asJava)
+    import JavaConverters._
+    val dialog = new SdkSelectionDialog(parentComponent, () => sdks.asJava)
 
     Option(dialog.open()).map(_.createNewLibraryConfiguration()).orNull
   }
@@ -97,11 +97,11 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
 
     val scalaFiles = (root / "cache" / "org.scala-lang").allFiles
 
-    val dottyFiles = scalaFiles ++
-      (root / "cache" / "me.d-d" / "scala-compiler").allFiles ++
-      (root / "cache" / "ch.epfl.lamp").allFiles
+//    val dottyFiles = scalaFiles ++
+//      (root / "cache" / "me.d-d" / "scala-compiler").allFiles ++
+//      (root / "cache" / "ch.epfl.lamp").allFiles
 
-    scalaSdksIn(scalaFiles) ++ dottySdksIn(dottyFiles)
+    scalaSdksIn(scalaFiles) // ++ dottySdksIn(dottyFiles)
   }
 
   private def scalaSdksIn(files: Seq[File]): Seq[ScalaSdkDescriptor] = {
@@ -112,34 +112,34 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
     }
   }
 
-  private def dottySdksIn(files: Seq[File]): Seq[ScalaSdkDescriptor] = {
-    val components = Component.discoverIn(files, Artifact.DottyArtifacts)
-
-    val patchedCompilers = components.filter {
-      case Component(ScalaCompiler, Kind.Binaries, Some(_), file) if file.getAbsolutePath.contains("me.d-d") => true
-      case _ => false
-    }
-
-    if (patchedCompilers.isEmpty) Seq.empty
-    else {
-      val compilerComponent = patchedCompilers.maxBy(_.version.get)
-
-      val dottyComponents = components.filter {
-        case Component(DottyCompiler | DottyLibrary, _, Some(_), _) => true
-        case _ => false
-      }
-
-      val otherComponents = components.filter {
-        case Component(ScalaLibrary | ScalaReflect, _, Some(Version("2.11.5")), _) => true
-        case _ => false
-      }
-
-      dottyComponents.groupBy(_.version).values
-        .map(components => ScalaSdkDescriptor.from(components ++ otherComponents :+ compilerComponent))
-        .flatMap(_.right.toSeq)
-        .toSeq
-    }
-  }
+//  private def dottySdksIn(files: Seq[File]): Seq[ScalaSdkDescriptor] = {
+//    val components = Component.discoverIn(files, Artifact.DottyArtifacts)
+//
+//    val patchedCompilers = components.filter {
+//      case Component(ScalaCompiler, Kind.Binaries, Some(_), file) if file.getAbsolutePath.contains("me.d-d") => true
+//      case _ => false
+//    }
+//
+//    if (patchedCompilers.isEmpty) Seq.empty
+//    else {
+//      val compilerComponent = patchedCompilers.maxBy(_.version.get)
+//
+//      val dottyComponents = components.filter {
+//        case Component(DottyCompiler | DottyLibrary, _, Some(_), _) => true
+//        case _ => false
+//      }
+//
+//      val otherComponents = components.filter {
+//        case Component(ScalaLibrary | ScalaReflect, _, Some(Version("2.11.5")), _) => true
+//        case _ => false
+//      }
+//
+//      dottyComponents.groupBy(_.version).values
+//        .map(components => ScalaSdkDescriptor.from(components ++ otherComponents :+ compilerComponent))
+//        .flatMap(_.right.toSeq)
+//        .toSeq
+//    }
+//  }
 
 }
 

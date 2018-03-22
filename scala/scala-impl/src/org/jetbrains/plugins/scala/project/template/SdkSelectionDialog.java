@@ -6,7 +6,6 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import scala.Function0;
 import scala.Option;
-import scala.Tuple2;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -72,25 +71,24 @@ public class SdkSelectionDialog extends JDialog {
         }
     }
 
-    private int setSelectionInterval(String platform, String version) {
+    private int setSelectionInterval(String version) {
         for (int i = 0; i < myTable.getRowCount(); i++) {
             if ("Ivy".equals(myTable.getValueAt(i, 0)) &&
-                    platform.equals(myTable.getValueAt(i, 1)) &&
-                    version.equals(myTable.getValueAt(i, 2))) {
+                    version.equals(myTable.getValueAt(i, 1))) {
                 return i;
             }
         }
 
-        throw new RuntimeException("No " + platform + " " + version + " in the Ivy repository");
+        throw new RuntimeException("No Scala " + version + " in the Ivy repository");
     }
 
     private void onDownload() {
-        Option<Tuple2<String, String>> result = new VersionDialog(contentPane).downloadVersionWithProgress();
+        Option<String> result = new VersionDialog(contentPane).downloadVersionWithProgress();
 
         if (result.isDefined()) {
             updateTable();
 
-            int rowIndex = setSelectionInterval(result.get()._1(), result.get()._2());
+            int rowIndex = setSelectionInterval(result.get());
 
             myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
             onOK();
