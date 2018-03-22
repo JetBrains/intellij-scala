@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.settings.annotations.Definition
 
 import scala.collection.{JavaConverters, mutable}
 
@@ -29,10 +30,13 @@ class ScalaTypeHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 
   override def doCollectInformation(progressIndicator: ProgressIndicator): Unit = {
     hintsByOffset.clear()
-    val settings = ScalaCodeInsightSettings.getInstance()
+    implicit val settings: ScalaCodeInsightSettings = ScalaCodeInsightSettings.getInstance()
     if (myDocument == null || rootElement.containingVirtualFile.isEmpty || !settings.isShowTypeHints) return
 
-    hintsByOffset ++= elements.flatMap {
+    hintsByOffset ++= elements.filterNot {
+      case _ if settings.isShowForObviousTypes => false
+      case element => Definition(element).isTypeObvious
+    }.flatMap {
       case f@TypelessFunction(anchor) if settings.isShowFunctionReturnType =>
         f.returnType.toInlayInfo(anchor)
       case v@TypelessValueOrVariable(anchor)
@@ -90,7 +94,7 @@ object ScalaTypeHintsPass {
       override def getContextMenuGroupId: String = "TypeHintsMenu"
     }
 
-    inlayModel.addInlineElement(inlayInfo.getOffset, renderer) match {
+    inlayModel.addInlineElement(inlayInfo.getOffset, inlayInfo.getRelatesToPrecedingText, renderer) match {
       case null =>
       case inlay => inlay.putUserData(ScalaTypeInlayKey, true)
     }
@@ -116,7 +120,8 @@ object ScalaTypeHintsPass {
 
   private implicit class TypeResultExt(private val result: TypeResult) {
 
-    def toInlayInfo(anchor: ScalaPsiElement): Option[hints.InlayInfo] =
+    def toInlayInfo(anchor: ScalaPsiElement)
+                   (implicit settings: ScalaCodeInsightSettings): Option[hints.InlayInfo] =
       result.map(InlayInfo(_, anchor)).toOption
   }
 }

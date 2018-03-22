@@ -691,30 +691,33 @@ object ScalaPsiUtil {
   def isInvalidContextOrder(before: PsiElement, after: PsiElement, topLevel: Option[PsiElement]): Boolean = {
     if (before == after) return true
 
-    (getParents(before, topLevel.orNull, contextParents = true) zip getParents(after, topLevel.orNull, contextParents = true)
-      dropWhile {
-      case (a, b) => a == b
-    }).headOption.exists {
+    val contexts = getContexts(before, topLevel.orNull) zip getContexts(after, topLevel.orNull)
+    val firstDifference = contexts.find { case (a, b) => a != b }
+
+    firstDifference.exists {
       case (beforeAncestor, afterAncestor) =>
 
         val topChildren = beforeAncestor.getContext
           .stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
 
-        topChildren.indexOf(beforeAncestor) <= topChildren.indexOf(afterAncestor)
+        topChildren.indexOf(beforeAncestor.sameElementInContext) <= topChildren.indexOf(afterAncestor.sameElementInContext)
     }
   }
 
-  def getParents(elem: PsiElement, topLevel: PsiElement, contextParents: Boolean = false): List[PsiElement] = {
-    @tailrec
-    def inner(parent: PsiElement, k: List[PsiElement] => List[PsiElement]): List[PsiElement] = {
-      if (parent != topLevel && parent != null)
-        inner(if (contextParents) parent.getContext else parent.getParent, {
-          l => parent :: k(l)
-        })
-      else k(Nil)
+  @tailrec
+  def getContexts(elem: PsiElement, stopAt: PsiElement, acc: List[PsiElement] = Nil): List[PsiElement] = {
+    elem.getContext match {
+      case null | `stopAt` => acc
+      case context => getContexts(context, stopAt, context :: acc)
     }
+  }
 
-    inner(elem, (l: List[PsiElement]) => l)
+  @tailrec
+  def getParents(elem: PsiElement, stopAt: PsiElement, acc: List[PsiElement] = Nil): List[PsiElement] = {
+    elem.getParent match {
+      case null | `stopAt` => acc
+      case parent => getParents(parent, stopAt, parent :: acc)
+    }
   }
 
   def getNextStubOrPsiElement(elem: PsiElement): PsiElement =

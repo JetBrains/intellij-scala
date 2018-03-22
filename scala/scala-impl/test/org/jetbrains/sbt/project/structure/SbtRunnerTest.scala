@@ -30,8 +30,8 @@ class SbtRunnerTest extends UsefulTestCase {
   def testSbtLaunch_0_13_9(): Unit =
     doTestSbtLauncherVersionDetection("0.13.9")
 
-  def testSbtLaunch_0_13_16(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.16")
+  def testSbtLaunch_latest_0_13(): Unit =
+    doTestSbtLauncherVersionDetection(Sbt.Latest_0_13)
 
   def testSbtLaunch_latest(): Unit =
     doTestSbtLauncherVersionDetection(Sbt.LatestVersion)

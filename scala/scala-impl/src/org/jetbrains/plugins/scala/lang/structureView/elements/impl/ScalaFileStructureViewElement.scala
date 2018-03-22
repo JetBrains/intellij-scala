@@ -48,14 +48,14 @@ class ScalaFileStructureViewElement(file: ScalaFile, private val console: ScalaL
           children ++= getChildren(packaging)
         case member: ScVariable =>
           for (f <- member.declaredElements)
-            children += new ScalaVariableStructureViewElement(f, false)
+            children ++= ScalaVariableStructureViewElement(f, false)
         case member: ScValue =>
           for (f <- member.declaredElements)
-            children += new ScalaValueStructureViewElement(f, false)
+            children ++= ScalaValueStructureViewElement(f, false)
         case member: ScTypeAlias =>
           children += new ScalaTypeAliasStructureViewElement(member, false)
         case func: ScFunction =>
-          children += new ScalaFunctionStructureViewElement(func, false)
+          children ++= ScalaFunctionStructureViewElement(func, false)
         case block: ScBlockExpr =>
           children += new ScalaBlockStructureViewElement(block)
         case _ =>

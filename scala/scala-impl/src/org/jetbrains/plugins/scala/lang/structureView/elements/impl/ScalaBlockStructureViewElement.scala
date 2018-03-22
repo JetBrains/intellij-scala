@@ -13,7 +13,7 @@ class ScalaBlockStructureViewElement(block: ScBlock) extends ScalaStructureViewE
 
   override def getChildren: Array[TreeElement] = {
     val result = block.getChildren.flatMap {
-      case function: ScFunction => Seq(new ScalaFunctionStructureViewElement(function, false))
+      case function: ScFunction => ScalaFunctionStructureViewElement(function, false)
       case typeDefinition: ScTypeDefinition => Seq(new ScalaTypeDefinitionStructureViewElement(typeDefinition))
       case block: ScBlockExpr => Seq(new ScalaBlockStructureViewElement(block))
       case _ => Seq.empty

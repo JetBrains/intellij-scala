@@ -1,5 +1,0 @@
-package org.jetbrains.plugins.cbt.project.settings
-
-import com.intellij.openapi.externalSystem.settings.ExternalSystemSettingsListener
-
-trait CbtProjectSettingsListener extends ExternalSystemSettingsListener[CbtProjectSettings]

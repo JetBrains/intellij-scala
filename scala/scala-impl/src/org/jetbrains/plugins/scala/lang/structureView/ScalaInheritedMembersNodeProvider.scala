@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.structureView
 import java.util
 
 import com.intellij.ide.IdeBundle
-import com.intellij.ide.structureView.impl.java.PsiMethodTreeElement
 import com.intellij.ide.util.FileStructureNodeProvider
 import com.intellij.ide.util.treeView.smartTree.{ActionPresentation, ActionPresentationData, TreeElement}
 import com.intellij.openapi.actionSystem.Shortcut
@@ -13,10 +12,13 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Alefas
@@ -37,16 +39,17 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
               case sign: PhysicalSignature =>
                 sign.method match {
                   case x if x.name == "$tag" || x.name == "$init$" =>
-                  case x if x.containingClass.qualifiedName == "java.lang.Object" =>
                   case x if x.containingClass == clazz =>
-                  case x: ScFunction => children.add(new ScalaFunctionStructureViewElement(x, true))
-                  case x: PsiMethod => children.add(new PsiMethodTreeElement(x, true))
+                  case x: ScFunction => children.addAll(ScalaFunctionStructureViewElement(x, true).asJava)
+                  case x: PsiMethod => children.add(new PsiMethodTreeElementDecorator(x, true))
                 }
               case _ =>
                 sign.namedElement match {
+                  case parameter: ScClassParameter if parameter.isEffectiveVal && parameter.containingClass != clazz && !sign.name.endsWith("_=") =>
+                    children.add(new ScalaValOrVarParameterStructureViewElement(parameter, true))
                   case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
-                    case x: ScValue if x.containingClass != clazz => children.add(new ScalaValueStructureViewElement(named, true))
-                    case x: ScVariable if x.containingClass != clazz => children.add(new ScalaVariableStructureViewElement(named, true))
+                    case x: ScValue if x.containingClass != clazz => children.addAll(ScalaValueStructureViewElement(named, true).asJava)
+                    case x: ScVariable if x.containingClass != clazz => children.addAll(ScalaVariableStructureViewElement(named, true).asJava)
                     case _ =>
                   }
                   case _ =>

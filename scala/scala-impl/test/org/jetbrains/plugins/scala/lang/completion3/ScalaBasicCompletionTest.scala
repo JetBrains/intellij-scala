@@ -518,17 +518,41 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo"
   )
 
-  def testPrefixedThis(): Unit = doCompletionTest(
+  def testNoPrefixedThis(): Unit = checkNoCompletion(
     fileText =
       s"""
          |class aaa {
          |  a$CARET
          |}
       """.stripMargin,
+    item = "aaa.this"
+  )
+
+  def testNoPrefixedSuper(): Unit = checkNoCompletion(
+    fileText =
+      s"""
+         |class aaa {
+         |  a$CARET
+         |}
+      """.stripMargin,
+    item = "aaa.super"
+  )
+
+  def testPrefixedThis(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class aaa {
+         |  class bbb {
+         |    a$CARET
+         |  }
+         |}
+      """.stripMargin,
     resultText =
       s"""
          |class aaa {
-         |  aaa.this$CARET
+         |  class bbb {
+         |    aaa.this$CARET
+         |  }
          |}
       """.stripMargin,
     item = "aaa.this"
@@ -537,18 +561,25 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
   def testPrefixedSuper(): Unit = doCompletionTest(
     fileText =
       s"""
-         |class aaa {
-         |  a$CARET
+         |trait ttt
+         |class aaa extends ttt {
+         |  class bbb {
+         |    a$CARET
+         |  }
          |}
       """.stripMargin,
     resultText =
       s"""
-         |class aaa {
-         |  aaa.super$CARET
+         |trait ttt
+         |class aaa extends ttt {
+         |  class bbb {
+         |    aaa.super$CARET
+         |  }
          |}
       """.stripMargin,
     item = "aaa.super"
   )
+
 
   def testCompanionObjectName(): Unit = doCompletionTest(
     fileText =

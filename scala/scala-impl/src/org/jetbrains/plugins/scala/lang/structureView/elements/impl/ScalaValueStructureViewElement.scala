@@ -14,9 +14,11 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 * Date: 08.05.2008
 */
 
-class ScalaValueStructureViewElement(element: ScNamedElement, val isInherited: Boolean) extends ScalaStructureViewElement(element, isInherited) {
+class ScalaValueStructureViewElement private (element: ScNamedElement, val isInherited: Boolean, val showType: Boolean)
+  extends ScalaStructureViewElement(element, isInherited) with TypedViewElement {
+
   override def getPresentation: ItemPresentation =
-    new ScalaValueItemPresentation(element, isInherited)
+    new ScalaValueItemPresentation(element, isInherited, showType)
 
   override def getChildren: Array[TreeElement] = value match {
     case Some(definition: ScPatternDefinition) => definition.expr match {
@@ -27,4 +29,10 @@ class ScalaValueStructureViewElement(element: ScNamedElement, val isInherited: B
   }
 
   private def value = element.parentsInFile.findByType[ScValue]
+}
+
+object ScalaValueStructureViewElement {
+  def apply(element: ScNamedElement, inherited: Boolean): Seq[ScalaValueStructureViewElement] =
+    Seq(//new ScalaValueStructureViewElement(element, inherited, showType = true),
+      new ScalaValueStructureViewElement(element, inherited, showType = false))
 }

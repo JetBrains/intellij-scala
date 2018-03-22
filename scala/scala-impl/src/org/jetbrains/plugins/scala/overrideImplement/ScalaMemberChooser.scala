@@ -149,6 +149,9 @@ object ScalaMemberChooser {
     }
     sortedClasses ++= groupedMembers.keys.toSeq.sorted(ordering)
 
-    sortedClasses.flatMap(c => groupedMembers.getOrElse(c, Seq.empty)).toSeq
+    sortedClasses.flatMap { c =>
+      val members = groupedMembers.getOrElse(c, Seq.empty)
+      members.sortBy(_.getPsiElement.getTextOffset)
+    }.toSeq
   }
 }

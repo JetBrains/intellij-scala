@@ -12,9 +12,11 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 * Date: 04.05.2008
 */
 
-class ScalaFunctionStructureViewElement(function: ScFunction, val isInherited: Boolean) extends ScalaStructureViewElement(function, isInherited) {
+class ScalaFunctionStructureViewElement private (function: ScFunction, val isInherited: Boolean, val showType: Boolean)
+  extends ScalaStructureViewElement(function, isInherited) with TypedViewElement {
+
   def getPresentation: ItemPresentation =
-    new ScalaFunctionItemPresentation(function, isInherited)
+    new ScalaFunctionItemPresentation(function, isInherited, showType)
 
   override def getChildren: Array[TreeElement] = function match {
     case definition: ScFunctionDefinition => definition.body match {
@@ -23,4 +25,10 @@ class ScalaFunctionStructureViewElement(function: ScFunction, val isInherited: B
     }
     case _ => Array.empty
   }
+}
+
+object ScalaFunctionStructureViewElement {
+  def apply(function: ScFunction, isInherited: Boolean): Seq[ScalaFunctionStructureViewElement] =
+    Seq(//new ScalaFunctionStructureViewElement(function, isInherited, showType = true),
+      new ScalaFunctionStructureViewElement(function, isInherited, showType = false))
 }

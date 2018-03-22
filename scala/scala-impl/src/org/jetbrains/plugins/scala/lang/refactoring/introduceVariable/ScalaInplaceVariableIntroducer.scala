@@ -5,8 +5,6 @@ package introduceVariable
 
 import java.awt._
 import java.awt.event.{ActionEvent, ItemEvent}
-import javax.swing._
-import javax.swing.event.HyperlinkEvent
 
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.openapi.application.{ApplicationManager, Result}
@@ -26,6 +24,8 @@ import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
 import com.intellij.ui.NonFocusableCheckBox
+import javax.swing._
+import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
@@ -405,7 +405,7 @@ object ScalaInplaceVariableIntroducer {
       if (expression == null || !expression.isValid) false
       else if (fromDialogMode) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE
       else ScalaTypeAnnotationSettings(anchor.getProject).isTypeAnnotationRequiredFor(
-        Declaration(Visibility.Default), Location(anchor), Some(Implementation.Expression(expression)))
+        Declaration(Visibility.Default), Location(anchor), Some(Expression(expression)))
     } else true
 
   private def findDeclaration(element: PsiElement) =

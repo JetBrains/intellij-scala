@@ -62,14 +62,14 @@ object ScalaInlayParameterHintsProvider {
 
   import Ext.{Apply, Update}
 
-  private[hints] val applyUpdateParameterNames = HintOption(s"`$Apply`, `$Update` methods", Apply, Update)
+  private[hints] val applyUpdateParameterNames = HintOption(s"<code>$Apply</code>, <code>$Update</code> methods", Apply, Update)
   private[hints] val referenceParameterNames = HintOption(s"non-literal expressions", "references", "names")
 
   private[this] object HintOption {
 
     def apply(nameSuffix: String, idSegments: String*): hints.Option = {
       val id = "scala" +: idSegments :+ "hint"
-      new hints.Option(id.mkString("."), "Show for " + nameSuffix, false)
+      new hints.Option(id.mkString("."), s"<html><body>Show for $nameSuffix</body></html>", false)
     }
   }
 

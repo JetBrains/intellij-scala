@@ -21,9 +21,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ValidationReporter;
-import org.jetbrains.plugins.scala.settings.*;
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.settings.annotations.*;
-import org.jetbrains.plugins.scala.util.*;
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 import scala.Some$;
 
 import javax.swing.*;
@@ -195,7 +195,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   private boolean needsTypeAnnotation() {
     return ScalaTypeAnnotationSettings$.MODULE$.apply(expression.getProject()).isTypeAnnotationRequiredFor(
         Declaration$.MODULE$.apply(Visibility$.MODULE$.apply("private"), false, false, false),
-        Location$.MODULE$.apply(expression), Some$.MODULE$.apply(Implementation$.MODULE$.apply(expression)));
+            Location$.MODULE$.apply(expression), Some$.MODULE$.apply(new Definition(expression)));
   }
 
   private void setUpSpecifyTypeChb() {

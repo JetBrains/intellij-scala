@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -46,39 +45,32 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   /**
     * @return map of expressions and parameters
     */
-  def matchedParameters: Seq[(ScExpression, Parameter)] = {
-    matchedParametersInner.map(a => a.swap).filter(a => a._1 != null) //todo: catch when expression is null
+  def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersInner.collect {
+    case (parameter, expression, _) if expression != null => expression -> parameter // todo: catch when expression is null
   }
 
-  /**
-    * @return map of expressions and parameters
-    */
-  def matchedParametersMap: Map[Parameter, Seq[ScExpression]] = {
-    matchedParametersInner.groupBy(_._1).map(t => t.copy(_2 = t._2.map(_._2)))
-  }
-
-  protected def matchedParametersInner: Seq[(Parameter, ScExpression)] = Seq.empty
+  protected def matchedParametersInner: Seq[(Parameter, ScExpression, ScType)]
 
   /**
     * In case if invoked expression converted implicitly to invoke apply or update method
     *
     * @return imports used for implicit conversion
     */
-  def getImportsUsed: collection.Set[ImportUsed] = Set.empty
+  def getImportsUsed: Set[ImportUsed]
 
   /**
     * In case if invoked expression converted implicitly to invoke apply or update method
     *
     * @return actual conversion element
     */
-  def getImplicitFunction: Option[ScalaResolveResult] = None
+  def getImplicitFunction: Option[ScalaResolveResult]
 
   /**
     * true if this call is syntactic sugar for apply or update method.
     */
   def isApplyOrUpdateCall: Boolean = applyOrUpdateElement.isDefined
 
-  def applyOrUpdateElement: Option[ScalaResolveResult] = None
+  def applyOrUpdateElement: Option[ScalaResolveResult]
 
   /**
     * It's arguments for method and infix call.
@@ -102,4 +94,14 @@ object MethodInvocation {
       expression = invocation.getInvokedExpr
       if expression != null
     } yield (expression, invocation.argumentExpressions)
+
+  /**
+    * @return map of expressions and parameters
+    */
+  def matchedParametersMap(methodInvocation: MethodInvocation): Map[Parameter, Seq[ScExpression]] =
+    methodInvocation.matchedParametersInner
+      .groupBy(_._1)
+      .map { pair =>
+        pair._1 -> pair._2.map(_._2)
+      }
 }

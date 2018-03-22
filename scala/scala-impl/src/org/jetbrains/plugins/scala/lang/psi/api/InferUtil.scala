@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createParameterFromText}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
@@ -349,31 +349,19 @@ object InferUtil {
                          typeParams: Seq[TypeParameter],
                          shouldUndefineParameters: Boolean = true,
                          canThrowSCE: Boolean = false,
-                         filterTypeParams: Boolean = true): ScTypePolymorphicType = {
-    localTypeInferenceWithApplicability(retType, params, exprs, typeParams, shouldUndefineParameters, canThrowSCE,
-      filterTypeParams)._1
-  }
-
+                         filterTypeParams: Boolean = true): ScTypePolymorphicType = localTypeInferenceWithApplicabilityExt(
+    retType, params, exprs, typeParams, shouldUndefineParameters, canThrowSCE, filterTypeParams
+  )._1
 
   class SafeCheckException extends ControlThrowable
-
-  def localTypeInferenceWithApplicability(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
-                                          typeParams: Seq[TypeParameter],
-                                          shouldUndefineParameters: Boolean = true,
-                                          canThrowSCE: Boolean = false,
-                                          filterTypeParams: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
-    val (tp, problems, _, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams,
-      shouldUndefineParameters, canThrowSCE, filterTypeParams)
-    (tp, problems)
-  }
 
   def localTypeInferenceWithApplicabilityExt(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                              typeParams: Seq[TypeParameter],
                                              shouldUndefineParameters: Boolean = true,
                                              canThrowSCE: Boolean = false,
                                              filterTypeParams: Boolean = true
-                                            ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)]) = {
-    implicit val projectContext = retType.projectContext
+                                            ): (ScTypePolymorphicType, ConformanceExtResult) = {
+    implicit val projectContext: ProjectContext = retType.projectContext
 
     val typeParamIds = typeParams.map(_.typeParamId).toSet
     def hasRecursiveTypeParams(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
@@ -384,12 +372,12 @@ object InferUtil {
     val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
       expectedType = abstractSubst.subst(p.paramType), defaultType = p.defaultType.map(s.subst)))
-    val c = Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true,
+    val conformanceResult@ConformanceExtResult(problems, undefSubst, _, matched) =
+      Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true,
       isShapesResolve = false)
-    val tpe = if (c.problems.isEmpty) {
-      var un: ScUndefinedSubstitutor = c.undefSubst
-      val subst = c.undefSubst
-      subst.getSubstitutorWithBounds(canThrowSCE) match {
+    val tpe = if (problems.isEmpty) {
+      var un: ScUndefinedSubstitutor = undefSubst
+      undefSubst.getSubstitutorWithBounds(canThrowSCE) match {
         case Some((unSubst, lMap, uMap)) =>
           if (!filterTypeParams) {
             val undefiningSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
@@ -500,7 +488,7 @@ object InferUtil {
         case None => throw new SafeCheckException
       }
     } else ScTypePolymorphicType(retType, typeParams)
-    (tpe, c.problems, c.matchedArgs, c.matchedTypes)
+    (tpe, conformanceResult)
   }
 
   private def tryAddParameters(desType: ScType, typeParameters: Seq[TypeParameter]): ScType = {

@@ -28,7 +28,7 @@ class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) exte
     for (member <- members) {
       member match {
         case func: ScFunction =>
-          children += new ScalaFunctionStructureViewElement(func, false)
+          children ++= ScalaFunctionStructureViewElement(func, false)
         case constr: ScPrimaryConstructor =>
           definition match {
             case c: ScClass if c.isCase =>
@@ -42,10 +42,10 @@ class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) exte
           }
         case member: ScVariable =>
           for (f <- member.declaredElements)
-            children += new ScalaVariableStructureViewElement(f, false)
+            children ++= ScalaVariableStructureViewElement(f, false)
         case member: ScValue =>
           for (f <- member.declaredElements)
-            children += new ScalaValueStructureViewElement(f, false)
+            children ++= ScalaValueStructureViewElement(f, false)
         case member: ScTypeAlias =>
           children += new ScalaTypeAliasStructureViewElement(member, false)
         case _ =>

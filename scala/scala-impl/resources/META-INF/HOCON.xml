@@ -33,7 +33,8 @@
 
         <projectService serviceInterface="org.jetbrains.plugins.hocon.settings.HoconProjectSettings"
                         serviceImplementation="org.jetbrains.plugins.hocon.settings.HoconProjectSettings"/>
-        <projectConfigurable instance="org.jetbrains.plugins.hocon.settings.HoconProjectSettingsConfigurable"/>
+        <projectConfigurable groupId="language" displayName="HOCON"
+                             instance="org.jetbrains.plugins.hocon.settings.HoconProjectSettingsConfigurable"/>
 
         <localInspection language="HOCON"
                          implementationClass="org.jetbrains.plugins.hocon.ref.HoconIncludeResolutionInspection"

@@ -114,7 +114,7 @@ object ScalaOIUtil {
       val genInfos = sortedMembers.map(new ScalaGenerationInfo(_))
       val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)
       val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.orNull, genInfos.reverse.asJava).asScala
-      inserted.headOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
+      inserted.lastOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
     }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
   }
 

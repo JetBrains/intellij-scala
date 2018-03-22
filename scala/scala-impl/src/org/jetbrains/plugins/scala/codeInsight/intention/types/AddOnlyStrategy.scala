@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText}
-import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScCompoundType, ScType, Signature}
+import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, Signature}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.annotations.Implementation
 
@@ -107,7 +107,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
   def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement): Unit = {
     import AddOnlyStrategy._
-    val tps = annotationsFor(t, context)
+    val tps = annotationsFor(t)
     val validVariants = tps.reverse.flatMap(_.`type`().toOption).map(ScTypeText)
 
     val added = addActualType(tps.head, anchor)
@@ -127,18 +127,13 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
           case _ => None
         }
 
-        maybeExpression
-          .zip(simplify(maybeExpression))
-          .foreach {
-            case (expression, replacement) => expression.replace(replacement)
-          }
+        maybeExpression.collect {
+          case call@Implementation.EmptyCollectionFactoryCall(ref) =>
+            (call, createElementFromText(ref.getText)(ref.projectContext))
+        }.foreach {
+          case (expression, replacement) => expression.replace(replacement)
+        }
     }
-  }
-
-  private def simplify(maybeExpression: Option[ScExpression]) = maybeExpression.collect {
-    case ScGenericCall(referenced, _) if Implementation.isEmptyCollectionFactory(referenced) =>
-      implicit val context = referenced.projectContext
-      createExpressionFromText(referenced.getText)
   }
 
   private def typeForMember(element: ScMember): Option[ScType] = {
@@ -236,47 +231,36 @@ object AddOnlyStrategy {
     }
   }
 
-  def annotationFor(`type`: ScType, anchor: PsiElement): Option[ScTypeElement] =
-    annotationsFor(`type`, anchor).headOption
+  def annotationsFor(`type`: ScType): Seq[ScTypeElement] =
+    canonicalTypes(`type`)
+      .map(createTypeElementFromText(_)(`type`.projectContext))
 
-  private def annotationsFor(`type`: ScType, context: PsiElement): Seq[ScTypeElement] = {
-    import `type`.projectContext
+  private[this] def canonicalTypes(`type`: ScType) = `type` match {
+    case CaseClassType(compoundType) => Seq(compoundType.canonicalText)
+    case tp =>
+      import BaseTypes.get
 
-    val canonicalTypes = `type` match {
-      case compound@ScCompoundType(comps, _, _) =>
-        val uselessTypes = Set("_root_.scala.Product", "_root_.scala.Serializable", "_root_.java.lang.Object")
-        val filtered = comps.filterNot(c => uselessTypes.contains(c.canonicalText))
-        val newCompType = compound.copy(components = filtered)
-        Seq(newCompType.canonicalText)
-      case tp =>
-        import BaseTypes.get
+      tp.canonicalText +: (tp.extractClass match {
+        case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName == "scala.Some" =>
+          get(tp).map(_.canonicalText)
+            .filter(_.startsWith("_root_.scala.Option"))
+        case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
+          val goodTypes = Set(
+            "_root_.scala.collection.mutable.Seq[",
+            "_root_.scala.collection.immutable.Seq[",
+            "_root_.scala.collection.mutable.Set[",
+            "_root_.scala.collection.immutable.Set[",
+            "_root_.scala.collection.mutable.Map[",
+            "_root_.scala.collection.immutable.Map["
+          )
 
-        val baseTypes = tp.extractClass match {
-          case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName == "scala.Some" =>
-            get(tp).map(_.canonicalText)
-              .filter(_.startsWith("_root_.scala.Option"))
-          case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
-            val goodTypes = Set(
-              "_root_.scala.collection.mutable.Seq[",
-              "_root_.scala.collection.immutable.Seq[",
-              "_root_.scala.collection.mutable.Set[",
-              "_root_.scala.collection.immutable.Set[",
-              "_root_.scala.collection.mutable.Map[",
-              "_root_.scala.collection.immutable.Map["
-            )
-
-            get(tp).map(_.canonicalText)
-              .filter(t => goodTypes.exists(t.startsWith))
-          case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
-            get(tp).find(_.extractClass.exists(isSealed)).toSeq
-              .map(_.canonicalText)
-          case _ => Seq.empty
-        }
-
-        tp.canonicalText +: baseTypes
-    }
-
-    canonicalTypes.map(createTypeElementFromText)
+          get(tp).map(_.canonicalText)
+            .filter(t => goodTypes.exists(t.startsWith))
+        case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
+          get(tp).find(_.extractClass.exists(isSealed)).toSeq
+            .map(_.canonicalText)
+        case _ => Seq.empty
+      })
   }
 
   private[this] def isSealed(clazz: PsiClass) = clazz match {

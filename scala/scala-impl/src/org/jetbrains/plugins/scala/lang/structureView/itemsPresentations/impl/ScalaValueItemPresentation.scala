@@ -9,19 +9,24 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation
+import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation.withSimpleNames
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 08.05.2008
 */
 
-class ScalaValueItemPresentation(element: ScNamedElement, inherited: Boolean) extends ScalaItemPresentation(element) {
+class ScalaValueItemPresentation(element: ScNamedElement, inherited: Boolean, showType: Boolean)
+  extends ScalaItemPresentation(element, inherited) {
+
+  override def location: Option[String] = value.map(_.containingClass).map(_.name)
+
   override def getPresentableText: String = {
     val typeAnnotation = value.flatMap(_.typeElement.map(_.getText))
 
-    def inferredType = value.flatMap(_.`type`().toOption).map(ScTypePresentation.withoutAliases)
+    def inferredType = if (showType) value.flatMap(_.`type`().toOption).map(ScTypePresentation.withoutAliases) else None
 
-    element.name + typeAnnotation.orElse(inferredType).map(": " + _).mkString
+    withSimpleNames(element.name + typeAnnotation.orElse(inferredType).map(": " + _).mkString)
   }
 
   override def getIcon(open: Boolean): Icon =

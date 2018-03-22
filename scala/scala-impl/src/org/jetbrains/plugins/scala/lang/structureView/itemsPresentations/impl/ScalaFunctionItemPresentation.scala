@@ -5,13 +5,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation
+import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation.withSimpleNames
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
 
-class ScalaFunctionItemPresentation(element: ScFunction, inherited: Boolean) extends ScalaItemPresentation(element) {
+class ScalaFunctionItemPresentation(element: ScFunction, inherited: Boolean, showType: Boolean)
+  extends ScalaItemPresentation(element, inherited) {
+
+  override def location: Option[String] = Option(element.containingClass).map(_.name)
+
   override def getPresentableText: String = {
     val presentation = ScalaElementPresentation.getMethodPresentableText(element)
 
@@ -19,10 +24,10 @@ class ScalaFunctionItemPresentation(element: ScFunction, inherited: Boolean) ext
       if (element.isConstructor) None
       else element.returnTypeElement match {
         case Some(_) => None
-        case None => element.returnType.toOption.map(ScTypePresentation.withoutAliases)
+        case None => if (showType) element.returnType.toOption.map(ScTypePresentation.withoutAliases) else None
       }
 
-    presentation + inferredType.map(": " + _).mkString
+    withSimpleNames(presentation + inferredType.map(": " + _).mkString)
   }
 
   override def getTextAttributesKey: TextAttributesKey =
