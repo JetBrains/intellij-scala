@@ -57,7 +57,7 @@ class ShapelessTest extends TypeInferenceTestBase {
        |val list = Foo.list(1)
        |
        |$START(apply, apply2, list)$END
-       |//(::[Int, HNil], ::[Int, HNil], List[::[Int, HNil]])
+       |//(Int :: HNil, Int :: HNil, List[Int :: HNil])
      """.stripMargin
   )
 
@@ -75,7 +75,7 @@ class ShapelessTest extends TypeInferenceTestBase {
        |}
        |val x = 1
        |${START}bar"$$x"$END
-       |//::[String, ::[Int, HNil]]
+       |//String :: Int :: HNil
      """.stripMargin
   )
 }
