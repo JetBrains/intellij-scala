@@ -125,7 +125,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     val nameProvider = new SharedSourceRootNameProvider()
 
     // TODO consider base/projects correspondence
-    roots.groupBy(_.root.base).values.toSeq.map { roots =>
+    roots.groupBy(_.root.base).values.toList.map { roots =>
       val sharedRoot = roots.head
       val name = nameProvider.nameFor(sharedRoot.root.base)
       RootGroup(name, roots.map(_.root), sharedRoot.projects)
@@ -205,11 +205,12 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       val namedDirectory = if (base.exists(_.getName == "shared")) base.flatMap(_.parent) else base
       val prefix = namedDirectory.map(_.getName + "-sources").getOrElse("shared-sources")
       if (usedNames.contains(prefix)) {
-        val result = prefix + counter
+        val result = s"$prefix-$counter"
         counter += 1
         usedNames += result
         result
       } else {
+        usedNames += prefix
         prefix
       }
     }
