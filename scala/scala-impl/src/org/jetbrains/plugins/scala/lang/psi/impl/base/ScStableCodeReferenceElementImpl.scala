@@ -8,12 +8,11 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.source.JavaDummyHolder
-import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
-import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
@@ -80,18 +79,16 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
   def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 
-    // The qualified identifier immediately following the `macro` keyword
-    // may only refer to a method.
-    def isInMacroDef = getContext match {
-      case _: ScMacroDefinition =>
-        this.prevSiblings.exists {
-          case l: LeafPsiElement if l.getNode.getElementType == ScalaTokenTypes.kMACRO => true
-          case _ => false
-        }
+    //Since scala 2.11 it's possible to create macro implementations not only as static methods,
+    //but also inside certain classes
+    //see http://docs.scala-lang.org/overviews/macros/bundles.html
+    def isMacroImplQualifier: Boolean = getContext.getContext match {
+      case _: ScMacroDefinition => true
       case _ => false
     }
 
     val result = getContext match {
+      case _ if isMacroImplQualifier => stableQualOrClass
       case _: ScStableCodeReferenceElement => stableQualRef
       case e: ScImportExpr => if (e.selectorSet.isDefined
               //import Class._ is not allowed
@@ -111,7 +108,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
       case _: ScThisReference | _: ScSuperReference => stableClassOrObject
       case _: ScImportSelector => stableImportSelector
       case _: ScInfixTypeElement => stableClass
-      case _ if isInMacroDef => methodsOnly
+      case _: ScMacroDefinition => methodsOnly //reference in macro definition may be to method only
       case _ => stableQualRef
     }
     if (completion) result + ResolveTargets.PACKAGE + ResolveTargets.OBJECT + ResolveTargets.VAL else result
