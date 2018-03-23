@@ -5,6 +5,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScConstrBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -15,6 +16,11 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 trait ConstructorAnnotator {
   // TODO duplication with application annotator.
   def annotateConstructor(constructor: ScConstructor, holder: AnnotationHolder) {
+    constructor.typeElement match {
+      case lit: ScLiteralTypeElement =>
+        holder.createErrorAnnotation(constructor.typeElement, s"Class type required but ($lit) found")
+      case _ =>
+    }
     //in case if constructor is function
     constructor.reference match {
       case None => return

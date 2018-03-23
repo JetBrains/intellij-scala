@@ -158,4 +158,10 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
   def testSip23SymbolsPos(): Unit = doTest()
 
   def testSip23Narrow(): Unit = doTest()
+
+  def testAnnotLiteralType(): Unit = doTest{
+    case Error("23", "Class type required but (LiteralType: 23) found") :: Nil =>
+  }
+
+  def testWithSpaces(): Unit = doTest()
 }
