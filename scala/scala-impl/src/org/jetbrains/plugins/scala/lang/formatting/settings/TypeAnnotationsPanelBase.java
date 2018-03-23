@@ -187,6 +187,7 @@ abstract class TypeAnnotationsPanelBase extends CodeStyleAbstractPanel {
     myStructuralType = new JCheckBox();
     myStructuralType.setSelected(true);
     myStructuralType.setText("Accidental structural type definition");
+    myStructuralType.setToolTipText("<html>Enforces type annotations for values, which have structural type inferred, e.g.<br>\n<pre><code>\nval foo = Runnable {\n  override def run(): Unit = ()\n  def helper(): Unit = ()\n} // foo has inferred type Runnable { def helper(): Unit } \n</code></pre></html>");
     panel6.add(myStructuralType, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer3 = new Spacer();
     myContent.add(spacer3, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, 1, new Dimension(30, -1), null, null, 0, false));
