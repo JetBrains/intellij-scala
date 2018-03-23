@@ -5,8 +5,8 @@ package util
 
 import java.awt.Component
 import java.{util => ju}
-
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
@@ -24,12 +24,11 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOfType, isAncestor}
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import org.jetbrains.plugins.scala.codeInspection.collections.stripped
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -43,7 +42,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
@@ -615,12 +613,26 @@ object ScalaRefactoringUtil {
       case i: ScIfStmt =>
         builder.append("if (...) {...}")
         if (i.elseBranch.isDefined) builder.append(" else {...}")
-      case i: ScInfixExpr =>
-        builder.append(getShortText(i.lOp))
+      case ScGenericInfixNode(left, op, right) =>
+        builder.append(getShortText(left))
         builder.append(" ")
-        builder.append(getShortText(i.operation))
+        builder.append(getShortText(op))
         builder.append(" ")
-        builder.append(getShortText(i.rOp))
+        builder.append(getShortText(right.get))
+      case i: ScInterpolationPattern =>
+        builder.append(getShortText(i.ref))
+        builder.append("\"...\"")
+      case c: ScConstructorPattern =>
+        builder.append(getShortText(c.ref))
+        builder.append(c.args.patterns.map(getShortText).mkString("(", ", ", ")"))
+      case n: ScNamingPattern =>
+        builder.append(n.name)
+        builder.append(" @ ")
+        builder.append(getShortText(n.named))
+      case f: ScFunctionalTypeElement =>
+        builder.append(getShortText(f.paramTypeElement))
+        builder.append(" => ")
+        builder.append(getShortText(f.returnTypeElement.get))
       case l: ScLiteral => builder.append(l.getText)
       case m: ScMatchStmt =>
         m.expr match {
@@ -646,10 +658,10 @@ object ScalaRefactoringUtil {
           case Some(_) => builder.append(" {...}")
           case _ =>
         }
-      case p: ScParenthesisedExpr =>
+      case p : ScGenericParenthesisedNode[_] =>
         builder.append("(")
-        p.expr match {
-          case Some(expression) => builder.append(getShortText(expression))
+        p.subNode match {
+          case Some(sub) => builder.append(getShortText(sub))
           case _ =>
         }
         builder.append(")")

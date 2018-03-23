@@ -494,6 +494,4 @@ object ScPattern {
     fqnO.exists(fqn => fqn.contains('.') && fqn.substring(0, fqn.lastIndexOf('.')) == "scala.reflect.api.Quasiquotes.Quasiquote")
   }
 
-
-
 }

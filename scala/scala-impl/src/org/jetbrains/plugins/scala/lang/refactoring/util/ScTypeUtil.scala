@@ -22,4 +22,5 @@ object ScTypeUtil {
   }
 
   case class AliasType(ta: ScTypeAlias, lower: TypeResult, upper: TypeResult)
+
 }

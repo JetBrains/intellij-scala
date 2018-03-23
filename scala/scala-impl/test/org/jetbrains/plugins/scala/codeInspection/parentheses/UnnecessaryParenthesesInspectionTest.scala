@@ -3,6 +3,7 @@ package codeInspection
 package parentheses
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
@@ -21,6 +22,14 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
   protected override val description = "Unnecessary parentheses"
 
   private val hintBeginning = "Remove unnecessary parentheses"
+
+  // see https://github.com/JetBrains/intellij-scala/pull/434 for more test cases
+
+  override def setUp(): Unit = {
+    super.setUp()
+    getFixture.enableInspections(classOfInspection)
+  }
+
 
   def test_1(): Unit = {
     val selected = s"$START(1 + 1)$END"
@@ -153,4 +162,136 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     val hint = hintBeginning + " (6)"
     testQuickFix(text, result, hint)
   }
+
+
+  def test_simpleType(): Unit = {
+    val selected = s"val i: $START(Int)$END = 3"
+    checkTextHasError(selected)
+
+    val text = s"val i: ($CARET_MARKER Int) = 3"
+    val result = "val i: Int = 3"
+    val hint = hintBeginning + " (Int)"
+    testQuickFix(text, result, hint)
+  }
+
+
+  def test_simpleTypeMultipleParen(): Unit = {
+    val selected = s"val i: $START(((Int)))$END = 3"
+    checkTextHasError(selected)
+
+    val text = "val i: (((Int))) = 3"
+    val result = "val i: Int = 3"
+    val hint = hintBeginning + " (((Int)))"
+    testQuickFix(text, result, hint)
+  }
+
+  def test_functionType():Unit={
+    val selected = s"val i: Int => $START(Int => String)$END = _"
+    checkTextHasError(selected)
+
+    val text = "val i: Int => (Int => String) = _"
+    val result = "val i: Int => Int => String = _"
+    val hint = hintBeginning + " (Int => String)"
+    testQuickFix(text, result, hint)
+  }
+
+  def test_functionPlusInfix(): Unit = {
+    // these are clarifying
+    val selected = s"val i: Int => $START(A op B)$END = _"
+    checkTextHasNoErrors(selected)
+  }
+
+  def test_infixType_rightAssoc():Unit = {
+    val selected = s"val f: Int <<: $START(Unit <<: Unit)$END = _"
+    checkTextHasError(selected)
+
+    val text = s"val f: Int <<: ($CARET_MARKER Unit <<: Unit) = _"
+    val result = "val f: Int <<: Unit <<: Unit = _"
+    val hint = hintBeginning + " (Unit <<: Unit)"
+    testQuickFix(text, result, hint)
+  }
+
+ 
+  def test_infixType_leftAssoc():Unit = {
+    val selected = s"val f: $START(Int op Unit)$END op Unit = _"
+    checkTextHasError(selected)
+
+    val text = s"val f: ($CARET_MARKER Int op Unit) op Unit = _"
+    val result = "val f: Int op Unit op Unit = _"
+    val hint = hintBeginning + " (Int op Unit)"
+    testQuickFix(text, result, hint)
+  }
+
+
+  def test_tupleType(): Unit = {
+    val selected = s"val f: $START((Int, String))$END = _"
+    checkTextHasError(selected)
+
+    val text = s"val f: ($CARET_MARKER(Int, Unit)) = _"
+    val result = "val f: (Int, Unit) = _"
+    val hint = hintBeginning + " ((Int, Unit))"
+    testQuickFix(text, result, hint)
+  }
+
+
+  def test_infxPatternPrecedence(): Unit = {
+    val selected = s"val a +: $START(b +: c)$END = _ "
+    checkTextHasError(selected)
+
+    val text = s"val a +: ($CARET_MARKER b +: c) = _ "
+    val result = "val a +: b +: c = _ "
+    val hint = hintBeginning + " (b +: c)"
+    testQuickFix(text, result, hint)
+  }
+
+
+  def test_lambdaParam(): Unit = {
+    val r1 = s"Seq(1) map { $START(i)$END => i + 1 }"
+    val r2 = s"Seq(1) map { $START(i: Int)$END => i + 1 }"
+    val r3 = s"Seq(1) map ($START(i)$END => i + 1)"
+    val required = "Seq(1) map ((i: Int) => i + 1)"
+
+    checkTextHasNoErrors(required)
+    checkTextHasError(r1)
+    checkTextHasError(r2)
+    checkTextHasError(r3)
+
+    val text = s"Seq(1) map { (${CARET_MARKER}i: Int) => i + 1 }"
+    val result = s"Seq(1) map { i: Int => i + 1 }"
+    val hint = hintBeginning + " (i: Int)"
+    testQuickFix(text, result, hint)
+  }
+
+
+  private def considerClarifying(body: => Unit): Unit = {
+    val tool = InspectionProfileManager.getInstance(project)
+               .getCurrentProfile
+               .getInspectionTool("ScalaUnnecessaryParentheses", project)
+               .getTool
+
+    tool match {
+      case check: ScalaUnnecessaryParenthesesInspection => check setIgnoreClarifying false
+      case _ =>
+    }
+
+    getFixture.enableInspections(tool)
+
+    body
+  }
+
+
+  /*
+  def test_infxPatternClarifying(): Unit = {
+    considerClarifying {
+      val selected = s"val a +: $START(b *: c)$END = _ "
+      checkTextHasError(selected)
+
+      val text = s"val a +: ($CARET_MARKER b *: c) = _ "
+      val result = "val a +: b *: c = _ "
+      val hint = hintBeginning + " (b *: c)"
+      testQuickFix(text, result, hint)
+    }
+  }
+  */
+
 }
