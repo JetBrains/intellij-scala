@@ -58,7 +58,7 @@ trait TreeAdapter {
           Seq(t.typeParameters map toTypeParams: _*),
           Seq(t.paramClauses.clauses.map(convertParamClause): _*),
           Option(toType(value)),
-          expression(t.body).get
+          t.macroImplReference.map(getQualifiedReference).get
         )
       case _ => unreachable("Macro definition must have return type defined")
     }

@@ -8,8 +8,8 @@ import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
@@ -37,7 +37,7 @@ class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
     //processing parameters for default parameters in ScParameters
     val parameterIncludingSynthetic: Seq[ScParameter] = effectiveParameterClauses.flatMap(_.parameters)
     if (getStub == null) {
-      body match {
+      macroImplReference match {
         case Some(x)
           if lastParent != null &&
             (!needCheckProcessingDeclarationsForBody ||
@@ -68,7 +68,9 @@ class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
     case None => Right(Any) // TODO look up type from the macro impl.
   }
 
-  def body: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
+  //todo: stub for macro definition should also contain reference
+  def macroImplReference: Option[ScStableCodeReferenceElement] =
+    byPsiOrStub(findChild(classOf[ScStableCodeReferenceElement]))(_ => None)
 
   override def hasAssign: Boolean = true
 

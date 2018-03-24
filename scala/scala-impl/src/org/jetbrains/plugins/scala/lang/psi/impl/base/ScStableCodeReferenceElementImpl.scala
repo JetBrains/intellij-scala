@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSuperReference, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction, ScMacroDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
@@ -79,17 +80,13 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
   def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 
-    //Since scala 2.11 it's possible to create macro implementations not only as static methods,
-    //but also inside certain classes
-    //see http://docs.scala-lang.org/overviews/macros/bundles.html
-    def isMacroImplQualifier: Boolean = getContext.getContext match {
-      case _: ScMacroDefinition => true
-      case _ => false
-    }
-
     val result = getContext match {
-      case _ if isMacroImplQualifier => stableQualOrClass
-      case _: ScStableCodeReferenceElement => stableQualRef
+      case contextRef: ScStableCodeReferenceElement =>
+        //Since scala 2.11 it's possible macro implementations not only as static methods,
+        //but also inside certain classes, so qualifier of a macro impl reference may resolve to a class
+        //see http://docs.scala-lang.org/overviews/macros/bundles.html
+        if (isMacroImplReference(contextRef)) stableQualOrClass
+        else stableQualRef
       case e: ScImportExpr => if (e.selectorSet.isDefined
               //import Class._ is not allowed
         || qualifier.isEmpty || e.isSingleWildcard) stableQualRef
