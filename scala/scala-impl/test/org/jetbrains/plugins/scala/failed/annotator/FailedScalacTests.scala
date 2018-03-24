@@ -150,6 +150,10 @@ class FailedScalacTests extends FailedScalacTestsBase {
   def `test_typerep-stephane`(): Unit = doTest()
   def test_virtpatmat_gadt_array(): Unit = doTest()
   def test_z1720(): Unit = doTest()
+
+  def test_t7190(): Unit = doTest()
+  def `test_macro-bundle-disambiguate-bundle`(): Unit = doTest()
+  def `test_macro-bundle-disambiguate-nonbundle`(): Unit = doTest()
 }
 
 @Category(Array(classOf[PerfCycleTests]))
