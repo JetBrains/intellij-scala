@@ -43,7 +43,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   @volatile private var processData: Option[ProcessData] = None
 
   private def pluginResolverSetting: String =
-    s"""resolvers += Resolver.file("intellij-scala-plugin", file("$findRepoDir"))(Resolver.ivyStylePatterns)"""
+    s"""resolvers += Resolver.file("intellij-scala-plugin", file(raw"$findRepoDir"))(Resolver.ivyStylePatterns)"""
 
   // blatant copypaste of org.jetbrains.sbt.project.SbtProjectResolver.getSbtLauncherDir
   private def findRepoDir: File = {
