@@ -9,16 +9,15 @@ import com.intellij.featureStatistics.FeatureUsageTracker
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.IdeActions.ACTION_SHOW_INTENTION_ACTIONS
 import com.intellij.openapi.keymap.KeymapUtil.getFirstKeyboardShortcutText
+import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiClass.EMPTY_ARRAY
 import com.intellij.psi.ResolveState.initial
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{fileContext, nameContext}
@@ -140,18 +139,15 @@ object ScalaGlobalMembersCompletionContributor {
     }
   }
 
-  import JavaConverters._
-
-  private def implicitElements(reference: ScReferenceExpression): Iterable[ScMember] = {
+  private def implicitElements(reference: ScReferenceExpression)
+                              (implicit project: Project = reference.getProject): Iterable[ScMember] = {
     triggerFeature()
 
-    StubIndex.getElements(
-      ScalaIndexKeys.IMPLICITS_KEY,
-      "implicit",
-      reference.getContainingFile.getProject,
-      ScalaFilterScope(reference.getProject, reference.resolveScope),
+    import ScalaIndexKeys._
+    IMPLICITS_KEY.elements("implicit",
+      reference.resolveScope,
       classOf[ScMember]
-    ).asScala
+    )
   }
 
   private def implicitResults(reference: ScReferenceExpression,

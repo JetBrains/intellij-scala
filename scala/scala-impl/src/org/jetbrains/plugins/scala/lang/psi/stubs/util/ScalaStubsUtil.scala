@@ -6,10 +6,10 @@ package util
 
 
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.caches.CachesUtil
@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.SUPER_CLASS_NAME_KEY
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -37,10 +36,10 @@ object ScalaStubsUtil {
     if (name == null || clazz.isEffectivelyFinal) return Seq.empty
 
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
-    val scalaScope = new ScalaFilterScope(scope, clazz.getProject)
 
-    val extendsBlocks =
-      StubIndex.getElements(SUPER_CLASS_NAME_KEY, name, clazz.getProject, scalaScope, classOf[ScExtendsBlock]).iterator
+    import ScalaIndexKeys._
+    val extendsBlocks = SUPER_CLASS_NAME_KEY.elements(name, scope, classOf[ScExtendsBlock])(clazz.getProject)
+      .iterator
 
     while (extendsBlocks.hasNext) {
       val extendsBlock = extendsBlocks.next
@@ -59,11 +58,12 @@ object ScalaStubsUtil {
   def getSelfTypeInheritors(clazz: PsiClass): Seq[ScTemplateDefinition] = {
     @CachedInsidePsiElement(clazz, CachesUtil.enclosingModificationOwner(clazz))
     def selfTypeInheritorsInner(): Seq[ScTemplateDefinition] = {
-      val scope = new ScalaFilterScope(clazz.resolveScope, clazz.getProject)
       val inheritors = new ArrayBuffer[ScTemplateDefinition]
-      val project = clazz.getProject
       val name = clazz.name
       if (name == null) return Seq.empty
+
+      implicit val project: Project = clazz.getProject
+      val resolveScope = clazz.resolveScope
 
       def processClass(inheritedClazz: PsiClass) {
         def checkTp(tp: ScType): Boolean = {
@@ -80,8 +80,9 @@ object ScalaStubsUtil {
           false
         }
         inReadAction {
-          val iterator: java.util.Iterator[ScSelfTypeElement] =
-            StubIndex.getElements(ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY, name, project, scope, classOf[ScSelfTypeElement]).iterator
+          import ScalaIndexKeys._
+          val iterator = SELF_TYPE_CLASS_NAME_KEY.elements(name, resolveScope, classOf[ScSelfTypeElement])
+            .iterator
           while (iterator.hasNext) {
             val selfTypeElement = iterator.next
             selfTypeElement.typeElement match {
@@ -100,7 +101,7 @@ object ScalaStubsUtil {
         }
       }
       processClass(clazz)
-      ClassInheritorsSearch.search(clazz, scope, true).forEach(new Processor[PsiClass] {
+      ClassInheritorsSearch.search(clazz, ScalaFilterScope(project, resolveScope), true).forEach(new Processor[PsiClass] {
         def process(t: PsiClass): Boolean = {
           processClass(t)
           true
