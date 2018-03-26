@@ -41,25 +41,19 @@ trait TypeInferenceDoTest extends FailableTest {
             val resText = text.substring(2, text.length - 2).trim
             if (resText.startsWith(fewVariantsMarker)) {
               val results = resText.substring(fewVariantsMarker.length).trim.split('\n')
-              if (!results.contains(res)) assertTrue(!shouldPass ^ results(0) == res)
+              if (!results.contains(res)) assertEqualsFailable(results(0), res)
               return
             } else resText
           case _ =>
             throw new AssertionError("Test result must be in last comment statement.")
         }
         output match {
-          case ExpectedPattern("<none>") =>
-            expr.expectedType() match {
-              case Some(et) if shouldPass => fail("found unexpected expected type: %s".format(et.presentableText))
-              case None => // all good
-            }
           case ExpectedPattern(expectedExpectedTypeText) =>
-            val actualExpectedType = expr.expectedType().getOrElse(sys.error("no expected type"))
-            val actualExpectedTypeText = actualExpectedType.presentableText
-            assertTrue(!shouldPass ^ expectedExpectedTypeText == actualExpectedTypeText)
+            val actualExpectedTypeText = expr.expectedType().map(_.presentableText).getOrElse("<none>")
+            assertEqualsFailable(expectedExpectedTypeText, actualExpectedTypeText)
           case SimplifiedPattern(expectedText) =>
-            assertTrue(!shouldPass ^ expectedText == ScTypePresentation.withoutAliases(ttypez))
-          case _ => assertTrue(!shouldPass ^ output == res)
+            assertEqualsFailable(expectedText, ScTypePresentation.withoutAliases(ttypez))
+          case _ => assertEqualsFailable(output, res)
         }
       case Failure(msg) if shouldPass => fail(msg)
       case _ =>
