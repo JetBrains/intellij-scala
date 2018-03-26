@@ -47,7 +47,7 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
     node match {
       case td: ScalaTypeDefinitionStructureViewElement =>
         val children = new util.ArrayList[TreeElement]()
-        val clazz = td.psiElement
+        val clazz = td.element
         val project = clazz.getProject
         try {
           if (!clazz.isValid) return children
@@ -83,7 +83,7 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
             valDef.getLastChild match {
               case testCall: ScMethodCall =>
                 TestNodeProvider.extractUTest(testCall, testCall.getProject)
-              case _ => tryTupledId(valElement.psiElement)
+              case _ => tryTupledId(valElement.element)
             }
           case named: ScNamedElement =>
             tryTupledId(named.nameId)
@@ -184,10 +184,10 @@ object TestNodeProvider {
   }
 
   private def ignoredScalaTestElement(element: PsiElement, name: String, children: Array[TreeElement] = Array()) =
-    new TestStructureViewElement(element, name + TestNodeProvider.ignoredSuffix, children, TestStructureViewElement.ignoredStatusId)
+    new TestStructureViewElement(element, name + TestNodeProvider.ignoredSuffix, children, TestStructureViewElement.IgnoredStatusId)
 
   private def pendingScalaTestElement(element: PsiElement, name: String, children: Array[TreeElement] = Array()) =
-    new TestStructureViewElement(element, name + TestNodeProvider.pendingSuffix, children, TestStructureViewElement.pendingStatusId)
+    new TestStructureViewElement(element, name + TestNodeProvider.pendingSuffix, children, TestStructureViewElement.PendingStatusId)
 
   def getInfixExprTestName(expr: ScInfixExpr): String = expr.getNode.getFirstChildNode.getText
 
@@ -338,7 +338,7 @@ object TestNodeProvider {
     //check matchers here because they are supposed to be stacked, as opposed to scalaTest, where bases are distinct
     if (isSpecs2Expr(expr: ScInfixExpr)) {
       Some(new TestStructureViewElement(expr, getInfixExprTestName(expr), children,
-        if (checkSpecsPending(expr)) TestStructureViewElement.pendingStatusId else TestStructureViewElement.normalStatusId))
+        if (checkSpecsPending(expr)) TestStructureViewElement.PendingStatusId else TestStructureViewElement.NormalStatusId))
     }  else None
   }
 
@@ -542,13 +542,13 @@ object TestNodeProvider {
     getTestLeaves(configurationProducer match {
       case _: UTestConfigurationProducer =>
         new ScalaTypeDefinitionStructureViewElement(aSuite).getChildren flatMap {
-          case scVal: ScalaValueStructureViewElement if !scVal.isInherited => nodeProvider.provideNodes(scVal).asScala
+          case scVal: ScalaValueStructureViewElement if !scVal.inherited => nodeProvider.provideNodes(scVal).asScala
           case _ => List.empty
         }
       case _ =>
         nodeProvider.provideNodes(new ScalaTypeDefinitionStructureViewElement(aSuite)).asScala
     }).map { e =>
-      Option(configurationProducer.getLocationClassAndTest(new PsiLocation(e.psiElement))) filter {
+      Option(configurationProducer.getLocationClassAndTest(new PsiLocation(e.element))) filter {
         case (suite, testName) =>
           suite != null && suite.getQualifiedName == suiteName && testName != null
       }

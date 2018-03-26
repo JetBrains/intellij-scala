@@ -35,7 +35,7 @@ trait WordSpecFileStructureViewTest extends ScalaTestTestCase {
     """.stripMargin)
 
   def testWordSpecNormal(): Unit = {
-    runFileStructureViewTest(className, normalStatusId, "\"parent1\"", "\"child1\"", "\"child2\"", "\"parent2\"",
+    runFileStructureViewTest(className, NormalStatusId, "\"parent1\"", "\"child1\"", "\"child2\"", "\"parent2\"",
       "\"child3\"", "\"child4\"")
   }
 
@@ -47,15 +47,15 @@ trait WordSpecFileStructureViewTest extends ScalaTestTestCase {
   }
 
   def testWordSpecIgnored(): Unit = {
-    runFileStructureViewTest(className, ignoredStatusId, "\"ignore1\"")
+    runFileStructureViewTest(className, IgnoredStatusId, "\"ignore1\"")
   }
 
   def testWordSpecPending(): Unit = {
-    runFileStructureViewTest(className, pendingStatusId, "\"pending1\"")
-    runFileStructureViewTest(className, pendingStatusId, "\"pending2\"")
+    runFileStructureViewTest(className, PendingStatusId, "\"pending1\"")
+    runFileStructureViewTest(className, PendingStatusId, "\"pending2\"")
   }
 
   def testWordSpecIgnoredAndPending(): Unit = {
-    runFileStructureViewTest(className, ignoredStatusId, "\"ignore2\"")
+    runFileStructureViewTest(className, IgnoredStatusId, "\"ignore2\"")
   }
 }

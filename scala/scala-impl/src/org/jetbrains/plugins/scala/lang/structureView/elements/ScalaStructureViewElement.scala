@@ -8,28 +8,26 @@ import java.util.Objects
 import com.intellij.ide.structureView.StructureViewTreeElement
 import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
 
-abstract class ScalaStructureViewElement[T <: PsiElement](val psiElement: T, val inherited: Boolean) extends StructureViewTreeElement {
+abstract class ScalaStructureViewElement[T <: PsiElement](val element: T, val inherited: Boolean) extends StructureViewTreeElement {
 
-  def getValue: Object = if (psiElement.isValid) psiElement else null
+  override def getValue: Object = if (element.isValid) element else null
 
-  def navigate(b: Boolean) {
-    psiElement.asInstanceOf[Navigatable].navigate(b)
+  override def navigate(b: Boolean) {
+    element.asInstanceOf[Navigatable].navigate(b)
   }
 
-  def canNavigate: Boolean = {
-    psiElement.asInstanceOf[Navigatable].canNavigate
+  override def canNavigate: Boolean = {
+    element.asInstanceOf[Navigatable].canNavigate
   }
 
-  def canNavigateToSource: Boolean = {
-    psiElement.asInstanceOf[Navigatable].canNavigateToSource
+  override def canNavigateToSource: Boolean = {
+    element.asInstanceOf[Navigatable].canNavigateToSource
   }
 
   override def equals(o: Any): Boolean = {

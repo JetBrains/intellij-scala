@@ -39,7 +39,7 @@ trait FreeSpecFileStructureViewTest extends ScalaTestTestCase {
     """.stripMargin)
 
   def testFreeSpecNormal(): Unit = {
-    runFileStructureViewTest(className, normalStatusId, "\"level1\"", "\"level1_1\"",
+    runFileStructureViewTest(className, NormalStatusId, "\"level1\"", "\"level1_1\"",
       "\"level1_2\"", "\"level1_2_1\"")
   }
 
@@ -50,18 +50,18 @@ trait FreeSpecFileStructureViewTest extends ScalaTestTestCase {
 
   def testFreeSpecIgnoredHierarchy(): Unit = {
     runFileStructureViewTest(className, "\"level2_1\"", Some("\"level2\"" + TestNodeProvider.ignoredSuffix))
-    runFileStructureViewTest(className, "\"level2_2\"" + TestNodeProvider.ignoredSuffix, Some("\"level2\"" + TestNodeProvider.ignoredSuffix), ignoredStatusId)
+    runFileStructureViewTest(className, "\"level2_2\"" + TestNodeProvider.ignoredSuffix, Some("\"level2\"" + TestNodeProvider.ignoredSuffix), IgnoredStatusId)
   }
 
   def testFreeSpecIgnored(): Unit = {
-    runFileStructureViewTest(className, ignoredStatusId, "\"level2\"", "\"level2_2\"")
+    runFileStructureViewTest(className, IgnoredStatusId, "\"level2\"", "\"level2_2\"")
   }
 
   def testFreeSpecIgnoredAndPending(): Unit = {
-    runFileStructureViewTest(className, ignoredStatusId, "\"level3\"")
+    runFileStructureViewTest(className, IgnoredStatusId, "\"level3\"")
   }
 
   def testFreeSpecPending(): Unit = {
-    runFileStructureViewTest(className, pendingStatusId, "\"level1_2\"", "\"level1_3\"")
+    runFileStructureViewTest(className, PendingStatusId, "\"level1_2\"", "\"level1_3\"")
   }
 }

@@ -1,20 +1,30 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
-package elements
-package impl
+package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
+import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl.ScalaTypeAliasItemPresentation
+import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
+import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaTypeAliasStructureViewElement.Presentation
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 31.07.2008
  */
- 
-class ScalaTypeAliasStructureViewElement(ta: ScTypeAlias, val isInherited: Boolean) extends ScalaStructureViewElement(ta, isInherited)  {
-  def getPresentation: ItemPresentation = new ScalaTypeAliasItemPresentation(ta, isInherited)
 
-  def getChildren: Array[TreeElement] = new Array[TreeElement](0)}
+class ScalaTypeAliasStructureViewElement(alias: ScTypeAlias, inherited: Boolean) extends ScalaStructureViewElement(alias, inherited)  {
+  override def getPresentation: ItemPresentation = new Presentation(alias, inherited)
+
+  override def getChildren: Array[TreeElement] = TreeElement.EMPTY_ARRAY
+}
+
+private object ScalaTypeAliasStructureViewElement {
+  class Presentation(element: ScTypeAlias, inherited: Boolean) extends ScalaItemPresentation(element, inherited) {
+    override def location: Option[String] = Option(element.containingClass).map(_.name)
+
+    override def getPresentableText: String = ScalaElementPresentation.getTypeAliasPresentableText(element)
+
+    override def getTextAttributesKey: TextAttributesKey = if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
+  }
+}

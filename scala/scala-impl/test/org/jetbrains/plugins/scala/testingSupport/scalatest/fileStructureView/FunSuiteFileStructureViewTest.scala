@@ -26,18 +26,18 @@ trait FunSuiteFileStructureViewTest extends ScalaTestTestCase {
     """.stripMargin)
 
   def testFunSuiteNormal(): Unit = {
-    runFileStructureViewTest(className, normalStatusId, "test(\"test\")")
+    runFileStructureViewTest(className, NormalStatusId, "test(\"test\")")
   }
 
   def testFunSuiteIgnored(): Unit = {
-    runFileStructureViewTest(className, ignoredStatusId, "ignore(\"ignore\")")
+    runFileStructureViewTest(className, IgnoredStatusId, "ignore(\"ignore\")")
   }
 
   def testFunSuitePending(): Unit = {
-    runFileStructureViewTest(className, pendingStatusId, "test(\"pending\")")
+    runFileStructureViewTest(className, PendingStatusId, "test(\"pending\")")
   }
 
   def testFunSuiteIgnoredAndPending(): Unit = {
-    runFileStructureViewTest(className, ignoredStatusId, "ignore(\"pending and ignore\")")
+    runFileStructureViewTest(className, IgnoredStatusId, "ignore(\"pending and ignore\")")
   }
 }

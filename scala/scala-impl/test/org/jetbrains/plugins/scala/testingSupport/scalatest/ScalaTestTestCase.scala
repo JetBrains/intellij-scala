@@ -16,9 +16,9 @@ abstract class ScalaTestTestCase extends ScalaTestingTestCase {
     TestConfigurationUtil.scalaTestConfigurationProducer
 
   override protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit = {
-    super.runFileStructureViewTest(testClassName, status, (if (status == ignoredStatusId) {
+    super.runFileStructureViewTest(testClassName, status, (if (status == IgnoredStatusId) {
       tests.map(_ + TestNodeProvider.ignoredSuffix)
-    } else if (status == pendingStatusId) {
+    } else if (status == PendingStatusId) {
       tests.map(_ + TestNodeProvider.pendingSuffix)
     } else tests): _*)
   }

@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
+package org.jetbrains.plugins.scala.lang.structureView
 
 import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.psi._

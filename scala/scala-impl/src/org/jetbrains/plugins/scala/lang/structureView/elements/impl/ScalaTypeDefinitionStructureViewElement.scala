@@ -2,12 +2,14 @@ package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
-import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
+import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaTypeDefinitionStructureViewElement.Presentation
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -16,9 +18,8 @@ import scala.collection.mutable.ArrayBuffer
 * Date: 04.05.2008
 */
 
-class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) extends ScalaStructureViewElement(definition, false) {
-  override def getPresentation: ItemPresentation =
-    new ScalaTypeDefinitionItemPresentation(definition)
+class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) extends ScalaStructureViewElement(definition, inherited = false) {
+  override def getPresentation: ItemPresentation = new Presentation(definition)
 
   override def getChildren: Array[TreeElement] = {
     val children = new ArrayBuffer[TreeElement]
@@ -54,5 +55,21 @@ class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) exte
     for (typeDef <- definition.typeDefinitions)
       children += new ScalaTypeDefinitionStructureViewElement(typeDef)
     children.toArray
+  }
+}
+
+private object ScalaTypeDefinitionStructureViewElement {
+  class Presentation(definition: ScTypeDefinition) extends ScalaItemPresentation(definition) {
+    def getPresentableText: String = {
+      val typeParameters = definition.typeParametersClause.map(_.typeParameters.map(_.name).mkString("[", ", ", "]"))
+
+      val valueParameters = definition.asOptionOf[ScClass].flatMap {
+        _.constructor.map(it => StructureViewUtil.getParametersAsString(it.parameterList))
+      }
+
+      val name = Option(definition.nameId).map(_.getText)
+
+      name.getOrElse("") + typeParameters.getOrElse("") + valueParameters.getOrElse("")
+    }
   }
 }

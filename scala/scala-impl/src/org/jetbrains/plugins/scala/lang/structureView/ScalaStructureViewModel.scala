@@ -26,10 +26,10 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
  * @author Alexander Podkhalyuzin
  * @since 04.05.2008
  */
-class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val console: ScalaLanguageConsole = null)
+class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLanguageConsole] = None)
   extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
 
-  def isAlwaysLeaf(element: StructureViewTreeElement): Boolean =
+  override def isAlwaysLeaf(element: StructureViewTreeElement): Boolean =
     !(isAlwaysShowsPlus(element) ||
       element.isInstanceOf[TestStructureViewElement] ||
       element.isInstanceOf[ScalaBlockStructureViewElement] ||
@@ -37,7 +37,7 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
       element.isInstanceOf[ScalaValueStructureViewElement] ||
       element.isInstanceOf[ScalaFunctionStructureViewElement])
 
-  def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean = {
+  override def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean = {
     element match {
       case _: ScalaTypeDefinitionStructureViewElement => true
       case _: ScalaFileStructureViewElement => true
@@ -47,9 +47,7 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
   }
 
   @NotNull
-  def getRoot: StructureViewTreeElement = {
-    new ScalaFileStructureViewElement(myRootElement, console)
-  }
+  override def getRoot: StructureViewTreeElement = new ScalaFileStructureViewElement(myRootElement, console)
 
 // TODO Enable inferred types
 //  override def getFilters: Array[Filter] = Array(new Filter {
@@ -98,7 +96,7 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
 
       override def getComparator: Comparator[_] = (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
         case (e1: ScalaStructureViewElement[_], e2: ScalaStructureViewElement[_]) if !e1.inherited && !e2.inherited =>
-          e1.psiElement.getTextOffset - e2.psiElement.getTextOffset
+          e1.element.getTextOffset - e2.element.getTextOffset
         case _ => 0
       }
     }

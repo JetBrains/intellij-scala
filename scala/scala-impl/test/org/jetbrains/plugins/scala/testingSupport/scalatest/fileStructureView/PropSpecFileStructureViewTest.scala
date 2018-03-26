@@ -26,19 +26,19 @@ trait PropSpecFileStructureViewTest extends ScalaTestTestCase {
       """.stripMargin)
 
   def testPropSpecNormal(): Unit = {
-    runFileStructureViewTest(className, normalStatusId, "property(\"test\")")
+    runFileStructureViewTest(className, NormalStatusId, "property(\"test\")")
   }
 
   def testPropSpecIgnored(): Unit = {
-    runFileStructureViewTest(className, ignoredStatusId, "ignore(\"ignore\")")
+    runFileStructureViewTest(className, IgnoredStatusId, "ignore(\"ignore\")")
   }
 
   def testPropSpecPending(): Unit = {
-    runFileStructureViewTest(className, pendingStatusId, "property(\"pending\")")
+    runFileStructureViewTest(className, PendingStatusId, "property(\"pending\")")
   }
 
   def testPropSpecIgnoredAndPending(): Unit = {
-    runFileStructureViewTest(className, ignoredStatusId, "ignore(\"pending and ignore\")")
+    runFileStructureViewTest(className, IgnoredStatusId, "ignore(\"pending and ignore\")")
   }
 
 }

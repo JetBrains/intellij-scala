@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
+package org.jetbrains.plugins.scala.lang.structureView
 
 import com.intellij.ide.structureView.StructureViewBuilder
 import com.intellij.lang.PsiStructureViewFactory
@@ -14,14 +12,13 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 * Date: 04.05.2008
 */
 class ScalaStructureViewFactory extends PsiStructureViewFactory {
-  def getStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = psiFile match {
-    case sf: ScalaFile =>
+  def getStructureViewBuilder(file: PsiFile): StructureViewBuilder = file match {
+    case scalaFile: ScalaFile =>
       Stats.trigger(FeatureKey.structureView)
-      if (sf.getName == ScalaLanguageConsoleView.SCALA_CONSOLE) {
-        val console = ScalaConsoleInfo.getConsole(sf)
-        new ScalaStructureViewBuilder(sf, console)
+      if (scalaFile.getName == ScalaLanguageConsoleView.SCALA_CONSOLE) {
+        new ScalaStructureViewBuilder(scalaFile, Some(ScalaConsoleInfo.getConsole(scalaFile)))
       } else {
-        new ScalaStructureViewBuilder(sf)
+        new ScalaStructureViewBuilder(scalaFile)
       }
     case _ => null
   }

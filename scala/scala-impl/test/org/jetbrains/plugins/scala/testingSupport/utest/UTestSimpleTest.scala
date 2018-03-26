@@ -87,7 +87,7 @@ trait UTestSimpleTest extends UTestTestCase {
   def testFileStructureView(): Unit = {
     //notice that we only test here nodes that produce TestStructureViewElement in file structure view
     //this means that root test scopes (methods) are not tested here; instead, they are tested in testFileStructureViewHierarchy
-    runFileStructureViewTest(uTestTestName, TestStructureViewElement.normalStatusId, "\"outer1\"",
+    runFileStructureViewTest(uTestTestName, TestStructureViewElement.NormalStatusId, "\"outer1\"",
       "\"outer2\"", "\"inner2_1\"", "\"inner1_1\"", "\"sameName\"")
   }
 

@@ -1,13 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
-package elements
-package impl
+package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
+import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
+import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaPackagingStructureViewElement.Presentation
 
 import _root_.scala.collection.mutable._
 
@@ -17,20 +15,24 @@ import _root_.scala.collection.mutable._
  * Date : 05.05.2008
  */
 
-class ScalaPackagingStructureViewElement(pack: ScPackaging) extends ScalaStructureViewElement(pack, false) {
-  def getPresentation: ItemPresentation = {
-    new ScalaPackagingItemPresentation(pack)
-  }
+class ScalaPackagingStructureViewElement(packaging: ScPackaging) extends ScalaStructureViewElement(packaging, inherited = false) {
+  override def getPresentation: ItemPresentation = new Presentation(packaging)
 
-  def getChildren: Array[TreeElement] = {
+  override def getChildren: Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement[_]]
-    for (td <- pack.immediateTypeDefinitions) {
+    for (td <- packaging.immediateTypeDefinitions) {
       children += new ScalaTypeDefinitionStructureViewElement(td)
     }
-    for (p <- pack.packagings) {
+    for (p <- packaging.packagings) {
       children += new ScalaPackagingStructureViewElement(p)
     }
 
     children.toArray
+  }
+}
+
+private object ScalaPackagingStructureViewElement {
+  class Presentation(element: ScPackaging) extends ScalaItemPresentation(element) {
+    def getPresentableText: String = ScalaElementPresentation.getPackagingPresentableText(element)
   }
 }

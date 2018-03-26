@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
-package elements
-package impl
+package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
@@ -13,7 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
-import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
+import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
+import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaFileStructureViewElement.Presentation
 
 import scala.collection._
 
@@ -21,13 +19,12 @@ import scala.collection._
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
-class ScalaFileStructureViewElement(file: ScalaFile, private val console: ScalaLanguageConsole = null)
-  extends ScalaStructureViewElement(file, false) {
-  def getPresentation: ItemPresentation = {
-    new ScalaFileItemPresentation(findRightFile())
-  }
+class ScalaFileStructureViewElement(file: ScalaFile, console: Option[ScalaLanguageConsole] = None)
+  extends ScalaStructureViewElement(file, inherited = false) {
 
-  def getChildren: Array[TreeElement] = {
+  override def getPresentation: ItemPresentation = new Presentation(findRightFile())
+
+  override def getChildren: Array[TreeElement] = {
     val children = new mutable.ArrayBuffer[ScalaStructureViewElement[_]]
     for (child <- findRightFile().getChildren) {
       child match {
@@ -64,9 +61,14 @@ class ScalaFileStructureViewElement(file: ScalaFile, private val console: ScalaL
     children.toArray
   }
 
-  private def findRightFile(): ScalaFile = Option(console).map {
-    _.getHistory
-  }.map { history =>
-    createScalaFileFromText(s"$history${file.getText}")(file.getManager)
-  }.getOrElse(file)
+  private def findRightFile(): ScalaFile =
+    console.map(_.getHistory)
+      .map(history => createScalaFileFromText(s"$history${file.getText}")(file.getManager))
+      .getOrElse(file)
+}
+
+protected object ScalaFileStructureViewElement {
+  class Presentation(element: ScalaFile) extends ScalaItemPresentation(element) {
+    override def getPresentableText: String = ScalaElementPresentation.getFilePresentableText(element)
+  }
 }
