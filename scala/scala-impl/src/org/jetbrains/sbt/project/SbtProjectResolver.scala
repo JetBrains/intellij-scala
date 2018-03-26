@@ -88,8 +88,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val conversionResult = structureDump
       .map { case (elem, _) =>
         val data = elem.deserialize[sbtStructure.StructureData].right.get
-        val warningsCallback: String=>Unit = msg => notifications.onTaskOutput(taskId, msg, false) // TODO build-toolwindow compatible callback
-        convert(normalizePath(projectRoot), data, settings.jdk, warningsCallback).toDataNode
+        convert(normalizePath(projectRoot), data, settings.jdk).toDataNode
       }
       .recoverWith {
         case ImportCancelledException(cause) =>
@@ -240,8 +239,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def convert(root: String,
                       data: sbtStructure.StructureData,
-                      settingsJdk: Option[String],
-                      warnings: String => Unit): Node[ESProjectData] = {
+                      settingsJdk: Option[String]): Node[ESProjectData] = {
     val projects: Seq[sbtStructure.ProjectData] = data.projects
     val rootProject: sbtStructure.ProjectData =
       projects.find(p => FileUtil.filesEqual(p.base, new File(root)))
@@ -269,7 +267,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode] = projects.zip(moduleNodes).toMap
 
-    val sharedSourceModules = createSharedSourceModules(projectToModuleNode, libraryNodes, moduleFilesDirectory, warnings)
+    val sharedSourceModules = createSharedSourceModules(projectToModuleNode, libraryNodes, moduleFilesDirectory)
     projectNode.addAll(sharedSourceModules)
 
     val buildModuleForProject: (ProjectData) => ModuleNode = createBuildModule(_, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath))

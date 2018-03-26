@@ -16,8 +16,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
   def createSharedSourceModules(projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
                                 libraryNodes: Seq[LibraryNode],
-                                moduleFilesDirectory: File,
-                                warnings: String => Unit
+                                moduleFilesDirectory: File
                                ): Seq[ModuleNode] = {
 
     val projects = projectToModuleNode.keys.toSeq
