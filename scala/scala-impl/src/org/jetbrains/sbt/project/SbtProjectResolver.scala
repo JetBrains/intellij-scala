@@ -5,7 +5,6 @@ import java.io.{File, FileNotFoundException}
 import java.util.{Locale, UUID}
 
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.{ProjectData => ESProjectData, _}
 import com.intellij.openapi.externalSystem.model.task.event._

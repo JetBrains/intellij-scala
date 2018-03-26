@@ -29,21 +29,17 @@ trait ProjectStructureMatcher {
     expected.foreach(libraries)(assertProjectLibrariesEqual(actual))
   }
 
-  private implicit val ideaModuleNameImplicit = new HasName[Module] {
-    override def apply(module: Module): String = module.getName
-  }
+  private implicit val ideaModuleNameImplicit: HasName[Module] =
+    (module: Module) => module.getName
 
-  private implicit val ideaLibraryNameImplicit = new HasName[Library] {
-    override def apply(library: Library): String = library.getName
-  }
+  private implicit val ideaLibraryNameImplicit: HasName[Library] =
+    (library: Library) => library.getName
 
-  private implicit val ideaModuleEntryNameImplicit = new HasName[roots.ModuleOrderEntry] {
-    override def apply(entry: roots.ModuleOrderEntry): String = entry.getModuleName
-  }
+  private implicit val ideaModuleEntryNameImplicit: HasName[roots.ModuleOrderEntry] =
+    (entry: roots.ModuleOrderEntry) => entry.getModuleName
 
-  private implicit val ideaLibraryEntryNameImplicit = new HasName[roots.LibraryOrderEntry] {
-    override def apply(entry: roots.LibraryOrderEntry): String = entry.getLibraryName
-  }
+  private implicit val ideaLibraryEntryNameImplicit: HasName[roots.LibraryOrderEntry] =
+    (entry: roots.LibraryOrderEntry) => entry.getLibraryName
 
   private def assertProjectModulesEqual(project: Project)(expectedModules: Seq[module]): Unit = {
     val actualModules = ModuleManager.getInstance(project).getModules.toSeq
