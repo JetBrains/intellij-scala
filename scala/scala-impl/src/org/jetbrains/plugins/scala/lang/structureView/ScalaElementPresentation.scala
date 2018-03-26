@@ -23,8 +23,6 @@ object ScalaElementPresentation {
 
   //TODO refactor with name getters
 
-  def getFilePresentableText(file: ScalaFile): String = file.name
-
   def getPackagingPresentableText(packaging: ScPackaging): String = packaging.packageName
 
   def getTypeDefinitionPresentableText(typeDefinition: ScTypeDefinition): String =
