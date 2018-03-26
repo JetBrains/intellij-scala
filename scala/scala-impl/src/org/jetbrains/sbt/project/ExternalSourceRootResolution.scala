@@ -21,25 +21,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
                                ): Seq[ModuleNode] = {
 
     val projects = projectToModuleNode.keys.toSeq
-
-    val (sharedRoots, externalRoots) = sharedAndExternalRootsIn(projects).partition(_.projects.length > 1)
-
-    if (externalRoots.nonEmpty) {
-      val externalRootsStr = externalRoots.map(_.root.directory).distinct.mkString("<ul><li>", "</li><li>", "</li></ul>")
-      val msg =
-        s"""
-          | <p>
-          | The following source roots are outside of the corresponding base directories:
-          | $externalRootsStr
-          | These source roots cannot be included in the IDEA project model.
-          | </p><p>
-          | <strong>Solution:</strong> declare an sbt project for these sources and include the project in dependencies.
-          | </p>
-        """.stripMargin
-
-      warnings(msg)
-    }
-
+    val sharedRoots = sharedAndExternalRootsIn(projects)
     val grouped = groupSharedRoots(sharedRoots)
     grouped.map { group =>
       createSourceModuleNodesAndDependencies(group, projectToModuleNode, libraryNodes, moduleFilesDirectory)
