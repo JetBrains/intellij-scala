@@ -17,7 +17,7 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.sbt.SbtUtil.{binaryVersion, detectSbtVersion}
+import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver._
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
@@ -89,7 +89,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       .map { case (elem, _) =>
         val data = elem.deserialize[sbtStructure.StructureData].right.get
         val warningsCallback: String=>Unit = msg => notifications.onTaskOutput(taskId, msg, false) // TODO build-toolwindow compatible callback
-        convert(path(projectRoot), data, settings.jdk, warningsCallback).toDataNode
+        convert(normalizePath(projectRoot), data, settings.jdk, warningsCallback).toDataNode
       }
       .recoverWith {
         case ImportCancelledException(cause) =>
@@ -149,7 +149,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       Failure(new UnsupportedOperationException(message))
     }
     else usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
-      val structureFilePath = path(structureFile)
+      val structureFilePath = normalizePath(structureFile)
       val launcherDir = getSbtLauncherDir
       val sbtStructureVersion = binaryVersion(sbtVersion).major(2).presentation
 
@@ -163,7 +163,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         }
         else {
           val sbtStructureJar = settings.customSbtStructureFile.getOrElse(launcherDir / s"sbt-structure-$sbtStructureVersion.jar")
-          val structureFilePath = path(structureFile)
+          val structureFilePath = normalizePath(structureFile)
 
           // TODO add error/warning messages during dump, report directly
           dumper.dumpFromProcess(
@@ -635,38 +635,11 @@ object SbtProjectResolver {
 
   val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
 
-  private def isInTest: Boolean = ApplicationManager.getApplication.isUnitTestMode
-
-  // TODO shared code, move to a more suitable object
-  def getSbtLauncherDir: File = {
-    val file: File = jarWith[this.type]
-    val deep = if (file.getName == "classes") 1 else 2
-    val res = (file << deep) / "launcher"
-    if (!res.exists() && isInTest) {
-      val start = jarWith[this.type].parent
-      start.flatMap(findLauncherDir)
-        .getOrElse(throw new RuntimeException(s"could not find sbt launcher dir at or above ${start.get}"))
-    }
-    else res
-  }
-
-  // TODO shared code, move to a more suitable object
-  def getDefaultLauncher: File = getSbtLauncherDir / "sbt-launch.jar"
-
-  // TODO shared code, move to a more suitable object
-  def path(file: File): String = file.getAbsolutePath.replace('\\', '/')
-
   def shellImportSupported(sbtVersion: Version): Boolean =
     sbtVersion >= sinceSbtVersionShell
 
   def importSupported(sbtVersion: Version): Boolean =
     sbtVersion >= sinceSbtVersion
-
-  private def findLauncherDir(from: File): Option[File] = {
-    val launcherDir = from / "target" / "plugin" / "Scala" / "launcher"
-    if (launcherDir.exists) Option(launcherDir)
-    else from.parent.flatMap(findLauncherDir)
-  }
 
   // TODO shared code, move to a more suitable object
   val sinceSbtVersion = Version("0.12.4")

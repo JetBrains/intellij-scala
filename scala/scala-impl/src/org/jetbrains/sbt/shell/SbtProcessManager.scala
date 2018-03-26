@@ -21,7 +21,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.data.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.SbtOpts
@@ -42,16 +42,11 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
   @volatile private var processData: Option[ProcessData] = None
 
-  private def pluginResolverSetting: String =
-    s"""resolvers += Resolver.file("intellij-scala-plugin", file("$findRepoDir"))(Resolver.ivyStylePatterns)"""
+  private val repoPath = normalizePath(getRepoDir)
 
-  // blatant copypaste of org.jetbrains.sbt.project.SbtProjectResolver.getSbtLauncherDir
-  private def findRepoDir: File = {
-    import org.jetbrains.sbt._
-    val file: File = jarWith[this.type]
-    val deep = if (file.getName == "classes") 1 else 2
-    (file << deep) / "repo"
-  }
+  private def pluginResolverSetting: String =
+    raw"""resolvers += Resolver.file("intellij-scala-plugin", file("$repoPath"))(Resolver.ivyStylePatterns)"""
+
 
   /** Plugins injected into user's global sbt build. */
   // TODO add configurable plugins somewhere for users and via API; factor this stuff out
@@ -80,7 +75,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val sbtSettings = getSbtSettings(workingDirPath)
     lazy val launcher = launcherJar(sbtSettings)
 
-    val projectSbtVersion = Version(SbtUtil.detectSbtVersion(workingDir, launcher))
+    val projectSbtVersion = Version(detectSbtVersion(workingDir, launcher))
     val autoPluginsSupported = projectSbtVersion >= SbtProjectResolver.sinceSbtVersionShell
 
     // an id to identify this boot of sbt as being launched from idea, so that any plugins it injects are never ever loaded otherwise
@@ -107,8 +102,8 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     getCustomVMExecutableOrWarn(sbtSettings).foreach(exe => commandLine.setExePath(exe.getAbsolutePath))
 
     if (autoPluginsSupported) {
-      val sbtMajorVersion = SbtUtil.binaryVersion(projectSbtVersion)
-      val globalPluginsDir = SbtUtil.globalPluginsDirectory(sbtMajorVersion)
+      val sbtMajorVersion = binaryVersion(projectSbtVersion)
+      val globalPluginsDir = globalPluginsDirectory(sbtMajorVersion)
 
       // evil side effect! writes injected plugin settings to user's global sbt config
       injectSettings(runid, globalPluginsDir, pluginResolverSetting +: injectedPlugins(sbtMajorVersion))
@@ -194,7 +189,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   private def getSbtSettings(dir: String) = SbtExternalSystemManager.executionSettingsFor(project, dir)
 
   private def launcherJar(sbtSettings: SbtExecutionSettings): File =
-    sbtSettings.customLauncher.getOrElse(SbtProjectResolver.getDefaultLauncher)
+    sbtSettings.customLauncher.getOrElse(getDefaultLauncher)
 
   /**
     * Because the regular GeneralCommandLine process doesn't mesh well with JLine on Windows, use a
