@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
@@ -47,7 +48,13 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
   }
 
   @NotNull
-  override def getRoot: StructureViewTreeElement = new ScalaFileStructureViewElement(myRootElement, console)
+  override def getRoot: StructureViewTreeElement = {
+    def file = console.map(_.getHistory)
+      .map(history => createScalaFileFromText(s"$history${myRootElement.getText}")(myRootElement.getManager))
+      .getOrElse(myRootElement)
+
+    new ScalaFileStructureViewElement(() => file)
+  }
 
 // TODO Enable inferred types
 //  override def getFilters: Array[Filter] = Array(new Filter {
