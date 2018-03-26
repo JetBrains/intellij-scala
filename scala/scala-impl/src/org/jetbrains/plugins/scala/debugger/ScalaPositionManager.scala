@@ -16,6 +16,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
+import com.intellij.util.containers.{ConcurrentIntObjectMap, ContainerUtil}
 import com.intellij.util.{Processor, Query}
 import com.sun.jdi._
 import com.sun.jdi.request.ClassPrepareRequest
@@ -28,6 +29,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil._
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern}
@@ -39,13 +41,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
+
 import scala.annotation.tailrec
 import scala.collection.{JavaConverters, mutable}
 import scala.reflect.NameTransformer
 import scala.util.Try
-
-import org.jetbrains.plugins.scala.lang.macros.MacroDef
 
 /**
   * @author ilyas
@@ -712,17 +714,21 @@ object ScalaPositionManager {
   }
 
   def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
+    //stored in `file`, invalidated on `file` change
+    @CachedInsidePsiElement(file, file)
+    def cachedMap: ConcurrentIntObjectMap[Seq[PsiElement]] = ContainerUtil.createConcurrentIntObjectMap()
+
     if (lineNumber < 0) return Seq.empty
 
     val scFile: ScalaFile = file match {
       case sf: ScalaFile => sf
       case _ => return Seq.empty
     }
-    val cacheProvider = new CachedValueProvider[mutable.HashMap[Int, Seq[PsiElement]]] {
-      override def compute(): Result[mutable.HashMap[Int, Seq[PsiElement]]] = Result.create(mutable.HashMap[Int, Seq[PsiElement]](), file)
-    }
 
-    CachedValuesManager.getCachedValue(file, cacheProvider).getOrElseUpdate(lineNumber, positionsOnLineInner(scFile, lineNumber))
+    val map = cachedMap
+
+    Option(map.get(lineNumber))
+      .getOrElse(map.cacheOrGet(lineNumber, positionsOnLineInner(scFile, lineNumber)))
   }
 
   def checkedLineNumber(location: Location): Int =
