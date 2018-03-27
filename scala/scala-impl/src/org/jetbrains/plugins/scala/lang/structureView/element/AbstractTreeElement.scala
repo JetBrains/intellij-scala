@@ -13,7 +13,9 @@ abstract class AbstractTreeElement[T <: PsiElement](val element: T, val inherite
 
   override def getValue: AnyRef = if (element.isValid) element else null
 
-  override def getChildren: Array[TreeElement] = TreeElement.EMPTY_ARRAY
+  override def getChildren: Array[TreeElement] = children.flatMap(Element(_)).toArray
+
+  protected def children: Seq[PsiElement] = Seq.empty
 
   // TODO
   override def equals(o: Any): Boolean = {

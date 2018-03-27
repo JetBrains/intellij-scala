@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.lang.structureView.element
 
 import javax.swing.Icon
 
-import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.openapi.util.Iconable
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
+import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresentation.withSimpleNames
 
 /**
 * @author Alexander Podkhalyuzin
@@ -25,18 +26,18 @@ private class Variable(element: ScNamedElement, inherited: Boolean, override val
 
     def inferredType = if (showType) variable.flatMap(_.`type`().toOption).map(ScTypePresentation.withoutAliases) else None
 
-    AbstractItemPresentation.withSimpleNames(element.nameId.getText + typeAnnotation.orElse(inferredType).map(": " + _).mkString)
+    withSimpleNames(element.nameId.getText + typeAnnotation.orElse(inferredType).map(": " + _).mkString)
   }
 
   override def getIcon(open: Boolean): Icon =
     variable.map(_.getIcon(Iconable.ICON_FLAG_VISIBILITY)).orNull
 
-  override def getChildren: Array[TreeElement] = variable match {
+  override def children: Seq[PsiElement] = variable match {
     case Some(definition: ScVariableDefinition) => definition.expr match {
-      case Some(block: ScBlockExpr) => Element(block).flatMap(_.getChildren).toArray
-      case _ => TreeElement.EMPTY_ARRAY
+      case Some(block: ScBlockExpr) => Block.childrenOf(block)
+      case _ => Seq.empty
     }
-    case _ => TreeElement.EMPTY_ARRAY
+    case _ => Seq.empty
   }
 
   private def variable = element.parentsInFile.findByType[ScVariable]

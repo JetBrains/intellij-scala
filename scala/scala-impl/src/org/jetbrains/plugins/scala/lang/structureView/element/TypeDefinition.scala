@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.structureView.element
 
-import com.intellij.ide.util.treeView.smartTree.TreeElement
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 */
 // TODO Should be private
 class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElement(definition) {
-  def getPresentableText: String = {
+  override def getPresentableText: String = {
     val typeParameters = definition.typeParametersClause.map(_.typeParameters.map(_.name).mkString("[", ", ", "]"))
 
     val valueParameters = definition.asOptionOf[ScClass].flatMap {
@@ -26,7 +26,7 @@ class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElement(d
     name.getOrElse("") + typeParameters.getOrElse("") + valueParameters.getOrElse("")
   }
 
-  override def getChildren: Array[TreeElement] = {
+  override def children: Seq[PsiElement] = {
     val blocks = definition.extendsBlock.templateBody.toSeq
       .flatMap(_.getChildren)
       .filterBy[ScBlockExpr]
@@ -42,6 +42,6 @@ class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElement(d
 
     val definitions = definition.typeDefinitions
 
-    (blocks ++ members ++ definitions).flatMap(Element(_)).toArray
+    blocks ++ members ++ definitions
   }
 }

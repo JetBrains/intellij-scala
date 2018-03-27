@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.structureView.element
 
-import com.intellij.ide.util.treeView.smartTree.TreeElement
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -13,6 +13,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 private class File(fileProvider: () => ScalaFile) extends AbstractTreeElement(fileProvider()) {
   override def getPresentableText: String = fileProvider().name
 
-  override def getChildren: Array[TreeElement] =
-    fileProvider().getChildren.flatMap(Element(_)).toArray
+  override def children: Seq[PsiElement] = fileProvider().getChildren
 }

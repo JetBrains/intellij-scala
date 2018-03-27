@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.structureView.element
 
-import com.intellij.ide.util.treeView.smartTree.TreeElement
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresentation.withSimpleNames
 
 /**
 * @author Alexander Podkhalyuzin
@@ -26,14 +27,14 @@ private class Function(function: ScFunction, inherited: Boolean, override val sh
         case None => if (showType) function.returnType.toOption.map(ScTypePresentation.withoutAliases) else None
       }
 
-    AbstractItemPresentation.withSimpleNames(presentation + inferredType.map(": " + _).mkString)
+    withSimpleNames(presentation + inferredType.map(": " + _).mkString)
   }
 
-  override def getChildren: Array[TreeElement] = function match {
+  override def children: Seq[PsiElement] = function match {
     case definition: ScFunctionDefinition => definition.body match {
-      case Some(block: ScBlockExpr) => Element(block, inherited).flatMap(_.getChildren).toArray
-      case _ => TreeElement.EMPTY_ARRAY
+      case Some(block: ScBlockExpr) => Block.childrenOf(block)
+      case _ => Seq.empty
     }
-    case _ => TreeElement.EMPTY_ARRAY
+    case _ => Seq.empty
   }
 }

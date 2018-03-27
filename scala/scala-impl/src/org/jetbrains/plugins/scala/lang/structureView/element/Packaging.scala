@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.structureView.element
 
-import com.intellij.ide.util.treeView.smartTree.TreeElement
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 
 /**
@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
  */
 
 private class Packaging(packaging: ScPackaging) extends AbstractTreeElement(packaging, inherited = false) {
-  def getPresentableText: String = ""
-
-  override def getChildren: Array[TreeElement] =
-    (packaging.immediateTypeDefinitions ++ packaging.packagings).flatMap(Element(_)).toArray
+  override def children: Seq[PsiElement] =
+    packaging.immediateTypeDefinitions ++ packaging.packagings
 }

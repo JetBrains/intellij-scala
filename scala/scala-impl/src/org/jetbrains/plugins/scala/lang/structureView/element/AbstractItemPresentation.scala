@@ -8,6 +8,8 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.util.ui.UIUtil
 
 trait AbstractItemPresentation extends ColoredItemPresentation { self: Element =>
+  override def getPresentableText: String = ""
+
   override final def getLocationString: String =
     if (inherited) location.map(UIUtil.rightArrow + _).orNull else null
 

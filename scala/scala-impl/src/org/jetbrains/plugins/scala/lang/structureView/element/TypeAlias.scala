@@ -10,9 +10,12 @@ import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
  */
 
 private class TypeAlias(alias: ScTypeAlias, inherited: Boolean) extends AbstractTreeElement(alias, inherited)  {
-  override def location: Option[String] = Option(element.containingClass).map(_.name)
+  override def location: Option[String] =
+    Option(element.containingClass).map(_.name)
 
-  override def getPresentableText: String = ScalaElementPresentation.getTypeAliasPresentableText(element)
+  override def getPresentableText: String =
+    ScalaElementPresentation.getTypeAliasPresentableText(element)
 
-  override def getTextAttributesKey: TextAttributesKey = if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
+  override def getTextAttributesKey: TextAttributesKey =
+    if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
 }
