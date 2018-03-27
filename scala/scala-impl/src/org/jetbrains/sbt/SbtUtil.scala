@@ -5,6 +5,7 @@ import java.net.URI
 import java.util.Properties
 import java.util.jar.JarFile
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
@@ -171,4 +172,37 @@ object SbtUtil {
     val id = data.id
     s"{$uri}$id"
   }
+
+  def getSbtLauncherDir: File = {
+    val res = pluginBase / "launcher"
+    if (!res.exists() && isInTest) {
+      val start = jarWith[this.type].parent
+      start.flatMap(findLauncherDir)
+        .getOrElse(throw new RuntimeException(s"could not find sbt launcher dir at or above ${start.get}"))
+    }
+    else res
+  }
+
+  /** The bundled ivy repo for plugins used by sbt shell.
+    * Don't need to bother finding it in tests. */
+  def getRepoDir: File = pluginBase / "repo"
+
+  def getDefaultLauncher: File = getSbtLauncherDir / "sbt-launch.jar"
+
+  /** Normalizes pathname so that backslashes don't get interpreted as escape characters in interpolated strings. */
+  def normalizePath(file: File): String = file.getAbsolutePath.replace('\\', '/')
+
+  private def pluginBase = {
+    val file: File = jarWith[this.type]
+    val deep = if (file.getName == "classes") 1 else 2
+    file << deep
+  }
+
+  private def findLauncherDir(from: File): Option[File] = {
+    val launcherDir = from / "target" / "plugin" / "Scala" / "launcher"
+    if (launcherDir.exists) Option(launcherDir)
+    else from.parent.flatMap(findLauncherDir)
+  }
+
+  private def isInTest: Boolean = ApplicationManager.getApplication.isUnitTestMode
 }

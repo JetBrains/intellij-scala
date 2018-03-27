@@ -15,12 +15,13 @@ import com.intellij.openapi.externalSystem.model.task.event._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
-import org.jetbrains.sbt.project.SbtProjectResolver.{ImportCancelledException, path}
+import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.shell.event.{SbtBuildEvent, SbtShellBuildError}
 import org.jetbrains.sbt.using
+import org.jetbrains.sbt.SbtUtil._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
@@ -81,18 +82,18 @@ class SbtStructureDump {
 
     val sbtCommands = Seq(
       setCommands,
-      s"""apply -cp "${path(sbtStructureJar)}" org.jetbrains.sbt.CreateTasks""",
+      s"""apply -cp "${normalizePath(sbtStructureJar)}" org.jetbrains.sbt.CreateTasks""",
       s"*/*:dumpStructure"
     ).mkString(";", ";", "")
 
     val processCommandsRaw =
-      path(vmExecutable) +:
+      normalizePath(vmExecutable) +:
         "-Djline.terminal=jline.UnsupportedTerminal" +:
         "-Dsbt.log.noformat=true" +:
         "-Dfile.encoding=UTF-8" +:
         (vmOptions ++ SbtOpts.loadFrom(directory)) :+
         "-jar" :+
-        path(sbtLauncher)
+        normalizePath(sbtLauncher)
 
     val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 

@@ -90,4 +90,22 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
       }
     }
   )
+
+  def testSCL12520(): Unit = runTest(
+    new project("scl12520") {
+
+      val sharedModule: module = new module("p1-sources") {
+        contentRoots += getProjectPath + "/p1/shared"
+      }
+      val jvmModule: module = new module("p1JVM") {
+        moduleDependencies += sharedModule
+        contentRoots += getProjectPath + "/p1/jvm"
+      }
+
+      val rootModule: module = new module("scl12520") {}
+
+
+      modules := Seq(sharedModule, rootModule, jvmModule)
+    }
+  )
 }

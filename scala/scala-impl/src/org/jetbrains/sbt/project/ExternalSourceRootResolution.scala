@@ -16,30 +16,11 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
   def createSharedSourceModules(projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
                                 libraryNodes: Seq[LibraryNode],
-                                moduleFilesDirectory: File,
-                                warnings: String => Unit
+                                moduleFilesDirectory: File
                                ): Seq[ModuleNode] = {
 
     val projects = projectToModuleNode.keys.toSeq
-
-    val (sharedRoots, externalRoots) = sharedAndExternalRootsIn(projects).partition(_.projects.length > 1)
-
-    if (externalRoots.nonEmpty) {
-      val externalRootsStr = externalRoots.map(_.root.directory).distinct.mkString("<ul><li>", "</li><li>", "</li></ul>")
-      val msg =
-        s"""
-          | <p>
-          | The following source roots are outside of the corresponding base directories:
-          | $externalRootsStr
-          | These source roots cannot be included in the IDEA project model.
-          | </p><p>
-          | <strong>Solution:</strong> declare an sbt project for these sources and include the project in dependencies.
-          | </p>
-        """.stripMargin
-
-      warnings(msg)
-    }
-
+    val sharedRoots = sharedAndExternalRootsIn(projects)
     val grouped = groupSharedRoots(sharedRoots)
     grouped.map { group =>
       createSourceModuleNodesAndDependencies(group, projectToModuleNode, libraryNodes, moduleFilesDirectory)
@@ -198,21 +179,22 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
   }
 
   private class SharedSourceRootNameProvider {
-    var usedNames = Set.empty[String]
-    var counter = 1
+    private var usedNames = Set.empty[String]
+    private var counter = 1
 
     def nameFor(base: Option[File]): String = {
       val namedDirectory = if (base.exists(_.getName == "shared")) base.flatMap(_.parent) else base
       val prefix = namedDirectory.map(_.getName + "-sources").getOrElse("shared-sources")
-      if (usedNames.contains(prefix)) {
-        val result = s"$prefix-$counter"
+
+      val result = if (usedNames.contains(prefix)) {
         counter += 1
-        usedNames += result
-        result
+        s"$prefix-$counter"
       } else {
-        usedNames += prefix
         prefix
       }
+
+      usedNames += result
+      result
     }
   }
 }
