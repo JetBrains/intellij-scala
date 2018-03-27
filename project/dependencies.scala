@@ -48,7 +48,7 @@ object Versions {
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.17"
-    val latest_1_0 = "1.1.1"
+    val latest_1_0 = "1.1.2"
     val latest: String = latest_1_0
 
     def scalaVersion(v: String): String =
