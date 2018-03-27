@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import com.intellij.openapi.util.Iconable
 import com.intellij.util.ui.UIUtil
 
+// TODO make private (after decoupling Test)
 trait AbstractItemPresentation extends ColoredItemPresentation { self: Element =>
   override def getPresentableText: String = ""
 
@@ -22,9 +23,9 @@ trait AbstractItemPresentation extends ColoredItemPresentation { self: Element =
     if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
 }
 
-private[element] object AbstractItemPresentation {
+private object AbstractItemPresentation {
   private val FullyQualifiedName = "(?:\\w+\\.)+(\\w+)".r
 
-  private[element] def withSimpleNames(presentation: String): String =
+  def withSimpleNames(presentation: String): String =
     FullyQualifiedName.replaceAllIn(presentation, "$1")
 }

@@ -8,12 +8,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
-
 // TODO Provide the element dynamically (or, at least, test how all that works in console)
-private class File(fileProvider: () => ScalaFile) extends AbstractTreeElement(fileProvider()) {
-  override def getPresentableText: String = fileProvider().name
+private class File(file: () => ScalaFile) extends AbstractTreeElement(file()) {
+  override def getPresentableText: String = file().name
 
-  override def children: Seq[PsiElement] = fileProvider().getChildren
+  override def children: Seq[PsiElement] = file().getChildren
 
   override def isAlwaysLeaf: Boolean = false
 

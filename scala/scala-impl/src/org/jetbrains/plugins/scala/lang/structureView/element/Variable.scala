@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresen
 * @author Alexander Podkhalyuzin
 * Date: 05.05.2008
 */
-
 private class Variable(element: ScNamedElement, inherited: Boolean, override val showType: Boolean)
   extends AbstractTreeElement(element, inherited) with Typed {
 

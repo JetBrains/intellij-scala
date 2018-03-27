@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresen
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
-
 private class Function(function: ScFunction, inherited: Boolean, override val showType: Boolean)
   extends AbstractTreeElement(function, inherited) with Typed {
 

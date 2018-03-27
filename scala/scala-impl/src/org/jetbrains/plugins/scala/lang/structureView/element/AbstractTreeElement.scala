@@ -6,6 +6,7 @@ import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
 import com.intellij.psi.PsiElement
 
+// TODO make private (after decoupling Test)
 abstract class AbstractTreeElement[T <: PsiElement](val element: T, val inherited: Boolean = false)
   extends Element with AbstractNavigatable with AbstractItemPresentation {
 
