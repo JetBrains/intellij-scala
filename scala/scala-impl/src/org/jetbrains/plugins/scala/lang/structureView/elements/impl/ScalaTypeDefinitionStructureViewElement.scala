@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
-import com.intellij.navigation.ItemPresentation
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaTypeDefinitionStructureViewElement.Presentation
 
 /**
 * @author Alexander Podkhalyuzin
@@ -16,7 +14,17 @@ import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaTypeDef
 */
 
 class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) extends ScalaStructureViewElement(definition, inherited = false) {
-  override def getPresentation: ItemPresentation = new Presentation(definition)
+  def getPresentableText: String = {
+    val typeParameters = definition.typeParametersClause.map(_.typeParameters.map(_.name).mkString("[", ", ", "]"))
+
+    val valueParameters = definition.asOptionOf[ScClass].flatMap {
+      _.constructor.map(it => StructureViewUtil.getParametersAsString(it.parameterList))
+    }
+
+    val name = Option(definition.nameId).map(_.getText)
+
+    name.getOrElse("") + typeParameters.getOrElse("") + valueParameters.getOrElse("")
+  }
 
   override def getChildren: Array[TreeElement] = {
     val blocks = definition.extendsBlock.templateBody.toSeq
@@ -40,21 +48,5 @@ class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) exte
     val definitions = definition.typeDefinitions
 
     (blocks ++ members ++ definitions).flatMap(ScalaStructureViewElement(_)).toArray
-  }
-}
-
-private object ScalaTypeDefinitionStructureViewElement {
-  class Presentation(definition: ScTypeDefinition) extends ScalaItemPresentation(definition) {
-    def getPresentableText: String = {
-      val typeParameters = definition.typeParametersClause.map(_.typeParameters.map(_.name).mkString("[", ", ", "]"))
-
-      val valueParameters = definition.asOptionOf[ScClass].flatMap {
-        _.constructor.map(it => StructureViewUtil.getParametersAsString(it.parameterList))
-      }
-
-      val name = Option(definition.nameId).map(_.getText)
-
-      name.getOrElse("") + typeParameters.getOrElse("") + valueParameters.getOrElse("")
-    }
   }
 }

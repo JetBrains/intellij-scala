@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
-import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaTypeAliasStructureViewElement.Presentation
 
 /**
  * User: Alexander Podkhalyuzin
@@ -12,15 +10,9 @@ import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaTypeAli
  */
 
 class ScalaTypeAliasStructureViewElement(alias: ScTypeAlias, inherited: Boolean) extends ScalaStructureViewElement(alias, inherited)  {
-  override def getPresentation: ItemPresentation = new Presentation(alias, inherited)
-}
+  override def location: Option[String] = Option(element.containingClass).map(_.name)
 
-private object ScalaTypeAliasStructureViewElement {
-  class Presentation(element: ScTypeAlias, inherited: Boolean) extends ScalaItemPresentation(element, inherited) {
-    override def location: Option[String] = Option(element.containingClass).map(_.name)
+  override def getPresentableText: String = ScalaElementPresentation.getTypeAliasPresentableText(element)
 
-    override def getPresentableText: String = ScalaElementPresentation.getTypeAliasPresentableText(element)
-
-    override def getTextAttributesKey: TextAttributesKey = if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
-  }
+  override def getTextAttributesKey: TextAttributesKey = if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
 }

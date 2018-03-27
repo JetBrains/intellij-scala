@@ -47,8 +47,8 @@ trait IntegrationTest {
     def helper(root: AbstractTreeNode[_], currentParentName: String): Boolean = {
       root.getValue.isInstanceOf[TestStructureViewElement] && {
         val presentation = root.getValue.asInstanceOf[TreeElement].getPresentation
-        presentation.isInstanceOf[TestStructureViewElement.Presentation] && presentation.getPresentableText == nodeName &&
-          presentation.asInstanceOf[TestStructureViewElement.Presentation].testStatus == status &&
+        presentation.isInstanceOf[TestStructureViewElement] && presentation.getPresentableText == nodeName &&
+          presentation.asInstanceOf[TestStructureViewElement].testStatus == status &&
           parentName.forall(currentParentName == _)
       } ||
         root.getChildren.asScala.exists(helper(_, root.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText))

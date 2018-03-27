@@ -12,7 +12,11 @@ import com.intellij.util.ui.UIUtil
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
-abstract class ScalaItemPresentation(element: PsiElement, inherited: Boolean = false) extends ColoredItemPresentation {
+trait ScalaItemPresentation extends ColoredItemPresentation {
+  def element: PsiElement
+
+  def inherited: Boolean
+
   override final def getLocationString: String =
     if (inherited) location.map(UIUtil.rightArrow + _).orNull else null
 

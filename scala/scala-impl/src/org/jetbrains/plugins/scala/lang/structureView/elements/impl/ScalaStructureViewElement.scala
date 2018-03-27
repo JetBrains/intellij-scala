@@ -4,6 +4,7 @@ import java.util.Objects
 
 import com.intellij.ide.structureView.StructureViewTreeElement
 import com.intellij.ide.util.treeView.smartTree.TreeElement
+import com.intellij.navigation.ItemPresentation
 import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -20,7 +21,11 @@ import scala.collection.Seq
 * Date: 04.05.2008
 */
 
-abstract class ScalaStructureViewElement[T <: PsiElement](val element: T, val inherited: Boolean = false) extends StructureViewTreeElement {
+abstract class ScalaStructureViewElement[T <: PsiElement](val element: T, val inherited: Boolean = false)
+  extends StructureViewTreeElement with ScalaItemPresentation {
+
+  override def getPresentation: ItemPresentation = this
+
   override def getValue: AnyRef = if (element.isValid) element else null
 
   override def navigate(b: Boolean): Unit = navigatable.foreach(_.navigate(b))
