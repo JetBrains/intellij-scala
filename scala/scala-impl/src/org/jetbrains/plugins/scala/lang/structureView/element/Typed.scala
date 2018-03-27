@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala.lang.structureView.element
 
-trait Typed {
+private trait Typed {
   def showType: Boolean
 }

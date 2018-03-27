@@ -16,8 +16,7 @@ import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresen
 * Date: 08.05.2008
 */
 
-// TODO Should be private
-class Value(element: ScNamedElement, inherited: Boolean, override val showType: Boolean)
+private class Value(element: ScNamedElement, inherited: Boolean, override val showType: Boolean)
   extends AbstractTreeElement(element, inherited) with Typed {
 
   override def location: Option[String] = value.map(_.containingClass).map(_.name)

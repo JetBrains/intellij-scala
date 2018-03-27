@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.structureView
 
 import java.util
+import java.util.Collections
 
 import com.intellij.ide.IdeBundle
 import com.intellij.ide.util.FileStructureNodeProvider
@@ -9,14 +10,15 @@ import com.intellij.openapi.actionSystem.Shortcut
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.util.IconLoader
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import org.jetbrains.plugins.scala.lang.structureView.element.{Element, TypeDefinition}
+import org.jetbrains.plugins.scala.lang.structureView.element.Element
 
 import scala.collection.JavaConverters._
 
@@ -26,11 +28,15 @@ import scala.collection.JavaConverters._
  */
 
 class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeElement] {
-  override def provideNodes(node: TreeElement): util.Collection[TreeElement] = {
-    node match {
-      case td: TypeDefinition =>
+  override def provideNodes(node: TreeElement): util.Collection[TreeElement] = node match {
+    case e: Element => nodesOf(e.element)
+    case _ => Collections.emptyList[TreeElement]
+  }
+
+  private def nodesOf(element: PsiElement): util.Collection[TreeElement] = {
+    element match {
+      case clazz: ScTypeDefinition =>
         val children = new util.ArrayList[TreeElement]()
-        val clazz = td.element
         try {
           if (!clazz.isValid) return children
           val signs = clazz.allSignatures
@@ -68,9 +74,9 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
           children
         }
         catch {
-          case _: IndexNotReadyException => new util.ArrayList[TreeElement]()
+          case _: IndexNotReadyException => Collections.emptyList[TreeElement]
         }
-      case _ => new util.ArrayList[TreeElement]()
+      case _ => Collections.emptyList[TreeElement]
     }
   }
 
