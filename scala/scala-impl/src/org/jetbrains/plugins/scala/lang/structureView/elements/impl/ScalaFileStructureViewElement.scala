@@ -16,29 +16,12 @@ import scala.collection._
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
-class ScalaFileStructureViewElement(fileProvider: () => ScalaFile)
-  extends ScalaStructureViewElement(fileProvider(), inherited = false) { // TODO Provide the element dynamically
-
+// TODO Provide the element dynamically (or, at least, test how all that works in console)
+class ScalaFileStructureViewElement(fileProvider: () => ScalaFile) extends ScalaStructureViewElement(fileProvider()) {
   override def getPresentation: ItemPresentation = new Presentation(fileProvider())
 
-  override def getChildren: Array[TreeElement] = {
-    val children = fileProvider().getChildren.toSeq
-
-    val result = children.flatMap {
-      // TODO Test packagings
-      case packaging: ScPackaging => packaging.typeDefinitions.map(new ScalaTypeDefinitionStructureViewElement(_))
-      // TODO Type definition can be inherited
-      case definition: ScTypeDefinition => Seq(new ScalaTypeDefinitionStructureViewElement(definition))
-      case function: ScFunction => ScalaFunctionStructureViewElement(function, inherited = false)
-      case variable: ScVariable => variable.declaredElements.flatMap(ScalaVariableStructureViewElement(_, inherited = false))
-      case value: ScValue => value.declaredElements.flatMap(ScalaValueStructureViewElement(_, inherited = false))
-      case alias: ScTypeAlias => Seq(new ScalaTypeAliasStructureViewElement(alias, inherited = false))
-      case block: ScBlockExpr => Seq(new ScalaBlockStructureViewElement(block))
-      case _ => Seq.empty
-    }
-
-    result.toArray
-  }
+  override def getChildren: Array[TreeElement] =
+    fileProvider().getChildren.flatMap(ScalaStructureViewElement(_)).toArray
 }
 
 object ScalaFileStructureViewElement {

@@ -15,12 +15,8 @@ import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaPackagi
 class ScalaPackagingStructureViewElement(packaging: ScPackaging) extends ScalaStructureViewElement(packaging, inherited = false) {
   override def getPresentation: ItemPresentation = new Presentation(packaging)
 
-  override def getChildren: Array[TreeElement] = {
-    val result = packaging.immediateTypeDefinitions.map(new ScalaTypeDefinitionStructureViewElement(_)) ++
-      packaging.packagings.map(new ScalaPackagingStructureViewElement(_))
-
-    result.toArray
-  }
+  override def getChildren: Array[TreeElement] =
+    (packaging.immediateTypeDefinitions ++ packaging.packagings).flatMap(ScalaStructureViewElement(_)).toArray
 }
 
 object ScalaPackagingStructureViewElement {

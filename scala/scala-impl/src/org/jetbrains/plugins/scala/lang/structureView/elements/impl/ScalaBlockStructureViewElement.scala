@@ -10,16 +10,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaBlockStructureViewElement.Presentation
 
-class ScalaBlockStructureViewElement(block: ScBlock) extends ScalaStructureViewElement(block, inherited = false) {
+class ScalaBlockStructureViewElement(block: ScBlock) extends ScalaStructureViewElement(block) {
   override def getPresentation: ItemPresentation = new Presentation(block)
 
   override def getChildren: Array[TreeElement] = {
-    val children = block.getChildren.toSeq
-
-    val result = children.flatMap {
-      case function: ScFunction => ScalaFunctionStructureViewElement(function, inherited = false)
-      case definition: ScTypeDefinition => Seq(new ScalaTypeDefinitionStructureViewElement(definition))
-      case block: ScBlockExpr => Seq(new ScalaBlockStructureViewElement(block))
+    val result = block.getChildren.flatMap {
+      case element @ ((_: ScFunction) | (_: ScTypeDefinition) | (_: ScBlockExpr)) => ScalaStructureViewElement(element)
       case _ => Seq.empty
      }
 

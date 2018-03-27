@@ -24,7 +24,7 @@ class ScalaValueStructureViewElement private (element: ScNamedElement, inherited
 
   override def getChildren: Array[TreeElement] = value match {
     case Some(definition: ScPatternDefinition) => definition.expr match {
-      case Some(block: ScBlockExpr) => new ScalaBlockStructureViewElement(block).getChildren
+      case Some(block: ScBlockExpr) => ScalaStructureViewElement(block).flatMap(_.getChildren).toArray
       case _ => TreeElement.EMPTY_ARRAY
     }
     case _ => TreeElement.EMPTY_ARRAY

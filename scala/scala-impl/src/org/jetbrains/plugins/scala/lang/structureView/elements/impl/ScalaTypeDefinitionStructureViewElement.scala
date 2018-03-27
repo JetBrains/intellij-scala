@@ -22,25 +22,24 @@ class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) exte
     val blocks = definition.extendsBlock.templateBody.toSeq
       .flatMap(_.getChildren)
       .filterBy[ScBlockExpr]
-      .map(new ScalaBlockStructureViewElement(_))
 
     val members = definition.members.flatMap {
-      case function: ScFunction => ScalaFunctionStructureViewElement(function, inherited = false)
+      case function: ScFunction => Seq(function)
       case constructor: ScPrimaryConstructor => definition match {
         case c: ScClass if c.isCase =>
-          constructor.effectiveFirstParameterSection.map(new ScalaValOrVarParameterStructureViewElement(_, inherited = false))
+          constructor.effectiveFirstParameterSection
         case _ =>
-          constructor.valueParameters.map(new ScalaValOrVarParameterStructureViewElement(_, inherited = false))
+          constructor.valueParameters
       }
-      case member: ScVariable => member.declaredElements.flatMap(ScalaVariableStructureViewElement(_, inherited = false))
-      case member: ScValue => member.declaredElements.flatMap(ScalaValueStructureViewElement(_, inherited = false))
-      case member: ScTypeAlias => Seq(new ScalaTypeAliasStructureViewElement(member, inherited = false))
+      case member: ScVariable => Seq(member)
+      case member: ScValue => Seq(member)
+      case member: ScTypeAlias => Seq(member)
       case _ => Seq.empty
     }
 
-    val definitions = definition.typeDefinitions.map(new ScalaTypeDefinitionStructureViewElement(_))
+    val definitions = definition.typeDefinitions
 
-    (blocks ++ members ++ definitions).toArray
+    (blocks ++ members ++ definitions).flatMap(ScalaStructureViewElement(_)).toArray
   }
 }
 

@@ -24,7 +24,7 @@ class ScalaVariableStructureViewElement private (element: ScNamedElement, inheri
 
   override def getChildren: Array[TreeElement] = variable match {
     case Some(definition: ScVariableDefinition) => definition.expr match {
-      case Some(block: ScBlockExpr) => new ScalaBlockStructureViewElement(block).getChildren
+      case Some(block: ScBlockExpr) => ScalaStructureViewElement(block).flatMap(_.getChildren).toArray
       case _ => TreeElement.EMPTY_ARRAY
     }
     case _ => TreeElement.EMPTY_ARRAY

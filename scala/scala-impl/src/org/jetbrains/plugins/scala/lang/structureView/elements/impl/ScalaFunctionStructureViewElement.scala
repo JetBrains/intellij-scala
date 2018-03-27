@@ -20,7 +20,7 @@ class ScalaFunctionStructureViewElement private (function: ScFunction, inherited
 
   override def getChildren: Array[TreeElement] = function match {
     case definition: ScFunctionDefinition => definition.body match {
-      case Some(block: ScBlockExpr) => new ScalaBlockStructureViewElement(block).getChildren
+      case Some(block: ScBlockExpr) => ScalaStructureViewElement(block, inherited).flatMap(_.getChildren).toArray
       case _ => TreeElement.EMPTY_ARRAY
     }
     case _ => TreeElement.EMPTY_ARRAY
