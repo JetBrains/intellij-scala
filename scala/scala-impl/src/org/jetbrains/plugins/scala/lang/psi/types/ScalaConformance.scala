@@ -964,6 +964,8 @@ trait ScalaConformance extends api.Conformance {
                 val (captured, abstracted) = args2.splitAt(captureLength)
                 val t = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, args1, abstracted,
                   undefinedSubst, visited, checkWeak)
+                //TODO actually remember to what designator we are mapping and what captured parameters are
+                //TODO right now, anything compiles, fix once it's fixed in the compiler
                 result = if (t._1) {
                   val abstractedTypeParams = abstracted.zipWithIndex.map {
                     case (_, i) => TypeParameter.light("p" + i + "$$", Seq(), Nothing, Any)
@@ -1569,6 +1571,25 @@ trait ScalaConformance extends api.Conformance {
                 case Some((newArgs, newDes)) =>
                   defArgsReplace = newArgs
                   newDes
+                case _ if undefType.typeArguments.length < defType.typeArguments.length =>
+                  val captureLength = defType.typeArguments.length - undefType.typeArguments.length
+                  val (captured, abstracted) = defType.typeArguments.splitAt(captureLength)
+                  var subst = undefinedSubst
+                  for ((arg1, arg2) <- abstracted.zip(undefType.typeArguments)) {
+                    val t = arg2.equivInner(arg1, subst, falseUndef)
+                    if (!t._1) {
+                      return (false, undefinedSubst)
+                    } else {
+                      subst = t._2
+                    }
+                  }
+                  val abstractedTypeParams = abstracted.zipWithIndex.map {
+                    case (_, i) => TypeParameter.light("p" + i + "$$", Seq(), Nothing, Any)
+                  }
+                  //TODO actually remember to what designator we are mapping and what captured parameters are
+                  //TODO right now, anything compiles, fix once it's fixed in the compiler
+                  return addParam(undef.typeParameter, ScTypePolymorphicType(ScParameterizedType(defType.designator,
+                    captured ++ abstractedTypeParams.map(TypeParameterType(_))), abstractedTypeParams), subst)
                 case _ => return (false, undefinedSubst)
               }
             } else {

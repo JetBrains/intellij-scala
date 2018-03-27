@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.junit.Assert
-
 /**
   * @author Alefas
   * @since 15/03/2017
@@ -21,8 +19,7 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
       |  foo(inc2())
       |}
     """.stripMargin.trim
-    val errors = errorsFromScalaCode(scalaText)
-    assert(errors.isEmpty)
+    assertNothing(errorsFromScalaCode(scalaText))
   }
 
   def testSCL8267(): Unit = {
@@ -48,8 +45,7 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
         |  })
         |}
       """.stripMargin
-    val errors = errorsFromScalaCode(scalaText)
-    assert(errors.isEmpty)
+    assertNothing(errorsFromScalaCode(scalaText))
   }
 
   def testSCL6379(): Unit = {
@@ -64,12 +60,8 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
         |  val mathematician :String = "Euler"
         |}
       """.stripMargin
-    val errors = errorsFromScalaCode(scalaText)
-    assert(errors.length == 1)
-    errors.head match {
-      case Error(_, message) =>
-        Assert.assertEquals(message, "Pattern type is incompatible with expected type, found: Int, required: String")
-      case err => Assert.fail(s"unexpected message: $err" )
+    assertMatches(errorsFromScalaCode(scalaText)){
+      case Error(_, "Pattern type is incompatible with expected type, found: Int, required: String") :: Nil =>
     }
   }
 
@@ -82,8 +74,18 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
       |  @native private def myNativeMethod: Integer
       |}
       """.stripMargin
-    val errors = errorsFromScalaCode(scalaText)
-    assert(errors.isEmpty)
+    assertNothing(errorsFromScalaCode(scalaText))
   }
 
+  def testSCL13532(): Unit = {
+    val scalaText =
+      """
+        |object Test {
+        |    def foo[F[_], A](a: F[F[A]]): Any = ???
+        |    def either1: Either[String, Either[String, Int]] = ???
+        |    foo(either1)
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(scalaText))
+  }
 }
