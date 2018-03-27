@@ -53,7 +53,7 @@ abstract class GetAllClassesTest_212_Base extends GetAllClassesTestBase {
 
 abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   
-  setupFile("simple.scala",
+  setupFile("Simple.scala",
     s"""
       |object Simple {
       |  def main(args: Array[String]) {

@@ -28,8 +28,8 @@ abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
        |}
        """.stripMargin.trim()
   )
-  addSourceFile("simple.scala", "object Simple")
-  addSourceFile("qual/simple.scala",
+  addSourceFile("Simple.scala", "object Simple")
+  addSourceFile("qual/Simple.scala",
     s"""
       |package qual
       |

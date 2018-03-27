@@ -19,7 +19,7 @@ abstract class SbtIncrementalTestBase extends ScalaDebuggerTestBase {
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = IncrementalityType.SBT
   }
 
-  addSourceFile("simple.scala",
+  addSourceFile("Simple.scala",
     s"""
       |object Simple {
       |  def main(args: Array[String]): Unit = {

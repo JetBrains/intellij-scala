@@ -36,7 +36,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   }
 
 
-  addFileWithBreakpoints("simple.scala",
+  addFileWithBreakpoints("Simple.scala",
     s"""
        |object Simple {
        |  def main(args: Array[String]) {
@@ -53,9 +53,9 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   )
 
   def testSimple() {
-    addBreakpoint(2, "simple.scala")
+    addBreakpoint(2, "Simple.scala")
     runDebugger() {
-      waitBreakpointAndStepInto("simple.scala", "foo", 9)
+      waitBreakpointAndStepInto("Simple.scala", "foo", 9)
     }
   }
 
