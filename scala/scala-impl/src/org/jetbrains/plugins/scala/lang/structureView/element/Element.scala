@@ -17,24 +17,9 @@ trait Element extends StructureViewTreeElement with ColoredItemPresentation {
 
   def inherited: Boolean
 
-  // TODO
-  def isAlwaysLeaf: Boolean =
-    !(isAlwaysShowsPlus ||
-      this.isInstanceOf[Test] ||
-      this.isInstanceOf[Block] ||
-      this.isInstanceOf[Variable] ||
-      this.isInstanceOf[Value] ||
-      this.isInstanceOf[Function])
+  def isAlwaysLeaf: Boolean
 
-  // TODO
-  def isAlwaysShowsPlus: Boolean = {
-    this match {
-      case _: TypeDefinition => true
-      case _: File => true
-      case _: Packaging => true
-      case _ => false
-    }
-  }
+  def isAlwaysShowsPlus: Boolean
 }
 
 object Element {

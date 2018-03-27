@@ -14,4 +14,8 @@ private class File(fileProvider: () => ScalaFile) extends AbstractTreeElement(fi
   override def getPresentableText: String = fileProvider().name
 
   override def children: Seq[PsiElement] = fileProvider().getChildren
+
+  override def isAlwaysLeaf: Boolean = false
+
+  override def isAlwaysShowsPlus: Boolean = true
 }

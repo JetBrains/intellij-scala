@@ -41,5 +41,7 @@ class Value(element: ScNamedElement, inherited: Boolean, override val showType: 
     case _ => Seq.empty
   }
 
+  override def isAlwaysLeaf: Boolean = false
+
   private def value = element.parentsInFile.findByType[ScValue]
 }

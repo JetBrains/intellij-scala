@@ -37,4 +37,6 @@ private class Function(function: ScFunction, inherited: Boolean, override val sh
     }
     case _ => Seq.empty
   }
+
+  override def isAlwaysLeaf: Boolean = false
 }

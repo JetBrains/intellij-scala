@@ -12,4 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 private class Packaging(packaging: ScPackaging) extends AbstractTreeElement(packaging, inherited = false) {
   override def children: Seq[PsiElement] =
     packaging.immediateTypeDefinitions ++ packaging.packagings
+
+  override def isAlwaysLeaf: Boolean = false
+
+  override def isAlwaysShowsPlus: Boolean = true
 }

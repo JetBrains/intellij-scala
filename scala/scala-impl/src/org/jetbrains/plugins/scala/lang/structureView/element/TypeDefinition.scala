@@ -44,4 +44,8 @@ class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElement(d
 
     blocks ++ members ++ definitions
   }
+
+  override def isAlwaysLeaf: Boolean = false
+
+  override def isAlwaysShowsPlus: Boolean = true
 }

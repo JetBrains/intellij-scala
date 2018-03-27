@@ -17,6 +17,10 @@ abstract class AbstractTreeElement[T <: PsiElement](val element: T, val inherite
 
   protected def children: Seq[PsiElement] = Seq.empty
 
+  override def isAlwaysLeaf: Boolean = true
+
+  override def isAlwaysShowsPlus: Boolean = false
+
   // TODO
   override def equals(o: Any): Boolean = {
     val clazz = o match {

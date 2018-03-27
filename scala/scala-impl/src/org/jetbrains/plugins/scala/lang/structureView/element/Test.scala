@@ -25,6 +25,8 @@ class Test(elem: PsiElement,
   }
 
   override def getChildren: Array[TreeElement] = myChildren
+
+  override def isAlwaysLeaf: Boolean = false
 }
 
 object Test {

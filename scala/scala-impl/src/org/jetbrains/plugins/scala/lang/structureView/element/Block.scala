@@ -13,6 +13,8 @@ private class Block(block: ScBlock) extends AbstractTreeElement(block) {
   override def getIcon(open: Boolean): Icon = PlatformIcons.CLASS_INITIALIZER
 
   override def children: Seq[PsiElement] = childrenOf(block)
+
+  override def isAlwaysLeaf: Boolean = false
 }
 
 private object Block {
