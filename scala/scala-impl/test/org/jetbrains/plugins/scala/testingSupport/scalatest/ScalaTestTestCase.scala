@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.scalatest
 
-import org.jetbrains.plugins.scala.lang.structureView.element.TestStructureViewElement._
+import org.jetbrains.plugins.scala.lang.structureView.element.Test._
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationUtil}
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider

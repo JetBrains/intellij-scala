@@ -10,7 +10,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.extensions.invokeLater
-import org.jetbrains.plugins.scala.lang.structureView.element.TestStructureViewElement
+import org.jetbrains.plugins.scala.lang.structureView.element.Test
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, AllInPackageTestData, ClassTestData, SingleTestData}
 
 import scala.annotation.tailrec
@@ -40,15 +40,15 @@ trait IntegrationTest {
 
   protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*)
 
-  protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String] = None, testStatus: Int = TestStructureViewElement.NormalStatusId)
+  protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String] = None, testStatus: Int = Test.NormalStatusId)
 
   protected def checkTestNodeInFileStructure(root: TreeElementWrapper, nodeName: String, parentName: Option[String], status: Int): Boolean = {
 
     def helper(root: AbstractTreeNode[_], currentParentName: String): Boolean = {
-      root.getValue.isInstanceOf[TestStructureViewElement] && {
+      root.getValue.isInstanceOf[Test] && {
         val presentation = root.getValue.asInstanceOf[TreeElement].getPresentation
-        presentation.isInstanceOf[TestStructureViewElement] && presentation.getPresentableText == nodeName &&
-          presentation.asInstanceOf[TestStructureViewElement].testStatus == status &&
+        presentation.isInstanceOf[Test] && presentation.getPresentableText == nodeName &&
+          presentation.asInstanceOf[Test].testStatus == status &&
           parentName.forall(currentParentName == _)
       } ||
         root.getChildren.asScala.exists(helper(_, root.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText))

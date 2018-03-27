@@ -12,7 +12,7 @@ import com.intellij.util.ui.UIUtil
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
-trait ScalaItemPresentation extends ColoredItemPresentation {
+trait Presentation extends ColoredItemPresentation {
   def element: PsiElement
 
   def inherited: Boolean
@@ -29,7 +29,7 @@ trait ScalaItemPresentation extends ColoredItemPresentation {
     if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
 }
 
-private[element] object ScalaItemPresentation {
+private[element] object Presentation {
   private val FullyQualifiedName = "(?:\\w+\\.)+(\\w+)".r
 
   private[element] def withSimpleNames(presentation: String): String =

@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
-import org.jetbrains.plugins.scala.lang.structureView.element.TestStructureViewElement
+import org.jetbrains.plugins.scala.lang.structureView.element.Test
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
@@ -70,7 +70,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
   override def invokeTestRunnable(runnable: Runnable): Unit = runnable.run()
 
   override protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String],
-                                                  testStatus: Int = TestStructureViewElement.NormalStatusId): Unit = {
+                                                  testStatus: Int = Test.NormalStatusId): Unit = {
     val structureViewRoot = buildFileStructure(testClassName + ".scala")
     assert(checkTestNodeInFileStructure(structureViewRoot, testName, parentTestName, testStatus),
       s"test node for test '$testName' with parent '$parentTestName' was not in file structure for root '$structureViewRoot'")

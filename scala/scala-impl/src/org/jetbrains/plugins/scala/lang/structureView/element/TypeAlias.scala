@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
  * Date: 31.07.2008
  */
 
-private class ScalaTypeAliasStructureViewElement(alias: ScTypeAlias, inherited: Boolean) extends ScalaStructureViewElement(alias, inherited)  {
+private class TypeAlias(alias: ScTypeAlias, inherited: Boolean) extends Element(alias, inherited)  {
   override def location: Option[String] = Option(element.containingClass).map(_.name)
 
   override def getPresentableText: String = ScalaElementPresentation.getTypeAliasPresentableText(element)

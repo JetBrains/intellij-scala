@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import org.jetbrains.plugins.scala.lang.structureView.element.{ScalaStructureViewElement, ScalaTypeDefinitionStructureViewElement}
+import org.jetbrains.plugins.scala.lang.structureView.element.{Element, TypeDefinition}
 
 import scala.collection.JavaConverters._
 
@@ -28,7 +28,7 @@ import scala.collection.JavaConverters._
 class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeElement] {
   override def provideNodes(node: TreeElement): util.Collection[TreeElement] = {
     node match {
-      case td: ScalaTypeDefinitionStructureViewElement =>
+      case td: TypeDefinition =>
         val children = new util.ArrayList[TreeElement]()
         val clazz = td.element
         try {
@@ -40,16 +40,16 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
                 sign.method match {
                   case x if x.name == "$tag" || x.name == "$init$" =>
                   case x if x.containingClass == clazz =>
-                  case x: ScFunction => children.addAll(ScalaStructureViewElement(x, inherited = true).asJava)
+                  case x: ScFunction => children.addAll(Element(x, inherited = true).asJava)
                   case x: PsiMethod => children.add(new PsiMethodTreeElementDecorator(x, true))
                 }
               case _ =>
                 sign.namedElement match {
                   case parameter: ScClassParameter if parameter.isEffectiveVal && parameter.containingClass != clazz && !sign.name.endsWith("_=") =>
-                    children.addAll(ScalaStructureViewElement(parameter, inherited = true).asJava)
+                    children.addAll(Element(parameter, inherited = true).asJava)
                   case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
-                    case x: ScValue if x.containingClass != clazz => children.addAll(ScalaStructureViewElement(named, inherited = true).asJava)
-                    case x: ScVariable if x.containingClass != clazz => children.addAll(ScalaStructureViewElement(named, inherited = true).asJava)
+                    case x: ScValue if x.containingClass != clazz => children.addAll(Element(named, inherited = true).asJava)
+                    case x: ScVariable if x.containingClass != clazz => children.addAll(Element(named, inherited = true).asJava)
                     case _ =>
                   }
                   case _ =>
@@ -63,7 +63,7 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
             if t.isInstanceOf[ScTypeAlias]
             alias = t.asInstanceOf[ScTypeAlias]
             if alias.containingClass != clazz
-          } children.addAll(ScalaStructureViewElement(alias, inherited = true).asJava)
+          } children.addAll(Element(alias, inherited = true).asJava)
 
           children
         }

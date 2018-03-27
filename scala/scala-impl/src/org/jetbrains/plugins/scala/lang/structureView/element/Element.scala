@@ -22,8 +22,8 @@ import scala.collection.Seq
 * Date: 04.05.2008
 */
 
-abstract class ScalaStructureViewElement[T <: PsiElement](val element: T, val inherited: Boolean = false)
-  extends StructureViewTreeElement with ScalaItemPresentation {
+abstract class Element[T <: PsiElement](val element: T, val inherited: Boolean = false)
+  extends StructureViewTreeElement with Presentation {
 
   override def getPresentation: ItemPresentation = this
 
@@ -46,7 +46,7 @@ abstract class ScalaStructureViewElement[T <: PsiElement](val element: T, val in
       case _ => return false
     }
     if (o == null || getClass != clazz) return false
-    val that = o.asInstanceOf[ScalaStructureViewElement[_]]
+    val that = o.asInstanceOf[Element[_]]
     if (inherited != that.inherited) return false
 
     val value = getValue
@@ -59,42 +59,42 @@ abstract class ScalaStructureViewElement[T <: PsiElement](val element: T, val in
   // TODO
   def isAlwaysLeaf: Boolean =
     !(isAlwaysShowsPlus ||
-      this.isInstanceOf[TestStructureViewElement] ||
-      this.isInstanceOf[ScalaBlockStructureViewElement] ||
-      this.isInstanceOf[ScalaVariableStructureViewElement] ||
-      this.isInstanceOf[ScalaValueStructureViewElement] ||
-      this.isInstanceOf[ScalaFunctionStructureViewElement])
+      this.isInstanceOf[Test] ||
+      this.isInstanceOf[Block] ||
+      this.isInstanceOf[Variable] ||
+      this.isInstanceOf[Value] ||
+      this.isInstanceOf[Function])
 
   // TODO
   def isAlwaysShowsPlus: Boolean = {
     this match {
-      case _: ScalaTypeDefinitionStructureViewElement => true
-      case _: ScalaFileStructureViewElement => true
-      case _: ScalaPackagingStructureViewElement => true
+      case _: TypeDefinition => true
+      case _: File => true
+      case _: Packaging => true
       case _ => false
     }
   }
 }
 
-object ScalaStructureViewElement {
-  def apply(element: PsiElement, inherited: Boolean = false): Seq[ScalaStructureViewElement[_]] = element match {
-    case packaging: ScPackaging => packaging.typeDefinitions.map(new ScalaTypeDefinitionStructureViewElement(_))
+object Element {
+  def apply(element: PsiElement, inherited: Boolean = false): Seq[Element[_]] = element match {
+    case packaging: ScPackaging => packaging.typeDefinitions.map(new TypeDefinition(_))
     // TODO Type definition can be inherited
-    case definition: ScTypeDefinition => Seq(new ScalaTypeDefinitionStructureViewElement(definition))
-    case parameter: ScClassParameter => Seq(new ScalaValOrVarParameterStructureViewElement(parameter, inherited))
+    case definition: ScTypeDefinition => Seq(new TypeDefinition(definition))
+    case parameter: ScClassParameter => Seq(new ValOrVarParameter(parameter, inherited))
     case function: ScFunction => Seq(//new ScalaFunctionStructureViewElement(function, isInherited, showType = true),
-      new ScalaFunctionStructureViewElement(function, inherited, showType = false))
+      new Function(function, inherited, showType = false))
     case variable: ScVariable => variable.declaredElements.flatMap( element =>
       Seq(//new ScalaVariableStructureViewElement(element, inherited, showType = true),
-      new ScalaVariableStructureViewElement(element, inherited, showType = false)))
+      new Variable(element, inherited, showType = false)))
     case value: ScValue => value.declaredElements.flatMap( element =>
       Seq(//new ScalaValueStructureViewElement(element, inherited, showType = true),
-      new ScalaValueStructureViewElement(element, inherited, showType = false)))
-    case alias: ScTypeAlias => Seq(new ScalaTypeAliasStructureViewElement(alias, inherited))
-    case block: ScBlockExpr => Seq(new ScalaBlockStructureViewElement(block))
+      new Value(element, inherited, showType = false)))
+    case alias: ScTypeAlias => Seq(new TypeAlias(alias, inherited))
+    case block: ScBlockExpr => Seq(new Block(block))
     case _ => Seq.empty
   }
 
-  def apply(fileProvider: () => ScalaFile): ScalaStructureViewElement[_] =
-    new ScalaFileStructureViewElement(fileProvider)
+  def apply(fileProvider: () => ScalaFile): Element[_] =
+    new File(fileProvider)
 }

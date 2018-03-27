@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 * Date: 04.05.2008
 */
 // TODO Should be private
-class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) extends ScalaStructureViewElement(definition, inherited = false) {
+class TypeDefinition(definition: ScTypeDefinition) extends Element(definition, inherited = false) {
   def getPresentableText: String = {
     val typeParameters = definition.typeParametersClause.map(_.typeParameters.map(_.name).mkString("[", ", ", "]"))
 
@@ -42,6 +42,6 @@ class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) exte
 
     val definitions = definition.typeDefinitions
 
-    (blocks ++ members ++ definitions).flatMap(ScalaStructureViewElement(_)).toArray
+    (blocks ++ members ++ definitions).flatMap(Element(_)).toArray
   }
 }

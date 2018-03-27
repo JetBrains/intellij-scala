@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 * Date: 05.05.2008
 */
 
-private class ScalaVariableStructureViewElement(element: ScNamedElement, inherited: Boolean, val showType: Boolean)
-  extends ScalaStructureViewElement(element, inherited) with TypedViewElement {
+private class Variable(element: ScNamedElement, inherited: Boolean, val showType: Boolean)
+  extends Element(element, inherited) with Typed {
 
   override def location: Option[String] = variable.map(_.containingClass).map(_.name)
 
@@ -25,7 +25,7 @@ private class ScalaVariableStructureViewElement(element: ScNamedElement, inherit
 
     def inferredType = if (showType) variable.flatMap(_.`type`().toOption).map(ScTypePresentation.withoutAliases) else None
 
-    ScalaItemPresentation.withSimpleNames(element.nameId.getText + typeAnnotation.orElse(inferredType).map(": " + _).mkString)
+    Presentation.withSimpleNames(element.nameId.getText + typeAnnotation.orElse(inferredType).map(": " + _).mkString)
   }
 
   override def getIcon(open: Boolean): Icon =
@@ -33,7 +33,7 @@ private class ScalaVariableStructureViewElement(element: ScNamedElement, inherit
 
   override def getChildren: Array[TreeElement] = variable match {
     case Some(definition: ScVariableDefinition) => definition.expr match {
-      case Some(block: ScBlockExpr) => ScalaStructureViewElement(block).flatMap(_.getChildren).toArray
+      case Some(block: ScBlockExpr) => Element(block).flatMap(_.getChildren).toArray
       case _ => TreeElement.EMPTY_ARRAY
     }
     case _ => TreeElement.EMPTY_ARRAY

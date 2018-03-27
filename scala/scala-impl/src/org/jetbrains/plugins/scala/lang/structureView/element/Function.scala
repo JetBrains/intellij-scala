@@ -11,8 +11,8 @@ import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 * Date: 04.05.2008
 */
 
-private class ScalaFunctionStructureViewElement(function: ScFunction, inherited: Boolean, val showType: Boolean)
-  extends ScalaStructureViewElement(function, inherited) with TypedViewElement {
+private class Function(function: ScFunction, inherited: Boolean, val showType: Boolean)
+  extends Element(function, inherited) with Typed {
 
   override def location: Option[String] = Option(function.containingClass).map(_.name)
 
@@ -26,12 +26,12 @@ private class ScalaFunctionStructureViewElement(function: ScFunction, inherited:
         case None => if (showType) function.returnType.toOption.map(ScTypePresentation.withoutAliases) else None
       }
 
-    ScalaItemPresentation.withSimpleNames(presentation + inferredType.map(": " + _).mkString)
+    Presentation.withSimpleNames(presentation + inferredType.map(": " + _).mkString)
   }
 
   override def getChildren: Array[TreeElement] = function match {
     case definition: ScFunctionDefinition => definition.body match {
-      case Some(block: ScBlockExpr) => ScalaStructureViewElement(block, inherited).flatMap(_.getChildren).toArray
+      case Some(block: ScBlockExpr) => Element(block, inherited).flatMap(_.getChildren).toArray
       case _ => TreeElement.EMPTY_ARRAY
     }
     case _ => TreeElement.EMPTY_ARRAY

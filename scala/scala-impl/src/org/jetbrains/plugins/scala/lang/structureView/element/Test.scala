@@ -11,23 +11,23 @@ import org.jetbrains.plugins.scala.icons.Icons
  * @since 09.04.2015.
  */
 // TODO move to the implemenation of testing support
-class TestStructureViewElement(elem: PsiElement,
-                               val testName: String,
-                               myChildren: Array[TreeElement] = TreeElement.EMPTY_ARRAY,
-                               val testStatus: Int = TestStructureViewElement.NormalStatusId) extends ScalaStructureViewElement(elem, false) {
+class Test(elem: PsiElement,
+           val testName: String,
+           myChildren: Array[TreeElement] = TreeElement.EMPTY_ARRAY,
+           val testStatus: Int = Test.NormalStatusId) extends Element(elem, false) {
 
   override def getPresentableText: String = testName
 
   override def getIcon(open: Boolean): Icon = testStatus match {
-    case TestStructureViewElement.IgnoredStatusId => IGNORED_ICON
-    case TestStructureViewElement.PendingStatusId => NOT_RAN
+    case Test.IgnoredStatusId => IGNORED_ICON
+    case Test.PendingStatusId => NOT_RAN
     case _ => Icons.SCALA_TEST_NODE
   }
 
   override def getChildren: Array[TreeElement] = myChildren
 }
 
-object TestStructureViewElement {
+object Test {
   // TOOD custom type, add icon
   val NormalStatusId = 1
   val IgnoredStatusId = 2
