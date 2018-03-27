@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
  * Date : 05.05.2008
  */
 
-private class Packaging(packaging: ScPackaging) extends Element(packaging, inherited = false) {
+private class Packaging(packaging: ScPackaging) extends AbstractTreeElement(packaging, inherited = false) {
   def getPresentableText: String = ""
 
   override def getChildren: Array[TreeElement] =

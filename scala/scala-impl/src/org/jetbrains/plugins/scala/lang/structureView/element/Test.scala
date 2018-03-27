@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 class Test(elem: PsiElement,
            val testName: String,
            myChildren: Array[TreeElement] = TreeElement.EMPTY_ARRAY,
-           val testStatus: Int = Test.NormalStatusId) extends Element(elem, false) {
+           val testStatus: Int = Test.NormalStatusId) extends AbstractTreeElement(elem) {
 
   override def getPresentableText: String = testName
 

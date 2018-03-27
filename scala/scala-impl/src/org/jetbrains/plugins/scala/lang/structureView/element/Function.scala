@@ -11,8 +11,8 @@ import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 * Date: 04.05.2008
 */
 
-private class Function(function: ScFunction, inherited: Boolean, val showType: Boolean)
-  extends Element(function, inherited) with Typed {
+private class Function(function: ScFunction, inherited: Boolean, override val showType: Boolean)
+  extends AbstractTreeElement(function, inherited) with Typed {
 
   override def location: Option[String] = Option(function.containingClass).map(_.name)
 
@@ -26,7 +26,7 @@ private class Function(function: ScFunction, inherited: Boolean, val showType: B
         case None => if (showType) function.returnType.toOption.map(ScTypePresentation.withoutAliases) else None
       }
 
-    Presentation.withSimpleNames(presentation + inferredType.map(": " + _).mkString)
+    AbstractItemPresentation.withSimpleNames(presentation + inferredType.map(": " + _).mkString)
   }
 
   override def getChildren: Array[TreeElement] = function match {

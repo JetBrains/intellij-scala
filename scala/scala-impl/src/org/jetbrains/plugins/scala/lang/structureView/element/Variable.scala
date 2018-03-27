@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 * Date: 05.05.2008
 */
 
-private class Variable(element: ScNamedElement, inherited: Boolean, val showType: Boolean)
-  extends Element(element, inherited) with Typed {
+private class Variable(element: ScNamedElement, inherited: Boolean, override val showType: Boolean)
+  extends AbstractTreeElement(element, inherited) with Typed {
 
   override def location: Option[String] = variable.map(_.containingClass).map(_.name)
 
@@ -25,7 +25,7 @@ private class Variable(element: ScNamedElement, inherited: Boolean, val showType
 
     def inferredType = if (showType) variable.flatMap(_.`type`().toOption).map(ScTypePresentation.withoutAliases) else None
 
-    Presentation.withSimpleNames(element.nameId.getText + typeAnnotation.orElse(inferredType).map(": " + _).mkString)
+    AbstractItemPresentation.withSimpleNames(element.nameId.getText + typeAnnotation.orElse(inferredType).map(": " + _).mkString)
   }
 
   override def getIcon(open: Boolean): Icon =

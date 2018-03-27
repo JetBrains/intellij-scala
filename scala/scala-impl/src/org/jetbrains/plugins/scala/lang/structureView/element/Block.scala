@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
-private class Block(block: ScBlock) extends Element(block) {
+private class Block(block: ScBlock) extends AbstractTreeElement(block) {
   override def getPresentableText: String = ""
 
   override def getIcon(open: Boolean): Icon = PlatformIcons.CLASS_INITIALIZER

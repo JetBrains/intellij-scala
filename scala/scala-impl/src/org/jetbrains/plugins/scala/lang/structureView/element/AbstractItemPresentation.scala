@@ -5,18 +5,9 @@ import javax.swing._
 import com.intellij.navigation.ColoredItemPresentation
 import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import com.intellij.openapi.util.Iconable
-import com.intellij.psi.PsiElement
 import com.intellij.util.ui.UIUtil
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 04.05.2008
-*/
-trait Presentation extends ColoredItemPresentation {
-  def element: PsiElement
-
-  def inherited: Boolean
-
+trait AbstractItemPresentation extends ColoredItemPresentation { self: Element =>
   override final def getLocationString: String =
     if (inherited) location.map(UIUtil.rightArrow + _).orNull else null
 
@@ -29,7 +20,7 @@ trait Presentation extends ColoredItemPresentation {
     if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
 }
 
-private[element] object Presentation {
+private[element] object AbstractItemPresentation {
   private val FullyQualifiedName = "(?:\\w+\\.)+(\\w+)".r
 
   private[element] def withSimpleNames(presentation: String): String =

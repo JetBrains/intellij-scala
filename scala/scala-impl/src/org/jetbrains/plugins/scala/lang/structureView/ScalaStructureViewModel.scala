@@ -29,10 +29,10 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
   extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
 
   override def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean =
-    element.asOptionOf[Element[_]].exists(_.isAlwaysShowsPlus)
+    element.asOptionOf[Element].exists(_.isAlwaysShowsPlus)
 
   override def isAlwaysLeaf(element: StructureViewTreeElement): Boolean =
-    element.asOptionOf[Element[_]].forall(_.isAlwaysLeaf)
+    element.asOptionOf[Element].forall(_.isAlwaysLeaf)
 
   override def getRoot: StructureViewTreeElement = {
     def file = console.map(_.getHistory)
@@ -87,7 +87,7 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
         new ActionPresentationData("Sort.actually", "Sort By Position", AllIcons.ObjectBrowser.Sorted)
 
       override def getComparator: Comparator[_] = (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
-        case (e1: Element[_], e2: Element[_]) if !e1.inherited && !e2.inherited =>
+        case (e1: Element, e2: Element) if !e1.inherited && !e2.inherited =>
           e1.element.getTextOffset - e2.element.getTextOffset
         case _ => 0
       }
