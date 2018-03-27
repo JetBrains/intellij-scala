@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
  * Date : 05.05.2008
  */
 
-class ScalaPackagingStructureViewElement(packaging: ScPackaging) extends ScalaStructureViewElement(packaging, inherited = false) {
+private class ScalaPackagingStructureViewElement(packaging: ScPackaging) extends ScalaStructureViewElement(packaging, inherited = false) {
   def getPresentableText: String = ""
 
   override def getChildren: Array[TreeElement] =

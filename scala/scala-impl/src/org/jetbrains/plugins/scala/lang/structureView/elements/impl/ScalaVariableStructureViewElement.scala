@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 * Date: 05.05.2008
 */
 
-class ScalaVariableStructureViewElement private (element: ScNamedElement, inherited: Boolean, val showType: Boolean)
+private class ScalaVariableStructureViewElement(element: ScNamedElement, inherited: Boolean, val showType: Boolean)
   extends ScalaStructureViewElement(element, inherited) with TypedViewElement {
 
   override def location: Option[String] = variable.map(_.containingClass).map(_.name)
@@ -40,10 +40,4 @@ class ScalaVariableStructureViewElement private (element: ScNamedElement, inheri
   }
 
   private def variable = element.parentsInFile.findByType[ScVariable]
-}
-
-object ScalaVariableStructureViewElement {
-  def apply(element: ScNamedElement, inherited: Boolean): Seq[ScalaVariableStructureViewElement] =
-    Seq(//new ScalaVariableStructureViewElement(element, inherited, showType = true),
-      new ScalaVariableStructureViewElement(element, inherited, showType = false))
 }

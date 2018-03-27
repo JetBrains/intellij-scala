@@ -8,6 +8,7 @@ import com.intellij.navigation.ItemPresentation
 import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
@@ -54,6 +55,25 @@ abstract class ScalaStructureViewElement[T <: PsiElement](val element: T, val in
   }
 
   override def hashCode(): Int = Objects.hash(getValue, Boolean.box(inherited))
+
+  // TODO
+  def isAlwaysLeaf: Boolean =
+    !(isAlwaysShowsPlus ||
+      this.isInstanceOf[TestStructureViewElement] ||
+      this.isInstanceOf[ScalaBlockStructureViewElement] ||
+      this.isInstanceOf[ScalaVariableStructureViewElement] ||
+      this.isInstanceOf[ScalaValueStructureViewElement] ||
+      this.isInstanceOf[ScalaFunctionStructureViewElement])
+
+  // TODO
+  def isAlwaysShowsPlus: Boolean = {
+    this match {
+      case _: ScalaTypeDefinitionStructureViewElement => true
+      case _: ScalaFileStructureViewElement => true
+      case _: ScalaPackagingStructureViewElement => true
+      case _ => false
+    }
+  }
 }
 
 object ScalaStructureViewElement {
@@ -62,11 +82,19 @@ object ScalaStructureViewElement {
     // TODO Type definition can be inherited
     case definition: ScTypeDefinition => Seq(new ScalaTypeDefinitionStructureViewElement(definition))
     case parameter: ScClassParameter => Seq(new ScalaValOrVarParameterStructureViewElement(parameter, inherited))
-    case function: ScFunction => ScalaFunctionStructureViewElement(function, inherited)
-    case variable: ScVariable => variable.declaredElements.flatMap(ScalaVariableStructureViewElement(_, inherited))
-    case value: ScValue => value.declaredElements.flatMap(ScalaValueStructureViewElement(_, inherited))
+    case function: ScFunction => Seq(//new ScalaFunctionStructureViewElement(function, isInherited, showType = true),
+      new ScalaFunctionStructureViewElement(function, inherited, showType = false))
+    case variable: ScVariable => variable.declaredElements.flatMap( element =>
+      Seq(//new ScalaVariableStructureViewElement(element, inherited, showType = true),
+      new ScalaVariableStructureViewElement(element, inherited, showType = false)))
+    case value: ScValue => value.declaredElements.flatMap( element =>
+      Seq(//new ScalaValueStructureViewElement(element, inherited, showType = true),
+      new ScalaValueStructureViewElement(element, inherited, showType = false)))
     case alias: ScTypeAlias => Seq(new ScalaTypeAliasStructureViewElement(alias, inherited))
     case block: ScBlockExpr => Seq(new ScalaBlockStructureViewElement(block))
     case _ => Seq.empty
   }
+
+  def apply(fileProvider: () => ScalaFile): ScalaStructureViewElement[_] =
+    new ScalaFileStructureViewElement(fileProvider)
 }

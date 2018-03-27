@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
-class ScalaBlockStructureViewElement(block: ScBlock) extends ScalaStructureViewElement(block) {
+private class ScalaBlockStructureViewElement(block: ScBlock) extends ScalaStructureViewElement(block) {
   override def getPresentableText: String = ""
 
   override def getIcon(open: Boolean): Icon = PlatformIcons.CLASS_INITIALIZER

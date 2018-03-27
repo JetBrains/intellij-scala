@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 * Date: 04.05.2008
 */
 
-class ScalaFunctionStructureViewElement private (function: ScFunction, inherited: Boolean, val showType: Boolean)
+private class ScalaFunctionStructureViewElement(function: ScFunction, inherited: Boolean, val showType: Boolean)
   extends ScalaStructureViewElement(function, inherited) with TypedViewElement {
 
   override def location: Option[String] = Option(function.containingClass).map(_.name)
@@ -36,10 +36,4 @@ class ScalaFunctionStructureViewElement private (function: ScFunction, inherited
     }
     case _ => TreeElement.EMPTY_ARRAY
   }
-}
-
-object ScalaFunctionStructureViewElement {
-  def apply(function: ScFunction, inherited: Boolean): Seq[ScalaFunctionStructureViewElement] =
-    Seq(//new ScalaFunctionStructureViewElement(function, isInherited, showType = true),
-      new ScalaFunctionStructureViewElement(function, inherited, showType = false))
 }

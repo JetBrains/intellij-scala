@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
-
+// TODO Should be private
 class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) extends ScalaStructureViewElement(definition, inherited = false) {
   def getPresentableText: String = {
     val typeParameters = definition.typeParametersClause.map(_.typeParameters.map(_.name).mkString("[", ", ", "]"))
@@ -32,16 +32,11 @@ class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) exte
       .filterBy[ScBlockExpr]
 
     val members = definition.members.flatMap {
-      case function: ScFunction => Seq(function)
       case constructor: ScPrimaryConstructor => definition match {
-        case c: ScClass if c.isCase =>
-          constructor.effectiveFirstParameterSection
-        case _ =>
-          constructor.valueParameters
+        case c: ScClass if c.isCase => constructor.effectiveFirstParameterSection
+        case _ => constructor.valueParameters
       }
-      case member: ScVariable => Seq(member)
-      case member: ScValue => Seq(member)
-      case member: ScTypeAlias => Seq(member)
+      case element @ (_: ScFunction | _: ScVariable | _: ScValue | _: ScTypeAlias) => Seq(element)
       case _ => Seq.empty
     }
 

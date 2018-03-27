@@ -10,6 +10,7 @@ import com.intellij.ide.util.treeView.smartTree._
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -27,29 +28,18 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
 class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLanguageConsole] = None)
   extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
 
-  override def isAlwaysLeaf(element: StructureViewTreeElement): Boolean =
-    !(isAlwaysShowsPlus(element) ||
-      element.isInstanceOf[TestStructureViewElement] ||
-      element.isInstanceOf[ScalaBlockStructureViewElement] ||
-      element.isInstanceOf[ScalaVariableStructureViewElement] ||
-      element.isInstanceOf[ScalaValueStructureViewElement] ||
-      element.isInstanceOf[ScalaFunctionStructureViewElement])
+  override def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean =
+    element.asOptionOf[ScalaStructureViewElement[_]].exists(_.isAlwaysShowsPlus)
 
-  override def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean = {
-    element match {
-      case _: ScalaTypeDefinitionStructureViewElement => true
-      case _: ScalaFileStructureViewElement => true
-      case _: ScalaPackagingStructureViewElement => true
-      case _ => false
-    }
-  }
+  override def isAlwaysLeaf(element: StructureViewTreeElement): Boolean =
+    element.asOptionOf[ScalaStructureViewElement[_]].forall(_.isAlwaysLeaf)
 
   override def getRoot: StructureViewTreeElement = {
     def file = console.map(_.getHistory)
       .map(history => createScalaFileFromText(s"$history${myRootElement.getText}")(myRootElement.getManager))
       .getOrElse(myRootElement)
 
-    new ScalaFileStructureViewElement(() => file)
+    ScalaStructureViewElement(() => file)
   }
 
 // TODO Enable inferred types

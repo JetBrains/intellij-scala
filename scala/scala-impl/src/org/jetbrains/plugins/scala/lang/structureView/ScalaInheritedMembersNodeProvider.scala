@@ -40,16 +40,16 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
                 sign.method match {
                   case x if x.name == "$tag" || x.name == "$init$" =>
                   case x if x.containingClass == clazz =>
-                  case x: ScFunction => children.addAll(ScalaFunctionStructureViewElement(x, true).asJava)
+                  case x: ScFunction => children.addAll(ScalaStructureViewElement(x, inherited = true).asJava)
                   case x: PsiMethod => children.add(new PsiMethodTreeElementDecorator(x, true))
                 }
               case _ =>
                 sign.namedElement match {
                   case parameter: ScClassParameter if parameter.isEffectiveVal && parameter.containingClass != clazz && !sign.name.endsWith("_=") =>
-                    children.add(new ScalaValOrVarParameterStructureViewElement(parameter, true))
+                    children.addAll(ScalaStructureViewElement(parameter, inherited = true).asJava)
                   case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
-                    case x: ScValue if x.containingClass != clazz => children.addAll(ScalaValueStructureViewElement(named, true).asJava)
-                    case x: ScVariable if x.containingClass != clazz => children.addAll(ScalaVariableStructureViewElement(named, true).asJava)
+                    case x: ScValue if x.containingClass != clazz => children.addAll(ScalaStructureViewElement(named, inherited = true).asJava)
+                    case x: ScVariable if x.containingClass != clazz => children.addAll(ScalaStructureViewElement(named, inherited = true).asJava)
                     case _ =>
                   }
                   case _ =>
@@ -63,7 +63,7 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
             if t.isInstanceOf[ScTypeAlias]
             alias = t.asInstanceOf[ScTypeAlias]
             if alias.containingClass != clazz
-          } children.add(new ScalaTypeAliasStructureViewElement(alias, true))
+          } children.addAll(ScalaStructureViewElement(alias, inherited = true).asJava)
 
           children
         }

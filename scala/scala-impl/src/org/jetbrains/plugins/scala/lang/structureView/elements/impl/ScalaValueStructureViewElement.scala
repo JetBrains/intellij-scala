@@ -14,8 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 * @author Alexander Podkhalyuzin
 * Date: 08.05.2008
 */
-
-class ScalaValueStructureViewElement private (element: ScNamedElement, inherited: Boolean, val showType: Boolean)
+// TODO Should be private
+class ScalaValueStructureViewElement(element: ScNamedElement, inherited: Boolean, val showType: Boolean)
   extends ScalaStructureViewElement(element, inherited) with TypedViewElement {
 
   override def location: Option[String] = value.map(_.containingClass).map(_.name)
@@ -40,10 +40,4 @@ class ScalaValueStructureViewElement private (element: ScNamedElement, inherited
   }
 
   private def value = element.parentsInFile.findByType[ScValue]
-}
-
-object ScalaValueStructureViewElement {
-  def apply(element: ScNamedElement, inherited: Boolean): Seq[ScalaValueStructureViewElement] =
-    Seq(//new ScalaValueStructureViewElement(element, inherited, showType = true),
-      new ScalaValueStructureViewElement(element, inherited, showType = false))
 }

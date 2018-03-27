@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 
-class ScalaValOrVarParameterStructureViewElement(parameter: ScClassParameter, inherited: Boolean)
+private class ScalaValOrVarParameterStructureViewElement(parameter: ScClassParameter, inherited: Boolean)
   extends ScalaStructureViewElement(parameter, inherited) {
 
   override def location: Option[String] =
