@@ -26,7 +26,7 @@ import scala.collection.JavaConverters._
  */
 
 class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeElement] {
-  def provideNodes(node: TreeElement): util.Collection[TreeElement] = {
+  override def provideNodes(node: TreeElement): util.Collection[TreeElement] = {
     node match {
       case td: ScalaTypeDefinitionStructureViewElement =>
         val children = new util.ArrayList[TreeElement]()
@@ -74,12 +74,12 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
     }
   }
 
-  def getCheckBoxText: String = IdeBundle.message("file.structure.toggle.show.inherited")
+  override def getCheckBoxText: String = IdeBundle.message("file.structure.toggle.show.inherited")
 
-  def getShortcut: Array[Shortcut] = KeymapManager.getInstance.getActiveKeymap.getShortcuts("FileStructurePopup")
+  override def getShortcut: Array[Shortcut] = KeymapManager.getInstance.getActiveKeymap.getShortcuts("FileStructurePopup")
 
-  def getPresentation: ActionPresentation = new ActionPresentationData(
+  override def getPresentation: ActionPresentation = new ActionPresentationData(
     IdeBundle.message("action.structureview.show.inherited"), null, IconLoader.getIcon("/hierarchy/supertypes.png"))
 
-  def getName: String = "SCALA_SHOW_INHERITED"
+  override def getName: String = "SCALA_SHOW_INHERITED"
 }

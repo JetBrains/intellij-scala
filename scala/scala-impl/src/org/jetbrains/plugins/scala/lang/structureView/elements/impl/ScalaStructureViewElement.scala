@@ -1,13 +1,12 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
-package elements
+package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import java.util.Objects
 
 import com.intellij.ide.structureView.StructureViewTreeElement
+import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 /**
 * @author Alexander Podkhalyuzin
@@ -15,21 +14,19 @@ import com.intellij.psi.PsiElement
 */
 
 abstract class ScalaStructureViewElement[T <: PsiElement](val element: T, val inherited: Boolean) extends StructureViewTreeElement {
+  override def getValue: AnyRef = if (element.isValid) element else null
 
-  override def getValue: Object = if (element.isValid) element else null
+  override def navigate(b: Boolean): Unit = navigatable.foreach(_.navigate(b))
 
-  override def navigate(b: Boolean) {
-    element.asInstanceOf[Navigatable].navigate(b)
-  }
+  override def canNavigate: Boolean = navigatable.exists(_.canNavigate)
 
-  override def canNavigate: Boolean = {
-    element.asInstanceOf[Navigatable].canNavigate
-  }
+  override def canNavigateToSource: Boolean = navigatable.exists(_.canNavigateToSource)
 
-  override def canNavigateToSource: Boolean = {
-    element.asInstanceOf[Navigatable].canNavigateToSource
-  }
+  private def navigatable = element.asOptionOf[Navigatable]
 
+  override def getChildren: Array[TreeElement] = TreeElement.EMPTY_ARRAY
+
+  // TODO
   override def equals(o: Any): Boolean = {
     val clazz = o match {
       case obj: Object => obj.getClass

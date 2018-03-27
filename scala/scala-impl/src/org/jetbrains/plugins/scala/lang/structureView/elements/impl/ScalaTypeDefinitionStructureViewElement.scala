@@ -2,16 +2,13 @@ package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
-import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaTypeDefinitionStructureViewElement.Presentation
-
-import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin
@@ -22,39 +19,28 @@ class ScalaTypeDefinitionStructureViewElement(definition: ScTypeDefinition) exte
   override def getPresentation: ItemPresentation = new Presentation(definition)
 
   override def getChildren: Array[TreeElement] = {
-    val children = new ArrayBuffer[TreeElement]
-    for (body <- definition.extendsBlock.templateBody; child <- body.getChildren if child.isInstanceOf[ScBlockExpr])
-      children += new ScalaBlockStructureViewElement(child.asInstanceOf[ScBlockExpr])
-    val members = definition.members
-    for (member <- members) {
-      member match {
-        case func: ScFunction =>
-          children ++= ScalaFunctionStructureViewElement(func, false)
-        case constr: ScPrimaryConstructor =>
-          definition match {
-            case c: ScClass if c.isCase =>
-              constr.effectiveFirstParameterSection.foreach {
-                children += new ScalaValOrVarParameterStructureViewElement(_, false)
-              }
-            case _ =>
-              constr.valueParameters.foreach {
-                children += new ScalaValOrVarParameterStructureViewElement(_, false)
-              }
-          }
-        case member: ScVariable =>
-          for (f <- member.declaredElements)
-            children ++= ScalaVariableStructureViewElement(f, false)
-        case member: ScValue =>
-          for (f <- member.declaredElements)
-            children ++= ScalaValueStructureViewElement(f, false)
-        case member: ScTypeAlias =>
-          children += new ScalaTypeAliasStructureViewElement(member, false)
+    val blocks = definition.extendsBlock.templateBody.toSeq
+      .flatMap(_.getChildren)
+      .filterBy[ScBlockExpr]
+      .map(new ScalaBlockStructureViewElement(_))
+
+    val members = definition.members.flatMap {
+      case function: ScFunction => ScalaFunctionStructureViewElement(function, inherited = false)
+      case constructor: ScPrimaryConstructor => definition match {
+        case c: ScClass if c.isCase =>
+          constructor.effectiveFirstParameterSection.map(new ScalaValOrVarParameterStructureViewElement(_, inherited = false))
         case _ =>
+          constructor.valueParameters.map(new ScalaValOrVarParameterStructureViewElement(_, inherited = false))
       }
+      case member: ScVariable => member.declaredElements.flatMap(ScalaVariableStructureViewElement(_, inherited = false))
+      case member: ScValue => member.declaredElements.flatMap(ScalaValueStructureViewElement(_, inherited = false))
+      case member: ScTypeAlias => Seq(new ScalaTypeAliasStructureViewElement(member, inherited = false))
+      case _ => Seq.empty
     }
-    for (typeDef <- definition.typeDefinitions)
-      children += new ScalaTypeDefinitionStructureViewElement(typeDef)
-    children.toArray
+
+    val definitions = definition.typeDefinitions.map(new ScalaTypeDefinitionStructureViewElement(_))
+
+    (blocks ++ members ++ definitions).toArray
   }
 }
 

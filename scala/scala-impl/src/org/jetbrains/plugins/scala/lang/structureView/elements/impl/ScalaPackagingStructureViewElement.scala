@@ -2,12 +2,9 @@ package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
-import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaPackagingStructureViewElement.Presentation
-
-import _root_.scala.collection.mutable._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -19,20 +16,15 @@ class ScalaPackagingStructureViewElement(packaging: ScPackaging) extends ScalaSt
   override def getPresentation: ItemPresentation = new Presentation(packaging)
 
   override def getChildren: Array[TreeElement] = {
-    val children = new ArrayBuffer[ScalaStructureViewElement[_]]
-    for (td <- packaging.immediateTypeDefinitions) {
-      children += new ScalaTypeDefinitionStructureViewElement(td)
-    }
-    for (p <- packaging.packagings) {
-      children += new ScalaPackagingStructureViewElement(p)
-    }
+    val result = packaging.immediateTypeDefinitions.map(new ScalaTypeDefinitionStructureViewElement(_)) ++
+      packaging.packagings.map(new ScalaPackagingStructureViewElement(_))
 
-    children.toArray
+    result.toArray
   }
 }
 
-private object ScalaPackagingStructureViewElement {
-  class Presentation(element: ScPackaging) extends ScalaItemPresentation(element) {
-    def getPresentableText: String = ScalaElementPresentation.getPackagingPresentableText(element)
+object ScalaPackagingStructureViewElement {
+  private class Presentation(packaging: ScPackaging) extends ScalaItemPresentation(packaging) {
+    def getPresentableText: String = ""
   }
 }

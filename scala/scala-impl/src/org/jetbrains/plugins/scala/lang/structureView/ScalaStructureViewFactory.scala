@@ -12,9 +12,10 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 * Date: 04.05.2008
 */
 class ScalaStructureViewFactory extends PsiStructureViewFactory {
-  def getStructureViewBuilder(file: PsiFile): StructureViewBuilder = file match {
+  override def getStructureViewBuilder(file: PsiFile): StructureViewBuilder = file match {
     case scalaFile: ScalaFile =>
       Stats.trigger(FeatureKey.structureView)
+
       if (scalaFile.getName == ScalaLanguageConsoleView.SCALA_CONSOLE) {
         new ScalaStructureViewBuilder(scalaFile, Some(ScalaConsoleInfo.getConsole(scalaFile)))
       } else {

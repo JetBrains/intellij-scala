@@ -8,10 +8,8 @@ import com.intellij.ide.IdeBundle
 import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElement, TextEditorBasedStructureViewModel}
 import com.intellij.ide.util.treeView.smartTree._
 import com.intellij.psi.PsiElement
-import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -19,8 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
-import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
+import org.jetbrains.plugins.scala.lang.structureView.elements.impl.{ScalaStructureViewElement, _}
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 
 /**
@@ -47,7 +44,6 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
     }
   }
 
-  @NotNull
   override def getRoot: StructureViewTreeElement = {
     def file = console.map(_.getHistory)
       .map(history => createScalaFileFromText(s"$history${myRootElement.getText}")(myRootElement.getManager))
@@ -71,7 +67,6 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
 //    override def isReverted: Boolean = false
 //  })
 
-  @NotNull
   override def getSorters: Array[Sorter] = {
     val res = new Array[Sorter](2)
     res(0) = new Sorter() {

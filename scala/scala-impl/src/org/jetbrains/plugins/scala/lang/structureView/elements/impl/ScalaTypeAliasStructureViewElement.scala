@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.lang.structureView.elements.impl
 
-import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
-import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaTypeAliasStructureViewElement.Presentation
 
 /**
@@ -15,8 +13,6 @@ import org.jetbrains.plugins.scala.lang.structureView.elements.impl.ScalaTypeAli
 
 class ScalaTypeAliasStructureViewElement(alias: ScTypeAlias, inherited: Boolean) extends ScalaStructureViewElement(alias, inherited)  {
   override def getPresentation: ItemPresentation = new Presentation(alias, inherited)
-
-  override def getChildren: Array[TreeElement] = TreeElement.EMPTY_ARRAY
 }
 
 private object ScalaTypeAliasStructureViewElement {

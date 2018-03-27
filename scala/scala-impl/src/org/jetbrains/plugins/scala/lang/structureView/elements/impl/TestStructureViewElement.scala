@@ -7,7 +7,6 @@ import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement.Presentation
 /**
  * @author Roman.Shein
@@ -19,9 +18,9 @@ class TestStructureViewElement(elem: PsiElement,
                                myChildren: Array[TreeElement] = TreeElement.EMPTY_ARRAY,
                                testStatus: Int = TestStructureViewElement.NormalStatusId) extends ScalaStructureViewElement(elem, false) {
 
-  override def getChildren: Array[TreeElement] = myChildren
-
   override def getPresentation: ItemPresentation = new Presentation(elem, testName, testStatus)
+
+  override def getChildren: Array[TreeElement] = myChildren
 }
 
 object TestStructureViewElement {

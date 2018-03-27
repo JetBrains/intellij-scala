@@ -23,18 +23,8 @@ object ScalaElementPresentation {
 
   //TODO refactor with name getters
 
-  def getPackagingPresentableText(packaging: ScPackaging): String = packaging.packageName
-
   def getTypeDefinitionPresentableText(typeDefinition: ScTypeDefinition): String =
     if (typeDefinition.nameId != null) typeDefinition.nameId.getText else "unnamed"
-
-  def getPrimaryConstructorPresentableText(constructor: ScPrimaryConstructor): String = {
-    val presentableText: StringBuffer = new StringBuffer
-    presentableText.append("this")
-    if (constructor.parameters != null)
-      presentableText.append(StructureViewUtil.getParametersAsString(constructor.parameterList))
-    presentableText.toString
-  }
 
   def getMethodPresentableText(function: ScFunction, fast: Boolean = true,
                                subst: ScSubstitutor = ScSubstitutor.empty): String = {
