@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.structureView.elements.impl
+package org.jetbrains.plugins.scala.lang.structureView.element
 
 import javax.swing._
 
@@ -29,9 +29,9 @@ trait ScalaItemPresentation extends ColoredItemPresentation {
     if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
 }
 
-private[elements] object ScalaItemPresentation {
+private[element] object ScalaItemPresentation {
   private val FullyQualifiedName = "(?:\\w+\\.)+(\\w+)".r
 
-  private[elements] def withSimpleNames(presentation: String): String =
+  private[element] def withSimpleNames(presentation: String): String =
     FullyQualifiedName.replaceAllIn(presentation, "$1")
 }

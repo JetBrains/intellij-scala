@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
+import org.jetbrains.plugins.scala.lang.structureView.element.{ScalaStructureViewElement, ScalaTypeDefinitionStructureViewElement}
 
 import scala.collection.JavaConverters._
 

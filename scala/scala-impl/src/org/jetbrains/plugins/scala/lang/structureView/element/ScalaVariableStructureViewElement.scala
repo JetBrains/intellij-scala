@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.structureView.elements.impl
+package org.jetbrains.plugins.scala.lang.structureView.element
 
 import javax.swing.Icon
 

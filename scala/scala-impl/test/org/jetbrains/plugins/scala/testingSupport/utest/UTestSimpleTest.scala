@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.utest
 
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
+import org.jetbrains.plugins.scala.lang.structureView.element.TestStructureViewElement
 
 /**
   * @author Roman.Shein

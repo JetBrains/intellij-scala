@@ -10,7 +10,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.extensions.invokeLater
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
+import org.jetbrains.plugins.scala.lang.structureView.element.TestStructureViewElement
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, AllInPackageTestData, ClassTestData, SingleTestData}
 
 import scala.annotation.tailrec

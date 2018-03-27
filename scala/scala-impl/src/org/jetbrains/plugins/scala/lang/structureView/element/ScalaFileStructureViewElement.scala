@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.structureView.elements.impl
+package org.jetbrains.plugins.scala.lang.structureView.element
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import org.jetbrains.plugins.scala.extensions._

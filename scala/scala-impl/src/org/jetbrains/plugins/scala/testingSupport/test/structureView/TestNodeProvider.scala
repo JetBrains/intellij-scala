@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternsImpl
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl.{ScalaTypeDefinitionStructureViewElement, _}
+import org.jetbrains.plugins.scala.lang.structureView.element.{ScalaTypeDefinitionStructureViewElement, ScalaValueStructureViewElement, TestStructureViewElement}
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2Util

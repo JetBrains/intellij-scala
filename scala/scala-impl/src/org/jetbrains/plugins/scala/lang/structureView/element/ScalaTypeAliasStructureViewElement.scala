@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.structureView.elements.impl
+package org.jetbrains.plugins.scala.lang.structureView.element
 
 import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias

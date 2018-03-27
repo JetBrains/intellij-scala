@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
+import org.jetbrains.plugins.scala.lang.structureView.element.TestStructureViewElement
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider

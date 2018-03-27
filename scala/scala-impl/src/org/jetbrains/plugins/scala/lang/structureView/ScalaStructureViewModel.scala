@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl.{ScalaStructureViewElement, _}
+import org.jetbrains.plugins.scala.lang.structureView.element.{ScalaStructureViewElement, TestStructureViewElement}
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 
 /**
