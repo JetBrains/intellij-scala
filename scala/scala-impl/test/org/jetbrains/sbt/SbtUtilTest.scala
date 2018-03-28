@@ -66,6 +66,7 @@ class SbtUtilTest {
   @Test
   def testCustomGlobalPluginsFromGlobalPluginsParam2(): Unit = {
     val params = new ParametersList()
+    params.addProperty("sbt.global.base", "hockensnock")
     params.add("-Dsbt.global.plugins=tocklewick")
     val dir = globalPluginsDirectory(v0120, params)
     assertEquals(new File("tocklewick"), dir)

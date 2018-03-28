@@ -101,9 +101,10 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
     getCustomVMExecutableOrWarn(sbtSettings).foreach(exe => commandLine.setExePath(exe.getAbsolutePath))
 
+
     if (autoPluginsSupported) {
       val sbtMajorVersion = binaryVersion(projectSbtVersion)
-      val globalPluginsDir = globalPluginsDirectory(sbtMajorVersion)
+      val globalPluginsDir = globalPluginsDirectory(sbtMajorVersion, commandLine.getParametersList)
 
       // evil side effect! writes injected plugin settings to user's global sbt config
       injectSettings(runid, globalPluginsDir, pluginResolverSetting +: injectedPlugins(sbtMajorVersion))
