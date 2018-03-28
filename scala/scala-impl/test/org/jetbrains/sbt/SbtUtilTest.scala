@@ -55,7 +55,20 @@ class SbtUtilTest {
   }
 
   @Test
-  def testCustomGlobalPluginsFromGlobalPluginsParam(): Unit = {
+  def testCustomGlobalPluginsWithEmptyPluginsParam(): Unit = {
+    val params = new ParametersList()
+
+    val expected1 = globalPluginsDirectory(v0120)
+    val actual1 = globalPluginsDirectory(v0120, params)
+    assertEquals(expected1, actual1)
+
+    val expected2 = globalPluginsDirectory(v112)
+    val actual2 = globalPluginsDirectory(v112, params)
+    assertEquals(expected2, actual2)
+  }
+
+  @Test
+  def testCustomGlobalPluginsFromGlobalPluginsParam2(): Unit = {
     val params = new ParametersList()
     params.addProperty("sbt.global.plugins", "snickenfland")
 
@@ -64,7 +77,7 @@ class SbtUtilTest {
   }
 
   @Test
-  def testCustomGlobalPluginsFromGlobalPluginsParam2(): Unit = {
+  def testCustomGlobalPluginsFromGlobalPluginsParam3(): Unit = {
     val params = new ParametersList()
     params.addProperty("sbt.global.base", "hockensnock")
     params.add("-Dsbt.global.plugins=tocklewick")

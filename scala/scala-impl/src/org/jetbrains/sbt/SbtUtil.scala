@@ -45,7 +45,7 @@ object SbtUtil {
     customGlobalPlugins
       .orElse(customGlobalBase)
       .map(new File(_))
-      .getOrElse(globalBase(sbtVersion))
+      .getOrElse(globalPluginsDirectory(sbtVersion))
   }
 
   /** Base directory for global sbt settings. */
