@@ -14,7 +14,7 @@ object TypePresentationContext {
   import scala.language.implicitConversions
 
   implicit def psiElementPresentationContext(e: PsiElement): TypePresentationContext = (text, target) => {
-    val typeElem = ScalaPsiElementFactory.createTypeElementFromText(text, target.getContext, target)
+    val typeElem = ScalaPsiElementFactory.createTypeElementFromText(text, e.getContext, e)
 
     val reference = (typeElem match {
       case null                         => None

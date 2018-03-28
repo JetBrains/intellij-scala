@@ -75,7 +75,8 @@ trait TypePresentation {
 object ScTypePresentation {
   val ABSTRACT_TYPE_POSTFIX = "_"
 
-  def different(t1: ScType, t2: ScType): (String, String) = {
+  def different(t1: ScType, t2: ScType)
+               (implicit context: TypePresentationContext): (String, String) = {
     val (p1, p2) = (t1.presentableText, t2.presentableText)
     if (p1 != p2) (p1, p2)
     else (t1.canonicalText.replace("_root_.", ""), t2.canonicalText.replace("_root_.", ""))
@@ -87,7 +88,8 @@ object ScTypePresentation {
       ScalaPsiUtil.superTypeMembers(ta).exists(_.isInstanceOf[ScTypeAliasDeclaration])
   }
 
-  def withoutAliases(`type`: ScType): String = {
+  def withoutAliases(`type`: ScType)
+                    (implicit context: TypePresentationContext): String = {
     `type`.removeAliasDefinitions(expandableOnly = true).presentableText
   }
 }

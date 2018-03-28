@@ -85,13 +85,13 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
 object ShowTypeInfoAction {
   def getTypeInfoHint(editor: Editor, file: PsiFile, offset: Int): Option[String] = {
     val typeInfoFromRef = file.findReferenceAt(offset) match {
-      case ResolvedWithSubst(e, subst) => typeTextOf(e, subst)
+      case ref @ ResolvedWithSubst(e, subst) => typeTextOf(e, subst)(ref.getElement)
       case _ =>
         val element = file.findElementAt(offset)
         if (element == null) return None
         if (element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER) return None
         element match {
-          case Parent(p) => typeTextOf(p, ScSubstitutor.empty)
+          case Parent(p) => typeTextOf(p, ScSubstitutor.empty)(element)
           case _ => None
         }
     }
@@ -102,17 +102,19 @@ object ShowTypeInfoAction {
   def typeInfoFromPattern(p: ScBindingPattern): Option[String] = {
     p match {
       case null => None
-      case _ => typeTextOf(p, ScSubstitutor.empty)
+      case _ => typeTextOf(p, ScSubstitutor.empty)(p)
     }
   }
 
   val NO_TYPE: String = "No type was inferred"
 
-  private[this] def typeTextOf(elem: PsiElement, subst: ScSubstitutor): Option[String] = {
+  private[this] def typeTextOf(elem: PsiElement, subst: ScSubstitutor)
+                              (implicit context: TypePresentationContext): Option[String] = {
     typeText(elem.ofNamedElement(subst))
   }
 
-  private[this] def typeText(optType: Option[ScType], s: ScSubstitutor = ScSubstitutor.empty): Option[String] = {
+  private[this] def typeText(optType: Option[ScType], s: ScSubstitutor = ScSubstitutor.empty)
+                            (implicit context: TypePresentationContext): Option[String] = {
     optType.map(ScTypePresentation.withoutAliases)
   }
 }
