@@ -67,8 +67,10 @@ object SbtUtil {
     if ((sbtVersion ~= Version("1.0.0")) && sbtVersion.presentation.contains("-M"))
       sbtVersion
     // sbt uses binary version x.0 for [x.0,x+1.0[
-    else if (sbtVersion.major(1) == Version("1")) Version("1.0")
-    else sbtVersion.major(2)
+    else if (sbtVersion.major(1) >= Version("1")) {
+      val major = sbtVersion.major(1).presentation
+      Version(s"$major.0")
+    } else sbtVersion.major(2)
 
   def detectSbtVersion(directory: File, sbtLauncher: => File): String =
     sbtVersionIn(directory)
