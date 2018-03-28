@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias, ScValueDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{DefinitionInstruction, ExtractMethodControlFlowPolicy, ReadWriteVariableInstruction}
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{DefinitionInstruction, ReadWriteVariableInstruction}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefinitions._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
@@ -34,7 +34,7 @@ object ReachingDefintionsCollector {
               fragment.map(_.getContainingFile.getName).mkString("(", ", ", ")")
       throw new RuntimeException(message)
     }
-    val cfg = cfowner.getControlFlow(policy = ExtractMethodControlFlowPolicy) //todo: make cache more right to not get PsiInvalidAccess
+    val cfg = cfowner.getControlFlow() //todo: make cache more right to not get PsiInvalidAccess
     val engine = new DfaEngine(cfg, ReachingDefinitionsInstance, ReachingDefinitionsLattice)
     val dfaResult = engine.performDFA
 
@@ -121,7 +121,13 @@ object ReachingDefintionsCollector {
         }
       case _ =>
     }
-    buffer.toSeq.sortBy(_.getTextRange.getStartOffset).map(VariableInfo)
+
+    def isSynthetic(element: PsiNamedElement): Boolean = element match {
+      case _: SyntheticNamedElement => true
+      case _ => false
+    }
+
+    buffer.filterNot(isSynthetic).toSeq.sortBy(_.getTextRange.getStartOffset).map(VariableInfo)
   }
 
 

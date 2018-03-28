@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.controlFlow.impl
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -371,9 +371,8 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     interruptFlow()
   }
 
-  override def visitFunctionExpression(stmt: ScFunctionExpr) {
-    if (policy == ExtractMethodControlFlowPolicy) addFreeVariables(stmt)
-  }
+  override def visitFunctionExpression(stmt: ScFunctionExpr) = addFreeVariables(stmt)
+
 
   override def visitTypeDefinition(typedef: ScTypeDefinition) { /* Do not visit inner classes either */ }
 
@@ -402,10 +401,8 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitFunction(fun: ScFunction) {
-    if (policy != ExtractMethodControlFlowPolicy) return
-
     if (policy.isElementAccepted(fun)) {
-      val instr = new DefinitionInstruction(inc, fun, DefinitionType.DEF)
+      val instr = DefinitionInstruction(inc, fun, DefinitionType.DEF)
       checkPendingEdges(instr)
       addNode(instr)
     }
