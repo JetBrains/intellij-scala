@@ -5,6 +5,7 @@ import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager$;
 import org.jetbrains.plugins.scala.statistics.FeatureKey;
 import org.jetbrains.plugins.scala.statistics.Stats;
 
@@ -51,9 +52,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean PROJECT_VIEW_HIGHLIGHTING = false;
   private boolean SCALA_CLASSES_PRIORITY = true;
   private boolean GENERATE_TOSTRING_WITH_FIELD_NAMES = false;
-
-
-  private boolean ENABLE_LIBRARY_EXTENSIONS = true;
   
   public enum TrailingCommasMode {Enabled, Disabled, Auto}
   private TrailingCommasMode TRAILING_COMMAS_ENABLED = TrailingCommasMode.Auto;
@@ -86,6 +84,16 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean BUNDLED_INSPECTIONS_SEARCH_ENABLED = false;
   private Set<String> BUNDLED_INSPECTION_IDS_DISABLED = new HashSet<String>();
   private Map<String, ArrayList<String>> BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS = new HashMap<String, ArrayList<String>>();
+
+  // LIBRARY EXTENSIONS
+  private boolean ENABLE_LIBRARY_EXTENSIONS = true;
+  private boolean LEXT_SHOW_ALL_PROJECTS = false;
+  private Set<Integer> DISABLED_EXTENSIONS = new HashSet<>();
+  private List<String> LEXT_SEARCH_PATTERNS = new ArrayList<>();
+
+  {
+    LEXT_SEARCH_PATTERNS.add(LibraryExtensionsManager$.MODULE$.DEFAULT_PATTERN());
+  }
 
 
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
@@ -455,7 +463,31 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     this.ENABLE_LIBRARY_EXTENSIONS = ENABLE_LIBRARY_EXTENSIONS;
   }
 
-  public ScalaMetaMode getScalaMetaMode() {
+  public boolean isLextShowAllProjects() {
+    return LEXT_SHOW_ALL_PROJECTS;
+  }
+
+  public void setLextShowAllProjects(boolean LEXT_SHOW_ALL_PROJECTS) {
+    this.LEXT_SHOW_ALL_PROJECTS = LEXT_SHOW_ALL_PROJECTS;
+  }
+
+  public Set<Integer> getDisabledExtensions() {
+    return DISABLED_EXTENSIONS;
+  }
+
+  public void setDisabledExtensions(Set<Integer> DISABLED_EXTENSIONS) {
+    this.DISABLED_EXTENSIONS = DISABLED_EXTENSIONS;
+  }
+
+  public List<String> getLextSearchPatterns() {
+      return LEXT_SEARCH_PATTERNS;
+  }
+
+  public void setLextSearchPatterns(List<String> LEXT_SEARCH_PATTERNS) {
+      this.LEXT_SEARCH_PATTERNS = LEXT_SEARCH_PATTERNS;
+  }
+
+    public ScalaMetaMode getScalaMetaMode() {
     return scalaMetaMode;
   }
 
