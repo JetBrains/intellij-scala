@@ -118,7 +118,7 @@ abstract class Node[T] {
     children :+= node
   }
 
-  def addAll(nodes: Seq[Node[_]]) {
+  def addAll(nodes: Iterable[Node[_]]) {
     children ++= nodes
   }
 
