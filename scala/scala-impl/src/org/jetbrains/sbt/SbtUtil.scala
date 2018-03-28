@@ -5,6 +5,7 @@ import java.net.URI
 import java.util.Properties
 import java.util.jar.JarFile
 
+import com.intellij.execution.configurations.{GeneralCommandLine, ParametersList}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.model.project.ModuleData
@@ -22,25 +23,41 @@ import org.jetbrains.sbt.project.data.SbtModuleData
   */
 object SbtUtil {
 
+  object CommandLineOptions {
+    val globalPlugins = "sbt.global.plugins"
+    val globalBase = "sbt.global.base"
+  }
+
   /** Directory for global sbt plugins given sbt version */
   def globalPluginsDirectory(sbtVersion: Version): File =
-    getFileProperty(globalPluginsProperty).getOrElse {
+    getFileProperty(CommandLineOptions.globalPlugins).getOrElse {
       val base = globalBase(sbtVersion)
       new File(base, "plugins")
     }
 
-  private val globalPluginsProperty = "sbt.global.plugins"
-  private val globalBaseProperty = "sbt.global.base"
+  /** Directory for global sbt plugins from parameters if it is explicitly set,
+    * otherwise calculate from sbt version.
+    */
+  def globalPluginsDirectory(sbtVersion: Version, parameters: ParametersList): File = {
+    val customGlobalPlugins = Option(parameters.getPropertyValue(CommandLineOptions.globalPlugins))
+    val customGlobalBase = Option(parameters.getPropertyValue(CommandLineOptions.globalBase))
+
+    customGlobalPlugins
+      .orElse(customGlobalBase)
+      .map(new File(_))
+      .getOrElse(globalBase(sbtVersion))
+  }
 
   /** Base directory for global sbt settings. */
   def globalBase(version: Version): File =
-    getFileProperty(globalBaseProperty).getOrElse(defaultVersionedGlobalBase(version))
+    getFileProperty(CommandLineOptions.globalBase).getOrElse(defaultVersionedGlobalBase(version))
+
 
   private def getFileProperty(name: String): Option[File] = Option(System.getProperty(name)) flatMap { path =>
     if (path.isEmpty) None else Some(new File(path))
   }
   private def fileProperty(name: String): File = new File(System.getProperty(name))
-  private def defaultGlobalBase = fileProperty("user.home") / ".sbt"
+  private[sbt] def defaultGlobalBase = fileProperty("user.home") / ".sbt"
   private def defaultVersionedGlobalBase(sbtVersion: Version): File = {
     defaultGlobalBase / binaryVersion(sbtVersion).presentation
   }
