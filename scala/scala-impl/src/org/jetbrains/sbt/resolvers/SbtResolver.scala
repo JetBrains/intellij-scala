@@ -11,7 +11,7 @@ import org.jetbrains.sbt.resolvers.indexes.{FakeMavenIndex, MavenProxyIndex, Res
   * @author Mikhail Mutcianko
   * @since 26.07.16
   */
-trait SbtResolver extends Serializable {
+sealed trait SbtResolver extends Serializable {
   def name: String
   def root: String
   def getIndex(project: Project): Option[ResolverIndex]
