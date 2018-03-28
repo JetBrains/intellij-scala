@@ -9,20 +9,22 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.ui.configuration.LibraryJavaSourceRootDetector;
-import com.intellij.openapi.vfs.VfsUtilCore;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.VirtualFileVisitor;
+import com.intellij.openapi.roots.ui.configuration.JavaVfsSourceRootDetectionUtil;
+import com.intellij.openapi.vfs.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.project.notification.source.AttachSourcesUtil;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class IdeaSourcesAttach extends AbstractProjectComponent {
-    private static final Pattern PATTERN = Pattern.compile("^sources\\.(zip|jar)$");
-    private static final HashSet PRJ_NAMES = new HashSet<>(Arrays.asList("scalaUltimate", "scalaCommunity"));
+
+    private static final Pattern PROJECT_NAME_PATTERN = Pattern.compile("^(scalaUltimate|scalaCommunity)$");
+    private static final Pattern JAR_PATTERN = Pattern.compile("^sources\\.(zip|jar)$");
+    private static final Pattern DIRECTORY_PATTERN = Pattern.compile("^\\d+\\.\\d+\\.\\d+$");
 
     protected IdeaSourcesAttach(Project project) {
         super(project);
@@ -30,12 +32,10 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
 
     private final Logger LOG = Logger.getInstance(this.getClass());
 
-    public static final String NAME = "IdeaSourcesAttach";
-
     @NotNull
     @Override
     public String getComponentName() {
-        return NAME;
+        return "IdeaSourcesAttach";
     }
 
     @Override
@@ -49,113 +49,141 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
 
     void attachIdeaSources() {
         if (!ApplicationManager.getApplication().isInternal()) return;
-        if (!PRJ_NAMES.contains(myProject.getName())) return;
+        if (!PROJECT_NAME_PATTERN.matcher(myProject.getName()).matches()) return;
 
         new Task.Backgroundable(myProject, "Attaching Idea Sources", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                ApplicationManager.getApplication().runReadAction(() -> {
-                    final Set<LibraryOrderEntry> libs = getLibsWithoutSourceRoots();
-                    LOG.info("Got " + libs.size() + " total IDEA libraries with missing source roots");
-                    if (libs.isEmpty()) return;
-                    LibraryOrderEntry pivot = null;
-                    for (LibraryOrderEntry lib : libs) {
-                        Library library = lib.getLibrary();
-                        if (library != null && library.getFiles(OrderRootType.CLASSES).length > 0) {
-                            pivot = lib;
-                            break;
-                        }
-                    }
-                    if (pivot == null) {
-                        LOG.error("No libraries with valid class roots found");
-                        return;
-                    }
-
-                    final VirtualFile zip = findSourcesZip(findCurrentSDKDir(pivot));
-                    if (zip == null) return;
-                    LOG.info("Found related sources archive: " + zip.getCanonicalPath());
-                    setTitle("Scanning for Sources Archive");
-                    final Collection<VirtualFile> roots = new LibraryJavaSourceRootDetector().detectRoots(zip, indicator);
-                    setTitle("Attaching Source Roots");
-                    for (LibraryOrderEntry lib : libs) {
-                        final Library library = lib.getLibrary();
-                        if (library != null && library.getUrls(OrderRootType.SOURCES).length == 0) {
-                            TransactionGuard.getInstance().submitTransactionLater(myProject, () ->
-                                    AttachSourcesUtil.appendSources(library, roots.toArray(new VirtualFile[roots.size()]))
-                            );
-                        }
-                    }
-                    LOG.info("Finished attaching IDEA sources");
-                });
+                Backgroundable backgroundable = this;
+                ApplicationManager.getApplication().runReadAction(() -> doAttach(backgroundable, indicator));
 
             }
         }.queue();
     }
 
-    Set<LibraryOrderEntry> getLibsWithoutSourceRoots() {
-        return needsAttaching(getIntellijJars());
+    Set<LibraryOrderEntry> needsAttaching() {
+        if (myProject.isDisposed()) return Collections.emptySet();
+
+        return getIntellijJars(myProject)
+                .map(IdeaSourcesAttach::asSourcelessLibraryEntry)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
-    private HashSet<LibraryOrderEntry> getIntellijJars() {
-        if (myProject.isDisposed()) return new HashSet<LibraryOrderEntry>(0);
-        VirtualFile[] all = PackageIndex.getInstance(myProject).getDirectoriesByPackageName("com.intellij", false);
-        ArrayList<VirtualFile> jars = new ArrayList<VirtualFile>();
-        for (VirtualFile f : all) {
-            if (f.getUrl().contains(".jar!")) jars.add(f);
+    private void doAttach(@NotNull Task task, @NotNull ProgressIndicator indicator) {
+        Set<LibraryOrderEntry> sourcesless = needsAttaching();
+        LOG.info("Got " + sourcesless.size() + " total IDEA libraries with missing source roots");
+        if (sourcesless.isEmpty()) return;
+
+        VirtualFile sdk = null;
+        for (LibraryOrderEntry entry : sourcesless) {
+            sdk = findLibraryRoot(entry);
+            if (sdk != null) break;
         }
-        ArrayList<LibraryOrderEntry> libs = new ArrayList<LibraryOrderEntry>();
-        for (VirtualFile jar : jars) {
-            for (OrderEntry orderEntry : ProjectFileIndex.SERVICE.getInstance(myProject).getOrderEntriesForFile(jar)) {
-                if (orderEntry instanceof LibraryOrderEntry) libs.add((LibraryOrderEntry) orderEntry);
+
+        if (sdk == null) {
+            LOG.error("No libraries with valid class roots found");
+            return;
+        }
+
+        VirtualFile rootDirectory = findDirectory(sdk, myProject.getBaseDir());
+        if (rootDirectory == null) return;
+
+        final VirtualFile zip = findSourcesZip(rootDirectory);
+        if (zip == null) return;
+
+        LOG.info("Found related sources archive: " + zip.getCanonicalPath());
+        task.setTitle("Scanning for Sources Archive");
+        Collection<VirtualFile> roots = JavaVfsSourceRootDetectionUtil.suggestRoots(zip, indicator);
+
+        task.setTitle("Attaching Source Roots");
+        for (LibraryOrderEntry entry : sourcesless) {
+            TransactionGuard.getInstance()
+                    .submitTransactionLater(myProject, () -> AttachSourcesUtil.appendSources(entry.getLibrary(), roots));
+        }
+        LOG.info("Finished attaching IDEA sources");
+    }
+
+
+    private static Stream<OrderEntry> getIntellijJars(@NotNull Project project) {
+        PackageIndex packageIndex = PackageIndex.getInstance(project);
+        ProjectFileIndex fileIndex = ProjectFileIndex.SERVICE.getInstance(project);
+
+        VirtualFile[] intellijDirectories = packageIndex.getDirectoriesByPackageName("com.intellij", false);
+        return Arrays.stream(intellijDirectories)
+                .filter(file -> file.getUrl().contains(".jar!"))
+                .flatMap(jarFile -> fileIndex.getOrderEntriesForFile(jarFile).stream());
+    }
+
+    @Nullable
+    private static LibraryOrderEntry asSourcelessLibraryEntry(@NotNull OrderEntry entry) {
+        if (!(entry instanceof LibraryOrderEntry)) return null;
+
+        LibraryOrderEntry result = (LibraryOrderEntry) entry;
+
+        Library library = result.getLibrary();
+        return library != null && library.getUrls(OrderRootType.SOURCES).length == 0
+                ? result
+                : null;
+    }
+
+    @Nullable
+    private static VirtualFile findLibraryRoot(@NotNull LibraryOrderEntry entry) {
+        VirtualFile[] jars = entry.getFiles(OrderRootType.CLASSES);
+
+        VirtualFile firstFile = at(jars, 0);
+        VirtualFile secondFile = isToolsJar(firstFile)
+                ? at(jars, 1)
+                : firstFile;
+
+        return VfsUtil.getVirtualFileForJar(secondFile);
+    }
+
+    @Nullable
+    private static VirtualFile at(@NotNull VirtualFile[] files, int index) {
+        return files.length > index ? files[index] : null;
+    }
+
+    private static boolean isToolsJar(@Nullable VirtualFile jarFile) {
+        if (jarFile == null) return false;
+
+        String path = jarFile.getCanonicalPath();
+        return path != null && path.contains("tools.jar");
+    }
+
+    @Nullable
+    private static VirtualFile findDirectory(@Nullable VirtualFile root, @NotNull VirtualFile baseDirectory) {
+        VirtualFile parent = root;
+        while (parent != null) {
+            if (DIRECTORY_PATTERN.matcher(parent.getName()).matches() || parent.equals(baseDirectory)) {
+                break;
+            } else {
+                parent = parent.getParent();
             }
         }
-        return new HashSet<>(libs);
+        return parent;
     }
 
-    private Set<LibraryOrderEntry> needsAttaching(final Set<LibraryOrderEntry> libs) {
-        final Set<LibraryOrderEntry> res = new HashSet<LibraryOrderEntry>();
-        for (LibraryOrderEntry lib : libs) {
-            Library library = lib.getLibrary();
-            if ((library != null) && (library.getUrls(OrderRootType.SOURCES).length == 0))
-                res.add(lib);
-        }
-        return res;
-    }
-
-    private VirtualFile findSourcesZip(VirtualFile root) {
-        final VirtualFile[] res = {null};
+    @Nullable
+    private static VirtualFile findSourcesZip(@NotNull VirtualFile root) {
+        VirtualFile[] result = {null};
         try {
-            VfsUtilCore.visitChildrenRecursively(root,
-                    new VirtualFileVisitor() {
-                        @NotNull
-                        @Override
-                        public Result visitFileEx(@NotNull VirtualFile file) {
-                            if (PATTERN.matcher(file.getName()).matches()) {
-                                res[0] = VirtualFileManager.getInstance().findFileByUrl("jar://" + file.getCanonicalPath() + "!/");
-                                throw new RuntimeException();
-                            }
-                            return VirtualFileVisitor.CONTINUE;
-                        }
-                    });
+            VirtualFileManager fileManager = VirtualFileManager.getInstance();
+            VfsUtilCore.visitChildrenRecursively(root, new VirtualFileVisitor() {
+                @NotNull
+                @Override
+                public Result visitFileEx(@NotNull VirtualFile file) {
+                    if (JAR_PATTERN.matcher(file.getName()).matches()) {
+                        result[0] = fileManager.findFileByUrl("jar://" + file.getCanonicalPath() + "!/");
+                        throw new RuntimeException();
+                    } else {
+                        return VirtualFileVisitor.CONTINUE;
+                    }
+                }
+            });
         } catch (Exception ignored) {
+        }
 
-        }
-        return res[0];
-    }
-
-    private VirtualFile findCurrentSDKDir(LibraryOrderEntry anyLib) {
-        VirtualFile[] jarFiles = anyLib.getFiles(OrderRootType.CLASSES);
-        String path = jarFiles[0].getCanonicalPath();
-        if (path != null && path.contains("tools.jar") && jarFiles.length > 1) {
-            path = jarFiles[1].getCanonicalPath();
-        }
-        if (path == null) return null;
-        VirtualFile parent = VirtualFileManager.getInstance().findFileByUrl("file://" + path.substring(0, path.length() - 2));
-        while (parent != null) {
-            if (parent.getName().matches("^\\d+\\.\\d+\\.\\d+$") || parent.equals(myProject.getBaseDir()))
-                return parent;
-            parent = parent.getParent();
-        }
-        return null;
+        return result[0];
     }
 }
