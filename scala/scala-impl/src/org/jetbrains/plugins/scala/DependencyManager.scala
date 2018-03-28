@@ -6,9 +6,11 @@ import java.nio.file.{Files, Paths}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import org.apache.ivy.Ivy
 import org.apache.ivy.core.module.id.ModuleRevisionId
+import org.apache.ivy.core.report.ResolveReport
 import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
 import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, RepositoryResolver, URLResolver}
+import org.apache.ivy.util.DefaultMessageLogger
 import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.project.template._
 
@@ -21,6 +23,7 @@ abstract class DependencyManagerBase {
   private val ivyHome = sys.props.get("sbt.ivy.home").map(new File(_)).orElse(Option(new File(homePrefix, ".ivy2"))).get
 
   protected val artifactBlackList = Set("scala-library", "scala-reflect", "scala-compiler")
+  protected val logLevel: Int = org.apache.ivy.util.Message.MSG_WARN
 
   protected val resolvers: Seq[Resolver] = Seq(
     MavenResolver("central", "http://repo1.maven.org/maven2"),
@@ -60,8 +63,6 @@ abstract class DependencyManagerBase {
 
   private def resolveIvy(deps: Seq[DependencyDescription]): Seq[ResolvedDependency] = {
 
-    def artToDep(id: ModuleRevisionId) = DependencyDescription(id.getOrganisation, id.getName, id.getRevision)
-
     def mkResolver(resolver: Resolver): RepositoryResolver = resolver match {
       case MavenResolver(name, root) =>
         val iBiblioResolver = new IBiblioResolver
@@ -91,11 +92,19 @@ abstract class DependencyManagerBase {
     if (deps.isEmpty) return Seq.empty
 
     val ivy = Ivy.newInstance(mkIvySettings())
+    ivy.getLoggerEngine.pushLogger(new DefaultMessageLogger(logLevel))
 
     val report = usingTempFile("ivy", Some(".xml")) { ivyFile =>
       Files.write(Paths.get(ivyFile.toURI), mkIvyXml(deps).getBytes)
       ivy.resolve(ivyFile.toURI.toURL, new ResolveOptions().setConfs(Array("compile")))
     }
+
+    processIvyReport(report)
+  }
+
+  protected def artToDep(id: ModuleRevisionId) = DependencyDescription(id.getOrganisation, id.getName, id.getRevision)
+
+  protected def processIvyReport(report: ResolveReport): Seq[ResolvedDependency] = {
 
     if (report.getAllProblemMessages.isEmpty && report.getAllArtifactsReports.nonEmpty) {
       report
@@ -171,7 +180,7 @@ object DependencyManagerBase {
 
   implicit class TypesExt(tp: Types.Type) { def str: String = tp.toString.toLowerCase }
 
-  private def stripScalaVersion(str: String): String = str.replaceAll("_\\d+\\.\\d+$", "")
+  def stripScalaVersion(str: String): String = str.replaceAll("_\\d+\\.\\d+$", "")
 }
 
 object DependencyManager extends DependencyManagerBase
