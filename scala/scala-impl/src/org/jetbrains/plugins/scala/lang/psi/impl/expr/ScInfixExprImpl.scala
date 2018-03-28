@@ -46,7 +46,7 @@ class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScI
             foldConstTypes(left, element.`type`().toOption.filter(_.isInstanceOf[ScLiteralType]))
           case _ => super.innerType
         }
-        foldConstTypes(lOp.`type`().toOption, rOp.`type`().toOption)
+        foldConstTypes(left.`type`().toOption, right.`type`().toOption)
     }.getOrElse(super.innerType)
   }
 
