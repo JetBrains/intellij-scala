@@ -4,13 +4,14 @@ import java.io._
 import java.{util => ju}
 
 import scala.collection.JavaConverters._
-
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.org.objectweb.asm._
 
+import scala.collection.mutable
+
 private object ClassfileParser {
   def parse(is: InputStream): ParsedClassfile = {
-    val reader = new ClassReader(is)
+    val reader  = new ClassReader(is)
     val visitor = new ParsingVisitor
     reader.accept(visitor, ClassReader.SKIP_FRAMES)
     visitor.result
@@ -19,7 +20,6 @@ private object ClassfileParser {
   def parse(bytes: Array[Byte]): ParsedClassfile = parse(new ByteArrayInputStream(bytes))
   def parse(file: File): ParsedClassfile         = parse(new FileInputStream(file))
   def parse(vfile: VirtualFile): ParsedClassfile = parse(vfile.getInputStream)
- 
 
   def fqnFromInternalName(internal: String): String = internal.replaceAll("/", ".")
 
@@ -28,9 +28,9 @@ private object ClassfileParser {
   }
 
   private[this] class ParsingVisitor extends ClassVisitor(Opcodes.API_VERSION) {
-    private[this] var className: String                  = _
-    private[this] val superNames: ju.Set[String]         = new ju.HashSet[String]()
-    private[this] val innerRefs: ju.List[MemberReference] = new ju.ArrayList[MemberReference]()
+    private[this] var className: String                                = _
+    private[this] val superNames: mutable.Builder[String, Set[String]] = Set.newBuilder[String]
+    private[this] val innerRefs: ju.List[MemberReference]              = new ju.ArrayList[MemberReference]()
 
     override def visit(
       version: Int,
@@ -41,10 +41,10 @@ private object ClassfileParser {
       interfaces: Array[String]
     ): Unit = {
       className = fqnFromInternalName(name)
-      superNames.add(fqnFromInternalName(superName))
+      superNames += fqnFromInternalName(superName)
 
       if (interfaces != null) {
-        interfaces.map(fqnFromInternalName).foreach(superNames.add)
+        interfaces.map(fqnFromInternalName).foreach(superNames += _)
       }
     }
 
@@ -57,9 +57,9 @@ private object ClassfileParser {
     ): MethodVisitor = new MethodVisitor(Opcodes.API_VERSION) with ReferenceInMethodCollector {
       override def addRef(ref: MemberReference): Unit = innerRefs.add(ref)
     }
-    
+
     def result: ParsedClassfile = {
-      val classInfo = ClassInfo(className, superNames.asScala)
+      val classInfo = ClassInfo(className, superNames.result())
       ParsedClassfile(classInfo, innerRefs.asScala)
     }
   }

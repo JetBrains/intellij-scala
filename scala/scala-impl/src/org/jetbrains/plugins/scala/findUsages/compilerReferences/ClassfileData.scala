@@ -4,8 +4,6 @@ import java.io.File
 import java.util
 import java.util.Collections
 
-import scala.collection.Set
-
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.backwardRefs.index.CompiledFileData
 
@@ -13,7 +11,7 @@ private[findUsages] final case class ClassfileData(
   sourceFile: File,
   aClass: CompilerRef,
   superClasses: Set[CompilerRef.JavaCompilerClassRef],
-  refs: Map[CompilerRef, Seq[Int]]
+  refs: Map[CompilerRef, Set[Int]]
 ) extends {
   private[this] val backwardsHierarchy: util.Map[CompilerRef, util.Collection[CompilerRef]] = {
     val backHierarchy = new util.HashMap[CompilerRef, util.Collection[CompilerRef]]()
@@ -27,8 +25,8 @@ private[findUsages] final case class ClassfileData(
   Collections.emptyMap(),
   Collections.emptyMap()
 ) {
-  def backwardsReferences: util.Map[CompilerRef, Seq[Int]] = {
-    val usages = new util.HashMap[CompilerRef, Seq[Int]](refs.size)
+  def backwardsReferences: util.Map[CompilerRef, Set[Int]] = {
+    val usages = new util.HashMap[CompilerRef, Set[Int]](refs.size)
     refs.foreach(Function.tupled(usages.put))
     usages
   }
@@ -49,8 +47,8 @@ private object ClassfileData {
 
     val refs = parsed.refs.groupBy(_.fullName).map {
       case (_, rs) =>
-        val compilerRef = refProvider.toCompilerRef(rs.head)
-        val lines       = rs.map(_.line)
+        val compilerRef     = refProvider.toCompilerRef(rs.head)
+        val lines: Set[Int] = rs.map(_.line)(collection.breakOut)
         compilerRef -> lines
     }
 

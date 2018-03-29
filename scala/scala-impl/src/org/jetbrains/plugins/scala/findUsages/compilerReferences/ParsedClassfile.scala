@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
-import scala.collection.Set
-
 /**
  * @param fqn          Fully quialified name of a class.
  * @param superClasses Fully qualified names of all super classes/interfaces.

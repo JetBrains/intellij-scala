@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import java.util.concurrent._
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.locks.{Lock, ReentrantLock}
+import java.util.concurrent.locks.ReentrantLock
 
-import scala.collection.mutable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
@@ -14,6 +13,8 @@ import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 import org.jetbrains.jps.incremental.CompiledClass
 import org.jetbrains.plugin.scala.compilerReferences.BuildData
 import org.jetbrains.plugins.scala.extensions._
+
+import scala.collection.mutable
 
 private class CompilerReferenceIndexer(project: Project) {
   import CompilerReferenceIndexer._
@@ -103,7 +104,7 @@ private class CompilerReferenceIndexer(project: Project) {
         buildData.compiledClasses.foreach(parserJobQueue.add)
 
         val writer =
-          indexDir(project).flatMap(ScalaCompilerReferenceWriter(_, buildData.affectedModules, buildData.isRebuild))
+          indexDir(project).flatMap(ScalaCompilerReferenceWriter(_, buildData.isRebuild))
 
         writer.foreach { writer =>
           val tasks = (1 to nThreads).map(
@@ -137,13 +138,6 @@ private class CompilerReferenceIndexer(project: Project) {
         runningTasks.clear()
       }
     }
-
-  private def withLock[T](lock: Lock)(body: => T): T = {
-    lock.lock()
-    val result = body
-    lock.unlock()
-    result
-  }
 
   private def runWithProgressAsync[T](title: String)(body: ProgressIndicator => T): Unit =
     ProgressManager

@@ -36,7 +36,7 @@ object Codec {
   private[this] implicit class ScanerOps(val in: Scanner) extends AnyVal {
     def decode[T](implicit ev: Codec[T]): Option[T] = ev.decode(in)
   }
-
+  
   def simpleCodec[T](decoder: String => T): Codec[T] = new Codec[T] {
     override def encode(t: T)(implicit ctx: StringBuilder): Unit = {
       ctx ++= t.toString

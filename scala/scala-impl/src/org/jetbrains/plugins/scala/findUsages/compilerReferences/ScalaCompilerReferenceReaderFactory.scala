@@ -7,14 +7,14 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.util.indexing.IndexExtension
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.jps.backwardRefs.index.{CompiledFileData, CompilerReferenceIndex}
+import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 
 private object ScalaCompilerReferenceReaderFactory
     extends CompilerReferenceReaderFactory[ScalaCompilerReferenceReader] {
   private val logger = Logger.getInstance(ScalaCompilerReferenceReaderFactory.getClass)
 
   @NotNull
-  override def getIndices: util.Collection[_ <: IndexExtension[_, _, _ <: CompiledFileData]] =
+  override def getIndices: util.Collection[_ <: IndexExtension[_, _, _]] =
     ScalaCompilerIndices.getIndices
 
   @Nullable
