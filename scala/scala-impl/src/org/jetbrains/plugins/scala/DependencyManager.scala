@@ -10,6 +10,7 @@ import org.apache.ivy.core.report.ResolveReport
 import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
 import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, RepositoryResolver, URLResolver}
+import org.apache.ivy.plugins.version.ExactVersionMatcher
 import org.apache.ivy.util.DefaultMessageLogger
 import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.project.template._
@@ -78,14 +79,20 @@ abstract class DependencyManagerBase {
     }
 
     def mkIvySettings(): IvySettings = {
-      val chainResolver = new ChainResolver
-      chainResolver.setName("default")
-      resolvers.foreach { r => chainResolver.add(mkResolver(r)) }
-
       val ivySettings = new IvySettings
-      ivySettings.addResolver(chainResolver)
-      ivySettings.setDefaultResolver("default")
-      ivySettings.setDefaultIvyUserDir(ivyHome)
+      val ivyResolvers = resolvers.map(mkResolver)
+      ivySettings.load(IvySettings.getDefaultSettingsURL)
+      ivySettings.getResolver("main") match {
+        case cr: ChainResolver => ivyResolvers.foreach(cr.add)
+        case _ =>
+          val chainResolver = new ChainResolver
+          chainResolver.setName("chainResolver")
+          ivyResolvers.foreach(chainResolver.add)
+          ivySettings.addResolver(chainResolver)
+          ivySettings.setDefaultResolver("chainResolver")
+      }
+      ivySettings.addVersionMatcher(new ExactVersionMatcher)
+      ivyResolvers.foreach(_.setSettings(ivySettings))
       ivySettings
     }
 
