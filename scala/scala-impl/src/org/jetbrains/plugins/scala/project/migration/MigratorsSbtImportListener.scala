@@ -1,35 +1,39 @@
 package org.jetbrains.plugins.scala.project.migration
 
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListenerAdapter, ExternalSystemTaskType}
-import com.intellij.openapi.project.Project
-import org.jetbrains.sbt.project.settings.SbtLocalSettings
+import com.intellij.openapi.externalSystem.model.task._
 
 /**
   * User: Dmitry.Naydanov
   * Date: 14.11.16.
   */
 class MigratorsSbtImportListener extends ExternalSystemTaskNotificationListenerAdapter {
-  private val myId = ExternalSystemTaskType.RESOLVE_PROJECT
-  
-  private def ifMyTask(id: ExternalSystemTaskId, action: (Project, SbtLocalSettings) => Unit) {
-    if (id.getType != myId) return
-    
-    for {
-      project <- Option(id.findProject())
-      settings <- Option(SbtLocalSettings.getInstance(project))
-    } {
-      action(project, settings)
-    }
-    
-  }
-  
-  override def onSuccess(id: ExternalSystemTaskId): Unit = {
-    ifMyTask(id, (project, _) => BundledCodeStoreComponent.getInstance(project).notifyImportFinished())
-  }
 
-  override def onStart(id: ExternalSystemTaskId): Unit = {
-    ifMyTask(id, (project, _) => BundledCodeStoreComponent.getInstance(project).onImportAboutToStart())
-  }
+  import MigratorsSbtImportListener._
+
+  override def onSuccess(id: ExternalSystemTaskId): Unit =
+    onCodeStoreComponent(id) { component =>
+      component.notifyImportFinished()
+    }
+
+  override def onStart(id: ExternalSystemTaskId): Unit =
+    onCodeStoreComponent(id) { component =>
+      component.onImportAboutToStart()
+    }
 
   override def onQueued(id: ExternalSystemTaskId, workingDir: String): Unit = onStart(id)
+}
+
+object MigratorsSbtImportListener {
+
+  private def onCodeStoreComponent(id: ExternalSystemTaskId)
+                                  (action: BundledCodeStoreComponent => Unit): Unit =
+    for {
+      project <- findProject(id)
+      component = BundledCodeStoreComponent.getInstance(project)
+    } action(component)
+
+  private[this] def findProject(id: ExternalSystemTaskId) = id.getType match {
+    case ExternalSystemTaskType.RESOLVE_PROJECT => Option(id.findProject)
+    case _ => None
+  }
 }
