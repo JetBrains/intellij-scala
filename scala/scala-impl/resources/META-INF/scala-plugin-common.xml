@@ -329,6 +329,7 @@
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.vals.ApplyUnapplyForBindingSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.OperatorAndBacktickedSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.typeDef.SelfInvocationSearcher"/>
+        <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ImplicitUsageSearcher"/>
         <methodReferencesSearch implementation="org.jetbrains.plugins.scala.findUsages.NonMemberMethodUsagesSearcher"/>
         <findUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesHandlerFactory" order="first"/>
         <customUsageSearcher implementation="org.jetbrains.plugins.scala.findUsages.parameters.ConstructorParamsInConstructorPatternSearcher"/>

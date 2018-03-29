@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  * User: Alexander Podkhalyuzin
  * Date: 22.12.2009
  */
-
 class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
   def createHighlightUsagesHandler(editor: Editor, file: PsiFile): HighlightUsagesHandlerBase[_ <: PsiElement] = {
     if (!file.isInstanceOf[ScalaFile]) return null
@@ -120,12 +119,11 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
     null
   }
 
-  private def implicitHighlighter[T](editor: Editor, file: PsiFile, data: T)
-                            (implicit kind: TargetKind[T]): ScalaHighlightImplicitUsagesHandler[T] = {
-
+  private def implicitHighlighter[T: TargetKind](editor: Editor,
+                                                 file: PsiFile,
+                                                 data: T): ScalaHighlightImplicitUsagesHandler[T] =
     if (implicitHighlightingEnabled.get()) new ScalaHighlightImplicitUsagesHandler(editor, file, data)
     else null
-  }
 
 }
 

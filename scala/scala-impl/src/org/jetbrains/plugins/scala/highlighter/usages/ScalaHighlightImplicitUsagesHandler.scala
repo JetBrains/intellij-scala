@@ -6,31 +6,26 @@ import com.intellij.codeInsight.highlighting.{HighlightUsagesHandler, HighlightU
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.LocalSearchScope
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, PsiReference}
 import com.intellij.util.Consumer
-import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.util.ImplicitUtil._
 
-import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
 class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data: T)
                                             (implicit kind: TargetKind[T])
     extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
 
-  override def getTargets: util.List[PsiElement] = kind.targets(data).asJava
+  override def getTargets: util.List[PsiNamedElement] = kind.target(data).toSeq.asJava
 
   override def selectTargets(targets: util.List[PsiElement], selectionConsumer: Consumer[util.List[PsiElement]]): Unit =
     selectionConsumer.consume(targets)
@@ -39,7 +34,7 @@ class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data
     import ScalaHighlightImplicitUsagesHandler._
     val usages = targets.asScala
       .flatMap(findUsages(file, _))
-      .map(range)
+      .map(_.getRangeInElement)
     val targetIds = targets.asScala.flatMap(nameId)
     myReadUsages.addAll((targetIds ++ usages).asJava)
   }
@@ -74,33 +69,30 @@ class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data
 
 object ScalaHighlightImplicitUsagesHandler {
   trait TargetKind[T] {
-    def targets(t: T): Seq[PsiElement]
+    def target(t: T): Option[PsiNamedElement]
   }
 
   object TargetKind {
-    implicit val namedKind: TargetKind[ScNamedElement] = targets(_)
+    implicit val namedKind: TargetKind[ScNamedElement] = target(_)
 
     implicit val refKind: TargetKind[ScReference] = ref => ref.resolve match {
-      case named: ScNamedElement => targets(named)
-      case _ => Seq.empty
+      case named: ScNamedElement => target(named)
+      case _                     => None
     }
 
     implicit val contextBoundKind: TargetKind[(ScTypeParam, ScTypeElement)] = {
       case (typeParam, typeElem) => contextBoundImplicitTarget(typeParam, typeElem)
     }
 
-    private def targets(named: ScNamedElement): Seq[PsiElement] = {
-      if (!named.isValid) return Seq.empty
-
-      named match {
-        case c: ScClass => c.getSyntheticImplicitMethod.toSeq
-        case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) => Seq(n)
-        case n => Seq.empty
+    private def target(named: ScNamedElement): Option[PsiNamedElement] = named match {
+        case _ if !named.isValid                             => None
+        case c: ScClass                                      => c.getSyntheticImplicitMethod
+        case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) => Option(n)
+        case _                                               => None
       }
-    }
 
-    private def contextBoundImplicitTarget(typeParam: ScTypeParam, typeElem: ScTypeElement): Seq[ScParameter] = {
-      if (!typeElem.isValid) return Seq.empty
+    private def contextBoundImplicitTarget(typeParam: ScTypeParam, typeElem: ScTypeElement): Option[ScParameter] = {
+      if (!typeElem.isValid) return None
 
       val typeParam = typeElem.getParent.asInstanceOf[ScTypeParam]
       val methodLike = typeParam.getOwner match {
@@ -114,7 +106,7 @@ object ScalaHighlightImplicitUsagesHandler {
           .flatMap(_.effectiveParameters)
 
       val implicits = methodLike.map(implicitParams).getOrElse(Seq.empty)
-      implicits.filter { param =>
+      implicits.find { param =>
         (param.typeElement, typeElem.analog) match {
           case (Some(t1), Some(t2)) if t1.calcType == t2.calcType => true
           case _                                                  => false
@@ -123,31 +115,7 @@ object ScalaHighlightImplicitUsagesHandler {
     }
   }
 
-  private implicit class ImplicitTarget(target: PsiElement) {
-
-    def isTarget(named: PsiElement): Boolean = named match {
-      case `target` => true
-      case f: ScFunction if target == f.syntheticNavigationElement => true
-      case _ => false
-    }
-
-    private def matches(srr: ScalaResolveResult): Boolean = {
-      isTarget(srr.element) ||
-        srr.implicitParameters.exists(matches) ||
-        srr.implicitConversion.exists(matches)
-    }
-
-    def isImplicitConversionOrParameter(e: ScExpression): Boolean = {
-      e.implicitConversion().exists(matches) || isImplicitParameterOf(e)
-    }
-
-    def isImplicitParameterOf(e: ImplicitArgumentsOwner): Boolean =
-      e.findImplicitArguments
-        .getOrElse(Seq.empty)
-        .exists(matches)
-  }
-
-  private def findUsages(file: PsiFile, target: PsiElement): Seq[PsiElement] = {
+  private def findUsages(file: PsiFile, target: PsiElement): Seq[PsiReference] = {
     val useScope = target.getUseScope
     if (!useScope.contains(file.getVirtualFile)) return Seq.empty
 
@@ -156,50 +124,9 @@ object ScalaHighlightImplicitUsagesHandler {
       case _ => true
     }
 
-    def containsRefOrImplicitRef(elem: PsiElement): Boolean = elem match {
-      case ref: ScReference if target.isTarget(ref.resolve()) => true
-      case e: ScExpression if target.isImplicitConversionOrParameter(e) => true
-      case c: ScConstructorInvocation if target.isImplicitParameterOf(c) => true
-      case _ => false
-    }
-
     file
-      .depthFirst()
-      .filter(e => inUseScope(e) && containsRefOrImplicitRef(e))
+      .depthFirst(e => inUseScope(e))
+      .flatMap(target.refOrImplicitRefIn)
       .toSeq
   }
-
-  @tailrec
-  private def range(usage: PsiElement): TextRange = {
-    val simpleRange = usage.getTextRange
-    def startingFrom(elem: PsiElement): TextRange = {
-      val start = elem.getTextRange.getStartOffset
-      TextRange.create(start, simpleRange.getEndOffset)
-    }
-    def forTypeElem(typeElem: ScSimpleTypeElement) = {
-      def newTd =
-        Option(PsiTreeUtil.getParentOfType(typeElem, classOf[ScNewTemplateDefinition]))
-          .filter(_.constructorInvocation.flatMap(_.simpleTypeElement).contains(typeElem))
-
-      def constructor =
-        Option(PsiTreeUtil.getParentOfType(typeElem, classOf[ScConstructorInvocation]))
-          .filter(_.simpleTypeElement.contains(typeElem))
-
-      newTd
-        .orElse(constructor)
-        .getOrElse(typeElem)
-        .getTextRange
-    }
-
-    usage match {
-      case ScMethodCall(ScParenthesisedExpr(_), _)          => simpleRange
-      case ScMethodCall(_: ScThisReference, _)              => simpleRange
-      case MethodRepr(_: ScMethodCall, Some(base), None, _) => range(base)
-      case MethodRepr(_, _, Some(ref), _)                   => startingFrom(ref.nameId)
-      case simpleTypeElem: ScSimpleTypeElement              => forTypeElem(simpleTypeElem)
-      case ref: ScReference                          => startingFrom(ref.nameId)
-      case _                                                => simpleRange
-    }
-  }
-
 }
