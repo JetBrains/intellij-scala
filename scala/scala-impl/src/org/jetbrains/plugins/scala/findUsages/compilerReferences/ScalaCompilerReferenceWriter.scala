@@ -29,17 +29,12 @@ private class ScalaCompilerReferenceWriter protected (
 }
 
 private object ScalaCompilerReferenceWriter {
-  def apply(indexDir: File, affectedModules: Set[String], isRebuild: Boolean): Option[ScalaCompilerReferenceWriter] = {
+  def apply(indexDir: File, isRebuild: Boolean): Option[ScalaCompilerReferenceWriter] = {
     if (CompilerReferenceIndex.versionDiffers(indexDir, ScalaCompilerIndices.getIndices)) {
       CompilerReferenceIndex.removeIndexFiles(indexDir)
-      // @TODO:
-      // Suggest project rebuild if index version changed and all module are affected
-      // and disable indices otherwise.
-      //
+      
       if (isRebuild) Some(new ScalaCompilerReferenceWriter(new ScalaCompilerReferenceIndex(indexDir, readOnly = false)))
-      else None
-    } else {
-      Some(new ScalaCompilerReferenceWriter(new ScalaCompilerReferenceIndex(indexDir, readOnly = false)))
-    }
+      else           None
+    } else Some(new ScalaCompilerReferenceWriter(new ScalaCompilerReferenceIndex(indexDir, readOnly = false)))
   }
 }

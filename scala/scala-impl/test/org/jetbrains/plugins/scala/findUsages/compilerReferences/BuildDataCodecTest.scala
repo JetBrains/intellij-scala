@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import java.io.File
+import java.util.UUID
 
+import org.jetbrains.jps.incremental.CompiledClass
 import org.jetbrains.jps.incremental.scala.local.LazyCompiledClass
 import org.jetbrains.plugin.scala.compilerReferences.{BuildData, Codec}
 import org.jetbrains.plugin.scala.compilerReferences.Codec._
