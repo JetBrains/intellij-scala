@@ -129,9 +129,9 @@ object PatternAnnotator {
         reference match {
           case Some(ref) =>
             ref.bind() match {
-              case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" => fun.returnType match {
+              case Some(ScalaResolveResult(fun: ScFunction, substitutor)) if fun.name == "unapply" => fun.returnType match {
                 case Right(rt) =>
-                  val expected = ScPattern.expectedNumberOfExtractorArguments(rt, pattern, ScPattern.isOneArgCaseClassMethod(fun))
+                  val expected = ScPattern.expectedNumberOfExtractorArguments(substitutor.subst(rt), pattern, ScPattern.isOneArgCaseClassMethod(fun))
                   val tupleCrushingIsPresent = expected > 0 && numPatterns == 1 && !fun.isSynthetic
                   if (expected != numPatterns   && !tupleCrushingIsPresent) { //1 always fits if return type is Option[TupleN]
                     val message = ScalaBundle.message("wrong.number.arguments.extractor", numPatterns.toString, expected.toString)
@@ -139,10 +139,10 @@ object PatternAnnotator {
                   }
                 case _ =>
               }
-              case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapplySeq" => fun.returnType match {
+              case Some(ScalaResolveResult(fun: ScFunction, substitutor)) if fun.name == "unapplySeq" => fun.returnType match {
                 case Right(rt) =>
                   //subtract 1 because last argument (Seq) may be omitted
-                  val expected = ScPattern.expectedNumberOfExtractorArguments(rt, pattern, ScPattern.isOneArgCaseClassMethod(fun)) - 1
+                  val expected = ScPattern.expectedNumberOfExtractorArguments(substitutor.subst(rt), pattern, ScPattern.isOneArgCaseClassMethod(fun)) - 1
                   if (expected > numPatterns) {
                     val message = ScalaBundle.message("wrong.number.arguments.extractor.unapplySeq", numPatterns.toString, expected.toString)
                     holder.createErrorAnnotation(pattern, message)

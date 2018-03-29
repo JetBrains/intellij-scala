@@ -534,6 +534,26 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoErrors(text)
   }
 
+  def testSCL11331(): Unit = {
+    val text =
+      """
+        |class Extractable[T]{
+        |  def unapply(arg:Any): Option[T] = None
+        |}
+        |object extractorObj extends Extractable[(Int,String)]{
+        |  override def unapply(arg:Any): Option[(Int,String)] = None
+        |}
+        |val extractorVal = new Extractable[(Int,String)]
+        |null match {
+        |  case extractorVal(int,string) =>
+        |  case extractorObj(int,string) =>
+        |}
+      """.stripMargin
+
+    assertNoWarnings(text)
+    assertNoErrors(text)
+  }
+
   /*def testNonFinalCaseClassConstructorPattern(): Unit = {
     val code =
       """
