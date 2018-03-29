@@ -1,36 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-        <!ELEMENT intellij-compat (name,id?,description?,version,vendor?,scala-plugin+)>
+        <!ELEMENT intellij-compat (name,id?,description?,version,vendor?,ideaVersion+)>
         <!ELEMENT id (#PCDATA)>
         <!ELEMENT name (#PCDATA)>
         <!ELEMENT description (#PCDATA)>
         <!ELEMENT vendor (#PCDATA)>
         <!ELEMENT version (#PCDATA)>
 
-        <!ELEMENT scala-plugin (type-transformer | expression-transformer | templatedef-transformer |
-                synthetic-member-injector | inspection | intention | migrator)+>
-        <!ATTLIST scala-plugin
+        <!ELEMENT ideaVersion (extension+)>
+        <!ATTLIST ideaVersion
                 since-build CDATA #REQUIRED
                 until-build CDATA #REQUIRED
                 classpath CDATA #IMPLIED
+                pluginId CDATA #IMPLIED
+                defaultExtensionNs CDATA #IMPLIED
                 >
 
-        <!ELEMENT type-transformer (description?)>
-        <!ATTLIST type-transformer implementation CDATA #REQUIRED enabled (true|false) "true">
-
-        <!ELEMENT expression-transformer (description?)>
-        <!ATTLIST expression-transformer implementation CDATA #REQUIRED enabled (true|false) "true">
-
-        <!ELEMENT templatedef-transformer (description?)>
-        <!ATTLIST templatedef-transformer implementation CDATA #REQUIRED enabled (true|false) "true">
-
-        <!ELEMENT synthetic-member-injector (description?)>
-        <!ATTLIST synthetic-member-injector iimplementation CDATA #REQUIRED enabled (true|false) "true">
-
-        <!ELEMENT inspection (description?)>
-        <!ATTLIST inspection implementation CDATA #REQUIRED enabled (true|false) "true">
-
-        <!ELEMENT intention (description?)>
-        <!ATTLIST intention implementation CDATA #REQUIRED enabled (true|false) "true">
-
-        <!ELEMENT migrator (description?)>
-        <!ATTLIST migrator implementation CDATA #REQUIRED enabled (true|false) "true">
+        <!ELEMENT extension (name?, description?)>
+        <!ATTLIST extension
+                interface CDATA #REQUIRED
+                implementation CDATA #REQUIRED
+                pluginId CDATA #IMPLIED
+                enabled (true|false) "true">
