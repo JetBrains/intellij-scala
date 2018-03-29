@@ -16,7 +16,7 @@ import scala.collection.mutable.ArrayBuffer
 /**
  * @author ilyas
  */
-class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
+class ScalaShortNamesCache(implicit project: Project) extends PsiShortNamesCache {
   def getClassesByName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
     def isOkForJava(elem: ScalaPsiElement): Boolean = {
       var res = true
@@ -71,11 +71,11 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
   }
 
   def getAllClassNames: Array[String] = {
-    val keys = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.ALL_CLASS_NAMES, project)
-    keys.toArray(new Array[String](keys.size()))
+    import ScalaIndexKeys._
+    ALL_CLASS_NAMES.allKeys.toArray
   }
 
-  override def getAllClassNames(dest: HashSet[String]) {
+  override def getAllClassNames(dest: HashSet[String]): Unit = {
     val keys = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.ALL_CLASS_NAMES, project)
     dest.addAll(keys)
   }

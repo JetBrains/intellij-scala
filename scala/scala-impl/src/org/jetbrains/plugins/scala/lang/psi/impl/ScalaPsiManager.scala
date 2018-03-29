@@ -18,7 +18,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiTreeChangeEventImpl}
 import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, PsiShortNamesCache}
-import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.ArrayUtil
 import com.intellij.util.containers.ContainerUtil
@@ -45,7 +44,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCo
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import scala.collection.{JavaConverters, Seq, mutable}
+import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(val project: Project) {
 
@@ -306,12 +305,9 @@ class ScalaPsiManager(val project: Project) {
     projectContext.typeSystem.andType(psiTypes.map(_.toScType()))
   }
 
-  def getStableTypeAliasesNames: Seq[String] = {
-    import JavaConverters._
-    StubIndex.getInstance
-      .getAllKeys(ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, project)
-      .asScala
-      .toSeq
+  def getStableTypeAliasesNames: Iterable[String] = {
+    import ScalaIndexKeys._
+    STABLE_ALIAS_NAME_KEY.allKeys
   }
 
   object CacheInvalidator extends PsiTreeChangeAdapter {

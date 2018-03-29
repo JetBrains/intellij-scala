@@ -52,17 +52,22 @@ object ScalaIndexKeys {
 
   implicit class StubIndexKeyExt[Key, Psi <: PsiElement](private val indexKey: StubIndexKey[Key, Psi]) extends AnyVal {
 
+    import StubIndex._
+
+    import JavaConverters._
+
     def elements(key: Key, scope: GlobalSearchScope,
                  requiredClass: Class[Psi])
-                (implicit project: Project): Iterable[Psi] = {
-      import JavaConverters._
-      StubIndex.getElements(indexKey,
+                (implicit project: Project): Iterable[Psi] =
+      getElements(indexKey,
         key,
         project,
         ScalaFilterScope(project, scope),
         requiredClass
       ).asScala
-    }
+
+    def allKeys(implicit project: Project): Iterable[Key] =
+      getInstance.getAllKeys(indexKey, project).asScala
   }
 
   implicit class StubIndexIntegerKeyExt[Psi <: PsiElement](private val indexKey: StubIndexKey[JInteger, Psi]) extends AnyVal {

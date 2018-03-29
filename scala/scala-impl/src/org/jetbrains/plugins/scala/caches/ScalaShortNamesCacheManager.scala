@@ -22,7 +22,7 @@ import scala.collection.{JavaConverters, mutable}
  * Date: 09.02.12
  */
 
-class ScalaShortNamesCacheManager(project: Project) extends AbstractProjectComponent(project) {
+class ScalaShortNamesCacheManager(implicit project: Project) extends AbstractProjectComponent(project) {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager")
 
   import ScalaIndexKeys._
@@ -74,24 +74,9 @@ class ScalaShortNamesCacheManager(project: Project) extends AbstractProjectCompo
     buffer
   }
 
-  def getAllScalaFieldNames: Seq[String] = {
-    val res = mutable.ArrayBuffer.empty[String]
-    val valNames = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.VALUE_NAME_KEY, project)
-    val valIterator = valNames.iterator()
-    while (valIterator.hasNext) {
-      res += valIterator.next()
-    }
-    val varNames = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.VARIABLE_NAME_KEY, project)
-    val varIterator = varNames.iterator()
-    while (varIterator.hasNext) {
-      res += varIterator.next()
-    }
-    val classParamNames = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY, project)
-    val classParamIterator = classParamNames.iterator()
-    while (classParamIterator.hasNext) {
-      res += classParamIterator.next()
-    }
-    res
+  def getAllScalaFieldNames: Iterable[String] = {
+    import ScalaIndexKeys._
+    VALUE_NAME_KEY.allKeys ++ VALUE_NAME_KEY.allKeys ++ CLASS_PARAMETER_NAME_KEY.allKeys
   }
 
   def getScalaFieldsByName( name: String, scope: GlobalSearchScope): Seq[PsiMember] = {
@@ -223,14 +208,12 @@ class ScalaShortNamesCacheManager(project: Project) extends AbstractProjectCompo
 
   private def classesIterator(name: String, scope: GlobalSearchScope,
                               indexKey: StubIndexKey[java.lang.Integer, PsiClass] = FQN_KEY) =
-    indexKey.integerElements(name, scope, classOf[PsiClass])(project)
-      .iterator
+    indexKey.integerElements(name, scope, classOf[PsiClass]).iterator
 
   private def elementsIterator[Psi <: PsiElement](cleanName: String, scope: GlobalSearchScope,
                                                   indexKey: StubIndexKey[String, Psi],
                                                   requiredClass: Class[Psi]) =
-    indexKey.elements(cleanName, scope, requiredClass)(project)
-      .iterator
+    indexKey.elements(cleanName, scope, requiredClass).iterator
 }
 
 object ScalaShortNamesCacheManager {
