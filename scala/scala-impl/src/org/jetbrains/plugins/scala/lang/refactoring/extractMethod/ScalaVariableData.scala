@@ -18,8 +18,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaVariableD
 class ScalaVariableData(val element: ScTypedDefinition,
                         val isInsideOfElements: Boolean,
                         val scType: ScType) 
-        extends VariableData(createFakeParameter(element, scType), new FakePsiType(scType)) {
+        extends VariableData(createFakeParameter(element, scType)) {
 
+  `type` = new FakePsiType(scType)
   passAsParameter = true
   name = element.name
 }
