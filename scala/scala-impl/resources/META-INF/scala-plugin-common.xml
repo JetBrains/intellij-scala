@@ -1116,6 +1116,11 @@
                          shortName="ScalaStyle"
                          enabledByDefault="true" language="Scala"/>
 
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.source.SourceNotClosedInspection"
+                         displayName="Source not closed" groupPath="Scala" groupName="General"
+                         shortName="SourceNotClosed" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+
         <!--collection inspections-->
         <!--size-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EmptyCheckInspection"

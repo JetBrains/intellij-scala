@@ -1,0 +1,17 @@
+<html>
+<body>
+Calling <code>Source.from().getLines()</code> or <code>Source.from().mkString</code> without calling <code>close()</code> leaks a file resource. You should refactor the code to prevent leaking
+a resource similarly to the follows:
+
+<pre>
+val source = Source.fromFile(...)
+try {
+  source.getLines()
+} finally {
+  source.close()
+}
+</pre>
+
+
+</body>
+</html>
