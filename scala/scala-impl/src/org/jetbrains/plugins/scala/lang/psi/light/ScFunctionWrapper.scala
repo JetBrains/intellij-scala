@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.light
 import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -234,8 +233,7 @@ object ScFunctionWrapper {
     }
   }
 
-  private def paramText(subst: ScSubstitutor, param: ScParameter, isJavaVarargs: Boolean)
-                       (implicit elementScope: ElementScope): String = {
+  private def paramText(subst: ScSubstitutor, param: ScParameter, isJavaVarargs: Boolean): String = {
     val paramAnnotations = JavaConversionUtil.annotations(param).mkString(" ")
     val varargs: Boolean = param.isRepeatedParameter && isJavaVarargs
 
@@ -264,7 +262,6 @@ object ScFunctionWrapper {
     if (JavaLexer.isKeyword(name, LanguageLevel.HIGHEST)) name + "$" else name
 
   private[light] def parameterListText(function: ScMethodLike, subst: ScSubstitutor, forDefault: Option[Int], isJavaVarargs: Boolean): String = {
-    implicit val elementScope = function.elementScope
     val params = function.effectiveParameterClauses.flatMap(_.effectiveParameters)
 
     val defaultParam = forDefault match {

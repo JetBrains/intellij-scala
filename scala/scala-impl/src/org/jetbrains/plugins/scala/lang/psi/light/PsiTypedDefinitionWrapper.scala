@@ -163,7 +163,7 @@ object PsiTypedDefinitionWrapper {
       if (!DefinitionRole.isSetter(role)) Nil
       else {
         val paramType = typeFor(td, DefinitionRole.SIMPLE_ROLE)
-        val typeText = JavaConversionUtil.typeText(paramType)(td.elementScope)
+        val typeText = JavaConversionUtil.typeText(paramType)
         val name = td.getName
         Seq(s"$typeText $name")
       }
