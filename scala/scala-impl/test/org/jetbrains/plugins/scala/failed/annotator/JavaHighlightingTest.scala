@@ -230,25 +230,6 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
     assertNothing(errorsFromScalaCode(scala, java))
   }
 
-  def testSCL11914() = {
-    val scala =
-      """
-        |object Foo {
-        |  def someFunction(default: String): Unit = {
-        |  }
-        |}
-      """.stripMargin
-    val java =
-      """
-        |public class Bar {
-        |  void foo(){
-        |    Foo.someFunction("cat");
-        |  }
-        |}
-      """.stripMargin
-    assertNothing(errorsFromJavaCode(scala, java, "Main"))
-  }
-
   def testSCL12136() = {
     val scala =
       """

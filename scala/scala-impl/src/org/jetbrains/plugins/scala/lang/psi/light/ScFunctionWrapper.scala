@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
+import com.intellij.lang.java.lexer.JavaLexer
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
@@ -253,10 +255,13 @@ object ScFunctionWrapper {
       case _ => "java.lang.Object"
     }
     val vararg = if (varargs) "..." else ""
-    val paramName = param.getName
+    val paramName = escapeJavaKeywords(param.getName)
 
     s"$paramAnnotations $typeText$vararg $paramName".trim
   }
+
+  private def escapeJavaKeywords(name: String): String =
+    if (JavaLexer.isKeyword(name, LanguageLevel.HIGHEST)) name + "$" else name
 
   private[light] def parameterListText(function: ScMethodLike, subst: ScSubstitutor, forDefault: Option[Int], isJavaVarargs: Boolean): String = {
     implicit val elementScope = function.elementScope
