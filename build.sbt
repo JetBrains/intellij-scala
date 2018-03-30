@@ -9,8 +9,7 @@ import sbtide.Keys.ideSkipProject
 
 resolvers in ThisBuild ++=
   BintrayJetbrains.allResolvers :+
-  Resolver.typesafeIvyRepo("releases") :+
-  Resolver.bintrayRepo("scalameta","maven")
+    Resolver.typesafeIvyRepo("releases")
 
 resolvers in ThisBuild += Resolver.sonatypeRepo("snapshots")
 

@@ -1,0 +1,7 @@
+package org.jetbrains.bsp
+
+import com.intellij.openapi.externalSystem.service.settings.AbstractExternalSystemToolWindowCondition
+import com.intellij.openapi.externalSystem.service.task.ui.AbstractExternalSystemToolWindowFactory
+
+class BspToolWindowFactory extends AbstractExternalSystemToolWindowFactory(bsp.ProjectSystemId)
+class BspToolWindowFactoryCondition extends AbstractExternalSystemToolWindowCondition(bsp.ProjectSystemId)

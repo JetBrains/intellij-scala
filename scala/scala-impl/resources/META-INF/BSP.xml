@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<idea-plugin>
+
+    <project-components>
+        <component>
+            <implementation-class>org.jetbrains.bsp.BspCommunication</implementation-class>
+        </component>
+    </project-components>
+
+    <application-components>
+        <component>
+            <implementation-class>org.jetbrains.bsp.StartupRoutine</implementation-class>
+        </component>
+    </application-components>
+
+    <extensionPoints>
+        <!--<extensionPoint name="sbtOptionsProvider" interface="org.jetbrains.sbt.project.SbtOptionsProvider"/>-->
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <externalSystemManager implementation="org.jetbrains.bsp.BspExternalSystemManager"/>
+
+        <!--<externalSystemConfigLocator implementation="org.jetbrains.bsp.BspConfigLocator"/>-->
+
+        <projectService serviceImplementation="org.jetbrains.bsp.BspSystemSettings"/>
+
+        <projectImportProvider implementation="org.jetbrains.bsp.BspProjectImportProvider"/>
+        <projectImportBuilder implementation="org.jetbrains.bsp.BspProjectImportBuilder"/>
+
+        <projectOpenProcessor implementation="org.jetbrains.bsp.BspProjectOpenProcessor"/>
+
+        <projectConfigurable groupId="build.tools" displayName="bsp" instance="org.jetbrains.bsp.BspExternalSystemConfigurable" />
+
+        <toolWindow id="bsp" anchor="right"
+                    icon="/org/jetbrains/plugins/scala/images/sbt_toolwin.png"
+                    factoryClass="org.jetbrains.bsp.BspToolWindowFactory"
+                    conditionClass="org.jetbrains.bsp.BspToolWindowFactoryCondition"/>
+
+        <!--<configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>-->
+
+        <projectTaskRunner implementation="org.jetbrains.bsp.BspProjectTaskRunner"/>
+        <!--<postStartupActivity implementation="org.jetbrains.bsp.BspStartupActivity"/>-->
+
+    </extensions>
+
+
+</idea-plugin>
