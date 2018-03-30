@@ -6,11 +6,14 @@ import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference, PsiReference
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind._
 
 import scala.annotation.tailrec
@@ -44,11 +47,12 @@ object ImplicitUtil {
     }
   }
 
-  implicit class ImplicitTargetProviderExt(val v: PsiElement) extends AnyVal {
-    def implicitTarget: Option[PsiNamedElement] = v match {
-      case named: ScNamedElement   => namedKind.target(named)
-      case ref: ScReferenceElement => refKind.target(ref)
-      case _                       => None
+  object implicitSearchTarget {
+    def unapply(e: PsiElement): Option[PsiNamedElement] = e match {
+      case named: ScNamedElement       => namedKind.target(named)
+      case ref: ScReferenceElement     => refKind.target(ref)
+      case contextBoundElement(tp, te) => contextBoundKind.target(tp, te)
+      case _                           => None
     }
   }
 
@@ -91,5 +95,14 @@ object ImplicitUtil {
       extends PsiReferenceBase[PsiElement](e, range(e), false) {
     override def resolve(): PsiElement      = targetImplicit
     override def getVariants: Array[AnyRef] = Array.empty
+  }
+
+  object contextBoundElement {
+    def unapply(e: PsiElement): Option[(ScTypeParam, ScTypeElement)] =
+      if (e != null && e.getNode != null && e.getNode.getElementType == ScalaTokenTypes.tCOLON)
+        (e.getParent, e.getNextSiblingNotWhitespaceComment) match {
+          case (tp: ScTypeParam, te: ScTypeElement) => Some((tp, te))
+          case _                                    => None
+        } else None
   }
 }
