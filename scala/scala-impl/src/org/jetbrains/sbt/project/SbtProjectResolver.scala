@@ -216,10 +216,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val projectNode = new ProjectNode(projectName, projectPath, projectPath)
     val libraryNodes = Seq.empty[LibraryNode]
     val moduleFilesDirectory = new File(projectPath, Sbt.ModulesDirectory)
-    val moduleNodes = createModules(projects, libraryNodes, moduleFilesDirectory)
+    val projectToModule = createModules(projects, libraryNodes, moduleFilesDirectory)
 
     projectNode.add(new SbtProjectNode(SbtProjectData(Seq.empty, settings.jdk.map(JdkByName), Seq.empty, sbtVersion.presentation, projectPath)))
-    projectNode.addAll(moduleNodes)
+    projectNode.addAll(projectToModule.values)
 
     val buildModuleForProject: (ProjectData) => ModuleNode = createBuildModule(_, moduleFilesDirectory, None)
     projectNode.addAll(allBuildModules(dummyRootProject, projects, buildModuleForProject))
@@ -260,17 +260,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode.addAll(libraryNodes)
 
     val moduleFilesDirectory = new File(root, Sbt.ModulesDirectory)
-    val moduleNodes = createModules(projects, libraryNodes, moduleFilesDirectory)
+    val projectToModule = createModules(projects, libraryNodes, moduleFilesDirectory)
+    projectNode.addAll(projectToModule.values)
 
-    projectNode.addAll(moduleNodes)
-
-    val projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode] = projects.zip(moduleNodes).toMap
-
-    val sharedSourceModules = createSharedSourceModules(projectToModuleNode, libraryNodes, moduleFilesDirectory)
+    val sharedSourceModules = createSharedSourceModules(projectToModule, libraryNodes, moduleFilesDirectory)
     projectNode.addAll(sharedSourceModules)
 
     val buildModuleForProject: (ProjectData) => ModuleNode = createBuildModule(_, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath))
-    projectNode.addAll(allBuildModules(rootProject, projects, buildModuleForProject))
+    val buildModules = allBuildModules(rootProject, projects, buildModuleForProject)
+
+    projectNode.addAll(buildModules)
     projectNode
   }
 
@@ -291,7 +290,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       .orElse(default)
   }
 
-  private def allBuildModules(rootProject: sbtStructure.ProjectData, projects: Seq[sbtStructure.ProjectData], buildModule: (ProjectData) => ModuleNode) = {
+  private def allBuildModules(rootProject: sbtStructure.ProjectData, projects: Seq[ProjectData], buildModule: (ProjectData) => ModuleNode) = {
 
     val rootBuildModule = buildModule(rootProject)
     projects.map { p =>
@@ -306,11 +305,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  private def createModuleDependencies(projects: Seq[sbtStructure.ProjectData], moduleNodes: Seq[ModuleNode]): Unit = {
-    projects.zip(moduleNodes).foreach { case (moduleProject, moduleNode) =>
+  private def createModuleDependencies(projectToModule: Map[ProjectData,ModuleNode]): Unit = {
+    projectToModule.foreach { case (moduleProject, moduleNode) =>
       moduleProject.dependencies.projects.foreach { dependencyId =>
-        val dependency = moduleNodes.find(_.getId == dependencyId.project).getOrElse(
-          throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
+        val dependency =
+          projectToModule.values
+            .find(_.getId == dependencyId.project)
+            .getOrElse(throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
         val data = new ModuleDependencyNode(moduleNode, dependency)
         data.setScope(scopeFor(dependencyId.configuration))
         data.setExported(true)
@@ -319,9 +320,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  private def createModules(projects: Seq[sbtStructure.ProjectData], libraryNodes: Seq[LibraryNode], moduleFilesDirectory: File): Seq[ModuleNode] = {
+  private def createModules(projects: Seq[sbtStructure.ProjectData], libraryNodes: Seq[LibraryNode], moduleFilesDirectory: File): Map[ProjectData,ModuleNode] = {
     val unmanagedSourcesAndDocsLibrary = libraryNodes.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
-    val modules = projects.map { project =>
+    val projectToModule = projects.map { project =>
       val moduleNode = createModule(project, moduleFilesDirectory)
       val contentRootNode = createContentRoot(project)
       project.android.foreach(a => a.apklibs.foreach(addApklibDirs(contentRootNode, _)))
@@ -339,12 +340,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         dependency.setScope(DependencyScope.COMPILE)
         moduleNode.add(dependency)
       }
-      moduleNode
+      (project,moduleNode)
     }
 
-    createModuleDependencies(projects, modules)
+    val projectToModuleMap = projectToModule.toMap
+    createModuleDependencies(projectToModuleMap)
 
-    modules
+    projectToModuleMap
   }
 
   private def createLibraries(data: sbtStructure.StructureData, projects: Seq[sbtStructure.ProjectData]): Seq[LibraryNode] = {
