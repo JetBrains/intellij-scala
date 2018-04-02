@@ -13,19 +13,6 @@ class ApplyConfomanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL5660(): Unit = {
-    checkTextHasNoErrors(
-      s"""
-         |class Test {
-         |  var test: Option[String] = None
-         |  def test_=(test: String) { this.test = Some(test) }
-         |}
-         |
-         |(new Test).test = "test"
-         |/* True */
-      """.stripMargin)
-  }
-
   def testSCL12708(): Unit = {
     checkTextHasNoErrors(
       s"""

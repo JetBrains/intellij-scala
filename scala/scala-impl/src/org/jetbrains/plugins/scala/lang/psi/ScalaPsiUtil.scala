@@ -1875,4 +1875,19 @@ object ScalaPsiUtil {
       rBrace.replace(block.getLastChild)
     }
   }
+
+  def isUnderscoreEq(assign: ScAssignStmt, actualType: ScType): Boolean = {
+    assign.getLExpression match {
+      case ref: ScReferenceExpression =>
+        ref.bind().map(_.element).exists {
+          case pat: ScBindingPattern =>
+            pat.containingClass.allSignatures.find(_.name == pat.name + "_=").exists {
+              sig => sig.paramLength.length == 1 && sig.paramLength.head == 1 &&
+                actualType.conforms(sig.substitutedTypes.head.head.apply())
+            }
+          case _ => false
+        }
+      case _ => false
+    }
+  }
 }
