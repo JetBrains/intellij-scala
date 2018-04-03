@@ -76,7 +76,7 @@ class ScalaShortNamesCacheManager(implicit project: Project) extends AbstractPro
 
   def getAllScalaFieldNames: Iterable[String] = {
     import ScalaIndexKeys._
-    VALUE_NAME_KEY.allKeys ++ VALUE_NAME_KEY.allKeys ++ CLASS_PARAMETER_NAME_KEY.allKeys
+    VALUE_NAME_KEY.allKeys ++ VARIABLE_NAME_KEY.allKeys ++ CLASS_PARAMETER_NAME_KEY.allKeys
   }
 
   def getScalaFieldsByName( name: String, scope: GlobalSearchScope): Seq[PsiMember] = {
