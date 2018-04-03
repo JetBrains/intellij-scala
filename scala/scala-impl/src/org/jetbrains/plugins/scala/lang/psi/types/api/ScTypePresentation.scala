@@ -1,16 +1,18 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage}
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt, childOf}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 
 /**
   * @author adkozlov
@@ -92,6 +94,39 @@ object ScTypePresentation {
                     (implicit context: TypePresentationContext): String = {
     `type`.removeAliasDefinitions(expandableOnly = true).presentableText
   }
+
+  def upperBoundText(maybeType: TypeResult)
+                    (toString: ScType => String): String =
+    upperBoundText(maybeType.toOption)(toString)
+
+  def upperBoundText(`type`: ScType)
+                    (toString: ScType => String): String =
+    upperBoundText(Some(`type`))(toString)
+
+  def lowerBoundText(maybeType: TypeResult)
+                    (toString: ScType => String): String =
+    lowerBoundText(maybeType.toOption)(toString)
+
+  def lowerBoundText(`type`: ScType)
+                    (toString: ScType => String): String =
+    lowerBoundText(Some(`type`))(toString)
+
+  import ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
+
+  private[this] def upperBoundText(maybeType: Option[ScType])
+                                  (toString: ScType => String): String =
+    boundText(maybeType, tUPPER_BOUND)(_.isAny, toString)
+
+  private[this] def lowerBoundText(maybeType: Option[ScType])
+                                  (toString: ScType => String): String =
+    boundText(maybeType, tLOWER_BOUND)(_.isNothing, toString)
+
+  private[this] def boundText(maybeType: Option[ScType], bound: IElementType)
+                             (predicate: ScType => Boolean, toString: ScType => String) =
+    maybeType.collect {
+      case t if !predicate(t) => " " + bound + " " + toString(t)
+    }.getOrElse("")
+
 }
 
 case class ScTypeText(tp: ScType) {
