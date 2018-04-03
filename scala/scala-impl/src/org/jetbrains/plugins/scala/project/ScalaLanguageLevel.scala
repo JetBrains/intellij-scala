@@ -23,7 +23,9 @@ object ScalaLanguageLevel {
     Scala_2_9,
     Scala_2_10,
     Scala_2_11,
-    Scala_2_12
+    Scala_2_12,
+    Scala_2_13,
+    Scala_2_14
   )
 
   val Default: ScalaLanguageLevel = Scala_2_12
@@ -39,4 +41,8 @@ object ScalaLanguageLevel {
   object Scala_2_11 extends ScalaLanguageLevel(4, "2.11")
 
   object Scala_2_12 extends ScalaLanguageLevel(5, "2.12")
+
+  object Scala_2_13 extends ScalaLanguageLevel(6, "2.13")
+
+  object Scala_2_14 extends ScalaLanguageLevel(7, "2.14")
 }

@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.types
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
+
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class ScLiteralType private (val literalValue: Any, val wideType: ScType, val allowWiden: Boolean = true) extends ValueType {
@@ -28,10 +26,6 @@ class ScLiteralType private (val literalValue: Any, val wideType: ScType, val al
 }
 
 object ScLiteralType {
-
-  def getType(typeElement: ScLiteralTypeElement): TypeResult = {
-    ScLiteralImpl.getLiteralType(typeElement.getLiteralNode, typeElement).map(l => apply(typeElement.getLiteral.getValue, l))
-  }
 
   def apply(literalValue: Any, wideType: ScType): ScLiteralType = {
     val cache = ScalaPsiManager.instance(wideType.projectContext).wideableLiteralTypes
