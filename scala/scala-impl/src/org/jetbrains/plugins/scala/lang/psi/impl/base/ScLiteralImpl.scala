@@ -42,7 +42,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   override def allowLiteralTypes: Boolean = getContainingFile.module.exists(_.literalTypesAllowed)
 
   protected override def innerType: TypeResult = {
-    val wide = ScLiteralImpl.getLiteralType(getFirstChild.getNode, this)
+    val wide = ScLiteralImpl.wideType(getFirstChild.getNode, this)
     if (allowLiteralTypes) wide.map(ScLiteralType(getValue, _)) else wide
   }
 
@@ -251,7 +251,7 @@ object ScLiteralImpl {
       if (lit.isString) Some(lit.getValue.asInstanceOf[String]) else None
   }
 
-  def getLiteralType(node: ASTNode, element: ScalaPsiElement): TypeResult = {
+  def wideType(node: ASTNode, element: ScalaPsiElement): TypeResult = {
     implicit val projectCtx: ProjectContext = element
     val inner = node.getElementType match {
           case ScalaTokenTypes.kNULL => Null
@@ -273,7 +273,7 @@ object ScLiteralImpl {
               ScalaType.designator
             }.getOrElse(Nothing)
           case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => api.Boolean
-          case ScalaTokenTypes.tIDENTIFIER if node.getText == "-" => return getLiteralType(node.getTreeNext, element)
+          case ScalaTokenTypes.tIDENTIFIER if node.getText == "-" => return wideType(node.getTreeNext, element)
           case _ => return Failure("Wrong Psi to get Literal type")
         }
     Right(inner)
