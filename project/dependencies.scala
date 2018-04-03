@@ -90,7 +90,7 @@ object Dependencies {
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.2"
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
-  val fastparse: ModuleID = "com.lihaoyi" % s"fastparse_$scalaBinaryVersion" % "0.4.3" // transitive dependency of scalaMeta, needs explicit versioning
+  val fastparse: ModuleID = "com.lihaoyi" % s"fastparse_$scalaBinaryVersion" % "1.0.0" // transitive dependency of scalaMeta, needs explicit versioning
   val scalaMacros2: ModuleID = "org.scalamacros" %% "scalamacros" % ScalamacrosVersion
 
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
@@ -134,6 +134,7 @@ object DependencyGroups {
   )
 
   val bsp = Seq(
+    "org.scala-sbt.ipcsocket" % "ipcsocket" % "1.0.0",
     "io.github.scalapb-json" %% "scalapb-circe" % "0.1.1",
     "ch.epfl.scala" %% "bsp" % "03e9b72d"
 //    "org.scalameta" %% "lsp4s" % "095b7f87"

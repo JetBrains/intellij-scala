@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaSbtSettings">
+    <option name="customVMPath" />
     <option name="linkedExternalProjectsSettings">
       <SbtProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -38,12 +39,10 @@
             <option value="$PROJECT_DIR$/target/tools/idea-runner/project" />
           </set>
         </option>
-        <option name="resolveSbtClassifiers" value="true" />
         <option name="sbtVersion" value="0.13.17" />
         <option name="useSbtShell" value="true" />
       </SbtProjectSettings>
     </option>
     <option name="maximumHeapSize" value="2048" />
-    <option name="vmParameters" value="" />
   </component>
 </project>
