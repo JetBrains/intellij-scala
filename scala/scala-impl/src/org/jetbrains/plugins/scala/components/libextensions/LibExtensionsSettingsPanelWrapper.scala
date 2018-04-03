@@ -30,10 +30,10 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel, private v
   }
 
 
-  class LibraryDetailsModel(selectedDescriptor: Option[LibraryDescriptor]) extends AbstractListModel[Extension] {
-    private val myExtensions = selectedDescriptor.flatMap(_.getCurrentPluginDescriptor.map(_.flattenExtensions())).getOrElse(Nil)
+  class LibraryDetailsModel(selectedDescriptor: Option[LibraryDescriptor]) extends AbstractListModel[ExtensionDescriptor] {
+    private val myExtensions = selectedDescriptor.flatMap(_.getCurrentPluginDescriptor.map(_.extensions)).getOrElse(Nil)
     override def getSize: Int = myExtensions.length
-    override def getElementAt(i: Int): Extension = myExtensions(i)
+    override def getElementAt(i: Int): ExtensionDescriptor = myExtensions(i)
   }
 
   class EditPatternsPanel(data: util.List[String]) extends AddEditDeleteListPanel[String]("Library extension search patterns", data) {
@@ -83,7 +83,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel, private v
 
 
     val detailsModel = new LibraryDetailsModel(None)
-    val extensionsList = new JBList[Extension](detailsModel)
+    val extensionsList = new JBList[ExtensionDescriptor](detailsModel)
     val extensionsPane = ToolbarDecorator.createDecorator(extensionsList)
       .disableDownAction()
       .disableUpAction()
