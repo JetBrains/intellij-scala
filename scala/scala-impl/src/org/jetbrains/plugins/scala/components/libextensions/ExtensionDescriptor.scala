@@ -12,9 +12,8 @@ case class ExtensionDescriptor(interface: String, impl: String, name: String, de
 @SerialVersionUID(1L)
 case class IdeaVersionDescriptor(sinceBuild: Version,
                                  untilBuild: Version,
-                                 classPath: Option[String] = None,
                                  pluginId: Option[String],
-                                 defaultExtensionNs: String,
+                                 defaultPackage: String,
                                  extensions: Seq[ExtensionDescriptor] = Nil)
 @SerialVersionUID(1L)
 case class LibraryDescriptor(name: String,
@@ -57,12 +56,11 @@ object LibraryDescriptor {
     def parseIdeaVersionDescriptor(node: Node): IdeaVersionDescriptor = {
       val sinceBuild = Option(node \@ "since-build").filter(_.nonEmpty).flatMap(Version.parse).orNull
       val untilBuild = Option(node \@ "until-build").filter(_.nonEmpty).flatMap(Version.parse).orNull
-      val classPath  = Option(node \@ "classpath").filter(_.nonEmpty)
       val pluginId   = Option(node \@ "pluginId").filter(_.nonEmpty)
-      val defaultExtensionNs   = node \@ "defaultExtensionNs"
+      val defaultPackage   = node \@ "defaultPackage"
       val extensions           = node \ "extension" map parseExtension
 
-      IdeaVersionDescriptor(sinceBuild, untilBuild, classPath, pluginId, defaultExtensionNs, extensions)
+      IdeaVersionDescriptor(sinceBuild, untilBuild, pluginId, defaultPackage, extensions)
     }
 
     val name    = data \ "name" text

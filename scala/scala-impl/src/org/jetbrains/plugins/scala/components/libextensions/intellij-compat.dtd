@@ -10,9 +10,8 @@
         <!ATTLIST ideaVersion
                 since-build CDATA #REQUIRED
                 until-build CDATA #REQUIRED
-                classpath CDATA #IMPLIED
                 pluginId CDATA #IMPLIED
-                defaultExtensionNs CDATA #IMPLIED
+                defaultPackage CDATA #IMPLIED
                 >
 
         <!ELEMENT extension (name?, description?)>
