@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.structureView.element.TypeDefinition.chi
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
-private class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElement(definition) {
+class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElement(definition) {
   override def getPresentableText: String = {
     val typeParameters = definition.typeParametersClause.map(_.typeParameters.map(_.name).mkString("[", ", ", "]"))
 

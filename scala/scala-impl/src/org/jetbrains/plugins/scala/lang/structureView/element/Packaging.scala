@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
  * @deprecated
  * Date : 05.05.2008
  */
-private class Packaging(packaging: ScPackaging) extends AbstractTreeElement(packaging, inherited = false) {
+private class Packaging(packaging: ScPackaging) extends AbstractTreeElement(packaging) {
   override def children: Seq[PsiElement] =
     packaging.immediateTypeDefinitions ++ packaging.packagings
 

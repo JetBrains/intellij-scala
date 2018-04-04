@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternsImpl
-import org.jetbrains.plugins.scala.lang.structureView.element.{Element, Test, TypeDefinition}
+import org.jetbrains.plugins.scala.lang.structureView.element.{TypeDefinition, Value, Test}
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2Util
@@ -44,15 +44,11 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
 
   override def getName: String = "SCALA_SHOW_SCALATEST_TESTS"
 
-  override def provideNodes(node: TreeElement): util.Collection[TreeElement] = node match {
-    case e: Element => nodesOf(e.element)
-    case _ => Collections.emptyList[TreeElement]
-  }
-
-  private def nodesOf(element: PsiElement): util.Collection[TreeElement] = {
-    element match {
-      case clazz: ScTypeDefinition =>
+  override def provideNodes(node: TreeElement): util.Collection[TreeElement] = {
+    node match {
+      case td: TypeDefinition =>
         val children = new util.ArrayList[TreeElement]()
+        val clazz = td.element
         val project = clazz.getProject
         try {
           if (!clazz.isValid) return children
@@ -77,18 +73,18 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
         catch {
           case _: IndexNotReadyException => new util.ArrayList[TreeElement]()
         }
-      case value: ScValue =>
+      case valElement: Value =>
         def tryTupledId(psiElement: PsiElement) = TestNodeProvider.getUTestLeftHandTestDefinition(psiElement) match {
           case Some(testTupleDefinition) => TestNodeProvider.extractUTest(testTupleDefinition, testTupleDefinition.getProject)
           case _ => Collections.emptyList[TreeElement]
         }
 
-        value match {
+        valElement.getValue match {
           case valDef: ScPatternDefinition =>
             valDef.getLastChild match {
               case testCall: ScMethodCall =>
                 TestNodeProvider.extractUTest(testCall, testCall.getProject)
-              case _ => tryTupledId(value)
+              case _ => tryTupledId(valElement.element)
             }
           case named: ScNamedElement =>
             tryTupledId(named.nameId)
@@ -546,12 +542,12 @@ object TestNodeProvider {
     val nodeProvider = new TestNodeProvider
     getTestLeaves(configurationProducer match {
       case _: UTestConfigurationProducer =>
-        TypeDefinition.childrenOf(aSuite).flatMap {
-          case scVal: ScValue => nodeProvider.nodesOf(scVal).asScala
+        new TypeDefinition(aSuite).getChildren flatMap {
+          case scVal: Value if !scVal.inherited => nodeProvider.provideNodes(scVal).asScala
           case _ => List.empty
         }
       case _ =>
-        nodeProvider.nodesOf(aSuite).asScala
+        nodeProvider.provideNodes(new TypeDefinition(aSuite)).asScala
     }).map { e =>
       Option(configurationProducer.getLocationClassAndTest(new PsiLocation(e.element))) filter {
         case (suite, testName) =>
