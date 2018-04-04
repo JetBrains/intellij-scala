@@ -11,10 +11,14 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.{Disposer, Key, TextRange}
 import com.intellij.psi.SyntaxTraverser
 import com.intellij.util.DocumentUtil
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringsExt}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.settings.annotations.Definition
 
 import scala.collection.{JavaConverters, mutable}
@@ -122,6 +126,37 @@ object ScalaTypeHintsPass {
 
     def toInlayInfo(anchor: ScalaPsiElement)
                    (implicit settings: ScalaCodeInsightSettings): Option[hints.InlayInfo] =
-      result.map(InlayInfo(_, anchor)).toOption
+      result.toOption.collect {
+        case PresentableText(Limited(text)) => text
+        case FoldedPresentableText(Limited(text)) => text
+      }.map(InlayInfo(_, ScalaTokenTypes.tCOLON, anchor, relatesToPrecedingText = true))
   }
+
+  private[this] object Limited {
+
+    def unapply(text: String)
+               (implicit settings: ScalaCodeInsightSettings): Option[String] =
+      if (text.length <= settings.getPresentationLength) Some(text) else None
+  }
+
+  private[this] object PresentableText {
+
+    def unapply(`type`: ScType): Some[String] =
+      Some(`type`.codeText)
+  }
+
+  private[this] object FoldedPresentableText {
+
+    private[this] val Ellipsis = "..."
+
+    def unapply(`type`: ScType): Option[String] = `type` match {
+      case ScCompoundType(Seq(head, _*), _, _) => Some(head.codeText)
+      case ScParameterizedType(designator, typeArguments) =>
+        val arguments = Seq.fill(typeArguments.size)(Ellipsis)
+        Some(s"${designator.codeText}[${arguments.commaSeparated()}]")
+      case JavaArrayType(_) => Some(s"Array[$Ellipsis]")
+      case _ => None
+    }
+  }
+
 }
