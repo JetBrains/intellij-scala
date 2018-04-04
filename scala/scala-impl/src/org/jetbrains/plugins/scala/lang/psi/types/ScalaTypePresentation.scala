@@ -236,8 +236,9 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
       case FunctionType(ret, params) if t.isAliasType.isEmpty =>
         val paramsText = params match {
-          case Seq(FunctionType(_, _)) | Seq(_, _*) => typeText(params)
+          case Seq(fun @ FunctionType(_, _)) => innerTypeText(fun).parenthesize()
           case Seq(head) => innerTypeText(head)
+          case _ => typesText(params)
         }
         s"$paramsText ${ScalaPsiUtil.functionArrow} ${innerTypeText(ret)}"
       case ScThisType(element) =>
@@ -289,6 +290,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case mt@ScMethodType(retType, params, _) =>
         implicit val elementScope: ElementScope = mt.elementScope
         innerTypeText(FunctionType(retType, params.map(_.paramType)), needDotType)
+      case lit: ScLiteralType => s"${lit.wideType.presentableText}(${Option(lit.literalValue).map(_.toString).orNull})"
       case _ => "" //todo
     }
 
