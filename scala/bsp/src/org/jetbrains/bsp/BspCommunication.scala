@@ -9,7 +9,7 @@ import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.typesafe.scalalogging.Logger
 import monix.eval.Task
-import monix.execution.{Cancelable, CancelableFuture, Scheduler}
+import monix.execution.{Cancelable, Scheduler}
 import org.langmeta.jsonrpc.{BaseProtocolMessage, Services}
 import org.langmeta.lsp.{LanguageClient, LanguageServer}
 import org.scalasbt.ipcsocket.UnixDomainSocket

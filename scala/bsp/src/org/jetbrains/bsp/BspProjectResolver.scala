@@ -1,19 +1,17 @@
 package org.jetbrains.bsp
 
 import java.io.File
-import java.util.Locale
 
 import ch.epfl.scala.bsp.endpoints
 import ch.epfl.scala.bsp.schema.WorkspaceBuildTargetsRequest
-import com.intellij.openapi.externalSystem.model.DataNode
-import com.intellij.openapi.externalSystem.model.project.ProjectData
+import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.module.StdModuleTypes
 import monix.execution.{Cancelable, ExecutionModel, Scheduler}
 import org.jetbrains.bsp.BspProjectResolver.ActiveImport
 import org.jetbrains.ide.PooledThreadExecutor
-import org.jetbrains.sbt.project.data.{ModuleNode, ProjectNode}
 import org.langmeta.lsp.LanguageClient
 
 import scala.concurrent.Await
@@ -43,6 +41,9 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       session <- initSession
       targets <- targetsReq(session.client)
     } yield {
+
+      session.close()
+
       // TODO handle error response
       val modules = for {
         target <- targets.right.get.targets
@@ -50,15 +51,22 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         val uri = target.id.get.uri
         val name = target.displayName
 
-        val node = new ModuleNode(StdModuleTypes.JAVA.getId, uri, name, moduleFilesDirectoryPath, projectPath)
-        node.setInheritProjectCompileOutputPath(false)
-        node
+        val data = new ModuleData(uri, bsp.ProjectSystemId, StdModuleTypes.JAVA.getId, name, moduleFilesDirectoryPath, projectPath)
+        data.setInheritProjectCompileOutputPath(false)
+        data
       }
 
-      val projectNode = new ProjectNode(projectRoot.getName, projectPath, projectPath)
-      projectNode.addAll(modules)
+      val projectData = new ProjectData(bsp.ProjectSystemId, projectRoot.getName, projectPath, projectPath)
+      projectData
 
-      projectNode.toDataNode
+      val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
+
+      modules.foreach { data =>
+        val moduleNode = new DataNode[ModuleData](ProjectKeys.MODULE, data, projectNode)
+        projectNode.addChild(moduleNode)
+      }
+
+      projectNode
     }
 
     val running = projectTask.runAsync
@@ -82,15 +90,6 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         false
     }
 
-
-  /**
-    * This implementation is the same as in sbt.Project.normalizeModuleId to avoid inconsistencies in the import process.
-    * Normalize a String so that it is suitable for use as a dependency management module identifier.
-    * This is a best effort implementation, since valid characters are not documented or consistent.    *
-    */
-  private def normalizeModuleId(s: String) =
-    s.toLowerCase(Locale.ENGLISH)
-      .replaceAll("""\W+""", "-")
 }
 
 object BspProjectResolver {
