@@ -18,5 +18,4 @@
         <!ATTLIST extension
                 interface CDATA #REQUIRED
                 implementation CDATA #REQUIRED
-                pluginId CDATA #IMPLIED
-                enabled (true|false) "true">
+                pluginId CDATA #IMPLIED>

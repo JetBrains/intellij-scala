@@ -7,7 +7,7 @@ import scala.language.postfixOps
 import scala.xml.{Elem, XML}
 
 @SerialVersionUID(1L)
-case class ExtensionDescriptor(interface: String, impl: String, name: String, description: String, pluginId: String, enabled: Boolean)
+case class ExtensionDescriptor(interface: String, impl: String, name: String, description: String, pluginId: String)
 
 @SerialVersionUID(1L)
 case class IdeaVersionDescriptor(sinceBuild: Version,
@@ -48,17 +48,16 @@ object LibraryDescriptor {
       val pluginId      = node \@ "pluginId"
       val name          = node \ "name" text
       val description   = node \ "description" text
-      val enabled       = (node \@ "enabled") == "true"
 
-      ExtensionDescriptor(interface, impl, name, description, pluginId, enabled)
+      ExtensionDescriptor(interface, impl, name, description, pluginId)
     }
 
     def parseIdeaVersionDescriptor(node: Node): IdeaVersionDescriptor = {
       val sinceBuild = Option(node \@ "since-build").filter(_.nonEmpty).flatMap(Version.parse).orNull
       val untilBuild = Option(node \@ "until-build").filter(_.nonEmpty).flatMap(Version.parse).orNull
       val pluginId   = Option(node \@ "pluginId").filter(_.nonEmpty)
-      val defaultPackage   = node \@ "defaultPackage"
-      val extensions           = node \ "extension" map parseExtension
+      val defaultPackage   = node  \@ "defaultPackage"
+      val extensions        = node \  "extension" map parseExtension
 
       IdeaVersionDescriptor(sinceBuild, untilBuild, pluginId, defaultPackage, extensions)
     }

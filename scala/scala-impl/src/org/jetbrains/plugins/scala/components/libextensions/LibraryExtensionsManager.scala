@@ -90,7 +90,7 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
     descriptor.getCurrentPluginDescriptor.foreach { currentVersion =>
       val d@IdeaVersionDescriptor(_, _, pluginId, defaultPackage, extensions) = currentVersion
       extensions.foreach { e =>
-        val ExtensionDescriptor(interface, impl, _, _, pluginId, enabled) = e
+        val ExtensionDescriptor(interface, impl, _, _, pluginId) = e
         val classLoader = UrlClassLoader.build()
           .urls(jarFile.toURI.toURL)
           .parent(getClass.getClassLoader)
@@ -125,7 +125,7 @@ object LibraryExtensionsManager {
   val PAT_MOD = "$MOD"
   val PAT_VER = "$VER"
   val PAT_SEP = "%"
-  val DEFAULT_PATTERN = s"$PAT_ORG $PAT_SEP $PAT_MOD-ijext $PAT_SEP $PAT_VER+"
+  val DEFAULT_PATTERN = s"$PAT_ORG $PAT_SEP $PAT_MOD-ijext $PAT_SEP $PAT_VER-+"
 
   val manifestPath = "META-INF/intellij-compat.xml"
 
