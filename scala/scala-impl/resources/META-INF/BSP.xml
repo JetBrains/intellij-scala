@@ -24,6 +24,7 @@
         <!--<externalSystemConfigLocator implementation="org.jetbrains.bsp.BspConfigLocator"/>-->
 
         <projectService serviceImplementation="org.jetbrains.bsp.BspSystemSettings"/>
+        <projectService serviceImplementation="org.jetbrains.bsp.BspLocalSettings"/>
 
         <projectImportProvider implementation="org.jetbrains.bsp.BspProjectImportProvider"/>
         <projectImportBuilder implementation="org.jetbrains.bsp.BspProjectImportBuilder"/>

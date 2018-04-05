@@ -13,6 +13,7 @@ import com.intellij.util.Function
 
 class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings, BspProjectSettingsListener, BspSystemSettings, BspLocalSettings, BspExecutionSettings]
   with ExternalSystemConfigurableAware {
+
   override def getSystemId: ProjectSystemId = bsp.ProjectSystemId
 
   override def getSettingsProvider: Function[Project, BspSystemSettings] = BspSystemSettings.getInstance(_)
