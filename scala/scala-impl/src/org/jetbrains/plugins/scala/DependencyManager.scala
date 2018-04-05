@@ -10,7 +10,7 @@ import org.apache.ivy.core.report.ResolveReport
 import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
 import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, RepositoryResolver, URLResolver}
-import org.apache.ivy.plugins.version.ExactVersionMatcher
+import org.apache.ivy.plugins.version.{ExactVersionMatcher, LatestVersionMatcher}
 import org.apache.ivy.util.DefaultMessageLogger
 import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.project.template._
@@ -62,6 +62,8 @@ abstract class DependencyManagerBase {
      """.stripMargin
   }
 
+  protected def customizeIvySettings(settings: IvySettings): Unit = ()
+
   private def resolveIvy(deps: Seq[DependencyDescription]): Seq[ResolvedDependency] = {
 
     def mkResolver(resolver: Resolver): RepositoryResolver = resolver match {
@@ -91,8 +93,9 @@ abstract class DependencyManagerBase {
           ivySettings.addResolver(chainResolver)
           ivySettings.setDefaultResolver("chainResolver")
       }
-      ivySettings.addVersionMatcher(new ExactVersionMatcher)
+      ivySettings.configureDefaultVersionMatcher()
       ivyResolvers.foreach(_.setSettings(ivySettings))
+      customizeIvySettings(ivySettings)
       ivySettings
     }
 
