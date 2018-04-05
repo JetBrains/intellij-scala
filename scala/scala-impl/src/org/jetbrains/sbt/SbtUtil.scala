@@ -39,12 +39,12 @@ object SbtUtil {
     * otherwise calculate from sbt version.
     */
   def globalPluginsDirectory(sbtVersion: Version, parameters: ParametersList): File = {
-    val customGlobalPlugins = Option(parameters.getPropertyValue(CommandLineOptions.globalPlugins))
-    val customGlobalBase = Option(parameters.getPropertyValue(CommandLineOptions.globalBase))
+    val customGlobalPlugins = Option(parameters.getPropertyValue(CommandLineOptions.globalPlugins)).map(new File(_))
+    val customGlobalBase = Option(parameters.getPropertyValue(CommandLineOptions.globalBase)).map(new File(_))
+    val pluginsUnderCustomGlobalBase = customGlobalBase.map(new File(_, "plugins"))
 
     customGlobalPlugins
-      .orElse(customGlobalBase)
-      .map(new File(_))
+      .orElse(pluginsUnderCustomGlobalBase)
       .getOrElse(globalPluginsDirectory(sbtVersion))
   }
 

@@ -51,7 +51,7 @@ class SbtUtilTest {
     params.addProperty("sbt.global.base", "hockensnock")
 
     val dir = globalPluginsDirectory(v0120, params)
-    assertEquals(new File("hockensnock"), dir)
+    assertEquals(new File("hockensnock/plugins"), dir)
   }
 
   @Test
