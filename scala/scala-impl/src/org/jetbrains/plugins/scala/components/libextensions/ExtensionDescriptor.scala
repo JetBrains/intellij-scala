@@ -48,7 +48,7 @@ object LibraryDescriptor {
       val pluginId      = node \@ "pluginId"
       val name          = node \ "name" text
       val description   = node \ "description" text
-      val enabled       = Option(node \@ "enabled").forall(_.toBoolean)
+      val enabled       = (node \@ "enabled") == "true"
 
       ExtensionDescriptor(interface, impl, name, description, pluginId, enabled)
     }
