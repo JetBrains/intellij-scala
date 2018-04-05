@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.components.libextensions
 
 import java.io.File
 
+import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
@@ -14,6 +15,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.collection.mutable.ArrayBuffer
 import scala.collection.{immutable, mutable}
 import scala.util.{Failure, Success, Try}
 import scala.xml._
@@ -22,16 +24,19 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
   import LibraryExtensionsManager._
 
   class ExtensionNotRegisteredException(iface: Class[_]) extends Exception(s"No extensions registered for class $iface")
+  class InvalidExtensionException(iface: Class[_], impl: Class[_]) extends Exception(s"Extension $impl doesn't inherit $iface")
 
   private val LOG = Logger.getInstance(classOf[LibraryExtensionsManager])
-  private var myExtensions  = mutable.HashMap[String, ExtensionDescriptor]()
-  private var myClassLoaders= immutable.HashMap[LibraryDescriptor, UrlClassLoader]
+  private val myAvailableLibraries = ArrayBuffer[LibraryDescriptor]()
+  private val myExtensionInstances = mutable.HashMap[Class[_], ArrayBuffer[Any]]()
+  private val myClassLoaders = mutable.HashMap[IdeaVersionDescriptor, UrlClassLoader]()
 
   override def projectOpened(): Unit = loadCachedExtensions()
 
-  override def projectClosed(): Unit = saveCachedExtensions()
-
   def searchExtensions(sbtResolvers: Set[SbtResolver]): Unit = {
+    myAvailableLibraries.clear()
+    myExtensionInstances.clear()
+    myClassLoaders.clear()
     val allLibraries = ProjectLibraryTable.getInstance(project).getLibraries
     val ivyResolvers = sbtResolvers.toSeq.collect {
       case r: SbtMavenResolver => MavenResolver(r.name, r.root)
@@ -40,6 +45,8 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
     val candidates = getExtensionLibCandidates(allLibraries)
     val resolved = new IvyExtensionsResolver(ivyResolvers.reverse).resolve(candidates.toSeq:_*)
     resolved.foreach(processResolvedExtension)
+    val jarPaths = resolved.map(_.file.getAbsolutePath).toArray
+    PropertiesComponent.getInstance(project).setValues("extensionJars", jarPaths)
   }
 
   private def getExtensionLibCandidates(libs: Seq[Library]): Set[DependencyDescription] = {
@@ -74,31 +81,41 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
   private def loadJarWithManifest(manifest: Elem, jarFile: File): Unit = {
     LibraryDescriptor.parse(manifest) match {
       case Left(error)        => LOG.error(s"Failed to parse descriptor: $error")
-      case Right(descriptor)  => loadDescriptor(descriptor)
+      case Right(descriptor)  => loadDescriptor(descriptor, jarFile)
     }
   }
 
-  private def loadDescriptor(descriptor: LibraryDescriptor): Unit = {
-    descriptor.getCurrentPluginDescriptor match {
-      case Some(IdeaVersionDescriptor(_, _, pluginId, defaultExtensionNs, extensions)) =>
-        extensions.foreach { e => ??? }
-      case None =>
+  private def loadDescriptor(descriptor: LibraryDescriptor, jarFile: File): Unit = {
+    myAvailableLibraries += descriptor
+    descriptor.getCurrentPluginDescriptor.foreach { currentVersion =>
+      val d@IdeaVersionDescriptor(_, _, pluginId, defaultPackage, extensions) = currentVersion
+      extensions.foreach { e =>
+        val ExtensionDescriptor(interface, impl, _, _, pluginId, enabled) = e
+        val classLoader = UrlClassLoader.build()
+          .urls(jarFile.toURI.toURL)
+          .parent(getClass.getClassLoader)
+          .useCache()
+          .get()
+        myClassLoaders += d -> classLoader
+        val myInterface = classLoader.loadClass(interface)
+        val myImpl = classLoader.loadClass(defaultPackage+impl)
+        val myInstance = myImpl.newInstance()
+        myExtensionInstances.getOrElseUpdate(myInterface, ArrayBuffer.empty) += myInstance
+      }
     }
   }
 
   private def loadCachedExtensions(): Unit = {
-    ???
-  }
-
-  private def saveCachedExtensions(): Unit = {
-    ???
+    val jarPaths = PropertiesComponent.getInstance(project).getValues("extensionJars")
+    val fakeDependencies = jarPaths.map(path => ResolvedDependency(null, new File(path)))
+    fakeDependencies.foreach(processResolvedExtension)
   }
 
   def getExtensions[T](iface: Class[T]): Seq[T] = {
-    ???
+    myExtensionInstances.getOrElse(iface, Seq.empty).asInstanceOf[Seq[T]]
   }
 
-  def getAvailableLibraries: Seq[LibraryDescriptor] = ???
+  def getAvailableLibraries: Seq[LibraryDescriptor] = myAvailableLibraries
 
 }
 
