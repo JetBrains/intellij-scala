@@ -150,7 +150,13 @@ object ScalaTypeHintsPass {
     private[this] val Ellipsis = "..."
 
     def unapply(`type`: ScType): Option[String] = `type` match {
-      case ScCompoundType(Seq(head, _*), _, _) => Some(head.codeText)
+      case ScCompoundType(comps, signs, types) =>
+        val mainComponent = comps.headOption.map(_.codeText).getOrElse("AnyRef")
+        val text =
+          if (comps.size > 1) s"$mainComponent with $Ellipsis"
+          else if (signs.size + types.size > 0) s"$mainComponent {$Ellipsis}"
+          else mainComponent
+        Some(text)
       case ScParameterizedType(designator, typeArguments) =>
         val arguments = Seq.fill(typeArguments.size)(Ellipsis)
         Some(s"${designator.codeText}[${arguments.commaSeparated()}]")
