@@ -28,3 +28,7 @@ case object Scala_2_12 extends ScalaVersion {
   override final val minor: String = "2.12.3"
 }
 
+case object Scala_2_13 extends ScalaVersion {
+  override final val major: String = "2.13"
+  override final val minor: String = "2.13.0-M3"
+}
