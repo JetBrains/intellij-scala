@@ -5,12 +5,10 @@ import java.awt.event.ActionEvent
 import java.util
 import java.util.Collections
 
-import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogBuilder, InputValidatorEx, Messages}
 import com.intellij.ui._
-import com.intellij.ui.components.JBList
+import com.intellij.ui.components.{JBLabel, JBList}
 import com.intellij.util.ui.{JBUI, UIUtil}
 import javax.swing._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -19,16 +17,11 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel, private v
 
   private val libraryExtensionsManager = LibraryExtensionsManager.getInstance(project)
 
-  private val pauseAction = new AnActionButton("Toggle Ignore", AllIcons.Actions.Pause) {
-    override def actionPerformed(e: AnActionEvent): Unit = ???
-  }
-
   class LibraryListModel(val extensionsModel: LibraryDetailsModel) extends AbstractListModel[LibraryDescriptor] {
     private val extensionsManager: LibraryExtensionsManager = libraryExtensionsManager
     override def getSize: Int = extensionsManager.getAvailableLibraries.length
     override def getElementAt(i: Int) = extensionsManager.getAvailableLibraries(i)
   }
-
 
   class LibraryDetailsModel(selectedDescriptor: Option[LibraryDescriptor]) extends AbstractListModel[ExtensionDescriptor] {
     private val myExtensions = selectedDescriptor.flatMap(_.getCurrentPluginDescriptor.map(_.extensions)).getOrElse(Nil)
@@ -66,31 +59,35 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel, private v
     rootPanel.setLayout(new BorderLayout())
     UIUtil.addBorder(rootPanel, JBUI.Borders.empty(10))
 
-    val checkBoxes = new JPanel()
+    val checkBoxes  = new JPanel()
+    val enabledCB   = new JCheckBox("Enable loading external extensions", true)
     checkBoxes.setLayout(new BoxLayout(checkBoxes, BoxLayout.Y_AXIS))
-    checkBoxes.add(UI.PanelFactory.panel(new JCheckBox("Enable searching for extensions online", true))
-      .withTooltip("BlahBlah").createPanel())
-    checkBoxes.add(UI.PanelFactory.panel(new JCheckBox("Show only for this project", true))
-      .withTooltip("BlahBlah").createPanel())
+    checkBoxes.add(UI.PanelFactory.panel(enabledCB)
+      .withTooltip("IDEA will try to search for extra support for particular libraries in your project")
+      .createPanel())
 
     val settingsPanel = new JPanel(new BorderLayout())
     settingsPanel.add(checkBoxes, BorderLayout.CENTER)
     val button = new JButton("Manage Search Patterns")
     button.addActionListener(showPatternManageDialog)
     settingsPanel.add(button, BorderLayout.LINE_END)
-
     rootPanel.add(settingsPanel, BorderLayout.PAGE_START)
 
 
     val detailsModel = new LibraryDetailsModel(None)
     val extensionsList = new JBList[ExtensionDescriptor](detailsModel)
-    val extensionsPane = ToolbarDecorator.createDecorator(extensionsList)
-      .disableDownAction()
-      .disableUpAction()
-      .disableRemoveAction()
-      .addExtraAction(pauseAction)
-      .createPanel()
+    val extensionsPane = new JPanel(new BorderLayout())
+    extensionsPane.add(ScrollPaneFactory.createScrollPane(extensionsList))
     extensionsList.setEmptyText("Select library from the list above")
+    extensionsList.installCellRenderer { ext: ExtensionDescriptor =>
+      val ExtensionDescriptor(_, impl, name, description, _, enabled) = ext
+      val builder = new StringBuilder
+      if (!enabled) builder.append("<html><s>")
+      if (name.nonEmpty) builder.append(name) else builder.append(impl)
+      if (description.nonEmpty) builder.append(s" - description")
+      if (!enabled) builder.append("</s></html>")
+      new JBLabel(builder.mkString)
+    }
 
     val libraryListModel = new LibraryListModel(detailsModel)
     val librariesList = new JBList[LibraryDescriptor](libraryListModel)
@@ -100,12 +97,16 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel, private v
         Option(libraryExtensionsManager.getAvailableLibraries(event.getFirstIndex)) else None
       extensionsList.setModel(new LibraryDetailsModel(newData))
     }
-    val librariesPane = ToolbarDecorator.createDecorator(librariesList)
-      .disableDownAction()
-      .disableUpAction()
-      .disableRemoveAction()
-      .addExtraAction(pauseAction)
-      .createPanel()
+    librariesList.installCellRenderer{ ld: LibraryDescriptor =>
+      val LibraryDescriptor(name, _, description, vendor, version, _) = ld
+      val builder = new StringBuilder
+      if (vendor.nonEmpty) builder.append(s"($vendor) ")
+      builder.append(s"$name $version")
+      if (description.nonEmpty) builder.append(s" - $description")
+      new JBLabel(builder.mkString)
+    }
+    val librariesPane = new JPanel(new BorderLayout())
+    librariesPane.add(ScrollPaneFactory.createScrollPane(librariesList))
 
     val listsPane = new JBSplitter(true, 0.6f)
     listsPane.setFirstComponent(librariesPane)
@@ -113,6 +114,10 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel, private v
 
     UIUtil.addBorder(librariesPane,IdeBorderFactory.createTitledBorder("Known extension libraries", false))
     UIUtil.addBorder(extensionsPane, IdeBorderFactory.createTitledBorder("Extensions in selected library", false))
+
+    enabledCB.addActionListener {_ =>
+      UIUtil.setEnabled(listsPane, enabledCB.isSelected, true)
+    }
 
     rootPanel.add(listsPane, BorderLayout.CENTER)
 
