@@ -80,12 +80,10 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel, private v
     extensionsPane.add(ScrollPaneFactory.createScrollPane(extensionsList))
     extensionsList.setEmptyText("Select library from the list above")
     extensionsList.installCellRenderer { ext: ExtensionDescriptor =>
-      val ExtensionDescriptor(_, impl, name, description, _, enabled) = ext
+      val ExtensionDescriptor(_, impl, name, description, _) = ext
       val builder = new StringBuilder
-      if (!enabled) builder.append("<html><s>")
       if (name.nonEmpty) builder.append(name) else builder.append(impl)
       if (description.nonEmpty) builder.append(s" - description")
-      if (!enabled) builder.append("</s></html>")
       new JBLabel(builder.mkString)
     }
 
