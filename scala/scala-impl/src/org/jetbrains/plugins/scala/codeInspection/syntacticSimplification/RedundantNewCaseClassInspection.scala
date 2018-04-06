@@ -29,18 +29,21 @@ class RedundantNewCaseClassInspection extends AbstractInspection("RedundantNewCa
 
   private def hasRedundantNew(newTemplate: ScNewTemplateDefinition): Boolean = {
     val constructor = getConstructorFromTemplate(newTemplate)
-    val resolvedConstructor = resolveConstructor(constructor)
+    def resolvedConstructor = resolveConstructor(constructor)
 
-    isApplyDefinedOnCaseClass(newTemplate) && isCreatingSameType(newTemplate) && constructorCallHasArgumentList(constructor) &&
-      isProblemlessPrimaryConstructorOfCaseClass(resolvedConstructor) && !isTypeAlias(resolvedConstructor)
+    isCreatingSameType(newTemplate) &&
+      constructorCallHasArgumentList(constructor) &&
+      constructor.exists(hasApplyDefinedOnCaseClass) &&
+      isProblemlessPrimaryConstructorOfCaseClass(resolvedConstructor) &&
+      !isTypeAlias(resolvedConstructor)
   }
 
-  private def isApplyDefinedOnCaseClass(newTemplate: ScNewTemplateDefinition): Boolean = {
-    val extendsText = newTemplate.extendsBlock.getText
-    val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(extendsText, newTemplate.getContext, newTemplate)
-    val reference = getDeepestInvokedReference(expression)
+  private def hasApplyDefinedOnCaseClass(constructor: ScConstructor): Boolean = {
+    val constructorText = constructor.getText
+    val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(constructorText, constructor.getContext, constructor)
+    val reference = getDeepestInvokedReference(expression).filter(_.isValid)
 
-    val syntheticNavigationElement = reference.flatMap(_.advancedResolve.map(_.element match {
+    val syntheticNavigationElement = reference.flatMap(_.bind().map(_.element match {
       case a: ScFunctionDefinition => a.getSyntheticNavigationElement
       case _ => None
     }))
@@ -92,7 +95,7 @@ class RedundantNewCaseClassInspection extends AbstractInspection("RedundantNewCa
     for {
       constructor <- maybeConstructor
       ref <- constructor.reference
-      resolved <- ref.advancedResolve
+      resolved <- ref.bind()
     } yield {
       resolved
     }
