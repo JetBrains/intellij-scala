@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.structureView
 
 import java.util
+import java.util.Collections
 
 import com.intellij.ide.IdeBundle
 import com.intellij.ide.util.FileStructureNodeProvider
@@ -9,14 +10,15 @@ import com.intellij.openapi.actionSystem.Shortcut
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.util.IconLoader
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
+import org.jetbrains.plugins.scala.lang.structureView.element.Element
 
 import scala.collection.JavaConverters._
 
@@ -26,11 +28,15 @@ import scala.collection.JavaConverters._
  */
 
 class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeElement] {
-  def provideNodes(node: TreeElement): util.Collection[TreeElement] = {
-    node match {
-      case td: ScalaTypeDefinitionStructureViewElement =>
+  override def provideNodes(node: TreeElement): util.Collection[TreeElement] = node match {
+    case e: Element => nodesOf(e.element)
+    case _ => Collections.emptyList[TreeElement]
+  }
+
+  private def nodesOf(element: PsiElement): util.Collection[TreeElement] = {
+    element match {
+      case clazz: ScTypeDefinition =>
         val children = new util.ArrayList[TreeElement]()
-        val clazz = td.psiElement
         try {
           if (!clazz.isValid) return children
           val signs = clazz.allSignatures
@@ -40,16 +46,16 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
                 sign.method match {
                   case x if x.name == "$tag" || x.name == "$init$" =>
                   case x if x.containingClass == clazz =>
-                  case x: ScFunction => children.addAll(ScalaFunctionStructureViewElement(x, true).asJava)
+                  case x: ScFunction => children.addAll(Element(x, inherited = true).asJava)
                   case x: PsiMethod => children.add(new PsiMethodTreeElementDecorator(x, true))
                 }
               case _ =>
                 sign.namedElement match {
                   case parameter: ScClassParameter if parameter.isEffectiveVal && parameter.containingClass != clazz && !sign.name.endsWith("_=") =>
-                    children.add(new ScalaValOrVarParameterStructureViewElement(parameter, true))
+                    children.addAll(Element(parameter, inherited = true).asJava)
                   case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
-                    case x: ScValue if x.containingClass != clazz => children.addAll(ScalaValueStructureViewElement(named, true).asJava)
-                    case x: ScVariable if x.containingClass != clazz => children.addAll(ScalaVariableStructureViewElement(named, true).asJava)
+                    case x: ScValue if x.containingClass != clazz => children.addAll(Element(named, inherited = true).asJava)
+                    case x: ScVariable if x.containingClass != clazz => children.addAll(Element(named, inherited = true).asJava)
                     case _ =>
                   }
                   case _ =>
@@ -63,23 +69,23 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
             if t.isInstanceOf[ScTypeAlias]
             alias = t.asInstanceOf[ScTypeAlias]
             if alias.containingClass != clazz
-          } children.add(new ScalaTypeAliasStructureViewElement(alias, true))
+          } children.addAll(Element(alias, inherited = true).asJava)
 
           children
         }
         catch {
-          case _: IndexNotReadyException => new util.ArrayList[TreeElement]()
+          case _: IndexNotReadyException => Collections.emptyList[TreeElement]
         }
-      case _ => new util.ArrayList[TreeElement]()
+      case _ => Collections.emptyList[TreeElement]
     }
   }
 
-  def getCheckBoxText: String = IdeBundle.message("file.structure.toggle.show.inherited")
+  override def getCheckBoxText: String = IdeBundle.message("file.structure.toggle.show.inherited")
 
-  def getShortcut: Array[Shortcut] = KeymapManager.getInstance.getActiveKeymap.getShortcuts("FileStructurePopup")
+  override def getShortcut: Array[Shortcut] = KeymapManager.getInstance.getActiveKeymap.getShortcuts("FileStructurePopup")
 
-  def getPresentation: ActionPresentation = new ActionPresentationData(
+  override def getPresentation: ActionPresentation = new ActionPresentationData(
     IdeBundle.message("action.structureview.show.inherited"), null, IconLoader.getIcon("/hierarchy/supertypes.png"))
 
-  def getName: String = "SCALA_SHOW_INHERITED"
+  override def getName: String = "SCALA_SHOW_INHERITED"
 }

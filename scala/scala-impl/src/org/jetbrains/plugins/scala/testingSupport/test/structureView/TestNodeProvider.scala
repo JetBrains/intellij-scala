@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.test.structureView
 
 import java.util
+import java.util.Collections
 
 import com.intellij.execution.PsiLocation
 import com.intellij.ide.util.FileStructureNodeProvider
@@ -20,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternsImpl
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl.{ScalaTypeDefinitionStructureViewElement, _}
+import org.jetbrains.plugins.scala.lang.structureView.element.{Test, TypeDefinition, Value}
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2Util
@@ -45,9 +46,9 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
 
   override def provideNodes(node: TreeElement): util.Collection[TreeElement] = {
     node match {
-      case td: ScalaTypeDefinitionStructureViewElement =>
+      case td: TypeDefinition =>
         val children = new util.ArrayList[TreeElement]()
-        val clazz = td.psiElement
+        val clazz = td.element
         val project = clazz.getProject
         try {
           if (!clazz.isValid) return children
@@ -72,10 +73,10 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
         catch {
           case _: IndexNotReadyException => new util.ArrayList[TreeElement]()
         }
-      case valElement: ScalaValueStructureViewElement =>
+      case valElement: Value =>
         def tryTupledId(psiElement: PsiElement) = TestNodeProvider.getUTestLeftHandTestDefinition(psiElement) match {
           case Some(testTupleDefinition) => TestNodeProvider.extractUTest(testTupleDefinition, testTupleDefinition.getProject)
-          case _ => new util.ArrayList[TreeElement]()
+          case _ => Collections.emptyList[TreeElement]
         }
 
         valElement.getValue match {
@@ -83,13 +84,13 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
             valDef.getLastChild match {
               case testCall: ScMethodCall =>
                 TestNodeProvider.extractUTest(testCall, testCall.getProject)
-              case _ => tryTupledId(valElement.psiElement)
+              case _ => tryTupledId(valElement.element)
             }
           case named: ScNamedElement =>
             tryTupledId(named.nameId)
-          case _ => new util.ArrayList[TreeElement]()
+          case _ => Collections.emptyList[TreeElement]
         }
-      case _ => new util.ArrayList[TreeElement]()
+      case _ => Collections.emptyList[TreeElement]
     }
   }
 }
@@ -103,7 +104,7 @@ object TestNodeProvider {
   }
 
   private def extractTestViewElementInfix(expr: ScInfixExpr, clazz: ScTypeDefinition, project: Project):
-  Option[TestStructureViewElement] = {
+  Option[Test] = {
     import ScalaTestUtil._
     import Specs2Util._
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
@@ -119,7 +120,7 @@ object TestNodeProvider {
   }
 
   private def extractTestViewElementPatternDef(pDef: ScPatternDefinition, clazz: ScTypeDefinition, project: Project):
-  Option[TestStructureViewElement] = {
+  Option[Test] = {
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
     if (isInheritor(clazz, "utest.framework.TestSuite") && pDef.getLastChild.isInstanceOf[ScMethodCall]) {
       val methodCall = pDef.getLastChild.asInstanceOf[ScMethodCall]
@@ -129,7 +130,7 @@ object TestNodeProvider {
   }
 
   private def extractTestViewElement(expr: ScMethodCall, clazz: ScTypeDefinition, project: Project):
-  Option[TestStructureViewElement] = {
+  Option[Test] = {
     import ScalaTestUtil._
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
     if (funSuiteBases.exists(isInheritor(clazz, _))) {
@@ -184,10 +185,10 @@ object TestNodeProvider {
   }
 
   private def ignoredScalaTestElement(element: PsiElement, name: String, children: Array[TreeElement] = Array()) =
-    new TestStructureViewElement(element, name + TestNodeProvider.ignoredSuffix, children, TestStructureViewElement.ignoredStatusId)
+    new Test(element, name + TestNodeProvider.ignoredSuffix, children, Test.IgnoredStatusId)
 
   private def pendingScalaTestElement(element: PsiElement, name: String, children: Array[TreeElement] = Array()) =
-    new TestStructureViewElement(element, name + TestNodeProvider.pendingSuffix, children, TestStructureViewElement.pendingStatusId)
+    new Test(element, name + TestNodeProvider.pendingSuffix, children, Test.PendingStatusId)
 
   def getInfixExprTestName(expr: ScInfixExpr): String = expr.getNode.getFirstChildNode.getText
 
@@ -202,7 +203,7 @@ object TestNodeProvider {
       case otherExpr => otherExpr.findFirstChildByType(ScalaElementTypes.REFERENCE_EXPRESSION)
     }
     methodExpr != null && {
-      methodExpr.asInstanceOf[ScReferenceExpression].advancedResolve match {
+      methodExpr.asInstanceOf[ScReferenceExpression].bind() match {
         case Some(resolveResult) =>
           resolveResult.getActualElement.name == callerName && {
             val funElement = resolveResult.innerResolveResult match {
@@ -267,14 +268,14 @@ object TestNodeProvider {
   }
 
   private def extractScalaTestScInfixExpr(expr: ScInfixExpr, entry: ExtractEntry, project: Project):
-  Option[TestStructureViewElement] = {
+  Option[Test] = {
     if (entry.canIgnore && (checkScInfixExpr(expr, "ignore", List("void")) ||
       checkScInfixExpr(expr, "ignore", List("java.lang.Object")) || checkIgnoreExpr(expr))) {
       Some(ignoredScalaTestElement(expr, getInfixExprTestName(expr), entry.children(())))
     } else if (checkScInfixExpr(expr, "is", List("org.scalatest.PendingNothing")) || checkPendingInfixExpr(expr)) {
       Some(pendingScalaTestElement(expr, getInfixExprTestName(expr), entry.children(())))
     } else if (checkScInfixExpr(expr, entry.funName, entry.args: _*)) {
-      Some(new TestStructureViewElement(expr, getInfixExprTestName(expr), entry.children(())))
+      Some(new Test(expr, getInfixExprTestName(expr), entry.children(())))
     } else None
   }
 
@@ -334,16 +335,16 @@ object TestNodeProvider {
 
   def isSpecs2Expr(expr: PsiElement): Boolean = isSpecs2TestExpr(expr) || isSpecs2ScopeExpr(expr)
 
-  private def extractSpecs2ScInfixExpr(expr: ScInfixExpr, children: => Array[TreeElement], project: Project): Option[TestStructureViewElement] = {
+  private def extractSpecs2ScInfixExpr(expr: ScInfixExpr, children: => Array[TreeElement], project: Project): Option[Test] = {
     //check matchers here because they are supposed to be stacked, as opposed to scalaTest, where bases are distinct
     if (isSpecs2Expr(expr: ScInfixExpr)) {
-      Some(new TestStructureViewElement(expr, getInfixExprTestName(expr), children,
-        if (checkSpecsPending(expr)) TestStructureViewElement.pendingStatusId else TestStructureViewElement.normalStatusId))
+      Some(new Test(expr, getInfixExprTestName(expr), children,
+        if (checkSpecsPending(expr)) Test.PendingStatusId else Test.NormalStatusId))
     }  else None
   }
 
   private def extractScMethodCall(expr: ScMethodCall, entry: ExtractEntry, project: Project):
-  Option[TestStructureViewElement] = {
+  Option[Test] = {
     if (entry.canIgnore && (checkScMethodCall(expr, "ignore", scMethodCallDefaultArg: _*) ||
       checkScMethodCall(expr, "ignore", scMethodCallDefaultArgScalaTest3: _*))) {
       Some(ignoredScalaTestElement(expr, getMethodCallTestName(expr), entry.children(())))
@@ -352,25 +353,25 @@ object TestNodeProvider {
     } else if (checkScMethodCall(expr, entry.funName, entry.args: _*) ||
       checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArg:_*) ||
       checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArgScalaTest3:_*)) {
-      Some(new TestStructureViewElement(expr, getMethodCallTestName(expr), entry.children(())))
+      Some(new Test(expr, getMethodCallTestName(expr), entry.children(())))
     } else None
   }
 
   //-----------------Here are checks for concrete test class bases---------------------
   //-----ScalaTest------
-  private def extractFreeSpec(expr: ScInfixExpr, project: Project): Option[TestStructureViewElement] = {
+  private def extractFreeSpec(expr: ScInfixExpr, project: Project): Option[Test] = {
     lazy val children = processChildren(getInnerInfixExprs(expr), extractFreeSpec, project)
     extractScalaTestScInfixExpr(expr, ExtractEntry("$minus", true, false, _ => children, List("void")), project).
       orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void")), project)).
       orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object")), project))
   }
 
-  private def extractFlatSpec(expr: ScInfixExpr, project: Project): Option[TestStructureViewElement] = {
+  private def extractFlatSpec(expr: ScInfixExpr, project: Project): Option[Test] = {
     extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void")), project).
       orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object")), project))
   }
 
-  private def extractWordSpec(expr: ScInfixExpr, project: Project): Option[TestStructureViewElement] = {
+  private def extractWordSpec(expr: ScInfixExpr, project: Project): Option[Test] = {
     lazy val children = processChildren(getInnerInfixExprs(expr), extractWordSpec, project)
     extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void")), project).
       orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object")), project)).
@@ -387,7 +388,7 @@ object TestNodeProvider {
       orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("which", false, false, _ => children, List("void")), project))
   }
 
-  private def extractFunSpec(expr: ScMethodCall, project: Project): Option[TestStructureViewElement] = {
+  private def extractFunSpec(expr: ScMethodCall, project: Project): Option[Test] = {
     lazy val children = processChildren(getInnerMethodCalls(expr), extractFunSpec, project)
     extractScMethodCall(expr, ExtractEntry("describe", true, true, _ => children, List("java.lang.String"), List("void")),
       project).orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArg:_*), project)).
@@ -395,19 +396,19 @@ object TestNodeProvider {
       orElse(extractScMethodCall(expr, ExtractEntry("they", true, true, scMethodCallDefaultArg:_*), project))
   }
 
-  private def extractFeatureSpec(expr: ScMethodCall, project: Project): Option[TestStructureViewElement] = {
+  private def extractFeatureSpec(expr: ScMethodCall, project: Project): Option[Test] = {
     lazy val children = processChildren(getInnerMethodCalls(expr), extractFeatureSpec, project)
     extractScMethodCall(expr, ExtractEntry("feature", true, false, _ => children, List("java.lang.String"), List("void")), project).
       orElse(extractScMethodCall(expr, ExtractEntry("scenario", true, true, scMethodCallDefaultArg:_*), project)).
       orElse(extractScMethodCall(expr, ExtractEntry("scenario", true, true, scMethodCallDefaultArgScalaTest3:_*), project))
   }
 
-  private def extractPropSpec(expr: ScMethodCall, project: Project): Option[TestStructureViewElement] = {
+  private def extractPropSpec(expr: ScMethodCall, project: Project): Option[Test] = {
     extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArg: _*), project).
       orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3: _*), project))
   }
 
-  private def extractFunSuite(expr: ScMethodCall, project: Project): Option[TestStructureViewElement] = {
+  private def extractFunSuite(expr: ScMethodCall, project: Project): Option[Test] = {
     extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArg:_*), project).
       orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3:_*), project))
   }
@@ -425,7 +426,7 @@ object TestNodeProvider {
   //    } else None
   //  }
 
-  private def extractUnitSpec(expr: ScInfixExpr, project: Project): Option[TestStructureViewElement] = {
+  private def extractUnitSpec(expr: ScInfixExpr, project: Project): Option[Test] = {
     lazy val children = processChildren(getInnerInfixExprs(expr), extractUnitSpec, project)
     extractSpecs2ScInfixExpr(expr, children, project)
   }
@@ -434,10 +435,10 @@ object TestNodeProvider {
   private def extractUTest(expr: ScMethodCall, project: Project): util.Collection[TreeElement] = {
     def extractUTestInner(expr: PsiElement, project: Project): Option[TreeElement] = {
       if (isUTestInfixExpr(expr)) {
-        Some(new TestStructureViewElement(expr, getInfixExprTestName(expr.asInstanceOf[ScInfixExpr]),
+        Some(new Test(expr, getInfixExprTestName(expr.asInstanceOf[ScInfixExpr]),
           processChildren(getInnerExprs(expr), extractUTestInner, project)))
       } else if (isUTestApplyCall(expr)) {
-        Some(new TestStructureViewElement(expr, getMethodCallTestName(expr.asInstanceOf[ScMethodCall]),
+        Some(new Test(expr, getMethodCallTestName(expr.asInstanceOf[ScMethodCall]),
           processChildren(getInnerExprs(expr), extractUTestInner, project)))
       } else None
     }
@@ -527,11 +528,11 @@ object TestNodeProvider {
 
   def getTestNames(aSuite: ScTypeDefinition, configurationProducer: TestConfigurationProducer): Seq[String] = {
     @tailrec
-    def getTestLeaves(elements: Iterable[TreeElement], res: List[TestStructureViewElement] = List()): List[TestStructureViewElement] = {
+    def getTestLeaves(elements: Iterable[TreeElement], res: List[Test] = List()): List[Test] = {
       if (elements.isEmpty) res else {
         val head = elements.head
         (head, head.getChildren) match {
-          case (testHead: TestStructureViewElement, e) if e.isEmpty => getTestLeaves(elements.tail, testHead :: res)
+          case (testHead: Test, e) if e.isEmpty => getTestLeaves(elements.tail, testHead :: res)
           case (_, children) => getTestLeaves(children ++ elements.tail, res)
         }
       }
@@ -541,14 +542,14 @@ object TestNodeProvider {
     val nodeProvider = new TestNodeProvider
     getTestLeaves(configurationProducer match {
       case _: UTestConfigurationProducer =>
-        new ScalaTypeDefinitionStructureViewElement(aSuite).getChildren flatMap {
-          case scVal: ScalaValueStructureViewElement if !scVal.isInherited => nodeProvider.provideNodes(scVal).asScala
+        new TypeDefinition(aSuite).getChildren flatMap {
+          case scVal: Value if !scVal.inherited => nodeProvider.provideNodes(scVal).asScala
           case _ => List.empty
         }
       case _ =>
-        nodeProvider.provideNodes(new ScalaTypeDefinitionStructureViewElement(aSuite)).asScala
+        nodeProvider.provideNodes(new TypeDefinition(aSuite)).asScala
     }).map { e =>
-      Option(configurationProducer.getLocationClassAndTest(new PsiLocation(e.psiElement))) filter {
+      Option(configurationProducer.getLocationClassAndTest(new PsiLocation(e.element))) filter {
         case (suite, testName) =>
           suite != null && suite.getQualifiedName == suiteName && testName != null
       }

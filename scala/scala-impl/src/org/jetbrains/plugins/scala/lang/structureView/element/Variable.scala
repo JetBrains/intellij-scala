@@ -1,23 +1,22 @@
-package org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl
+package org.jetbrains.plugins.scala.lang.structureView.element
 
 import javax.swing.Icon
 
-import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import com.intellij.openapi.util.Iconable
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
-import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation
-import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.ScalaItemPresentation.withSimpleNames
+import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresentation.withSimpleNames
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 05.05.2008
 */
-
-class ScalaVariableItemPresentation(element: ScNamedElement, inherited: Boolean, showType: Boolean)
-  extends ScalaItemPresentation(element, inherited) {
+private class Variable(element: ScNamedElement, inherited: Boolean, override val showType: Boolean)
+  extends AbstractTreeElement(element, inherited) with Typed {
 
   override def location: Option[String] = variable.map(_.containingClass).map(_.name)
 
@@ -32,8 +31,15 @@ class ScalaVariableItemPresentation(element: ScNamedElement, inherited: Boolean,
   override def getIcon(open: Boolean): Icon =
     variable.map(_.getIcon(Iconable.ICON_FLAG_VISIBILITY)).orNull
 
-  private def variable = element.parentsInFile.findByType[ScVariable]
+  override def children: Seq[PsiElement] = variable match {
+    case Some(definition: ScVariableDefinition) => definition.expr match {
+      case Some(block: ScBlockExpr) => Block.childrenOf(block)
+      case _ => Seq.empty
+    }
+    case _ => Seq.empty
+  }
 
-  override def getTextAttributesKey: TextAttributesKey =
-    if (inherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
+  override def isAlwaysLeaf: Boolean = false
+
+  private def variable = element.parentsInFile.findByType[ScVariable]
 }

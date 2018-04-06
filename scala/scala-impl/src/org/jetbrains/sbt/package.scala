@@ -77,8 +77,11 @@ package object sbt {
       copy(file, destination)
     }
 
-    def ls(filter: String => Boolean): Seq[File] =
-      file.listFiles().filter(file => filter(file.getName)).toSeq
+    def ls(filter: String => Boolean): Seq[File] = {
+      val files = file.listFiles()
+      assert(files != null, file.getPath)
+      files.filter(file => filter(file.getName)).toSeq
+    }
   }
 
   private object RichFile {

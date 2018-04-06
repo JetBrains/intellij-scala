@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.fileStructureView
 
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement._
+import org.jetbrains.plugins.scala.lang.structureView.element.Test._
 import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
 /**
@@ -29,7 +29,7 @@ trait FunSpecFileStructureViewTest extends ScalaTestTestCase {
     """.stripMargin)
 
   def testFunSpecNormal() {
-    runFileStructureViewTest(className, normalStatusId, "describe(\"parent\")", "it (\"child1\")")
+    runFileStructureViewTest(className, NormalStatusId, "describe(\"parent\")", "it (\"child1\")")
   }
 
   def testFunSpecHierarchy(): Unit = {
@@ -37,14 +37,14 @@ trait FunSpecFileStructureViewTest extends ScalaTestTestCase {
   }
 
   def testFunSpecIgnored(): Unit = {
-    runFileStructureViewTest(className, ignoredStatusId, "ignore (\"ignore1\")")
+    runFileStructureViewTest(className, IgnoredStatusId, "ignore (\"ignore1\")")
   }
 
   def testFunSpecIgnoredAndPending(): Unit = {
-    runFileStructureViewTest(className, ignoredStatusId, "ignore(\"pending_and_ignore\")")
+    runFileStructureViewTest(className, IgnoredStatusId, "ignore(\"pending_and_ignore\")")
   }
 
   def testFunSpecPending(): Unit = {
-    runFileStructureViewTest(className, pendingStatusId, "describe(\"pending\")", "they (\"child2\")")
+    runFileStructureViewTest(className, PendingStatusId, "describe(\"pending\")", "they (\"child2\")")
   }
 }

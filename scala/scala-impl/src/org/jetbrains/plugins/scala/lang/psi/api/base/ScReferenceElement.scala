@@ -7,7 +7,6 @@ package base
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.extensions._
@@ -50,9 +49,6 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   override final def multiResolve(incomplete: Boolean): Array[ResolveResult] = multiResolveScala(incomplete).toArray
 
   def bind(): Option[ScalaResolveResult]
-
-  @TestOnly
-  def advancedResolve: Option[ScalaResolveResult]
 
   private def isBackQuoted = {
     val id: PsiElement = nameId

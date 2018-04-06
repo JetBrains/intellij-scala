@@ -8,47 +8,38 @@ import com.intellij.ide.IdeBundle
 import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElement, TextEditorBasedStructureViewModel}
 import com.intellij.ide.util.treeView.smartTree._
 import com.intellij.psi.PsiElement
-import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
-import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.structureView.elements.ScalaStructureViewElement
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
+import org.jetbrains.plugins.scala.lang.structureView.element.{Element, Test}
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 
 /**
  * @author Alexander Podkhalyuzin
  * @since 04.05.2008
  */
-class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val console: ScalaLanguageConsole = null)
+class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLanguageConsole] = None)
   extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
 
-  def isAlwaysLeaf(element: StructureViewTreeElement): Boolean =
-    !(isAlwaysShowsPlus(element) ||
-      element.isInstanceOf[TestStructureViewElement] ||
-      element.isInstanceOf[ScalaBlockStructureViewElement] ||
-      element.isInstanceOf[ScalaVariableStructureViewElement] ||
-      element.isInstanceOf[ScalaValueStructureViewElement] ||
-      element.isInstanceOf[ScalaFunctionStructureViewElement])
+  override def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean =
+    element.asOptionOf[Element].exists(_.isAlwaysShowsPlus)
 
-  def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean = {
-    element match {
-      case _: ScalaTypeDefinitionStructureViewElement => true
-      case _: ScalaFileStructureViewElement => true
-      case _: ScalaPackagingStructureViewElement => true
-      case _ => false
-    }
-  }
+  override def isAlwaysLeaf(element: StructureViewTreeElement): Boolean =
+    element.asOptionOf[Element].forall(_.isAlwaysLeaf)
 
-  @NotNull
-  def getRoot: StructureViewTreeElement = {
-    new ScalaFileStructureViewElement(myRootElement, console)
+  override def getRoot: StructureViewTreeElement = {
+    def file = console.map(_.getHistory)
+      .map(history => createScalaFileFromText(s"$history${myRootElement.getText}")(myRootElement.getManager))
+      .getOrElse(myRootElement)
+
+    Element(() => file)
   }
 
 // TODO Enable inferred types
@@ -66,7 +57,6 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
 //    override def isReverted: Boolean = false
 //  })
 
-  @NotNull
   override def getSorters: Array[Sorter] = {
     val res = new Array[Sorter](2)
     res(0) = new Sorter() {
@@ -76,9 +66,9 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
       override def getComparator: Comparator[_] = new Comparator[AnyRef] {
         override def compare(o1: AnyRef, o2: AnyRef): Int =
           (o1, o2) match {
-            case (_: TestStructureViewElement, _: TestStructureViewElement) => 0
-            case (_, _: TestStructureViewElement) => -1
-            case (_: TestStructureViewElement, _) => 1
+            case (_: Test, _: Test) => 0
+            case (_, _: Test) => -1
+            case (_: Test, _) => 1
             case _ => SorterUtil.getStringPresentation(o1).compareToIgnoreCase(SorterUtil.getStringPresentation(o2))
           }
       }
@@ -97,8 +87,8 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
         new ActionPresentationData("Sort.actually", "Sort By Position", AllIcons.ObjectBrowser.Sorted)
 
       override def getComparator: Comparator[_] = (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
-        case (e1: ScalaStructureViewElement[_], e2: ScalaStructureViewElement[_]) if !e1.inherited && !e2.inherited =>
-          e1.psiElement.getTextOffset - e2.psiElement.getTextOffset
+        case (e1: Element, e2: Element) if !e1.inherited && !e2.inherited =>
+          e1.element.getTextOffset - e2.element.getTextOffset
         case _ => 0
       }
     }

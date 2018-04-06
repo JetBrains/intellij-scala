@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package structureView
+package org.jetbrains.plugins.scala.lang.structureView
 
 import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.psi._
@@ -25,20 +23,8 @@ object ScalaElementPresentation {
 
   //TODO refactor with name getters
 
-  def getFilePresentableText(file: ScalaFile): String = file.name
-
-  def getPackagingPresentableText(packaging: ScPackaging): String = packaging.packageName
-
   def getTypeDefinitionPresentableText(typeDefinition: ScTypeDefinition): String =
     if (typeDefinition.nameId != null) typeDefinition.nameId.getText else "unnamed"
-
-  def getPrimaryConstructorPresentableText(constructor: ScPrimaryConstructor): String = {
-    val presentableText: StringBuffer = new StringBuffer
-    presentableText.append("this")
-    if (constructor.parameters != null)
-      presentableText.append(StructureViewUtil.getParametersAsString(constructor.parameterList))
-    presentableText.toString
-  }
 
   def getMethodPresentableText(function: ScFunction, fast: Boolean = true,
                                subst: ScSubstitutor = ScSubstitutor.empty): String = {

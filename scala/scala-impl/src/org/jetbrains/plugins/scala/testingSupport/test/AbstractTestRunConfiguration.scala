@@ -24,6 +24,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Computable, Getter, JDOMExternalizer}
+import com.intellij.openapi.vfs.newvfs.ManagingFS
+import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import org.jdom.Element
@@ -33,22 +35,22 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.testingSupport.{TestWorkingDirectoryProvider, ScalaTestingConfiguration}
+import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, SettingEntry, SettingMap}
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.SearchForTest
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtProcessHandlerWrapper, SbtTestEventHandler}
+import org.jetbrains.plugins.scala.testingSupport.{ScalaTestingConfiguration, TestWorkingDirectoryProvider}
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
+
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
   * @author Ksenia.Sautina
@@ -390,6 +392,11 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           //a workaround to add jars for integration tests
           val integrationTestsPath = ScalaUtil.testingSupportTestPath()
           params.getClassPath.add(integrationTestsPath)
+        }
+
+        ManagingFS.getInstance match {
+          case fs: PersistentFSImpl => fs.incStructuralModificationCount()
+          case _                    =>
         }
 
         searchTest match {

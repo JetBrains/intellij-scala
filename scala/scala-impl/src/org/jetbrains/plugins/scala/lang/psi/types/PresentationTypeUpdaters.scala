@@ -9,17 +9,14 @@ object PresentationTypeUpdaters {
   private[this] val anyRefTypeName       = "_root_.scala.AnyRef"
   private[this] val uselessTypeNames     = Set(objectTypeName, productTypeName, serializableTypeName, anyRefTypeName)
 
-  val removeUnnecessaryRefinements: Update = Update {
-    case tpe @ ScCompoundType(Seq(obj), _, _) if obj.canonicalText == objectTypeName => tpe
-    case tpe: ScCompoundType =>
-      tpe.copy(signatureMap = Map.empty)(tpe.projectContext)
-  }
+  val cleanUp: Update = Update {
+    case tpe @ ScCompoundType(components, signatureMap, _) =>
+      val withoutUselessComponents = components.filterNot(tp => uselessTypeNames.contains(tp.canonicalText))
+      val refinementsAreNecessary = withoutUselessComponents.isEmpty
 
-  val removeUselessComponents: Update = Update {
-    case tpe @ ScCompoundType(components, _, _) =>
-      val filtered = components.filterNot(tpe => uselessTypeNames.contains(tpe.canonicalText))
-      tpe.copy(components = filtered)(tpe.projectContext)
-  }
+      val newSignatures = if (refinementsAreNecessary) signatureMap else Map.empty[Signature, ScType]
+      val newComponents = if (withoutUselessComponents.isEmpty) components.headOption.toList else withoutUselessComponents
 
-  val cleanUp: Seq[Update] = Seq(removeUnnecessaryRefinements, removeUselessComponents)
+      tpe.copy(newComponents, newSignatures)(tpe.projectContext)
+  }
 }

@@ -9,6 +9,7 @@ import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.Ext
@@ -86,7 +87,7 @@ object ScalaInlayParameterHintsProvider {
       case (extractReferenceName(name), parameter) => name.mismatchesCamelCase(parameter.name)
       case _ => true
     }.map {
-      case (argument, parameter) => InlayInfo(parameter, argument)
+      case (argument, parameter) => InlayInfo(parameter.name, ScalaTokenTypes.tASSIGN, argument)
     }
 
     import JavaConverters._

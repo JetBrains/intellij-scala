@@ -1026,6 +1026,10 @@ abstract class ScalaAnnotator extends Annotator
               val conformance = smartCheckConformance(expectedType, exprType)
               if (!conformance) {
                 if (typeAware) {
+                  expr.getParent match {
+                    case assign: ScAssignStmt if exprType.exists(ScalaPsiUtil.isUnderscoreEq(assign, _)) => return
+                    case _ =>
+                  }
                   val markedPsi = (expr, expr.getParent) match {
                     case (b: ScBlockExpr, _) => b.getRBrace.map(_.getPsi).getOrElse(expr)
                     case (_, b: ScBlockExpr) => b.getRBrace.map(_.getPsi).getOrElse(expr)

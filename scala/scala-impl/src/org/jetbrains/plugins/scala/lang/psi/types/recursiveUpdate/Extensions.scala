@@ -13,7 +13,8 @@ trait Extensions {
   implicit class ScTypeExt(val tp: ScType) {
 
     //This method allows application of different `Update` functions in a single pass (see ScSubstitutor).
-    //Updates
+    //WARNING: If several updates are used, they should be applicable only for leaf types, e.g. which return themselves
+    //from `updateSubtypes` method
     @tailrec
     final def recursiveUpdateImpl(updates: Seq[Update], visited: Set[ScType] = Set.empty, isLazySubtype: Boolean = false): ScType = {
       if (updates.isEmpty || visited(tp)) tp

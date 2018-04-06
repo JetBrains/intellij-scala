@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.fileStructureView
 
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement._
+import org.jetbrains.plugins.scala.lang.structureView.element.Test._
 import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
 /**
@@ -26,19 +26,19 @@ trait PropSpecFileStructureViewTest extends ScalaTestTestCase {
       """.stripMargin)
 
   def testPropSpecNormal(): Unit = {
-    runFileStructureViewTest(className, normalStatusId, "property(\"test\")")
+    runFileStructureViewTest(className, NormalStatusId, "property(\"test\")")
   }
 
   def testPropSpecIgnored(): Unit = {
-    runFileStructureViewTest(className, ignoredStatusId, "ignore(\"ignore\")")
+    runFileStructureViewTest(className, IgnoredStatusId, "ignore(\"ignore\")")
   }
 
   def testPropSpecPending(): Unit = {
-    runFileStructureViewTest(className, pendingStatusId, "property(\"pending\")")
+    runFileStructureViewTest(className, PendingStatusId, "property(\"pending\")")
   }
 
   def testPropSpecIgnoredAndPending(): Unit = {
-    runFileStructureViewTest(className, ignoredStatusId, "ignore(\"pending and ignore\")")
+    runFileStructureViewTest(className, IgnoredStatusId, "ignore(\"pending and ignore\")")
   }
 
 }

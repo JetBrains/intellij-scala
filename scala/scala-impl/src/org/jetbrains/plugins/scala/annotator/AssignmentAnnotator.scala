@@ -36,7 +36,7 @@ trait AssignmentAnnotator {
               left.`type`().foreach { lType =>
                 right.foreach { expression =>
                   expression.getTypeAfterImplicitConversion().tr.foreach { rType =>
-                    if(!rType.conforms(lType)) {
+                    if(!rType.conforms(lType) && !ScalaPsiUtil.isUnderscoreEq(assignment, rType)) {
                       val (expectedText, actualText) = ScTypePresentation.different(lType, rType)
                       val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
                       val annotation = holder.createErrorAnnotation(expression, message)

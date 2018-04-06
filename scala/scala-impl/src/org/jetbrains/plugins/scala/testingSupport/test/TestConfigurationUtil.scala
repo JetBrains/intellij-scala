@@ -136,7 +136,7 @@ object TestConfigurationUtil {
       case refExpr: ScReferenceExpression if noArgMethods.contains(refExpr.refName) =>
         processNoArgMethods(refExpr)
       case refExpr: ScReferenceExpression =>
-        refExpr.advancedResolve.map(_.getActualElement) match {
+        refExpr.bind().map(_.getActualElement) match {
           case Some(refPattern: ScReferencePattern) =>
             ScalaPsiUtil.nameContext(refPattern) match {
               case patternDef: ScPatternDefinition => patternDef.expr.flatMap(getStaticTestNameRaw(_, allowSymbolLiterals))

@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{PresentationTypeUpdaters, ScT
 
 package object refactoring {
   implicit class ScTypePresentationExt(val tpe: ScType) extends AnyVal {
-    def simplifyForPresentation: ScType                         = tpe.recursiveUpdateImpl(PresentationTypeUpdaters.cleanUp)
+    def simplifyForPresentation: ScType                         = tpe.recursiveUpdate(PresentationTypeUpdaters.cleanUp)
     def codeText(implicit ctx: TypePresentationContext): String = tpe.simplifyForPresentation.presentableText
     def canonicalCodeText: String                               = tpe.simplifyForPresentation.canonicalText
   }

@@ -203,7 +203,7 @@ object PatternAnnotator {
     import pattern.projectContext
 
     def constrPatternType(patternRef: ScStableCodeReferenceElement): Option[ScType] = {
-      patternRef.advancedResolve match {
+      patternRef.bind() match {
         case Some(srr) =>
           srr.getElement match {
             case fun: ScFunction if fun.parameters.count(!_.isImplicitParameter) == 1 =>
