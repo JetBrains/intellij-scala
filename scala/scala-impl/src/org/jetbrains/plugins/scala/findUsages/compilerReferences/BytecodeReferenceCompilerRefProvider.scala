@@ -5,14 +5,14 @@ import org.jetbrains.jps.backwardRefs.CompilerRef.{JavaCompilerFieldRef, JavaCom
 
 private class BytecodeReferenceCompilerRefProvider(writer: ScalaCompilerReferenceWriter)
     extends CompilerRefProvider[MemberReference] {
-  
+
   override def toCompilerRef(ref: MemberReference): CompilerRef = {
     val ownerId = writer.enumerateName(ref.owner)
-    val nameId = writer.enumerateName(ref.name)
-    
+    val nameId  = writer.enumerateName(ref.name)
+
     ref match {
-      case _: MethodReference => new JavaCompilerMethodRef(ownerId, nameId, 0)
-      case _: FieldReference => new JavaCompilerFieldRef(ownerId, nameId)
+      case mref: MethodReference => new JavaCompilerMethodRef(ownerId, nameId, mref.args)
+      case _: FieldReference     => new JavaCompilerFieldRef(ownerId, nameId)
     }
   }
 }

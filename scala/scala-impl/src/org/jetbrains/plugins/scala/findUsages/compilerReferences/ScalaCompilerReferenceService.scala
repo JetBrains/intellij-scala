@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import java.util
-import java.util.UUID
 import java.util.function.BiConsumer
 
 import com.intellij.compiler.CompilerReferenceService
 import com.intellij.compiler.backwardRefs.CompilerReferenceServiceBase
 import com.intellij.compiler.backwardRefs.CompilerReferenceServiceBase.{IndexCloseReason, IndexOpenReason}
-import com.intellij.compiler.server.{BuildManagerListener, CustomBuilderMessageHandler}
+import com.intellij.compiler.server.CustomBuilderMessageHandler
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerTopics}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -53,12 +52,10 @@ private[findUsages] class ScalaCompilerReferenceService(
     val connection = messageBus.connect(project)
     val publisher  = messageBus.syncPublisher(CompilerReferenceIndexingTopics.indexingStatus)
 
-    connection.subscribe(BuildManagerListener.TOPIC, new BuildManagerListener {
-      override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit =
-        if (project == self.project) closeReaderIfNeed(IndexCloseReason.COMPILATION_STARTED)
-    })
-
     connection.subscribe(CompilerReferenceIndexingTopics.indexingStatus, new CompilerReferenceIndexingStatusListener {
+      override def beforeIndexingStarted(): Unit =
+        closeReaderIfNeed(IndexCloseReason.COMPILATION_STARTED)
+
       override def onIndexingFinished(affectedModuleNames: Iterable[String]): Unit =
         openReaderIfNeed(IndexOpenReason.COMPILATION_FINISHED)
     })
@@ -80,6 +77,7 @@ private[findUsages] class ScalaCompilerReferenceService(
           val buildData = messageText.decode[BuildData]
 
           buildData.foreach { data =>
+            publisher.beforeIndexingStarted()
             val modules = data.affectedModules
             logger.debug(s"Building index for modules ${modules.mkString("[", ", ", "]")}")
 
@@ -109,7 +107,7 @@ private[findUsages] class ScalaCompilerReferenceService(
     val usages = Set.newBuilder[LinesWithUsagesInFile]
 
     for {
-      elementInfo <- asCompilerElements(target, buildHierarchyForLibraryElements = false, checkNotDirty = true).toOption
+      elementInfo <- asCompilerElements(target, buildHierarchyForLibraryElements = false, checkNotDirty = false).toOption
       reader      <- myReader.toOption
       targets     = elementInfo.searchElements
     } yield targets.foreach(target => usages ++= reader.findImplicitReferences(target))
@@ -127,7 +125,8 @@ private[findUsages] object ScalaCompilerReferenceService {
   private def referencingBytecodeElement(element: PsiElement): PsiElement = element match {
     case hasSyntheticGetter(getter)      => getter
     case isAnyValExtensionMethod(method) => method
-    case _                               => element
+    // @TODO: desugar generator arrows to map/flatMap/withFilter
+    case _ => element
   }
 
   object hasSyntheticGetter {

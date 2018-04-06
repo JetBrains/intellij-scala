@@ -8,7 +8,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 import org.jetbrains.jps.incremental.CompiledClass
 import org.jetbrains.plugin.scala.compilerReferences.BuildData
@@ -24,7 +23,7 @@ private class CompilerReferenceIndexer(project: Project) {
   private[this] val indexWriteLock = new ReentrantLock()
   private[this] val runningTasks   = mutable.ArrayBuffer.empty[Future[_]]
 
-  private[this] val parserJobQueue = new ConcurrentLinkedQueue[CompiledClass]()
+  private[this] val parserJobQueue = new ConcurrentLinkedQueue[Set[CompiledClass]]()
   private[this] val writerJobQueue = new LinkedBlockingDeque[WriterJob](1000)
   private[this] val nThreads       = Runtime.getRuntime.availableProcessors()
 
@@ -54,11 +53,11 @@ private class CompilerReferenceIndexer(project: Project) {
   private def parseClassfiles(writer: ScalaCompilerReferenceWriter): Unit =
     while (!parserJobQueue.isEmpty && !Thread.currentThread().isInterrupted) {
       try {
-        val target     = parserJobQueue.poll()
-        val sourceFile = Option(ContainerUtil.getFirstItem(target.getSourceFiles))
-        val parsed     = ClassfileParser.parse(target.getOutputFile)
-        val data       = sourceFile.map(ClassfileData(parsed, _, writer))
-        data.foreach(ProcessClassfile andThen writerJobQueue.put)
+        val classFiles = parserJobQueue.poll()
+        val sourceFile = classFiles.headOption.map(_.getSourceFile)
+        val parsed     = classFiles.map(cf => ClassfileParser.parse(cf.getOutputFile))
+        val data       = sourceFile.map(CompiledScalaFile(_, parsed, writer))
+        data.foreach(ProcessCompiledFile andThen writerJobQueue.put)
       } catch {
         case _: InterruptedException => Thread.currentThread().interrupt()
         case e: Throwable            => onException(writer, e)
@@ -84,9 +83,9 @@ private class CompilerReferenceIndexer(project: Project) {
           writer.getRebuildRequestCause.nullSafe.foreach(onException(writer, _))
           val job = writerJobQueue.poll(1, TimeUnit.SECONDS)
           job match {
-            case ProcessClassfile(data)   => writer.registerClassfileData(data)
-            case ProcessDeletedFile(file) => writer.processDeletedFile(file)
-            case null                     =>
+            case ProcessCompiledFile(data) => writer.registerClassfileData(data)
+            case ProcessDeletedFile(file)  => writer.processDeletedFile(file)
+            case null                      =>
           }
           processed += 1
         } catch {
@@ -101,10 +100,12 @@ private class CompilerReferenceIndexer(project: Project) {
       withLock(executionLock) {
 
         buildData.removedSources.iterator.map(ProcessDeletedFile).foreach(writerJobQueue.add)
-        buildData.compiledClasses.foreach(parserJobQueue.add)
+        buildData.compiledClasses.groupBy(_.getSourceFile).foreach {
+          case (_, classes) => parserJobQueue.add(classes)
+        }
 
         val writer =
-          indexDir(project).flatMap(ScalaCompilerReferenceWriter(_, buildData.isRebuild))
+          indexDir(project).flatMap(ScalaCompilerReferenceWriter(_, buildData.isCleanBuild))
 
         writer.foreach { writer =>
           val tasks = (1 to nThreads).map(
@@ -119,7 +120,13 @@ private class CompilerReferenceIndexer(project: Project) {
           val parsingTasks = tasks.map(parsingExecutor.submit(_))
 
           val indexingTask = indexWritingExecutor.submit(
-            toCallable(writeParsedClassfile(writer, progressIndicator, buildData.compiledClasses.size))
+            toCallable(
+              writeParsedClassfile(
+                writer,
+                progressIndicator,
+                buildData.compiledClasses.size + buildData.removedSources.size
+              )
+            )
           )
 
           runningTasks ++= parsingTasks
@@ -151,6 +158,6 @@ private object CompilerReferenceIndexer {
   private val logger = Logger.getInstance(classOf[CompilerReferenceIndexer])
 
   private sealed trait WriterJob
-  private final case class ProcessDeletedFile(file: String)      extends WriterJob
-  private final case class ProcessClassfile(data: ClassfileData) extends WriterJob
+  private final case class ProcessDeletedFile(file: String)             extends WriterJob
+  private final case class ProcessCompiledFile(data: CompiledScalaFile) extends WriterJob
 }

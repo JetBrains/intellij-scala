@@ -8,15 +8,15 @@ import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 
 private class ScalaCompilerReferenceWriter protected (
   index: ScalaCompilerReferenceIndex
-) extends CompilerReferenceWriter[ClassfileData](index) {
+) extends CompilerReferenceWriter[CompiledScalaFile](index) {
 
   def close(shouldClearIndex: Boolean): Unit = {
     if (shouldClearIndex) FileUtil.delete(index.getIndicesDir)
     super.close()
   }
 
-  def registerClassfileData(data: ClassfileData): Unit = {
-    val fileId = enumeratePath(data.sourceFile.getPath)
+  def registerClassfileData(data: CompiledScalaFile): Unit = {
+    val fileId = enumeratePath(data.file.getPath)
     writeData(fileId, data)
   }
 
@@ -35,6 +35,9 @@ private object ScalaCompilerReferenceWriter {
       
       if (isRebuild) Some(new ScalaCompilerReferenceWriter(new ScalaCompilerReferenceIndex(indexDir, readOnly = false)))
       else           None
-    } else Some(new ScalaCompilerReferenceWriter(new ScalaCompilerReferenceIndex(indexDir, readOnly = false)))
+    } else {
+      if (isRebuild) CompilerReferenceIndex.removeIndexFiles(indexDir)
+      Some(new ScalaCompilerReferenceWriter(new ScalaCompilerReferenceIndex(indexDir, readOnly = false)))
+    }
   }
 }

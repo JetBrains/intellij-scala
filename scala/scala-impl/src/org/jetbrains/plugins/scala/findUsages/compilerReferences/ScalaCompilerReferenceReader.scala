@@ -73,7 +73,7 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
           .map(identity) // scala arrays are invariant
       case _ => throw new IllegalArgumentException("Should never happen.")
     }
-    
+
     hierarchy.foreach { owner =>
       val overridden = ref.`override`(owner.getName)
       myIndex.get(ScalaCompilerIndices.backwardUsages).getData(overridden).forEach(action)
