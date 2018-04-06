@@ -5,11 +5,13 @@ import java.io.File
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.util.lang.UrlClassLoader
-import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, IvyResolver, MavenResolver, ResolvedDependency}
+import org.jetbrains.plugins.scala.DependencyManagerBase
+import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, IvyResolver, MavenResolver, ResolvedDependency, stripScalaVersion}
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
@@ -30,6 +32,7 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
   private val myAvailableLibraries = ArrayBuffer[LibraryDescriptor]()
   private val myExtensionInstances = mutable.HashMap[Class[_], ArrayBuffer[Any]]()
   private val myClassLoaders = mutable.HashMap[IdeaVersionDescriptor, UrlClassLoader]()
+  private val myListeners = mutable.ArrayBuffer[Runnable]()
 
   override def projectOpened(): Unit = loadCachedExtensions()
 
@@ -37,6 +40,12 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
     myAvailableLibraries.clear()
     myExtensionInstances.clear()
     myClassLoaders.clear()
+    ProgressManager.getInstance().run(new Task.Backgroundable(project, "Searching for library extensions", false) {
+      override def run(indicator: ProgressIndicator): Unit = doSearchExtensions(sbtResolvers)
+    })
+  }
+
+  private def doSearchExtensions(sbtResolvers: Set[SbtResolver]): Unit = {
     val allLibraries = ProjectLibraryTable.getInstance(project).getLibraries
     val ivyResolvers = sbtResolvers.toSeq.collect {
       case r: SbtMavenResolver => MavenResolver(r.name, r.root)
@@ -47,6 +56,8 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
     resolved.foreach(processResolvedExtension)
     val jarPaths = resolved.map(_.file.getAbsolutePath).toArray
     PropertiesComponent.getInstance(project).setValues("extensionJars", jarPaths)
+    if (resolved.nonEmpty)
+      myListeners.foreach(_.run())
   }
 
   private def getExtensionLibCandidates(libs: Seq[Library]): Set[DependencyDescription] = {
@@ -54,7 +65,7 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
 
     def processLibrary(lib: Library): Seq[DependencyDescription] = lib.getName.split(": ?") match {
       case Array("sbt", org, module, version, "jar") =>
-        val subst = patterns.map(_.replace(PAT_ORG, org).replace(PAT_MOD, module).replace(PAT_VER, version))
+        val subst = patterns.map(_.replace(PAT_ORG, org).replace(PAT_MOD, stripScalaVersion(module)).replace(PAT_VER, version))
         subst.map(_.split(s" *$PAT_SEP *")).collect {
           case Array(newOrg,newMod,newVer) => DependencyDescription(newOrg, newMod, newVer)
         }.toSeq
@@ -107,8 +118,10 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
 
   private def loadCachedExtensions(): Unit = {
     val jarPaths = PropertiesComponent.getInstance(project).getValues("extensionJars")
-    val fakeDependencies = jarPaths.map(path => ResolvedDependency(null, new File(path)))
-    fakeDependencies.foreach(processResolvedExtension)
+    if (jarPaths != null) {
+      val fakeDependencies = jarPaths.map(path => ResolvedDependency(null, new File(path)))
+      fakeDependencies.foreach(processResolvedExtension)
+    }
   }
 
   def getExtensions[T](iface: Class[T]): Seq[T] = {
@@ -116,6 +129,10 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
   }
 
   def getAvailableLibraries: Seq[LibraryDescriptor] = myAvailableLibraries
+
+  def addNewExtensionsListener(runnable: Runnable): Unit = myListeners += runnable
+
+  def removeNewExtensionsListener(runnable: Runnable): Unit = myListeners -= runnable
 
 }
 
