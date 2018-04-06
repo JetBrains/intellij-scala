@@ -19,6 +19,8 @@ import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager
+import org.jetbrains.plugins.scala.components.libextensions.api.psi.MacroTypeContributor
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.impl._
@@ -34,6 +36,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(project) {
 
   override def getComponentName = "ScalaMacroEvaluator"
+
+  override def projectOpened(): Unit = {
+    val extensionsManager = LibraryExtensionsManager.getInstance(project)
+    extensionsManager.addNewExtensionsListener { () =>
+      val newContributors = extensionsManager.getExtensions(classOf[MacroTypeContributor])
+      newContributors.foreach { typingRules ++= _.getTypingRules }
+    }
+  }
 
   def checkMacro(named: PsiNamedElement, context: MacroContext): Option[ScType] = {
     macroSupport(named, typingRules).flatMap {
@@ -60,14 +70,8 @@ class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(pro
       case _ => None
     }
   }
-}
 
-object ScalaMacroEvaluator {
-  def getInstance(project: Project): ScalaMacroEvaluator = ServiceManager.getService(project, classOf[ScalaMacroEvaluator])
-
-  private case class MacroImpl(name: String, clazz: String)
-
-  private val typingRules: Map[MacroImpl, ScalaMacroTypeable] = Map(
+  private var typingRules: Map[MacroImpl, ScalaMacroTypeable] = Map(
     MacroImpl("product", "shapeless.Generic")                                     -> ShapelessForProduct,
     MacroImpl("apply", "shapeless.LowPriorityGeneric")                            -> ShapelessForProduct,
     MacroImpl("materialize", "shapeless.Generic")                                 -> ShapelessMaterializeGeneric,
@@ -76,9 +80,16 @@ object ScalaMacroEvaluator {
     MacroImpl("selectDynamic", "shapeless.Witness")                               -> ShapelessWitnessSelectDynamic
   )
 
-  private val expansionRules: Map[MacroImpl, ScalaMacroExpandable] = Map(
+  private var expansionRules: Map[MacroImpl, ScalaMacroExpandable] = Map(
     MacroImpl("applyDynamic", "shapeless.ProductArgs") -> ShapelessProductArgs
   )
+
+}
+
+object ScalaMacroEvaluator {
+  def getInstance(project: Project): ScalaMacroEvaluator = ServiceManager.getService(project, classOf[ScalaMacroEvaluator])
+
+  case class MacroImpl(name: String, clazz: String)
 
   private val isMacroExpansionKey: Key[AnyRef] = Key.create("macro.original.expression")
 

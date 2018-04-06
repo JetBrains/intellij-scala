@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.components.libextensions.api.psi
 
-trait MacroTypeContributor {
+import org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroTypeable
+import org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator.MacroImpl
 
+trait MacroTypeContributor {
+  def getTypingRules: Map[MacroImpl, ScalaMacroTypeable]
 }
