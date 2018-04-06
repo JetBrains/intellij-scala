@@ -4,6 +4,7 @@ import java.awt._
 import java.text.MessageFormat
 
 import com.intellij.openapi.application.QueryExecutorBase
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.DialogWrapper
@@ -57,10 +58,10 @@ object ImplicitUsageSearcher {
 
   private[findUsages] case object CancelSearch extends BeforeImplicitSearchAction
 
-  private[findUsages] final case class BuildModules(modules: Seq[Module], rebuild: Boolean = false)
+  private[findUsages] final case class BuildModules(modules: Seq[Module], clean: Boolean = false)
       extends BeforeImplicitSearchAction
 
-  def assertSearchScopeIsSufficient(target: PsiNamedElement): Option[BeforeImplicitSearchAction] = {
+  private[findUsages] def assertSearchScopeIsSufficient(target: PsiNamedElement): Option[BeforeImplicitSearchAction] = {
     val (dirtyModules, upToDateModules) = dirtyModulesInDependencyChain(target)
 
     if (dirtyModules.nonEmpty) {
@@ -73,14 +74,17 @@ object ImplicitUsageSearcher {
           action = Option(showRebuildSuggestionDialog(dirtyModules, upToDateModules, validIndexExists, target))
         }
 
-      if (SwingUtilities.isEventDispatchThread) dialogAction()
-      else invokeAndWait(dialogAction())
-
+      inEventDispatchThread(dialogAction())
       action
     } else None
   }
+  
+  private def inEventDispatchThread[T](body: => T): Unit =
+    if (SwingUtilities.isEventDispatchThread) body
+    else invokeAndWait(body)
 
   private def dirtyModulesInDependencyChain(element: PsiElement): (Seq[Module], Seq[Module]) = {
+    inEventDispatchThread(FileDocumentManager.getInstance().saveAllDocuments())
     val project      = element.getProject
     val file         = PsiUtilCore.getVirtualFile(element)
     val index        = ProjectFileIndex.getInstance(project)
@@ -123,12 +127,12 @@ object ImplicitUsageSearcher {
           |but the use scope of member <code>{0}</code> contains dirty modules.<br>
           |<br>
           |You can:<br>
-          |-&nbsp;${moduleAction.capitalize} some of the modules before proceeding, or<br>
+          |-&nbsp;<strong>${moduleAction.capitalize}</strong> some of the modules before proceeding, or<br>
           |-&nbsp;Search for usages in already up-to-date modules: <br>
           | &nbsp;<code>{1}</code>
           |<br>
           |<br>
-          |Select the modules to $moduleAction:
+          |Select modules to <strong>$moduleAction</strong>:
           |</body>
           |</html>
           |""".stripMargin

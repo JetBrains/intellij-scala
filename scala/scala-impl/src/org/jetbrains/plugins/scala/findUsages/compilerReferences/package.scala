@@ -18,11 +18,14 @@ package object compilerReferences {
 
   def withLock[T](lock: Lock)(body: => T): T = {
     lock.lock()
-    val result = body
-    lock.unlock()
+    
+    val result = 
+      try body
+      finally lock.unlock()
+    
     result
   }
 
   def upToDateCompilerIndexExists(project: Project): Boolean =
-    indexDir(project).exists(CompilerReferenceIndex.versionDiffers(_, ScalaCompilerIndices.getIndices))
+    indexDir(project).exists(dir => !CompilerReferenceIndex.versionDiffers(dir, ScalaCompilerIndices.getIndices))
 }

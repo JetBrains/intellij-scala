@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.findUsages.factory
 
 import com.intellij.find.findUsages.{FindUsagesHandler, FindUsagesHandlerFactory}
 import com.intellij.openapi.compiler.CompilerManager
-import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiElement, PsiNamedElement}
@@ -60,8 +59,9 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       } else Option(unwrapped)
 
     replaced match {
-      case Some(e) => new ScalaFindUsagesHandler(e, this)
-      case None    => FindUsagesHandler.NULL_HANDLER
+      case Some(implicitSearchTarget(_)) if forHighlightUsages => FindUsagesHandler.NULL_HANDLER
+      case Some(e)                                             => new ScalaFindUsagesHandler(e, this)
+      case None                                                => FindUsagesHandler.NULL_HANDLER
     }
 
   }

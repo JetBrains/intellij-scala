@@ -40,7 +40,8 @@ private final case class FieldReference(
 private final case class MethodReference(
   override val owner: String,
   override val name: String,
-  override val line: Int
+  override val line: Int,
+  args: Int
 ) extends MemberReference
 
 private final case class ParsedClassfile(

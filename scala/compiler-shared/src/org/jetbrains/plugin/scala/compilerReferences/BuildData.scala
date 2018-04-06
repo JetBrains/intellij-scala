@@ -7,5 +7,5 @@ final case class BuildData(
   compiledClasses: Set[CompiledClass],
   removedSources: Set[String],
   affectedModules: Set[String],
-  isRebuild: Boolean
+  isCleanBuild: Boolean
 )

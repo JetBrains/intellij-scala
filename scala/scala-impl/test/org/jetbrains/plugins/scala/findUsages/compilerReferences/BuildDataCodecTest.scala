@@ -67,7 +67,7 @@ class BuildDataCodecTest {
       Set(fooClass, barClass),
       Set("foo", "bar", "baz"),
       Set("moduleFoo"),
-      isRebuild = false
+      isCleanBuild = false
     )
   }
 

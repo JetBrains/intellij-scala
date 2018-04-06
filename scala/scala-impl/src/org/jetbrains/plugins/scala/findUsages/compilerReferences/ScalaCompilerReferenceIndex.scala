@@ -7,4 +7,4 @@ import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 private[findUsages] class ScalaCompilerReferenceIndex(
   buildDir: File,
   readOnly: Boolean
-) extends CompilerReferenceIndex[ClassfileData](ScalaCompilerIndices.getIndices, buildDir, readOnly)
+) extends CompilerReferenceIndex[CompiledScalaFile](ScalaCompilerIndices.getIndices, buildDir, readOnly)

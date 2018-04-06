@@ -80,8 +80,10 @@ private object ClassfileParser {
 
     override def visitLineNumber(line: Int, start: Label): Unit = currentLineNumber = line
 
-    override def visitMethodInsn(opcode: Int, owner: String, name: String, desc: String, itf: Boolean): Unit =
-      handleRef(owner, name)(MethodReference)
+    override def visitMethodInsn(opcode: Int, owner: String, name: String, desc: String, itf: Boolean): Unit = {
+      val argsCount = Type.getArgumentTypes(desc).length
+      handleRef(owner, name)(MethodReference(_, _, _, argsCount))
+    }
 
     override def visitFieldInsn(opcode: Int, owner: String, name: String, desc: String): Unit =
       handleRef(owner, name)(FieldReference)
