@@ -13,10 +13,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.task._
 import monix.eval
 import monix.execution.{ExecutionModel, Scheduler}
+import monix.reactive.Consumer
 import org.jetbrains.bsp.BspProjectTaskRunner.BspTask
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
-import org.langmeta.jsonrpc.{ErrorCode, ErrorObject, RequestId, Response}
+import org.langmeta.jsonrpc._
 import org.langmeta.lsp.LanguageClient
 
 import scala.collection.JavaConverters._
@@ -52,40 +53,46 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
 
     implicit val scheduler: Scheduler = Scheduler(PooledThreadExecutor.INSTANCE, ExecutionModel.AlwaysAsyncExecution)
 
-    val base = new File(project.getBasePath)
-    val init: eval.Task[BspSession] = BspCommunication.initialize(base)
-
-    def compile(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileReport]] =
-      endpoints.BuildTarget.compile.request(CompileParams(targets))
-
-    val compileReport = for {
-      session <- init
-      compiled <- compile(session.client)
-    } yield {
-//      Left(Response.Error(ErrorObject(ErrorCode.InternalError, "dummy error", None), RequestId(-1)))
-      compiled
-    }
-
-    val bspTask = new BspTask(project, compileReport)
+    val bspTask = new BspTask(project, targets)
     ProgressManager.getInstance().run(bspTask)
   }
 }
 
 object BspProjectTaskRunner {
 
-  class BspTask(project: Project, task: monix.eval.Task[scala.Either[Response.Error, CompileReport]])(implicit scheduler: Scheduler)
+  class BspTask[T](project: Project, targets: Seq[BuildTargetIdentifier])(implicit scheduler: Scheduler)
     extends Task.Backgroundable(project, "bsp build", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
     private val taskId: UUID = UUID.randomUUID()
+    private val report = new BuildToolWindowReporter(project, taskId, "bsp build")
+
+    private val msgConsumer = Consumer.foreach[BaseProtocolMessage] { msg =>
+      val text = new String(msg.content)
+      report.output(text)
+    }
+
+    private def compile(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileReport]] =
+      endpoints.BuildTarget.compile.request(CompileParams(targets))
 
     override def run(indicator: ProgressIndicator): Unit = {
       val reportIndicator = new IndicatorReporter(indicator)
-      val report = new BuildToolWindowReporter(project, taskId, "bsp build")
       val messages = BuildMessages.empty
+
+      val projectRoot = new File(project.getBasePath)
+
+      val buildTask = for {
+        session <- BspCommunication.prepareSession(projectRoot)
+        msgs = session.messages.consumeWith(msgConsumer) // TODO cancel this on finish?
+        compiled <- session.run(compile(session.client))
+      } yield {
+        compiled
+      }
 
       reportIndicator.start()
       report.start()
-      val result = Await.result(task.runAsync, Duration.Inf)
+
+      val result = Await.result(buildTask.runAsync, Duration.Inf)
+
       result match {
         case Left(error) =>
           val message = error.error.message
@@ -99,5 +106,7 @@ object BspProjectTaskRunner {
       }
       reportIndicator.finish(messages)
     }
+
+
   }
 }

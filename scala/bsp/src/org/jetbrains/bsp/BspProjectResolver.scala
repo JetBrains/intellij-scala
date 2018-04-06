@@ -5,13 +5,15 @@ import java.io.File
 import ch.epfl.scala.bsp.endpoints
 import ch.epfl.scala.bsp.schema.WorkspaceBuildTargetsRequest
 import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.module.StdModuleTypes
 import monix.execution.{Cancelable, ExecutionModel, Scheduler}
+import monix.reactive.Consumer
 import org.jetbrains.bsp.BspProjectResolver.ActiveImport
 import org.jetbrains.ide.PooledThreadExecutor
+import org.langmeta.jsonrpc.BaseProtocolMessage
 import org.langmeta.lsp.LanguageClient
 
 import scala.concurrent.Await
@@ -32,17 +34,27 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
     implicit val scheduler: Scheduler = Scheduler(PooledThreadExecutor.INSTANCE, ExecutionModel.AlwaysAsyncExecution)
 
-    val initSession = BspCommunication.initialize(projectRoot)
+    def statusUpdate(msg: String): Unit = {
+      val ev = new ExternalSystemTaskNotificationEvent(id, msg)
+      listener.onStatusChange(ev)
+    }
+
+    val msgConsumer = Consumer.foreach[BaseProtocolMessage] { msg =>
+      val text = new String(msg.content)
+      listener.onTaskOutput(id, text, true)
+    }
 
     def targetsReq(implicit client: LanguageClient) =
       endpoints.Workspace.buildTargets.request(WorkspaceBuildTargetsRequest())
 
     val projectTask = for {
-      session <- initSession
-      targets <- targetsReq(session.client)
+      session <- BspCommunication.prepareSession(projectRoot)
+      _ = statusUpdate("session prepared")
+      msgs = session.messages.consumeWith(msgConsumer) // TODO cancel this on finish?
+      targets <- session.run(targetsReq(session.client))
     } yield {
 
-      session.close()
+      statusUpdate("targets fetched")
 
       // TODO handle error response
       val modules = for {
@@ -57,8 +69,6 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       }
 
       val projectData = new ProjectData(bsp.ProjectSystemId, projectRoot.getName, projectPath, projectPath)
-      projectData
-
       val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
 
       modules.foreach { data =>
@@ -69,11 +79,15 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       projectNode
     }
 
+    listener.onTaskOutput(id, "(starting task)", true)
+    statusUpdate("starting task")
+
     val running = projectTask.runAsync
     activeImport = Some(ActiveImport(running))
     val result = Await.result(running, Duration.Inf)
-
     activeImport = None
+
+    statusUpdate("finished task")
 
     result
   }

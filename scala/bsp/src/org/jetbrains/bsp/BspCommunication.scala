@@ -4,13 +4,14 @@ import java.io.File
 import java.nio.file.Files
 
 import ch.epfl.scala.bsp.endpoints
-import ch.epfl.scala.bsp.schema.{BuildClientCapabilities, InitializeBuildParams, InitializedBuildParams}
+import ch.epfl.scala.bsp.schema.{BuildClientCapabilities, InitializeBuildParams, InitializeBuildResult, InitializedBuildParams}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.typesafe.scalalogging.Logger
 import monix.eval.Task
-import monix.execution.{Cancelable, Scheduler}
-import org.langmeta.jsonrpc.{BaseProtocolMessage, Services}
+import monix.execution.Scheduler
+import monix.reactive.observables.ConnectableObservable
+import org.langmeta.jsonrpc.{BaseProtocolMessage, Response, Services}
 import org.langmeta.lsp.{LanguageClient, LanguageServer}
 import org.scalasbt.ipcsocket.UnixDomainSocket
 import org.slf4j.LoggerFactory
@@ -23,15 +24,68 @@ class BspCommunication(project: Project) extends AbstractProjectComponent(projec
 
 }
 
-// TODO session should be aware of connected state somehow
-class BspSession(runningClientServer: Cancelable, val client: LanguageClient) {
-  def close(): Unit = runningClientServer.cancel()
+class BspSession(val messages: ConnectableObservable[BaseProtocolMessage],
+                 implicit val client: LanguageClient,
+                 server: LanguageServer,
+                 initializedBuildParams: InitializeBuildParams,
+                 cleanup: Task[Unit]
+                ) {
+
+  // TODO should use IDEA logging
+  private val logger = Logger(LoggerFactory.getLogger(classOf[BspCommunication]))
+
+  /** Task starts client-server connection and connects message stream. Attach consumers to messages before running this. */
+  def run[T](task: Task[T])(implicit scheduler: Scheduler): Task[T] = {
+    val connection = messages.connect()
+    val runningClientServer = startClientServer
+
+    val whenDone = Task {
+      logger.info("closing bsp connection")
+      connection.cancel()
+      runningClientServer.cancel()
+    }
+
+    val resultTask = for {
+      initResult <- initRequest
+      _ = endpoints.Build.initialized.notify(InitializedBuildParams())
+      result <- task
+    } yield {
+      result
+    }
+
+    resultTask
+      .doOnCancel(whenDone)
+      .doOnFinish {
+        case Some(err) =>
+          logger.error("bsp connection error", err)
+          whenDone
+        case None => whenDone
+      }
+  }
+
+  private val initRequest =
+    endpoints.Build.initialize.request(initializedBuildParams)
+
+  private def startClientServer(implicit scheduler: Scheduler) =
+    server.startTask
+      .doOnFinish { errOpt => for {
+        cleaned <- cleanup
+      } yield {
+          logger.info("client/server closed")
+          errOpt.foreach { err =>
+            logger.info(s"client/server closed with error: $err")
+          }
+        }
+      }
+      .doOnCancel(cleanup)
+      .runAsync
+
 }
 
 object BspCommunication {
 
 
-  def initialize(base: File)(implicit scheduler: Scheduler): Task[BspSession] = {
+  def prepareSession(base: File)(implicit scheduler: Scheduler): Task[BspSession] = {
 
     // TODO should use IDEA logging
     val logger = Logger(LoggerFactory.getLogger(classOf[BspCommunication]))
@@ -53,68 +107,37 @@ object BspCommunication {
       logger.info(s"§ bloop: $msg")
       if (!bspReady.isCompleted && msg.contains(id)) bspReady.complete(Success(()))
     }
-    // TODO kill bloop process on cancel / error
-    val runBloop = Task.eval { Process(bspCommand, base).run(proclog) }
+    // TODO kill bloop process on cancel / error?
+    def runBloop = Process(bspCommand, base).run(proclog)
     val bspReadyTask = Task.fromFuture(bspReady.future)
 
-    val initSocket = Task { new UnixDomainSocket(sockfile.toString) }
+    val initParams = InitializeBuildParams(
+      rootUri = bloopConfigDir.toString,
+      Some(BuildClientCapabilities(List("scala")))
+    )
 
-    def initServer(socket: UnixDomainSocket) = Task {
-      val client: LanguageClient = new LanguageClient(socket.getOutputStream, logger)
-      val messages = BaseProtocolMessage.fromInputStream(socket.getInputStream)
+    def initSession = {
+      val socket = new UnixDomainSocket(sockfile.toString)
+      val messages = BaseProtocolMessage.fromInputStream(socket.getInputStream).replay
       val services = Services.empty
+      val client: LanguageClient = new LanguageClient(socket.getOutputStream, logger)
       val server = new LanguageServer(messages, client, services, scheduler, logger)
-      (client, server)
+      new BspSession(messages, client, server, initParams, cleanup(socket, sockfile.toFile))
     }
 
-    def initializeServerReq(implicit client: LanguageClient) = {
-      endpoints.Build.initialize.request(
-        InitializeBuildParams(
-          rootUri = bloopConfigDir.toString,
-          Some(BuildClientCapabilities(List("scala")))
-        )
-      )
-    }
-
-    def sendInitializedNotification(implicit client: LanguageClient): Unit =
-      endpoints.Build.initialized.notify(InitializedBuildParams())
-
-    def cleanup(socket: UnixDomainSocket): Task[Unit] = Task.eval {
-      logger.warn("cleaning up socket!!")
+    def cleanup(socket: UnixDomainSocket, socketFile: File): Task[Unit] = Task.eval {
       socket.close()
       socket.shutdownInput()
       socket.shutdownOutput()
-      sockfile.toFile.delete()
+      if (socketFile.isFile) socketFile.delete()
     }
 
-    def startClientServer(server: LanguageServer, socket: UnixDomainSocket) =
-      server.startTask
-        .doOnFinish { errOpt => Task {
-          cleanup(socket)
-          logger.info("client/server closed")
-          errOpt.foreach { err =>
-            logger.info(s"client/server closed with error: $err")
-          }
-        }}
-        .doOnCancel(cleanup(socket))
-        .runAsync
-
-    val initializeSequence = for {
-      bloopProcess <- runBloop
+    for {
+      bloopProcess <- Task(runBloop)
       _ <- bspReadyTask
-      socket <- initSocket
-      clientServer <- initServer(socket)
-      client = clientServer._1
-      server = clientServer._2
-      runningClientServer = startClientServer(server, socket)
-      init <- initializeServerReq(client)
     } yield {
-      // TODO handle init error response
-      sendInitializedNotification(client)
-      new BspSession(runningClientServer, client)
+      initSession
     }
-
-    initializeSequence
   }
 
 }
