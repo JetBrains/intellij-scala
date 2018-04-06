@@ -84,8 +84,6 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
   def isValidResult: Boolean = isAccessible && isApplicable()
 
-  def isCyclicReference = false
-
   def isRenamed: Option[String] = nameShadow
 
   def implicitFunction: Option[PsiNamedElement] = implicitConversion.map(_.element)

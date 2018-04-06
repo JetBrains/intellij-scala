@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
-import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -18,16 +17,8 @@ abstract class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl
 
   def resolve(): PsiElement = {
     bind() match {
-      case Some(result) if !result.isCyclicReference => result.element
+      case Some(result) => result.element
       case _ => null
-    }
-  }
-
-  @TestOnly
-  def advancedResolve: Option[ScalaResolveResult] = {
-    bind() match {
-      case Some(result) if !result.isCyclicReference =>  Some(result)
-      case _ => None
     }
   }
 
